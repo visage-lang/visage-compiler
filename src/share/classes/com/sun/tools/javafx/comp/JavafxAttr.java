@@ -3822,23 +3822,30 @@ public
     }
 
     public void visitInterpolate(JFXInterpolate tree) {
+        throw new Error();
+        /*
         tree.getVariable().accept(this);
         for (InterpolateValueTree t : tree.getInterpolateValues()) {
             checkInterpolationValue((JFXInterpolateValue)t, tree.getVariable());
         }
         Type owntype = tree.getVariable().type;
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
+        */
     }
 
     public void visitInterpolateValue(JFXInterpolateValue tree) {
-        assert false : "should not reach here";
-        result = syms.errType;
+        attribExpr(tree.attribute, env);
+        attribExpr(tree.value, env, tree.attribute.type);
+        if (tree.interpolation != null)
+            attribExpr(tree.interpolation, env);
+        result = check(tree, syms.javafx_KeyValueType, VAL, pkind, pt, pSequenceness);
     }
 
+    /*
     private void checkInterpolationValue(JFXInterpolateValue tree, JCExpression var) {
         final Type targetType;
         if (tree.getAttribute() != null) {
-            JCIdent t = tree.getAttribute();
+            JCExpression t = tree.getAttribute();
             JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
             localEnv.info.scope.owner = new MethodSymbol(BLOCK, names.empty, null, env.info.scope.owner);
             Name attribute = names.fromString(t.toString());
@@ -3865,6 +3872,7 @@ public
         tree.type = interpolateType;
         result = tree.type;
     }
+    */
     
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
         throw new UnsupportedOperationException("Not supported yet.");

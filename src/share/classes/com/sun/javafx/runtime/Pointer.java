@@ -17,6 +17,16 @@ public class Pointer {
     private final Location location;
     private final Type type;
 
+    public static Pointer make(Location location) {
+      Type type =
+        location instanceof IntLocation ? Type.INTEGER :
+        location instanceof DoubleLocation ? Type.DOUBLE :
+        location instanceof BooleanLocation ? Type.BOOLEAN :
+        location instanceof SequenceLocation ? Type.SEQUENCE :
+        Type.OBJECT;
+        return new Pointer(location, type);
+    }
+
     static Pointer make(IntLocation location) {
         return new Pointer(location, Type.INTEGER);
     }

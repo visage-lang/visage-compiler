@@ -476,8 +476,11 @@ stringFormat  returns [JCExpression expr]
 	| EMPTY_FORMAT_STRING				{ $expr = F.             Literal(TypeTags.CLASS, ""); }
 	;
 interpolateExpression  returns [JCExpression expr]
-@init { ListBuffer<JFXInterpolateValue> tweenProps = new ListBuffer<JFXInterpolateValue>(); }
-        : ^(SUCHTHAT identifier
+/*@init { ListBuffer<JFXInterpolateValue> tweenProps = new ListBuffer<JFXInterpolateValue>(); }*/
+        : ^(SUCHTHAT attr=expression target=boundExpression interp=boundExpression?)
+                                                        { $expr = F.at($attr.expr.pos).InterpolateValue($attr.expr, F.MaybeBindExpression($target.expr, $target.status), F.MaybeBindExpression($interp.expr, $interp.status));
+                                                          /* ... set endPos ... */}
+/*
             ( tweenValue                                { tweenProps.append($tweenValue.prop); } )*
            )                                            { $expr = F.at($identifier.expr.pos).Interpolate($identifier.expr, tweenProps.toList()); 
                                                           endPos($expr, tweenProps.toList()); }
@@ -485,16 +488,20 @@ interpolateExpression  returns [JCExpression expr]
             ( namedTweenValue                           { tweenProps.append($namedTweenValue.prop); } )*
            )                                            { $expr = F.at($identifier.expr.pos).Interpolate($identifier.expr, tweenProps.toList()); 
                                                           endPos($expr, tweenProps.toList()); }
+*/
         ;
+/*
 tweenValue returns [JFXInterpolateValue prop]
-        : ^(TWEEN expression name)                      { $prop = F.at($expression.expr.pos).InterpolateValue(null, $expression.expr, $name.value); 
-                                                          endPos($prop, $name.pos + $name.value.length()); }
+        : ^(TWEEN expr=expression interp=expression)                      { $prop = F.at($expression.expr.pos).InterpolateValue(null, $expr.expr, $interp.expr); 
+                                                          //endPos($prop, $interp.pos + $name.value.length());
+ }
         ;
 namedTweenValue returns [JFXInterpolateValue prop]
-        : ^(NAMED_TWEEN identifier expression name?)
-                                                        { $prop = F.at($identifier.expr.pos).InterpolateValue($identifier.expr, $expression.expr, $name.value); 
+        : ^(NAMED_TWEEN identifier expression interp=expression?)
+                                                        { $prop = F.at($identifier.expr.pos).InterpolateValue($identifier.expr, $expression.expr, $interp.expr); 
                                                           endPos($prop, $name.value != null ? $name.pos + $name.value.length() : $expression.expr.pos); }
         ;
+*/
 keyFrameLiteral returns [JFXKeyFrameLiteral expr]
 @init { ListBuffer<JFXInterpolate> exprs = new ListBuffer<JFXInterpolate>(); }
         : ^(AT time=expression 

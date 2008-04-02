@@ -761,9 +761,9 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         printInterpolateValue(tree);
     }
     
-    private void printTween(InterpolateValueTree tree) throws IOException {
-        String tween = tree.getInterpolation();
-        if (tween != null && tween.length() > 0) {
+    private void printTween(JFXInterpolateValue tree) throws IOException {
+        JCExpression tween = tree.getInterpolation();
+        if (tween != null) {
             print(" tween ");
             print(tween);
         }

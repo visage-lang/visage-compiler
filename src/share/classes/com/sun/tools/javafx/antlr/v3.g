@@ -721,23 +721,26 @@ catchClause
 	: CATCH LPAREN formalParameter RPAREN block
 						-> ^(CATCH formalParameter block)
 	;
+/*
 interpolateExpression
         : simpleInterpolate
         | blockInterpolate
         ;
 simpleInterpolate
-        : id=qualname SUCHTHAT tweenValue                       -> ^(SUCHTHAT $id tweenValue)
+        : attr=expression SUCHTHAT expr=boundPrimaryExpression (TWEEN interpolate=boundPrimaryExpression)?
+                                                               -> ^(SUCHTHAT $attr $expr $interpolate?)
         ;
+
 blockInterpolate
         : id=qualname SUCHTHAT LBRACE namedTweenValue (COMMA namedTweenValue)* RBRACE                 
                                                                 -> ^(SUCHTHAT_BLOCK $id namedTweenValue*)
         ;
 namedTweenValue
-        : id=qualname COLON expr=primaryExpression (TWEEN interpolate=name)? (COMMA | SEMI)?
+        : id=qualname COLON expr=primaryExpression (TWEEN interpolate=expression)? (COMMA | SEMI)?
                                                                 -> ^(NAMED_TWEEN $id $expr $interpolate?)
         ;
 tweenValue
-        : expr=primaryExpression TWEEN interpolate=name         -> ^(TWEEN $expr $interpolate)
+        : expr=primaryExpression TWEEN interpolate=expression   -> ^(TWEEN $expr $interpolate)
         ;
 keyFrameLiteral
         : AT LPAREN time=TIME_LITERAL RPAREN 
@@ -745,6 +748,7 @@ keyFrameLiteral
               (keyFrameTriggerClause?)
             RBRACE                              -> ^(AT $time interpolateExpression* keyFrameTriggerClause?)
         ;
+*/
 keyFrameTriggerClause
         : TRIGGER blockExpression (SEMI)        -> ^(TRIGGER blockExpression)
         ;
@@ -753,14 +757,19 @@ boundExpression
 						-> ^(BIND INVERSE? expression)
 	| expression				-> ^(EXPRESSION expression)
 	;
+boundPrimaryExpression 
+	: BIND primaryExpression
+						-> ^(BIND primaryExpression)
+	| primaryExpression				-> ^(EXPRESSION primaryExpression)
+	;
 expression 
        	: blockExpression
        	| ifExpression   		
        	| forExpression   	
        	| newExpression 	
 	| assignmentExpression	 
-        | interpolateExpression
-        | keyFrameLiteral
+        /*| interpolateExpression*/
+        /*| keyFrameLiteral*/
       	;
 forExpression
 	: FOR LPAREN inClause (COMMA inClause)* RPAREN expression
@@ -866,6 +875,8 @@ postfixExpression
 	         RBRACKET
                )
              )
+	   | SUCHTHAT expr=boundPrimaryExpression (TWEEN interpolate=boundPrimaryExpression)?
+                                                               -> ^(SUCHTHAT $postfixExpression $expr $interpolate?)
 	   ) * 
 	;
 primaryExpression  

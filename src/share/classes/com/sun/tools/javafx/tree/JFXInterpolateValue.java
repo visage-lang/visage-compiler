@@ -35,23 +35,23 @@ import com.sun.tools.javac.util.Name;
  *
  * @author tball
  */
-public class JFXInterpolateValue extends JFXTree implements InterpolateValueTree {
-    public JCIdent attribute;
+public class JFXInterpolateValue extends JFXExpression implements InterpolateValueTree {
+    public JCExpression attribute;
     public JCExpression value;
-    public Name interpolation;
+    public JCExpression interpolation;
     
-    public JFXInterpolateValue(JCIdent attr, JCExpression v, Name interp) {
+    public JFXInterpolateValue(JCExpression attr, JCExpression v, JCExpression interp) {
         attribute = attr;
         value = v;
         interpolation = interp;
     }
 
-    public JCIdent getAttribute() {
+    public JCExpression getAttribute() {
         return attribute;
     }
 
-    public String getInterpolation() {
-        return interpolation != null ? interpolation.toString() : null;
+    public JCExpression getInterpolation() {
+        return interpolation;
     }
 
     public JCExpression getValue() {

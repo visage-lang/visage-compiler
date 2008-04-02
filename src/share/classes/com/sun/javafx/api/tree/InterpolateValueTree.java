@@ -34,7 +34,7 @@ import com.sun.source.tree.IdentifierTree;
  * while 500 is the value to interpolate over.
  * @author tball
  */
-public interface InterpolateValueTree extends JavaFXTree {
+public interface InterpolateValueTree extends JavaFXExpressionTree {
     
     /**
      * Returns the target attribute to which this value applies.
@@ -42,14 +42,14 @@ public interface InterpolateValueTree extends JavaFXTree {
      * @return the target, or null if this value is declared outside of 
      *         an interpolate block expression.
      */
-    IdentifierTree getAttribute();
+    ExpressionTree getAttribute();
     
     /**
      * The interpolation to be run, such as <code>LINEAR</code> or 
      * <code>EASEIN</code>.
      * @return the interpolation name
      */
-    String getInterpolation();
+    ExpressionTree getInterpolation();
     
     /**
      * Returns the value for the interpolation.
