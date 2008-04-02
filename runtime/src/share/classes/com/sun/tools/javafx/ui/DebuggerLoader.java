@@ -26,6 +26,7 @@
 package com.sun.tools.javafx.ui;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  * Simple main-method invoker, so that arbitrary compiled FX classes can be
@@ -41,8 +42,9 @@ public class DebuggerLoader {
                 throw new IllegalArgumentException("class to debug not specified");
             Class<?> arg = Class.forName(args[0]);
             Class<?> c = Class.forName("com.sun.javafx.runtime.Entry");
-            Method m = c.getMethod("start", Class.class);
-            m.invoke(null, arg);
+            Method m = c.getMethod("start", Class.class, String[].class);
+            String[] progArgs = Arrays.copyOfRange(args, 1, args.length);
+            m.invoke(null, arg, progArgs);
         } catch (Exception e) {
             e.printStackTrace();
         }
