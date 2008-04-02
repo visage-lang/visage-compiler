@@ -173,7 +173,7 @@ public class ListBox extends ScrollableWidget {
                 }
             },
             com.sun.javafx.api.ui.ValueSetter {
-                public  function set(value:Object):Void {
+                public function set(value:Object):Void {
                     if(onDrop <> null) {
                         setDropValue(value);
                     }
@@ -181,7 +181,7 @@ public class ListBox extends ScrollableWidget {
             },
             com.sun.javafx.api.ui.ValueAcceptor {
                 public
-                bound function accept(value:Object):Boolean {
+                function accept(value:Object):Boolean {
                     return if(onDrop <> null and enableDND) {
                         acceptDrop(value);
                     } else {
@@ -195,7 +195,7 @@ public class ListBox extends ScrollableWidget {
             },
             com.sun.javafx.api.ui.VisualRepresentation {
                 public
-                bound function getComponent(value:Object):java.awt.Component {
+                function getComponent(value:Object):java.awt.Component {
                     var label = Label {
                         opaque: true
                         border: LineBorder {

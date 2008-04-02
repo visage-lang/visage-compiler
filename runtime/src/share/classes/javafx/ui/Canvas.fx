@@ -378,7 +378,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         UIElement.context.addTransferHandler(
             jsgpanel, dropType,
             com.sun.javafx.api.ui.ValueGetter {
-                public bound function get():Object {
+                public function get():Object {
                     return getDragValue();
                 }
             },
@@ -403,7 +403,7 @@ public class Canvas extends Widget, CanvasElement, Container {
                 }
             },
             com.sun.javafx.api.ui.VisualRepresentation {
-                public bound function getIcon(value:Object):javax.swing.Icon {
+                public function getIcon(value:Object):javax.swing.Icon {
                     var c = CanvasIcon {
                         content: [ getDragNode() ]
                     };
