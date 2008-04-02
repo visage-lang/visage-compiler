@@ -71,6 +71,7 @@
             <arg value="use.id.as.filename=1"/>
             <arg value="chunk.section.depth=0"/>
             <arg value="chunk.fast=1"/>
+            <arg value="draft.mode=yes"/>
         </java>
 	<copy file="doc/langspec/langref.css" tofile="${doc.build.dir}/html/langref.css"/>
     </target>

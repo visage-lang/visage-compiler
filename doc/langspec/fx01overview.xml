@@ -6,12 +6,12 @@
          xmlns:mml="http://www.w3.org/1998/Math/MathML"
          xmlns:html="http://www.w3.org/1999/xhtml"
          xmlns:db="http://docbook.org/ns/docbook">
-  <title>Introducing the JavaFX<trademark/> Script Programming Language</title>
+  <title>Introducing the <trademark>JavaFX</trademark> Script Programming Language</title>
 
   <sect1 id="overview">
     <title>Overview</title>          
 
-    <para>This chapter provides an overview of the JavaFX<trademark/> Script programming language. It describes -- at a high level -- its main features, saving detailed coverage of specific constructs for subsequent chapters. This book is intended for designers and developers of rich Internet client applications and elements, which run in web pages, as Java Web Start software, or as traditional desktop applications. It assumes the reader to be familiar with JavaScript and/or the Java programming language. While this book does not define a formal language specification, it can be considered a complete reference for all currently supported language features.</para>
+    <para>This chapter provides an overview of the <trademark>JavaFX</trademark> Script programming language. It describes -- at a high level -- its main features, saving detailed coverage of specific constructs for subsequent chapters. This book is intended for designers and developers of rich Internet client applications and elements, which run in web pages, as Java Web Start software, or as traditional desktop applications. It assumes the reader to be familiar with JavaScript and/or the Java programming language. While this book does not define a formal language specification, it can be considered a complete reference for all currently supported language features.</para>
 
     <para>The JavaFX Script programming language:</para>
 
