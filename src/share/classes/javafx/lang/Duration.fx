@@ -36,7 +36,7 @@ import java.lang.Math;
  * example, a two-and-a-half minute Duration instance can be defined in several
  * ways:
  * <code><pre>    Duration t = 2m + 30s;
-    Duration t = 2.5s;
+    Duration t = 2.5m;
     Duration t = 2500ms;</pre></code>
  */
 public class Duration extends Comparable {
