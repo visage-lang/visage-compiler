@@ -123,6 +123,14 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
+    public JCExpression MaybeBindExpression(JCExpression expr, JavafxBindStatus bindStatus) {
+        if (bindStatus == null || ! bindStatus.isBound())
+            return expr;
+        JFXBindExpression tree = new JFXBindExpression(expr, bindStatus);
+        tree.pos = pos;
+        return tree;
+    }
+
     public JFXBlockExpression BlockExpression(long flags, List<JCStatement> stats, JCExpression value) {
         JFXBlockExpression tree = new JFXBlockExpression(flags, stats, value);
         tree.pos = pos;
@@ -274,12 +282,18 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
             Name attrName,
             JCExpression expr,
             JavafxBindStatus bindStatus) {
-        JFXObjectLiteralPart tree = new JFXObjectLiteralPart(attrName, expr,
-                bindStatus, null);
+        return ObjectLiteralPart(attrName, MaybeBindExpression(expr, bindStatus));
+    }
+
+    public JFXObjectLiteralPart ObjectLiteralPart(
+            Name attrName,
+            JCExpression expr) {
+        JFXObjectLiteralPart tree =
+                new JFXObjectLiteralPart(attrName, expr, null);
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXType  TypeAny(Cardinality cardinality) {
         JFXType tree = new JFXTypeAny(cardinality);
         tree.pos = pos;

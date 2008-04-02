@@ -37,9 +37,8 @@ import com.sun.javafx.api.JavafxBindStatus;
  * In object literal  "Identifier ':' [ 'bind' 'lazy'?] expression"
  */
 public class JFXObjectLiteralPart extends JFXStatement implements ObjectLiteralPartTree {
-    public JCExpression expr;
+    private JCExpression expr;
     public Name name; // Make this an Ident. Tools might need position information.
-    private JavafxBindStatus bindStatus;
     private JCExpression translationInit = null;
     public Symbol sym;
    /*
@@ -53,21 +52,42 @@ public class JFXObjectLiteralPart extends JFXStatement implements ObjectLiteralP
             JavafxBindStatus bindStatus,
             Symbol sym) {
         this.name = name;
+        this.expr = bindStatus == JavafxBindStatus.UNBOUND ? expr :
+            new JFXBindExpression(expr, bindStatus);
+        this.sym = sym;
+    }
+
+   /*
+    * @param selector member name and class name of member
+    * @param init type of attribute
+    * @param sym attribute symbol
+    */
+    protected JFXObjectLiteralPart(
+            Name name,
+            JCExpression expr,
+            Symbol sym) {
+        this.name = name;
         this.expr = expr;
-        this.bindStatus = bindStatus;
         this.sym = sym;
     }
     public void accept(JavafxVisitor v) { v.visitObjectLiteralPart(this); }
     
     public javax.lang.model.element.Name getName() { return name; }
-    public JCExpression getExpression() { return expr; }
+    public JCExpression getExpression() {
+        return expr instanceof JFXBindExpression ?
+            ((JFXBindExpression) expr).getExpression() :
+            expr; }
+    public JCExpression getMaybeBindExpression() { return expr; }
     public void setTranslationInit(JCExpression tra) { translationInit = tra; }
     public JCExpression getTranslationInit() { assert false : "currently not being used"; return translationInit; }
-    public JavafxBindStatus getBindStatus() { return bindStatus; }
-    public boolean isBound()     { return bindStatus.isBound(); }
-    public boolean isUnidiBind() { return bindStatus.isUnidiBind(); }
-    public boolean isBidiBind()  { return bindStatus.isBidiBind(); }
-    public boolean isLazy()      { return bindStatus.isLazy(); }
+    public JavafxBindStatus getBindStatus() {
+        return expr instanceof JFXBindExpression ?
+            ((JFXBindExpression) expr).getBindStatus() :
+            JavafxBindStatus.UNBOUND; }
+    public boolean isBound()     { return getBindStatus().isBound(); }
+    public boolean isUnidiBind() { return getBindStatus().isUnidiBind(); }
+    public boolean isBidiBind()  { return getBindStatus().isBidiBind(); }
+    public boolean isLazy()      { return getBindStatus().isLazy(); }
 
     @Override
     public int getTag() {

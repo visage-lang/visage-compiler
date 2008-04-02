@@ -922,10 +922,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         assert toJava.shouldMorph(vmi);
 
                         // Lift JFXObjectLiteralPart if needed
-                        if (types.isSequence(olpart.type)) {  
-                            if (!types.isSequence(olpart.expr.type)) {
-                                init = ((JavafxTreeMaker) m()).ExplicitSequence(List.<JCExpression>of(olpart.expr));
-                                WildcardType tpType = new WildcardType(olpart.expr.type, BoundKind.EXTENDS, olpart.expr.type.tsym);
+                        if (types.isSequence(olpart.type)) {
+                            JCExpression olexpr = olpart.getExpression();
+                            if (!types.isSequence(olexpr.type)) {
+                                init = ((JavafxTreeMaker) m()).ExplicitSequence(List.<JCExpression>of(olexpr));
+                                WildcardType tpType = new WildcardType(olexpr.type, BoundKind.EXTENDS, olexpr.type.tsym);
                                 init.type = new ClassType(((JavafxSymtab) syms).javafx_SequenceType, List.<Type>of(tpType), ((JavafxSymtab) syms).javafx_SequenceType.tsym);
                             }
                         }
@@ -3444,10 +3445,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized that) {
         result = that;
     }
-    
+
     public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
-        that.expr = translate(that.expr);
-        result = that;
+        throw new Error();
     }  
     
     public void visitTypeAny(JFXTypeAny that) {
