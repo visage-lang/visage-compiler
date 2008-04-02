@@ -118,9 +118,9 @@ textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);</programlisting>
 
             <tbody>
               <tr>
-                <th style="text-decoration: underline; font-family: sans-serif;">JavaFX</th>
+                <th style="text-decoration: underline; font-family: sans-serif; margin-left: 3pt;">JavaFX</th>
 
-                <th style="text-decoration: underline; font-family: sans-serif;">Java</th>
+                <th style="text-decoration: underline; font-family: sans-serif; margin-left: 3pt; ">Java</th>
               </tr>
 
               <tr>
