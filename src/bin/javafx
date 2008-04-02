@@ -51,7 +51,7 @@ else
   USER_CP="$CLASSPATH"
 fi 
 classpath="$USER_CP"
-bootclasspath="$JFX_HOME/Reprise.jar:$JFX_HOME/javafxrt.jar:$JFX_HOME/@SCENEGRAPH_JAR@:$JFX_HOME\Decora-HW.jar:$JFX_HOME\Decora-D3D.jar"
+bootclasspath="$JFX_HOME/Reprise.jar:$JFX_HOME/javafxrt.jar:$JFX_HOME/@SCENEGRAPH_JAR@:$JFX_HOME/Decora-HW.jar:$JFX_HOME/Decora-D3D.jar:$JFX_HOME/jmc.jar"
 nativelibpath="$JFX_HOME"
 
 args=""
