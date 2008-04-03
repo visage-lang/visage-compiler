@@ -149,7 +149,7 @@ public abstract class Node extends CanvasElement, Transformable {
                             var prev = if (MOUSE_DRAG <> null)
                                             then MOUSE_DRAG
                                         else MOUSE_PRESS;
-                            var screen = = new java.awt.Point(0,); //!!getScreenLocation(getCanvas().getComponent());
+                            var screen = new java.awt.Point(0,0); //!!getScreenLocation(getCanvas().getComponent());
                             if (prev <> null) {
                                if (MOUSE_DRAG_SCREEN == null) {
                                    MOUSE_DRAG_SCREEN = screen;
