@@ -66,7 +66,13 @@ public class Pattern extends Paint {
     /** The graphic objects that will be used to create the tile that this pattern will paint.*/
     public attribute content: Node[];
     
-    public function getPaint():java.awt.Paint{
+    public bound function getPaint():java.awt.Paint{
+        getTexturePaint(texturePaint)
+    }    
+    
+    /* hack to force makeTexture on changes to texturePain
+     */
+    private function getTexturePaint(texturePaint: TexturePaint):java.awt.Paint{
         makeTexture();
         if (texturePaint == null) {
             return Color.BLACK;

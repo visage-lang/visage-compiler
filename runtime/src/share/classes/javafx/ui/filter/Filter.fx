@@ -27,5 +27,5 @@ package javafx.ui.filter;
 
 public abstract class Filter {
     // TODO: ideally this would not be publicly visible
-    public abstract function getImpl():com.sun.scenario.effect.Effect;
+    public abstract bound function getImpl():com.sun.scenario.effect.Effect;
 }

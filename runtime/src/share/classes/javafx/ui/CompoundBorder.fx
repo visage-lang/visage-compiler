@@ -29,20 +29,24 @@ package javafx.ui;
 public class CompoundBorder  extends Border {
     public attribute borders: Border[];
     
-    public function getBorder():javax.swing.border.Border {
-        var result = new javax.swing.border.CompoundBorder(borders[0].getBorder(),
-                                                        borders[1].getBorder());
+    public bound function getBorder():javax.swing.border.Border {
+        constructCompoundBorder(borders);
+    }
+    
+    private function constructCompoundBorder(theBorders: Border[]):javax.swing.border.Border {
+        var result = new javax.swing.border.CompoundBorder(theBorders[0].getBorder(),
+                                                        theBorders[1].getBorder());
         //for (i in [2..<sizeof borders) {
         //TODO fix sizeof
         //var numBorders = sizeof borders - 1;
         //WORK AROUND
         var numBorders = 0;
-        for(b in borders) numBorders = numBorders + 1;  //TODO: revert to ++ when that works
+        for(b in theBorders) numBorders = numBorders + 1;  //TODO: revert to ++ when that works
         // END WORK AROUND
         if(numBorders > 2) {
             for (i in [2..<numBorders]) {
                 result = new javax.swing.border.CompoundBorder(result,
-                                                            borders[i].getBorder());
+                                                            theBorders[i].getBorder());
             };
         }
         return result;

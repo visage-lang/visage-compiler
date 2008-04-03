@@ -30,7 +30,7 @@ import javafx.ui.Color;
 public class DropShadow extends Filter {
     private attribute shadow = new com.sun.scenario.effect.DropShadow();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    public bound function getImpl():com.sun.scenario.effect.Effect {
         shadow
     };
 

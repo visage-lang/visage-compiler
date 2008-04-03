@@ -33,17 +33,19 @@ package javafx.ui;
 public class Icon {
     protected attribute icon: javax.swing.Icon;
     
-    public function getImage(): java.awt.Image {
-        return null; // Default
+    public bound function getImage(): java.awt.Image {
+        null // Default
     }
-    public function getIcon(): javax.swing.Icon {
-        if (icon == null) then {
-            icon = this.createIcon();
-        };
-        return icon;
+    
+    public bound function getIcon(): javax.swing.Icon {
+        if (icon == null)
+            icon = this.createIcon()
+        else
+            icon
     }
+    
     protected function createIcon(): javax.swing.Icon {
-        return null;
+        null
     }
 
 }

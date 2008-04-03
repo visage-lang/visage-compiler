@@ -863,8 +863,8 @@ public abstract class Widget extends GroupElement, UIElement {
         } 
     };
 
-    public function getWindow():java.awt.Window {
-        return javax.swing.SwingUtilities.getWindowAncestor(this.getComponent());
+    public bound function getWindow():java.awt.Window {
+        javax.swing.SwingUtilities.getWindowAncestor(this.getComponent());
     }  
     
     private function installKeyListener():Void {

@@ -28,22 +28,27 @@ package javafx.ui.canvas;
 
 import javafx.ui.Icon;
 import javafx.ui.Canvas;
+import com.sun.scenario.scenegraph.JSGPanel;
 
 public class CanvasIcon extends Icon {
     // TODO MARK AS FINAL
     private attribute canvas: Canvas = Canvas {content: bind content};
     
     public attribute content: Node[];
-    public function getIcon(): javax.swing.Icon {
-        canvas.getComponent();
-        return canvas.jsgpanel.toIcon(); // TODO: toIcon()
+    public bound function getIcon(): javax.swing.Icon {
+        return getJSGPanel().toIcon(); // TODO: toIcon()
     }
 
-    public function getImage(): java.awt.Image {
-        canvas.getComponent();
-        return canvas.jsgpanel.getIconImage(); // TODO: getIconImage()
+    public bound function getImage(): java.awt.Image {
+        return getJSGPanel().getIconImage(); // TODO: getIconImage()
     }
 
+    /* hack so that getComponent can be called (from bound functions) is this needed? 
+     */
+    private function getJSGPanel() : JSGPanel {
+        canvas.getComponent();
+        return canvas.jsgpanel
+    }
 }
 
 

@@ -27,5 +27,5 @@ package javafx.ui;
 
 
 public abstract class AbstractColor extends Paint {
-     public abstract function getColor(): java.awt.Color;
+     public abstract bound function getColor(): java.awt.Color;
 }

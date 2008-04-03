@@ -28,5 +28,5 @@ package javafx.ui;
 
 
 public abstract class Paint {
-     public abstract function getPaint():java.awt.Paint;
+     public abstract bound function getPaint():java.awt.Paint;
 }

@@ -28,7 +28,7 @@ package javafx.ui.filter;
 public class Reflection extends Filter {
     private attribute reflect = new com.sun.scenario.effect.Reflection();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    public bound function getImpl():com.sun.scenario.effect.Effect {
         reflect
     };
 

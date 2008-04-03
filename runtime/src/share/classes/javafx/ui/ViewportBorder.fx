@@ -28,7 +28,7 @@ package javafx.ui;
 
 public class ViewportBorder extends Border  {
 
-    public function getBorder():javax.swing.border.Border {
+    public bound function getBorder():javax.swing.border.Border {
         return javax.swing.UIManager.getBorder("Scrollpane.viewportBorder");
     }
 }

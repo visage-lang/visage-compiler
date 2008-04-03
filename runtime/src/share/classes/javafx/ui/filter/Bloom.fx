@@ -28,7 +28,7 @@ package javafx.ui.filter;
 public class Bloom extends Filter {
     private attribute bloom = new com.sun.scenario.effect.Bloom();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    public bound function getImpl():com.sun.scenario.effect.Effect {
         bloom
     };
 

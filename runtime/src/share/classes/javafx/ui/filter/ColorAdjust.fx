@@ -28,7 +28,7 @@ package javafx.ui.filter;
 public class ColorAdjust extends Filter {
     private attribute adjust = new com.sun.scenario.effect.ColorAdjust();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    public bound function getImpl():com.sun.scenario.effect.Effect {
         adjust
     };
 

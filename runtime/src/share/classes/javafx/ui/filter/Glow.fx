@@ -28,7 +28,7 @@ package javafx.ui.filter;
 public class Glow extends Filter {
     private attribute glow = new com.sun.scenario.effect.Glow();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    public bound function getImpl():com.sun.scenario.effect.Effect {
         glow
     };
 

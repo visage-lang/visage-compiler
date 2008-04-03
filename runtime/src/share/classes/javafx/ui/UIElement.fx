@@ -177,7 +177,7 @@ public class UIElement {
         = new HashMap/*<ThreadGroup,Map<String,UIContext>>*/;
 
     // Not abstract this is the default implementation
-    public function getWindow():java.awt.Window {return null; }
+    public bound function getWindow():java.awt.Window {return null; }
     public attribute lookAndFeel: String = null
         on replace {
 	if (lookAndFeel <> null) {

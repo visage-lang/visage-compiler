@@ -45,13 +45,20 @@ public class CanvasImage extends Image {
             UIElement.context.defineImage(imageUrl, image);
         }
     };
+    
     public attribute content: Node on replace  {
         if (canvas <> null) {
             canvas.content = [ content ];
         }
-    };
+    }
 
-    public function getImage():java.awt.Image {
+    public bound function getImage():java.awt.Image {
+        retrieveImage(canvasIcon, canvas, url)
+    }
+
+    /* hack to make bound getImage dependent on canvas, icon, and url
+     */
+    public function retrieveImage(dummyCanvasIcon: javax.swing.Icon, dummyCanvas: Canvas, dummyURL : String):java.awt.Image {
         if (canvas == null) {
             canvas = Canvas { content: [this.content] };
         }

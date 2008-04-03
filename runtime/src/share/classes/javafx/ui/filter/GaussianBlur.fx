@@ -28,7 +28,7 @@ package javafx.ui.filter;
 public class GaussianBlur extends Filter {
     private attribute blur = new com.sun.scenario.effect.GaussianBlur();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    public bound function getImpl():com.sun.scenario.effect.Effect {
         blur
     };
 

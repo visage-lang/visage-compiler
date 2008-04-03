@@ -42,7 +42,7 @@ public class Lighting extends Filter {
         phong.setSpecularExponent(20);
     }
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    public bound function getImpl():com.sun.scenario.effect.Effect {
         phong
     };
 

@@ -29,7 +29,7 @@ import com.sun.javafx.api.ui.JShadowedBorder;
 
 public class ShadowedBorder extends Border  {
     
-    public function getBorder():javax.swing.border.Border {
+    public bound function getBorder():javax.swing.border.Border {
         return new JShadowedBorder();
     }
 }

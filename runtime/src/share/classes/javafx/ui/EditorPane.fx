@@ -242,7 +242,7 @@ public class EditorPane extends ScrollableWidget {
                         acceptDrop(value);
                     } else {
                         enableDND;
-                    };
+                    }
                 }
                 public function dragEnter(value:Object):Void {
                 }

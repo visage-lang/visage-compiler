@@ -30,7 +30,7 @@ import javafx.ui.Image;
 public class Identity extends Filter {
     private attribute identity = new com.sun.scenario.effect.Identity(null);
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    public bound function getImpl():com.sun.scenario.effect.Effect {
         identity
     };
     

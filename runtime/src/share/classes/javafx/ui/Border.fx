@@ -27,6 +27,6 @@ package javafx.ui;
 
 
 public abstract class Border {
-    public abstract function getBorder():javax.swing.border.Border;
+    public abstract bound function getBorder():javax.swing.border.Border;
 
 }

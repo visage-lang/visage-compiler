@@ -42,24 +42,23 @@ public abstract class CanvasElement {
         }
     }
     
-    //TODO: MH marked as bound
-    /** Returns the canvas element that contains this element */
-    public bound function getContainer(): Container{
-        return getParentContainer(parentCanvasElement);
-    }
+   /** Returns the canvas element that contains this element */
+   public bound function getContainer(): Container{
+       return getParentContainer(parentCanvasElement);
+   }
 
-    /** Returns the closest parent which is a container */
-    private static function getParentContainer(p: CanvasElement): Container{
-        while (p <> null) {
-            if (p instanceof Container) {
-                return p as Container;
-            }
-            p = p.parentCanvasElement;
-        }
-        return null;
-    }
+   /** Returns the closest parent which is a container */
+   private static function getParentContainer(p: CanvasElement): Container{
+       while (p <> null) {
+           if (p instanceof Container) {
+               return p as Container;
+           }
+           p = p.parentCanvasElement;
+       }
+       return null;
+   }
 
-    protected function onSetCanvas(canvas:Canvas):Void {}
+   protected function onSetCanvas(canvas:Canvas):Void {}
     /** raise this element above its next sibling */
     public function raise() {
         if (this instanceof Node) {

@@ -54,7 +54,7 @@ public abstract class Gradient extends Transformable, Paint  {
         return gradient;
     }
 
-     public function getPaint():java.awt.Paint {
+     public bound function getPaint():java.awt.Paint {
         return getGradient();
      }
 

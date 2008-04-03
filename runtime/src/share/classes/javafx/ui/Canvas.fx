@@ -285,7 +285,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         }
     }
 
-    public function getCanvas() {
+    public bound function getCanvas() {
         return this;
     }
 
@@ -391,7 +391,7 @@ public class Canvas extends Widget, CanvasElement, Container {
                 public function accept(value:Object):Boolean {
                     if (javaBroken) {
                         return true;
-                    }
+                }
                     var result = acceptDrop(value);
                     return result;
                 }

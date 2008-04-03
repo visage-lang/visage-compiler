@@ -28,7 +28,7 @@ package javafx.ui.filter;
 public class SepiaTone extends Filter {
     private attribute sepia = new com.sun.scenario.effect.SepiaTone();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    public bound function getImpl():com.sun.scenario.effect.Effect {
         sepia
     };
 
