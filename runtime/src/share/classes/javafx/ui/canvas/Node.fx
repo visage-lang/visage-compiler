@@ -107,7 +107,7 @@ public abstract class Node extends CanvasElement, Transformable {
                         focused = true;
                         Node.MOUSE_PRESS = e;        
                         var c = getCanvas();
-                        MOUSE_DRAG_SCREEN = getScreenLocation(c.getComponent());
+                        //MOUSE_DRAG_SCREEN = getScreenLocation(c.getComponent());
                         if (onMousePressed <> null) {
                             (onMousePressed)(makeCanvasMouseEvent(e));
                             e.consume();
@@ -149,7 +149,7 @@ public abstract class Node extends CanvasElement, Transformable {
                             var prev = if (MOUSE_DRAG <> null)
                                             then MOUSE_DRAG
                                         else MOUSE_PRESS;
-                            var screen = getScreenLocation(getCanvas().getComponent());
+                            var screen = = new java.awt.Point(0,); //!!getScreenLocation(getCanvas().getComponent());
                             if (prev <> null) {
                                if (MOUSE_DRAG_SCREEN == null) {
                                    MOUSE_DRAG_SCREEN = screen;
@@ -212,7 +212,7 @@ public abstract class Node extends CanvasElement, Transformable {
         var screenY = 0.0;
         // Temporary hack to allow Scenario3D to receive mouse events
         try {
-            var loc = c.getComponent().getLocationOnScreen();
+            var loc = new java.awt.Point(0,0); //!!c.getComponent().getLocationOnScreen();
             screenX = loc.getX() + e.getX();
             screenY = loc.getY() + e.getY();
         } catch (ignore) {
@@ -281,7 +281,12 @@ public abstract class Node extends CanvasElement, Transformable {
                not (comp instanceof java.applet.Applet)) {
             comp = comp.getParent();
         }
-        return comp.getLocationOnScreen();
+        //!!TODO what if comp is null????
+        if(comp == null) {
+            return component.getLocationOnScreen();
+        } else {
+        	return comp.getLocationOnScreen();
+        }
     }
 
     private function updateEffect() {
