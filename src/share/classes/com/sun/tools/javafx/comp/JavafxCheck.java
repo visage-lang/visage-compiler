@@ -52,6 +52,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
@@ -393,17 +394,11 @@ public class JavafxCheck {
 
     private Type deLocationize(Type external) {
 	if (external.tag == CLASS) {
-            Name tname = ((ClassSymbol) external.tsym).flatname;
-            if (tname == defs.variableClassName[TYPE_KIND_OBJECT])
-                return ((ClassType)external).getTypeArguments().head;
-            else if (tname == defs.variableClassName[TYPE_KIND_SEQUENCE])
+            Name flatname = ((ClassSymbol) external.tsym).flatname;
+            Type deloc = defs.delocationize(flatname);
+            if (deloc != null) {
                 throw new AssertionError("At this point we should not have Location(s). This is most likely JavafxReader problem. It should convert all the Location types to the \"real\" types.");
-            else if (tname == defs.variableClassName[TYPE_KIND_BOOLEAN])
-                return syms.booleanType;
-            else if (tname == defs.variableClassName[TYPE_KIND_DOUBLE])
-                return syms.doubleType;
-            else if (tname == defs.variableClassName[TYPE_KIND_INT])
-                return syms.intType;
+            }
         }
         return external;
     }
@@ -1270,9 +1265,7 @@ public
      *  @param origin       The class of which the overriding method
      *			    is a member.
      */
-// Javafx modification
 public
-// Javafx modification
     void checkOverride(JCTree tree,
 		       MethodSymbol m,
 		       MethodSymbol other,
@@ -1298,11 +1291,27 @@ public
 	    log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), "override.meth",
 		      cannotOverride(m, other),
 		      JavafxTreeInfo.flagNames(other.flags() & (FINAL | STATIC)));
-	    return;
-	}
+            return;
+        }
+
+    if (defs.useCorrectBoundFunctionSemantics) {
+        // Error if bound function overrides non-bound.
+        if ((other.flags() & JavafxFlags.BOUND) == 0 && (m.flags() & JavafxFlags.BOUND) != 0) {
+            log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), "javafx.bound.override.meth",
+                    cannotOverride(m, other));
+            return;
+        }
+
+        // Error if non-bound function overrides bound.
+        if ((other.flags() & JavafxFlags.BOUND) != 0 && (m.flags() & JavafxFlags.BOUND) == 0) {
+            log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), "javafx.non.bound.override.meth",
+                    cannotOverride(m, other));
+            return;
+        }
+    }
 
         if ((m.owner.flags() & ANNOTATION) != 0) {
-            // handled in validateAnnotationMethod
+                // handled in validateAnnotationMethod
             return;
         }
 

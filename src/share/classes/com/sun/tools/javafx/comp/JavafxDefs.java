@@ -25,9 +25,12 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
+import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
+import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
 /**
  * Shared definitions
@@ -39,7 +42,6 @@ public class JavafxDefs {
     /**
      * static string definitions
      */
-    public static final String boundFunctionSuffix = "$$bound"; // Add an extra $ character so it doesn't get confused with an inner class named $bound
     public static final String boundFunctionDollarSuffix = "$$bound$";
     public static final String implFunctionSuffix = "$impl";
     public static final String attributeGetMethodNamePrefix = "get$";
@@ -79,6 +81,8 @@ public class JavafxDefs {
     
     public char typeCharToEscape = '.';
     public char escapeTypeChar = '_';
+    
+    public static final boolean useCorrectBoundFunctionSemantics = false;
      
     /**
      * Name definitions
@@ -114,12 +118,25 @@ public class JavafxDefs {
     final Name[][] locationSetMilieuMethodName;
     final Name[] locationBindMilieuMethodName;
     final Name[] locationBijectiveBindMilieuMethodName;
-    final Name[] variableClassName;
+    
+    public final Name[] locationVariableName;
+    public final Name[] locationInterfaceName;
+    
+    public Type delocationize(Name flatname) {
+        for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
+            if (flatname == locationVariableName[kind] || flatname == locationInterfaceName[kind]) {
+                return realTypeByKind[kind];
+            }
+        }
+        return null;
+    }
 
     /**
      * Context set-up
      */
     protected static final Context.Key<JavafxDefs> jfxDefsKey = new Context.Key<JavafxDefs>();
+
+    private final Type[] realTypeByKind;
 
     public static JavafxDefs instance(Context context) {
         JavafxDefs instance = context.get(jfxDefsKey);
@@ -131,7 +148,8 @@ public class JavafxDefs {
 
     protected JavafxDefs(Context context) {
         context.put(jfxDefsKey, this);
-        Name.Table names = Name.Table.instance(context);
+        final Name.Table names = Name.Table.instance(context);
+        final JavafxSymtab syms = (JavafxSymtab)(JavafxSymtab.instance(context));
 
         fxObjectName = names.fromString(fxObjectString);
         interfaceSuffixName = names.fromString(interfaceSuffix);
@@ -159,24 +177,34 @@ public class JavafxDefs {
         targetName = names.fromString("target");
         valueName = names.fromString("value");
         interpolateName = names.fromString("interpolate");
-        locationGetMethodName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT];
-        locationSetMethodName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT];
-        locationSetMilieuMethodName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT][MILIEU_COUNT];
+        locationGetMethodName = new Name[TYPE_KIND_COUNT];
+        locationSetMethodName = new Name[TYPE_KIND_COUNT];
+        locationSetMilieuMethodName = new Name[TYPE_KIND_COUNT][MILIEU_COUNT];
+        locationVariableName = new Name[TYPE_KIND_COUNT];
+        locationInterfaceName = new Name[TYPE_KIND_COUNT];
+        for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
+            for (int m = 0; m < MILIEU_COUNT; ++m) {
+                locationSetMilieuMethodName[kind][m] = names.fromString("set" + JavafxVarSymbol.getAccessorSuffix(kind) + milieuNames[m]);
+            }
+            locationGetMethodName[kind] = names.fromString("get" + JavafxVarSymbol.getAccessorSuffix(kind));
+            locationSetMethodName[kind] = locationSetMilieuMethodName[kind][VANILLA_MILIEU];
+            
+            String typePrefix = locationPackageName + JavafxVarSymbol.getTypePrefix(kind);
+            locationVariableName[kind] = names.fromString(typePrefix + "Variable");
+            locationInterfaceName[kind] = names.fromString(typePrefix + "Location");
+        }
         locationBindMilieuMethodName = new Name[MILIEU_COUNT];
         locationBijectiveBindMilieuMethodName = new Name[MILIEU_COUNT];
-        variableClassName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT];
-        for (int i = 0; i < JavafxVarSymbol.TYPE_KIND_COUNT; i++) {
-            for (int m = 0; m < MILIEU_COUNT; ++m) {
-                locationSetMilieuMethodName[i][m] = names.fromString("set" + JavafxVarSymbol.getAccessorSuffix(i) + milieuNames[m]);
-            }
-            locationGetMethodName[i] = names.fromString("get" + JavafxVarSymbol.getAccessorSuffix(i));
-            locationSetMethodName[i] = locationSetMilieuMethodName[i][VANILLA_MILIEU];
-            variableClassName[i] = names.fromString(locationPackageName +
-                    JavafxVarSymbol.getTypePrefix(i) + "Variable");
-        }
         for (int m = 0; m < MILIEU_COUNT; ++m) {
             locationBindMilieuMethodName[m] = names.fromString("bind" + milieuNames[m]);
             locationBijectiveBindMilieuMethodName[m] = names.fromString("bijectiveBind" + milieuNames[m]);
         }
+        realTypeByKind = new Type[TYPE_KIND_COUNT];
+        realTypeByKind[TYPE_KIND_OBJECT] = syms.objectType;
+        realTypeByKind[TYPE_KIND_DOUBLE] = syms.doubleType;
+        realTypeByKind[TYPE_KIND_BOOLEAN] = syms.booleanType;
+        realTypeByKind[TYPE_KIND_INT] = syms.intType;
+        realTypeByKind[TYPE_KIND_SEQUENCE] = syms.javafx_SequenceType;
+
     }
 }

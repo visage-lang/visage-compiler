@@ -633,11 +633,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     public void visitIdent(JCIdent tree)   {  //TODO: this, super, ...
        // assert (tree.sym.flags() & Flags.PARAMETER) != 0 || tree.name == names._this || tree.sym.isStatic() || toJava.shouldMorph(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
         JCExpression transId = toJava.translate(tree, Wrapped.InLocation);
-        if (tree.sym instanceof VarSymbol && !toJava.shouldMorph((VarSymbol)tree.sym)) {
-            result = makeConstantLocation(tree.pos(), targetType(tree.type), transId);
-        } else {
-            result = convert(tree.type, transId );
-        }    
+        result = convert(tree.type, transId );
     }
     
     @Override

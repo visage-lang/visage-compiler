@@ -33,7 +33,7 @@ System.out.println(ba.sum);
 class Julie {
   attribute eris = "cotati";
   attribute olof;
-  function donna() : String { "from: {eris} to: {olof}" }
+  bound function donna() : String { "from: {eris} to: {olof}" }
 }
 
 var hvf = "happy valley";

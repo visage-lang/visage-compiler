@@ -10,7 +10,7 @@ import java.lang.Exception;
 var TU = new TestUtils;
 
 abstract class foo {
- abstract function RequiredAbstractFunction():Integer;
+ abstract bound function RequiredAbstractFunction():Integer;
  function CanHaveNonAbstractFunctionsInAbstractClass() {}
 }
 
@@ -19,7 +19,7 @@ public class foo2 extends foo {
 	public readonly attribute roI = bind data;
 	public readonly attribute roS = "readonly";
 
-	function RequiredAbstractFunction():Integer { return data; }
+	bound function RequiredAbstractFunction():Integer { return data; }
 	function setData( newd : Integer) { data = newd;}
 	function roi():Integer {return roI; }
 	function ros():String { return roS; }

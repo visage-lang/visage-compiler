@@ -81,22 +81,21 @@ public class JavafxTypeMorpher {
     public final LocationNameSymType[] constantLocationNCT;
     public final LocationNameSymType   baseLocation;
 
-    private final Type[] realTypeByKind;
     private final Object[] defaultValueByKind;
 
     public class LocationNameSymType {
         public final Name name;
         public final ClassSymbol sym;
         public final Type type;
-        LocationNameSymType(Name name) {
+        private LocationNameSymType(Name name) {
             this.name = name;
             sym = reader.jreader.enterClass(name);
             type = sym.type;
         }
-        LocationNameSymType(String which) {
+        private LocationNameSymType(String which) {
             this(locationPackageName, which);
         }
-        LocationNameSymType(String pkg, String which) {
+        private LocationNameSymType(String pkg, String which) {
             this(Name.fromString(names, pkg + which));
         }
     }
@@ -198,6 +197,7 @@ public class JavafxTypeMorpher {
             }
             if (wrappedType != null) {
                 // External module with a Location type
+                assert false : "Locations should have been converted";
                 this.realType = wrappedType;
                 this.morphedVariableType = symType;
                 this.morphedLocationType = wrappedType == syms.voidType? wrappedType : generifyIfNeeded(variableType(typeKind), this);
@@ -300,8 +300,8 @@ public class JavafxTypeMorpher {
         constantLocationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
-            variableNCT[kind] = new LocationNameSymType(defs.variableClassName[kind]);
-            locationNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Location");
+            variableNCT[kind] = new LocationNameSymType(defs.locationVariableName[kind]);
+            locationNCT[kind] = new LocationNameSymType(defs.locationInterfaceName[kind]);
             bindingNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "BindingExpression");
             boundIfNCT[kind] = new LocationNameSymType("Bound" + JavafxVarSymbol.getTypePrefix(kind) + "IfExpression");
             boundSelectNCT[kind] = new LocationNameSymType("Bound" + JavafxVarSymbol.getTypePrefix(kind) + "SelectExpression");
@@ -310,13 +310,6 @@ public class JavafxTypeMorpher {
         }
 
         baseLocation = new LocationNameSymType("Location");
-
-        realTypeByKind = new Type[TYPE_KIND_COUNT];
-        realTypeByKind[TYPE_KIND_OBJECT] = syms.objectType;
-        realTypeByKind[TYPE_KIND_DOUBLE] = syms.doubleType;
-        realTypeByKind[TYPE_KIND_BOOLEAN] = syms.booleanType;
-        realTypeByKind[TYPE_KIND_INT] = syms.intType;
-        realTypeByKind[TYPE_KIND_SEQUENCE] = syms.javafx_SequenceType;
 
         defaultValueByKind = new Object[TYPE_KIND_COUNT];
         defaultValueByKind[TYPE_KIND_OBJECT] = null;
@@ -417,6 +410,11 @@ public class JavafxTypeMorpher {
                     List<JCExpression> getArgs = List.nil();
                     expr = make.at(diagPos).Apply(null, getSelect, getArgs);
                 }
+            } else {
+                // not morphed
+                if (wantLocation) {
+                    expr = toJava.makeUnboundLocation(diagPos, vmi, expr);
+                }                
             }
         } else if (sym instanceof MethodSymbol) {
             if (staticReference) {

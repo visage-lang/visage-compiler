@@ -306,20 +306,21 @@ public class JavafxClassReader extends ClassReader {
                         break;
                     }
                     Name flatname = ((ClassSymbol) tsym).flatname;
-                    if (flatname == defs.variableClassName[TYPE_KIND_BOOLEAN])
-                        return syms.booleanType;
-                    if (flatname == defs.variableClassName[TYPE_KIND_DOUBLE])
-                        return syms.doubleType;
-                    if (flatname == defs.variableClassName[TYPE_KIND_INT])
-                        return syms.intType;
-                    if (ctype.typarams_field != null && ctype.typarams_field.size() == 1) {
-                        if (flatname == defs.variableClassName[TYPE_KIND_OBJECT])
-                            return translateType(ctype.typarams_field.head);
-                        if (flatname == defs.variableClassName[TYPE_KIND_SEQUENCE]) {
-                            Type tparam = translateType(ctype.typarams_field.head);
-                            WildcardType tpType = new WildcardType(tparam, BoundKind.EXTENDS, tparam.tsym);
-                            t = new ClassType(Type.noType, List.<Type>of(tpType), ((JavafxSymtab)syms).javafx_SequenceType.tsym);
-                            break;
+                    Type deloc = defs.delocationize(flatname);
+                    if (deloc != null) {
+                        if (deloc == syms.intType || deloc == syms.doubleType || deloc == syms.booleanType) {
+                            return deloc;
+                        }
+                        if (ctype.typarams_field != null && ctype.typarams_field.size() == 1) {
+                            if (deloc == syms.objectType) {
+                                return translateType(ctype.typarams_field.head);
+                            }
+                            if (deloc == ((JavafxSymtab) syms).javafx_SequenceType) {
+                                Type tparam = translateType(ctype.typarams_field.head);
+                                WildcardType tpType = new WildcardType(tparam, BoundKind.EXTENDS, tparam.tsym);
+                                t = new ClassType(Type.noType, List.<Type>of(tpType), ((JavafxSymtab) syms).javafx_SequenceType.tsym);
+                                break;
+                            }
                         }
                     }
                     if (flatname.startsWith(functionClassPrefixName)
@@ -386,9 +387,18 @@ public class JavafxClassReader extends ClassReader {
             long flags = sym.flags_field;
             Symbol owner = translateSymbol(sym.owner);
             Type type = translateType(sym.type);
-            if (name.toString().indexOf(JavafxDefs.boundFunctionDollarSuffix) != -1)
-                // FIXME: For bind re-write: flags |= JavafxFlags.BOUND;
-                flags |= Flags.SYNTHETIC;  // mark bound function versions as synthetic, so they don't get added
+            String nameString = name.toString();
+            int boundStringIndex = nameString.indexOf(JavafxDefs.boundFunctionDollarSuffix);
+            if (boundStringIndex != -1) {
+                // this is a bound function
+                if (defs.useCorrectBoundFunctionSemantics) {
+                    // remove the bound suffix, and mark as bound
+                    name = names.fromString(nameString.substring(0, boundStringIndex));
+                    flags |= JavafxFlags.BOUND;
+                } else {
+                    flags |= Flags.SYNTHETIC;  // mark bound function versions as synthetic, so they don't get added
+                }
+            }
             MethodSymbol m = new MethodSymbol(flags, name, type, owner);
             ((ClassSymbol) owner).members_field.enter(m);
             s = m;
@@ -495,10 +505,20 @@ public class JavafxClassReader extends ClassReader {
                     // This should be merged with translateSymbol.
                     // But that doesn't work for some unknown reason.  FIXME
                     Type type = translateType(l.head.type);
-                    if (name.toString().indexOf(JavafxDefs.boundFunctionDollarSuffix) != -1)
-                        // FIXME: For bind re-write: flags |= JavafxFlags.BOUND;
-                        // (and predumablu don't do 'continue')
-                        continue; //flags |= Flags.SYNTHETIC;  // mark bound function versions as synthetic, so they don't get added
+                    String nameString = name.toString();
+                    int boundStringIndex = nameString.indexOf(JavafxDefs.boundFunctionDollarSuffix);
+                    if (boundStringIndex != -1) {
+                        // this is a bound function
+                        if (defs.useCorrectBoundFunctionSemantics) {
+                            // remove the bound suffix, and mark as bound
+                            name = names.fromString(nameString.substring(0, boundStringIndex));
+                            flags |= JavafxFlags.BOUND;
+                        } else {
+                            // FIXME: For bind re-write: flags |= JavafxFlags.BOUND;
+                            // (and predumablu don't do 'continue')
+                            continue;
+                        }
+                    }
                     MethodSymbol m = new MethodSymbol(flags, name, type, csym);
                     csym.members_field.enter(m);
                 }

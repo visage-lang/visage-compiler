@@ -274,9 +274,13 @@ public class JavafxInitializationBuilder {
     }
 
     private void appendMethodClones(ListBuffer<JCTree> methods, JFXClassDeclaration cDecl, MethodSymbol sym, boolean withDispatch) {
-        appendMethodClone(methods, false, cDecl, sym, withDispatch);
-        if (JavafxToJava.generateBoundFunctions && sym.getReturnType() != syms.voidType) {
-            appendMethodClone(methods, true, cDecl, sym, withDispatch);
+        if (defs.useCorrectBoundFunctionSemantics) {
+            appendMethodClone(methods, (sym.flags() & JavafxFlags.BOUND) != 0, cDecl, sym, withDispatch);
+        } else {
+            appendMethodClone(methods, false, cDecl, sym, withDispatch);
+            if (sym.getReturnType() != syms.voidType) {
+                appendMethodClone(methods, true, cDecl, sym, withDispatch);
+            }
         }
     }
     
