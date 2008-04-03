@@ -57,7 +57,7 @@
             </classpath>
         </taskdef>
         <javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"
-                 destdir="${build.classes.dir}"
+                 destdir="${build.classes.dir}" fork="true" memoryMaximumSize="256m"
                  encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"
                  includes="**/*.fx" source="${javac.source}" sourcepath=""
                  srcdir="${src.classes.dir}" target="${javac.target}"

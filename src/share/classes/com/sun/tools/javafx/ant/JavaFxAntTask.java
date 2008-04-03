@@ -34,6 +34,7 @@ import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.util.GlobPatternMapper;
+import org.apache.tools.ant.util.JavaEnvUtils;
 import org.apache.tools.ant.util.SourceFileScanner;
 
 import java.io.File;
@@ -127,39 +128,47 @@ public class JavaFxAntTask extends Javac {
         return urls.toArray(new URL[0]);
     }
 
+    public String getCompiler() {
+        return "extJavac";
+    }
+    
     public static class JavaFxCompilerAdapter extends DefaultCompilerAdapter {
 
         public boolean execute() throws BuildException {
-            Commandline cmd = setupModernJavacCommand();
             try {
-                URL[] jars = ((JavaFxAntTask) getJavac()).pathAsURLs();
-                URLClassLoader loader = new URLClassLoader(jars) {
-                    @Override
-                    protected Class loadClass(String n, boolean r) throws ClassNotFoundException {
-                        if (n.indexOf("sun.tools") >= 0 || n.startsWith("com.sun.source")) {
-                            Class c = findLoadedClass(n);
-                            if (c != null) {
-                                getJavac().log("found loaded class: " + n);
+                if (getJavac().isForkedJavac())
+                    return forkeExecute();
+                else {
+                    Commandline cmd = setupModernJavacCommand();
+                    URL[] jars = ((JavaFxAntTask) getJavac()).pathAsURLs();
+                    URLClassLoader loader = new URLClassLoader(jars) {
+                        @Override
+                        protected Class loadClass(String n, boolean r) throws ClassNotFoundException {
+                            if (n.indexOf("sun.tools") >= 0 || n.startsWith("com.sun.source")) {
+                                Class c = findLoadedClass(n);
+                                if (c != null) {
+                                    getJavac().log("found loaded class: " + n);
+                                    return c;
+                                }
+                                c = findClass(n);
+                                if (c == null) {
+                                    getJavac().log("didn't find class:  " + n);
+                                    return super.loadClass(n, r);
+                                }
+                                if (r)
+                                    resolveClass(c);
                                 return c;
                             }
-                            c = findClass(n);
-                            if (c == null) {
-                                getJavac().log("didn't find class:  " + n);
-                                return super.loadClass(n, r);
-                            }
-                            if (r)
-                                resolveClass(c);
-                            return c;
+                            return super.loadClass(n, r);
                         }
-                        return super.loadClass(n, r);
-                    }
-                };
-                Class c = Class.forName(FX_ENTRY_POINT, true, loader);
-                Object compiler = c.newInstance();
-                Method compile = c.getMethod("compile", String[].class);
-                Object[] args = cmd.getArguments();
-                int result = (Integer) compile.invoke(compiler, new Object[]{args});
-                return (result == 0);  // zero errors
+                    };
+                    Class c = Class.forName(FX_ENTRY_POINT, true, loader);
+                    Object compiler = c.newInstance();
+                    Method compile = c.getMethod("compile", String[].class);
+                    Object[] args = cmd.getArguments();
+                    int result = (Integer) compile.invoke(compiler, new Object[]{args});
+                    return (result == 0);  // zero errors
+                }
             } catch (Exception ex) {
                 getJavac().log(ex.toString());
                 if (ex instanceof ClassNotFoundException ||
@@ -173,6 +182,32 @@ public class JavaFxAntTask extends Javac {
                             ex, location);
                 }
             }
+        }
+
+        public boolean forkeExecute() throws Exception {
+            Commandline cmd = new Commandline();
+            cmd.setExecutable(JavaEnvUtils.getJdkExecutable("java"));
+            if (memoryInitialSize != null) {
+                cmd.createArgument().setValue("-Xms" + memoryInitialSize);
+                memoryInitialSize = null; // don't include it in setupJavacCommandlineSwitches()
+            }
+            if (memoryMaximumSize != null) {
+                cmd.createArgument().setValue("-Xmx" + memoryMaximumSize);
+                memoryMaximumSize = null; // don't include it in setupJavacCommandlineSwitches()
+            }
+            String cp = "-Xbootclasspath/p:";
+            URL[] jars = ((JavaFxAntTask) getJavac()).pathAsURLs();
+            for (int i = 0; i < jars.length; i++) {
+                cp += jars[i].getPath();
+                if (i + 1 < jars.length)
+                    cp += ":";
+            }
+            cmd.createArgument().setValue(cp);
+            cmd.createArgument().setValue(FX_ENTRY_POINT);
+            setupJavacCommandlineSwitches(cmd, true);
+            int firstFileName = cmd.size();
+            logAndAddFilesToCompile(cmd);
+            return executeExternalCompile(cmd.getCommandline(), firstFileName, true) == 0;
         }
     }
 }
