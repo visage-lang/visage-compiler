@@ -102,14 +102,15 @@ packageDecl  returns [JCExpression value]
        	: ^(PACKAGE qualident)        			{ $value = $qualident.expr; }
 	;
 moduleItems  returns [ListBuffer<JCTree> items = new ListBuffer<JCTree>()]  
-	: ( moduleItem					{ $items.append($moduleItem.value); }
-	  )*
+	: ( moduleItem					{  if ($moduleItem.value != null) $items.append($moduleItem.value); }
+	  )+
 	;
 moduleItem  returns [JCTree value]
 	: importDecl 					{ $value = $importDecl.value; }
 	| classDefinition 				{ $value = $classDefinition.value; }
 	| statement      				{ $value = $statement.value; } 
 	| expression 					{ $value = $expression.expr; } 
+        | EMPTY_MODULE_ITEM                             { $value = null; }
 	;
 importDecl  returns [JCTree value]
  	: ^(IMPORT importId)				{ $value = F.at(pos($IMPORT)).Import($importId.pid, false); 

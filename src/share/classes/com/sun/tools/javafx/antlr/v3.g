@@ -141,6 +141,7 @@ tokens {
 
    // these are imaginary tokens
    MODULE;
+   EMPTY_MODULE_ITEM;
    MODIFIER;
    CLASS_MEMBERS;
    PARAM;
@@ -524,14 +525,14 @@ packageDecl
        	: PACKAGE qualname SEMI         	-> ^(PACKAGE qualname)
 	;
 moduleItems    
-	: moduleItem (SEMI moduleItem )*	-> moduleItem*
+	: moduleItem (SEMI moduleItem )*	-> moduleItem+
 	;
 moduleItem 
 	: importDecl 				-> importDecl
 	| classDefinition 			-> classDefinition
 	| statement				-> statement
 	| expression				-> expression
-	|					->
+	|					-> EMPTY_MODULE_ITEM
 	;
 importDecl
  	: IMPORT importId			-> ^(IMPORT importId)
