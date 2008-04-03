@@ -28,11 +28,8 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TimeLiteralTree.Duration;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Scope;
+import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
-import com.sun.tools.javac.code.Symtab;
-import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.TreeMaker;
@@ -512,5 +509,11 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                         Scope starImportScope) {
             super(packageAnnotations, pid, defs, sourcefile, packge, namedImportScope, starImportScope);
         }        
+    }
+    
+    public JCExpression QualIdent(Symbol sym) {
+        if (sym.kind ==Kinds.PCK && sym.owner == syms.rootPackage)
+            return Ident(sym);
+        return super.QualIdent(sym);
     }
 }
