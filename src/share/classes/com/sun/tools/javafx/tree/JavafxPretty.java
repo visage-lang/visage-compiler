@@ -679,7 +679,17 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
 
     @Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
-        assert false : "should not reach here";
+        try {
+            print(that.var);
+            print(" in ");
+            print(that.seqExpr);
+            if (that.whereExpr != null) {
+                print(" where ");
+                print(that.whereExpr);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
     
     @Override
