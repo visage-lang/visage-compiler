@@ -143,13 +143,12 @@
         </java>
     </target>
 
-    <target name="syntax-diagrams">
+    <target name="syntax-diagrams" depends="init">
         <mkdir dir="${syntax.diagrams.dir}"/>
         <java classname="org.antlr.works.Console" fork="true">
             <classpath>
-                <pathelement path="${java.class.path}" />
-                <path refid="antlr.class.path" />
                 <path refid="antlrworks.class.path" />
+                <path refid="antlr.class.path" />
             </classpath>
             <arg value="-f" />
             <arg value="${antlr.grammarv3.file}" />
@@ -157,6 +156,7 @@
             <arg value="png" />
             <arg value="-o" />
             <arg value="${syntax.diagrams.dir}" />
+            <arg value="-verbose"/>
             <jvmarg value="-Xmx256m"/>
         </java>
     </target>
