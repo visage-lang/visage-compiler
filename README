@@ -2,16 +2,6 @@ Building the JavaFX Script Compiler
 
 The JavaFX Script compiler requires Java 5 or 6 and Apache Ant 1.7.  
 
-Because of diagnostic checks we are running during this early stage of the 
-compiler's development, it requires more memory than Ant's default maximum.
-This test will be disabled and the compiler's memory requirements will
-lessen when as the project gets closer to release.  
-
-Apache Ant loads options either from environment variables or option files,
-as described here: http://ant.apache.org/manual/running.html#files.  Currently
-the build compiles with ANT_OPTS set to -Xmx384m, but lower settings may work
-on systems with less memory.
-
 The "ant -projecthelp" command displays the various build targets available.
 Here are some of the more commonly used ones:
 
@@ -23,3 +13,8 @@ Delete build artifacts:      ant clean
 Please file any bugs using our JIRA issue tracking system:
 
 http://openjfx.java.sun.com/jira/secure/Dashboard.jspa
+
+NOTE:  when the project is first checked-out, the NetBeans IDE will report 
+"unresolved library" warnings.  These warnings are resolved when building
+the project for the first time, as the necessary external libraries are
+copied from their respective project sites into this project directory.
