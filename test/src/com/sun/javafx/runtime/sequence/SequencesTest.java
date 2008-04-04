@@ -745,4 +745,134 @@ public class SequencesTest extends JavaFXTestCase {
         }
     }
 
+    /**
+     * 	<T> boolean isEqual(Sequence<T> one, Sequence<T> other) 
+     */
+    public void testIsEqual() {
+		boolean result;
+		Sequence<DummyElement> localSeq;
+		
+		// compare empty sequences
+		localSeq = Sequences.emptySequence(DummyElement.class);
+		result = Sequences.isEqual(emptyElements, localSeq);
+        assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
+        assertEquals(Sequences.emptySequence(DummyElement.class), localSeq);
+        assertEquals(true, result);
+		
+		// compare first sequence being null
+		result = Sequences.isEqual(null, emptyElements);
+        assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
+        assertEquals(true, result);
+		
+		// compare second sequence being null
+		result = Sequences.isEqual(emptyElements, null);
+        assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
+        assertEquals(true, result);
+		
+		// compare equal sequence
+        localSeq = Sequences.make(DummyElement.class, element[3], element[1], element[2]);
+		result = Sequences.isEqual(unsortedElements, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[3], element[1], element[2]);
+        assertEquals(true, result);
+		
+		// compare sequence unequal by identity but equal by equals()
+		DummyElement localElement = new DummyElement(1);
+        localSeq = Sequences.make(DummyElement.class, element[3], localElement, element[2]);
+		result = Sequences.isEqual(unsortedElements, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[3], localElement, element[2]);
+        assertEquals(true, result);
+		
+		// compare first sequence smaller than second
+        localSeq = Sequences.make(DummyElement.class, element[3], element[1]);
+		result = Sequences.isEqual(unsortedElements, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[3], element[1]);
+        assertEquals(false, result);
+		
+		// compare first sequence larger than second
+        localSeq = Sequences.make(DummyElement.class, element[3], element[1], element[2], element[3]);
+		result = Sequences.isEqual(unsortedElements, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[3], element[1], element[2], element[3]);
+        assertEquals(false, result);
+		
+//        // exception when first sequence is null
+//        try {
+//            Sequences.isEqual(null, unsortedElements);
+//            fail("No exception thrown.");
+//        }
+//        catch (IllegalArgumentException ex) {
+//        }
+//        catch (Exception ex) {
+//            fail ("Unexpected exception thrown: " + ex.getMessage());
+//        }
+//		
+//		// throw error if second sequence is null
+//        try {
+//            Sequences.isEqual(unsortedElements, null);
+//            fail("No exception thrown.");
+//        }
+//        catch (IllegalArgumentException ex) {
+//        }
+//        catch (Exception ex) {
+//            fail ("Unexpected exception thrown: " + ex.getMessage());
+//        }
+	}
+
+    /**
+     * 	<T> boolean isEqualByContentIdentity(Sequence<T> one, Sequence<T> other) 
+     */
+    public void testIsEqualByContentIdentity() {
+		boolean result;
+		Sequence<DummyElement> localSeq;
+		
+		// compare empty sequences
+		localSeq = Sequences.emptySequence(DummyElement.class);
+		result = Sequences.isEqualByContentIdentity(emptyElements, localSeq);
+        assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
+        assertEquals(Sequences.emptySequence(DummyElement.class), localSeq);
+        assertEquals(true, result);
+		
+		// compare first sequence being null
+		result = Sequences.isEqualByContentIdentity(null, emptyElements);
+        assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
+        assertEquals(true, result);
+		
+		// compare second sequence being null
+		result = Sequences.isEqualByContentIdentity(emptyElements, null);
+        assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
+        assertEquals(true, result);
+		
+		// compare equal sequence
+        localSeq = Sequences.make(DummyElement.class, element[3], element[1], element[2]);
+		result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[3], element[1], element[2]);
+        assertEquals(true, result);
+		
+		// compare sequence unequal by identity but equal by equals()
+		DummyElement localElement = new DummyElement(1);
+        localSeq = Sequences.make(DummyElement.class, element[3], localElement, element[2]);
+		result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[3], localElement, element[2]);
+        assertEquals(false, result);
+		
+		// compare first sequence smaller than second
+        localSeq = Sequences.make(DummyElement.class, element[3], element[1]);
+		result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[3], element[1]);
+        assertEquals(false, result);
+		
+		// compare first sequence larger than second
+        localSeq = Sequences.make(DummyElement.class, element[3], element[1], element[2], element[3]);
+		result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[3], element[1], element[2], element[3]);
+        assertEquals(false, result);
+	}
+	
 }

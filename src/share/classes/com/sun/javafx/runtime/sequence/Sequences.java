@@ -343,23 +343,42 @@ public final class Sequences {
     }
 
     public static<T> boolean isEqual(Sequence<T> one, Sequence<T> other) {
-        // OPT: use iterators, not get()
         int oneSize = size(one);
         if (oneSize == 0)
             return size(other) == 0;
         else if (oneSize != size(other))
             return false;
-        else
-            for (int i = 0; i < oneSize; i++) {
-                if (!one.get(i).equals(other.get(i)))
-                    return false;
-        }
-        return true;
+        else {
+			Iterator<T> it1 = one.iterator();
+			Iterator<T> it2 = other.iterator();
+			while (it1.hasNext()) {
+				if (! it1.next().equals(it2.next()))
+					return false;
+			}
+			return true;
+		}
     }
+	
+	public static<T> boolean isEqualByContentIdentity(Sequence<T> one, Sequence<T> other) {
+        int oneSize = size(one);
+        if (oneSize == 0)
+            return size(other) == 0;
+        else if (oneSize != size(other))
+            return false;
+		else {
+			Iterator<T> it1 = one.iterator();
+			Iterator<T> it2 = other.iterator();
+			while (it1.hasNext()) {
+				if (it1.next() != it2.next())
+					return false;
+			}
+			return true;
+		}
+	}
 
-  public static<T> Sequence<? extends T> forceNonNull(Class<T> clazz, Sequence<? extends T> seq) {
-    return seq == null ? emptySequence(clazz) : seq;
-  }
+	public static<T> Sequence<? extends T> forceNonNull(Class<T> clazz, Sequence<? extends T> seq) {
+	return seq == null ? emptySequence(clazz) : seq;
+	}
   
     /**
      * Searches the specified sequence for the specified object using the 
