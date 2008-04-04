@@ -86,14 +86,15 @@
             <arg value="-d"/>
             <arg value="${dist.javadoc.dir}"/>
             <arg value="-sourcepath"/>
-            <arg value="${src.classes.dir}"/>
+            <arg value="${src.classes.dir}:${compiler.src.dir}"/>
             <arg value="-classpath"/>
             <arg value="${clsjars}"/>
-            <arg line="-subpackages javafx.ui"/>
             <classpath>
                 <path path="${build.classes.dir}:${javac.test.classpath}"/>
             </classpath>
             <jvmarg line="-Xbootclasspath/p:${bootjars}"/>
+            <jvmarg value="-Xmx256m"/>
+            <arg line="${javafxdoc.packages}"/>
         </java>
     </target>
 
