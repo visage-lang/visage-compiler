@@ -39,7 +39,7 @@ public abstract class BoundObjectSelectExpression<T, U> extends IndirectObjectEx
     public BoundObjectSelectExpression(Class clazz, ObjectLocation<U> selector) {
         super(false /*lazy*/, selector);
         this.selector = selector;
-        this.defaultUnboundValue = Util.defaultValue(clazz);
+        this.defaultUnboundValue = Util.<T>defaultValue(clazz);
     }
 
     protected abstract ObjectLocation<T> computeSelect(U selectorValue);

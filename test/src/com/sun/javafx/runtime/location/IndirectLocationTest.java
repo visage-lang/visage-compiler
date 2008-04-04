@@ -55,26 +55,26 @@ public class IndirectLocationTest extends JavaFXTestCase {
 
         assertEquals(1, dep.getAsInt());
         assertEquals(1, ifLoc.getAsInt());
-        assertEquals(1, cl.count);
+        assertEquals(0, cl.count);
 
         trueClause.set(3);
         assertEquals(3, dep.getAsInt());
         assertEquals(3, ifLoc.getAsInt());
-        assertEquals(2, cl.count);
+        assertEquals(1, cl.count);
 
         falseClause.set(4);
         assertEquals(3, dep.getAsInt());
         assertEquals(3, ifLoc.getAsInt());
+        assertEquals(1, cl.count);
+
+        bool.set(false);
+        assertEquals(4, dep.getAsInt());
+        assertEquals(4, ifLoc.getAsInt());
         assertEquals(2, cl.count);
 
         bool.set(false);
         assertEquals(4, dep.getAsInt());
         assertEquals(4, ifLoc.getAsInt());
-        assertEquals(3, cl.count);
-
-        bool.set(false);
-        assertEquals(4, dep.getAsInt());
-        assertEquals(4, ifLoc.getAsInt());
-        assertEquals(3, cl.count);
+        assertEquals(2, cl.count);
     }
 }

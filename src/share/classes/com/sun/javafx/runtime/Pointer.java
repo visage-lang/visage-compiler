@@ -48,7 +48,7 @@ public class Pointer {
     }
 
     public static boolean equals(Pointer p1, Pointer p2) {
-        return p1.equals(p2);
+        return (p1 == null) ? (p2 == null) : p1.equals(p2);
     }
 
     private Pointer(Location location, Type type) {

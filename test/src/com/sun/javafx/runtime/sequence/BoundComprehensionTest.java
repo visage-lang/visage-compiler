@@ -27,7 +27,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         derived.addChangeListener(hl);
 
         assertEquals(derived, 2, 4, 6);
-        assertEqualsAndClear(hl, "[0, -1] => [ 2, 4, 6 ]");
+        assertEqualsAndClear(hl);
         assertEquals(3, len.getAsInt());
 
         base.insert(4);
@@ -73,7 +73,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         derived.addChangeListener(hl);
 
         assertEquals(derived, 4, 8, 12);
-        assertEqualsAndClear(hl, "[0, -1] => [ 4, 8, 12 ]");
+        assertEqualsAndClear(hl);
         assertEquals(3, len.getAsInt());
 
         base.insert(4);
@@ -149,7 +149,9 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         derived.addChangeListener(hl);
 
         assertEquals(derived, 2, 4, 6);
-        assertEqualsAndClear(hl, "[0, -1] => [ 2, 4, 6 ]");
+        // @@@ jfxc-1035: if we build the loc as the compiler would, we'd expect the following:
+        // assertEqualsAndClear(hl, "[0, -1] => [ 2, 4, 6 ]");
+        assertEqualsAndClear(hl);
         assertEquals(3, len.getAsInt());
 
         base.insert(4);

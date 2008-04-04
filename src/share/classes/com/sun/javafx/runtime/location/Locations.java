@@ -43,6 +43,7 @@ public class Locations {
         return SequenceConstant.make(value);
     }
 
+
     public static ObjectLocation<Integer> asObjectLocation(IntLocation loc) {
         return loc;
     }

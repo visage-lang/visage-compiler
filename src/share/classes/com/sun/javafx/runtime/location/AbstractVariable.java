@@ -75,6 +75,8 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
         binding.setLocation(this);
         isLazy = lazy;
         addDependencies(dependencies);
+        if (!isLazy)
+            update();
     }
 
     public void bindFromLiteral(final boolean lazy, final T_BINDING binding, final Location... dependencies) {

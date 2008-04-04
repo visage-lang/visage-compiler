@@ -60,7 +60,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         }, a);
 
         assertTrue(a.isValid());
-        assertEqualsLazy(1, b);
+        assertEquals(1, b);
     }
 
     /**
@@ -87,8 +87,8 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         c.addChangeListener(counter);
 
         assertTrue(a.isValid());
-        assertFalse(b.isValid());
-        assertFalse(c.isValid());
+        assertTrue(b.isValid());
+        assertTrue(c.isValid());
         assertEquals(0, a.getAsInt());
 
         a.setAsInt(3);
@@ -152,7 +152,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
                 return a.getAsDouble() + b.getAsDouble();
             }
         }, a, b);
-        assertEqualsLazy(0.0, c);
+        assertEquals(0.0, c);
         a.setAsDouble(1.2);
         assertEquals(1.2, c);
         b.setAsDouble(4.2);
@@ -170,7 +170,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
                 return a.get() + b.get();
             }
         }, a, b);
-        assertEqualsLazy("foo bar", c);
+        assertEquals("foo bar", c);
         a.set("yoo ");
         assertEquals("yoo  bar", c);
         b.set("hoo");
@@ -184,7 +184,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
                 return v.getAsInt() + 1;
             }
         }, v);
-        assertEqualsLazy(4, vPlusOne);
+        assertEquals(4, vPlusOne);
         v.setAsInt(5);
         assertEquals(6, vPlusOne);
         assertEquals(1, ((AbstractLocation) v).getListenerCount());

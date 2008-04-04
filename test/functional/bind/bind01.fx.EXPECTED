@@ -90,8 +90,8 @@ RAD     DIA   CIRCUM  AREA
 test6: simple bind
 X.b is now 2.0
 X.c is now 0.0
-X.c is now 0.0
 X.b is now 2.0
+X.c is now 0.0
 1.0
 2.0
 X.b is now 5.0

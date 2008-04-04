@@ -70,7 +70,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         seq.addChangeListener(cl);
         assertEquals(seq, 1, 2, 3);
 
-        assertEqualsLazy(1, firstValue);
+        assertEquals(1, firstValue);
         seq.set(0, 3);
         assertEquals(seq, 3, 2, 3);
         assertEquals(3, firstValue);
@@ -324,7 +324,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(v, 1, 2, 3);
         assertEquals(b, 1, 2, 3);
         assertEquals(vh);
-        assertEqualsAndClear(bh, "i-0-1", "i-1-2", "i-2-3");
+        assertEqualsAndClear(bh);
 
         v.setAsSequence(Sequences.make(Integer.class, 1, 2));
         assertEquals(v, 1, 2);
