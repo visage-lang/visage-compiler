@@ -1,0 +1,11 @@
+/**
+ * JFXC740 
+ * @test
+ * @run
+ */
+
+
+import java.lang.*;
+
+function check(k:Class, f:function()) {
+};
