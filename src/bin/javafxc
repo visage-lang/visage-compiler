@@ -57,7 +57,7 @@ if [ -z "$CLASSPATH" ] ; then
 else
   USER_CP="$CLASSPATH"
 fi 
-classpath="$HOME/Reprise.jar:$USER_CP"
+classpath="$HOME/Reprise.jar:$HOME/@SCENEGRAPH_JAR@:$USER_CP"
 
 args=""
 jargs=""

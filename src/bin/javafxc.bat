@@ -48,7 +48,7 @@ shift
 goto jvmoptsLoop
 
 :jvmoptsDone
-set _CLASSPATH=%_JAVAFXC_HOME%\Reprise.jar;%_CP_%
+set _CLASSPATH=%_JAVAFXC_HOME%\Reprise.jar;%_JAVAFXC_HOME%\@SCENEGRAPH_JAR@;%_CP_%
 set _CP_=
 set _VAL=
 set _CMP=
