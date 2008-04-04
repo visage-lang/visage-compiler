@@ -478,8 +478,8 @@ stringFormat  returns [JCExpression expr]
 	;
 interpolateExpression  returns [JCExpression expr]
 /*@init { ListBuffer<JFXInterpolateValue> tweenProps = new ListBuffer<JFXInterpolateValue>(); }*/
-        : ^(SUCHTHAT attr=expression target=boundExpression interp=boundExpression?)
-                                                        { $expr = F.at($attr.expr.pos).InterpolateValue($attr.expr, F.MaybeBindExpression($target.expr, $target.status), F.MaybeBindExpression($interp.expr, $interp.status));
+        : ^(SUCHTHAT attr=expression target=expression interp=expression?)
+                                                        { $expr = F.at($attr.expr.pos).InterpolateValue($attr.expr, $target.expr, $interp.expr);
                                                           /* ... set endPos ... */}
 /*
             ( tweenValue                                { tweenProps.append($tweenValue.prop); } )*

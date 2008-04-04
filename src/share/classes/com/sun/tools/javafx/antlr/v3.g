@@ -728,7 +728,7 @@ interpolateExpression
         | blockInterpolate
         ;
 simpleInterpolate
-        : attr=expression SUCHTHAT expr=boundPrimaryExpression (TWEEN interpolate=boundPrimaryExpression)?
+        : attr=expression SUCHTHAT expr=expression (TWEEN interpolate=expression)?
                                                                -> ^(SUCHTHAT $attr $expr $interpolate?)
         ;
 
@@ -757,11 +757,6 @@ boundExpression
 	: BIND expression (WITH INVERSE)?
 						-> ^(BIND INVERSE? expression)
 	| expression				-> ^(EXPRESSION expression)
-	;
-boundPrimaryExpression 
-	: BIND primaryExpression
-						-> ^(BIND primaryExpression)
-	| primaryExpression				-> ^(EXPRESSION primaryExpression)
 	;
 expression 
        	: blockExpression
@@ -801,6 +796,8 @@ assignmentOpExpression
 	   |   STAREQ   e2=expression				-> ^(STAREQ $e1 $e2) 
 	   |   SLASHEQ   e2=expression				-> ^(SLASHEQ $e1 $e2) 
 	   |   PERCENTEQ   e2=expression			-> ^(PERCENTEQ $e1 $e2) 
+	   | SUCHTHAT expr=andExpression (TWEEN interpolate=andExpression)?
+                                                               -> ^(SUCHTHAT $e1 $expr $interpolate?)
 	   |							-> $e1
 	   )
 	;
@@ -876,8 +873,6 @@ postfixExpression
 	         RBRACKET
                )
              )
-	   | SUCHTHAT expr=boundPrimaryExpression (TWEEN interpolate=boundPrimaryExpression)?
-                                                               -> ^(SUCHTHAT $postfixExpression $expr $interpolate?)
 	   ) * 
 	;
 primaryExpression  

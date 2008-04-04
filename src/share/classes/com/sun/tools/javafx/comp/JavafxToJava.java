@@ -3789,13 +3789,15 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         final Symbol targetSymbol = syms.javafx_KeyValueType.tsym.members().lookup(defs.targetName).sym;
         JFXObjectLiteralPart targetLiteral = fxmake.at(tree.pos()).ObjectLiteralPart(defs.targetName, tree.attribute);
         targetLiteral.sym = targetSymbol;
-        JFXObjectLiteralPart valueLiteral = fxmake.at(tree.pos()).ObjectLiteralPart(defs.valueName, tree.value);
+        JFXObjectLiteralPart valueLiteral =
+                fxmake.at(tree.pos()).ObjectLiteralPart(defs.valueName, tree.value, JavafxBindStatus.UNIDIBIND);
         valueLiteral.sym = syms.javafx_KeyValueType.tsym.members().lookup(defs.valueName).sym;
         List<JCTree> parts;
         if (tree.interpolation == null)
             parts = List.<JCTree>of(targetLiteral, valueLiteral);
         else {
-            JFXObjectLiteralPart interpolateLiteral = fxmake.at(tree.pos()).ObjectLiteralPart(defs.interpolateName, tree.interpolation);
+            JFXObjectLiteralPart interpolateLiteral =
+                    fxmake.at(tree.pos()).ObjectLiteralPart(defs.interpolateName, tree.interpolation, JavafxBindStatus.UNIDIBIND);
             interpolateLiteral.sym = syms.javafx_KeyValueType.tsym.members().lookup(defs.interpolateName).sym;
             parts = List.<JCTree>of(targetLiteral, valueLiteral, interpolateLiteral);
         }
