@@ -200,7 +200,7 @@ public class JavaFxAntTask extends Javac {
             for (int i = 0; i < jars.length; i++) {
                 cp += jars[i].getPath();
                 if (i + 1 < jars.length)
-                    cp += ":";
+                    cp += File.pathSeparator;
             }
             cmd.createArgument().setValue(cp);
             cmd.createArgument().setValue(FX_ENTRY_POINT);
