@@ -70,6 +70,7 @@ public class JavafxDefs {
     
     public static final String locationPackageName = "com.sun.javafx.runtime.location.";
     public static final String sequencePackageName = "com.sun.javafx.runtime.sequence.";
+    public static final String functionsPackageName = "com.sun.javafx.functions.";
 
     static final String[] milieuNames = { "", "FromLiteral" };
     public static String getMilieuName(int index) { return milieuNames[index]; }

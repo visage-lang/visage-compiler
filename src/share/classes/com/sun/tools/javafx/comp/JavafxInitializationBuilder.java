@@ -274,7 +274,7 @@ public class JavafxInitializationBuilder {
     }
 
     private void appendMethodClones(ListBuffer<JCTree> methods, JFXClassDeclaration cDecl, MethodSymbol sym, boolean withDispatch) {
-        if (defs.useCorrectBoundFunctionSemantics) {
+        if (JavafxDefs.useCorrectBoundFunctionSemantics) {
             appendMethodClone(methods, (sym.flags() & JavafxFlags.BOUND) != 0, cDecl, sym, withDispatch);
         } else {
             appendMethodClone(methods, false, cDecl, sym, withDispatch);
@@ -729,7 +729,7 @@ public class JavafxInitializationBuilder {
     /**
      * Non-destructive creation of "on change" change listener set-up call.
      */
-    public JCStatement makeChangeListenerCall(AttributeInfo info) {
+    JCStatement makeChangeListenerCall(AttributeInfo info) {
         
         //TODO: TranslatedAttributeInfo should be simplified to hold onReplace attribute only
         //
