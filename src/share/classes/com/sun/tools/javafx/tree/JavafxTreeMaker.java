@@ -35,6 +35,8 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
+import java.io.IOException;
+import java.io.StringWriter;
 import javax.tools.JavaFileObject;
 
 /* JavaFX version of tree maker
@@ -508,7 +510,21 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
                         Scope namedImportScope,
                         Scope starImportScope) {
             super(packageAnnotations, pid, defs, sourcefile, packge, namedImportScope, starImportScope);
-        }        
+        }
+        
+        @Override
+        public String toString() {
+            StringWriter s = new StringWriter();
+            try {
+                new JavafxPretty(s, false).printExpr(this);
+            }
+            catch (IOException e) {
+                // should never happen, because StringWriter is defined
+                // never to throw any IOExceptions
+                throw new AssertionError(e);
+            }
+            return s.toString();
+        }
     }
     
     public JCExpression QualIdent(Symbol sym) {
