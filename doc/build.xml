@@ -8,8 +8,8 @@
 
     <property name="doc.build.dir" value="${build.dir}/doc"/>
     <property name="doc.src.dir" value="${basedir}/doc/langspec"/>
-    <property name="html.style" value="${docbook.dir}/html/docbook.xsl"/>
-    <property name="xhtml.style" value="${docbook.dir}/xhtml/docbook.xsl"/>
+    <property name="html.style" value="${docbook.dir}/html/chunkfast.xsl"/>
+    <property name="xhtml.style" value="${docbook.dir}/xhtml/chunkfast.xsl"/>
     <property name="doc.name" value="JavaFX-Language"/>
 
     <!-- Choose between HTML and XHTML -->
@@ -64,14 +64,14 @@
         <java classname="com.icl.saxon.StyleSheet" fork="true"
               dir="${doc.build.dir}/html" failonerror="true">
             <classpath refid="doc.build.class.path"/>
-            <arg value="-o"/>
-            <arg file="${doc.build.dir}/html/${doc.name}.html"/>
             <arg file="${doc.build.dir}/tmp/${doc.name}-xi-tmp.xml"/>
             <arg value="${doc.src.dir}/langref.xsl"/>
             <arg value="use.id.as.filename=1"/>
-            <arg value="chunk.section.depth=0"/>
-            <arg value="chunk.fast=1"/>
+            <arg value="root.filename=${doc.name}"/>
+            <arg value="chunk.section.depth=1"/>
+            <arg value="chunk.first.sections=1"/>
             <arg value="draft.mode=yes"/>
+<!--         <arg value="navig.graphics=1"/>-->
         </java>
 	<copy file="doc/langspec/langref.css" tofile="${doc.build.dir}/html/langref.css"/>
     </target>
