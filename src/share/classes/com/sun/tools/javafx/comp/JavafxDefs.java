@@ -82,7 +82,7 @@ public class JavafxDefs {
     public char typeCharToEscape = '.';
     public char escapeTypeChar = '_';
     
-    public static final boolean useCorrectBoundFunctionSemantics = false;
+    public static final boolean useCorrectBoundFunctionSemantics = true;
      
     /**
      * Name definitions

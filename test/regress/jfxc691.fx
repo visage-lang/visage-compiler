@@ -1,6 +1,8 @@
-/*
+/**
+ * Regression test: function values in a bound local variable
+ *
  * @test
- * @run/fail
+ * @run
  * 
  */
 

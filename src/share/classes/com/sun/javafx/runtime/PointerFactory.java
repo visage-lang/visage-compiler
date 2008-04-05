@@ -31,26 +31,4 @@ public class PointerFactory implements PointerFactory$Intf, FXObject {
     public <T> ObjectVariable<Pointer> make$$bound$com_sun_javafx_runtime_sequence_Sequence(SequenceLocation<T> location) {
         return ObjectVariable.make(Pointer.make(location));
     }
-    
-    
-    /*** when switching to useCorrectBoundFunctionSemantics remove the following ****/
-    public Pointer make(int value) {
-        throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
-    }
-
-    public Pointer make(double value) {
-        throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
-    }
-
-    public Pointer make(boolean value) {
-        throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
-    }
-
-    public Pointer make(Object value) {
-        throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
-    }
-
-    public Pointer make(Sequence value) {
-        throw new UnsupportedOperationException("PointerFactory.make() should only be called in a bind context");
-    }
 }
