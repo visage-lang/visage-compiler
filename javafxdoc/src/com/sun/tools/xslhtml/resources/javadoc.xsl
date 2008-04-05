@@ -154,7 +154,7 @@
         <p class="comment"><xsl:apply-templates/></p>
     </xsl:template>
     
-    <xsl:template match="Text"><xsl:value-of select="."/></xsl:template>
+    <xsl:template match="Text"><xsl:value-of select="." disable-output-escaping="yes"/></xsl:template>
     
     <xsl:template match="code"><code><xsl:value-of select="." disable-output-escaping="yes"/></code></xsl:template>
     
