@@ -195,7 +195,12 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                     return tree;
                     //targetElementType = syms.objectType;  // punt (probably a synthetic library class)
                 }
-                tree = runtime(diagPos, cBoundSequences, "upcast", List.of(toJava.makeElementClassObject(diagPos, targetElementType), tree));
+                // this additional test is needed because wildcards compare as different
+                Type inElementType = typeMorpher.typeMorphInfo(inType).getElementType();
+                if (!types.isSameType(inElementType, targetElementType)) {
+                    JCExpression targetClass = toJava.makeElementClassObject(diagPos, targetElementType);
+                    tree = runtime(diagPos, cBoundSequences, "upcast", List.of(targetClass, tree));
+                }
             } else if (targetType == syms.doubleType) {
                 tree = runtime(diagPos, cLocations, "asDoubleLocation", List.of(tree));
             } else if (targetType == syms.intType) {
@@ -1375,24 +1380,10 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
     /**
      * Build a Java AST representing the specified type.
-     * Convert JavaFX class references to interface references.
-     * */
-    public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos) {
-        return makeTypeTree(t, diagPos, true);
-    }
-
-    /**
-     * Build a Java AST representing the specified type.
      * If "makeIntf" is set, convert JavaFX class references to interface references.
      * */
-    public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos, boolean makeIntf) {
+    private JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos, boolean makeIntf) {
         return toJava.makeTypeTree(t, diagPos, makeIntf);
-    }
-
-   JCExpression castFromObject (JCExpression arg, Type castType) {
-        if (castType.isPrimitive())
-            castType = types.boxedClass(castType).type;
-         return make.TypeCast(makeTypeTree(castType, arg.pos()), arg);
     }
 
     private String typeCode(Type type) {
