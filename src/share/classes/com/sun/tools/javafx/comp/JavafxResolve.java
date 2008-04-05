@@ -991,7 +991,7 @@ public class JavafxResolve {
             List<Type> supertypes = ((JavafxClassSymbol)c).getSuperTypes();
             for (Type tp : supertypes) {
                 if (tp != null && tp.tag == CLASS) {
-                    sym = findField(env, site, name, st.tsym);
+                    sym = findField(env, site, name, tp.tsym);
                     if (sym.kind < bestSoFar.kind) bestSoFar = sym;
                     if (bestSoFar.kind < AMBIGUOUS) {
                         break;
