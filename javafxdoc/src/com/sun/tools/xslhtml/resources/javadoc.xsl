@@ -178,7 +178,7 @@
             <a>
                 <xsl:attribute name="title"><xsl:value-of select="@packageName"/>.<xsl:value-of select="@typeName"/></xsl:attribute>
                 <xsl:attribute name="href">../<xsl:value-of select="@packageName"/>/<xsl:value-of select="@packageName"/>.<xsl:value-of select="@typeName"/>.html</xsl:attribute>
-                <strong><xsl:value-of select="@packageName"/></strong>
+                <strong><xsl:value-of select="@packageName"/>.</strong>
                 <b><xsl:value-of select="@typeName"/></b>
             </a>
             <xsl:text>, </xsl:text>
