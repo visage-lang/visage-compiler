@@ -167,42 +167,46 @@
     
     
     <xsl:template match="class" mode="interface">
-        <xsl:if test="interfaces/interface">implements</xsl:if>
+        <xsl:if test="interfaces/interface">implements </xsl:if>
         <xsl:for-each select="interfaces/interface">
             <a>
                 <xsl:attribute name="title"><xsl:value-of select="@packageName"/>.<xsl:value-of select="@typeName"/></xsl:attribute>
                 <xsl:attribute name="href">../<xsl:value-of select="@packageName"/>/<xsl:value-of select="@packageName"/>.<xsl:value-of select="@typeName"/>.html</xsl:attribute>
                 <strong><xsl:value-of select="@packageName"/></strong>
                 <b><xsl:value-of select="@typeName"/></b>
-            </a>,
+            </a>
+            <xsl:text>, </xsl:text>
         </xsl:for-each>
     </xsl:template>
     
     <xsl:template match="class" mode="super">
         <xsl:variable name="super" select="superclass/@qualifiedTypeName"/>
-        <!-- if super can't be found -->
-        <xsl:if test="not(//class[@qualifiedName=$super])">
-            <!-- be sure to skip java.lang.Object -->
-            <xsl:if test="not($super='java.lang.Object')">
-            <a>
-                <xsl:attribute name="title"><xsl:value-of select="superclass/@packageName"/>.<xsl:value-of select="superclass/@typeName"/></xsl:attribute>
-                <strong><xsl:value-of select="superclass/@packageName"/>.</strong>
-                <b><xsl:value-of select="superclass/@typeName"/></b>
-            </a>
+        
+        <!-- only do setuff if super exists at all -->
+        <xsl:if test="$super">
+            <!-- if super can't be found -->
+            <xsl:if test="not(//class[@qualifiedName=$super])">
+                <!-- be sure to skip java.lang.Object -->
+                <xsl:if test="not($super='java.lang.Object')">
+                    <a>
+                        <xsl:attribute name="title"><xsl:value-of select="superclass/@packageName"/>.<xsl:value-of select="superclass/@typeName"/></xsl:attribute>
+                        <strong><xsl:value-of select="superclass/@packageName"/>.</strong>
+                        <b><xsl:value-of select="superclass/@typeName"/></b>
+                    </a>
+                </xsl:if>
             </xsl:if>
+
+            <!-- if super can be found -->
+            <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="super"/>
+            &gt;
+            <a>
+                <xsl:attribute name="title"><xsl:value-of select="@packageName"/>.<xsl:value-of select="@name"/></xsl:attribute>
+                <xsl:attribute name="href">../<xsl:value-of select="@packageName"/>/<xsl:value-of select="@packageName"/>.<xsl:value-of select="@name"/>.html</xsl:attribute>
+                <strong><xsl:value-of select="@packageName"/>.</strong>
+                <b><xsl:value-of select="@name"/></b>
+            </a>
+        
         </xsl:if>
-        
-        <!-- if super can be found -->
-        <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="super"/>
-        &gt;
-        <a>
-            <xsl:attribute name="title"><xsl:value-of select="@packageName"/>.<xsl:value-of select="@name"/></xsl:attribute>
-            <xsl:attribute name="href">../<xsl:value-of select="@packageName"/>/<xsl:value-of select="@packageName"/>.<xsl:value-of select="@name"/>.html</xsl:attribute>
-            <strong><xsl:value-of select="@packageName"/>.</strong>
-            <b><xsl:value-of select="@name"/></b>
-        </a>
-        
-        
         
     </xsl:template>
     
