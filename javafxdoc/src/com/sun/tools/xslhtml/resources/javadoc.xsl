@@ -155,6 +155,12 @@
     </xsl:template>
     
     <xsl:template match="Text"><xsl:value-of select="." disable-output-escaping="yes"/></xsl:template>
+    <xsl:template match="see">
+        <a>
+            <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
+            <xsl:value-of select="@label"/>
+        </a>
+    </xsl:template>
     
     <xsl:template match="code"><code><xsl:value-of select="." disable-output-escaping="yes"/></code></xsl:template>
     
@@ -499,6 +505,15 @@
     
     
     
+    <xsl:template match="function | method | constructor" mode="anchor-signature">
+        <xsl:value-of select="@name"/>
+        <xsl:text>(</xsl:text>
+        <xsl:for-each select="parameters/parameter">
+            <xsl:value-of select="@name"/>:
+            <xsl:value-of select="type/@toString"/>,
+        </xsl:for-each>
+        <xsl:text>)</xsl:text>
+    </xsl:template>
     
     <!--  Functions -->
     <xsl:template match="function | method | constructor" mode="signature">
@@ -548,7 +563,7 @@
                 <xsl:attribute name="class">advanced</xsl:attribute>
             </xsl:if>
             <a>
-                <xsl:attribute name="href">#method_<xsl:value-of select="@name"/></xsl:attribute>
+                <xsl:attribute name="href">#<xsl:apply-templates select="." mode="anchor-signature"/></xsl:attribute>
                 <xsl:apply-templates select="." mode="signature"/>
             </a>
         </dt>
@@ -563,7 +578,7 @@
     <xsl:template name="method-like">
         <div class="method member">
             <a>
-                <xsl:attribute name="id">method_<xsl:value-of select="@name"/></xsl:attribute>
+                <xsl:attribute name="id"><xsl:apply-templates select="." mode="anchor-signature"/></xsl:attribute>
                 <h4><xsl:apply-templates select="." mode="signature"/></h4>
             </a>
             

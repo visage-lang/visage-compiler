@@ -496,6 +496,15 @@ public class XMLDoclet {
             }
             attrs.clear();
             attrs.addAttribute("", "", "name", "CDATA", t.name());
+            //process link tags specially
+            if("@link".equals(t.name())) {
+                attrs.addAttribute("", "", "href", "CDATA", t.text());
+                String label = t.text();
+                if(label.startsWith("#")) {
+                    label = label.substring(1);
+                }
+                attrs.addAttribute("", "", "label", "CDATA", label);
+            }
             hd.startElement("", "", kind, attrs);
             Tag[] inlineTags = t.inlineTags();
             if (inlineTags.length <= 1) {
