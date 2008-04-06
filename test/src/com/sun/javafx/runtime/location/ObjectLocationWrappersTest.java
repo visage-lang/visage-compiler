@@ -165,7 +165,7 @@ public class ObjectLocationWrappersTest extends JavaFXTestCase {
         });
         assertThrows(BindingException.class, new VoidCallable() {
             public void call() throws Exception {
-                oie.set(true);
+                oie.set(!ie.getAsBoolean());
             }
         });
     }
