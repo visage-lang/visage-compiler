@@ -47,6 +47,7 @@ import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.javafx.code.JavafxClassSymbol;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.attributeGetMethodNamePrefix;
 import static com.sun.tools.javafx.comp.JavafxDefs.interfaceSuffix;
@@ -351,7 +352,7 @@ public class JavafxTypeMorpher {
                 if ((t.tsym instanceof ClassSymbol) &&
                         (t.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
                     String str = t.tsym.name.toString().replace("$", ".");
-                    ClassSymbol csym = new ClassSymbol(0, names.fromString(str), t.tsym.owner);
+                    ClassSymbol csym = new JavafxClassSymbol(0, names.fromString(str), t.tsym.owner);
                     csym.flags_field |= JavafxFlags.COMPOUND_CLASS;
                     Type tp = new ClassType(null, null, csym);
                     newActuals = newActuals.append(tp);

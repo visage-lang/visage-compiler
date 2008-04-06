@@ -2357,9 +2357,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         switch (t.tag) {
             case TypeTags.CLASS: {
                 JCExpression texp = null;
-
-                if (makeIntf && t.tsym instanceof ClassSymbol &&
-                        (t.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
+                
+                if (makeIntf && types.isCompoundClass(t.tsym)) {
                     texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString() + interfaceSuffix);
                 } else {
                     if (t.isCompound()) {

@@ -180,13 +180,17 @@ public class JavafxTypes extends Types {
     }
     
     public boolean isCompoundClass(Symbol sym) {
-        return sym instanceof JavafxClassSymbol &&
-                (sym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0;
+        if (! (sym instanceof JavafxClassSymbol))
+            return false;
+        sym.complete();
+        return (sym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0;
     }
 
     public boolean isJFXClass(Symbol sym) {
-        return sym instanceof JavafxClassSymbol &&
-            (sym.flags_field & JavafxFlags.FX_CLASS) != 0;
+        if (! (sym instanceof JavafxClassSymbol))
+            return false;
+        sym.complete();
+        return (sym.flags_field & JavafxFlags.FX_CLASS) != 0;
     }
     
     public void addFxClass(ClassSymbol csym, JFXClassDeclaration cdecl) {
