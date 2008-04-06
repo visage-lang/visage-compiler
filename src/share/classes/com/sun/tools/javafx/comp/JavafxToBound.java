@@ -432,7 +432,11 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 return new InstanciateTranslator(tree, toJava) {
 
                     protected void processLocalVar(JFXVar var) {
-                        buildArgField(translate(var.getInitializer()), var.type, var.getName().toString(), var.isBound());
+                        JCExpression init = var.getInitializer();
+                        JCExpression tinit = init==null?
+                                typeMorpher.makeLocationAttributeVariable(typeMorpher.varMorphInfo(var.sym), diagPos)
+                                : translate(init);
+                        buildArgField(tinit, var.type, var.getName().toString(), var.isBound());
                     }
 
                     @Override
