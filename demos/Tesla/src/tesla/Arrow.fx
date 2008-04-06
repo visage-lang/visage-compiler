@@ -46,7 +46,7 @@ public class Arrow extends CompositeNode {
     
     function composeNode():Node {
         return Group {
-            transform: bind if (left) then Rotate.rotate(180, arrowShape.currentWidth/2, arrowShape.currentHeight/2) else null
+            transform: if (left) then Rotate.rotate(180, arrowShape.currentWidth/2, arrowShape.currentHeight/2) else null as Transform
             content: bind arrowShape
         };
     }

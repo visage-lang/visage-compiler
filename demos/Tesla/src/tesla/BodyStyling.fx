@@ -143,7 +143,7 @@ public class BodyStyling extends CompositeNode {
                                 Group {
                                     content:
                                     bind if (selectedImage == col*6 + row)
-                                    then Group {
+                                    then [Group {
                                         var fillColor = Color.rgba(.7, .7, .7, 1)
                                         transform: Transform.translate(1.5, 1.5)
                                         content:
@@ -158,13 +158,13 @@ public class BodyStyling extends CompositeNode {
                                         Polygon {
                                             transform: Transform.translate(45, 0)
                                             halign: HorizontalAlignment.TRAILING
-                                            points: [0, 0, 12.5, 0, 12.5, 12.5]
+                                            points: [0.0, 0.0, 12.5, 0.0, 12.5, 12.5]
                                             fill: fillColor as Paint
                                             stroke: fillColor as  Paint
                                             strokeWidth: 3
                                             strokeLineJoin: StrokeLineJoin.BEVEL
                                         }]
-                                    }
+                                    }]
                                     else null
                                 }]
                             }  
