@@ -1,0 +1,4 @@
+jfxc995.fx:10: cyclic inheritance involving jfxc995.Foo
+class Foo extends Bar,One {
+^
+1 error
