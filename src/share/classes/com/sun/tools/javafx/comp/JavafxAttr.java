@@ -2905,7 +2905,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             log.error(tree.pos(), "array.req.but.found", pt); //TODO: msg
             result = syms.errType;
         } else {
-            Type owntype = pt.tag == NONE? syms.botType : isSeq? pt : types.sequenceType(pt);
+            Type owntype = pt.tag == NONE || pt.tag == UNKNOWN ? syms.botType :
+                    isSeq ? pt : types.sequenceType(pt);
             result = check(tree, owntype, VAL, pkind, Type.noType, pSequenceness);
         }
     }
