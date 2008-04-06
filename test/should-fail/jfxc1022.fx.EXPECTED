@@ -1,0 +1,4 @@
+jfxc1022.fx:17: Need explicit type for x because of a cycle.
+      else box.holders[index-1].x + 1.0
+                               ^
+1 error

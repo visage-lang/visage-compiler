@@ -681,6 +681,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         boolean varArgs = env.info.varArgs;
         tree.sym = sym;
 
+        if (sym.type == null) {
+            log.error(tree.pos(), "javafx.type.infer.cycle", sym.name);
+            sym.type = syms.objectType;
+        }
+
         if (site.tag == TYPEVAR && !isType(sym) && sym.kind != ERR)
             site = capture(site.getUpperBound());
 
