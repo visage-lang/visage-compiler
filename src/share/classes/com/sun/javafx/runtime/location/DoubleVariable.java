@@ -94,7 +94,7 @@ public class DoubleVariable
     }
 
     public double setAsDouble(double value) {
-        if (isBound())
+        if (isBound() && $value != value)
             throw new AssignToBoundException("Cannot assign to bound variable");
         return replaceValue(value);
     }

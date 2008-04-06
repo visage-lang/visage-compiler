@@ -84,7 +84,7 @@ public class ObjectVariable<T>
     }
 
     public T set(T value) {
-        if (isBound())
+        if (isBound() && !Util.isEqual($value, value))
             throw new AssignToBoundException("Cannot assign to bound variable");
         return replaceValue(value);
     }

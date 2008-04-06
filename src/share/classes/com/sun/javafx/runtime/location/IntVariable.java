@@ -89,7 +89,7 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
     }
 
     public int setAsInt(int value) {
-        if (isBound())
+        if (isBound() && $value != value)
             throw new AssignToBoundException("Cannot assign to bound variable");
         return replaceValue(value);
     }
