@@ -26,7 +26,7 @@
 package javafx.ui.filter;
 
 public class Source extends Filter {
-    private attribute source;
+    private attribute source:com.sun.scenario.effect.Source;
 
     init {
         update();
