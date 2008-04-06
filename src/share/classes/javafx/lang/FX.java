@@ -24,11 +24,22 @@
  */
 
 package javafx.lang;
-
 import com.sun.javafx.api.JavaFXScriptEngine;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
+// factored out to avoid linkage error for javax.script.* on Java 1.5
+class Evaluator {
+    static Object eval(String script) throws ScriptException {
+        ScriptEngineManager manager = new ScriptEngineManager();
+        ScriptEngine scrEng = manager.getEngineByExtension("javafx");
+        JavaFXScriptEngine engine = (JavaFXScriptEngine)scrEng;
+        if (engine == null)
+            throw new ScriptException("no scripting engine available");
+        return engine.eval(script);
+    }
+}
 
 /**
  * FX, analogous to java.lang.System, is a place to store static utility methods.  
@@ -59,12 +70,11 @@ public class FX {
      *         are returned by the script.
      * @throws javax.script.ScriptException
      */
-    public static Object eval(String script) throws ScriptException {
-        ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine scrEng = manager.getEngineByExtension("javafx");
-        JavaFXScriptEngine engine = (JavaFXScriptEngine)scrEng;
-        if (engine == null)
-            throw new ScriptException("no scripting engine available");
-        return engine.eval(script);
+    public static Object eval(String script) {
+        try {
+            return Evaluator.eval(script);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
