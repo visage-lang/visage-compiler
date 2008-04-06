@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="demos" default="default" basedir=".">
+<project name="demos" default="all" basedir=".">
     <description>Builds all the demos</description>
-    <dirset dir="${basedir}"  />
-
+    
     <target name="default" depends="all"/>
     <target name="demos" depends="all"/>
 
     <target name="all">
 	<subant target="default">
-		<fileset dir="." includes="*/build.xml" />
+            <fileset dir="." includes="*/build.xml" />
 	</subant>
     </target>
 
     <target name="clean">
 	<subant target="clean">
-		<fileset dir="." includes="*/build.xml" />
+            <fileset dir="." includes="*/build.xml" />
 	</subant>
     </target>
 

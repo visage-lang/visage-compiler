@@ -295,16 +295,6 @@
 
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
-    <target name="-post-jar" description="Copy command wrappers to dest/bin directory.">
-        <copy todir="dist/bin">
-            <fileset dir="src/bin"/>
-            <filterset>
-                <filter token="SCENEGRAPH_JAR" value="${scenegraph.jar}"/>
-            </filterset>
-        </copy>
-        <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>
-    </target>
-
     <target name="-post-clean" depends="runtime-clean,javafxdoc-clean,spec-clean">
         <!-- Delete ANTLR-generated files -->
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v3*.*" excludes="**/v3.g **/v3Walker.g"/>
@@ -388,68 +378,25 @@
         <ant dir="${javafxdoc.dir}" antfile="build.xml" target="jar" inheritall="false"/>
     </target>
     
-    <target name="install-scripts">
+    <target name="install-scripts" description="Copy command wrappers to dest/bin directory.">
         <copy todir="dist/bin">
             <fileset dir="src/bin"/>
+            <filterset>
+                <filter token="SCENEGRAPH_JAR" value="${scenegraph.jar}"/>
+            </filterset>
         </copy>
         <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>
     </target>
     
     <target name="demos" depends="jar,runtime">
-        <!-- tools.dir forwarding to demo projects needs to be fixed for continuous build
-        <path id="javafxc.class.path" path="${dist.jar}"/>
-        <path id="javafxrt.class.path" path="${dist.javafxrt.jar}"/>
-        <property name="file.reference.javafxc.jar" refid="javafxc.class.path"/>
-        <property name="file.reference.javafxrt.jar" refid="javafxrt.class.path"/>
-        <ant dir="demos/BasicDND" inheritall="false">
-            <property name="tools.dir" value="${tools.dir}"/>
-            <propertyset>
-                <propertyref regex="^.*\.class\.path$$"/>
-            </propertyset>
-        </ant>
-        <ant dir="demos/Calculator" inheritall="false">
-            <property name="tools.dir" value="${tools.dir}"/>
-            <propertyset>
-                <propertyref regex="^.*\.class\.path$$"/>
-            </propertyset>
-        </ant>
-        <ant dir="demos/Guitar" inheritall="false">
-            <property name="tools.dir" value="${tools.dir}"/>
-            <propertyset>
-                <propertyref regex="^.*\.class\.path$$"/>
-            </propertyset>
-        </ant>
-        <ant dir="demos/anim" inheritall="false">
-            <property name="tools.dir" value="${tools.dir}"/>
-            <propertyset>
-                <propertyref regex="^.*\.class\.path$$"/>
-            </propertyset>
-        </ant>
-        <ant dir="demos/bounce" inheritall="false">
-            <property name="tools.dir" value="${tools.dir}"/>
-            <propertyset>
-                <propertyref regex="^.*\.class\.path$$"/>
-            </propertyset>
-        </ant>
-        <ant dir="demos/javafxballs" inheritall="false">
-            <property name="tools.dir" value="${tools.dir}"/>
-            <propertyset>
-                <propertyref regex="^.*\.class\.path$$"/>
-            </propertyset>
-        </ant>
-        -->
+        <ant antfile="demos/build.xml" target="all" inheritall="false" />
         <copy todir="dist/demos">
             <fileset dir="demos" excludes="StudioMoto/**,**/build/,**/dist/,**/lib/"/>
         </copy>
     </target>
     
     <target name="demos-clean">
-        <ant dir="demos/anim" target="clean" inheritall="false"/>
-        <ant dir="demos/BasicDND" target="clean" inheritall="false"/>
-        <ant dir="demos/bounce" target="clean" inheritall="false"/>
-        <ant dir="demos/Calculator" target="clean" inheritall="false"/>
-        <ant dir="demos/Guitar" target="clean" inheritall="false"/>
-        <ant dir="demos/javafxballs" target="clean" inheritall="false"/>
+        <ant antfile="demos/build.xml" target="clean" inheritall="false"/>
         <delete dir="dist/demos" failonerror="false"/>
     </target>
     
