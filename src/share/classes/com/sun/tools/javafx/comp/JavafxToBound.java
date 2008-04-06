@@ -1450,24 +1450,6 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
     }
 
-    /**
-     * Call Variable "make" to create a bound expression.
-     * Use "stmt" which is the translation of the expression into
-     * a statement.  The Variable is created with an anonymous binding expression
-     * instance and the static dependencies.
-     */
-    JCExpression makeBoundLocation(DiagnosticPosition diagPos,
-            TypeMorphInfo tmi,
-            JCStatement stmt,
-            boolean isLazy,
-            List<JCExpression> staticDependencies) {
-
-        return toJava.makeBoundLocation(diagPos,
-            tmi,
-            stmt,
-            isLazy,
-            staticDependencies);
-    }
 
     /***********************************************************************
      *
