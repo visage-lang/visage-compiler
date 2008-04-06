@@ -12,7 +12,7 @@ import com.sun.javafx.runtime.util.StringLocalization;
  *
  * An object of this class is used to find the appropriate localized
  * strings for the given attributes.  For example,
- * <code>
+ * <code><pre>
  * // Object creation
  * var localizer = StringLocalizer{ key: "Hello, World!" };
  *
@@ -31,7 +31,7 @@ import com.sun.javafx.runtime.util.StringLocalization;
  * // the FX properties file "foo/bar/MyResources_fr.fxproperties
  * localizer.propertiesName = "foo.bar.MyResources";
  * System.out.println(localizer.localizedString()); 
- * </code>
+ * </pre></code>
  */
 public class StringLocalizer {
 
