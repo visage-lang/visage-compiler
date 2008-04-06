@@ -522,9 +522,17 @@ public class JavafxResolve {
                         expected,
                         true, false, false);
 
-                if (sym.exists())
-                    return staticOnly && ! sym.isStatic() ? new StaticError(sym)
-                            : sym;
+                if (sym.exists()) {
+                    if (staticOnly) {
+                        // Note: can't call isStatic with null owner
+                        if (sym.owner != null) {
+                            if (!sym.isStatic()) {
+                                return new StaticError(sym);
+                            }
+                        }
+                    }
+                    return sym;
+                }
             }
             if (sc != null) {
                 
