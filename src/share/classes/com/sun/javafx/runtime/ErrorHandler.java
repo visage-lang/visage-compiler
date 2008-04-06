@@ -8,8 +8,17 @@ import com.sun.javafx.runtime.sequence.Sequence;
  * @author Brian Goetz
  */
 public class ErrorHandler {
-    private final static boolean debug = Boolean.getBoolean("javafx.debug");
-    private final static boolean strict = Boolean.getBoolean("javafx.strict");
+    
+    private static boolean getBoolean(String property) {
+        try {
+            return Boolean.getBoolean(property);
+        } catch (SecurityException ignored) {
+        }
+        return false;
+    }
+    
+    private final static boolean debug = getBoolean("javafx.debug");
+    private final static boolean strict = getBoolean("javafx.strict");
 
     public static boolean isStrict() {
         return strict;
