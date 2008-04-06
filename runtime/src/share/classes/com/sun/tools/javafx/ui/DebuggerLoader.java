@@ -43,8 +43,12 @@ public class DebuggerLoader {
             Class<?> arg = Class.forName(args[0]);
             Class<?> c = Class.forName("com.sun.javafx.runtime.Entry");
             Method m = c.getMethod("start", Class.class, String[].class);
+            String[] progArgs = new String[args.length -1];
+            for (int i = 0; i < progArgs.length; i++) {
+                progArgs[i] = args[i+1];
+            }
             // @@@ JDK 6.0 dependency
-            String[] progArgs = Arrays.copyOfRange(args, 1, args.length);
+            //String[] progArgs = Arrays.copyOfRange(args, 1, args.length);
             m.invoke(null, arg, progArgs);
         } catch (Exception e) {
             e.printStackTrace();
