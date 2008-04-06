@@ -87,11 +87,11 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     public void visitVar(JFXVar tree) {
         boolean wasInBindContext = inBindContext;
         inBindContext |= tree.isBound();
-        if (tree.getInitializer() != null) {
-            tree.getInitializer().accept(this);
-        }
+        scan(tree.getInitializer());
         markVarUse(tree.sym);
         inBindContext = wasInBindContext;
+        //TODO: need global handling of 'on replace' in bind context -- probably disallowed
+        scan(tree.getOnReplace());
     }
     
    @Override
