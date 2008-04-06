@@ -96,8 +96,8 @@ public class Locations {
         return new UnmodifiableSequenceLocation<T>(loc);
     }
 
-    public static<T, V extends T> ObjectLocation<T> upcast(ObjectLocation<V> loc) {
-        return new UpcastLocation<T, V>(loc);
+    public static<T, V extends T> ObjectLocation<T> upcast(Class<V> clazz, ObjectLocation<V> loc) {
+        return new UpcastLocation<T, V>(clazz, loc);
     }
 
 
@@ -724,9 +724,11 @@ public class Locations {
 
     private static class UpcastLocation<T, V extends T> extends LocationWrapper implements ObjectLocation<T> {
         private final ObjectLocation<V> location;
+        private final Class<V> clazz;
 
-        public UpcastLocation(ObjectLocation<V> location) {
+        public UpcastLocation(Class<V> clazz, ObjectLocation<V> location) {
             this.location = location;
+            this.clazz = clazz;
         }
 
         protected Location getLocation() {
@@ -738,16 +740,15 @@ public class Locations {
         }
 
         public V set(T value) {
-            // Alternately; allow the set to proceed after passing a runtime type check; would require T.class
-            throw new UnsupportedOperationException();
+            return location.set(clazz.cast(value));
         }
 
         public T setFromLiteral(T value) {
-            throw new UnsupportedOperationException();
+            return location.setFromLiteral(clazz.cast(value));
         }
 
         public void setDefault() {
-            throw new UnsupportedOperationException();
+            location.setDefault();
         }
 
         public void addChangeListener(final ObjectChangeListener<T> listener) {

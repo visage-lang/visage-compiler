@@ -190,10 +190,9 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         if (!types.isSameType(inType, targetType)) {
             if (types.isSequence(targetType) && types.isSequence(inType)) {
                 Type targetElementType = tmiTarget.getElementType();
-                if (targetElementType == null) {
+                if (targetElementType == null) {  // runtime classes written in Java do this
                     tree.type = inType;
                     return tree;
-                    //targetElementType = syms.objectType;  // punt (probably a synthetic library class)
                 }
                 // this additional test is needed because wildcards compare as different
                 Type inElementType = typeMorpher.typeMorphInfo(inType).getElementType();
@@ -211,7 +210,9 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 if (tmiTarget.getTypeKind() == TYPE_KIND_OBJECT) {
                     List<JCExpression> typeArgs = List.of(makeTypeTree(targetType, diagPos, true),
                             makeTypeTree(syms.boxIfNeeded(inType), diagPos, true));
-                    tree = runtime(diagPos, cLocations, "upcast", typeArgs, List.of(tree));
+                    Type inElementType = typeMorpher.typeMorphInfo(inType).getElementType();
+                    JCExpression inClass = toJava.makeElementClassObject(diagPos, inElementType);
+                    tree = runtime(diagPos, cLocations, "upcast", typeArgs, List.of(inClass, tree));
                 }
             }
         }
