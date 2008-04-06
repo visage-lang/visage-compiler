@@ -83,7 +83,7 @@ public class BooleanVariable
     }
 
     public boolean setAsBoolean(boolean value) {
-        if (isBound())
+        if (isBound() && $value != value)
             throw new AssignToBoundException("Cannot assign to bound variable");
         return replaceValue(value);
     }

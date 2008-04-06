@@ -171,12 +171,14 @@ public class SequenceVariable<T>
     }
 
     public Sequence<T> set(Sequence<T> value) {
-        ensureNotBound();
+        
         Sequence<T> v = getRawValue();
         if (SequenceHelper.equals(v, value))
             return v;
-        else
+        else {
+            ensureNotBound();
             return SequenceMutator.replaceSlice(v, mutationListener, 0, Sequences.size(v) - 1, value);
+        }
     }
 
     public void setDefault() {
