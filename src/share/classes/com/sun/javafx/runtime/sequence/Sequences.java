@@ -359,15 +359,15 @@ public final class Sequences {
 		}
     }
 	
-	public static<T> boolean isEqualByContentIdentity(Sequence<T> one, Sequence<T> other) {
+	public static<T> boolean isEqualByContentIdentity(Sequence<? extends T> one, Sequence<? extends T> other) {
         int oneSize = size(one);
         if (oneSize == 0)
             return size(other) == 0;
         else if (oneSize != size(other))
             return false;
 		else {
-			Iterator<T> it1 = one.iterator();
-			Iterator<T> it2 = other.iterator();
+			Iterator<? extends T> it1 = one.iterator();
+			Iterator<? extends T> it2 = other.iterator();
 			while (it1.hasNext()) {
 				if (it1.next() != it2.next())
 					return false;

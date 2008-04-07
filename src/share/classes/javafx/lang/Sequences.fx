@@ -43,6 +43,10 @@ import java.lang.UnsupportedOperationException;
 
 public class Sequences {
     
+    public static function isEqualByContentIdentity(seq1: Object[], seq2: Object[]): Boolean {
+        return com.sun.javafx.runtime.sequence.Sequences.isEqualByContentIdentity(seq1, seq2);
+    }
+    
     /**
      * Searches the specified sequence for the specified object using the 
      * binary search algorithm. The sequence must be sorted into ascending 

@@ -709,4 +709,62 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
 
         Sequences.sort(null, null);
     }
+
+    /**
+     * function isEqualByContentIdentity(seq1: Object[], seq2: Object[]): Boolean
+     */
+    function testIsEqualByContentIdentity() {
+        var result: Boolean;
+        var localSeq: DummyElement[];
+        
+		// compare empty sequences
+		localSeq = [];
+		result = Sequences.isEqualByContentIdentity(emptyElements, localSeq);
+        assertEquals([], emptyElements);
+        assertEquals([], localSeq);
+        assertEquals(true, result);
+		
+		// compare first sequence being null
+		result = Sequences.isEqualByContentIdentity(null, emptyElements);
+        assertEquals([], emptyElements);
+        assertEquals(true, result);
+		
+		// compare second sequence being null
+		result = Sequences.isEqualByContentIdentity(emptyElements, null);
+        assertEquals([], emptyElements);
+        assertEquals(true, result);
+		
+		// compare equal sequence
+        localSeq = [element[3], element[1], element[2]];
+		result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals([element[3], element[1], element[2]], localSeq);
+        assertEquals(true, result);
+		
+		// compare sequence unequal by identity but equal by equals()
+        var localElement: DummyElement = DummyElement {id: 1};
+        assertNotSame(element[1], localElement);
+        assertEquals(element[1], localElement);
+        // TODO: Check if this is neccessary!
+        localSeq = [];
+        localSeq = [element[3], localElement, element[2]];
+		result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals([element[3], localElement, element[2]], localSeq);
+        assertEquals(false, result);
+		
+		// compare first sequence smaller than second
+        localSeq = [element[3], element[1]];
+		result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals([element[3], element[1]], localSeq);
+        assertEquals(false, result);
+		
+		// compare first sequence larger than second
+        localSeq = [element[3], element[1], element[2], element[3]];
+		result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
+        assertEquals([element[3], element[1], element[2]], unsortedElements);
+        assertEquals([element[3], element[1], element[2], element[3]], localSeq);
+        assertEquals(false, result);
+    }
 }

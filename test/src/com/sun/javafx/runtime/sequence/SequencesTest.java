@@ -797,28 +797,6 @@ public class SequencesTest extends JavaFXTestCase {
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[3], element[1], element[2], element[3]);
         assertEquals(false, result);
-		
-//        // exception when first sequence is null
-//        try {
-//            Sequences.isEqual(null, unsortedElements);
-//            fail("No exception thrown.");
-//        }
-//        catch (IllegalArgumentException ex) {
-//        }
-//        catch (Exception ex) {
-//            fail ("Unexpected exception thrown: " + ex.getMessage());
-//        }
-//		
-//		// throw error if second sequence is null
-//        try {
-//            Sequences.isEqual(unsortedElements, null);
-//            fail("No exception thrown.");
-//        }
-//        catch (IllegalArgumentException ex) {
-//        }
-//        catch (Exception ex) {
-//            fail ("Unexpected exception thrown: " + ex.getMessage());
-//        }
 	}
 
     /**
@@ -854,6 +832,8 @@ public class SequencesTest extends JavaFXTestCase {
 		
 		// compare sequence unequal by identity but equal by equals()
 		DummyElement localElement = new DummyElement(1);
+		assertNotSame(element[1], localElement);
+		assertEquals(element[1], localElement);
         localSeq = Sequences.make(DummyElement.class, element[3], localElement, element[2]);
 		result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
