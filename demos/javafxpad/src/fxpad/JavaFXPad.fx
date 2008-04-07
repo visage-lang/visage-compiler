@@ -214,6 +214,8 @@ public class JavaFXPad extends CompositeWidget {
         } 
     }
     
+
+    
     public function composeWidget(): Widget {
         if(url <> null) {
                 javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
@@ -233,7 +235,7 @@ public class JavaFXPad extends CompositeWidget {
                     content: SplitPane {
                         border: LineBorder {lineColor: Color.BLACK }
                         orientation: Orientation.VERTICAL
-                        content:  /*bind*/ [
+                        content:  [  // was bound, but your don't want bind here
                             SplitView { // display area
                                 weight: 0.45
                                 content: BorderPanel {
@@ -242,26 +244,25 @@ public class JavaFXPad extends CompositeWidget {
                                     center: ScrollPane {
                                         cursor: Cursor.DEFAULT
                                         var font =  Font.Font("Tahoma", ["PLAIN"], 8);
-                                        columnHeader:  bind /* if(canvas.height == 0) then null else*/ Canvas { // top ruler
+                                        columnHeader: Canvas { // top ruler  // was bound, but your don't want bind here
                                             content: Group {
                                                 transform: bind Transform.scale(zoomValue/100, zoomValue/100)
                                                 content: Group {
                                                     content: [
                                                         Group {
-                                                            var max:Number = Math.max(canvas.width, canvas.viewport.currentWidth);
-                                                            var endV:Number = (max *100.0 / zoomValue/ 5.0)*5+100;
-                                                            content: bind for (x in [0.0..endV step 5.0]) {
-                                                                var xx = x.intValue();
+                                                            var rulerWidth = bind (Math.max(canvas.width, canvas.viewport.currentWidth) *100/zoomValue/ 5).intValue();
+                                                            var lastTic = bind rulerWidth*5+100;
+                                                            content: bind for (x in [0..lastTic step 5]) {
                                                                 Group { // TODO inserted this GROUP because of JXFC-876
                                                                     content: [
                                                                         Line {
                                                                             stroke: Color.BLACK
-                                                                            x1: xx
-                                                                            y1: if(xx %100 == 0) then 0 else if(xx %10 == 0) then 9 else 12
-                                                                            x2: xx
+                                                                            x1: x
+                                                                            y1: if(x %100 == 0) then 0 else if(x %10 == 0) then 9 else 12
+                                                                            x2: x
                                                                             y2: 15
                                                                         },
-                                                                        if(xx %100 == 0) Text{content:"{xx}", x: xx+2, font:font} else null
+                                                                        if(x %100 == 0) Text{content:"{x}", x: x+2, font:font} else null
                                                                     ]
                                                                 }
                                                             }
@@ -279,29 +280,28 @@ public class JavaFXPad extends CompositeWidget {
                                                 }
                                             }
                                         }
-                                        var contentGroup = bind Group {
+                                        var contentGroup = Group {
                                             transform: bind Transform.scale(zoomValue/100, zoomValue/100)
                                             content: Group {
                                                 content: [
                                                     Group {
-                                                        var max:Number = Math.max(canvas.height, canvas.viewport.currentHeight);
-                                                        var endV:Number = (max *100.0 / zoomValue/ 5.0)*5+100;                                                    
-                                                        content: bind for (y in [0.0..endV step 5.0]) {
-                                                            var yy = y.intValue();
+                                                        var rulerHeight = bind (Math.max(canvas.height, canvas.viewport.currentHeight) *100/zoomValue/ 5).intValue();
+                                                        var lastTic = bind rulerHeight*5+100;
+                                                        content: bind for (y in [0..lastTic step 5]) {
                                                             Group { // TODO inserted this GROUP because of JXFC-876
                                                                 content: [
                                                                     Line {
                                                                         stroke: Color.BLACK
-                                                                        x1: if(yy %100 == 0) then 0 else if(yy %10 == 0) then 9 else 12
-                                                                        y1: yy
+                                                                        x1: if(y %100 == 0) then 0 else if(y %10 == 0) then 9 else 12
+                                                                        y1: y
                                                                         x2: 15
-                                                                        y2: yy
+                                                                        y2: y
                                                                     },
-                                                                    if(yy %100 == 0) Text {
-                                                                            content:"{yy}"
+                                                                    if(y %100 == 0) Text {
+                                                                            content:"{y}"
                                                                             font:font
                                                                             x: 6
-                                                                            y: yy-10
+                                                                            y: y-10
                                                                             //transform: Transform.translate(6, y-10)
                                                                             halign:HorizontalAlignment.TRAILING
                                                                         } else null
@@ -324,7 +324,7 @@ public class JavaFXPad extends CompositeWidget {
                                         rowHeader: Canvas { // left margin ruler
                                             content: Group {
                                                 transform: bind Transform.translate(-contentGroup.currentX, 0)
-                                                content: bind contentGroup
+                                                content: contentGroup
                                             }
                                         }
                                         view: canvas // the main display for the script
