@@ -241,12 +241,13 @@ public class SequenceVariable<T>
         Sequence<T> result;
         ensureNotBound();
         Sequence<T> oldValue = getRawValue();
-        // Workaround for JFXC-885
-        if (!isInitialized() && !isEverValid() && Sequences.size(newValue) == 0 && Sequences.size(value) == 0) {
-            result = Sequences.emptySequence(clazz);
-            replaceValue(result);
-        }
-        else if (!Sequences.isEqual(oldValue, newValue) || !isInitialized() || !isEverValid()) {
+        // Workaround for JFXC-885 -- reverted AGAIN
+//        if (!isInitialized() && !isEverValid() && Sequences.size(newValue) == 0 && Sequences.size(value) == 0) {
+//            result = Sequences.emptySequence(clazz);
+//            replaceValue(result);
+//        }
+//        else
+        if (!Sequences.isEqual(oldValue, newValue) || !isInitialized() || !isEverValid()) {
             result = SequenceMutator.replaceSlice(oldValue, mutationListener, 0, Sequences.size(oldValue) - 1, newValue);
         }
         else

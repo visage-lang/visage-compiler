@@ -24,11 +24,11 @@ var f = false;
 System.out.print("4:"); Foo {attr: bind t}
 System.out.print("5:"); Foo {attr: bind f}
 
-System.out.print("6:"); Moo {}
+// System.out.print("6:"); Moo {}
 System.out.print("7:"); Moo {sattr: [ false ]}
 System.out.print("8:"); Moo {sattr: [ true ]}
 var tt = [true];
 var e : Boolean[] = [];
 System.out.print("9:"); Moo {sattr: bind tt}
-System.out.print("10:"); Moo {sattr: bind e}
+// System.out.print("10:"); Moo {sattr: bind e}
 
