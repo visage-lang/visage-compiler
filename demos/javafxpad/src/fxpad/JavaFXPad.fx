@@ -214,8 +214,6 @@ public class JavaFXPad extends CompositeWidget {
         } 
     }
     
-
-    
     public function composeWidget(): Widget {
         if(url <> null) {
                 javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
@@ -244,24 +242,26 @@ public class JavaFXPad extends CompositeWidget {
                                     center: ScrollPane {
                                         cursor: Cursor.DEFAULT
                                         var font =  Font.Font("Tahoma", ["PLAIN"], 8);
-                                        columnHeader: /* bind if(canvas.height == 0) then null else*/ Canvas { // top ruler
+                                        columnHeader:  bind /* if(canvas.height == 0) then null else*/ Canvas { // top ruler
                                             content: Group {
                                                 transform: bind Transform.scale(zoomValue/100, zoomValue/100)
                                                 content: Group {
                                                     content: [
                                                         Group {
-                                                            content: bind for (x in [0..(Math.max(canvas.width, canvas.viewport.currentWidth) *100/zoomValue/ 5).intValue()*5+100 step 5]) {
-                                                                //System.out.println("x = {y}");
+                                                            var max:Number = Math.max(canvas.width, canvas.viewport.currentWidth);
+                                                            var endV:Number = (max *100.0 / zoomValue/ 5.0)*5+100;
+                                                            content: bind for (x in [0.0..endV step 5.0]) {
+                                                                var xx = x.intValue();
                                                                 Group { // TODO inserted this GROUP because of JXFC-876
                                                                     content: [
                                                                         Line {
                                                                             stroke: Color.BLACK
-                                                                            x1: x
-                                                                            y1: if(x %100 == 0) then 0 else if(x %10 == 0) then 9 else 12
-                                                                            x2: x
+                                                                            x1: xx
+                                                                            y1: if(xx %100 == 0) then 0 else if(xx %10 == 0) then 9 else 12
+                                                                            x2: xx
                                                                             y2: 15
                                                                         },
-                                                                        if(x %100 == 0) Text{content:"{x}", x: x+2, font:font} else null
+                                                                        if(xx %100 == 0) Text{content:"{xx}", x: xx+2, font:font} else null
                                                                     ]
                                                                 }
                                                             }
@@ -279,27 +279,29 @@ public class JavaFXPad extends CompositeWidget {
                                                 }
                                             }
                                         }
-                                        var contentGroup = Group {
+                                        var contentGroup = bind Group {
                                             transform: bind Transform.scale(zoomValue/100, zoomValue/100)
                                             content: Group {
                                                 content: [
                                                     Group {
-                                                        content: bind for (y in [0..(Math.max(canvas.height, canvas.viewport.currentHeight) *100/zoomValue/ 5).intValue()*5+100 step 5]) {
-                                                            //System.out.println("y = {y}");
+                                                        var max:Number = Math.max(canvas.height, canvas.viewport.currentHeight);
+                                                        var endV:Number = (max *100.0 / zoomValue/ 5.0)*5+100;                                                    
+                                                        content: bind for (y in [0.0..endV step 5.0]) {
+                                                            var yy = y.intValue();
                                                             Group { // TODO inserted this GROUP because of JXFC-876
                                                                 content: [
                                                                     Line {
                                                                         stroke: Color.BLACK
-                                                                        x1: if(y %100 == 0) then 0 else if(y %10 == 0) then 9 else 12
-                                                                        y1: y
+                                                                        x1: if(yy %100 == 0) then 0 else if(yy %10 == 0) then 9 else 12
+                                                                        y1: yy
                                                                         x2: 15
-                                                                        y2: y
+                                                                        y2: yy
                                                                     },
-                                                                    if(y %100 == 0) Text {
-                                                                            content:"{y}"
+                                                                    if(yy %100 == 0) Text {
+                                                                            content:"{yy}"
                                                                             font:font
                                                                             x: 6
-                                                                            y: y-10
+                                                                            y: yy-10
                                                                             //transform: Transform.translate(6, y-10)
                                                                             halign:HorizontalAlignment.TRAILING
                                                                         } else null
@@ -322,7 +324,7 @@ public class JavaFXPad extends CompositeWidget {
                                         rowHeader: Canvas { // left margin ruler
                                             content: Group {
                                                 transform: bind Transform.translate(-contentGroup.currentX, 0)
-                                                content: /*bind*/ contentGroup
+                                                content: bind contentGroup
                                             }
                                         }
                                         view: canvas // the main display for the script
