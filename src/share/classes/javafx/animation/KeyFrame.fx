@@ -25,11 +25,29 @@
 
 package javafx.animation;
 
+import java.lang.Comparable;
+import java.lang.Object;
 import javafx.lang.Duration;
 
-public class KeyFrame {
+public class KeyFrame extends Comparable {
     public attribute time: Duration;
     public attribute values: KeyValue[];
     public attribute timelines: Timeline[];
     public attribute action: function();
+
+    public function compareTo(o:Object):Integer {
+        var kf = o as KeyFrame;
+        return time.compareTo(kf.time);
+    }
+
+    function visit() {
+        for (kv in values) {
+            if (kv.target <> null and kv.value <> null) {
+                kv.target.set(kv.value);
+            }
+        }
+        if (action <> null) {
+            action();
+        }
+    }
 }

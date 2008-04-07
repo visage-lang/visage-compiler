@@ -31,6 +31,7 @@ import com.sun.scenario.animation.Interpolators;
 import com.sun.scenario.animation.TimingTarget;
 import com.sun.scenario.animation.TimingTargetAdapter;
 import javafx.lang.Duration;
+import javafx.lang.Sequences;
 import java.lang.Object;
 import java.lang.System;
 import java.util.ArrayList;
@@ -67,7 +68,7 @@ public class Timeline {
         return duration * repeatCount;
     }
 
-    public function start():Void {
+    public function start() {
         if (clip <> null) {
             clip.stop();
         }
@@ -75,19 +76,23 @@ public class Timeline {
         clip.start();
     }
 
-    public function stop():Void {
+    public function stop() {
         clip.stop();
     }
 
-    public function pause():Void {
+    public function pause() {
         clip.pause();
     }
 
-    public function resume():Void {
+    public function resume() {
         clip.resume();
     }
 
-    private function buildClip():Void {
+    public function isRunning():Boolean {
+        clip.isRunning();
+    }
+
+    private function buildClip() {
         if (clip <> null and clip.isRunning()) {
             clip.cancel();
         }
@@ -96,10 +101,13 @@ public class Timeline {
     }
 
     private attribute clip: Clip;
+    private attribute sortedFrames: KeyFrame[];
     private attribute targets: ArrayList = new ArrayList();
-    private attribute actions: ArrayList = new ArrayList();
     private attribute subtimelines: ArrayList = new ArrayList();
     private attribute adapter: TimingTarget = createAdapter();
+
+    private attribute cycleIndex: Integer = 0;
+    private attribute frameIndex: Integer = 0;
 
     //
     // Need to revalidate everything (call rebuildTargets() again) if
@@ -117,9 +125,10 @@ public class Timeline {
     //
     private function rebuildTargets() {
         targets.clear();
-        actions.clear();
         subtimelines.clear();
         duration = 0;
+
+        sortedFrames = Sequences.sort(keyFrames) as KeyFrame[];
 
         for (keyFrame in keyFrames) {
             if (duration >= 0) {
@@ -140,10 +149,6 @@ public class Timeline {
                     }
                     subtimelines.add(sub);
                 }
-            }
-
-            if (keyFrame.action <> null) {
-                actions.add(Action { keyFrame: keyFrame });
             }
 
             for (keyValue in keyFrame.values) {
@@ -172,7 +177,7 @@ public class Timeline {
         valid = true;
     }
 
-    function process(totalElapsed:Number) : Void {
+    function process(totalElapsed:Number):Void {
         var needsStop = false;
         var totalDur = getTotalDur();
         if (totalDur >= 0 and totalElapsed >= totalDur) {
@@ -212,18 +217,41 @@ public class Timeline {
             }
         }
 
+        // look through each KeyFrame and see if we need to visit its
+        // key values and its action function
+        if (cycle > cycleIndex) {
+            // we're on a new cycle; visit any key frames that we may
+            // have missed along the way
+            while (cycleIndex < cycle) {
+                var cycleBackward = false;
+                if (autoReverse) {
+                    if (cycleIndex % 2 == 1) {
+                        cycleBackward = not cycleBackward;
+                    }
+                }
+                if (direction == Direction.REVERSE) {
+                    cycleBackward = not cycleBackward;
+                }
+                var cycleT = if (cycleBackward) 0 else duration;
+
+                visitFrames(cycleT, cycleBackward);
+
+                // avoid repeated visits to terminals in autoReverse case
+                frameIndex = if (autoReverse) 1 else 0;
+                cycleIndex++;
+            }
+        }
+        visitFrames(curT, backward);
+
+        // now handle the active interval for each target
         for (i in [0..<targets.size()]) {
             var pairlist = targets.get(i) as KFPairList;
             var kfpair1 = pairlist.get(0);
             var leftT = kfpair1.frame.time.millis;
+
             if (curT < leftT) {
                 // haven't yet reached the first key frame
-                // for this target; but still, we need to make sure
-                // the target reaches its start/end value on each cycle
-                if (cycle > pairlist.visitedCycle) {
-                    pairlist.target.set(kfpair1.value.value);
-                    pairlist.visitedCycle = cycle;
-                }
+                // for this target
                 continue;
             }
 
@@ -263,30 +291,44 @@ public class Timeline {
             }
         }
 
-        // look through all KeyFrames containing non-null action() function
-        // and invoke action() if necessary
-        for (i in [0..<actions.size()]) {
-            var action = actions.get(i) as Action;
-            action.visit(curT, cycle, backward);
-        }
-
         if (needsStop and clip <> null) {
             clip.stop();
+        }
+    }
+
+    private function visitFrames(curT:Number, backward:Boolean) {
+        if (backward) {
+            var i1 = sortedFrames.size()-1-frameIndex;
+            var i2 = 0;
+            for (fi in [i1..i2 step -1]) {
+                var kf = sortedFrames[fi];
+                if (curT <= kf.time.millis) {
+                    kf.visit();
+                    frameIndex++;
+                } else {
+                    break;
+                }
+            }
+        } else {
+            var i1 = frameIndex;
+            var i2 = sortedFrames.size()-1;
+            for (fi in [i1..i2]) {
+                var kf = sortedFrames[fi];
+                if (curT >= kf.time.millis) {
+                    kf.visit();
+                    frameIndex++;
+                } else {
+                    break;
+                }
+            }
         }
     }
 
     private function createAdapter():TimingTarget {
         TimingTargetAdapter {
             public function begin() : Void {
-                // clear the visited flag on all Actions and KFPairLists
-                for (i in [0..<actions.size()]) {
-                    var action = actions.get(i) as Action;
-                    action.reset();
-                }
-                for (i in [0..<targets.size()]) {
-                    var target = targets.get(i) as KFPairList;
-                    target.reset();
-                }
+                cycleIndex = 0;
+                frameIndex = 0;
             }
             
             public function timingEvent(fraction, totalElapsed) : Void {
@@ -304,11 +346,6 @@ class KFPair {
 class KFPairList {
     attribute target:Pointer;
     private attribute pairs:ArrayList = new ArrayList();
-
-    attribute visitedCycle:Integer = 0;
-    function reset() {
-        visitedCycle = 0;
-    }
 
     function size(): Integer {
         return pairs.size();
@@ -334,35 +371,4 @@ class KFPairList {
 class SubTimeline {
     attribute startTime:Duration;
     attribute timeline:Timeline;
-}
-
-class Action {
-    attribute keyFrame:KeyFrame;
-
-    private attribute visitedCycle:Integer = -1;
-    function reset() {
-        visitedCycle = -1;
-    }
-
-    function visit(curT:Number, cycle:Integer, backward:Boolean) {
-        if (cycle > visitedCycle) {
-            if (cycle > visitedCycle + 1) {
-                // missed the last cycle entirely, so make up for it now
-                visitedCycle = cycle;
-                keyFrame.action();
-            } else {
-                if (backward) {
-                    if (curT <= keyFrame.time.millis) {
-                        visitedCycle = cycle;
-                        keyFrame.action();
-                    }
-                } else {
-                    if (curT >= keyFrame.time.millis) {
-                        visitedCycle = cycle;
-                        keyFrame.action();
-                    }
-                }
-            }
-        }
-    }
 }
