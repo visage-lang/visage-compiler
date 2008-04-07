@@ -43,7 +43,7 @@
   -->
     
 
-    <para>Objects may be allocated using a declarative syntax consisting of
+    <para>You can allocate objects using a declarative syntax form consisting of
     the name of the class followed by a curly brace delimited list of
     attribute initializers. Each initializer consists of the attribute name
     followed by a colon, followed by an expression which defines its value
@@ -245,7 +245,7 @@ frame.setVisible(true);
     the <code>attribute</code> keyword followed by the attribute's name, a
     colon, the attribute's type, optionally a cardinality specification
     (<code>?</code> meaning optional, <code>*</code> meaning zero or more, or
-    <code>+</code> meaning one or more), <code></code>terminated with a
+    <code>+</code> meaning one or more), terminated with a
     semicolon.</para>
 
 
