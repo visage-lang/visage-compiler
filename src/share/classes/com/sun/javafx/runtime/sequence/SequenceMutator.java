@@ -115,6 +115,9 @@ public class SequenceMutator {
         else
             throw new IllegalArgumentException();
 
+        if (result != target && shouldFlatten(result))
+            result = result.flatten();
+
         if (result != target && listener != null)
             listener.onReplaceSlice(startPos, endPos, newValues, target, result);
         return result;

@@ -48,42 +48,42 @@ public class BoundRangeTest extends JavaFXTestCase {
         
         a.set(8);
         assertEquals(range, 8, 9, 10, 11, 12, 13, 14, 15);
-        assertEquals(1, range.get().getDepth());
+//        assertEquals(1, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, -1] => [ 8, 9 ]");
 
         a.set(11);
         assertEquals(range, 11, 12, 13, 14, 15);
-        assertEquals(2, range.get().getDepth());
+//        assertEquals(2, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 2] => [ ]");
 
         b.set(17);
         assertEquals(range, 11, 12, 13, 14, 15, 16, 17);
-        assertEquals(3, range.get().getDepth());
+//        assertEquals(3, range.get().getDepth());
         assertEqualsAndClear(hl, "[5, 4] => [ 16, 17 ]");
 
         b.set(14);
         assertEquals(range, 11, 12, 13, 14);
-        assertEquals(4, range.get().getDepth());
+//        assertEquals(4, range.get().getDepth());
         assertEqualsAndClear(hl, "[4, 6] => [ ]");
 
         a.set(19);
         assertEquals(range);  // range becomes an empty sequence
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 3] => [ ]");
 
         a.set(11);
         assertEquals(range, 11, 12, 13, 14); // when a sequence (s) is inserted into an empty empty, s is returned
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, -1] => [ 11, 12, 13, 14 ]");
 
         b.set(1);
         assertEquals(range);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 3] => [ ]");
 
         b.set(16);
         assertEquals(range, 11, 12, 13, 14, 15, 16);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, -1] => [ 11, 12, 13, 14, 15, 16 ]");
     }
 
@@ -99,49 +99,49 @@ public class BoundRangeTest extends JavaFXTestCase {
         stepRange.addChangeListener(hls);
         
         assertEquals(stepRange, 10, 12, 14);
-        assertEquals(0, stepRange.get().getDepth());
+//        assertEquals(0, stepRange.get().getDepth());
         hls.clear();
   
         c.set(8);
         assertEquals(stepRange, 8, 10, 12,  14);
-        assertEquals(1, stepRange.get().getDepth());
+//        assertEquals(1, stepRange.get().getDepth());
         assertEqualsAndClear(hls, "[0, -1] => [ 8 ]");
 
         
         c.set(11);
         assertEquals(stepRange, 11,  13,  15);
-        assertEquals(0, stepRange.get().getDepth());
+//        assertEquals(0, stepRange.get().getDepth());
         assertEqualsAndClear(hls, "[0, 2] => [ 11, 13, 15 ]");
 
         
         d.set(17);
         assertEquals(stepRange, 11, 13, 15, 17);
-        assertEquals(1, stepRange.get().getDepth());
+//        assertEquals(1, stepRange.get().getDepth());
         assertEqualsAndClear(hls, "[3, 2] => [ 17 ]");
         
         d.set(14);
         assertEquals(stepRange, 11, 13);
-        assertEquals(2, stepRange.get().getDepth());
+//        assertEquals(2, stepRange.get().getDepth());
         assertEqualsAndClear(hls, "[2, 3] => [ ]");
 
         c.set(19);
         assertEquals(stepRange);
-        assertEquals(0, stepRange.get().getDepth());
+//        assertEquals(0, stepRange.get().getDepth());
         assertEqualsAndClear(hls, "[0, 1] => [ ]");
 
         c.set(11);
         assertEquals(stepRange, 11,13);
-        assertEquals(0, stepRange.get().getDepth());
+//        assertEquals(0, stepRange.get().getDepth());
         assertEqualsAndClear(hls, "[0, -1] => [ 11, 13 ]");
 
         d.set(1);
         assertEquals(stepRange);
-        assertEquals(0, stepRange.get().getDepth());
+//        assertEquals(0, stepRange.get().getDepth());
         assertEqualsAndClear(hls, "[0, 1] => [ ]");
       
         d.set(16);
         assertEquals(stepRange, 11,  13,  15);
-        assertEquals(0, stepRange.get().getDepth());
+//        assertEquals(0, stepRange.get().getDepth());
         assertEqualsAndClear(hls, "[0, -1] => [ 11, 13, 15 ]");       
 
     }
@@ -158,67 +158,67 @@ public class BoundRangeTest extends JavaFXTestCase {
         exclusiveRange.addChangeListener(hle);
         
         assertEquals(exclusiveRange, 20, 17, 14, 11);
-        assertEquals(0, exclusiveRange.get().getDepth());
+//        assertEquals(0, exclusiveRange.get().getDepth());
         hle.clear();
         
         e.set(17);
         assertEquals(exclusiveRange, 17, 14, 11);
-        assertEquals(1, exclusiveRange.get().getDepth());
+//        assertEquals(1, exclusiveRange.get().getDepth());
         assertEqualsAndClear(hle, "[0, 0] => [ ]");
         
         e.set(16);
         assertEquals(exclusiveRange, 16, 13);
-        assertEquals(0, exclusiveRange.get().getDepth());
+//        assertEquals(0, exclusiveRange.get().getDepth());
         assertEqualsAndClear(hle, "[0, 1] => [ 16, 13 ]");
         
         e.set(10);
         assertEquals(exclusiveRange);
-        assertEquals(0, exclusiveRange.get().getDepth());
+//        assertEquals(0, exclusiveRange.get().getDepth());
         assertEqualsAndClear(hle, "[0, 1] => [ ]");
         
         f.set(0);
         assertEquals(exclusiveRange, 10, 7, 4, 1);
-        assertEquals(0, exclusiveRange.get().getDepth());
+//        assertEquals(0, exclusiveRange.get().getDepth());
         assertEqualsAndClear(hle, "[0, -1] => [ 10, 7, 4, 1 ]");
         
         f.set(-5);
         assertEquals(exclusiveRange, 10, 7, 4, 1, -2);
-        assertEquals(1, exclusiveRange.get().getDepth());
+//        assertEquals(1, exclusiveRange.get().getDepth());
         assertEqualsAndClear(hle, "[4, 3] => [ -2 ]");
         
         f.set(-7);
         assertEquals(exclusiveRange, 10, 7, 4, 1, -2, -5);
-        assertEquals(2, exclusiveRange.get().getDepth());
+//        assertEquals(2, exclusiveRange.get().getDepth());
         assertEqualsAndClear(hle, "[5, 4] => [ -5 ]");
         
         f.set(-4);
         assertEquals(exclusiveRange, 10, 7, 4, 1, -2);
-        assertEquals(3, exclusiveRange.get().getDepth());
+//        assertEquals(3, exclusiveRange.get().getDepth());
         assertEqualsAndClear(hle, "[5, 5] => [ ]");
         
         f.set(-2);    
         assertEquals(exclusiveRange, 10, 7, 4, 1);
-        assertEquals(4, exclusiveRange.get().getDepth());
+//        assertEquals(4, exclusiveRange.get().getDepth());
         assertEqualsAndClear(hle, "[4, 4] => [ ]");
         
         f.set(10);
         assertEquals(exclusiveRange);
-        assertEquals(0, exclusiveRange.get().getDepth());
+//        assertEquals(0, exclusiveRange.get().getDepth());
         assertEqualsAndClear(hle, "[0, 3] => [ ]");
         
         f.set(-10);
         assertEquals(exclusiveRange, 10, 7, 4, 1, -2, -5, -8);
-        assertEquals(0, exclusiveRange.get().getDepth());
+//        assertEquals(0, exclusiveRange.get().getDepth());
         assertEqualsAndClear(hle, "[0, -1] => [ 10, 7, 4, 1, -2, -5, -8 ]");
         
         ns.set(3);
         assertEquals(exclusiveRange);
-        assertEquals(0, exclusiveRange.get().getDepth());
+//        assertEquals(0, exclusiveRange.get().getDepth());
         assertEqualsAndClear(hle, "[0, 6] => [ ]");
         
         ns.set(-4);
         assertEquals(exclusiveRange, 10, 6, 2, -2, -6);
-        assertEquals(0, exclusiveRange.get().getDepth());
+//        assertEquals(0, exclusiveRange.get().getDepth());
         assertEqualsAndClear(hle, "[0, -1] => [ 10, 6, 2, -2, -6 ]");
     }
     
@@ -231,63 +231,63 @@ public class BoundRangeTest extends JavaFXTestCase {
         range.addChangeListener(hl);
 
         assertEquals(range, 10.2, 11.2, 12.2, 13.2, 14.2, 15.2);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         hl.clear();
        
         a.set(8.2);
         assertEquals(range, 8.2, 9.2, 10.2, 11.2, 12.2, 13.2, 14.2, 15.2);
-        assertEquals(1, range.get().getDepth());
+//        assertEquals(1, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, -1] => [ 8.2, 9.2 ]");
 
         a.set(11.2);
         assertEquals(range, 11.2, 12.2, 13.2, 14.2, 15.2);
-        assertEquals(2, range.get().getDepth());
+//        assertEquals(2, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 2] => [ ]");
         
         a.set(11.88);
         assertEquals(range, 11.88, 12.88, 13.88, 14.88);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 3] => [ 11.88, 12.88, 13.88, 14.88 ]");
         
         a.set(9.22);
         assertEquals(range, 9.22, 10.22, 11.22, 12.22, 13.22, 14.22, 15.22);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 6] => [ 9.22, 10.22, 11.22, 12.22, 13.22, 14.22, 15.22 ]");
         
         a.set(9.22);
         assertEquals(range, 9.22, 10.22, 11.22, 12.22, 13.22, 14.22, 15.22);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl);
               
    
         b.set(17.08);
         assertEquals(range, 9.22, 10.22, 11.22, 12.22, 13.22, 14.22, 15.22, 16.22);
-        assertEquals(1, range.get().getDepth());
+//        assertEquals(1, range.get().getDepth());
         assertEqualsAndClear(hl, "[7, 6] => [ 16.22 ]");
 
         b.set(14.23);
         assertEquals(range, 9.22, 10.22, 11.22, 12.22, 13.22, 14.22);
-        assertEquals(2, range.get().getDepth());
+//        assertEquals(2, range.get().getDepth());
         assertEqualsAndClear(hl, "[6, 7] => [ ]");
 
         a.set(19.0);
         assertEquals(range);  // range becomes an empty sequence
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 0] => [ ]");
 
         a.set(11.0);
         assertEquals(range, 11.0, 12.0, 13.0, 14.0); 
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, -1] => [ 11.0, 12.0, 13.0, 14.0 ]");
 
         b.set(14.0);
         assertEquals(range, 11.0, 12.0, 13.0, 14.0);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl);
 
         b.set(16.0);
         assertEquals(range, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0);
-        assertEquals(1, range.get().getDepth());
+//        assertEquals(1, range.get().getDepth());
         assertEqualsAndClear(hl, "[4, 3] => [ 15.0, 16.0 ]");        
          
     }
@@ -301,22 +301,22 @@ public class BoundRangeTest extends JavaFXTestCase {
         range.addChangeListener(hl);
         
         assertEquals(range, 10.2, 11.2, 12.2, 13.2, 14.2);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         hl.clear();
        
         b.set(14.2);
         assertEquals(range, 10.2, 11.2, 12.2, 13.2);
-        assertEquals(1, range.get().getDepth());
+//        assertEquals(1, range.get().getDepth());
         assertEqualsAndClear(hl, "[4, 4] => [ ]");
         
         a.set(14.2);
         assertEquals(range);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 3] => [ ]");
         
         a.set(14.1);
         assertEquals(range, 14.1);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, -1] => [ 14.1 ]");
         
      }
@@ -331,12 +331,12 @@ public class BoundRangeTest extends JavaFXTestCase {
         range.addChangeListener(hl);
         
         assertEquals(range, 0.0, 2.0);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         hl.clear();
         
         s.set(3.0);
         assertEquals(range, 0.0, 3.0);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 1] => [ 0.0, 3.0 ]");
         
         a.set(10.2);
@@ -344,22 +344,22 @@ public class BoundRangeTest extends JavaFXTestCase {
         hl.clear();
         
         assertEquals(range, 10.2, 13.2);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         hl.clear();
        
         b.set(13.2);
         assertEquals(range, 10.2);
-        assertEquals(1, range.get().getDepth());
+//        assertEquals(1, range.get().getDepth());
         assertEqualsAndClear(hl, "[1, 1] => [ ]");
         
         a.set(2.2);
         assertEquals(range, 2.2, 5.2, 8.2, 11.2);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 3] => [ 2.2, 5.2, 8.2, 11.2 ]");
         
         b.set(17.2);
         assertEquals(range, 2.2, 5.2, 8.2, 11.2, 14.2);
-        assertEquals(1, range.get().getDepth());
+//        assertEquals(1, range.get().getDepth());
         assertEqualsAndClear(hl, "[4, 3] => [ 14.2 ]");
         
         a.set(2.5);
@@ -368,7 +368,7 @@ public class BoundRangeTest extends JavaFXTestCase {
         hl.clear();
         
         assertEquals(range, 2.5, -0.5, -3.5, -6.5);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         hl.clear();    
 
      }
