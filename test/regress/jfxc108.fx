@@ -2,7 +2,7 @@ import java.lang.System;
 
 /*
  * @test
- * @run/fail
+ * @run
  *
  * Copied from jfxc106.fx, but with different results, pending completion of jfxc108 (at which point, jfxc106 will
  * start failing and it should be amended.)

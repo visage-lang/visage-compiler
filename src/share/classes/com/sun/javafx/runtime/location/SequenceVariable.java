@@ -24,6 +24,7 @@ public class SequenceVariable<T>
     private final SequenceMutator.Listener<T> mutationListener;
     private List<SequenceChangeListener<T>> changeListeners;
     private Sequence<T> value;
+    private SequenceLocation<T> boundLocation;
 
 
     public static <T> SequenceVariable<T> make(Class clazz) {
@@ -94,6 +95,7 @@ public class SequenceVariable<T>
 
     /** Update the held value, notifying change listeners */
     private void replaceValue(Sequence<T> newValue) {
+        assert(boundLocation == null);
         if (newValue == null)
             newValue = Sequences.emptySequence(clazz);
         replaceSlice(0, Sequences.size(value)-1, newValue, newValue);
@@ -101,6 +103,7 @@ public class SequenceVariable<T>
 
     /** Update the held value, notifying change listeners */
     private void replaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> newValue) {
+        assert(boundLocation == null);
         Sequence<T> oldValue = value;
         if (!Sequences.isEqual(oldValue, newValue) || !isInitialized() || !isEverValid()) {
             value = newValue;
@@ -174,6 +177,30 @@ public class SequenceVariable<T>
         }
     }
 
+    public void bind(SequenceLocation<T> otherLocation) {
+        ensureBindable();
+        boundLocation = otherLocation;
+        otherLocation.addChangeListener(new ChangeListener() {
+            public boolean onChange(Location location) {
+                valueChanged();
+                return true;
+            }
+        });
+        otherLocation.addChangeListener(new SequenceChangeListener<T>() {
+            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                value = newValue;
+                notifyListeners(startPos, endPos, newElements, oldValue, newValue);
+            }
+        });
+        Sequence<T> oldValue = value;
+        value = otherLocation.get();
+        notifyListeners(0, Sequences.size(oldValue)-1, value, oldValue, value);
+    }
+
+    public boolean isBound() {
+        return super.isBound() || (boundLocation != null);
+    }
+
     @Override
     public String toString() {
         return getAsSequence().toString();
@@ -186,8 +213,9 @@ public class SequenceVariable<T>
     @Override
     public void update() {
         try {
-            if (isBound() && !isValid())
+            if (isBound() && !isValid() && boundLocation == null) {
                 replaceValue(Sequences.upcast(clazz, binding.computeValue()));
+            }
         }
         catch (RuntimeException e) {
             ErrorHandler.bindException(e);
