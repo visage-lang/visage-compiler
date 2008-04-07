@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 import java.util.Set;
@@ -61,6 +62,7 @@ public class FXCompilerTest extends TestSuite {
      * @return a Test which
      */
     public static Test suite() throws Exception {
+        Locale.setDefault(new Locale(""));
         List<Test> tests = new ArrayList<Test>();
         Set<String> orphans = new TreeSet<String>();
         for (String root : TEST_ROOTS) {
