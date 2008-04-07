@@ -198,7 +198,7 @@ import org.antlr.runtime.*;
 @lexer::members {
     /** The log to be used for error diagnostics.
      */
-    private Log log;
+//    private Log log;
     
     static final byte NO_INSERT_SEMI = 0; // default
     static final byte INSERT_SEMI = 1; 
@@ -314,7 +314,7 @@ import org.antlr.runtime.*;
             return quoteStack != null;
         }
     }
-    
+
     void processString() {
     	setText(StringLiteralProcessor.convert( log, getCharIndex(), getText() ));
     }
