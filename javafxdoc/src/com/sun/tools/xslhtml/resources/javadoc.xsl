@@ -31,7 +31,7 @@
     
     <!-- indexes -->
     
-    <xsl:template match="packageList">
+    <xsl:template match="packageList[@mode='overview-frame']">
         <html>
             <head>
                 <link href="{$master-css}" rel="stylesheet"/>
@@ -57,10 +57,43 @@
         </html>
     </xsl:template>
     
+    <xsl:template match="packageList[@mode='overview-summary']">
+        <html>
+            <head>
+                <link href="{$master-css}" rel="stylesheet"/>
+                <xsl:if test="$extra-css">
+                    <link href="{$extra-css}" rel="stylesheet"/>
+                </xsl:if>
+                <xsl:if test="$extra-js">
+                    <script src="{$extra-js}"></script>
+                </xsl:if>
+            </head>
+            <body>
+                <h3>this is the summary</h3>
+                <table>
+                    <tr><th>This is a summary</th></tr>
+                    <xsl:for-each select="package">
+                        <tr>
+                            <td>
+                                <a target='classFrame'>
+                                    <xsl:attribute name="href"><xsl:value-of select="@name"/>/package-summary.html</xsl:attribute>
+                                    <xsl:value-of select="@name"/>
+                                </a>
+                            </td>
+                            <td>
+                                a description
+                            </td>
+                        </tr>
+                    </xsl:for-each>
+                </table>
+            </body>
+        </html>
+    </xsl:template>
     
     
     
-    <xsl:template match="classList">
+    
+    <xsl:template match="classList[@mode='overview-frame']">
         <html>
             <head>
                 <link href="../{$master-css}" rel="stylesheet"/>
@@ -87,6 +120,37 @@
         </html>
     </xsl:template>
     
+    
+    <xsl:template match="classList[@mode='overview-summary']">
+        <html>
+            <head>
+                <link href="../{$master-css}" rel="stylesheet"/>
+                <xsl:if test="$extra-css">
+                    <link href="../{$extra-css}" rel="stylesheet"/>
+                </xsl:if>
+                <xsl:if test="$extra-js">
+                    <script src="../{$extra-js}"></script>
+                </xsl:if>
+            </head>
+            <body>
+                <p><b><xsl:value-of select="@packageName"/></b></p>
+                <table>
+                    <tr><th>This is a summary</th></tr>
+                    <xsl:for-each select="class">
+                        <tr>
+                            <td>
+                                <a target='classFrame'>
+                                    <xsl:attribute name="href"><xsl:value-of select="@qualifiedName"/>.html</xsl:attribute>
+                                    <xsl:value-of select="@name"/>
+                                </a>
+                            </td>
+                            <td>class description</td>
+                         </tr>
+                     </xsl:for-each>
+                </table>
+            </body>
+        </html>
+    </xsl:template>
     
     
     

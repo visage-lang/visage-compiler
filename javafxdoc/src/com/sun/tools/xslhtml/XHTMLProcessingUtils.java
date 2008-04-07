@@ -146,16 +146,17 @@ public class XHTMLProcessingUtils {
 
         XPath xpath = XPathFactory.newInstance().newXPath();
 
-        // packages
+        // print out packages list
         NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET); 
-        MessageFormat form = new MessageFormat("The disk \"{1}\" contains {0}.");
         p(INFO, MessageFormat.format(getString("creating.packages"), packages.getLength()));
         
         
+        //build xml doc for the packages
         Document packages_doc = builder.newDocument();
         Element package_list_elem = packages_doc.createElement("packageList");
         packages_doc.appendChild(package_list_elem);
 
+        //for each package, generate the package itself and append to package list doc
         for (int i = 0; i < packages.getLength(); i++) {
             Element pkg = ((Element) packages.item(i));
             String name = pkg.getAttribute("name");
@@ -165,8 +166,12 @@ public class XHTMLProcessingUtils {
             processPackage(name, pkg, xpath, docsdir, trans);
         }
 
+        //transform the package list doc
+        package_list_elem.setAttribute("mode", "overview-frame");
         trans.transform(new DOMSource(packages_doc), new StreamResult(new File(docsdir,"overview-frame.html")));
-        System.out.println(getString("finished"));
+        package_list_elem.setAttribute("mode", "overview-summary");
+        trans.transform(new DOMSource(packages_doc), new StreamResult(new File(docsdir,"overview-summary.html")));
+        p(INFO,getString("finished"));
     }
 
     private static void processPackage(String packageName, Element pkg, XPath xpath, File docsdir, Transformer trans) throws TransformerException, XPathExpressionException, IOException, FileNotFoundException, ParserConfigurationException {
@@ -188,7 +193,11 @@ public class XHTMLProcessingUtils {
         for(Element clazz : classes) {
             processClass(clazz, class_list, trans, packageDir);
         }
+        
+        class_list.setAttribute("mode", "overview-frame");
         trans.transform(new DOMSource(classes_doc), new StreamResult(new File(packageDir,"package-frame.html")));
+        class_list.setAttribute("mode", "overview-summary");
+        trans.transform(new DOMSource(classes_doc), new StreamResult(new File(packageDir,"package-summary.html")));
     }
 
     
