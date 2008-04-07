@@ -210,8 +210,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 if (tmiTarget.getTypeKind() == TYPE_KIND_OBJECT) {
                     List<JCExpression> typeArgs = List.of(makeTypeTree(targetType, diagPos, true),
                             makeTypeTree(syms.boxIfNeeded(inType), diagPos, true));
-                    Type inElementType = typeMorpher.typeMorphInfo(inType).getElementType();
-                    JCExpression inClass = toJava.makeElementClassObject(diagPos, inElementType);
+                    Type inRealType = typeMorpher.typeMorphInfo(inType).getRealType();
+                    JCExpression inClass = toJava.makeElementClassObject(diagPos, inRealType);
                     tree = runtime(diagPos, cLocations, "upcast", typeArgs, List.of(inClass, tree));
                 }
             }
