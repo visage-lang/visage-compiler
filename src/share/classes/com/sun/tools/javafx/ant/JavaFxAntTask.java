@@ -48,7 +48,7 @@ import java.net.URLClassLoader;
  * @author Brian Goetz
  */
 public class JavaFxAntTask extends Javac {
-    private Path compilerClassPath;
+    public Path compilerClassPath;
 
     private static final String FAIL_MSG
             = "JavaFX compile failed; see the compiler error output for details.";
@@ -195,13 +195,8 @@ public class JavaFxAntTask extends Javac {
                 cmd.createArgument().setValue("-Xmx" + memoryMaximumSize);
                 memoryMaximumSize = null; // don't include it in setupJavacCommandlineSwitches()
             }
-            String cp = "-Xbootclasspath/p:";
-            URL[] jars = ((JavaFxAntTask) getJavac()).pathAsURLs();
-            for (int i = 0; i < jars.length; i++) {
-                cp += jars[i].getPath();
-                if (i + 1 < jars.length)
-                    cp += File.pathSeparator;
-            }
+            String cp = "-Xbootclasspath/p:" +
+                    ((JavaFxAntTask) getJavac()).compilerClassPath.toString();
             cmd.createArgument().setValue(cp);
             cmd.createArgument().setValue(FX_ENTRY_POINT);
             setupJavacCommandlineSwitches(cmd, true);
