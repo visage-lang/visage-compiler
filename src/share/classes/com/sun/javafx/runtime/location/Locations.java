@@ -96,10 +96,15 @@ public class Locations {
         return new UnmodifiableSequenceLocation<T>(loc);
     }
 
-    public static<T, V extends T> ObjectLocation<T> upcast(Class<V> clazz, ObjectLocation<V> loc) {
-        return new UpcastLocation<T, V>(clazz, loc);
+    /**
+     * Return a wrapping location that mirrors the underlying Location but upcasts its type
+     * @param clazz  Really Class<V> but because of generics limitations this cannot be declared
+     * @param loc Location to wrap
+     * @return
+     */
+    public static<T, V extends T> ObjectLocation<T> upcast(Class clazz, ObjectLocation<V> loc) {
+        return new UpcastLocation<T, V>((Class<V>)clazz, loc);
     }
-
 
     private static abstract class LocationWrapper implements Location {
         protected abstract Location getLocation();
