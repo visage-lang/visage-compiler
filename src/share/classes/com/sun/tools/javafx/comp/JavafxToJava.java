@@ -2949,7 +2949,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             useInvoke = meth.type instanceof FunctionType;
             selectorMutable = msym != null &&
                     !sym.isStatic() && selector != null && !superCall && !namedSuperCall &&
-                    !thisCall && !selector.type.isPrimitive() && !renameToSuper;
+                    !thisCall && !renameToSuper;
             callBound = msym != null && !useInvoke && 
                   ((JavafxDefs.useCorrectBoundFunctionSemantics)?
                     ((msym.flags() & JavafxFlags.BOUND) != 0)
@@ -2979,7 +2979,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     transMeth = make.at(selector).Select(make.Select(makeTypeTree(currentClass.sym.type, selector, false), names._super), msym);
                 } else {
                     transMeth = translate(meth);
-                    if (hasSideEffects && transMeth.getTag() == JavafxTag.SELECT) {
+                    if (hasSideEffects && !selector.type.isPrimitive() && transMeth.getTag() == JavafxTag.SELECT) {
                         // still a select and presumed to still have side effects -- hold the selector in a temp var
                         JCFieldAccess transMethFA = (JCFieldAccess) transMeth;
                         selectorVar = makeTmpVar(diagPos, "select", selector.type, transMethFA.getExpression());
@@ -3018,7 +3018,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(msym.getReturnType());
                     fresult = makeUnboundLocation(diagPos, returnTypeInfo, fresult);
                 }
-                if (selectorMutable) {  // if mutable, we need to test for null
+                if (selectorMutable && !selector.type.isPrimitive()) {  // if mutable (and not primitive), we need to test for null
                     JCExpression toTest = hasSideEffects? 
                                              m().Ident(selectorVar.name) :
                                              translate(selector);

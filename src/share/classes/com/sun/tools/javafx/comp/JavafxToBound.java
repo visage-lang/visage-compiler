@@ -367,14 +367,18 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             return members.toList();
         }
 
-        protected JCExpression makeGet(JCExpression locExpr, TypeMorphInfo tmi) {
-            Name getMethodName = defs.locationGetMethodName[tmi.getTypeKind()];
+        protected JCExpression makeGet(JCExpression locExpr, int typeKind) {
+            Name getMethodName = defs.locationGetMethodName[typeKind];
             JCFieldAccess select = m().Select(locExpr, getMethodName);
             return m().Apply(null, select, List.<JCExpression>nil());
         }
 
         protected JCExpression makeGetField(Name fieldName, TypeMorphInfo tmiField) {
-            return makeGet(m().Ident(fieldName), tmiField);
+            return makeGetField(fieldName, tmiField.getTypeKind());
+        }
+
+        protected JCExpression makeGetField(Name fieldName, int typeKind) {
+            return makeGet(m().Ident(fieldName), typeKind);
         }
 
         protected JCTree makeLocationField(JCExpression targ, Name argName, TypeMorphInfo tmiArg) {
@@ -1068,7 +1072,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                                         // translate the method name -- e.g., foo  to foo$bound
                                         Name name = toJava.functionName(msym, false, callBound);
 
-                                        JCExpression transSelect = makeGet(translate(selector), typeMorpher.typeMorphInfo(selector.type));
+                                        // selectors are always Objects
+                                        JCExpression transSelect = makeGet(translate(selector), TYPE_KIND_OBJECT);
                                         JCExpression expr = m().Apply(typeArgs,
                                                 m().Select(transSelect, name),
                                                 callArgs.toList());
@@ -1088,21 +1093,26 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                             private Name selectorName = toJava.getSyntheticName("selector");
 
                             protected JCExpression resultValue() {
-                                // create two accesses to the value of to selector field -- selector$.getXxx()
-                                // one for the method call and one for the nul test
-                                JCExpression transSelector = makeGetField(selectorName, tmiSelector);
-                                JCExpression toTest = makeGetField(selectorName, tmiSelector);
+                                // access the selector field for the method call-- selector$.get()
+                                // selectors are always Objects
+                                JCExpression transSelector = makeGetField(selectorName, TYPE_KIND_OBJECT);
 
                                 // construct the actuall method invocation
                                 Name methName = ((JCFieldAccess) tree.meth).name;
                                 JCExpression callMeth = m().Select(transSelector, methName);
                                 JCExpression call = m().Apply(typeArgs, callMeth, callArgs.toList());
 
-                                // test the selector for null before attempting to invoke the method
-                                // if it would dereference null, then instead give the default value
-                                JCExpression cond = m().Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
-                                JCExpression defaultExpr = toJava.makeDefaultValue(diagPos, tmiResult);
-                                return m().Conditional(cond, call, defaultExpr);
+                                if (tmiSelector.getTypeKind() == TYPE_KIND_OBJECT) {
+                                    // create another access to the selector field for the null test (below)
+                                    JCExpression toTest = makeGetField(selectorName, TYPE_KIND_OBJECT);
+                                    // test the selector for null before attempting to invoke the method
+                                    // if it would dereference null, then instead give the default value
+                                    JCExpression cond = m().Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
+                                    JCExpression defaultExpr = toJava.makeDefaultValue(diagPos, tmiResult);
+                                    return m().Conditional(cond, call, defaultExpr);
+                                } else {
+                                    return call;
+                                }
                             }
 
                             @Override
