@@ -70,7 +70,7 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
 
     protected int replaceValue(int newValue) {
         int oldValue = $value;
-        if (oldValue != newValue || !isInitialized()) {
+        if (oldValue != newValue || !isInitialized() || !isEverValid()) {
             $value = newValue;
             setValid();
             notifyListeners(oldValue, newValue);

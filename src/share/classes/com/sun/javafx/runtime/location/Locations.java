@@ -812,6 +812,7 @@ public class Locations {
         }
 
         public Iterator<T> iterator() {
+            // @@@ Wrap iterator with unmodifiable iterator
             return location.iterator();
         }
 
