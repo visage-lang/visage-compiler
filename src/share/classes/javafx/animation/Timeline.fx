@@ -285,7 +285,7 @@ public class Timeline {
             var sub = subtimelines.get(i) as SubTimeline;
             if (curT >= sub.startTime.millis) {
                 var subDur = sub.timeline.getTotalDur();
-                if (subDur < 0 or curT < sub.startTime.millis + subDur) {
+                if (subDur < 0 or curT <= sub.startTime.millis + subDur) {
                     sub.timeline.process(curT - sub.startTime.millis);
                 }
             }
