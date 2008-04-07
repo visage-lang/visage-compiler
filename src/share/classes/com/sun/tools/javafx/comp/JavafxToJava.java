@@ -1744,12 +1744,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitIdent(JCIdent tree)   {
        DiagnosticPosition diagPos = tree.pos();
-        if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
-            MethodType mtype = (MethodType) tree.sym.type;
-            JFXFunctionDefinition def = null; // FIXME
-            result = makeFunctionValue(make.Ident(functionName((MethodSymbol)tree.sym)), def, tree.pos(), mtype);
-            return;
-        }
         if (tree.name == names._this) {
             // in the static implementation method, "this" becomes "receiver$"
             JCExpression rcvr = make.at(diagPos).Ident(defs.receiverName);
@@ -1790,6 +1784,13 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
         }
         
+        if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
+            MethodType mtype = (MethodType) tree.sym.type;
+            JFXFunctionDefinition def = null; // FIXME
+            result = makeFunctionValue(convert, def, tree.pos(), mtype);
+            return;
+        }
+
         result = typeMorpher.convertVariableReference(diagPos, 
                 convert, 
                 tree.sym, 
