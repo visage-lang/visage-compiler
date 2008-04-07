@@ -24,7 +24,7 @@ class BoundSingletonSequence<T, V extends T> extends AbstractBoundSequence<T> im
     protected void initialize() {
         location.addChangeListener(new ObjectChangeListener<V>() {
             public void onChange(V oldValue, V newValue) {
-                updateSlice(0, value().size() - 1, Sequences.singleton(getClazz(), newValue));
+                updateSlice(0, getRawValue().size() - 1, Sequences.singleton(getClazz(), newValue));
             }
         });
     }

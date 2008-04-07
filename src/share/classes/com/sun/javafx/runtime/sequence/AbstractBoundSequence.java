@@ -26,6 +26,8 @@
 package com.sun.javafx.runtime.sequence;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 import com.sun.javafx.runtime.location.*;
 
@@ -35,35 +37,16 @@ import com.sun.javafx.runtime.location.*;
  * @author Brian Goetz
  */
 public abstract class AbstractBoundSequence<T> extends AbstractLocation implements SequenceLocation<T> {
-
-    private final SequenceHelper<T> helper;
+    private final Class<T> clazz;
+    private List<SequenceChangeListener<T>> changeListeners;
+    private Sequence<T> value;
 
     // AbstractBoundSequences start out in the invalid state, and go to the valid state exactly once,
     // and thereafter stay in the valid state.  They cannot be lazily bound.
 
     protected AbstractBoundSequence(Class<T> clazz) {
-        helper = new SequenceHelper<T>(clazz) {
-            protected void ensureValid() {
-                if (!isValid()) {
-                    Sequence<T> value = computeValue();
-                    initialize();
-                    AbstractBoundSequence.this.setValid();
-                    helper.replaceValue(value);
-                }
-            }
-
-            protected boolean isInitialized() {
-                return isValid();
-            }
-
-            protected void setValid() {
-                AbstractBoundSequence.this.setValid();
-            }
-
-            protected void valueChanged() {
-                AbstractBoundSequence.this.valueChanged();
-            }
-        };
+        this.clazz = clazz;
+        this.value = Sequences.emptySequence(clazz);
     }
 
     /** Called after construction to compute the value of the sequence */
@@ -72,62 +55,95 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
     /** Called once after construction so that listeners may be registered */
     protected abstract void initialize();
 
+    protected void ensureValid() {
+        if (!isValid()) {
+            Sequence<T> oldValue = value;
+            Sequence<T> newValue = computeValue();
+            if (newValue == null)
+                newValue = Sequences.emptySequence(clazz);
+            initialize();
+            setValid();
+            value = newValue;
+            if (!Sequences.isEqual(oldValue, newValue)) {
+                valueChanged();
+                notifyListeners(0, Sequences.size(oldValue)-1, newValue, oldValue, newValue);
+            }
+        }
+    }
+
     protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
-        Sequence<T> oldValue = helper.getRawValue();
-        helper.setRawValue(oldValue.replaceSlice(startPos, endPos, newValues));
-        helper.notifyListeners(startPos, endPos, newValues, oldValue, helper.getRawValue());
+        Sequence<T> oldValue = value;
+        value = oldValue.replaceSlice(startPos, endPos, newValues);
         valueChanged();
+        notifyListeners(startPos, endPos, newValues, oldValue, value);
     }
 
     protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues, Sequence<T> newSequence) {
-        Sequence<T> oldValue = helper.getRawValue();
-        helper.setRawValue(newSequence);
-        helper.notifyListeners(startPos, endPos, newValues, oldValue, newSequence);
+        Sequence<T> oldValue = value;
+        value = newSequence;
         valueChanged();
+        notifyListeners(startPos, endPos, newValues, oldValue, newSequence);
     }
 
-    protected Sequence<T> value() {
-        return helper.getRawValue();
+    protected Sequence<T> getRawValue() {
+        return value;
     }
 
     protected Class<T> getClazz() {
-        return helper.getClazz();
+        return clazz;
     }
 
     public Sequence<T> get() {
-        return helper.get();
+        return getAsSequence();
     }
 
     public T get(int position) {
-        return helper.get(position);
+        return getAsSequence().get(position);
     }
 
     public Sequence<T> getAsSequence() {
-        return helper.getAsSequence();
+        ensureValid();
+        return value;
     }
 
     public Sequence<T> getSlice(int startPos, int endPos) {
-        return helper.getSlice(startPos, endPos);
+        return getAsSequence().getSlice(startPos, endPos);
     }
 
     public boolean isNull() {
-        return helper.isNull();
+        return Sequences.size(getAsSequence()) == 0;
+    }
+
+    public void addChangeListener(final ObjectChangeListener<Sequence<T>> listener) {
+        addChangeListener(new SequenceChangeListener<T>() {
+            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                listener.onChange(oldValue, newValue);
+            }
+        });
     }
 
     public void addChangeListener(SequenceChangeListener<T> listener) {
-        helper.addChangeListener(listener);
-    }
-
-    public void addChangeListener(ObjectChangeListener<Sequence<T>> listener) {
-        helper.addChangeListener(listener);
+        if (changeListeners == null)
+            changeListeners = new ArrayList<SequenceChangeListener<T>>();
+        changeListeners.add(listener);
     }
 
     public void removeChangeListener(SequenceChangeListener<T> listener) {
-        helper.removeChangeListener(listener);
+        if (changeListeners != null)
+            changeListeners.remove(listener);
+    }
+
+    private void notifyListeners(final int startPos, final int endPos,
+                                 final Sequence<? extends T> newElements,
+                                 final Sequence<T> oldValue, final Sequence<T> newValue) {
+        if (changeListeners != null) {
+            for (SequenceChangeListener<T> listener : changeListeners)
+                listener.onChange(startPos, endPos, newElements, oldValue, newValue);
+        }
     }
 
     public Iterator<T> iterator() {
-        return helper.iterator();
+        return getAsSequence().iterator();
     }
 
     @Override

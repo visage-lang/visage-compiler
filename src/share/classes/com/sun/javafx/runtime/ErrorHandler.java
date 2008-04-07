@@ -13,8 +13,8 @@ public class ErrorHandler {
         try {
             return Boolean.getBoolean(property);
         } catch (SecurityException ignored) {
+            return false;
         }
-        return false;
     }
     
     private final static boolean debug = getBoolean("javafx.debug");

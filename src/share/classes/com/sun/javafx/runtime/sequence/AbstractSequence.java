@@ -75,17 +75,6 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         return 0;
     }
     
-    public boolean shouldFlatten() {
-        boolean result = false;
-        // If the sequence is short or if the sequence is is too thin, 
-        // then copy it.
-        if (((0 < size()) && (size() <= 16)) ||
-            (getDepth() > Math.log((double) size()))) {
-            result = true;
-        }
-        return result;
-    }
-
     public <V> Sequence<V> map(Class<V> clazz, SequenceMapper<T, V> sequenceMapper) {
         return Sequences.map(clazz, this, sequenceMapper);
     }

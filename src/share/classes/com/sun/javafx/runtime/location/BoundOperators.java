@@ -184,6 +184,7 @@ public class BoundOperators extends GeneratedBoundOperators {
             }
 
             public int setAsInt(int value) {
+                // @@@ Shouldn't mutate unconditionally -- only if bound bidirectionally
                 return helper.get().setAsInt(value);
             }
 
@@ -213,7 +214,8 @@ public class BoundOperators extends GeneratedBoundOperators {
                 }
             }
 
-            public double setAsInt(double value) {
+            public double setAsDouble(double value) {
+                // @@@ Shouldn't mutate unconditionally -- only if bound bidirectionally
                 return helper.get().setAsDouble(value);
             }
 
@@ -244,6 +246,7 @@ public class BoundOperators extends GeneratedBoundOperators {
             }
 
             public boolean setAsBoolean(boolean value) {
+                // @@@ Shouldn't mutate unconditionally -- only if bound bidirectionally
                 return helper.get().setAsBoolean(value);
             }
 
@@ -280,6 +283,7 @@ public class BoundOperators extends GeneratedBoundOperators {
             }
 
             public U set(U value) {
+                // @@@ Shouldn't mutate unconditionally -- only if bound bidirectionally
                 return helper.get().set(value);
             }
         };
@@ -313,6 +317,7 @@ public class BoundOperators extends GeneratedBoundOperators {
             }
 
             public Sequence<U> setAsSequence(Sequence<? extends U> value) {
+                // @@@ Shouldn't mutate unconditionally -- only if bound bidirectionally
                 return helper.get().setAsSequence(value);
             }
 

@@ -37,7 +37,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class IndirectIntExpression extends IntVariable implements IndirectLocation<IntLocation> {
+abstract class IndirectIntExpression extends IntVariable implements IndirectLocation<IntLocation> {
 
     protected final IndirectLocationHelper<IntLocation> helper;
 

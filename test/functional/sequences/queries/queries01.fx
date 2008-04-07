@@ -5,7 +5,7 @@
  *
  * @test
  * @compilefirst ../../TestUtils.fx
- * @run
+ * @run/fail
  */
 
 import java.lang.System;

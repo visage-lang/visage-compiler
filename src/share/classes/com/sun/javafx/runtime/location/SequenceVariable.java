@@ -1,6 +1,8 @@
 package com.sun.javafx.runtime.location;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
@@ -18,8 +20,10 @@ public class SequenceVariable<T>
         extends AbstractVariable<Sequence<T>, SequenceLocation<T>, SequenceBindingExpression<T>>
         implements SequenceLocation<T> {
 
+    private final Class<T> clazz;
     private final SequenceMutator.Listener<T> mutationListener;
-    private final SequenceHelper<T> helper;
+    private List<SequenceChangeListener<T>> changeListeners;
+    private Sequence<T> value;
 
 
     public static <T> SequenceVariable<T> make(Class clazz) {
@@ -56,41 +60,25 @@ public class SequenceVariable<T>
     }
 
     protected SequenceVariable(Class clazz) {
-        helper = new SequenceHelper<T>(clazz) {
-            protected void ensureValid() {
-                if (isBound() && !isValid())
-                    update();
-            }
-
-            protected boolean isInitialized() {
-                return SequenceVariable.this.isInitialized();
-            }
-
-            protected void setValid() {
-                SequenceVariable.this.setValid();
-            }
-
-            protected void valueChanged() {
-                SequenceVariable.this.valueChanged();
-            }
-        };
-        mutationListener = new SequenceMutator.Listener<T>() {
+        this.clazz = clazz;
+        this.value = Sequences.emptySequence(clazz);
+        this.mutationListener = new SequenceMutator.Listener<T>() {
             public void onReplaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-                helper.replaceSlice(startPos, endPos, newElements, newValue);
+                replaceSlice(startPos, endPos, newElements, newValue);
             }
         };
     }
 
     protected SequenceVariable(Sequence<T> value) {
         this(value.getElementType());
-        helper.replaceValue(value);
+        replaceValue(value);
     }
 
     protected SequenceVariable(Class clazz, Sequence<? extends T> value) {
         this(clazz);
         if (value == null)
             value = Sequences.emptySequence(clazz);
-        helper.replaceValue(Sequences.upcast(clazz, value));
+        replaceValue(Sequences.upcast(clazz, value));
     }
 
     protected SequenceVariable(Class clazz, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
@@ -99,28 +87,55 @@ public class SequenceVariable<T>
         addDependencies(dependencies);
     }
 
+    private void ensureValid() {
+        if (isBound() && !isValid())
+            update();
+    }
+
+    /** Update the held value, notifying change listeners */
+    private void replaceValue(Sequence<T> newValue) {
+        if (newValue == null)
+            newValue = Sequences.emptySequence(clazz);
+        replaceSlice(0, Sequences.size(value)-1, newValue, newValue);
+    }
+
+    /** Update the held value, notifying change listeners */
+    private void replaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> newValue) {
+        Sequence<T> oldValue = value;
+        if (!Sequences.isEqual(oldValue, newValue) || !isInitialized() || !isEverValid()) {
+            value = newValue;
+            setValid();
+            valueChanged();
+            notifyListeners(startPos, endPos, newElements, oldValue, newValue);
+        }
+        else
+            setValid();
+    }
+
+
     private Sequence<T> getRawValue() {
-        return helper.getRawValue();
+        return value;
     }
 
     public Sequence<T> get() {
-        return helper.get();
+        return getAsSequence();
     }
 
     public T get(int position) {
-        return helper.get(position);
+        return getAsSequence().get(position);
     }
 
     public Sequence<T> getAsSequence() {
-        return helper.getAsSequence();
+        ensureValid();
+        return value;
     }
 
     public Sequence<T> getSlice(int startPos, int endPos) {
-        return helper.getSlice(startPos, endPos);
+        return getAsSequence().getSlice(startPos, endPos);
     }
 
     public boolean isNull() {
-        return helper.isNull();
+        return Sequences.size(getAsSequence()) == 0;
     }
 
     protected SequenceBindingExpression<T> makeBindingExpression(final SequenceLocation<T> otherLocation) {
@@ -131,16 +146,32 @@ public class SequenceVariable<T>
         };
     }
 
-    public void addChangeListener(SequenceChangeListener<T> listener) {
-        helper.addChangeListener(listener);
+    public void addChangeListener(final ObjectChangeListener<Sequence<T>> listener) {
+        addChangeListener(new SequenceChangeListener<T>() {
+            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                listener.onChange(oldValue, newValue);
+            }
+        });
     }
 
-    public void addChangeListener(ObjectChangeListener<Sequence<T>> listener) {
-        helper.addChangeListener(listener);
+    public void addChangeListener(SequenceChangeListener<T> listener) {
+        if (changeListeners == null)
+            changeListeners = new ArrayList<SequenceChangeListener<T>>();
+        changeListeners.add(listener);
     }
 
     public void removeChangeListener(SequenceChangeListener<T> listener) {
-        helper.removeChangeListener(listener);
+        if (changeListeners != null)
+            changeListeners.remove(listener);
+    }
+
+    private void notifyListeners(final int startPos, final int endPos,
+                                 final Sequence<? extends T> newElements,
+                                 final Sequence<T> oldValue, final Sequence<T> newValue) {
+        if (changeListeners != null) {
+            for (SequenceChangeListener<T> listener : changeListeners)
+                listener.onChange(startPos, endPos, newElements, oldValue, newValue);
+        }
     }
 
     @Override
@@ -149,19 +180,19 @@ public class SequenceVariable<T>
     }
 
     public Iterator<T> iterator() {
-        return helper.iterator();
+        return getAsSequence().iterator();
     }
 
     @Override
     public void update() {
         try {
             if (isBound() && !isValid())
-                helper.replaceValue(Sequences.upcast(helper.getClazz(), binding.computeValue()));
+                replaceValue(Sequences.upcast(clazz, binding.computeValue()));
         }
         catch (RuntimeException e) {
             ErrorHandler.bindException(e);
             if (isInitialized())
-                helper.replaceValue(Sequences.emptySequence(helper.getClazz()));
+                replaceValue(Sequences.emptySequence(clazz));
         }
     }
 
@@ -171,29 +202,27 @@ public class SequenceVariable<T>
     }
 
     public Sequence<T> set(Sequence<T> value) {
-        
-        Sequence<T> v = getRawValue();
-        if (SequenceHelper.equals(v, value))
-            return v;
-        else {
-            ensureNotBound();
-            return SequenceMutator.replaceSlice(v, mutationListener, 0, Sequences.size(v) - 1, value);
-        }
+        return setAsSequence(value);
     }
 
     public void setDefault() {
-        setAsSequence(Sequences.emptySequence(helper.getClazz()));
+        setAsSequence(Sequences.emptySequence(clazz));
     }
 
-    public Sequence<T> setAsSequence(Sequence<? extends T> value) {
+    public Sequence<T> setAsSequence(Sequence<? extends T> newValue) {
         Sequence<T> result;
         ensureNotBound();
-        Sequence<T> value1 = getRawValue();
-        if (SequenceHelper.equals(value1, value))
-            result = value1;
-        else {
-            result = SequenceMutator.replaceSlice(value1, mutationListener, 0, Sequences.size(value1) - 1, value);
+        Sequence<T> oldValue = getRawValue();
+        // Workaround for JFXC-885
+        if (!isInitialized() && !isEverValid() && Sequences.size(newValue) == 0 && Sequences.size(value) == 0) {
+            result = Sequences.emptySequence(clazz);
+            replaceValue(result);
         }
+        else if (!Sequences.isEqual(oldValue, newValue) || !isInitialized() || !isEverValid()) {
+            result = SequenceMutator.replaceSlice(oldValue, mutationListener, 0, Sequences.size(oldValue) - 1, newValue);
+        }
+        else
+            result = oldValue;
         return result;
     }
 
@@ -203,7 +232,7 @@ public class SequenceVariable<T>
                 setAsSequence(value);
             }
         };
-        return Sequences.upcast(helper.getClazz(), value);
+        return Sequences.upcast(clazz, value);
     }
 
     @Override
@@ -240,7 +269,7 @@ public class SequenceVariable<T>
     @Override
     public void deleteAll() {
         ensureNotBound();
-        setAsSequence(Sequences.emptySequence(helper.getClazz()));
+        setAsSequence(Sequences.emptySequence(clazz));
     }
 
     @Override

@@ -137,7 +137,7 @@ public class SequenceMutator {
         // @@@ OPT: Consider a single-element insert sequence type
         if (startPos == endPos) {
             result = new ReplacementSequence<T>(target, startPos, newValue);
-            if (result.shouldFlatten()) {
+            if (shouldFlatten(result)) {
                 result = result.flatten();
             }
             if (listener != null) {
@@ -351,4 +351,16 @@ public class SequenceMutator {
         }
         return nextValue;
     }
+
+    private static<T> boolean shouldFlatten(Sequence<T> sequence) {
+        boolean result = false;
+        // If the sequence is short or if the sequence is is too thin,
+        // then copy it.
+        if (((0 < sequence.size()) && (sequence.size() <= 16)) ||
+            (sequence.getDepth() > Math.log((double) sequence.size()))) {
+            result = true;
+        }
+        return result;
+    }
+
 }

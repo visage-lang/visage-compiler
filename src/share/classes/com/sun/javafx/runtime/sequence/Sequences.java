@@ -342,44 +342,45 @@ public final class Sequences {
         return unboxed;
     }
 
-    public static<T> boolean isEqual(Sequence<T> one, Sequence<T> other) {
+    public static<T> boolean isEqual(Sequence<?> one, Sequence<?> other) {
+        int oneSize = size(one);
+        int otherSize = size(other);
+        if (oneSize == 0)
+            return (otherSize == 0);
+        else if (oneSize != otherSize)
+            return false;
+        else {
+            Iterator<?> it1 = one.iterator();
+            Iterator<?> it2 = other.iterator();
+            while (it1.hasNext()) {
+                if (! it1.next().equals(it2.next()))
+                    return false;
+            }
+            return true;
+        }
+    }
+
+    public static<T> boolean isEqualByContentIdentity(Sequence<? extends T> one, Sequence<? extends T> other) {
         int oneSize = size(one);
         if (oneSize == 0)
             return size(other) == 0;
         else if (oneSize != size(other))
             return false;
         else {
-			Iterator<T> it1 = one.iterator();
-			Iterator<T> it2 = other.iterator();
-			while (it1.hasNext()) {
-				if (! it1.next().equals(it2.next()))
-					return false;
-			}
-			return true;
-		}
+            Iterator<? extends T> it1 = one.iterator();
+            Iterator<? extends T> it2 = other.iterator();
+            while (it1.hasNext()) {
+                if (it1.next() != it2.next())
+                    return false;
+            }
+            return true;
+        }
     }
-	
-	public static<T> boolean isEqualByContentIdentity(Sequence<? extends T> one, Sequence<? extends T> other) {
-        int oneSize = size(one);
-        if (oneSize == 0)
-            return size(other) == 0;
-        else if (oneSize != size(other))
-            return false;
-		else {
-			Iterator<? extends T> it1 = one.iterator();
-			Iterator<? extends T> it2 = other.iterator();
-			while (it1.hasNext()) {
-				if (it1.next() != it2.next())
-					return false;
-			}
-			return true;
-		}
-	}
 
-	public static<T> Sequence<? extends T> forceNonNull(Class<T> clazz, Sequence<? extends T> seq) {
-	return seq == null ? emptySequence(clazz) : seq;
-	}
-  
+    public static<T> Sequence<? extends T> forceNonNull(Class<T> clazz, Sequence<? extends T> seq) {
+        return seq == null ? emptySequence(clazz) : seq;
+    }
+
     /**
      * Searches the specified sequence for the specified object using the 
      * binary search algorithm. The sequence must be sorted into ascending 

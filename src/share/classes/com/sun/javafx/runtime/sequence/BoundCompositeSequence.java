@@ -102,7 +102,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             affectedEnd = (endPos >= 0) ? (infos[endPos].startPosition + infos[endPos].size - 1) : affectedStart - 1;
         }
         else {
-            affectedStart = value().size();
+            affectedStart = getRawValue().size();
             affectedEnd = affectedStart - 1;
         }
         int offset = affectedStart;
