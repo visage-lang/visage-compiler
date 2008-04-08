@@ -9,6 +9,14 @@ import com.sun.javafx.runtime.sequence.Sequence;
  * @author Brian Goetz
  */
 public class PointerFactory implements PointerFactory$Intf, FXObject {
+    
+    public PointerFactory() {
+        this(false);
+        initialize$();
+    }
+
+    public PointerFactory(boolean dummy) {
+    }
 
     public void initialize$() { }
 

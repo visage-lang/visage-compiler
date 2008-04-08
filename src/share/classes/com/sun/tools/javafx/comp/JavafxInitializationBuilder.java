@@ -180,7 +180,6 @@ public class JavafxInitializationBuilder {
         List<ClassSymbol> immediateFxSupertypeNames = immediateJavafxSupertypes(cDecl);
 
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
-        cDefinitions.append(makeConstructor(diagPos));
         cDefinitions.appendList(makeAttributeFields(instanceAttributeInfos));
         cDefinitions.appendList(makeAttributeFields(analysis.staticAttributeInfos()));
         cDefinitions.appendList(makeClassAttributeGetterMethods(cDecl, instanceAttributeInfos));
@@ -315,15 +314,56 @@ public class JavafxInitializationBuilder {
         return additionalImports.toList();
     }
    
-   private JCMethodDecl makeConstructor(DiagnosticPosition diagPos) {
-       ListBuffer<JCStatement> cStats = new ListBuffer<JCStatement>();
+    /**
+     * Make a constructor to be called by Java code.
+     * It differs by calling the initialize$ method (that is explicitly called
+     * by FX code).
+     * @param diagPos
+     * @return the constructor
+     */
+    JCMethodDecl makeJavaEntryConstructor(DiagnosticPosition diagPos) {
+        // call the FX (basic) version of the constructor
+        JCStatement thisCall = make.at(diagPos).Exec(make.at(diagPos).Apply(null,
+                make.at(diagPos).Ident(names._this),
+                List.<JCExpression>of(make.at(diagPos).Literal(TypeTags.BOOLEAN, 0))));
+        // then call the initialize$ method
+        JCStatement initCall = make.at(diagPos).Exec(make.at(diagPos).Apply(null,
+                make.at(diagPos).Ident(defs.initializeName),
+                List.<JCExpression>nil()));
+        return makeConstructor(diagPos, List.<JCVariableDecl>nil(), List.of(thisCall, initCall));
+    }
+
+    /**
+     * Make a constructor to be called by JavaFX code.
+     * @param diagPos
+     * @param superIsFX true if there is a super class (in the generated code) and it is a JavaFX class
+     * @return the constructor
+     */
+    JCMethodDecl makeFXEntryConstructor(DiagnosticPosition diagPos, boolean superIsFX) {
+        Name dummyParamName = names.fromString("dummy");
+        JCVariableDecl param = make.at(diagPos).VarDef(
+                make.Modifiers(Flags.PARAMETER),
+                dummyParamName,
+                toJava.makeTypeTree(syms.booleanType, diagPos),
+                null);
+        ListBuffer<JCStatement> stmts = ListBuffer.lb();
+        if (superIsFX) {
+            // call the FX version of the constructor
+            stmts.append(make.at(diagPos).Exec(make.at(diagPos).Apply(null,
+                    make.at(diagPos).Ident(names._super),
+                    List.<JCExpression>of(make.at(diagPos).Ident(dummyParamName)))));
+        }
+        return makeConstructor(diagPos, List.of(param), stmts.toList());
+    }
+    
+   private JCMethodDecl makeConstructor(DiagnosticPosition diagPos, List<JCVariableDecl> params, List<JCStatement> cStats) {
        return make.MethodDef(make.Modifiers(Flags.PUBLIC), 
                names.init, 
                make.TypeIdent(TypeTags.VOID), 
                List.<JCTypeParameter>nil(), 
-               List.<JCVariableDecl>nil(),
+               params,
                List.<JCExpression>nil(), 
-               make.Block(0L, cStats.toList()), 
+               make.Block(0L, cStats), 
                null);
 
    }
