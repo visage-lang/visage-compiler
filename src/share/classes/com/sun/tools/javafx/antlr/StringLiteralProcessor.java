@@ -89,7 +89,7 @@ public class StringLiteralProcessor {
     /** Report an error at the given position using the provided arguments.
      */
     private void lexError(String key, Object... args) {
-        log.error(basepos+bp+1, key, args);
+        log.error(basepos+bp-1-buflen, key, args);
     }
 
     /** Convert an ASCII digit from its base (8, 10, or 16)

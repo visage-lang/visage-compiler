@@ -316,7 +316,8 @@ NextIsPercent[int quoteContext]
 				|				{ enterBrace(quoteContext, false); }
 				;
 FORMAT_STRING_LITERAL		: 				{ percentIsFormat() }?=>
-				  '%' (~' ')* 			{ resetPercentIsFormat(); }
+				  '%' (~' ')* 			{ processFormatString();
+	 							  resetPercentIsFormat(); }
 				;
 TRANSLATION_KEY                 : '##' 
                                   ( 

@@ -108,6 +108,13 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
         setText(StringLiteralProcessor.convert( log, getCharIndex(), getText() ));
     }
 
+    void processFormatString() {
+        // Add quote characters and adjust the index to invoke StringLiteralProcessor.convert().
+        StringBuilder sb = new StringBuilder();
+        sb.append('"').append(getText()).append('"');
+        setText(StringLiteralProcessor.convert(log, getCharIndex() + 1, sb.toString()));
+    }
+
     void processTranslationKey() {
         String text = getText().substring(2); // remove '##'
         if (text.length() > 0) {

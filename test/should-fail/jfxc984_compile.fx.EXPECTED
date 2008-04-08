@@ -1,0 +1,7 @@
+jfxc984_compile.fx:7: illegal unicode escape
+var s = "{%tB\udefg%<tY\x new java.util.Date()}";
+                  ^
+jfxc984_compile.fx:7: illegal escape character
+var s = "{%tB\udefg%<tY\x new java.util.Date()}";
+                        ^
+2 errors

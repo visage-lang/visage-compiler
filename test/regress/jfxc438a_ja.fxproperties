@@ -25,9 +25,11 @@
 'Hello,	World!' = "Konnichiwa (Tab)Sekai!"
 
 // escape sequence tests in properties file
-'Hello,\ EscapeSpace!' = "Konnichiwa EscapeSpace!"
+'Hello,\040EscapeOctalSpace!' = "Konnichiwa EscapeOctalSpace!"
 'Hello,\u0020UnicodeEscapeSpace!' = "Konnichiwa UnicodeEscapeSpace!"
 'Hello,\tTab!' = "Konnichiwa Tab!"
+'Hello,\'Single Quotes\'' = 'Konnichiwa \'Single Quotes\''
+"Hello,\"Double Quotes\"" = "Konnichiwa \"Double Quotes\""
 
 // multiple line tests
 'Unix style
@@ -36,4 +38,6 @@ kaigyo'
 'Windows style
 new line' = 'Windows keishiki no
 kaigyo'
-'Mac stylenew line' = 'Mac keishiki nokaigyo'
+'Mac style
+new line' = 'Mac keishiki no
+kaigyo'

@@ -8,13 +8,15 @@ non-existent
 KEY_WITH_SAME_VALUE
 Konnichwa Sekai!
 Konnichiwa (Tab)Sekai!
+Konnichiwa 'Single Quotes'
+Konnichiwa "Double Quotes"
 Unix keishiki no
 kaigyo
 Windows keishiki no
 kaigyo
 Mac keishiki no
 kaigyo
-Konnichiwa EscapeSpace!
+Konnichiwa EscapeOctalSpace!
 Konnichiwa UnicodeEscapeSpace!
 Konnichiwa Tab!
 Unix keishiki no

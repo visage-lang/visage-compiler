@@ -30,12 +30,14 @@ System.out.println(##[KEY_WITH_SAME_VALUE]'key with same value default');
 // escape sequence tests in source file
 System.out.println(##'Hello,\u0020World!');
 System.out.println(##'Hello,\tWorld!');
+System.out.println(##'Hello,\'Single Quotes\'');
+System.out.println(##"Hello,\"Double Quotes\"");
 System.out.println(##'Unix style\nnew line');
 System.out.println(##'Windows style\r\nnew line');
 System.out.println(##'Mac style\rnew line');
 
 // escape sequence tests in properties file
-System.out.println(##'Hello, EscapeSpace!');
+System.out.println(##'Hello, EscapeOctalSpace!');
 System.out.println(##'Hello, UnicodeEscapeSpace!');
 System.out.println(##'Hello,	Tab!');
 
@@ -44,7 +46,8 @@ System.out.println(##'Unix style
 new line');
 System.out.println(##'Windows style
 new line');
-System.out.println(##'Mac stylenew line');
+System.out.println(##'Mac style
+new line');
 
 // restore the default locale
 Locale.setDefault(curLoc);

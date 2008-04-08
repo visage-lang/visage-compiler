@@ -48,8 +48,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 import com.sun.javafx.runtime.util.backport.ResourceBundle;
 import com.sun.javafx.runtime.util.backport.ResourceBundleEnumeration;
@@ -60,8 +58,6 @@ class FXPropertyResourceBundle extends ResourceBundle {
     private static final List<String> FORMAT_FXPROPERTIES
             = Collections.unmodifiableList(Arrays.asList("javafx.properties"));
     private ConcurrentMap<String, Object> lookup;
-    private static final Pattern escPattern = 
-                                Pattern.compile("(\\\\u[0-9a-fA-F]{4}|\\\\.)");
     private static Logger logger = null;
 
     // code point literals
@@ -172,10 +168,18 @@ class FXPropertyResourceBundle extends ResourceBundle {
                     // closing of a quote
                     quote = 0;
                     if (!foundEqual && key == null) {
-                        key = sb.toString();
+                        try {
+                            key = convertEscapes(sb.toString());
+                        } catch (IllegalArgumentException e) {
+                            logPropertySyntaxError(e.getMessage(), lineNum, resourceName);
+                        }
                         sb.setLength(0);
                     } else if (foundEqual && key != null) {
-                        processKeyValue(key, sb.toString());
+                        try {
+                            lookup.put(key, convertEscapes(sb.toString()));
+                        } catch (IllegalArgumentException e) {
+                            logPropertySyntaxError(e.getMessage(), lineNum, resourceName);
+                        }
                         sb.setLength(0);
                         key = null;
                         foundEqual = false;
@@ -235,12 +239,6 @@ class FXPropertyResourceBundle extends ResourceBundle {
         br.close();
     }
 
-    private void processKeyValue(String key, String value) {
-        key = processEscape(key);
-        value = processEscape(value);
-        lookup.put(key, value);
-    }
-
     private int getCodePoint(BufferedReader br) throws IOException {
         int c = br.read();
         if (Character.isHighSurrogate((char)c)) {
@@ -290,65 +288,111 @@ class FXPropertyResourceBundle extends ResourceBundle {
         return newlines;
     }
 
-    private static String processEscape(String src) {
-        Matcher m = escPattern.matcher(src);
-        StringBuffer sb = new StringBuffer();
-        while (m.find()) {
-            String found = m.group(0);
-            if (found.length() == 6) { // must be Unicode escape
-                m.appendReplacement(sb, convertUnicodeEscape(found));
-            } else {
-                m.appendReplacement(sb, convertSingleEscape(found));
-            }
+    /**
+     * Converts escape sequences (e.g., "\u0020") in the given <code>str</code> to
+     * their Unicode values and returns a String containing the converted Unicode values.
+     * The conversion follows the spec in JLS 3.0 3.3 Unicode Escapes and 3.10.6 Escape
+     * Sequences for Character and String Literals.
+     * 
+     * @param str a <code>String</code> to be converted
+     * @return a <code>String</code> containing converted escapes.
+     *         If the given <code>str</code> doesn't include any escape sequences,
+     *         <code>str</code> is returned.
+     * @exception NullPointerException if <code>str</code> is null.
+     * @exception IllegalArgumentException if <code>str</code> contains any invalid
+     *            escape sequences.
+     */
+    private static String convertEscapes(String str) {
+        // Quickly check if str has any backslash.
+        int x= str.indexOf('\\');
+        if (x == -1) {
+            return str;
         }
-        m.appendTail(sb);
+
+        StringBuilder sb = new StringBuilder();
+        if (x != 0) {
+            sb.append(str, 0, x);
+        }
+        int len = str.length();
+        try {
+            while (x < len) {
+                char c = str.charAt(x++);
+                if (c != '\\') {
+                    sb.append(c);
+                    continue;
+                }
+
+                int top = x - 1;
+                c = str.charAt(x++);
+                int n = -1;
+                switch (c) {
+                case 'u':
+                    n = 0;
+                    for (int i = 0; i < 4; i++) {
+                        c = str.charAt(x++);
+                        if (('0' <= c && c <= '9') ||
+                                ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F')) {
+                            n = (n << 4) + Character.digit(c, 16);
+                        } else {
+                            throw new IllegalArgumentException("illegal escape sequence '"
+                                                               + str.substring(top, x) + "'");
+                        }
+                    }
+                    break;
+                case 'b':
+                    n = '\b';
+                    break;
+                case 't':
+                    n = '\t';
+                    break;
+                case 'n':
+                    n = '\n';
+                    break;
+                case 'f':
+                    n = '\f';
+                    break;
+                case 'r':
+                    n = '\r';
+                    break;
+                case '"':
+                    n  = '"';
+                    break;
+                case '\'':
+                    n = '\'';
+                    break;
+                case '\\':
+                    n = c;
+                    break;
+                case '0': case '1': case '2': case '3':
+                case '4': case '5': case '6': case '7':
+                    n = Character.digit(c, 8);
+                    char leadChar = c;
+                    if (x < len) {
+                        c = str.charAt(x);
+                        if ('0' <= c && c <= '7') {
+                            n = (n << 3) + Character.digit(c, 8);
+                            if (++x < len) {
+                                c = str.charAt(x);
+                                if (leadChar <= '3' && '0' <= c && c <= '7') {
+                                    n = (n << 3) + Character.digit(c, 8);
+                                    x++;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    throw new IllegalArgumentException("illegal escape sequence '"
+                                                       + str.substring(top, x) + "'");
+                }
+                if (n != -1) {
+                    sb.append((char) n);
+                }
+            }
+        } catch (StringIndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("illegal escape sequence: " + str);
+        }
         return sb.toString();
-    }
-
-    private static String convertUnicodeEscape(String esc) {
-        int value = 0;
-        for (int index = 2; index < esc.length(); index ++) {
-            char c = esc.charAt(index);
-            switch (c) {
-            case '0': case '1': case '2': case '3': case '4':
-            case '5': case '6': case '7': case '8': case '9':
-                value = (value << 4) + c - '0';
-                break;
-            case 'a': case 'b': case 'c':
-            case 'd': case 'e': case 'f':
-                value = (value << 4) + c + 10 - 'a';
-                break;
-            case 'A': case 'B': case 'C':
-            case 'D': case 'E': case 'F':
-                value = (value << 4) + c + 10 - 'A';
-                break;
-            default:
-                log(Level.WARNING, "Malformed \\uxxxx encoding.");
-            }
-        }
-        return String.valueOf((char)value);
-    }
-
-    private static String convertSingleEscape(String esc) {
-        char c = esc.charAt(1);
-        switch (c) {
-        case 'n':
-            c = '\n';
-            break;
-        case 't':
-            c = '\t';
-            break;
-        case 'r':
-            c = '\r';
-            break;
-        case 'f':
-            c = '\f';
-            break;
-        case '\\':
-            // need to retain double backslash for Matcher.appendReplacement()
-            return "\\\\";
-        }
-        return String.valueOf(c);
     }
 
     private static Reader getReader(InputStream is) throws IOException {
@@ -509,16 +553,23 @@ class FXPropertyResourceBundle extends ResourceBundle {
     }
 
     private static void logPropertySyntaxError(int c, int lineNum, String resourceName) {
-        log(Level.WARNING,
-            "'" + (char)c + "'(0x" + Integer.toHexString(c) +
-            ") is incorrectly placed in line " + lineNum + " of " + resourceName);
+        logPropertySyntaxError(String.format("'%c' (U+%04X) is incorrectly placed", c, c),
+                               lineNum, resourceName);
+    }
+
+    private static void logPropertySyntaxError(String message, int lineNum, String resourceName) {
+        logPropertySyntaxError(String.format("%s in line %d of %s", message, lineNum, resourceName));
+    }
+
+    private static void logPropertySyntaxError(String message) {
+        log(Level.WARNING, message);
+        throw new IllegalArgumentException(message);
     }
 
     private static void log(Level l, String msg) {
         if (logger == null) {
             logger = Logger.getLogger("com.sun.javafx.runtime.util.FXPropertyResourceBundle");
         }
-
 
         logger.log(l, msg);
     }
