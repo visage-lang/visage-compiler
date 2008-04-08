@@ -49,6 +49,7 @@ tokens {
    FUNCTION='function';
    IF='if';
    IMPORT='import';
+   INDEXOF='indexof';
    INIT='init';
    INSERT='insert';
    LET='let';
@@ -63,6 +64,7 @@ tokens {
    PUBLIC='public';
    READONLY='readonly';
    RETURN='return';
+   REVERSE='reverse';
    SUPER='super';
    SIZEOF='sizeof';
    STATIC='static';
@@ -70,6 +72,7 @@ tokens {
    THROW='throw';
    TRY='try';
    TRUE='true';
+   TYPEOF='typeof';
    VAR='var';
    WHILE='while';
    
@@ -94,7 +97,6 @@ tokens {
    FIRST='first';
    FROM='from';
    IN='in';
-   INDEXOF='indexof';
    INSTANCEOF='instanceof';
    INTO='into';
    INVERSE='inverse';
@@ -103,11 +105,9 @@ tokens {
    ON='on';
    OR='or';
    REPLACE='replace';
-   REVERSE='reverse';
    STEP='step';
    THEN='then';
    TRIGGER='trigger';
-   TYPEOF='typeof';
    WITH='with';
    WHERE='where';
    

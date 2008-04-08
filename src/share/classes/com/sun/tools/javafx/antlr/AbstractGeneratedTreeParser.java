@@ -83,7 +83,7 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
         String msg = null;
         if (e instanceof NoViableAltException) {
             NoViableAltException nvae = (NoViableAltException) e;
-            msg = "Trying to understand your program, I'm confused st the " + e.token + "\n" + nvae.grammarDecisionDescription;
+            msg = "Trying to understand your program, I'm confused at " + getRuleInvocationStack(e, this.getClass().getName());
             //msg = " no viable alt; token=" + e.token + " (decision=" 
             //        + nvae.decisionNumber + " state " + nvae.stateNumber + ")" 
             //        + " decision=<<" + nvae.grammarDecisionDescription + ">>";
