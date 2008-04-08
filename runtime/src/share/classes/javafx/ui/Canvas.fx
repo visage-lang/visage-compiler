@@ -285,7 +285,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         }
     }
 
-    public bound function getCanvas() {
+    public function getCanvas() {
         return this;
     }
 

@@ -33,7 +33,7 @@ public abstract class CanvasElement {
     /** The containing element of this element. */
     public attribute parentCanvasElement: CanvasElement;
     /** Convenience method to obtain the containing canvas. */
-    public bound function getCanvas(): Canvas {
+    public function getCanvas(): Canvas {
         var n = this.parentCanvasElement;
         if (n == null) {
             null
