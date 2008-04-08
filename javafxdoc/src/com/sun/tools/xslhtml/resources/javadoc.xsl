@@ -11,7 +11,7 @@
     <xsl:param name="target-class">javafx.ui.ToggleButton</xsl:param>
     
     
-    
+<!-- starter template -->    
     <xsl:template match="/">
         
         <xsl:if test="not (/classList)">
@@ -28,9 +28,9 @@
     </xsl:template>
     
     
-    
-    <!-- indexes -->
-    
+<!-- ====================== -->    
+<!-- indexes and overviews -->
+<!-- ====================== -->    
     <xsl:template match="packageList[@mode='overview-frame']">
         <html>
             <head>
@@ -163,25 +163,26 @@
     <xsl:template match="interface">
         <xsl:call-template name="classOutput"/>
     </xsl:template>
+
     
     
-    <!-- the actual class -->
+    
+    
+    
+    
+<!-- ====================== -->    
+<!-- the actual class -->
+<!-- ====================== -->    
+    
     
     <xsl:template name="classOutput">
         <html>
             <head>
                 <link href="../{$master-css}" rel="stylesheet"/>
-                <style type="text/css">
-                </style>
-                <xsl:if test="$extra-css">
-                    <link href="../{$extra-css}" rel="stylesheet"/>
-                </xsl:if>
-                <xsl:if test="$extra-js">
-                    <script src="../{$extra-js}"></script>
-                </xsl:if>
-                <xsl:if test="$extra-js2">
-                    <script src="../{$extra-js2}"></script>
-                </xsl:if>
+                <style type="text/css"></style>
+                <xsl:if test="$extra-css"><link href="../{$extra-css}" rel="stylesheet"/></xsl:if>
+                <xsl:if test="$extra-js"><script src="../{$extra-js}"></script></xsl:if>
+                <xsl:if test="$extra-js2"><script src="../{$extra-js2}"></script></xsl:if>
                 <script src="../navigation.js"></script>
             </head>
             <body>
@@ -235,6 +236,71 @@
     
     
     
+<!-- ====================== -->    
+<!--    header    -->
+<!-- ====================== -->    
+    <xsl:template name="header">
+        <div id="nav">
+            <!-- name of the class -->
+            <h1 class="classname">
+                <i class="modifiers">
+                    <xsl:value-of select="modifiers/@text"/>
+                </i>
+                class
+                <a class="classname">
+                    <strong><xsl:value-of select="@packageName"/>.</strong>
+                    <b><xsl:value-of select="@name"/></b>
+                </a>
+            </h1>
+            
+            
+            <!-- inheritance hierarchy -->
+            <h2>
+                <!--<xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>-->
+                <!--//class[@qualifiedName=$blah]"-->
+                <xsl:apply-templates select="." mode="super"/>
+                <xsl:apply-templates select="." mode="interface"/>
+            </h2>
+            
+            <!-- navigation header -->
+            <xsl:if test="@language='javafx'">
+                <ul id="tabs">
+                    <li><a href="#overview">overview</a></li><li><a href="#fields-summary">attributes</a></li><li><a href="#methods-summary">functions</a></li>
+                </ul>
+            </xsl:if>
+            
+            <xsl:if test="@language='java'">
+                <ul id="tabs">
+                    <li><a href="#overview">overview</a></li><li><a href="#fields-summary">fields</a></li><li><a href="#constructors-summary">constructors</a></li><li><a href="#methods-summary">methods</a></li>
+                </ul>
+            </xsl:if>
+            
+            
+            <!-- view toggles -->
+            <ul id="toggles">
+                <li><a class="toggle-advanced" 
+                       href="javascript:togglecss('.advanced','display','block','none');togglecss('.toggle-advanced','backgroundColor','transparent','red');">advanced</a></li>
+            </ul>
+            
+        </div>
+    </xsl:template>
+    
+    
+    
+    
+    <xsl:template match="class[@language='javafx']" mode="interface">
+        <xsl:for-each select="interfaces/interface">
+            <a>
+                <xsl:attribute name="title"><xsl:value-of select="@packageName"/>.<xsl:value-of select="@typeName"/></xsl:attribute>
+                <xsl:attribute name="href">../<xsl:value-of select="@packageName"/>/<xsl:value-of select="@packageName"/>.<xsl:value-of select="@typeName"/>.html</xsl:attribute>
+                <strong><xsl:value-of select="@packageName"/>.</strong>
+                <b><xsl:value-of select="@typeName"/></b>
+            </a>
+            <xsl:text>, </xsl:text>
+            <xsl:variable name="super"><xsl:value-of select="@packageName"/>.<xsl:value-of select="@typeName"/></xsl:variable>
+            <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="interface"/>
+        </xsl:for-each>        
+    </xsl:template>
     
     <xsl:template match="class" mode="interface">
         <xsl:if test="interfaces/interface">implements </xsl:if>
@@ -249,10 +315,10 @@
         </xsl:for-each>
     </xsl:template>
     
-    <xsl:template match="class" mode="super">
+    
+    <xsl:template match="class" mode="super">        
+        <!-- only do stuff if super exists at all -->
         <xsl:variable name="super" select="superclass/@qualifiedTypeName"/>
-        
-        <!-- only do setuff if super exists at all -->
         <xsl:if test="$super">
             <!-- if super can't be found -->
             <xsl:if test="not(//class[@qualifiedName=$super])">
@@ -280,52 +346,17 @@
         
     </xsl:template>
     
-    
-    <!-- header -->
-    <xsl:template name="header">
-        <div id="nav">
-            <h1 class="classname">
-                <i class="modifiers">
-                    <xsl:value-of select="modifiers/@text"/>
-                </i>
-                class
-                <a class="classname">
-                    <strong><xsl:value-of select="@packageName"/>.</strong>
-                    <b><xsl:value-of select="@name"/></b>
-                </a>
-            </h1>
-            
-            
-            <h2>
-                <!--<xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>-->
-                <!--//class[@qualifiedName=$blah]"-->
-                <xsl:apply-templates select="." mode="super"/>
-                <xsl:apply-templates select="." mode="interface"/>
-            </h2>
-            
-            <xsl:if test="@language='javafx'">
-                <ul id="tabs">
-                    <li><a href="#overview">overview</a></li><li><a href="#fields-summary">attributes</a></li><li><a href="#methods-summary">functions</a></li>
-                </ul>
-            </xsl:if>
-            
-            <xsl:if test="@language='java'">
-                <ul id="tabs">
-                    <li><a href="#overview">overview</a></li><li><a href="#fields-summary">fields</a></li><li><a href="#constructors-summary">constructors</a></li><li><a href="#methods-summary">methods</a></li>
-                </ul>
-            </xsl:if>
-            
-            <ul id="toggles">
-                <li><a class="toggle-advanced" 
-                       href="javascript:togglecss('.advanced','display','block','none');togglecss('.toggle-advanced','backgroundColor','transparent','red');">advanced</a></li>
-            </ul>
-            
-        </div>
-    </xsl:template>
+
     
     
     
-    <!--   ====  The Table of Contents ====  -->
+    
+    
+    
+    
+<!-- ====================== -->    
+<!-- The Table of Contents  -->
+<!-- ====================== -->    
     
     <xsl:template name="toc">
         <div id="toc">
