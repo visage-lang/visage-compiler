@@ -140,8 +140,23 @@ public class JavafxFileManager extends JavacFileManager {
         }
 
         @Override
-        public boolean isNameCompatible(String simpleName, Kind kind) {
-            return delegate.isNameCompatible(simpleName, kind);
+        public boolean isNameCompatible(String cn, Kind kind) {
+            cn.getClass(); // null check
+            if (kind == Kind.OTHER && getKind() != kind)
+                return false;
+            String suffix = (kind == JavaFileObject.Kind.SOURCE) ? ".fx" : kind.extension;
+            String n = cn + suffix;
+            if (delegate.getName().equals(n))
+                return true;
+            if (getName().equalsIgnoreCase(n)) {
+                try {
+                    // allow for Windows
+                    File f = new File(getPath());
+                    return (f.getCanonicalFile().getName().equals(n));
+                } catch (IOException e) {
+                }
+            }
+            return false;
         }
 
         @Override

@@ -432,6 +432,8 @@ LAST_TOKEN
  *------------------------------------------------------------------*/
 
 module
+@after { Tree docComment = getDocComment($module.start);
+         $module.tree.addChild(docComment); }
 	: packageDecl? moduleItems EOF 		-> ^(MODULE packageDecl? moduleItems)
        	;
 packageDecl 

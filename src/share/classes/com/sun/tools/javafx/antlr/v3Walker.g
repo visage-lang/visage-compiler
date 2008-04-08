@@ -96,7 +96,10 @@ module returns [JCCompilationUnit result]
           endPositions = new HashMap<JCTree,Integer>(); }
 @after  { $result.docComments = docComments; 
           $result.endPositions = endPositions; }
-	: ^(MODULE packageDecl? moduleItems)		{ $result = F.TopLevel(noJCAnnotations(), $packageDecl.value, $moduleItems.items.toList()); }
+	: ^(MODULE packageDecl? moduleItems DOC_COMMENT?)		
+                                                        { $result = F.TopLevel(noJCAnnotations(), $packageDecl.value, $moduleItems.items.toList()); 
+                                                          setDocComment($result, $DOC_COMMENT); 
+                                                          endPos($result, $MODULE); }
        	;
 packageDecl  returns [JCExpression value]
        	: ^(PACKAGE qualident)        			{ $value = $qualident.expr; }
