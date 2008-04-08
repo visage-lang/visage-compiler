@@ -143,7 +143,7 @@ var frame = new JFrame();
 var button = new JButton("Press me");
 frame.getContentPane().add(button);
 button.addActionListener(new ActionListener() {
-        operation actionPerformed(event) {
+        function actionPerformed(event) {
             System.out.println("You pressed me");
         }
      });
@@ -175,7 +175,7 @@ frame.setVisible(true);
     <programlisting>Frame {
      content: Button {
           text: "Press Me"
-          action: operation() {
+          action: function() {
           System.out.println("You pressed me");
           }
      }

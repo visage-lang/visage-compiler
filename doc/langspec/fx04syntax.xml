@@ -1220,7 +1220,7 @@ System.out.println(s);
           <emphasis role="bold">Example:</emphasis>
         </para>
 
-        <programlisting>       operation add(x, y) {
+        <programlisting>       function add(x, y) {
            return x + y;
        }
 </programlisting>
@@ -1238,11 +1238,11 @@ System.out.println(s);
 
 <programlisting>       import java.lang.Exception;
 
-       operation foo() {
+       function foo() {
            throw new Exception("this is a java exception");
        }
 
-       operation bar() {
+       function bar() {
            throw "just a string";
        }
 </programlisting>
@@ -1261,7 +1261,7 @@ System.out.println(s);
           <emphasis role="bold">Examples:</emphasis>
         </para>
 
-        <programlisting>       operation foo() {
+        <programlisting>       function foo() {
           for (i in [0..10]) {
               if (i &gt; 5) {
                   break;
@@ -1273,7 +1273,7 @@ System.out.println(s);
           }
        }
 
- ! operation bar() {
+ ! function bar() {
              var i = 0;
              while (i &lt; 10) {
                  if (i &gt; 5) {

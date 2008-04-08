@@ -37,7 +37,7 @@
 
 
 
-    <para>This declares a new variable named ccceeenumeexccx whose value is defined to
+    <para>This declares a new variable named <code><emphasis>num</emphasis></code> whose value is defined to
     consist of an instance of type <code>Number</code> and whose initial value
     is 1.</para>
 
@@ -45,7 +45,10 @@
 
     <para><emphasis role="bold">TO-DO: Discuss variable scope here
     (JFXC-441.)</emphasis></para>
-
+    
+    
+<para> The lifetime of a variable is at least the lifetime of the containing block. It can be longer if the variable is captured by a closure. Top-level variables are visible inside functions and
+classes. They act like private static fields of the module class. </para> 
 
 
     <para>Because the <emphasis>: typeName</emphasis> and <emphasis>=
