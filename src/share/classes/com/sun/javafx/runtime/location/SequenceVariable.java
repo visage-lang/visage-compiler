@@ -180,6 +180,8 @@ public class SequenceVariable<T>
     public void bind(SequenceLocation<T> otherLocation) {
         ensureBindable();
         boundLocation = otherLocation;
+        Sequence<T> oldValue = value;
+        value = otherLocation.get();
         otherLocation.addChangeListener(new ChangeListener() {
             public boolean onChange(Location location) {
                 valueChanged();
@@ -192,8 +194,6 @@ public class SequenceVariable<T>
                 notifyListeners(startPos, endPos, newElements, oldValue, newValue);
             }
         });
-        Sequence<T> oldValue = value;
-        value = otherLocation.get();
         notifyListeners(0, Sequences.size(oldValue)-1, value, oldValue, value);
     }
 
