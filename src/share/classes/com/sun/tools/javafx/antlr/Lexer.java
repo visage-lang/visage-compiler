@@ -149,11 +149,16 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
         if (e instanceof NoViableAltException) {
             NoViableAltException nvae = (NoViableAltException) e;
             if (e.c == Token.EOF) {
-                mb.append("Failure to proceed processing");
+                mb.append("Sorry, I reached to the end of file. ");
+                mb.append("Perhaps you are having a mismatched " + "'" + "\"" + "' or '{'");
             } else {
-                mb.append(getCharErrorDisplay(e.c));          
+                mb.append("Sorry, " + getCharErrorDisplay(e.c));          
                 mb.append(" is not supported in JavaFX");
             }
+        } else if (e instanceof FailedPredicateException) {
+             mb.append("Sorry, I was trying to understand a " + getCharErrorDisplay(e.c) + ". ");
+             mb.append("Perhaps you are having a mismatched " + "'" + "\"" + "' or '{'");
+            recover(e);
         } else {
             mb.append( super.getErrorMessage(e, tokenNames) );
         }
