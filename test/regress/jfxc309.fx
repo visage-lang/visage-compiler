@@ -19,10 +19,10 @@ attribute layoutManager = LayoutManager2 {
                     return new Dimension(0, 0); 
                 } 
                 public function getLayoutAlignmentX(container:java.awt.Container):Number { 
-                    return new java.lang.Float(0.0); //TODO: work-around until JFXC-1014 & JFXC-865 complete
+                    return 0;
                 } 
                 public function getLayoutAlignmentY(container:java.awt.Container):Number { 
-                    return new java.lang.Float(0.0); //TODO: work-around until JFXC-1014 & JFXC-865 complete
+                    return 0;
                 } 
                 public function invalidateLayout(container:java.awt.Container):Void { 
                 } 
