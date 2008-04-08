@@ -478,7 +478,7 @@ classMember
 	| attributeDeclaration 
 	| overrideDeclaration 
 	| functionDefinition 
-	| triggerDefinition
+//	| triggerDefinition
 	;
 functionDefinition
 @after { Tree docComment = getDocComment($functionDefinition.start);
@@ -504,9 +504,10 @@ initDefinition
 postInitDefinition
 	: POSTINIT block 			-> ^(POSTINIT block)
 	;
-triggerDefinition
-	: WITH name onReplaceClause		-> ^(WITH name onReplaceClause)
-	;
+//triggerDefinition
+//	: WITH name onReplaceClause		-> ^(WITH name onReplaceClause)
+//	;
+
 //TODO: modifier flag testing should be done in JavafxAttr, where it would be cleaner and better errors could be generated
 functionModifierFlags  
 	: BOUND (accessModifier functionModifier? )?	-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
