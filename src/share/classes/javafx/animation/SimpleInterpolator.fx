@@ -53,8 +53,12 @@ public abstract class SimpleInterpolator extends Interpolator {
             else
 		java.lang.Double.valueOf(val)
         }
-        else
+        else if (startValue instanceof Interpolatable) {
             (startValue as Interpolatable).ofTheWay((endValue as Interpolatable), curve(fraction));  
+        } else {
+            // discrete
+            if (fraction == 1.0) endValue else startValue;
+        }
     }
 
     public function interpolate(startValue:Number, endValue:Number, fraction:Number):Number {
