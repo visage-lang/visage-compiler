@@ -1847,12 +1847,16 @@ public class JavafxResolve {
                         typeargs = "<" + Type.toString(typeargtypes) + ">";
                 }
                 if (kind == WRONG_MTH) {
+                    Symbol wrongSymMem = wrongSym.asMemberOf(site, types);
+                    String wrongSymStr =
+                            types.toJavaFXString((MethodSymbol) wrongSymMem,
+                            ((MethodSymbol) wrongSym).params);
                     log.error(pos,
                               "cant.apply.symbol" + (explanation != null ? ".1" : ""),
-                              wrongSym.asMemberOf(site, types),
+                              wrongSymStr,
                               wrongSym.location(site, types),
                               typeargs,
-                              Type.toString(argtypes),
+                              types.toJavaFXString(argtypes),
                               explanation);
                 } else if (site.tsym.name.len != 0) {
                     if (site.tsym.kind == PCK && !site.tsym.exists())

@@ -251,6 +251,22 @@ public class JavafxTypes extends Types {
         return buffer.toString();
     }
     
+    public String toJavaFXString(List<Type> ts) {
+        if (ts.isEmpty())
+            return "";
+        StringBuilder buffer = new StringBuilder();
+        try {
+            buffer.append(ts.head.toString());
+            for (List<Type> l = ts.tail; l.nonEmpty(); l = l.tail) {
+                buffer.append(",");
+                toJavaFXString(l.head, buffer);
+            }
+        } catch (java.io.IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+        return buffer.toString();
+    }
+
     private boolean isJavaFXBoolean(Type type) {
         boolean result = false;
         if (type.tag == BOOLEAN) {
@@ -369,6 +385,43 @@ public class JavafxTypes extends Types {
             methodToJavaFXString(methodType, buffer);
         } else {
             buffer.append(type.toString());
+        }
+    }
+
+    public String toJavaFXString(MethodSymbol sym, List<VarSymbol> params) {
+        StringBuilder builder = new StringBuilder();
+        try {
+            toJavaFXString(sym, params, builder);
+        } catch (java.io.IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+        return builder.toString();
+    }
+
+    public void toJavaFXString(MethodSymbol sym, List<VarSymbol> params,
+            Appendable buffer) throws java.io.IOException {
+        if ((sym.flags() & BLOCK) != 0)
+            buffer.append(sym.owner.name);
+        else {
+            buffer.append(sym.name == sym.name.table.init ? sym.owner.name : sym.name);
+            if (sym.type != null) {
+                buffer.append('(');
+                // FUTURE: check (flags() & VARARGS) != 0
+                List<Type> args = sym.type.getParameterTypes();
+                for (List<Type> l = args; l.nonEmpty(); l = l.tail) {
+                    if (l != args)
+                        buffer.append(",");
+                    if (params != null && params.nonEmpty()) {
+                        VarSymbol param = params.head;
+                        if (param != null)
+                            buffer.append(param.name);
+                        params = params.tail;
+                    }
+                    buffer.append(":");
+                    toJavaFXString(l.head, buffer);
+                }
+                buffer.append(')');
+            }
         }
     }
 }
