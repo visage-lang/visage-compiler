@@ -320,8 +320,9 @@ public class XMLDoclet {
             generateAnnotations(cls.annotations());
             generateTypeParameters(cls.typeParameters());
         }
-        if (!cls.superclass().qualifiedName().equals("java.lang.Object"))
+        if (cls.superclass() != null && !cls.superclass().qualifiedName().equals("java.lang.Object")) {
             generateTypeRef(cls.superclass(), "superclass", null);
+        }
         attrs.clear();
         hd.startElement("", "", "interfaces", attrs);
         for (Type intf : cls.interfaces())
