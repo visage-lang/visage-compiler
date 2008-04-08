@@ -37,6 +37,13 @@
 
 <xi:include href="fx09exceptions.xml"  parse="xml"/>
 
+
+<xi:include href="appendixa.xml"  parse="xml"/>
+
+
+
+
+
 <!-- commented out until reflection support is implemented
 <xi:include href="fx10reflection.xml"  parse="xml"/>  
 -->
