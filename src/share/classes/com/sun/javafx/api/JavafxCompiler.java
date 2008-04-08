@@ -52,7 +52,7 @@ public interface JavafxCompiler extends Tool, OptionChecker {
      * completed as described in the CompilationTask interface.
      *
      * <p>If a file manager is provided, it must be able to handle all
-     * locations defined in {@link StandardLocation}.
+     * locations defined in {@link javax.tools.StandardLocation}.
      *
      * @param out a Writer for additional output from the compiler;
      * use {@code System.err} if {@code null}
@@ -71,7 +71,7 @@ public interface JavafxCompiler extends Tool, OptionChecker {
      * user code.
      * @throws IllegalArgumentException if any of the given
      * compilation units are of other kind than
-     * {@linkplain JavaFileObject.Kind#SOURCE source}
+     * {@linkplain javax.tools.JavaFileObject.Kind#SOURCE source}
      */
     JavafxcTask getTask(Writer out,
                         JavaFileManager fileManager,

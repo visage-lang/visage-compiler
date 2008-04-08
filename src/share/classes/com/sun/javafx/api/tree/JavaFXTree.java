@@ -47,7 +47,7 @@ public interface JavaFXTree extends Tree {
     public enum JavaFXKind {
 
         /**
-         * Used for instances of {@link BindkExpressionTree}.
+         * Used for instances of {@link BindExpressionTree}.
          */
         BIND_EXPRESSION(BindExpressionTree.class),
 
@@ -92,12 +92,12 @@ public interface JavaFXTree extends Tree {
         KEYFRAME_LITERAL(KeyFrameLiteralTree.class),
 
         /**
-         * Used for instances of {@link PostInitDefinitionTree}.
+         * Used for instances of {@link InitDefinitionTree}.
          */
         POSTINIT_DEFINITION(InitDefinitionTree.class),
 
         /**
-         * Used for instances of {@link InstatiateTree}.
+         * Used for instances of {@link InstantiateTree}.
          */
         INSTANTIATE(InstantiateTree.class),
 

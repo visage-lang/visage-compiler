@@ -48,7 +48,6 @@ public interface KeyFrameLiteralTree extends JavaFXTree {
     /**
      * @return the expression to be executed when the keyframe finishes, or
      *         null if no trigger expression is specified.
-     * @return
      */
     BlockExpressionTree getTriggerExpression();
 }
