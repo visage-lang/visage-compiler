@@ -145,7 +145,7 @@ public class AssortisProject  extends CompositeWidget{
         
     attribute lafIndex:Integer = -1 on replace{
         if( 0 <= lafIndex ){
-            //javax.swing.UIManager.setLookAndFeel( lafs[lafIndex].className );
+            javax.swing.UIManager.setLookAndFeel( lafs[lafIndex].className );
         }
     };
     
@@ -456,16 +456,16 @@ public class AssortisProject  extends CompositeWidget{
                             weight: 0.5
                             content: BorderPanel{
                                 border:  TitledBorder {} 
-//                                top: BorderPanel{
-//                                    border:  TitledBorder {}
-//                                    left: Label{ text: "Look and Feel"}
-//                                    center: ComboBox{
-//                                        selection: bind lafIndex with inverse
-//                                        cells:  for ( laf in lafs ) ComboBoxCell {
-//                                            text: laf.name
-//                                        }
-//                                    }
-//                                }
+                                top: BorderPanel{
+                                    border:  TitledBorder {}
+                                    left: Label{ text: "Look and Feel"}
+                                    center: ComboBox{
+                                        selection: bind lafIndex with inverse
+                                        cells:  for ( laf in lafs ) ComboBoxCell {
+                                            text: laf.name
+                                        }
+                                    }
+                                }
                                 center: BorderPanel{ 
                                     top: Label { text: "Samples:"}
                                     center: ListBox{
