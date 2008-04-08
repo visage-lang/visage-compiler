@@ -103,14 +103,14 @@ var win = Frame {
                             height: 300
                             fill: Color.WHITE
                         },
+                        Group {
+                            content: bind for (b in test.balls) (b.img as java.lang.Object) as Node
+                        },
                         Text {
                             x: 4
                             y: 4
                             content: bind test.fps
                             font: Font {faceName: ##"Arial", size: 14}
-                        },
-                        Group {
-                            content: bind for (b in test.balls) (b.img as java.lang.Object) as Node
                         }
                         //bind test._ballImg
                     ]
