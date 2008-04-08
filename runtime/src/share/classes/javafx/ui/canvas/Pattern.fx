@@ -30,7 +30,6 @@ import java.awt.TexturePaint;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.awt.geom.Rectangle2D;
-import java.awt.Color;
 import javafx.ui.Canvas;
 import javafx.ui.Paint;
 
@@ -75,7 +74,7 @@ public class Pattern extends Paint {
     private function getTexturePaint(texturePaint: TexturePaint):java.awt.Paint{
         makeTexture();
         if (texturePaint == null) {
-            return Color.BLACK;
+            return java.awt.Color.BLACK;
         }
         return texturePaint;
     }    
