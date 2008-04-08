@@ -69,7 +69,7 @@ public class View extends Node, SizeableCanvasElement {
         }
     };
 
-    with bounds on replace {
+    override attribute bounds on replace {
         updateBaseline();
     }
     
