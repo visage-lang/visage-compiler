@@ -206,10 +206,14 @@ public class XHTMLProcessingUtils {
         String name = clazz.getAttribute("name");
         
         //add to class list
-        Element class_elem = class_list.getOwnerDocument().createElement("class");
+        Document doc = class_list.getOwnerDocument();
+        Element class_elem = doc.createElement("class");
         class_list.appendChild(class_elem);
         class_elem.setAttribute("name", name);
         class_elem.setAttribute("qualifiedName", qualifiedName);
+        Element first_line = doc.createElement("first-line-comment");
+        first_line.appendChild(doc.createTextNode("first line comment"));
+        class_elem.appendChild(first_line);
         
         File xhtmlFile = new File(packageDir, qualifiedName + ".html");
         Result xhtmlResult = new StreamResult(xhtmlFile);
