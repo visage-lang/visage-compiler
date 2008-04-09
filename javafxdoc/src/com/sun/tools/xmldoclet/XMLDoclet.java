@@ -429,19 +429,20 @@ public class XMLDoclet {
                     if (rawType == null)
                         throw new AssertionError("unknown sequence type");
                     type = sequenceType(cd, rawType);
+                    cd = type.asClassDoc();
                 }
             }
             boolean isFunctionType = rawType instanceof FunctionType;
-            attrs.addAttribute("", "", "typeName", "CDATA", type.typeName());
             String simpleName = isFunctionType ? 
                 simpleFunctionalTypeName(cd, rawType) : type.simpleTypeName();
+            attrs.addAttribute("", "", "typeName", "CDATA", type.typeName());
             attrs.addAttribute("", "", "simpleTypeName", "CDATA", simpleName);
             attrs.addAttribute("", "", "qualifiedTypeName", "CDATA", type.qualifiedTypeName());
-            if(cd != null) {
+            if(cd != null && !type.isPrimitive()) {
                 attrs.addAttribute("", "", "packageName", "CDATA", cd.containingPackage().name());
             }
             attrs.addAttribute("", "", "dimension", "CDATA", type.dimension());
-            attrs.addAttribute("", "", "toString", "CDATA", type.toString());
+            attrs.addAttribute("", "", "toString", "CDATA", type.qualifiedTypeName() + type.dimension());
             attrs.addAttribute("", "", "sequence", "CDATA", Boolean.toString(isSequence));
             attrs.addAttribute("", "", "functionType", "CDATA", Boolean.toString(isFunctionType));
             hd.startElement("", "", kind, attrs);
@@ -691,13 +692,13 @@ public class XMLDoclet {
             final Type result = (Type)m.invoke(cd, (Object)rawType);
             return new Type() {
                 public String typeName() {
-                    return result.typeName() + "[]";
+                    return result.typeName();
                 }
                 public String qualifiedTypeName() {
-                    return result.qualifiedTypeName() + "[]";
+                    return result.qualifiedTypeName();
                 }
                 public String simpleTypeName() {
-                    return result.simpleTypeName() + "[]";
+                    return result.simpleTypeName();
                 }
                 public String dimension() {
                     return "[]";
