@@ -69,6 +69,8 @@ public class JavafxModuleBuilder {
     private Name pseudoFile;
     private Name pseudoDir;
     private Name commandLineArgs;
+    
+    private final boolean debugBadPositions = false;
 
     public static JavafxModuleBuilder instance(Context context) {
         JavafxModuleBuilder instance = context.get(javafxModuleBuilderKey);
@@ -90,6 +92,10 @@ public class JavafxModuleBuilder {
 
     public void preProcessJfxTopLevel(JCCompilationUnit module) {
         Name moduleClassName = moduleName(module);
+        
+        if (debugBadPositions) {
+            checkForBadPositions(module);
+        }
 
         ListBuffer<JCTree> moduleClassDefs = new ListBuffer<JCTree>();
         ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
@@ -284,4 +290,24 @@ public class JavafxModuleBuilder {
         
         topLevelNamesSet.add(name);
     }
+    
+    private void checkForBadPositions(JCTree testTree) {
+        new JavafxTreeScanner() {
+
+            @Override
+            public void scan(JCTree tree) {
+                super.scan(tree);
+                if (tree != null && tree.pos <= 0) {
+                    String where = tree.getClass().getSimpleName();
+                    try {
+                        where = where + ": " + tree.toString();
+                    } catch (Throwable exc) {
+                        //ignore
+                    }
+                    System.out.println("Position of " + tree.pos + " in ---" + where);
+                }
+            }
+        }.scan(testTree);
+    }
+
 }
