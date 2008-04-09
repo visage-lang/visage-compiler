@@ -38,15 +38,10 @@ class PrimitiveType implements com.sun.javadoc.Type {
 
     private final String name;
 
-    static final PrimitiveType voidType = new PrimitiveType("void");
-    static final PrimitiveType booleanType = new PrimitiveType("boolean");
-    static final PrimitiveType byteType = new PrimitiveType("byte");
-    static final PrimitiveType charType = new PrimitiveType("char");
-    static final PrimitiveType shortType = new PrimitiveType("short");
-    static final PrimitiveType intType = new PrimitiveType("int");
-    static final PrimitiveType longType = new PrimitiveType("long");
-    static final PrimitiveType floatType = new PrimitiveType("float");
-    static final PrimitiveType doubleType = new PrimitiveType("double");
+    static final PrimitiveType voidType = new PrimitiveType("Void");
+    static final PrimitiveType booleanType = new PrimitiveType("Boolean");
+    static final PrimitiveType intType = new PrimitiveType("Integer");
+    static final PrimitiveType doubleType = new PrimitiveType("Number");
 
     // error type, should never actually be used
     static final PrimitiveType errorType = new PrimitiveType("");

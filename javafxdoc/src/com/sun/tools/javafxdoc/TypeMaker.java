@@ -56,12 +56,7 @@ public class TypeMaker {
         case CLASS:
             return env.getClassDoc((ClassSymbol)t.tsym);
         case ARRAY: return new ArrayTypeImpl(env, t);
-        case BYTE: return PrimitiveType.byteType;
-        case CHAR: return PrimitiveType.charType;
-        case SHORT: return PrimitiveType.shortType;
         case INT: return PrimitiveType.intType;
-        case LONG: return PrimitiveType.longType;
-        case FLOAT: return PrimitiveType.floatType;
         case DOUBLE: return PrimitiveType.doubleType;
         case BOOLEAN: return PrimitiveType.booleanType;
         case VOID: return PrimitiveType.voidType;
