@@ -428,7 +428,7 @@ public class XMLDoclet {
                 if (isSequence) {
                     if (rawType == null)
                         throw new AssertionError("unknown sequence type");
-                    type = sequenceElementType(cd, rawType);
+                    type = sequenceType(cd, rawType);
                 }
             }
             boolean isFunctionType = rawType instanceof FunctionType;
@@ -440,10 +440,8 @@ public class XMLDoclet {
             if(cd != null) {
                 attrs.addAttribute("", "", "packageName", "CDATA", cd.containingPackage().name());
             }
-            String dim = isSequence ? "[]" : type.dimension();
-            attrs.addAttribute("", "", "dimension", "CDATA", dim);
-            String s = type.toString() + (isSequence ? "[]" : "");
-            attrs.addAttribute("", "", "toString", "CDATA", s);
+            attrs.addAttribute("", "", "dimension", "CDATA", type.dimension());
+            attrs.addAttribute("", "", "toString", "CDATA", type.toString());
             attrs.addAttribute("", "", "sequence", "CDATA", Boolean.toString(isSequence));
             attrs.addAttribute("", "", "functionType", "CDATA", Boolean.toString(isFunctionType));
             hd.startElement("", "", kind, attrs);
@@ -686,12 +684,43 @@ public class XMLDoclet {
         }
     }
     
-    private static Type sequenceElementType(ClassDoc cd, com.sun.tools.javac.code.Type rawType) {
+    private static Type sequenceType(ClassDoc cd, com.sun.tools.javac.code.Type rawType) {
         try {
             Class<?> cls = cd.getClass();
-            Method m = cls.getDeclaredMethod("sequenceElementType", com.sun.tools.javac.code.Type.class);
-            Object result = m.invoke(cd, (Object)rawType);
-            return (Type)result;
+            Method m = cls.getDeclaredMethod("sequenceType", com.sun.tools.javac.code.Type.class);
+            final Type result = (Type)m.invoke(cd, (Object)rawType);
+            return new Type() {
+                public String typeName() {
+                    return result.typeName() + "[]";
+                }
+                public String qualifiedTypeName() {
+                    return result.qualifiedTypeName() + "[]";
+                }
+                public String simpleTypeName() {
+                    return result.simpleTypeName() + "[]";
+                }
+                public String dimension() {
+                    return "[]";
+                }
+                public boolean isPrimitive() {
+                    return result.isPrimitive();
+                }
+                public ClassDoc asClassDoc() {
+                    return result.asClassDoc();
+                }
+                public ParameterizedType asParameterizedType() {
+                    return null;
+                }
+                public TypeVariable asTypeVariable() {
+                    return null;
+                }
+                public WildcardType asWildcardType() {
+                    return null;
+                }
+                public AnnotationTypeDoc asAnnotationTypeDoc() {
+                    return null;
+                }
+            };
         } catch (Exception e) {
             return null;
         }

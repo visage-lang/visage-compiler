@@ -1272,9 +1272,9 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
         return env.simpleFunctionalTypeName(rawType);
     }
     
-    public com.sun.javadoc.Type sequenceElementType(com.sun.tools.javac.code.Type rawType) {
+    public com.sun.javadoc.Type sequenceType(com.sun.tools.javac.code.Type rawType) {
         if (isSequence()) {
-            com.sun.tools.javac.code.Type rawSeqType = env.sequenceElementType(rawType);
+            com.sun.tools.javac.code.Type rawSeqType = env.sequenceType(rawType);
             com.sun.javadoc.Type seqType = TypeMaker.getType(env, rawSeqType, false);
             return seqType;
         }

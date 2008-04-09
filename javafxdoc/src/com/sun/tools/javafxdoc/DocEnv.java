@@ -733,7 +733,7 @@ public class DocEnv {
         return sym != null && types.isSequence(sym.type);
     }
     
-    protected com.sun.tools.javac.code.Type sequenceElementType(com.sun.tools.javac.code.Type type) {
+    protected com.sun.tools.javac.code.Type sequenceType(com.sun.tools.javac.code.Type type) {
         return types.elementType(type);
     }
     
