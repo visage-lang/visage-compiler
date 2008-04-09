@@ -568,8 +568,7 @@ public class RecognizedOptions {
 	    String s;
 	    public boolean matches(String s) {
 		this.s = s;
-		return s.endsWith(".fx")  // Java source file
-		    || SourceVersion.isName(s);   // Legal type name
+		return s.endsWith(".fx");  // Javafx source file
 	    }
 	    public boolean process(Options options, String option) {
 		if (s.endsWith(".fx") ) {
