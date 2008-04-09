@@ -580,7 +580,8 @@
                     <xsl:if test="//class[@qualifiedName=$atype]">
                         <xsl:apply-templates select="type" mode="href"/>
                     </xsl:if>
-                    <i class="type"><xsl:value-of select="type/@simpleTypeName"/></i>
+                    <i class="type"><xsl:value-of select="type/@simpleTypeName"/>
+                    <xsl:value-of select="type/@dimension"/></i>
                 </a>
             </td>
             <td>
@@ -610,7 +611,8 @@
                     <xsl:text> </xsl:text>
                     <b class="name"><xsl:value-of select="@name"/></b>
                     <xsl:text>: </xsl:text>
-                    <i class="type"><xsl:value-of select="type/@simpleTypeName"/></i>
+                    <i class="type"><xsl:value-of select="type/@simpleTypeName"/>
+                    <xsl:value-of select="type/@dimension"/></i>
                 </h4>
             </a>
             
@@ -666,7 +668,8 @@
             <xsl:if test="not(returns/@simpleTypeName='void')">
                 <dl class="returns">
                     Returns
-                    <dt><xsl:value-of select="returns/@simpleTypeName"/></dt>
+                    <dt><xsl:value-of select="returns/@simpleTypeName"/>
+                    <xsl:value-of select="returns/@dimension"/></dt>
                     <dd><xsl:apply-templates select="docComment/tags/return/inlineTags"/></dd>
                 </dl>
             </xsl:if>
@@ -723,7 +726,8 @@
                 <xsl:if test="//class[@qualifiedName=$ptype]">
                    <xsl:attribute name="href">../<xsl:value-of select="returns/@packageName"/>/<xsl:value-of select="returns/@qualifiedTypeName"/>.html</xsl:attribute>
                 </xsl:if>
-               <i><xsl:value-of select="returns/@simpleTypeName"/></i>
+               <i><xsl:value-of select="returns/@simpleTypeName"/>
+               <xsl:value-of select="returns/@dimension"/></i>
             </a>
             <xsl:value-of select="type/@dimension"/>
         </xsl:if>
@@ -731,7 +735,7 @@
         <!-- java -->
         <xsl:if test="../@language='java'">
             <i><xsl:value-of select="returns/@simpleTypeName"/>
-            <xsl:value-of select="type/@dimension"/></i>
+            <xsl:value-of select="returns/@dimension"/></i>
             <xsl:text> </xsl:text>
             <b><xsl:value-of select="@name"/></b>
             (
@@ -773,6 +777,7 @@
                     )
                     :
                     <i><xsl:value-of select="returns/@simpleTypeName"/>
+                    <xsl:value-of select="returns/@dimension"/>
                     <xsl:value-of select="type/@dimension"/></i>
                 </a>
             </li>
