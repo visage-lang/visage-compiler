@@ -1294,7 +1294,6 @@ public
             return;
         }
 
-    if (defs.useCorrectBoundFunctionSemantics) {
         // Error if bound function overrides non-bound.
         if ((other.flags() & JavafxFlags.BOUND) == 0 && (m.flags() & JavafxFlags.BOUND) != 0) {
             log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), "javafx.bound.override.meth",
@@ -1308,7 +1307,6 @@ public
                     cannotOverride(m, other));
             return;
         }
-    }
 
         if ((m.owner.flags() & ANNOTATION) != 0) {
                 // handled in validateAnnotationMethod

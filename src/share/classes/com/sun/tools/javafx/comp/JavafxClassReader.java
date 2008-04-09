@@ -391,13 +391,9 @@ public class JavafxClassReader extends ClassReader {
             int boundStringIndex = nameString.indexOf(JavafxDefs.boundFunctionDollarSuffix);
             if (boundStringIndex != -1) {
                 // this is a bound function
-                if (defs.useCorrectBoundFunctionSemantics) {
-                    // remove the bound suffix, and mark as bound
-                    name = names.fromString(nameString.substring(0, boundStringIndex));
-                    flags |= JavafxFlags.BOUND;
-                } else {
-                    flags |= Flags.SYNTHETIC;  // mark bound function versions as synthetic, so they don't get added
-                }
+                // remove the bound suffix, and mark as bound
+                name = names.fromString(nameString.substring(0, boundStringIndex));
+                flags |= JavafxFlags.BOUND;
             }
             MethodSymbol m = new MethodSymbol(flags, name, type, owner);
             ((ClassSymbol) owner).members_field.enter(m);
@@ -509,15 +505,9 @@ public class JavafxClassReader extends ClassReader {
                     int boundStringIndex = nameString.indexOf(JavafxDefs.boundFunctionDollarSuffix);
                     if (boundStringIndex != -1) {
                         // this is a bound function
-                        if (defs.useCorrectBoundFunctionSemantics) {
-                            // remove the bound suffix, and mark as bound
-                            name = names.fromString(nameString.substring(0, boundStringIndex));
-                            flags |= JavafxFlags.BOUND;
-                        } else {
-                            // FIXME: For bind re-write: flags |= JavafxFlags.BOUND;
-                            // (and predumablu don't do 'continue')
-                            continue;
-                        }
+                        // remove the bound suffix, and mark as bound
+                        name = names.fromString(nameString.substring(0, boundStringIndex));
+                        flags |= JavafxFlags.BOUND;
                     }
                     MethodSymbol m = new MethodSymbol(flags, name, type, csym);
                     csym.members_field.enter(m);
