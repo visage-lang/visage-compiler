@@ -96,6 +96,10 @@
             <jvmarg value="-Xmx256m"/>
             <arg line="${javafxdoc.packages}"/>
         </java>
+        <copy todir="${dist.javadoc.dir}" file="javadoc/draft.png"/>
+        <concat append="yes" destfile="${dist.javadoc.dir}/master.css">
+            <filelist dir="javadoc" files="draft.css"/>
+        </concat>
     </target>
 
     <target name="-do-clean" depends="init">
