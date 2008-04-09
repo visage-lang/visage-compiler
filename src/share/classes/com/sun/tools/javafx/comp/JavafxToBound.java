@@ -614,8 +614,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                                 return convert(tree.type, typeMorpher.convertVariableReference(diagPos, //TODO: don't use convertVariableReference
                                         make.at(diagPos).Select(make.at(diagPos).Ident(param1Name), tree.getIdentifier()),
                                         tree.sym,
-                                        true,
-                                        false));
+                                        true));
                             }
                         });
             }

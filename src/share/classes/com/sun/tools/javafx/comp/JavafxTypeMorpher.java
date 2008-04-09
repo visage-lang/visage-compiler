@@ -176,66 +176,46 @@ public class JavafxTypeMorpher {
         TypeMorphInfo(Type symType) {
             TypeSymbol realTsym = symType.tsym;
             //check if symbol is already a Location, needed for source class
-            Type wrappedType = null;
-            if (realTsym == variableNCT[TYPE_KIND_OBJECT].sym) {
-                wrappedType = ((ClassType) symType).typarams_field.head;
-                typeKind = TYPE_KIND_OBJECT;
-            } else if (realTsym == variableNCT[TYPE_KIND_SEQUENCE].sym) {
-                wrappedType = ((ClassType) symType).typarams_field.head;
-                typeKind = TYPE_KIND_SEQUENCE;
-                elementType = wrappedType;
-            } else if (realTsym == variableNCT[TYPE_KIND_BOOLEAN].sym) {
-                wrappedType = syms.booleanType;
-                typeKind = TYPE_KIND_BOOLEAN;
-            } else if (realTsym == variableNCT[TYPE_KIND_DOUBLE].sym) {
-                wrappedType = syms.doubleType;
-                typeKind = TYPE_KIND_DOUBLE;
-            } else if (realTsym == variableNCT[TYPE_KIND_INT].sym) {
-                wrappedType = syms.intType;
-                typeKind = TYPE_KIND_INT;
-            }
-            if (wrappedType != null) {
-                // External module with a Location type
-                assert false : "Locations should have been converted";
-                this.realType = wrappedType;
-                this.morphedVariableType = symType;
-                this.morphedLocationType = wrappedType == syms.voidType? wrappedType : generifyIfNeeded(variableType(typeKind), this);
-            } else {
-                this.realType = symType;
+            assert 
+                (realTsym != variableNCT[TYPE_KIND_OBJECT].sym) &&
+                (realTsym != variableNCT[TYPE_KIND_SEQUENCE].sym) &&
+                (realTsym != variableNCT[TYPE_KIND_BOOLEAN].sym) &&
+                (realTsym != variableNCT[TYPE_KIND_DOUBLE].sym) &&
+                (realTsym != variableNCT[TYPE_KIND_INT].sym) : "Locations should have been converted";
+            
+            this.realType = symType;
 
-                if (symType.isPrimitive()) {
-                    if (realTsym == syms.doubleType.tsym
-                          //  || realTsym == syms.floatType.tsym
-                            ) {
-                        typeKind = TYPE_KIND_DOUBLE;
-                    } else if (realTsym == syms.intType.tsym
-                            || realTsym == syms.byteType.tsym
-                            || realTsym == syms.charType.tsym
-                           // || realTsym == syms.longType.tsym //TODO: should this be converted
-                            || realTsym == syms.shortType.tsym) {
-                        typeKind = TYPE_KIND_INT;
-                    } else if (realTsym == syms.booleanType.tsym) {
-                        typeKind = TYPE_KIND_BOOLEAN;
-                    } else {
-                        //assert false : "should not reach here";
-                        this.realType = types.boxedClass(realType).type; //TODO: maybe the real type should be kept separate?
-                        elementType = realType;
-                        typeKind = TYPE_KIND_OBJECT;
-                    }
+            if (symType.isPrimitive()) {
+                if (realTsym == syms.doubleType.tsym //  || realTsym == syms.floatType.tsym
+                        ) {
+                    typeKind = TYPE_KIND_DOUBLE;
+                } else if (realTsym == syms.intType.tsym
+                        || realTsym == syms.byteType.tsym
+                        || realTsym == syms.charType.tsym
+                     // || realTsym == syms.longType.tsym //TODO: should this be converted
+                        || realTsym == syms.shortType.tsym) {
+                    typeKind = TYPE_KIND_INT;
+                } else if (realTsym == syms.booleanType.tsym) {
+                    typeKind = TYPE_KIND_BOOLEAN;
                 } else {
-                    if (isSequence()) {
-                        typeKind = TYPE_KIND_SEQUENCE;
-                        elementType = toJava.elementType(symType);
-                    } else {
-                        typeKind = TYPE_KIND_OBJECT;
-                        elementType = realType;
-                    }
+                    //assert false : "should not reach here";
+                    this.realType = types.boxedClass(realType).type; //TODO: maybe the real type should be kept separate?
+                    elementType = realType;
+                    typeKind = TYPE_KIND_OBJECT;
                 }
-
-                // must be called AFTER typeKind and realType are set in vsym
-                this.morphedVariableType = symType == syms.voidType? symType : generifyIfNeeded(variableType(typeKind), this);
-                this.morphedLocationType = symType == syms.voidType? symType : generifyIfNeeded(locationType(typeKind), this);
+            } else {
+                if (isSequence()) {
+                    typeKind = TYPE_KIND_SEQUENCE;
+                    elementType = toJava.elementType(symType);
+                } else {
+                    typeKind = TYPE_KIND_OBJECT;
+                    elementType = realType;
+                }
             }
+
+            // must be called AFTER typeKind and realType are set in vsym
+            this.morphedVariableType = symType == syms.voidType ? symType : generifyIfNeeded(variableType(typeKind), this);
+            this.morphedLocationType = symType == syms.voidType ? symType : generifyIfNeeded(locationType(typeKind), this);
         }
 
         protected boolean isSequence() {
@@ -248,7 +228,6 @@ public class JavafxTypeMorpher {
 
         public Type getLocationType() { return morphedLocationType; }
         public Type getVariableType() { return morphedVariableType; }
-        public Type getBoundComprehensionType() { return generifyIfNeeded(boundComprehensionNCT[typeKind].type, this); }
         public Type getConstantLocationType() { return generifyIfNeeded(constantLocationNCT[typeKind].type, this); }
         public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
         public Type getElementType() { return elementType; }
@@ -324,12 +303,6 @@ public class JavafxTypeMorpher {
         return bindingNCT[typeKind].type;
     }
 
-    JCExpression castToReal(Type realType, JCExpression expr) {
-        // cast the expression so that boxing works
-        JCExpression typeExpr = make.Type(realType);
-        return make.TypeCast(typeExpr, expr);
-    }
-
     /** Add type parameters.
      * Returns a bogus hybrid front-end/back-end Type that is only meaningful
      * as an argument to makeTypeTree.
@@ -371,7 +344,7 @@ public class JavafxTypeMorpher {
 
     public JCExpression convertVariableReference(DiagnosticPosition diagPos,
                                                  JCExpression varRef, Symbol sym, 
-                                                 boolean wantLocation, boolean createDynamicDependencies) {
+                                                 boolean wantLocation) {
 
         JCExpression expr = varRef;
 
@@ -390,11 +363,6 @@ public class JavafxTypeMorpher {
                     expr = make.at(diagPos).Apply(null, select, emptyArgs);
                 }
 
-                // if are in a bind context and this is a select of an attribute,
-                // add the result as a dynamic dependency
-                if (createDynamicDependencies) {
-                    expr = toJava.callExpression(diagPos, null, defs.addDynamicDependentName, expr);
-                }
                 if (wantLocation) {
                     // already in correct form-- leave it
                 } else {
@@ -471,214 +439,6 @@ public class JavafxTypeMorpher {
         return make.at(diagPos).Literal(tag, value).setType(type.constType(value));
     }
 
-    public BindAnalysis bindAnalysis(JCExpression expr) {
-        return new BindAnalysis(expr);
-    }
-
-    public class BindAnalysis extends JavafxTreeScanner {
-        // TODO: javaCallSeen, fxCallSeen and foreachSeen are not read 
-        //       Remove entry in findbugs-exclude.xml if usage changes
-        boolean iterationSeen = false;
-        boolean assignmentSeen = false;
-        boolean javaCallSeen = false;
-        boolean fxCallSeen = false;
-        boolean exceptionHandlingSeen = false;
-        boolean foreachSeen = false;
-        boolean nonTerminalReturnSeen = false;
-        private JCReturn terminalReturn = null;
-
-        BindAnalysis(JCExpression expr) {
-            if (expr.getTag() == JavafxTag.BLOCK_EXPRESSION) {
-                JFXBlockExpression bexpr = (JFXBlockExpression)expr;
-                if (bexpr.value == null) {
-                    JCStatement last = bexpr.getStatements().last();
-                    if (last != null && last.getTag() == JavafxTag.RETURN)
-                        terminalReturn = (JCReturn)last;
-                }
-            }
-            scan(expr);
-        }
-
-        boolean isBindPermeable() {
-            return !(iterationSeen || assignmentSeen || exceptionHandlingSeen || nonTerminalReturnSeen);
-        }
-
-        @Override
-        public void visitApply(JCMethodInvocation tree) {
-            super.visitApply(tree);
-            Symbol msym =toJava.expressionSymbol(tree.getMethodSelect());
-            if (msym != null && types.isJFXClass(msym.owner)) {
-                fxCallSeen = true;
-            } else {
-                javaCallSeen = true;
-            }
-        }
-
-        @Override
-        public void visitForExpression(JFXForExpression tree) {
-            super.visitForExpression(tree);
-            foreachSeen = true;
-        }
-
-        @Override
-        public void visitWhileLoop(JCWhileLoop tree) {
-            super.visitWhileLoop(tree);
-            iterationSeen = true;
-        }
-
-        @Override
-        public void visitBreak(JCBreak tree) {
-            super.visitBreak(tree);
-            iterationSeen = true;
-        }
-
-        @Override
-        public void visitContinue(JCContinue tree) {
-            super.visitContinue(tree);
-            iterationSeen = true;
-        }
-
-        @Override
-        public void visitReturn(JCReturn tree) {
-            super.visitReturn(tree);
-            if (terminalReturn != tree) {
-                nonTerminalReturnSeen = true;
-            }
-        }
-
-        @Override
-        public void visitTry(JCTry tree) {
-            super.visitTry(tree);
-            exceptionHandlingSeen = true;
-        }
-
-        @Override
-        public void visitThrow(JCThrow tree) {
-            super.visitThrow(tree);
-            exceptionHandlingSeen = true;
-        }
-
-        @Override
-        public void visitAssign(JCAssign tree) {
-            super.visitAssign(tree);
-            assignmentSeen = true;
-        }
-
-        @Override
-        public void visitAssignop(JCAssignOp tree) {
-            super.visitAssignop(tree);
-            assignmentSeen = true;
-        }
-
-        @Override
-        public void visitClassDeclaration(JFXClassDeclaration that) {
-            // don't decend into classes
-        }
-    }
-
-    /**
-     * Build a list of dependencies for an expression.  It should include
-     * any references to variables (which are Locations) but exclude
-     * any that are defined internal to the expression.
-     * The resulting list is translated.
-     */
-    List<JCExpression> buildDependencies(JCExpression expr) {
-        final Map<VarSymbol, JCExpression> refMap = new HashMap<VarSymbol, JCExpression>();
-        final Set<VarSymbol> internalSet = new HashSet<VarSymbol>();
-
-        JavafxTreeScanner ts = new JavafxTreeScanner() {
-            @Override
-            public void visitIdent(JCIdent tree)   {
-                if (tree.sym instanceof VarSymbol) {
-                    VarSymbol ivsym = (VarSymbol)tree.sym;
-                    if (ivsym.name != names._this && ivsym.name != names._super) {
-                        VarMorphInfo vmi = varMorphInfo(ivsym);
-                        if (toJava.shouldMorph(vmi)) {
-                            refMap.put(ivsym, tree);
-                        }
-                    }
-                }
-            }
-            @Override
-            public void visitSelect(JCFieldAccess tree)   {
-                super.visitSelect(tree);
-                if (tree.sym instanceof VarSymbol) {
-                    VarSymbol ivsym = (VarSymbol)tree.sym;
-                    VarMorphInfo vmi = varMorphInfo(ivsym);
-                    if (toJava.shouldMorph(vmi)) {
-                         if (ivsym.isStatic()) {
-                             // this is a static reference, set up for a static dependency
-                             // otherwise, this will be handled as a dynamic dependency
-                             refMap.put(ivsym, tree);
-                        }
-                    }
-                }
-            }
-            @Override
-            public void visitVar(JFXVar tree)   {
-                if (tree.sym instanceof VarSymbol) {
-                    VarSymbol vvsym = tree.sym;
-                    internalSet.add(vvsym);
-                }
-            }
-        };
-        ts.scan(expr);
-
-        ListBuffer<JCExpression> depend = ListBuffer.lb();
-        for (Map.Entry<VarSymbol, JCExpression> ref : refMap.entrySet()) {
-            if (!internalSet.contains(ref.getKey())) {
-                depend.append( toJava.translate( ref.getValue(), Wrapped.InLocation ) );
-            }
-        }
-
-        return depend.toList();
-    }
-
-    /**
-     * Create an BindingExpression from "stmt" which is the translation of the expression into
-     * a statement.  
-     */
-    JCExpression buildExpression(DiagnosticPosition diagPos,
-            TypeMorphInfo tmi,
-            JCStatement stmt) {
-
-        JCStatement clearStmt = toJava.callStatement(diagPos, null, defs.clearDynamicDependenciesName);
-        List<JCStatement> stmts;
-        if (stmt.getTag() == JavafxTag.BLOCK) {
-            JCBlock block = (JCBlock) stmt;
-            stmts = block.getStatements();
-            stmts = stmts.prepend(clearStmt);
-        } else {
-            stmts = List.of(clearStmt, stmt);
-        }
-        JCBlock body = make.at(diagPos).Block(0, stmts);
-
-        JCMethodDecl computeValueMethod = make.at(diagPos).MethodDef(
-                make.at(diagPos).Modifiers(Flags.PUBLIC), 
-                defs.computeValueName, 
-                toJava.makeTypeTree(getReturnTypeForGetLocation(tmi), diagPos, true), 
-                List.<JCTypeParameter>nil(), 
-                List.<JCVariableDecl>nil(), 
-                List.<JCExpression>nil(), 
-                body, 
-                null); 
-        
-        toJava.bindingExpressionDefs.append(computeValueMethod);
-        JCClassDecl anon = make.at(diagPos).AnonymousClassDef(
-                    make.at(diagPos).Modifiers(0), 
-                    toJava.bindingExpressionDefs.toList());
-        toJava.bindingExpressionDefs = null;
-        Type expressionClass =
-                generifyIfNeeded(bindingNCT[tmi.typeKind].type, tmi);
-        return make.at(diagPos).NewClass(
-                null,                       // enclosing
-                List.<JCExpression>nil(),   // type args
-                // class name
-                toJava.makeTypeTree(expressionClass, diagPos),
-                List.<JCExpression>nil(),
-                anon);
-    }
-
     JCExpression makeLocationLocalVariable(TypeMorphInfo tmi, 
                                   DiagnosticPosition diagPos,
                                   List<JCExpression> makeArgs) {
@@ -708,17 +468,5 @@ public class JavafxTypeMorpher {
             typeArgs = List.of(toJava.makeTypeTree(tmi.getElementType(), diagPos, true));
         }
         return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
-    }
-
-    private Type getReturnTypeForGetLocation(TypeMorphInfo tmi) {
-        Type ret = tmi.getRealType();
-        if (tmi.typeKind == TYPE_KIND_DOUBLE) {
-            ret = syms.javafx_NumberType;
-        }
-        else if (tmi.typeKind == TYPE_KIND_INT) {
-            ret = syms.javafx_IntegerType;
-        }
-        
-        return ret;
     }
 }
