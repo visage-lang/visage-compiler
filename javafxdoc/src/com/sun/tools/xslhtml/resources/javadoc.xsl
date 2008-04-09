@@ -81,7 +81,7 @@
                                 </a>
                             </td>
                             <td>
-                                a description
+                                <xsl:value-of select="first-line-comment"/>
                             </td>
                         </tr>
                     </xsl:for-each>
@@ -146,7 +146,9 @@
                                     <xsl:value-of select="@name"/>
                                 </a>
                             </td>
-                            <td>class description</td>
+                            <td>
+                                <xsl:value-of select="first-line-comment"/>
+                            </td>
                          </tr>
                      </xsl:for-each>
                 </table>

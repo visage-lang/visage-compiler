@@ -163,6 +163,9 @@ public class XHTMLProcessingUtils {
             Element package_elem = packages_doc.createElement("package");
             package_elem.setAttribute("name", name);
             package_list_elem.appendChild(package_elem);
+            Element first_line = packages_doc.createElement("first-line-comment");
+            first_line.appendChild(packages_doc.createTextNode("first line comment"));
+            package_elem.appendChild(first_line);
             processPackage(name, pkg, xpath, docsdir, trans);
         }
 
