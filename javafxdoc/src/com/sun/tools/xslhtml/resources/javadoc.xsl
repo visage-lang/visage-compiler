@@ -613,8 +613,14 @@
                     <xsl:text> </xsl:text>
                     <b class="name"><xsl:value-of select="@name"/></b>
                     <xsl:text>: </xsl:text>
-                    <i class="type"><xsl:value-of select="type/@simpleTypeName"/>
-                    <xsl:value-of select="type/@dimension"/></i>
+                    <xsl:variable name="atype" select="type/@qualifiedTypeName"/>
+                    <a>
+                        <xsl:if test="//class[@qualifiedName=$atype]">
+                            <xsl:apply-templates select="type" mode="href"/>
+                        </xsl:if>
+                        <i class="type"><xsl:value-of select="type/@simpleTypeName"/>
+                        <xsl:value-of select="type/@dimension"/></i>
+                    </a>
                 </h4>
             </a>
             
