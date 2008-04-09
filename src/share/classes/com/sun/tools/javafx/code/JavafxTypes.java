@@ -256,7 +256,7 @@ public class JavafxTypes extends Types {
             return "";
         StringBuilder buffer = new StringBuilder();
         try {
-            buffer.append(ts.head.toString());
+            toJavaFXString(ts.head, buffer);
             for (List<Type> l = ts.tail; l.nonEmpty(); l = l.tail) {
                 buffer.append(",");
                 toJavaFXString(l.head, buffer);

@@ -1298,9 +1298,11 @@ public class JavafxResolve {
      */
     Symbol resolveIdent(DiagnosticPosition pos, JavafxEnv<JavafxAttrContext> env,
                         Name name, int kind, Type pt) {
-        return access(
-            findIdent(env, name, kind, pt),
-            pos, env.enclClass.sym.type, name, false);
+        Symbol sym = findIdent(env, name, kind, pt);
+        if (sym.kind >= AMBIGUOUS)
+            return access(sym, pos, env.enclClass.sym.type, name, false, pt);
+        else
+            return sym;
     }
 
     /** Resolve a qualified method identifier
