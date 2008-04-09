@@ -79,7 +79,10 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     private final Symbol doubleObjectTypeSymbol;
     private final Symbol intObjectTypeSymbol;
     private final Symbol booleanObjectTypeSymbol;
+    
     private final Name param1Name;
+    private final Name computeElementName;
+    private final Name computeElementzName;
 
 
     private JavafxEnv<JavafxAttrContext> attrEnv;
@@ -119,6 +122,8 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         booleanObjectTypeSymbol = types.boxedClass(syms.booleanType).type.tsym;
 
         param1Name = names.fromString("x1$");
+        computeElementName = names.fromString("computeElement$");
+        computeElementzName = names.fromString("computeElements$");
     }
 
     /** Visitor method: Translate a single node.
@@ -755,6 +760,11 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
              * SequenceLocation<V>
              */
             private final Type resultSequenceLocationType = typeMorpher.generifyIfNeeded(typeMorpher.locationType(TYPE_KIND_SEQUENCE), tmiResult);
+            
+            /**
+             * isSimple -- true if the for-loop is simple enough that it can use SimpleBoundComprehension
+             */
+            private final boolean isSimple = false;  //TODO
 
             /**
              * Make:  V.class
@@ -808,22 +818,33 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
             }
 
             /**
-             *  protected SequenceLocation<V> getMappedElement$(final ObjectLocation<T> IVAR_NAME, final IntLocation INDEXOF_IVAR_NAME) {
+             *  protected SequenceLocation<V> computeElements$(final ObjectLocation<T> IVAR_NAME, final IntLocation INDEXOF_IVAR_NAME) {
              *     return ...
              *  }
              */
-            private JCTree makeGetMappedElementMethod(JFXForExpressionInClause clause, JCExpression inner, TypeMorphInfo tmiInduction) {
-                Type objLocType = tmiInduction.getLocationType();
+            private JCTree makeComputeElementsMethod(JFXForExpressionInClause clause, JCExpression inner, TypeMorphInfo tmiInduction) {
+                Type iVarType;
+                Type idxVarType;
+                Name computeName;
+                if  (isSimple) {
+                   iVarType = tmiInduction.getRealFXType();
+                   idxVarType = syms.intType;
+                   computeName = computeElementzName;
+                } else {
+                   iVarType = tmiInduction.getLocationType();
+                   idxVarType = typeMorpher.locationType(TYPE_KIND_INT);
+                   computeName = computeElementzName;
+                }
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
                 Name ivarName = clause.getVar().name;
                 stmts.append(m().Return( inner ));
                 List<JCVariableDecl> params = List.of(
-                        makeParam(objLocType, ivarName),
-                        makeParam(typeMorpher.locationType(TYPE_KIND_INT), toJava.indexVarName(clause) )
+                        makeParam(iVarType, ivarName),
+                        makeParam(idxVarType, toJava.indexVarName(clause) )
                         );
                 return m().MethodDef(
                         m().Modifiers(Flags.PROTECTED),
-                        names.fromString("getMappedElement$"),
+                        computeName,
                         makeExpression( resultSequenceLocationType ),
                         List.<JCTypeParameter>nil(),
                         params,
@@ -842,7 +863,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                 Type elementType = tmiSeq.getElementType();
                 JCClassDecl classDecl = m().AnonymousClassDef(
                         m().Modifiers(0L),
-                        List.<JCTree>of(makeGetMappedElementMethod(clause, inner, tmiInduction)));
+                        List.<JCTree>of(makeComputeElementsMethod(clause, inner, tmiInduction)));
                 List<JCExpression> typeArgs = List.nil();
                 boolean useIndex = clause.getIndexUsed();
                 List<JCExpression> constructorArgs = List.of(
@@ -871,9 +892,11 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
              */
             public JCExpression doit() {
                 List<JFXForExpressionInClause> clauses = tree.getForExpressionInClauses();
-                // mark the params as morphed before any ranslation occurs
-                for (JFXForExpressionInClause clause : clauses) {
-                    toJava.setLocallyBound(clause.getVar().sym);
+                if (!isSimple) {
+                    // mark the params as morphed before any ranslation occurs
+                    for (JFXForExpressionInClause clause : clauses) {
+                        toJava.setLocallyBound(clause.getVar().sym);
+                    }
                 }
                 // make the body of loop
                 JCExpression expr = makeCore();

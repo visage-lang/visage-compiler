@@ -12,9 +12,9 @@ public class BoundComprehensionTest extends JavaFXTestCase {
 
     public void testSimpleComprehension() {
         SequenceLocation<Integer> base = SequenceVariable.make(Sequences.range(1, 3));
-        final SequenceLocation<Integer> derived = BoundOperators.makeSimpleBoundComprehension(Integer.class, base, false,
-                                                                                              new BoundOperators.IntSimpleBoundComprehensionCallback<Integer>() {
-                                                                                                  public Integer computeElement(int element, int index) {
+        final SequenceLocation<Integer> derived = BoundSequences.makeSimpleBoundComprehension(Integer.class, base, false,
+                                                                                              new BoundSequences.IntSimpleBoundComprehensionCallback<Integer>() {
+                                                                                                  public Integer computeElement$(int element, int index) {
                                                                                                       return element * 2;
                                                                                                   }
                                                                                               });
@@ -53,14 +53,14 @@ public class BoundComprehensionTest extends JavaFXTestCase {
     }
 
     public void testSimpleChainedComprehension() {
-        BoundOperators.IntSimpleBoundComprehensionCallback<Integer> timesTwo = new BoundOperators.IntSimpleBoundComprehensionCallback<Integer>() {
-            public Integer computeElement(int element, int index) {
+        BoundSequences.IntSimpleBoundComprehensionCallback<Integer> timesTwo = new BoundSequences.IntSimpleBoundComprehensionCallback<Integer>() {
+            public Integer computeElement$(int element, int index) {
                 return element * 2;
             }
         };
         SequenceLocation<Integer> base = SequenceVariable.make(Sequences.range(1, 3));
-        SequenceLocation<Integer> middle = BoundOperators.makeSimpleBoundComprehension(Integer.class, base, false, timesTwo);
-        final SequenceLocation<Integer> derived = BoundOperators.makeSimpleBoundComprehension(Integer.class, middle, false, timesTwo);
+        SequenceLocation<Integer> middle = BoundSequences.makeSimpleBoundComprehension(Integer.class, base, false, timesTwo);
+        final SequenceLocation<Integer> derived = BoundSequences.makeSimpleBoundComprehension(Integer.class, middle, false, timesTwo);
         IntLocation len = IntVariable.make(new IntBindingExpression() {
             public int computeValue() {
                 return Sequences.size(derived.getAsSequence());
@@ -97,9 +97,9 @@ public class BoundComprehensionTest extends JavaFXTestCase {
 
     public void testSimpleIndex() {
         SequenceLocation<Integer> base = SequenceVariable.make(Sequences.range(1, 3));
-        final SequenceLocation<Integer> derived = BoundOperators.makeSimpleBoundComprehension(Integer.class, base, true,
-                                                                                              new BoundOperators.IntSimpleBoundComprehensionCallback<Integer>() {
-                                                                                                  public Integer computeElement(int element, int index) {
+        final SequenceLocation<Integer> derived = BoundSequences.makeSimpleBoundComprehension(Integer.class, base, true,
+                                                                                              new BoundSequences.IntSimpleBoundComprehensionCallback<Integer>() {
+                                                                                                  public Integer computeElement$(int element, int index) {
                                                                                                       return index * 10 + element;
                                                                                                   }
                                                                                               });
@@ -133,9 +133,9 @@ public class BoundComprehensionTest extends JavaFXTestCase {
 
     public void testBoundComprehension() {
         SequenceLocation<Integer> base = SequenceVariable.make(Sequences.range(1, 3));
-        final SequenceLocation<Integer> derived = BoundOperators.makeBoundComprehension(Integer.class, base, false,
-                                                                                        new BoundOperators.IntBoundComprehensionCallback<Integer>() {
-                                                                                            public SequenceLocation<Integer> getMappedElement(final IntLocation xLocation, IntLocation xIndexLocation) {
+        final SequenceLocation<Integer> derived = BoundSequences.makeBoundComprehension(Integer.class, base, false,
+                                                                                        new BoundSequences.IntBoundComprehensionCallback<Integer>() {
+                                                                                            public SequenceLocation<Integer> computeElements$(final IntLocation xLocation, IntLocation xIndexLocation) {
                                                                                                 return BoundSequences.singleton(Integer.class, BoundOperators.times_ii(xLocation, IntConstant.make(2)));
                                                                                             }
                                                                                         });
@@ -178,9 +178,9 @@ public class BoundComprehensionTest extends JavaFXTestCase {
 
     public void testBindingWrapper() {
         SequenceLocation<Integer> base = SequenceVariable.make(Sequences.range(1, 3));
-        final SequenceLocation<Integer> derived = BoundOperators.makeSimpleBoundComprehension(Integer.class, base, false,
-                                                                                              new BoundOperators.IntSimpleBoundComprehensionCallback<Integer>() {
-                                                                                                  public Integer computeElement(int element, int index) {
+        final SequenceLocation<Integer> derived = BoundSequences.makeSimpleBoundComprehension(Integer.class, base, false,
+                                                                                              new BoundSequences.IntSimpleBoundComprehensionCallback<Integer>() {
+                                                                                                  public Integer computeElement$(int element, int index) {
                                                                                                       return element * 2;
                                                                                                   }
                                                                                               });
@@ -196,9 +196,9 @@ public class BoundComprehensionTest extends JavaFXTestCase {
 
     public void testBoundIndex() {
         SequenceLocation<Integer> base = SequenceVariable.make(Sequences.range(1, 3));
-        SequenceLocation<Integer> derived = BoundOperators.makeBoundComprehension(Integer.class, base, true,
-                                                                                  new BoundOperators.IntBoundComprehensionCallback<Integer>() {
-                                                                                      public SequenceLocation<Integer> getMappedElement(final IntLocation xLocation, final IntLocation xIndexLocation) {
+        SequenceLocation<Integer> derived = BoundSequences.makeBoundComprehension(Integer.class, base, true,
+                                                                                  new BoundSequences.IntBoundComprehensionCallback<Integer>() {
+                                                                                      public SequenceLocation<Integer> computeElements$(final IntLocation xLocation, final IntLocation xIndexLocation) {
                                                                                           return SequenceVariable.make(Integer.class,
                                                                                                                        new SequenceBindingExpression<Integer>() {
                                                                                                                            public Sequence<? extends Integer> computeValue() {
@@ -235,9 +235,9 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         assertEqualsAndClear(hl, "[2, 1] => [ 4 ]", "[3, 3] => [ 6 ]", "[4, 4] => [ 8 ]");
 
         base.set(Sequences.range(1, 3));
-        derived = BoundOperators.makeBoundComprehension(Integer.class, base, true,
-                                                        new BoundOperators.IntBoundComprehensionCallback<Integer>() {
-                                                            public SequenceLocation<Integer> getMappedElement(final IntLocation xLocation, final IntLocation xIndexLocation) {
+        derived = BoundSequences.makeBoundComprehension(Integer.class, base, true,
+                                                        new BoundSequences.IntBoundComprehensionCallback<Integer>() {
+                                                            public SequenceLocation<Integer> computeElements$(final IntLocation xLocation, final IntLocation xIndexLocation) {
                                                                 return SequenceVariable.make(Integer.class,
                                                                                              new SequenceBindingExpression<Integer>() {
                                                                                                  public Sequence<? extends Integer> computeValue() {
@@ -285,12 +285,12 @@ public class BoundComprehensionTest extends JavaFXTestCase {
     public void testNestedComprehension() {
         SequenceLocation<Integer> xs = SequenceVariable.make(Sequences.range(1, 3));
         final SequenceLocation<Integer> ys = SequenceVariable.make(Sequences.make(Integer.class, 10, 20, 30));
-        SequenceLocation<Integer> comp = BoundOperators.makeBoundComprehension(Integer.class, xs, false,
-                                                                               new BoundOperators.IntBoundComprehensionCallback<Integer>() {
-                                                                                   public SequenceLocation<Integer> getMappedElement(final IntLocation xLocation, final IntLocation xIndexLocation) {
-                                                                                       return BoundOperators.makeBoundComprehension(Integer.class, ys, false,
-                                                                                                                                    new BoundOperators.IntBoundComprehensionCallback<Integer>() {
-                                                                                                                                        public SequenceLocation<Integer> getMappedElement(final IntLocation yLocation, IntLocation yIndexLocation) {
+        SequenceLocation<Integer> comp = BoundSequences.makeBoundComprehension(Integer.class, xs, false,
+                                                                               new BoundSequences.IntBoundComprehensionCallback<Integer>() {
+                                                                                   public SequenceLocation<Integer> computeElements$(final IntLocation xLocation, final IntLocation xIndexLocation) {
+                                                                                       return BoundSequences.makeBoundComprehension(Integer.class, ys, false,
+                                                                                                                                    new BoundSequences.IntBoundComprehensionCallback<Integer>() {
+                                                                                                                                        public SequenceLocation<Integer> computeElements$(final IntLocation yLocation, IntLocation yIndexLocation) {
                                                                                                                                             return SequenceVariable.make(Integer.class,
                                                                                                                                                                          new SequenceBindingExpression<Integer>() {
                                                                                                                                                                              public Sequence<? extends Integer> computeValue() {
@@ -337,9 +337,9 @@ public class BoundComprehensionTest extends JavaFXTestCase {
 
     public void testDifferentTypes() {
         SequenceLocation<Integer> xs = SequenceVariable.make(Sequences.range(1, 5));
-        SequenceLocation<String> derived = BoundOperators.makeBoundComprehension(String.class, xs, false,
-                                                                                 new BoundOperators.IntBoundComprehensionCallback<String>() {
-                                                                                     public SequenceLocation<String> getMappedElement(final IntLocation xLocation, final IntLocation unused) {
+        SequenceLocation<String> derived = BoundSequences.makeBoundComprehension(String.class, xs, false,
+                                                                                 new BoundSequences.IntBoundComprehensionCallback<String>() {
+                                                                                     public SequenceLocation<String> computeElements$(final IntLocation xLocation, final IntLocation unused) {
                                                                                          return SequenceVariable.make(String.class,
                                                                                                                       new SequenceBindingExpression<String>() {
                                                                                                                           public Sequence<String> computeValue() {

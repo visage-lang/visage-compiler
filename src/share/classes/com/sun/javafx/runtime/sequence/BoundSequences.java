@@ -177,4 +177,141 @@ public class BoundSequences {
     public static<T> SequenceLocation<T> sliceExclusive(Class<T> clazz, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {
         return new BoundSequenceSlice<T>(clazz, sequence, a, b, true);
     }
+    
+    public interface ObjectSimpleBoundComprehensionCallback<T, V> {
+         V computeElement$(T element, int index);
+    }
+
+    public interface IntSimpleBoundComprehensionCallback<V> {
+         V computeElement$(int element, int index);
+    }
+
+    public interface DoubleSimpleBoundComprehensionCallback<V> {
+         V computeElement$(double element, int index);
+    }
+
+    public interface BooleanSimpleBoundComprehensionCallback<V> {
+        V computeElement$(boolean element, int index);
+    }
+
+    public static<T, V> SequenceLocation<V> makeSimpleBoundComprehension(Class<V> clazz,
+                                                                         SequenceLocation<T> seq,
+                                                                         boolean useIndex,
+                                                                         final ObjectSimpleBoundComprehensionCallback<T, V> callback) {
+        return new SimpleBoundComprehension<T, V>(clazz, seq, useIndex) {
+            protected V computeElement$(T element, int index) {
+                return callback.computeElement$(element, index);
+            }
+        };
+    }
+
+    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(Class<V> clazz,
+                                                                      SequenceLocation<Integer> seq,
+                                                                      boolean useIndex,
+                                                                      final IntSimpleBoundComprehensionCallback<V> callback) {
+        return new SimpleBoundComprehension<Integer, V>(clazz, seq, useIndex) {
+            protected V computeElement$(Integer element, int index) {
+                return callback.computeElement$(element, index);
+            }
+        };
+    }
+
+    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(Class<V> clazz,
+                                                                      SequenceLocation<Double> seq,
+                                                                      boolean useIndex,
+                                                                      final DoubleSimpleBoundComprehensionCallback<V> callback) {
+        return new SimpleBoundComprehension<Double, V>(clazz, seq, useIndex) {
+            protected V computeElement$(Double element, int index) {
+                return callback.computeElement$(element, index);
+            }
+        };
+    }
+
+    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(Class<V> clazz,
+                                                                      SequenceLocation<Boolean> seq,
+                                                                      boolean useIndex,
+                                                                      final BooleanSimpleBoundComprehensionCallback<V> callback) {
+        return new SimpleBoundComprehension<Boolean, V>(clazz, seq, useIndex) {
+            protected V computeElement$(Boolean element, int index) {
+                return callback.computeElement$(element, index);
+            }
+        };
+    }
+
+    public interface ObjectBoundComprehensionCallback<T, V> {
+         SequenceLocation<V> computeElements$(ObjectLocation<T> elementLocation, IntLocation indexLocation);
+    }
+
+    public interface IntBoundComprehensionCallback<T> {
+         SequenceLocation<T> computeElements$(IntLocation elementLocation, IntLocation indexLocation);
+    }
+
+    public interface DoubleBoundComprehensionCallback<T> {
+         SequenceLocation<T> computeElements$(DoubleLocation elementLocation, IntLocation indexLocation);
+    }
+
+    public interface BooleanBoundComprehensionCallback<T> {
+         SequenceLocation<T> computeElements$(BooleanLocation elementLocation, IntLocation indexLocation);
+    }
+
+    public static<T, V> SequenceLocation<V> makeBoundComprehension(Class<V> clazz,
+                                                                   SequenceLocation<T> sequenceLocation,
+                                                                   boolean useIndex,
+                                                                   final ObjectBoundComprehensionCallback<T, V> callback) {
+        return new AbstractBoundComprehension<T, ObjectLocation<T>, V>(clazz, sequenceLocation, useIndex) {
+            protected ObjectLocation<T> makeInductionLocation(T value) {
+                return ObjectVariable.<T>make(value);
+            }
+
+            protected SequenceLocation<V> computeElements$(ObjectLocation<T> elementLocation, IntLocation indexLocation) {
+                return callback.computeElements$(elementLocation, indexLocation);
+            }
+        };
+    }
+
+    public static<V> SequenceLocation<V> makeBoundComprehension(Class<V> clazz,
+                                                                   SequenceLocation<Integer> sequenceLocation,
+                                                                   boolean useIndex,
+                                                                   final IntBoundComprehensionCallback<V> callback) {
+        return new AbstractBoundComprehension<Integer, IntLocation, V>(clazz, sequenceLocation, useIndex) {
+            protected IntLocation makeInductionLocation(Integer value) {
+                return IntVariable.make(value);
+            }
+
+            protected SequenceLocation<V> computeElements$(IntLocation elementLocation, IntLocation indexLocation) {
+                return callback.computeElements$(elementLocation, indexLocation);
+            }
+        };
+    }
+
+    public static<V> SequenceLocation<V> makeBoundComprehension(Class<V> clazz,
+                                                                SequenceLocation<Double> sequenceLocation,
+                                                                boolean useIndex,
+                                                                final DoubleBoundComprehensionCallback<V> callback) {
+        return new AbstractBoundComprehension<Double, DoubleLocation, V>(clazz, sequenceLocation, useIndex) {
+            protected DoubleLocation makeInductionLocation(Double value) {
+                return DoubleVariable.make(value);
+            }
+
+            protected SequenceLocation<V> computeElements$(DoubleLocation elementLocation, IntLocation indexLocation) {
+                return callback.computeElements$(elementLocation, indexLocation);
+            }
+        };
+    }
+
+    public static<V> SequenceLocation<V> makeBoundComprehension(Class<V> clazz,
+                                                                SequenceLocation<Boolean> sequenceLocation,
+                                                                boolean useIndex,
+                                                                final BooleanBoundComprehensionCallback<V> callback) {
+        return new AbstractBoundComprehension<Boolean, BooleanLocation, V>(clazz, sequenceLocation, useIndex) {
+            protected BooleanLocation makeInductionLocation(Boolean value) {
+                return BooleanVariable.make(value);
+            }
+
+            protected SequenceLocation<V> computeElements$(BooleanLocation elementLocation, IntLocation indexLocation) {
+                return callback.computeElements$(elementLocation, indexLocation);
+            }
+        };
+    }
+    
 }

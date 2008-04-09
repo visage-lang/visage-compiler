@@ -97,14 +97,14 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
         }
     }
 
-    protected abstract SequenceLocation<V> getMappedElement$(L elementLocation, IntLocation indexLocation);
+    protected abstract SequenceLocation<V> computeElements$(L elementLocation, IntLocation indexLocation);
 
     protected abstract L makeInductionLocation(T value);
 
     private State<T, L, V> makeState(int index, T value) {
         L elementLocation = makeInductionLocation(value);
         IntVariable indexLocation = useIndex ? IntVariable.make(index) : null;
-        SequenceLocation<V> mapped = getMappedElement$(elementLocation, indexLocation);
+        SequenceLocation<V> mapped = computeElements$(elementLocation, indexLocation);
         return new State<T, L, V>(elementLocation, indexLocation, mapped);
     }
 
