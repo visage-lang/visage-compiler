@@ -36,8 +36,8 @@ import com.sun.javafx.runtime.location.*;
 public abstract class IntBoundComprehension<V> extends AbstractBoundComprehension<Integer, IntLocation, V> {
 
     public IntBoundComprehension(Class<V> clazz,
-                              SequenceLocation<Integer> sequenceLocation,
-                              boolean useIndex) {
+                                 SequenceLocation<Integer> sequenceLocation,
+                                 boolean useIndex) {
         super(clazz, sequenceLocation, useIndex);
     }
 

@@ -28,9 +28,7 @@ package com.sun.javafx.runtime.location;
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.functions.Function1;
 import com.sun.javafx.runtime.Util;
-import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.SequencePredicate;
-import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.runtime.sequence.*;
 
 /**
  * Factories for bound operator expressions.  Factories for most operators (plus, ==, !) are generated and live in
@@ -399,6 +397,142 @@ public class BoundOperators extends GeneratedBoundOperators {
 
             public void insertAfter(Sequence<? extends U> values, SequencePredicate<U> tSequencePredicate) {
                 helper.get().insertAfter(values, tSequencePredicate);
+            }
+        };
+    }
+
+    public interface ObjectSimpleBoundComprehensionCallback<T, V> {
+         V computeElement(T element, int index);
+    }
+
+    public interface IntSimpleBoundComprehensionCallback<V> {
+         V computeElement(int element, int index);
+    }
+
+    public interface DoubleSimpleBoundComprehensionCallback<V> {
+         V computeElement(double element, int index);
+    }
+
+    public interface BooleanSimpleBoundComprehensionCallback<V> {
+        V computeElement(boolean element, int index);
+    }
+
+    public static<T, V> SequenceLocation<V> makeSimpleBoundComprehension(Class<V> clazz,
+                                                                         SequenceLocation<T> seq,
+                                                                         boolean useIndex,
+                                                                         final ObjectSimpleBoundComprehensionCallback<T, V> callback) {
+        return new SimpleBoundComprehension<T, V>(clazz, seq, useIndex) {
+            protected V computeElement$(T element, int index) {
+                return callback.computeElement(element, index);
+            }
+        };
+    }
+
+    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(Class<V> clazz,
+                                                                      SequenceLocation<Integer> seq,
+                                                                      boolean useIndex,
+                                                                      final IntSimpleBoundComprehensionCallback<V> callback) {
+        return new SimpleBoundComprehension<Integer, V>(clazz, seq, useIndex) {
+            protected V computeElement$(Integer element, int index) {
+                return callback.computeElement(element, index);
+            }
+        };
+    }
+
+    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(Class<V> clazz,
+                                                                      SequenceLocation<Double> seq,
+                                                                      boolean useIndex,
+                                                                      final DoubleSimpleBoundComprehensionCallback<V> callback) {
+        return new SimpleBoundComprehension<Double, V>(clazz, seq, useIndex) {
+            protected V computeElement$(Double element, int index) {
+                return callback.computeElement(element, index);
+            }
+        };
+    }
+
+    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(Class<V> clazz,
+                                                                      SequenceLocation<Boolean> seq,
+                                                                      boolean useIndex,
+                                                                      final BooleanSimpleBoundComprehensionCallback<V> callback) {
+        return new SimpleBoundComprehension<Boolean, V>(clazz, seq, useIndex) {
+            protected V computeElement$(Boolean element, int index) {
+                return callback.computeElement(element, index);
+            }
+        };
+    }
+
+    public interface ObjectBoundComprehensionCallback<T, V> {
+         SequenceLocation<V> getMappedElement(ObjectLocation<T> elementLocation, IntLocation indexLocation);
+    }
+
+    public interface IntBoundComprehensionCallback<T> {
+         SequenceLocation<T> getMappedElement(IntLocation elementLocation, IntLocation indexLocation);
+    }
+
+    public interface DoubleBoundComprehensionCallback<T> {
+         SequenceLocation<T> getMappedElement(DoubleLocation elementLocation, IntLocation indexLocation);
+    }
+
+    public interface BooleanBoundComprehensionCallback<T> {
+         SequenceLocation<T> getMappedElement(BooleanLocation elementLocation, IntLocation indexLocation);
+    }
+
+    public static<T, V> SequenceLocation<V> makeBoundComprehension(Class<V> clazz,
+                                                                   SequenceLocation<T> sequenceLocation,
+                                                                   boolean useIndex,
+                                                                   final ObjectBoundComprehensionCallback<T, V> callback) {
+        return new AbstractBoundComprehension<T, ObjectLocation<T>, V>(clazz, sequenceLocation, useIndex) {
+            protected ObjectLocation<T> makeInductionLocation(T value) {
+                return ObjectVariable.<T>make(value);
+            }
+
+            protected SequenceLocation<V> getMappedElement$(ObjectLocation<T> elementLocation, IntLocation indexLocation) {
+                return callback.getMappedElement(elementLocation, indexLocation);
+            }
+        };
+    }
+
+    public static<V> SequenceLocation<V> makeBoundComprehension(Class<V> clazz,
+                                                                   SequenceLocation<Integer> sequenceLocation,
+                                                                   boolean useIndex,
+                                                                   final IntBoundComprehensionCallback<V> callback) {
+        return new AbstractBoundComprehension<Integer, IntLocation, V>(clazz, sequenceLocation, useIndex) {
+            protected IntLocation makeInductionLocation(Integer value) {
+                return IntVariable.make(value);
+            }
+
+            protected SequenceLocation<V> getMappedElement$(IntLocation elementLocation, IntLocation indexLocation) {
+                return callback.getMappedElement(elementLocation, indexLocation);
+            }
+        };
+    }
+
+    public static<V> SequenceLocation<V> makeBoundComprehension(Class<V> clazz,
+                                                                SequenceLocation<Double> sequenceLocation,
+                                                                boolean useIndex,
+                                                                final DoubleBoundComprehensionCallback<V> callback) {
+        return new AbstractBoundComprehension<Double, DoubleLocation, V>(clazz, sequenceLocation, useIndex) {
+            protected DoubleLocation makeInductionLocation(Double value) {
+                return DoubleVariable.make(value);
+            }
+
+            protected SequenceLocation<V> getMappedElement$(DoubleLocation elementLocation, IntLocation indexLocation) {
+                return callback.getMappedElement(elementLocation, indexLocation);
+            }
+        };
+    }
+
+    public static<V> SequenceLocation<V> makeBoundComprehension(Class<V> clazz,
+                                                                SequenceLocation<Boolean> sequenceLocation,
+                                                                boolean useIndex,
+                                                                final BooleanBoundComprehensionCallback<V> callback) {
+        return new AbstractBoundComprehension<Boolean, BooleanLocation, V>(clazz, sequenceLocation, useIndex) {
+            protected BooleanLocation makeInductionLocation(Boolean value) {
+                return BooleanVariable.make(value);
+            }
+
+            protected SequenceLocation<V> getMappedElement$(BooleanLocation elementLocation, IntLocation indexLocation) {
+                return callback.getMappedElement(elementLocation, indexLocation);
             }
         };
     }

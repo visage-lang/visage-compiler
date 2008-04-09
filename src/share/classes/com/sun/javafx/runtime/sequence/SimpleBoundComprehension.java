@@ -31,8 +31,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
         this.dependsOnIndex = dependsOnIndex;
     }
 
-    public SimpleBoundComprehension(Class<V> clazz,
-                                    SequenceLocation<T> sequenceLocation) {
+    public SimpleBoundComprehension(Class<V> clazz, SequenceLocation<T> sequenceLocation) {
         this(clazz, sequenceLocation, false);
     }
 

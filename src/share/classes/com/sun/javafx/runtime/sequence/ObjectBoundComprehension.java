@@ -36,8 +36,8 @@ import com.sun.javafx.runtime.location.*;
 public abstract class ObjectBoundComprehension<T, V> extends AbstractBoundComprehension<T, ObjectLocation<T>, V> {
 
     public ObjectBoundComprehension(Class<V> clazz,
-                              SequenceLocation<T> sequenceLocation,
-                              boolean useIndex) {
+                                    SequenceLocation<T> sequenceLocation,
+                                    boolean useIndex) {
         super(clazz, sequenceLocation, useIndex);
     }
 

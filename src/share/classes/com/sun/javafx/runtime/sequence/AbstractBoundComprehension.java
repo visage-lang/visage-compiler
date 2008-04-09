@@ -47,8 +47,8 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
     private BoundCompositeSequence<V> underlying;
 
     public AbstractBoundComprehension(Class<V> clazz,
-                              SequenceLocation<T> sequenceLocation,
-                              boolean useIndex) {
+                                      SequenceLocation<T> sequenceLocation,
+                                      boolean useIndex) {
         super(clazz);
         this.sequenceLocation = sequenceLocation;
         this.useIndex = useIndex;
