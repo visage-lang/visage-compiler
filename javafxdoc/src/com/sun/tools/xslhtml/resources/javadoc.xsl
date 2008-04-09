@@ -600,6 +600,12 @@
     
     
     
+    
+<!-- ====================== -->    
+<!--  Functions and Methods -->
+<!-- ====================== -->    
+
+
     <xsl:template match="function | method | constructor" mode="anchor-signature">
         <xsl:value-of select="@name"/>
         <xsl:text>(</xsl:text>
@@ -610,19 +616,28 @@
         <xsl:text>)</xsl:text>
     </xsl:template>
     
-    <!--  Functions -->
     <xsl:template match="function | method | constructor" mode="signature">
         <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
         <xsl:text> </xsl:text>
         
         <!-- fx -->
         <xsl:if test="not(../@language='java')">
-            <b><xsl:value-of select="@name"/></b>
+            
+            <a>
+                <xsl:attribute name="href">#<xsl:apply-templates select="." mode="anchor-signature"/></xsl:attribute>
+                <b><xsl:value-of select="@name"/></b>
+            </a>
             (
             <i class="parameters">
                 <xsl:for-each select="parameters/parameter">
                     <b><xsl:value-of select="@name"/></b>:
-                    <i><xsl:value-of select="type/@toString"/></i>,
+                    <xsl:variable name="ptype" select="type/@qualifiedTypeName"/>
+                    <a>
+                        <xsl:if test="//class[@qualifiedName=$ptype]">
+                           <xsl:attribute name="href">../<xsl:value-of select="type/@packageName"/>/<xsl:value-of select="type/@qualifiedTypeName"/>.html</xsl:attribute>
+                        </xsl:if>
+                        <i><xsl:value-of select="type/@typeName"/></i>
+                    </a>,
                 </xsl:for-each>
             </i>
             )
@@ -657,10 +672,7 @@
             <xsl:if test="docComment/tags/advanced">
                 <xsl:attribute name="class">advanced</xsl:attribute>
             </xsl:if>
-            <a>
-                <xsl:attribute name="href">#<xsl:apply-templates select="." mode="anchor-signature"/></xsl:attribute>
-                <xsl:apply-templates select="." mode="signature"/>
-            </a>
+             <xsl:apply-templates select="." mode="signature"/>
         </dt>
         <dd>
             <xsl:if test="docComment/tags/advanced">
