@@ -35,6 +35,7 @@ import javafx.lang.Sequences;
 import java.lang.Object;
 import java.lang.System;
 import java.util.ArrayList;
+import java.lang.System;
 
 public class Timeline {
 
@@ -129,7 +130,17 @@ public class Timeline {
         duration = 0;
 
         sortedFrames = Sequences.sort(keyFrames) as KeyFrame[];
-
+        var lastKeyFrame:KeyFrame = null;
+        var zeroFrame:KeyFrame;
+        for (keyFrame in keyFrames) {
+            if (keyFrame.time == 0s) {
+                zeroFrame = keyFrame;
+                break;
+            }
+        }
+        if (zeroFrame == null) {
+            zeroFrame = KeyFrame { time: 0s };
+        }
         for (keyFrame in keyFrames) {
             if (duration >= 0) {
                 duration = java.lang.Math.max(duration, keyFrame.time.millis);
@@ -163,7 +174,21 @@ public class Timeline {
                     }
                 }
                 if (pairlist == null) {
-                    pairlist = KFPairList { target: keyValue.target }
+                    pairlist = KFPairList { 
+                        target: keyValue.target 
+                    }
+                    if (keyFrame.time <> 0s) {
+                        // get current value and attach it to zero frame
+                        var kv = KeyValue {
+                            target: keyValue.target;
+                            value: keyValue.target.get();
+                        }
+                        var kfp = KFPair {
+                            value: kv
+                            frame: zeroFrame
+                        }
+                        pairlist.add(kfp);
+                    }
                     targets.add(pairlist);
                 }
                 var kfpair = KFPair {
@@ -276,7 +301,7 @@ public class Timeline {
 
             if (v1 <> null and v2 <> null) {
                 pairlist.target.set(v2.interpolate.interpolate(v1.value, v2.value, segT));
-            }
+            } 
         }
 
         // look through all sub-timelines and recursively call process()
