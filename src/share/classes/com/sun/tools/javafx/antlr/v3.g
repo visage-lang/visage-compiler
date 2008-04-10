@@ -781,7 +781,7 @@ postfixExpression
 	   | LPAREN expressionList RPAREN           		-> ^(FUNC_APPLY[$LPAREN] $postfixExpression expressionList)
 	   | LBRACKET (name PIPE expression RBRACKET		-> ^(PIPE $postfixExpression name expression)
 	     | first=expression
-               (RBRACKET					-> ^(SEQ_INDEX $postfixExpression $first)
+               (RBRACKET					-> ^(SEQ_INDEX[$LBRACKET] $postfixExpression $first)
 	       | DOTDOT (
 	                  LT last=expression? 			-> ^(SEQ_SLICE_EXCLUSIVE[$LBRACKET] $postfixExpression $first $last?)
 	                | last=expression? 			-> ^(SEQ_SLICE[$LBRACKET] $postfixExpression $first $last?)

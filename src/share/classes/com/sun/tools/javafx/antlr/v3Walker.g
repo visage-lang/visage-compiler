@@ -177,19 +177,23 @@ overrideDeclaration returns [JFXOverrideAttribute value]
 	;
 modifiers  returns [JCModifiers mods]
 	: ^(MODIFIER modifierFlags)
-	 		 				{ mods = F.at(pos($MODIFIER)).Modifiers($modifierFlags.flags); }
+	 		 				{ mods = F.at($modifierFlags.pos).Modifiers($modifierFlags.flags); }
 	;
-modifierFlags   returns [long flags = 0L]
-	:  (modifierFlag          			{ flags |= $modifierFlag.flag; } )*
+modifierFlags   returns [long flags = 0L, int pos = -1]
+	:  (modifierFlag				{ $flags |= $modifierFlag.flag; 
+							  if (($pos == -1) && ($modifierFlag.pos != -1)) {
+							      $pos = $modifierFlag.pos;
+							  }
+							} )*
 	;
-modifierFlag   returns [long flag]
-	:  BOUND          				{ flag = JavafxFlags.BOUND; }
-	|  PUBLIC          				{ flag = Flags.PUBLIC; }
-	|  PRIVATE         				{ flag = Flags.PRIVATE; }
-	|  PROTECTED       				{ flag = Flags.PROTECTED; } 
-	|  ABSTRACT        				{ flag = Flags.ABSTRACT; }
-	|  READONLY        				{ flag = Flags.FINAL; } 
-	|  STATIC        				{ flag = Flags.STATIC; } 
+modifierFlag   returns [long flag, int pos]
+	:  BOUND          				{ $flag = JavafxFlags.BOUND; $pos = pos($BOUND); }
+	|  PUBLIC          				{ $flag = Flags.PUBLIC;      $pos = pos($PUBLIC); }
+	|  PRIVATE         				{ $flag = Flags.PRIVATE;     $pos = pos($PRIVATE); }
+	|  PROTECTED       				{ $flag = Flags.PROTECTED;   $pos = pos($PROTECTED); } 
+	|  ABSTRACT        				{ $flag = Flags.ABSTRACT;    $pos = pos($ABSTRACT); }
+	|  READONLY        				{ $flag = Flags.FINAL;       $pos = pos($READONLY); } 
+	|  STATIC        				{ $flag = Flags.STATIC;      $pos = pos($STATIC); } 
 	;
 formalParameters  returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]
 	: ^(LPAREN (formalParameter			{ params.append($formalParameter.var); } )* )
@@ -539,7 +543,7 @@ expressionList  returns [ListBuffer<JCExpression> args = new ListBuffer<JCExpres
 	: ^(EXPR_LIST (expression			{ $args.append($expression.expr); }  )* )
 	;
 type  returns [JFXType type]
-	: ^(TYPE_NAMED typeName cardinality)		{ $type = F.at(pos($TYPE_NAMED)).TypeClass($typeName.expr, $cardinality.ary); 
+	: ^(TYPE_NAMED typeName cardinality)		{ $type = F.at($typeName.expr.pos).TypeClass($typeName.expr, $cardinality.ary); 
                                                           endPos($type, $TYPE_NAMED); }
  	| ^(TYPE_FUNCTION typeArgList ret=type cardinality)
  							{ $type = F.at(pos($TYPE_FUNCTION)).TypeFunctional($typeArgList.ptypes.toList(), $ret.type, $cardinality.ary); 

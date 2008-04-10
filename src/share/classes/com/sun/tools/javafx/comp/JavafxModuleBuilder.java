@@ -70,7 +70,7 @@ public class JavafxModuleBuilder {
     private Name pseudoDir;
     private Name commandLineArgs;
     
-    private final boolean debugBadPositions = false;
+    private static final boolean debugBadPositions = Boolean.getBoolean("JavafxModuleBuilder.debugBadPositions");
 
     public static JavafxModuleBuilder instance(Context context) {
         JavafxModuleBuilder instance = context.get(javafxModuleBuilderKey);
@@ -304,7 +304,7 @@ public class JavafxModuleBuilder {
                     } catch (Throwable exc) {
                         //ignore
                     }
-                    System.out.println("Position of " + tree.pos + " in ---" + where);
+                    System.err.println("Position of " + tree.pos + " in ---" + where);
                 }
             }
         }.scan(testTree);
