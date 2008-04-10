@@ -1575,7 +1575,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         Scope enclScope = JavafxEnter.enterScope(env);
         JFXFunctionDefinition def = new JFXFunctionDefinition(make.Modifiers(Flags.SYNTHETIC), defs.lambdaName, tree);
         tree.definition = def;
-        MethodSymbol m = new MethodSymbol(SYNTHETIC, def.name, null, enclScope.owner);
+        MethodSymbol m = new MethodSymbol(SYNTHETIC, def.name, null, env.enclClass.sym);
         // m.flags_field = chk.checkFlags(def.pos(), def.mods.flags, m, def);
         def.sym = m;
         finishOperationDefinition(def, env);
