@@ -1,0 +1,6 @@
+jfxc124.fx:8: unexpected type
+found   : Integer
+required: Object[]
+System.out.println("i = {i[i]}"); 
+                         ^
+1 error
