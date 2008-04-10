@@ -34,6 +34,7 @@ public class KeyFrame extends Comparable {
     public attribute values: KeyValue[];
     public attribute timelines: Timeline[];
     public attribute action: function();
+    public attribute canSkip: Boolean = false;
 
     public function compareTo(o:Object):Integer {
         var kf = o as KeyFrame;

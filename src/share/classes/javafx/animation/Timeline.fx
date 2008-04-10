@@ -320,7 +320,7 @@ public class Timeline {
                 cycleIndex++;
             }
         }
-        visitFrames(curT, backward);
+        visitFrames(curT, backward, false);
 
         // now handle the active interval for each target
         for (i in [0..<targets.size()]) {
@@ -386,19 +386,21 @@ public class Timeline {
             cycleBackward = not cycleBackward;
         }
         var cycleT = if (cycleBackward) 0 else duration;
-        visitFrames(cycleT, cycleBackward);
+        visitFrames(cycleT, cycleBackward, true);
         // avoid repeated visits to terminals in autoReverse case
         frameIndex = if (autoReverse) 1 else 0;
     }
 
-    private function visitFrames(curT:Number, backward:Boolean) {
+    private function visitFrames(curT:Number, backward:Boolean, catchingUp:Boolean) {
         if (backward) {
             var i1 = sortedFrames.size()-1-frameIndex;
             var i2 = 0;
             for (fi in [i1..i2 step -1]) {
                 var kf = sortedFrames[fi];
                 if (curT <= kf.time.millis) {
-                    kf.visit();
+                    if (not (catchingUp and kf.canSkip)) {
+                        kf.visit();
+                    }
                     frameIndex++;
                 } else {
                     break;
@@ -410,7 +412,9 @@ public class Timeline {
             for (fi in [i1..i2]) {
                 var kf = sortedFrames[fi];
                 if (curT >= kf.time.millis) {
-                    kf.visit();
+                    if (not (catchingUp and kf.canSkip)) {
+                        kf.visit();
+                    }
                     frameIndex++;
                 } else {
                     break;
