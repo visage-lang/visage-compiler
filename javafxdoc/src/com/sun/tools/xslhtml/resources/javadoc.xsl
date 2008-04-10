@@ -247,9 +247,7 @@
         <div id="nav">
             <!-- name of the class -->
             <h1 class="classname">
-                <i class="modifiers">
-                    <xsl:value-of select="modifiers/@text"/>
-                </i>
+                <xsl:apply-templates select="modifiers"/>
                 class
                 <a class="classname">
                     <strong><xsl:value-of select="@packageName"/>.</strong>
@@ -607,7 +605,7 @@
             <a>
                 <h4>
                     <xsl:attribute name="id"><xsl:value-of select="@name"/></xsl:attribute>
-                    <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
+                    <xsl:apply-templates select="modifiers"/>
                     <xsl:text> </xsl:text>
                     <b class="name"><xsl:value-of select="@name"/></b>
                     <xsl:text>: </xsl:text>
@@ -637,7 +635,7 @@
             <xsl:if test="docComment/tags/advanced">
                 <xsl:attribute name="class">advanced</xsl:attribute>
             </xsl:if>
-             <xsl:apply-templates select="." mode="signature"/>
+             <xsl:apply-templates select="." mode="toc-signature"/>
         </dt>
         <dd>
             <xsl:if test="docComment/tags/advanced">
@@ -653,7 +651,7 @@
         <div class="method member">
             <a>
                 <xsl:attribute name="id"><xsl:apply-templates select="." mode="anchor-signature"/></xsl:attribute>
-                <h4><xsl:apply-templates select="." mode="signature"/></h4>
+                <h4><xsl:apply-templates select="." mode="detail-signature"/></h4>
             </a>
             
             
@@ -682,8 +680,11 @@
     </xsl:template>
     
     
+    
+    <!-- =================== -->
+    <!-- signature stuff -->
+    <!-- =================== -->
 
-    <!-- signature sub functions -->
     <xsl:template match="function | method | constructor" mode="anchor-signature">
         <xsl:value-of select="@name"/>
         <xsl:text>(</xsl:text>
@@ -694,63 +695,102 @@
         <xsl:text>)</xsl:text>
     </xsl:template>
     
-    <xsl:template match="function | method | constructor" mode="signature">
-        <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
-        <xsl:text> </xsl:text>
-        
-        <!-- fx -->
-        <xsl:if test="not(../@language='java')">
-            
-            <a>
-                <xsl:attribute name="href">#<xsl:apply-templates select="." mode="anchor-signature"/></xsl:attribute>
-                <b><xsl:value-of select="@name"/></b>
-            </a>
-            (
-            <i class="parameters">
-                <xsl:for-each select="parameters/parameter">
+    <xsl:template match="modifiers">
+        <i class="modifiers"><xsl:value-of select="@text"/></i>
+    </xsl:template>
+    
+    <xsl:template match="parameters" mode="signature">
+        <xsl:text>(</xsl:text>
+        <i class="parameters">
+            <xsl:for-each select="parameter">
+                <xsl:if test="../../../@language='javafx'">
                     <b><xsl:value-of select="@name"/></b>:
                     <!-- build parameter type link, if appropriate -->
                     <a>
                         <xsl:apply-templates select="type" mode="href"/>
                         <i><xsl:value-of select="type/@typeName"/></i>
                     </a>,
-                </xsl:for-each>
-            </i>
-            )
-            :
-            
-            <!-- build return type link, if appropriate -->
-            <a>
-               <xsl:variable name="ptype" select="returns/@qualifiedTypeName"/>
-                <xsl:if test="//class[@qualifiedName=$ptype]">
-                   <xsl:attribute name="href">../<xsl:value-of select="returns/@packageName"/>/<xsl:value-of select="returns/@qualifiedTypeName"/>.html</xsl:attribute>
                 </xsl:if>
-               <i><xsl:value-of select="returns/@simpleTypeName"/>
-               <xsl:value-of select="returns/@dimension"/></i>
+                <xsl:if test="../../../@language='java'">
+                    <i><xsl:value-of select="type/@toString"/></i>
+                    <xsl:text> </xsl:text>
+                    <b><xsl:value-of select="@name"/></b>,
+                </xsl:if>
+            </xsl:for-each>
+        </i>
+        <xsl:text>)</xsl:text>
+    </xsl:template>
+
+    <xsl:template match="returns" mode="signature">
+        <a>
+           <xsl:apply-templates select="." mode="href"/>
+           <i><xsl:value-of select="@simpleTypeName"/>
+           <xsl:value-of select="@dimension"/></i>
+        </a>
+    </xsl:template>
+    
+    <xsl:template match="returns" mode="href">
+        <xsl:variable name="ptype" select="@qualifiedTypeName"/>
+        <xsl:if test="//class[@qualifiedName=$ptype]">
+            <xsl:attribute name="href">../<xsl:value-of select="@packageName"/>/<xsl:value-of select="@qualifiedTypeName"/>.html</xsl:attribute>
+        </xsl:if>
+    </xsl:template>
+    
+    
+    <xsl:template match="function | method | constructor" mode="toc-signature">
+        <xsl:apply-templates select="modifiers"/>
+        <xsl:text> </xsl:text>
+        
+        <!-- fx -->
+        <xsl:if test="not(../@language='java')">
+            <a>
+                <xsl:attribute name="href">#<xsl:apply-templates select="." mode="anchor-signature"/></xsl:attribute>
+                <b><xsl:value-of select="@name"/></b>
             </a>
+            <xsl:apply-templates select="parameters" mode="signature"/>
+            :
+            <!-- build return type link, if appropriate -->
+            <xsl:apply-templates select="returns" mode="signature"/>
             <xsl:value-of select="type/@dimension"/>
         </xsl:if>
         
         <!-- java -->
         <xsl:if test="../@language='java'">
-            <i><xsl:value-of select="returns/@simpleTypeName"/>
-            <xsl:value-of select="returns/@dimension"/></i>
+            <xsl:apply-templates select="returns" mode="signature"/>
             <xsl:text> </xsl:text>
             <b><xsl:value-of select="@name"/></b>
-            (
-            <i class="parameters">
-                <xsl:for-each select="parameters/parameter">
-                    <i><xsl:value-of select="type/@toString"/></i>
-                    <xsl:text> </xsl:text>
-                    <b><xsl:value-of select="@name"/></b>,
-                </xsl:for-each>
-            </i>
-            )
+            <xsl:apply-templates select="parameters" mode="signature"/>
         </xsl:if>
             
     </xsl:template>
     
+    <xsl:template match="function | method | constructor" mode="detail-signature">
+        <xsl:apply-templates select="modifiers"/>
+        <xsl:text> </xsl:text>
+        
+        <!-- fx -->
+        <xsl:if test="not(../@language='java')">
+            <b><xsl:value-of select="@name"/></b>
+            <xsl:apply-templates select="parameters" mode="signature"/>
+            <xsl:text>:</xsl:text>
+            <!-- build return type link, if appropriate -->
+            <xsl:apply-templates select="returns" mode="signature"/>
+            <xsl:value-of select="type/@dimension"/>
+        </xsl:if>
+        
+        <!-- java -->
+        <xsl:if test="../@language='java'">
+            <xsl:apply-templates select="returns" mode="signature"/>
+            <xsl:text> </xsl:text>
+            <b><xsl:value-of select="@name"/></b>
+            <xsl:apply-templates select="parameters" mode="signature"/>
+        </xsl:if>
+            
+    </xsl:template>
 
+
+    
+    
     
     
     
