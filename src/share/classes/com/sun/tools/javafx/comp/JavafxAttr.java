@@ -2197,6 +2197,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 Type qualifier = (tree.meth.getTag() == JCTree.SELECT)
                     ? ((JCFieldAccess) tree.meth).selected.type
                     : env.enclClass.sym.type;
+                qualifier = syms.boxIfNeeded(qualifier);
                 restype = new
                     ClassType(restype.getEnclosingType(),
                               List.<Type>of(new WildcardType(types.erasure(qualifier),
