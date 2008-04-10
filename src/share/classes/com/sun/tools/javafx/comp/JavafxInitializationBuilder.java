@@ -688,7 +688,9 @@ public class JavafxInitializationBuilder {
             if (tai.isStatic()) {
                 if (tai.isDirectOwner()) {
                     DiagnosticPosition diagPos = tai.pos();
-                    stmts.append(tai.getDefaultInitializtionStatement());
+                    if (tai.getDefaultInitializtionStatement() != null) {
+                        stmts.append(tai.getDefaultInitializtionStatement());
+                    }
                     stmts.append( toJava.callStatement(diagPos, make.at(diagPos).Ident(tai.getName()), locationInitializeName));
                 }
                 JCStatement stat = makeStaticChangeListenerCall(tai);

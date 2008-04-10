@@ -97,6 +97,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
      * other instance information
      */
     private int syntheticNameCounter = 0;
+    private final JCExpression doNotInitializeMarker;
     
     /*
      * Buffers holding definitions waiting to be prepended to the current list of definitions.
@@ -203,6 +204,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         target = Target.instance(context);
         rs = JavafxResolve.instance(context);
         defs = JavafxDefs.instance(context);
+        
+        doNotInitializeMarker = make.Literal(TypeTags.INT, 666);
     }
     
     /** Visitor method: Translate a single node.
@@ -409,12 +412,60 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     /**
      * Fixup up block before translation.
      * For now this is only done for the run methods's block, and all we do is
+     * convert to static variables that are accessed by other methods or classes.
+     * In the future, I also want to:
+     * (a) pre-allocate variables that need morphing ta the top of the block,
+     * so we can do forward references.
+     * (b) If a variable is final and initialized by an object literal,
+     * invoke the Java constructor first, so we can make cyclic data structures. 
+     * 
+     * @param body The block to mogrify.
+     * @param module If non-null, the module class whose body this is.
+     */
+    public void fixupBlockExpression (JFXBlockExpression body, JFXClassDeclaration module) {
+        boolean changed = false;
+        ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
+
+        for (JCStatement stat : body.stats) {
+            if (stat instanceof JFXVar) {
+                JFXVar decl = (JFXVar) stat;
+                if ((decl.sym.flags_field & JavafxFlags.INNER_ACCESS) != 0) {
+                   decl.sym.flags_field |= STATIC;
+                   changed = true;
+                   JCExpression init = decl.init;
+                   decl.sym.owner = module.type.tsym;
+                   if (init != null) {
+                        Name name = decl.name;
+                        make.at(decl);
+                        JavafxBindStatus bindStatus = decl.getBindStatus();
+                        if (bindStatus != JavafxBindStatus.UNBOUND)
+                            init = make.BindExpression(init, bindStatus);
+                        JCIdent lhs = make.Ident(name);
+                        lhs.sym = decl.sym;
+                        stats.append(make.Exec(make.Assign(lhs, init)));
+                        decl.init = doNotInitializeMarker;
+                    }
+                   module.setMembers(module.getMembers().prepend(decl));
+                   continue;
+                }
+            }
+            stats.append(stat);
+        }
+        if (changed) {
+            body.stats = stats.toList();
+        }
+    }
+
+    /**
+     * Fixup up block before translation.
+     * For now this is only done for the run methods's block, and all we do is
      * convert to static variables that are accessed by other methods, classes,
      * or attribute initializers (including those being moved out)
      * 
      * @param body The block to mogrify.
      * @param module If non-null, the module class whose body this is.
      */
+    /**********************
     public void fixupBlockExpression (JFXBlockExpression body, JFXClassDeclaration module) {
         final Map<VarSymbol, JFXVar> toModule = new HashMap<VarSymbol, JFXVar>(); //vars to move to module level
         final Map<VarSymbol, JFXVar> candidate = new HashMap<VarSymbol, JFXVar>(); //other top-level vars
@@ -475,6 +526,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             body.stats = stats.toList();
         }
     }
+     * ****/
 
     @Override
     public void visitTopLevel(JCCompilationUnit tree) {
@@ -583,7 +635,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                         case JavafxTag.VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
                             boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
-                            JCStatement init = translateDefinitionalAssignmentToSet(attrDef.pos(), 
+                            JCStatement init = attrDef.getInitializer()==doNotInitializeMarker? null :
+                                translateDefinitionalAssignmentToSet(attrDef.pos(), 
                                 attrDef.getInitializer(), attrDef.getBindStatus(), attrDef.sym,
                                 isStatic? null : make.Ident(defs.receiverName), FROM_DEFAULT_MILIEU);
                             attrInfo.append(new TranslatedAttributeInfo(
