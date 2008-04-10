@@ -689,8 +689,10 @@
         <xsl:value-of select="@name"/>
         <xsl:text>(</xsl:text>
         <xsl:for-each select="parameters/parameter">
-            <xsl:value-of select="@name"/>:
-            <xsl:value-of select="type/@toString"/>,
+            <xsl:value-of select="@name"/>
+            <xsl:text>:</xsl:text>
+            <xsl:value-of select="type/@toString"/>
+            <xsl:text>,</xsl:text>
         </xsl:for-each>
         <xsl:text>)</xsl:text>
     </xsl:template>
@@ -788,65 +790,6 @@
             
     </xsl:template>
 
-
     
-    
-    
-    
-    
-    
-    <!--  Functions -->
-    <!--    
-    <xsl:template match="method" mode="toc">
-        <div class="function">
-            <li>
-                <a>
-                    <xsl:attribute name="href">#method_<xsl:value-of select="@name"/></xsl:attribute>
-                    
-                    <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
-                    <xsl:text> </xsl:text>
-                    <b><xsl:value-of select="@name"/></b>
-                    (
-                    <i class="parameters">
-                        <xsl:for-each select="parameters/parameter">
-                            <b><xsl:value-of select="@name"/></b>:
-                            <i><xsl:value-of select="type/@toString"/></i>,
-                        </xsl:for-each>
-                    </i>
-                    )
-                    :
-                    <i><xsl:value-of select="returns/@simpleTypeName"/>
-                    <xsl:value-of select="returns/@dimension"/>
-                    <xsl:value-of select="type/@dimension"/></i>
-                </a>
-            </li>
-        </div>  
-    </xsl:template>
-    
-    <xsl:template match="method">
-        <div class="function">
-            <h4>
-                <a>
-                    <xsl:attribute name="id">method_<xsl:value-of select="@name"/></xsl:attribute>
-                    <i class="modifiers"><xsl:value-of select="modifiers/@text"/></i>
-                    <xsl:text> </xsl:text>
-                    <b><xsl:value-of select="@name"/></b>
-                    (
-                    <i class="parameters">
-                        <xsl:for-each select="parameters/parameter">
-                            <i><xsl:value-of select="type/@toString"/></i>
-                            <b><xsl:value-of select="@name"/></b>,
-                        </xsl:for-each>
-                    </i>
-                    )
-                    :
-                    <i><xsl:value-of select="returns/@simpleTypeName"/>
-                    <xsl:value-of select="type/@dimension"/></i>
-                </a>
-            </h4>
-        </div>  
-    </xsl:template>
-    
-                    -->
-                </xsl:stylesheet>
+</xsl:stylesheet>
                 
