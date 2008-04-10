@@ -216,20 +216,22 @@
     </xsl:template>
     
     <xsl:template match="docComment/inlineTags">
-        <p class="comment"><xsl:apply-templates/></p>
+        <p class="comment">
+            <xsl:for-each select="*"><xsl:apply-templates select="."/></xsl:for-each>
+        </p>
     </xsl:template>
     
     <xsl:template match="docComment/firstSentenceTags">
-        <p class="comment"><xsl:apply-templates/></p>
+        <p class="comment">
+            <xsl:for-each select="*"><xsl:apply-templates select="."/></xsl:for-each>
+        </p>
     </xsl:template>
     
     <xsl:template match="Text"><xsl:value-of select="." disable-output-escaping="yes"/></xsl:template>
-    <xsl:template match="see">
-        <a>
+    <xsl:template match="see"><a>
             <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
-            <xsl:value-of select="@label"/>
-        </a>
-    </xsl:template>
+            <xsl:text><xsl:value-of select="@label"/></xsl:text>
+        </a></xsl:template>
     
     <xsl:template match="code"><code><xsl:value-of select="." disable-output-escaping="yes"/></code></xsl:template>
     

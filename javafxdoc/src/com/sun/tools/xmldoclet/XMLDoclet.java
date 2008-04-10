@@ -498,7 +498,22 @@ public class XMLDoclet {
             attrs.addAttribute("", "", "name", "CDATA", t.name());
             //process link tags specially
             if("@link".equals(t.name())) {
-                attrs.addAttribute("", "", "href", "CDATA", t.text());
+                String href = t.text();
+                if(t instanceof SeeTag) {
+                    SeeTag see = (SeeTag) t;
+                    if(see.referencedClass() != null) {
+                        href = "../"
+                                +see.referencedClass().containingPackage().name()
+                                +"/"
+                                +see.referencedClassName()+".html";
+                        p("ref name = " + see.referencedMemberName());
+                        if(see.referencedMemberName() != null) {
+                            href += "#"+see.referencedMemberName();
+                        }
+                    }
+                }
+                //p("final href = " + href);
+                attrs.addAttribute("", "", "href", "CDATA", href);
                 String label = t.text();
                 if(label.startsWith("#")) {
                     label = label.substring(1);
