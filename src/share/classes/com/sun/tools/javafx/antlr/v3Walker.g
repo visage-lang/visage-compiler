@@ -223,7 +223,7 @@ blockExpression  returns [JFXBlockExpression expr]
 	;
 variableDeclaration    returns [JCStatement value]
 	: ^(VAR variableLabel modifiers name type boundExpressionOpt onReplaceClause? DOC_COMMENT?)
-	    						{ $value = F.at(pos($VAR)).Var($name.value, 
+	    						{ $value = F.at($variableLabel.pos).Var($name.value, 
 	    							$type.type, 
 	    							$modifiers.mods,
 	    							$variableLabel.local,
