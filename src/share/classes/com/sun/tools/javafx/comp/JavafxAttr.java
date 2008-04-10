@@ -513,6 +513,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         JavafxEnv<JavafxAttrContext> localEnv =
                 env.dup(tree, env.info.dup(env.info.scope.dupUnshared()));
         localEnv.outer = env;
+        localEnv.info.scope.owner = new MethodSymbol(BLOCK, names.empty, null, env.enclClass.sym);
         return localEnv;
     }
 
@@ -931,7 +932,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             if (tree.init != null) {
                 // Attribute initializer in a new environment.
                 // Check that initializer conforms to variable's declared type.
-                Scope initScope = new Scope(new MethodSymbol(BLOCK, v.name, null, env.info.scope.owner));
+                Scope initScope = new Scope(new MethodSymbol(BLOCK, v.name, null, env.enclClass.sym));
                 initScope.next = env.info.scope;
                 JavafxEnv<JavafxAttrContext> initEnv =
                     env.dup(tree, env.info.dup(initScope));
@@ -1014,7 +1015,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     // created BLOCK-method.
                     long flags = tree.getModifiers().flags;
                     JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
-                    localEnv.info.scope.owner = new MethodSymbol(flags | BLOCK, names.empty, null, env.info.scope.owner);
                     if ((flags & STATIC) != 0) {
                         localEnv.info.staticLevel++;
                     }
@@ -1059,7 +1059,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             if (tree.getInitializer() != null) {
                 // Attribute initializer in a new environment/
                 // Check that initializer conforms to variable's declared type.
-                Scope initScope = new Scope(new MethodSymbol(BLOCK, v.name, null, env.info.scope.owner));
+                Scope initScope = new Scope(new MethodSymbol(BLOCK, v.name, null, env.enclClass.sym));
                 initScope.next = env.info.scope;
                 JavafxEnv<JavafxAttrContext> initEnv =
                     env.dup(tree, env.info.dup(initScope));
@@ -1087,7 +1087,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // let the owner of the environment be a freshly
         // created BLOCK-method.
         JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
-        localEnv.info.scope.owner = new MethodSymbol(PUBLIC | BLOCK, names.empty, null, env.info.scope.owner);
 
         Type type = attribExpr(id, localEnv);
         tree.type = type;
@@ -1275,9 +1274,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             // let the owner of the environment be a freshly
             // created BLOCK-method.
             JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
-            localEnv.info.scope.owner =
-                new MethodSymbol(tree.flags | BLOCK, names.empty, null,
-                                 env.info.scope.owner);
             if ((tree.flags & STATIC) != 0) localEnv.info.staticLevel++;
             memberEnter.memberEnter(tree.stats, localEnv);
             attribStats(tree.stats, localEnv);
@@ -1307,7 +1303,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             env.enclClass.runBodyScope = localEnv.info.scope;
         }
         else
-            localEnv.info.scope.owner = new MethodSymbol(BLOCK, names.empty, null, env.info.scope.owner);
+            localEnv.info.scope.owner = new MethodSymbol(BLOCK, names.empty, null, env.enclClass.sym);
         memberEnter.memberEnter(tree.stats, localEnv);
         boolean canReturn = true;
         boolean unreachableReported = false;
@@ -1399,7 +1395,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // The local environment of a class creation is
         // a new environment nested in the current one.
         JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
-        localEnv.info.scope.owner = new MethodSymbol(BLOCK, names.empty, null, env.info.scope.owner);
 
         List<JFXVar> vars = tree.getLocalvars();
         memberEnter.memberEnter(vars, localEnv);
@@ -3853,7 +3848,6 @@ public
         if (tree.getAttribute() != null) {
             JCExpression t = tree.getAttribute();
             JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
-            localEnv.info.scope.owner = new MethodSymbol(BLOCK, names.empty, null, env.info.scope.owner);
             Name attribute = names.fromString(t.toString());
             Symbol memberSym = rs.findIdentInType(env, var.type, attribute, VAR);
             memberSym = rs.access(memberSym, t.pos(), var.type, attribute, true);
