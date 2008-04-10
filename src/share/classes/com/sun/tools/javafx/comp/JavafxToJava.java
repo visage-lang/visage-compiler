@@ -1033,7 +1033,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 parts = parts.tail;
 
                 lit = (JCLiteral) (parts.head);                  // }...{  or  }..."
-                sb.append((String) lit.value);
+                String part = (String)lit.value;
+                sb.append(part.replace("%", "%%"));              // escape percent signs
                 parts = parts.tail;
             }
             JCLiteral formatLiteral = m().Literal(TypeTags.CLASS, sb.toString());
