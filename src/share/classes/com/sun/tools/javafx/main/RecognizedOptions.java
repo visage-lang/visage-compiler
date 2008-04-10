@@ -365,7 +365,8 @@ public class RecognizedOptions {
 	new Option(PROCESSORPATH,       "opt.arg.path",		"opt.processorpath"),
 	new Option(D,                   "opt.arg.directory",	"opt.d"),
 	new Option(S,                   "opt.arg.directory",	"opt.sourceDest"),
-        new Option(IMPLICIT,                                    "opt.implicit") {
+        //new Option(IMPLICIT,                                    "opt.implicit") {
+        new HiddenOption(IMPLICIT) {
             public boolean matches(String s) {
                 return s.equals("-implicit:none") || s.equals("-implicit:class");
             }
