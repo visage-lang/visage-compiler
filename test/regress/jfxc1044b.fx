@@ -34,26 +34,38 @@ var t: Timeline = Timeline {
     ]
 };
 
-System.out.println("starting timeline (autoReverse=false, direction=FORWARD)");
-t.start();
-Thread.sleep(200);
-System.out.println("timeline finished (isRunning()={t.isRunning()})");
-
-t.autoReverse = true;
-System.out.println("starting timeline (autoReverse=true, direction=FORWARD)");
-t.start();
-Thread.sleep(200);
-System.out.println("timeline finished (isRunning()={t.isRunning()})");
-
+System.out.println("starting timeline (autoReverse=false, toggle=false)");
 t.autoReverse = false;
-t.direction = Direction.REVERSE;
-System.out.println("starting timeline (autoReverse=false, direction=REVERSE)");
+t.toggle = false;
 t.start();
 Thread.sleep(200);
 System.out.println("timeline finished (isRunning()={t.isRunning()})");
 
+System.out.println("starting timeline (autoReverse=false, toggle=true)");
+t.toggle = true;
+t.start();
+Thread.sleep(200);
+System.out.println("timeline finished (isRunning()={t.isRunning()})");
+
+System.out.println("starting timeline (autoReverse=false, toggle=true)");
+t.start();
+Thread.sleep(200);
+System.out.println("timeline finished (isRunning()={t.isRunning()})");
+
+System.out.println("starting timeline (autoReverse=true, toggle=false)");
 t.autoReverse = true;
-System.out.println("starting timeline (autoReverse=true, direction=REVERSE)");
+t.toggle = false;
+t.start();
+Thread.sleep(200);
+System.out.println("timeline finished (isRunning()={t.isRunning()})");
+
+System.out.println("starting timeline (autoReverse=true, toggle=true)");
+t.toggle = true;
+t.start();
+Thread.sleep(200);
+System.out.println("timeline finished (isRunning()={t.isRunning()})");
+
+System.out.println("starting timeline (autoReverse=true, toggle=true)");
 t.start();
 Thread.sleep(200);
 System.out.println("timeline finished (isRunning()={t.isRunning()})");

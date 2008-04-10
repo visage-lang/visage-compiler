@@ -43,7 +43,9 @@ public class Timeline {
 
     public attribute repeatCount: Number = 1.0;
     public attribute autoReverse: Boolean = false;
-    public attribute direction:Direction = Direction.FORWARD;
+    public attribute toggle: Boolean = false on replace {
+        isReverse = true;
+    };
     public attribute keyFrames: KeyFrame[] on replace {
         invalidate();
     };
@@ -70,11 +72,25 @@ public class Timeline {
     }
 
     public function start() {
-        if (clip <> null) {
-            clip.stop();
+        if (toggle) {
+            // change direction in place
+            if (clip == null) {
+                buildClip();
+            }
+            isReverse = not isReverse;
+            offsetValid = false;
+            frameIndex = keyFrames.size() - frameIndex;
+            if (not clip.isRunning()) {
+                clip.start();
+            }
+        } else {
+            // stop current clip and restart from beginning
+            if (clip <> null) {
+                clip.stop();
+            }
+            buildClip();
+            clip.start();
         }
-        buildClip();
-        clip.start();
     }
 
     public function stop() {
@@ -110,6 +126,11 @@ public class Timeline {
     private attribute cycleIndex: Integer = 0;
     private attribute frameIndex: Integer = 0;
 
+    private attribute isReverse: Boolean = true;
+    private attribute offsetT: Number = 0;
+    private attribute lastElapsed: Number = 0;
+    private attribute offsetValid: Boolean = false;
+
     //
     // Need to revalidate everything (call rebuildTargets() again) if
     // any of the following change after construction:
@@ -120,7 +141,7 @@ public class Timeline {
     // The following should be safe to change at any time:
     //   - Timeline.repeatCount
     //   - Timeline.autoReverse
-    //   - Timeline.direction
+    //   - Timeline.isReverse
     //   - KeyValue.value
     //   - KeyValue.interpolate
     //
@@ -130,17 +151,14 @@ public class Timeline {
         duration = 0;
 
         sortedFrames = Sequences.sort(keyFrames) as KeyFrame[];
-        var lastKeyFrame:KeyFrame = null;
+
         var zeroFrame:KeyFrame;
-        for (keyFrame in keyFrames) {
-            if (keyFrame.time == 0s) {
-                zeroFrame = keyFrame;
-                break;
-            }
-        }
-        if (zeroFrame == null) {
+        if (sortedFrames[0].time == 0s) {
+            zeroFrame = sortedFrames[0];
+        } else {
             zeroFrame = KeyFrame { time: 0s };
         }
+
         for (keyFrame in keyFrames) {
             if (duration >= 0) {
                 duration = java.lang.Math.max(duration, keyFrame.time.millis);
@@ -203,12 +221,58 @@ public class Timeline {
     }
 
     function process(totalElapsed:Number):Void {
+        // 1. calculate totalDur
+        // 2. modify totalElapsed depending on direction
+        // 3. clamp totalElapsed and set needsStop if necessary
+        // 4. calculate curT and cycle based on totalElapsed
+        // 5. decide whether to increment or decrement cycle/frame index, depending on direction
+        // 6. visit key frames
+        // 7. do interpolation between active key frames
+        // 8. visit subtimelines
+        // 9. stop clip if needsStop
+
         var needsStop = false;
         var totalDur = getTotalDur();
-        if (totalDur >= 0 and totalElapsed >= totalDur) {
+
+        if (totalDur >= 0) {
+            if (toggle) {
+                if (not offsetValid) {
+                    if (isReverse) {
+                        offsetT = totalElapsed + lastElapsed;
+                    } else {
+                        offsetT = totalElapsed - lastElapsed;
+                    }
+                    offsetValid = true;
+                }
+
+                // adjust totalElapsed to account for direction (the
+                // incoming totalElapsed value will continue to increase
+                // monotonically regardless of how many times the direction
+                // has been reversed, so here we just massage it back into
+                // the range [0,totalDur] so that other calculations below
+                // will work as usual)
+                if (isReverse) {
+                    totalElapsed = offsetT - totalElapsed;
+                } else {
+                    totalElapsed = totalElapsed - offsetT;
+                }
+            }
+
             // process one last pulse to ensure targets reach their end values
-            totalElapsed = totalDur;
-            needsStop = true;
+            if (toggle and isReverse) {
+                if (totalElapsed <= 0) {
+                    totalElapsed = 0;
+                    needsStop = true;
+                }
+            } else {
+                if (totalElapsed >= totalDur) {
+                    totalElapsed = totalDur;
+                    needsStop = true;
+                }
+            }
+
+            // capture last adjusted totalElapsed value (used in toggle case)
+            lastElapsed = totalElapsed;
         }
 
         var curT:Number;
@@ -233,36 +297,26 @@ public class Timeline {
             if (autoReverse) {
                 if (cycle % 2 == 1) {
                     curT = duration - curT;
-                    backward = not backward;
+                    backward = true;
                 }
-            }
-            if (direction == Direction.REVERSE) {
-                curT = duration - curT;
-                backward = not backward;
             }
         }
 
         // look through each KeyFrame and see if we need to visit its
         // key values and its action function
-        if (cycle > cycleIndex) {
-            // we're on a new cycle; visit any key frames that we may
-            // have missed along the way
+        if (toggle and isReverse) {
+            backward = not backward;
+            while (cycleIndex > cycle) {
+                // we're on a new cycle; visit any key frames that we may
+                // have missed along the way
+                visitCycle(cycleIndex);
+                cycleIndex--;
+            }
+        } else {
             while (cycleIndex < cycle) {
-                var cycleBackward = false;
-                if (autoReverse) {
-                    if (cycleIndex % 2 == 1) {
-                        cycleBackward = not cycleBackward;
-                    }
-                }
-                if (direction == Direction.REVERSE) {
-                    cycleBackward = not cycleBackward;
-                }
-                var cycleT = if (cycleBackward) 0 else duration;
-
-                visitFrames(cycleT, cycleBackward);
-
-                // avoid repeated visits to terminals in autoReverse case
-                frameIndex = if (autoReverse) 1 else 0;
+                // we're on a new cycle; visit any key frames that we may
+                // have missed along the way
+                visitCycle(cycleIndex);
                 cycleIndex++;
             }
         }
@@ -321,6 +375,22 @@ public class Timeline {
         }
     }
 
+    private function visitCycle(cycle:Integer) {
+        var cycleBackward = false;
+        if (autoReverse) {
+            if (cycle % 2 == 1) {
+                cycleBackward = true;
+            }
+        }
+        if (toggle and isReverse) {
+            cycleBackward = not cycleBackward;
+        }
+        var cycleT = if (cycleBackward) 0 else duration;
+        visitFrames(cycleT, cycleBackward);
+        // avoid repeated visits to terminals in autoReverse case
+        frameIndex = if (autoReverse) 1 else 0;
+    }
+
     private function visitFrames(curT:Number, backward:Boolean) {
         if (backward) {
             var i1 = sortedFrames.size()-1-frameIndex;
@@ -352,8 +422,16 @@ public class Timeline {
     private function createAdapter():TimingTarget {
         TimingTargetAdapter {
             public function begin() : Void {
-                cycleIndex = 0;
+                if (toggle and isReverse) {
+                    cycleIndex = (repeatCount-1) as Integer;
+                    lastElapsed = getTotalDur();
+                } else {
+                    cycleIndex = 0;
+                    lastElapsed = 0;
+                }
                 frameIndex = 0;
+                offsetT = 0;
+                offsetValid = false;
             }
             
             public function timingEvent(fraction, totalElapsed) : Void {
