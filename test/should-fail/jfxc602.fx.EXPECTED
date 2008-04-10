@@ -1,0 +1,6 @@
+jfxc602.fx:26: cannot find symbol
+symbol  : method get(double)
+location: class com.sun.javafx.runtime.location.SequenceVariable<javafx.ui.Widget$Intf>
+        content: widgets[selected]
+                        ^
+1 error
