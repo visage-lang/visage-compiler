@@ -451,7 +451,8 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
         }
         
         // look for top-level vars referenced in the initializer of those to be moved
-        for (JFXVar var : toModule.values()) {
+        // clone to avoid concurrent modification
+        for (JFXVar var : toModule.values().toArray(new JFXVar[toModule.values().size()])) {
             scanner.scan(var);
         }
         
