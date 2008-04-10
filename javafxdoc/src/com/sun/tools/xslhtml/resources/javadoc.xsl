@@ -577,13 +577,9 @@
                 </a>
             </td>
             <td>
-                <xsl:variable name="atype" select="type/@qualifiedTypeName"/>
                 <a>
-                    <xsl:if test="//class[@qualifiedName=$atype]">
-                        <xsl:apply-templates select="type" mode="href"/>
-                    </xsl:if>
-                    <i class="type"><xsl:value-of select="type/@simpleTypeName"/>
-                    <xsl:value-of select="type/@dimension"/></i>
+                    <xsl:apply-templates select="type" mode="href"/>
+                    <i class="type"><xsl:value-of select="type/@simpleTypeName"/><xsl:value-of select="type/@dimension"/></i>
                 </a>
             </td>
             <td>
@@ -592,15 +588,17 @@
         </tr>
     </xsl:template>
     
-    <xsl:template match="attribute/type" mode="href">
-        <xsl:attribute name="href">
-            <xsl:text>../</xsl:text>
-            <xsl:value-of select="@packageName"/>
-            <xsl:text>/</xsl:text>
-            <xsl:value-of select="@qualifiedTypeName"/>
-            <xsl:text>.html</xsl:text>
-        </xsl:attribute>
-        
+    <xsl:template match="attribute/type | parameter/type" mode="href">
+        <xsl:variable name="atype" select="@qualifiedTypeName"/>
+        <xsl:if test="//class[@qualifiedName=$atype]">
+            <xsl:attribute name="href">
+                <xsl:text>../</xsl:text>
+                <xsl:value-of select="@packageName"/>
+                <xsl:text>/</xsl:text>
+                <xsl:value-of select="@qualifiedTypeName"/>
+                <xsl:text>.html</xsl:text>
+            </xsl:attribute>
+            </xsl:if>
     </xsl:template>
     
     <!-- full description -->
@@ -613,13 +611,9 @@
                     <xsl:text> </xsl:text>
                     <b class="name"><xsl:value-of select="@name"/></b>
                     <xsl:text>: </xsl:text>
-                    <xsl:variable name="atype" select="type/@qualifiedTypeName"/>
                     <a>
-                        <xsl:if test="//class[@qualifiedName=$atype]">
-                            <xsl:apply-templates select="type" mode="href"/>
-                        </xsl:if>
-                        <i class="type"><xsl:value-of select="type/@simpleTypeName"/>
-                        <xsl:value-of select="type/@dimension"/></i>
+                        <xsl:apply-templates select="type" mode="href"/>
+                        <i class="type"><xsl:value-of select="type/@simpleTypeName"/><xsl:value-of select="type/@dimension"/></i>
                     </a>
                 </h4>
             </a>
@@ -716,11 +710,8 @@
                 <xsl:for-each select="parameters/parameter">
                     <b><xsl:value-of select="@name"/></b>:
                     <!-- build parameter type link, if appropriate -->
-                    <xsl:variable name="ptype" select="type/@qualifiedTypeName"/>
                     <a>
-                        <xsl:if test="//class[@qualifiedName=$ptype]">
-                           <xsl:attribute name="href">../<xsl:value-of select="type/@packageName"/>/<xsl:value-of select="type/@qualifiedTypeName"/>.html</xsl:attribute>
-                        </xsl:if>
+                        <xsl:apply-templates select="type" mode="href"/>
                         <i><xsl:value-of select="type/@typeName"/></i>
                     </a>,
                 </xsl:for-each>
