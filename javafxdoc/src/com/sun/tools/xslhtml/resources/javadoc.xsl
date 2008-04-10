@@ -136,7 +136,7 @@
             </head>
             <body>
                 <p><b><xsl:value-of select="@packageName"/></b></p>
-                <table>
+                <table id="classList">
                     <tr><th>This is a summary</th></tr>
                     <xsl:for-each select="class">
                         <tr>
@@ -147,7 +147,7 @@
                                 </a>
                             </td>
                             <td>
-                                <xsl:value-of select="first-line-comment"/>
+                                <xsl:value-of select="firstSentenceTags"/>
                             </td>
                          </tr>
                      </xsl:for-each>

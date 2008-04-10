@@ -207,7 +207,7 @@ public class XHTMLProcessingUtils {
     private static void processClass(Element clazz, Element class_list, Transformer trans, File packageDir) throws TransformerException, IOException {
         String qualifiedName = clazz.getAttribute("qualifiedName");
         String name = clazz.getAttribute("name");
-        
+                
         //add to class list
         Document doc = class_list.getOwnerDocument();
         Element class_elem = doc.createElement("class");
@@ -218,6 +218,8 @@ public class XHTMLProcessingUtils {
         first_line.appendChild(doc.createTextNode("first line comment"));
         class_elem.appendChild(first_line);
         
+        copyClassDoc(clazz,class_elem);
+
         File xhtmlFile = new File(packageDir, qualifiedName + ".html");
         Result xhtmlResult = new StreamResult(xhtmlFile);
         Source xmlSource = new DOMSource(clazz.getOwnerDocument());
@@ -226,7 +228,15 @@ public class XHTMLProcessingUtils {
     }
 
     
-    
+    private static void copyClassDoc(Element clazz, Element class_elem) {
+        Element docComment = (Element) clazz.getElementsByTagName("docComment").item(0);
+        if(docComment == null) return;
+        NodeList firstSent = docComment.getElementsByTagName("firstSentenceTags");
+        
+        if(firstSent.getLength() > 0) {
+            class_elem.appendChild(class_elem.getOwnerDocument().importNode(firstSent.item(0),true));
+        }
+    }
     
     
     private static List<Element> sort(NodeList classesNodeList) {

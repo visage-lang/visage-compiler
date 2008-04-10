@@ -96,3 +96,12 @@ h3 {
 	padding-left: 0px;
 	list-style-type: none;
 }
+
+table#classList {
+        border: 1px solid black;
+        
+}
+
+table#classList td {
+        background-color: #dddddd;
+}
