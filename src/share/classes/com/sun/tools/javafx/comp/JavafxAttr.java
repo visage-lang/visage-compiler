@@ -993,12 +993,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         
         JFXOnReplace onReplace = tree.getOnReplace();
         if (onReplace != null) {
-            Type elemType = null;
-
-            if (types.isSequence(tree.type)) {
-                elemType = types.elementType(tree.type);
-            }
-
             JFXVar oldValue = onReplace.getOldValue();
 	    if (oldValue != null && oldValue.type == null) {
                     oldValue.type =  tree.type;

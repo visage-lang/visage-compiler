@@ -55,6 +55,8 @@ import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideAttributeI
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Translate JavaFX ASTs into Java ASTs
@@ -407,46 +409,68 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     /**
      * Fixup up block before translation.
      * For now this is only done for the run methods's block, and all we do is
-     * convert to static variables that are accessed by other methods or classes.
-     * In the future, I also want to:
-     * (a) pre-allocate variables that need morphing ta the top of the block,
-     * so we can do forward references.
-     * (b) If a variable is final and initialized by an object literal,
-     * invoke the Java constructor first, so we can make cyclic data structures. 
+     * convert to static variables that are accessed by other methods, classes,
+     * or attribute initializers (including those being moved out)
      * 
      * @param body The block to mogrify.
      * @param module If non-null, the module class whose body this is.
      */
     public void fixupBlockExpression (JFXBlockExpression body, JFXClassDeclaration module) {
-        boolean changed = false;
-        ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
+        final Map<VarSymbol, JFXVar> toModule = new HashMap<VarSymbol, JFXVar>(); //vars to move to module level
+        final Map<VarSymbol, JFXVar> candidate = new HashMap<VarSymbol, JFXVar>(); //other top-level vars
+        
+        // scanner that moves any top-level var to the module if it is
+        // referenced in the initializer of a var moved to the module
+        final JavafxTreeScanner scanner = new JavafxTreeScanner() {
 
+            @Override
+            public void visitIdent(JCIdent tree) {
+                if (tree.sym instanceof VarSymbol) {
+                    VarSymbol vsym = (VarSymbol) tree.sym;
+                    JFXVar usedVar = candidate.get(vsym);
+                    if (usedVar != null) {
+                        candidate.remove(vsym);
+                        toModule.put(vsym, usedVar);
+                        scan(usedVar.getInitializer());
+                    }
+                }
+            }
+        };
+
+        // top-level variables that have inner references are marked for moving to the module
+        // all others are candidates for movement
         for (JCStatement stat : body.stats) {
             if (stat instanceof JFXVar) {
                 JFXVar decl = (JFXVar) stat;
                 if ((decl.sym.flags_field & JavafxFlags.INNER_ACCESS) != 0) {
-                   decl.sym.flags_field |= STATIC;
-                   changed = true;
-                   JCExpression init = decl.init;
-                   decl.sym.owner = module.type.tsym;
-                   if (init != null) {
-                        Name name = decl.name;
-                        make.at(decl);
-                        JavafxBindStatus bindStatus = decl.getBindStatus();
-                        if (bindStatus != JavafxBindStatus.UNBOUND)
-                            init = make.BindExpression(init, bindStatus);
-                        JCIdent lhs = make.Ident(name);
-                        lhs.sym = decl.sym;
-                        stats.append(make.Exec(make.Assign(lhs, init)));
-                        decl.init = null;
-                    }
-                   module.setMembers(module.getMembers().prepend(decl));
-                   continue;
+                    toModule.put(decl.sym, decl);  // if they have
+                } else {
+                    candidate.put(decl.sym, decl);
                 }
             }
-            stats.append(stat);
         }
-        if (changed) {
+        
+        // look for top-level vars referenced in the initializer of those to be moved
+        for (JFXVar var : toModule.values()) {
+            scanner.scan(var);
+        }
+        
+        if (toModule.size() > 0) {
+            // there are variables to move to the module -- move them
+            ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
+            for (JCStatement stat : body.stats) {
+                JFXVar var;
+                VarSymbol vsym;
+                if (stat instanceof JFXVar && toModule.containsKey(vsym = (var = (JFXVar) stat).sym)) {
+                    // this is a variable marked to be moved to the module -- do so
+                    vsym.flags_field |= STATIC;
+                    vsym.owner = module.type.tsym;
+                    module.setMembers(module.getMembers().prepend(var));
+                } else {
+                    // all other statements remain
+                    stats.append(stat);
+                }
+            }
             body.stats = stats.toList();
         }
     }
