@@ -1,0 +1,5 @@
+jfxc268.fx:9: incompatible types
+found   : function(:Number,:Number):Integer
+required: Integer
+var ab:Integer = function(a:Number, b:Number):Integer { a + b; }
+^
