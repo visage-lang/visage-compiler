@@ -866,9 +866,13 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
                         List.<JCTree>of(makeComputeElementsMethod(clause, inner, tmiInduction)));
                 List<JCExpression> typeArgs = List.nil();
                 boolean useIndex = clause.getIndexUsed();
+                JCExpression transSeq = translate( seq );
+                if (!tmiSeq.isSequence()) {
+                    transSeq = runtime(diagPos, cBoundSequences, "singleton", List.of(makeResultClass(), transSeq));
+                }
                 List<JCExpression> constructorArgs = List.of(
                         makeResultClass(),
-                        translate( seq ),
+                        transSeq,
                         m().Literal(TypeTags.BOOLEAN, useIndex? 1 : 0) );
                 //JCExpression clazz = toJava.makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.BoundComprehension");
                 int typeKind = tmiInduction.getTypeKind();
