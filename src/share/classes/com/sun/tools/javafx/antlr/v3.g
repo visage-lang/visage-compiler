@@ -329,7 +329,7 @@ fragment
 TranslationKeyBody              : (~('[' | ']' | '\\')|'\\' .)+
                                 ;
  
-TIME_LITERAL : (DECIMAL_LITERAL | Digits '.' (Digits)? (Exponent)? ) ( 'ms' | 'm' | 's' | 'h' ) ;
+TIME_LITERAL : (DECIMAL_LITERAL | Digits '.' (Digits)? (Exponent)? | '.' Digits (Exponent)?) ( 'ms' | 'm' | 's' | 'h' ) ;
 
 DECIMAL_LITERAL : ('0' | '1'..'9' '0'..'9'*) ;
 
