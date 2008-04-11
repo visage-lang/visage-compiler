@@ -68,7 +68,7 @@ public class JFXBlockExpression extends JFXExpression implements BlockExpression
         if (v instanceof JavafxVisitor)
             this.accept((JavafxVisitor)v);
         else if (v instanceof Pretty)
-            BlockExprPretty.visitBlockExpression((Pretty) v, this);
+            JavaPretty.visitBlockExpression((Pretty) v, this);
         else if (v instanceof BlockExprAttr)
             ((BlockExprAttr) v).visitBlockExpression(this);
         else if (v instanceof BlockExprEnter)

@@ -27,7 +27,14 @@ package com.sun.tools.javafx.tree;
 
 import java.io.*;
 import com.sun.tools.javac.tree.Pretty;
-import static com.sun.tools.javac.code.Flags.*;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCImport;
+import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
+import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javafx.comp.JavafxDefs;
+import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.Name;
+import java.util.HashSet;
 
 /** Prints out a tree as an indented Java source program.
  *
@@ -38,10 +45,18 @@ import static com.sun.tools.javac.code.Flags.*;
  *
  * @author Robert Field
  */
-public class BlockExprPretty extends Pretty {
-
-    public BlockExprPretty(Writer out, boolean sourceOutput) {
+public class JavaPretty extends Pretty {
+	private HashSet<Name> importedPackages = new HashSet<Name>();
+	private HashSet<Name> importedClasses = new HashSet<Name>();
+	
+    public JavaPretty(Writer out, boolean sourceOutput, Context context) {
         super(out, sourceOutput);
+
+		JavafxDefs defs = JavafxDefs.instance(context);
+		importedPackages.add(defs.runtimePackageName);
+		importedPackages.add(defs.locationPackageName);
+		importedPackages.add(defs.sequencePackageName);
+		importedPackages.add(defs.functionsPackageName);
     }
 
     public void visitBlockExpression(JFXBlockExpression tree) {
@@ -67,4 +82,32 @@ public class BlockExprPretty extends Pretty {
             throw new UncheckedIOException(e);
         }
     }
+	
+	@Override
+    public void visitImport(JCImport tree) {
+		super.visitImport(tree);
+
+		// save imports for later use
+		Name name = TreeInfo.name(tree.qualid);
+		if (name == name.table.asterisk)
+			if (tree.qualid.getTag() == JCTree.SELECT)
+				importedPackages.add(TreeInfo.fullName(((JCFieldAccess) tree.qualid).selected));
+			else;
+		else
+			importedClasses.add(TreeInfo.fullName(tree.qualid));
+    }
+
+	@Override
+    public void visitSelect(JCFieldAccess tree) {
+        try {
+			if (!importedPackages.contains(TreeInfo.fullName(tree.selected)) 
+					&& !importedClasses.contains(TreeInfo.fullName(tree))) {
+				printExpr(tree.selected, TreeInfo.postfixPrec);
+				print(".");
+			}
+            print(tree.name);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }	
 }

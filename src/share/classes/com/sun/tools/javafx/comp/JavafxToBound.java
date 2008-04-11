@@ -91,11 +91,11 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     /*
      * static information
      */
-    private static final String cBoundSequences = sequencePackageName + "BoundSequences";
-    private static final String cBoundOperators = locationPackageName + "BoundOperators";
-    private static final String cLocations = locationPackageName + "Locations";
-    private static final String cFunction0 = functionsPackageName + "Function0";
-    private static final String cFunction1 = functionsPackageName + "Function1";
+    private static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
+    private static final String cBoundOperators = locationPackageNameString + ".BoundOperators";
+    private static final String cLocations = locationPackageNameString + ".Locations";
+    private static final String cFunction0 = functionsPackageNameString + ".Function0";
+    private static final String cFunction1 = functionsPackageNameString + ".Function1";
 
     public static JavafxToBound instance(Context context) {
         JavafxToBound instance = context.get(jfxToBoundKey);

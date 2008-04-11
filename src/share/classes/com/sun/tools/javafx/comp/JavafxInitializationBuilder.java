@@ -109,9 +109,9 @@ public class JavafxInitializationBuilder {
         changeListenerInterfaceName = new Name[JavafxVarSymbol.TYPE_KIND_COUNT];
         for (int i=0; i< JavafxVarSymbol.TYPE_KIND_COUNT; i++)
             changeListenerInterfaceName[i]
-                    = names.fromString(locationPackageName + JavafxVarSymbol.getTypePrefix(i) + "ChangeListener");
+                    = names.fromString(locationPackageNameString + "." + JavafxVarSymbol.getTypePrefix(i) + "ChangeListener");
  //       sequenceReplaceListenerInterfaceName = names.fromString(locationPackageName + "SequenceReplaceListener");
-        sequenceChangeListenerInterfaceName = names.fromString(locationPackageName + "SequenceChangeListener");
+        sequenceChangeListenerInterfaceName = names.fromString(locationPackageNameString + ".SequenceChangeListener");
         addTriggersName = names.fromString("addTriggers$");
         userInitName = names.fromString("userInit$");
         postInitName = names.fromString("postInit$");
@@ -126,7 +126,7 @@ public class JavafxInitializationBuilder {
             initHelperType = sym.type;
         }
         {
-            Name name = Name.fromString(names, locationPackageName + "AbstractVariable");
+            Name name = Name.fromString(names, locationPackageNameString + ".AbstractVariable");
             ClassSymbol sym = reader.enterClass(name);
             abstractVariableType = types.erasure( sym.type );
         }

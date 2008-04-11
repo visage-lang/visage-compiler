@@ -68,9 +68,10 @@ public class JavafxDefs {
     public static final String invokeNameString = "invoke";
     public static final String lambdaNameString = "lambda";
     
-    public static final String locationPackageName = "com.sun.javafx.runtime.location.";
-    public static final String sequencePackageName = "com.sun.javafx.runtime.sequence.";
-    public static final String functionsPackageName = "com.sun.javafx.functions.";
+    public static final String runtimePackageNameString = "com.sun.javafx.runtime";
+    public static final String locationPackageNameString = "com.sun.javafx.runtime.location";
+    public static final String sequencePackageNameString = "com.sun.javafx.runtime.sequence";
+    public static final String functionsPackageNameString = "com.sun.javafx.functions";
 
     static final String[] milieuNames = { "", "FromLiteral" };
     public static String getMilieuName(int index) { return milieuNames[index]; }
@@ -118,6 +119,10 @@ public class JavafxDefs {
     final Name[] locationBindMilieuMethodName;
     final Name[] locationBijectiveBindMilieuMethodName;
     
+	public final Name runtimePackageName;
+	public final Name locationPackageName;
+	public final Name sequencePackageName;
+	public final Name functionsPackageName;
     public final Name[] locationVariableName;
     public final Name[] locationInterfaceName;
     
@@ -176,6 +181,10 @@ public class JavafxDefs {
         targetName = names.fromString("target");
         valueName = names.fromString("value");
         interpolateName = names.fromString("interpolate");
+		runtimePackageName = names.fromString(runtimePackageNameString);
+		locationPackageName = names.fromString(locationPackageNameString);
+		sequencePackageName = names.fromString(sequencePackageNameString);
+		functionsPackageName = names.fromString(functionsPackageNameString);
         locationGetMethodName = new Name[TYPE_KIND_COUNT];
         locationSetMethodName = new Name[TYPE_KIND_COUNT];
         locationSetMilieuMethodName = new Name[TYPE_KIND_COUNT][MILIEU_COUNT];
@@ -188,7 +197,7 @@ public class JavafxDefs {
             locationGetMethodName[kind] = names.fromString("get" + JavafxVarSymbol.getAccessorSuffix(kind));
             locationSetMethodName[kind] = locationSetMilieuMethodName[kind][VANILLA_MILIEU];
             
-            String typePrefix = locationPackageName + JavafxVarSymbol.getTypePrefix(kind);
+            String typePrefix = locationPackageNameString + "." + JavafxVarSymbol.getTypePrefix(kind);
             locationVariableName[kind] = names.fromString(typePrefix + "Variable");
             locationInterfaceName[kind] = names.fromString(typePrefix + "Location");
         }

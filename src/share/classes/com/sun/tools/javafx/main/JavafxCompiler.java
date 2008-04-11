@@ -538,7 +538,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 FileWriter fw = new FileWriter(outFile);
                 BufferedWriter out = new BufferedWriter(fw);
                 try {
-                    new BlockExprPretty(out, true).printUnit(env.toplevel, null);
+                    new JavaPretty(out, true, context).printUnit(env.toplevel, null);
                 } finally {
                     out.close();
                 }

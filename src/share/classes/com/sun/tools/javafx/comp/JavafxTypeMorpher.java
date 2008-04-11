@@ -51,8 +51,8 @@ import com.sun.tools.javafx.code.JavafxClassSymbol;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.attributeGetMethodNamePrefix;
 import static com.sun.tools.javafx.comp.JavafxDefs.interfaceSuffix;
-import static com.sun.tools.javafx.comp.JavafxDefs.locationPackageName;
-import static com.sun.tools.javafx.comp.JavafxDefs.sequencePackageName;
+import static com.sun.tools.javafx.comp.JavafxDefs.locationPackageNameString;
+import static com.sun.tools.javafx.comp.JavafxDefs.sequencePackageNameString;
 import com.sun.tools.javafx.comp.JavafxToJava.Wrapped;
 import com.sun.tools.javafx.tree.*;
 
@@ -92,10 +92,10 @@ public class JavafxTypeMorpher {
             type = sym.type;
         }
         private LocationNameSymType(String which) {
-            this(locationPackageName, which);
+            this(locationPackageNameString, which);
         }
         private LocationNameSymType(String pkg, String which) {
-            this(Name.fromString(names, pkg + which));
+            this(Name.fromString(names, pkg + "." + which));
         }
     }
 
@@ -277,7 +277,7 @@ public class JavafxTypeMorpher {
             variableNCT[kind] = new LocationNameSymType(defs.locationVariableName[kind]);
             locationNCT[kind] = new LocationNameSymType(defs.locationInterfaceName[kind]);
             bindingNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "BindingExpression");
-            boundComprehensionNCT[kind] = new LocationNameSymType(sequencePackageName, JavafxVarSymbol.getTypePrefix(kind) + "BoundComprehension");
+            boundComprehensionNCT[kind] = new LocationNameSymType(sequencePackageNameString, JavafxVarSymbol.getTypePrefix(kind) + "BoundComprehension");
             constantLocationNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Constant");
         }
 
