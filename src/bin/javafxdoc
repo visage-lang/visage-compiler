@@ -47,6 +47,9 @@ if [ ! -x "$JAVA_CMD" ] ; then
   exit 1
 fi
 
+# Jars with classes already defined in the JDK's tools.jar file need to be put
+# on the bootclasspath, along with any classes they reference, due to those
+# classes being on the bootclasspath with Mac OS X Java distributions.
 bootclasspath=$HOME/javafxc.jar:$HOME/javafxdoc.jar
 
 noopts=false;
