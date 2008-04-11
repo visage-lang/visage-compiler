@@ -309,14 +309,14 @@ public class Timeline {
             while (cycleIndex > cycle) {
                 // we're on a new cycle; visit any key frames that we may
                 // have missed along the way
-                visitCycle(cycleIndex);
+                visitCycle(cycleIndex, cycleIndex > cycle+1);
                 cycleIndex--;
             }
         } else {
             while (cycleIndex < cycle) {
                 // we're on a new cycle; visit any key frames that we may
                 // have missed along the way
-                visitCycle(cycleIndex);
+                visitCycle(cycleIndex, cycleIndex < cycle-1);
                 cycleIndex++;
             }
         }
@@ -375,7 +375,7 @@ public class Timeline {
         }
     }
 
-    private function visitCycle(cycle:Integer) {
+    private function visitCycle(cycle:Integer, catchingUp:Boolean) {
         var cycleBackward = false;
         if (autoReverse) {
             if (cycle % 2 == 1) {
@@ -386,7 +386,7 @@ public class Timeline {
             cycleBackward = not cycleBackward;
         }
         var cycleT = if (cycleBackward) 0 else duration;
-        visitFrames(cycleT, cycleBackward, true);
+        visitFrames(cycleT, cycleBackward, catchingUp);
         // avoid repeated visits to terminals in autoReverse case
         frameIndex = if (autoReverse) 1 else 0;
     }
