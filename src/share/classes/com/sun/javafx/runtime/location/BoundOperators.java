@@ -99,10 +99,7 @@ public class BoundOperators extends GeneratedBoundOperators {
                                           final Function0<IntLocation> elseBranch) {
         return new IndirectIntExpression(lazy, conditional) {
             protected IntLocation computeLocation() {
-                clearDynamicDependencies();
-                IntLocation result = (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
-                addDynamicDependency(result);
-                return result;
+                return (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
             }
         };
     }
@@ -113,10 +110,7 @@ public class BoundOperators extends GeneratedBoundOperators {
                                              final Function0<DoubleLocation> elseBranch) {
         return new IndirectDoubleExpression(lazy, conditional) {
             protected DoubleLocation computeLocation() {
-                clearDynamicDependencies();
-                DoubleLocation result = (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
-                addDynamicDependency(result);
-                return result;
+                return (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
             }
         };
     }
@@ -127,10 +121,7 @@ public class BoundOperators extends GeneratedBoundOperators {
                                               final Function0<BooleanLocation> elseBranch) {
         return new IndirectBooleanExpression(lazy, conditional) {
             protected BooleanLocation computeLocation() {
-                clearDynamicDependencies();
-                BooleanLocation result = (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
-                addDynamicDependency(result);
-                return result;
+                return (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
             }
         };
     }
@@ -141,10 +132,7 @@ public class BoundOperators extends GeneratedBoundOperators {
                                                    final Function0<ObjectLocation<T>> elseBranch) {
         return new IndirectObjectExpression<T>(lazy, conditional) {
             protected ObjectLocation<T> computeLocation() {
-                clearDynamicDependencies();
-                ObjectLocation<T> result = (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
-                addDynamicDependency(result);
-                return result;
+                return (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
             }
         };
     }
@@ -156,10 +144,7 @@ public class BoundOperators extends GeneratedBoundOperators {
                                                      final Function0<SequenceLocation<T>> elseBranch) {
         return new IndirectSequenceExpression<T>(clazz, lazy, conditional) {
             protected SequenceLocation<T> computeLocation() {
-                clearDynamicDependencies();
-                SequenceLocation<T> result = (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
-                addDynamicDependency(result);
-                return result;
+                return (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
             }
         };
     }
@@ -170,15 +155,8 @@ public class BoundOperators extends GeneratedBoundOperators {
                                                  final Function1<IntLocation, T> selector) {
         return new IndirectIntExpression(lazy, receiver) {
             protected IntLocation computeLocation() {
-                clearDynamicDependencies();
                 T selectorValue = receiver.get();
-                if (selectorValue == null) {
-                    return IntConstant.make(DEFAULT);
-                } else {
-                    IntLocation result = selector.invoke(selectorValue);
-                    addDynamicDependency(result);
-                    return result;
-                }
+                return selectorValue == null ? IntConstant.make(DEFAULT) : selector.invoke(selectorValue);
             }
 
             public int setAsInt(int value) {
@@ -201,15 +179,8 @@ public class BoundOperators extends GeneratedBoundOperators {
                                                     final Function1<DoubleLocation, T> selector) {
         return new IndirectDoubleExpression(lazy, receiver) {
             protected DoubleLocation computeLocation() {
-                clearDynamicDependencies();
                 T selectorValue = receiver.get();
-                if (selectorValue == null) {
-                    return DoubleConstant.make(DEFAULT);
-                } else {
-                    DoubleLocation result = selector.invoke(selectorValue);
-                    addDynamicDependency(result);
-                    return result;
-                }
+                return selectorValue == null ? DoubleConstant.make(DEFAULT) : selector.invoke(selectorValue);
             }
 
             public double setAsDouble(double value) {
@@ -232,15 +203,8 @@ public class BoundOperators extends GeneratedBoundOperators {
                                                      final Function1<BooleanLocation, T> selector) {
         return new IndirectBooleanExpression(lazy, receiver) {
             protected BooleanLocation computeLocation() {
-                clearDynamicDependencies();
                 T selectorValue = receiver.get();
-                if (selectorValue == null) {
-                    return BooleanConstant.make(DEFAULT);
-                } else {
-                    BooleanLocation result = selector.invoke(selectorValue);
-                    addDynamicDependency(result);
-                    return result;
-                }
+                return selectorValue == null ? BooleanConstant.make(DEFAULT) : selector.invoke(selectorValue);
             }
 
             public boolean setAsBoolean(boolean value) {
@@ -265,15 +229,8 @@ public class BoundOperators extends GeneratedBoundOperators {
         return new IndirectObjectExpression<U>(lazy, receiver) {
 
             protected ObjectLocation<U> computeLocation() {
-                clearDynamicDependencies();
                 T selectorValue = receiver.get();
-                if (selectorValue == null) {
-                    return ObjectConstant.make(Util.<U>defaultValue(clazz));
-                } else {
-                    ObjectLocation<U> result = selector.invoke(selectorValue);
-                    addDynamicDependency(result);
-                    return result;
-                }
+                return selectorValue == null ? ObjectConstant.make(Util.<U>defaultValue(clazz)) : selector.invoke(selectorValue);
             }
 
             public void setDefault() {
@@ -299,15 +256,8 @@ public class BoundOperators extends GeneratedBoundOperators {
             // sequence location, and propagate sequence triggers to outer Location wrapper
 
             protected SequenceLocation<U> computeLocation() {
-                clearDynamicDependencies();
                 T selectorValue = receiver.get();
-                if (selectorValue == null) {
-                    return defaultValue;
-                } else {
-                    SequenceLocation<U> result = selector.invoke(selectorValue);
-                    addDynamicDependency(result);
-                    return result;
-                }
+                return selectorValue == null ? defaultValue : selector.invoke(selectorValue);
             }
 
             public void setDefault() {

@@ -76,9 +76,10 @@ public class DoubleVariable
     protected double replaceValue(double newValue) {
         double oldValue = $value;
         if (oldValue != newValue || !isInitialized() || !isEverValid()) {
+            boolean notifyDependencies = isValid() || !isInitialized() || !isEverValid();
             $value = newValue;
             setValid();
-            notifyListeners(oldValue, newValue);
+            notifyListeners(oldValue, newValue, notifyDependencies);
         }
         else
             setValid();
@@ -117,11 +118,8 @@ public class DoubleVariable
             ErrorHandler.nullToPrimitiveCoercion("Double");
             setDefault();
         }
-        else {
-            if (isBound())
-                throw new AssignToBoundException("Cannot assign to bound variable");
-            replaceValue(value);
-        }
+        else
+            setAsDouble(value);
         return value;
     }
 
@@ -152,8 +150,9 @@ public class DoubleVariable
         });
     }
 
-    protected void notifyListeners(final double oldValue, final double newValue) {
-        valueChanged();
+    private void notifyListeners(double oldValue, double newValue, boolean notifyDependencies) {
+        if (notifyDependencies)
+            invalidateDependencies();
         if (replaceListeners != null) {
             for (DoubleChangeListener listener : replaceListeners)
                 listener.onChange(oldValue, newValue);

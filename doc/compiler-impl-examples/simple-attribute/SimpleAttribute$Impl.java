@@ -3,7 +3,6 @@ import com.sun.javafx.runtime.InitHelper;
 import com.sun.javafx.runtime.location.AbstractVariable;
 import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.location.IntVariable;
-import com.sun.javafx.runtime.location.Location;
 
 /**
  * SimpleAttribute
@@ -25,7 +24,7 @@ public class SimpleAttribute$Impl implements SimpleAttribute$Intf {
     protected static void addTriggers$(final SimpleAttribute$Intf receiver) {
         // Call superclass addTriggers$()
         receiver.get$a().addChangeListener(new ChangeListener() {
-            public boolean onChange(Location location) {
+            public boolean onChange() {
                 System.out.println("a is now " + receiver.get$a().getAsInt());
                 return true;
             }

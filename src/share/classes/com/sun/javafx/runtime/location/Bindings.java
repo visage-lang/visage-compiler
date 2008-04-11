@@ -123,7 +123,7 @@ public class Bindings {
             a.set(mapper.mapBackwards(b.get()));
 
             a.addChangeListener(new BijectiveChangeListener() {
-                public boolean onChange(Location location) {
+                public boolean onChange() {
                     ObjectLocation<T> a = aRef.get();
                     ObjectLocation<U> b = bRef.get();
                     if (a == null || b == null)
@@ -143,7 +143,7 @@ public class Bindings {
                 }
             });
             b.addChangeListener(new BijectiveChangeListener() {
-                public boolean onChange(Location location) {
+                public boolean onChange() {
                     ObjectLocation<T> a = aRef.get();
                     ObjectLocation<U> b = bRef.get();
                     if (a == null || b == null)

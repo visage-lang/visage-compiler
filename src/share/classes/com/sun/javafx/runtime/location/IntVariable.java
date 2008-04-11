@@ -71,9 +71,10 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
     protected int replaceValue(int newValue) {
         int oldValue = $value;
         if (oldValue != newValue || !isInitialized() || !isEverValid()) {
+            boolean notifyDependencies = isValid() || !isInitialized() || !isEverValid();
             $value = newValue;
             setValid();
-            notifyListeners(oldValue, newValue);
+            notifyListeners(oldValue, newValue, notifyDependencies);
         }
         else
             setValid();
@@ -112,11 +113,8 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
             ErrorHandler.nullToPrimitiveCoercion("Integer");
             setDefault();
         }
-        else {
-            if (isBound())
-                throw new AssignToBoundException("Cannot assign to bound variable");
-            replaceValue(value);
-        }
+        else
+            setAsInt(value);
         return value;
     }
 
@@ -147,12 +145,12 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
         });
     }
 
-    protected void notifyListeners(final int oldValue, final int newValue) {
-        valueChanged();
+    private void notifyListeners(int oldValue, int newValue, boolean notifyDependencies) {
+        if (notifyDependencies)
+            invalidateDependencies();
         if (replaceListeners != null) {
             for (IntChangeListener listener : replaceListeners)
                 listener.onChange(oldValue, newValue);
         }
     }
-
 }

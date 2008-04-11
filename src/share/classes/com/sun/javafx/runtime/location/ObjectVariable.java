@@ -73,9 +73,10 @@ public class ObjectVariable<T>
     protected T replaceValue(T newValue) {
         T oldValue = $value;
         if (!Util.isEqual(oldValue, newValue) || !isInitialized() || !isEverValid()) {
+            boolean notifyDependencies = isValid() || !isInitialized() || !isEverValid();
             $value = newValue;
             setValid();
-            notifyListeners(oldValue, newValue);
+            notifyListeners(oldValue, newValue, notifyDependencies);
         }
         else
             setValid();
@@ -115,13 +116,12 @@ public class ObjectVariable<T>
         replaceListeners.add(listener);
     }
 
-    @SuppressWarnings("unchecked")
-    protected void notifyListeners(final T oldValue, final T newValue) {
-        valueChanged();
+    private void notifyListeners(T oldValue, T newValue, boolean notifyDependencies) {
+        if (notifyDependencies)
+            invalidateDependencies();
         if (replaceListeners != null) {
             for (ObjectChangeListener<T> listener : replaceListeners)
                 listener.onChange(oldValue, newValue);
         }
     }
-
 }

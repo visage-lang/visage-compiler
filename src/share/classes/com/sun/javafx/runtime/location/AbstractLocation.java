@@ -69,7 +69,7 @@ public abstract class AbstractLocation implements Location {
 
     public void invalidate() {
         isValid = false;
-        invalidateDependencies();
+        doInvalidateDependencies();
     }
 
     /**
@@ -77,9 +77,8 @@ public abstract class AbstractLocation implements Location {
      * and is also used at object initialization time to defer notification of changes until the values provided
      * in the object literal are all set.
      */
-    protected void valueChanged() {
-        notifyChangeListeners();
-        invalidateDependencies();
+    protected void invalidateDependencies() {
+        doInvalidateDependencies();
     }
 
     private void purgeDeadDependencies() {
@@ -94,16 +93,13 @@ public abstract class AbstractLocation implements Location {
         }
     }
 
-    private void invalidateDependencies() {
+    private void doInvalidateDependencies() {
+        notifyChangeListeners();
         if (dependentLocations != null) {
             //System.out.println("invalidate: "+ Thread.currentThread() + " " +dependentLocations.size());
             try {
                 ++iterationDepth;
-                // @@@ Hack: using temporary copy to work around CME
-                List<WeakReference<Location>> copy = new ArrayList<WeakReference<Location>>(dependentLocations);
-                for (WeakReference<Location> aCopy : copy) {
-                    WeakReference<Location> locationRef;
-                    locationRef = aCopy;
+                for (WeakReference<Location> locationRef : dependentLocations) {
                     Location loc = locationRef.get();
                     if (loc == null)
                         mustRemoveDependencies = true;
@@ -134,28 +130,30 @@ public abstract class AbstractLocation implements Location {
         }
     }
 
+    // Change listeners are really invalidation listeners; triggers are managed by the higher-level XxxVariable classes.
+    // Ideally we should merge change listeners and dependencies so there's only way of expressing an invalidation dependency.
     private void notifyChangeListeners() {
         if (listeners != null) {
             for (Iterator<ChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
                 ChangeListener listener = iterator.next();
-                if (!listener.onChange(this))
+                if (!listener.onChange())
                     iterator.remove();
             }
         }
     }
 
-    public void addDependentLocation(WeakReference<Location> location) {
+    public void addDependentLocation(WeakReference<Location> locationRef) {
         if (dependentLocations == null)
             dependentLocations = new ArrayList<WeakReference<Location>>();
         if (iterationDepth > 0) {
             if (deferredDependencies == null)
                 deferredDependencies = new ArrayList<WeakReference<Location>>();
-            deferredDependencies.add(location);
+            deferredDependencies.add(locationRef);
         }
         else {
             // @@@ Hack: overly-aggressive purge
             purgeDeadDependencies();
-            dependentLocations.add(location);
+            dependentLocations.add(locationRef);
         }
     }
 
@@ -226,9 +224,9 @@ class WeakListener extends WeakReference<ChangeListener> implements ChangeListen
         super(referent);
     }
 
-    public boolean onChange(Location location) {
+    public boolean onChange() {
         ChangeListener listener = get();
-        return listener == null ? false : listener.onChange(location);
+        return listener == null ? false : listener.onChange();
     }
 }
 

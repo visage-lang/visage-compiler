@@ -59,9 +59,10 @@ public class BooleanVariable
     protected boolean replaceValue(boolean newValue) {
         boolean oldValue = $value;
         if (oldValue != newValue || !isInitialized() || !isEverValid()) {
+            boolean notifyDependencies = isValid() || !isInitialized() || !isEverValid();
             $value = newValue;
             setValid();
-            notifyListeners(oldValue, newValue);
+            notifyListeners(oldValue, newValue, notifyDependencies);
         }
         else
             setValid();
@@ -146,8 +147,9 @@ public class BooleanVariable
         });
     }
 
-    protected void notifyListeners(final boolean oldValue, final boolean newValue) {
-        valueChanged();
+    private void notifyListeners(boolean oldValue, boolean newValue, boolean notifyDependencies) {
+        if (notifyDependencies)
+            invalidateDependencies();
         if (replaceListeners != null) {
             for (BooleanChangeListener listener : replaceListeners)
                 listener.onChange(oldValue, newValue);

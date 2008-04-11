@@ -68,6 +68,7 @@ public class JavafxDefs {
     public static final String invokeNameString = "invoke";
     public static final String lambdaNameString = "lambda";
     
+    public static final String javaLangPackageNameString = "java.lang";
     public static final String runtimePackageNameString = "com.sun.javafx.runtime";
     public static final String locationPackageNameString = "com.sun.javafx.runtime.location";
     public static final String sequencePackageNameString = "com.sun.javafx.runtime.sequence";
@@ -123,6 +124,7 @@ public class JavafxDefs {
 	public final Name locationPackageName;
 	public final Name sequencePackageName;
 	public final Name functionsPackageName;
+	public final Name javaLangPackageName;
     public final Name[] locationVariableName;
     public final Name[] locationInterfaceName;
     
@@ -182,6 +184,7 @@ public class JavafxDefs {
         valueName = names.fromString("value");
         interpolateName = names.fromString("interpolate");
 		runtimePackageName = names.fromString(runtimePackageNameString);
+		javaLangPackageName = names.fromString(javaLangPackageNameString);
 		locationPackageName = names.fromString(locationPackageNameString);
 		sequencePackageName = names.fromString(sequencePackageNameString);
 		functionsPackageName = names.fromString(functionsPackageNameString);

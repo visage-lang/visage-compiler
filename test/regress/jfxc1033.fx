@@ -2,7 +2,7 @@
  * Regression test JFXC-910 : Binding Overhaul: bound object literals
  *
  * @test
- * @run/fail
+ * @run
  */
 
 import java.lang.System; 

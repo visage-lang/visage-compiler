@@ -106,10 +106,10 @@ public class SequenceVariable<T>
         assert(boundLocation == null);
         Sequence<T> oldValue = value;
         if (!Sequences.isEqual(oldValue, newValue) || !isInitialized() || !isEverValid()) {
+            boolean notifyDependencies = isValid() || !isInitialized() || !isEverValid();
             value = newValue;
             setValid();
-            valueChanged();
-            notifyListeners(startPos, endPos, newElements, oldValue, newValue);
+            notifyListeners(startPos, endPos, newElements, oldValue, newValue, notifyDependencies);
         }
         else
             setValid();
@@ -168,9 +168,12 @@ public class SequenceVariable<T>
             changeListeners.remove(listener);
     }
 
-    private void notifyListeners(final int startPos, final int endPos,
-                                 final Sequence<? extends T> newElements,
-                                 final Sequence<T> oldValue, final Sequence<T> newValue) {
+    private void notifyListeners(int startPos, int endPos,
+                                 Sequence<? extends T> newElements,
+                                 Sequence<T> oldValue, Sequence<T> newValue,
+                                 boolean notifyDependencies) {
+        if (notifyDependencies)
+            invalidateDependencies();
         if (changeListeners != null) {
             for (SequenceChangeListener<T> listener : changeListeners)
                 listener.onChange(startPos, endPos, newElements, oldValue, newValue);
@@ -183,18 +186,19 @@ public class SequenceVariable<T>
         Sequence<T> oldValue = value;
         value = otherLocation.get();
         otherLocation.addChangeListener(new ChangeListener() {
-            public boolean onChange(Location location) {
-                valueChanged();
+            public boolean onChange() {
+                invalidateDependencies();
                 return true;
             }
         });
         otherLocation.addChangeListener(new SequenceChangeListener<T>() {
             public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 value = newValue;
-                notifyListeners(startPos, endPos, newElements, oldValue, newValue);
+                // @@@ Right value of notifyDependencies?
+                notifyListeners(startPos, endPos, newElements, oldValue, newValue, false);
             }
         });
-        notifyListeners(0, Sequences.size(oldValue)-1, value, oldValue, value);
+        notifyListeners(0, Sequences.size(oldValue)-1, value, oldValue, value, true);
     }
 
     public boolean isBound() {

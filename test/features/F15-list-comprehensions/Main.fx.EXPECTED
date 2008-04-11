@@ -21,16 +21,12 @@ body 2->c
 ys: <a> <b> <c>
 body 1->w
 body 1->w
-body 1->w
-body 1->w
 ys: <a> <w> <c>
 body ->3
 body ->4
 body ->5
 body ->6
 yis: <3> <4> <5> <6>
-body ->9
-body ->9
 body ->9
 body ->9
 yis: <3> <4> <9> <6>

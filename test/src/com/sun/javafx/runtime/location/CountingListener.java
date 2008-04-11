@@ -32,7 +32,7 @@ package com.sun.javafx.runtime.location;
 class CountingListener implements ChangeListener {
     public int count;
 
-    public boolean onChange(Location location) {
+    public boolean onChange() {
         ++count;
         return true;
     }

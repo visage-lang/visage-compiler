@@ -65,7 +65,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
             setValid();
             value = newValue;
             if (!Sequences.isEqual(oldValue, newValue)) {
-                valueChanged();
+                invalidateDependencies();
                 notifyListeners(0, Sequences.size(oldValue)-1, newValue, oldValue, newValue);
             }
         }
@@ -74,14 +74,14 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
     protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
         Sequence<T> oldValue = value;
         value = oldValue.replaceSlice(startPos, endPos, newValues);
-        valueChanged();
+        invalidateDependencies();
         notifyListeners(startPos, endPos, newValues, oldValue, value);
     }
 
     protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues, Sequence<T> newSequence) {
         Sequence<T> oldValue = value;
         value = newSequence;
-        valueChanged();
+        invalidateDependencies();
         notifyListeners(startPos, endPos, newValues, oldValue, newSequence);
     }
 

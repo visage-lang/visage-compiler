@@ -272,4 +272,22 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         assertEquals(0, yCounter.count);
         assertEquals(2, zCounter.count);
     }
+
+    public void testBindBeforeAssign() {
+        IntVariable a = IntVariable.make();
+        final IntVariable b = IntVariable.make();
+
+        a.bind(false, new IntBindingExpression() {
+            protected Location[] getStaticDependents() {
+                return new Location[] { b };
+            }
+
+            public int computeValue() {
+                return b.getAsInt();
+            }
+        });
+        b.setAsInt(3);
+
+        assertEquals(3, a.getAsInt());
+    }
 }

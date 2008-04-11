@@ -25,16 +25,18 @@
 
 package com.sun.tools.javafx.tree;
 
-import java.io.*;
-import com.sun.tools.javac.tree.Pretty;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.HashSet;
+
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCImport;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
+import com.sun.tools.javac.tree.JCTree.JCImport;
+import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.TreeInfo;
-import com.sun.tools.javafx.comp.JavafxDefs;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
-import java.util.HashSet;
+import com.sun.tools.javafx.comp.JavafxDefs;
 
 /** Prints out a tree as an indented Java source program.
  *
@@ -57,6 +59,7 @@ public class JavaPretty extends Pretty {
 		importedPackages.add(defs.locationPackageName);
 		importedPackages.add(defs.sequencePackageName);
 		importedPackages.add(defs.functionsPackageName);
+                importedPackages.add(defs.javaLangPackageName);
     }
 
     public void visitBlockExpression(JFXBlockExpression tree) {
