@@ -1397,7 +1397,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                 // TODO: Remove entry in findbugs-exclude.xml if permeateBind is implemented -- it is, so it should be
                 JCExpression expr = toBound.translate(bexpr, typeMorpher.varMorphInfo(tree.sym));
                 body = asBlock(make.at(diagPos).Return(expr));
-            } else if (isRunMethod(tree.sym)) {
+            } else if (syms.isRunMethod(tree.sym)) {
                 // it is a module level run method, do special translation
                 body = runMethodBody(bexpr);
                 isImplMethod = false;
@@ -3369,10 +3369,6 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
     
     JCExpression makeIdentifier(String s) {
         return ((JavafxTreeMaker)make).Identifier(s);
-    }
-    
-    private boolean isRunMethod(MethodSymbol sym) {
-        return sym.name == defs.runMethodName;
     }
     
     protected void prettyPrint(JCTree node) {

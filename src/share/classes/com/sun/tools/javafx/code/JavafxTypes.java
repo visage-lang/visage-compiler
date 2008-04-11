@@ -424,4 +424,10 @@ public class JavafxTypes extends Types {
             }
         }
     }
+
+    public String location (Symbol sym, Type site) {
+        if (syms.isRunMethod(sym.owner))
+            sym = sym.owner;
+        return sym.location(site, this);
+    }
 }

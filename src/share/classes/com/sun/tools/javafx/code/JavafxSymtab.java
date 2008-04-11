@@ -28,12 +28,14 @@ package com.sun.tools.javafx.code;
 import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Types;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.code.Type.*;
 import static com.sun.tools.javac.jvm.ByteCodes.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.TypeTags;
+import com.sun.tools.javafx.comp.JavafxDefs;
 
 /**
  *
@@ -69,6 +71,8 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_protectedAnnotationType;
     public final Type javafx_publicAnnotationType;
     public final Type javafx_staticAnnotationType;
+    
+    public final Name runMethodName;
     
     /** The type of expressions that never returns a value to its parent.
      * E.g. an expression that always throws an Exception.
@@ -126,6 +130,8 @@ public class JavafxSymtab extends Symtab {
             javafx_FunctionTypes[i] = enterClass(functionClassPrefix+i);
         }
         
+        runMethodName = names.fromString(JavafxDefs.runMethodString);
+        
         javafx_FXObjectType = enterClass("com.sun.javafx.runtime.FXObject");
         enterOperators();
     }
@@ -155,6 +161,10 @@ public class JavafxSymtab extends Symtab {
         enterUnop("bind", intType, intType, 0);
         enterUnop("bind", booleanType, booleanType, 0);
         enterUnop("bind", objectType, objectType, 0);
+    }
+
+    public boolean isRunMethod(Symbol sym) {
+        return sym.name == runMethodName;
     }
 
     public Type boxIfNeeded(Type elemType) {

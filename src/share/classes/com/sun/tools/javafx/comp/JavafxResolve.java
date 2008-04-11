@@ -1850,13 +1850,17 @@ public class JavafxResolve {
                 }
                 if (kind == WRONG_MTH) {
                     Symbol wrongSymMem = wrongSym.asMemberOf(site, types);
-                    String wrongSymStr =
-                            types.toJavaFXString((MethodSymbol) wrongSymMem,
-                            ((MethodSymbol) wrongSym).params);
+                    String wrongSymStr;
+                    if (wrongSymMem instanceof MethodSymbol)
+                        wrongSymStr =
+                                types.toJavaFXString((MethodSymbol) wrongSymMem,
+                                    ((MethodSymbol) wrongSym).params);
+                    else
+                        wrongSymStr = wrongSymMem.toString();
                     log.error(pos,
                               "cant.apply.symbol" + (explanation != null ? ".1" : ""),
                               wrongSymStr,
-                              wrongSym.location(site, types),
+                              types.location(wrongSym, site),
                               typeargs,
                               types.toJavaFXString(argtypes),
                               explanation);
@@ -2007,10 +2011,10 @@ public class JavafxResolve {
             log.error(pos, "ref.ambiguous", sname,
                       kindName(pair.sym1),
                       pair.sym1,
-                      pair.sym1.location(site, types),
+                      types.location(pair.sym1, site),
                       kindName(pair.sym2),
                       pair.sym2,
-                      pair.sym2.location(site, types));
+                      types.location(pair.sym2, site));
         }
     }
 
