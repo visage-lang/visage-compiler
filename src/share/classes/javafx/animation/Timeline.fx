@@ -145,10 +145,13 @@ public class Timeline {
     //   - KeyValue.value
     //   - KeyValue.interpolate
     //
-    private function rebuildTargets() {
+    private function rebuildTargets():Void {
         targets.clear();
         subtimelines.clear();
         duration = 0;
+        if (sizeof keyFrames == 0) {
+            return;
+        }
 
         sortedFrames = Sequences.sort(keyFrames) as KeyFrame[];
 
