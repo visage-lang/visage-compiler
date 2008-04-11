@@ -18,11 +18,6 @@ public class ErrorHandler {
     }
     
     private final static boolean debug = getBoolean("javafx.debug");
-    private final static boolean strict = getBoolean("javafx.strict");
-
-    public static boolean isStrict() {
-        return strict;
-    }
 
     public static boolean isDebug() {
         return debug;
@@ -59,9 +54,7 @@ public class ErrorHandler {
 
     /** Called when attempting to coerce a null numeric or boolean value to a primitive */
     public static void nullToPrimitiveCoercion(String type) {
-        if (isStrict())
-            throw new NullPointerException("strict: cannot assign null to " + type);
-        else if (isDebug())
+        if (isDebug())
             System.err.println("Coercing " + type + " to null");
 
     }

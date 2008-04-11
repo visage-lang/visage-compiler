@@ -74,6 +74,7 @@ class CompositeSequence<T> extends AbstractSequence<T> implements Sequence<T> {
         if (position < 0 || position >= size)
             throw new IndexOutOfBoundsException(Integer.toString(position));
         // Linear search should be good enough for now
+        // @@@ OPT: cache last chunk accessed, use that as predictive starting point for next get
         int chunk = 0;
         while (chunk < sequences.length - 1
                 && (position >= startPositions[chunk+1] || sequences[chunk].size() == 0))
