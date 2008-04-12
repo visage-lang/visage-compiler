@@ -64,7 +64,7 @@ public class SourceEditor extends ScrollableWidget {
     private attribute undoManager: UndoManager = new UndoManager();
     public attribute annotations: LineAnnotation[] on replace oldValues [lo..hi] = newValues {
         for( i in [lo..hi] ) {
-            jtextarea.removeAnnotation(i);
+            jtextarea.removeAnnotation(lo);
         }
         var ndx = lo;
         for(ann in newValues) {
