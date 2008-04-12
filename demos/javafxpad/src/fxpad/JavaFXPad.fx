@@ -201,12 +201,6 @@ public class JavaFXPad extends CompositeWidget {
                 var script = engine.compile(sourceCode, diags);
             } else{
                 var ret = engine.eval(sourceCode, diags);
-                if (ret instanceof Widget) {
-                    ret = View {
-                        content: ret as Widget
-                        sizeToFitCanvas: true
-                    }
-                }
                 compiledContent = [ret as Node];
             }
         }catch(e:ScriptException) {
@@ -256,18 +250,16 @@ public class JavaFXPad extends CompositeWidget {
                                                             var rulerWidth = bind (Math.max(canvas.width, canvas.viewport.currentWidth) *100/zoomValue/ 5).intValue();
                                                             var lastTic = bind rulerWidth*5+100;
                                                             content: bind for (x in [0..lastTic step 5]) {
-                                                                Group { // TODO inserted this GROUP because of JXFC-876
-                                                                    content: [
+                                                                    [
                                                                         Line {
                                                                             stroke: Color.BLACK
                                                                             x1: x
                                                                             y1: if(x %100 == 0) then 0 else if(x %10 == 0) then 9 else 12
                                                                             x2: x
                                                                             y2: 15
-                                                                        },
-                                                                        if(x %100 == 0) Text{content:"{x}", x: x+2, font:font} else null
+                                                                        } as Node,
+                                                                        if(x %100 == 0) Text{content:"{x}", x: x+2, font:font} as Node else null
                                                                     ]
-                                                                }
                                                             }
                                                         },
                                                         Polygon {
@@ -291,15 +283,14 @@ public class JavaFXPad extends CompositeWidget {
                                                         var rulerHeight = bind (Math.max(canvas.height, canvas.viewport.currentHeight) *100/zoomValue/ 5).intValue();
                                                         var lastTic = bind rulerHeight*5+100;
                                                         content: bind for (y in [0..lastTic step 5]) {
-                                                            Group { // TODO inserted this GROUP because of JXFC-876
-                                                                content: [
+                                                                [
                                                                     Line {
                                                                         stroke: Color.BLACK
                                                                         x1: if(y %100 == 0) then 0 else if(y %10 == 0) then 9 else 12
                                                                         y1: y
                                                                         x2: 15
                                                                         y2: y
-                                                                    },
+                                                                    } as Node,
                                                                     if(y %100 == 0) Text {
                                                                             content:"{y}"
                                                                             font:font
@@ -307,9 +298,8 @@ public class JavaFXPad extends CompositeWidget {
                                                                             y: y-10
                                                                             //transform: Transform.translate(6, y-10)
                                                                             halign:HorizontalAlignment.TRAILING
-                                                                        } else null
+                                                                        } as Node else null
                                                                 ]
-                                                            }
                                                         }
                                                     },
                                                     Polygon {
