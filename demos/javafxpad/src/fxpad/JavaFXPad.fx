@@ -190,7 +190,6 @@ public class JavaFXPad extends CompositeWidget {
     
     private function doRealCompile():Void {
         var program = userCode;
-        //TODO evaluate(program, runAutomatically );
         evaluate(program, runAutomatically );
     }
     
@@ -250,10 +249,9 @@ public class JavaFXPad extends CompositeWidget {
                                                 content: Group {
                                                     content: [
                                                         Group {
-                                                            //var rulerWidth = bind (Math.max(canvas.width, canvas.viewport.currentWidth) *100/zoomValue/ 5).intValue();
-                                                            //var lastTic = bind rulerWidth*5+100;
-                                                            var lastTic = 10000;
-                                                            content: /*bind*/ for (x in [0..lastTic step 5]) {
+                                                            var rulerWidth = bind (Math.max(canvas.width, canvas.viewport.currentWidth) *100/zoomValue/ 5).intValue();
+                                                            var lastTic = bind rulerWidth*5+100;
+                                                            content: bind for (x in [0..lastTic step 5]) {
                                                                 Group { // TODO inserted this GROUP because of JXFC-876
                                                                     content: [
                                                                         Line {
@@ -286,10 +284,9 @@ public class JavaFXPad extends CompositeWidget {
                                             content: Group {
                                                 content: [
                                                     Group {
-                                                        //var rulerHeight = bind (Math.max(canvas.height, canvas.viewport.currentHeight) *100/zoomValue/ 5).intValue();
-                                                        //var lastTic = bind rulerHeight*5+100;
-                                                        var lastTic = 10000;
-                                                        content: /*bind*/ for (y in [0..lastTic step 5]) {
+                                                        var rulerHeight = bind (Math.max(canvas.height, canvas.viewport.currentHeight) *100/zoomValue/ 5).intValue();
+                                                        var lastTic = bind rulerHeight*5+100;
+                                                        content: bind for (y in [0..lastTic step 5]) {
                                                             Group { // TODO inserted this GROUP because of JXFC-876
                                                                 content: [
                                                                     Line {
