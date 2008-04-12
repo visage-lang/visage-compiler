@@ -213,8 +213,6 @@ public class JavaFXPad extends CompositeWidget {
         } 
     }
     
-
-    
     public function composeWidget(): Widget {
         if(url <> null) {
                 javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
@@ -415,10 +413,10 @@ public class JavaFXPad extends CompositeWidget {
                                                                     } )as Widget
                                                                 },
                                                                 Group {
-                                                                    var r = bind lineNumbers.getCellBounds(0);
-                                                                    var errImage = Image {url: "{__DIR__}images/error_obj.gif" };
                                                                     content: bind for (err in errMessages) {
 									var lineNumber = err.getLineNumber();
+                                                                        var r = bind lineNumbers.getCellBounds(0);
+                                                                        var errImage = Image {url: "{__DIR__}images/error_obj.gif" };
                                                                         View {
                                                                             toolTipText: "<html><div 'width=300'>{err.getMessage(null)}</div></html>"
                                                                             transform: bind Transform.translate(2, (lineNumber.intValue() -1)*r.height)
