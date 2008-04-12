@@ -29,9 +29,11 @@ import com.sun.tools.javac.code.Scope.Entry;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
@@ -141,18 +143,21 @@ public class JavafxInitializationBuilder {
         final List<JCTree> iDefinitions;
         final List<JCTree> additionalClassMembers;
         final List<JCExpression> additionalImports;
+        final Type superType;
 
         JavafxClassModel(
                 Name interfaceName,
                 List<JCExpression> interfaces,
                 List<JCTree> iDefinitions,
                 List<JCTree> addedClassMembers,
-                List<JCExpression> additionalImports) {
+                List<JCExpression> additionalImports,
+                Type superType) {
             this.interfaceName = interfaceName;
             this.interfaces = interfaces;
             this.iDefinitions = iDefinitions;
             this.additionalClassMembers = addedClassMembers;
             this.additionalImports = additionalImports;
+            this.superType = superType;
         }
     }
 
@@ -171,6 +176,8 @@ public class JavafxInitializationBuilder {
            List<TranslatedOverrideAttributeInfo> translatedOverrideAttrInfo) {
         boolean classOnly = cDecl.generateClassOnly();
         DiagnosticPosition diagPos = cDecl.pos();
+        Type superType = superType(cDecl);
+        ClassSymbol outerTypeSym = outerTypeSymbol(cDecl); // null unless inner class with outer reference
 
         JavafxAnalyzeClass analysis = new JavafxAnalyzeClass(diagPos,
                 cDecl.sym, translatedAttrInfo, translatedOverrideAttrInfo,
@@ -186,9 +193,16 @@ public class JavafxInitializationBuilder {
         cDefinitions.appendList(makeClassAttributeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
         cDefinitions.append(makeInitStaticAttributesBlock(cDecl, translatedAttrInfo));
         cDefinitions.append(makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
-        cDefinitions.appendList(makeClassOuterAccessorMembers(cDecl));
+        if (outerTypeSym != null) {
+            cDefinitions.append(makeClassOuterAccessorField(diagPos, cDecl, outerTypeSym));
+            cDefinitions.append(makeClassOuterAccessorMethod(diagPos, cDecl, outerTypeSym));
+        }
         cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, immediateFxSupertypeNames, translatedAttrInfo, translatedOverrideAttrInfo));
-        cDefinitions.appendList( makeClassFunctionProxyMethods(cDecl, analysis.needDispatch()) );
+        cDefinitions.appendList(makeClassFunctionProxyMethods(cDecl, analysis.needDispatch()));
+        if (outerTypeSym == null) {
+            cDefinitions.append(makeJavaEntryConstructor(diagPos));
+        }
+        cDefinitions.append(makeFXEntryConstructor(diagPos, outerTypeSym, superType != null && types.isJFXClass(superType.tsym)));
 
         ListBuffer<JCTree> iDefinitions = ListBuffer.lb();
         if (!classOnly) {
@@ -204,7 +218,25 @@ public class JavafxInitializationBuilder {
                 makeImplementingInterfaces(diagPos, cDecl, javaInterfaces),
                 iDefinitions.toList(),
                 cDefinitions.toList(),
-                makeAdditionalImports(diagPos, javaInterfaces));
+                makeAdditionalImports(diagPos, javaInterfaces),
+                superType);
+    }
+   
+    private Type superType(JFXClassDeclaration cDecl) {
+        //TODO: this is in drastic need of cleaning up
+        Type superType = null;
+        if (cDecl.type instanceof ClassType &&
+                (superType = ((ClassType) cDecl.type).supertype_field) != null &&
+                superType.tsym instanceof ClassSymbol &&
+                (superType.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0) {
+        } else if ((cDecl.mods.flags & Flags.FINAL) != 0L && cDecl.getExtending().nonEmpty()) {
+            Symbol sym1 = TreeInfo.symbol(cDecl.getExtending().head);
+            if (sym1 != null &&
+                    (sym1.flags_field & JavafxFlags.COMPOUND_CLASS) == 0) {
+                superType = cDecl.getExtending().head.type;
+            }
+        }
+        return superType;
     }
    
     private List<ClassSymbol> immediateJavafxSupertypes(JFXClassDeclaration cDecl) {
@@ -312,7 +344,7 @@ public class JavafxInitializationBuilder {
      * @param diagPos
      * @return the constructor
      */
-    JCMethodDecl makeJavaEntryConstructor(DiagnosticPosition diagPos) {
+    private JCMethodDecl makeJavaEntryConstructor(DiagnosticPosition diagPos) {
         // call the FX (basic) version of the constructor
         JCStatement thisCall = make.at(diagPos).Exec(make.at(diagPos).Apply(null,
                 make.at(diagPos).Ident(names._this),
@@ -330,21 +362,30 @@ public class JavafxInitializationBuilder {
      * @param superIsFX true if there is a super class (in the generated code) and it is a JavaFX class
      * @return the constructor
      */
-    JCMethodDecl makeFXEntryConstructor(DiagnosticPosition diagPos, boolean superIsFX) {
+    private JCMethodDecl makeFXEntryConstructor(DiagnosticPosition diagPos, ClassSymbol outerTypeSym, boolean superIsFX) {    
+        make.at(diagPos);     
+        ListBuffer<JCStatement> stmts = ListBuffer.lb();
+        ListBuffer<JCVariableDecl> params = ListBuffer.lb();
+        if (outerTypeSym != null) {
+               // add a parameter and a statement to constructor for the outer instance reference
+                params.append( make.VarDef(make.Modifiers(0L), outerAccessorFieldName, make.Ident(outerTypeSym), null) );
+                JCFieldAccess cSelect = make.Select(make.Ident(names._this), outerAccessorFieldName);
+                JCAssign assignStat = make.Assign(cSelect, make.Ident(outerAccessorFieldName));
+                stmts.append(make.Exec(assignStat));            
+        }
         Name dummyParamName = names.fromString("dummy");
-        JCVariableDecl param = make.at(diagPos).VarDef(
+        params.append( make.at(diagPos).VarDef(
                 make.Modifiers(Flags.PARAMETER),
                 dummyParamName,
                 toJava.makeTypeTree(syms.booleanType, diagPos),
-                null);
-        ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                null) );
         if (superIsFX) {
             // call the FX version of the constructor
-            stmts.append(make.at(diagPos).Exec(make.at(diagPos).Apply(null,
-                    make.at(diagPos).Ident(names._super),
-                    List.<JCExpression>of(make.at(diagPos).Ident(dummyParamName)))));
+            stmts.append(make.Exec(make.Apply(null,
+                    make.Ident(names._super),
+                    List.<JCExpression>of(make.Ident(dummyParamName)))));
         }
-        return makeConstructor(diagPos, List.of(param), stmts.toList());
+        return makeConstructor(diagPos, params.toList(), stmts.toList());
     }
     
    private JCMethodDecl makeConstructor(DiagnosticPosition diagPos, List<JCVariableDecl> params, List<JCStatement> cStats) {
@@ -360,8 +401,7 @@ public class JavafxInitializationBuilder {
    }
     
     // Add the methods and field for accessing the outer members. Also add a constructor with an extra parameter to handle the instantiation of the classes that access outer members
-    private List<JCTree> makeClassOuterAccessorMembers(JFXClassDeclaration cdecl) {
-        ListBuffer<JCTree> members = ListBuffer.lb();
+    private ClassSymbol outerTypeSymbol(JFXClassDeclaration cdecl) {
         if (cdecl.sym != null && toJava.hasOuters.contains(cdecl.sym)) {
             Symbol typeOwner = cdecl.sym.owner;
             while (typeOwner != null && typeOwner.kind != Kinds.TYP) {
@@ -371,65 +411,28 @@ public class JavafxInitializationBuilder {
             if (typeOwner != null) {
                 // If FINAL class, it is an anonymous class. There is no interface for it and we need to have the type of the
                 // type, not it's interface.
-                ClassSymbol returnSym = (typeOwner.flags_field & Flags.FINAL) != 0 ? (ClassSymbol)typeOwner.type.tsym :
+                return (typeOwner.flags_field & Flags.FINAL) != 0 ? (ClassSymbol)typeOwner.type.tsym :
                         reader.jreader.enterClass(names.fromString(typeOwner.type.toString() + interfaceSuffix));
-                // Create the field to store the outer instance reference
-                JCVariableDecl accessorField = make.VarDef(make.Modifiers(Flags.PUBLIC), outerAccessorFieldName, make.Ident(returnSym), null);
-                VarSymbol vs = new VarSymbol(Flags.PUBLIC, outerAccessorFieldName, returnSym.type, cdecl.sym);
-                accessorField.type = returnSym.type;
-                accessorField.sym = vs;
-
-                // Create the interface method with it's type(s) and symbol(s)
-                ListBuffer<JCStatement> mStats = new ListBuffer<JCStatement>();
-                JCIdent retIdent = make.Ident(vs);
-                JCReturn retRet = make.Return(retIdent);
-                retRet.type = vs.type;
-                mStats.append(retRet);
-
-                JCMethodDecl accessorMethod = make.MethodDef(make.Modifiers(Flags.PUBLIC), outerAccessorName, make.Ident(returnSym), List.<JCTypeParameter>nil(), List.<JCVariableDecl>nil(),
-                        List.<JCExpression>nil(), make.Block(0L, mStats.toList()), null);
-
-                accessorMethod.type = new MethodType(List.<Type>nil(), returnSym.type, List.<Type>nil(), returnSym);
-                accessorMethod.sym = new MethodSymbol(Flags.PUBLIC, outerAccessorName, returnSym.type, returnSym);
-                members.append(accessorMethod);
-                members.append(accessorField);
-
-                // Now add the constructor taking the outer instance reference
-                JCVariableDecl accessorParam = make.VarDef(make.Modifiers(0L), outerAccessorFieldName, make.Ident(returnSym), null);
-                VarSymbol vs1 = new VarSymbol(0L, outerAccessorFieldName, returnSym.type, cdecl.sym);
-                accessorParam.type = returnSym.type;
-                accessorParam.sym = vs1;
-
-                ListBuffer<JCStatement> cStats = new ListBuffer<JCStatement>();
-                JCIdent cSelected = make.Ident(names._this);
-                cSelected.type = returnSym.type;
-                cSelected.sym = returnSym;
-
-                JCFieldAccess cSelect = make.Select(cSelected, outerAccessorFieldName);
-                cSelect.sym = accessorField.sym;
-                cSelect.type = accessorField.type;
-
-                JCIdent paramIdent = make.Ident(outerAccessorFieldName);
-                paramIdent.type = accessorParam.type;
-                paramIdent.sym = accessorParam.sym;
-
-                JCAssign assignStat = make.Assign(cSelect, paramIdent);
-                assignStat.type = returnSym.type;
-
-                JCStatement assignWrapper = make.Exec(assignStat);
-                assignWrapper.type = assignStat.type;
-
-                cStats.append(assignWrapper);
-
-                JCMethodDecl ctor = make.MethodDef(make.Modifiers(Flags.PUBLIC), names.init, make.TypeIdent(TypeTags.VOID), List.<JCTypeParameter>nil(), List.<JCVariableDecl>of(accessorParam),
-                        List.<JCExpression>nil(), make.Block(0L, cStats.toList()), null);
-
-                accessorMethod.type = new MethodType(List.<Type>of(accessorParam.type), returnSym.type, List.<Type>nil(), returnSym);
-                accessorMethod.sym = new MethodSymbol(Flags.PUBLIC, outerAccessorName, returnSym.type, returnSym);
-                members.append(ctor);
             }
         }
-        return members.toList();
+        return null;
+   }
+    
+    // Make the field for accessing the outer members
+    private JCTree makeClassOuterAccessorField(DiagnosticPosition diagPos, JFXClassDeclaration cdecl, ClassSymbol outerTypeSym) {
+        // Create the field to store the outer instance reference
+        return make.at(diagPos).VarDef(make.at(diagPos).Modifiers(Flags.PUBLIC), outerAccessorFieldName, make.Ident(outerTypeSym), null);
+    }
+
+    // Make the method for accessing the outer members
+    private JCTree makeClassOuterAccessorMethod(DiagnosticPosition diagPos, JFXClassDeclaration cdecl, ClassSymbol outerTypeSym) {
+        make.at(diagPos);
+        VarSymbol vs = new VarSymbol(Flags.PUBLIC, outerAccessorFieldName, outerTypeSym.type, cdecl.sym);
+        JCIdent retIdent = make.Ident(vs);
+        JCStatement retRet = make.Return(retIdent);
+        List<JCStatement> mStats = List.of(retRet);
+        return make.MethodDef(make.Modifiers(Flags.PUBLIC), outerAccessorName, make.Ident(outerTypeSym), List.<JCTypeParameter>nil(), List.<JCVariableDecl>nil(),
+                List.<JCExpression>nil(), make.Block(0L, mStats), null);
     }
 
     // methods for accessing the outer members.

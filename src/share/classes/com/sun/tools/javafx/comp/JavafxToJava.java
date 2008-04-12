@@ -55,8 +55,6 @@ import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideAttributeI
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Translate JavaFX ASTs into Java ASTs
@@ -813,30 +811,11 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             }
             
             // make the Java class corresponding to this FX class, and return it
-            JCExpression jcExtending = null;
-            Type superType = null;
-            if (tree.type instanceof ClassType &&
-                    (superType = ((ClassType)tree.type).supertype_field) != null &&
-                    superType.tsym instanceof ClassSymbol &&
-                    (superType.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0) {
-                jcExtending = makeTypeTree(superType, null, false);
-            }
-            else if ((tree.mods.flags & Flags.FINAL) != 0L && tree.getExtending().nonEmpty()) {
-                Symbol sym1 = TreeInfo.symbol(tree.getExtending().head);
-                if (sym1 != null &&
-                        (sym1.flags_field & JavafxFlags.COMPOUND_CLASS) == 0)
-                    superType = tree.getExtending().head.type;
-                    jcExtending = makeTypeTree(superType, null, false);
-            }
-            
-            translatedDefs.append(initBuilder.makeJavaEntryConstructor(diagPos));
-            translatedDefs.append(initBuilder.makeFXEntryConstructor(diagPos, superType != null && types.isJFXClass(superType.tsym)));
-            
             JCClassDecl res = make.at(diagPos).ClassDef(
                     make.at(diagPos).Modifiers(flags),
                     tree.getName(),
                     tree.getEmptyTypeParameters(), 
-                    jcExtending,
+                    model.superType==null? null : makeTypeTree(model.superType, null, false),
                     implementing, 
                     translatedDefs.toList());
             res.sym = tree.sym;
@@ -904,9 +883,9 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
             Symbol sym = TreeInfo.symbol(tree.getIdentifier());
 
             List<JCExpression> newClassArgs = translatedConstructorArgs();
-            if (types.isJFXClass(sym)) {
+            if (tree.getClassBody() != null || types.isJFXClass(sym)) {
                 assert newClassArgs.size() == 0 : "should not be args for JavaFX class constructors";
-                newClassArgs = newClassArgs.prepend(m().Literal(TypeTags.BOOLEAN, 1));
+                newClassArgs = newClassArgs.append(m().Literal(TypeTags.BOOLEAN, 1));
             }
             if (tree.getClassBody() != null &&
                     tree.getClassBody().sym != null && toJava.hasOuters.contains(tree.getClassBody().sym)) {
