@@ -201,7 +201,13 @@ public class SearchPanel extends CompositeNode {
     attribute searchPrevAction: function();
     attribute highlightAllAction: function();
     public attribute pSearchValue: String;
-    public attribute matchCase: Boolean;
+    public attribute matchCase: Boolean on replace {
+        bmatchCase = matchCase;
+    };
+    // bridges the binds from JavaFXPad to the Checkbox.
+    public attribute bmatchCase: Boolean on replace {
+        matchCase = bmatchCase;
+    }
     public attribute searchField:SearchField;
     attribute open: Boolean on replace {
         if(open and searchField<> null) {
@@ -258,7 +264,7 @@ public class SearchPanel extends CompositeNode {
                     text: "Match Case",
                     font: Font.Font("VERDANA", ["BOLD"], 11),
                     focusable: false
-                    //selected: bind matchCase with inverse
+                    selected: bind bmatchCase with inverse
                 }
             },
             Text {
