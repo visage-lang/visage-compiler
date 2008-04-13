@@ -395,9 +395,11 @@
             
             
             <!-- inherited attributes -->
-            <xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>
             <h3>Inherited Attributes</h3>
-            <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="inherited-field"/>
+            <xsl:for-each select="interfaces/interface">
+                <xsl:variable name="super" select="@qualifiedTypeName"/>
+                <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="inherited-field"/>
+            </xsl:for-each>
 
             
             
@@ -445,7 +447,11 @@
             
             <!-- inherited -->
             <h3>Inherited Functions</h3>
-            <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="inherited-method"/>
+            <xsl:for-each select="interfaces/interface">
+                <xsl:variable name="super" select="@qualifiedTypeName"/>
+                <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="inherited-method"/>
+            </xsl:for-each>
+<!--            <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="inherited-method"/> -->
         </div>
         
     </xsl:template>
@@ -512,53 +518,41 @@
     <xsl:template match="class" mode="inherited-field">
         <xsl:if test="count(attribute) > 0">
             <h4><xsl:value-of select="@qualifiedName"/></h4>
-            <ul class="inherited-field">
+            <table class="inherited-field">
+                <tr><th>public</th><th>name</th><th>type</th></tr>
                 <xsl:for-each select="attribute">
                     <xsl:sort select="@name" order="ascending"/>
-                    <li><a>
-                            <xsl:attribute name="href">
-                                <xsl:text>../</xsl:text>
-                                <xsl:value-of select="../@packageName"/>
-                                <xsl:text>/</xsl:text>
-                                <xsl:value-of select="../@packageName"/>
-                                <xsl:text>.</xsl:text>
-                                <xsl:value-of select="../@name"/>
-                                <xsl:text>.html#attribute_</xsl:text>
-                                <xsl:value-of select="@name"/>
-                            </xsl:attribute>
-                            <xsl:value-of select="@name"/>
-                    </a></li>
+                    <xsl:apply-templates select="." mode="toc"/>
                 </xsl:for-each>
-            </ul>
+            </table>
         </xsl:if>
+        
+        <xsl:for-each select="interfaces/interface">
+            <xsl:variable name="super" select="@qualifiedTypeName"/>
+            <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="inherited-field"/>
+        </xsl:for-each>
+        <!--
         <xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>
         <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="inherited-field"/>
+        -->
     </xsl:template>
     
     <xsl:template match="class" mode="inherited-method">
         <xsl:if test="count(function) > 0">
             <h4><xsl:value-of select="@qualifiedName"/></h4>
-            <ul class="inherited-method">
+                
+            <dl class="inherited-method">
                 <xsl:for-each select="function">
                     <xsl:sort select="@name" order="ascending"/>
-                    <li><a>
-                            <xsl:attribute name="href">
-                                <xsl:text>../</xsl:text>
-                                <xsl:value-of select="../@packageName"/>
-                                <xsl:text>/</xsl:text>
-                                <xsl:value-of select="../@packageName"/>
-                                <xsl:text>.</xsl:text>
-                                <xsl:value-of select="../@name"/>
-                                <xsl:text>.html#method_</xsl:text>
-                                <xsl:value-of select="@name"/>
-                            </xsl:attribute>
-                            <xsl:value-of select="@name"/>
-                    </a></li>
+                    <xsl:call-template name="method-like-toc"/>
                 </xsl:for-each>
-            </ul>
+            </dl>
+                
         </xsl:if>
-        <xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>
-        <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="inherited-method"/>
+        <xsl:for-each select="interfaces/interface">
+            <xsl:variable name="super" select="@qualifiedTypeName"/>
+            <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="inherited-method"/>
+        </xsl:for-each>
     </xsl:template>
     
     
