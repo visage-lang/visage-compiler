@@ -53,6 +53,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.tools.FileObject;
 
@@ -291,20 +292,38 @@ public class JavafxModuleBuilder {
         topLevelNamesSet.add(name);
     }
     
-    private void checkForBadPositions(JCTree testTree) {
+    private void checkForBadPositions(JCCompilationUnit testTree) {
+        final Map<JCTree, Integer> endPositions = testTree.endPositions;
         new JavafxTreeScanner() {
 
             @Override
             public void scan(JCTree tree) {
                 super.scan(tree);
-                if (tree != null && tree.pos <= 0) {
-                    String where = tree.getClass().getSimpleName();
-                    try {
-                        where = where + ": " + tree.toString();
-                    } catch (Throwable exc) {
-                        //ignore
+                if (tree != null) {
+                    if (tree.pos <= 0) {
+                        String where = tree.getClass().getSimpleName();
+                        try {
+                            where = where + ": " + tree.toString();
+                        } catch (Throwable exc) {
+                            //ignore
+                        }
+                        System.err.println("Position of " +
+                                           tree.pos +
+                                           " in ---" +
+                                           where);
                     }
-                    System.err.println("Position of " + tree.pos + " in ---" + where);
+                    if (tree.getEndPosition(endPositions) <= 0) {
+                        String where = tree.getClass().getSimpleName();
+                        try {
+                            where = where + ": " + tree.toString();
+                        } catch (Throwable exc) {
+                            //ignore
+                        }
+                        System.err.println("End position of " +
+                                           tree.getEndPosition(endPositions) +
+                                           " in ---" +
+                                           where);
+                    }
                 }
             }
         }.scan(testTree);
