@@ -204,7 +204,7 @@ public class JavaFXPad extends CompositeWidget {
                 if (ret instanceof Widget) {
                     ret = View {
                         content: ret as Widget
-                        sizeToFitCanvas: true
+                        //sizeToFitCanvas: true
                     }
                 }
                 compiledContent = [ret as Node];
