@@ -47,5 +47,19 @@ table { background-color: #eeeeff;
         width: 67%;
       }
        
+.style1 {font-family: "Courier New", Courier, monospace}
+table.oper {
+width: 80%;
+margin-left: 24pt;
+border-collapse: collapse;
+background-color:#eeeeFF;
+border-top:thin solid black;
+border-bottom: thin solid black;
+
+}
+td {padding-top: 3pt; padding-bottom: 3pt; }
+th {font-family: arial; font-weight:bold; font-size: smaller; }
+
+      
        
        

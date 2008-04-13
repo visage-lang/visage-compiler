@@ -2,7 +2,7 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <?xml-stylesheet href="docbook.css" type="text/css"?>
-<appendix id="a">
+<appendix id="apxa">
   <title>Reserved Words </title>
 
   <sect1 id="reserved">
@@ -10,8 +10,6 @@
 
     <para><emphasis>This Appendix reports words reserved in the  <trademark>JavaFX</trademark> Script programming language. </emphasis></para>
     
-
-
 
         <table cellpadding="3" cellspacing="3" >
 	
@@ -177,8 +175,6 @@
             </tr>
 	    
 	    
-	    
-	    
 	    <tr>
               
 
@@ -190,17 +186,7 @@
               <td>&nbsp;</td>
             </tr>
 	    
-	    
-	    
-	    
-	    
-	    
-	    
-	    
-	    
-	    
-	    
-	    
+    
           </tbody>
         </table>
 </sect1>

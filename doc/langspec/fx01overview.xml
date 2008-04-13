@@ -10,7 +10,13 @@
   <title>Introducing the <trademark>JavaFX</trademark> Script Programming Language</title>
 
   <sect1 id="overview">
-    <title>Overview</title>          
+    <title>Overview</title>         
+    
+<!-- ************ API LINK ***************** -->
+    
+<!-- http://openjfx.java.sun.com/current-build/javadoc/  -->  
+    
+<!-- ************ API LINK ***************** -->
 
     <para>This chapter provides an overview of the <trademark>JavaFX</trademark> Script programming language. It describes -- at a high level -- its main features, saving detailed coverage of specific constructs for subsequent chapters. This book is intended for designers and developers of rich Internet client applications and elements, which run in web pages, as Java Web Start software, or as traditional desktop applications. It assumes the reader to be familiar with JavaScript and/or the Java programming language. While this book does not define a formal language specification, it can be considered a complete reference for all currently supported language features.</para>
 
@@ -35,7 +41,15 @@
       <listitem>
         <para>Makes it easier to use Swing.</para>
       </listitem>
+      
+  
     </itemizedlist>
+    
+<!-- ************ API LINK ***************** -->
+    
+<!-- http://openjfx.java.sun.com/current-build/javadoc/  -->  
+    
+<!-- ************ API LINK ***************** -->
 
     <para>The best way to learn any new language is to start programming in
     it. The following short tutorial illustrates GUI creation from object
