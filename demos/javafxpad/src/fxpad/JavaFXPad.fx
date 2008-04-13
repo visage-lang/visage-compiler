@@ -201,6 +201,12 @@ public class JavaFXPad extends CompositeWidget {
                 var script = engine.compile(sourceCode, diags);
             } else{
                 var ret = engine.eval(sourceCode, diags);
+                if (ret instanceof Widget) {
+                    ret = View {
+                        content: ret as Widget
+                        sizeToFitCanvas: true
+                    }
+                }
                 compiledContent = [ret as Node];
             }
         }catch(e:ScriptException) {
