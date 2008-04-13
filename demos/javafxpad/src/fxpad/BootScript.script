@@ -7,7 +7,7 @@ Group {
 
     var x = 0;
     var y = 0;
-    var alpha = 1;
+    var alpha = 1.0;
     
     transform: bind Transform.translate(x, y)
     opacity: bind alpha
