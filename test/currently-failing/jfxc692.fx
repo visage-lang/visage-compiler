@@ -1,0 +1,13 @@
+/* 
+ * Regression test: JFXC-692: Compiler should issue a warning message for zero-length sequence range literals
+ *
+ * @test
+ */
+
+import java.lang.System;
+
+var seq1 = [ 1..10 ];
+System.out.println("sizeof seq1 {sizeof seq1}");
+
+var seq2 = [ 10..1 ];
+System.out.println("sizeof seq2 {sizeof seq2}");

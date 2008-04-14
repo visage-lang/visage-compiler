@@ -1,0 +1,6 @@
+jfxc846.fx:10: incompatible types
+found   : String
+required: jfxc846.Node
+var n:Node = "";
+             ^
+1 error
