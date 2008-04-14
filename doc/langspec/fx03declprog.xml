@@ -17,11 +17,11 @@
     <para>Variable naming conventions are the same as in the Java programming language. classes should capitalize the first letter of each word ( <code>MyClass</code> ); function names should begin in lowercase but capitalize the first letter of each subsequent word ( <code>myFunctionName</code> ); constants should appear in all uppercase with words separated by the underscore character ( <code>MY_CONSTANT</code> )</para>
 
 
-
+<!--
     <para><emphasis role="bold">TBD: The rules for type inferencing have not
     yet been decided (JFXC-430.) </emphasis></para>
 
-
+-->
 
     <para>A variable declaration takes the form:</para>
 
@@ -44,10 +44,10 @@
     is 1.</para>
 
 
-
+<!--
     <para><emphasis role="bold">TO-DO: Discuss variable scope here
     (JFXC-441.)</emphasis></para>
-    
+    -->
     
 <para> The lifetime of a variable is at least the lifetime of the containing block. It can be longer if the variable is captured by a closure. Top-level variables are visible inside functions and
 classes. They act like private static fields of the module class. </para> 
@@ -58,10 +58,10 @@ classes. They act like private static fields of the module class. </para>
     following code is equivalent to the above:</para>
 
 
-
+<!--
     <para><emphasis role="bold">TO-DO: Engineering suggests that this is not
     necessarily equivalent. Explain why here (JFXC-442.)</emphasis></para>
-
+-->
 
 
     <para><programlisting>var num = 1;</programlisting></para>
@@ -76,9 +76,11 @@ classes. They act like private static fields of the module class. </para>
     
     <para><emphasis role="bold">Example:</emphasis></para>
 
-    <para><emphasis role="bold">TBD: The rules for what makes a valid
-    identifier have not yet been decided (JFXC-360.)</emphasis></para>
+<!--   
 
+<para><emphasis role="bold">TBD: The rules for what makes a valid
+    identifier have not yet been decided (JFXC-360.)</emphasis></para>
+-->
     <para><programlisting>var &lt;&lt;delete&gt;&gt; = 100;</programlisting></para>
 
 
@@ -92,15 +94,18 @@ classes. They act like private static fields of the module class. </para>
 var textArea = new JTextArea();
 textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);</programlisting>
 
+<!--
     <para><emphasis role="bold">TBD: The rules for default values have not yet
-    been decided (JFXC-431.)</emphasis></para>
+    been decided (JFXC-431.)</emphasis></para>  -->
 
-    <para><emphasis role="bold">TO-DO: Define variable terminology here
-    (JFXC-444.)</emphasis></para>
+<!--    <para><emphasis role="bold">TO-DO: Define variable terminology here
+    (JFXC-444.)</emphasis></para>  -->
 
+    <!--
     <para><emphasis role="bold">TO-DO: Discuss variable naming conventions
     here (same as in the Java programming language; JFXC-445.)
     </emphasis></para>
+-->
 
   </sect1>
 
@@ -173,7 +178,7 @@ textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);</programlisting>
 
 
 
-
+<!--
     <para><emphasis role="bold">TO-DO: Provide discuss</emphasis><emphasis
     role="bold">ion that Integer and Number are NOT java.lang.Integer and
     java.lang.Num</emphasis>ber;</para>
@@ -186,7 +191,7 @@ textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);</programlisting>
     <para><emphasis role="bold">TO-DO: Describe how new types are constructed
     (creating classes; importing classes; </emphasis><emphasis
     role="bold">sequence of known types JFXC-447) </emphasis></para>
-
+-->
 
   <para><emphasis role="bold">Examples:</emphasis></para>
 
@@ -205,11 +210,14 @@ b instanceof Boolean; // yields true
 <para>Coercions are automatically performed on numeric types when passing
 arguments or return values to/from methods written in the Java programming language. In addition, implicit truncating coercions are performed when converting <code>Number</code>s to <code>Integer</code>s.</para>
 
+<!--
     <para><emphasis role="bold">TBD: The rules for coercions have not yet been
     decided (JFXC-433.)</emphasis></para>
 
     <para><emphasis role="bold">TBD: The full range of Number is yet to be
-    decided (JFXC-434.)</emphasis></para>
+    decided (JFXC-434.)</emphasis></para> 
+    
+    -->
     
     <sect2 id="strliteral"><title>String Literals and String
     Expressions</title>

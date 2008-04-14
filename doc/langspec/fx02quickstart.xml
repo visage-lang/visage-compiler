@@ -194,14 +194,7 @@ frame.setVisible(true);
 
 
 
-    <para><emphasis role="bold">[TO-DO: Add narrative describing classes (and
-    inheritance). This narrative will most likely include some comparison to
-    the Java programming language (i.e. why does JavaFX Script support
-    multiple inheritance, when the Java programming language intentionally
-    does not?) Do we need a demo program to illustrate this before jumping
-    into the syntax descriptions? In general, what does engineering want to
-    say before we jump into the details?]</emphasis></para>
-
+<!--    <para><emphasis role="bold">[TO-DO: Add narrative describing classes (and inheritance). This narrative will most likely include some comparison to the Java programming language (i.e. why does JavaFX Script support multiple inheritance, when the Java programming language intentionally does not?) Do we need a demo program to illustrate this before jumping into the syntax descriptions? In general, what does engineering want to say before we jump into the details?]</emphasis></para> -->
 
 
     <para>The syntax for specifying a class is the <code>class</code> keyword
@@ -213,10 +206,11 @@ frame.setVisible(true);
     <para>Access modifiers work just as they do in the Java programming language. You can declare classes and their members to be  <code>public</code>, <code>protected</code>, or <code>private</code>, which allows them to be  accessed anywhere, in the current package or in derived classes, or only in the current class; respectively.</para>
 
 
+    <!--
     <para><emphasis role="bold">[QUESTION: Do we want to have a separate
     section that explains the rules of the access modifiers? We should
     probably have definitions of public, private, protected etc. otherwise the
-    reader will have to look these up elsewhere]</emphasis></para>
+    reader will have to look these up elsewhere]</emphasis></para>  -->
 
 <para><emphasis role="bold">Example:</emphasis></para>
 
