@@ -33,6 +33,7 @@ import com.sun.tools.javac.tree.JCTree.Visitor;
 import com.sun.source.tree.TreeVisitor;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Map;
 
 /**
  * The base of the JavaFX AST
@@ -95,4 +96,15 @@ public abstract class JFXTree extends JCTree implements JavaFXTree {
         }
         return s.toString();
     }
+
+        @Override
+        public int getStartPosition() {
+            return JavafxTreeInfo.getStartPos(this);
+        }
+
+        @Override
+        public int getEndPosition(Map<JCTree, Integer> endPosTable) {
+            return JavafxTreeInfo.getEndPos(this, endPosTable);
+        }
+
 }

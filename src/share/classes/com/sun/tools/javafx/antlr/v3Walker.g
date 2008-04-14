@@ -591,7 +591,8 @@ qualident  returns [JCExpression expr]
                                                           endPos($expr, $DOT); } 
 	;
 identifier  returns [JCIdent expr]
-	: name 				          	{ $expr = F.at($name.pos).Ident($name.value); } 
+	: name 				          	{ $expr = F.at($name.pos).Ident($name.value); 
+                                                          endPos($expr, $name.pos + $name.value.length()); } 
 	;
 name returns [Name value, int pos]
 	: IDENTIFIER					{ $value = Name.fromString(names, $IDENTIFIER.text); $pos = pos($IDENTIFIER); }

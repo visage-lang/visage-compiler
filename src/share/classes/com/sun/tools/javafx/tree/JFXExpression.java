@@ -31,9 +31,11 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.Visitor;
 
 import com.sun.source.tree.TreeVisitor;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.Pretty;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Map;
 
 /**
  * Statements.
@@ -96,4 +98,15 @@ public abstract class JFXExpression extends JCExpression implements JavaFXExpres
         }
         return s.toString();
     }
+    
+    @Override
+    public int getStartPosition() {
+        return JavafxTreeInfo.getStartPos(this);
+    }
+    
+    @Override
+    public int getEndPosition(Map<JCTree, Integer> endPosTable) {
+        return JavafxTreeInfo.getEndPos(this, endPosTable);
+    }
+
 }

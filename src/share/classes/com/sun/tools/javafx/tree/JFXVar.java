@@ -35,7 +35,9 @@ import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.JavaFXVariableTree;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.ListBuffer;
+import java.util.Map;
 
 /**
  * Variable declaration.
@@ -137,5 +139,15 @@ public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
         throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
+    }
+    
+    @Override
+    public int getStartPosition() {
+        return JavafxTreeInfo.getStartPos(this);
+    }
+    
+    @Override
+    public int getEndPosition(Map<JCTree, Integer> endPosTable) {
+        return JavafxTreeInfo.getEndPos(this, endPosTable);
     }
 }

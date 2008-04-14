@@ -32,8 +32,10 @@ import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javac.tree.JCTree.Visitor;
 
 import com.sun.source.tree.TreeVisitor;
+import com.sun.tools.javac.tree.JCTree;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Map;
 
 /**
  * Statements.
@@ -86,5 +88,15 @@ public abstract class JFXStatement extends JCStatement implements JavaFXStatemen
             throw new AssertionError(e);
         }
         return s.toString();
+    }
+    
+    @Override
+    public int getStartPosition() {
+        return JavafxTreeInfo.getStartPos(this);
+    }
+    
+    @Override
+    public int getEndPosition(Map<JCTree, Integer> endPosTable) {
+        return JavafxTreeInfo.getEndPos(this, endPosTable);
     }
 }
