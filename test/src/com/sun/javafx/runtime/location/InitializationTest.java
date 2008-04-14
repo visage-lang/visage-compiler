@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sun.javafx.runtime.BindingException;
+import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.InitHelper;
 import com.sun.javafx.runtime.JavaFXTestCase;
+import framework.FXObjectFactory;
 
 /**
  * InitializationTest
@@ -287,6 +289,33 @@ public class InitializationTest extends JavaFXTestCase {
         instance.initialize$();
         assertEquals(3, instance.get$a().getAsInt());
         assertEquals(3, instance.get$b().getAsInt());
+    }
 
+    interface MyObject extends FXObject {
+        public IntLocation get$a();
+        public IntLocation get$b();
+    }
+
+    static FXObjectFactory<MyObject> myObjectFactory = new FXObjectFactory<MyObject>(MyObject.class, new String[] { "a", "b" }) {
+        public void applyDefault(MyObject receiver, String attrName, AbstractVariable attrLocation) {
+            if (attrName.equals("a"))
+                ((IntLocation) attrLocation).setAsInt(9);
+            else if (attrName.equals("b"))
+                ((IntLocation) attrLocation).setAsInt(10);
+        }
+    };
+
+    public void testSimulatedInitialization() {
+        MyObject o = myObjectFactory.make();
+        o.get$a().setAsIntFromLiteral(3);
+        o.get$b().setAsIntFromLiteral(4);
+        o.initialize$();
+        assertEquals(3, o.get$a().getAsInt());
+        assertEquals(4, o.get$b().getAsInt());
+
+        o = myObjectFactory.make();
+        o.initialize$();
+        assertEquals(9, o.get$a().getAsInt());
+        assertEquals(10, o.get$b().getAsInt());
     }
 }
