@@ -80,6 +80,9 @@ public class JavafxcTaskImpl extends JavafxcTask {
         args.getClass();
         context.getClass();
         fileObjects.getClass();
+
+        Options optionTable = Options.instance(context);
+        optionTable.put("-Xjcov", "-Xjcov");  // generate tree end positions
     }
 
     JavafxcTaskImpl(JavafxcTool tool,

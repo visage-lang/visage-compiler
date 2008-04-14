@@ -31,6 +31,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.util.*;
+import javax.tools.DiagnosticListener;
 import static com.sun.tools.javac.util.ListBuffer.lb;
 
 import org.antlr.runtime.*;
@@ -57,6 +58,8 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
     /** The name table. */
     protected Name.Table names;
     
+    /** should parser generate an end positions map? */
+    protected boolean genEndPos;
     
     /* ---------- error recovery -------------- */
     
@@ -68,6 +71,10 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
         this.log = Log.instance(context);
         this.names = Name.Table.instance(context);
         this.source = Source.instance(context);
+        Options options = Options.instance(context);
+        this.genEndPos = options.get("-Xjcov") != null ||
+                         context.get(DiagnosticListener.class) != null ||
+                         Boolean.getBoolean("JavafxModuleBuilder.debugBadPositions");
     }
     
     protected AbstractGeneratedTreeParser(TreeNodeStream input) {

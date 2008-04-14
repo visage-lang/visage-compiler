@@ -319,8 +319,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         encoding      = options.get("-encoding");
         lineDebugInfo = options.get("-g:")            == null ||
                         options.get("-g:lines")       != null;
-        genEndPos     = options.get("-Xjcov")         != null ||
-                        context.get(DiagnosticListener.class) != null;
         devVerbose    = options.get("dev") != null;  
         processPcks   = options.get("process.packages") != null;
 
@@ -373,10 +371,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     /** Generate code with the LineNumberTable attribute for debugging
      */
     public boolean lineDebugInfo;
-
-    /** Switch: should we store the ending positions?
-     */
-    public boolean genEndPos;
 
     /** Switch: should we debug ignored exceptions
      */

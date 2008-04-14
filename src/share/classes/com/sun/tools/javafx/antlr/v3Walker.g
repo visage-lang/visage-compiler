@@ -67,7 +67,7 @@ import org.antlr.runtime.tree.*;
 
     void endPos(JCTree tree, CommonTree node) {
         int endIndex = node.getTokenStopIndex();
-        if (endIndex != -1) { // -1 means no such token
+        if (genEndPos && endIndex != -1) { // -1 means no such token
             TokenStream src = input.getTokenStream();
             CommonToken endToken = (CommonToken)src.get(endIndex);
             // backtrack over WS and imaginary tokens
@@ -82,18 +82,21 @@ import org.antlr.runtime.tree.*;
     }
 
     void endPos(JCTree tree, com.sun.tools.javac.util.List<JFXInterpolateValue> list) {
-        int endLast = endPositions.get(list.last());
-        endPositions.put(tree, endLast);
+        if (genEndPos) {
+            int endLast = endPositions.get(list.last());
+            endPositions.put(tree, endLast);
+        }
     }
 
     void endPos(JCTree tree, int end) {
-        endPositions.put(tree, end);
+        if (genEndPos)
+            endPositions.put(tree, end);
     }
 }
 	
 module returns [JCCompilationUnit result]
-@init   { docComments = null; 
-          endPositions = new HashMap<JCTree,Integer>(); }
+@init   { docComments = null;
+          endPositions = genEndPos ? new HashMap<JCTree,Integer>() : null; }
 @after  { $result.docComments = docComments; 
           $result.endPositions = endPositions; }
 	: ^(MODULE packageDecl? moduleItems DOC_COMMENT?)		
