@@ -322,7 +322,7 @@
   </tr>
 					<tr>
 					  <td><code class="style1">x.op()</code></td>
-					  <td>member function / operation call </td>
+					  <td>member function  call </td>
 					  <td><code class="style1"></code></td>
   </tr>
 	
@@ -784,8 +784,8 @@ System.out.println(s);
 
     <para>In the above example the then and else clauses of the conditional
     "if" are expressions in their own right, namely block expressions
-    <emphasis role="bold">[to-do, link to block expressions section
-    below]</emphasis></para>
+    <!-- <emphasis role="bold">[to-do, link to block expressions section
+    below]</emphasis>  --></para>
 
     <sect2 id="logical">
       <title>Logical Expressions</title>
@@ -1123,8 +1123,8 @@ System.out.println(s);
       <sect3 id="range">
         <title>Range Expressions</title>
 
-        <para>As mentioned in chapter two <emphasis role="bold">[TO-DO:
-        confirm that location and provide link]</emphasis> it is possible to
+        <para>As mentioned in chapter two  <!-- <emphasis role="bold">[TO-DO:
+        confirm that location and provide link]</emphasis> --> it is possible to
         define a sequence of numeric values forming an arithmetic series using
         the following syntax:</para>
 

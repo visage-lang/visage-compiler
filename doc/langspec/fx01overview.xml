@@ -129,7 +129,16 @@ var myFrame = Frame {
     visible: true
 }; // Note the use of semicolon when ending this statement</programlisting></para>
 
-    <para>We say that <code>title</code>, <code>width</code>, <code>height</code>, and <code>visible</code> are all <emphasis>attributes</emphasis> of the <code>Frame</code> class. The attributes shown here accept basic type values (TBD: provide link here to the section describing the basic types), but you can nest object literals if the expected type is something more complex. For example, many of the GUI classes contain an attribute called <code>"content" </code>whose type is <code>Widget</code> (the bass class of all <code>javafx.ui</code> GUI components.) It is possible to assign an instance of any <code>Widget</code> subclass to <code>content</code> using the same object literal syntax:</para>
+    <para>We say that <code>title</code>, <code>width</code>, <code>height</code>, and <code>visible</code> are all <emphasis>attributes</emphasis> of the <code>Frame</code> class. The attributes shown here accept basic type values 
+    
+    <!--  (TBD: provide link here to the section describing the basic types), 
+    
+    <emphasis><ulink
+    url="http://openjfx.java.sun.com/current-build/javadoc/">Frame</ulink></emphasis>
+
+    -->  
+    
+    but you can nest object literals if the expected type is something more complex. For example, many of the GUI classes contain an attribute called <code>"content" </code>whose type is <code>Widget</code> (the bass class of all <code>javafx.ui</code> GUI components.) It is possible to assign an instance of any <code>Widget</code> subclass to <code>content</code> using the same object literal syntax:</para>
 
 
 
@@ -143,7 +152,12 @@ var myFrame = Frame {
     }
 }</programlisting></para>
 
-    <para>You will find that this pattern of nested object literals repeats over and over again. The API documentation for the <code>javafx.ui</code> package <emphasis role="bold">(TBD: insert hyperlink to the API docs for the javafx.* packages)</emphasis> makes it possible to determine the type of any attribute. As you might expect, lines of code can wrap according to your own programming style. The following lines of code are identical to the above:</para>
+    <para>You will find that this pattern of nested object literals repeats over and over again. The API documentation for the <code>javafx.ui</code> package <!-- <emphasis role="bold">(TBD: insert hyperlink to the API docs for the javafx.* packages)</emphasis> 
+    
+    <emphasis><ulink
+    url="http://openjfx.java.sun.com/current-build/javadoc/javafx.ui">javafx.ui</ulink></emphasis>
+    -->
+    makes it possible to determine the type of any attribute. As you might expect, lines of code can wrap according to your own programming style. The following lines of code are identical to the above:</para>
 
 
 
