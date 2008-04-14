@@ -237,10 +237,15 @@ var firstNameLabel = SimpleLabel {text: bind firstName};</programlisting></para>
     its entirety. Even with only this brief introduction to the language, you
     already know enough to understand this code.</para>
 
-    <para><programlisting>package ch1demo;
+    <para><programlisting>/*
+ * Main.fx
+ */
+
+package ch1demo;
 
 import javafx.ui.*;
-import java.lang.Thread;
+import javafx.animation.*;
+import java.lang.System;
 
 ////////////////////////
 // State Information ///
@@ -256,31 +261,7 @@ var homePhone = "";
 var email = "";
 var currScreen = 0;
 
-////////////////////
-// GUI Components //
-////////////////////
-var customerContactLabel = SimpleLabel{text: "Customer Contact Information" font: Font{size:14}};
-var confirmationLabel = SimpleLabel{text: "Confirmation Page" font: Font{size:14}};
-var firstNameLabel = SimpleLabel{text:"First Name: "};
-var firstNameTextField = TextField{columns:30 value: bind firstName};
-var lastNameLabel = SimpleLabel{text:"Last Name: "};
-var lastNameTextField = TextField{columns:30 value: bind lastName};
-var streetAddressLabel = SimpleLabel{text:"Street Address: "};
-var streetAddressTextField = TextField{columns:30 value: bind streetAddress};
-var cityLabel = SimpleLabel{text:"City: "};
-var cityTextField = TextField{columns:30 value: bind city};
-var stateLabel = SimpleLabel{text:"State: "};
-var stateTextField = TextField{columns:30 value: bind state};
-var zipLabel = SimpleLabel{text:"Zip Code: "};
-var zipTextField = TextField{columns:30 value: bind zip};
-var workPhoneLabel = SimpleLabel{text:"Work Phone: "};
-var workPhoneTextField = TextField{columns:30 value: bind workPhone};
-var homePhoneLabel = SimpleLabel{text:"Home Phone: "};
-var homePhoneTextField = TextField{columns:30 value: bind homePhone};
-var emailLabel = SimpleLabel{text:"Email: "};
-var emailTextField = TextField{columns:30 value: bind email};
-var screen1SubmitButton = Button {text:"Submit" action: function(){currScreen = 1;}};
-var screen1ResetButton = Button {text:"Reset" action: function(){ 
+function reset() {
     firstName = "";
     lastName = "";
     streetAddress = "";
@@ -290,102 +271,208 @@ var screen1ResetButton = Button {text:"Reset" action: function(){
     workPhone = ""; 
     homePhone = ""; 
     email = "";
-}};
+}
+
+function submit() {
+    currScreen=2;
+    // Timeline to simulate database or web service submission
+    var timer = Timeline { 
+        keyFrames: KeyFrame { 
+            time: 1s
+            action: function() {
+                reset();
+                currScreen=0;
+            }
+        }
+    };
+    timer.start();
+}
 
 /////////////////////////////
 // GUI SCREEN 1 /////////////
 /////////////////////////////
-var screen1Row1 = FlowPanel {content: customerContactLabel};
-var screen1Row2 = FlowPanel {alignment: Alignment{name:"left"} content: [firstNameLabel,firstNameTextField]};
-var screen1Row3 = FlowPanel {alignment: Alignment{name:"left"} content: [lastNameLabel,lastNameTextField]};                                                 
-var screen1Row4 = FlowPanel {alignment: Alignment{name:"left"} content: [streetAddressLabel,streetAddressTextField]};
-var screen1Row5 = FlowPanel {alignment: Alignment{name:"left"} content: [cityLabel,cityTextField]}; 
-var screen1Row6 = FlowPanel {alignment: Alignment{name:"left"} content: [stateLabel,stateTextField]};
-var screen1Row7 = FlowPanel {alignment: Alignment{name:"left"} content: [zipLabel,zipTextField]};
-var screen1Row8 = FlowPanel {alignment: Alignment{name:"left"} content: [workPhoneLabel,workPhoneTextField]};                              
-var screen1Row9 = FlowPanel {alignment: Alignment{name:"left"} content: [homePhoneLabel,homePhoneTextField]};
-var screen1Row10 = FlowPanel {alignment: Alignment{name:"left"} content: [emailLabel,emailTextField]};
-var screen1Row11 = FlowPanel{content: [screen1SubmitButton,screen1ResetButton]};
-var screen1 = GridPanel{rows: 11 columns: 1 cells: [screen1Row1,screen1Row2,screen1Row3,screen1Row4,screen1Row5,
-                            screen1Row6,screen1Row7,screen1Row8,screen1Row9,screen1Row10,screen1Row11]};
+var left = Alignment { name: "left" }
+var screen1 = GridPanel {
+    rows: 11
+    columns: 1 
+    cells: [
+        FlowPanel { 
+            content: SimpleLabel{ text: "Customer Contact Information", font: Font{size:14}},                          
+        },
+        FlowPanel { 
+            content: [
+                SimpleLabel{text:"First Name: "},
+                TextField{columns:30, value: bind firstName with inverse}
+            ],
+            alignment: left 
+        },
+        FlowPanel { 
+            content: [
+                SimpleLabel{text:"Last Name: "},
+                TextField{columns:30, value: bind lastName with inverse}
+            ],
+            alignment: left
+        },                                               
+        FlowPanel { 
+            content: [
+                SimpleLabel{text:"Street Address: "},  
+                TextField{columns:30, value: bind streetAddress with inverse}
+            ], 
+            alignment: left 
+        },
+        FlowPanel { 
+            content: [
+                SimpleLabel{text:"City: "},
+                TextField{columns:30, value: bind city with inverse}
+            ],
+            alignment: left
+        },
+        FlowPanel { 
+            content: [
+                SimpleLabel{text:"State: "},          
+                TextField{columns:30, value: bind state with inverse}
+            ],         
+            alignment: left 
+        },
+        FlowPanel { 
+            content: [
+                SimpleLabel{text:"Zip Code: "},            
+                TextField{columns:30, value: bind zip with inverse}
+            ],           
+            alignment: left 
+        },
+        FlowPanel { 
+            content: [
+                SimpleLabel{text:"Work Phone: "},      
+                TextField{columns:30, value: bind workPhone with inverse}
+            ],     
+            alignment: left 
+        },                              
+        FlowPanel { 
+            content: [
+                SimpleLabel{text:"Home Phone: "},      
+                TextField{columns:30 value: bind homePhone with inverse}
+            ],     
+            alignment: left 
+        },
+        FlowPanel { 
+            content: [
+                SimpleLabel{text:"Email: "},          
+                TextField{columns:30 value: bind email with inverse}
+            ],         
+            alignment: left 
+        },
+        FlowPanel { 
+            content: [
+                Button {text:"Submit" action: function(){ currScreen = 1; } }, 
+                Button {text:"Reset" action: function() { reset(); } }
+            ]
+        }
+    ]
+}
 
 /////////////////////////////
 // GUI SCREEN 2 /////////////
 /////////////////////////////
-var screen2Row1 = FlowPanel {content: confirmationLabel}; 
-
-var screen2Row2 = FlowPanel {alignment: Alignment{name:"left"}
-                             content: [SimpleLabel{text:"First Name: "},SimpleLabel{text: bind firstName}]};
-                               
-var screen2Row3 = FlowPanel {alignment: Alignment{name:"left"} 
-                      content: [SimpleLabel{text:"Last Name: "},
-                                SimpleLabel{text: bind lastName}]};
                                 
-var screen2Row4 = FlowPanel {alignment: Alignment{name:"left"}
-                      content: [SimpleLabel{text:"Street Address: "},
-                                SimpleLabel{text: bind streetAddress}]};
-                                
-var screen2Row5 = FlowPanel {alignment: Alignment{name:"left"} 
-                      content: [SimpleLabel{text:"City: "},
-                                SimpleLabel{text: bind city}]};
-                                
-var screen2Row6 = FlowPanel {alignment: Alignment{name:"left"} 
-                      content: [SimpleLabel{text:"State: "},
-                                SimpleLabel{text: bind state}]};
-                                
-var screen2Row7 = FlowPanel {alignment: Alignment{name:"left"} 
-                      content: [SimpleLabel{text:"Zip Code: "},
-                                SimpleLabel{text: bind zip}]};                               
-                                        
-var screen2Row8 = FlowPanel {alignment: Alignment{name:"left"} 
-                      content: [SimpleLabel{text:"Work Phone: "},
-                                SimpleLabel{text: bind workPhone}]};
-                                
-var screen2Row9 = FlowPanel {alignment: Alignment{name:"left"} 
-                      content: [SimpleLabel{text:"Home Phone: "},
-                                SimpleLabel{text: bind homePhone}]};                                                               
-
-var screen2Row10 = FlowPanel {alignment: Alignment{name:"left"} 
-                      content: [SimpleLabel{text:"Email: "},
-                                SimpleLabel{text: bind email}]};                                     
-  
-var screen2Row11 = FlowPanel {
-    content: [Button{text:"Submit" action: function(){
-             currScreen=2;
-             wait(1000);
-             currScreen=0;
-             firstName = "";
-             lastName = "";
-             streetAddress = "";
-             city = "";
-             state = "";
-             zip = "";
-             workPhone = ""; 
-             homePhone = ""; 
-             email = "";
-    }},Button{text:"Back" action: function(){currScreen = 0;}}
-    ]};                          
-                                
-var screen2 = GridPanel{rows: 11 columns: 1 cells: [screen2Row1,screen2Row2,screen2Row3,screen2Row4,
-screen2Row5,screen2Row6,screen2Row7,screen2Row8,screen2Row9,screen2Row10,screen2Row11]};
-
-var screen3 = FlowPanel{content: SimpleLabel{font: Font{size:14} text:"Thank You!"}};
-
-// Application Frame and CardPanel
-
-var cardPanel = CardPanel {
-    cards: [screen1,screen2,screen3]
-    selection: bind currScreen
+var screen2 = GridPanel {
+    rows: 11 
+    columns: 1 
+    cells: [
+        FlowPanel { content: SimpleLabel{text: "Confirmation Page" font: Font{size:14}} },
+        FlowPanel { 
+            content: [ 
+                SimpleLabel{text:"First Name: "}, 
+                SimpleLabel{ text: bind firstName } 
+            ],
+            alignment: left
+        },
+        FlowPanel {
+            content: [ 
+                SimpleLabel{text:"Last Name: "}, 
+                SimpleLabel{ text: bind lastName } 
+            ],
+            alignment: left
+        },
+        FlowPanel {
+            content: [ 
+                SimpleLabel{text:"Street Address: "}, 
+                SimpleLabel { text: bind streetAddress } 
+            ],
+            alignment: left
+        },
+        FlowPanel {
+            content: [ 
+                SimpleLabel{text:"City: "}, 
+                SimpleLabel { text: bind city } 
+            ],
+            alignment: left
+        },
+        FlowPanel {
+            content: [ 
+                SimpleLabel{text:"State: "}, 
+                SimpleLabel { text: bind state } 
+            ],
+            alignment: left
+        },
+        FlowPanel { 
+            content: [ 
+                SimpleLabel{text:"Zip Code: "}, 
+                SimpleLabel{ text: bind zip } 
+            ],
+            alignment: left
+        },                             
+        FlowPanel { 
+            content: [ 
+                SimpleLabel{text:"Work Phone: "}, 
+                SimpleLabel { text: bind workPhone } 
+            ],
+            alignment: left
+        },
+        FlowPanel { 
+            content: [ 
+                SimpleLabel{text:"Home Phone: "}, 
+                SimpleLabel { text: bind homePhone } 
+            ],
+            alignment: left
+        },                                                              
+        FlowPanel { 
+            content: [ 
+                SimpleLabel{text:"Email: "}, 
+                SimpleLabel { text: bind email } 
+            ],
+            alignment: left
+        },
+        FlowPanel {
+            content: [
+                Button {
+                    text:"Submit" 
+                    action: function() { submit(); }
+                },
+                Button { 
+                    text: "Back" 
+                    action: function() { currScreen = 0; }
+                }
+            ]
+        }                 
+    ]
 };
 
+var screen3 = FlowPanel { 
+    content: SimpleLabel {
+        font: Font { size:14 } 
+        text:"Thank You!"
+    }
+};
+
+// Application Frame
 Frame {
     title: "Ch1 Demo"
-    content: cardPanel
+    content: CardPanel {
+        cards: [ screen1, screen2, screen3 ],
+        selection: bind currScreen
+    },
     visible: true
-}
-
-function wait(millis:Number) {
-    do {Thread.currentThread().sleep(millis);}
 }</programlisting></para>
   </sect1>
 </chapter>
