@@ -1,16 +1,16 @@
 package framework;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.lang.reflect.InvocationHandler;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import com.sun.javafx.runtime.location.*;
 import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.InitHelper;
+import com.sun.javafx.runtime.location.*;
 
 /**
  * SimulatedFXObject
@@ -24,6 +24,14 @@ public abstract class FXObjectFactory<T extends FXObject> {
     protected FXObjectFactory(Class<T> intf, String[] attributes) {
         this.attributes = attributes;
         this.intf = intf;
+        for (String name : attributes) {
+            try {
+                intf.getMethod("get$" + name);
+            }
+            catch (NoSuchMethodException e) {
+                throw new IllegalArgumentException("Cannot find accessor method for attribute " + name);
+            }
+        }
     }
 
     public T make() {
@@ -56,6 +64,7 @@ public abstract class FXObjectFactory<T extends FXObject> {
                                                   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                                                       if (method.getName().equals("initialize$")) {
                                                           List<AbstractVariable> vars = new ArrayList<AbstractVariable>();
+                                                          addTriggers((T) proxy);
                                                           for (String name : attributes) {
                                                               if (locs.get(name).needDefault())
                                                                   applyDefault((T) proxy, name, locs.get(name));
@@ -68,6 +77,18 @@ public abstract class FXObjectFactory<T extends FXObject> {
                                                       else if (method.getName().startsWith("get$")) {
                                                           return locs.get(method.getName().substring("get$".length()));
                                                       }
+                                                      else if (method.getName().equals("equals")) {
+                                                          return proxy == args[0];
+                                                      }
+                                                      else if (method.getName().equals("hashCode")) {
+                                                          return System.identityHashCode(proxy);
+                                                      }
+                                                      else if (method.getName().equals("toString")) {
+                                                          return intf.getName() + "@" + System.identityHashCode(proxy);
+                                                      }
+                                                      else
+                                                          throw new NoSuchMethodException(method.getName());
+
                                                       return null;
                                                   }
                                               });
@@ -75,7 +96,10 @@ public abstract class FXObjectFactory<T extends FXObject> {
     }
 
     public void addTriggers(T receiver) { }
+
     public void applyDefault(T receiver, String attrName, AbstractVariable attrLocation) { }
+
     public void init(T receiver) { }
+
     public void postInit(T receiver) { }
 }

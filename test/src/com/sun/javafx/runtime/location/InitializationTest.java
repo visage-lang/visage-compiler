@@ -296,12 +296,29 @@ public class InitializationTest extends JavaFXTestCase {
         public IntLocation get$b();
     }
 
+    private static int addTriggerCount;
+    private static int initCount;
+    private static int postInitCount;
+
     static FXObjectFactory<MyObject> myObjectFactory = new FXObjectFactory<MyObject>(MyObject.class, new String[] { "a", "b" }) {
+
         public void applyDefault(MyObject receiver, String attrName, AbstractVariable attrLocation) {
             if (attrName.equals("a"))
                 ((IntLocation) attrLocation).setAsInt(9);
             else if (attrName.equals("b"))
                 ((IntLocation) attrLocation).setAsInt(10);
+        }
+
+        public void addTriggers(MyObject receiver) {
+            ++addTriggerCount;
+        }
+
+        public void init(MyObject receiver) {
+            ++initCount;
+        }
+
+        public void postInit(MyObject receiver) {
+            ++postInitCount;
         }
     };
 
@@ -312,6 +329,10 @@ public class InitializationTest extends JavaFXTestCase {
         o.initialize$();
         assertEquals(3, o.get$a().getAsInt());
         assertEquals(4, o.get$b().getAsInt());
+
+        assertEquals(1, addTriggerCount);
+        assertEquals(1, initCount);
+        assertEquals(1, postInitCount);
 
         o = myObjectFactory.make();
         o.initialize$();
