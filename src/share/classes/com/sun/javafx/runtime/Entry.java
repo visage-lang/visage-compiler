@@ -24,15 +24,15 @@
  */
 package com.sun.javafx.runtime;
 
-import com.sun.tools.javafx.comp.JavafxDefs;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessControlException;
 import java.util.Iterator;
+
+import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
-import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.location.SequenceConstant;
+import com.sun.tools.javafx.comp.JavafxDefs;
 
 /**
  * First code that is run to start a JavaFX Script application.
@@ -40,6 +40,7 @@ import com.sun.javafx.runtime.location.SequenceConstant;
  * @author Tom Ball
  */
 public class Entry {
+    private static RuntimeProvider provider;
 
     public static void start(Class<?> app, String[] commandLineArgs) throws Throwable {
         Method main = app.getMethod(JavafxDefs.runMethodString, Sequence.class);
@@ -47,7 +48,7 @@ public class Entry {
         
         try {
             main.setAccessible(true);
-            RuntimeProvider provider = runtimeProviderLocator(app);
+            provider = runtimeProviderLocator(app);
             if (provider != null && provider.usesRuntimeLibrary(app)) {
                 provider.run(main, commandLineArgs);
             } else {
@@ -65,6 +66,16 @@ public class Entry {
                 throw e.getCause();
             }
         }
+    }
+
+    public static void deferTask(final Function0<Void> function) {
+        if (provider == null)
+            throw new IllegalStateException("No runtime provider");
+        provider.deferTask(new Runnable() {
+            public void run() {
+                function.invoke();
+            }
+        });
     }
 
     private static RuntimeProvider runtimeProviderLocator(Class app) {

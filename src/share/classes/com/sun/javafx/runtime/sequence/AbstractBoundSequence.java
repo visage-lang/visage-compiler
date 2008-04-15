@@ -32,7 +32,9 @@ import java.util.ArrayList;
 import com.sun.javafx.runtime.location.*;
 
 /**
- * AbstractBoundSequence
+ * Abstract base class for bound sequences.  Because bound sequences must be constructed in a valid
+ * state, the constructor will call the abstract construct() method.  This means that construct() cannot
+ * depend on any state initialized by the subclass constructor!  
  *
  * @author Brian Goetz
  */

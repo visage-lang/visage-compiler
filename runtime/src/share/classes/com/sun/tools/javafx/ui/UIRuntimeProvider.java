@@ -5,15 +5,17 @@
 
 package com.sun.tools.javafx.ui;
 
-import com.sun.javafx.runtime.RuntimeProvider;
-import com.sun.javafx.runtime.sequence.Sequences;
-import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.location.SequenceConstant;
-import java.awt.EventQueue;
+import java.awt.*;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import javax.swing.*;
+
+import com.sun.javafx.runtime.RuntimeProvider;
+import com.sun.javafx.runtime.location.SequenceConstant;
+import com.sun.javafx.runtime.location.SequenceLocation;
+import com.sun.javafx.runtime.sequence.Sequences;
 
 /**
  * Entry point for the Swing-based JavaFX UI runtime library.  This class
@@ -90,7 +92,11 @@ public class UIRuntimeProvider implements RuntimeProvider {
         error.setStackTrace(shortStack);
         throw error;
     }
-    
+
+    public void deferTask(Runnable task) {
+        SwingUtilities.invokeLater(task);
+    }
+
     // Constant Type enums (JVM spec table 4.3)
     static final int CONSTANT_Utf8 = 1;
     static final int CONSTANT_Integer = 3;

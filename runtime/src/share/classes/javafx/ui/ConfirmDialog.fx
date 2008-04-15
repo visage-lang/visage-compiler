@@ -25,6 +25,7 @@
 
 
 package javafx.ui;
+import javafx.lang.DeferredTask;
 import javafx.ui.UIElement;
 import javafx.ui.MessageType;
 import javafx.ui.Icon;
@@ -39,23 +40,23 @@ public class ConfirmDialog {
     public attribute message: String;
     public attribute visible: Boolean = false on replace {
         if (visible) {
-            //TODO DO LATER
-            // do later {
-                var result = JOptionPane.showConfirmDialog(
-                      owner.getWindow(),
-                      message,
-                      title,
-                      confirmType.id.intValue(),
-                      messageType.id.intValue(),
-                      icon.getIcon());
-                if (result == JOptionPane.YES_OPTION) { (this.onYes)(); } 
-                else if (result == JOptionPane.NO_OPTION) { (this.onNo)(); }
-                else if (result == JOptionPane.CLOSED_OPTION) { (this.onCancel)(); }
-                else if (result == JOptionPane.OK_OPTION) { (this.onYes)(); }
-                else if (result == JOptionPane.CANCEL_OPTION) { (this.onCancel)(); }
-                visible = false;
-            //TODO DO LATER
-            //}
+            DeferredTask {
+                action: function() : Void {
+                    var result = JOptionPane.showConfirmDialog(
+                          owner.getWindow(),
+                          message,
+                          title,
+                          confirmType.id.intValue(),
+                          messageType.id.intValue(),
+                          icon.getIcon());
+                    if (result == JOptionPane.YES_OPTION) { (this.onYes)(); }
+                    else if (result == JOptionPane.NO_OPTION) { (this.onNo)(); }
+                    else if (result == JOptionPane.CLOSED_OPTION) { (this.onCancel)(); }
+                    else if (result == JOptionPane.OK_OPTION) { (this.onYes)(); }
+                    else if (result == JOptionPane.CANCEL_OPTION) { (this.onCancel)(); }
+                    visible = false;
+                }
+            }
         } 
     }
     public attribute onYes: function():Void;
