@@ -301,7 +301,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     
     public JFXType  TypeUnknown() {
         JFXType tree = new JFXTypeUnknown();
-        tree.pos = pos;
+        tree.pos = Position.NOPOS;
         return tree;
     }
     

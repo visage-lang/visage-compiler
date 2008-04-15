@@ -124,8 +124,10 @@ importDecl  returns [JCTree value]
 	;
 importId  returns [JCExpression pid]
  	: identifier					{ $pid = $identifier.expr; }
-        | ^(DOT in=importId	( name 			{ $pid = F.at($name.pos).Select($in.pid, $name.value); }
-        			| STAR			{ $pid = F.at(pos($STAR)).Select($in.pid, names.asterisk); }
+        | ^(DOT in=importId	( name 			{ $pid = F.at($name.pos).Select($in.pid, $name.value); 
+                                                          endPos($pid, $DOT); }
+        			| STAR			{ $pid = F.at(pos($STAR)).Select($in.pid, names.asterisk); 
+                                                          endPos($pid, $DOT); }
         			)
            )		
 	;
@@ -180,7 +182,8 @@ overrideDeclaration returns [JFXOverrideAttribute value]
 	;
 modifiers  returns [JCModifiers mods]
 	: ^(MODIFIER modifierFlags)
-	 		 				{ mods = F.at($modifierFlags.pos).Modifiers($modifierFlags.flags); }
+	 		 				{ mods = F.at($modifierFlags.pos).Modifiers($modifierFlags.flags); 
+                                                          endPos($mods, $MODIFIER); }
 	;
 modifierFlags   returns [long flags = 0L, int pos = -1]
 	:  (modifierFlag				{ $flags |= $modifierFlag.flag; 
@@ -212,7 +215,9 @@ block  returns [JCBlock value]
 @init { ListBuffer<JCStatement> stats = ListBuffer.<JCStatement>lb(); }
 	: ^(BLOCK
 		(	^(STATEMENT statement)		{ stats.append($statement.value); }	
-		| 	^(EXPRESSION expression)	{ stats.append(F.at($expression.expr.pos).Exec($expression.expr)); }
+		| 	^(EXPRESSION expression)	{ JCStatement stat = F.at($expression.expr.pos).Exec($expression.expr);
+                                                          endPos(stat, $EXPRESSION);
+                                                          stats.append(stat); }
 		)*
 	    )						{ $value = F.at(pos($BLOCK)).Block(0L, stats.toList()); 
                                                           endPos($value, $BLOCK); }
@@ -220,9 +225,18 @@ block  returns [JCBlock value]
 blockExpression  returns [JFXBlockExpression expr]
 @init { ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>(); JCExpression val = null; }
 	: ^(LBRACE 
-		(	^(STATEMENT statement)		{ if (val != null) { stats.append(F.at(val.pos).Exec(val)); val = null; }
+		(	^(STATEMENT statement)		{ if (val != null) {
+                                                              JCStatement stat = F.at(val.pos).Exec(val);
+                                                              endPos(stat, $STATEMENT);
+                                                              stats.append(stat); 
+                                                              val = null; 
+                                                          }
 	     					  	  stats.append($statement.value); }
-		| 	^(EXPRESSION expression)	{ if (val != null) { stats.append(F.at(val.pos).Exec(val)); }
+		| 	^(EXPRESSION expression)	{ if (val != null) {
+                                                              JCStatement stat = F.at(val.pos).Exec(val);
+                                                              endPos(stat, $EXPRESSION);
+                                                              stats.append(stat); 
+                                                          }
 	     					  	  val = $expression.expr; }
 		)*
 	    )						{ $expr = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), val); 
@@ -369,8 +383,10 @@ expression  returns [JCExpression expr]
                                                           endPos($expr, $SUBSUB); }
 	| ^(REVERSE e0=expression) 			{ $expr = F.at(pos($REVERSE)).Unary(JavafxTag.REVERSE, $e0.expr); 
                                                           endPos($expr, $REVERSE); }
-	| ^(POSTINCR e0=expression)			{ $expr = F.at($e0.expr.pos).Unary(JCTree.POSTINC, $e0.expr); }
-	| ^(POSTDECR e0=expression)			{ $expr = F.at($e0.expr.pos).Unary(JCTree.POSTDEC, $e0.expr); }
+	| ^(POSTINCR e0=expression)			{ $expr = F.at($e0.expr.pos).Unary(JCTree.POSTINC, $e0.expr); 
+                                                          endPos($expr, $POSTINCR); }
+	| ^(POSTDECR e0=expression)			{ $expr = F.at($e0.expr.pos).Unary(JCTree.POSTDEC, $e0.expr); 
+                                                          endPos($expr, $POSTDECR); }
 	| ^(DOT e0=expression name)			{ $expr = F.at(pos($DOT)).Select($e0.expr, $name.value); 
                                                           endPos($expr, $DOT); }
 	| ^(FUNC_APPLY e0=expression expressionList)	{ $expr = F.at(pos($FUNC_APPLY)).Apply(null, $e0.expr, $expressionList.args.toList()); 

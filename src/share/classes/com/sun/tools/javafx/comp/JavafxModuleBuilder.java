@@ -27,6 +27,7 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree;
+import com.sun.javafx.api.tree.TypeUnknownTree;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Type;
@@ -55,6 +56,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.lang.model.element.Modifier;
 import javax.tools.FileObject;
 
 public class JavafxModuleBuilder {
@@ -299,6 +301,21 @@ public class JavafxModuleBuilder {
             @Override
             public void scan(JCTree tree) {
                 super.scan(tree);
+                
+                // A Modifiers instance with no modifier tokens and no annotations
+                // is defined as having no position.
+                if (tree instanceof JCModifiers) {
+                    JCModifiers mods = (JCModifiers)tree;
+                    if (mods.getAnnotations().isEmpty() &&
+                        mods.getFlags().isEmpty() || 
+                        (mods.flags & Flags.SYNTHETIC) > 0)
+                        return;
+                }
+                
+                // TypeUnknown trees have no associated tokens.
+                if (tree instanceof JFXTypeUnknown)
+                    return; 
+                
                 if (tree != null) {
                     if (tree.pos <= 0) {
                         String where = tree.getClass().getSimpleName();
