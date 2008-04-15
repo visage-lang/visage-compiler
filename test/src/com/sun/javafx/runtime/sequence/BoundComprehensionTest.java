@@ -1,8 +1,12 @@
 package com.sun.javafx.runtime.sequence;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.JavaFXTestCase;
 import com.sun.javafx.runtime.location.*;
+import framework.FXObjectFactory;
 
 /**
  * BoundComprehensionTest
@@ -109,7 +113,8 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         derived.addChangeListener(hl);
 
         assertEquals(derived, 1, 12, 23);
-        assertEqualsAndClear(hl, "[0, -1] => [ 1, 12, 23 ]");
+        assertEquals(hl);
+        // was: assertEqualsAndClear(hl, "[0, -1] => [ 1, 12, 23 ]");
 
         base.insert(4);
         assertEquals(derived, 1, 12, 23, 34);
@@ -213,7 +218,8 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         derived.addChangeListener(hl);
 
         assertEquals(derived, 0, 2, 4);
-        assertEqualsAndClear(hl, "[0, -1] => [ 0, 2, 4 ]");
+        assertEquals(hl);
+        // was: assertEqualsAndClear(hl, "[0, -1] => [ 0, 2, 4 ]");
 
         base.insert(4);
         assertEquals(derived, 0, 2, 4, 6);
@@ -252,7 +258,8 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         derived.addChangeListener(hl);
 
         assertEquals(derived, 1, 12, 23);
-        assertEqualsAndClear(hl, "[0, -1] => [ 1, 12, 23 ]");
+        assertEquals(hl);
+        // was: assertEqualsAndClear(hl, "[0, -1] => [ 1, 12, 23 ]");
 
         base.insert(4);
         assertEquals(derived, 1, 12, 23, 34);
@@ -307,7 +314,8 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         comp.addChangeListener(hl);
 
         assertEquals(comp, 11, 21, 31, 12, 22, 32, 13, 23, 33);
-        assertEqualsAndClear(hl, "[0, -1] => [ 11, 21, 31, 12, 22, 32, 13, 23, 33 ]");
+        assertEquals(hl);
+        // was: assertEqualsAndClear(hl, "[0, -1] => [ 11, 21, 31, 12, 22, 32, 13, 23, 33 ]");
 
         xs.set(0, 0);
         assertEquals(comp, 10, 20, 30, 12, 22, 32, 13, 23, 33);
@@ -364,80 +372,80 @@ public class BoundComprehensionTest extends JavaFXTestCase {
     }
 
     public void testJfxc1067a() {
-//        final List<String> list = new ArrayList<String>();
-//
-//        final FXObjectFactory<Foo> fooFactory = new FXObjectFactory<Foo>(Foo.class, new String[]{"x"}) {
-//            public void postInit(Foo receiver) {
-//                list.add(receiver.get$x().getAsSequence().get(0));
-//            }
-//        };
-//
-//        SequenceLocation<String> stringSequence = SequenceVariable.make(String.class, Sequences.make(String.class, "a", "b"));
-//        final ObjectLocation<String> firstElement = BoundSequences.element(stringSequence, IntVariable.make(0));
-//
-//        ObjectVariable.make(false, new ObjectBindingExpression<Foo>() {
-//            private SequenceLocation<String> xform$attr;
-//
-//            protected Location[] getStaticDependents() {
-//                return new Location[]{xform$attr};
-//            }
-//
-//            public Foo computeValue() {
-//                final Foo foo = fooFactory.make();
-//                foo.get$x().setAsSequenceFromLiteral(xform$attr.getAsSequence());
-//                foo.initialize$();
-//                System.out.println("yada");
-//                return foo;
-//            }
-//
-//            {
-//                BoundSequenceBuilder<String> jfx$$1sb = new BoundSequenceBuilder<String>(String.class);
-//                jfx$$1sb.add(firstElement);
-//                xform$attr = jfx$$1sb.toSequence();
-//                // @@@ Sequence loc is built in initially-lazy mode !
-//            }
-//        });
-//
-//        assertEquals("[a]", list.toString());
+        final List<String> list = new ArrayList<String>();
+
+        final FXObjectFactory<Foo> fooFactory = new FXObjectFactory<Foo>(Foo.class, new String[]{"x"}) {
+            public void postInit(Foo receiver) {
+                list.add(receiver.get$x().getAsSequence().get(0));
+            }
+        };
+
+        SequenceLocation<String> stringSequence = SequenceVariable.make(String.class, Sequences.make(String.class, "a", "b"));
+        final ObjectLocation<String> firstElement = BoundSequences.element(stringSequence, IntVariable.make(0));
+
+        ObjectVariable.make(false, new ObjectBindingExpression<Foo>() {
+            private SequenceLocation<String> xform$attr;
+
+            protected Location[] getStaticDependents() {
+                return new Location[]{xform$attr};
+            }
+
+            public Foo computeValue() {
+                final Foo foo = fooFactory.make();
+                foo.get$x().setAsSequenceFromLiteral(xform$attr.getAsSequence());
+                foo.initialize$();
+                System.out.println("yada");
+                return foo;
+            }
+
+            {
+                BoundSequenceBuilder<String> jfx$$1sb = new BoundSequenceBuilder<String>(String.class);
+                jfx$$1sb.add(firstElement);
+                xform$attr = jfx$$1sb.toSequence();
+                // @@@ Sequence loc is built in initially-lazy mode !
+            }
+        });
+
+        assertEquals("[a]", list.toString());
     }
 
     public void testJfxc1067() {
-//        final List<String> list = new ArrayList<String>();
-//
-//        final FXObjectFactory<Foo> fooFactory = new FXObjectFactory<Foo>(Foo.class, new String[]{"x"}) {
-//            public void postInit(Foo receiver) {
-//                list.add(receiver.get$x().getAsSequence().get(0));
-//            }
-//        };
-//
-//        SequenceVariable<Foo> w = SequenceVariable.make(Foo.class);
-//        SequenceLocation<String> stringSequence = SequenceVariable.make(String.class, Sequences.make(String.class, "a", "b"));
-//        w.bind(new ObjectBoundComprehension<String, Foo>(Foo.class, stringSequence, false) {
-//            protected SequenceLocation<Foo> computeElements$(final ObjectLocation<String> textStr, final IntLocation $indexof$textStr) {
-//                return BoundSequences.singleton(Foo.class,
-//                                                ObjectVariable.make(false, new ObjectBindingExpression<Foo>() {
-//                                                    private SequenceLocation<String> xform$attr;
-//
-//                                                    protected Location[] getStaticDependents() {
-//                                                        return new Location[]{xform$attr};
-//                                                    }
-//
-//                                                    public Foo computeValue() {
-//                                                        final Foo foo = fooFactory.make();
-//                                                        foo.get$x().setAsSequenceFromLiteral(xform$attr.getAsSequence());
-//                                                        foo.initialize$();
-//                                                        return foo;
-//                                                    }
-//
-//                                                    {
-//                                                        BoundSequenceBuilder<String> jfx$$1sb = new BoundSequenceBuilder<String>(String.class);
-//                                                        jfx$$1sb.add(textStr);
-//                                                        xform$attr = jfx$$1sb.toSequence();
-//                                                    }
-//                                                }));
-//            }
-//        });
-//        assertEquals(2, w.getAsSequence().size());
-//        assertEquals("[a, b]", list.toString());
+        final List<String> list = new ArrayList<String>();
+
+        final FXObjectFactory<Foo> fooFactory = new FXObjectFactory<Foo>(Foo.class, new String[]{"x"}) {
+            public void postInit(Foo receiver) {
+                list.add(receiver.get$x().getAsSequence().get(0));
+            }
+        };
+
+        SequenceVariable<Foo> w = SequenceVariable.make(Foo.class);
+        SequenceLocation<String> stringSequence = SequenceVariable.make(String.class, Sequences.make(String.class, "a", "b"));
+        w.bind(new ObjectBoundComprehension<String, Foo>(Foo.class, stringSequence, false) {
+            protected SequenceLocation<Foo> computeElements$(final ObjectLocation<String> textStr, final IntLocation $indexof$textStr) {
+                return BoundSequences.singleton(Foo.class,
+                                                ObjectVariable.make(false, new ObjectBindingExpression<Foo>() {
+                                                    private SequenceLocation<String> xform$attr;
+
+                                                    protected Location[] getStaticDependents() {
+                                                        return new Location[]{xform$attr};
+                                                    }
+
+                                                    public Foo computeValue() {
+                                                        final Foo foo = fooFactory.make();
+                                                        foo.get$x().setAsSequenceFromLiteral(xform$attr.getAsSequence());
+                                                        foo.initialize$();
+                                                        return foo;
+                                                    }
+
+                                                    {
+                                                        BoundSequenceBuilder<String> jfx$$1sb = new BoundSequenceBuilder<String>(String.class);
+                                                        jfx$$1sb.add(textStr);
+                                                        xform$attr = jfx$$1sb.toSequence();
+                                                    }
+                                                }));
+            }
+        });
+        assertEquals(2, w.getAsSequence().size());
+        assertEquals("[a, b]", list.toString());
     }
 }

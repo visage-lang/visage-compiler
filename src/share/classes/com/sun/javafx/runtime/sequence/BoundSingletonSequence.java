@@ -15,13 +15,15 @@ class BoundSingletonSequence<T, V extends T> extends AbstractBoundSequence<T> im
     public BoundSingletonSequence(Class<T> clazz, ObjectLocation<V> location) {
         super(clazz);
         this.location = location;
+        setInitialValue(computeValue());
+        addTriggers();
     }
 
-    protected Sequence<T> computeValue() {
+    private Sequence<T> computeValue() {
         return Sequences.singleton(getClazz(), location.get());
     }
 
-    protected void initialize() {
+    private void addTriggers() {
         location.addChangeListener(new ObjectChangeListener<V>() {
             public void onChange(V oldValue, V newValue) {
                 updateSlice(0, getRawValue().size() - 1, Sequences.singleton(getClazz(), newValue));

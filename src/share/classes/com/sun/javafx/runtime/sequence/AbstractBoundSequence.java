@@ -32,9 +32,9 @@ import java.util.ArrayList;
 import com.sun.javafx.runtime.location.*;
 
 /**
- * Abstract base class for bound sequences.  Because bound sequences must be constructed in a valid
- * state, the constructor will call the abstract construct() method.  This means that construct() cannot
- * depend on any state initialized by the subclass constructor!  
+ * Abstract base class for bound sequences.  Subclass constructors are expected to compute the initial value, set up
+ * any required triggers on dependent objects, and call the setInitialValue() method to provide a value.  (This places
+ * limits on designing subclasses for further inheritance.)  The setInitialValue() method must be called exactly once.
  *
  * @author Brian Goetz
  */
@@ -43,33 +43,25 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
     private List<SequenceChangeListener<T>> changeListeners;
     private Sequence<T> value;
 
-    // AbstractBoundSequences start out in the invalid state, and go to the valid state exactly once,
-    // and thereafter stay in the valid state.  They cannot be lazily bound.
+    // Currently, no support for lazy binding.
 
     protected AbstractBoundSequence(Class<T> clazz) {
         this.clazz = clazz;
         this.value = Sequences.emptySequence(clazz);
     }
 
-    /** Called after construction to compute the value of the sequence */
-    protected abstract Sequence<T> computeValue();
-
-    /** Called once after construction so that listeners may be registered */
-    protected abstract void initialize();
-
-    protected void ensureValid() {
-        if (!isValid()) {
-            Sequence<T> oldValue = value;
-            Sequence<T> newValue = computeValue();
-            if (newValue == null)
-                newValue = Sequences.emptySequence(clazz);
-            initialize();
-            setValid();
-            value = newValue;
-            if (!Sequences.isEqual(oldValue, newValue)) {
-                invalidateDependencies();
-                notifyListeners(0, Sequences.size(oldValue)-1, newValue, oldValue, newValue);
-            }
+    protected void setInitialValue(Sequence<T> initialValue) {
+        if (isValid())
+            throw new IllegalStateException("Cannot call setInitialValue more than once");
+        Sequence<T> oldValue = value;
+        Sequence<T> newValue = initialValue;
+        if (newValue == null)
+            newValue = Sequences.emptySequence(clazz);
+        value = newValue;
+        setValid();
+        if (!Sequences.isEqual(oldValue, newValue)) {
+            invalidateDependencies();
+            notifyListeners(0, Sequences.size(oldValue)-1, newValue, oldValue, newValue);
         }
     }
 
@@ -104,7 +96,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
     }
 
     public Sequence<T> getAsSequence() {
-        ensureValid();
+        assert(isValid());
         return value;
     }
 

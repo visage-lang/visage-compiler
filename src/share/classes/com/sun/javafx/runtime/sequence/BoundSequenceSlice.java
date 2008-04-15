@@ -50,9 +50,11 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
         this.lowerLoc = lowerLoc;
         this.upperLoc = upperLoc;
         this.isExclusive = isExclusive;
+        setInitialValue(computeValue());
+        addTriggers();
     }
 
-    protected Sequence<T> computeValue() {
+    private Sequence<T> computeValue() {
         computeBounds(true, true);
         return sequenceLoc.get().getSlice(lower, upper);
     }
@@ -86,7 +88,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
         return sequenceLoc.getSlice(lower, upper);
     }
                     
-    protected void initialize() {
+    private void addTriggers() {
         sequenceLoc.addChangeListener(new SequenceChangeListener<T>() {
 
             public void onChange(int startPos, int endPos, Sequence newElements, Sequence oldValue, Sequence newValue) {

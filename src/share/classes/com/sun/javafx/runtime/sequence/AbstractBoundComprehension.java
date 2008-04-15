@@ -52,6 +52,8 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
         super(clazz);
         this.sequenceLocation = sequenceLocation;
         this.useIndex = useIndex;
+        setInitialValue(computeValue());
+        addTriggers();
     }
 
     public AbstractBoundComprehension(Class<V> clazz,
@@ -77,7 +79,7 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
 
     }
 
-    protected Sequence<V> computeValue() {
+    private Sequence<V> computeValue() {
         Sequence<T> sequence = sequenceLocation.getAsSequence();
         state = new DumbMutableSequence<State<T, L, V>>(sequence.size());
         SequenceLocation<V>[] locationsArray = Util.<SequenceLocation<V>>newArray(SequenceLocation.class, sequence.size());
@@ -108,7 +110,7 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
         return new State<T, L, V>(elementLocation, indexLocation, mapped);
     }
 
-    protected void initialize() {
+    private void addTriggers() {
         underlying.addChangeListener(new SequenceChangeListener<V>() {
             public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
                 AbstractBoundComprehension.this.updateSlice(startPos, endPos, newElements);

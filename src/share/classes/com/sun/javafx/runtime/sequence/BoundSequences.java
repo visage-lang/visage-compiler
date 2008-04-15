@@ -97,11 +97,7 @@ public class BoundSequences {
 
     public static<T> SequenceLocation<T> empty(final Class<T> clazz) {
         return new AbstractBoundSequence<T>(clazz) {
-            protected Sequence<T> computeValue() {
-                return Sequences.emptySequence(clazz);
-            }
-
-            protected void initialize() { }
+            { setInitialValue(Sequences.emptySequence(clazz)); }
         };
     }
 

@@ -29,6 +29,8 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
         super(clazz);
         this.sequenceLocation = sequenceLocation;
         this.dependsOnIndex = dependsOnIndex;
+        setInitialValue(computeValue());
+        addTriggers();
     }
 
     public SimpleBoundComprehension(Class<V> clazz, SequenceLocation<T> sequenceLocation) {
@@ -37,7 +39,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
 
     protected abstract V computeElement$(T element, int index);
 
-    protected Sequence<V> computeValue() {
+    private Sequence<V> computeValue() {
         Sequence<T> sequence = sequenceLocation.getAsSequence();
         V[] intermediateResults = Util.<V>newObjectArray(sequence.size());
         for (int i = 0; i < intermediateResults.length; i++)
@@ -45,7 +47,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
         return Sequences.make(getClazz(), intermediateResults);
     }
 
-    protected void initialize() {
+    private void addTriggers() {
         sequenceLocation.addChangeListener(new SequenceChangeListener<T>() {
             public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 // IF the closure depends on index, then an insertion or deletion causes recomputation of the whole

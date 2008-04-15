@@ -15,13 +15,15 @@ public class BoundUpcastSequence<T, V extends T> extends AbstractBoundSequence<T
     public BoundUpcastSequence(Class<T> clazz, SequenceLocation<V> sequence) {
         super(clazz);
         this.sequence = sequence;
+        setInitialValue(computeValue());
+        addTriggers();
     }
 
-    protected Sequence<T> computeValue() {
+    private Sequence<T> computeValue() {
         return Sequences.upcast(getClazz(), sequence.get());
     }
 
-    protected void initialize() {
+    private void addTriggers() {
         sequence.addChangeListener(new SequenceChangeListener<V>() {
             public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
                 updateSlice(startPos, endPos, newElements, Sequences.upcast(getClazz(), newValue));

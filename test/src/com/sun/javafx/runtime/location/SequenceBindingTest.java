@@ -355,7 +355,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
         c.addChangeListener(hl);
 
         assertEquals(c, 1, 2, 3, 4);
-        assertEqualsAndClear(hl, "i-0-1", "i-1-2", "i-2-3", "i-3-4");
+        assertEquals(hl);
+        // was: assertEqualsAndClear(hl, "i-0-1", "i-1-2", "i-2-3", "i-3-4");
         a.set(0, 0);
         assertEquals(c, 0, 2, 3, 4);
         assertEqualsAndClear(hl, "r-0-1-0");
@@ -460,7 +461,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
         r.addChangeListener(hl);
 
         assertEquals(r, 3, 2, 1);
-        assertEqualsAndClear(hl, "[0, -1] => [ 3, 2, 1 ]");
+        assertEquals(hl);
+        // was: assertEqualsAndClear(hl, "[0, -1] => [ 3, 2, 1 ]");
 
         a.insert(4);
         assertEquals(a, 1, 2, 3, 4);
@@ -538,7 +540,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
         s.addChangeListener(hl);
 
         assertEquals(s, 0);
-        assertEqualsAndClear(hl, "[0, -1] => [ 0 ]");
+        assertEquals(hl);
+        // was: assertEqualsAndClear(hl, "[0, -1] => [ 0 ]");
 
         i.setAsInt(1);
         assertEquals(s, 1);
@@ -623,7 +626,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
         derived.addChangeListener(hl);
 
         assertEquals(derived, 1, 4, 5, 6, 10, 3);
-        assertEqualsAndClear(hl, "[0, -1] => [ 1, 4, 5, 6, 10, 3 ]");
+        assertEquals(hl);
+        // was: assertEqualsAndClear(hl, "[0, -1] => [ 1, 4, 5, 6, 10, 3 ]");
 
         b.insert(7);
         assertEquals(derived, 1, 4, 5, 6, 7, 10, 4);

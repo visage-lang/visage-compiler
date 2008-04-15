@@ -70,6 +70,9 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
                 throw new ClassCastException("cannot cast " + eClass.getName()
                         + " segment to " + clazz.getName() + " sequence");
         }
+
+        setInitialValue(computeValue());
+        addTriggers();
     }
 
     @SuppressWarnings("unchecked")
@@ -77,7 +80,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         return (Info<T>[]) new Info[len];
     }
 
-    protected Sequence<T> computeValue() {
+    private Sequence<T> computeValue() {
         Sequence<? extends T>[] sequences = Util.newSequenceArray(infos.length);
         for (int i = 0, offset = 0; i < infos.length; i++) {
             sequences[i] = infos[i].location.getAsSequence();
@@ -88,7 +91,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         return Sequences.concatenate(getClazz(), sequences);
     }
 
-    protected void initialize() {
+    private void addTriggers() {
         for (int i = 0; i < infos.length; i++)
             infos[i].addListener(new MyListener(i));
     }

@@ -57,9 +57,11 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> impl
         this.upperLoc = upperLoc;
         this.stepLoc = stepLoc;
         this.exclusive = exclusive;
+        setInitialValue(computeValue());
+        addTriggers();
     }
 
-    protected Sequence<Double> computeValue() {
+    private Sequence<Double> computeValue() {
         computeBounds(lowerLoc.get(), upperLoc.get(), stepLoc.get());
         return computeFull(lower, upper, step);
     }
@@ -97,7 +99,7 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> impl
         }
     }
 
-    protected void initialize() {
+    private void addTriggers() {
         lowerLoc.addChangeListener(new DoubleChangeListener() {
             public void onChange(double oldValue, double newValue) {
                 

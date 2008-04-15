@@ -14,13 +14,16 @@ class BoundReverseSequence<T> extends AbstractBoundSequence<T> implements Sequen
     BoundReverseSequence(SequenceLocation<T> location) {
         super(location.getAsSequence().getElementType());
         this.location = location;
+
+        setInitialValue(computeValue());
+        addTriggers();
     }
 
-    protected Sequence<T> computeValue() {
+    private Sequence<T> computeValue() {
         return location.getAsSequence().reverse();
     }
 
-    protected void initialize() {
+    private void addTriggers() {
         location.addChangeListener(new SequenceChangeListener<T>() {
             public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 int sliceSize = endPos - startPos;
