@@ -70,7 +70,7 @@ classes. They act like private static fields of the module class. </para>
 
     <para>Any sequence of characters (including whitespace) contained in
     french quotes &lt;&lt;&gt;&gt; is treated as an identifier. This makes it
-    possible to use JavaFX&trade; Script language keywords (or other normally illegal
+    possible to use JavaFX&trade; Script programming language keywords (or other normally illegal
     identifiers) as class, variable, function, or attribute names. </para>
     
     
@@ -85,7 +85,7 @@ classes. They act like private static fields of the module class. </para>
 
 
     <para>This also makes it possible to invoke methods (written in the Java
-    programming language) whose names are the same as JavaFX Script language keywords.</para>
+    programming language) whose names are the same as JavaFX Script programming language keywords.</para>
     
     <para><emphasis role="bold">Example:</emphasis></para>
 

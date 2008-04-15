@@ -497,55 +497,7 @@ System.out.println(x); // prints 10
 
 <para style="padding-top:8pt">&nbsp;</para>
 
-    <sect2 id="bind"><title>Binding </title>
 
-    
-
-    <para>JavaFX Script programming language supports dependency-based evaluation of expressions
-    with the bind keyword.</para>
-
-    
-<!-- 
-    <para><emphasis role="bold">TO-DO: This section may move to its own
-    chapter (JFXC-448.) Is bind an operator or just a
-    keyword?</emphasis></para>
--->
-    
-    <para>Example:</para>
-
-    
-    <programlisting>var x = 100;
-var y = bind x + 100;
-x = 50;
-y == 150; // true
-</programlisting>
-
-    <para>Whenever the inputs to a bound expression are updated, the result is
-    recalculated and automatically updated. In the above example whenever
-    <code>x</code> is updated, <code>y</code> is correspondingly updated
-    according to the expression given.</para>
-
-    <para>Binding is one of the main distinguishing features of the JavaFX Script language. <code>bind</code> 
-    makes it possible to express complex dynamic data relationships.</para>
-
-    <para>Any expression of any complexity can be bound - including
-    conditionals, loops, blocks, function calls, and even calls to methods and
-    constructors written in the Java programming language.</para>
-
-    <para>Example:</para>
-
-    <programlisting>import java.lang.Math;
-
-var a = 0;
-var x = bind Math.cos(Math.toRadians(a));
-println(x); // prints 1.0
-a = 180;
-println(x); // prints -1.0;
-</programlisting>
-
-    <para></para>
-    
-    </sect2>
 
     <sect2 id="for"><title>Querying Sequences with<code> for</code> </title>
 
@@ -1165,6 +1117,207 @@ System.out.println(nums == [3,2,1,0]); // prints true
 var nums2 = [3..0 step 1]; </programlisting>
 
 <para>actually declare empty sequences.</para>
+
+</sect3>
+</sect2>
+
+
+<!-- *********** new binding section ***************** -->
+
+
+<sect2 id="binding2"><title>Binding</title>
+
+<para>The <emphasis>bind</emphasis> keyword associates the value of a target variable to the value of a remote variable.  </para>
+
+<programlisting>let x = bind someExpression; </programlisting>
+
+<para>This binds the outcome of <emphasis><code>someExpression</code></emphasis> to the variable <code>x</code>. When <emphasis><code>someExpression</code></emphasis> changes, JavaFX Script updates the value of <code> x </code>. </para>
+
+<para>In JavaFX Script, the remote variable can be a simple value of some basic type, the outcome of an expression, the outcome of a block of expressions or a bound function. </para>
+
+
+<sect3 id="recalc"><title>Update Recalculations</title>
+
+<para>In some cases you need to know exactly how the update occurs, or what is meant by <code><emphasis>someExpression</emphasis></code> changing.</para>
+
+<para>When a remote value changes, JavaFX Script performs a minimal recalculation. This only matters in limited circumstances; for example, when a binding requires an object creation is done in a bind and if, because of object identity, it matters whether or not a new object was created. </para>
+
+<para><emphasis role="bold">Example: </emphasis></para>
+
+<programlisting>    let sum = bind expr1 + expr2;</programlisting>
+
+<para>if <emphasis><code>expr2</code></emphasis> changes then JavaFX Script recalculates sum, but does not recalculate <emphasis><code>expr1</code></emphasis>. The value for <emphasis><code>expr1</code></emphasis> was previously stored and it is simply re-fetched. </para>
+
+<para><emphasis role="bold">Example: </emphasis></para>
+
+<programlisting>    var y = 3;
+    function ten() : Integer { 10 }
+    let sum = bind ten() + y;
+    println(sum);
+    y = 7;
+    println(sum);</programlisting>
+
+<para>This prints:</para>
+
+<programlisting>    13
+    17</programlisting>
+
+<para><emphasis role="bold">Note:</emphasis> Assume a <code>println</code> function equivalent to <code>System.out.println.</code></para>
+
+<para>When <code>y</code> is set to <emphasis>7</emphasis>, the function <code>ten()</code> is not called again (since it didn't change), its value has been remembered and reused.</para>
+
+<para>Using the <code>let</code> keyword introduces a variable which cannot be assigned to.  </para>
+</sect3>
+
+
+
+<sect3 id="conditional"><title>Conditional Expressions</title>
+
+
+<para>Consider the following expression: </para>
+
+<programlisting>    let x = bind if (condExpr) expr1 else expr2;</programlisting>
+
+<para>A change to <emphasis><code>condExpr </code></emphasis> changes which branch of the <code>if</code> statement will be evaluated. A change to <emphasis><code>expr1</code></emphasis> or <emphasis><code>expr2</code></emphasis> does not cause either of the other expressions to be recalculated.</para>
+
+</sect3>
+
+
+
+<sect3 id="fexpr"><title>for Expressions</title>
+
+<para>Consider the following expression:</para>
+
+<programlisting>    let newSeq = bind for (elem in seq) expr;</programlisting>
+
+<para>If <code>seq</code> changes, the elements in <code>newSeq</code> which corresponded to elements still in seq are not recalculated.  In other words; if an element is inserted into <code>seq</code>, the results of applying <code>expr</code> to that element are inserted into <code>newSeq</code> at the corresponding positions and the other elements are not recalculated.  </para>
+
+<para>Exception:  if <code>expr</code> uses <code>indexof elem</code> then those elements whose index changed will need to be updated, but corresponding to the minimal update rules.  </para>
+
+<para><emphasis role="bold">Example: </emphasis></para>
+
+<programlisting>    var min = 0;
+    var max = 3;
+    function square(x : Integer) : Integer { x*x }
+    let values = bind for (x in [min..max]) square(x);
+    println(values);
+    max = 5;
+    println(values);
+    min = 1;
+    println(values);
+    min = 0;
+    println(values);</programlisting>
+
+<para>Output:</para>
+
+<programlisting>    [ 0, 1, 4, 9 ]
+    [ 0, 1, 4, 9, 16, 25 ]
+    [ 1, 4, 9, 16, 25 ]
+    [ 0, 1, 4, 9, 16, 25 ]</programlisting>
+
+<para>JavaFX Script performs the following recalculations: </para>
+
+<itemizedlist>
+<listitem>Calculate the squares of 0 through 3.  The squares of 4 and 5 (0 through 3 are not recalculated when the max changes).  </listitem>
+
+<listitem>Delete the square of zero without recalculating any values</listitem>
+
+<listitem>Add back the square of zero. This requires it to be recalculated.  This behavior is the same if insert and delete are used instead.</listitem>
+</itemizedlist>
+</sect3>
+
+<sect3 id="blocks"><title>Block Expressions</title>
+
+
+<para>A block-expression is an optional sequence of statements followed by an expression enclosed in curly braces:</para>
+
+    { statement; statement; statement; expression }
+
+<para>The value of a block-expression is the value of the terminating expression.  Within a <code>bind</code>, the only statements which can occur in a block-expression are variable declarations.  Note that assignment (including increment and decrement) are prohibited within <code>bind</code>.  Thus a bound block-expression has the form:</para>
+
+<programlisting>    bind { var a = expr; var b = expr; var c = expr; expr }</programlisting>
+
+<para>Because any changes to the bound expression cause an update, and because that update is minimal, it is easy to see that the variables are effectively bound.  Note also that <code>while, insert</code> and <code>delete</code> are statements and therefore can not occur within a <code>bind</code>.</para>
+</sect3>
+
+
+<sect3 id="functioncalls"><title>Function and Method Calls</title>
+
+
+<programlisting>    let val = bind foo(a, b);</programlisting>
+
+<para>A non-bound function is one that is not preceded with the <code>bound</code> keyword.  For calls to Java methods or non-bound JavaFX Script functions, JavaFX Script re-invokes the function if any of the arguments change, but the body of a function is a black-box. Dependencies it might have beyond its input parameters do not cause a recalculation.  </para>
+
+<para><emphasis role="bold">Example: </emphasis></para>
+
+<programlisting>    class Point {
+      attribute x : Number;
+      attribute y : Number;
+    }
+
+    var scale = 1.0;
+    function makePoint(x0 : Number, y0 : Number) : Point {
+      Point {
+        x: x0 * scale
+        y: y0 * scale
+      }
+    }
+
+    var myX = 3.0;
+    var myY = 3.0;
+    let pt = bind makePoint(myX, myY);
+    println(pt.x);
+    myX = 10.0;
+    println(pt.x);
+    scale = 2.0;
+    println(pt.x);</programlisting>
+
+<para>Will print:</para>
+
+<programlisting>    3.0
+    10.0
+    10.0</programlisting>
+
+<para>Changing the argument <code>myX</code> causes <code>makePoint</code> to be called again.  But, the function <code>makePoint</code> is a black-box.  Changing the value assigned to scale will not cause an update, as it probably should.  That's where a <code>bound</code> function is intended to work -- a <code>bound</code> function causes the update that you would expect.</para>
+</sect3>
+
+
+
+<sect3 id="boundfunctions"><title>Bound Functions</title>
+
+<para>Bound functions have as their body a block-expression which is bound (it thus has the above restrictions on bound block-expressions).  When binding to a bound function, changes besides the arguments causes an update, and the function sees changes to its arguments. So, if the above function <code>makePoint</code> were made a bound function:</para>
+
+<programlisting>    bound function makePoint(x0 : Number, y0 : Number) : Point {</programlisting>
+
+<para>The change to the value assigned to <code>scale</code> now causes an update (20.0).  Note that if <code>myX</code> changes, only <code> x0 * scale</code> would be recalculated, not<code> y0 * scale </code>.</para>
+
+<para>Calling a <code>bound</code> function from outside a <code>bind</code> is just like calling a non-bound function.
+
+</para></sect3>
+
+
+<sect3 id="objliterals"><title>Object Liberals and Binding</title>
+
+
+<para>Object literals behave like operators and non-bound functions.  If one of the arguments to the object literal changes then it is re-executed (a new instance is created).</para>
+
+    <programlisting>let pt = bind Point { x: myX  y: myY  }</programlisting>
+
+<para>If <code>myX</code> changes, JavaFX Script builds a new Point object -- the expected behavior for immutable objects.  </para>
+
+<para>If you want the value of <code> x </code> to track the value of <code>myX </code> without creating a new Point, then you bind it:</para>
+
+    <programlisting>let pt = bind Point { x: bind myX  y: myY  }</programlisting>
+
+<para>Now if <code> myX </code> changes, the <code> x </code> attribute of point will be updated, but arguments to the object literal have not changed (x is still, and will always be, bound to <code> myX </code>).  Changes to <code> myY </code> will still cause a new Point to be created.  </para>
+
+<para>For this example, you would probably want to bind y as well:</para>
+
+    <programlisting>let pt = bind Point { x: bind myX  y: bind myY  }</programlisting>
+
+<para>where <code> pt </code> would always remain the same Point instance. It would be the same without the initial bind:</para>
+
+<programlisting>    let pt = Point { x: bind myX  y: bind myY  }</programlisting>
 
 </sect3>
 </sect2>
