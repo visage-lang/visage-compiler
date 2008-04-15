@@ -52,7 +52,7 @@ public class FXRunAndCompareWrapper extends TestCase {
     private final boolean shouldRun;
     private final boolean expectCompileFailure;
     private final boolean expectRunFailure;
-    private final boolean checkError;
+    private final boolean checkCompilerMsg;
     private final String className;
     private final String classpath;
     private final String outputFileName;
@@ -68,7 +68,7 @@ public class FXRunAndCompareWrapper extends TestCase {
                                   boolean expectCompileFailure,
                                   boolean shouldRun,
                                   boolean expectRunFailure,
-                                  boolean checkError,
+                                  boolean checkCompilerMsg,
                                   Collection<String> auxFiles,
                                   Collection<String> separateFiles, 
                                   String param) {
@@ -79,7 +79,7 @@ public class FXRunAndCompareWrapper extends TestCase {
         this.shouldRun = shouldRun;
         this.expectCompileFailure = expectCompileFailure;
         this.expectRunFailure = expectRunFailure;
-        this.checkError = checkError;
+        this.checkCompilerMsg = checkCompilerMsg;
         this.auxFiles = new LinkedList<String>(auxFiles);
         this.separateFiles = new LinkedList<String>(separateFiles);
         this.className = testFile.getName();
@@ -133,16 +133,16 @@ public class FXRunAndCompareWrapper extends TestCase {
             writer.flush();
             errors = 1;
         }
-        if (errors != 0) {
-            PrintStream outputDest = expectCompileFailure
+        if (errors != 0 || checkCompilerMsg) {
+            PrintStream outputDest = expectCompileFailure || checkCompilerMsg
                     ? new PrintStream(new FileOutputStream(errorFileName))
                     : System.out;
             TestHelper.dumpFile(outputDest, new StringInputStream(new String(err.toByteArray())),
                                 "Compiler Output", testFile.toString());
             outputDest.println("--");
-            if (!expectCompileFailure)
+            if (errors != 0 && !expectCompileFailure)
                 fail(String.format("%d errors compiling %s", errors, testFile));
-            if (checkError)
+            if (checkCompilerMsg)
                 compare(errorFileName, expectedFileName, true);
         }
         if (expectCompileFailure && errors == 0) {
@@ -188,7 +188,7 @@ public class FXRunAndCompareWrapper extends TestCase {
         }
     }
 
-    private void compare(String outputFileName, String expectedFileName, boolean compareCompilerError) throws IOException {
+    private void compare(String outputFileName, String expectedFileName, boolean compareCompilerMsg) throws IOException {
         File expectedFile = new File(expectedFileName);
 		
 		BufferedReader expected;
@@ -210,7 +210,7 @@ public class FXRunAndCompareWrapper extends TestCase {
             String as = actual.readLine();
             while (as != null && as.startsWith("Cobertura:"))
                 as = actual.readLine();
-            if (compareCompilerError)  // ignore comments
+            if (compareCompilerMsg)  // ignore comments
                 while (as != null && as.startsWith("--"))
                     as = actual.readLine();
             ++lineCount;
@@ -228,7 +228,7 @@ public class FXRunAndCompareWrapper extends TestCase {
             else if (as == null)
                 fail("Program output for " + testFile + " ends prematurely at line " + lineCount);
             else if (!es.equals(as)
-                    && !(compareCompilerError 
+                    && !(compareCompilerMsg 
                             && as.startsWith("test" + File.separator + "should-fail" + File.separator)
                             && as.substring("test/should-fail/".length()).equals(es)))
                 fail("Program output for " + testFile + " differs from expected at line " + lineCount);

@@ -2387,4 +2387,15 @@ public
     public Warner convertWarner(DiagnosticPosition pos, Type found, Type expected) {
 	return new ConversionWarner(pos, "unchecked.assign", found, expected);
     }
+	
+	public void warnEmptyRangeLiteral(DiagnosticPosition pos, JCLiteral lower, JCLiteral upper, JCLiteral step, boolean isExclusive) {
+        double lowerValue = ((Number)lower.getValue()).doubleValue();
+        double upperValue = ((Number)upper.getValue()).doubleValue();
+        double stepValue = step != null? ((Number)step.getValue()).doubleValue() : 1;
+        if ((stepValue > 0 && lowerValue > upperValue)
+                || (stepValue < 0 && lowerValue < upperValue)
+                || (isExclusive && lowerValue == upperValue)) {
+            log.warning(pos, "javafx.range.literal.empty");
+		}
+	}
 }

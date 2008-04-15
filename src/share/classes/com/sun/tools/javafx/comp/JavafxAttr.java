@@ -2925,6 +2925,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 log.error(tree.getUpper().pos(), "range.step.int.or.number"); 
             }
         }
+		if (tree.getLower().getTag() == JCTree.LITERAL && tree.getUpper().getTag() == JCTree.LITERAL 
+                && (tree.getStepOrNull() == null || tree.getStepOrNull().getTag() == JCTree.LITERAL)) {
+            chk.warnEmptyRangeLiteral(tree.pos(), (JCLiteral)tree.getLower(), (JCLiteral)tree.getUpper(), (JCLiteral)tree.getStepOrNull(), tree.isExclusive());
+		}
         Type owntype = types.sequenceType(allInt? syms.javafx_IntegerType : syms.javafx_NumberType);
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }

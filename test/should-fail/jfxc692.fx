@@ -1,7 +1,7 @@
 /* 
  * Regression test: JFXC-692: Compiler should issue a warning message for zero-length sequence range literals
  *
- * @test
+ * @test/warning
  */
 
 import java.lang.System;
