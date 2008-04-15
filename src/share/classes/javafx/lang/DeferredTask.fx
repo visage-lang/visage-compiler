@@ -6,16 +6,7 @@ public class DeferredTask {
 
     /* controlled */ public attribute done : Boolean;
 
-    public attribute onDone : function() : Void;
-
     postinit {
-        try {
-            Entry.deferTask(action);
-        }
-        finally {
-            done = true;
-            if (onDone <> null)
-                onDone();
-        }
+        Entry.deferTask(function() : Void { try { action(); } finally { done = true } });
     }
 }
