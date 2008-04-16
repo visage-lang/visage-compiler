@@ -47,6 +47,7 @@ public class JFXUnary extends JCUnary implements JavaFXTree {
         super(opcode, arg);
     }
 
+    @Override
     public JavaFXKind getJavaFXKind() {
         switch (getTag()) {
             case JavafxTag.SIZEOF: 
@@ -57,7 +58,11 @@ public class JFXUnary extends JCUnary implements JavaFXTree {
                 return null;
         }
     }
+    
+    @Override
+    public Kind getKind() { return JavafxTreeInfo.tagToKind(getTag()); }
 
+    @Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
         return visitor.visitUnary(this, data);
     }
