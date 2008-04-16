@@ -27,14 +27,9 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree;
-import com.sun.javafx.api.tree.TypeUnknownTree;
 import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.TypeTags;
 import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.TypeTags.BOT;
-import static com.sun.tools.javac.code.TypeTags.VOID;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.Context;
@@ -45,18 +40,13 @@ import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Name.Table;
 import com.sun.tools.javafx.code.JavafxSymtab;
-import static com.sun.tools.javafx.code.JavafxFlags.*;
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.tree.JavafxTag.*;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.lang.model.element.Modifier;
 import javax.tools.FileObject;
 
 public class JavafxModuleBuilder {
@@ -243,7 +233,7 @@ public class JavafxModuleBuilder {
 
     private JFXFunctionDefinition makeRunFunction(Name name, List<JCStatement> stats, JCExpression value, Type returnType) {
         JFXVar mainArgs = make.Param(commandLineArgs, 
-                make.TypeClass(make.Identifier(Name.fromString(names, "String")), TypeTree.Cardinality.ANY));
+                make.TypeClass(make.Ident(Name.fromString(names, "String")), TypeTree.Cardinality.ANY));
         List<JFXVar> argsVarList = List.<JFXVar>of(mainArgs);
         return makeMethod(name, stats, value, returnType, argsVarList);
     }

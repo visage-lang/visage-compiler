@@ -25,36 +25,22 @@
 
 package com.sun.tools.javafx.comp;
 
-import java.io.OutputStreamWriter;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.code.Symbol.TypeSymbol;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.MethodType;
-import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.tree.Pretty;
-import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
-import static com.sun.tools.javafx.comp.JavafxDefs.attributeGetMethodNamePrefix;
-import static com.sun.tools.javafx.comp.JavafxDefs.interfaceSuffix;
 import static com.sun.tools.javafx.comp.JavafxDefs.locationPackageNameString;
 import static com.sun.tools.javafx.comp.JavafxDefs.sequencePackageNameString;
-import com.sun.tools.javafx.comp.JavafxToJava.Wrapped;
-import com.sun.tools.javafx.tree.*;
 
 /**
  *
@@ -67,10 +53,8 @@ public class JavafxTypeMorpher {
     private final JavafxDefs defs;
     private final Name.Table names;
     final JavafxClassReader reader;
-    private final TreeMaker make;
     private final JavafxSymtab syms;
-    private final Log log;
-    private final JavafxToJava toJava;
+    private final JavafxToJava toJava;  //TODO: this dependency should go away
     private final JavafxTypes types;
 
     public final LocationNameSymType[] bindingNCT;
@@ -101,7 +85,7 @@ public class JavafxTypeMorpher {
 
     private Map<Symbol, VarMorphInfo> vmiMap = new HashMap<Symbol, VarMorphInfo>();
 
-    class VarMorphInfo extends TypeMorphInfo {
+    public class VarMorphInfo extends TypeMorphInfo {
         private final Symbol sym;
         private final boolean isMethod;
         private boolean mustMorph = false;
@@ -166,7 +150,7 @@ public class JavafxTypeMorpher {
         }
     }
 
-    class TypeMorphInfo {
+    public class TypeMorphInfo {
         private Type realType;
         private final Type morphedVariableType;
         private final Type morphedLocationType;
@@ -263,8 +247,6 @@ public class JavafxTypeMorpher {
         types = JavafxTypes.instance(context);
         names = Name.Table.instance(context);
         reader = JavafxClassReader.instance(context);
-        make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
-        log = Log.instance(context);
         toJava = JavafxToJava.instance(context);
 
         variableNCT = new LocationNameSymType[TYPE_KIND_COUNT];
@@ -340,133 +322,5 @@ public class JavafxTypeMorpher {
             newType = aLocationType;
         }
         return newType;
-    }
-
-    public JCExpression convertVariableReference(DiagnosticPosition diagPos,
-                                                 JCExpression varRef, Symbol sym, 
-                                                 boolean wantLocation) {
-
-        JCExpression expr = varRef;
-
-        boolean staticReference = sym.isStatic();
-        if (sym instanceof VarSymbol) {
-             VarSymbol vsym = (VarSymbol) sym;
-            VarMorphInfo vmi = varMorphInfo(vsym);
-            if (toJava.shouldMorph(vmi)) {
-                if (sym.owner.kind == Kinds.TYP && !staticReference) {
-                    // this is a non-static reference to an attribute, use the get$ form
-                    assert varRef.getTag() == JCTree.SELECT : "attribute must be accessed through receiver";
-                    JCFieldAccess select = (JCFieldAccess) varRef;
-                    Name attrAccessName = names.fromString(attributeGetMethodNamePrefix + select.name.toString());
-                    select = make.at(diagPos).Select(select.getExpression(), attrAccessName);
-                    List<JCExpression> emptyArgs = List.nil();
-                    expr = make.at(diagPos).Apply(null, select, emptyArgs);
-                }
-
-                if (wantLocation) {
-                    // already in correct form-- leave it
-                } else {
-                    // non-bind context -- want v1.get()
-                    JCFieldAccess getSelect = make.Select(expr, defs.locationGetMethodName[vmi.getTypeKind()]);
-                    List<JCExpression> getArgs = List.nil();
-                    expr = make.at(diagPos).Apply(null, getSelect, getArgs);
-                }
-            } else {
-                // not morphed
-                if (wantLocation) {
-                    expr = toJava.makeUnboundLocation(diagPos, vmi, expr);
-                }                
-            }
-        } else if (sym instanceof MethodSymbol) {
-            if (staticReference) {
-                Name name = toJava.functionName((MethodSymbol)sym);
-                if (expr.getTag() == JCTree.SELECT) {
-                    JCFieldAccess select = (JCFieldAccess) expr;
-                    expr = make.at(diagPos).Select(select.getExpression(), name);
-                } else if (expr.getTag() == JCTree.IDENT) {
-                    expr = make.at(diagPos).Ident(name);
-                }
-            }
-        }
-         return expr;
-    }
-
-    private void pretty(JCTree tree) {
-        OutputStreamWriter osw = new OutputStreamWriter(System.out);
-        Pretty pretty = new Pretty(osw, false);
-        try {
-            pretty.println();
-            pretty.print("+++++++++++++++++++++++++++++++++");
-            pretty.println();
-            pretty.printExpr(tree);
-            pretty.println();
-            pretty.print("---------------------------------");
-            pretty.println();
-            osw.flush();
-        }catch(Exception ex) {
-            System.err.println("Pretty print got: " + ex);
-        }
-    }
-
-    private void fxPretty(JCTree tree) {
-        OutputStreamWriter osw = new OutputStreamWriter(System.out);
-        Pretty pretty = new JavafxPretty(osw, false);
-        try {
-            pretty.println();
-            pretty.print("+++++++++++++++++++++++++++++++++");
-            pretty.println();
-            pretty.printExpr(tree);
-            pretty.println();
-            pretty.print("---------------------------------");
-            pretty.println();
-            osw.flush();
-        }catch(Exception ex) {
-            System.err.println("Pretty print got: " + ex);
-        }
-    }
-
-    //========================================================================================================================
-    // Bound Expression support
-    //========================================================================================================================
-
-    /** Make an attributed tree representing a literal. This will be
-     *  a Literal node.
-     *  @param type       The literal's type.
-     *  @param value      The literal's value.
-     */
-    JCExpression makeLit(Type type, Object value, DiagnosticPosition diagPos) {
-        int tag = value==null? TypeTags.BOT : type.tag;
-        return make.at(diagPos).Literal(tag, value).setType(type.constType(value));
-    }
-
-    JCExpression makeLocationLocalVariable(TypeMorphInfo tmi, 
-                                  DiagnosticPosition diagPos,
-                                  List<JCExpression> makeArgs) {
-        return makeLocationVariable(tmi, diagPos, makeArgs, defs.makeMethodName);
-    }
-
-    JCExpression makeLocationAttributeVariable(TypeMorphInfo tmi, 
-                                  DiagnosticPosition diagPos) {
-        return makeLocationVariable(tmi, diagPos, List.<JCExpression>nil(), defs.makeMethodName);
-    }
-
-    JCExpression makeLocationVariable(TypeMorphInfo tmi, 
-                                  DiagnosticPosition diagPos,
-                                  List<JCExpression> makeArgs,
-                                  Name makeMethod) {
-        if (tmi.typeKind == TYPE_KIND_SEQUENCE) {
-            makeArgs = makeArgs.prepend( toJava.makeSequenceClassArg(diagPos, tmi) );
-        }
-        Name locName = variableNCT[tmi.getTypeKind()].name;
-        JCExpression locationTypeExp = ((JavafxTreeMaker)make).at(diagPos).Identifier(locName);
-        JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, makeMethod);
-        List<JCExpression> typeArgs = null;
-        if (tmi.getTypeKind() == TYPE_KIND_OBJECT) {
-            typeArgs = List.of(toJava.makeTypeTree(tmi.getRealType(), diagPos, true));
-        }
-        else if (tmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
-            typeArgs = List.of(toJava.makeTypeTree(tmi.getElementType(), diagPos, true));
-        }
-        return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
     }
 }
