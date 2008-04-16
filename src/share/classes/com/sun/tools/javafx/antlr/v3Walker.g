@@ -401,7 +401,8 @@ expression  returns [JCExpression expr]
 	                                                { $expr = F.at(pos($SEQ_SLICE_EXCLUSIVE)).SequenceSlice($seq.expr, $first.expr, $last.expr,  
 	                                                                                                        SequenceSliceTree.END_EXCLUSIVE); 
                                                           endPos($expr, $SEQ_SLICE_EXCLUSIVE); }
-	| ^(OBJECT_LIT i=qualident objectLiteral)	{ $expr = F.at($i.expr.pos).Instanciate($qualident.expr, null, $objectLiteral.parts.toList()); } 
+	| ^(OBJECT_LIT i=qualident objectLiteral)	{ $expr = F.at($i.expr.pos).Instanciate($qualident.expr, null, $objectLiteral.parts.toList()); 
+                                                          endPos($expr, $OBJECT_LIT); }
        	| ^(FUNC_EXPR formalParameters type blockExpression)
        							{ $expr = F.at(pos($FUNC_EXPR)).FunctionValue($type.type, $formalParameters.params.toList(),
                                                								$blockExpression.expr); 
@@ -553,7 +554,8 @@ objectLiteral  returns [ListBuffer<JCTree> parts = ListBuffer.<JCTree>lb()]
 	;
 objectLiteralPart  returns [JCTree value]
 	: ^(OBJECT_LIT_PART n=name boundExpression)	{ $value = F.at($n.pos).ObjectLiteralPart($name.value,
-								 $boundExpression.expr, $boundExpression.status); }
+								 $boundExpression.expr, $boundExpression.status); 
+                                                          endPos($value, $OBJECT_LIT_PART); }
        	| variableDeclaration				{ $value = $variableDeclaration.value; }
        	| overrideDeclaration				{ $value = $overrideDeclaration.value; }
        	| functionDefinition				{ $value = $functionDefinition.value; }
