@@ -72,13 +72,13 @@ public class JFXC746Test {
             long start = sp.getStartPosition(tree, pkg);
             long end = sp.getEndPosition(tree, pkg);
             String pkgName = pkg.toString();
-            assertTrue(end - start + 1 == pkgName.length());
+            assertTrue(end - start == pkgName.length());
             
             Tree cls = tree.getTypeDecls().iterator().next();
             start = sp.getStartPosition(tree, cls);
             end = sp.getEndPosition(tree, cls);
             String clsDecl = "class Test{}";
-            assertTrue(end - start + 1 == clsDecl.length());
+            assertTrue(end - start  == clsDecl.length());
         } finally {
             Thread.currentThread().setContextClassLoader(orig);
         }
