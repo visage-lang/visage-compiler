@@ -26,6 +26,7 @@
 package com.sun.javafx.api.tree;
 
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.UnaryTree;
 
 /**
  * Common interface for all nodes in an abstract syntax tree for the 
@@ -192,13 +193,23 @@ public interface JavaFXTree extends Tree {
          * Used for instances of {@link TypeFunctionalTree}.
          */
         TYPE_FUNCTIONAL(TypeFunctionalTree.class),
+        
+        /**
+         * Used for sizeof unary operator.
+         */
+        SIZEOF(UnaryTree.class),
+        
+        /**
+         * Used for reverse unary operator.
+         */
+        REVERSE(UnaryTree.class),
 
         /**
          * Used for instances of {@link TypeUnknownTree}.
          */
         TYPE_UNKNOWN(TypeUnknownTree.class);
 
-        JavaFXKind(Class<? extends JavaFXTree> intf) {
+        JavaFXKind(Class<? extends Tree> intf) {
             associatedInterface = intf;
         }
                 

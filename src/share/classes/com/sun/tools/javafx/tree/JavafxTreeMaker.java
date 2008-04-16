@@ -481,6 +481,19 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
+    @Override
+    public JCUnary Unary(int opcode, JCExpression arg) {
+        switch (opcode) {
+            case JavafxTag.SIZEOF:
+            case JavafxTag.REVERSE: {
+                JCUnary tree = new JFXUnary(opcode, arg);
+                tree.pos = pos;
+                return tree;
+            }
+            default:
+                return super.Unary(opcode, arg);
+        }
+    }
    
     private int syntheticClassNumber = 0;
     

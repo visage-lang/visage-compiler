@@ -344,6 +344,12 @@ public class JavafxTreeInfo extends TreeInfo {
         case JCTree.NULLCHK:
             return Tree.Kind.OTHER;
 
+        // JavaFX tags which are used in javac trees
+        case JavafxTag.SIZEOF:
+            return Tree.Kind.OTHER;
+        case JavafxTag.REVERSE:
+            return Tree.Kind.OTHER;
+
         default:
             return null;
         }
