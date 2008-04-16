@@ -77,7 +77,7 @@ import org.antlr.runtime.tree.*;
                 endToken = (CommonToken)src.get(endIndex);
             }
             int endPos = endToken.getStopIndex();
-            endPos(tree, endPos);
+            endPos(tree, endPos+1);
         }
     }
 
