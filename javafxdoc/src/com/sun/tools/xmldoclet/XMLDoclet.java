@@ -344,7 +344,11 @@ public class XMLDoclet {
     
     private void generateModifiers(ProgramElementDoc element) throws SAXException {
         attrs.clear();
-        attrs.addAttribute("", "", "text", "CDATA", element.modifiers());
+        boolean bound = boundFunction(element);
+        String modifiersText = element.modifiers();
+        if (bound)
+            modifiersText += " bound";
+        attrs.addAttribute("", "", "text", "CDATA", modifiersText);
         hd.startElement("", "", "modifiers", attrs);
         attrs.clear();
         int modifiers = element.modifierSpecifier();
@@ -383,6 +387,10 @@ public class XMLDoclet {
         if (Modifier.isStrict(modifiers)) {
             hd.startElement("", "", "strictfp", attrs);
             hd.endElement("", "", "strictfp");
+        }
+        if (bound) {
+            hd.startElement("", "", "bound", attrs);
+            hd.endElement("", "", "bound");
         }
         hd.endElement("", "", "modifiers");
     }
@@ -697,6 +705,18 @@ public class XMLDoclet {
             return (com.sun.tools.javac.code.Type)result;
         } catch (Exception e) {
             return null;
+        }
+    }
+    
+    private boolean boundFunction(ProgramElementDoc doc) {
+        if (!(doc instanceof ExecutableMemberDoc))
+            return false;
+        try {
+            Class<?> cls = doc.getClass();
+            Method m = cls.getMethod("isBound");
+            return (Boolean)m.invoke(doc);
+        } catch (Exception e) {
+            return false;
         }
     }
     

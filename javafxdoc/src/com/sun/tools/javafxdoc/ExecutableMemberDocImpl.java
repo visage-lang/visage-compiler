@@ -34,6 +34,7 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.*;
 
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.tree.JFXFunctionDefinition;
 import java.text.CollationKey;
 
@@ -276,5 +277,10 @@ public abstract class ExecutableMemberDocImpl
         return SourcePositionImpl.make(sym.enclClass().sourcefile.toString(),
                                        (tree==null) ? 0 : tree.pos,
                                        lineMap);
+    }
+    
+    public boolean isBound() {
+        sym.complete();
+        return (sym.flags() & JavafxFlags.BOUND) != 0;
     }
 }
