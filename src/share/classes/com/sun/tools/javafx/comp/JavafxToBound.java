@@ -1320,6 +1320,14 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
         visitInstanciate(inst); // sets result
     }
 
+    /**
+     * The component parts are bound even in the normal case, so translate as normal.
+     * But return a Location.
+     */
+    public void visitInterpolateValue(JFXInterpolateValue tree) {
+        result = toJava.translate(tree, Wrapped.InLocation);
+    }
+
     /***********************************************************************
      *
      * Utilities
@@ -1495,11 +1503,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
      */
 
     public void visitInterpolate(JFXInterpolate tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    public void visitInterpolateValue(JFXInterpolateValue tree) {
-        assert false : "should not be processed as part of a binding";
+        assert false : "not yet implemented";
     }
 
     @Override
@@ -1603,7 +1607,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
     }
 
     public void visitBindExpression(JFXBindExpression tree) {
-         throw new AssertionError(tree);
+        assert false : "should not be processed as part of a binding";
     }
 
     @Override
@@ -1738,7 +1742,7 @@ public class JavafxToBound extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized that) {
-        assert false : "should not be processed as part of a binding";
+        assert false : "not yet implemented";
     }
 
     @Override

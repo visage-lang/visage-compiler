@@ -34,7 +34,6 @@ import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.tools.javac.code.*;
 import static com.sun.tools.javac.code.Flags.*;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javac.tree.JCTree;
@@ -901,6 +900,7 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     newClassArgs,
                     null);
 
+            JCExpression instExpression;
             {
                 if (sym != null &&
                         sym.kind == Kinds.TYP && (sym instanceof ClassSymbol) &&
@@ -936,12 +936,16 @@ public class JavafxToJava extends JCTree.Visitor implements JavafxVisitor {
                     stats.append(applyExec);
 
                     JCIdent ident2 = m().Ident(tmpVar.name);
-                    return toJava.makeBlockExpression(diagPos, stats, ident2);
+                    instExpression = toJava.makeBlockExpression(diagPos, stats, ident2);
                 } else {
                     // this is a Java class, just instanciate it
-                    return newClass;
+                    instExpression = newClass;
                 }
             }
+            if (toJava.wrap == Wrapped.InLocation) {
+                 instExpression = toJava.toBound.makeConstantLocation(diagPos, tree.type, instExpression);               
+            }
+            return instExpression;
         }
     }
 
