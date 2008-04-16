@@ -224,6 +224,22 @@ frame.setVisible(true);
 }
 </programlisting>
 
+<!-- ******* Multiple Inheritance #353 ******** -->
+
+<sect3 id="inheritance"><title>Inheritance</title>
+
+<para>A JavaFX Script class can extend zero or one Java class and zero or more Java interfaces or JavaFX Script classes. </para>
+
+<para>A <emphasis>plain </emphasis>class is a Java class ( defined in Java), or a JavaFX Script class that directly or indirectly extends a Java class. A <emphasis>compound class</emphasis> is a JavaFX class that is not a plain class. </para>
+
+<para>By default, JavaFX Script classes are <emphasis>compound</emphasis> classes.   A JavaFX class can extend at most one plain class. A JavaFX Class that extends a Java Class becomes a <emphasis>plain</emphasis> class.  </para>
+
+<para><emphasis role="bold">Note:</emphasis>  A plain class is currently translated into a Java class, while a compound class is translated to a Java class and a Java interface.</para>
+
+</sect3>
+
+
+
    </sect1>
 
   <sect1 id="attrfuntrig">

@@ -511,7 +511,7 @@ System.out.println(x); // prints 10
     <programlisting>class Album {
      attribute title: String;
      attribute artist: String;
-     attribute tracks: String[];
+     attribute tracks: String*;
 }
 
 var albums =
@@ -575,7 +575,7 @@ Track = Baby Wanna Dance
 TITLE TRACK = Circle Of Love
 Track = Macho City 
 </programlisting>
-
+                                                          
     <para>A sequence comprehension consists of one or more input sequences, an
     optional filter, and an expression. Each input sequence is associated with
     a variable. The result of the sequence comprehension is a new sequence
@@ -818,7 +818,7 @@ System.out.println(s);
 </sect3>
 
 <sect3 id="for">
-     <title><code>for</code> Statement</title>
+     <title><code>for</code> Expression</title>
 
 <!--
         <para>
