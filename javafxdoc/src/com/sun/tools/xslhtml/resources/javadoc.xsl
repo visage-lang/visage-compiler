@@ -9,6 +9,8 @@
     <xsl:param name="extra-js"/>
     <xsl:param name="extra-js2"/> <!-- josh: this is a hack -->
     <xsl:param name="target-class">javafx.ui.ToggleButton</xsl:param>
+    <xsl:param name="target-profile">common</xsl:param>
+    <xsl:param name="profiles-enabled">false</xsl:param>
     
     
 <!-- starter template -->    
@@ -562,24 +564,27 @@
 <!-- ====================== -->    
     
     <!-- summary line -->
+<!--    <xsl:template match="$foo and attribute[]" mode="toc"><tr><td>skipping because it's a common one</td></tr></xsl:template>-->
     <xsl:template match="attribute" mode="toc">
-        <tr class="attribute">
-            <td>
-                <a>
-                    <xsl:attribute name="href">#<xsl:value-of select="@name"/></xsl:attribute>
-                    <b class="name"><xsl:value-of select="@name"/></b>
-                </a>
-            </td>
-            <td>
-                <a>
-                    <xsl:apply-templates select="type" mode="href"/>
-                    <i class="type"><xsl:value-of select="type/@simpleTypeName"/><xsl:value-of select="type/@dimension"/></i>
-                </a>
-            </td>
-            <td>
-                <xsl:apply-templates select="docComment/firstSentenceTags"/>
-            </td>
-        </tr>
+        <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
+            <tr class="attribute">
+                <td>
+                    <a>
+                        <xsl:attribute name="href">#<xsl:value-of select="@name"/></xsl:attribute>
+                        <b class="name"><xsl:value-of select="@name"/></b>
+                    </a>
+                </td>
+                <td>
+                    <a>
+                        <xsl:apply-templates select="type" mode="href"/>
+                        <i class="type"><xsl:value-of select="type/@simpleTypeName"/><xsl:value-of select="type/@dimension"/></i>
+                    </a>
+                </td>
+                <td>
+                    <xsl:apply-templates select="docComment/firstSentenceTags"/>
+                </td>
+            </tr>
+        </xsl:if>
     </xsl:template>
     
     <xsl:template match="attribute/type | parameter/type" mode="href">
@@ -597,6 +602,7 @@
     
     <!-- full description -->
     <xsl:template match="attribute">
+        <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
         <div class="attribute member">
             <a>
                 <h4>
@@ -614,6 +620,7 @@
             
             <xsl:apply-templates select="docComment/inlineTags"/>
         </div>
+        </xsl:if>
     </xsl:template>
     
     
@@ -627,6 +634,7 @@
 
     <!-- summary line -->
     <xsl:template name="method-like-toc">
+        <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
         <dt>
             <xsl:if test="docComment/tags/advanced">
                 <xsl:attribute name="class">advanced</xsl:attribute>
@@ -639,11 +647,13 @@
             </xsl:if>
             <xsl:apply-templates select="docComment/firstSentenceTags"/>
         </dd>
+        </xsl:if>
     </xsl:template>
 
     
     <!-- full description -->
     <xsl:template name="method-like">
+        <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
         <div class="method member">
             <a>
                 <xsl:attribute name="id"><xsl:apply-templates select="." mode="anchor-signature"/></xsl:attribute>
@@ -673,6 +683,7 @@
             <xsl:apply-templates select="docComment/inlineTags"/>
             
         </div>  
+        </xsl:if>
     </xsl:template>
     
     

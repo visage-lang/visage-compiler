@@ -85,7 +85,7 @@ public class XMLDoclet {
         new Option("-extracss", getString("out.file.option"), getString("xsltfile.description")),
         new Option("-extrajs", getString("out.file.option"), getString("xsltfile.description")),
         new Option("-extrajs2", getString("out.file.option"), getString("xsltfile.description")),
-        new Option("-xsl:name=value", getString("xslproperty.description")),
+        new Option("-xsl:", getString("xslproperty.description"), "name=value"),
         new Option("-d", getString("out.dir.option"), getString("out.dir.description"))
     };
 
@@ -137,7 +137,7 @@ public class XMLDoclet {
         for (Option o : options) {
             if (o.name().equals(option))
                 return o.length();
-        }
+            }
         return 0;  // default is option unknown
     }
 
@@ -183,12 +183,13 @@ public class XMLDoclet {
             else if (option[0].equals("-d"))
                 outDocsDir = new File(option[1]);
             else if (option[0].startsWith("-xsl:")) {
-                String s = option[0].substring(5);
+                String s = option[1];
                 int i = s.indexOf('=');
                 if (i == -1)
                     return false;
                 String name = s.substring(0, i);
                 String value = s.substring(i+1);
+                System.out.println("using a custom XSL parameter: '" + name + "'='" + value +"'");
                 params.put(name, value);
             }
         }
@@ -514,7 +515,6 @@ public class XMLDoclet {
                                 +see.referencedClass().containingPackage().name()
                                 +"/"
                                 +see.referencedClassName()+".html";
-                        p("ref name = " + see.referencedMemberName());
                         if(see.referencedMemberName() != null) {
                             href += "#"+see.referencedMemberName();
                         }
