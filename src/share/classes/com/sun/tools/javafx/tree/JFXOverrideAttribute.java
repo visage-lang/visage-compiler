@@ -33,6 +33,7 @@ import com.sun.javafx.api.tree.TriggerTree;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.source.tree.ExpressionTree;
 
 /**
  * Wrapper for loose triggers
@@ -69,8 +70,8 @@ public class JFXOverrideAttribute extends JFXStatement implements TriggerTree {
         return init;
     }
 
-    public JavaFXExpressionTree getExpressionTree() {
-        return (JavaFXExpressionTree)expr;
+    public ExpressionTree getExpressionTree() {
+        return (ExpressionTree)expr;
     }
 
     public JavafxBindStatus getBindStatus() {
