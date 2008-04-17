@@ -62,6 +62,8 @@ public class XHTMLProcessingUtils {
         // set verbose for initial development
         logger.setLevel(ALL); //TODO: remove or set to INFO when finished
     }
+    private static final String PARAMETER_PROFILES_ENABLED = "profiles-enabled";
+    private static final String PARAMETER_TARGET_PROFILE = "target-profile";
 
     /**
      * Transform XMLDoclet output to XHTML using XSLT.
@@ -194,7 +196,7 @@ public class XHTMLProcessingUtils {
         classes_doc.appendChild(class_list);
         
         for(Element clazz : classes) {
-            processClass(clazz, class_list, trans, packageDir);
+            processClass(clazz, class_list,  xpath, trans, packageDir);
         }
         
         class_list.setAttribute("mode", "overview-frame");
@@ -204,9 +206,20 @@ public class XHTMLProcessingUtils {
     }
 
     
-    private static void processClass(Element clazz, Element class_list, Transformer trans, File packageDir) throws TransformerException, IOException {
+    private static void processClass(Element clazz, Element class_list, XPath xpath, Transformer trans, File packageDir) throws TransformerException, IOException, XPathExpressionException {
         String qualifiedName = clazz.getAttribute("qualifiedName");
         String name = clazz.getAttribute("name");
+        
+        String profile = (String) xpath.evaluate("docComment/tags/profile/text()", clazz, XPathConstants.STRING);
+        if("true".equals(trans.getParameter(PARAMETER_PROFILES_ENABLED))) {
+            Object target_profile = trans.getParameter(PARAMETER_TARGET_PROFILE);
+            if(profile != null && profile.equals(target_profile)) {
+                //p(INFO, "profiles match");
+            } else {
+                //p(INFO, "Profiles don't match. skipping");
+                return;
+            }
+        }
                 
         //add to class list
         Document doc = class_list.getOwnerDocument();
