@@ -194,8 +194,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 tree = runtime(diagPos, cLocations, "asBooleanLocation", List.of(tree));
             } else {
                 if (tmiTarget.getTypeKind() == TYPE_KIND_OBJECT) {
-                    List<JCExpression> typeArgs = List.of(makeTypeTree(targetType, diagPos, true),
-                            makeTypeTree(syms.boxIfNeeded(inType), diagPos, true));
+                    List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, targetType, true),
+                            makeTypeTree( diagPos,syms.boxIfNeeded(inType), true));
                     Type inRealType = typeMorpher.typeMorphInfo(inType).getRealType();
                     JCExpression inClass = makeElementClassObject(diagPos, inRealType);
                     tree = runtime(diagPos, cLocations, "upcast", typeArgs, List.of(inClass, tree));
@@ -220,7 +220,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
         VarMorphInfo vmi = typeMorpher.varMorphInfo(tree.sym);
         toJava.setLocallyBound(tree.sym); //TODO temporary until only one function is generated, and bound functions can be handled in var usage analysis (note: fragile, requires unbound version to be processed first).
-        JCExpression typeExpression = makeTypeTree(vmi.getLocationType(), diagPos, true);
+        JCExpression typeExpression = makeTypeTree( diagPos,vmi.getLocationType(), true);
 
         //TODO: handle array initializers (but, really, shouldn't that be somewhere else?)
         JCExpression init;
@@ -586,7 +586,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         if (types.isJFXClass(owner)) {
             if (tree.sym.isStatic()) {
                 // if this is a static reference to an attribute, eg.   MyClass.myAttribute
-                JCExpression classRef = makeTypeTree(types.erasure(tree.sym.owner.type), diagPos, false);
+                JCExpression classRef = makeTypeTree( diagPos,types.erasure(tree.sym.owner.type), false);
                 result = convert(tree.type, make.at(diagPos).Select(classRef, tree.getIdentifier()));
             } else {
                 // this is a dynamic reference to an attribute
@@ -1153,7 +1153,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             public JCExpression transMeth() {
                 JCExpression transMeth;
                 if (renameToSuper) {
-                    transMeth = make.at(selector).Select(make.Select(makeTypeTree(attrEnv.enclClass.sym.type, selector, false), names._super), msym);
+                    transMeth = make.at(selector).Select(make.Select(makeTypeTree( selector,attrEnv.enclClass.sym.type, false), names._super), msym);
                 } else {
                     transMeth = toJava.translate(meth);
                 }

@@ -173,15 +173,15 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
      * Build a Java AST representing the specified type.
      * Convert JavaFX class references to interface references.
      * */
-    public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos) {
-        return makeTypeTree(t, diagPos, true);
+    protected JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t) {
+        return makeTypeTree(diagPos, t, true);
     }
     
     /**
      * Build a Java AST representing the specified type.
      * If "makeIntf" is set, convert JavaFX class references to interface references.
      * */
-    public JCExpression makeTypeTree(Type t, DiagnosticPosition diagPos, boolean makeIntf) {
+    protected JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t, boolean makeIntf) {
         while (t instanceof CapturedType)
             t = ((CapturedType) t).wildcard;
         switch (t.tag) {
@@ -201,7 +201,7 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
                 if (!t.getTypeArguments().isEmpty()) {
                     List<JCExpression> targs = List.nil();
                     for (Type ta : t.getTypeArguments()) {
-                        targs = targs.append(makeTypeTree(ta, diagPos, makeIntf));
+                        targs = targs.append(makeTypeTree(diagPos, ta, makeIntf));
                     }
                     texp = make.at(diagPos).TypeApply(texp, targs);
                 }
@@ -214,10 +214,10 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
                 WildcardType wtype = (WildcardType) t;
                 return make.at(diagPos).Wildcard(make.TypeBoundKind(wtype.kind),
                         wtype.kind == BoundKind.UNBOUND ? null
-                        : makeTypeTree(wtype.type, diagPos, makeIntf));
+                        : makeTypeTree(diagPos,wtype.type, makeIntf));
             }
             case TypeTags.ARRAY: {
-                return make.at(diagPos).TypeArray(makeTypeTree(types.elemtype(t), diagPos, makeIntf));
+                return make.at(diagPos).TypeArray(makeTypeTree(diagPos,types.elemtype(t), makeIntf));
             }
             default: {
                 return make.at(diagPos).Type(t);
@@ -235,7 +235,7 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
             VarMorphInfo vmi = typeMorpher.varMorphInfo(mth);
             returnType = vmi.getLocationType();
         }
-        return makeTypeTree(returnType, diagPos);
+        return makeTypeTree(diagPos, returnType);
     }
  
    /**
@@ -291,10 +291,10 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
         JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, makeMethod);
         List<JCExpression> typeArgs = null;
         if (tmi.getTypeKind() == TYPE_KIND_OBJECT) {
-            typeArgs = List.of(makeTypeTree(tmi.getRealType(), diagPos, true));
+            typeArgs = List.of(makeTypeTree( diagPos,tmi.getRealType(), true));
         }
         else if (tmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
-            typeArgs = List.of(makeTypeTree(tmi.getElementType(), diagPos, true));
+            typeArgs = List.of(makeTypeTree( diagPos,tmi.getElementType(), true));
         }
         return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
     }
@@ -302,11 +302,11 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
     JCExpression makeConstantLocation(DiagnosticPosition diagPos, Type type, JCExpression expr) {
         TypeMorphInfo tmi = typeMorpher.typeMorphInfo(type);
         List<JCExpression> makeArgs = List.of(expr);
-        JCExpression locationTypeExp = makeTypeTree(tmi.getConstantLocationType(), diagPos, true);
+        JCExpression locationTypeExp = makeTypeTree( diagPos,tmi.getConstantLocationType(), true);
         JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, defs.makeMethodName);
         List<JCExpression> typeArgs = null;
         if (tmi.getTypeKind() == TYPE_KIND_OBJECT || tmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
-            typeArgs = List.of(makeTypeTree(tmi.getElementType(), diagPos, true));
+            typeArgs = List.of(makeTypeTree( diagPos,tmi.getElementType(), true));
         }
         return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
     }
@@ -434,7 +434,7 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
         JCExpression meth = makeQualifiedTree(diagPos, sequencesEmptyString);
         ListBuffer<JCExpression> args = ListBuffer.lb();
         args.append(makeElementClassObject(diagPos, elemType));
-        List<JCExpression> typeArgs = List.of(makeTypeTree(elemType, diagPos, true));
+        List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, elemType, true));
         return make.at(diagPos).Apply(typeArgs, meth, args.toList());
     }
 
@@ -449,7 +449,7 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
      * @return expression representing the class
      */
     JCExpression makeElementClassObject(DiagnosticPosition diagPos, Type elemType) {
-        return make.at(diagPos).Select(makeTypeTree(syms.boxIfNeeded(elemType), diagPos, true), names._class);
+        return make.at(diagPos).Select(makeTypeTree( diagPos,syms.boxIfNeeded(elemType), true), names._class);
     }
 
     protected abstract String getSyntheticPrefix();
@@ -478,7 +478,7 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
     }
 
     JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, String rootName, Type type, JCExpression value) {
-        return make.at(diagPos).VarDef(make.at(diagPos).Modifiers(Flags.FINAL), getSyntheticName(rootName), makeTypeTree(type, diagPos), value);
+        return make.at(diagPos).VarDef(make.at(diagPos).Modifiers(Flags.FINAL), getSyntheticName(rootName), makeTypeTree(diagPos, type), value);
     }
 
     JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, Type type, JCExpression value) {

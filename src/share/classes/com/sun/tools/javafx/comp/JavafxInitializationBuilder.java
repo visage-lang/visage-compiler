@@ -298,11 +298,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCExpression> implementing = ListBuffer.lb();
         implementing.append(makeIdentifier(diagPos, fxObjectString));
         for (List<JCExpression> l = cDecl.getImplementing(); l.nonEmpty(); l = l.tail) {
-            implementing.append(makeTypeTree(l.head.type, null));
+            implementing.append(makeTypeTree( null,l.head.type));
         }
 
         for (ClassSymbol baseClass : baseInterfaces) {
-                implementing.append(makeTypeTree(baseClass.type, diagPos, true));
+                implementing.append(makeTypeTree( diagPos,baseClass.type, true));
         }
         return implementing.toList();
     }
@@ -316,8 +316,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     baseClass.type.tsym.packge() != syms.unnamedPackage) {    // Work around javac bug. the visitImport of Attr 
                 // is casting to JCFieldAcces, but if you have imported an
                 // JCIdent only a ClastCastException is thrown.
-                additionalImports.append(makeTypeTree(baseClass.type, diagPos, false));
-                additionalImports.append(makeTypeTree(baseClass.type, diagPos, true));
+                additionalImports.append(makeTypeTree( diagPos,baseClass.type, false));
+                additionalImports.append(makeTypeTree( diagPos,baseClass.type, true));
             }
         }
         return additionalImports.toList();
@@ -363,7 +363,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         params.append( make.at(diagPos).VarDef(
                 make.Modifiers(Flags.PARAMETER),
                 dummyParamName,
-                makeTypeTree(syms.booleanType, diagPos),
+                makeTypeTree( diagPos,syms.booleanType),
                 null) );
         if (superIsFX) {
             // call the FX version of the constructor
@@ -453,7 +453,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 getters.append(make.MethodDef(
                         mods,
                         names.fromString(attributeGetMethodNamePrefix + ai.getNameString()),
-                        makeTypeTree(ai.getVariableType(), null),
+                        makeTypeTree( null,ai.getVariableType()),
                         List.<JCTypeParameter>nil(),
                         List.<JCVariableDecl>nil(),
                         List.<JCExpression>nil(),
@@ -484,7 +484,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 getters.append(make.at(diagPos).MethodDef(
                         mods,
                         methodName,
-                        makeTypeTree(ai.getVariableType(), null),
+                        makeTypeTree( null,ai.getVariableType()),
                         List.<JCTypeParameter>nil(),
                         List.<JCVariableDecl>nil(),
                         List.<JCExpression>nil(),
@@ -553,7 +553,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 methods.append(make.at(diagPos).MethodDef(
                         mods,
                         methodName,
-                        makeTypeTree(syms.voidType, null),
+                        makeTypeTree( null,syms.voidType),
                         List.<JCTypeParameter>nil(),
                         List.<JCVariableDecl>of(makeReceiverParam(cDecl)),
                         List.<JCExpression>nil(),
@@ -569,7 +569,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         List<JCExpression> arg = List.<JCExpression>of(make.at(diagPos).Ident(defs.receiverName));
         if ((cSym.flags() & JavafxFlags.COMPOUND_CLASS) != 0) {
             // call to a compound super, use static reference
-            receiver = makeTypeTree(cSym.type, diagPos, false);
+            receiver = makeTypeTree( diagPos,cSym.type, false);
         } else {
             // call to a non-compound super, use "super"
             receiver = make.at(diagPos).Ident(names._super);
@@ -627,16 +627,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }                
 
         stmts.append( callStatement(diagPos, 
-                makeTypeTree(initHelperType, diagPos), 
+                makeTypeTree(diagPos, initHelperType), 
                 "finish",
-                make.NewArray(makeTypeTree(abstractVariableType, diagPos), 
+                make.NewArray(makeTypeTree(diagPos, abstractVariableType), 
                                 List.<JCExpression>nil(), attrs.toList())));
 
         JCBlock initializeBlock = make.Block(0L, stmts.toList());
         return make.MethodDef(
                 make.Modifiers(Flags.PUBLIC),
                 defs.initializeName,
-                makeTypeTree(syms.voidType, null),
+                makeTypeTree( null,syms.voidType),
                 List.<JCTypeParameter>nil(), 
                 List.<JCVariableDecl>nil(), 
                 List.<JCExpression>nil(), 
@@ -721,7 +721,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return make.at(diagPos).MethodDef(
                 make.Modifiers(Flags.PUBLIC | (cDecl.generateClassOnly()? 0L : Flags.STATIC) ),
                 addTriggersName,
-                makeTypeTree(syms.voidType, null),
+                makeTypeTree( null,syms.voidType),
                 List.<JCTypeParameter>nil(),
                 List.<JCVariableDecl>of( makeReceiverParam(cDecl) ),
                 List.<JCExpression>nil(),
@@ -739,7 +739,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 JCVariableDecl var = make.at(diagPos).VarDef(
                         make.Modifiers(Flags.PUBLIC | Flags.FINAL | (ai.getFlags() & Flags.STATIC)),
                         ai.getName(),
-                        makeTypeTree(ai.getVariableType(), diagPos),
+                        makeTypeTree( diagPos,ai.getVariableType()),
                         makeLocationAttributeVariable(ai.getVMI(), diagPos));
                 fields.append(var);
             }
@@ -782,7 +782,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             ListBuffer<JCStatement> setUpStmts = ListBuffer.lb();
 //            changeListener = make.at(diagPos).Identifier(sequenceReplaceListenerInterfaceName);
             changeListener = makeIdentifier(diagPos, sequenceChangeListenerInterfaceName);
-            changeListener = make.TypeApply(changeListener, List.of(makeTypeTree(info.getElementType(), diagPos)));
+            changeListener = make.TypeApply(changeListener, List.of(makeTypeTree( diagPos,info.getElementType())));
             Type seqValType = types.sequenceType(info.getElementType(), false);
             List<JCVariableDecl> onChangeArgs = List.of(
                 makeIndexParam(diagPos, onReplace),
@@ -800,7 +800,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         if (attributeKind == JavafxVarSymbol.TYPE_KIND_OBJECT)
             changeListener = make.at(diagPos).TypeApply(changeListener,
-                                                        List.<JCExpression>of(makeTypeTree(info.getRealType(), diagPos)));
+                                                        List.<JCExpression>of(makeTypeTree( diagPos,info.getRealType())));
         JCNewClass anonymousChangeListener = make.NewClass(
                 null, 
                 emptyTypeArgs,
@@ -836,7 +836,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return make.at(diagPos).VarDef(
                 make.Modifiers(flags),
                 name,
-                makeTypeTree(type, diagPos),
+                makeTypeTree(diagPos, type),
                 null);
         
     }
@@ -855,8 +855,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                            JFXOnReplace onReplace,
                                                            Type attributeType) {
         List<JCVariableDecl> onChangeArgs = List.<JCVariableDecl>nil()
-                .append(make.VarDef(make.Modifiers(0L), onChangeArgName1, makeTypeTree(attributeType, diagPos), null))
-                .append(make.VarDef(make.Modifiers(0L), onChangeArgName2, makeTypeTree(attributeType, diagPos), null));
+                .append(make.VarDef(make.Modifiers(0L), onChangeArgName1, makeTypeTree(diagPos, attributeType), null))
+                .append(make.VarDef(make.Modifiers(0L), onChangeArgName2, makeTypeTree(diagPos, attributeType), null));
         ListBuffer<JCStatement> setUpStmts = ListBuffer.lb();
         if (onReplace != null && onReplace.getOldValue() != null) {
             // Create the variable for the old value, using the specified name
@@ -867,7 +867,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     make.at(diagPos).VarDef(
                         make.Modifiers(0L), 
                         oldValue.getName(), 
-                        makeTypeTree(vmi.getRealType(), diagPos, types.isJFXClass(vmi.getRealType().tsym)),
+                        makeTypeTree( diagPos, vmi.getRealType(),types.isJFXClass(vmi.getRealType().tsym)),
                         makeIdentifier(diagPos, onChangeArgName1)));
         }
         if (onReplace != null && onReplace.getNewElements() != null) {
@@ -879,7 +879,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     make.at(diagPos).VarDef(
                         make.Modifiers(0L), 
                         newValue.getName(), 
-                        makeTypeTree(vmi.getRealType(), diagPos, types.isJFXClass(vmi.getRealType().tsym)),
+                        makeTypeTree( diagPos, vmi.getRealType(),types.isJFXClass(vmi.getRealType().tsym)),
                         makeIdentifier(diagPos, onChangeArgName2)));
         }
         return makeChangeListenerMethod(diagPos, onReplace, setUpStmts, "onChange", onChangeArgs, TypeTags.VOID);
@@ -942,8 +942,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             params.append(make.VarDef(
                     make.Modifiers(0L), 
                     vsym.name, 
-                    makeTypeTree(vtype, diagPos), 
+                    makeTypeTree(diagPos, vtype), 
                     null // no initial value
+                     // no initial value
                     ));
         }
         
@@ -973,7 +974,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         for (VarSymbol var : mth.params) {
             args.append(make.Ident(var.name));
         }
-        JCExpression receiver = makeTypeTree(mth.owner.type, diagPos, false);
+        JCExpression receiver = makeTypeTree( diagPos,mth.owner.type, false);
         JCExpression expr = callExpression(diagPos, receiver, functionName(mth, !isStatic, isBound), args);
         JCStatement statement = (mth.getReturnType() == syms.voidType) ? make.Exec(expr) : make.Return(expr);
         return make.at(diagPos).Block(0L, List.<JCStatement>of(statement));
