@@ -48,7 +48,7 @@ public class Entry {
         
         try {
             main.setAccessible(true);
-            provider = runtimeProviderLocator(app);
+            provider = runtimeProviderLocator();
             if (provider != null && provider.usesRuntimeLibrary(app)) {
                 provider.run(main, commandLineArgs);
             } else {
@@ -70,7 +70,7 @@ public class Entry {
 
     public static void deferTask(final Function0<Void> function) {
         if (provider == null)
-            throw new IllegalStateException("No runtime provider");
+            provider = runtimeProviderLocator();
         provider.deferTask(new Runnable() {
             public void run() {
                 function.invoke();
@@ -78,7 +78,7 @@ public class Entry {
         });
     }
 
-    private static RuntimeProvider runtimeProviderLocator(Class app) {
+    private static RuntimeProvider runtimeProviderLocator() {
         Iterator<?> iterator;
         Class<?> loaderClass;
         String loadMethodName;
