@@ -1159,7 +1159,16 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 }
 
                 // translate the method name -- e.g., foo  to foo$bound or foo$impl
-                if (superToStatic || (callBound && ! renameToSuper)) {
+                //TODO: this is a paranoid cloning of the below -- integrate this
+                if (superToStatic) {
+                    Name name = functionName(msym, superToStatic, callBound);
+                    if (transMeth.getTag() == JavafxTag.IDENT) {
+                        transMeth = m().Ident(name);
+                    } else if (transMeth.getTag() == JavafxTag.SELECT) {
+                        transMeth = m().Select(makeTypeTree(diagPos, msym.owner.type, false), name);
+                    }
+                } else 
+                if (callBound && ! renameToSuper) {
                     Name name = functionName(msym, superToStatic, callBound);
                     if (transMeth.getTag() == JavafxTag.IDENT) {
                         transMeth = m().Ident(name);
