@@ -110,12 +110,12 @@ public class JavafxcTrees {
     public SourcePositions getSourcePositions() {
         return new SourcePositions() {
                 public long getStartPosition(CompilationUnitTree file, Tree tree) {
-                    return TreeInfo.getStartPos((JCTree) tree);
+                    return JavafxTreeInfo.getStartPos((JCTree) tree);
                 }
 
                 public long getEndPosition(CompilationUnitTree file, Tree tree) {
                     Map<JCTree,Integer> endPositions = ((JCCompilationUnit) file).endPositions;
-                    return TreeInfo.getEndPos((JCTree) tree, endPositions);
+                    return JavafxTreeInfo.getEndPos((JCTree) tree, endPositions);
                 }
             };
     }
