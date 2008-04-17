@@ -81,7 +81,7 @@ public class Main extends CompositeNode {
     attribute skinUrls: String[];
     attribute selectedSkinUrl: Integer;
     attribute backgroundImage: Image = bind
-        Image {url: skinUrl + "/main.bmp"};
+        Image {url: "{skinUrl}/main.bmp"};
     attribute titleBarImage: Image = bind
         Image {url: this.getImageURL(skinUrl, "TitleBar.bmp")};
     attribute playPauseImage: Image = bind
