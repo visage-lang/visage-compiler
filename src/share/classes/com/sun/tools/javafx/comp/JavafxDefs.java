@@ -25,6 +25,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.runtime.Entry;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
@@ -52,7 +53,7 @@ public class JavafxDefs {
     public static final String startMethodString = "com.sun.javafx.runtime.Entry.start";
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
-    public static final String runMethodString = "javafx$run$";
+    public static final String runMethodString = Entry.entryMethodName();
     public static final String receiverNameString = "receiver$";
     public static final String initializeNameString ="initialize$";
     public static final String getMethodNameString = "get";

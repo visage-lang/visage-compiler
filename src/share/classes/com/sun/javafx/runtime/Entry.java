@@ -121,4 +121,8 @@ public class Entry {
         }
         return iterator.hasNext() ? (RuntimeProvider) iterator.next() : null;
     }
+    
+    public static String entryMethodName() {
+        return "javafx$run$";
+    }
 }
