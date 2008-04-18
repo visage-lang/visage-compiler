@@ -34,6 +34,7 @@ public class RadioButtonMenuItem extends MenuItem, SelectableButton {
     
     public function createMenuItem():javax.swing.JMenuItem  {
         var self = this;
+        jradiobuttonmenuitem.setSelected(selected);
         jradiobuttonmenuitem.addChangeListener(javax.swing.event.ChangeListener {
                     public function stateChanged(e:javax.swing.event.ChangeEvent):Void {
                         var i = -1;
@@ -44,8 +45,8 @@ public class RadioButtonMenuItem extends MenuItem, SelectableButton {
                             }
                         }
                         //TODO DO LATER - this is a work around until a more permanent solution is provided
-                        javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
-                                  public function run():Void {
+                        //javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
+                        //          public function run():Void {
                                         if (selected == jradiobuttonmenuitem.isSelected()) {
                                             //return;
                                         }
@@ -56,8 +57,8 @@ public class RadioButtonMenuItem extends MenuItem, SelectableButton {
                                         if (selected) {
                                             buttonGroup.selection = i;
                                         }
-                                  }
-                        });   
+                                  //}
+                        //});   
                     }
                 });
         return jradiobuttonmenuitem;
