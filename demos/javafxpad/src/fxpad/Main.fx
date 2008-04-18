@@ -170,14 +170,23 @@ frame = Frame {
                         action: function() {
                             javafxPad.doSearch();
                         }
-                    }
+                    },
+                    MenuSeparator{},
+                    MenuItem {
+                        text: "Clear Console"
+                        mnemonic: KeyStroke.C
+                        accelerator: Accelerator{modifier: KeyModifier.COMMAND, keyStroke: KeyStroke.C}
+                        action: function() {
+                            javafxPad.clearConsole();
+                        }
+                    },
                 ] 
             },
             Menu {
                 text: "Run"
                 mnemonic: KeyStroke.R
                 items: [
- 
+                    //CheckBoxMenuItem {
                     RadioButtonMenuItem {
                         mnemonic: KeyStroke.U
                         text: "Run Automatically"
@@ -274,7 +283,4 @@ frame = Frame {
             } as GroupElement
         ]
     }
- 
-    
-
 }

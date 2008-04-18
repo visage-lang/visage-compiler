@@ -40,12 +40,15 @@ import java.lang.StringBuffer;
 import java.io.*;
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.util.Locale;
 
 /**
  * @author jclarke
  */
 
 public class JavaFXPad extends CompositeWidget {
+    // this has to be created before ScriptEngineManager to catch stderr.
+    attribute stdoutPane =  StdoutPane {    };
     attribute manager:ScriptEngineManager = new ScriptEngineManager();
     attribute scrEng:ScriptEngine = manager.getEngineByExtension("javafx");
     attribute engine:JavaFXScriptEngine = scrEng as JavaFXScriptEngine;
@@ -152,6 +155,10 @@ public class JavaFXPad extends CompositeWidget {
         compile();
     }
     
+    function clearConsole() {
+        stdoutPane.clear();
+    }
+   
     private function getResourceAsString(urlStr:String):String {
         try {
             var url  = new URL(urlStr);
@@ -200,14 +207,73 @@ public class JavaFXPad extends CompositeWidget {
             if(not run) {
                 var script = engine.compile(sourceCode, diags);
             } else{
-                var ret = engine.eval(sourceCode, diags);
-                if (ret instanceof Widget) {
-                    ret = View {
-                        content: ret as Widget
+                var result = engine.eval(sourceCode, diags);
+                if(result instanceof Frame) {
+                    var f = result as Frame;
+                    var w = f.width;
+                    var h = f.height;
+                    var component = f.content;
+                    if (w == 0) {
+                        w = component.getComponent().getPreferredSize().width;
+                    }
+                    if (h == 0) {
+                        h = component.getComponent().getPreferredSize().height;
+                    }
+                    component = RootPane {
+                        menubar: f.menubar
+                        content: BorderPanel {
+                            opaque: true
+                            center: component
+                        }
+                    };
+                    f.content = null;
+                    f.visible = false;
+                    result = Group {
+                        transform: Transform.translate(30, 30)
+                        content: [Rect {
+                                width: w
+                                height: h
+                                stroke: Color.BLACK
+                            },
+                            View {
+                                content: component
+                            }
+                            ]
+                    };
+                    
+                }
+                else if (result instanceof Widget) {
+                    result = View {
+                        content: result as Widget
                         //sizeToFitCanvas: true
                     }
+                }else if(not (result instanceof Node)) {
+                    var obj = result;
+                    var str:String = "{result}";
+
+                    var d:Diagnostic = Diagnostic {
+                        public function getKind():Diagnostic.Kind {
+                            Diagnostic.Kind.ERROR;
+                        }
+                        public function getCode():String {"Error";}
+                        public function getSource(): java.lang.Object {null;}
+                        public function getPosition() : Integer {0;}
+                        public function getStartPosition(): Integer {0;}
+                        public function getEndPosition(): Integer {str.length()}
+                        public function getColumnNumber(): Integer {1;}
+                        public function getLineNumber(): Integer {1;}
+                        public function getMessage(locale:Locale):String {
+                            "Incompatible type: expected Node, found {result.getClass().getName()}";
+                        }
+                    };                        
+                    result = View {
+                        content: TextArea {
+                            text: str
+                        }
+                    };  
+                    insert d into errMessages;
                 }
-                compiledContent = [ret as Node];
+                compiledContent = [result as Node];
             }
         }catch(e:ScriptException) {
             var errorList = diags.getDiagnostics();
@@ -227,7 +293,9 @@ public class JavaFXPad extends CompositeWidget {
                           }
                 });
         }
-        return Canvas {
+        var splitPane: SplitPane;
+        var theCanvas: Canvas;
+        theCanvas = Canvas {
              cursor: Cursor.DEFAULT
              border: LineBorder {lineColor: Color.BLACK }
              content: [
@@ -235,12 +303,12 @@ public class JavaFXPad extends CompositeWidget {
                     antialias: true
                     antialiasText: true
                     sizeToFitCanvas: true
-                    content: SplitPane {
+                    content: splitPane = SplitPane {
                         border: LineBorder {lineColor: Color.BLACK }
                         orientation: Orientation.VERTICAL
                         content:  [  // was bound, but your don't want bind here
                             SplitView { // display area
-                                weight: 0.45
+                                weight: 0.35
                                 content: BorderPanel {
                                     border: LineBorder {lineColor: Color.BLACK }
                                     preferredSize: new Dimension(100, 500)
@@ -331,7 +399,7 @@ public class JavaFXPad extends CompositeWidget {
                                 }
                             },
                             SplitView { // Editor
-                                weight: 0.45
+                                weight: 0.35
                                 content: BorderPanel {
                                     border: LineBorder {lineColor: Color.BLACK }
                                     cursor: Cursor.DEFAULT
@@ -472,7 +540,14 @@ public class JavaFXPad extends CompositeWidget {
                                         }
                                     }) as Widget
                                 }                                
-                            }                            
+                            } ,
+                            SplitView { //Stdout
+                                weight: 0.20
+                                content: BorderPanel {
+                                    border: TitledBorder {title: "Console"}
+                                    center: stdoutPane
+                                }                                
+                            }                               
                         ]
                     }
                 },
@@ -494,6 +569,8 @@ public class JavaFXPad extends CompositeWidget {
                 }
              ]
          };
+         //(splitPane.getComponent() as com.sun.javafx.api.ui.MultiSplitPane).getMultiSplitLayout().setFloatingDividers(false);
+         theCanvas;
     }
 
     function doSearch():Void  {
