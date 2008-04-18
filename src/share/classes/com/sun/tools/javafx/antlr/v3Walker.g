@@ -102,6 +102,7 @@ module returns [JCCompilationUnit result]
 	: ^(MODULE packageDecl? moduleItems DOC_COMMENT?)		
                                                         { $result = F.TopLevel(noJCAnnotations(), $packageDecl.value, $moduleItems.items.toList()); 
                                                           setDocComment($result, $DOC_COMMENT); 
+                                                          $result.pos = $result.pid != null ? $result.pid.pos : $result.defs.head.pos;
                                                           endPos($result, $MODULE); }
        	;
 packageDecl  returns [JCExpression value]
