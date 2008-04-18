@@ -217,7 +217,6 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
 	    URL res = 
 		parentClassLoader.getResource(className.replace('.', '/') + ".class");
 	    if (res != null) {
-		System.out.println("creating class resource "+className);
 		return new ClassResource(res);
 	    }
 	}

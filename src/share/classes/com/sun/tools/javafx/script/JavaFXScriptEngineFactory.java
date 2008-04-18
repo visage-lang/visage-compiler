@@ -29,13 +29,16 @@ import javax.script.*;
 import java.util.*;
 
 /**
- * This is script engine factory for "JavaFX Script" engine, based on 
- * JavaScriptEngineFactory from Scripting project at 
- * https://scripting.dev.java.net/ by A. Sundararajan.
+ * This is the script engine factory for "JavaFX Script" engines, based on 
+ * JavaScriptEngineFactory from the Scripting project at 
+ * https://scripting.dev.java.net/.
+ * 
+ * @author A. Sundararajan
+ * @author Tom Ball
  */
 public class JavaFXScriptEngineFactory implements ScriptEngineFactory {
     public String getEngineName() { 
-        return "javafx";
+        return "JavaFX Script Engine";
     }
 
     public String getEngineVersion() {
@@ -47,11 +50,11 @@ public class JavaFXScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public String getLanguageName() {
-        return "java";
+        return "javafx";
     }
 
     public String getLanguageVersion() {
-        return "1.6";
+        return "1.0";
     }
 
     public String getMethodCallSyntax(String obj, String m, String... args) {
@@ -81,7 +84,7 @@ public class JavaFXScriptEngineFactory implements ScriptEngineFactory {
 
     public String getOutputStatement(String toDisplay) {
         StringBuilder buf = new StringBuilder();
-        buf.append("System.out.print(\"");
+        buf.append("java.lang.System.out.print(\"");
         int len = toDisplay.length();
         for (int i = 0; i < len; i++) {
             char ch = toDisplay.charAt(i);
@@ -132,11 +135,6 @@ public class JavaFXScriptEngineFactory implements ScriptEngineFactory {
         JavaFXScriptEngineImpl engine = new JavaFXScriptEngineImpl();
         engine.setFactory(this);
         return engine;
-    }
-
-
-    private static synchronized long getNextClassNumber() {
-        return nextClassNum++;
     }
 
     private static long nextClassNum = 0L;

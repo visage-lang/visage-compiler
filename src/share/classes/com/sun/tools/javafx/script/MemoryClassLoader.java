@@ -41,15 +41,13 @@ import java.util.StringTokenizer;
  */
 public final class MemoryClassLoader extends URLClassLoader {
     private Map<String, byte[]> classBytes;
+    private URL source;
 
-    public MemoryClassLoader(Map<String, byte[]> classBytes, 
-               String classPath, ClassLoader parent) {
+    public MemoryClassLoader(URL source, Map<String, 
+               byte[]> classBytes, String classPath, ClassLoader parent) {
         super(toURLs(classPath), parent);
-        this.classBytes = classBytes; 
-    }
-
-    public MemoryClassLoader(Map<String, byte[]> classBytes, String classPath) {
-        this(classBytes, classPath, null);
+        this.source = source;
+        this.classBytes = classBytes;
     }
 
     public Class load(String className) throws ClassNotFoundException {
@@ -74,6 +72,16 @@ public final class MemoryClassLoader extends URLClassLoader {
         } else {
             return super.findClass(className);
         }
+    }
+
+    @Override
+    public URL findResource(String name) {
+        if (name.endsWith(".class")) {
+            name = name.substring(0, name.length() - 6);
+            if (classBytes.containsKey(name))
+                return source;
+        }
+        return super.findResource(name);
     }
 
     private static URL[] toURLs(String classPath) {

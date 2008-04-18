@@ -38,8 +38,8 @@ import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
-import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.location.SequenceConstant;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * This is script engine for the JavaFX Script language, based on
@@ -226,10 +226,14 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         if (classBytes == null) {
             throw new ScriptException("compilation failed");
         }
+        URL sourceURL = null;
+        if (fileName != null) try {
+            sourceURL = new File(fileName).toURI().toURL();
+        } catch (MalformedURLException mue) {}
 
         // create a ClassLoader to load classes from MemoryJavaFileManager
-        MemoryClassLoader loader = new MemoryClassLoader(classBytes, classPath,
-                parentClassLoader);
+        MemoryClassLoader loader = new MemoryClassLoader(sourceURL,
+                classBytes, classPath, parentClassLoader);
 
         Iterable<Class> classes;
         try {
