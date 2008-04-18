@@ -36,6 +36,7 @@
         <javac compiler="modern" fork="true"
                srcdir="${src.classes.dir}" destdir="${build.classes.dir}"
                debug="${javac.debug}" deprecation="${javac.deprecation}"
+               includes="${includes}" excludes="${excludes}"
                source="${javac.source}" target="${javac.target}" includeantruntime="false">
             <classpath>
                 <path path="${javac.classpath}"/>
@@ -67,11 +68,16 @@
         </javafxc>
     </target>
     
+    <!-- properties that control what gets included in the jar, set from outside -->
+    <property name="javafxc.excludes" value=""/>
+    <property name="jar.excludes" value=""/>
+    <property name="swing-layout.excludes" value=""/>
+    
     <target name="jar" description="Build JAR." depends="init,compile,-pre-pre-jar">
         <jar compress="${jar.compress}" destfile="${dist.jar}">
-            <fileset dir="${build.classes.dir}"/>
-            <zipfileset src="${file.reference.javafxc.jar}" includes="com/sun/javafx/**,javafx/**"/>
-            <zipfileset src="${file.reference.swing-layout.jar}" excludes="META-INF/**/"/>
+            <fileset dir="${build.classes.dir}" excludes="${jar.excludes}"/>
+            <zipfileset src="${file.reference.javafxc.jar}" includes="com/sun/javafx/**,javafx/**" excludes="${javafxc.excludes}"/>
+            <zipfileset src="${file.reference.swing-layout.jar}" excludes="META-INF/**/,${swing-layout.excludes}"/>
         </jar>
         <copy file="${file.reference.scenegraph.jar}" todir="${dist.jar.dir}"/>
     </target>

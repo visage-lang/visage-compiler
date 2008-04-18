@@ -466,4 +466,17 @@
             <fileset dir="${bundle.dir}"/>
         </copy>
     </target>
+    
+    <target name="runtime-no-ui" depends="jar">
+        <ant dir="${runtime.dir}" antfile="build.xml" target="jar" inheritall="false">
+            <property name="tools.dir" value="${tools.dir}"/>
+            <propertyset>
+                <propertyref regex="^.*\.class\.path$$"/>
+            </propertyset>
+            <property name="excludes" value="META-INF/services/**,javafx/ui/**,com/sun/javafx/api/ui/**,com/sun/tools/javafx/ui/**"/>
+            <property name="javafxc.excludes" value="com/sun/javafx/runtime/awt/**"/>
+            <property name="jar.excludes" value="META-INF/services/**,javafx/ui/**,com/sun/javafx/api/ui/**,com/sun/tools/javafx/ui/**"/>
+            <property name="swing-layout.excludes" value="org/**"/>
+        </ant>
+    </target>
 </project>
