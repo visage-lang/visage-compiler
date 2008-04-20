@@ -66,7 +66,11 @@ public abstract class ClassRef extends TypeRef {
         return (modifiers & COMPOUND_CLASS) != 0;
     }
 
-    public boolean isAssignableFrom(ClassRef cls) {
+    public boolean isJfxType() {
+        return (modifiers & FX_CLASS) != 0;
+    }
+
+     public boolean isAssignableFrom(ClassRef cls) {
         if (this.equals(cls))
             return true;
         List<ClassRef> supers = cls.getSuperClasses(false);
