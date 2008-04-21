@@ -251,7 +251,7 @@ var firstNameLabel = SimpleLabel {text: bind firstName};</programlisting></para>
     its entirety. Even with only this brief introduction to the language, you
     already know enough to understand this code.</para>
 
-    <para><programlisting>/*
+    <para><programlisting continuation="restarts">/*
  * Main.fx
  */
 

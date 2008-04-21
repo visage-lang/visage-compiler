@@ -84,7 +84,7 @@
     
       <emphasis role="bold">Example:</emphasis>
 
-      <programlisting>        var s = "Hello";
+      <programlisting continuation="restarts">        var s = "Hello";
         s.toUpperCase(); // yields "HELLO";
         s.substring(1);  // yields "ello";
         var n = 1.5;
@@ -108,7 +108,7 @@
       call their methods, and implement Java interfaces. The following code
       snippet provides an example:</para>
 
-      <programlisting>        import javax.swing.JFrame;
+      <programlisting continuation="restarts">        import javax.swing.JFrame;
         import javax.swing.JButton;
         import java.awt.event.ActionListener;
         import java.lang.System;
@@ -130,7 +130,7 @@
       <para>Of course, this isn't the preferred way of creating GUI's in
       JavaFX. The following JavaFX code achieves the same effect:</para>
 
-      <programlisting>         Frame {
+      <programlisting continuation="restarts">         Frame {
               content: Button {
                    text: "Press Me"
                    action: operation() {
@@ -194,7 +194,7 @@
       significant. Following is a very simple example of a functional
       program:</para>
 
-      <programlisting>function z(a,b) {
+      <programlisting continuation="restarts">function z(a,b) {
            var x = a + b;
            var y = a - b;
            return sq(x) / sq (y);
@@ -213,7 +213,7 @@
       <para>The most commonly used data structure is the array, which in
       JavaFX is written with square brackets and commas, e.g.:</para>
 
-      <programlisting>var week_days = ["Mon","Tue","Wed","Thur","Fri"];
+      <programlisting continuation="restarts">var week_days = ["Mon","Tue","Wed","Thur","Fri"];
         var days = [week_days, ["Sat","Sun"]];
 </programlisting>
 
@@ -222,13 +222,13 @@
       nested arrays (as in the initialization of "days" above) are
       automaticallly flattened, i.e:</para>
 
-      <programlisting>days == ["Mon","Tue","Wed","Thur","Fri","Sat","Sun"]; // returns true
+      <programlisting continuation="continues">days == ["Mon","Tue","Wed","Thur","Fri","Sat","Sun"]; // returns true
 </programlisting>
 
       <para>The size of an array may be determined with the JavaFX
       <code>sizeof</code> operator:</para>
 
-      <programlisting>         var n = sizeof days; // n = 7
+      <programlisting continuation="continues">         var n = sizeof days; // n = 7
 </programlisting>
 
       <para>There is a shorthand notation using "<code>..</code>" for arrays
@@ -236,7 +236,7 @@
       definitions of the factorial function, and of a number "result" which is
       the sum of the odd numbers between 1 and 100</para>
 
-      <programlisting>function fac(n) {return product([1..n]);}
+      <programlisting continuation="restarts">function fac(n) {return product([1..n]);}
         var result = sum([1,3..100]);
 </programlisting>
 
@@ -244,7 +244,7 @@
 
       <para>Arrays may be indexed as in Java:</para>
 
-      <programlisting>        var wednesday = days[2];
+      <programlisting continuation="continues">        var wednesday = days[2];
 </programlisting>
 
       <para>In JavaFX the <code>[]</code> operator also expresses selection
@@ -257,14 +257,14 @@
       <code>[]</code> operator, the context object may be accessed with the
       dot operator, for example:</para>
 
-      <programlisting>	var nums = [1,2,3,4];
+      <programlisting continuation="restarts">	var nums = [1,2,3,4];
 	var numsGreaterThanTwo = nums[. &gt; 2]; // yields [3, 4]
 </programlisting>
 
       <para>Alternatively a variable may be declared for the context object.
       For example, this is equivalent to the above statement:</para>
 
-      <programlisting>	numsGreaterThanTwo = nums[n|n &gt; 2];
+      <programlisting continuation="continues">	numsGreaterThanTwo = nums[n|n &gt; 2];
 </programlisting>
 
       <para>The JavaFX <code>indexof</code> operator returns the ordinal
@@ -274,19 +274,19 @@
       <para>The <code>car</code> and <code>cdr</code> of a list may be
       expressed using selection expressions like this:</para>
 
-      <programlisting>	function car(list) {return list[indexof . == 0];}
+      <programlisting continuation="restarts">	function car(list) {return list[indexof . == 0];}
 	function cdr(list) {return list[indexof . &gt; 0];}
 </programlisting>
 
       <para>Of course <code>car</code> can be expressed more succinctly as
       simply:</para>
 
-      <programlisting>	function car(list) {return list[0];}
+      <programlisting continuation="restarts">	function car(list) {return list[0];}
 </programlisting>
 
       <para>Examples:</para>
 
-      <programlisting>	var list = [1..10];
+      <programlisting continuation="continues">	var list = [1..10];
 	car(list); // yields 1
 	cdr(list); // yields [2,3,4,5,6,7,8,9,10]
 </programlisting>
@@ -294,7 +294,7 @@
       <para>In JavaFX, the empty array <code>[]</code> and <code>null</code>
       are synonymous, i.e:</para>
 
-      <programlisting>        [] == null // yields true
+      <programlisting continuation="restarts">        [] == null // yields true
         sizeof null // yields 0
 </programlisting>
     </sect1>
@@ -336,7 +336,7 @@
 
         <para>Examples:</para>
 
-        <programlisting>        var x = [1,2,3];
+        <programlisting continuation="restarts">        var x = [1,2,3];
         insert 12 into x; // yields [1,2,3,12]
         insert 10 as first into x; // yields [10,1,2,3,12]
         insert [99,100] as last into x; // yields [10,1,2,3,12,99,100]
@@ -351,7 +351,7 @@
 
         <para>Examples:</para>
 
-        <programlisting>
+        <programlisting continuation="restarts">
         var x = [1,2,3];
         insert 10 after x[. == 10]; // yields [1,2,3,10]
         insert 12 before x[1]; // yields [1,12,2,3,10]
@@ -377,7 +377,7 @@
 
           <para>Examples:</para>
 
-          <programlisting>
+          <programlisting continuation="restarts">
         var x = [1,2,3];
         insert 10 into x; // yields [1,2,3,10]
         insert 12 before x[1]; // yields [1,12,2,3,10]
@@ -399,7 +399,7 @@
 
           <para>Here is an example:</para>
 
-          <programlisting>
+          <programlisting continuation="restarts">
         class Album {
             attribute title: String;
             attribute artist: String;
@@ -477,7 +477,7 @@
           function which takes a number and returns a list of all its
           factors,</para>
 
-          <programlisting>        function factors(n) {
+          <programlisting continuation="restarts">        function factors(n) {
             return select i from i in [1..n/2] where n % i == 0;
         }
 </programlisting>
