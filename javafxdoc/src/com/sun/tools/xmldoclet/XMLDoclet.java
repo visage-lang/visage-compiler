@@ -238,7 +238,7 @@ public class XMLDoclet {
             generateAnnotations(exec.annotations());
             generateModifiers(exec);
             generateTypeParameters(exec.typeParameters());
-            generateParameters(exec.parameters());
+            generateParameters(exec.parameters(),exec);
             Type[] exceptions = exec.thrownExceptionTypes();
             if (exceptions.length > 0) {
                 attrs.clear();
@@ -396,15 +396,42 @@ public class XMLDoclet {
         hd.endElement("", "", "modifiers");
     }
 
-    private void generateParameters(Parameter[] parameters) throws SAXException {
+    private void generateParameters(Parameter[] parameters, ProgramElementDoc doc) throws SAXException {
         attrs.clear();
         hd.startElement("", "", "parameters", attrs);
-        for (Parameter p : parameters) {
+        List<Tag> paramDocs = new ArrayList<Tag>();
+        for(Tag t : doc.tags()) {
+            if("@param".equals(t.kind())) {
+                paramDocs.add(t);
+            }
+        }
+        
+        for(int i=0; i<parameters.length; i++) {
+            Parameter p = parameters[i];
             attrs.clear();
             attrs.addAttribute("", "", "name", "CDATA", p.name());
             hd.startElement("", "", "parameter", attrs);
             generateTypeRef(p.type(), "type", rawType(p));
             generateAnnotations(p.annotations());
+            attrs.clear();
+            hd.startElement("","", "docComment", attrs);
+            if(paramDocs.size() > i) {
+                Tag t = paramDocs.get(i);
+                Tag[] inlineTags = t.inlineTags();
+                if (inlineTags.length <= 1) {
+                    String text = t.text();
+                    text = text.trim();
+                    //trim off the name of the variable, if present
+                    int n = text.indexOf(" ");
+                    if(n > 0) {
+                        text = text.substring(n);
+                    }
+                    hd.characters(text.toCharArray(), 0, text.length());
+                } else {
+                    generateTags(inlineTags, "inlineTags");
+                }
+            }
+            hd.endElement("", "", "docComment");
             hd.endElement("", "", "parameter");
         }
         hd.endElement("", "", "parameters");
@@ -454,7 +481,7 @@ public class XMLDoclet {
             attrs.addAttribute("", "", "toString", "CDATA", type.qualifiedTypeName() + type.dimension());
             attrs.addAttribute("", "", "sequence", "CDATA", Boolean.toString(isSequence));
             attrs.addAttribute("", "", "functionType", "CDATA", Boolean.toString(isFunctionType));
-            hd.startElement("", "", kind, attrs);
+            hd.startElement("", "", kind, attrs);                    
             hd.endElement("", "", kind);
         }
     }

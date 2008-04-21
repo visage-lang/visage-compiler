@@ -223,6 +223,16 @@
         </p>
     </xsl:template>
     
+    <xsl:template match="docComment/tags/return">
+        <xsl:apply-templates/>
+    </xsl:template>
+    <xsl:template match="inlineTags">
+        <xsl:apply-templates/>
+    </xsl:template>
+    <xsl:template match="docComment/tags/param">
+        <xsl:apply-templates/>
+    </xsl:template>
+    
     <xsl:template match="docComment/firstSentenceTags">
         <p class="comment">
             <xsl:for-each select="*"><xsl:apply-templates select="."/></xsl:for-each>
@@ -666,17 +676,17 @@
                     Parameters
                     <xsl:for-each select="parameters/parameter">
                         <dt><xsl:value-of select="@name"/></dt>
-                        <dd><xsl:apply-templates select="../../docComment/tags/param/inlineTags"/></dd>
+                        <dd><xsl:apply-templates select="docComment"/></dd>
                     </xsl:for-each>
                 </dl>
             </xsl:if>
             
-            <xsl:if test="not(returns/@simpleTypeName='void')">
+            <xsl:if test="not(returns/@simpleTypeName='void' or returns/@simpleTypeName='Void')">
                 <dl class="returns">
                     Returns
                     <dt><xsl:value-of select="returns/@simpleTypeName"/>
                     <xsl:value-of select="returns/@dimension"/></dt>
-                    <dd><xsl:apply-templates select="docComment/tags/return/inlineTags"/></dd>
+                    <dd><xsl:apply-templates select="docComment/tags/return"/></dd>
                 </dl>
             </xsl:if>
             
