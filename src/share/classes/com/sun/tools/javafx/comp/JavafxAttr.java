@@ -2910,19 +2910,19 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (lowerType != syms.javafx_IntegerType) {
             allInt = false;
             if (lowerType != syms.javafx_NumberType) {
-                log.error(tree.getLower().pos(), "range.start.int.or.number"); 
+                log.error(tree.getLower().pos(), "javafx.range.start.int.or.number"); 
             }
         }
         if (upperType != syms.javafx_IntegerType) {
             allInt = false;
             if (upperType != syms.javafx_NumberType) {
-                log.error(tree.getLower().pos(), "range.end.int.or.number"); 
+                log.error(tree.getLower().pos(), "javafx.range.end.int.or.number"); 
             }
         }
         if (stepType != syms.javafx_IntegerType) {
             allInt = false;
             if (stepType != syms.javafx_NumberType) {
-                log.error(tree.getUpper().pos(), "range.step.int.or.number"); 
+                log.error(tree.getStepOrNull().pos(), "javafx.range.step.int.or.number"); 
             }
         }
 		if (tree.getLower().getTag() == JCTree.LITERAL && tree.getUpper().getTag() == JCTree.LITERAL 

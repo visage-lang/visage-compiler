@@ -1,0 +1,3 @@
+test/should-fail/jfxc379start.fx:4: range start must be Integer or Number.
+var nonNumericStart = ["a"..42];
+                       ^
