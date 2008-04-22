@@ -257,7 +257,7 @@ public class Node {
     
     /**
      * normalize the node tree
-     * @see  org.w3c.dom.Node.normalize()
+     * @see  org.w3c.dom.Node#normalize()
      */
     public function nomalize():Void {
         domNode.normalize();
@@ -356,12 +356,12 @@ public class Node {
      * the attributes indent, doIndent, omitXMLDeclaration, encoding and
      * standalone.
      * @return an XML formatted string
-     * @see serialize()
-     * @see indent
-     * @see doIndent
-     * @see omitXMLDeclaration
-     * @see encoding
-     * @see standalone
+     * @see #serialize()
+     * @see #indent
+     * @see #doIndent
+     * @see #omitXMLDeclaration
+     * @see #encoding
+     * @see #standalone
      */    
     public function toString():String {
         var writer = new StringWriter();

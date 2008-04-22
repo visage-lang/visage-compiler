@@ -69,7 +69,7 @@ public class Document {
         }
     }
     
-    /*
+    /**
      * Holds an optional namespace context used for serializing or printing the
      * document
      */
@@ -89,7 +89,6 @@ public class Document {
     };
     
     
-    // Transform properties for formatting xml
     /**
      * Holds the number of spaces for indenting when printing or serializing.
      * doIndent must be true for this to take effect. Default indent is 2.
@@ -388,12 +387,12 @@ public class Document {
      * the attributes indent, doIndent, omitXMLDeclaration, encoding and
      * standalone.
      * @return an XML formatted string
-     * @see serialize()
-     * @see indent
-     * @see doIndent
-     * @see omitXMLDeclaration
-     * @see encoding
-     * @see standalone
+     * @see #serialize()
+     * @see #indent
+     * @see #doIndent
+     * @see #omitXMLDeclaration
+     * @see #encoding
+     * @see #standalone
      */
     public function toString():String {
         var writer = new StringWriter();
@@ -406,11 +405,11 @@ public class Document {
      * the attributes indent, doIndent, omitXMLDeclaration, encoding and
      * standalone. Output is written to the Writer.
      * @param writer the java.io.Writer that will receive the formated xml.
-     * @see indent
-     * @see doIndent
-     * @see omitXMLDeclaration
-     * @see encoding
-     * @see standalone
+     * @see #indent
+     * @see #doIndent
+     * @see #omitXMLDeclaration
+     * @see #encoding
+     * @see #standalone
      */    
     public function serialize(writer:Writer):Void {
         var serializer = tfactory.newTransformer();

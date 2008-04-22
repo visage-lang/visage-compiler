@@ -65,7 +65,7 @@ public class Element extends Node {
      * @param name The name of the attribute to retrieve.
      * @return The <code>Attr</code> value as a string, or the empty string
      *   if that attribute does not have a specified or default value.
-     * @see org.w3c.dom.Element.getAttribute();
+     * @see org.w3c.dom.Element#getAttribute(String)
      */
     public function getAttribute(name:String):String {
         var elem = domNode as org.w3c.dom.Element;
@@ -76,7 +76,7 @@ public class Element extends Node {
      * Removes an attribute by name.
      * 
      * @param name The name of the attribute to remove.
-     * @see org.w3c.dom.Element.removeAttribute();
+     * @see org.w3c.dom.Element#removeAttribute(String)
      */
     public function removeAttribute(name:String):Void {
         var f = for(a in attributes where a.name == name) a;
@@ -89,7 +89,7 @@ public class Element extends Node {
      * 
      * @param name The name of the attribute.
      * @param value the value for the attribute.
-     * @see org.w3c.dom.Element.setAttribute();
+     * @see org.w3c.dom.Element#setAttribute(String, String)
      */
     public function setAttribute(name:String, value:String):Void {
         var f = for(a in attributes where a.name == name) a;
@@ -108,7 +108,7 @@ public class Element extends Node {
      * @param namespaceURI the namespace of the element
      * @param qualifiedName the qualified name of the element 
      * @param value the value for the attribute.
-     * @see org.w3c.dom.Element.setAttribute();
+     * @see org.w3c.dom.Element#setAttributeNS(String, String, String)
      */
     public function setAttributeNS(namespaceURI:String, qualifiedName:String, value:String):Void {
         var f = for(a in attributes where a.name == name) a;

@@ -133,7 +133,7 @@ public class DocumentBuilder {
      * document and return a new DOM {@link Document} object.
      * @param source the InputSource containing the XML content
      * @return <code>Document</code> result of parsing 
-     * @see javax.xml.parsers.DocumentBuilder.parse(org.xml.sax.InputSource)
+     * @see javax.xml.parsers.DocumentBuilder#parse(org.xml.sax.InputSource)
      */    
     public function parseInputSource(source:InputSource):Document {
         var document = builder.parse(source);
@@ -145,7 +145,7 @@ public class DocumentBuilder {
      * document and return a new DOM {@link Document} object.
      * @param stream the InputStream containing the XML content
      * @return <code>Document</code> result of parsing 
-     * @see javax.xml.parsers.DocumentBuilder.parse(java.io.InputStream)
+     * @see javax.xml.parsers.DocumentBuilder#parse(java.io.InputStream)
      */    
     public function parseInputStream(stream:InputStream):Document {
         var document = builder.parse(stream);
@@ -157,7 +157,7 @@ public class DocumentBuilder {
      * document and return a new DOM {@link Document} object.
      * @param reader the Reader containing the XML content
      * @return <code>Document</code> result of parsing 
-     * @see javax.xml.parsers.DocumentBuilder.parse(java.io.Reader)
+     * @see javax.xml.parsers.DocumentBuilder#parse(org.xml.sax.InputSource)
      */    
     public function parseReader(reader:Reader):Document {
         var document = builder.parse(new InputSource(reader));
@@ -169,7 +169,7 @@ public class DocumentBuilder {
      * document and return a new DOM {@link Document} object.
      * @param text the String containing the XML content
      * @return <code>Document</code> result of parsing 
-     * @see javax.xml.parsers.DocumentBuilder.parse(org.xml.sax.InputSource)
+     * @see javax.xml.parsers.DocumentBuilder#parse(org.xml.sax.InputSource)
      */    
     public function parseText(text:String):Document {
         var document = builder.parse(new InputSource(new StringReader(text)));
@@ -181,7 +181,7 @@ public class DocumentBuilder {
      * document and return a new DOM {@link Document} object.
      * @param uri  The location of the content to be parsed.
      * @return <code>Document</code> result of parsing 
-     * @see javax.xml.parsers.DocumentBuilder.parse(java.lang.String)
+     * @see javax.xml.parsers.DocumentBuilder#parse(java.lang.String)
      */    
     public function parseURI(uri:String):Document {
         var document = builder.parse(uri);
