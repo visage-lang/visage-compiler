@@ -82,7 +82,7 @@ public class MusicPanel2 extends CompositeNode {
                 }
              };
         } else {
-            var ys = [[0..15],[15..10]];
+            var ys = [[0..15],[15..10 step -1]];
             var interval = (d*1)/sizeof ys;
             hoverClip = Timeline {
                 keyFrames: for(s in ys) {
