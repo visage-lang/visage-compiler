@@ -1296,7 +1296,7 @@ var nums2 = [3..0 step 1]; </programlisting>
 </para></sect3>
 
 
-<sect3 id="objliterals"><title>Object Liberals and Binding</title>
+<sect3 id="objliterals"><title>Object Literals and Binding</title>
 
 
 <para>Object literals behave like operators and non-bound functions.  If one of the arguments to the object literal changes then it is re-executed (a new instance is created).</para>
