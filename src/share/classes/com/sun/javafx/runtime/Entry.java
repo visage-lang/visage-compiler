@@ -43,7 +43,7 @@ public class Entry {
     private static RuntimeProvider provider;
 
     public static void start(Class<?> app, String[] commandLineArgs) throws Throwable {
-        Method main = app.getMethod(JavafxDefs.runMethodString, Sequence.class);
+        Method main = app.getMethod(entryMethodName(), Sequence.class);
         Object args = Sequences.make(String.class, commandLineArgs);
         
         try {
