@@ -43,7 +43,7 @@ public class Array extends JSONBase {
     public attribute array:Object[];
     
     /**
-     * Convenience to load array from a java.util.List
+     * Convenience attribute to load array from a java.util.List
      */
     public attribute list: List on replace {
         var iter = list.iterator();
@@ -54,7 +54,7 @@ public class Array extends JSONBase {
 
     
     /**
-     * Convert the JSON array to a JSON format
+     * Convert the JSON array to JSON format.
      * Output is written to the Writer.
      * @param writer the java.io.Writer that will receive the formated JSON stream.
      * @param curIndent the current indent amount
@@ -66,7 +66,7 @@ public class Array extends JSONBase {
     }  
     
     /**
-     * Convert the JSON array to a JSON format
+     * Convert the JSON array to JSON format.
      * Output is written to the Writer.
      * @param array the array items
      * @param writer the java.io.Writer that will receive the formated JSON stream.

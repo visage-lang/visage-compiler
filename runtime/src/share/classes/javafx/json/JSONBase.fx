@@ -28,7 +28,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 /**
- *  Provides base functionality JSON types
+ *  Provides base functionality for JSON types
  * 
  * @author jclarke
  */
@@ -37,6 +37,8 @@ public abstract class JSONBase  {
     /**
      * Holds the number of spaces for indenting when printing or serializing.
      * doIndent must be true for this to take effect. Default indent is 2.
+     * 
+     * @see #doIndent
      */
     public attribute indent:Integer = 2;
     
@@ -47,7 +49,7 @@ public abstract class JSONBase  {
     public attribute doIndent:Boolean = true;
     
     /**
-     * Convert the JSON Object to a JSON formatted 
+     * Convert the JSON Object to JSON format.
      * @return an JSON formatted string
      */
     public function toString():String {
@@ -57,7 +59,7 @@ public abstract class JSONBase  {
     }
     
     /**
-     * Convert the JSON Object to a JSON format
+     * Convert the JSON Object to JSON format.
      * Output is written to the Writer.
      * @param writer the java.io.Writer that will receive the formated JSON stream.
      */    
@@ -67,9 +69,9 @@ public abstract class JSONBase  {
     }   
     
     /**
-     * Convert the JSON Object to a JSON format
+     * Convert the JSON Object to JSON format.
      * Output is written to the Writer.
-     * @param writer the java.io.Writer that will receive the formated JSON stream.
+     * @param writer the java.io.Writer that will receive the formated JSON stream
      * @param curIndent the current indent amount
      * @param indentAmount the amount to indent from the curIndent for the next indent level
      */    

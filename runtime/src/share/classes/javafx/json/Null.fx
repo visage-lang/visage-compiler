@@ -27,11 +27,16 @@ package javafx.json;
 import java.io.Writer;
 
 /**
+ * Represents a JSON null value
  * @author jclarke
  */
 
 public class Null  {
     
+    /**
+     * return  "null" per JSON specification
+     * @return "null"
+     */
     public function toString(): String {
         return "null";
     }

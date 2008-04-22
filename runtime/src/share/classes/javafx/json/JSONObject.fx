@@ -47,7 +47,7 @@ public class JSONObject extends JSONBase {
     private attribute updateFromMap = false;
 
     /**
-     *  Holds the paris for this JSONObject
+     *  Holds the pairs for this JSONObject
      */
     public attribute pairs:Pair[]  on replace oldValue[lo..hi]=newVals {
         if(not updateFromMap) {
@@ -109,7 +109,7 @@ public class JSONObject extends JSONBase {
     }
     
     /**
-     * Add a Null  to this JSONObject
+     * Add a Null to this JSONObject
      * 
      * @param name the name of the pair
      */     
@@ -139,7 +139,7 @@ public class JSONObject extends JSONBase {
     }
     
     /**
-     * Get a value for pair 
+     * Get a value from a pair 
      * @param name the name of the pair
      * @return the value or null if not found
      */ 
@@ -149,7 +149,7 @@ public class JSONObject extends JSONBase {
     } 
     
     /**
-     * Get a array for pair 
+     * Get an array from a pair 
      * @param name the name of the pair
      * @return the array or null if not found
      */     
@@ -170,7 +170,7 @@ public class JSONObject extends JSONBase {
 
 
     /**
-     * Convert the JSON Object to a JSON format
+     * Convert the JSON Object to JSON format. 
      * Output is written to the Writer.
      * @param writer the java.io.Writer that will receive the formated JSON stream.
      * @param curIndent the current indent amount

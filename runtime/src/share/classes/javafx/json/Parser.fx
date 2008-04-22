@@ -44,6 +44,10 @@ public class Parser {
     private attribute endObject:Integer = 0;
     private attribute endArray:Integer = 0;
     
+    /**
+     * a handler that will be called as each type is identified during
+     * parsing, may be null
+     */
     public attribute handler: function(type:ElementType, object:Object):Void;
     
     /**

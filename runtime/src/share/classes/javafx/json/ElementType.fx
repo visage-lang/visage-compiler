@@ -26,22 +26,35 @@
 package javafx.json;
 
 /**
+ * Contains static definitions of the JSON Element Types that are identified
+ * during parsing of a JSON stream
  * @author jclarke
  */
 
 public class ElementType {
 
+    /** the name of the element type */
     public attribute name:String;
     
+    /** Indicates that a JSONObject has been idenfitied*/
     public static attribute OBJECT:ElementType = ElementType{name:"JSONObject"};
+    /** Indicates that a JSON Array has been idenfitied*/
     public static attribute ARRAY:ElementType = ElementType{name:"Array"};
+    /** Indicates that a JSON Pair has been idenfitied*/
     public static attribute PAIR:ElementType = ElementType{name:"Pair"};
+    /** Indicates that a JSON VALUE has been idenfitied*/
     public static attribute VALUE:ElementType = ElementType{name:"VALUE"};
+    /** Indicates that a JSON String has been idenfitied*/
     public static attribute STRING:ElementType = ElementType{name:"String"};
+    /** Indicates that a JSON Number has been idenfitied*/
     public static attribute NUMBER:ElementType = ElementType{name:"Number"};
+    /** Indicates that a JSON Null has been idenfitied*/
     public static attribute NULL:ElementType = ElementType{name:"Null"};
+    /** Indicates that a JSON Boolean has been idenfitied*/
     public static attribute BOOLEAN:ElementType = ElementType{name:"Boolean"};
+    /** Start indicates that parsing has started*/
     public static attribute START:ElementType = ElementType{name:"Start"};
+    /** End indicates that parsing has ended*/
     public static attribute END:ElementType = ElementType{name:"End"};
     
    
