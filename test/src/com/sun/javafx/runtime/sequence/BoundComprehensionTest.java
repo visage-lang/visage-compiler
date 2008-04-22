@@ -394,7 +394,6 @@ public class BoundComprehensionTest extends JavaFXTestCase {
                 final Foo foo = fooFactory.make();
                 foo.get$x().setAsSequenceFromLiteral(xform$attr.getAsSequence());
                 foo.initialize$();
-                System.out.println("yada");
                 return foo;
             }
 
