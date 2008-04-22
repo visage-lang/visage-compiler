@@ -1,0 +1,4 @@
+test/should-fail/jfxc892a.fx:7: 'void' type not allowed here
+var c = { return a; }
+^
+1 error
