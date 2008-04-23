@@ -203,4 +203,11 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
     public R visitTypeUnknown(TypeUnknownTree node, P p) {
         return null;
     }
+
+    public R visitVariable(JavaFXVariableTree node, P p) {
+        R r = scan(node.getModifiers(), p);
+	r = scanAndReduce(node.getInitializer(), p, r);
+        r = scanAndReduce(node.getJFXType(), p, r);
+        return scanAndReduce(node.getOnReplaceTree(), p, r);
+    }
 }
