@@ -25,7 +25,7 @@
     <property name="wysiwygdocbook.reldir" value="wysiwygdocbook-${wysiwygdocbook.ver}"/>
     <property name="wysiwygdocbook.dir" value="${tools.dir}/${wysiwygdocbook.reldir}"/>
 
-    <property name="findbugs.ver" value="1.2.1"/>
+    <property name="findbugs.ver" value="1.3.3"/>
     <property name="findbugs.dir" value="${tools.dir}/findbugs-${findbugs.ver}"/>
 
     <property name="saxon.ver" value="6.5.5"/>
