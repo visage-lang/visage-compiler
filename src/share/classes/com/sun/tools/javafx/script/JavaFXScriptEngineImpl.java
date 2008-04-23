@@ -26,8 +26,9 @@
 package com.sun.tools.javafx.script;
 
 import com.sun.javafx.api.JavaFXScriptEngine;
+import com.sun.javafx.api.JavafxcTask;
+import com.sun.javafx.runtime.Entry;
 import com.sun.tools.javac.util.JCDiagnostic;
-import com.sun.tools.javafx.comp.JavafxDefs;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
@@ -38,6 +39,12 @@ import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.ExpressionTree;
+import com.sun.source.util.SourcePositions;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javafx.api.JavafxcTool;
+import com.sun.tools.javafx.api.JavafxcTrees;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -212,7 +219,30 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
             }
             if (recompile) {
                 String binding = makeBindingStatement(ctx, attrs, inferBindings);
-                script = binding + str;
+                int bindingInsert = 0;  // insert binding in front of script
+                try {
+                    // parse script to find any package statement
+                    JavafxcTool tool = JavafxcTool.create();
+                    MemoryFileManager manager = new MemoryFileManager(tool.getStandardFileManager(diagnostics, null, null), parentClassLoader);
+                    List<JavaFileObject> compUnits = new ArrayList<JavaFileObject>(1);
+                    compUnits.add(manager.makeStringSource(fileName, script));
+                    JavafxcTask task = tool.getTask(null, manager, diagnostics, null, compUnits);
+                    Iterable<? extends CompilationUnitTree> units = task.parse();
+                    if (units.iterator().hasNext()) {
+                        CompilationUnitTree unit = units.iterator().next();
+                        ExpressionTree pkg = unit.getPackageName();
+                        if (pkg != null) {
+                            // insert bindings after package and before first unit member
+                            SourcePositions positions = JavafxcTrees.instance(task).getSourcePositions();
+                            JCTree firstDef = ((JCTree.JCCompilationUnit)unit).defs.head;
+                            bindingInsert = (int)positions.getStartPosition(unit, firstDef);
+                        }
+                    }
+                } catch (IOException e) {
+                    // should never happen with a MemoryFileManager file object
+                    throw new AssertionError(e);                            
+                }
+                script = str.substring(0, bindingInsert) + binding + str.substring(bindingInsert);
                 classBytes = compiler.compile(fileName, script,
                         ctx.getErrorWriter(), sourcePath, classPath,
                         diagnosticListener, true);
@@ -278,7 +308,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
     // find public static void main(String[]) method, if any
     private static Method findMainMethod(Class clazz) {
         try {
-            Method mainMethod = clazz.getMethod(JavafxDefs.runMethodString, Sequence.class);
+            Method mainMethod = clazz.getMethod(Entry.entryMethodName(), Sequence.class);
             int modifiers = mainMethod.getModifiers();
             if (Modifier.isPublic(modifiers) &&
                     Modifier.isStatic(modifiers)) {
