@@ -128,8 +128,17 @@ public class JavaFxAntTask extends Javac {
         return urls.toArray(new URL[0]);
     }
 
+    @Override
     public String getCompiler() {
         return "extJavac";
+    }
+
+    @Override
+    protected void checkParameters() throws BuildException {
+        super.checkParameters();
+            if (compilerClassPath == null) {
+                throw new BuildException("javafxc: compilerclasspath must be set", getLocation());
+            }
     }
     
     public static class JavaFxCompilerAdapter extends DefaultCompilerAdapter {
