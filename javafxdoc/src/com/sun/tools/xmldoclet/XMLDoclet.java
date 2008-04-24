@@ -270,10 +270,6 @@ public class XMLDoclet {
             attrs.addAttribute("", "", "qualifiedName", "CDATA", field.qualifiedName());
             attrs.addAttribute("", "", "enumConstant", "CDATA", Boolean.toString(field.isEnumConstant()));
             hd.startElement("", "", kind, attrs);
-            if("name".equals(field.name())) {
-                System.out.println("generating docs for field: " + field.name());
-                System.out.println("raw comments = " + field.getRawCommentText());
-            }
             generateComment(field);
             generateAnnotations(field.annotations());
             generateModifiers(field);

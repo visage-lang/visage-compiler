@@ -197,6 +197,7 @@
                     <a id="overview"><h3>Overview</h3></a>
                     <div class="overview">
                         <xsl:apply-templates select="docComment/inlineTags"/>
+                        <xsl:apply-templates select="docComment/tags/profile"/>
                     </div>
                     <xsl:call-template name="toc"/>
                     <xsl:call-template name="inherited"/>
@@ -238,6 +239,10 @@
             <xsl:for-each select="*"><xsl:apply-templates select="."/></xsl:for-each>
         </p>
     </xsl:template>
+    <xsl:template match="docComment/tags/profile">
+        <p class="profile">Profile: <b><xsl:value-of select="."/></b></p>
+    </xsl:template>
+
     
     <xsl:template match="Text"><xsl:value-of select="." disable-output-escaping="yes"/></xsl:template>
     <xsl:template match="see"><a>
@@ -627,7 +632,7 @@
                     </a>
                 </h4>
             </a>
-            
+            <xsl:apply-templates select="docComment/tags/profile"/>
             <xsl:apply-templates select="docComment/inlineTags"/>
         </div>
         </xsl:if>
@@ -669,6 +674,7 @@
                 <xsl:attribute name="id"><xsl:apply-templates select="." mode="anchor-signature"/></xsl:attribute>
                 <h4><xsl:apply-templates select="." mode="detail-signature"/></h4>
             </a>
+            <xsl:apply-templates select="docComment/tags/profile"/>
             
             
             <xsl:if test="parameters/parameter">
