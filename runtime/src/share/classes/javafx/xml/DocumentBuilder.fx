@@ -37,6 +37,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import org.w3c.dom.DOMException; 
+import org.xml.sax.EntityResolver;
+import org.xml.sax.ErrorHandler;
 
 /**
  * Provides methods for creating a new document and for parsing xml from 
@@ -51,12 +53,43 @@ public class DocumentBuilder {
     private attribute builder:javax.xml.parsers.DocumentBuilder = factory.newDocumentBuilder();
     
     /**
+     * Specify the EntityResolver to be used to resolve entities
+     * present in the XML document to be parsed. 
+     * Setting this to null will result in the underlying implementation
+     * using it's own default implementation and behavior. 
+     * 
+     * @see org.xml.sax.EntityResolver
+     */ 
+    public attribute entityResolver:EntityResolver on replace {
+        builder.setEntityResolver(entityResolver);
+    };
+    
+    /**
+     * Specify the ErrorHandler to be used by the parser. 
+     * Setting this to null will result in the underlying implementation
+     * using it's own default implementation and behavior.
+     * 
+     * @see org.xml.sax.ErrorHandler
+     */
+    public attribute errorHandler:ErrorHandler on replace {
+        builder.setErrorHandler(errorHandler);
+    };    
+    
+    
+    private function resetBuilder():Void {
+        builder = factory.newDocumentBuilder();
+        builder.setEntityResolver(entityResolver);
+        builder.setErrorHandler(errorHandler);
+    }
+    
+    /**
      * Indicates whether or not this parser is configured to
      * validate XML documents. Set to true to configure 
      * to validate XML documents; false otherwise. Default is false.
      */    
-    public attribute validating:Boolean = false on replace {
+    public attribute validating:Boolean = factory.isValidating() on replace {
         factory.setValidating(validating);
+        resetBuilder();
     };
     
     /**
@@ -64,8 +97,9 @@ public class DocumentBuilder {
      * understand namespaces. Set to true if this parser is to understand
      * namespaces; false otherwise. Default is <code>false</code>.
      */    
-    public attribute namespaceAware:Boolean = false on replace {
+    public attribute namespaceAware:Boolean = factory.isNamespaceAware() on replace {
         factory.setNamespaceAware(namespaceAware);
+        resetBuilder();
     };
     
     /**
@@ -73,8 +107,9 @@ public class DocumentBuilder {
      * expand entity reference nodes. By default the value of this is set to
      * <code>true</code>
      */    
-    public attribute expandEntityReferences:Boolean = true on replace {
+    public attribute expandEntityReferences:Boolean = factory.isExpandEntityReferences() on replace {
         factory.setExpandEntityReferences(expandEntityReferences);
+        resetBuilder();
     };
     
     /**
@@ -82,8 +117,9 @@ public class DocumentBuilder {
      * ignore comments. By default the value of this is set to <code>false
      * </code>.</p>
      */
-    public attribute ignoringComments = false on replace {
+    public attribute ignoringComments = factory.isIgnoringComments() on replace {
         factory.setIgnoringComments(ignoringComments);
+        resetBuilder();
     };
     
     /**
@@ -92,16 +128,18 @@ public class DocumentBuilder {
      * adjacent (if any) text node. By default the value of this is set to
      * <code>false</code>
      */
-    public attribute coalescing:Boolean = false on replace {
+    public attribute coalescing:Boolean = factory.isCoalescing() on replace {
         factory.setCoalescing(coalescing);
+        resetBuilder();
     };
     
     /**
      * Indicates whether or not the factory is configured to produce
      * parsers which ignore ignorable whitespace in element content.
      */
-    public attribute ignoringElementContentWhitespace:Boolean = false on replace {
+    public attribute ignoringElementContentWhitespace:Boolean = factory.isIgnoringElementContentWhitespace() on replace {
         factory.setIgnoringElementContentWhitespace(ignoringElementContentWhitespace);
+        resetBuilder();
     };
     
     /**
