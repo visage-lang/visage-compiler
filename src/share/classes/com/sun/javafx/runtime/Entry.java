@@ -32,7 +32,6 @@ import java.util.Iterator;
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
-import com.sun.tools.javafx.comp.JavafxDefs;
 
 /**
  * First code that is run to start a JavaFX Script application.
@@ -69,13 +68,17 @@ public class Entry {
     }
 
     public static void deferTask(final Function0<Void> function) {
-        if (provider == null)
-            provider = runtimeProviderLocator();
-        provider.deferTask(new Runnable() {
+        deferTask(new Runnable() {
             public void run() {
                 function.invoke();
             }
         });
+    }
+
+    public static void deferTask(Runnable function) {
+        if (provider == null)
+            provider = runtimeProviderLocator();
+        provider.deferTask(function);
     }
 
     private static RuntimeProvider runtimeProviderLocator() {

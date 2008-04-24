@@ -25,15 +25,15 @@
 
 package com.sun.javafx.runtime.async;
 
-import javax.swing.*;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.FutureTask;
+
+import com.sun.javafx.runtime.Entry;
 
 /**
  * AbstractAsyncOperation.   Base class for result-bearing, asynchronous operations. Some operations are asynchronous
@@ -70,9 +70,11 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
                 else
                     try {
                         listener.onCompletion(future.get());
-                    } catch (InterruptedException e) {
+                    }
+                    catch (InterruptedException e) {
                         listener.onCancel();
-                    } catch (ExecutionException e) {
+                    }
+                    catch (ExecutionException e) {
                         listener.onException(e);
                     }
             }
@@ -82,8 +84,9 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
             @Override
             protected void done() {
                 try {
-                    SwingUtilities.invokeLater(completionRunnable);
-                } finally {
+                    Entry.deferTask(completionRunnable);
+                }
+                finally {
                     super.done();
                 }
             }
@@ -103,14 +106,13 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
     }
 
     public void start() {
-        ExecutorService es = BackgroundExecutor.getExecutor();
-        es.execute(future);
+        BackgroundExecutor.getExecutor().execute(future);
     }
 
     protected void notifyProgress() {
         final int last = lastProgress;
         final int max = progressMax;
-        SwingUtilities.invokeLater(new Runnable() {
+        Entry.deferTask(new Runnable() {
             public void run() {
                 listener.onProgress(last, max);
             }
@@ -118,7 +120,7 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
     }
 
     private void addProgress(int amount) {
-        bytesRead  += amount;
+        bytesRead += amount;
         if (bytesRead > nextProgress) {
             lastProgress = bytesRead;
             notifyProgress();
@@ -132,10 +134,12 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
 
     protected void setProgressMax(int progressMax) {
         if (progressMax == 0) {
-            progressIncrement =  progressGranularity;
-        } else if (progressMax == -1) {
-            progressIncrement =  progressGranularity;
-        } else {
+            progressIncrement = progressGranularity;
+        }
+        else if (progressMax == -1) {
+            progressIncrement = progressGranularity;
+        }
+        else {
             this.progressMax = progressMax;
             progressIncrement = progressMax / progressGranularity;
         }

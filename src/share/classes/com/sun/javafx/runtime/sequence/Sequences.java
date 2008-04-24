@@ -25,12 +25,8 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import java.util.BitSet;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.lang.reflect.Array;
+import java.util.*;
 
 import com.sun.javafx.runtime.Util;
 
@@ -205,6 +201,13 @@ public final class Sequences {
     /** How large is this sequence?  */
     public static int size(Sequence seq) {
         return (seq == null) ? 0 : seq.size();
+    }
+
+    /** Convert a Collection<T> to a Sequence<T> */
+    public static<T> Sequence<T> fromCollection(Class<T> clazz, Collection<T> values) {
+        if (values == null)
+            return Sequences.emptySequence(clazz);
+        return new ArraySequence<T>(clazz, values.toArray((T[]) Array.newInstance(clazz, values.size())));
     }
 
     /** Convert a T[] to a Sequence<T> */
