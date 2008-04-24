@@ -25,10 +25,6 @@
 
 package com.sun.javafx.runtime.async;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -42,6 +38,8 @@ import com.sun.javafx.runtime.Entry;
  * we provide a number of Java classes for async operations, which will execute in a background thread, such as
  * "fetch a resource over the web".  Async operations should not access any JFX state except the immutable parameters
  * passed in, and should not have side effects other than those managed by thread-safe Java classes.
+ *
+ * Async operations are one-time use; subclasses should not attempt to reuse them.  
  *
  * @author Brian Goetz
  */
@@ -119,7 +117,7 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
         });
     }
 
-    private void addProgress(int amount) {
+    protected void addProgress(int amount) {
         bytesRead += amount;
         if (bytesRead > nextProgress) {
             lastProgress = bytesRead;
@@ -158,36 +156,4 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
         notifyProgress();
     }
 
-    protected class ProgressInputStream extends BufferedInputStream {
-        public ProgressInputStream(InputStream in) {
-            super(in);
-        }
-
-        @Override
-        public synchronized int read() throws IOException {
-            if (Thread.currentThread().isInterrupted())
-                throw new InterruptedIOException();
-            int ch = super.read();
-            addProgress(1);
-            return ch;
-        }
-
-        @Override
-        public synchronized int read(byte b[], int off, int len) throws IOException {
-            if (Thread.currentThread().isInterrupted())
-                throw new InterruptedIOException();
-            int bytes = super.read(b, off, len);
-            addProgress(bytes);
-            return bytes;
-        }
-
-        @Override
-        public int read(byte b[]) throws IOException {
-            if (Thread.currentThread().isInterrupted())
-                throw new InterruptedIOException();
-            int bytes = super.read(b);
-            addProgress(bytes);
-            return bytes;
-        }
-    }
 }

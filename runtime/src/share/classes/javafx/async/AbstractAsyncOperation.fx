@@ -3,7 +3,7 @@ package javafx.async;
 import java.lang.*;
 import com.sun.javafx.runtime.async.AsyncOperationListener;
 
-public class AbstractAsyncOperation extends AsyncOperationListener {
+public abstract class AbstractAsyncOperation extends AsyncOperationListener {
     attribute done : Boolean;
     attribute canceled : Boolean;
     attribute failed : Boolean;
@@ -29,6 +29,12 @@ public class AbstractAsyncOperation extends AsyncOperationListener {
     function onProgress(cur : Integer, max : Integer) {
         progressCur = cur;
         progressMax = max;
+    }
+
+    abstract function start() : Void;
+
+    init {
+        start();
     }
 }
 

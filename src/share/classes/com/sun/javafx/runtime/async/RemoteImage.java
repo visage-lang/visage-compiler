@@ -25,49 +25,29 @@
 
 package com.sun.javafx.runtime.async;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.BufferedInputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import javax.imageio.ImageIO;
 
 /**
  * RemoteImage
  *
  * @author Brian Goetz
  */
-public class RemoteImage extends AbstractAsyncOperation<Image> {
-
-    private final String url;
-    protected int fileSize;
-
+public class RemoteImage extends AbstractRemoteResource<Image> {
     public RemoteImage(AsyncOperationListener<Image> listener, String url) {
-        super(listener);
-        this.url = url;
+        super(url, listener);
     }
 
-    public Image call() throws IOException {
-        URL u = new URL(url);
-        HttpURLConnection conn = (HttpURLConnection) u.openConnection();
-        fileSize = conn.getContentLength();
-        setProgressMax(fileSize);
-
-        InputStream stream = new ProgressInputStream(conn.getInputStream());
-        try {
-            BufferedImage im = ImageIO.read(stream);
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            GraphicsDevice gs = ge.getDefaultScreenDevice();
-            GraphicsConfiguration gc = gs.getDefaultConfiguration();
-            final Image c = gc.createCompatibleImage(im.getWidth(), im.getHeight(), 
-                                                     Transparency.TRANSLUCENT);
-            c.getGraphics().drawImage(im, 0, 0, im.getWidth(), im.getHeight(), null);
-            return c;
-        }
-        finally {
-            stream.close();
-        }
+    protected Image processStream(InputStream stream) throws IOException {
+        BufferedImage im = ImageIO.read(stream);
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gs = ge.getDefaultScreenDevice();
+        GraphicsConfiguration gc = gs.getDefaultConfiguration();
+        final Image c = gc.createCompatibleImage(im.getWidth(), im.getHeight(), Transparency.TRANSLUCENT);
+        c.getGraphics().drawImage(im, 0, 0, im.getWidth(), im.getHeight(), null);
+        return c;
     }
 }

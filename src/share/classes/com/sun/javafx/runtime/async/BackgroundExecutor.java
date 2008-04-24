@@ -42,15 +42,13 @@ public class BackgroundExecutor {
 
     public static synchronized ExecutorService getExecutor() {
         if (instance == null) {
-            instance = new ThreadPoolExecutor(0, 20, 1L, TimeUnit.SECONDS,
-                                              new LinkedBlockingQueue<Runnable>(),
-                                              new ThreadFactory() {
-                                                  public Thread newThread(Runnable r) {
-                                                      Thread t = new Thread(r);
-                                                      t.setPriority(Thread.MIN_PRIORITY);
-                                                      return t;
-                                                  }
-                                              });
+            instance = Executors.newCachedThreadPool(new ThreadFactory() {
+                public Thread newThread(Runnable r) {
+                    Thread t = new Thread(r);
+                    t.setPriority(Thread.MIN_PRIORITY);
+                    return t;
+                }
+            });
         }
 
         return instance;

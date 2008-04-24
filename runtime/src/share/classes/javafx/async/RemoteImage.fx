@@ -25,7 +25,7 @@ public class RemoteImage extends AbstractAsyncOperation {
         image = MemoryImage { theImage : value as java.awt.Image };
     }
 
-    init {
+    function start() : Void {
         peer = new com.sun.javafx.runtime.async.RemoteImage(this, url);
         peer.start();
     }
