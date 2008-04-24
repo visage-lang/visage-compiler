@@ -58,7 +58,7 @@ public class StringLocalization {
 
         try {
             ResourceBundle rb = ResourceBundle.getBundle(propertiesName,
-                    locale, FXPropertyResourceBundle.FXPropertiesControl.INSTANCE);
+                    locale, getCallerLoader(), FXPropertyResourceBundle.FXPropertiesControl.INSTANCE);
             if (explicitKey != null) {
                 localization = rb.getString(explicitKey);
                 if (explicitKey.equals(localization) && 
@@ -139,5 +139,20 @@ public class StringLocalization {
         }
 
         return assoc;
+    }
+
+    private static final ClassContext CC = new ClassContext();
+    private static final String PKGNAME = StringLocalization.class.getPackage().getName();
+    private static ClassLoader getCallerLoader() {
+        Class[] callers = CC.getClassContext();
+        try {
+            for (Class c : callers) {
+                if (!c.getName().startsWith(PKGNAME)) {
+                    return c.getClassLoader();
+                }
+            }
+        } catch (SecurityException se) {
+        }
+        return StringLocalization.class.getClassLoader();
     }
 }
