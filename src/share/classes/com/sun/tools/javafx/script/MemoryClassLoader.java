@@ -77,7 +77,7 @@ public final class MemoryClassLoader extends URLClassLoader {
     @Override
     public URL findResource(String name) {
         if (name.endsWith(".class")) {
-            name = name.substring(0, name.length() - 6);
+            name = name.substring(0, name.length() - 6).replace('/', '.');
             if (classBytes.containsKey(name))
                 return source;
         }
