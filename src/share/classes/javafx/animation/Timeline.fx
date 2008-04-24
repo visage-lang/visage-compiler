@@ -37,18 +37,86 @@ import java.lang.System;
 import java.util.ArrayList;
 import java.lang.System;
 
+/**
+ * Represents an animation, defined by one or more {@code KeyFrame}s.
+ */
 public class Timeline {
 
+    /**
+     * Used to specify an animation that repeats indefinitely (until
+     * the {@code stop()} method is called).
+     */
     public static attribute INDEFINITE = -1;
 
+    /**
+     * Defines the number of cycles in this animation.
+     * The {@code repeatCount} may be {@code INDEFINITE}
+     * for animations that repeat indefinitely, but must otherwise be >= 0.
+     * The default value is 1.
+     */
     public attribute repeatCount: Number = 1.0;
+
+    /**
+     * Defines whether this animation reverses direction on alternating
+     * cycles.
+     * If {@code true}, the animation will proceed forward on
+     * the first cycle, then reverses on the second cycle, and so on.
+     * The default value is {@code false}, indicating that the
+     * animation will loop such that each cycle proceeds
+     * forward from the initial {@code KeyFrame}.
+     */
     public attribute autoReverse: Boolean = false;
+
+    /**
+     * Defines whether this animation reverses direction in place
+     * each time {@code start()} is called.  
+     * If {@code true}, the animation will initially proceed forward,
+     * then restarts in place except heading in opposite direction.
+     * The default value is {@code false}, indicating that the
+     * animation will restart from the initial {@code KeyFrame}
+     * each time {@code start()} is called.
+     */
     public attribute toggle: Boolean = false on replace {
         isReverse = true;
     };
+
+    /**
+     * Defines the sequence of {@code KeyFrame}s in this animation.
+     * If a {@code KeyFrame} is not provided for the {@code time==0s}
+     * instant, one will be synthesized using the target values
+     * that are current at the time {@code start()} is called.
+     */
     public attribute keyFrames: KeyFrame[] on replace {
         invalidate();
     };
+
+    /**
+     * Read-only attribute that indicates whether the animation is
+     * currently running.
+     * <p>
+     * This value is initially {@code false}.
+     * It will become {@code true} after {@code start()} has been called,
+     * and then becomes {@code false} again after the animation ends
+     * naturally, or after an explicit call to {@code stop()}.
+     * <p>
+     * Note that {@code running} will remain {@code true} even when
+     * {@code paused==true}.
+     */
+    public /*controlled*/ attribute running: Boolean = false;
+
+    /**
+     * Read-only attribute that indicates whether the animation is
+     * currently paused.  
+     * <p>
+     * This value is initially {@code false}.
+     * It will become {@code true} after {@code pause()} has been called
+     * on a running animation, and then becomes {@code false} again after
+     * an explicit call to {@code resume()} or {@code stop()}.
+     * <p>
+     * Note that {@code running} will remain {@code true} even when
+     * {@code paused==true}.
+     */
+    public /*controlled*/ attribute paused: Boolean = false;
 
     // if false, indicates that the internal (optimized) data structure
     // needs to be rebuilt
@@ -71,6 +139,18 @@ public class Timeline {
         return duration * repeatCount;
     }
 
+    /**
+     * Starts (or restarts) the animation.
+     * <p>
+     * If {@code toggle==false} and the animation is currently running,
+     * the animation will be restarted from its initial position.
+     * <p>
+     * If {@code toggle==true} and the animation is currently running,
+     * the animation will immediately change direction in place and
+     * continue on in that new direction.  When the animation finishes
+     * in one direction, calling {@code start()} again will restart the
+     * animation in the opposite direction.
+     */
     public function start() {
         if (toggle) {
             // change direction in place
@@ -81,37 +161,43 @@ public class Timeline {
             offsetValid = false;
             frameIndex = keyFrames.size() - frameIndex;
             if (not clip.isRunning()) {
-                clip.start();
+            clip.start();
             }
         } else {
             // stop current clip and restart from beginning
-            if (clip <> null) {
-                clip.stop();
-            }
             buildClip();
             clip.start();
         }
     }
 
+    /**
+     * Stops the animation.  If the animation is not currently running,
+     * this method has no effect.
+     */
     public function stop() {
         clip.stop();
     }
 
+    /**
+     * Pauses the animation.  If the animation is not currently running,
+     * this method has no effect.
+     */
     public function pause() {
         clip.pause();
     }
 
+    /**
+     * Resumes the animation from a paused state.  If the animation is
+     * not currently running or not currently paused, this method has
+     * no effect.
+     */
     public function resume() {
         clip.resume();
     }
 
-    public function isRunning():Boolean {
-        clip.isRunning();
-    }
-
     private function buildClip() {
         if (clip <> null and clip.isRunning()) {
-            clip.cancel();
+            clip.stop();
         }
         clip = Clip.create(Clip.INDEFINITE, adapter);
         clip.setInterpolator(Interpolators.getLinearInstance());
@@ -141,7 +227,7 @@ public class Timeline {
     // The following should be safe to change at any time:
     //   - Timeline.repeatCount
     //   - Timeline.autoReverse
-    //   - Timeline.isReverse
+    //   - Timeline.toggle
     //   - KeyValue.value
     //   - KeyValue.interpolate
     //
@@ -429,6 +515,9 @@ public class Timeline {
     private function createAdapter():TimingTarget {
         TimingTargetAdapter {
             public function begin() : Void {
+                running = true;
+                paused = false;
+
                 if (toggle and isReverse) {
                     cycleIndex = (repeatCount-1) as Integer;
                     lastElapsed = getTotalDur();
@@ -443,6 +532,19 @@ public class Timeline {
             
             public function timingEvent(fraction, totalElapsed) : Void {
                 process(totalElapsed as Number);
+            }
+
+            public function pause() : Void {
+                paused = true;
+            }
+
+            public function resume() : Void {
+                paused = false;
+            }
+
+            public function end() : Void {
+                running = false;
+                paused = false;
             }
         }
     }
