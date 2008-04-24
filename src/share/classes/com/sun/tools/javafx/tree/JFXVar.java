@@ -30,13 +30,12 @@ import com.sun.javafx.api.tree.JavaFXTreeVisitor;
 import com.sun.javafx.api.tree.OnReplaceTree;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.JavaFXVariableTree;
+import com.sun.source.tree.TreeVisitor;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.util.ListBuffer;
 import java.util.Map;
 
 /**
@@ -138,7 +137,16 @@ public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
     }
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
+        return visitor.visitVariable(this, data);
+     }
+
+    @Override
+    public final <R, D> R accept(TreeVisitor<R, D> v, D d) {
+        if (v instanceof JavaFXTreeVisitor) {
+            return (R)this.accept((JavaFXTreeVisitor)v, d);
+        } else {
+            throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
+        }
     }
     
     @Override
