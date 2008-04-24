@@ -386,6 +386,10 @@ public class JavafxTreeInfo extends TreeInfo {
             return ((JFXClassDeclaration) node).sym;
         case JavafxTag.FUNCTION_DEF:
             return ((JFXFunctionDefinition) node).sym;
+        case JavafxTag.OBJECT_LITERAL_PART:
+            return ((JFXObjectLiteralPart) node).sym;
+        case JavafxTag.TYPECLASS:
+            return symbolFor(((JFXTypeClass) node).getJCTypeTree());
         case JCTree.IDENT:
             return ((JCIdent) node).sym;
         case JCTree.SELECT:
