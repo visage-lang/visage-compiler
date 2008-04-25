@@ -75,16 +75,30 @@ public final class Sequences {
     /** Concatenate two sequences into a new sequence.  */
     public static<T> Sequence<T> concatenate(Class<T> clazz, Sequence<? extends T> first, Sequence<? extends T> second) {
         // OPT: for small sequences, just copy the elements
-        if (Sequences.size(first) == 0)
+        int size1 = Sequences.size(first);
+        int size2 = Sequences.size(second);
+        if (size1 == 0)
             return Sequences.upcast(clazz, second);
-        else if (Sequences.size(second) == 0)
+        else if (size2 == 0)
             return Sequences.upcast(clazz, first);
+        else if (size1 + size2 <= 16) 
+            return new ArraySequence<T>(clazz, first, second);
         else
             return new CompositeSequence<T>(clazz, first, second);
     }
 
     /** Concatenate zero or more sequences into a new sequence.  */
     public static<T> Sequence<T> concatenate(Class<T> clazz, Sequence<? extends T>... seqs) {
+        int size = 0;
+        for (Sequence i : seqs) {
+            size += Sequences.size(i);
+            if (size > 16) {
+                break;
+            }
+        }
+        if (size <= 16)  {
+            return new ArraySequence<T>(clazz, seqs);
+        }
         // OPT: for small sequences, just copy the elements
         return new CompositeSequence<T>(clazz, seqs);
     }
