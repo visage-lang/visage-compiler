@@ -206,7 +206,8 @@ formalParameters  returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]
 	: ^(LPAREN (formalParameter			{ params.append($formalParameter.var); } )* )
 	;
 formalParameter returns [JFXVar var]
-	: ^(PARAM name type)				{ $var = F.at($name.pos).Param($name.value, $type.type); } 
+	: ^(PARAM name type)				{ $var = F.at($name.pos).Param($name.value, $type.type); 
+                                                          endPos($var, $PARAM); }
 	;
 formalParameterOpt returns [JFXVar var]
 	: formalParameter				{ $var = $formalParameter.var; } 
@@ -224,21 +225,23 @@ block  returns [JCBlock value]
                                                           endPos($value, $BLOCK); }
 	;
 blockExpression  returns [JFXBlockExpression expr]
-@init { ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>(); JCExpression val = null; }
+@init { ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>(); JCExpression val = null; CommonTree tval = null;}
 	: ^(LBRACE 
 		(	^(STATEMENT statement)		{ if (val != null) {
                                                               JCStatement stat = F.at(val.pos).Exec(val);
-                                                              endPos(stat, $STATEMENT);
+                                                              endPos(stat, tval);
                                                               stats.append(stat); 
                                                               val = null; 
+                                                              tval = null;
                                                           }
 	     					  	  stats.append($statement.value); }
 		| 	^(EXPRESSION expression)	{ if (val != null) {
                                                               JCStatement stat = F.at(val.pos).Exec(val);
-                                                              endPos(stat, $EXPRESSION);
+                                                              endPos(stat, tval);
                                                               stats.append(stat); 
                                                           }
-	     					  	  val = $expression.expr; }
+	     					  	  val = $expression.expr;
+							  tval = $EXPRESSION; }
 		)*
 	    )						{ $expr = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), val); 
                                                           endPos($expr, $LBRACE); }
