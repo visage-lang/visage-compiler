@@ -39,7 +39,7 @@ public class RemoteTextDocument extends AbstractRemoteResource<String> {
 
     public static final int BUF_SIZE = 8192;
 
-    public RemoteTextDocument(String url, AsyncOperationListener<String> listener) {
+    public RemoteTextDocument(AsyncOperationListener<String> listener, String url) {
         super(url, listener);
     }
 
