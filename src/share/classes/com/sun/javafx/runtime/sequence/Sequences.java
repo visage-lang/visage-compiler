@@ -44,6 +44,7 @@ public final class Sequences {
     public static final Integer INTEGER_ZERO = 0;
     public static final Double DOUBLE_ZERO = 0.0;
     public static final Boolean BOOLEAN_ZERO = false;
+    public static final int FLATTENING_THRESHOLD = 16;
 
     // Inhibit instantiation
     private Sequences() { }
@@ -74,14 +75,15 @@ public final class Sequences {
 
     /** Concatenate two sequences into a new sequence.  */
     public static<T> Sequence<T> concatenate(Class<T> clazz, Sequence<? extends T> first, Sequence<? extends T> second) {
-        // OPT: for small sequences, just copy the elements
         int size1 = Sequences.size(first);
         int size2 = Sequences.size(second);
+
+        // OPT: for small sequences, just copy the elements
         if (size1 == 0)
             return Sequences.upcast(clazz, second);
         else if (size2 == 0)
             return Sequences.upcast(clazz, first);
-        else if (size1 + size2 <= 16) 
+        else if (size1 + size2 <= FLATTENING_THRESHOLD)
             return new ArraySequence<T>(clazz, first, second);
         else
             return new CompositeSequence<T>(clazz, first, second);
@@ -90,17 +92,13 @@ public final class Sequences {
     /** Concatenate zero or more sequences into a new sequence.  */
     public static<T> Sequence<T> concatenate(Class<T> clazz, Sequence<? extends T>... seqs) {
         int size = 0;
-        for (Sequence i : seqs) {
+        for (Sequence i : seqs)
             size += Sequences.size(i);
-            if (size > 16) {
-                break;
-            }
-        }
-        if (size <= 16)  {
-            return new ArraySequence<T>(clazz, seqs);
-        }
         // OPT: for small sequences, just copy the elements
-        return new CompositeSequence<T>(clazz, seqs);
+        if (size <= FLATTENING_THRESHOLD)
+            return new ArraySequence<T>(clazz, seqs);
+        else
+            return new CompositeSequence<T>(clazz, seqs);
     }
 
     /** Create an Integer range sequence ranging from lower to upper inclusive. */
@@ -221,7 +219,7 @@ public final class Sequences {
     public static<T> Sequence<T> fromCollection(Class<T> clazz, Collection<T> values) {
         if (values == null)
             return Sequences.emptySequence(clazz);
-        return new ArraySequence<T>(clazz, values.toArray((T[]) Array.newInstance(clazz, values.size())));
+        return new ArraySequence<T>(clazz, values.toArray(Util.<T>newArray(clazz, values.size())));
     }
 
     /** Convert a T[] to a Sequence<T> */

@@ -46,6 +46,7 @@ public class RemoteTextDocument extends AbstractRemoteResource<String> {
     protected String processStream(InputStream stream) throws IOException {
         Reader reader = new InputStreamReader(stream);
         // @@@ Might be too large -- is content-length the length of the actual resource, or the encoded length?
+        // @@@ What if fileSize is -1?  Will SB freak out? 
         StringBuilder sb = new StringBuilder(fileSize);
         char buf[] = new char[BUF_SIZE];
         while (true) {

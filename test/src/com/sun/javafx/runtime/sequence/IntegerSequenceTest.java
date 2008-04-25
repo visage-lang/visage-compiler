@@ -591,7 +591,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertDepth(1, new FilterSequence<Integer>(ONE_SEQUENCE, new BitSet()));
 
         assertDepth(1, new CompositeSequence<Integer>(Integer.class, ONE_SEQUENCE, ONE_SEQUENCE));
-        assertDepth(1, Sequences.concatenate(Integer.class, ONE_SEQUENCE, ONE_SEQUENCE));
+        assertDepth(0, Sequences.concatenate(Integer.class, ONE_SEQUENCE, ONE_SEQUENCE));
         assertDepth(0, Sequences.concatenate(Integer.class, EMPTY_SEQUENCE, ONE_SEQUENCE));
         assertDepth(0, Sequences.concatenate(Integer.class, ONE_SEQUENCE, EMPTY_SEQUENCE));
 

@@ -356,14 +356,11 @@ public class SequenceMutator {
     }
 
     private static<T> boolean shouldFlatten(Sequence<T> sequence) {
-        boolean result = false;
         // If the sequence is short or if the sequence is is too thin,
         // then copy it.
-        if (((0 < sequence.size()) && (sequence.size() <= 16)) ||
-            (sequence.getDepth() > Math.log((double) sequence.size()))) {
-            result = true;
-        }
-        return result;
+        int size = Sequences.size(sequence);
+        return ((0 < size) && (size <= Sequences.FLATTENING_THRESHOLD))
+                || (sequence.getDepth() > Math.log((double) size));
     }
 
 }
