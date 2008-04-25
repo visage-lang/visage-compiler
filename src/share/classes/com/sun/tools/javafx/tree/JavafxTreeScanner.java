@@ -165,6 +165,7 @@ public class JavafxTreeScanner extends TreeScanner implements JavafxVisitor {
     @Override
     public void visitInstanciate(JFXInstanciate tree) {
        scan(tree.getIdentifier());
+       scan(tree.getArgs());
        scan(tree.getParts());
        scan(tree.getLocalvars());
        scan(tree.getClassBody());

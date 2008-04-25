@@ -591,6 +591,12 @@ public class JavafxResolve {
                     ? sym : new AccessError(env, origin.type, sym);
             }
         }
+        
+        if (name == names.fromString("__DIR__") || name == names.fromString("__FILE__")) {
+            Type type = reader.enterClass(names.fromString("java.net.URL")).type;
+            return new VarSymbol(Flags.PUBLIC, name, type, env.enclClass.sym);
+        }
+        
         if (bestSoFar.kind == VAR && bestSoFar.owner.type != origin.type)
             return bestSoFar.clone(origin);
         else
