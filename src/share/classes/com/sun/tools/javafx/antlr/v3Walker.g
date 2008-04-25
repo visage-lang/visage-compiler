@@ -392,7 +392,7 @@ expression  returns [JCExpression expr]
 	| ^(POSTDECR e0=expression)			{ $expr = F.at($e0.expr.pos).Unary(JCTree.POSTDEC, $e0.expr); 
                                                           endPos($expr, $POSTDECR); }
 	| ^(DOT e0=expression name)			{ $expr = F.at(pos($DOT)).Select($e0.expr, $name.value); 
-                                                          endPos($expr, $DOT); }
+                                                          endPos($expr, $name.start); } // start is the CommonTree for the node
 	| ^(FUNC_APPLY e0=expression expressionList)	{ $expr = F.at(pos($FUNC_APPLY)).Apply(null, $e0.expr, $expressionList.args.toList()); 
                                                           endPos($expr, $FUNC_APPLY); } 
 	| ^(SEQ_INDEX seq=expression idx=expression)	{ $expr = F.at(pos($SEQ_INDEX)).SequenceIndexed($seq.expr, $idx.expr); 
