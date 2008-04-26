@@ -43,10 +43,10 @@ import java.util.logging.Logger;
 public class GradientFactory {
     private static boolean isJDK15;
     
-    private static final String JDK15_COLORSPACETYPE_CLASSNAME = "com.sun.javafx.runtime.awt.MultipleGradientPaint$ColorSpaceType";
-    private static final String JDK15_CYCLEMETHOD_CLASSNAME = "com.sun.javafx.runtime.awt.MultipleGradientPaint$CycleMethod";
-    private static final String JDK15_LINEARGRADIENTPAINT_CLASSNAME = "com.sun.javafx.runtime.awt.LinearGradientPaint";
-    private static final String JDK15_RADIALGRADIENTPAINT_CLASSNAME = "com.sun.javafx.runtime.awt.RadialGradientPaint";
+    private static final String JDK15_COLORSPACETYPE_CLASSNAME = "com.sun.tools.javafx.ui.awt.MultipleGradientPaint$ColorSpaceType";
+    private static final String JDK15_CYCLEMETHOD_CLASSNAME = "com.sun.tools.javafx.ui.awt.MultipleGradientPaint$CycleMethod";
+    private static final String JDK15_LINEARGRADIENTPAINT_CLASSNAME = "com.sun.tools.javafx.ui.awt.LinearGradientPaint";
+    private static final String JDK15_RADIALGRADIENTPAINT_CLASSNAME = "com.sun.tools.javafx.ui.awt.RadialGradientPaint";
 
     private static final String JDK16_COLORSPACETYPE_CLASSNAME = "java.awt.MultipleGradientPaint$ColorSpaceType";
     private static final String JDK16_CYCLEMETHOD_CLASSNAME = "java.awt.MultipleGradientPaint$CycleMethod";

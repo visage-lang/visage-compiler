@@ -23,7 +23,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime.awt;
+package com.sun.tools.javafx.ui.awt;
 
 import java.awt.Color;
 import java.awt.PaintContext;

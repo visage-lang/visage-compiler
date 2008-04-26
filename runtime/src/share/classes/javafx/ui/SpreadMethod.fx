@@ -25,7 +25,7 @@
  
 package javafx.ui; 
 
-import com.sun.javafx.runtime.awt.MultipleGradientPaint;
+import com.sun.tools.javafx.ui.awt.MultipleGradientPaint;
 
 
 public class SpreadMethod {

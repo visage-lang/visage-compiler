@@ -23,11 +23,11 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime.awt;
+package com.sun.tools.javafx.ui.awt;
 
 import java.awt.Color;
-import com.sun.javafx.runtime.awt.MultipleGradientPaint.CycleMethod;
-import com.sun.javafx.runtime.awt.MultipleGradientPaint.ColorSpaceType;
+import com.sun.tools.javafx.ui.awt.MultipleGradientPaint.CycleMethod;
+import com.sun.tools.javafx.ui.awt.MultipleGradientPaint.ColorSpaceType;
 import java.awt.PaintContext;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
