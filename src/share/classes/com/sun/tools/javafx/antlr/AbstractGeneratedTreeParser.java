@@ -31,6 +31,8 @@ import com.sun.tools.javac.tree.JCTree.*;
 
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.util.*;
+import com.sun.tools.javafx.tree.JFXInterpolateValue;
+import java.util.HashMap;
 import javax.tools.DiagnosticListener;
 import static com.sun.tools.javac.util.ListBuffer.lb;
 
@@ -60,6 +62,15 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
     
     /** should parser generate an end positions map? */
     protected boolean genEndPos;
+    
+    /** The end positions map. */
+    HashMap<JCTree,Integer> endPositions;
+    
+    /** The doc comments map */
+    HashMap<JCTree,String> docComments;
+
+    /** the token id for white space */
+    protected int whiteSpaceToken;
     
     /* ---------- error recovery -------------- */
     
@@ -126,5 +137,41 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
     
     protected List<JCAnnotation> noJCAnnotations() {
         return List.<JCAnnotation>nil();
+    }
+
+    void setDocComment(JCTree tree, CommonTree comment) {
+        if (comment != null) {
+            if (docComments == null)
+                docComments = new HashMap<JCTree,String>();
+            docComments.put(tree, comment.getText());
+        }
+    }
+
+    void endPos(JCTree tree, CommonTree node) {
+        int endIndex = node.getTokenStopIndex();
+        if (genEndPos && endIndex != -1) { // -1 means no such token
+            TokenStream src = input.getTokenStream();
+            CommonToken endToken = (CommonToken)src.get(endIndex);
+            // backtrack over WS and imaginary tokens
+            while (endToken.getType() == whiteSpaceToken || endToken.getCharPositionInLine() == -1) { 
+                if (--endIndex < 0)
+                    return;
+                endToken = (CommonToken)src.get(endIndex);
+            }
+            int endPos = endToken.getStopIndex();
+            endPos(tree, endPos+1);
+        }
+    }
+
+    void endPos(JCTree tree, com.sun.tools.javac.util.List<JFXInterpolateValue> list) {
+        if (genEndPos) {
+            int endLast = endPositions.get(list.last());
+            endPositions.put(tree, endLast);
+        }
+    }
+
+    void endPos(JCTree tree, int end) {
+        if (genEndPos)
+            endPositions.put(tree, end);
     }
 }

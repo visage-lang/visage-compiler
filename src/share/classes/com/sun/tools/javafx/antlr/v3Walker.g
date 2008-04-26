@@ -55,42 +55,9 @@ import org.antlr.runtime.tree.*;
 }
 
 @members {
-    void setDocComment(JCTree tree, CommonTree comment) {
-        if (comment != null) {
-            if (docComments == null)
-                docComments = new HashMap<JCTree,String>();
-            docComments.put(tree, comment.getText());
-        }
-    }
-    HashMap<JCTree,String> docComments;
-    HashMap<JCTree,Integer> endPositions;
-
-    void endPos(JCTree tree, CommonTree node) {
-        int endIndex = node.getTokenStopIndex();
-        if (genEndPos && endIndex != -1) { // -1 means no such token
-            TokenStream src = input.getTokenStream();
-            CommonToken endToken = (CommonToken)src.get(endIndex);
-            // backtrack over WS and imaginary tokens
-            while (endToken.getType() == WS || endToken.getCharPositionInLine() == -1) { 
-                if (--endIndex < 0)
-                    return;
-                endToken = (CommonToken)src.get(endIndex);
-            }
-            int endPos = endToken.getStopIndex();
-            endPos(tree, endPos+1);
-        }
-    }
-
-    void endPos(JCTree tree, com.sun.tools.javac.util.List<JFXInterpolateValue> list) {
-        if (genEndPos) {
-            int endLast = endPositions.get(list.last());
-            endPositions.put(tree, endLast);
-        }
-    }
-
-    void endPos(JCTree tree, int end) {
-        if (genEndPos)
-            endPositions.put(tree, end);
+    protected void initialize(Context context) {
+        super.initialize(context);
+        whiteSpaceToken = v3Lexer.WS;
     }
 }
 	
