@@ -51,7 +51,7 @@ public class GuitarString extends CompositeNode {
     attribute wound: Boolean = true;
     attribute note: String;
     attribute pf: PointerFactory = PointerFactory{};
-    attribute soundUrl: URL = bind if (note == null) then null else this.getClass().getResource("Resources/Wavs/{note}.wav")
+    attribute soundUrl: URL = bind if (note == null) then null else this.getClass().getResource("Resources/sound/{note}.au")
         on replace {
            //TODO DO LATER - this is a work around until a more permanent solution is provided
             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
