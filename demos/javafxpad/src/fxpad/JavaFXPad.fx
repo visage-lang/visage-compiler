@@ -35,7 +35,7 @@ import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
 import com.sun.javafx.api.*;
-import javafx.ui.animation.*;
+import javafx.animation.*;
 import java.lang.StringBuffer;
 import java.io.*;
 import java.net.URL;
@@ -96,7 +96,7 @@ public class JavaFXPad extends CompositeWidget {
     attribute compileTimeLine:Timeline = Timeline {
         keyFrames: [
             KeyFrame {
-                keyTime: 1s
+                time: 1s
                 action: function() {
                     doRealCompile();
                 }
