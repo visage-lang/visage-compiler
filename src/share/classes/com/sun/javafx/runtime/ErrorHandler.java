@@ -49,7 +49,8 @@ public class ErrorHandler {
     }
 
     public static void bindException(RuntimeException e) {
-        // e.printStackTrace(System.err);
+        if (debug)
+            e.printStackTrace(System.err);
     }
 
     /** Called when attempting to coerce a null numeric or boolean value to a primitive */
