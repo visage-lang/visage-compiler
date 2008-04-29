@@ -99,14 +99,12 @@ public class JFXC1138Test {
 
         @Override
         public Void visitIdentifier(IdentifierTree node, Object p) {
-            System.out.println("identifier: " + node);
             trees.put(node.toString(), node);
             return super.visitIdentifier(node, p);
         }
 
         @Override
         public Void visitMemberSelect(MemberSelectTree node, Object p) {
-            System.out.println("select: " + node);
             trees.put(node.toString(), node);
             return super.visitMemberSelect(node, p);
         }
