@@ -86,7 +86,7 @@ syntax: </para>
 
 
 <para>
-Such an expression defines an sequence whose elements consist of the integers from <code>number1</code> to <code>number2</code> (inclusive).
+Such an expression defines a sequence whose elements consist of the integers from <code>number1</code> to <code>number2</code> (inclusive).
 </para>
 
 <para>
@@ -213,13 +213,12 @@ try {
 The <code>break</code> and <code>continue</code> statements are 
  similar to those of the Java Programming language; however labels are 
 not supported. The <code>break</code> and <code>continue</code> statements must appear inside the body of a <code>while</code> or <code>for</code> loop:</para>
-
+<!--
 <programlisting>
-
-<!-- **** <FONT COLOR="RED"> code EXAMPLE TBD </FONT> *** --> 
-
+&nbsp;                                    
+- **** <FONT COLOR="RED"> code EXAMPLE TBD </FONT> ***  
 </programlisting>
-
+-->
 
 
 
@@ -231,10 +230,1078 @@ The JavaFX Script programming language provides standard operators similar to
  those found in the Java programming language. The following chart lists these operators by precedence, comparing to their Java programming language equivalent.
 </para>
 
+
+<!--
 <programlisting>
 
-<!-- **** <FONT COLOR="RED">TO-DO: COPY OPERATOR CHART HERE</FONT> *** -->
+ **** <FONT COLOR="RED">TO-DO: COPY OPERATOR CHART HERE</FONT> *** 
 </programlisting>
+-->
+
+
+<!-- *********** operator table ************************* -->
+
+                                       
+<!-- 
+    <table cellpadding="5" cellspacing="5" style="border: medium groove ;">
+      <tbody>
+        <tr>
+          <th style="text-decoration: underline;">Operator</th>
+
+          <th style="text-decoration: underline;">Meaning</th>
+
+          <th style="text-decoration: underline;">Java™ Equivalent</th>
+        </tr>
+
+        <tr>
+          <th />
+        </tr>
+
+        <tr>
+          <td colspan="2">
+            <emphasis>Relational Operators</emphasis>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>==</code>
+          </td>
+
+          <td>equality</td>
+
+          <td>
+            <code>==</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>&lt;&gt;</code>
+          </td>
+
+          <td>inequality</td>
+
+          <td>
+            <code>!=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>&lt;</code>
+          </td>
+
+          <td>less than</td>
+
+          <td>
+            <code>&lt;</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>&gt;</code>
+          </td>
+
+          <td>greater than</td>
+
+          <td>
+            <code>&gt;</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>&lt;=</code>
+          </td>
+
+          <td>less than or equal</td>
+
+          <td>
+            <code>&lt;=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>&gt;=</code>
+          </td>
+
+          <td>greater than or equal</td>
+
+          <td>
+            <code>&gt;=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <th />
+        </tr>
+
+        <tr>
+          <td colspan="2">
+            <emphasis>Boolean Operators</emphasis>
+          </td>
+
+          <td />
+        </tr>
+
+        <tr>
+          <td>
+            <code>and</code>
+          </td>
+
+          <td>logical and</td>
+
+          <td>
+            <code>&amp;&amp;</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>or</code>
+          </td>
+
+          <td>logical or</td>
+
+          <td>
+            <code>||</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>not</code>
+          </td>
+
+          <td>logical negation</td>
+
+          <td>
+            <code>!</code>
+          </td>
+        </tr>
+
+        <tr>
+          <th />
+        </tr>
+
+        <tr>
+          <td colspan="2">
+            <emphasis>Arithmetic Operators</emphasis>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>+</code>
+          </td>
+
+          <td>addition</td>
+
+          <td>
+            <code>+</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>-</code>
+          </td>
+
+          <td>subtraction; unary negation</td>
+
+          <td>
+            <code>-</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>*</code>
+          </td>
+
+          <td>multiplication</td>
+
+          <td>
+            <code>*</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>/</code>
+          </td>
+
+          <td>division</td>
+
+          <td>
+            <code>/</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>%</code>
+          </td>
+
+          <td>remainder</td>
+
+          <td>
+            <code>%</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>+=</code>
+          </td>
+
+          <td>add and assign</td>
+
+          <td>
+            <code>+=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>-=</code>
+          </td>
+
+          <td>subtract and assign</td>
+
+          <td>
+            <code>-=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>*=</code>
+          </td>
+
+          <td>multiply and assign</td>
+
+          <td>
+            <code>*=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>/=</code>
+          </td>
+
+          <td>divide and assign</td>
+
+          <td>
+            <code>/=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>%=</code>
+          </td>
+
+          <td>remainder and assign</td>
+
+          <td>
+            <code>%=</code>
+          </td>
+        </tr>
+
+        <tr>
+          <th />
+        </tr>
+
+        <tr>
+          <td colspan="2">
+            <emphasis>Other Operators</emphasis>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>sizeof</code>
+          </td>
+
+          <td>array length</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>indexof</code>
+          </td>
+
+          <td>ordinal position</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>if <emphasis>e1</emphasis> then <emphasis>e2</emphasis> else
+            <emphasis>e3</emphasis></code>
+          </td>
+
+          <td>conditional expression</td>
+
+          <td>
+            <code><emphasis>e1</emphasis> ? <emphasis>e2</emphasis> :
+            <emphasis>e3</emphasis></code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>select</code>
+          </td>
+
+          <td>list comprehension</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>foreach</code>
+          </td>
+
+          <td>list comprehension</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>new</code>
+          </td>
+
+          <td>allocation</td>
+
+          <td>
+            <code>new</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code><emphasis>op</emphasis>()</code>
+          </td>
+
+          <td>function call</td>
+
+          <td>
+            <code>
+              <emphasis>n/a</emphasis>
+            </code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code><emphasis>x</emphasis>.<emphasis>op</emphasis>()</code>
+          </td>
+
+          <td>member function/operation call</td>
+
+          <td>
+            <code><emphasis>x</emphasis>.<emphasis>op</emphasis>()</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>instanceof</code>
+          </td>
+
+          <td>type check</td>
+
+          <td>
+            <code>instanceof</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>this</code>
+          </td>
+
+          <td>self access</td>
+
+          <td>
+            <code>this</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>.</code>
+          </td>
+
+          <td>attribute access, context access</td>
+
+          <td>
+            <code>., n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>bind [lazy]</code>
+          </td>
+
+          <td>incremental [lazy] evaluation</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>:</code>
+          </td>
+
+          <td>eager initialization</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>[]</code>
+          </td>
+
+          <td>array selection</td>
+
+          <td>
+            <code>[]</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>format as</code>
+          </td>
+
+          <td>String formatting</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>&lt;&lt;&gt;&gt;</code>
+          </td>
+
+          <td>Identifier quotes</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>{}</code>
+          </td>
+
+          <td>String expression</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>(<emphasis>expr</emphasis>)</code>
+          </td>
+
+          <td>grouping</td>
+
+          <td>
+            <code>(<emphasis>expr</emphasis>)</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>reverse</code>
+          </td>
+
+          <td>reverses a list</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <code>[<emphasis>number1</emphasis>,<emphasis>next</emphasis>..<emphasis>number2</emphasis>]</code>
+          </td>
+
+          <td>numeric range</td>
+
+          <td>
+            <code>n/a</code>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+                                         <table class="oper" border="0">
+
+<caption style="margin-bottom: 9pt;">Operator Precedence Table </caption>
+
+<tbody>
+
+    <tr style="padding-top: 9pt; padding-bottom: 9pt;">
+
+      <th width="50" valign="top" >Priority</th>
+      <th width="105" valign="top" >JavaFX Operator</th>
+      <th width="98" valign="top" >Operation</th>
+      <th width="100" valign="top" >Java Operator</th>
+      <th width="107" valign="top" >Order of Evaluation</th>
+    </tr>
+	
+	
+	<tr style="border-top:thin solid black;">
+
+      <td valign="top">1</td>
+      <td><code class="style1">=</code></td>
+      <td>assign operator</td>
+      <td>=</td>
+      <td rowspan="7" valign="top" >Right to Left </td>
+    </tr>
+	
+	<tr style="border-top:thin solid black;">
+
+      <td rowspan="6" valign="top">2</td>
+      <td><code class="style1">+=</code></td>
+      <td>add and assign </td>
+      <td>+=</td>
+	  
+	  
+    </tr>
+	
+	<tr>
+
+      <td><code class="style1">-=</code></td>
+      <td>subtract and assign </td>
+      <td><code class="style1">-+</code></td>
+    </tr>
+	
+	<tr>
+
+      <td><code class="style1">*=</code></td>
+      <td>multiply and assign </td>
+      <td><code class="style1">*=</code></td>
+    </tr>
+	
+	<tr>
+
+      <td><code class="style1">/=</code></td>
+      <td>divide and assign </td>
+      <td><code class="style1">/=</code></td>
+    </tr>
+	
+		<tr>
+
+      <td><code class="style1">%=</code></td>
+      <td>remainder and assign </td>
+      <td><code class="style1">%=</code></td>
+    </tr>
+	
+	
+	<tr>
+
+      <td><code class="style1">/=</code></td>
+      <td>divide and assign </td>
+      <td><code class="style1">/=</code></td>
+    </tr>
+	
+	
+	
+		<tr style="border-top:thin solid black;">
+<td valign="top">3</td>
+<td><code class="style1">and</code></td>
+      <td>logical and </td>
+      <td><code class="style1">&amp;&amp;</code></td>
+      <td valign="top">Right to Left </td>
+    </tr>
+	
+	
+	<tr style="border-top:thin solid black;">
+<td valign="top">4</td>
+<td><code class="style1">or</code></td>
+      <td>logical or </td>
+      <td><code class="style1">||</code></td>
+      <td valign="top">Right to Left </td>
+    </tr>
+	
+	<tr style="border-top:thin solid black;">
+      <td rowspan="7" valign="top">5</td>
+      <td><code class="style1">instanceof</code></td>
+      <td>inheritance operator </td>
+      <td><code class="style1">instanceof</code></td>
+      <td rowspan="7" valign="top">Right to Left </td>
+    </tr>
+	
+	
+    <tr>
+      
+      <td><code class="style1">as</code></td>
+      <td>cast operator </td>
+      <td><code class="style1">n/a</code></td>
+    </tr>
+    <tr>
+	<td><code class="style1">sizeof</code></td>
+	<td>array length </td>
+	<td><code class="style1">n/a</code></td>
+  </tr>
+	<tr>
+	<td><code class="style1">indexof</code></td>
+	<td>ordinal position </td>
+	 <td><code class="style1">n/a</code></td>
+  </tr>
+	<tr>
+	<td><code class="style1">new</code></td>
+        <td>instantiation</td>
+					  <td><code class="style1">new</code></td>
+  </tr>
+					<tr>
+					  <td><code class="style1">op()</code></td>
+					  <td>function call </td>
+					  <td><code class="style1">n/a</code></td>
+  </tr>
+					<tr>
+					  <td><code class="style1">x.op()</code></td>
+					  <td>member function  call </td>
+					  <td><code class="style1"></code></td>
+  </tr>
+	
+	
+	
+	
+<tr style="border-top:thin solid black;">
+      <td rowspan="5" valign="top">6</td>
+      <td><code class="style1">= =</code></td>
+      <td>equality</td>
+      <td><code class="style1">= = </code></td>
+      <td rowspan="5" valign="top">Left to Right </td>
+    </tr>
+	
+	
+						<tr>
+     
+      <td><code class="style1">&lt; &gt; </code></td>
+      <td>inequality</td>
+      <td><code class="style1">!=</code></td>
+    </tr>
+	
+	
+						<tr>
+      
+      <td><code class="style1"> &lt;=</code></td>
+      <td>less than or equal </td>
+      <td><code class="style1">&lt;=</code></td>
+    </tr>
+	
+	
+	
+						<tr>
+      
+      <td><code class="style1">&lt;-</code></td>
+      <td>&nbsp;</td>
+      <td><code class="style1"></code></td>
+    </tr>
+	
+	
+	
+						<tr>
+      
+      <td><code class="style1">&lt; &gt;</code></td>
+      <td>less than / greater than </td>
+      <td><code class="style1">&lt; &gt; </code></td>
+    </tr>
+	
+	
+	
+	
+						<tr style="border-top:thin solid black;">
+      <td rowspan="2" valign="top">7</td>
+      <td><code class="style1">+</code></td>
+      <td>addition</td>
+      <td><code class="style1">+</code></td>
+      <td rowspan="2" valign="top">Right to Left </td>
+    </tr>
+	
+	
+<tr>
+      
+      <td><code class="style1">-</code></td>
+      <td>subtraction; uniary negation </td>
+      <td><code class="style1">-</code></td>
+    </tr>
+	
+
+
+
+	
+	<tr style="border-top:thin solid black;">
+      <td rowspan="3" valign="top">8</td>
+      <td><code class="style1">*</code></td>
+      <td>multiplication</td>
+      <td><code class="style1">*</code></td>
+      <td rowspan="3" valign="top">Right to Left </td>
+    </tr>
+	
+	
+		<tr>
+      
+      <td><code class="style1">/</code></td>
+      <td>division</td>
+      <td><code class="style1">/</code></td>
+    </tr>
+		<tr>
+      
+      <td><code class="style1">%</code></td>
+      <td>remainder</td>
+      <td><code class="style1"></code></td>
+    </tr>
+	
+	
+  <tr style="border-top:thin solid black;">
+      <td rowspan="2" valign="top">9</td>
+      <td><code class="style1">++ (prefixed)</code></td>
+      <td>assign</td>
+      <td><code class="style1">++</code></td>
+      <td rowspan="2" valign="top">Right to Left </td>
+    </tr>	
+	
+	<tr >
+      
+      <td><code class="style1">xx (prefixed)</code></td>
+      <td>assign</td>
+      <td><code class="style1">xx</code></td>
+	  
+	      </tr>
+	
+	
+	
+			<tr style="border-top: thin solid black;">
+			
+      <td rowspan="2" valign="top">10</td>
+      <td><code class="style1">++ (suffixed)</code></td>
+      <td>assign</td>
+      <td><code class="style1">++</code></td>
+      <td rowspan="2" valign="top">Right to Left </td>
+    </tr>	
+	
+	<tr>
+      
+      <td><code class="style1">xx (suffixed)</code></td>
+      <td>assign</td>
+      <td><code class="style1">xx</code></td>
+    </tr>
+	
+	
+	</tbody>
+	</table>
+	
+	-->
+	
+<table class="oper" border="0">
+
+<caption style="margin-bottom: 9pt;">Operator Precedence Table </caption>
+
+<tbody>
+
+    <tr style="padding-top: 9pt; padding-bottom: 9pt;">
+
+      <th width="50" valign="top" >Priority</th>
+      <th width="105" valign="top" >JavaFX Operator</th>
+      <th width="98" valign="top" >Operation</th>
+      <th width="100" valign="top" >Java Operator</th>
+      <th width="107" valign="top" >Order of Evaluation</th>
+    </tr>
+	
+	
+	<tr style="border-top:thin solid black;">
+
+      <td valign="top">1</td>
+      <td><code class="style1">=</code></td>
+      <td>assign operator</td>
+      <td>=</td>
+      <td rowspan="7" valign="top" >Right to Left </td>
+    </tr>
+	
+	<tr style="border-top:thin solid black;">
+
+      <td rowspan="6" valign="top">2</td>
+      <td><code class="style1">+=</code></td>
+      <td>add and assign </td>
+      <td>+=</td>
+	  
+	  
+    </tr>
+	
+	<tr>
+
+      <td><code class="style1">-=</code></td>
+      <td>subtract and assign </td>
+      <td><code class="style1">-+</code></td>
+    </tr>
+	
+	<tr>
+
+      <td><code class="style1">*=</code></td>
+      <td>multiply and assign </td>
+      <td><code class="style1">*=</code></td>
+    </tr>
+	
+	<tr>
+
+      <td><code class="style1">/=</code></td>
+      <td>divide and assign </td>
+      <td><code class="style1">/=</code></td>
+    </tr>
+	
+		<tr>
+
+      <td><code class="style1">%=</code></td>
+      <td>remainder and assign </td>
+      <td><code class="style1">%=</code></td>
+    </tr>
+	
+	
+	<tr>
+
+      <td><code class="style1">/=</code></td>
+      <td>divide and assign </td>
+      <td><code class="style1">/=</code></td>
+    </tr>
+	
+	
+	
+		<tr style="border-top:thin solid black;">
+<td valign="top">3</td>
+<td><code class="style1">and</code></td>
+      <td>logical and </td>
+      <td><code class="style1">&amp;&amp;</code></td>
+      <td valign="top">Right to Left </td>
+    </tr>
+	
+	
+	<tr style="border-top:thin solid black;">
+<td valign="top">4</td>
+<td><code class="style1">or</code></td>
+      <td>logical or </td>
+      <td><code class="style1">||</code></td>
+      <td valign="top">Right to Left </td>
+    </tr>
+	
+	<tr style="border-top:thin solid black;">
+      <td rowspan="7" valign="top">5</td>
+      <td><code class="style1">instanceof</code></td>
+      <td>inheritance operator </td>
+      <td><code class="style1">instanceof</code></td>
+      <td rowspan="7" valign="top">Right to Left </td>
+    </tr>
+	
+	
+    <tr>
+      
+      <td><code class="style1">as</code></td>
+      <td>cast operator </td>
+      <td><code class="style1">n/a</code></td>
+    </tr>
+    <tr>
+	<td><code class="style1">sizeof</code></td>
+	<td>array length </td>
+	<td><code class="style1">n/a</code></td>
+  </tr>
+	<tr>
+	<td><code class="style1">indexof</code></td>
+	<td>ordinal position </td>
+	 <td><code class="style1">n/a</code></td>
+  </tr>
+	<tr>
+	<td><code class="style1">new</code></td>
+        <td>instantiation</td>
+					  <td><code class="style1">new</code></td>
+  </tr>
+					<tr>
+					  <td><code class="style1">op()</code></td>
+					  <td>function call </td>
+					  <td><code class="style1">n/a</code></td>
+  </tr>
+					<tr>
+					  <td><code class="style1">x.op()</code></td>
+					  <td>member function  call </td>
+					  <td><code class="style1"></code></td>
+  </tr>
+	
+	
+	
+	
+<tr style="border-top:thin solid black;">
+      <td rowspan="5" valign="top">6</td>
+      <td><code class="style1">= =</code></td>
+      <td>equality</td>
+      <td><code class="style1">= = </code></td>
+      <td rowspan="5" valign="top">Left to Right </td>
+    </tr>
+	
+	
+						<tr>
+     
+      <td><code class="style1">&lt; &gt; </code></td>
+      <td>inequality</td>
+      <td><code class="style1">!=</code></td>
+    </tr>
+	
+	
+						<tr>
+      
+      <td><code class="style1"> &lt;=</code></td>
+      <td>less than or equal </td>
+      <td><code class="style1">&lt;=</code></td>
+    </tr>
+	
+	
+	
+						<tr>
+      
+      <td><code class="style1">&lt;-</code></td>
+      <td>&nbsp;</td>
+      <td><code class="style1"></code></td>
+    </tr>
+	
+	
+	
+						<tr>
+      
+      <td><code class="style1">&lt; &gt;</code></td>
+      <td>less than / greater than </td>
+      <td><code class="style1">&lt; &gt; </code></td>
+    </tr>
+	
+	
+	
+	
+						<tr style="border-top:thin solid black;">
+      <td rowspan="2" valign="top">7</td>
+      <td><code class="style1">+</code></td>
+      <td>addition</td>
+      <td><code class="style1">+</code></td>
+      <td rowspan="2" valign="top">Right to Left </td>
+    </tr>
+	
+	
+<tr>
+      
+      <td><code class="style1">-</code></td>
+      <td>subtraction; uniary negation </td>
+      <td><code class="style1">-</code></td>
+    </tr>
+	
+
+
+
+	
+	<tr style="border-top:thin solid black;">
+      <td rowspan="3" valign="top">8</td>
+      <td><code class="style1">*</code></td>
+      <td>multiplication</td>
+      <td><code class="style1">*</code></td>
+      <td rowspan="3" valign="top">Right to Left </td>
+    </tr>
+	
+	
+		<tr>
+      
+      <td><code class="style1">/</code></td>
+      <td>division</td>
+      <td><code class="style1">/</code></td>
+    </tr>
+		<tr>
+      
+      <td><code class="style1">%</code></td>
+      <td>remainder</td>
+      <td><code class="style1"></code></td>
+    </tr>
+	
+	
+  <tr style="border-top:thin solid black;">
+      <td rowspan="2" valign="top">9</td>
+      <td><code class="style1">++ (prefixed)</code></td>
+      <td>assign</td>
+      <td><code class="style1">++</code></td>
+      <td rowspan="2" valign="top">Right to Left </td>
+    </tr>	
+	
+	<tr >
+      
+      <td><code class="style1">-- (prefixed)</code></td>
+      <td>assign</td>
+      <td><code class="style1">--</code></td>
+	  
+	      </tr>
+	
+	
+	
+			<tr style="border-top: thin solid black;">
+			
+      <td rowspan="2" valign="top">10</td>
+      <td><code class="style1">++ (suffixed)</code></td>
+      <td>assign</td>
+      <td><code class="style1">++</code></td>
+      <td rowspan="2" valign="top">Right to Left </td>
+    </tr>	
+	
+	<tr>
+      
+      <td><code class="style1">-- (suffixed)</code></td>
+      <td>assign</td>
+      <td><code class="style1">--</code></td>
+    </tr>
+	
+	
+	</tbody>
+	</table>
+   
+               
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+<!-- *********** operator table ************************* -->
 
 
 <para>

@@ -11,7 +11,7 @@
 <sect2 id="variable"><title>Variables</title>
 
 <para>
-As mentioned in Chapter 1, the <code>var</code> keyword is used to introduce a new variable into your program. A variable's type may be specified in its declaration, but doing so is optional. If a variable's type is omitted from the declaration, it may be inferred from its use.</para>
+As discussed in Chapter 1, the <code>var</code> keyword is used to introduce a new variable into your program. A variable's type may be specified in its declaration, but doing so is optional. If a variable's type is omitted from the declaration, it may be inferred from its use.</para>
 
 <para>A variable declaration takes the form:</para>
 
@@ -78,6 +78,74 @@ Boolean    java.lang.Boolean
 String     java.lang.String
 Duration   N/A
 </programlisting>
+
+
+<!-- ************** new types table **************** -->
+
+
+
+
+    
+    <table cellpadding="5" cellspacing="5"
+                 style="border: medium groove ;">
+		 
+<caption style="margin-bottom: 9pt;">Basic Types Table </caption>
+		 
+            <tbody>
+              <tr>
+                <th style="text-decoration: underline;">JavaFX</th>
+
+                <th style="text-decoration: underline;">Java</th>
+
+               
+              </tr>
+
+              <tr>
+                <td>
+                  <code>String</code>
+                </td>
+             
+                <td>
+                  <code>java.lang.String</code>
+                </td>
+
+            
+              </tr>                  
+
+              <tr>
+                <td>
+                  <code>Boolean</code>
+                </td>
+		
+		<td>
+                  <code>java.lang.boolean</code>
+                </td>
+		</tr>
+		
+		<tr>
+
+                <td><code>Number</code></td>
+
+                <td> <code>java.lang.Number</code> </td>
+              </tr>
+    
+	      		<tr>
+
+                <td><code>Integer</code></td>
+
+                <td>
+                  <code>byte,short,int,long,BigInteger</code>
+                </td>
+              </tr>
+    
+                </tbody>
+          </table>
+    
+    
+<!-- ************************************************* -->
+
+
+
 
 <para>
 The first four data types will already be familiar to most developers 

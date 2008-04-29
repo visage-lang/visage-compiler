@@ -10,7 +10,7 @@
 <sect2 id="attribute"><title>Attributes</title>
 
 <para>Attributes define the state of an object. They are declared using the <code>attribute</code> keyword followed by the attribute's name, a colon, the attribute's type, optionally a cardinality specification (<code>[]</code> meaning zero or more, terminated with a semicolon:</para>
-<para>
+
 
 <programlisting>
 attribute <emphasis>AttributeName</emphasis> : <emphasis>AttributeType Cardinality</emphasis> ;
@@ -63,9 +63,11 @@ Default Value: false
 Default Value: 
 </programlisting>
 
-<para>For for more information on these data types, see <emphasis>Chapter 4, Variables and Basic Data Types</emphasis>.</para></para>
+<para>For for more information on these data types, see Chapter 4, 
 
-
+<emphasis><ulink
+    url="types.html">Variables and Basic Data Types</ulink></emphasis>.
+</para>
 
 </sect2>
 

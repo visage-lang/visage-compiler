@@ -81,12 +81,20 @@ more than one class if desired.
 
 
 <para>
-Classes are covered in detail in Chapter 2.
+Classes are covered in detail in Chapter 2,
+
+<emphasis><ulink
+    url="classintro.html">Classes</ulink></emphasis>.
+
 </para>
 
 
 <para>
-Attributes and Functions are covered in detail in Chapter 3.
+Attributes and Functions are covered in detail in Chapter 3,
+
+<emphasis><ulink
+    url="functions.html">Attributes and Functions</ulink></emphasis>.
+
 </para>
 
 
@@ -125,10 +133,18 @@ var myRect = Rectangle {
 
 
 <para>
-Objects are covered in detail in Chapter 2.
+Objects are covered in detail in Chapter 2, 
+<emphasis><ulink
+    url="classintro.html">Classes and Objects</ulink></emphasis>
+
 </para>
 
-<para>Variables and basic data types are covered in detail inChapter 4.</para>
+<para>Variables and basic data types are covered in detail in Chapter 4, 
+<emphasis><ulink
+    url="types.html">Variables and Basic Data Types</ulink></emphasis>.</para>
+
+
+
 
 </sect2>
 
@@ -141,13 +157,13 @@ is an <emphasis>expression language</emphasis>, which means that all executable 
 
 
 <para>
-<emphasis>Chapter 5</emphasis> discusses the expressions, statements, and operators available in the JavaFX Script programming language. 
+Chapter 5,  
+
+<emphasis><ulink
+    url="expressions.html">Expressions, Statements and Operators</ulink></emphasis>, 
+
+discusses the expressions, statements, and operators available in the JavaFX Script programming language. 
 </para>
-
-
-
-
-
 
 </sect2>
 
@@ -179,7 +195,20 @@ var weekdays = week[0..4]; // first slice
 var weekend = week[5..6]; // second slice
 </programlisting>
 
-<para><emphasis>Chapter 6</emphasis> covers the basics of declaring sequences, while <emphasis>Chapter 7</emphasis> focuses on the supported <emphasis>sequence comprehension</emphasis> specifiers. 
+<para><emphasis>Chapter 6</emphasis>
+
+
+<emphasis><ulink
+    url="sequences.html">Sequences</ulink></emphasis>
+    
+    
+    covers the basics of declaring sequences, while <emphasis>Chapter 7</emphasis>, 
+    
+    <emphasis><ulink
+    url="comprehensions.html">Sequence Comprehensions</ulink></emphasis>,
+    
+    
+    focuses on the supported <emphasis>sequence comprehension</emphasis> specifiers. 
 </para>
 
 </sect2>
@@ -220,7 +249,11 @@ Frame {
 
 
 <para>
-Data Binding is covered in detail in Chapter 8.
+Data Binding is covered in detail in Chapter 8, 
+<emphasis><ulink
+    url="binding.html">Data Binding</ulink></emphasis>
+
+
 </para>
 
 </sect2>
@@ -253,7 +286,10 @@ class ReplaceDemo {
 
 </programlisting>
 
-<para>Triggers are covered in detail in Chapter 9.
+<para>Triggers are covered in detail in Chapter 9, 
+
+<emphasis><ulink
+    url="triggers.html">Triggers</ulink></emphasis>.
 </para>
 
 </sect2>
