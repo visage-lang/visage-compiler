@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+
+
+<chapter id="binding"><title>Data Binding</title>
+
+
+<para>
+The <emphasis>bind</emphasis> keyword associates the value of a target variable to the value of a remote variable.
+</para>
+
+<programlisting>
+let x = bind someExpression; 
+</programlisting>
+
+<para>
+This binds the outcome of <code>someExpression</code> to the variable <code>x</code>. When <code>someExpression</code> changes, the value of <code>x</code> will be automatically updated.
+The remote variable can be a simple value of some basic type, the outcome of an expression, the outcome of a block of expressions or a bound function
+(the <code>let</code> keyword introduces a variable that cannot be assigned to.) 
+</para>
+
+<sect2 id="recalc"><title>Update Recalculations</title>
+
+<para>
+In some cases you may need to know exactly how the update occurs, or what is 
+meant by <code>someExpression</code> changing. When a remote value changes, 
+ a minimal recalculation will always be performed. This only matters in limited circumstances; for example, when a bind that requires object creation is performed and if, because of object identity, it matters whether or not a new object was created.
+</para>
+
+<programlisting>
+let sum = bind expr1 + expr2;
+</programlisting>
+
+<para>
+if <code>expr2</code> changes then <code>sum</code> will be recalculated but <code>expr1</code> will not. The value for <code>expr1</code> was previously stored and will simply be re-fetched.
+</para>
+
+<para>
+The following demo provides an example:
+</para>
+
+<programlisting>
+import java.lang.System;
+
+var y = 3;
+function ten() : Integer { 10 }
+let sum = bind ten() + y;
+System.out.println(sum);
+y = 7;
+System.out.println(sum);
+</programlisting>
+
+<para>
+The output of this program is: 
+</para>
+
+<programlisting>
+13
+17
+</programlisting>
+
+
+<para>
+When <code>y</code> is set to 7, the function <code>ten()</code> is not 
+invoked again since it did not change; its value has been remembered and reused.
+</para>
+</sect2>
+
+
+<sect2 id="block"><title>Binding and Block Expressions</title>
+
+<para>
+Within a <code>bind</code>, the only statements which can occur in a block-expression are variable declarations. Note that assignment (including increment and decrement) are prohibited within <code>bind</code>. Thus a bound block-expression has the form:
+</para>
+
+<programlisting>
+
+bind { var a = expr; var b = expr; var c = expr; expr }
+</programlisting>
+
+
+<para>
+Because any changes to the bound expression cause an update, and because that update is minimal, it is easy to see that the variables are effectively bound. Note also that <code>while</code>, <code>insert</code> and <code>delete</code> are statements and therefore can not occur within a <code>bind</code>.
+</para>
+
+</sect2>
+
+<sect2 id="conditional"><title>Binding and Conditional Expressions</title>
+
+<para>Consider the following expression:</para>
+
+<programlisting>
+let x = bind if (condExpr) expr1 else expr2;
+</programlisting>
+
+
+<para>
+A change to <code>condExpr</code>  changes which branch of the <code>if</code> statement will be evaluated. A change to <code>expr1</code> or <code>expr2</code> does not cause either of the other expressions to be recalculated.
+</para>
+
+</sect2>
+
+<sect2 id="for"><title>Binding and <code>for</code> Expressions</title>
+
+<para>Consider the following expression:</para>
+
+
+<programlisting>
+let newSeq = bind for (elem in seq) expr;
+</programlisting>
+
+
+<para>
+If <code>seq</code> changes, the elements in <code>newSeq</code> which corresponded to elements still in <code>seq</code> are not recalculated. In other words; if an element is inserted into <code>seq</code>, the results of applying <code>expr</code> to that element are inserted into <code>newSeq</code> at the corresponding positions and the other elements are not recalculated.
+</para>
+<para>
+The exception to this is that if <code>expr</code> uses <code>indexof elem</code> then those elements whose index changed will need to be updated, but corresponding to the minimal update rules. 
+</para>
+
+<programlisting>
+import java.lang.System;
+
+var min = 0;
+var max = 3;
+function square(x : Integer) : Integer { x*x }
+let values = bind for (x in [min..max]) square(x);
+System.out.println(values);
+max = 5;
+System.out.println(values);
+min = 1;
+System.out.println(values);
+min = 0;
+System.out.println(values);
+</programlisting>
+<para>
+In this case the following recalculations are performed:
+</para>
+
+<itemizedlist>
+<listitem>Calculate the squares of 0 through 3. The squares of 4 and 5 (0 through 3 are not recalculated when the max changes.)</listitem>
+
+<listitem>Delete the square of zero without recalculating any values
+</listitem>
+<listitem>Add back the square of zero. This requires it to be recalculated. This behavior is the same if <code>insert</code> and <code>delete</code> are used instead.</listitem>
+</itemizedlist>
+
+
+
+</sect2><sect2 id="literal"><title>Binding and Object Literals</title>
+
+
+<para>Object literals behave like operators and non-bound functions. If one of the arguments to the object literal changes then it is re-executed (a new instance is created.)</para>
+
+<programlisting>
+
+let pt = bind Point { x: myX  y: myY  }
+</programlisting>
+
+
+<para>
+If <code>myX</code> changes, the JavaFX Script programming language will create a new <code>Point</code> object -- the expected behavior for immutable objects.
+</para>
+
+<para>To make the value of <code>x</code> track the value of <code>myX</code> without creating a new <code>Point</code>, then binding is required:</para>
+
+<programlisting>
+
+let pt = bind Point { x: bind myX  y: myY  }
+</programlisting>
+
+<para>
+For this example, you would probably want to bind <code>y</code> as well:</para>
+
+
+
+
+<programlisting>
+
+let pt = bind Point { x: bind myX  y: bind myY  }
+</programlisting>
+<para>
+where <code>pt</code> would always remain the same <code>Point</code> instance. It would be the same without the initial bind:</para>
+
+<programlisting>
+
+let pt = Point { x: bind myX  y: bind myY  }
+</programlisting>
+
+
+
+</sect2><sect2 id="bindintro"><title>Binding and Functions</title>
+
+<para>A non-bound function is one that is not preceded with the <code>bound</code> keyword. For invocations of Java programming language methods or non-bound JavaFX Script programming language functions, the JavaFX Script programming language re-invokes the function if any of the arguments change, but the body of a function is a black-box. Dependencies it might have beyond its input parameters do not cause a recalculation.</para>
+
+
+
+<programlisting>
+
+import java.lang.System;
+
+class Point {
+     attribute x : Number;
+     attribute y : Number;
+}
+
+var scale = 1.0;
+
+function makePoint(x0 : Number, y0 : Number) : Point {
+     Point {
+          x: x0 * scale
+          y: y0 * scale
+     }
+}
+
+var myX = 3.0;
+var myY = 3.0;
+let pt = bind makePoint(myX, myY);
+System.out.println(pt.x);
+myX = 10.0;
+System.out.println(pt.x);
+scale = 2.0;
+System.out.println(pt.x);
+</programlisting>
+
+<para>
+Output:
+</para>
+
+
+<programlisting>
+
+3.0
+10.0
+10.0
+</programlisting>
+
+
+<para>
+Changing the argument <code>myX</code> causes <code>makePoint</code> to be called again. But, the function <code>makePoint</code> is a black-box. Changing the value assigned to <code>scale</code> will not cause an update, as it probably should. That's where a bound function is intended to work -- a bound function causes the update that you would expect.
+</para>
+
+<para>Bound functions have as their body a block-expression which is bound (it thus has the above restrictions on bound block-expressions). When binding to a bound function, changes besides the arguments causes an update, and the function sees changes to its arguments. If the above function <code>makePoint</code> were made a bound function:</para>
+
+
+<programlisting>
+
+bound function makePoint(x0 : Number, y0 : Number) : Point {
+</programlisting>
+
+<para>
+The change to the value assigned to <code>scale</code> now causes an update (20.0). Note that if <code>myX</code> changes, only <code>x0 * scale</code> would be recalculated, not <code>y0 * scale</code> .
+</para>
+<para>
+Invoking a bound function from outside a bind is just like invokling a non-bound function.
+</para>
+
+</sect2><sect2 id="bindseq"><title>Binding and Sequences</title>
+
+<!-- **** <FONT COLOR="RED">TBD</FONT> *** --> 
+
+</sect2>
+</chapter>
+
+

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+
+
+
+<chapter id="functions"><title>Attributes and Functions</title>
+
+
+<sect2 id="attribute"><title>Attributes</title>
+
+<para>Attributes define the state of an object. They are declared using the <code>attribute</code> keyword followed by the attribute's name, a colon, the attribute's type, optionally a cardinality specification (<code>[]</code> meaning zero or more, terminated with a semicolon:</para>
+<para>
+
+<programlisting>
+attribute <emphasis>AttributeName</emphasis> : <emphasis>AttributeType Cardinality</emphasis> ;
+</programlisting>
+
+<para>It is possible to declare default values for attributes (which can later be overridden by values provided in object literals.) The initializers are evaluated in the order the attributes are specified in the class declaration in the context of the newly created object: </para>
+
+<programlisting>
+import java.lang.System;
+
+class X {
+     attribute a: Number = 10;
+     attribute b: Number = -1;
+}
+
+var x = X { };
+System.out.println(x.a); // prints 10.0
+System.out.println(x.b); // prints -1.0
+</programlisting>
+
+
+<para>
+In the absence of explicit initialization, each attribute will be assigned  a reasonable default:</para>
+
+<programlisting>
+import java.lang.System;
+
+class DefaultValuesDemo {
+     attribute a: Number;
+     attribute b: Integer;
+     attribute c: Boolean;
+     attribute d: String;
+}
+
+var demo = DefaultValuesDemo {};
+System.out.println("Default Value: " + demo.a);
+System.out.println("Default Value: " + demo.b);
+System.out.println("Default Value: " + demo.c);
+System.out.println("Default Value: " + demo.d);
+</programlisting>
+
+
+<para>
+The above prints the following default values to the screen (note: the last line prints an empty string):
+</para>
+<programlisting>
+Default Value: 0.0
+Default Value: 0
+Default Value: false
+Default Value: 
+</programlisting>
+
+<para>For for more information on these data types, see <emphasis>Chapter 4, Variables and Basic Data Types</emphasis>.</para></para>
+
+
+
+</sect2>
+
+<sect2 id="function"><title>Functions</title>
+
+<para>
+Functions define the behavior of an object. A function takes the form: </para>
+
+
+<programlisting>
+
+function <emphasis>name</emphasis> (<emphasis>parameterName</emphasis> : <emphasis>parameterType</emphasis>, ...): <emphasis>returnType body</emphasis>
+</programlisting>
+
+<para>where <emphasis>body</emphasis> can be any expression.</para>
+
+<para>
+Functions are first-class objects (they can, for example, be assigned to variables, or passed as parameters to other functions.)</para>
+
+
+<para>
+Chapter one presented a simple example, defining a <code>grow</code> function 
+ that accepts no arguments and returns no values:</para>
+
+
+<programlisting>
+...
+
+function grow(): Void {
+          width++;
+          height++;
+}
+
+...
+</programlisting>
+
+<para>The demo also provided an overloaded version allowing the user to 
+specify a particular size: </para>
+
+<programlisting>
+
+...
+
+function grow(amount: Integer): Void {
+     width += amount;
+     height += amount;
+}
+
+...
+</programlisting>
+
+<para>Functions can also be anonymous. Anonymous functions are often used to 
+assign behavior to the <code>action</code> attribute of a GUI 
+component:
+</para>
+
+<programlisting>
+
+import java.lang.System;
+import javafx.ui.*;
+
+Frame {
+     visible: true
+     content: FlowPanel {
+          content: Button {
+               text: "Click Me!"
+               action: function() {
+                    System.out.println("Click!");
+               }
+          }
+     }
+     
+}
+</programlisting>
+
+</sect2> </chapter>
+
+
+

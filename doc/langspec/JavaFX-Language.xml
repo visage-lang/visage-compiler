@@ -20,42 +20,27 @@
 
  -->
 
-<!--  -->
 
-<!--
-<xi:include href="fxintro.xml" parse="xml"/>  
--->
+<xi:include href="ch1.xml"  parse="xml"/> 
 
-<!-- -->
-<xi:include href="fx01overview.xml"  parse="xml"/> 
-<!-- -->
-<xi:include href="fx02quickstart.xml"  parse="xml"/>  
+<xi:include href="ch2.xml"  parse="xml"/>  
 
-<xi:include href="fx03declprog.xml"  parse="xml"/> 
+<xi:include href="ch3.xml"  parse="xml"/> 
 
-<xi:include href="fx04syntax.xml"  parse="xml"/>  
+<xi:include href="ch4.xml"  parse="xml"/>  
 
-<!--  
-<xi:include href="fx05expr.xml"  parse="xml"/> 
-<xi:include href="fx06logic.xml"  parse="xml"/> 
-<xi:include href="fx07arrays.xml"  parse="xml"/> 
-<xi:include href="fx08objects.xml"  parse="xml"/>  
--->
+<xi:include href="ch5.xml"  parse="xml"/>  
 
-<xi:include href="fx09exceptions.xml"  parse="xml"/>
+<xi:include href="ch6.xml"  parse="xml"/> 
 
+<xi:include href="ch7.xml"  parse="xml"/>
+
+<xi:include href="ch8.xml"  parse="xml"/>
+
+<xi:include href="ch9.xml"  parse="xml"/>
 
 <xi:include href="appendixa.xml"  parse="xml"/>
 
-
-<!-- commented out until reflection support is implemented
-<xi:include href="fx10reflection.xml"  parse="xml"/>  
--->
-
-<!-- files not committed to repository
-<xi:include href="fx11java.xml"  parse="xml"/>
-<xi:include href="fx12libraries.xml"  parse="xml"/>  
--->  
 
 
 </book>

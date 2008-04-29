@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+
+
+
+
+<chapter id="sequences"><title>Sequences</title>
+
+
+<para>In addition to the five basic types previously described, the JavaFX Script programming language also provides  data structures known as <emphasis>sequences</emphasis>. Sequences are similar to Java programming language arrays, but there are differences as well. 
+
+</para>
+
+<para>
+The following code presents some examples:
+</para>
+
+
+<programlisting>
+var weekDays = ["Mon","Tue","Wed","Thur","Fri"];
+var days = [week_days, ["Sat","Sun"]];
+</programlisting>
+
+<para>Sequences represent ordered lists of objects. Sequences are not themselves objects, however, and do not nest. Sequences are compared for equality by value; if their lengths are equal and their elements are equal, then they are equal. Expressions that produce nested sequences (as in the initialization of <code>days</code> above) are automatically flattened.
+</para>
+
+<programlisting>
+
+days == ["Mon","Tue","Wed","Thur","Fri","Sat","Sun"]; // returns true
+</programlisting>
+
+<para>
+In addition, a single object is equal to a sequence of one object:</para>
+
+<programlisting>
+1 == [1]; // returns true
+</programlisting>
+
+
+<para>
+Sequence types are declared with the <code>[]</code> annotation:
+</para>
+
+
+<programlisting>
+var xs:Number[]; // sequence of Number
+var strs:String[]; // sequence of String
+</programlisting>
+
+<para>
+The elements of a sequence must have a common type, which may be Object. Sequences may be indexed like Java programming language arrays:
+</para>
+
+
+<programlisting>
+
+var wednesday = days[2];
+</programlisting>
+
+
+<para>
+There is also a shorthand notation using ".." for sequences whose elements form an arithmetic series, as in:
+</para>
+
+
+<programlisting>
+var nums = [1..100];
+</programlisting>
+
+
+<para>
+This shorthand eliminates the need to manually type out each element.
+</para>
+
+<para>The <code>[]</code> operator also expresses selection in the 
+form of predicates. Predicates take the form:</para>
+
+
+<programlisting>
+sequence[variableName| booleanExp]
+</programlisting>
+
+
+<para><emphasis role="bold">Example:</emphasis></para>
+
+<programlisting>
+var nums = [1,2,3,4];
+var numsGreaterThanTwo = nums[n|n > 2];
+</programlisting>
+
+<para>
+Such an expression returns a new sequence consisting of those elements of the original sequence that satisfy the predicate.
+</para>
+
+<para>Finally, sequence <emphasis>slices</emphasis> provide access to portions of a sequence:</para>
+
+<programlisting>
+seq[a..b] // the sequence between the indicies a and b inclusive
+seq[a..&lt;b] // the sequence between the indicies a inclusive and b exclusive
+seq[a..] // same as seq[a..&lt;sizeof seq]
+seq[a..&lt;] // for consistancy.  This is the same as seq[a..&lt;sizeof seq-1] 
+</programlisting>
+
+<para>There are many different ways to access and/or modify a sequence or sequence slice. The
+ following chapter explores JavaFX Script programming language's <emphasis>list comprehension</emphasis> features.</para>
+
+</chapter>
+
+
+
+

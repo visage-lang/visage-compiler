@@ -11,7 +11,7 @@
     <para><emphasis>This Appendix reports words reserved in the  <trademark>JavaFX</trademark> Script programming language. </emphasis></para>
     
 
-        <table cellpadding="3" cellspacing="3" >
+        <table class="data" cellpadding="3" cellspacing="3" >
 	
 	<caption>Reserved Words Table </caption>
           <tbody>

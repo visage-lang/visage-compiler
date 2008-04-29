@@ -9,7 +9,7 @@
 
     <para>This placeholder section holds a temporary keywords table. This list will change as the JavaFX™ Script programming language continues to develop.</para> 
 
-       <table cellpadding="3" cellspacing="3" >
+       <table class="data" cellpadding="3" cellspacing="3" >
 	
 	<caption>Keywords Table </caption>
 	

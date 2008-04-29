@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+
+
+
+<chapter id="types"><title>Variables and Basic Data Types</title>
+
+
+
+<sect2 id="variable"><title>Variables</title>
+
+<para>
+As mentioned in Chapter 1, the <code>var</code> keyword is used to introduce a new variable into your program. A variable's type may be specified in its declaration, but doing so is optional. If a variable's type is omitted from the declaration, it may be inferred from its use.</para>
+
+<para>A variable declaration takes the form:</para>
+
+<programlisting>
+
+var <emphasis>variableName : type = initializer;</emphasis>
+</programlisting>
+
+<para><emphasis role="bold">Examples: </emphasis></para>
+
+
+<programlisting>
+
+var num = 1; // inferred type 
+var num : Number = 2;
+var firstName = "John"; // inferred type
+var lastName : String = "Doe";
+</programlisting>
+
+
+
+<para>
+Variable naming conventions are the same as found in the Java programming language. Classes should capitalize the first letter of each word (<code>MyClass</code>); function names should begin in lowercase but capitalize the first letter of each subsequent word (<code>myFunctionName</code>); constants should appear in all uppercase with words separated by the underscore character (<code>MY_CONSTANT</code>.)</para>
+
+
+<para>
+Any sequence of characters (including whitespace) contained in french quotes 
+&lt;&lt;&gt;&gt; is treated as an identifier. This makes it possible to use <trademark>JavaFX</trademark> Script programming language keywords (or other normally illegal identifiers) as class, variable, function, or attribute names.
+</para>
+
+
+<para><emphasis role="bold">Example:</emphasis></para>
+<programlisting>
+var &lt;&lt;delete&gt;&gt; = 100;
+</programlisting>
+
+<para>
+This also makes it possible to invoke methods (written in the Java programming language) whose names are the same as JavaFX Script programming language keywords.
+</para>
+
+<programlisting>
+import javax.swing.JTextArea;
+
+var textArea = new JTextArea();
+textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);
+</programlisting>
+
+
+<para>
+The lifetime of a variable is at least the lifetime of the containing block. It can be longer if the variable is captured by a <emphasis>closure</emphasis>. Top-level variables are visible inside functions and classes. They act like private static fields of the module class.</para>
+
+</sect2>
+<sect2 id="datatype"><title>Basic Data Types</title>
+
+<para>The JavaFX Script programming language does not use the term
+<emphasis>primitive types</emphasis>; instead, the language defines five <emphasis>basic data types</emphasis>, which are always available to your application code. </para>
+
+<para>The five basic data types map to the Java programming language as follows:</para>
+
+<programlisting>
+Number     java.lang.Number
+Integer    byte,short,int,long,BigInteger
+Boolean    java.lang.Boolean
+String     java.lang.String
+Duration   N/A
+</programlisting>
+
+<para>
+The first four data types will already be familiar to most developers 
+ since they are frequently used in the Java programming language.  
+The <code>Duration</code> type, however, 
+ is a new specific to the JavaFX Script programming language. The <code>javafx.lang.Duration</code> class represents a unit of time 
+(millisecond, second, minute, or hour.) Because time is so integral to 
+<emphasis>animation</emphasis>, the language also supports  <emphasis>time literals</emphasis>, 
+ a shorthand for instantiating the <code>Duration</code> class. 
+</para>
+
+<programlisting>
+5ms; // 5 milliseconds
+10s; // 10 seconds
+30m; // 30 minutes
+1h;  // 1 hour
+</programlisting>
+
+<para>
+For the integral types, coercions are automatically performed when passing arguments or returning values to/from methods written in the Java programming language. In addition, implicit truncating coercions are performed when converting <code>Number</code>s to <code>Integer</code>s.
+</para>
+
+<para>
+For character strings, it is possible to specify a string literal using 
+either single or double quotes:</para>
+
+
+<programlisting>
+var s1 = 'Hello';
+var s2 = "Hello";
+</programlisting>
+
+
+<para>The difference is that with the latter, it is possible to embed 
+ expressions within curly brackets (<code>{}</code>):</para>
+
+<programlisting>
+
+var name = 'Joe';
+var s = "Hello {name}"; // s = 'Hello Joe'
+</programlisting>
+
+<para>
+When using curly brackets, the compiler infers a type for the embedded expression that it can coerce to a <code>String</code>.
+</para>
+
+<para>The embedded expression can itself contain quoted strings, which, in turn, may contain further embedded expressions:</para>
+
+<programlisting>
+var answer = true;
+var s = "The answer is {if (answer) "Yes" else "No"}"; // s = 'The answer is Yes'
+</programlisting>
+
+<para>
+Unlike the Java programming language, a JavaFX Script programming language double-quoted String literal can contain newlines:
+</para>
+
+<para>It is also possible to control how numbers and dates are converted to character 
+strings by providing an additional formatting prefix in a string expression. Such a 
+prefix follows the specification of <code>java.util.Formatter</code>:</para>
+
+
+
+<programlisting>
+
+import java.util.Date;
+var hexStr = "hex of 13 is 0x{%02X 13}"; // hexStr = "hex of 13 is 0x0D"        
+var date = new Date(107, 10, 11);
+var dateStr = "{%tc date}" // dateStr = "Sun Nov 11 00:00:00 PST 2007"
+</programlisting>
+
+</sect2> </chapter>
+
+
+

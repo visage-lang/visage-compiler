@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter id="expressions"><title>Expressions, Statements, and Operators</title>
+
+<sect2 id="expr"><title>Expressions</title>
+<para>
+Unlike the Java programming language, the JavaFX Script programming language is an expression language. All executable statements are expressions which consist of zero or more inputs followed by a single output. This includes conditionals, loops, and even blocks. The following demo provides an example:
+</para>
+
+<programlisting>
+import java.lang.Math;
+import java.lang.System;
+
+var rand = (Math.random() * 100).intValue();
+var s:String = null;
+if (rand % 2 == 0) {
+     s = "rand is even";
+} else {
+     s = "rand is odd";
+}
+
+System.out.println(s);
+</programlisting>
+
+<para>In the above example the <code>then</code> and <code>else</code> clauses of the conditional "if" are expressions in their own right, namely <emphasis>block expressions</emphasis></para>
+
+
+<sect3 id="blockexpr"><title>Block Expressions</title>
+
+<para>A block expression consists of a list of statements (which can be declarations or expressions) surrounded by curly braces and separated by semicolons. If the last statement is an expression, then the value of a block expression is the value of the last expression; otherwise the block expression has <code>void</code>
+ type.</para>
+
+<para>
+Therefore, the previous example could also be written as: 
+</para>
+
+<programlisting>
+import java.lang.Math;
+import java.lang.System;
+
+var rand = (Math.random() * 100).intValue();
+var s:String =
+if (rand % 2 == 0) {
+     "rand is even";
+} else {
+     "rand is odd";
+};
+
+System.out.println(s);
+</programlisting>
+
+
+<para>Alternately the braces can be omitted:</para>
+
+<programlisting>
+import java.lang.Math;
+import java.lang.System; 
+
+var rand = (Math.random() * 100).intValue();
+var s:String = if (rand % 2 == 0) "rand is even" else "rand is odd";
+
+System.out.println(s);
+</programlisting>
+
+
+<para>The Java programming language contains both an <code>if</code> statement, 
+and a conditional expression: <code>a &lt; b ? a : b</code>.</para>
+
+<para>Thanks to block expressions, the JavaFX Script programming language <code>if</code> expression takes the place of both.</para>
+
+
+</sect3><sect3 id="range"><title>Range Expressions</title>
+
+<para>
+Chapter 1 introduced you to sequences; chapter 6 covers them in full detail. 
+But even with only a basic understanding of sequences, it should be possible to understand range expressions. 
+<emphasis>Range expressions</emphasis> 
+ define a sequence of values forming an arithmetic series using the following 
+syntax: </para>
+
+
+<programlisting>
+[number1..number2]
+</programlisting>
+
+
+<para>
+Such an expression defines an sequence whose elements consist of the integers from <code>number1</code> to <code>number2</code> (inclusive).
+</para>
+
+<para>
+A simple example of a range expression could be: 
+</para>
+
+<programlisting>
+import java.lang.System;
+
+var nums = [0..3];
+System.out.println(nums == [0,1,2,3]); // prints true
+</programlisting>
+
+
+
+<para>By default the interval between the values is 1 but it is also possible to specify a different interval by including the next number in the sequence after number1 separated by a comma. For example, the following expression defines an sequence consisting of the odd numbers between 1 and 10:
+</para>
+
+<programlisting>
+[1,3..10]
+</programlisting>
+
+<para>To create a <emphasis>descending range</emphasis>, make sure the second value is less than the first, and specify a <emphasis>step value</emphasis>:
+</para>
+
+<programlisting>
+import java.lang.System;
+
+var nums = [3..0 step -1];
+System.out.println(nums == [3,2,1,0]); // prints true
+</programlisting> 
+
+<para>
+Note that the following declarations actually declare empty sequences:
+</para>
+
+<programlisting>
+var nums1 = [3..0 ]; 
+var nums2 = [3..0 step 1]; 
+</programlisting>
+
+
+</sect3><sect3 id="conditional"><title>Conditional Expressions</title>
+
+<para>The <code>if</code> expression is like the expression in the <trademark>Java</trademark> programming language, except that curly braces are always required around the <code>then</code> and <code>else</code> clauses, unless the the <code>else</code> clause is another <code>if</code> expression.</para>
+
+
+<programlisting>
+if (condition1) {
+     System.out.println("Condition 1");
+} else if (condition2) {
+     System.out.println("Condition2");
+} else {
+     System.out.println("not Condition 1 or Condition 2");
+}
+</programlisting>
+
+
+</sect3><sect3 id="loop"><title>Looping Expressions</title>
+<para>
+The <code>for</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** -->
+</para>
+<para>
+The <code>while</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** -->
+</para>
+
+</sect3></sect2>
+
+<sect2 id="state"><title>Statements</title>
+
+
+<para>
+The <code>return</code> statement
+is the same as found in the Java programming language:
+</para>
+
+<programlisting>
+function add(x, y) {
+     return x + y;
+}
+</programlisting>
+
+
+<para>
+The <code>throw</code> statement is similar to that of 
+the Java Programming language, but 
+ only objects extending 
+<code>java.lang.Throwable</code> may be thrown and caught:</para>
+
+<programlisting>
+import java.lang.Exception;
+
+function foo() {
+     throw new Exception("this is a java exception");
+}
+
+function bar() {
+     throw "just a string";
+}
+</programlisting>
+
+<para>
+The <code>try</code> and <code>catch</code> statements
+ are similar to those of the Java programming language, but 
+ use JavaFX Script programming language variable declaration syntax:
+</para>
+
+<programlisting>
+
+try {
+     throw "Hello";
+} catch (s:String) {
+     System.out.println("caught a String: {s}");
+} catch (any) {
+     System.out.println("caught something not a String: {any}");
+} finally {
+     System.out.println("finally...");
+}
+</programlisting>
+
+
+
+<para>
+The <code>break</code> and <code>continue</code> statements are 
+ similar to those of the Java Programming language; however labels are 
+not supported. The <code>break</code> and <code>continue</code> statements must appear inside the body of a <code>while</code> or <code>for</code> loop:</para>
+
+<programlisting>
+
+<!-- **** <FONT COLOR="RED"> code EXAMPLE TBD </FONT> *** --> 
+
+</programlisting>
+
+
+
+
+
+</sect2>
+<sect2 id="oper"><title>Operators</title>
+<para>
+The JavaFX Script programming language provides standard operators similar to
+ those found in the Java programming language. The following chart lists these operators by precedence, comparing to their Java programming language equivalent.
+</para>
+
+<programlisting>
+
+<!-- **** <FONT COLOR="RED">TO-DO: COPY OPERATOR CHART HERE</FONT> *** -->
+</programlisting>
+
+
+<para>
+Because these operators provide standard functionality, a simple example of their use should be all that is required:
+</para>   
+
+<programlisting>
+import java.lang.System;
+import java.lang.Math;
+
+var x = 2;
+var y = 4;
+var a = true;
+var b = false;
+System.out.println(x == y);  
+System.out.println(x &lt;&gt; y); 
+System.out.println(x &lt; y); 
+System.out.println(x &gt; y);  
+System.out.println(x &gt;= y); 
+System.out.println(x &lt;= y);  
+System.out.println(x + y);  
+System.out.println(x - y);  
+System.out.println(x * y);  
+System.out.println(x / y);   
+System.out.println(x % y);   
+System.out.println(a and b); 
+System.out.println(a or b);  
+System.out.println(not a);  
+System.out.println(sizeof [x,y]); 
+System.out.println([x,y][e | indexof e == 0]);  
+System.out.println(if (a) x else y); 
+System.out.println(for(q in [x, y] where q &lt; 3) q); 
+System.out.println(Math.max(x, y)); 
+System.out.println("abc".toUpperCase()); 
+System.out.println(x); 
+</programlisting>
+
+<para>
+The demo above produces the following output:
+</para>
+
+<programlisting>
+
+false
+true
+true
+false
+false
+true
+6
+-2
+8
+0
+2
+false
+true
+false
+2
+[ 2 ]
+2
+[ 2 ]
+4
+ABC
+2
+</programlisting>
+
+
+</sect2> </chapter>
+
+
