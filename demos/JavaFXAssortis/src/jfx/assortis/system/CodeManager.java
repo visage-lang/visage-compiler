@@ -29,13 +29,17 @@ package jfx.assortis.system;
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.tools.javafx.script.MemoryFileManager;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.tools.Diagnostic;
@@ -56,7 +60,7 @@ public class CodeManager {
     private static List<String> options = new ArrayList<String>();
     private static MemoryClassLoader memoryClassLoader = new MemoryClassLoader();
 
-    public static Object execute(String className, String code) {
+    public static Object execute(String className, String code, String propName, String props) {
 
         if (!code.contains("package")){
             String pack = className.substring(0, className.lastIndexOf('.'));
@@ -76,6 +80,13 @@ public class CodeManager {
         }
         
         Map<String, byte[]> classBytes = manager.getClassBytes();
+
+        try {
+           // LATER: deal with encoding properly
+           classBytes.put(propName, props.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException uee) {
+            throw new RuntimeException(uee);
+        }
 
         try {
 
@@ -148,6 +159,18 @@ class MemoryClassLoader extends ClassLoader {
         } else {
             return super.findClass(className);
         }
+    }
+
+    @Override
+    public InputStream getResourceAsStream(String resource) {
+        if (resource.endsWith(".fxproperties")) {
+            byte[] propBytes = classBytes.get(resource);
+
+            if (propBytes != null) {
+                return new ByteArrayInputStream(propBytes);
+            }
+        }
+        return super.getResourceAsStream(resource);
     }
 }
 

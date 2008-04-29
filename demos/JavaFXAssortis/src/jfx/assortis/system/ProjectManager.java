@@ -36,8 +36,15 @@ import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class ProjectManager {
 
@@ -59,8 +66,8 @@ public class ProjectManager {
         }
     }
 
-    public static Object runFXCode(String className, String code) throws Exception {
-        return CodeManager.execute(className, code);
+    public static Object runFXCode(String className, String code, String propName, String props) throws Exception {
+        return CodeManager.execute(className, code, propName, props);
     }
 
     public static String readResource(String className, String resource) {
@@ -69,17 +76,20 @@ public class ProjectManager {
 
 
             StringBuffer contents = new StringBuffer();
-            BufferedReader input = new BufferedReader(new InputStreamReader(cls.getResourceAsStream(resource)));
-            String line = null;
-            while ((line = input.readLine()) != null) {
-                contents.append(line);
-                contents.append(System.getProperty("line.separator"));
-            }
+            InputStream is = cls.getResourceAsStream(resource);
+            if (is != null) {
+                BufferedReader input = new BufferedReader(new InputStreamReader(is));
+                String line = null;
+                    while ((line = input.readLine()) != null) {
+                    contents.append(line);
+                    contents.append(System.getProperty("line.separator"));
+                }
             
-            //System.out.println("resource:");
-            //System.out.println(contents);
+                //System.out.println("resource:");
+                //System.out.println(contents);
             
-            return contents.toString();
+                return contents.toString();
+	    }
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -94,6 +104,54 @@ public class ProjectManager {
 
     public static String getFilePath(String className){
         return className.replace('.','/') + ".fx";
+    }
+    
+    public static String getFXPropertiesName(String className, Locale l){
+        return className.substring(className.lastIndexOf('.') + 1) + 
+            "_" + l.toString() + ".fxproperties";
+    }
+    
+    public static List<Locale> getFXPropertiesLocales(URI dirURI, final String baseName){
+	File dir = new File(dirURI); 
+	String[] propFiles = dir.list(new FilenameFilter() {
+	    public boolean accept(File d, String f) {
+		return (f.startsWith(baseName + "_") &&
+		        f.endsWith(".fxproperties"));
+	    }
+	});
+	List<Locale> locs = new ArrayList<Locale>();
+	for (String propf : propFiles) {
+	    String locStr = propf.substring(baseName.length()+1, propf.lastIndexOf('.'));
+//System.out.printf("locStr: %s\n", locStr);
+	    String[] args = locStr.split("_", 3);
+	    locs.add(new Locale(args[0], 
+                                (args.length > 1 ? args[1] : ""),
+                                (args.length > 2 ? args[2] : "")));
+//System.out.println(locs);
+	}
+	Locale def = Locale.getDefault();
+	while (def.getLanguage() != "") {
+	    int index = locs.indexOf(def);
+	    if (index != -1) {
+		locs.remove(index);
+		locs.add(0, def);
+		break;
+	    }
+	    String[] args = def.toString().split("_", 0);
+	    switch (args.length) {
+	    default:
+	    case 3:
+		def = new Locale(args[0], args[1]);
+		break;
+	    case 2:
+		def = new Locale(args[0]);
+		break;
+	    case 1:
+		locs.add(0, def);
+		break;
+	    }
+	}
+	return locs;
     }
     
     public static String getDefaultLookAndFeel(){

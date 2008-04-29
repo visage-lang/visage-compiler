@@ -47,7 +47,9 @@ import java.lang.Thread;
 import java.lang.Runnable;
 import java.lang.StringBuffer;
 
+import java.net.URI;
 
+import java.util.List;
 import java.util.Locale;
 
 import javax.tools.Diagnostic;
@@ -85,7 +87,10 @@ class ProjectSample {
         
     public attribute frame: InternalFrame;
     //attribute isExecuted: Boolean;
-    
+
+    private attribute propTabs:Tab[];
+    private attribute propLocales:List;
+
     
     static
     function createProjectSample(sample: Sample): ProjectSample{
@@ -128,6 +133,24 @@ public class AssortisProject  extends CompositeWidget{
         }
     };
     
+    private attribute currentPropTabs:Tab[];
+    private attribute currentPropLocales:List;
+    private attribute defLocale:Locale = Locale.getDefault();
+
+    private attribute selectedPropIndex: Number on replace {
+        if (currentPropTabs <> [] and 0 <= selectedPropIndex ){
+            var index = selectedPropIndex.intValue();
+            var codeIndex = selectedCodeIndex.intValue();
+            var l = currentPropLocales.get(index) as Locale;
+            if (l <> null) {
+                Locale.setDefault(l);
+            }
+            createFrame(executedSamples[codeIndex], 
+                        (codeTabs[codeIndex].content as EditorPane).text, 
+                        (currentPropTabs[index].content as EditorPane).text);
+        }
+    };
+
     private attribute selectedSampleIndex: Integer;
     
     
@@ -252,11 +275,11 @@ public class AssortisProject  extends CompositeWidget{
         
     }
     
-    function createFrame(sample: ProjectSample, code: String){
+    function createFrame(sample: ProjectSample, code: String, props: String){
         
         //System.out.println("----------------------------------------------------");
         //System.out.println("[code] {code}");
-        var obj = ProjectManager.runFXCode(sample.className, code);
+        var obj = ProjectManager.runFXCode(sample.className, code, sample.className.replaceAll("\\.", "/")+"_"+sample.propLocales.get(selectedPropIndex.intValue()).toString()+".fxproperties", props );
         
         //System.out.println("[execute sample] {sample.name}: \"" + obj + "\"");
         
@@ -335,6 +358,7 @@ public class AssortisProject  extends CompositeWidget{
         var code = ProjectManager.readResource(className, fileName);        
         
         var textArea: EditorPane;
+	var propArea: EditorPane;
         
         textArea =  EditorPane{
             contentType: ContentType.HTML
@@ -342,25 +366,14 @@ public class AssortisProject  extends CompositeWidget{
             editable: true
             background: Color.WHITE
             onKeyUp: function(keyEvent :KeyEvent){
-                
-                var timer = keyTimers[t | t.name == sample.name ];
-                if (0 < sizeof timer ){
-                    var keyTimer = timer[0];
-                    keyTimer.time = System.currentTimeMillis();
-                } else{
-                    insert KeyTimer{
-                        name: sample.name
-                        time: System.currentTimeMillis()
-                        action: function(){
-                            createFrame(sample, textArea.text);
-                        }
-                    } into keyTimers;
-                }                
+                previewTimer(sample, textArea.text, propArea.text)
             };
         }
         
         insert Tab{ title: sample.name content: textArea } into codeTabs;
         
+	propArea = insertPropertiesTabs(sample, textArea); 
+
         selectedCodeIndex = sizeof codeTabs - 1;
         
         sample.frame = InternalFrame { 
@@ -379,16 +392,27 @@ public class AssortisProject  extends CompositeWidget{
                 selectedCodeIndex = sizeof codeTabs - 1;
                 delete  sample.frame from frames;
                 delete sample from executedSamples;
+                currentPropTabs = null;
+                currentPropLocales = null;
 
                 if (0 <= selectedCodeIndex){
                     var tabTitle =  codeTabs[selectedCodeIndex.intValue()].title;
                     for(sample in samples){
-                        if(sample.name ==  tabTitle) { sample.frame.selected = true; break; }
+                        if(sample.name ==  tabTitle) { 
+                            sample.frame.selected = true; 
+                            currentPropTabs = 
+                                executedSamples[selectedCodeIndex.intValue()].propTabs;
+                            currentPropLocales = 
+                                executedSamples[selectedCodeIndex.intValue()].propLocales;
+                            break; 
+                        }
                     }
                 }
                 x = 0;
                 y = 0;
                 sample.frame = null;                
+                sample.propTabs = null;                
+                sample.propLocales = null;                
             }
 
             title: sample.name
@@ -399,8 +423,54 @@ public class AssortisProject  extends CompositeWidget{
         y += 30;
         
         insert sample.frame into frames;
-        createFrame(sample, code);
+        createFrame(sample, code, propArea.text);
         
+    }
+
+    function insertPropertiesTabs(sample: ProjectSample, textArea: EditorPane): EditorPane {
+	var baseName = "{__DIR__}../../../{sample.className.replaceAll("\\.", "/")}";
+        sample.propLocales = ProjectManager.getFXPropertiesLocales(
+	    URI.create(baseName.substring(0, baseName.lastIndexOf('/'))), 
+	    baseName.substring(baseName.lastIndexOf('/')+1));
+        var propArea: EditorPane;
+
+        for (index in [0..sample.propLocales.size() - 1]) {
+	    var l:Locale = sample.propLocales.get(index) as Locale;
+            var props = ProjectManager.readResource(sample.className, 
+                ProjectManager.getFXPropertiesName(sample.className, l));
+	    propArea = EditorPane {
+                contentType: ContentType.HTML
+                text: props
+                editable: true
+                background: Color.WHITE
+                onKeyUp: function(keyEvent :KeyEvent){
+                    previewTimer(sample, textArea.text, propArea.text)
+                };
+            }
+            insert Tab{ title: l.getDisplayName(defLocale) 
+                        content: propArea } 
+		into sample.propTabs;
+	}
+	currentPropTabs = sample.propTabs;
+	currentPropLocales = sample.propLocales;
+	return sample.propTabs[selectedPropIndex.intValue()].content as EditorPane;
+    }
+    
+    function previewTimer(sample: ProjectSample, code: String, props: String):Void {
+        var timer = keyTimers[t | t.name == sample.name ];
+        if (0 < sizeof timer ){
+            var keyTimer = timer[0];
+            keyTimer.time = System.currentTimeMillis();
+        } else{
+            insert KeyTimer{
+                name: sample.name
+                time: System.currentTimeMillis()
+                action: function(){
+                    createFrame(sample, code, 
+                        (currentPropTabs[0].content as EditorPane).text);
+                }
+            } into keyTimers;
+        }
     }
     
     function selectFrame(name: String):Void{
@@ -421,6 +491,11 @@ public class AssortisProject  extends CompositeWidget{
                 var ind = indexof tab;                
                 if ( ind <> selectedCodeIndex ){
                     selectedCodeIndex = ind;
+                }
+                currentPropTabs = executedSamples[ind].propTabs;
+                currentPropLocales = executedSamples[ind].propLocales;
+                if (currentPropTabs <> null) {
+                    selectedPropIndex = 0;
                 }
                 break;
             }
@@ -515,12 +590,21 @@ public class AssortisProject  extends CompositeWidget{
                                 }
                             }
                         }, SplitView{
-                            weight: 0.4
+                            weight: 0.3
                             content: BorderPanel{
                                 border:  TitledBorder {} 
                                 center: TabbedPane{
                                     selectedIndex: bind selectedCodeIndex with inverse
                                     tabs: bind codeTabs
+                                }
+                            }
+                        }, SplitView{
+                            weight: 0.1
+                            content: BorderPanel{
+                                border:  TitledBorder { title: bind "String Literal Translations" }
+                                center: TabbedPane{
+                                    selectedIndex: bind selectedPropIndex with inverse
+                                    tabs: bind currentPropTabs
                                 }
                             }
                         } ]
