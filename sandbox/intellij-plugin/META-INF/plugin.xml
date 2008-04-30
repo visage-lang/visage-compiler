@@ -1,0 +1,23 @@
+<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
+<idea-plugin>
+    <name>JavaFX</name>
+    <description>Plugin for the JavaFX Script Programming Language</description>
+    <version>0.1</version>
+    <vendor>Sun Microsystems</vendor>
+    <idea-version since-build="3000"/>
+    <application-components>
+        <component>
+            <implementation-class>com.sun.javafx.ideaplugin.FxPlugin</implementation-class>
+        </component>
+    </application-components>
+
+    <actions>
+        <action id="javafx.NewClass"
+                class="com.sun.javafx.ideaplugin.NewFxClassAction"
+                text="JavaFX Class"
+                description="Creates new JavaFX Class">
+            <add-to-group group-id="NewGroup" anchor="first" />
+        </action>
+    </actions>
+
+</idea-plugin>
