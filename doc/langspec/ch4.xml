@@ -71,75 +71,83 @@ The lifetime of a variable is at least the lifetime of the containing block. It 
 
 <para>The five basic data types map to the Java programming language as follows:</para>
 
+<!--
+
 <programlisting>
 Number     java.lang.Number
 Integer    byte,short,int,long,BigInteger
 Boolean    java.lang.Boolean
 String     java.lang.String
 Duration   N/A
-</programlisting>
 
+</programlisting> 
+
+-->
 
 <!-- ************** new types table **************** -->
-
-
-
-
     
-    <table cellpadding="5" cellspacing="5"
-                 style="border: medium groove ;">
+    <table class="data" border="0">
 		 
 <caption style="margin-bottom: 9pt;">Basic Types Table </caption>
 		 
-            <tbody>
-              <tr>
-                <th style="text-decoration: underline;">JavaFX</th>
+<tbody>
+  <tr>
+<th style="text-decoration: underline;">JavaFX</th>
 
-                <th style="text-decoration: underline;">Java</th>
+<th style="text-decoration: underline;">Java</th>
 
-               
-              </tr>
 
-              <tr>
-                <td>
-                  <code>String</code>
-                </td>
-             
-                <td>
-                  <code>java.lang.String</code>
-                </td>
+ </tr>
 
-            
-              </tr>                  
+ <tr>
+<td>
+  <code>String</code>
+</td>
+ 
+<td>
+  <code>java.lang.String</code>
+</td>
 
-              <tr>
-                <td>
-                  <code>Boolean</code>
-                </td>
+
+  </tr>  
+
+  <tr>
+<td>
+  <code>Boolean</code>
+</td>
 		
 		<td>
-                  <code>java.lang.boolean</code>
-                </td>
+  <code>java.lang.Boolean</code>
+</td>
 		</tr>
 		
 		<tr>
 
-                <td><code>Number</code></td>
+<td><code>Number</code></td>
 
-                <td> <code>java.lang.Number</code> </td>
-              </tr>
-    
-	      		<tr>
+<td> <code>java.lang.Number</code> </td>
+  </tr>
 
-                <td><code>Integer</code></td>
+	  		<tr>
 
-                <td>
-                  <code>byte,short,int,long,BigInteger</code>
-                </td>
-              </tr>
-    
-                </tbody>
-          </table>
+<td><code>Integer</code></td>
+
+<td>
+  <code>byte,short,int,long,BigInteger</code>
+</td>
+  </tr>
+	  
+	  <tr>
+
+<td><code>Duration</code></td>
+
+<td>
+  <code>N/A</code>
+</td>
+  </tr>
+
+</tbody>
+  </table>
     
     
 <!-- ************************************************* -->
