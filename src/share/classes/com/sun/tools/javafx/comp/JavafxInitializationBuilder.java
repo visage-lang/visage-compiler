@@ -204,7 +204,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 makeImplementingInterfaces(diagPos, cDecl, javaInterfaces),
                 iDefinitions.toList(),
                 cDefinitions.toList(),
-                makeAdditionalImports(diagPos, javaInterfaces),
+                makeAdditionalImports(diagPos, cDecl, javaInterfaces),
                 superType);
     }
    
@@ -307,12 +307,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return implementing.toList();
     }
 
-    private List<JCExpression> makeAdditionalImports(DiagnosticPosition diagPos, List<ClassSymbol> baseInterfaces) {
+    private List<JCExpression> makeAdditionalImports(DiagnosticPosition diagPos, JFXClassDeclaration cDecl, List<ClassSymbol> baseInterfaces) {
         // Add import statements for all the base classes and basClass $Intf(s).
         // There might be references to them when the methods/attributes are rolled up.
         ListBuffer<JCExpression> additionalImports = new ListBuffer<JCExpression>();
         for (ClassSymbol baseClass : baseInterfaces) {
-            if (baseClass.type != null && baseClass.type.tsym != null &&
+            if (baseClass.type.tsym.packge() != cDecl.sym.packge() &&         // Work around javac bug (CR 6695838)
+                    baseClass.type != null && baseClass.type.tsym != null &&
                     baseClass.type.tsym.packge() != syms.unnamedPackage) {    // Work around javac bug. the visitImport of Attr 
                 // is casting to JCFieldAcces, but if you have imported an
                 // JCIdent only a ClastCastException is thrown.
