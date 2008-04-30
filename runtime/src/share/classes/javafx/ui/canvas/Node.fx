@@ -41,6 +41,7 @@ import javax.swing.SwingUtilities;
 import javafx.ui.Canvas;
 import javafx.ui.Cursor;
 import javafx.ui.KeyEvent;
+import javafx.ui.KeyStroke;
 import javafx.ui.KeyModifier;
 import javafx.ui.HorizontalAlignment;
 import javafx.ui.VerticalAlignment;
@@ -50,6 +51,7 @@ import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.event.SGNodeListener;
 import com.sun.scenario.scenegraph.event.SGNodeEvent;
 import com.sun.scenario.scenegraph.event.SGMouseListener;
+import com.sun.scenario.scenegraph.event.SGKeyListener;
 import com.sun.scenario.scenegraph.event.SGMouseAdapter;
 import com.sun.scenario.scenegraph.fx.FXNode;
 import java.lang.System;
@@ -189,6 +191,29 @@ public abstract class Node extends CanvasElement, Transformable {
         }
     }
 
+    protected attribute keyListener: SGKeyListener;
+
+    public function installKeyListener():Void { 
+        if(keyListener == null) {
+            selectable = true;
+            var entered = false;
+            keyListener = SGKeyListener {
+                public function keyTyped(event:java.awt.event.KeyEvent, node:SGNode):Void {
+                    if(onKeyTyped <> null) { onKeyTyped(makeKeyEvent(event)); }
+                }
+                public function keyPressed(event:java.awt.event.KeyEvent, node:SGNode):Void {
+                    if(onKeyDown <> null) { onKeyDown(makeKeyEvent(event)); }
+                }
+                public function keyReleased(event:java.awt.event.KeyEvent, node:SGNode):Void {
+                    if(onKeyUp <> null) { onKeyUp(makeKeyEvent(event)); }
+                }
+            };
+            if (filterRoot <> null) {
+                filterRoot.addKeyListener(keyListener);
+            }
+
+        }
+    }
     protected function installFocusListener() {
         var canvas = this.getCanvas();
         if (focusListener == null and canvas.jsgpanel <> null) {
@@ -204,6 +229,22 @@ public abstract class Node extends CanvasElement, Transformable {
             canvas.jsgpanel.addFocusListener(focusListener);
         }
     }
+
+    protected function makeKeyEvent(e:java.awt.event.KeyEvent):KeyEvent {
+        var modifiers:KeyModifier[] = [
+            if (e.isControlDown() ) KeyModifier.CTRL else null,
+            if (e.isShiftDown()) KeyModifier.SHIFT else null,
+            if (e.isMetaDown()) KeyModifier.META else
+            if (e.isAltDown()) KeyModifier.ALT else null
+            ];
+        return KeyEvent {
+            source: e
+            keyStroke: KeyStroke.KEYBOARD.getKeyStroke(e.getKeyCode())
+            modifiers: modifiers
+            keyChar: if (e.getID() == java.awt.event.KeyEvent.KEY_TYPED) "{e.getKeyChar()}" else null
+        };
+    }
+
     protected function makeCanvasMouseEvent(e:MouseEvent) {
         //var info = MouseInfo.getPointerInfo();
         var pt = new java.awt.geom.Point2D.Double(e.getX(), e.getY());
@@ -337,6 +378,10 @@ public abstract class Node extends CanvasElement, Transformable {
                 filterRoot.removeMouseListener(mouseListener);
                 filterRoot.addMouseListener(mouseListener);
             }
+            if (keyListener <> null) {
+                filterRoot.removeKeyListener(keyListener);
+                filterRoot.addKeyListener(keyListener);
+            }
             //filterRoot.setPickable(selectable); // TODO: needed
             filterRoot.setVisible(visible);
             if (scaleToFitCanvas) {
@@ -452,9 +497,15 @@ public abstract class Node extends CanvasElement, Transformable {
         }
     };
 
-    public attribute onKeyDown: function(e:KeyEvent):Void;
-    public attribute onKeyUp: function(e:KeyEvent):Void;
-    public attribute onKeyTyped: function(e:KeyEvent):Void;
+    public attribute onKeyDown: function(e:KeyEvent):Void on replace {
+        installKeyListener();
+    };
+    public attribute onKeyUp: function(e:KeyEvent):Void on replace {
+        installKeyListener();
+    };
+    public attribute onKeyTyped: function(e:KeyEvent):Void on replace {
+        installKeyListener();
+    };
 
     /**
      * Sets the focusable state of this Node to the specified value. This
