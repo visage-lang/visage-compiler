@@ -49,9 +49,7 @@ import java.util.Locale;
 public class JavaFXPad extends CompositeWidget {
     // this has to be created before ScriptEngineManager to catch stderr.
     attribute stdoutPane =  StdoutPane {    };
-    attribute manager:ScriptEngineManager = new ScriptEngineManager();
-    attribute scrEng:ScriptEngine = manager.getEngineByExtension("javafx");
-    attribute engine:JavaFXScriptEngine = scrEng as JavaFXScriptEngine;
+    attribute engine:JavaFXScriptEngine = ToolProvider.getJavaFXScriptEngine();
     attribute scriptContext:ScriptContext = engine.getContext();
     
     private function loadBootScript():String {

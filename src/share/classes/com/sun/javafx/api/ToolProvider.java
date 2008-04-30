@@ -62,6 +62,27 @@ public class ToolProvider {
     }
 
     /**
+     * Gets a JavaFX Script script engine instance.  This is an alternative
+     * to the general use where the script engine is looked up as a service.
+     * @return the script engine instance or {@code null} if no script engine 
+     *         is included as part of the application classpath
+     */
+    public static JavaFXScriptEngine getJavaFXScriptEngine() {
+        try {
+            URL[] urls = new URL[] {
+                getPath("com.sun.tools.javafx.script.JavaFXScriptEngineImpl"),
+                getPath("com.sun.tools.javac.util.Context")
+            };
+            ClassLoader parent = JavafxCompiler.class.getClassLoader();
+            ClassLoader cl = new CompilerClassLoader(urls, parent);
+            Class<?> cls = Class.forName("com.sun.tools.javafx.script.JavaFXScriptEngineImpl", false, cl);
+            return (JavaFXScriptEngine)cls.newInstance();
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+    }
+
+    /**
      * ClassLoader which loads internal javafxc and javac classes from the
      * specified path instead of the classpath default.
      */
@@ -104,7 +125,10 @@ public class ToolProvider {
      */
     private static URL getPath(String className) throws MalformedURLException {
         String classFile = className.replace('.', '/') + ".class";
-        URL classURL = ToolProvider.class.getClassLoader().getResource(classFile);
+        ClassLoader cl = ToolProvider.class.getClassLoader();
+        if (cl == null)
+            cl = ClassLoader.getSystemClassLoader();
+        URL classURL = cl.getResource(classFile);
         String path = classURL.getPath();
         assert path.endsWith(classFile);
         path = path.substring(0, path.indexOf(classFile) - 1);
