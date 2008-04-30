@@ -42,6 +42,7 @@ import javax.lang.model.element.ElementVisitor;
 
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javafx.util.MsgSym;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -482,7 +483,7 @@ public class JavafxResolve {
         Symbol sym = findField(env, site, name, site.tsym);
         if (sym.kind == VAR) return (VarSymbol)sym;
         else throw new FatalError(
-                 JCDiagnostic.fragment("fatal.err.cant.locate.field",
+                 JCDiagnostic.fragment(MsgSym.MESSAGE_FATAL_ERR_CANNOT_LOCATE_FIELD,
                                 name));
     }
 
@@ -1249,7 +1250,7 @@ public class JavafxResolve {
      */
     void checkNonAbstract(DiagnosticPosition pos, Symbol sym) {
         if ((sym.flags() & ABSTRACT) != 0)
-            log.error(pos, "abstract.cant.be.accessed.directly",
+            log.error(pos, MsgSym.MESSAGE_ABSTRACT_CANNOT_BE_ACCESSED_DIRECTLY,
                       kindName(sym), sym, sym.location());
     }
 
@@ -1355,7 +1356,7 @@ public class JavafxResolve {
             pos, env, site, name, newMethTemplate(argtypes, typeargtypes));
         if (sym.kind == MTH) return (MethodSymbol)sym;
         else throw new FatalError(
-                 JCDiagnostic.fragment("fatal.err.cant.locate.meth",
+                 JCDiagnostic.fragment(MsgSym.MESSAGE_FATAL_ERR_CANNOT_LOCATE_METH,
                                 name));
     }
 
@@ -1429,7 +1430,7 @@ public class JavafxResolve {
             pos, env, site, argtypes, typeargtypes);
         if (sym.kind == MTH) return (MethodSymbol)sym;
         else throw new FatalError(
-                 JCDiagnostic.fragment("fatal.err.cant.locate.ctor", site));
+                 JCDiagnostic.fragment(MsgSym.MESSAGE_FATAL_ERR_CANNOT_LOCATE_CTOR, site));
     }
 
     /** Resolve operator.
@@ -1589,7 +1590,7 @@ public class JavafxResolve {
             if ((env1.enclClass.sym.flags() & STATIC) != 0) staticOnly = true;
             env1 = env1.outer;
         }
-        log.error(pos, "not.encl.class", c);
+        log.error(pos, MsgSym.MESSAGE_NOT_ENCL_CLASS, c);
         return syms.errSymbol;
     }
 
@@ -1621,7 +1622,7 @@ public class JavafxResolve {
                 staticOnly = true;
             env1 = env1.outer;
         }
-        log.error(pos, "encl.class.required", member);
+        log.error(pos, MsgSym.MESSAGE_ENCL_CLASS_REQUIRED, member);
         return syms.errSymbol;
     }
 
@@ -1635,7 +1636,7 @@ public class JavafxResolve {
                          ? resolveSelf(pos, env, t.getEnclosingType().tsym, names._this)
                          : resolveSelfContaining(pos, env, t.tsym)).type;
         if (env.info.isSelfCall && thisType.tsym == env.enclClass.sym)
-            log.error(pos, "cant.ref.before.ctor.called", "this");
+            log.error(pos, MsgSym.MESSAGE_CANNOT_REF_BEFORE_CTOR_CALLED, "this");
         return thisType;
     }
 
@@ -1648,12 +1649,12 @@ public class JavafxResolve {
     public // Javafx change
     static JCDiagnostic kindName(int kind) {
         switch (kind) {
-        case PCK: return JCDiagnostic.fragment("kindname.package");
-        case TYP: return JCDiagnostic.fragment("kindname.class");
-        case VAR: return JCDiagnostic.fragment("kindname.variable");
-        case VAL: return JCDiagnostic.fragment("kindname.value");
-        case MTH: return JCDiagnostic.fragment("kindname.method");
-        default : return JCDiagnostic.fragment("kindname",
+        case PCK: return JCDiagnostic.fragment(MsgSym.KINDNAME_PACKAGE);
+        case TYP: return JCDiagnostic.fragment(MsgSym.KINDNAME_CLASS);
+        case VAR: return JCDiagnostic.fragment(MsgSym.KINDNAME_VARIABLE);
+        case VAL: return JCDiagnostic.fragment(MsgSym.KINDNAME_VALUE);
+        case MTH: return JCDiagnostic.fragment(MsgSym.KINDNAME_METHOD);
+        default : return JCDiagnostic.fragment(MsgSym.KINDNAME,
                                                Integer.toString(kind)); //debug
         }
     }
@@ -1661,37 +1662,37 @@ public class JavafxResolve {
     static JCDiagnostic kindName(Symbol sym) {
         switch (sym.getKind()) {
         case PACKAGE:
-            return JCDiagnostic.fragment("kindname.package");
+            return JCDiagnostic.fragment(MsgSym.KINDNAME_PACKAGE);
 
         case ENUM:
         case ANNOTATION_TYPE:
         case INTERFACE:
         case CLASS:
-            return JCDiagnostic.fragment("kindname.class");
+            return JCDiagnostic.fragment(MsgSym.KINDNAME_CLASS);
 
         case TYPE_PARAMETER:
-            return JCDiagnostic.fragment("kindname.type.variable");
+            return JCDiagnostic.fragment(MsgSym.KINDNAME_TYPE_VARIABLE);
 
         case ENUM_CONSTANT:
         case FIELD:
         case PARAMETER:
         case LOCAL_VARIABLE:
         case EXCEPTION_PARAMETER:
-            return JCDiagnostic.fragment("kindname.variable");
+            return JCDiagnostic.fragment(MsgSym.KINDNAME_VARIABLE);
 
         case METHOD:
         case CONSTRUCTOR:
         case STATIC_INIT:
         case INSTANCE_INIT:
-            return JCDiagnostic.fragment("kindname.method");
+            return JCDiagnostic.fragment(MsgSym.KINDNAME_METHOD);
 
         default:
             if (sym.kind == VAL)
                 // I don't think this can happen but it can't harm
                 // playing it safe --ahe
-                return JCDiagnostic.fragment("kindname.value");
+                return JCDiagnostic.fragment(MsgSym.KINDNAME_VALUE);
             else
-                return JCDiagnostic.fragment("kindname", sym.getKind()); // debug
+                return JCDiagnostic.fragment(MsgSym.KINDNAME, sym.getKind()); // debug
         }
     }
 
@@ -1700,12 +1701,12 @@ public class JavafxResolve {
     public // Javafx change
     static JCDiagnostic kindNames(int kind) {
         StringBuffer key = new StringBuffer();
-        key.append("kindname");
+        key.append(MsgSym.KINDNAME);
         if ((kind & VAL) != 0)
-            key.append(((kind & VAL) == VAR) ? ".variable" : ".value");
-        if ((kind & MTH) != 0) key.append(".method");
-        if ((kind & TYP) != 0) key.append(".class");
-        if ((kind & PCK) != 0) key.append(".package");
+            key.append(((kind & VAL) == VAR) ? MsgSym.KINDNAME_KEY_VARIABLE : MsgSym.KINDNAME_KEY_VALUE);
+        if ((kind & MTH) != 0) key.append(MsgSym.KINDNAME_KEY_METHOD);
+        if ((kind & TYP) != 0) key.append(MsgSym.KINDNAME_KEY_CLASS);
+        if ((kind & PCK) != 0) key.append(MsgSym.KINDNAME_KEY_PACKAGE);
         return JCDiagnostic.fragment(key.toString(), kind);
     }
 
@@ -1715,15 +1716,15 @@ public class JavafxResolve {
     static JCDiagnostic typeKindName(Type t) {
         if (t.tag == TYPEVAR ||
             t.tag == CLASS && (t.tsym.flags() & COMPOUND) != 0)
-            return JCDiagnostic.fragment("kindname.type.variable.bound");
+            return JCDiagnostic.fragment(MsgSym.KINDNAME_TYPE_VARIABLE_BOUND);
         else if (t.tag == PACKAGE)
-            return JCDiagnostic.fragment("kindname.package");
+            return JCDiagnostic.fragment(MsgSym.KINDNAME_PACKAGE);
         else if ((t.tsym.flags_field & ANNOTATION) != 0)
-            return JCDiagnostic.fragment("kindname.annotation");
+            return JCDiagnostic.fragment(MsgSym.KINDNAME_ANNOTATION);
         else if ((t.tsym.flags_field & INTERFACE) != 0)
-            return JCDiagnostic.fragment("kindname.interface");
+            return JCDiagnostic.fragment(MsgSym.KINDNAME_INTERFACE);
         else
-            return JCDiagnostic.fragment("kindname.class");
+            return JCDiagnostic.fragment(MsgSym.KINDNAME_CLASS);
     }
 
     /** A localized string describing the kind of a missing symbol, given an
@@ -1732,13 +1733,13 @@ public class JavafxResolve {
     static JCDiagnostic absentKindName(int kind) {
         switch (kind) {
         case ABSENT_VAR:
-            return JCDiagnostic.fragment("kindname.variable");
+            return JCDiagnostic.fragment(MsgSym.KINDNAME_VARIABLE);
         case WRONG_MTHS: case WRONG_MTH: case ABSENT_MTH:
-            return JCDiagnostic.fragment("kindname.method");
+            return JCDiagnostic.fragment(MsgSym.KINDNAME_METHOD);
         case ABSENT_TYP:
-            return JCDiagnostic.fragment("kindname.class");
+            return JCDiagnostic.fragment(MsgSym.KINDNAME_CLASS);
         default:
-            return JCDiagnostic.fragment("kindname", kind);
+            return JCDiagnostic.fragment(MsgSym.KINDNAME, kind);
         }
     }
 
@@ -1842,12 +1843,12 @@ public class JavafxResolve {
                 String typeargs = "";
                 if (kind >= WRONG_MTHS && kind <= ABSENT_MTH) {
                     if (isOperator(name)) {
-                        log.error(pos, "operator.cant.be.applied",
+                        log.error(pos, MsgSym.MESSAGE_OPERATOR_CANNOT_BE_APPLIED,
                                   name, Type.toString(argtypes));
                         return;
                     }
                     if (name == name.table.init) {
-                        kindname = JCDiagnostic.fragment("kindname.constructor");
+                        kindname = JCDiagnostic.fragment(MsgSym.KINDNAME_CONSTRUCTOR);
                         idname = site.tsym.name.toString();
                     }
                     args = "(" + Type.toString(argtypes) + ")";
@@ -1864,7 +1865,7 @@ public class JavafxResolve {
                     else
                         wrongSymStr = wrongSymMem.toString();
                     log.error(pos,
-                              "cant.apply.symbol" + (explanation != null ? ".1" : ""),
+                              MsgSym.MESSAGE_CANNOT_APPLY_SYMBOL + (explanation != null ? ".1" : ""),
                               wrongSymStr,
                               types.location(wrongSym, site),
                               typeargs,
@@ -1872,13 +1873,13 @@ public class JavafxResolve {
                               explanation);
                 } else if (site.tsym.name.len != 0) {
                     if (site.tsym.kind == PCK && !site.tsym.exists())
-                        log.error(pos, "doesnt.exist", site.tsym);
+                        log.error(pos, MsgSym.MESSAGE_DOES_NOT_EXIST, site.tsym);
                     else
-                        log.error(pos, "cant.resolve.location",
+                        log.error(pos, MsgSym.MESSAGE_CANNOT_RESOLVE_LOCATION,
                                   kindname, idname, args, typeargs,
                                   typeKindName(site), site);
                 } else {
-                    log.error(pos, "cant.resolve", kindname, idname, args, typeargs);
+                    log.error(pos, MsgSym.MESSAGE_CANNOT_RESOLVE, kindname, idname, args, typeargs);
                 }
             }
         }
@@ -1907,7 +1908,7 @@ public class JavafxResolve {
             this.env = env;
             this.site = site;
             if (debugResolve)
-                log.error("proc.messager", sym + " @ " + site + " is inaccessible.");
+                log.error(MsgSym.MESSAGE_PROC_MESSAGER, sym + " @ " + site + " is inaccessible.");
         }
 
         private JavafxEnv<JavafxAttrContext> env;
@@ -1933,14 +1934,14 @@ public class JavafxResolve {
                 if ((sym.flags() & PUBLIC) != 0
                     || (env != null && this.site != null
                         && !isAccessible(env, this.site)))
-                    log.error(pos, "not.def.access.class.intf.cant.access",
+                    log.error(pos, MsgSym.MESSAGE_NOT_DEF_ACCESS_CLASS_INTF_CANNOT_ACCESS,
                         sym, sym.location());
                 else if ((sym.flags() & (PRIVATE | PROTECTED)) != 0)
-                    log.error(pos, "report.access", sym,
+                    log.error(pos, MsgSym.MESSAGE_REPORT_ACCESS, sym,
                               TreeInfo.flagNames(sym.flags() & (PRIVATE | PROTECTED)),
                               sym.location());
                 else
-                    log.error(pos, "not.def.public.cant.access",
+                    log.error(pos, MsgSym.MESSAGE_NOT_DEF_PUBLIC_CANNOT_ACCESS,
                               sym, sym.location());
             }
         }
@@ -1974,7 +1975,7 @@ public class JavafxResolve {
             String symstr = ((sym.kind == TYP && sym.type.tag == CLASS)
                 ? types.erasure(sym.type)
                 : sym).toString();
-            log.error(pos, "non-static.cant.be.ref",
+            log.error(pos, MsgSym.MESSAGE_NON_STATIC_CANNOT_BE_REF,
                       kindName(sym), symstr);
         }
     }
@@ -2014,7 +2015,7 @@ public class JavafxResolve {
             }
             Name sname = pair.sym1.name;
             if (sname == sname.table.init) sname = pair.sym1.owner.name;
-            log.error(pos, "ref.ambiguous", sname,
+            log.error(pos, MsgSym.MESSAGE_REF_AMBIGUOUS, sname,
                       kindName(pair.sym1),
                       pair.sym1,
                       types.location(pair.sym1, site),

@@ -312,8 +312,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // There might be references to them when the methods/attributes are rolled up.
         ListBuffer<JCExpression> additionalImports = new ListBuffer<JCExpression>();
         for (ClassSymbol baseClass : baseInterfaces) {
-            if (baseClass.type.tsym.packge() != cDecl.sym.packge() &&         // Work around javac bug (CR 6695838)
-                    baseClass.type != null && baseClass.type.tsym != null &&
+            if (baseClass.type != null && baseClass.type.tsym != null &&
+                    baseClass.type.tsym.packge() != cDecl.sym.packge() &&     // Work around javac bug (CR 6695838)
                     baseClass.type.tsym.packge() != syms.unnamedPackage) {    // Work around javac bug. the visitImport of Attr 
                 // is casting to JCFieldAcces, but if you have imported an
                 // JCIdent only a ClastCastException is thrown.

@@ -23,6 +23,7 @@ import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javafx.util.MsgSym;
 
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 
@@ -322,7 +323,7 @@ class JavafxAnalyzeClass {
         if (methName.startsWith(attributeGetMethodNamePrefix)) {
             String nameSig = methName.substring(attributeGetMethodNamePrefix.length());
             if (visitedSourceAttributes.containsKey(nameSig)) {
-                log.error("javafx.cannot.override.default.initializer", nameSig, cSym.className(), visitedSourceAttributes.get(nameSig));
+                log.error(MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEFAULT_INITIALIZER, nameSig, cSym.className(), visitedSourceAttributes.get(nameSig));
             } else if (visitedClassFileAttributes.containsKey(nameSig)) {
                 // not an error since they are replicated in class files, but we need to make sure needsCloning is updated
                 AttributeInfo attrInfo = visitedClassFileAttributes.get(nameSig);
@@ -370,9 +371,9 @@ class JavafxAnalyzeClass {
             String attrName = var.name.toString();
             String className = cDecl.getName().toString();
             if (visitedSourceAttributes.containsKey(attrName)) {
-                log.error("javafx.cannot.override.default.initializer", attrName, className, visitedSourceAttributes.get(attrName));
+                log.error(MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEFAULT_INITIALIZER, attrName, className, visitedSourceAttributes.get(attrName));
             } else if (visitedClassFileAttributes.containsKey(attrName)) {
-                log.error("javafx.cannot.override.default.initializer", attrName, className, visitedClassFileAttributes.get(attrName));
+                log.error(MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEFAULT_INITIALIZER, attrName, className, visitedClassFileAttributes.get(attrName));
             } else {
                 visitedSourceAttributes.put(attrName, addAttribute(attrName, var, cloneVisible) );
             }

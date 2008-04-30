@@ -32,6 +32,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javafx.tree.JFXInterpolateValue;
+import com.sun.tools.javafx.util.MsgSym;
 import java.util.HashMap;
 import javax.tools.DiagnosticListener;
 import static com.sun.tools.javac.util.ListBuffer.lb;
@@ -123,7 +124,7 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
         int pos = ((CommonToken)(e.token)).getStartIndex();
         String msg = getErrorMessage(e, tokenNames);
         //        System.err.println("ERROR: " + msg);
-        log.error(pos, "javafx.generalerror", msg);
+        log.error(pos, MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
     }
     
     protected int pos(CommonTree tree) {

@@ -60,6 +60,7 @@ import com.sun.tools.javafx.comp.JavafxAttr.Sequenceness;
 import com.sun.tools.javafx.tree.JFXClassDeclaration;
 import com.sun.tools.javafx.tree.JavafxTreeInfo;
 import com.sun.tools.javafx.tree.JavafxTreeScanner;
+import com.sun.tools.javafx.util.MsgSym;
 
 /** Type checking helper class for the attribution phase.
  *
@@ -127,8 +128,8 @@ public class JavafxCheck {
 	boolean verboseDeprecated = lint.isEnabled(LintCategory.DEPRECATION);
 	boolean verboseUnchecked = lint.isEnabled(LintCategory.UNCHECKED);
 
-	deprecationHandler = new MandatoryWarningHandler(log,verboseDeprecated, "deprecated");
-	uncheckedHandler = new MandatoryWarningHandler(log, verboseUnchecked, "unchecked");
+	deprecationHandler = new MandatoryWarningHandler(log,verboseDeprecated, MsgSym.MESSAGE_DEPRECATED);
+	uncheckedHandler = new MandatoryWarningHandler(log, verboseUnchecked, MsgSym.MESSAGE_UNCHECKED);
         rs = JavafxResolve.instance(context);
     }
 
@@ -180,7 +181,7 @@ public class JavafxCheck {
 // JavaFX change
     void warnDeprecated(DiagnosticPosition pos, Symbol sym) {
 	if (!lint.isSuppressed(LintCategory.DEPRECATION))
-	    deprecationHandler.report(pos, "has.been.deprecated", sym, sym.location());
+	    deprecationHandler.report(pos, MsgSym.MESSAGE_HAS_BEEN_DEPRECATED, sym, sym.location());
     }
 
     /** Warn about unchecked operation.
@@ -206,7 +207,7 @@ public class JavafxCheck {
      *  @param ex         The failure to report.
      */
     public Type completionError(DiagnosticPosition pos, CompletionFailure ex) {
-	log.error(pos, "cant.access", ex.sym, ex.errmsg);
+	log.error(pos, MsgSym.MESSAGE_CANNOT_ACCESS, ex.sym, ex.errmsg);
 	if (ex instanceof ClassReader.BadClassFile) throw new Abort();
 	else return syms.errType;
     }
@@ -223,14 +224,14 @@ public class JavafxCheck {
     Type typeError(DiagnosticPosition pos, Object problem, Type found, Type req) {
         String foundAsJavaFXType = types.toJavaFXString(found);
         String requiredAsJavaFXType = types.toJavaFXString(req);
-	log.error(pos, "prob.found.req", problem, foundAsJavaFXType, requiredAsJavaFXType);
+	log.error(pos, MsgSym.MESSAGE_PROB_FOUND_REQ, problem, foundAsJavaFXType, requiredAsJavaFXType);
 	return syms.errType;
     }
 
     Type typeError(DiagnosticPosition pos, String problem, Type found, Type req, Object explanation) {
         String foundAsJavaFXType = types.toJavaFXString(found);
         String requiredAsJavaFXType = types.toJavaFXString(req);
-	log.error(pos, "prob.found.req.1", problem, foundAsJavaFXType, requiredAsJavaFXType, explanation);
+	log.error(pos, MsgSym.MESSAGE_PROB_FOUND_REQ_1, problem, foundAsJavaFXType, requiredAsJavaFXType, explanation);
 	return syms.errType;
     }
 
@@ -249,7 +250,7 @@ public class JavafxCheck {
         if (foundAsJavaFXType instanceof Type) {
             foundAsJavaFXType = types.toJavaFXString((Type) foundAsJavaFXType);
         }
-	log.error(pos, "type.found.req", foundAsJavaFXType, requiredAsJavaFXType);
+	log.error(pos, MsgSym.MESSAGE_TYPE_FOUND_REQ, foundAsJavaFXType, requiredAsJavaFXType);
 	return syms.errType;
     }
 
@@ -262,7 +263,7 @@ public class JavafxCheck {
     public
 // JavaFX change
     void earlyRefError(DiagnosticPosition pos, Symbol sym) {
-	log.error(pos, "cant.ref.before.ctor.called", sym);
+	log.error(pos, MsgSym.MESSAGE_CANNOT_REF_BEFORE_CTOR_CALLED, sym);
     }
 
     /** Report duplicate declaration error.
@@ -272,7 +273,7 @@ public class JavafxCheck {
 // JavaFX change
     void duplicateError(DiagnosticPosition pos, Symbol sym) {
 	if (sym.type == null || !sym.type.isErroneous()) {
-	    log.error(pos, "already.defined", sym, sym.location());
+	    log.error(pos, MsgSym.MESSAGE_ALREADY_DEFINED, sym, sym.location());
 	}
     }
 
@@ -283,7 +284,7 @@ public class JavafxCheck {
 // JavaFX change
     void varargsDuplicateError(DiagnosticPosition pos, Symbol sym1, Symbol sym2) {
 	if (!sym1.type.isErroneous() && !sym2.type.isErroneous()) {
-	    log.error(pos, "array.and.varargs", sym1, sym2, sym2.location());
+	    log.error(pos, MsgSym.MESSAGE_ARRAY_AND_VARARGS, sym1, sym2, sym2.location());
 	}
     }
 
@@ -429,7 +430,7 @@ public class JavafxCheck {
             if (pSequenceness != Sequenceness.DISALLOWED) {
                 found = types.isSequence(found) ? types.elementType(found) : types.elemtype(found);
             } else {
-                return typeError(pos, JCDiagnostic.fragment("incompatible.types"), found, req);
+                return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
             }
         }
 	if (types.isAssignable(found, req, convertWarner(pos, found, req)))
@@ -449,16 +450,16 @@ public class JavafxCheck {
         }
 
 	if (found.tag <= DOUBLE && req.tag <= DOUBLE)
-	    return typeError(pos, JCDiagnostic.fragment("possible.loss.of.precision"), found, req);
+	    return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION), found, req);
 	if (found.isSuperBound()) {
-	    log.error(pos, "assignment.from.super-bound", found);
+	    log.error(pos, MsgSym.MESSAGE_ASSIGNMENT_FROM_SUPER_BOUND, found);
 	    return syms.errType;
 	}
 	if (req.isExtendsBound()) {
-	    log.error(pos, "assignment.to.extends-bound", req);
+	    log.error(pos, MsgSym.MESSAGE_ASSIGNMENT_TO_EXTENDS_BOUND, req);
 	    return syms.errType;
 	}
-	return typeError(pos, JCDiagnostic.fragment("incompatible.types"), found, req);
+	return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
     }
 
     /** Instantiate polymorphic type to some prototype, unless
@@ -480,14 +481,14 @@ public class JavafxCheck {
 		if (ex.isAmbiguous) {
 		    JCDiagnostic d = ex.getDiagnostic();
 		    log.error(pos,
-			      "undetermined.type" + (d!=null ? ".1" : ""),
-			      t, d);
+                  d!=null ? MsgSym.MESSAGE_UNDETERMINDED_TYPE_1 : MsgSym.MESSAGE_UNDETERMINDED_TYPE,
+                  t, d);
 		    return syms.errType;
 		} else {
 		    JCDiagnostic d = ex.getDiagnostic();
 		    return typeError(pos,
-                                     JCDiagnostic.fragment("incompatible.types" + (d!=null ? ".1" : ""), d),
-                                     t, pt);
+                 JCDiagnostic.fragment(d!=null ? MsgSym.MESSAGE_INCOMPATIBLE_TYPES_1 : MsgSym.MESSAGE_INCOMPATIBLE_TYPES, d),
+                 t, pt);
 		}
 	    }
 	}
@@ -538,7 +539,7 @@ public class JavafxCheck {
         }
         
         return typeError(pos,
-            JCDiagnostic.fragment("inconvertible.types"),
+            JCDiagnostic.fragment(MsgSym.MESSAGE_INCONVERTIBLE_TYPES),
 	    found, req);
     }
 //where
@@ -564,16 +565,16 @@ public class JavafxCheck {
 	    a = types.upperBound(a);
 	    for (List<Type> l = types.getBounds(bs); l.nonEmpty(); l = l.tail) {
 		if (!types.isSubtype(a, l.head)) {
-		    log.error(pos, "not.within.bounds", a);
+		    log.error(pos, MsgSym.MESSAGE_NOT_WITHIN_BOUNDS, a);
 		    return;
 		}
 	    }
 	} else if (a.isExtendsBound()) {
 	    if (!types.isCastable(bs.getUpperBound(), types.upperBound(a), Warner.noWarnings))
-		log.error(pos, "not.within.bounds", a);
+		log.error(pos, MsgSym.MESSAGE_NOT_WITHIN_BOUNDS, a);
 	} else if (a.isSuperBound()) {
 	    if (types.notSoftSubtype(types.lowerBound(a), bs.getUpperBound()))
-		log.error(pos, "not.within.bounds", a);
+		log.error(pos, MsgSym.MESSAGE_NOT_WITHIN_BOUNDS, a);
 	}
     }
 
@@ -586,7 +587,7 @@ public class JavafxCheck {
      */
     Type checkNonVoid(DiagnosticPosition pos, Type t) {
 	if (t.tag == VOID) {
-	    log.error(pos, "void.not.allowed.here");
+	    log.error(pos, MsgSym.MESSAGE_VOID_NOT_ALLOWED_HERE);
 	    return syms.errType;
 	} else {
 	    return t;
@@ -603,9 +604,9 @@ public class JavafxCheck {
     Type checkClassType(DiagnosticPosition pos, Type t) {
 	if (t.tag != CLASS && t.tag != ERROR)
             return typeTagError(pos,
-                                JCDiagnostic.fragment("type.req.class"),
+                                JCDiagnostic.fragment(MsgSym.MESSAGE_TYPE_REQ_CLASS),
                                 (t.tag == TYPEVAR)
-                                ? JCDiagnostic.fragment("type.parameter", t)
+                                ? JCDiagnostic.fragment(MsgSym.MESSAGE_TYPE_PARAMETER, t)
                                 : t); 
 	else
 	    return t;
@@ -638,7 +639,7 @@ public class JavafxCheck {
 	    while (args.nonEmpty()) {
 		if (args.head.tag == WILDCARD)
 		    return typeTagError(pos,
-					Log.getLocalizedString("type.req.exact"),
+					Log.getLocalizedString(MsgSym.MESSAGE_TYPE_REQ_EXACT),
 					args.head);
 		args = args.tail;
 	    }
@@ -656,10 +657,10 @@ public class JavafxCheck {
     Type checkReifiableReferenceType(DiagnosticPosition pos, Type t) {
 	if (t.tag != CLASS && t.tag != ARRAY && t.tag != ERROR) {
 	    return typeTagError(pos,
-				JCDiagnostic.fragment("type.req.class.array"),
+				JCDiagnostic.fragment(MsgSym.MESSAGE_TYPE_REQ_CLASS_ARRAY),
 				t);
 	} else if (!types.isReifiable(t)) {
-	    log.error(pos, "illegal.generic.type.for.instof");
+	    log.error(pos, MsgSym.MESSAGE_ILLEGAL_GENERIC_TYPE_FOR_INSTOF);
 	    return syms.errType;
 	} else {
 	    return t;
@@ -684,7 +685,7 @@ public class JavafxCheck {
 	    return t;
 	default:
 	    return typeTagError(pos,
-				JCDiagnostic.fragment("type.req.ref"),
+				JCDiagnostic.fragment(MsgSym.MESSAGE_TYPE_REQ_REF),
 				t);
 	}
     }
@@ -707,7 +708,7 @@ public class JavafxCheck {
 	    return t;
 	default:
 	    return typeTagError(pos,
-				JCDiagnostic.fragment("type.req.ref"),
+				JCDiagnostic.fragment(MsgSym.MESSAGE_TYPE_REQ_REF),
 				t);
 	}
     }
@@ -722,7 +723,7 @@ public class JavafxCheck {
     boolean checkDisjoint(DiagnosticPosition pos, long flags, long set1, long set2) {
         if ((flags & set1) != 0 && (flags & set2) != 0) {
             log.error(pos,
-		      "illegal.combination.of.modifiers",
+		      MsgSym.MESSAGE_ILLEGAL_COMBINATION_OF_MODIFIERS,
 		      JavafxTreeInfo.flagNames(JavafxTreeInfo.firstFlag(flags & set1)),
 		      JavafxTreeInfo.flagNames(JavafxTreeInfo.firstFlag(flags & set2)));
             return false;
@@ -785,14 +786,14 @@ public class JavafxCheck {
                 }
 		if ((sym.owner.flags_field & STATIC) == 0 &&
 		    (flags & ENUM) != 0)
-                    log.error(pos, "enums.must.be.static");
+                    log.error(pos, MsgSym.MESSAGE_ENUMS_MUST_BE_STATIC);
 	    } else if (sym.owner.kind == TYP) {
 		mask = MemberClassFlags;
 		if (sym.owner.owner.kind == PCK ||
                     (sym.owner.flags_field & STATIC) != 0)
                     mask |= STATIC;
                 else if ((flags & ENUM) != 0)
-                    log.error(pos, "enums.must.be.static");
+                    log.error(pos, MsgSym.MESSAGE_ENUMS_MUST_BE_STATIC);
 		// Nested interfaces and enums are always STATIC (Spec ???)
 		if ((flags & (INTERFACE | ENUM)) != 0 ) implicit = STATIC;
 	    } else {
@@ -815,12 +816,12 @@ public class JavafxCheck {
 	long illegal = flags & StandardFlags & ~mask;
         if (illegal != 0) {
 	    if ((illegal & INTERFACE) != 0) {
-		log.error(pos, "intf.not.allowed.here");
+		log.error(pos, MsgSym.MESSAGE_INTF_NOT_ALLOWED_HERE);
 		mask |= INTERFACE;
 	    }
 	    else {
 		log.error(pos,
-			  "mod.not.allowed.here", JavafxTreeInfo.flagNames(illegal));
+			  MsgSym.MESSAGE_MOD_NOT_ALLOWED_HERE, JavafxTreeInfo.flagNames(illegal));
 	    }
 	}
         else if ((sym.kind == TYP ||
@@ -1002,7 +1003,7 @@ public
                 // Check that this type is either fully parameterized, or
                 // not parameterized at all.
                 if (tree.type.getEnclosingType().isRaw())
-                    log.error(tree.pos(), "improperly.formed.type.inner.raw.param");
+                    log.error(tree.pos(), MsgSym.MESSAGE_IMPROPERLY_FORMED_TYPE_INNER_RAW_PARAM);
                 if (tree.clazz.getTag() == JCTree.SELECT)
                     visitSelectInternal((JCFieldAccess)tree.clazz);
 	    }
@@ -1028,7 +1029,7 @@ public
                 // Check that this type is either fully parameterized, or
                 // not parameterized at all.
                 if (tree.selected.type.isParameterized() && tree.type.tsym.type.getTypeArguments().nonEmpty())
-                    log.error(tree.pos(), "improperly.formed.type.param.missing");
+                    log.error(tree.pos(), MsgSym.MESSAGE_IMPROPERLY_FORMED_TYPE_PARAM_MISSING);
             }
 	}
         public void visitSelectInternal(JCFieldAccess tree) {
@@ -1037,7 +1038,7 @@ public
                 // The enclosing type is not a class, so we are
                 // looking at a static member type.  However, the
                 // qualifying expression is parameterized.
-                log.error(tree.pos(), "cant.select.static.class.from.param.type");
+                log.error(tree.pos(), MsgSym.MESSAGE_CANNOT_SELECT_STATIC_CLASS_FROM_PARAM_TYPE);
             } else {
                 // otherwise validate the rest of the expression
                 validate(tree.selected);
@@ -1204,11 +1205,11 @@ public
     static Object cannotOverride(MethodSymbol m, MethodSymbol other) {
 	String key;
 	if ((other.owner.flags() & INTERFACE) == 0) 
-	    key = "cant.override";
+	    key = MsgSym.MESSAGE_CANNOT_OVERRIDE;
 	else if ((m.owner.flags() & INTERFACE) == 0) 
-	    key = "cant.implement";
+	    key = MsgSym.MESSAGE_CANNOT_IMPLEMENT;
 	else
-	    key = "clashes.with";
+	    key = MsgSym.MESSAGE_CLASHES_WITH;
 	return JCDiagnostic.fragment(key, m, m.location(), other, other.location());
     }
 
@@ -1220,11 +1221,11 @@ public
     static Object uncheckedOverrides(MethodSymbol m, MethodSymbol other) {
 	String key;
 	if ((other.owner.flags() & INTERFACE) == 0) 
-	    key = "unchecked.override";
+	    key = MsgSym.MESSAGE_UNCHECKED_OVERRIDE;
 	else if ((m.owner.flags() & INTERFACE) == 0) 
-	    key = "unchecked.implement";
+	    key = MsgSym.MESSAGE_UNCHECKED_IMPLEMENT;
 	else 
-	    key = "unchecked.clash.with";
+	    key = MsgSym.MESSAGE_UNCHECKED_CLASH_WITH;
 	return JCDiagnostic.fragment(key, m, m.location(), other, other.location());
     }
 
@@ -1236,11 +1237,11 @@ public
     static Object varargsOverrides(MethodSymbol m, MethodSymbol other) {
 	String key;
 	if ((other.owner.flags() & INTERFACE) == 0) 
-	    key = "varargs.override";
+	    key = MsgSym.MESSAGE_VARARGS_OVERRIDE;
 	else  if ((m.owner.flags() & INTERFACE) == 0) 
-	    key = "varargs.implement";
+	    key = MsgSym.MESSAGE_VARARGS_IMPLEMENT;
 	else
-	    key = "varargs.clash.with";
+	    key = MsgSym.MESSAGE_VARARGS_CLASH_WITH;
 	return JCDiagnostic.fragment(key, m, m.location(), other, other.location());
     }
 
@@ -1278,7 +1279,7 @@ public
 	// Error if static method overrides instance method (JLS 8.4.6.2).
 	if ((m.flags() & STATIC) != 0 &&
 		   (other.flags() & STATIC) == 0) {
-	    log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), "override.static",
+	    log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), MsgSym.MESSAGE_OVERRIDE_STATIC,
 		      cannotOverride(m, other));
 	    return;
 	}
@@ -1288,7 +1289,7 @@ public
 	if ((other.flags() & FINAL) != 0 ||
 		 (m.flags() & STATIC) == 0 &&
 		 (other.flags() & STATIC) != 0) {
-	    log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), "override.meth",
+	    log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), MsgSym.MESSAGE_OVERRIDE_METH,
 		      cannotOverride(m, other),
 		      JavafxTreeInfo.flagNames(other.flags() & (FINAL | STATIC)));
             return;
@@ -1296,14 +1297,14 @@ public
 
         // Error if bound function overrides non-bound.
         if ((other.flags() & JavafxFlags.BOUND) == 0 && (m.flags() & JavafxFlags.BOUND) != 0) {
-            log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), "javafx.bound.override.meth",
+            log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), MsgSym.MESSAGE_JAVAFX_BOUND_OVERRIDE_METH,
                     cannotOverride(m, other));
             return;
         }
 
         // Error if non-bound function overrides bound.
         if ((other.flags() & JavafxFlags.BOUND) != 0 && (m.flags() & JavafxFlags.BOUND) == 0) {
-            log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), "javafx.non.bound.override.meth",
+            log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), MsgSym.MESSAGE_JAVAFX_NON_BOUND_OVERRIDE_METH,
                     cannotOverride(m, other));
             return;
         }
@@ -1345,15 +1346,15 @@ public
 		// allow limited interoperability with covariant returns
 	    } else {
 		typeError(JavafxTreeInfo.diagnosticPositionFor(m, tree),
-			  JCDiagnostic.fragment("override.incompatible.ret",
+			  JCDiagnostic.fragment(MsgSym.MESSAGE_OVERRIDE_INCOMPATIBLE_RET,
 					 cannotOverride(m, other)),
 			  mtres, otres);
 		return;
 	    }
 	} else if (overrideWarner.warned) {
 	    warnUnchecked(JavafxTreeInfo.diagnosticPositionFor(m, tree),
-			  "prob.found.req",
-			  JCDiagnostic.fragment("override.unchecked.ret",
+			  MsgSym.MESSAGE_PROB_FOUND_REQ,
+			  JCDiagnostic.fragment(MsgSym.MESSAGE_OVERRIDE_UNCHECKED_RET,
 					      uncheckedOverrides(m, other)),
 			  mtres, otres);
 	}
@@ -1364,7 +1365,7 @@ public
 	List<Type> unhandled = unHandled(mt.getThrownTypes(), otthrown);
 	if (unhandled.nonEmpty()) {
 	    log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree),
-		      "override.meth.doesnt.throw",
+		      MsgSym.MESSAGE_OVERRIDE_METH_DOES_NOT_THROW,
 		      cannotOverride(m, other),
 		      unhandled.head);
 	    return;
@@ -1375,14 +1376,14 @@ public
 	    && lint.isEnabled(Lint.LintCategory.OVERRIDES)) {
 	    log.warning(JavafxTreeInfo.diagnosticPositionFor(m, tree),
 			((m.flags() & Flags.VARARGS) != 0)
-			? "override.varargs.missing"
-			: "override.varargs.extra",
+			? MsgSym.MESSAGE_OVERRIDE_VARARGS_MISSING
+			: MsgSym.MESSAGE_OVERRIDE_VARARGS_EXTRA,
 			varargsOverrides(m, other));
 	} 
 
 	// Warn if instance method overrides bridge method (compiler spec ??)
 	if ((other.flags() & BRIDGE) != 0) {
-	    log.warning(JavafxTreeInfo.diagnosticPositionFor(m, tree), "override.bridge",
+	    log.warning(JavafxTreeInfo.diagnosticPositionFor(m, tree), MsgSym.MESSAGE_OVERRIDE_BRIDGE,
 			uncheckedOverrides(m, other));
 	}
 
@@ -1466,7 +1467,7 @@ public
 			    continue;
 			Type st2 = types.memberType(t2, s2);
 			if (types.overrideEquivalent(st1, st2))
-			    log.error(pos, "concrete.inheritance.conflict",
+			    log.error(pos, MsgSym.MESSAGE_CONCRETE_INHERITANCE_CONFLICT,
 				      s1, t1, s2, t2, sup);
 		    }
 		}
@@ -1493,7 +1494,7 @@ public
 					    Type site) {
 	Symbol sym = firstIncompatibility(t1, t2, site);
 	if (sym != null) {
-	    log.error(pos, "types.incompatible.diff.ret",
+	    log.error(pos, MsgSym.MESSAGE_TYPES_INCOMPATIBLE_DIFF_RET,
 		      t1, t2, sym.name +
 		      "(" + types.memberType(t2, sym).getParameterTypes() + ")");
 	    return false;
@@ -1592,7 +1593,7 @@ public
 	ClassSymbol origin = (ClassSymbol)m.owner;
 	if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name))
 	    if (m.overrides(syms.enumFinalFinalize, origin, types, false)) {
-		log.error(tree.pos(), "enum.no.finalize");
+		log.error(tree.pos(), MsgSym.MESSAGE_ENUM_NO_FINALIZE);
 		return;
 	    }
             ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
@@ -1633,7 +1634,7 @@ public
                     MethodSymbol undef1 =
                         new MethodSymbol(undef.flags(), undef.name,
                                          types.memberType(c.type, undef), undef.owner);
-                    log.error(pos, "does.not.override.abstract",
+                    log.error(pos, MsgSym.MESSAGE_DOES_NOT_OVERRIDE_ABSTRACT,
                               c, undef1, undef1.location());
                 }
             }
@@ -1700,7 +1701,7 @@ public
         if (seen.contains(t)) {
             tv = (TypeVar)t;
             tv.bound = new ErrorType();
-            log.error(pos, "cyclic.inheritance", t);
+            log.error(pos, MsgSym.MESSAGE_CYCLIC_INHERITANCE, t);
         } else if (t.tag == TYPEVAR) {
             tv = (TypeVar)t;
             seen.add(tv);
@@ -1752,7 +1753,7 @@ public
 
     /** Note that we found an inheritance cycle. */
     private void noteCyclic(DiagnosticPosition pos, ClassSymbol c) {
-	log.error(pos, "cyclic.inheritance", c);
+	log.error(pos, MsgSym.MESSAGE_CYCLIC_INHERITANCE, c);
 	for (List<Type> l=types.interfaces(c.type); l.nonEmpty(); l=l.tail)
 	    l.head = new ErrorType((ClassSymbol)l.head.tsym);
 	Type st = types.supertype(c.type);
@@ -1855,7 +1856,7 @@ public
 		    List<Type> oldparams = oldit.allparams();
 		    List<Type> newparams = it.allparams();
 		    if (!types.containsTypeEquivalent(oldparams, newparams))
-			log.error(pos, "cant.inherit.diff.arg",
+			log.error(pos, MsgSym.MESSAGE_CANNOT_INHERIT_DIFF_ARG,
 				  it.tsym, Type.toString(oldparams),
 				  Type.toString(newparams));
 		}
@@ -1873,7 +1874,7 @@ public
 // JavaFX change
     void checkNotRepeated(DiagnosticPosition pos, Type it, Set<Type> its) {
 	if (its.contains(it))
-	    log.error(pos, "repeated.interface");
+	    log.error(pos, MsgSym.MESSAGE_REPEATED_INTERFACE);
 	else {
 	    its.add(it);
 	}
@@ -1907,7 +1908,7 @@ public
 	    validateAnnotationType(pos, types.elemtype(type));
 	    return;
 	}
-	log.error(pos, "invalid.annotation.member.type");
+	log.error(pos, MsgSym.MESSAGE_INVALID_ANNOTATION_MEMBER_TYPE);
     }
 
     /**
@@ -1928,7 +1929,7 @@ public
                 if (e.sym.kind == MTH &&
                     (e.sym.flags() & (PUBLIC | PROTECTED)) != 0 &&
                     types.overrideEquivalent(m.type, e.sym.type))
-                    log.error(pos, "intf.annotation.member.clash", e.sym, sup);
+                    log.error(pos, MsgSym.MESSAGE_INTF_ANNOTATION_MEMBER_CLASH, e.sym, sup);
             }
         }
     }
@@ -1947,11 +1948,11 @@ public
 	validateAnnotation(a);
 
 	if (!annotationApplicable(a, s))
-	    log.error(a.pos(), "annotation.type.not.applicable");
+	    log.error(a.pos(), MsgSym.MESSAGE_ANNOTATION_TYPE_NOT_APPLICABLE);
 
 	if (a.annotationType.type.tsym == syms.overrideType.tsym) {
 	    if (!isOverrider(s))
-		log.error(a.pos(), "method.does.not.override.superclass");
+		log.error(a.pos(), MsgSym.MESSAGE_METHOD_DOES_NOT_OVERRIDE_SUPERCLASS);
 	}
     }
 
@@ -2035,7 +2036,7 @@ public
 	    Symbol m = JavafxTreeInfo.symbol(assign.lhs);
 	    if (m == null || m.type.isErroneous()) continue;
 	    if (!members.remove(m))
-		log.error(arg.pos(), "duplicate.annotation.member.value",
+		log.error(arg.pos(), MsgSym.MESSAGE_DUPLICATE_ANNOTATION_MEMBER_VALUE,
 			  m.name, a.type);
 	    if (assign.rhs.getTag() == ANNOTATION)
 		validateAnnotation((JCAnnotation)assign.rhs);
@@ -2044,7 +2045,7 @@ public
 	// all the remaining ones better have default values
 	for (MethodSymbol m : members)
 	    if (m.defaultValue == null && !m.type.isErroneous())
-		log.error(a.pos(), "annotation.missing.default.value", 
+		log.error(a.pos(), MsgSym.MESSAGE_ANNOTATION_MISSING_DEFAULT_VALUE, 
                           a.type, m.name);
 
 	// special case: java.lang.annotation.Target must not have
@@ -2063,7 +2064,7 @@ public
 	Set<Symbol> targets = new HashSet<Symbol>();
 	for (JCTree elem : na.elems) {
 	    if (!targets.add(JavafxTreeInfo.symbol(elem))) {
-		log.error(elem.pos(), "repeated.annotation.target");
+		log.error(elem.pos(), MsgSym.MESSAGE_REPEATED_ANNOTATION_TARGET);
 	    }
 	}
     }
@@ -2077,7 +2078,7 @@ public
 	    (s.flags() & DEPRECATED) != 0 &&
 	    !syms.deprecatedType.isErroneous() &&
 	    s.attribute(syms.deprecatedType.tsym) == null) {
-	    log.warning(pos, "missing.deprecated.annotation");
+	    log.warning(pos, MsgSym.MESSAGE_MISSING_DEPRECATED_ANNOTATION);
 	}
     }
 
@@ -2110,7 +2111,7 @@ public
         if ((tsym.flags_field & ACYCLIC_ANN) != 0)
             return;
         if ((tsym.flags_field & LOCKED) != 0) {
-            log.error(pos, "cyclic.annotation.element");
+            log.error(pos, MsgSym.MESSAGE_CYCLIC_ANNOTATION_ELEMENT);
             return;
         }
         try {
@@ -2182,7 +2183,7 @@ public
 	if (ctor != null && (ctor.flags_field & ACYCLIC) == 0) {
 	    if ((ctor.flags_field & LOCKED) != 0) {
 		log.error(JavafxTreeInfo.diagnosticPositionFor(ctor, tree),
-			  "recursive.ctor.invocation");
+			  MsgSym.MESSAGE_RECURSIVE_CTOR_INVOCATION);
 	    } else {
 		ctor.flags_field |= LOCKED;
 		checkCyclicConstructor(tree, callMap.remove(ctor), callMap);
@@ -2214,7 +2215,7 @@ public
                        Type right) {
         if (operator.opcode == ByteCodes.error) {
             log.error(pos,
-                      "operator.cant.be.applied",
+                      MsgSym.MESSAGE_OPERATOR_CANNOT_BE_APPLIED,
                       treeinfo.operatorName(tag),
                       left + "," + right);
         }
@@ -2239,7 +2240,7 @@ public
 	    int opc = ((OperatorSymbol)operator).opcode;
 	    if (opc == ByteCodes.idiv || opc == ByteCodes.imod 
 		|| opc == ByteCodes.ldiv || opc == ByteCodes.lmod) {
-		log.warning(pos, "div.zero");
+		log.warning(pos, MsgSym.MESSAGE_DIV_ZERO);
 	    }
 	}
     }
@@ -2252,7 +2253,7 @@ public
 // JavaFX change
     void checkEmptyIf(JCIf tree) {
 	if (tree.thenpart.getTag() == JCTree.SKIP && tree.elsepart == null && lint.isEnabled(Lint.LintCategory.EMPTY))
-	    log.warning(tree.thenpart.pos(), "empty.if");
+	    log.warning(tree.thenpart.pos(), MsgSym.MESSAGE_EMPTY_IF);
     }
 
     /** Check that symbol is unique in given scope.
@@ -2328,12 +2329,12 @@ public
 		    String what = e.sym.toString();
 		    if (!isClassDecl) {
 			if (staticImport)
-			    log.error(pos, "already.defined.static.single.import", what);
+			    log.error(pos, MsgSym.MESSAGE_ALREADY_DEFINED_STATIC_SINGLE_IMPORT, what);
 			else
-			    log.error(pos, "already.defined.single.import", what);
+			    log.error(pos, MsgSym.MESSAGE_ALREADY_DEFINED_SINGLE_IMPORT, what);
 		    }
 		    else if (sym != e.sym)
-			log.error(pos, "already.defined.this.unit", what);
+			log.error(pos, MsgSym.MESSAGE_ALREADY_DEFINED_THIS_UNIT, what);
 		}
 		return false;
 	    }
@@ -2345,7 +2346,7 @@ public
      */
     public void checkCanonical(JCTree tree) {
 	if (!isCanonical(tree))
-	    log.error(tree.pos(), "import.requires.canonical",
+	    log.error(tree.pos(), MsgSym.MESSAGE_IMPORT_REQUIRES_CANONICAL,
 		      JavafxTreeInfo.symbol(tree));
     }
         // where
@@ -2376,16 +2377,16 @@ public
             super.warnUnchecked();
             if (localWarned) return; // suppress redundant diagnostics
 	    Object problem = JCDiagnostic.fragment(key);
-	    JavafxCheck.this.warnUnchecked(pos(), "prob.found.req", problem, found, expected);
+	    JavafxCheck.this.warnUnchecked(pos(), MsgSym.MESSAGE_PROB_FOUND_REQ, problem, found, expected);
 	}
     }
 
     public Warner castWarner(DiagnosticPosition pos, Type found, Type expected) {
-	return new ConversionWarner(pos, "unchecked.cast.to.type", found, expected);
+	return new ConversionWarner(pos, MsgSym.MESSAGE_UNCHECKED_CAST_TO_TYPE, found, expected);
     }
 
     public Warner convertWarner(DiagnosticPosition pos, Type found, Type expected) {
-	return new ConversionWarner(pos, "unchecked.assign", found, expected);
+	return new ConversionWarner(pos, MsgSym.MESSAGE_UNCHECKED_ASSIGN, found, expected);
     }
 	
 	public void warnEmptyRangeLiteral(DiagnosticPosition pos, JCLiteral lower, JCLiteral upper, JCLiteral step, boolean isExclusive) {
@@ -2395,7 +2396,7 @@ public
         if ((stepValue > 0 && lowerValue > upperValue)
                 || (stepValue < 0 && lowerValue < upperValue)
                 || (isExclusive && lowerValue == upperValue)) {
-            log.warning(pos, "javafx.range.literal.empty");
+            log.warning(pos, MsgSym.MESSAGE_JAVAFX_RANGE_LITERAL_EMPTY);
 		}
 	}
 }

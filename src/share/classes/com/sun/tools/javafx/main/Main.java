@@ -45,6 +45,7 @@ import com.sun.tools.javac.util.*;
 import com.sun.tools.javafx.main.RecognizedOptions.OptionHelper;
 import com.sun.tools.javafx.util.JavafxFileManager;
 import com.sun.tools.javafx.util.PlatformPlugin;
+import com.sun.tools.javafx.util.MsgSym;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -92,11 +93,11 @@ public class Main {
         }
 
         public void printVersion() {
-            Log.printLines(out, getLocalizedString("version", ownName,  JavafxCompiler.version()));
+            Log.printLines(out, getLocalizedString(MsgSym.MESSAGE_VERSION, ownName,  JavafxCompiler.version()));
         }
 
         public void printFullVersion() {
-            Log.printLines(out, getLocalizedString("fullVersion", ownName,  JavafxCompiler.fullVersion()));
+            Log.printLines(out, getLocalizedString(MsgSym.MESSAGE_FULLVERSION, ownName,  JavafxCompiler.fullVersion()));
         }
 
         public void printHelp() {
@@ -146,7 +147,7 @@ public class Main {
     /** Print a string that explains usage.
      */
     void help() {
-        Log.printLines(out, getLocalizedString("msg.usage.header", ownName));
+        Log.printLines(out, getLocalizedString(MsgSym.MESSAGE_MSG_USAGE_HEADER, ownName));
         for (int i=0; i<recognizedOptions.length; i++) {
             recognizedOptions[i].help(out);
         }
@@ -160,7 +161,7 @@ public class Main {
             recognizedOptions[i].xhelp(out);
         }
         out.println();
-        Log.printLines(out, getLocalizedString("msg.usage.nonstandard.footer"));
+        Log.printLines(out, getLocalizedString(MsgSym.MESSAGE_MSG_USAGE_NONSTANDARD_FOOTER));
     }
 
     /** Report a usage error.
@@ -171,7 +172,7 @@ public class Main {
             throw new PropagatedException(new IllegalStateException(msg));
         }
         warning(key, args);
-        Log.printLines(out, getLocalizedString("msg.usage", ownName));
+        Log.printLines(out, getLocalizedString(MsgSym.MESSAGE_MSG_USAGE, ownName));
     }
 
     /** Report a warning.
@@ -218,14 +219,14 @@ public class Main {
                 if (recognizedOptions[j].matches(flag)) break;
 
             if (j == recognizedOptions.length) {
-                error("err.invalid.flag", flag);
+                error(MsgSym.MESSAGE_ERR_INVALID_FLAG, flag);
                 return null;
             }
 
             Option option = recognizedOptions[j];
             if (option.hasArg()) {
                 if (ac == flags.length) {
-                    error("err.req.arg", flag);
+                    error(MsgSym.MESSAGE_ERR_REQ_ARG, flag);
                     return null;
                 }
                 String operand = flags[ac];
@@ -260,11 +261,11 @@ public class Main {
             if (target.compareTo(source.requiredTarget()) < 0) {
                 if (targetString != null) {
                     if (sourceString == null) {
-                        warning("warn.target.default.source.conflict",
+                        warning(MsgSym.MESSAGE_WARN_TARGET_DEFAULT_SOURCE_CONFLICT,
                                 targetString,
                                 source.requiredTarget().name);
                     } else {
-                        warning("warn.source.target.conflict",
+                        warning(MsgSym.MESSAGE_WARN_SOURCE_TARGET_CONFLICT,
                                 sourceString,
                                 source.requiredTarget().name);
                     }
@@ -287,11 +288,11 @@ public class Main {
                 return true;
             File file = new File(value);
             if (!file.exists()) {
-                error("err.dir.not.found", value);
+                error(MsgSym.MESSAGE_ERR_DIR_NOT_FOUND, value);
                 return false;
             }
             if (!file.isDirectory()) {
-                error("err.file.not.directory", value);
+                error(MsgSym.MESSAGE_ERR_FILE_NOT_DIRECTORY, value);
                 return false;
             }
             return true;
@@ -409,7 +410,7 @@ public class Main {
                 }
                 if (pname == null) {
                     Log.instance(context).warning(
-                        "plugin.cannot.load.plugin", urls[0].getPath());
+                        MsgSym.MESSAGE_PLUGIN_CANNOT_LOAD_PLUGIN, urls[0].getPath());
                     continue;
                 }
                 // load and instantiate plug-in class
@@ -435,21 +436,21 @@ public class Main {
             } catch (java.lang.ClassNotFoundException cnfe) {
                 // cannot load service provider
                 Log.instance(context).warning(
-                    "plugin.cannot.load.plugin", urls[0].getPath());
+                    MsgSym.MESSAGE_PLUGIN_CANNOT_LOAD_PLUGIN, urls[0].getPath());
             } catch (java.lang.InstantiationException ie) {
                 // cannot create an instance of plugin
                 Log.instance(context).warning(
-                    "plugin.cannot.load.plugin", urls[0].getPath());
+                    MsgSym.MESSAGE_PLUGIN_CANNOT_LOAD_PLUGIN, urls[0].getPath());
             } catch (java.lang.IllegalAccessException iae) {
                 // cannot create an instance of plugin
                 Log.instance(context).warning(
-                    "plugin.cannot.load.plugin", urls[0].getPath());
+                    MsgSym.MESSAGE_PLUGIN_CANNOT_LOAD_PLUGIN, urls[0].getPath());
             }
         }
         // handle no plugin found
         if (plugin == null) {
             Log.instance(context).error(
-                "plugin.cannot.find.plugin", platform);
+                MsgSym.MESSAGE_PLUGIN_CANNOT_FIND_PLUGIN, platform);
         }
     }
 
@@ -560,12 +561,12 @@ public class Main {
                         || options.get("-version") != null
                         || options.get("-fullversion") != null)
                         return EXIT_OK;
-                    error("err.no.source.files");
+                    error(MsgSym.MESSAGE_ERR_NO_SOURCE_FILES);
                     return EXIT_CMDERR;
                 }
             } catch (java.io.FileNotFoundException e) {
                 Log.printLines(out, ownName + ": " +
-                               getLocalizedString("err.file.not.found",
+                               getLocalizedString(MsgSym.MESSAGE_ERR_FILE_NOT_FOUND,
                                                   e.getMessage()));
                 return EXIT_SYSERR;
             }
@@ -638,7 +639,7 @@ public class Main {
     /** Print a message reporting an internal error.
      */
     void bugMessage(Throwable ex) {
-        Log.printLines(out, getJavafxLocalizedString("javafx.msg.bug",
+        Log.printLines(out, getJavafxLocalizedString(MsgSym.MESSAGE_JAVAFX_MSG_BUG,
                                                JavafxCompiler.version()));
         ex.printStackTrace(out);
     }
@@ -652,14 +653,14 @@ public class Main {
     /** Print a message reporting an input/output error.
      */
     void ioMessage(Throwable ex) {
-        Log.printLines(out, getLocalizedString("msg.io"));
+        Log.printLines(out, getLocalizedString(MsgSym.MESSAGE_MSG_IO));
         ex.printStackTrace(out);
     }
 
     /** Print a message reporting an out-of-resources error.
      */
     void resourceMessage(Throwable ex) {
-        Log.printLines(out, getLocalizedString("msg.resource"));
+        Log.printLines(out, getLocalizedString(MsgSym.MESSAGE_MSG_RESOURCE));
 //      System.out.println("(name buffer len = " + Name.names.length + " " + Name.nc);//DEBUG
         ex.printStackTrace(out);
     }
@@ -677,7 +678,7 @@ public class Main {
         try {
             if (messages == null)
                 messages = new Messages(javacBundleName);
-            return messages.getLocalizedString("javac." + key, args);
+            return messages.getLocalizedString(MsgSym.MESSAGEPREFIX_JAVAC + key, args);
         }
         catch (MissingResourceException e) {
             throw new Error("Fatal Error: Resource for javac is missing", e);

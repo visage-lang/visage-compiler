@@ -42,6 +42,7 @@ import com.sun.tools.javac.util.Name.Table;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.tree.JavafxTag.*;
+import com.sun.tools.javafx.util.MsgSym;
 
 import java.net.URI;
 import java.util.HashSet;
@@ -278,7 +279,7 @@ public class JavafxModuleBuilder {
         }
         
         if (topLevelNamesSet.contains(name)) {
-            log.error(pos, "javafx.duplicate.module.member", name.toString());
+            log.error(pos, MsgSym.MESSAGE_JAVAFX_DUPLICATE_MODULE_MEMBER, name.toString());
         }
         
         topLevelNamesSet.add(name);

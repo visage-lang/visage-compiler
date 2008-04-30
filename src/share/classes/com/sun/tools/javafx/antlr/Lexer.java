@@ -34,6 +34,8 @@ import com.sun.tools.javac.util.*;
 import static com.sun.tools.javac.util.ListBuffer.lb;
 import com.sun.tools.javac.util.Position;
 
+import com.sun.tools.javafx.util.MsgSym;
+
 import org.antlr.runtime.*;
 
 import java.util.List;
@@ -179,7 +181,7 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
    
         String msg = getErrorMessage(e, tokenNames);
 //        log.error(Position.NOPOS, "javafx.generalerror", msg);
-        log.error(getCharIndex(), "javafx.generalerror", msg);
+        log.error(getCharIndex(), MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
     }
     
     

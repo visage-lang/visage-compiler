@@ -33,6 +33,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
 import com.sun.tools.javafx.comp.JavafxAttr.Sequenceness;
+import com.sun.tools.javafx.util.MsgSym;
 
 /** Enter annotations on symbols.  Annotations accumulate in a queue,
  *  which is processed at the top level of any set of recursive calls
@@ -161,12 +162,12 @@ public class JavafxAnnotate {
 	for (List<JCExpression> tl = args; tl.nonEmpty(); tl = tl.tail) {
 	    JCExpression t = tl.head;
 	    if (t.getTag() != JCTree.ASSIGN) {
-		log.error(t.pos(), "annotation.value.must.be.name.value");
+		log.error(t.pos(), MsgSym.MESSAGE_ANNOTATION_VALUE_MUST_BE_NAME_VALUE);
                 continue;
 	    }
 	    JCAssign assign = (JCAssign)t;
 	    if (assign.lhs.getTag() != JCTree.IDENT) {
-		log.error(t.pos(), "annotation.value.must.be.name.value");
+		log.error(t.pos(), MsgSym.MESSAGE_ANNOTATION_VALUE_MUST_BE_NAME_VALUE);
                 continue;
 	    }
 	    JCIdent left = (JCIdent)assign.lhs;
@@ -178,7 +179,7 @@ public class JavafxAnnotate {
 	    left.sym = method;
 	    left.type = method.type;
 	    if (method.owner != a.type.tsym)
-		log.error(left.pos(), "no.annotation.member", left.name, a.type);
+		log.error(left.pos(), MsgSym.MESSAGE_NO_ANNOTATION_MEMBER, left.name, a.type);
 	    Type result = method.type.getReturnType();
 	    Attribute value = enterAttributeValue(result, assign.rhs, env);
 	    if (!method.type.isErroneous())
@@ -196,7 +197,7 @@ public class JavafxAnnotate {
             if (result.isErroneous())
 		return new Attribute.Error(expected);
 	    if (result.constValue() == null) {
-                log.error(tree.pos(), "attribute.value.must.be.constant");
+                log.error(tree.pos(), MsgSym.MESSAGE_ATTRIBUTE_VALUE_MUST_BE_CONSTANT);
 		return new Attribute.Error(expected);
 	    }
 //TODO:?            result = cfolder.coerce(result, expected);
@@ -207,7 +208,7 @@ public class JavafxAnnotate {
             if (result.isErroneous())
 		return new Attribute.Error(expected);
 	    if (TreeInfo.name(tree) != names._class) {
-		log.error(tree.pos(), "annotation.value.must.be.class.literal");
+		log.error(tree.pos(), MsgSym.MESSAGE_ANNOTATION_VALUE_MUST_BE_CLASS_LITERAL);
 		return new Attribute.Error(expected);
 	    }
 	    return new Attribute.Class(types,
@@ -215,7 +216,7 @@ public class JavafxAnnotate {
 	}
 	if ((expected.tsym.flags() & Flags.ANNOTATION) != 0) {
 	    if (tree.getTag() != JCTree.ANNOTATION) {
-		log.error(tree.pos(), "annotation.value.must.be.annotation");
+		log.error(tree.pos(), MsgSym.MESSAGE_ANNOTATION_VALUE_MUST_BE_ANNOTATION);
                 expected = syms.errorType;
 	    }
 	    return enterAnnotation((JCAnnotation)tree, expected, env);
@@ -227,7 +228,7 @@ public class JavafxAnnotate {
 	    }
 	    JCNewArray na = (JCNewArray)tree;
 	    if (na.elemtype != null) {
-		log.error(na.elemtype.pos(), "new.not.allowed.in.annotation");
+		log.error(na.elemtype.pos(), MsgSym.MESSAGE_NEW_NOT_ALLOWED_IN_ANNOTATION);
 		return new Attribute.Error(expected);
 	    }
 	    ListBuffer<Attribute> buf = new ListBuffer<Attribute>();
@@ -247,14 +248,14 @@ public class JavafxAnnotate {
 		TreeInfo.nonstaticSelect(tree) ||
 		sym.kind != Kinds.VAR ||
 		(sym.flags() & Flags.ENUM) == 0) {
-		log.error(tree.pos(), "enum.annotation.must.be.enum.constant");
+		log.error(tree.pos(), MsgSym.MESSAGE_ENUM_ANNOTATION_MUST_BE_ENUM_CONSTANT);
 		return new Attribute.Error(expected);
 	    }
 	    VarSymbol enumerator = (VarSymbol) sym;
 	    return new Attribute.Enum(expected, enumerator);
 	}
 	if (!expected.isErroneous())
-            log.error(tree.pos(), "annotation.value.not.allowable.type");
+            log.error(tree.pos(), MsgSym.MESSAGE_ANNOTATION_VALUE_NOT_ALLOWABLE_TYPE);
 	return new Attribute.Error(attr.attribExpr(tree, env, expected));
     }
 }

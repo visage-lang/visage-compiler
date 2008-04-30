@@ -26,6 +26,7 @@
 package com.sun.tools.javafx.antlr;
 
 import com.sun.tools.javac.util.Log;
+import com.sun.tools.javafx.util.MsgSym;
 
 /**
  * Convert escapes in string literals
@@ -99,7 +100,7 @@ public class StringLiteralProcessor {
         char c = ch;
         int result = Character.digit(c, base);
         if (result >= 0 && c > 0x7f) {
-            lexError("illegal.nonascii.digit");
+            lexError(MsgSym.MESSAGE_ILLEGAL_NONASCII_DIGIT);
             ch = "0123456789abcdef".charAt(result);
         }
         return result;
@@ -142,7 +143,7 @@ public class StringLiteralProcessor {
                         return;
                     }
                 }
-                lexError("illegal.unicode.esc");
+                lexError(MsgSym.MESSAGE_ILLEGAL_UNICODE_ESC);
             } else {
                 bp--;
                 ch = '\\';
@@ -206,7 +207,7 @@ public class StringLiteralProcessor {
                 case '\\':
                     putChar('\\'); scanChar(); break;
                 default:
-                    lexError("illegal.esc.char");
+                    lexError(MsgSym.MESSAGE_ILLEGAL_ESC_CHAR);
                 }
             }
         } else if (bp != buflen) {

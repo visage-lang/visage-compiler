@@ -32,6 +32,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.util.*;
 import static com.sun.tools.javac.util.ListBuffer.lb;
+import com.sun.tools.javafx.util.MsgSym;
 
 import org.antlr.runtime.*;
 
@@ -536,7 +537,7 @@ public abstract class AbstractGeneratedParser extends Parser {
         //        System.err.println("ERROR: " + msg);
         
         String msg = getErrorMessage(e, getFXTokenNames(tokenNames));
-        log.error(pos, "javafx.generalerror", msg);
+        log.error(pos, MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
     }
     
     protected String[] getFXTokenNames(String[] tokenNames) {

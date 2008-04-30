@@ -40,6 +40,7 @@ import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.*;
+import com.sun.tools.javafx.util.MsgSym;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -245,7 +246,7 @@ public class JavafxEnter extends JavafxTreeScanner {
                     addEnv = true;
                 } else {
                     log.error(tree.packageAnnotations.head.pos(),
-                              "pkg.annotations.sb.in.package-info.java");
+                              MsgSym.MESSAGE_PKG_ANNOTATIONS_SB_IN_PACKAGE_INFO_JAVA);
                 }
 	    }
 	} else {
@@ -266,7 +267,7 @@ public class JavafxEnter extends JavafxTreeScanner {
                 if (!fileManager.isSameFile(tree.sourcefile, tree0.sourcefile)) {
 		    log.warning(tree.pid != null ? tree.pid.pos()
 						 : null,
-				"pkg-info.already.seen",
+				MsgSym.MESSAGE_PKG_INFO_ALREADY_SEEN,
 				tree.packge);
 		    if (addEnv || (tree0.packageAnnotations.isEmpty() &&
 				   tree.docComments != null &&
@@ -370,7 +371,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 
     /** Complain about a duplicate class. */
     protected void duplicateClass(DiagnosticPosition pos, ClassSymbol c) {
-	log.error(pos, "duplicate.class", c.fullname);
+	log.error(pos, MsgSym.MESSAGE_DUPLICATE_CLASS, c.fullname);
     }
 
 /** Class enter visitor method for type parameters.

@@ -51,6 +51,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.processing.*;
 import com.sun.tools.javafx.comp.*;
 import com.sun.tools.javafx.code.*;
+import com.sun.tools.javafx.util.MsgSym;
 import static javax.tools.StandardLocation.CLASS_OUTPUT;
 import static com.sun.tools.javac.util.ListBuffer.lb;
 import com.sun.tools.javafx.antlr.JavafxSyntacticAnalysis;
@@ -100,14 +101,14 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             try {
                 versionRB = ResourceBundle.getBundle(versionRBName);
             } catch (MissingResourceException e) {
-                return Log.getLocalizedString("version.resource.missing", System.getProperty("java.version"));
+                return Log.getLocalizedString(MsgSym.MESSAGE_VERSION_RESOURCE_MISSING, System.getProperty("java.version"));
             }
         }
         try {
             return versionRB.getString(key);
         }
         catch (MissingResourceException e) {
-            return Log.getLocalizedString("version.unknown", System.getProperty("java.version"));
+            return Log.getLocalizedString(MsgSym.MESSAGE_VERSION_UNKNOWN, System.getProperty("java.version"));
         }
     }
 
@@ -297,7 +298,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             syms = (JavafxSymtab)JavafxSymtab.instance(context);
         } catch (CompletionFailure ex) {
             // inlined Check.completionError as it is not initialized yet
-            log.error("cant.access", ex.sym, ex.errmsg);
+            log.error(MsgSym.MESSAGE_CANNOT_ACCESS, ex.sym, ex.errmsg);
             if (ex instanceof ClassReader.BadClassFile)
                 throw new Abort();
         }
@@ -447,7 +448,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             inputFiles.add(filename);
             return filename.getCharContent(false);
         } catch (IOException e) {
-            log.error("error.reading.file", filename, e.getLocalizedMessage());
+            log.error(MsgSym.MESSAGE_ERROR_READING_FILE, filename, e.getLocalizedMessage());
             return null;
         }
     }
@@ -461,7 +462,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         JCCompilationUnit tree = null;
         if (content != null) {
             if (verbose) {
-                printVerbose("parsing.started", filename);
+                printVerbose(MsgSym.MESSAGE_PARSING_STARTED, filename);
             }
             if (taskListener != null) {
                 TaskEvent e = new TaskEvent(TaskEvent.Kind.PARSE, filename);
@@ -479,7 +480,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             }
         }
         if (verbose) {
-            printVerbose("parsing.done", Long.toString(elapsed(msec)));
+            printVerbose(MsgSym.MESSAGE_PARSING_DONE, Long.toString(elapsed(msec)));
         }
 
         // test shouldn't be needed when we have better error recovery
@@ -584,7 +585,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         try {
             tree = parse(filename, filename.getCharContent(false));
         } catch (IOException e) {
-            log.error("error.reading.file", filename, e);
+            log.error(MsgSym.MESSAGE_ERROR_READING_FILE, filename, e);
             tree = make.TopLevel(List.<JCTree.JCAnnotation>nil(), null, List.<JCTree>nil());
         } finally {
             log.useSource(prev);
@@ -609,14 +610,14 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             if (isPkgInfo) {
                 if (enter.getEnv(tree.packge) == null) {
                     String msg
-                        = log.getLocalizedString("file.does.not.contain.package",
+                        = Log.getLocalizedString(MsgSym.MESSAGE_FILE_DOES_NOT_CONTAIN_PACKAGE,
                                                  c.location());
                     throw new ClassReader.BadClassFile(c, filename, msg);
                 }
             } else {
                 throw new
-                    ClassReader.BadClassFile(c, filename, log.
-                                             getLocalizedString("file.doesnt.contain.class",
+                    ClassReader.BadClassFile(c, filename, Log.
+                                             getLocalizedString(MsgSym.MESSAGE_FILE_DOES_NOT_CONTAIN_CLASS,
                                                                 c.fullname));
             }
         }
@@ -772,14 +773,14 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
         if (verbose) {
 	    elapsed_msec = elapsed(start_msec);;
-            printVerbose("total", Long.toString(elapsed_msec));
+            printVerbose(MsgSym.MESSAGE_TOTAL, Long.toString(elapsed_msec));
 	}
 
         reportDeferredDiagnostics();
 
         if (!log.hasDiagnosticListener()) {
-            printCount("error", errorCount());
-            printCount("warn", warningCount());
+            printCount(MsgSym.MESSAGE_ERROR, errorCount());
+            printCount(MsgSym.MESSAGE_WARN, warningCount());
         }
         
         ((JavafxTypes) types).clearCaches();
@@ -895,9 +896,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     public JavafxEnv<JavafxAttrContext> attribute(JavafxEnv<JavafxAttrContext> env) {
         if (verboseCompilePolicy)
-            log.printLines(log.noticeWriter, "[attribute " + env.enclClass.sym + "]");
+            Log.printLines(log.noticeWriter, "[attribute " + env.enclClass.sym + "]");
         if (verbose)
-            printVerbose("checking.attribution", env.enclClass.sym);
+            printVerbose(MsgSym.MESSAGE_CHECKING_ATTRIBUTION, env.enclClass.sym);
 
         if (taskListener != null) {
             TaskEvent e = new TaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
@@ -1093,7 +1094,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      *  @param arg An argument for substitution into the output string.
      */
     protected void printVerbose(String key, Object arg) {
-        Log.printLines(log.noticeWriter, log.getLocalizedString("verbose." + key, arg));
+        Log.printLines(log.noticeWriter, Log.getLocalizedString(MsgSym.MESSAGEPREFIX_VERBOSE + key, arg));
     }
 
     /** Print numbers of errors and warnings.
@@ -1102,9 +1103,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         if (count != 0) {
             String text;
             if (count == 1)
-                text = log.getLocalizedString("count." + kind, String.valueOf(count));
+                text = Log.getLocalizedString(MsgSym.MESSAGEPREFIX_COUNT + kind, String.valueOf(count));
             else
-                text = log.getLocalizedString("count." + kind + ".plural", String.valueOf(count));
+                text = Log.getLocalizedString(MsgSym.MESSAGEPREFIX_COUNT + kind + MsgSym.MESSAGESUFFIX_PLURAL, String.valueOf(count));
             Log.printLines(log.errWriter, text);
             log.errWriter.flush();
         }

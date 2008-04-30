@@ -47,6 +47,7 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javafx.util.MsgSym;
 
 public class JavafxToBound extends JavafxTranslationSupport implements JavafxVisitor {
     protected static final Context.Key<JavafxToBound> jfxToBoundKey =
@@ -488,7 +489,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     translatedVars.append(translateVar((JFXVar) stmt));
                     break;
                 default:
-                    log.error(diagPos, "javafx.not.allowed.in.bind.context", stmt.toString());
+                    log.error(diagPos, MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, stmt.toString());
                     break;
             }
         }
@@ -522,7 +523,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
     @Override
     public void visitAssignop(JCAssignOp tree) {
-        log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "=");
+        log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "=");
     }
 
     private JCExpression makeBoundSelect(final DiagnosticPosition diagPos,
@@ -1270,19 +1271,19 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 }
                 break;
             case JCTree.PREINC:
-                log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "++");
+                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "++");
                 res = transExpr;
                 break;
             case JCTree.PREDEC:
-                log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "--");
+                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "--");
                 res = transExpr;
                 break;
             case JCTree.POSTINC:
-                log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "++");
+                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "++");
                 res = transExpr;
                 break;
             case JCTree.POSTDEC:
-                log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "--");
+                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "--");
                 res = transExpr;
                 break;
             default:

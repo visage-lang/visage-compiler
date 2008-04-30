@@ -31,6 +31,7 @@ import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javafx.main.JavafxOption.HiddenOption;
 import com.sun.tools.javafx.main.JavafxOption.Option;
 import com.sun.tools.javafx.main.JavafxOption.XOption;
+import com.sun.tools.javafx.util.MsgSym;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Log;
@@ -250,18 +251,21 @@ public class RecognizedOptions {
      */
     public static Option[] getAll(final OptionHelper helper) {
         return new Option[]{
-	new Option(G,                                           "opt.g"),
-	new Option(G_NONE,					"opt.g.none") {
+	new Option(G,                       MsgSym.MESSAGE_OPT_G),
+	new Option(G_NONE,					MsgSym.MESSAGE_OPT_G_NONE) {
+        @Override
 	    public boolean process(Options options, String option) {
 		options.put("-g:", "none");
 		return false;
 	    }
 	},
 
-	new Option(G_CUSTOM,                                    "opt.g.lines.vars.source") {
+	new Option(G_CUSTOM,                MsgSym.MESSAGE_OPT_G_LINES_VARS_SOURCE) {
+        @Override
 	    public boolean matches(String s) {
 		return s.startsWith("-g:");
 	    }
+        @Override
 	    public boolean process(Options options, String option) {
 		String suboptions = option.substring(3);
 		options.put("-g:", suboptions);
@@ -275,11 +279,13 @@ public class RecognizedOptions {
 	    }
 	},
 
-	new XOption(XLINT,					"opt.Xlint"),
-	new XOption(XLINT_CUSTOM,                               "opt.Xlint.suboptlist") {
+	new XOption(XLINT,                  MsgSym.MESSAGE_OPT_XLINT),
+	new XOption(XLINT_CUSTOM,           MsgSym.MESSAGE_OPT_XLINT_SUBOPTLIST) {
+        @Override
 	    public boolean matches(String s) {
 		return s.startsWith("-Xlint:");
 	    }
+        @Override
 	    public boolean process(Options options, String option) {
 		String suboptions = option.substring(7);
 		options.put("-Xlint:", suboptions);
@@ -294,63 +300,72 @@ public class RecognizedOptions {
 	},
 
 	// -nowarn is retained for command-line backward compatibility
-	new Option(NOWARN,					"opt.nowarn") {
+	new Option(NOWARN,					MsgSym.MESSAGE_OPT_NOWARN) {
+        @Override
 		public boolean process(Options options, String option) {
 		    options.put("-Xlint:none", option);
 		    return false;
 		}
 	    },
 
-	new Option(VERBOSE,					"opt.verbose"),
+	new Option(VERBOSE,					MsgSym.MESSAGE_OPT_VERBOSE),
 
 	// -deprecation is retained for command-line backward compatibility
-	new Option(DEPRECATION,                                 "opt.deprecation") {
+	new Option(DEPRECATION,             MsgSym.MESSAGE_OPT_DEPRECATION) {
+        @Override
 		public boolean process(Options options, String option) {
 		    options.put("-Xlint:deprecation", option);
 		    return false;
 		}
 	    },
 
-	new Option(CLASSPATH,              "opt.arg.path",	"opt.classpath"),
-	new Option(CP,                     "opt.arg.path",	"opt.classpath") {
+	new Option(CLASSPATH,               MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH),
+	new Option(CP,                      MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH) {
+        @Override
 	    public boolean process(Options options, String option, String arg) {
 		return super.process(options, "-classpath", arg);
 	    }
 	},
-	new Option(SOURCEPATH,             "opt.arg.path",	"opt.sourcepath"),
-	new Option(BOOTCLASSPATH,	   "opt.arg.path",	"opt.bootclasspath") {
+	new Option(SOURCEPATH,              MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_SOURCEPATH),
+	new Option(BOOTCLASSPATH,           MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_BOOTCLASSPATH) {
+        @Override
 	    public boolean process(Options options, String option, String arg) {
 	 	options.remove("-Xbootclasspath/p:");
 	 	options.remove("-Xbootclasspath/a:");
 		return super.process(options, option, arg);
 	    }
 	},
-	new XOption(XBOOTCLASSPATH_PREPEND,"opt.arg.path", "opt.Xbootclasspath.p"),
-	new XOption(XBOOTCLASSPATH_APPEND, "opt.arg.path", "opt.Xbootclasspath.a"),
-	new XOption(XBOOTCLASSPATH,        "opt.arg.path", "opt.bootclasspath") {
+	new XOption(XBOOTCLASSPATH_PREPEND,MsgSym.MESSAGE_OPT_ARG_PATH, MsgSym.MESSAGE_OPT_XBOOTCLASSPATH_P),
+	new XOption(XBOOTCLASSPATH_APPEND, MsgSym.MESSAGE_OPT_ARG_PATH, MsgSym.MESSAGE_OPT_XBOOTCLASSPATH_A),
+	new XOption(XBOOTCLASSPATH,        MsgSym.MESSAGE_OPT_ARG_PATH, MsgSym.MESSAGE_OPT_BOOTCLASSPATH) {
+        @Override
 	    public boolean process(Options options, String option, String arg) {
 	 	options.remove("-Xbootclasspath/p:");
 	 	options.remove("-Xbootclasspath/a:");
 	 	return super.process(options, "-bootclasspath", arg);
 	    }
 	},
-	new Option(EXTDIRS,		   "opt.arg.dirs",	"opt.extdirs"),
-	new XOption(DJAVA_EXT_DIRS,	   "opt.arg.dirs",	"opt.extdirs") {
+	new Option(EXTDIRS,                 MsgSym.MESSAGE_OPT_ARG_DIRS,	MsgSym.MESSAGE_OPT_EXTDIRS),
+	new XOption(DJAVA_EXT_DIRS,         MsgSym.MESSAGE_OPT_ARG_DIRS,	MsgSym.MESSAGE_OPT_EXTDIRS) {
+        @Override
 	    public boolean process(Options options, String option, String arg) {
 	 	return super.process(options, "-extdirs", arg);
 	    }
 	},
-	new Option(ENDORSEDDIRS,	    "opt.arg.dirs",	"opt.endorseddirs"),
-	new XOption(DJAVA_ENDORSED_DIRS,    "opt.arg.dirs",	"opt.endorseddirs") {
+	new Option(ENDORSEDDIRS,            MsgSym.MESSAGE_OPT_ARG_DIRS,	MsgSym.MESSAGE_OPT_ENDORSEDDIRS),
+	new XOption(DJAVA_ENDORSED_DIRS,    MsgSym.MESSAGE_OPT_ARG_DIRS,	MsgSym.MESSAGE_OPT_ENDORSEDDIRS) {
+        @Override
 	    public boolean process(Options options, String option, String arg) {
 	 	return super.process(options, "-endorseddirs", arg);
 	    }
 	},
-	new Option(PROC_CUSTOM,                                 "opt.proc.none.only") {
+	new Option(PROC_CUSTOM,             MsgSym.MESSAGE_OPT_PROC_NONE_ONLY) {
+        @Override
 	    public boolean matches(String s) {
 		return s.equals("-proc:none") || s.equals("-proc:only");
 	    }
 
+        @Override
 	    public boolean process(Options options, String option) {
 		if (option.equals("-proc:none")) {
 		    options.remove("-proc:only");
@@ -361,15 +376,17 @@ public class RecognizedOptions {
 		return false;
 	    }
         },
-	new Option(PROCESSOR,           "opt.arg.class.list",	"opt.processor"),
-	new Option(PROCESSORPATH,       "opt.arg.path",		"opt.processorpath"),
-	new Option(D,                   "opt.arg.directory",	"opt.d"),
-	new Option(S,                   "opt.arg.directory",	"opt.sourceDest"),
+	new Option(PROCESSOR,           MsgSym.MESSAGE_OPT_ARG_CLASS_LIST,	MsgSym.MESSAGE_OPT_PROCESSOR),
+	new Option(PROCESSORPATH,       MsgSym.MESSAGE_OPT_ARG_PATH,		MsgSym.MESSAGE_OPT_PROCESSORPATH),
+	new Option(D,                   MsgSym.MESSAGE_OPT_ARG_DIRECTORY,	MsgSym.MESSAGE_OPT_D),
+	new Option(S,                   MsgSym.MESSAGE_OPT_ARG_DIRECTORY,	MsgSym.MESSAGE_OPT_SOURCE_DEST),
         //new Option(IMPLICIT,                                    "opt.implicit") {
         new HiddenOption(IMPLICIT) {
+            @Override
             public boolean matches(String s) {
                 return s.equals("-implicit:none") || s.equals("-implicit:class");
             }
+            @Override
             public boolean process(Options options, String option, String operand) {
                 int sep = option.indexOf(":");
                 options.put(option.substring(0, sep), option.substring(sep+1));
@@ -377,67 +394,72 @@ public class RecognizedOptions {
                 return false;
             }
         },
-	new Option(ENCODING,		"opt.arg.encoding",	"opt.encoding"),
-	new Option(SOURCE,		"opt.arg.release",	"opt.source") {
+	new Option(ENCODING,            MsgSym.MESSAGE_OPT_ARG_ENCODING,	MsgSym.MESSAGE_OPT_ENCODING),
+	new Option(SOURCE,              MsgSym.MESSAGE_OPT_ARG_RELEASE,     MsgSym.MESSAGE_OPT_SOURCE) {
+        @Override
 	    public boolean process(Options options, String option, String operand) {
 		Source source = Source.lookup(operand);
 		if (source == null) {
-		    helper.error("err.invalid.source", operand);
+		    helper.error(MsgSym.MESSAGE_ERR_INVALID_SOURCE, operand);
 		    return true;
 		}
 		return super.process(options, option, operand);
 	    }
 	},
-	new Option(TARGET,		"opt.arg.release",	"opt.target") {
+	new Option(TARGET,              MsgSym.MESSAGE_OPT_ARG_RELEASE,	MsgSym.MESSAGE_OPT_TARGET) {
+        @Override
 	    public boolean process(Options options, String option, String operand) {
 		Target target = Target.lookup(operand);
 		if (target == null) {
-		    helper.error("err.invalid.target", operand);
+		    helper.error(MsgSym.MESSAGE_ERR_INVALID_TARGET, operand);
 		    return true;
 		}
 		return super.process(options, option, operand);
 	    }
 	},
-	new JavafxOption.FXOption(PLATFORM,	"javafx.opt.arg.name",	"javafx.opt.platform") {
+	new JavafxOption.FXOption(PLATFORM,	MsgSym.MESSAGE_JAVAFX_OPT_ARG_NAME,	MsgSym.MESSAGE_JAVAFX_OPT_PLATFORM) {
 	},
-	new Option(VERSION,					"opt.version") {
+	new Option(VERSION,					MsgSym.MESSAGE_OPT_VERSION) {
+        @Override
 	    public boolean process(Options options, String option) {
                 helper.printVersion();
 		return super.process(options, option);
 	    }
 	},
 	new HiddenOption(FULLVERSION) {
+        @Override
 	    public boolean process(Options options, String option) {
                 helper.printFullVersion();
 		return super.process(options, option);
 	    }
 	},
-	new Option(HELP,					"opt.help") {
+	new Option(HELP,					MsgSym.MESSAGE_OPT_HELP) {
+        @Override
 	    public boolean process(Options options, String option) {
-                helper.printHelp();
-
-                
-                
-                return super.process(options, option);
+            helper.printHelp();
+            return super.process(options, option);
 	    }
 	},
-	new Option(X,   					"opt.X") {
+	new Option(X,   					MsgSym.MESSAGE_OPT_X) {
+        @Override
 	    public boolean process(Options options, String option) {
-		helper.printXhelp();
-		return super.process(options, option);
+            helper.printXhelp();
+            return super.process(options, option);
 	    }
 	},
 
 	// This option exists only for the purpose of documenting itself.
 	// It's actually implemented by the launcher.
-	new Option(J,   		"opt.arg.flag",		"opt.J") {
+	new Option(J,                       MsgSym.MESSAGE_OPT_ARG_FLAG,    MsgSym.MESSAGE_OPT_J) {
+        @Override
 	    String helpSynopsis() {
-		hasSuffix = true;
-		return super.helpSynopsis();
+            hasSuffix = true;
+            return super.helpSynopsis();
 	    }
+        @Override
 	    public boolean process(Options options, String option) {
-		throw new AssertionError
-		    ("the -J flag should be caught by the launcher.");
+            throw new AssertionError
+                ("the -J flag should be caught by the launcher.");
 	    }
 	},
 
@@ -446,6 +468,7 @@ public class RecognizedOptions {
 
 	// new Option("-moreinfo",					"opt.moreinfo") {
 	new HiddenOption(MOREINFO) {
+        @Override
 	    public boolean process(Options options, String option) {
 		Type.moreInfo = true;
 		return super.process(options, option);
@@ -489,43 +512,47 @@ public class RecognizedOptions {
 
 	// display warnings for generic unchecked operations
 	new HiddenOption(WARNUNCHECKED) {
+        @Override
 	    public boolean process(Options options, String option) {
 		options.put("-Xlint:unchecked", option);
 		return false;
 	    }
 	},
 
-	new XOption(XMAXERRS,   	"opt.arg.number",	"opt.maxerrs"),
-	new XOption(XMAXWARNS,  	"opt.arg.number",	"opt.maxwarns"),
-	new XOption(XSTDOUT,		"opt.arg.file",		"opt.Xstdout") {
+	new XOption(XMAXERRS,   	MsgSym.MESSAGE_OPT_ARG_NUMBER,	MsgSym.MESSAGE_OPT_MAXERRS),
+	new XOption(XMAXWARNS,  	MsgSym.MESSAGE_OPT_ARG_NUMBER,	MsgSym.MESSAGE_OPT_MAXWARNS),
+	new XOption(XSTDOUT,		MsgSym.MESSAGE_OPT_ARG_FILE,    MsgSym.MESSAGE_OPT_XSTDOUT) {
+        @Override
 	    public boolean process(Options options, String option, String arg) {
 		try {
 		    helper.setOut(new PrintWriter(new FileWriter(arg), true));
 		} catch (java.io.IOException e) {
-		    helper.error("err.error.writing.file", arg, e);
+		    helper.error(MsgSym.MESSAGE_ERR_ERROR_WRITING_FILE, arg, e);
 		    return true;
 		}
 		return super.process(options, option, arg);
 	    }
 	},
 
-	new XOption(XPRINT,   					"opt.print"),
+	new XOption(XPRINT,   					MsgSym.MESSAGE_OPT_PRINT),
 
-	new XOption(XPRINTROUNDS,   				"opt.printRounds"),
+	new XOption(XPRINTROUNDS,   			MsgSym.MESSAGE_OPT_PRINT_ROUNDS),
 
-	new XOption(XPRINTPROCESSORINFO,			"opt.printProcessorInfo"),
+	new XOption(XPRINTPROCESSORINFO,		MsgSym.MESSAGE_OPT_PRINT_PROCESSOR_INFO),
         
-        new XOption(XPREFER,                                     "opt.prefer") {
-            public boolean matches(String s) {
-                return s.equals("-Xprefer:source") || s.equals("-Xprefer:newer");
-            }
-            public boolean process(Options options, String option, String operand) {
-                int sep = option.indexOf(":");
-                options.put(option.substring(0, sep), option.substring(sep+1));
-                options.put(option,option);
-                return false;
-            }
-        },
+    new XOption(XPREFER,                MsgSym.MESSAGE_OPT_PREFER) {
+        @Override
+        public boolean matches(String s) {
+            return s.equals("-Xprefer:source") || s.equals("-Xprefer:newer");
+        }
+        @Override
+        public boolean process(Options options, String option, String operand) {
+            int sep = option.indexOf(":");
+            options.put(option.substring(0, sep), option.substring(sep+1));
+            options.put(option,option);
+            return false;
+        }
+    },
 
 	/* -O is a no-op, accepted for backward compatibility. */
 	new HiddenOption(O),
@@ -539,10 +566,12 @@ public class RecognizedOptions {
 	 */
 	new HiddenOption(XD) {
 	    String s;
+        @Override
 	    public boolean matches(String s) {
 		this.s = s;
 		return s.startsWith(name.optionName);
 	    }
+        @Override
 	    public boolean process(Options options, String option) {
 		s = s.substring(name.optionName.length());
 		int eq = s.indexOf('=');
@@ -567,19 +596,21 @@ public class RecognizedOptions {
 	 */
 	new HiddenOption(SOURCEFILE) {
 	    String s;
+        @Override
 	    public boolean matches(String s) {
 		this.s = s;
 		return s.endsWith(".fx");  // Javafx source file
 	    }
+        @Override
 	    public boolean process(Options options, String option) {
 		if (s.endsWith(".fx") ) {
                     File f = new File(s);
                     if (!f.exists()) {
-                        helper.error("err.file.not.found", f);
+                        helper.error(MsgSym.MESSAGE_ERR_FILE_NOT_FOUND, f);
                         return true;
                     }
                     if (!f.isFile()) {
-                        helper.error("err.file.not.file", f);
+                        helper.error(MsgSym.MESSAGE_ERR_FILE_NOT_FILE, f);
                         return true;
                     }
                     helper.addFile(f);

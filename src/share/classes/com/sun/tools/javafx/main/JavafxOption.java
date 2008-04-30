@@ -96,6 +96,7 @@ public interface JavafxOption {
 	    this(name, null, descrKey);
 	}
 
+    @Override
 	public String toString() {
 	    return name.optionName;
 	}
@@ -109,7 +110,7 @@ public interface JavafxOption {
 	/** Does argument string match option pattern?
 	 *  @param arg        The command line argument string.
 	 */
-        public boolean matches(String arg) {
+    public boolean matches(String arg) {
 	    return hasSuffix ? arg.startsWith(name.optionName) : arg.equals(name.optionName);
 	}
 
@@ -135,7 +136,7 @@ public interface JavafxOption {
 	/** Process the option (with arg). Return true if error detected.
 	 */
 	public boolean process(Options options, String option, String arg) {
-            if (options != null)
+        if (options != null)
                 options.put(option, arg);
 	    return false;
 	}
@@ -157,28 +158,34 @@ public interface JavafxOption {
     /** A nonstandard or extended (-X) option
      */
     static class XOption extends Option {
-	XOption(OptionName name, String argsNameKey, String descrKey) {
-	    super(name, argsNameKey, descrKey);
-	}
-	XOption(OptionName name, String descrKey) {
-	    this(name, null, descrKey);
-	}
-	void help(PrintWriter out) {}
-	void xhelp(PrintWriter out) { super.help(out); }
-        public OptionKind getKind() { return OptionKind.EXTENDED; }
+        XOption(OptionName name, String argsNameKey, String descrKey) {
+            super(name, argsNameKey, descrKey);
+        }
+        XOption(OptionName name, String descrKey) {
+            this(name, null, descrKey);
+        }
+        @Override
+        void help(PrintWriter out) {}
+        @Override
+        void xhelp(PrintWriter out) { super.help(out); }
+        @Override
+            public OptionKind getKind() { return OptionKind.EXTENDED; }
     };
 
     /** A hidden (implementor) option
      */
     static class HiddenOption extends Option {
-	HiddenOption(OptionName name) {
-	    super(name, null, null);
-	}
-	HiddenOption(OptionName name, String argsNameKey) {
-	    super(name, argsNameKey, null);
-	}
-	void help(PrintWriter out) {}
-	void xhelp(PrintWriter out) {}
+        HiddenOption(OptionName name) {
+            super(name, null, null);
+        }
+        HiddenOption(OptionName name, String argsNameKey) {
+            super(name, argsNameKey, null);
+        }
+        @Override
+        void help(PrintWriter out) {}
+        @Override
+        void xhelp(PrintWriter out) {}
+        @Override
         public OptionKind getKind() { return OptionKind.HIDDEN; }
     };
 

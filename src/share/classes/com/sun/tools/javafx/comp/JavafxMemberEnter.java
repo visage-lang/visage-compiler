@@ -45,6 +45,7 @@ import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.javafx.util.MsgSym;
 
 import javax.tools.JavaFileObject;
 import java.util.Set;
@@ -147,10 +148,10 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         if (tsym.kind == PCK && tsym.members().elems == null && !tsym.exists()) {
             // If we can't find java.lang, exit immediately.
             if (((PackageSymbol)tsym).fullname.equals(names.java_lang)) {
-                JCDiagnostic msg = JCDiagnostic.fragment("fatal.err.no.java.lang");
+                JCDiagnostic msg = JCDiagnostic.fragment(MsgSym.MESSAGE_FATAL_ERR_NO_JAVA_LANG);
                 throw new FatalError(msg);
             } else {
-                log.error(pos, "doesnt.exist", tsym);
+                log.error(pos, MsgSym.MESSAGE_DOES_NOT_EXIST, tsym);
             }
         }
         final Scope fromScope = tsym.members();
@@ -261,7 +262,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                                    final Name name,
                                    final JavafxEnv<JavafxAttrContext> env) {
         if (tsym.kind != TYP) {
-            log.error(pos, "static.imp.only.classes.and.interfaces");
+            log.error(pos, MsgSym.MESSAGE_STATIC_IMP_ONLY_CLASSES_AND_INTERFACES);
             return;
         }
 
@@ -332,8 +333,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 try {
                     importFrom(tsym);
                     if (!found) {
-                        log.error(pos, "cant.resolve.location",
-                                  JCDiagnostic.fragment("kindname.static"),
+                        log.error(pos, MsgSym.MESSAGE_CANNOT_RESOLVE_LOCATION,
+                                  JCDiagnostic.fragment(MsgSym.KINDNAME_STATIC),
                                   name, "", "", JavafxResolve.typeKindName(tsym.type),
                                   tsym.type);
                     }
@@ -414,7 +415,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 p.owner.complete(); // enter all class members of p
                 if (syms.classes.get(p.getQualifiedName()) != null) {
                     log.error(tree.pos,
-                              "pkg.clashes.with.class.of.same.name",
+                              MsgSym.MESSAGE_PKG_CLASHES_WITH_CLASS_OF_SAME_NAME,
                               p);
                 }
                 p = p.owner;
@@ -443,16 +444,16 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         if (!tree.isStatic()) {
             if (tree.qualid.getTag() == SELECT) {
                 if (name == names.fromString("Integer")) { // TODO: use the constant in the new NameTable when available.
-                    log.error(tree.pos, "javafx.can.not.import.integer.primitive.type");
+                    log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_INTEGER_PRIMITIVE_TYPE);
                 }
                 else if (name == names.fromString("Number")) { // TODO: use the constant in the new NameTable when available.
-                    log.error(tree.pos, "javafx.can.not.import.number.primitive.type");
+                    log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_NUMBER_PRIMITIVE_TYPE);
                 }
                 else if (name == names.fromString("Boolean")) { // TODO: use the constant in the new NameTable when available.
-                    log.error(tree.pos, "javafx.can.not.import.boolean.primitive.type");
+                    log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_BOOLEAN_PRIMITIVE_TYPE);
                 }
                 else if (name == names.fromString("String")) { // TODO: use the constant in the new NameTable when available.
-                    log.error(tree.pos, "javafx.can.not.import.string.primitive.type");
+                    log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_STRING_PRIMITIVE_TYPE);
                 }
             }
         }
@@ -657,7 +658,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                             s.attributes_field.nonEmpty() &&
                             annotations.nonEmpty())
                             log.error(annotations.head.pos,
-                                      "already.annotated",
+                                      MsgSym.MESSAGE_ALREADY_ANNOTATED,
                                       JavafxResolve.kindName(s), s);
                         enterAnnotations(annotations, localEnv, s);
                     } finally {
@@ -701,7 +702,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 && types.isSameType(c.type, syms.deprecatedType))
                 s.flags_field |= Flags.DEPRECATED;
             if (!annotated.add(a.type.tsym))
-                log.error(a.pos, "duplicate.annotation");
+                log.error(a.pos, MsgSym.MESSAGE_DUPLICATE_ANNOTATION);
         }
         s.attributes_field = buf.toList();
     }
@@ -897,7 +898,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 c.owner.kind == PCK && c.owner != syms.unnamedPackage &&
                 reader.packageExists(c.fullname))
                 {
-                    log.error(tree.pos, "clash.with.pkg.of.same.name", c);
+                    log.error(tree.pos, MsgSym.MESSAGE_CLASH_WITH_PKG_OF_SAME_NAME, c);
                 }
 
         } catch (CompletionFailure ex) {

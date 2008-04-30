@@ -56,6 +56,7 @@ import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javafx.util.MsgSym;
 
 /** This is the main context-dependent analysis phase in GJC. It
  *  encompasses name resolution, type checking and constant folding as
@@ -232,7 +233,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             if ((ownkind & ~pkind) == 0) {
                 owntype = chk.checkType(tree.pos(), owntype, pt, pSequenceness);
             } else {
-                log.error(tree.pos(), "unexpected.type",
+                log.error(tree.pos(), MsgSym.MESSAGE_UNEXPECTED_TYPE,
                           Resolve.kindNames(pkind),
                           Resolve.kindName(ownkind));
                 owntype = syms.errType;
@@ -483,27 +484,27 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (t.tag == TYPEVAR && !classExpected && !interfaceExpected) {
             // check that type variable is already visible
             if (t.getUpperBound() == null) {
-                log.error(tree.pos(), "illegal.forward.ref");
+                log.error(tree.pos(), MsgSym.MESSAGE_ILLEGAL_FORWARD_REF);
                 return syms.errType;
             }
         } else {
             t = chk.checkClassType(tree.pos(), t, checkExtensible|!allowGenerics);
         }
         if (interfaceExpected && (t.tsym.flags() & INTERFACE) == 0) {
-            log.error(tree.pos(), "intf.expected.here");
+            log.error(tree.pos(), MsgSym.MESSAGE_INTF_EXPECTED_HERE);
             // return errType is necessary since otherwise there might
             // be undetected cycles which cause attribution to loop
             return syms.errType;
         } else if (checkExtensible &&
                    classExpected &&
                    (t.tsym.flags() & INTERFACE) != 0) {
-            log.error(tree.pos(), "no.intf.expected.here");
+            log.error(tree.pos(), MsgSym.MESSAGE_NO_INTF_EXPECTED_HERE);
             return syms.errType;
         }
         if (checkExtensible &&
             ((t.tsym.flags() & FINAL) != 0)) {
             log.error(tree.pos(),
-                      "cant.inherit.from.final", t.tsym);
+                      MsgSym.MESSAGE_CANNOT_INHERIT_FROM_FINAL, t.tsym);
         }
         chk.checkNonCyclic(tree.pos(), t);
         return t;
@@ -558,7 +559,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         tree.sym = sym;
         sym.complete();
         if (sym.type == null) {
-            log.error(tree.pos(), "javafx.type.infer.cycle", tree.name);
+            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE, tree.name);
             sym.type = syms.objectType;
         }
 
@@ -644,7 +645,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             while (elt.tag == ARRAY)
                 elt = ((ArrayType)elt).elemtype;
             if (elt.tag == TYPEVAR) {
-                log.error(tree.pos(), "type.var.cant.be.deref");
+                log.error(tree.pos(), MsgSym.MESSAGE_TYPE_VAR_CANNOT_BE_DEREF);
                 result = syms.errType;
                 return;
             }
@@ -683,7 +684,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         tree.sym = sym;
 
         if (sym.type == null) {
-            log.error(tree.pos(), "javafx.type.infer.cycle", sym.name);
+            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE, sym.name);
             sym.type = syms.objectType;
         }
 
@@ -797,7 +798,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     ? selectSym(tree, capture(site.getUpperBound()), env, pt, pkind)
                     : null;
                 if (sym == null || isType(sym)) {
-                    log.error(pos, "type.var.cant.be.deref");
+                    log.error(pos, MsgSym.MESSAGE_TYPE_VAR_CANNOT_BE_DEREF);
                     return syms.errSymbol;
                 } else {
                     return sym;
@@ -825,7 +826,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     return new VarSymbol(
                         STATIC | PUBLIC | FINAL, names._class, t, site.tsym);
                 } else {
-                    log.error(pos, "cant.deref", site);
+                    log.error(pos, MsgSym.MESSAGE_CANNOT_DEREF, site);
                     return syms.errSymbol;
                 }
             }
@@ -838,7 +839,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         result = check(tree, owntype, pkind, pkind, pt, pSequenceness);
         Symbol sym = TreeInfo.symbol(tree);
         if (sym != null && (sym.kind&(TYP|PCK)) != 0)
-            log.error(tree.pos(), "illegal.start.of.type");
+            log.error(tree.pos(), MsgSym.MESSAGE_ILLEGAL_START_OF_TYPE);
     }
 
     @Override
@@ -1100,7 +1101,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         // Must reference an attribute
         if (sym.kind != VAR) {
-            log.error(id.pos(), "javafx.must.be.an.attribute", id.name);
+            log.error(id.pos(), MsgSym.MESSAGE_JAVAFX_MUST_BE_AN_ATTRIBUTE, id.name);
         } else {
             VarSymbol v = (VarSymbol) sym;
             tree.sym = v;
@@ -1193,7 +1194,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 }
             }
             if (elemtype == syms.errType) {
-                log.error(((JCTree)(clause.getSequenceExpression())).pos(), "foreach.not.applicable.to.type");
+                log.error(((JCTree)(clause.getSequenceExpression())).pos(), MsgSym.MESSAGE_FOREACH_NOT_APPLICABLE_TO_TYPE);
             } else if (elemtype == syms.botType || elemtype == syms.unreachableType) {
                 elemtype = syms.objectType;
             } else {
@@ -1237,7 +1238,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public void visitIndexof(JFXIndexof tree) {
         for (int n = forClauses == null ? 0 : forClauses.size(); ; ) {
             if (--n < 0) {
-                 log.error(tree.pos(), "javafx.indexof.not.found", tree.fname);
+                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_INDEXOF_NOT_FOUND, tree.fname);
                  break;
             }
             JFXForExpressionInClause clause = forClauses.get(n);
@@ -1304,7 +1305,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         for (List<JCStatement> l = tree.stats; l.nonEmpty(); l = l.tail) {
             if (! canReturn && ! unreachableReported) {
                 unreachableReported = true;
-                log.error(l.head.pos(), "unreachable.stmt");
+                log.error(l.head.pos(), MsgSym.MESSAGE_UNREACHABLE_STMT);
             }
             Type stype = attribTree(l.head, localEnv,
                     NIL, Type.noType, Sequenceness.DISALLOWED);
@@ -1314,7 +1315,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         Type owntype = null;
         if (tree.value != null) {
             if (! canReturn && ! unreachableReported)
-                log.error(tree.value.pos(), "unreachable.stmt");
+                log.error(tree.value.pos(), MsgSym.MESSAGE_UNREACHABLE_STMT);
             owntype = attribExpr(tree.value, localEnv);
         }
         if (owntype == null) {
@@ -1422,13 +1423,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             // Check that class is not abstract
             if (cdef == null &&
                 (clazztype.tsym.flags() & (ABSTRACT | INTERFACE)) != 0) {
-                log.error(tree.pos(), "abstract.cant.be.instantiated",
+                log.error(tree.pos(), MsgSym.MESSAGE_ABSTRACT_CANNOT_BE_INSTANTIATED,
                           clazztype.tsym);
             } else if (cdef != null && clazztype.tsym.isInterface()) {
                 // Check that no constructor arguments are given to
                 // anonymous classes implementing an interface
                 if (!argtypes.isEmpty())
-                    log.error(tree.getArgs().head.pos(), "anon.class.impl.intf.no.args");
+                    log.error(tree.getArgs().head.pos(), MsgSym.MESSAGE_ANON_CLASS_IMPL_INTF_NO_ARGS);
 
 
                 // Error recovery: pretend no arguments were supplied.
@@ -1668,7 +1669,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             if ((owner.flags() & ANNOTATION) != 0 &&
                 tree.operation.funParams.nonEmpty())
                 log.error(tree.operation.funParams.head.pos(),
-                          "intf.annotation.members.cant.have.params");
+                          MsgSym.MESSAGE_INTF_ANNOTATION_MEMBERS_CANNOT_HAVE_PARAMS);
 
             // Attribute all value parameters.
             ListBuffer<Type> argbuf = new ListBuffer<Type>();
@@ -1693,7 +1694,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     if (pvar.getJFXType() instanceof JFXTypeUnknown) {
                         Type t = searchSupersForParamType (owner, m.name, paramCount, paramNum);
                         if (t == Type.noType)
-                            log.warning(pvar.pos(), "javafx.ambiguous.param.type.from.super");
+                            log.warning(pvar.pos(), MsgSym.MESSAGE_JAVAFX_AMBIGUOUS_PARAM_TYPE_FROM_SUPER);
                         else if (t != null)
                             type = t;
                     }
@@ -1716,7 +1717,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 // But this is pretty close, in practice.
                 Type t = searchSupersForParamType (owner, m.name, paramCount, -1);
                 if (t == Type.noType)
-                    log.warning(tree.pos(), "javafx.ambiguous.return.type.from.super");
+                    log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_AMBIGUOUS_RETURN_TYPE_FROM_SUPER);
                 else if (t != null)
                     returnType = t;
             }
@@ -1735,17 +1736,17 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 if ((owner.flags() & INTERFACE) == 0 &&
                     (tree.mods.flags & (ABSTRACT | NATIVE)) == 0 &&
                     !relax)
-                    log.error(tree.pos(), "missing.meth.body.or.decl.abstract");
+                    log.error(tree.pos(), MsgSym.MESSAGE_MISSING_METH_BODY_OR_DECL_ABSTRACT);
                 else if (returnType == syms.unknownType)
                     // no body, can't infer, assume Any
                     // FIXME Should this be Void or an error?
                     returnType = syms.javafx_AnyType;
             } else if ((owner.flags() & INTERFACE) != 0) {
-                log.error(tree.getBodyExpression().pos(), "intf.meth.cant.have.body");
+                log.error(tree.getBodyExpression().pos(), MsgSym.MESSAGE_INTF_METH_CANNOT_HAVE_BODY);
             } else if ((tree.mods.flags & ABSTRACT) != 0) {
-                log.error(tree.pos(), "abstract.meth.cant.have.body");
+                log.error(tree.pos(), MsgSym.MESSAGE_ABSTRACT_METH_CANNOT_HAVE_BODY);
             } else if ((tree.mods.flags & NATIVE) != 0) {
-                log.error(tree.pos(), "native.meth.cant.have.body");
+                log.error(tree.pos(), MsgSym.MESSAGE_NATIVE_METH_CANNOT_HAVE_BODY);
             } else {
                 JFXBlockExpression body = opVal.getBodyExpression();
                 if (body.value == null && returnType == syms.unknownType) {
@@ -1981,7 +1982,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 return type1.baseType();
 
             if (!allowBoxing) {
-                log.error(pos, "neither.conditional.subtype",
+                log.error(pos, MsgSym.MESSAGE_NEITHER_CONDITIONAL_SUBTYPE,
                           type1, type2);
                 return type1.baseType();
             }
@@ -2049,7 +2050,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                         if (tag == JCTree.CONTINUE) {
                             if (labelled.body.getTag() != JCTree.DOLOOP &&
                                 labelled.body.getTag() != JCTree.WHILELOOP)
-                                log.error(pos, "not.loop.label", label);
+                                log.error(pos, MsgSym.MESSAGE_NOT_LOOP_LABEL, label);
                             // Found labelled statement target, now go inwards
                             // to next non-labelled tree.
                             return TreeInfo.referencedStatement(labelled);
@@ -2073,18 +2074,18 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 env1 = env1.next;
             }
             if (label != null)
-                log.error(pos, "undef.label", label);
+                log.error(pos, MsgSym.MESSAGE_UNDEF_LABEL, label);
             else if (tag == JCTree.CONTINUE)
-                log.error(pos, "cont.outside.loop");
+                log.error(pos, MsgSym.MESSAGE_CONT_OUTSIDE_LOOP);
             else
-                log.error(pos, "break.outside.switch.loop");
+                log.error(pos, MsgSym.MESSAGE_BREAK_OUTSIDE_SWITCH_LOOP);
             return null;
         }
 
     @Override
     public void visitReturn(JCReturn tree) {
         if (env.enclMethod == null) {
-            log.error(tree.pos(), "ret.outside.meth");
+            log.error(tree.pos(), MsgSym.MESSAGE_RETURN_OUTSIDE_METH);
 
         } else {
             // Attribute return expression, if it exists, and check that
@@ -2092,13 +2093,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             Symbol m = env.enclMethod.sym;
             Type rtype = m.type.getReturnType();
             if (rtype == null)
-                log.error(tree.pos(), "javafx.cannot.infer.return.type");
+                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_INFER_RETURN_TYPE);
             else if (rtype.tag == VOID) {
                     if (tree.expr != null)
                         log.error(tree.expr.pos(),
-                                  "cant.ret.val.from.meth.decl.void");
+                                  MsgSym.MESSAGE_CANNOT_RET_VAL_FROM_METH_DECL_VOID);
                 } else if (tree.expr == null) {
-                    log.error(tree.pos(), "missing.ret.val");
+                    log.error(tree.pos(), MsgSym.MESSAGE_MISSING_RET_VAL);
                 } else {
                     attribExpr(tree.expr, env, m.type.getReturnType());
                 }
@@ -2174,7 +2175,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             // Compute the result type.
             Type restype = mtype.getReturnType();
             if (restype == syms.unknownType) {
-                log.error(tree.meth.pos(), "javafx.function.type.infer.cycle", methName);
+                log.error(tree.meth.pos(), MsgSym.MESSAGE_JAVAFX_FUNC_TYPE_INFER_CYCLE, methName);
                 restype = syms.objectType;
             }
             // as a special case, array.clone() has a result that is
@@ -2202,7 +2203,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
             if (restype == null) {
                 log.error(tree,
-                        "javafx.not.a.function",
+                         MsgSym.MESSAGE_JAVAFX_NOT_A_FUNC,
                          mtype,
                          typeargtypes,
                          Type.toString(argtypes));
@@ -2483,7 +2484,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                         }
                         
                         if (isError) {
-                            log.error(tree.pos(), "incomparable.types", left, right);
+                            log.error(tree.pos(), MsgSym.MESSAGE_INCOMPARABLE_TYPES, left, right);
                         }
                     }
                 }
@@ -2567,10 +2568,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 owntype = new ClassType(clazzOuter, actuals, clazztype.tsym);
             } else {
                 if (formals.length() != 0) {
-                    log.error(tree.pos(), "wrong.number.type.args",
+                    log.error(tree.pos(), MsgSym.MESSAGE_WRONG_NUMBER_TYPE_ARGS,
                               Integer.toString(formals.length()));
                 } else {
-                    log.error(tree.pos(), "type.doesnt.take.params", clazztype.tsym);
+                    log.error(tree.pos(), MsgSym.MESSAGE_TYPE_DOES_NOT_TAKE_PARAMS, clazztype.tsym);
                 }
                 owntype = syms.errType;
             }
@@ -2590,7 +2591,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitAnnotation(JCAnnotation tree) {
-        log.error(tree.pos(), "annotation.not.valid.for.type", pt);
+        log.error(tree.pos(), MsgSym.MESSAGE_ANNOTATION_NOT_VALID_FOR_TYPE, pt);
         result = tree.type = syms.errType;
     }
 
@@ -2678,14 +2679,14 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 // java.lang.Enum may not be subclassed by a non-enum
                 if (st.tsym == syms.enumSym &&
                     ((c.flags_field & (Flags.ENUM|Flags.COMPOUND)) == 0))
-                    log.error(localEnv.tree.pos(), "enum.no.subclassing");
+                    log.error(localEnv.tree.pos(), MsgSym.MESSAGE_ENUM_NO_SUBCLASSING);
 
                 // Enums may not be extended by source-level classes
                 if (st.tsym != null &&
                     ((st.tsym.flags_field & Flags.ENUM) != 0) &&
                     ((c.flags_field & Flags.ENUM) == 0) &&
                     !target.compilerBootstrap(c)) {
-                    log.error(localEnv.tree.pos(), "enum.types.not.extensible");
+                    log.error(localEnv.tree.pos(), MsgSym.MESSAGE_ENUM_TYPES_NOT_EXTENSIBLE);
                 }
                 attribClassBody(localEnv, c);
 
@@ -2841,13 +2842,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                         addToSuperTypes = false;
                     }
                     else {
-                        log.error(superClass.pos(), "javafx.base.java.class.non.papar.ctor", supType.tsym.name);
+                        log.error(superClass.pos(), MsgSym.MESSAGE_JAVAFX_BASE_JAVA_CLASS_NON_PAPAR_CTOR, supType.tsym.name);
 
                     }
                 }
                 else {
                     // We are already extending one Java class. No more than one is allowed. Report an error.
-                    log.error(superClass.pos(), "javafx.only.one.base.java.class.allowed", supType.tsym.name);
+                    log.error(superClass.pos(), MsgSym.MESSAGE_JAVAFX_ONLY_ONE_BASE_JAVA_CLASS_ALLOWED, supType.tsym.name);
                 }
             }
 
@@ -2892,7 +2893,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         boolean isSeq = false;
         if (pt.tag != NONE && pt != syms.javafx_UnspecifiedType && !(isSeq = types.isSequence(pt)) && pSequenceness == Sequenceness.DISALLOWED) {
-            log.error(tree.pos(), "array.req.but.found", pt); //TODO: msg
+            log.error(tree.pos(), MsgSym.MESSAGE_ARRAY_REQ_BUT_FOUND, pt); //TODO: msg
             result = syms.errType;
         } else {
             Type owntype = pt.tag == NONE || pt.tag == UNKNOWN ? syms.botType :
@@ -2910,19 +2911,19 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (lowerType != syms.javafx_IntegerType) {
             allInt = false;
             if (lowerType != syms.javafx_NumberType) {
-                log.error(tree.getLower().pos(), "javafx.range.start.int.or.number"); 
+                log.error(tree.getLower().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_START_INT_OR_NUMBER); 
             }
         }
         if (upperType != syms.javafx_IntegerType) {
             allInt = false;
             if (upperType != syms.javafx_NumberType) {
-                log.error(tree.getLower().pos(), "javafx.range.end.int.or.number"); 
+                log.error(tree.getLower().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_END_INT_OR_NUMBER); 
             }
         }
         if (stepType != syms.javafx_IntegerType) {
             allInt = false;
             if (stepType != syms.javafx_NumberType) {
-                log.error(tree.getStepOrNull().pos(), "javafx.range.step.int.or.number"); 
+                log.error(tree.getStepOrNull().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_STEP_INT_OR_NUMBER); 
             }
         }
 		if (tree.getLower().getTag() == JCTree.LITERAL && tree.getUpper().getTag() == JCTree.LITERAL 
@@ -3217,7 +3218,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                         s.isRaw() &&
                         !types.isSameType(v.type, v.erasure(types))) {
                         chk.warnUnchecked(tree.pos(),
-                                          "unchecked.assign.to.var",
+                                          MsgSym.MESSAGE_UNCHECKED_ASSIGN_TO_VAR,
                                           v, s);
                     }
                 }
@@ -3232,7 +3233,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     Type owntype1 = new ForAll(env.info.tvars, owntype);
                     for (List<Type> l = env.info.tvars; l.nonEmpty(); l = l.tail)
                         if (!owntype.contains(l.head)) {
-                            log.error(tree.pos(), "undetermined.type", owntype1);
+                            log.error(tree.pos(), MsgSym.MESSAGE_UNDETERMINDED_TYPE, owntype1);
                             owntype1 = syms.errType;
                         }
                     owntype = owntype1;
@@ -3278,7 +3279,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 chk.warnDeprecated(tree.pos(), sym);
 
             if ((sym.flags() & PROPRIETARY) != 0)
-                log.strictWarning(tree.pos(), "sun.proprietary", sym);
+                log.strictWarning(tree.pos(), MsgSym.MESSAGE_SUN_PROPRIETARY, sym);
 
             // Test (3): if symbol is a variable, check that its type and
             // kind are compatible with the prototype and protokind.
@@ -3366,7 +3367,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
              !((base == null ||
                (base.getTag() == JCTree.IDENT && TreeInfo.name(base) == names._this)) &&
                isAssignableAsBlankFinal(v, env)))) {
-            log.error(pos, "cant.assign.val.to.final.var", v);
+            log.error(pos, MsgSym.MESSAGE_CANNOT_ASSIGN_VAL_TO_FINAL_VAR, v);
         }
     }
 
@@ -3409,7 +3410,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 if (!JavafxResolve.isInitializer(env))
                     return;
 
-                log.error(tree.pos(), "illegal.enum.static.ref");
+                log.error(tree.pos(), MsgSym.MESSAGE_ILLEGAL_ENUM_STATIC_REF);
             }
         }
 
@@ -3450,7 +3451,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 !types.isSameTypes(sym.type.getParameterTypes(),
                                    sym.erasure(types).getParameterTypes())) {
                 chk.warnUnchecked(env.tree.pos(),
-                                  "unchecked.call.mbr.of.raw.type",
+                                  MsgSym.MESSAGE_UNCHECKED_CALL_MBR_OF_RAW_TYPE,
                                   sym, s);
             }
         }
@@ -3475,7 +3476,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (owntype == null) {
             if (!pt.isErroneous())
                 log.error(env.tree.pos(),
-                          "internal.error.cant.instantiate",
+                          MsgSym.MESSAGE_INTERNAL_ERROR_CANNOT_INSTANTIATE,
                           sym, site,
                           Type.toString(pt.getParameterTypes()));
             owntype = syms.errType;
@@ -3512,7 +3513,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 Type lastArg = argtypes.last();
                 if (types.isSubtypeUnchecked(lastArg, types.elemtype(varParam)) &&
                     !types.isSameType(types.erasure(varParam), types.erasure(lastArg)))
-                    log.warning(argtrees.last().pos(), "inexact.non-varargs.call",
+                    log.warning(argtrees.last().pos(), MsgSym.MESSAGE_INEXACT_NON_VARARGS_CALL,
                                 types.elemtype(varParam),
                                 varParam);
             }
@@ -3523,7 +3524,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                     typeargs = "<" + Type.toString(typeargtypes) + ">";
                 }
                 chk.warnUnchecked(env.tree.pos(),
-                                  "unchecked.meth.invocation.applied",
+                                  MsgSym.MESSAGE_UNCHECKED_METH_INVOCATION_APPLIED,
                                   sym,
                                   sym.location(),
                                   typeargs,
@@ -3538,7 +3539,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 Type argtype = owntype.getParameterTypes().last();
                 if (!types.isReifiable(argtype))
                     chk.warnUnchecked(env.tree.pos(),
-                                      "unchecked.generic.array.creation",
+                                      MsgSym.MESSAGE_UNCHECKED_GENERIC_ARRAY_CREATION,
                                       argtype);
                 Type elemtype = types.elemtype(argtype);
                 switch (tree.getTag()) {
@@ -3567,7 +3568,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         if (false) {
             // TODO: make assertConvertible work
-            chk.typeError(tree.pos(), JCDiagnostic.fragment("incompatible.types"), actual, formal);
+            chk.typeError(tree.pos(), JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), actual, formal);
             throw new AssertionError("Tree: " + tree
                                      + " actual:" + actual
                                      + " formal: " + formal);
@@ -3608,7 +3609,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         // Check that a generic class doesn't extend Throwable
         if (!c.type.allparams().isEmpty() && types.isSubtype(c.type, syms.throwableType))
-            log.error(tree.getExtending().head.pos(), "generic.throwable");
+            log.error(tree.getExtending().head.pos(), MsgSym.MESSAGE_GENERIC_THROWABLE);
 
         for (List<JCTree> l = tree.getMembers(); l.nonEmpty(); l = l.tail) {
             // Attribute declaration
@@ -3638,10 +3639,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if ((c.flags() & ANNOTATION) != 0) {
             if (tree.getImplementing().nonEmpty())
                 log.error(tree.getImplementing().head.pos(),
-                          "cant.extend.intf.annotation");
+                          MsgSym.MESSAGE_CANNOT_EXTEND_INTERFACE_ANNOTATION);
             if (tree.getEmptyTypeParameters().nonEmpty())
                 log.error(tree.getEmptyTypeParameters().head.pos(),
-                          "intf.annotation.cant.have.type.params");
+                          MsgSym.MESSAGE_INTF_ANNOTATION_CANNOT_HAVE_TYPE_PARAMS);
         } else {
             // Check that all extended classes and interfaces
             // are compatible (i.e. no two define methods with same arguments
@@ -3692,7 +3693,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             Scope.Entry e = c.members().lookup(names.serialVersionUID);
             while (e.scope != null && e.sym.kind != VAR) e = e.next();
             if (e.scope == null) {
-                log.warning(tree.pos(), "missing.SVUID", c);
+                log.warning(tree.pos(), MsgSym.MESSAGE_MISSING_SVUID, c);
                 return;
             }
 
@@ -3700,15 +3701,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             VarSymbol svuid = (VarSymbol)e.sym;
             if ((svuid.flags() & (STATIC | FINAL)) !=
                 (STATIC | FINAL))
-                log.warning(TreeInfo.diagnosticPositionFor(svuid, tree), "improper.SVUID", c);
+                log.warning(TreeInfo.diagnosticPositionFor(svuid, tree), MsgSym.MESSAGE_IMPROPER_SVUID, c);
 
             // check that it is long
             else if (svuid.type.tag != TypeTags.LONG)
-                log.warning(TreeInfo.diagnosticPositionFor(svuid, tree), "long.SVUID", c);
+                log.warning(TreeInfo.diagnosticPositionFor(svuid, tree), MsgSym.MESSAGE_LONG_SVUID, c);
 
             // check constant
             else if (svuid.getConstValue() == null)
-                log.warning(TreeInfo.diagnosticPositionFor(svuid, tree), "constant.SVUID", c);
+                log.warning(TreeInfo.diagnosticPositionFor(svuid, tree), MsgSym.MESSAGE_CONSTANT_SVUID, c);
         }
 
     protected Type capture(Type type) {
@@ -3726,7 +3727,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 	ClassSymbol origin = (ClassSymbol)m.owner;
 	if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name))
 	    if (m.overrides(syms.enumFinalFinalize, origin, types, false)) {
-		log.error(tree.pos(), "enum.no.finalize");
+		log.error(tree.pos(), MsgSym.MESSAGE_ENUM_NO_FINALIZE);
 		return;
 	    }
 
