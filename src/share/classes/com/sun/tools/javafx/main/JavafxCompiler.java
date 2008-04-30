@@ -460,7 +460,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     protected JCCompilationUnit parse(JavaFileObject filename, CharSequence content) {
         long msec = now();
         JCCompilationUnit tree = null;
-        if (content != null) {
+        if ((content != null) && (content.toString().trim().length() != 0)) {
             if (verbose) {
                 printVerbose(MsgSym.MESSAGE_PARSING_STARTED, filename);
             }
