@@ -1,5 +1,5 @@
 -test1-
-[ 0, 5, 10, 3, 20, 25, 30, 35, 40, 50 ]
+[ 0, 5, 10, 3, 20, 25, 30, 35, 40, 45, 50 ]
 PASS : check insertion into seq1
 -test2-
 PASS : check size of seq2
@@ -14,7 +14,7 @@ CHECK: contents of seq4 with 99 inserted: 101100999899
 -test5-
 [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 ]
 [ REPLACEMENTS:, , seq_2: replace 01234 at 0
-, insert 1011009998 or  into 1011009998, , 051015202530354050, seq_2p: replaced [ ][0..-1] by [ 1 ]
+, insert 1011009998 or  into 1011009998, , 05101520253035404550, seq_2p: replaced [ ][0..-1] by [ 1 ]
 , seq_2p: replaced [ 1 ][1..0] by [ 2 ]
 , seq_2p: replaced [ 1, 2 ][2..1] by [ 4 ]
 , seq_2p: replaced [ 1, 2, 4 ][3..2] by [ 8 ]

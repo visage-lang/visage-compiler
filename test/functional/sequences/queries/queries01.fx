@@ -15,7 +15,7 @@ import java.lang.System;
 class FooSlice extends TestUtils {
 
 /** seq1, 0 - 50 x 5's */
-attribute seq1 = [0,5,10,15,20,25,30,35,40,50]
+attribute seq1 = [0..50 step 5]
 on replace oldValue[indx  .. lastIndex]=newElements {	GFT++; insert "{oldValue}" into replacements;		};
 
 /** seq2, 2^0 - 2^8 */
@@ -36,7 +36,7 @@ on replace oldValue[indx  .. lastIndex]=newElements
 		    }
    };
 
-/** seq4 4 element descending sequence 101 - 98 */
+/** seq4, 4 element descending sequence 101 - 98. Negative step must be used to declare descending sequences */
 attribute done: Boolean = false;
 attribute seq4 = [101..98 step -1]
 on replace oldValue[indx  .. lastIndex]=newElements {	GFT++;
@@ -86,7 +86,7 @@ function test2() {
   System.out.println("trying to trigger replace trigger");
   seq2[5..6] = [5,6,7];
   checkIs(seq2,[0,1,2,3,4,5,6,7,8],"seq2: check new sequence after replace");
-
+  /** use sequence slice syntax [n..], meaning all element at indices >= n */
   for ( n in seq2[5..] ) 	  {
 	  insert pow(2,n) into seq_2p;
   }
