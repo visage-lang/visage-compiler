@@ -71,9 +71,9 @@
                 </xsl:if>
             </head>
             <body>
-                <h3>this is the summary</h3>
+                <h3>JavaFX API</h3>
                 <table>
-                    <tr><th>This is a summary</th></tr>
+                    <tr><th></th></tr>
                     <xsl:for-each select="package">
                         <tr>
                             <td>
@@ -83,7 +83,7 @@
                                 </a>
                             </td>
                             <td>
-                                <xsl:value-of select="first-line-comment"/>
+                                <xsl:apply-templates select="docComment/firstSentenceTags"/>
                             </td>
                         </tr>
                     </xsl:for-each>

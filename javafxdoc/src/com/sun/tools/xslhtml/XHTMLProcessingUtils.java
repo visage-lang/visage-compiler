@@ -42,6 +42,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -165,6 +166,7 @@ public class XHTMLProcessingUtils {
             Element package_elem = packages_doc.createElement("package");
             package_elem.setAttribute("name", name);
             package_list_elem.appendChild(package_elem);
+            copyDocComment(pkg,package_elem);
             Element first_line = packages_doc.createElement("first-line-comment");
             first_line.appendChild(packages_doc.createTextNode("first line comment"));
             package_elem.appendChild(first_line);
@@ -251,6 +253,11 @@ public class XHTMLProcessingUtils {
         }
     }
     
+    private static void copyDocComment(Element pkg, Element package_elem) {
+        Element docComment = (Element) pkg.getElementsByTagName("docComment").item(0);
+        Node copy = package_elem.getOwnerDocument().importNode(docComment, true);
+        package_elem.appendChild(copy);
+    }
     
     private static List<Element> sort(NodeList classesNodeList) {
         List<Element> nodes = new ArrayList<Element>();
@@ -333,6 +340,10 @@ public class XHTMLProcessingUtils {
             }
             System.err.println(sb.toString());
         }
+    }
+    
+    private static void p(String string) {
+        System.out.println(string);
     }
 
     /**
