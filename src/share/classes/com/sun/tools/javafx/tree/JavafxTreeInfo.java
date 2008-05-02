@@ -29,15 +29,11 @@ import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.JCTree;
 
 import com.sun.source.tree.Tree;
-import com.sun.tools.javac.comp.AttrContext;
-import com.sun.tools.javac.comp.Env;
 import java.util.Map;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.tree.JCTree.*;
-
-import static com.sun.tools.javac.code.Flags.*;
 
 /** Utility class containing inspector methods for trees.
  *
@@ -118,22 +114,37 @@ public class JavafxTreeInfo extends TreeInfo {
     public static JCTree declarationFor(final Symbol sym, final JCTree tree) {
 	class DeclScanner extends JavafxTreeScanner {
             JCTree result = null;
+            @Override
             public void scan(JCTree tree) {
                 if (tree!=null && result==null)
                     tree.accept(this);
             }
+            @Override
 	    public void visitTopLevel(JCCompilationUnit that) {
 		if (that.packge == sym) result = that;
 		else super.visitTopLevel(that);
 	    }
+            @Override
 	    public void visitClassDef(JCClassDecl that) {
 		if (that.sym == sym) result = that;
 		else super.visitClassDef(that);
 	    }
+            @Override
+            public void visitFunctionDefinition(JFXFunctionDefinition that) {
+                if (that.sym == sym) result = that;
+                else super.visitFunctionDefinition(that);
+            }
+            @Override
 	    public void visitMethodDef(JCMethodDecl that) {
 		if (that.sym == sym) result = that;
 		else super.visitMethodDef(that);
 	    }
+            @Override
+            public void visitVar(JFXVar that) {
+		if (that.sym == sym) result = that;
+		else super.visitVar(that);
+            }
+            @Override
 	    public void visitVarDef(JCVariableDecl that) {
 		if (that.sym == sym) result = that;
 		else super.visitVarDef(that);

@@ -43,16 +43,17 @@ import com.sun.source.tree.Scope;
 import com.sun.source.tree.Tree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
+import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.comp.Attr;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.Enter;
 import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.comp.MemberEnter;
 import com.sun.tools.javac.comp.Resolve;
-import com.sun.tools.javac.model.JavacElements;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeCopier;
@@ -79,7 +80,6 @@ public class JavafxcTrees {
     private final MemberEnter memberEnter;
     private final Attr attr;
     private final TreeMaker treeMaker;
-    private final JavacElements elements;
     private final JavafxcTaskImpl javafxcTaskImpl;
 
     public static JavafxcTrees instance(JavafxCompiler.CompilationTask task) {
@@ -99,7 +99,6 @@ public class JavafxcTrees {
         context.put(JavafxcTrees.class, this);
         attr = Attr.instance(context);
         enter = Enter.instance(context);
-        elements = JavacElements.instance(context);
         log = Log.instance(context);
         resolve = Resolve.instance(context);
         treeMaker = TreeMaker.instance(context);
@@ -150,7 +149,7 @@ public class JavafxcTrees {
     }
 
     public TreePath getPath(Element e) {
-        final Pair<JCTree, JCCompilationUnit> treeTopLevel = elements.getTreeAndTopLevel(e, null, null);
+        final Pair<JCTree, JCCompilationUnit> treeTopLevel = getTreeAndTopLevel(e);
         if (treeTopLevel == null)
             return null;
         return getPath(treeTopLevel.snd, treeTopLevel.fst);
@@ -305,6 +304,24 @@ public class JavafxcTrees {
         } finally {
             log.useSource(prev);
         }
+    }
+    
+    private Pair<JCTree, JCCompilationUnit> getTreeAndTopLevel(Element e) {
+        if (e == null)
+            return null;
+
+        Symbol sym = (Symbol)e;
+        TypeSymbol ts = (sym.kind != Kinds.PCK)
+                        ? sym.enclClass()
+                        : (PackageSymbol) sym;
+        Env<AttrContext> enterEnv = ts != null ? enter.getEnv(ts) : null;        
+        if (enterEnv == null)
+            return null;
+        
+        JCTree tree = JavafxTreeInfo.declarationFor(sym, enterEnv.tree);
+        if (tree == null || enterEnv.toplevel == null)
+            return null;
+        return new Pair<JCTree,JCCompilationUnit>(tree, enterEnv.toplevel);
     }
 
     /**
