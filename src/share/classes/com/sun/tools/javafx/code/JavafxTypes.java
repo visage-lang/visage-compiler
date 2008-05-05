@@ -295,8 +295,6 @@ public class JavafxTypes extends Types {
             result = true;
         } else if (type.tag == DOUBLE) {
             result = true;
-        } else if ((type.tag == CLASS) && (type.toString().equals("java.lang.Number"))) {
-            result = true;
         }
         return result;
     }
