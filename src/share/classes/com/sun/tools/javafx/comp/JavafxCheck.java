@@ -128,8 +128,8 @@ public class JavafxCheck {
 	boolean verboseDeprecated = lint.isEnabled(LintCategory.DEPRECATION);
 	boolean verboseUnchecked = lint.isEnabled(LintCategory.UNCHECKED);
 
-	deprecationHandler = new MandatoryWarningHandler(log,verboseDeprecated, MsgSym.MESSAGE_DEPRECATED);
-	uncheckedHandler = new MandatoryWarningHandler(log, verboseUnchecked, MsgSym.MESSAGE_UNCHECKED);
+	deprecationHandler = new MandatoryWarningHandler(log,verboseDeprecated, MsgSym.MESSAGEPREFIX_DEPRECATED);
+	uncheckedHandler = new MandatoryWarningHandler(log, verboseUnchecked, MsgSym.MESSAGEPREFIX_UNCHECKED);
         rs = JavafxResolve.instance(context);
     }
 

@@ -32,20 +32,20 @@ public class MsgSym {
 
     public static final String MESSAGEPREFIX_COMPILER_ERR = "compiler.err."; 
     public static final String MESSAGEPREFIX_COMPILER_WARN = "compiler.warn."; 
+    public static final String MESSAGEPREFIX_COMPILER_MISC = "compiler.misc."; 
     public static final String MESSAGEPREFIX_JAVAC = "javac."; 
     public static final String MESSAGEPREFIX_VERBOSE = "verbose."; 
     public static final String MESSAGEPREFIX_COUNT = "count."; 
+    public static final String MESSAGEPREFIX_ERROR = "error";
+    public static final String MESSAGEPREFIX_WARN = "warn";
+    public static final String MESSAGEPREFIX_DEPRECATED = "deprecated";
+    public static final String MESSAGEPREFIX_UNCHECKED = "unchecked";
 
     public static final String MESSAGESUFFIX_PLURAL = ".plural"; 
     
-    public static final String MESSAGE_ERROR = "error";
-    public static final String MESSAGE_WARN = "warn";
-    public static final String MESSAGE_DEPRECATED = "deprecated";
-    public static final String MESSAGE_UNCHECKED = "unchecked";
-
     // javac messages
     public static final String MESSAGE_VERSION = "version";
-    public static final String MESSAGE_FULLVERSION = "fullversion";
+    public static final String MESSAGE_FULLVERSION = "fullVersion";
     public static final String MESSAGE_MSG_USAGE_HEADER = "msg.usage.header";
     public static final String MESSAGE_MSG_USAGE_NONSTANDARD_FOOTER = "msg.usage.nonstandard.footer";
     public static final String MESSAGE_MSG_USAGE = "msg.usage";
@@ -359,6 +359,32 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_NOT_A_FUNC = "javafx.not.a.function"; 
     public static final String MESSAGE_JAVAFX_NOT_IMPLEMENTED = "javafx.not.implemented"; 
     public static final String MESSAGE_JAVAFX_MUST_BE_AN_ATTRIBUTE = "javafx.must.be.an.attribute"; 
+    
+    // jfx-compiler messages
+//    public static final String MESSAGE_JAVAFX_GENERALERROR = "javafx.generalerror"; 
+//    public static final String MESSAGE_JAVAFX_RANGE_START_INT_OR_NUMBER = "javafx.range.start.int.or.number"; 
+//    public static final String MESSAGE_JAVAFX_RANGE_END_INT_OR_NUMBER = "javafx.range.end.int.or.number"; 
+//    public static final String MESSAGE_JAVAFX_RANGE_STEP_INT_OR_NUMBER = "javafx.range.step.int.or.number"; 
+//    public static final String MESSAGE_JAVAFX_RANGE_LITERAL_EMPTY = "javafx.range.literal.empty"; 
+//    public static final String MESSAGE_JAVAFX_DUPLICATE_MODULE_MEMBER = "javafx.duplicate.module.member"; 
+//    public static final String MESSAGE_JAVAFX_INDEXOF_NOT_FOUND = "javafx.indexof.not.found"; 
+//    public static final String MESSAGE_JAVAFX_CANNOT_INFER_RETURN_TYPE = "javafx.cannot.infer.return.type"; 
+//    public static final String MESSAGE_JAVAFX_CANNOT_IMPORT_INTEGER_PRIMITIVE_TYPE = "javafx.can.not.import.integer.primitive.type"; 
+//    public static final String MESSAGE_JAVAFX_CANNOT_IMPORT_BOOLEAN_PRIMITIVE_TYPE = "javafx.can.not.import.boolean.primitive.type"; 
+//    public static final String MESSAGE_JAVAFX_CANNOT_IMPORT_NUMBER_PRIMITIVE_TYPE = "javafx.can.not.import.number.primitive.type"; 
+//    public static final String MESSAGE_JAVAFX_CANNOT_IMPORT_STRING_PRIMITIVE_TYPE = "javafx.can.not.import.string.primitive.type"; 
+//    public static final String MESSAGE_JAVAFX_TYPE_INFER_CYCLE = "javafx.type.infer.cycle"; 
+//    public static final String MESSAGE_JAVAFX_FUNC_TYPE_INFER_CYCLE = "javafx.function.type.infer.cycle"; 
+//    public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_JAVA_CLASS_ALLOWED = "javafx.only.one.base.java.class.allowed"; 
+//    public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEFAULT_INITIALIZER = "javafx.cannot.override.default.initializer"; 
+//    public static final String MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT = "javafx.not.allowed.in.bind.context"; 
+//    public static final String MESSAGE_JAVAFX_BOUND_OVERRIDE_METH = "javafx.bound.override.meth"; 
+//    public static final String MESSAGE_JAVAFX_NON_BOUND_OVERRIDE_METH = "javafx.non.bound.override.meth"; 
+//    public static final String MESSAGE_JAVAFX_BASE_JAVA_CLASS_NON_PAPAR_CTOR = "javafx.base.java.class.non.papar.ctor"; 
+//    public static final String MESSAGE_JAVAFX_AMBIGUOUS_PARAM_TYPE_FROM_SUPER = "javafx.ambiguous.param.type.from.super"; 
+//    public static final String MESSAGE_JAVAFX_AMBIGUOUS_RETURN_TYPE_FROM_SUPER = "javafx.ambiguous.return.type.from.super"; 
+//    public static final String MESSAGE_JAVAFX_NOT_A_FUNC = "javafx.not.a.function"; 
+//    public static final String MESSAGE_JAVAFX_MUST_BE_AN_ATTRIBUTE = "javafx.must.be.an.attribute"; 
 
     public static final String MESSAGE_PLUGIN_CANNOT_FIND_PLUGIN = "plugin.cannot.find.plugin"; 
     public static final String MESSAGE_PLUGIN_CANNOT_LOAD_PLUGIN = "plugin.cannot.load.plugin"; 

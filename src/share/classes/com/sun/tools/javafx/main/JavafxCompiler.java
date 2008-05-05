@@ -779,8 +779,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         reportDeferredDiagnostics();
 
         if (!log.hasDiagnosticListener()) {
-            printCount(MsgSym.MESSAGE_ERROR, errorCount());
-            printCount(MsgSym.MESSAGE_WARN, warningCount());
+            printCount(MsgSym.MESSAGEPREFIX_ERROR, errorCount());
+            printCount(MsgSym.MESSAGEPREFIX_WARN, warningCount());
         }
         
         ((JavafxTypes) types).clearCaches();
