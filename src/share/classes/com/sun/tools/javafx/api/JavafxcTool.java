@@ -44,6 +44,7 @@ import com.sun.tools.javafx.main.Main;
 import com.sun.tools.javafx.main.RecognizedOptions.GrumpyHelper;
 import com.sun.tools.javafx.main.RecognizedOptions;
 import com.sun.tools.javafx.util.JavafxFileManager;
+import com.sun.tools.javafx.util.MsgSym;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Iterator;
@@ -162,7 +163,7 @@ public final class JavafxcTool implements JavafxCompiler {
                 if (fileManager.handleOption(flag, flags)) {
                     continue;
                 } else {
-                    String msg = Main.getLocalizedString("err.invalid.flag", flag);
+                    String msg = Main.getLocalizedString(MsgSym.MESSAGE_ERR_INVALID_FLAG, flag);
                     throw new IllegalArgumentException(msg);
                 }
             }
@@ -170,7 +171,7 @@ public final class JavafxcTool implements JavafxCompiler {
             JavafxOption option = recognizedOptions[j];
             if (option.hasArg()) {
                 if (!flags.hasNext()) {
-                    String msg = Main.getLocalizedString("err.req.arg", flag);
+                    String msg = Main.getLocalizedString(MsgSym.MESSAGE_ERR_REQ_ARG, flag);
                     throw new IllegalArgumentException(msg);
                 }
                 String operand = flags.next();

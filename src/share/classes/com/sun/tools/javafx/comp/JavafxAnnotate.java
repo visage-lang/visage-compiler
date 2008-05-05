@@ -148,7 +148,7 @@ public class JavafxAnnotate {
 	    return new Attribute.Compound(a.type, List.<Pair<MethodSymbol,Attribute>>nil());
 	if ((a.type.tsym.flags() & Flags.ANNOTATION) == 0) {
 	    log.error(a.annotationType.pos(), 
-                      "not.annotation.type", a.type.toString());
+                      MsgSym.MESSAGE_NOT_ANNOTATION_TYPE, a.type.toString());
 	    return new Attribute.Compound(a.type, List.<Pair<MethodSymbol,Attribute>>nil());
 	}
 	List<JCExpression> args = a.args;

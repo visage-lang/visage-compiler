@@ -106,33 +106,6 @@ public class MsgSym {
     public static final String MESSAGE_ERR_DIR_NOT_FOUND = "err.dir.not.found";
     public static final String MESSAGE_ERR_FILE_NOT_DIRECTORY = "err.file.not.directory";
     public static final String MESSAGE_ERR_NO_SOURCE_FILES = "err.no.source.files";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
-//    public static final String MESSAGE_ = "";
 
     // compiler messages
     public static final String MESSAGE_NEITHER_CONDITIONAL_SUBTYPE = "neither.conditional.subtype"; 
@@ -302,6 +275,7 @@ public class MsgSym {
     public static final String MESSAGE_OVERRIDE_INCOMPATIBLE_RET = "override.incompatible.ret";
     public static final String MESSAGE_OVERRIDE_UNCHECKED_RET = "override.unchecked.ret";
     public static final String MESSAGE_FATAL_ERR_NO_JAVA_LANG = "fatal.err.no.java.lang";
+    public static final String MESSAGE_NOT_ANNOTATION_TYPE = "not.annotation.type";
     
     // kindname
     public static final String KINDNAME = "kindname";

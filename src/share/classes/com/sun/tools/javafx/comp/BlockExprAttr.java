@@ -39,6 +39,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javafx.tree.JFXBlockExpression;
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javafx.util.MsgSym;
 
 /** This is the main context-dependent analysis phase in GJC. It
  *  encompasses name resolution, type checking and constant folding as
@@ -115,10 +116,10 @@ public class BlockExprAttr extends Attr  {
         if ((c.flags() & Flags.ANNOTATION) != 0) {
             if (tree.implementing.nonEmpty())
                 log.error(tree.implementing.head.pos(),
-                          "cant.extend.intf.annotation");
+                          MsgSym.MESSAGE_CANNOT_EXTEND_INTERFACE_ANNOTATION);
             if (tree.typarams.nonEmpty())
                 log.error(tree.typarams.head.pos(),
-                          "intf.annotation.cant.have.type.params");
+                          MsgSym.MESSAGE_INTF_ANNOTATION_CANNOT_HAVE_TYPE_PARAMS);
         } else {
             // Check that all extended classes and interfaces
             // are compatible (i.e. no two define methods with same arguments
@@ -142,7 +143,7 @@ public class BlockExprAttr extends Attr  {
 
         // Check that a generic class doesn't extend Throwable
         if (!c.type.allparams().isEmpty() && types.isSubtype(c.type, syms.throwableType))
-            log.error(tree.extending.pos(), "generic.throwable");
+            log.error(tree.extending.pos(), MsgSym.MESSAGE_GENERIC_THROWABLE);
 
         // Check that all methods which implement some
         // method conform to the method they implement.
