@@ -25,16 +25,18 @@
 
 package com.sun.tools.javafx.util;
 
+import java.io.IOException;
 import org.junit.Test;
 import org.junit.Assert;
 
 import java.util.*;
 import java.lang.reflect.*;
+import java.io.FileInputStream;
 
 public class MsgSymTest {
 
     @Test
-    public void testEnglishMessages() {
+    public void checkSymbolToMessageEN() {
         // get English resource-bundles
         LinkedList<ResourceBundle> resources = new LinkedList<ResourceBundle>();
         resources.add(ResourceBundle.getBundle("com.sun.tools.javac.resources.javac"));
@@ -42,16 +44,15 @@ public class MsgSymTest {
         resources.add(ResourceBundle.getBundle("com.sun.tools.javafx.resources.javafxcompiler"));
         
         // general test
-        testMessages(resources);
+        checkSymbolToMessage(resources);
     }
     
-    public static void testMessages(List<ResourceBundle> resources) {
+    public static void checkSymbolToMessage(List<ResourceBundle> resources) {
         // create map from bundles without prefixes
         Map<String, String> map = new HashMap<String, String>();
         String key = "";
         for (ResourceBundle bundle : resources) {
-            for (Enumeration<String> it = bundle.getKeys();
-                    it.hasMoreElements();) {
+            for (Enumeration<String> it = bundle.getKeys(); it.hasMoreElements(); ) {
                 key = it.nextElement();
                 if (key.startsWith(MsgSym.MESSAGEPREFIX_COMPILER_ERR))
                     map.put(key.substring(MsgSym.MESSAGEPREFIX_COMPILER_ERR.length()), bundle.getString(key));
@@ -63,7 +64,7 @@ public class MsgSymTest {
                     map.put(key.substring(MsgSym.MESSAGEPREFIX_JAVAC.length()), bundle.getString(key));
                 else
                 if (key.startsWith(MsgSym.MESSAGEPREFIX_COMPILER_MISC + MsgSym.MESSAGEPREFIX_VERBOSE))
-                    map.put(key.substring((MsgSym.MESSAGEPREFIX_COMPILER_MISC + MsgSym.MESSAGEPREFIX_VERBOSE).length()), bundle.getString(key));
+                    map.put(key.substring(MsgSym.MESSAGEPREFIX_COMPILER_MISC.length() + MsgSym.MESSAGEPREFIX_VERBOSE.length()), bundle.getString(key));
                 else
                 if (key.startsWith(MsgSym.MESSAGEPREFIX_COMPILER_MISC))
                     map.put(key.substring(MsgSym.MESSAGEPREFIX_COMPILER_MISC.length()), bundle.getString(key));
@@ -90,5 +91,64 @@ public class MsgSymTest {
             }
         }
     }
+    
+    @Test
+    public void checkMessageToSymbolEN() {
+        // read English message-list
+        Properties messages = new Properties();
+        try {
+            messages.load(new FileInputStream("src/share/classes/com/sun/tools/javafx/resources/javafxcompiler.properties"));
+
+            // general test
+            checkMessageToSymbol(messages);
+        } catch (IOException ex) {
+            Assert.fail("Unable to read message-file");
+        }
+        
+    }
+    
+    public static void checkMessageToSymbol(Properties messages) {
+        // create a set of all keys from symbol-table
+        Set keys = new HashSet();
+        Field[] fields = MsgSym.class.getFields();
+        for (Field cur : fields) {
+            if (cur.getName().startsWith("MESSAGE_")
+                    && Modifier.isPublic(cur.getModifiers())
+                    && Modifier.isStatic(cur.getModifiers())
+                    && Modifier.isFinal(cur.getModifiers())) {
+                try {
+                    keys.add(cur.get(null));
+                }
+                catch (Exception ex) {
+                    Assert.fail("Exception evaluating symbol " + cur.getName() + ".");
+                }
+            }
+        }
+        
+        // check if a symbol exists for every message 
+        String cur = "";
+        boolean found;
+        for (Enumeration it = messages.propertyNames(); it.hasMoreElements(); ) {
+            cur = (String)it.nextElement();
+            if (cur.startsWith(MsgSym.MESSAGEPREFIX_COMPILER_ERR))
+                found = keys.contains(cur.substring(MsgSym.MESSAGEPREFIX_COMPILER_ERR.length()));
+            else
+            if (cur.startsWith(MsgSym.MESSAGEPREFIX_COMPILER_WARN))
+                found = keys.contains(cur.substring(MsgSym.MESSAGEPREFIX_COMPILER_WARN.length()));
+            else
+            if (cur.startsWith(MsgSym.MESSAGEPREFIX_JAVAC))
+                found = keys.contains(cur.substring(MsgSym.MESSAGEPREFIX_JAVAC.length()));
+            else
+            if (cur.startsWith(MsgSym.MESSAGEPREFIX_COMPILER_MISC + MsgSym.MESSAGEPREFIX_VERBOSE))
+                found = keys.contains(cur.substring(MsgSym.MESSAGEPREFIX_COMPILER_MISC.length() + MsgSym.MESSAGEPREFIX_VERBOSE.length()));
+            else
+            if (cur.startsWith(MsgSym.MESSAGEPREFIX_COMPILER_MISC))
+                found = keys.contains(cur.substring(MsgSym.MESSAGEPREFIX_COMPILER_MISC.length()));
+            else
+                found = keys.contains(cur);
+            Assert.assertTrue("No message-symbol for key " + cur + " defined.", found);
+        }
+        
+    }    
 
 }
