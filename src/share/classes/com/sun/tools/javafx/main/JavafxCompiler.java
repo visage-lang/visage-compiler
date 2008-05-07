@@ -460,7 +460,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     protected JCCompilationUnit parse(JavaFileObject filename, CharSequence content) {
         long msec = now();
         JCCompilationUnit tree = null;
-        if ((content != null) && (content.toString().trim().length() != 0)) {
+        if (content != null) {
             if (verbose) {
                 printVerbose(MsgSym.MESSAGE_PARSING_STARTED, filename);
             }
@@ -471,8 +471,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             int initialErrorCount = log.nerrors;
             
             // Parse the input, returning the AST
-            
-            tree = syntacticAnalysis.parse(content);
+            tree = syntacticAnalysis.parse(content, filename.getName());
             parseErrors |= (log.nerrors > initialErrorCount);
             if (tree != null && lineDebugInfo) {
                 String hunk = content.toString();

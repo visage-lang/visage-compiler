@@ -48,7 +48,7 @@ public class JavafxSyntacticAnalysis {
         log = Log.instance(context);
     }
 
-    public JCCompilationUnit parse(CharSequence content) {
+    public JCCompilationUnit parse(CharSequence content, String fileName) {
         JCCompilationUnit unit = null;
         String parserChoice = options.get("parser");
         if (parserChoice == null) {
@@ -86,7 +86,7 @@ public class JavafxSyntacticAnalysis {
                     printTree(comTree, "---");
                 }            
             } catch (Throwable thr) {
-                System.err.println("Error in syntactic analysis:");
+                System.err.println("Error in syntactic analysis in " + fileName + ":");
                 thr.printStackTrace(System.err);
             }
         }
