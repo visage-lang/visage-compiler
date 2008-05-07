@@ -7,6 +7,7 @@ Module {
     name: "JavaFX"
     modules: [
     "jfx.assortis.lang.api.Configuration",
+    "jfx.assortis.lang.animation.Configuration",
     ]
     samples: [
         Sample{

@@ -326,6 +326,8 @@ public class AssortisProject  extends CompositeWidget{
             internalFrame.menubar = frame.menubar;
             internalFrame.content = frame.content;
             internalFrame.background = background;
+            //internalFrame.onClose = frame.onClose;
+            
             internalFrame.visible = true;
             
             
@@ -458,17 +460,22 @@ public class AssortisProject  extends CompositeWidget{
     
     function previewTimer(sample: ProjectSample, code: String, props: String):Void {
         var timer = keyTimers[t | t.name == sample.name ];
+        
+        var action = function(){
+                    createFrame(sample, code, 
+                        (currentPropTabs[0].content as EditorPane).text);
+                };
+        
         if (0 < sizeof timer ){
             var keyTimer = timer[0];
             keyTimer.time = System.currentTimeMillis();
+            keyTimer.action = action;
+            
         } else{
             insert KeyTimer{
                 name: sample.name
                 time: System.currentTimeMillis()
-                action: function(){
-                    createFrame(sample, code, 
-                        (currentPropTabs[0].content as EditorPane).text);
-                }
+                action: action
             } into keyTimers;
         }
     }
