@@ -15,16 +15,16 @@
     <target name="default" depends="jar,runtime,javafxdoc,install-scripts"
             description="Build javafxc compiler and runtime distribution"/>
 
-    <target name="all" depends="jar, runtime, test, javafxdoc, install-scripts, spec, javadoc, demos"
+    <target name="all" depends="jar, runtime, test, javafxdoc, install-scripts, spec, javadoc, pack-jars, demos"
             description="Build and test all project artifacts"/>
             
     <target name="dist" description="Build distribution bundles" depends="dist-init,dist-zip,dist-tgz"/>
     
-    <target name="dist-zip" description="Build distribution zip file" depends="jar, runtime, test, install-scripts, spec, javadoc, demos">
+    <target name="dist-zip" description="Build distribution zip file" depends="jar, runtime, test, install-scripts, spec, javadoc, pack-jars, demos">
         <zip basedir="dist" compress="true" destfile="${zip.bundle}" includes="${dist.includes}"/>
     </target>
     
-    <target name="dist-tgz" description="Build distribution gzipped tar file" depends="jar, runtime, test, install-scripts, spec, javadoc, demos">
+    <target name="dist-tgz" description="Build distribution gzipped tar file" depends="jar, runtime, test, install-scripts, spec, javadoc, pack-jars, demos">
         <tar basedir="dist" longfile="fail" compression="gzip" destfile="${tgz.bundle}" includes="${dist.includes}"/>
     </target>
 
@@ -478,5 +478,13 @@
             <property name="jar.excludes" value="META-INF/services/**,javafx/ui/**,com/sun/javafx/api/ui/**,com/sun/tools/javafx/ui/**"/>
             <property name="swing-layout.excludes" value="org/**"/>
         </ant>
+    </target>
+    
+    <target name="pack-jars" depends="runtime">
+        <taskdef name="pack200" classpath="${file.reference.pack200task.jar}"
+                 classname="com.sun.tools.apache.ant.pack200.Pack200Task"/>
+        <pack200 src="${dist.jar}" gzipoutput="true" destfile='${dist.jar}.pack.gz'/>
+        <pack200 src="${dist.javafxrt.jar}" gzipoutput="true" destfile='${dist.javafxrt.jar}.pack.gz'/>
+        <pack200 src="${dist.dir}/lib/Scenario.jar" gzipoutput="true" destfile='${dist.dir}/lib/Scenario.jar.pack.gz'/>
     </target>
 </project>
