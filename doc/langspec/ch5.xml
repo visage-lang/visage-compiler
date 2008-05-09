@@ -5,7 +5,9 @@
 
 <sect2 id="expr"><title>Expressions</title>
 <para>
-Unlike the Java programming language, the JavaFX Script programming language is an expression language. All executable statements are expressions which consist of zero or more inputs followed by a single output. This includes conditionals, loops, and even blocks. The following demo provides an example:
+Unlike the Java programming language, the JavaFX Script programming language is an expression language. All executable statements are expressions which consist of zero or more inputs followed by a single output. This includes conditionals, loops, and even blocks. </para>
+
+<para>The following demo provides an example:
 </para>
 
 <programlisting>
@@ -15,10 +17,10 @@ import java.lang.System;
 var rand = (Math.random() * 100).intValue();
 var s:String = null;
 if (rand % 2 == 0) {
-     s = "rand is even";
+     s = "rand is even"
 } else {
-     s = "rand is odd";
-}
+     s = "rand is odd"
+};
 
 System.out.println(s);
 </programlisting>
@@ -102,14 +104,14 @@ System.out.println(nums == [0,1,2,3]); // prints true
 
 
 
-<para>By default the interval between the values is 1 but it is also possible to specify a different interval by including the next number in the sequence after number1 separated by a comma. For example, the following expression defines an sequence consisting of the odd numbers between 1 and 10:
+<para>By default the interval between the values is 1 but it is also possible to specify a different interval. For example, the following expression defines an sequence consisting of the odd numbers between 1 and 10:
 </para>
 
 <programlisting>
-[1,3..10]
+[1..10 step 2]
 </programlisting>
 
-<para>To create a <emphasis>descending range</emphasis>, make sure the second value is less than the first, and specify a <emphasis>step value</emphasis>:
+<para>To create a <emphasis>descending range</emphasis>, make sure the second value is less than the first, and specify a negative step value:
 </para>
 
 <programlisting>
@@ -147,10 +149,10 @@ if (condition1) {
 
 </sect3><sect3 id="loop"><title>Looping Expressions</title>
 <para>
-The <code>for</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** -->
+The <code>for</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** --> <emphasis>TBD</emphasis>
 </para>
 <para>
-The <code>while</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** -->
+The <code>while</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** --><emphasis>TBD</emphasis>
 </para>
 
 </sect3></sect2>
@@ -214,12 +216,12 @@ The <code>break</code> and <code>continue</code> statements are
  similar to those of the Java Programming language; however labels are 
 not supported. The <code>break</code> and <code>continue</code> statements must appear inside the body of a <code>while</code> or <code>for</code> loop:</para>
 <!--
-<programlisting>
 &nbsp;                                    
-- **** <FONT COLOR="RED"> code EXAMPLE TBD </FONT> ***  
-</programlisting>
+- **** <FONT COLOR="RED"> code EXAMPLE TBD </FONT>
 -->
-
+<programlisting>
+<emphasis>      CODE EXAMPLE TBD </emphasis>
+</programlisting> 
 
 
 
@@ -1339,6 +1341,8 @@ System.out.println("abc".toUpperCase());
 System.out.println(x); 
 </programlisting>
 
+
+<!-- 
 <para>
 The demo above produces the following output:
 </para>
@@ -1367,6 +1371,8 @@ false
 ABC
 2
 </programlisting>
+
+-->
 
 
 </sect2> </chapter>

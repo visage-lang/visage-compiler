@@ -42,8 +42,8 @@ separated list of the names of base classes, an open curly brace, a list of attr
 FORMAL SYNTAX LISTING</FONT> *** -->
 </programlisting>
 
-
-
+</sect2>
+<sect2 id="importing"><title> Importing Classes</title> 
 
 <para>
 Import statements behave the same as in the Java programming language.
@@ -92,7 +92,60 @@ behavior of a constructor, define a <code>static</code> function that returns a 
  and invoke that function instead.</para>
 
  </sect2>
-<sect2 id="object"><title>Objects</title>
+ 
+ 
+ 
+<sect2 id="defining"><title> Defining Classes</title> 
+
+<para>The JavaFX Script programming language supports 
+multiple inheritance, and as such, defines some new terminology and rules: </para>
+
+<itemizedlist>
+<listitem>A <emphasis>plain class</emphasis> is any class that directly or indirectly extends a class written in the Java programming language.</listitem>
+
+<listitem>A <emphasis>compound class</emphasis> is any class that is not a plain class.</listitem>
+
+<listitem>By default, classes written in the JavaFX Script programming language are compound classses.</listitem>
+
+<listitem>Classes can extend, at most, one plain class; if it does, it becomes 
+a plain class. It may also extend any number of compound classes, or Java programming language interfaces. </listitem>
+</itemizedlist>
+
+
+
+<para>
+The syntax for specifying a class is the <code>class</code> keyword followed by the class name, optionally the <code>extends</code> keyword, and a comma 
+separated list of the names of base classes, an open curly brace, a list of attributes and functions that each end in a semicolon, and a closing curly brace.
+
+</para>
+
+<programlisting>
+<!-- 
+<FONT COLOR="RED"> 
+TO-DO: INSERT SYNTAX DIAGRAM
+</FONT> -->
+</programlisting>
+
+
+<para>
+By default a class 
+may only be accessed within the same source file (also known as <emphasis>module</emphasis> scope), but declaring it as "public" will allow it to be accessed from anywhere.
+Note that the JavaFX Script programming language does not support constructors. To mimic the 
+behavior of a constructor, define a <code>static</code> function that returns a new object,
+ and invoke that function instead.</para>
+
+ <!--
+<FONT COLOR="RED">
+TBD: INSERT code SAMPLES FOR PLAIN CLASSES AND COMPOUND CLASSES
+</FONT> -->
+
+</sect2> 
+
+ 
+ 
+ 
+ 
+<sect2 id="object"><title>Defining Objects</title>
 
 <para>As described in the previous chapter, the 
 preferred way to instantiate a class is with an <emphasis>object literal</emphasis>.

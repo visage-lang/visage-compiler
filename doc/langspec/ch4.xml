@@ -61,7 +61,8 @@ textArea.&lt;&lt;insert&gt;&gt;("Hello", 0);
 
 
 <para>
-The lifetime of a variable is at least the lifetime of the containing block. It can be longer if the variable is captured by a <emphasis>closure</emphasis>. Top-level variables are visible inside functions and classes. They act like private static fields of the module class.</para>
+The lifetime of a variable is at least the lifetime of the containing block. </para>
+
 
 </sect2>
 <sect2 id="datatype"><title>Basic Data Types</title>
@@ -173,7 +174,7 @@ The <code>Duration</code> type, however,
 </programlisting>
 
 <para>
-For the integral types, coercions are automatically performed when passing arguments or returning values to/from methods written in the Java programming language. In addition, implicit truncating coercions are performed when converting <code>Number</code>s to <code>Integer</code>s.
+For the integral types, coercions are automatically performed when passing arguments or returning values to/from methods written in the Java programming language.
 </para>
 
 <para>

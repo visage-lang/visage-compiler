@@ -13,7 +13,7 @@
 
 
 <programlisting>
-attribute <emphasis>AttributeName</emphasis> : <emphasis>AttributeType Cardinality</emphasis> ;
+attribute <emphasis>AttributeName</emphasis> : <emphasis>AttributeType </emphasis> ;
 </programlisting>
 
 <para>It is possible to declare default values for attributes (which can later be overridden by values provided in object literals.) The initializers are evaluated in the order the attributes are specified in the class declaration in the context of the newly created object: </para>
