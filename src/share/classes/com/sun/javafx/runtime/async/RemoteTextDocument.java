@@ -39,8 +39,8 @@ public class RemoteTextDocument extends AbstractRemoteResource<String> {
 
     public static final int BUF_SIZE = 8192;
 
-    public RemoteTextDocument(AsyncOperationListener<String> listener, String url) {
-        super(url, listener);
+    public RemoteTextDocument(AsyncOperationListener<String> listener, String url, String method) {
+        super(url, method, listener);
     }
 
     protected String processStream(InputStream stream) throws IOException {

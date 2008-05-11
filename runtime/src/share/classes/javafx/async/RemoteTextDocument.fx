@@ -1,14 +1,12 @@
 package javafx.async;
 
 import java.lang.*;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-
 
 public class RemoteTextDocument extends AbstractAsyncOperation {
     private attribute peer : com.sun.javafx.runtime.async.RemoteTextDocument;
     attribute document : String;
     attribute url : String;
+    attribute method : String = "GET";
 
     function cancel() {
         if (peer <> null) then peer.cancel();
@@ -20,7 +18,7 @@ public class RemoteTextDocument extends AbstractAsyncOperation {
     }
 
     function start() : Void {
-        peer = new com.sun.javafx.runtime.async.RemoteTextDocument(this, url);
+        peer = new com.sun.javafx.runtime.async.RemoteTextDocument(this, url, method);
         peer.start();
     }
 }

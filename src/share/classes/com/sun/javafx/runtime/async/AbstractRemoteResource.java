@@ -42,11 +42,17 @@ import java.net.URL;
 public abstract class AbstractRemoteResource<T> extends AbstractAsyncOperation<T> {
 
     protected final String url;
+    protected final String method;
     protected int fileSize;
 
     protected AbstractRemoteResource(String url, AsyncOperationListener<T> listener) {
+        this(url, "GET", listener);
+    }
+
+    protected AbstractRemoteResource(String url, String method, AsyncOperationListener<T> listener) {
         super(listener);
         this.url = url;
+        this.method = method;
     }
 
     protected abstract T processStream(InputStream stream) throws IOException;
@@ -54,6 +60,7 @@ public abstract class AbstractRemoteResource<T> extends AbstractAsyncOperation<T
     public T call() throws IOException {
         URL u = new URL(url);
         HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+        conn.setRequestMethod(method);
         fileSize = conn.getContentLength();
         setProgressMax(fileSize);
 
