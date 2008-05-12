@@ -5,24 +5,20 @@
 
 <sect2 id="iterate"><title>Sequence Iteration with <code>for</code></title>
 
-<para>The JavaFX Script programming language supports sequence comprehensions with 
-a familiar syntax that should be easily understood by most developers, namely 
-the <code>for</code> operator. </para>
 
 
-
-<para>A sequence comprehension consists of one or more input sequences, an optional filter, and an expression. Each input sequence is associated with a variable. The result of the sequence comprehension is a new sequence which is the result of applying the expression to the subset of the cartesian product of the source sequences' elements that satisfy the filter.
+<para>The JavaFX Script programming language supports sequence comprehensions with the <code>for</code> operator. A sequence comprehension consists of one or more input sequences, an optional filter, and an expression. Each input sequence is associated with a variable. The result of the sequence comprehension is a new sequence which is the result of applying the expression to the subset of the cartesian product of the source sequences' elements that satisfy the filter.
 </para>
 
+<programlisting><emphasis role="red">TO-DO: INSERT SYNTAX DIAGRAM HERE</emphasis></programlisting>
 
-
-
-<programlisting>
+<!--
+<programlisting >
 &nbsp;
-<!-- **** <FONT COLOR="RED">ENGINEERING TO PROVIDE FORMAL SYNTAX HERE
-</FONT> *** -->
+ **** <FONT COLOR="RED">ENGINEERING TO PROVIDE FORMAL SYNTAX HERE
+</FONT> *** 
 </programlisting>
-
+-->
 <para>
 The following program demonstrates this syntax,  using the <code>for</code> operator to identify the title tracks in a list of albums:</para>
 
@@ -64,21 +60,19 @@ var albums =
      }];
 
 
-for (album in albums) {
-     for(track in album.tracks) {
-          if(album.title == track) {
-               java.lang.System.out.println("TITLE TRACK = {track}");
-          } else {
-               java.lang.System.out.println("Track = {track}");
-          }
-     }
+for (album in albums, track in album.tracks) {
+    if (album.title == track)
+        java.lang.System.out.println("TITLE TRACK = {track}")
+    else
+        java.lang.System.out.println("Track = {track}")
+        } 
+    }
 }
 </programlisting>
 
 <para><emphasis role="bold">Output:</emphasis></para>
 
 <programlisting>
-
 TITLE TRACK = A Hard Day's Night
 Track = I Should Have Known Better
 Track = If I Fell
@@ -110,13 +104,29 @@ function factors(n:Number) {
 }
 </programlisting>
 
+<para>Within a for-comprehension, the <code>indexof</code> operator can be used; its syntax is <code>indexof <emphasis>name</emphasis>  </code> where <emphasis>name</emphasis> is the name of an iteration variable. The value is the "index" of the iteration within in the base sequence:</para>
 
-</sect2>  <sect2 id="specifier"><title>Sequence Comprehension Specifiers</title>
-<para>
+<programlisting role="red">
+TBD: CODE SAMPLE
+</programlisting>
+
+<para>The <emphasis>indexof</emphasis> operator can also be used in sequence selection, as shown in the following example: </para>
+
+<programlisting>
+var nums = [1..5];
+var numsExceptTheFirstTwo = nums[n|indexof n > 1]; // returns 3,4,5
+</programlisting>
+
+
+</sect2>  
+
+<sect2 id="specifier"><title>Modifying Sequence Variables</title>
+
+<!-- <para>
 In addition to the <code>for</code> operator shown above, 
 the following <emphasis>sequence comprehension specifiers</emphasis> provide a convenient and simple mechanism for accessing or modifying 
 the elements of a sequence:
-</para>
+</para> -->
 
 <para>
 <code>insert</code> inserts a new element into a sequence:
@@ -140,6 +150,7 @@ delete seq[idx]
 delete seq[a..b] // and all other slice forms: a..&gt;b a..
 </programlisting>
 
+<!--
 <para>
 <code>sizeof</code> returns the number of elements in a sequence:
 </para>
@@ -147,6 +158,7 @@ delete seq[a..b] // and all other slice forms: a..&gt;b a..
 <programlisting>
 sizeof seq
 </programlisting>
+
 
 
 <para>
@@ -165,6 +177,7 @@ indexof seq[idx]
 <programlisting>
 reverse seq
 </programlisting>
+-->
 
 <para>The following code provides examples of each:</para>
 
@@ -191,6 +204,8 @@ nums = [1..10];
 delete nums[5..]; // result is [1,2,3,4,5]
 delete nums[0..&gt;]; // result is [5]
 
+<!--
+
 // SIZEOF EXAMPLES 
 
 nums = [1..5];
@@ -203,6 +218,16 @@ var numsExceptTheFirstTwo = nums[n|indexof n > 1]; // returns 3,4,5
 
 // REVERSE EXAMPLES 
 
+nums = [1..5];
+reverse nums; // returns 5,4,3,2,1 
+-->
+</programlisting>
+
+<para>
+It is also possible to reverse elements of a sequence:
+</para>
+
+<programlisting>
 nums = [1..5];
 reverse nums; // returns 5,4,3,2,1
 </programlisting>

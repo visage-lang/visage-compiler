@@ -34,7 +34,7 @@ var lastName : String = "Doe";
 
 
 <para>
-Variable naming conventions are the same as found in the Java programming language. Classes should capitalize the first letter of each word (<code>MyClass</code>); function names should begin in lowercase but capitalize the first letter of each subsequent word (<code>myFunctionName</code>); constants should appear in all uppercase with words separated by the underscore character (<code>MY_CONSTANT</code>.)</para>
+Variable naming conventions are the same as found in the <trademark>Java</trademark> programming language. Classes should capitalize the first letter of each word (<code>MyClass</code>); function names should begin in lowercase but capitalize the first letter of each subsequent word (<code>myFunctionName</code>); constants should appear in all uppercase with words separated by the underscore character (<code>MY_CONSTANT</code>.)</para>
 
 
 <para>

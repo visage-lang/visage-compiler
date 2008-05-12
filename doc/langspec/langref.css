@@ -67,6 +67,11 @@ caption {font-family:arial; font-style:italic; font-weight: bold; color: #224488
        
 .style1 {font-family: "Courier New", Courier, monospace}
 
+pre.red {color: red; }
+
+.red {color: red; }
+
+
 table.oper {
 width: 80%;
 margin-left: 24pt;

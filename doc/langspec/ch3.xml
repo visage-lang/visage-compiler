@@ -65,8 +65,8 @@ Default Value:
 
 <para>For for more information on these data types, see Chapter 4, 
 
-<emphasis><ulink
-    url="types.html">Variables and Basic Data Types</ulink></emphasis>.
+<ulink
+    url="types.html"><emphasis>Variables and Basic Data Types</emphasis></ulink>.
 </para>
 
 </sect2>
@@ -104,8 +104,7 @@ function grow(): Void {
 ...
 </programlisting>
 
-<para>The demo also provided an overloaded version allowing the user to 
-specify a particular size: </para>
+<para>The demo also provided an overloaded version allowing the user to specify a particular size: </para>
 
 <programlisting>
 

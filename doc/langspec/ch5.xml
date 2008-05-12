@@ -75,8 +75,7 @@ and a conditional expression: <code>a &lt; b ? a : b</code>.</para>
 </sect3><sect3 id="range"><title>Range Expressions</title>
 
 <para>
-Chapter 1 introduced you to sequences; chapter 6 covers them in full detail. 
-But even with only a basic understanding of sequences, it should be possible to understand range expressions. 
+
 <emphasis>Range expressions</emphasis> 
  define a sequence of values forming an arithmetic series using the following 
 syntax: </para>
@@ -149,10 +148,10 @@ if (condition1) {
 
 </sect3><sect3 id="loop"><title>Looping Expressions</title>
 <para>
-The <code>for</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** --> <emphasis>TBD</emphasis>
+The <code>for</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** --> <emphasis role="red">TBD</emphasis>
 </para>
 <para>
-The <code>while</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** --><emphasis>TBD</emphasis>
+The <code>while</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** --><emphasis role="red">TBD</emphasis>
 </para>
 
 </sect3></sect2>
@@ -231,15 +230,6 @@ not supported. The <code>break</code> and <code>continue</code> statements must 
 The JavaFX Script programming language provides standard operators similar to
  those found in the Java programming language. The following chart lists these operators by precedence, comparing to their Java programming language equivalent.
 </para>
-
-
-<!--
-<programlisting>
-
- **** <FONT COLOR="RED">TO-DO: COPY OPERATOR CHART HERE</FONT> *** 
-</programlisting>
--->
-
 
 <!-- *********** operator table ************************* -->
 
@@ -1318,27 +1308,27 @@ var x = 2;
 var y = 4;
 var a = true;
 var b = false;
-System.out.println(x == y);  
-System.out.println(x &lt;&gt; y); 
-System.out.println(x &lt; y); 
-System.out.println(x &gt; y);  
-System.out.println(x &gt;= y); 
-System.out.println(x &lt;= y);  
-System.out.println(x + y);  
-System.out.println(x - y);  
-System.out.println(x * y);  
-System.out.println(x / y);   
-System.out.println(x % y);   
-System.out.println(a and b); 
-System.out.println(a or b);  
-System.out.println(not a);  
-System.out.println(sizeof [x,y]); 
-System.out.println([x,y][e | indexof e == 0]);  
-System.out.println(if (a) x else y); 
-System.out.println(for(q in [x, y] where q &lt; 3) q); 
-System.out.println(Math.max(x, y)); 
-System.out.println("abc".toUpperCase()); 
-System.out.println(x); 
+System.out.println(x == y); // prints false 
+System.out.println(x &lt;&gt; y); // prints true
+System.out.println(x &lt; y);  // prints true
+System.out.println(x &gt; y);  // prints false
+System.out.println(x &gt;= y); // prints false
+System.out.println(x &lt;= y);  // prints true
+System.out.println(x + y);  // prints 6
+System.out.println(x - y);  // prints -2
+System.out.println(x * y);  // prints 8
+System.out.println(x / y);   // prints 0
+System.out.println(x % y);   // prints 2
+System.out.println(a and b); // prints false
+System.out.println(a or b);  // prints true
+System.out.println(not a);  // prints false
+System.out.println(sizeof [x,y]); // prints 2 
+System.out.println([x,y][e | indexof e == 0]); // prints [ 2 ]  
+System.out.println(if (a) x else y); // prints 2
+System.out.println(for(q in [x, y] where q &lt; 3) q); // prints [ 2 ]
+System.out.println(Math.max(x, y)); // prints 4
+System.out.println("abc".toUpperCase()); // prints ABC 
+System.out.println(x); // prints 2
 </programlisting>
 
 
