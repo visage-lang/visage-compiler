@@ -66,4 +66,8 @@
         <Class name="com.sun.tools.javafx.comp.JavafxTypeMorpher$BindAnalysis"/>
         <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
+    <Match>
+        <!-- Exclude package javafx.reflect (in the flux) -->
+        <Package name="javafx.reflect"/>
+    </Match>
 </FindBugsFilter>

@@ -49,11 +49,15 @@ public class FunctionType extends Type.ClassType {
                 orig.mtype);
     }
 
+    @Override
     public List<Type>        getParameterTypes() { return mtype.getParameterTypes(); } 
+    @Override
     public Type              getReturnType()     { return mtype.restype; }
     
+    @Override
     public MethodType asMethodType () { return mtype; }
     
+    @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append("function(");
@@ -72,4 +76,14 @@ public class FunctionType extends Type.ClassType {
         s.append(mtype == null ? "???" : mtype.restype);
         return s.toString();
     }
+    @Override
+    public boolean equals(Object t) {
+        return super.equals(t);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
 }

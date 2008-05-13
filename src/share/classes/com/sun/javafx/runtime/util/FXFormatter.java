@@ -2799,14 +2799,6 @@ public final class FXFormatter implements Closeable, Flushable {
             return c;
         }
 
-        private char conversion() {
-            return c;
-        }
-
-        private char conversion2() {
-            return c2;
-        }
-
         FormatSpecifier(FXFormatter formatter, String[] sa) {
             this.formatter = formatter;
             int idx = 0;

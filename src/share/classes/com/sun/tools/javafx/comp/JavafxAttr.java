@@ -1567,7 +1567,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     @Override
     public void visitFunctionValue(JFXFunctionValue tree) {
-        Scope enclScope = JavafxEnter.enterScope(env);
         JFXFunctionDefinition def = new JFXFunctionDefinition(make.Modifiers(Flags.SYNTHETIC), defs.lambdaName, tree);
         tree.definition = def;
         MethodSymbol m = new MethodSymbol(SYNTHETIC, def.name, null, env.enclClass.sym);
@@ -2227,17 +2226,17 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
         // Fix types of numeric arguments with non -specified type.
         Symbol lhsSym = TreeInfo.symbol(tree.lhs);
-        if (lhsSym != null && tree.lhs instanceof JCExpression &&
+        if (lhsSym != null && 
                 (lhsSym.type == null || lhsSym.type == Type.noType || lhsSym.type == syms.javafx_AnyType)) {
             JFXVar lhsVarTree = varSymToTree.get(lhsSym);
-            owntype = setBinaryTypes(tree.getTag(), (JCExpression)tree.lhs, lhsVarTree, lhsSym.type, lhsSym);
+            owntype = setBinaryTypes(tree.getTag(), tree.lhs, lhsVarTree, lhsSym.type, lhsSym);
         }
 
         Symbol rhsSym = TreeInfo.symbol(tree.rhs);
-        if (rhsSym != null  && tree.rhs instanceof JCExpression &&
+        if (rhsSym != null  && 
                 (rhsSym.type == null || rhsSym.type == Type.noType || rhsSym.type == syms.javafx_AnyType)) {
             JFXVar rhsVarTree = varSymToTree.get(rhsSym);
-            operand = setBinaryTypes(tree.getTag(), (JCExpression)tree.rhs, rhsVarTree, rhsSym.type, rhsSym);
+            operand = setBinaryTypes(tree.getTag(), tree.rhs, rhsVarTree, rhsSym.type, rhsSym);
         }
 
         // Find operator.
@@ -2414,18 +2413,18 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         boolean lhsSet = false;
 
         Symbol lhsSym = TreeInfo.symbol(tree.lhs);
-        if (lhsSym != null && tree.lhs instanceof JCExpression &&
+        if (lhsSym != null && 
                 (lhsSym.type == null || lhsSym.type == Type.noType || lhsSym.type == syms.javafx_AnyType)) {
             JFXVar lhsVarTree = varSymToTree.get(lhsSym);
-            left = setBinaryTypes(tree.getTag(), (JCExpression)tree.lhs, lhsVarTree, lhsSym.type, lhsSym);
+            left = setBinaryTypes(tree.getTag(), tree.lhs, lhsVarTree, lhsSym.type, lhsSym);
             lhsSet = true;
         }
 
         Symbol rhsSym = TreeInfo.symbol(tree.rhs);
-        if (rhsSym != null  && ((tree.rhs instanceof JCExpression &&
-                (rhsSym.type == null || rhsSym.type == Type.noType || rhsSym.type == syms.javafx_AnyType))) || (lhsSet && lhsSym == rhsSym)) {
+        if (rhsSym != null  && 
+                (rhsSym.type == null || rhsSym.type == Type.noType || rhsSym.type == syms.javafx_AnyType) || (lhsSet && lhsSym == rhsSym)) {
             JFXVar rhsVarTree = varSymToTree.get(rhsSym);
-            right = setBinaryTypes(tree.getTag(), (JCExpression)tree.rhs, rhsVarTree, rhsSym.type, rhsSym);
+            right = setBinaryTypes(tree.getTag(), tree.rhs, rhsVarTree, rhsSym.type, rhsSym);
         }
 
         Symbol sym = 
@@ -2788,9 +2787,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             attribClass(tree.pos(), tree, c);
             
             result = tree.type = c.type;
+
+            types.addFxClass(c, tree);
         }
-        
-        types.addFxClass(c, tree);
     }
     
     private void attribSupertypes(JFXClassDeclaration tree, ClassSymbol c) {

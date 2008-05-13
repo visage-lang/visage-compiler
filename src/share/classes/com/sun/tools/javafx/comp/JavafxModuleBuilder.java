@@ -299,7 +299,7 @@ public class JavafxModuleBuilder {
                     JCModifiers mods = (JCModifiers)tree;
                     if (mods.getAnnotations().isEmpty() &&
                         mods.getFlags().isEmpty() || 
-                        (mods.flags & Flags.SYNTHETIC) > 0)
+                        (mods.flags & Flags.SYNTHETIC) != 0)
                         return;
                 }
                 

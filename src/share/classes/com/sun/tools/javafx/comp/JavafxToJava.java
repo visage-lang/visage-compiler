@@ -229,7 +229,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             
         }
         if (types.isArray(sourceType) && types.isSequence(type)) {
-            ListBuffer<JCStatement> stats = ListBuffer.lb();
             Type elemType = types.elemtype(sourceType);
             String mname = "fromArray";
             if (elemType.isPrimitive())
@@ -2432,7 +2431,11 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 translatedFalseSide = translate(falseSide);
             }
             JCExpression translatedTrueSide = convertTranslated(translate(trueSide), trueSide, trueSide.type, tree.type);
-            translatedFalseSide = convertTranslated(translatedFalseSide, falseSide, falseSide.type, tree.type);
+            if (falseSide != null) {
+                translatedFalseSide = convertTranslated(translatedFalseSide, falseSide, falseSide.type, tree.type);
+            } else {
+                translatedFalseSide = convertTranslated(translatedFalseSide, null, trueSide.type, tree.type);
+            }
             result = make.at(diagPos).Conditional(cond, translatedTrueSide, translatedFalseSide);
         } else {
             result = make.at(diagPos).If(cond, 
@@ -3264,9 +3267,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         DiagnosticPosition diagPos = tree.pos();
         JCExpression clsname = fxmake.at(diagPos).Type(syms.javafx_KeyValueType);
         ((JCFieldAccess) clsname).sym = syms.javafx_KeyValueType.tsym;
-        JCExpression interp = tree.interpolation;
-        if (interp == null)
-            interp = fxmake.at(tree.pos).Literal(TypeTags.BOT, null);
         final Symbol targetSymbol = syms.javafx_KeyValueType.tsym.members().lookup(defs.targetName).sym;
         JFXObjectLiteralPart targetLiteral = fxmake.at(tree.pos()).ObjectLiteralPart(defs.targetName, tree.attribute);
         targetLiteral.sym = targetSymbol;

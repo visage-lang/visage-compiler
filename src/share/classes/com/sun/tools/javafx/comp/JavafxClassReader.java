@@ -25,7 +25,6 @@
 
 package com.sun.tools.javafx.comp;
 
-import java.io.*;
 import java.util.IdentityHashMap;
 import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javac.code.*;
@@ -40,9 +39,6 @@ import static com.sun.tools.javac.code.TypeTags.*;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxFlags;
-import static com.sun.tools.javafx.comp.JavafxDefs.*;
-
-import static javax.tools.StandardLocation.*;
 
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
@@ -139,6 +135,7 @@ public class JavafxClassReader extends ClassReader {
 
     /** Define a new class given its name and owner.
      */
+    @Override
     public ClassSymbol defineClass(Name name, Symbol owner) {
         ClassSymbol c = new JavafxClassSymbol(0, name, owner);
         if (owner.kind == PCK)
@@ -334,19 +331,30 @@ public class JavafxClassReader extends ClassReader {
                         ntype = (ClassType) sym.type;
                     else
                         ntype = new ClassType(null, null, sym) {
-                        boolean completed = false;
-                        public Type getEnclosingType() {
-                            if (!completed) {
-                                completed = true;
-                                tsym.complete();
-                                super.setEnclosingType(translateType(ctype.getEnclosingType()));
+                            boolean completed = false;
+                            @Override
+                            public Type getEnclosingType() {
+                                if (!completed) {
+                                    completed = true;
+                                    tsym.complete();
+                                    super.setEnclosingType(translateType(ctype.getEnclosingType()));
+                                }
+                                return super.getEnclosingType();
                             }
-                            return super.getEnclosingType();
-                        }
-                        public void setEnclosingType(Type outer) {
-                            throw new UnsupportedOperationException();
-                        }
-                    };
+                            @Override
+                            public void setEnclosingType(Type outer) {
+                                throw new UnsupportedOperationException();
+                            }
+                            @Override
+                            public boolean equals(Object t) {
+                                return super.equals(t);
+                            }
+
+                            @Override
+                            public int hashCode() {
+                                return super.hashCode();
+                            }
+                        };
                     typeMap.put(type, ntype); // In case of a cycle.
                     ntype.typarams_field = translateTypes(type.getTypeArguments());
                     return ntype;

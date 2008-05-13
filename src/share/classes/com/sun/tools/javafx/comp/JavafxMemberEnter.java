@@ -85,7 +85,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     private final Target target;
 
     private final boolean skipAnnotations;
-    private JavafxEnv<JavafxAttrContext> localEnv;
     
     public static JavafxMemberEnter instance(Context context) {
         JavafxMemberEnter instance = context.get(javafxMemberEnterKey);
@@ -597,9 +596,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     @Override
     public void visitReturn(JCReturn tree) {
         super.visitReturn(tree);
-        if (localEnv != null) {
-            attr.attribStat(tree, localEnv);
-        }
     }
 
 // Javafx modification
@@ -758,21 +754,21 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
         ClassSymbol c = (ClassSymbol)sym;
         ClassType ct = (ClassType)c.type;
-        JavafxEnv<JavafxAttrContext> env = enter.typeEnvs.get(c);
-        JFXClassDeclaration tree = (JFXClassDeclaration)env.tree;
+        JavafxEnv<JavafxAttrContext> localEnv = enter.typeEnvs.get(c);
+        JFXClassDeclaration tree = (JFXClassDeclaration)localEnv.tree;
         boolean wasFirst = isFirst;
         isFirst = false;
 
-        JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
+        JavaFileObject prev = log.useSource(localEnv.toplevel.sourcefile);
         try {
             // Save class environment for later member enter (2) processing.
-            halfcompleted.append(env);
+            halfcompleted.append(localEnv);
 
             // If this is a toplevel-class, make sure any preceding import
             // clauses have been seen.
             if (c.owner.kind == PCK) {
-                memberEnter(env.toplevel, env.enclosing(JCTree.TOPLEVEL));
-                todo.append(env);
+                memberEnter(localEnv.toplevel, localEnv.enclosing(JCTree.TOPLEVEL));
+                todo.append(localEnv);
             }
 
             // Mark class as not yet attributed.
@@ -782,7 +778,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 c.owner.complete();
 
             // create an environment for evaluating the base clauses
-            JavafxEnv<JavafxAttrContext> baseEnv = baseEnv(tree, env);
+            JavafxEnv<JavafxAttrContext> baseEnv = baseEnv(tree, localEnv);
             //TODO: solesupertype implies a bug
             Type supertype = null, solesupertype = null;  
             ListBuffer<Type> interfaces = new ListBuffer<Type>();
@@ -792,7 +788,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 ListBuffer<JCExpression> implementing = ListBuffer.<JCExpression>lb();
                 boolean compound = (tree.getModifiers().flags & Flags.FINAL) == 0;
                 for (JCExpression stype : tree.getSupertypes()) {
-                    Type st = attr.attribType(stype, env);
+                    Type st = attr.attribType(stype, localEnv);
                     
                     if (st.isInterface()) {
                         implementing.append(stype);
@@ -881,13 +877,13 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 VarSymbol thisSym =
                     new VarSymbol(FINAL | HASINIT, names._this, c.type, c);
                 thisSym.pos = Position.FIRSTPOS;
-                env.info.scope.enter(thisSym);
+                localEnv.info.scope.enter(thisSym);
                 if (ct.supertype_field.tag == CLASS && solesupertype != null) {
                     VarSymbol superSym =
                         new VarSymbol(FINAL | HASINIT, names._super,
                                       solesupertype, c);
                     superSym.pos = Position.FIRSTPOS;
-                    env.info.scope.enter(superSym);
+                    localEnv.info.scope.enter(superSym);
                 }
             }
 
