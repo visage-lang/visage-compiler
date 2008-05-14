@@ -29,6 +29,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
 import java.util.logging.Logger;
 
 /**
@@ -52,8 +55,7 @@ public class ToolProvider {
                 getPath("com.sun.tools.javafx.api.JavafxcTool"),
                 getPath("com.sun.tools.javac.util.Context")
             };
-            ClassLoader parent = JavafxCompiler.class.getClassLoader();
-            ClassLoader cl = new CompilerClassLoader(urls, parent);
+            ClassLoader cl = createPrivilegedClassLoader(urls);
             Class<?> cls = Class.forName("com.sun.tools.javafx.api.JavafxcTool", false, cl);
             return (JavafxCompiler)cls.newInstance();
         } catch (Throwable t) {
@@ -73,13 +75,21 @@ public class ToolProvider {
                 getPath("com.sun.tools.javafx.script.JavaFXScriptEngineImpl"),
                 getPath("com.sun.tools.javac.util.Context")
             };
-            ClassLoader parent = JavafxCompiler.class.getClassLoader();
-            ClassLoader cl = new CompilerClassLoader(urls, parent);
+            ClassLoader cl = createPrivilegedClassLoader(urls);
             Class<?> cls = Class.forName("com.sun.tools.javafx.script.JavaFXScriptEngineImpl", false, cl);
             return (JavaFXScriptEngine)cls.newInstance();
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
+    }
+    
+    private static ClassLoader createPrivilegedClassLoader(final URL[] urls) throws PrivilegedActionException {
+        return (ClassLoader)AccessController.doPrivileged(new PrivilegedAction() {
+            public Object run() {
+                ClassLoader parent = JavafxCompiler.class.getClassLoader();
+                return new CompilerClassLoader(urls, parent);
+            }
+        });
     }
 
     /**
