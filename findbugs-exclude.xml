@@ -7,29 +7,25 @@
         <Package name="com.sun.javafx.runtime.awt"/>
     </Match>
     <Match>
+    		<!-- Offending methods are inherited from javac -->
         <Class name="com.sun.tools.javafx.tree.JavafxTreeMaker" />
         <Bug  pattern="NM_METHOD_NAMING_CONVENTION" />
     </Match>
     <Match>
+    		<!-- Offending classes are generated -->
         <Package name="com.sun.tools.javafx.resources"/>
         <Bug pattern="NM_CLASS_NAMING_CONVENTION"/>
     </Match>
     <Match>
-        <Class name="com.sun.tools.javafx.main.RecognizedOptions$20"/>
+    		<!-- On purpose, sets global state -->
+        <Class name="~com\.sun\.tools\.javafx\.main\.RecognizedOptions\$[0-9]+"/>
+        <Method name="process"/>
         <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
     </Match>
     <Match>
-        <Class name="com.sun.tools.javafx.ant.JavaFxAntTask$JavaFxCompilerAdapter"/>
-        <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED"/>
-    </Match>
-    <Match>
+    		<!-- Reference points to (immutable) sequence -->
         <Class name="com.sun.javafx.runtime.sequence.CartesianProduct"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
-    </Match>
-    <Match>
-        <Package name="com.sun.tools.javafx.comp"/>
-        <Bug pattern="URF_UNREAD_FIELD"/>
-        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
     </Match>
     <Match>
         <!-- Exclude Duration.fx -->
@@ -50,24 +46,26 @@
         <Bug pattern="SF_SWITCH_FALLTHROUGH"/>
     </Match>
     <Match>
-        <!-- Duplicate branch is temporary solution -->
-        <Class name="com.sun.tools.javafx.comp.JavafxAttr"/>
-        <Method name="visitSequenceExplicit"/>
-        <Bug pattern="DB_DUPLICATE_BRANCHES"/>
+        <!-- Error in findbugs, confuses two scan-methods in superclass -->
+        <Class name="com.sun.tools.javafx.comp.JavafxEnter"/>
+        <Method name="scan"/>
+        <Bug pattern="NM_WRONG_PACKAGE_INTENTIONAL"/>
     </Match>
     <Match>
-        <!-- Flag permeateBind is not implemented yet -->
-        <Class name="com.sun.tools.javafx.comp.JavafxToJava"/>
-        <Method name="boundMethodBody"/>
-        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+        <Class name="com.sun.tools.javafx.ant.JavaFxAntTask$JavaFxCompilerAdapter"/>
+        <Method name="execute"/>
+        <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED"/>
     </Match>
+    
+    <!-- Temporarily disabled because work in progress -->
     <Match>
-        <!-- Unread variables are for future use -->
-        <Class name="com.sun.tools.javafx.comp.JavafxTypeMorpher$BindAnalysis"/>
-        <Bug pattern="URF_UNREAD_FIELD"/>
-    </Match>
-    <Match>
-        <!-- Exclude package javafx.reflect (in the flux) -->
+        <!-- Exclude package javafx.reflect -->
         <Package name="javafx.reflect"/>
+    </Match>
+    <Match>
+        <!-- Field isSimple is not implemented yet -->
+        <Class name="~com\.sun\.tools\.javafx\.comp\.JavafxToBound\$[0-9]+"/>
+        <Field name="isSimple"/>
+        <Bug pattern="SS_SHOULD_BE_STATIC"/>
     </Match>
 </FindBugsFilter>
