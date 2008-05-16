@@ -559,7 +559,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         tree.sym = sym;
         sym.complete();
         if (sym.type == null) {
-            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE, tree.name);
+            JFXVar var = varSymToTree.get(sym);
+            if (var != null)
+                log.error(var, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL, tree.name);
+            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, tree.name);
             sym.type = syms.objectType;
         }
 
@@ -684,7 +687,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         tree.sym = sym;
 
         if (sym.type == null) {
-            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE, sym.name);
+            JFXVar var = varSymToTree.get(sym);
+            if (var != null)
+                log.error(var, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL, sym.name);
+            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, sym.name);
             sym.type = syms.objectType;
         }
 

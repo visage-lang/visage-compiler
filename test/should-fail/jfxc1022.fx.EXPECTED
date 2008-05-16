@@ -1,4 +1,7 @@
-jfxc1022.fx:17: Need explicit type for x because of a cycle.
+jfxc1022.fx:15: Need explicit type for x because of cycle in initialization.
+  attribute x = bind
+  ^
+jfxc1022.fx:17: This is the cyclic reference to x that prevents type inference. 
       else box.holders[index-1].x + 1.0
                                ^
-1 error
+2 errors

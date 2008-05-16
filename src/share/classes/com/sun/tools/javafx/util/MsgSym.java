@@ -310,7 +310,8 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_CANNOT_IMPORT_BOOLEAN_PRIMITIVE_TYPE = "javafx.can.not.import.boolean.primitive.type"; 
     public static final String MESSAGE_JAVAFX_CANNOT_IMPORT_NUMBER_PRIMITIVE_TYPE = "javafx.can.not.import.number.primitive.type"; 
     public static final String MESSAGE_JAVAFX_CANNOT_IMPORT_STRING_PRIMITIVE_TYPE = "javafx.can.not.import.string.primitive.type"; 
-    public static final String MESSAGE_JAVAFX_TYPE_INFER_CYCLE = "javafx.type.infer.cycle"; 
+    public static final String MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL = "javafx.type.infer.cycle.var.decl";
+    public static final String MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF = "javafx.type.infer.cycle.var.ref";
     public static final String MESSAGE_JAVAFX_FUNC_TYPE_INFER_CYCLE = "javafx.function.type.infer.cycle"; 
     public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_JAVA_CLASS_ALLOWED = "javafx.only.one.base.java.class.allowed"; 
     public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEFAULT_INITIALIZER = "javafx.cannot.override.default.initializer"; 
