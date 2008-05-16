@@ -1183,6 +1183,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             Type elemtype;
             // must implement Sequence<T>?
             Type base = types.asSuper(exprType, syms.javafx_SequenceType.tsym);
+            if (base == null)
+                base = types.asSuper(exprType, syms.iterableType.tsym);
             if (base == null) {
                 elemtype = exprType;
             } else {

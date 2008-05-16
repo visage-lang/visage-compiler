@@ -2356,6 +2356,17 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         null),
                     seq,
                     stmt);
+            } else if (types.asSuper(clause.seqExpr.type, syms.iterableType.tsym) != null) {
+                stmt = make.at(clause).ForeachLoop(
+                    // loop variable is synthetic should not be bound
+                    // even if we are in a bind context
+                    make.VarDef(
+                        make.Modifiers(0L), 
+                        tmpVarName, 
+                        makeTypeTree(var,var.type, true), 
+                        null),
+                    translate(clause.seqExpr),
+                    stmt);
             } else {
                 // The "sequence" isn't a Sequence.
                 // Compile: { var tmp = seq; if (tmp!=null) stmt; }
