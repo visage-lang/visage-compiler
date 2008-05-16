@@ -89,16 +89,49 @@
       <file leaf-file-name="FxHighlighter.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxHighlighter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="28" column="8" selection-start="903" selection-end="915" vertical-scroll-proportion="0.015810277">
+            <state line="10" column="21" selection-start="378" selection-end="378" vertical-scroll-proportion="0.15579358">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FxTokens.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="163" column="85" selection-start="4846" selection-end="4846" vertical-scroll-proportion="0.5540409">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FxElementType.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxElementType.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="7" column="0" selection-start="240" selection-end="240" vertical-scroll-proportion="0.109055504">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="IElementType.class" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/psi/tree/IElementType.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="5" column="13" selection-start="159" selection-end="159" vertical-scroll-proportion="0.06324111">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FxTokens.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java">
+      <file leaf-file-name="Enum.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://C:/Program Files/Java/jdk1.6.0_03/src.zip!/java/lang/Enum.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="129" column="4" selection-start="2357" selection-end="2357" vertical-scroll-proportion="0.015810277">
+            <state line="40" column="24" selection-start="1272" selection-end="1272" vertical-scroll-proportion="0.19279455">
               <folding />
             </state>
           </provider>
@@ -113,10 +146,35 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FxLexer.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="FxLexer.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLexer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="13" column="15" selection-start="240" selection-end="240" vertical-scroll-proportion="0.1869523">
+            <state line="47" column="33" selection-start="1681" selection-end="1681" vertical-scroll-proportion="0.45180136">
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="method#getTokenStart#0;class#FxLexer#0" expanded="true" />
+                <element signature="method#getTokenEnd#0;class#FxLexer#0" expanded="true" />
+                <element signature="method#getBufferEnd#0;class#FxLexer#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Test.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/Test.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="22" column="24" selection-start="695" selection-end="712" vertical-scroll-proportion="0.34274587">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Token.class" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/org/antlr/runtime/Token.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="11" column="28" selection-start="304" selection-end="304" vertical-scroll-proportion="0.15579358">
               <folding />
             </state>
           </provider>
@@ -125,7 +183,16 @@
       <file leaf-file-name="NewFxClassAction.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/NewFxClassAction.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="21" column="13" selection-start="660" selection-end="660" vertical-scroll-proportion="0.14229248">
+            <state line="50" column="37" selection-start="1969" selection-end="1969" vertical-scroll-proportion="0.59201556">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CommonBundle.class" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/CommonBundle.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="25" column="35" selection-start="1425" selection-end="1425" vertical-scroll-proportion="0.37944663">
               <folding />
             </state>
           </provider>
@@ -134,8 +201,25 @@
       <file leaf-file-name="FxCompiler.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxCompiler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="35" column="13" selection-start="1240" selection-end="1240" vertical-scroll-proportion="0.015810277">
-              <folding />
+            <state line="35" column="13" selection-start="1240" selection-end="1240" vertical-scroll-proportion="0.015579358">
+              <folding>
+                <marker date="1209442758937" expanded="true" signature="1179:1226" placeholder="/**...*/" />
+                <marker date="1209442758937" expanded="true" signature="1636:2097" placeholder="{...}" />
+                <marker date="1209442758937" expanded="true" signature="2304:2343" placeholder="{...}" />
+                <marker date="1209442758937" expanded="true" signature="2437:2516" placeholder="{...}" />
+                <marker date="1209442758937" expanded="true" signature="2613:6209" placeholder="{...}" />
+                <marker date="1209442758937" expanded="true" signature="5212:5667" placeholder="{...}" />
+                <marker date="1209442758937" expanded="true" signature="5298:5653" placeholder="{...}" />
+                <marker date="1209442758937" expanded="true" signature="5801:6202" placeholder="{...}" />
+                <marker date="1209442758937" expanded="true" signature="5861:5998" placeholder="{...}" />
+                <marker date="1209442758937" expanded="true" signature="6055:6192" placeholder="{...}" />
+                <marker date="1209442758937" expanded="true" signature="6259:6308" placeholder="{...}" />
+                <marker date="1209442758937" expanded="true" signature="6378:6406" placeholder="{...}" />
+                <marker date="1209442758937" expanded="true" signature="6536:7301" placeholder="{...}" />
+                <marker date="1209442758937" expanded="true" signature="6702:7273" placeholder="{...}" />
+                <marker date="1209442758937" expanded="true" signature="6734:7263" placeholder="{...}" />
+                <marker date="1209442758937" expanded="true" signature="7358:9070" placeholder="{...}" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -143,7 +227,7 @@
       <file leaf-file-name="FxFileType.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxFileType.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="17" selection-start="385" selection-end="385" vertical-scroll-proportion="0.1869523">
+            <state line="17" column="26" selection-start="394" selection-end="394" vertical-scroll-proportion="0.1869523">
               <folding />
             </state>
           </provider>
@@ -152,8 +236,11 @@
       <file leaf-file-name="FxLanguage.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLanguage.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="12" column="5" selection-start="250" selection-end="250" vertical-scroll-proportion="0.1869523">
-              <folding />
+            <state line="23" column="0" selection-start="598" selection-end="598" vertical-scroll-proportion="0.3583252">
+              <folding>
+                <element signature="imports" expanded="true" />
+                <marker date="1210915548954" expanded="true" signature="261:308" placeholder="/**...*/" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -161,7 +248,27 @@
       <file leaf-file-name="FxPlugin.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxPlugin.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="14" column="13" selection-start="614" selection-end="614" vertical-scroll-proportion="0.21811101">
+            <state line="21" column="0" selection-start="772" selection-end="772" vertical-scroll-proportion="0.3271665">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Lexer.class" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/lexer/Lexer.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="30" column="22" selection-start="742" selection-end="742" vertical-scroll-proportion="0.45180136">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="LexerBase.class" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/lexer/LexerBase.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="5" column="22" selection-start="165" selection-end="165" vertical-scroll-proportion="0.06231743">
               <folding />
             </state>
           </provider>
@@ -180,8 +287,8 @@
     <option name="HIDE_CLASSES_WHERE_METHOD_NOT_IMPLEMENTED" value="false" />
   </component>
   <component name="LogFilters">
-    <option name="FILTER_ERRORS" value="false" />
-    <option name="FILTER_WARNINGS" value="false" />
+    <option name="FILTER_ERRORS" value="true" />
+    <option name="FILTER_WARNINGS" value="true" />
     <option name="FILTER_INFO" value="true" />
     <option name="CUSTOM_FILTER" />
   </component>
@@ -255,7 +362,7 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:L:\work\openjfx-compiler\sandbox\intellij-plugin" />
+          <option name="myItemId" value="PsiDirectory:D:\IdeaProjects\fxplugin" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -269,15 +376,55 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:L:\work\openjfx-compiler\sandbox\intellij-plugin" />
+          <option name="myItemId" value="PsiDirectory:D:\IdeaProjects\fxplugin" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:L:\work\openjfx-compiler\sandbox\intellij-plugin\src" />
+          <option name="myItemId" value="PsiDirectory:D:\IdeaProjects\fxplugin\src" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:L:\work\openjfx-compiler\sandbox\intellij-plugin\src\com\sun\javafx\ideaplugin" />
+          <option name="myItemId" value="PsiDirectory:D:\IdeaProjects\fxplugin\src\com\sun\javafx\ideaplugin" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="fxplugin" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="fxplugin" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:D:\IdeaProjects\fxplugin" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:D:\IdeaProjects\fxplugin\resources" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:D:\IdeaProjects\fxplugin\resources\icons" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="fxplugin" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="fxplugin" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:D:\IdeaProjects\fxplugin" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="PsiDirectory:D:\IdeaProjects\fxplugin\META-INF" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -309,54 +456,32 @@
     <property name="GoToClass.includeLibraries" value="false" />
     <property name="MemberChooser.copyJavadoc" value="false" />
   </component>
+  <component name="PsiViewer.ProjectComponent">
+    <option name="HIGHLIGHT" value="true" />
+    <option name="FILTER_WHITESPACE" value="false" />
+    <option name="SHOW_PROPERTIES" value="true" />
+    <option name="SPLIT_DIVIDER_POSITION" value="300" />
+    <option name="AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="AUTOSCROLL_FROM_SOURCE" value="false" />
+  </component>
   <component name="RecentsManager">
-    <key name="IntroduceConstantDialog.RECENTS_KEY">
-      <recent name="" />
-    </key>
     <key name="MoveMembersDialog.RECENTS_KEY">
       <recent name="com.sun.javafx.ideaplugin.FxPlugin" />
+    </key>
+    <key name="IntroduceConstantDialog.RECENTS_KEY">
+      <recent name="" />
     </key>
     <key name="CreateClassDialog.RecentsKey">
       <recent name="com.sun.javafx.ideaplugin" />
     </key>
   </component>
   <component name="RunManager" selected="Plugin.fx">
-    <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
-      <module name="fxplugin" />
-      <option name="VM_PARAMETERS" value=" -Xms32m -Xmx256m -XX:MaxPermSize=120m -ea" />
-      <option name="PROGRAM_PARAMETERS" />
-    </configuration>
     <configuration default="true" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
       <option name="SERVER_MODE" value="false" />
       <option name="SHMEM_ADDRESS" value="javadebug" />
       <option name="HOST" value="localhost" />
       <option name="PORT" value="5005" />
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="C:/Program Files/JetBrains/IntelliJ IDEA 6.0/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-    </configuration>
-    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
-      <option name="MAIN_CLASS_NAME" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="" />
-      <envs />
     </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <module name="" />
@@ -379,6 +504,36 @@
       <method>
         <option name="Make" value="true" />
       </method>
+    </configuration>
+    <configuration default="true" type="Application" factoryName="Application" enabled="false" merge="false">
+      <option name="MAIN_CLASS_NAME" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="" />
+      <envs />
+    </configuration>
+    <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
+      <module name="fxplugin" />
+      <option name="VM_PARAMETERS" value=" -Xms32m -Xmx256m -XX:MaxPermSize=120m -ea" />
+      <option name="PROGRAM_PARAMETERS" />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="C:/Program Files/JetBrains/IntelliJ IDEA 6.0/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
     </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG" enabled="false" merge="false">
       <module name="" />
@@ -409,6 +564,29 @@
         <option name="Make" value="true" />
       </method>
     </configuration>
+    <configuration default="false" name="Unnamed" type="Application" factoryName="Application" enabled="false" merge="false">
+      <option name="MAIN_CLASS_NAME" value="com.sun.javafx.ideaplugin.Test" />
+      <option name="VM_PARAMETERS" value="" />
+      <option name="PROGRAM_PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="fxplugin" />
+      <envs />
+      <RunnerSettings RunnerId="JProfiler">
+        <option name="WINDOW" value="false" />
+        <option name="JVMPI" value="false" />
+        <option name="INTERPRETED" value="false" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
     <configuration default="false" name="fx" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
       <module name="fxplugin" />
       <option name="VM_PARAMETERS" value=" -Xms32m -Xmx256m -XX:MaxPermSize=120m -ea" />
@@ -431,8 +609,9 @@
         <option name="Make" value="true" />
       </method>
     </configuration>
-    <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="Plugin.fx" />
+    <list size="2">
+      <item index="0" class="java.lang.String" itemvalue="Application.Unnamed" />
+      <item index="1" class="java.lang.String" itemvalue="Plugin.fx" />
     </list>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
@@ -504,32 +683,33 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-4" y="-4" width="1928" height="1155" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="2" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
-      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="4" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="2" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3297975" order="1" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39922854" order="2" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="9" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="5" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="10" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3297975" order="11" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="7" />
       <window_info id="Atlassian" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="0" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="7" />
+      <window_info id="Maven projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="6" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.17832355" order="0" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3297975" order="6" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24986653" order="3" />
+      <window_info id="PsiViewer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29578218" order="-1" />
+      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="4" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3297975" order="1" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39922854" order="2" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3297975" order="11" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="3" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39989322" order="1" />
-      <window_info id="Maven projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="6" />
       <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="12" />
+      <window_info id="ScratchPad" active="false" anchor="right" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2461292" order="8" />
       <window_info id="Module Dependencies" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="7" />
-      <window_info id="ScratchPad" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24345969" order="8" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.17832355" order="0" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="13" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24986653" order="3" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="5" />
       <window_info id="Duplicates" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="14" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3297975" order="6" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="5" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="4" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="0" />
       <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
@@ -599,67 +779,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$APPLICATION_HOME_DIR$/lib/icons.jar!/fileTypes/java.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/openapi/compiler/TranslatingCompiler.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="17" selection-start="171" selection-end="171" vertical-scroll-proportion="0.06324111">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/javax/tools/SimpleJavaFileObject.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="13" selection-start="149" selection-end="149" vertical-scroll-proportion="0.06231743">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.6.0_03/src.zip!/javax/tools/FileObject.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="17" selection-start="1009" selection-end="1009" vertical-scroll-proportion="0.34274587">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/com/sun/javafx/api/JavafxCompiler.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="26" selection-start="899" selection-end="899" vertical-scroll-proportion="0.17391305">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/com/sun/javafx/api/JavafxcTask.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="16" selection-start="159" selection-end="159" vertical-scroll-proportion="0.06231743">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/com/sun/tools/javac/jvm/ClassReader.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="264" column="25" selection-start="14821" selection-end="14821" vertical-scroll-proportion="0.33300394">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/com/sun/tools/javac/util/JavacFileManager.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="180" column="18" selection-start="10720" selection-end="10720" vertical-scroll-proportion="0.33300394">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/javax/tools/ForwardingJavaFileObject.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="13" selection-start="149" selection-end="149" vertical-scroll-proportion="0.06231743">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files/Java/jdk1.6.0_03/src.zip!/javax/tools/JavaFileObject.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="33" column="17" selection-start="925" selection-end="925" vertical-scroll-proportion="0.3271665">
@@ -688,23 +807,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/psi/tree/IElementType.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="13" selection-start="159" selection-end="159" vertical-scroll-proportion="0.06324111">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/lib/resources.jar!/standardSchemas/plugin.dtd">
       <provider selected="true" editor-type-id="text-editor">
         <state line="146" column="4" selection-start="4344" selection-end="4344" vertical-scroll-proportion="1.1197512">
           <folding />
         </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/fx.flex">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="152" column="0" selection-start="5076" selection-end="5076" vertical-scroll-proportion="2.403162" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/META-INF/plugin.xml">
@@ -714,16 +821,107 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxHighlighter.java">
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxCompiler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="8" selection-start="903" selection-end="915" vertical-scroll-proportion="0.015810277">
+        <state line="35" column="13" selection-start="1240" selection-end="1240" vertical-scroll-proportion="0.015579358">
+          <folding>
+            <marker date="1209442758937" expanded="true" signature="1179:1226" placeholder="/**...*/" />
+            <marker date="1209442758937" expanded="true" signature="1636:2097" placeholder="{...}" />
+            <marker date="1209442758937" expanded="true" signature="2304:2343" placeholder="{...}" />
+            <marker date="1209442758937" expanded="true" signature="2437:2516" placeholder="{...}" />
+            <marker date="1209442758937" expanded="true" signature="2613:6209" placeholder="{...}" />
+            <marker date="1209442758937" expanded="true" signature="5212:5667" placeholder="{...}" />
+            <marker date="1209442758937" expanded="true" signature="5298:5653" placeholder="{...}" />
+            <marker date="1209442758937" expanded="true" signature="5801:6202" placeholder="{...}" />
+            <marker date="1209442758937" expanded="true" signature="5861:5998" placeholder="{...}" />
+            <marker date="1209442758937" expanded="true" signature="6055:6192" placeholder="{...}" />
+            <marker date="1209442758937" expanded="true" signature="6259:6308" placeholder="{...}" />
+            <marker date="1209442758937" expanded="true" signature="6378:6406" placeholder="{...}" />
+            <marker date="1209442758937" expanded="true" signature="6536:7301" placeholder="{...}" />
+            <marker date="1209442758937" expanded="true" signature="6702:7273" placeholder="{...}" />
+            <marker date="1209442758937" expanded="true" signature="6734:7263" placeholder="{...}" />
+            <marker date="1209442758937" expanded="true" signature="7358:9070" placeholder="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/lexer/Lexer.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="30" column="22" selection-start="742" selection-end="742" vertical-scroll-proportion="0.45180136">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java">
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/lexer/LexerBase.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="129" column="4" selection-start="2357" selection-end="2357" vertical-scroll-proportion="0.015810277">
+        <state line="5" column="22" selection-start="165" selection-end="165" vertical-scroll-proportion="0.06231743">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/CommonBundle.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="35" selection-start="1425" selection-end="1425" vertical-scroll-proportion="0.37944663">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/NewFxClassAction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="50" column="37" selection-start="1969" selection-end="1969" vertical-scroll-proportion="0.59201556">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/com/sun/tools/javafx/antlr/v3Lexer.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="5" column="13" selection-start="164" selection-end="164" vertical-scroll-proportion="0.06324111">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.6.0_03/src.zip!/java/lang/Enum.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="40" column="24" selection-start="1272" selection-end="1272" vertical-scroll-proportion="0.19279455">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxFileType.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="17" column="26" selection-start="394" selection-end="394" vertical-scroll-proportion="0.1869523">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxPlugin.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="21" column="0" selection-start="772" selection-end="772" vertical-scroll-proportion="0.3271665">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/org/antlr/runtime/Token.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="28" selection-start="304" selection-end="304" vertical-scroll-proportion="0.15579358">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/Test.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="22" column="24" selection-start="695" selection-end="712" vertical-scroll-proportion="0.34274587">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/com/sun/tools/javafx/antlr/Lexer.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="35" selection-start="1108" selection-end="1108" vertical-scroll-proportion="0.33300877">
           <folding />
         </state>
       </provider>
@@ -735,45 +933,66 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/NewFxClassAction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="13" selection-start="660" selection-end="660" vertical-scroll-proportion="0.14229248">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxCompiler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="13" selection-start="1240" selection-end="1240" vertical-scroll-proportion="0.015810277">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxFileType.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="17" selection-start="385" selection-end="385" vertical-scroll-proportion="0.1869523">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLanguage.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="5" selection-start="250" selection-end="250" vertical-scroll-proportion="0.1869523">
+        <state line="23" column="0" selection-start="598" selection-end="598" vertical-scroll-proportion="0.3583252">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <marker date="1210915548954" expanded="true" signature="261:308" placeholder="/**...*/" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/openapi/fileTypes/SyntaxHighlighterBase.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="73" selection-start="669" selection-end="669" vertical-scroll-proportion="0.17391305">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxPlugin.java">
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxHighlighter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="13" selection-start="614" selection-end="614" vertical-scroll-proportion="0.21811101">
-          <folding />
+        <state line="10" column="21" selection-start="378" selection-end="378" vertical-scroll-proportion="0.15579358">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLexer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="15" selection-start="240" selection-end="240" vertical-scroll-proportion="0.1869523">
+        <state line="47" column="33" selection-start="1681" selection-end="1681" vertical-scroll-proportion="0.45180136">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#getTokenStart#0;class#FxLexer#0" expanded="true" />
+            <element signature="method#getTokenEnd#0;class#FxLexer#0" expanded="true" />
+            <element signature="method#getBufferEnd#0;class#FxLexer#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/psi/tree/IElementType.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="5" column="13" selection-start="159" selection-end="159" vertical-scroll-proportion="0.06324111">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxElementType.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="7" column="0" selection-start="240" selection-end="240" vertical-scroll-proportion="0.109055504">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="163" column="85" selection-start="4846" selection-end="4846" vertical-scroll-proportion="0.5540409">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

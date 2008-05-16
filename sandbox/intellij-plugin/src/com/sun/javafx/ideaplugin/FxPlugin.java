@@ -18,11 +18,11 @@ import javax.swing.*;
  * FXSupportLoader
  */
 public class FxPlugin implements ApplicationComponent {
+    public static final Language FX_LANGUAGE = new FxLanguage();
     public static final LanguageFileType FX_FILE_TYPE = new FxFileType();
     public static final String FX_FILE_EXTENSION = "fx";
     public static final String FX_LANGUAGE_NAME = "JavaFX Script";
     public static final Icon FX_CLASS_ICON = IconLoader.getIcon("/icons/fx-class.png");
-    public static final Language FX_LANGUAGE = new FxLanguage();
 
     public FxPlugin() {
     }
