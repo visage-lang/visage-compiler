@@ -29,7 +29,7 @@ package javafx.reflect;
  * Corresponds to {@code java.lang.reflect.Field},
  * and {@code com.sun.jdi.Field}, respectively.
  */
-public abstract class AttributeRef extends MemberRef {
+public abstract class AttributeRef implements MemberRef {
     protected AttributeRef() {
     }
 
@@ -47,4 +47,21 @@ public abstract class AttributeRef extends MemberRef {
     }
 
     public abstract void initValue(ObjectRef obj, ValueRef ref);
+    
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("attribute ");
+        TypeRef owner = getDeclaringType();
+        if (owner != null) {
+            String oname = owner.getName();
+            if (oname != null) {
+                sb.append(oname);
+                sb.append('.');
+            }
+        }
+        sb.append(getName());
+        sb.append(':');
+        getType().toStringTerse(sb);
+        return sb.toString();
+    }
 }

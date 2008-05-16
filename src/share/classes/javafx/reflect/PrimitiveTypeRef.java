@@ -26,4 +26,11 @@
 package javafx.reflect;
 
 class PrimitiveTypeRef extends TypeRef {
+    Class clas;
+    String name;
+    PrimitiveTypeRef(Class clas, String name) {
+        this.clas = clas;
+        this.name = name;
+    }
+    public String getName() { return name; }
 };

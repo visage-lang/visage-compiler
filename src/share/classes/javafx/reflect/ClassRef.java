@@ -30,12 +30,25 @@ import java.util.*;
  * Corresponds to {@code java.lang.Class}.
  */
 
-public abstract class ClassRef extends TypeRef {
+public abstract class ClassRef extends TypeRef implements MemberRef {
     String name;
     ReflectionContext context;
     protected int modifiers;
     protected static final int COMPOUND_CLASS = 1;
     protected static final int FX_CLASS = 2;
+
+    public static final String SEQUENCE_CLASSNAME =
+            "com.sun.javafx.runtime.sequence.Sequence";
+    public static final String OBJECT_VARIABLE_CLASSNAME =
+            "com.sun.javafx.runtime.location.ObjectVariable";
+    public static final String SEQUENCE_VARIABLE_CLASSNAME =
+            "com.sun.javafx.runtime.location.SequenceVariable";
+    public static final String DOUBLE_VARIABLE_CLASSNAME =
+            "com.sun.javafx.runtime.location.DoubleVariable";
+    public static final String INT_VARIABLE_CLASSNAME =
+            "com.sun.javafx.runtime.location.IntVariable";
+    public static final String FUNCTION_CLASSNAME_PREFIX =
+            "com.sun.javafx.functions.Function";
 
     protected ClassRef(ReflectionContext context, int modifiers) {
         this.context = context;
@@ -81,30 +94,56 @@ public abstract class ClassRef extends TypeRef {
         return false;
     }
 
-    public abstract void getMembers(MemberHandler handler, boolean all);
-
+    public List<MemberRef> getMembers(MemberFilter filter, boolean all) {
+        SortedMemberArray<MemberRef> result = new SortedMemberArray<MemberRef>();
+        if (all) {
+            List<ClassRef> supers = getSuperClasses(all);
+            for (ClassRef cl : supers)
+                cl.getMembers(filter, result);
+        }
+        else
+            getMembers(filter, result);
+        return result;
+    }
     public List<MemberRef> getMembers(boolean all) {
-        final List<MemberRef> result = new ArrayList<MemberRef>();
-        getMembers(new MemberHandler() {
-            public boolean handle(MemberRef member) {
-                result.add(member);
-                return false;
-            }
-          }, all);
+        return getMembers(new MemberFilter(), all);
+    }
+    protected void getMembers(MemberFilter filter, SortedMemberArray<MemberRef> result) {
+        getAttributes(filter, result);
+        getMethods(filter, result);
+    }
+    
+    public List<MethodRef> getMethods(MemberFilter filter, boolean all) {
+        SortedMemberArray<MethodRef> result = new SortedMemberArray<MethodRef>();
+        if (all) {
+            List<ClassRef> supers = getSuperClasses(all);
+            for (ClassRef cl : supers)
+                cl.getMethods(filter, result);
+        }
+        else
+            getMethods(filter, result);
         return result;
     }
-
+    public List<MethodRef> getMethods(boolean all) {
+        return getMethods(MemberFilter.acceptMethods(), all);
+    }
+    protected abstract void getMethods(MemberFilter filter, SortedMemberArray<? super MethodRef> result);
+    
+    public List<AttributeRef> getAttributes(MemberFilter filter, boolean all) {
+        SortedMemberArray<AttributeRef> result = new SortedMemberArray<AttributeRef>();
+        if (all) {
+            List<ClassRef> supers = getSuperClasses(all);
+            for (ClassRef cl : supers)
+                cl.getAttributes(filter, result);
+        }
+        else
+            getAttributes(filter, result);
+        return result;
+    }
     public List<AttributeRef> getAttributes(boolean all) {
-        final List<AttributeRef> result = new ArrayList<AttributeRef>();
-        getMembers(new MemberHandler() {
-            public boolean handle(MemberRef member) {
-                if (member instanceof AttributeRef)
-                    result.add((AttributeRef) member);
-                return false;
-            }
-          }, all);
-        return result;
+        return getAttributes(MemberFilter.acceptAttributes(), all);
     }
+    protected abstract void getAttributes(MemberFilter filter, SortedMemberArray<? super AttributeRef> result);
 
     public ReflectionContext getReflectionContect() {
         return context;
@@ -137,4 +176,41 @@ public abstract class ClassRef extends TypeRef {
     }
     //  public void initAttributeBinding(AttributeRef field, LocationRef value);
     */
+    
+    protected static class SortedMemberArray<T extends MemberRef> extends AbstractList<T> {
+        MemberRef[] buffer = new MemberRef[4];
+        int sz;
+        public T get(int index) {
+            if (index >= sz)
+                throw new IndexOutOfBoundsException();
+            return (T) buffer[index];
+        }
+        public int size() { return sz; }
+        // This is basically 'add' under a different non-public name.
+        boolean insert(T cl) {
+            String clname = cl.getName();
+            // We could use binary search, but the lack of a total order
+            // for ClassLoaders complicates that.  Linear search should be ok.
+            int i = 0;
+            for (; i < sz; i++) {
+                MemberRef c = buffer[i];
+                int cmp = c.getName().compareTo(clname);
+                if (cmp > 0)
+                    break;
+                if (cmp == 0) {
+                    // Arbitrary order.  FIXME
+                    break;
+                }
+            }
+            if (sz == buffer.length) {
+                MemberRef[] tmp = new MemberRef[2*sz];
+                System.arraycopy(buffer, 0, tmp, 0, sz);
+                buffer = tmp;
+            }
+            System.arraycopy(buffer, i, buffer, i+1, sz-i);
+            buffer[i] = cl;
+            sz++;
+            return true;
+        }
+    }
 }

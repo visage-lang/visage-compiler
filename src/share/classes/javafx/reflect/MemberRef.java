@@ -30,9 +30,7 @@ package javafx.reflect;
  * and {@code com.sun.jdi.TypeComponent}, respectively.
  */
 
-public abstract class MemberRef {
-    MemberRef() {
-    }
+public interface MemberRef {
     public abstract String getName();
     public abstract TypeRef getDeclaringType();
     public abstract boolean isStatic();

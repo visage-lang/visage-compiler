@@ -33,6 +33,22 @@ public abstract class TypeRef {
     TypeRef() {
     }
 
+    /** Return name of type, or null ofr an unnamed type. */
+    public String getName() {
+        return null;
+    }
+    
+    protected void toStringTerse(StringBuilder sb) {
+        String name = getName();
+        sb.append(name == null ? "<anonymous>" : name);
+    }
+    
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        toStringTerse(sb);
+        return sb.toString();
+    }
+
     /** Get a {@code SequenceTypeRef} using this as the item type. */
     public SequenceTypeRef getSequenceType() {
         return new SequenceTypeRef(this);

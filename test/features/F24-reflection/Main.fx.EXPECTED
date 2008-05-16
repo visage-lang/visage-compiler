@@ -1,7 +1,35 @@
 clsSquare=class Main.Square jfx-class:true compound:true
-Sq.super: [class javafx.ui.canvas.Rect]
+Sq.super: [class Main.MyRect]
 clsSimple=class Main.Simple jfx-class:true  compound:false
 Simpl.super: [class Main.Square, class java.lang.Object]
-Simpl.super/all: [class Main.Simple, class Main.Square, class java.lang.Object, class javafx.ui.canvas.AbstractPathElement, class javafx.ui.canvas.CanvasElement, class javafx.ui.canvas.Node, class javafx.ui.canvas.Rect, class javafx.ui.canvas.Shape, class javafx.ui.canvas.SizeableCanvasElement, class javafx.ui.canvas.Transformable, class javafx.ui.canvas.VisualNode]
+Simpl.super (inherited also):
+  class Main.MyCanvasItem
+  class Main.MyRect
+  class Main.MyShape
+  class Main.Simple
+  class Main.Square
+  class java.lang.Object
 clsString=class java.lang.String jfx-class:false compound:false
-Str.super: [class java.io.Serializable, class java.lang.CharSequence, class java.lang.Comparable, class java.lang.Object, class java.lang.String]
+String .super (inherited also):
+  class java.io.Serializable
+  class java.lang.CharSequence
+  class java.lang.Comparable
+  class java.lang.Object
+  class java.lang.String
+Square methods (inherited also):
+  function Main.Square.corners():java.awt.geom.Point2D[]
+  function Main.MyRect.corners():java.awt.geom.Point2D[]
+  function Main.Square.transformed():Main.MyShape
+  function Main.MyShape.transformed():Main.MyShape
+  function Main.MyRect.transformed():Main.MyShape
+MyRect.methods: 
+  function Main.MyRect.corners():java.awt.geom.Point2D[]
+  function Main.MyRect.transformed():Main.MyShape
+MyRect attributes: 
+  attribute Main.MyRect.crners:java.awt.geom.Point2D[]
+MyRect attributes (inherited also): 
+  crners : java.awt.geom.Point2D[]
+  shapeFunAttr1 : function(Number,java.lang.String):Integer
+  shapeIntAttr : Integer
+  shapeNumAttr : Number
+  shapeStrAttr : class java.lang.String

@@ -28,27 +28,27 @@ package javafx.reflect;
 /** A run-time representation of a JavaFX function type. */
 
 public class FunctionTypeRef extends TypeRef {
-  int minArgs;
-  TypeRef[] argTypes;
-  boolean varArgs;
-  TypeRef returnType;
+    protected int minArgs;
+    protected TypeRef[] argTypes;
+    protected boolean varArgs;
+    protected TypeRef returnType;
 
-  FunctionTypeRef() {
-  }
+    FunctionTypeRef() {
+    }
 
-  /** The fixed (minimum) number of arguments needed.
-   * Does not count varargs, and (possible future) optional args.
-   */
-  public int minArgs() { return minArgs; }
+    /** The fixed (minimum) number of arguments needed.
+     * Does not count varargs, and (possible future) optional args.
+     */
+    public int minArgs() { return minArgs; }
 
-  /** Was this method declarfed to take a variable number of arguments?
-   * Note that varArgs aren't yet supported in JavaFX. */
-  public boolean isVarArgs() { return varArgs; }
+    /** Was this method declarfed to take a variable number of arguments?
+     * Note that varArgs aren't yet supported in JavaFX. */
+    public boolean isVarArgs() { return varArgs; }
 
-  public TypeRef getArgumentType(int i) {
-    return argTypes[varArgs && i >= minArgs ? minArgs : i]; }
+    public TypeRef getArgumentType(int i) {
+        return argTypes[varArgs && i >= minArgs ? minArgs : i]; }
 
-  public TypeRef getReturnType() { return returnType; }
+    public TypeRef getReturnType() { return returnType; }
 
     public boolean equals(FunctionTypeRef ftype) {
         if (minArgs != ftype.minArgs || varArgs != ftype.varArgs
@@ -59,6 +59,23 @@ public class FunctionTypeRef extends TypeRef {
                 return false;
         }
         return true;
+    }
+    
+    public void toStringRaw(StringBuilder sb) {
+        sb.append('(');
+        int n = minArgs();
+        for (int i = 0; i < n; i++) {
+            if (i > 0)
+                sb.append(',');
+            getArgumentType(i).toStringTerse(sb);
+        }
+        sb.append(')');
+        sb.append(':');
+        returnType.toStringTerse(sb);
+    }
+    protected void toStringTerse(StringBuilder sb) {
+        sb.append("function");
+        toStringRaw(sb);
     }
 }
 

@@ -30,7 +30,7 @@ package javafx.reflect;
  * {@code com.sun.jdi.Methods}, respectively.
  */
 
-public abstract class MethodRef extends MemberRef {
+public abstract class MethodRef implements MemberRef {
     protected MethodRef() {
     }
 
@@ -51,5 +51,22 @@ public abstract class MethodRef extends MemberRef {
 
     /** Invoke this method on the given receiver and arguments. */
     public abstract ValueRef invoke(ObjectRef owner, ValueRef... arg);
+    
+        
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("function ");
+        TypeRef owner = getDeclaringType();
+        if (owner != null) {
+            String oname = owner.getName();
+            if (oname != null) {
+                sb.append(oname);
+                sb.append('.');
+            }
+        }
+        sb.append(getName());
+        getType().toStringRaw(sb);
+        return sb.toString();
+    }
 }
 

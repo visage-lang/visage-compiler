@@ -25,6 +25,7 @@
 
 package javafx.reflect;
 import java.util.*;
+import java.lang.reflect.*;
 
 /** Implementation of {@link ReflectionContext} using Java reflection.
  * Can only access objects and types in the current JVM.
@@ -82,6 +83,62 @@ public class LocalReflectionContext extends ReflectionContext {
         throw new RuntimeException(ex0);
     }
 
+    public TypeRef makeTypeRef(Type typ) {
+        if (typ instanceof ParameterizedType) {
+            ParameterizedType ptyp = (ParameterizedType) typ;
+            Type raw = ptyp.getRawType();
+            Type[] targs = ptyp.getActualTypeArguments();
+            if (raw instanceof Class) {
+                String rawName = ((Class) raw).getName();
+                if (ClassRef.SEQUENCE_CLASSNAME.equals(rawName) &&
+                    targs.length == 1) {
+                    return new SequenceTypeRef(makeTypeRef(targs[0]));
+                }
+                if (ClassRef.OBJECT_VARIABLE_CLASSNAME.equals(rawName) &&
+                    targs.length == 1) {
+                    return makeTypeRef(targs[0]);
+                }
+                if (ClassRef.SEQUENCE_VARIABLE_CLASSNAME.equals(rawName) &&
+                    targs.length == 1) {
+                    return new SequenceTypeRef(makeTypeRef(targs[0]));
+                }
+                if (rawName.startsWith(ClassRef.FUNCTION_CLASSNAME_PREFIX)) {
+                    FunctionTypeRef type = new FunctionTypeRef();
+                    TypeRef[] prtypes = new TypeRef[targs.length-1];
+                    for (int i = prtypes.length;  --i >= 0; )
+                        prtypes[i] = makeTypeRef(targs[i+1]);
+                    type.argTypes = prtypes;
+                    type.minArgs = prtypes.length;
+                    type.returnType = makeTypeRef(targs[0]);
+                    return type;
+                }
+            }
+                               
+            typ = raw;
+        }
+        if (typ instanceof WildcardType) {
+            WildcardType wtyp = (WildcardType) typ;
+            Type[] upper = wtyp.getUpperBounds();
+            Type[] lower = wtyp.getLowerBounds();
+            typ = lower.length > 0 ? lower[0] : wtyp.getUpperBounds()[0];
+            String rawName = ((Class) typ).getName();
+            // Kludge
+            if (rawName.equals("java.lang.Integer"))
+                return getIntegerType();
+            if (rawName.equals("java.lang.Double"))
+                return getNumberType();
+            return makeTypeRef(typ);
+        }
+        
+        Class clas = (Class) typ;
+        String rawName = ((Class) typ).getName();
+        if (ClassRef.DOUBLE_VARIABLE_CLASSNAME.equals(rawName))
+            return getNumberType();
+        if (ClassRef.INT_VARIABLE_CLASSNAME.equals(rawName))
+            return getIntegerType();
+
+        return makeClassRef((Class) typ);
+    }
     /** Create a reference to a given Class. */
     public ClassRef makeClassRef(Class cls) {
         int modifiers = 0;
@@ -121,9 +178,13 @@ public class LocalReflectionContext extends ReflectionContext {
         };
     }
 
-    public TypeRef getIntegerType() { throw new Error(); }
+    public TypeRef getIntegerType() {
+        return new PrimitiveTypeRef(Integer.TYPE, "Integer");
+    }
 
-    public TypeRef getNumberType() { throw new Error(); }
+    public TypeRef getNumberType() {
+        return new PrimitiveTypeRef(Double.TYPE, "Number");
+    }
 }
 
 class LocalClassRef extends ClassRef {
@@ -228,9 +289,78 @@ class LocalClassRef extends ClassRef {
     public MemberRef getMember(String name, TypeRef type) { throw new Error(); }
     public AttributeRef getAttribute(String name) { throw new Error(); }
     public MethodRef getMethod(String name, TypeRef... argType) { throw new Error(); }
+    
+    protected void getMethods(MemberFilter filter, SortedMemberArray<? super MethodRef> result) {
+        boolean isCompound = isCompoundClass();
+        Class cls = /*isCompound ? refInterface :*/ refClass;
+        LocalReflectionContext context = getReflectionContect();
+        Method[] methods = cls.getDeclaredMethods();
+        for (int i = 0;  i < methods.length;  i++) {
+            Method m = methods[i];
+            if (m.isSynthetic())
+                continue;
+            String mname = m.getName();
+            if ("userInit$".equals(mname) || "postInit$".equals(mname) ||
+                    "addTriggers$".equals(mname) || "initialize$".equals(mname))
+                continue;
+            if (mname.endsWith("$impl"))
+                continue;
+
+            if (mname.startsWith("get$") ||
+                    mname.startsWith("applyDefaults$")) {
+                continue;
+            }
+            FunctionTypeRef type = new FunctionTypeRef();
+            Type[] ptypes = m.getGenericParameterTypes();
+            if (m.isVarArgs()) {
+                // ????
+            }
+            TypeRef[] prtypes = new TypeRef[ptypes.length];
+            for (int j = 0; j < ptypes.length;  j++)
+                prtypes[j] = context.makeTypeRef(ptypes[j]);
+            type.argTypes = prtypes;
+            Type gret = m.getGenericReturnType();
+            type.returnType = context.makeTypeRef(gret);
+            MethodRef mref = new LocalMethodRef(m, this, type);
+            if (filter != null && filter.accept(mref))
+                result.insert(mref);
+        }
+    }
+    
+   protected void getAttributes(MemberFilter filter, SortedMemberArray<? super AttributeRef> result) {
+        LocalReflectionContext context = getReflectionContect();
+        if (isCompoundClass()) {
+            Class cls = refInterface;
+            Method[] methods = cls.getDeclaredMethods();
+            for (int i = 0;  i < methods.length;  i++) {
+                Method m = methods[i];
+                if (m.isSynthetic())
+                    continue;
+                String name = m.getName();
+                if (! name.startsWith("get$"))
+                    continue;
+                Type gret = m.getGenericReturnType();
+                TypeRef tr = context.makeTypeRef(gret);
+                name = name.substring(4);
+                LocalAttributeRef ref = new LocalAttributeRef(name, this, tr, m);
+                if (filter != null && filter.accept(ref))
+                    result.insert(ref);
+            }
+        }
+        else {
+            throw new UnsupportedOperationException("getAttributes not implemented for non-compound class");
+        }
+    }
+
     public ObjectRef allocate () { throw new Error(); }
 
-    public void getMembers(MemberHandler handler, boolean all) { throw new Error(); }
+    public TypeRef getDeclaringType() {
+        return null;
+    }
+
+    public boolean isStatic() {
+        return true;
+    }
   //public void setAttribute(AttributeRef field, ValueRef value) { throw new Error(); }
   //public void initAttribute(AttributeRef field, ValueRef value) { throw new Error(); }
 }
@@ -238,17 +368,94 @@ class LocalClassRef extends ClassRef {
 class LocalObjectRef extends ObjectRef {
     Object obj;
     ClassRef type;
-    
+
     public LocalObjectRef(Object obj, LocalReflectionContext context) {
         type = context.makeClassRef(obj.getClass());
         this.obj = obj;
     }
-    
+
     public ClassRef getType() {
         return type;
     }
-    
+
     public boolean isNull() {
         return obj == null;
+    }
+}
+
+
+class LocalAttributeRef extends AttributeRef {
+    Method accessMethod;
+    TypeRef type;
+    String name;
+    ClassRef owner;
+    
+    public LocalAttributeRef(String name, LocalClassRef owner, TypeRef type, Method accessMethod) {
+        this.name = name;
+        this.type = type;
+        this.accessMethod = accessMethod;
+        this.owner = owner;
+    }
+
+    @Override
+    public TypeRef getType() {
+        return type;
+    }
+
+    @Override
+    public ValueRef getValue(ObjectRef obj) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void setValue(ObjectRef obj, ValueRef newValue) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void initValue(ObjectRef obj, ValueRef ref) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public TypeRef getDeclaringType() {
+        return owner;
+    }
+
+    public boolean isStatic() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+}
+class LocalMethodRef extends MethodRef {
+    Method method;
+    ClassRef owner;
+    String name;
+    FunctionTypeRef type;
+    
+    public LocalMethodRef(Method method, LocalClassRef owner, FunctionTypeRef type) {
+        this.method = method;
+        this.owner = owner;
+        this.name = method.getName();
+        this.type = type;
+    }
+
+    public String getName() { return name; }
+
+    public ClassRef getDeclaringType() { return owner; }
+    
+    public boolean isStatic() {
+        return (method.getModifiers() & Modifier.STATIC) != 0;
+    }
+    public FunctionTypeRef getType() {
+        return type;
+    }
+
+    /** Invoke this method on the given receiver and arguments. */
+    public ValueRef invoke(ObjectRef owner, ValueRef... arg) {
+        throw new UnsupportedOperationException("not implemented: invoke");
     }
 }

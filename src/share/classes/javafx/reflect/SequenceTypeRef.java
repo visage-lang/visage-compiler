@@ -28,7 +28,12 @@ package javafx.reflect;
 /** A run-time representation of a JavaFX sequence type. */
 
 public final class SequenceTypeRef extends TypeRef {
-  TypeRef componentType;
-  public TypeRef getComponentType() { return componentType; }
-  SequenceTypeRef(TypeRef componentType) { this.componentType = componentType; }
+    TypeRef componentType;
+    public TypeRef getComponentType() { return componentType; }
+    SequenceTypeRef(TypeRef componentType) { this.componentType = componentType; }
+
+    protected void toStringTerse(StringBuilder sb) {
+        componentType.toStringTerse(sb);
+        sb.append("[]");
+    }
 }
