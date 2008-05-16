@@ -32,7 +32,12 @@ public class FxLexer extends LexerBase {
         this.buffer = buffer;
         bufferStart = startOffset;
         bufferEnd = endOffset;
-        lexer = new v3Lexer(new Context(), new ANTLRStringStream(buffer.toString().substring(startOffset, endOffset)));
+        lexer = new v3Lexer(new Context(), new ANTLRStringStream(buffer.toString().substring(startOffset, endOffset))) {
+            // Workaround IAE exception in creating diagnostic
+            public void displayRecognitionError(String[] strings, RecognitionException recognitionException) {
+                throw new RecoverySignal(recognitionException);
+            }
+        };
         advance();
     }
 
@@ -62,7 +67,13 @@ public class FxLexer extends LexerBase {
 
     public void advance() {
         curStart = lexer.getCharIndex();
-        nextToken = lexer.nextToken();
+        try {
+            nextToken = lexer.nextToken();
+        }
+        catch (RecoverySignal e) {
+            lexer.recover(e.exception);
+            nextToken = Token.INVALID_TOKEN;
+        }
         curEnd = lexer.getCharIndex();
         System.out.printf("Processed %d:%s @ %d:%d/%d%n", nextToken.getType(), FxTokens.getElement(nextToken.getType()), getTokenStart(), getTokenEnd(), bufferEnd);
         if (curEnd == curStart && nextToken.getType() != v3Lexer.EOF)
@@ -76,5 +87,13 @@ public class FxLexer extends LexerBase {
 
     public int getBufferEnd() {
         return bufferEnd;
+    }
+}
+
+class RecoverySignal extends RuntimeException {
+    public final RecognitionException exception;
+
+    RecoverySignal(RecognitionException exception) {
+        this.exception = exception;
     }
 }

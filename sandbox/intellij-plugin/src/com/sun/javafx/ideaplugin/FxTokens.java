@@ -127,7 +127,9 @@ public enum FxTokens {
 
     // Other
 
+    WS(v3Lexer.WS),
     IDENTIFIER(v3Lexer.IDENTIFIER),
+    LINE_COMMENT(v3Lexer.LINE_COMMENT),
     COMMENT(v3Lexer.COMMENT);
 
     public static TokenSet KEYWORDS = createTokenSet(ABSTRACT, ASSERT, AT, ATTRIBUTE, BIND, BOUND, BREAK,
@@ -144,6 +146,8 @@ public enum FxTokens {
             STAR, SLASH, PERCENT, PLUSEQ, SUBEQ, STAREQ, SLASHEQ, PERCENTEQ, COLON, QUES, TWEEN, SUCHTHAT);
 
     public static TokenSet LITERALS = createTokenSet(DECIMAL_LITERAL, STRING_LITERAL);
+
+    public static TokenSet COMMENTS = createTokenSet(COMMENT, LINE_COMMENT);
 
     public final int tokenValue;
     public final FxElementType elementType;
