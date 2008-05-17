@@ -1176,15 +1176,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         for (ForExpressionInClauseTree cl : tree.getInClauses()) {
             JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
             forClauses.add(clause);
+            JFXVar var = clause.getVar();
+            Type declType = attribType(var.getJFXType(), forExprEnv);
             Type exprType = types.upperBound(attribExpr((JCExpression)clause.getSequenceExpression(), forExprEnv));
-            if (clause.getVar() != null &&
-                clause.getVar().getJFXType() instanceof JFXTypeUnknown &&
-                exprType.allparams() != null && exprType.allparams().nonEmpty()) {
-                Type sequenceType = types.upperBound(exprType.allparams().last());
-                clause.getVar().setJFXType(make.TypeClass(make.Ident(sequenceType.tsym), Cardinality.SINGLETON));
-                clause.getVar().type = sequenceType;
-            }
-            attribVar(clause.getVar(), forExprEnv);
+            attribVar(var, forExprEnv);
             chk.checkNonVoid(((JCTree)clause).pos(), exprType);
             Type elemtype;
             // must implement Sequence<T>?
@@ -1211,13 +1206,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 if (unboxed != Type.noType) {
                     elemtype = unboxed;
                 }
+                chk.checkType(clause.getSequenceExpression().pos(), elemtype, declType, Sequenceness.DISALLOWED);
             }
-            //TODO: this is certainly wrong
-            clause.getVar().type = elemtype;
-            clause.getVar().sym.type = elemtype;
-
-            chk.checkType(clause.getSequenceExpression().pos(), elemtype, clause.var.sym.type, Sequenceness.DISALLOWED);
-
+            if (declType == syms.javafx_UnspecifiedType) {
+                var.type = elemtype;
+                var.sym.type = elemtype;
+            }
+           
             if (clause.getWhereExpression() != null) {
                 attribExpr(clause.getWhereExpression(), env, syms.booleanType);
             }
