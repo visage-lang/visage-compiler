@@ -1856,14 +1856,13 @@ public class JavafxResolve {
                         typeargs = "<" + Type.toString(typeargtypes) + ">";
                 }
                 if (kind == WRONG_MTH) {
-                    Symbol wrongSymMem = wrongSym.asMemberOf(site, types);
                     String wrongSymStr;
-                    if (wrongSymMem instanceof MethodSymbol)
+                    if (wrongSym instanceof MethodSymbol)
                         wrongSymStr =
-                                types.toJavaFXString((MethodSymbol) wrongSymMem,
+                                types.toJavaFXString((MethodSymbol) wrongSym.asMemberOf(site, types),
                                     ((MethodSymbol) wrongSym).params);
                     else
-                        wrongSymStr = wrongSymMem.toString();
+                        wrongSymStr = wrongSym.toString();
                     log.error(pos,
                               MsgSym.MESSAGE_CANNOT_APPLY_SYMBOL + (explanation != null ? ".1" : ""),
                               wrongSymStr,
