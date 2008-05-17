@@ -16,8 +16,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxHighlighter.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxHighlighter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLexer.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLexer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/fxplugin.iws" afterPath="$PROJECT_DIR$/fxplugin.iws" />
     </list>
@@ -91,10 +91,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FxHighlighter.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="FxHighlighter.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxHighlighter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="0" selection-start="1140" selection-end="1140" vertical-scroll-proportion="0.3271665">
+            <state line="41" column="52" selection-start="1699" selection-end="1699" vertical-scroll-proportion="0.49853945">
               <folding />
             </state>
           </provider>
@@ -103,7 +103,7 @@
       <file leaf-file-name="FxTokens.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="149" column="74" selection-start="4421" selection-end="4421" vertical-scroll-proportion="0.7185978">
+            <state line="131" column="0" selection-start="3352" selection-end="3352" vertical-scroll-proportion="-0.04576436">
               <folding />
             </state>
           </provider>
@@ -118,10 +118,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FxLexer.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="FxLexer.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLexer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="70" column="42" selection-start="2272" selection-end="2272" vertical-scroll-proportion="0.4858812">
+            <state line="25" column="50" selection-start="799" selection-end="799" vertical-scroll-proportion="0.38948393">
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#getBufferEnd#0;class#FxLexer#0" expanded="true" />
@@ -594,7 +594,7 @@
     <option name="PERFORM_EDIT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix lexer bugs in intellij plugin." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add error-recovery to lexer; add more syntax highlighting.  Next up: proper handling of string literals with embedded { } in them." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -606,6 +606,7 @@
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
     <MESSAGE value="Fix lexer bugs in intellij plugin." />
+    <MESSAGE value="Add error-recovery to lexer; add more syntax highlighting.  Next up: proper handling of string literals with embedded { } in them." />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -797,27 +798,27 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLexer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="70" column="42" selection-start="2272" selection-end="2272" vertical-scroll-proportion="0.4858812">
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#getBufferEnd#0;class#FxLexer#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="149" column="74" selection-start="4421" selection-end="4421" vertical-scroll-proportion="0.7185978">
+        <state line="131" column="0" selection-start="3352" selection-end="3352" vertical-scroll-proportion="-0.04576436">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxHighlighter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="0" selection-start="1140" selection-end="1140" vertical-scroll-proportion="0.3271665">
+        <state line="41" column="52" selection-start="1699" selection-end="1699" vertical-scroll-proportion="0.49853945">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLexer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="50" selection-start="799" selection-end="799" vertical-scroll-proportion="0.38948393">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#getBufferEnd#0;class#FxLexer#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

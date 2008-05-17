@@ -8,8 +8,8 @@ import com.intellij.util.text.CharArrayUtil;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javafx.antlr.v3Lexer;
 import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.Token;
 import org.antlr.runtime.RecognitionException;
+import org.antlr.runtime.Token;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -23,19 +23,21 @@ public class FxLexer extends LexerBase {
     private int curStart, curEnd;
     private CharSequence buffer;
     private v3Lexer lexer;
+    private RecognitionException stashedException;
 
     public void start(char[] buffer, int startOffset, int endOffset, int initialState) {
         start(new CharArrayCharSequence(buffer), startOffset, endOffset, initialState);
     }
 
     public void start(final CharSequence buffer, int startOffset, int endOffset, final int initialState) {
+        System.out.printf("start %d:%d/%d%n", startOffset, endOffset, buffer.length());
         this.buffer = buffer;
         bufferStart = startOffset;
         bufferEnd = endOffset;
         lexer = new v3Lexer(new Context(), new ANTLRStringStream(buffer.toString().substring(startOffset, endOffset))) {
             // Workaround IAE exception in creating diagnostic
             public void displayRecognitionError(String[] strings, RecognitionException recognitionException) {
-                throw new RecoverySignal(recognitionException);
+                stashedException = recognitionException;
             }
         };
         advance();
@@ -67,12 +69,11 @@ public class FxLexer extends LexerBase {
 
     public void advance() {
         curStart = lexer.getCharIndex();
-        try {
-            nextToken = lexer.nextToken();
-        }
-        catch (RecoverySignal e) {
-            lexer.recover(e.exception);
+        nextToken = lexer.nextToken();
+        if (stashedException != null) {
+            lexer.recover(stashedException);
             nextToken = Token.INVALID_TOKEN;
+            stashedException = null;
         }
         curEnd = lexer.getCharIndex();
         System.out.printf("Processed %d:%s @ %d:%d/%d%n", nextToken.getType(), FxTokens.getElement(nextToken.getType()), getTokenStart(), getTokenEnd(), bufferEnd);
@@ -90,10 +91,3 @@ public class FxLexer extends LexerBase {
     }
 }
 
-class RecoverySignal extends RuntimeException {
-    public final RecognitionException exception;
-
-    RecoverySignal(RecognitionException exception) {
-        this.exception = exception;
-    }
-}

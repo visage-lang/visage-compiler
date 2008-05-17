@@ -39,7 +39,7 @@ public class FxHighlighter extends SyntaxHighlighterBase {
         keys = new HashMap<IElementType, TextAttributesKey>();
 
         fillMap(keys, FxTokens.KEYWORDS, FX_KEYWORD);
-        keys.put(FxTokens.STRING_LITERAL.elementType, FX_STRING);
+        fillMap(keys, FxTokens.LITERALS, FX_STRING);
         keys.put(TokenType.BAD_CHARACTER, FX_BAD_CHARACTER);
         keys.put(FxTokens.COMMENT.elementType, FX_BLOCK_COMMENT);
         keys.put(FxTokens.LINE_COMMENT.elementType, FX_LINE_COMMENT);
