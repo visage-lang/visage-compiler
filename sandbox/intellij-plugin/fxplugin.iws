@@ -16,12 +16,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="DELETED" beforePath="L:\work\openjfx-compiler\sandbox\intellij-plugin\lib\javafxrt.jar" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxHighlighter.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxHighlighter.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLexer.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLexer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxFileType.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxFileType.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/fxplugin.iws" afterPath="$PROJECT_DIR$/fxplugin.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/fxplugin.ipr" afterPath="$PROJECT_DIR$/fxplugin.ipr" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/NewFxClassAction.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/NewFxClassAction.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxPlugin.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxPlugin.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxCompiler.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxCompiler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLanguage.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLanguage.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxElementType.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxElementType.java" />
     </list>
     <ignored path="fxplugin.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -96,7 +100,7 @@
       <file leaf-file-name="FxHighlighter.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxHighlighter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="44" column="33" selection-start="1939" selection-end="1939" vertical-scroll-proportion="0.54527754">
+            <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.38948393">
               <folding />
             </state>
           </provider>
@@ -105,7 +109,16 @@
       <file leaf-file-name="FxTokens.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="125" column="57" selection-start="3139" selection-end="3139" vertical-scroll-proportion="0.3485881">
+            <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.38948393">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="NewFxClassAction.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/NewFxClassAction.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.38948393">
               <folding />
             </state>
           </provider>
@@ -114,22 +127,58 @@
       <file leaf-file-name="FxLanguage.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLanguage.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="13" column="13" selection-start="322" selection-end="322" vertical-scroll-proportion="0.14021422">
+            <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.38948393">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FxLexer.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="FxLexer.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLexer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="62" column="36" selection-start="1961" selection-end="1961" vertical-scroll-proportion="0.4160079">
+            <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.3952569">
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#getState#0;class#FxLexer#0" expanded="true" />
                 <element signature="method#getBufferEnd#0;class#FxLexer#0" expanded="true" />
                 <element signature="method#getSyntheticSemiType#0;class#MyLexer#0;class#FxLexer#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FxPlugin.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxPlugin.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.38948393">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FxCompiler.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxCompiler.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="25" column="0" selection-start="0" selection-end="1202" vertical-scroll-proportion="0.38948393">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FxElementType.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxElementType.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.38948393">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FxFileType.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxFileType.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.38948393">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -652,7 +701,7 @@
     <option name="PERFORM_EDIT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Better handling of lex errors; handle string literals with embedded quotes.  Next: handling of string literals with embedded quotes in incremental lex mode." />
+    <option name="LAST_COMMIT_MESSAGE" value="Ignore synthetic semicolons in lexer (caused problems for the next token); reduce plugin package size; reduce noisy debug logging; add more highlighting categories." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -666,6 +715,7 @@
     <MESSAGE value="Fix lexer bugs in intellij plugin." />
     <MESSAGE value="Add error-recovery to lexer; add more syntax highlighting.  Next up: proper handling of string literals with embedded { } in them." />
     <MESSAGE value="Better handling of lex errors; handle string literals with embedded quotes.  Next: handling of string literals with embedded quotes in incremental lex mode." />
+    <MESSAGE value="Ignore synthetic semicolons in lexer (caused problems for the next token); reduce plugin package size; reduce noisy debug logging; add more highlighting categories." />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -710,13 +760,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://C:/Program Files/Java/jdk1.6.0_03/src.zip!/javax/tools/Diagnostic.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="71" column="6" selection-start="2000" selection-end="2000" vertical-scroll-proportion="0.33300877">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/ide/actions/CreateElementActionBase.class">
       <provider selected="true" editor-type-id="text-editor">
         <state line="26" column="20" selection-start="1552" selection-end="1552" vertical-scroll-proportion="0.3952569">
@@ -727,13 +770,6 @@
     <entry file="jar://$APPLICATION_HOME_DIR$/lib/resources.jar!/standardSchemas/plugin.dtd">
       <provider selected="true" editor-type-id="text-editor">
         <state line="146" column="4" selection-start="4344" selection-end="4344" vertical-scroll-proportion="1.1197512">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxCompiler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="13" selection-start="1240" selection-end="1240" vertical-scroll-proportion="0.015579358">
           <folding />
         </state>
       </provider>
@@ -759,30 +795,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/NewFxClassAction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="50" column="37" selection-start="1969" selection-end="1969" vertical-scroll-proportion="0.59201556">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files/Java/jdk1.6.0_03/src.zip!/java/lang/Enum.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="40" column="24" selection-start="1272" selection-end="1272" vertical-scroll-proportion="0.19279455">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxFileType.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="26" selection-start="394" selection-end="394" vertical-scroll-proportion="0.1869523">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxPlugin.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="0" selection-start="772" selection-end="772" vertical-scroll-proportion="0.3271665">
           <folding />
         </state>
       </provider>
@@ -811,13 +826,6 @@
     <entry file="file://$PROJECT_DIR$/META-INF/plugin.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state line="16" column="22" selection-start="640" selection-end="640" vertical-scroll-proportion="0.25422046">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLanguage.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="13" selection-start="322" selection-end="322" vertical-scroll-proportion="0.14021422">
           <folding />
         </state>
       </provider>
@@ -871,29 +879,71 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxHighlighter.java">
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxCompiler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="44" column="33" selection-start="1939" selection-end="1939" vertical-scroll-proportion="0.54527754">
+        <state line="25" column="0" selection-start="0" selection-end="1202" vertical-scroll-proportion="0.38948393">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java">
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxElementType.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="125" column="57" selection-start="3139" selection-end="3139" vertical-scroll-proportion="0.3485881">
+        <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.38948393">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxFileType.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.38948393">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxHighlighter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.38948393">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLanguage.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.38948393">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLexer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="62" column="36" selection-start="1961" selection-end="1961" vertical-scroll-proportion="0.4160079">
+        <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.3952569">
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="method#getState#0;class#FxLexer#0" expanded="true" />
             <element signature="method#getBufferEnd#0;class#FxLexer#0" expanded="true" />
             <element signature="method#getSyntheticSemiType#0;class#MyLexer#0;class#FxLexer#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxPlugin.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.38948393">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.38948393">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/NewFxClassAction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.38948393">
+          <folding />
         </state>
       </provider>
     </entry>
