@@ -470,7 +470,6 @@
     <library name="fxlibs">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/lib/javafxc.jar!/" />
-        <root url="jar://$PROJECT_DIR$/lib/javafxrt.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />

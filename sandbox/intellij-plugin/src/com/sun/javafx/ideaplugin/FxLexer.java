@@ -18,6 +18,8 @@ import org.jetbrains.annotations.Nullable;
  * @author Brian Goetz
  */
 public class FxLexer extends LexerBase {
+    public static final int SYNTHETIC_SEMI = -100;
+
     private int bufferStart, bufferEnd;
     private Token nextToken;
     private int nextState;
@@ -29,7 +31,6 @@ public class FxLexer extends LexerBase {
     }
 
     public void start(final CharSequence buffer, int startOffset, int endOffset, final int initialState) {
-        System.out.printf("start in state %d at %d:%d/%d%n", initialState, startOffset, endOffset, buffer.length());
         this.buffer = buffer;
         bufferStart = startOffset;
         bufferEnd = endOffset;
@@ -43,11 +44,12 @@ public class FxLexer extends LexerBase {
 
     @Nullable
     public IElementType getTokenType() {
-        if (nextToken.getType() == v3Lexer.EOF)
+        int tokenType = nextToken.getType();
+        if (tokenType == v3Lexer.EOF)
             return null;
-        IElementType result = FxTokens.getElement(nextToken.getType());
+        IElementType result = FxTokens.getElement(tokenType);
         if (result == null) {
-            System.out.printf("unknown token type %d%n", nextToken.getType());
+            System.out.printf("unknown token type %d%n", tokenType);
             return TokenType.BAD_CHARACTER;
         }
         return result;
@@ -64,16 +66,19 @@ public class FxLexer extends LexerBase {
     public void advance() {
         curStart = lexer.getCharIndex();
         try {
-            nextState = lexer.getState();
-            nextToken = lexer.nextToken();
+            do {
+                nextState = lexer.getState();
+                nextToken = lexer.nextToken();
+            }
+            while (nextToken.getType() == SYNTHETIC_SEMI);
         } catch (Signal s) {
             lexer.recover(s.exception);
             nextToken = Token.INVALID_TOKEN;
         }
         curEnd = lexer.getCharIndex();
-        System.out.printf("Processed %d:%s @ %d:%d/%d => %d%n", nextToken.getType(), FxTokens.getElement(nextToken.getType()), getTokenStart(), getTokenEnd(), bufferEnd, nextState);
+//        System.out.printf("Processed %d:%s @ %d:%d/%d => %d%n", nextToken.getType(), FxTokens.getElement(nextToken.getType()), getTokenStart(), getTokenEnd(), bufferEnd, nextState);
         if (curEnd == curStart && nextToken.getType() != v3Lexer.EOF)
-            System.out.printf("Failed to advance position: %d:%d%n", curStart, curEnd);
+            System.out.printf("Failed to advance position: %d:%d/%d(%s:%s)%n", curStart, curEnd, bufferEnd, FxTokens.getElement(nextToken.getType()), nextToken.getText());
     }
 
     @Deprecated
@@ -94,6 +99,10 @@ public class FxLexer extends LexerBase {
         public void displayRecognitionError(String[] strings, RecognitionException recognitionException) {
             // Blechh!!  But if we don't do this, we loop forever.
             throw new Signal(recognitionException);
+        }
+
+        protected int getSyntheticSemiType() {
+            return SYNTHETIC_SEMI;
         }
 
         public int getState() {
