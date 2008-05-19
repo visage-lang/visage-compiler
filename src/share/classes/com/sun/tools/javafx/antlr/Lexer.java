@@ -25,49 +25,43 @@
 
 package com.sun.tools.javafx.antlr;
 
-import com.sun.tools.javafx.tree.JavafxTreeMaker;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.util.*;
-import static com.sun.tools.javac.util.ListBuffer.lb;
-import com.sun.tools.javac.util.Position;
-
+import com.sun.tools.javac.util.Log;
 import com.sun.tools.javafx.util.MsgSym;
-
 import org.antlr.runtime.*;
 
-import java.util.List;
-import java.util.ArrayList;
-
 /**
- * Base class for ANTLR generated parsers 
- * 
+ * Base class for ANTLR generated parsers
+ *
  * @author Robert Field
  * @author Zhiqun Chen
  */
 public abstract class Lexer extends org.antlr.runtime.Lexer {
-    
-    /** The log to be used for error diagnostics.
+
+    /**
+     * The log to be used for error diagnostics.
      */
     protected Log log;
     protected int previousTokenType = -1;
     List<Token> tokens = new ArrayList<Token>();
     private final BraceQuoteTracker NULL_BQT = new BraceQuoteTracker(null, '\'', false);
     private BraceQuoteTracker quoteStack = NULL_BQT;
-      
-    protected Lexer(){};
-    
-    protected Lexer (CharStream input) {
+
+    protected Lexer() {
+    }
+
+    protected Lexer(CharStream input) {
         super(input);
     }
-    
-    protected Lexer (CharStream input, RecognizerSharedState state) {
+
+    protected Lexer(CharStream input, RecognizerSharedState state) {
         super(input, state);
     }
-    
-    /** Allow emitting more than one token from a lexer rule
+
+    /**
+     * Allow emitting more than one token from a lexer rule
      */
     public void emit(Token token) {
         int ttype = token.getType();
@@ -79,7 +73,8 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
             state.token = syntheticSemi;
             tokens.add(syntheticSemi);
             //System.err.println("INSERTING in front of: " + ttype);
-        } else {
+        }
+        else {
             state.token = token;
         }
         tokens.add(token);
@@ -96,18 +91,18 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
     protected abstract boolean verifyPreviousType(int ttype, int previousTokenType);
 
     public Token nextToken() {
-        if ( tokens.size() > 0 ) {
+        if (tokens.size() > 0) {
             return tokens.remove(0);
         }
         super.nextToken();
-        if ( tokens.size()==0 ) {
+        if (tokens.size() == 0) {
             emit(Token.EOF_TOKEN);
         }
         return tokens.remove(0);
     }
 
     void processString() {
-        setText(StringLiteralProcessor.convert( log, getCharIndex(), getText() ));
+        setText(StringLiteralProcessor.convert(log, getCharIndex(), getText()));
     }
 
     void processFormatString() {
@@ -120,7 +115,7 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
     void processTranslationKey() {
         String text = getText().substring(2); // remove '##'
         if (text.length() > 0) {
-            text = StringLiteralProcessor.convert( log, getCharIndex(), text );
+            text = StringLiteralProcessor.convert(log, getCharIndex(), text);
         }
         setText(text);
     }
@@ -150,48 +145,56 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
         quoteStack.resetPercentIsFormat();
     }
 
-    
-    
+    protected int getLexicalState() {
+        return quoteStack.getLexicalState();
+    }
+
+
     public String getErrorMessage(RecognitionException e, String[] tokenNames) {
-        
+
         StringBuffer mb = new StringBuffer();
         if (e instanceof NoViableAltException) {
             NoViableAltException nvae = (NoViableAltException) e;
             if (e.c == Token.EOF) {
                 mb.append("Sorry, I reached to the end of file. ");
                 mb.append("Perhaps you are having a mismatched " + "'" + "\"" + "' or '{'");
-            } else {
-                mb.append("Sorry, " + getCharErrorDisplay(e.c));          
+            }
+            else {
+                mb.append("Sorry, " + getCharErrorDisplay(e.c));
                 mb.append(" is not supported in JavaFX");
             }
-        } else if (e instanceof FailedPredicateException) {
-             mb.append("Sorry, I was trying to understand a " + getCharErrorDisplay(e.c) + ". ");
-             mb.append("Perhaps you are having a mismatched " + "'" + "\"" + "' or '{'");
-            recover(e);
-        } else {
-            mb.append( super.getErrorMessage(e, tokenNames) );
         }
-      
-        return  mb.toString();
+        else if (e instanceof FailedPredicateException) {
+            mb.append("Sorry, I was trying to understand a " + getCharErrorDisplay(e.c) + ". ");
+            mb.append("Perhaps you are having a mismatched " + "'" + "\"" + "' or '{'");
+            recover(e);
+        }
+        else {
+            mb.append(super.getErrorMessage(e, tokenNames));
+        }
+
+        return mb.toString();
     }
-    
+
 
     @Override
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
-   
+
         String msg = getErrorMessage(e, tokenNames);
 //        log.error(Position.NOPOS, "javafx.generalerror", msg);
         log.error(getCharIndex(), MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
     }
-    
-    
-     /** Track "He{"l{"l"}o"} world" quotes
+
+
+    /**
+     * Track "He{"l{"l"}o"} world" quotes
      */
     protected class BraceQuoteTracker {
         private int braceDepth;
         private char quote;
         private boolean percentIsFormat;
         private BraceQuoteTracker next;
+
         private BraceQuoteTracker(BraceQuoteTracker prev, char quote, boolean percentIsFormat) {
             this.quote = quote;
             this.percentIsFormat = percentIsFormat;
@@ -205,10 +208,12 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
                     ++quoteStack.braceDepth;
                     quoteStack.percentIsFormat = percentIsFormat;
                 }
-            } else {
-                quoteStack = new BraceQuoteTracker(quoteStack, (char)quote, percentIsFormat); // push
+            }
+            else {
+                quoteStack = new BraceQuoteTracker(quoteStack, (char) quote, percentIsFormat); // push
             }
         }
+
         /**
          * Return quote kind if we are reentering a quote
          *
@@ -222,7 +227,7 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
         }
 
         boolean rightBraceLikeQuote(int quote) {
-            return quoteStack != NULL_BQT && quoteStack.braceDepth == 1 && (quote == 0 || quoteStack.quote == (char)quote);
+            return quoteStack != NULL_BQT && quoteStack.braceDepth == 1 && (quote == 0 || quoteStack.quote == (char) quote);
         }
 
         void leaveQuote() {
@@ -240,6 +245,13 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
 
         boolean inBraceQuote() {
             return quoteStack != NULL_BQT;
+        }
+
+        /** Encode the lexical state into an integer, to permit incremental lexing in IDEs that support it */
+        int getLexicalState() {
+            // This is a hack -- state is not invertible yet
+            return (quoteStack == NULL_BQT) ? 0 : quoteStack.braceDepth;
+
         }
     }
 }

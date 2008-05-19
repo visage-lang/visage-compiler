@@ -20,31 +20,25 @@ import org.jetbrains.annotations.Nullable;
 public class FxLexer extends LexerBase {
     private int bufferStart, bufferEnd;
     private Token nextToken;
+    private int nextState;
     private int curStart, curEnd;
     private CharSequence buffer;
-    private v3Lexer lexer;
-    private RecognitionException stashedException;
-
+    private MyLexer lexer;
     public void start(char[] buffer, int startOffset, int endOffset, int initialState) {
         start(new CharArrayCharSequence(buffer), startOffset, endOffset, initialState);
     }
 
     public void start(final CharSequence buffer, int startOffset, int endOffset, final int initialState) {
-        System.out.printf("start %d:%d/%d%n", startOffset, endOffset, buffer.length());
+        System.out.printf("start in state %d at %d:%d/%d%n", initialState, startOffset, endOffset, buffer.length());
         this.buffer = buffer;
         bufferStart = startOffset;
         bufferEnd = endOffset;
-        lexer = new v3Lexer(new Context(), new ANTLRStringStream(buffer.toString().substring(startOffset, endOffset))) {
-            // Workaround IAE exception in creating diagnostic
-            public void displayRecognitionError(String[] strings, RecognitionException recognitionException) {
-                stashedException = recognitionException;
-            }
-        };
+        lexer = new MyLexer(new ANTLRStringStream(buffer.toString().substring(startOffset, endOffset)));
         advance();
     }
 
     public int getState() {
-        return 0;
+        return nextState;
     }
 
     @Nullable
@@ -69,14 +63,15 @@ public class FxLexer extends LexerBase {
 
     public void advance() {
         curStart = lexer.getCharIndex();
-        nextToken = lexer.nextToken();
-        if (stashedException != null) {
-            lexer.recover(stashedException);
+        try {
+            nextState = lexer.getState();
+            nextToken = lexer.nextToken();
+        } catch (Signal s) {
+            lexer.recover(s.exception);
             nextToken = Token.INVALID_TOKEN;
-            stashedException = null;
         }
         curEnd = lexer.getCharIndex();
-        System.out.printf("Processed %d:%s @ %d:%d/%d%n", nextToken.getType(), FxTokens.getElement(nextToken.getType()), getTokenStart(), getTokenEnd(), bufferEnd);
+        System.out.printf("Processed %d:%s @ %d:%d/%d => %d%n", nextToken.getType(), FxTokens.getElement(nextToken.getType()), getTokenStart(), getTokenEnd(), bufferEnd, nextState);
         if (curEnd == curStart && nextToken.getType() != v3Lexer.EOF)
             System.out.printf("Failed to advance position: %d:%d%n", curStart, curEnd);
     }
@@ -89,5 +84,32 @@ public class FxLexer extends LexerBase {
     public int getBufferEnd() {
         return bufferEnd;
     }
+
+    private class MyLexer extends v3Lexer {
+        public MyLexer(ANTLRStringStream stringStream) {
+            super(new Context(), stringStream);
+        }
+
+        // Workaround IAE exception in creating diagnostic
+        public void displayRecognitionError(String[] strings, RecognitionException recognitionException) {
+            // Blechh!!  But if we don't do this, we loop forever.
+            throw new Signal(recognitionException);
+        }
+
+        public int getState() {
+            return getLexicalState();
+        }
+
+        public void advance() {
+            input.consume();
+        }
+    }
 }
 
+class Signal extends RuntimeException {
+    public final RecognitionException exception;
+
+    Signal(RecognitionException exception) {
+        this.exception = exception;
+    }
+}
