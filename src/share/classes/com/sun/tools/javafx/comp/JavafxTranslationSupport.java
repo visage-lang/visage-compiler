@@ -182,6 +182,17 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
      * If "makeIntf" is set, convert JavaFX class references to interface references.
      * */
     protected JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t, boolean makeIntf) {
+        while (t instanceof CapturedType) {
+            WildcardType wtype = ((CapturedType) t).wildcard;
+            // A kludge for Class.newInstance (and maybe other cases):
+            // Applying newinstance of an object of type Class<? extends T>
+            // should yield an instance of T rather than a ? extends T,
+            // which would confuse the back-end.
+            t = wtype.kind == BoundKind.EXTENDS ? wtype.type : wtype;
+        }
+        return makeTypeTreeInner(diagPos, t, makeIntf);
+    }
+    private JCExpression makeTypeTreeInner(DiagnosticPosition diagPos, Type t, boolean makeIntf) {
         while (t instanceof CapturedType)
             t = ((CapturedType) t).wildcard;
         switch (t.tag) {
@@ -201,7 +212,7 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
                 if (!t.getTypeArguments().isEmpty()) {
                     List<JCExpression> targs = List.nil();
                     for (Type ta : t.getTypeArguments()) {
-                        targs = targs.append(makeTypeTree(diagPos, ta, makeIntf));
+                        targs = targs.append(makeTypeTreeInner(diagPos, ta, makeIntf));
                     }
                     texp = make.at(diagPos).TypeApply(texp, targs);
                 }
@@ -214,10 +225,10 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
                 WildcardType wtype = (WildcardType) t;
                 return make.at(diagPos).Wildcard(make.TypeBoundKind(wtype.kind),
                         wtype.kind == BoundKind.UNBOUND ? null
-                        : makeTypeTree(diagPos,wtype.type, makeIntf));
+                        : makeTypeTreeInner(diagPos,wtype.type, makeIntf));
             }
             case TypeTags.ARRAY: {
-                return make.at(diagPos).TypeArray(makeTypeTree(diagPos,types.elemtype(t), makeIntf));
+                return make.at(diagPos).TypeArray(makeTypeTreeInner(diagPos,types.elemtype(t), makeIntf));
             }
             default: {
                 return make.at(diagPos).Type(t);
