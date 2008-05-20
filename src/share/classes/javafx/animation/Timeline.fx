@@ -25,7 +25,6 @@
 
 package javafx.animation;
 
-import com.sun.javafx.runtime.Pointer;
 import com.sun.scenario.animation.Clip;
 import com.sun.scenario.animation.Interpolators;
 import com.sun.scenario.animation.TimingTarget;
@@ -270,7 +269,7 @@ public class Timeline {
             }
 
             for (keyValue in keyFrame.values) {
-                // TODO: targets should really be Map<Pointer,List<KFPair>>
+                // TODO: targets should really be Map<KeyValueTarget,List<KFPair>>
                 var pairlist: KFPairList;
                 for (i in [0..<targets.size()]) {
                     var pl = targets.get(i) as KFPairList;
@@ -556,7 +555,7 @@ class KFPair {
 }
 
 class KFPairList {
-    attribute target:Pointer;
+    attribute target:KeyValueTarget;
     private attribute pairs:ArrayList = new ArrayList();
 
     function size(): Integer {

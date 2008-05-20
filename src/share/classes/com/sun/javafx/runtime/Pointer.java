@@ -1,5 +1,6 @@
 package com.sun.javafx.runtime;
 
+import javafx.animation.KeyValueTarget;
 import com.sun.javafx.runtime.location.*;
 import com.sun.javafx.runtime.sequence.Sequence;
 
@@ -9,10 +10,7 @@ import com.sun.javafx.runtime.sequence.Sequence;
  *
  * @author Brian Goetz
  */
-public class Pointer {
-    public enum Type {
-        INTEGER, DOUBLE, BOOLEAN, SEQUENCE, OBJECT
-    }
+public class Pointer implements KeyValueTarget {
 
     private final Location location;
     private final Type type;
