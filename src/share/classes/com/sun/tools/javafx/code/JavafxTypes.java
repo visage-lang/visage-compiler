@@ -154,13 +154,15 @@ public class JavafxTypes extends Types {
         
         // Allow lessening precision conversions.
         if (t == syms.javafx_NumberType) {
+            if (s == syms.floatType)
+                return true;
             if (s == syms.javafx_IntegerType ||
                     s == syms.intType ||
-                    s == syms.floatType ||
                     s == syms.shortType ||
                     s == syms.charType ||
                     s == syms.byteType ||
                     s == syms.longType) {
+                // TEMPORARY/FIXME - should be false!
                 return true;
             }
         }

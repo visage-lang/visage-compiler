@@ -433,8 +433,16 @@ public class JavafxCheck {
                 return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
             }
         }
-	if (types.isAssignable(found, req, convertWarner(pos, found, req)))
+	if (types.isAssignable(found, req, convertWarner(pos, found, req))) {
+            if (req.tag <= LONG && found.tag >= FLOAT && found.tag <= DOUBLE) {
+                // FUTURE/FIXME: return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
+                String foundAsJavaFXType = types.toJavaFXString(found);
+                String requiredAsJavaFXType = types.toJavaFXString(req);
+	        log.warning(pos, MsgSym.MESSAGE_PROB_FOUND_REQ, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES),
+                        foundAsJavaFXType, requiredAsJavaFXType);
+            }
 	    return realFound;
+       }
 
         // use the JavafxClassSymbol's supertypes to see if req is in the supertypes of found.
         ListBuffer<Type> supertypes = ListBuffer.<Type>lb();

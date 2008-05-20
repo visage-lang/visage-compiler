@@ -954,7 +954,12 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 v.pos = Position.MAXPOS;
                 initType = attribExpr(tree.init, initEnv, declType);
                 initType = chk.checkNonVoid(tree.pos(), initType);
-                chk.checkType(tree.pos(), initType, declType, Sequenceness.DISALLOWED);
+                if (declType.tag <= LONG && initType.tag >= FLOAT && initType.tag <= DOUBLE) {
+                    // Temporary kludge to supress duplicate warnings.
+                    // (The kludge won't be needed if we make Number->Integer and error.)
+                }
+                else
+                    chk.checkType(tree.pos(), initType, declType, Sequenceness.DISALLOWED);
                 if (initType == syms.botType
                         || initType == syms.unreachableType)
                     initType = syms.objectType;
@@ -1571,6 +1576,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitFunctionValue(JFXFunctionValue tree) {
         JFXFunctionDefinition def = new JFXFunctionDefinition(make.Modifiers(Flags.SYNTHETIC), defs.lambdaName, tree);
+        def.pos = tree.pos;
         tree.definition = def;
         MethodSymbol m = new MethodSymbol(SYNTHETIC, def.name, null, env.enclClass.sym);
         // m.flags_field = chk.checkFlags(def.pos(), def.mods.flags, m, def);
@@ -1781,7 +1787,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 } else {
                     if (returnType == syms.unknownType)
                         returnType = bodyType == syms.unreachableType ? syms.javafx_VoidType : bodyType;
-                    else if (returnType != syms.javafx_VoidType && tree.getName() != defs.runMethodName)
+                    else if (returnType != syms.javafx_VoidType && tree.getName() != defs.runMethodName
+                            // Temporary hack to suppress duplicate warning on Number->Integer.
+                            // Hack can go away if/when we make it an error.  FIXME.
+                            && ! (typeToCheck.tag <= LONG && bodyType.tag >= FLOAT && bodyType.tag <= DOUBLE))
                         chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.DISALLOWED);       
                 }
             }
