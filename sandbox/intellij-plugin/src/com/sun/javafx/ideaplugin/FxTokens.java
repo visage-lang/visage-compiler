@@ -178,6 +178,7 @@ public enum FxTokens {
     public static TokenSet NUMERIC_LITERALS = createTokenSet(DECIMAL_LITERAL, FLOATING_POINT_LITERAL);
 
     public static TokenSet COMMENTS = createTokenSet(COMMENT, LINE_COMMENT);
+    public static TokenSet WHITESPACE = createTokenSet(WS);
 
     public final int tokenValue;
     public final FxElementType elementType;

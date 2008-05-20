@@ -30,7 +30,6 @@ import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.text.CharArrayCharSequence;
 import com.intellij.util.text.CharArrayUtil;
-import com.sun.tools.javac.util.Context;
 import com.sun.tools.javafx.antlr.v3Lexer;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.RecognitionException;
@@ -43,14 +42,23 @@ import org.jetbrains.annotations.Nullable;
  * @author Brian Goetz
  */
 public class FxLexer extends LexerBase {
-    public static final int SYNTHETIC_SEMI = -100;
 
+    private boolean ignoreSyntheticSemi;
     private int bufferStart, bufferEnd;
     private Token nextToken;
     private int nextState;
     private int curStart, curEnd;
     private CharSequence buffer;
-    private MyLexer lexer;
+    private WrappedAntlrLexer lexer;
+
+    public FxLexer(boolean ignoreSyntheticSemi) {
+        this.ignoreSyntheticSemi = ignoreSyntheticSemi;
+    }
+
+    public FxLexer() {
+        this(true);
+    }
+
     public void start(char[] buffer, int startOffset, int endOffset, int initialState) {
         start(new CharArrayCharSequence(buffer), startOffset, endOffset, initialState);
     }
@@ -59,12 +67,25 @@ public class FxLexer extends LexerBase {
         this.buffer = buffer;
         bufferStart = startOffset;
         bufferEnd = endOffset;
-        lexer = new MyLexer(new ANTLRStringStream(buffer.toString().substring(startOffset, endOffset)));
+        lexer = new WrappedAntlrLexer(new ANTLRStringStream(buffer.toString().substring(startOffset, endOffset)));
         advance();
     }
 
+    public void reset() {
+        lexer.reset();
+        advance();
+    }
+    
     public int getState() {
         return nextState;
+    }
+
+    public int getTokenStart() {
+        return bufferStart + curStart;
+    }
+
+    public int getTokenEnd() {
+        return bufferStart + curEnd;
     }
 
     @Nullable
@@ -80,14 +101,6 @@ public class FxLexer extends LexerBase {
         return result;
     }
 
-    public int getTokenStart() {
-        return bufferStart + curStart;
-    }
-
-    public int getTokenEnd() {
-        return bufferStart + curEnd;
-    }
-
     public void advance() {
         curStart = lexer.getCharIndex();
         try {
@@ -95,8 +108,8 @@ public class FxLexer extends LexerBase {
                 nextState = lexer.getState();
                 nextToken = lexer.nextToken();
             }
-            while (nextToken.getType() == SYNTHETIC_SEMI);
-        } catch (Signal s) {
+            while (ignoreSyntheticSemi && nextToken.getType() == WrappedAntlrLexer.SYNTHETIC_SEMI);
+        } catch (RecognitionExceptionSignal s) {
             lexer.recover(s.exception);
             nextToken = Token.INVALID_TOKEN;
         }
@@ -115,35 +128,5 @@ public class FxLexer extends LexerBase {
         return bufferEnd;
     }
 
-    private class MyLexer extends v3Lexer {
-        public MyLexer(ANTLRStringStream stringStream) {
-            super(new Context(), stringStream);
-        }
-
-        // Workaround IAE exception in creating diagnostic
-        public void displayRecognitionError(String[] strings, RecognitionException recognitionException) {
-            // Blechh!!  But if we don't do this, we loop forever.
-            throw new Signal(recognitionException);
-        }
-
-        protected int getSyntheticSemiType() {
-            return SYNTHETIC_SEMI;
-        }
-
-        public int getState() {
-            return getLexicalState();
-        }
-
-        public void advance() {
-            input.consume();
-        }
-    }
 }
 
-class Signal extends RuntimeException {
-    public final RecognitionException exception;
-
-    Signal(RecognitionException exception) {
-        this.exception = exception;
-    }
-}

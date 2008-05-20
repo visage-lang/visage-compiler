@@ -28,6 +28,7 @@ package com.sun.javafx.ideaplugin;
 import com.intellij.lang.Language;
 import com.intellij.lang.PairedBraceMatcher;
 import com.intellij.lang.BracePair;
+import com.intellij.lang.ParserDefinition;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -41,6 +42,9 @@ import org.jetbrains.annotations.Nullable;
  * @author Brian Goetz
  */
 public class FxLanguage extends Language {
+
+    private FxParserDefinition definition = new FxParserDefinition();
+
     public FxLanguage() {
         super(FxPlugin.FX_LANGUAGE_NAME, "text/plain");
     }
@@ -49,6 +53,11 @@ public class FxLanguage extends Language {
     public SyntaxHighlighter getSyntaxHighlighter(Project project, final VirtualFile virtualFile) {
         return new FxHighlighter();
     }
+
+//    @Nullable
+//    public ParserDefinition getParserDefinition() {
+//        return definition;
+//    }
 
     @Nullable
     public PairedBraceMatcher getPairedBraceMatcher() {

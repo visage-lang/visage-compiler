@@ -10,6 +10,7 @@
     <orderEntry type="jdk" jdkName="IDEA 7757" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="fxlibs" level="project" />
+    <orderEntry type="library" name="idea" level="project" />
     <orderEntryProperties />
   </component>
 </module>
