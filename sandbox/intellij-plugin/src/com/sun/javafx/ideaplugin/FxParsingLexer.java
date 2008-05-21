@@ -37,7 +37,7 @@ import org.antlr.runtime.Token;
  *
  * @author Brian Goetz
  */
-public class  FxParsingLexer extends LexerBase {
+public class FxParsingLexer extends LexerBase {
     private WrappedAntlrLexer lexer;
     private int bufferEnd;
     private char[] buffer;
@@ -47,6 +47,7 @@ public class  FxParsingLexer extends LexerBase {
 
     @Deprecated
     public void start(char[] buffer, int startOffset, int endOffset, int initialState) {
+        System.out.printf("%s/%s: starting lexing %d:%d%n", Thread.currentThread(), this, startOffset, endOffset);
         assert(startOffset == 0);
         this.buffer = buffer;
         this.bufferEnd = endOffset;
@@ -58,6 +59,9 @@ public class  FxParsingLexer extends LexerBase {
         curIndex = 0;
         size = 0;
 
+        if (endOffset == 0)
+            return;
+        
         while (true) {
             tokenStart[curIndex] = lexer.getCharIndex();
             Token t;
@@ -68,6 +72,7 @@ public class  FxParsingLexer extends LexerBase {
                 t = Token.INVALID_TOKEN;
             }
             if (t.getType() == v3Lexer.EOF) {
+                tokenType[curIndex++] = null;
                 size = curIndex;
                 int[] tempInts = new int[size];
                 System.arraycopy(tokenStart, 0, tempInts, 0, size);
@@ -81,11 +86,12 @@ public class  FxParsingLexer extends LexerBase {
                 tokenType[curIndex++] = FxTokens.getElement(t.getType());
         }
 
+        System.out.printf("%s/%s: done lexing %d%n", Thread.currentThread(), this, getSize());
         lexer.reset();
         curIndex = 0;
     }
 
-    public WrappedAntlrLexer detachLexer() {
+    public WrappedAntlrLexer detachAntlrLexer() {
         WrappedAntlrLexer retVal = lexer;
         lexer = null;
         return retVal;
@@ -99,8 +105,8 @@ public class  FxParsingLexer extends LexerBase {
         return curIndex;
     }
 
-    public int getMaxIndex() {
-        return size-1;
+    public int getSize() {
+        return size;
     }
 
     @Nullable

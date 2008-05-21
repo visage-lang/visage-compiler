@@ -16,9 +16,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxAstNodes.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxAstNodes.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxParser.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxParser.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/fxplugin.iws" afterPath="$PROJECT_DIR$/fxplugin.iws" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxParserDefinition.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxParserDefinition.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxParsingLexer.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxParsingLexer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLanguage.java" afterPath="$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLanguage.java" />
     </list>
@@ -86,7 +86,7 @@
       <file leaf-file-name="FxTokens.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="37" column="12" selection-start="1457" selection-end="1457" vertical-scroll-proportion="0.29042906">
+            <state line="180" column="57" selection-start="6136" selection-end="6136" vertical-scroll-proportion="0.33300877">
               <folding />
             </state>
           </provider>
@@ -95,7 +95,7 @@
       <file leaf-file-name="FxElementType.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxElementType.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="38" column="13" selection-start="1507" selection-end="1507" vertical-scroll-proportion="0.29042906">
+            <state line="38" column="13" selection-start="1507" selection-end="1507" vertical-scroll-proportion="0.17137294">
               <folding />
             </state>
           </provider>
@@ -104,7 +104,7 @@
       <file leaf-file-name="FxAstNodes.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxAstNodes.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="35" column="28" selection-start="1444" selection-end="1444" vertical-scroll-proportion="0.29042906">
+            <state line="35" column="28" selection-start="1444" selection-end="1444" vertical-scroll-proportion="0.17137294">
               <folding />
             </state>
           </provider>
@@ -113,8 +113,10 @@
       <file leaf-file-name="FxLanguage.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLanguage.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="57" column="50" selection-start="2147" selection-end="2147" vertical-scroll-proportion="0.6072607">
-              <folding />
+            <state line="43" column="13" selection-start="1734" selection-end="1734" vertical-scroll-proportion="0.17137294">
+              <folding>
+                <element signature="method#getParserDefinition#0;class#FxLanguage#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -122,7 +124,7 @@
       <file leaf-file-name="Test.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/Test.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="159" selection-start="1236" selection-end="1236" vertical-scroll-proportion="0.62267345">
+            <state line="30" column="159" selection-start="1236" selection-end="1236" vertical-scroll-proportion="0.36363637">
               <folding />
             </state>
           </provider>
@@ -131,7 +133,7 @@
       <file leaf-file-name="FxLexer.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLexer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="0" selection-start="0" selection-end="1202" vertical-scroll-proportion="0.027072757">
+            <state line="25" column="0" selection-start="0" selection-end="1202" vertical-scroll-proportion="0.015810277">
               <folding />
             </state>
           </provider>
@@ -140,7 +142,7 @@
       <file leaf-file-name="MXParser.class" pinned="false" current="false" current-in-tab="false">
         <entry file="jar://$APPLICATION_HOME_DIR$/lib/xpp3-1.1.3.4d_b4_min.jar!/org/xmlpull/mxp1/MXParser.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="242" column="0" selection-start="11849" selection-end="11849" vertical-scroll-proportion="1.5726073">
+            <state line="242" column="0" selection-start="11849" selection-end="11849" vertical-scroll-proportion="0.9279455">
               <folding />
             </state>
           </provider>
@@ -149,7 +151,7 @@
       <file leaf-file-name="ANTLRStringStream.class" pinned="false" current="false" current-in-tab="false">
         <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/org/antlr/runtime/ANTLRStringStream.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="11" selection-start="519" selection-end="519" vertical-scroll-proportion="0.42244226">
+            <state line="17" column="11" selection-start="519" selection-end="519" vertical-scroll-proportion="0.24926972">
               <folding />
             </state>
           </provider>
@@ -167,8 +169,12 @@
       <file leaf-file-name="FxParserDefinition.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxParserDefinition.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.052805282">
-              <folding />
+            <state line="48" column="13" selection-start="1847" selection-end="1847" vertical-scroll-proportion="0.18987341">
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="method#getWhitespaceTokens#0;class#FxParserDefinition#0" expanded="true" />
+                <element signature="method#getCommentTokens#0;class#FxParserDefinition#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -176,7 +182,7 @@
       <file leaf-file-name="ChameleonTransforming.class" pinned="false" current="false" current-in-tab="false">
         <entry file="jar://$APPLICATION_HOME_DIR$/lib/idea.jar!/com/intellij/psi/impl/source/parsing/ChameleonTransforming.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="15" column="4" selection-start="788" selection-end="788" vertical-scroll-proportion="0.36963695">
+            <state line="15" column="4" selection-start="788" selection-end="788" vertical-scroll-proportion="0.21811101">
               <folding />
             </state>
           </provider>
@@ -185,7 +191,7 @@
       <file leaf-file-name="Collections.java" pinned="false" current="false" current-in-tab="false">
         <entry file="jar://C:/Program Files/Java/jdk1.6.0_03/src.zip!/java/util/Collections.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1974" column="0" selection-start="76476" selection-end="76476" vertical-scroll-proportion="0.026402641">
+            <state line="1974" column="0" selection-start="76476" selection-end="76476" vertical-scroll-proportion="0.015579358">
               <folding />
             </state>
           </provider>
@@ -194,7 +200,7 @@
       <file leaf-file-name="PsiBuilderImpl.class" pinned="false" current="false" current-in-tab="false">
         <entry file="jar://$APPLICATION_HOME_DIR$/lib/idea.jar!/com/intellij/lang/impl/PsiBuilderImpl.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="41" column="0" selection-start="2474" selection-end="2474" vertical-scroll-proportion="0.33333334">
+            <state line="41" column="0" selection-start="2474" selection-end="2474" vertical-scroll-proportion="0.19466403">
               <folding />
             </state>
           </provider>
@@ -203,7 +209,7 @@
       <file leaf-file-name="ParserDefinition.class" pinned="false" current="false" current-in-tab="false">
         <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/lang/ParserDefinition.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="29" selection-start="820" selection-end="820" vertical-scroll-proportion="0.47524753">
+            <state line="19" column="29" selection-start="820" selection-end="820" vertical-scroll-proportion="0.28042844">
               <folding />
             </state>
           </provider>
@@ -212,7 +218,7 @@
       <file leaf-file-name="FxFile.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxFile.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.052805282">
+            <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.031158715">
               <folding />
             </state>
           </provider>
@@ -221,7 +227,7 @@
       <file leaf-file-name="PsiFile.class" pinned="false" current="false" current-in-tab="false">
         <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/psi/PsiFile.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="5" column="61" selection-start="202" selection-end="202" vertical-scroll-proportion="0.105610564">
+            <state line="5" column="61" selection-start="202" selection-end="202" vertical-scroll-proportion="0.06231743">
               <folding />
             </state>
           </provider>
@@ -230,7 +236,7 @@
       <file leaf-file-name="PsiFileSystemItem.class" pinned="false" current="false" current-in-tab="false">
         <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/psi/PsiFileSystemItem.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="5" column="17" selection-start="158" selection-end="158" vertical-scroll-proportion="0.105610564">
+            <state line="5" column="17" selection-start="158" selection-end="158" vertical-scroll-proportion="0.06231743">
               <folding />
             </state>
           </provider>
@@ -239,7 +245,7 @@
       <file leaf-file-name="PsiFileBase.class" pinned="false" current="false" current-in-tab="false">
         <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/extapi/psi/PsiFileBase.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="5" column="74" selection-start="222" selection-end="222" vertical-scroll-proportion="0.10829103">
+            <state line="5" column="74" selection-start="222" selection-end="222" vertical-scroll-proportion="0.06324111">
               <folding />
             </state>
           </provider>
@@ -248,7 +254,7 @@
       <file leaf-file-name="FxParsingLexer.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxParsingLexer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="100" column="0" selection-start="3473" selection-end="3473" vertical-scroll-proportion="0.23432343">
+            <state line="108" column="19" selection-start="3837" selection-end="3837" vertical-scroll-proportion="0.5170399">
               <folding>
                 <element signature="method#getIndex#0;class#FxParsingLexer#0" expanded="true" />
               </folding>
@@ -259,7 +265,7 @@
       <file leaf-file-name="FxParser.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxParser.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="90" column="0" selection-start="3724" selection-end="3724" vertical-scroll-proportion="0.57755774">
+            <state line="95" column="23" selection-start="4115" selection-end="4115" vertical-scroll-proportion="0.6105161">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -267,19 +273,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PsiBuilder.class" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/lang/PsiBuilder.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="5" column="17" selection-start="159" selection-end="159" vertical-scroll-proportion="0.105610564">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="PlainDatagramSocketImpl.java" pinned="false" current="false" current-in-tab="false">
         <entry file="jar://C:/Program Files/Java/jdk1.6.0_03/src.zip!/java/net/PlainDatagramSocketImpl.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="141" column="0" selection-start="4119" selection-end="4119" vertical-scroll-proportion="0.33333334">
+            <state line="141" column="0" selection-start="4119" selection-end="4119" vertical-scroll-proportion="0.19668938">
               <folding />
             </state>
           </provider>
@@ -288,7 +285,7 @@
       <file leaf-file-name="v3Parser.class" pinned="false" current="false" current-in-tab="false">
         <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/com/sun/tools/javafx/antlr/v3Parser.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="87" column="41" selection-start="3763" selection-end="3763" vertical-scroll-proportion="0.33333334">
+            <state line="87" column="41" selection-start="3763" selection-end="3763" vertical-scroll-proportion="0.19466403">
               <folding />
             </state>
           </provider>
@@ -297,7 +294,7 @@
       <file leaf-file-name="BaseRecognizer.class" pinned="false" current="false" current-in-tab="false">
         <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/org/antlr/runtime/BaseRecognizer.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="33" column="0" selection-start="1776" selection-end="1776" vertical-scroll-proportion="0.33333334">
+            <state line="33" column="0" selection-start="1776" selection-end="1776" vertical-scroll-proportion="0.19466403">
               <folding />
             </state>
           </provider>
@@ -306,7 +303,7 @@
       <file leaf-file-name="fxplugin.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/fxplugin.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="153" column="0" selection-start="5981" selection-end="5981" vertical-scroll-proportion="0.82764506">
+            <state line="153" column="0" selection-start="5981" selection-end="5981" vertical-scroll-proportion="0.4816286">
               <folding />
             </state>
           </provider>
@@ -334,9 +331,9 @@
     <option name="HIDE_CLASSES_WHERE_METHOD_NOT_IMPLEMENTED" value="false" />
   </component>
   <component name="LogFilters">
-    <option name="FILTER_ERRORS" value="true" />
-    <option name="FILTER_WARNINGS" value="true" />
-    <option name="FILTER_INFO" value="true" />
+    <option name="FILTER_ERRORS" value="false" />
+    <option name="FILTER_WARNINGS" value="false" />
+    <option name="FILTER_INFO" value="false" />
     <option name="CUSTOM_FILTER" />
   </component>
   <component name="ModuleEditorState">
@@ -772,35 +769,35 @@
     <frame x="-4" y="-4" width="1928" height="1155" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="2" />
+      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
-      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="4" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="2" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3297975" order="1" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.39922854" order="5" />
+      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="5" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3297975" order="1" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39922854" order="3" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="9" />
-      <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="5" />
+      <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="6" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="10" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3297975" order="11" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="7" />
-      <window_info id="Atlassian" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="0" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="3" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39989322" order="1" />
-      <window_info id="Maven projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="6" />
+      <window_info id="Atlassian" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39989322" order="0" />
+      <window_info id="Maven projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="7" />
       <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="12" />
-      <window_info id="Module Dependencies" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="7" />
-      <window_info id="ScratchPad" active="false" anchor="right" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2461292" order="8" />
+      <window_info id="Module Dependencies" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
+      <window_info id="ScratchPad" active="false" anchor="right" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2461292" order="9" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.16497597" order="0" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="13" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24986653" order="3" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="4" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24986653" order="2" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="5" />
       <window_info id="Duplicates" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="14" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3297975" order="6" />
-      <window_info id="PsiViewer" active="true" anchor="right" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.29578218" order="3" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="3" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3297975" order="2" />
+      <window_info id="PsiViewer" active="true" anchor="right" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.29578218" order="4" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="6" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="0" />
-      <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
-      <window_info id="EJB" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="2" />
+      <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="2" />
+      <window_info id="EJB" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="4" />
     </layout>
   </component>
   <component name="VcsManagerConfiguration">
@@ -811,7 +808,7 @@
     <option name="PERFORM_EDIT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Preliminary work on parser; not hooked up yet." />
+    <option name="LAST_COMMIT_MESSAGE" value="More progress on parsing." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -829,6 +826,7 @@
     <MESSAGE value="Add copyright headers" />
     <MESSAGE value="Add brace matching support." />
     <MESSAGE value="Preliminary work on parser; not hooked up yet." />
+    <MESSAGE value="More progress on parsing." />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -875,28 +873,28 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/Test.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="159" selection-start="1236" selection-end="1236" vertical-scroll-proportion="0.62267345">
+        <state line="30" column="159" selection-start="1236" selection-end="1236" vertical-scroll-proportion="0.36363637">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLexer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="0" selection-start="0" selection-end="1202" vertical-scroll-proportion="0.027072757">
+        <state line="25" column="0" selection-start="0" selection-end="1202" vertical-scroll-proportion="0.015810277">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/lib/xpp3-1.1.3.4d_b4_min.jar!/org/xmlpull/mxp1/MXParser.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="242" column="0" selection-start="11849" selection-end="11849" vertical-scroll-proportion="1.5726073">
+        <state line="242" column="0" selection-start="11849" selection-end="11849" vertical-scroll-proportion="0.9279455">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/org/antlr/runtime/ANTLRStringStream.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="11" selection-start="519" selection-end="519" vertical-scroll-proportion="0.42244226">
+        <state line="17" column="11" selection-start="519" selection-end="519" vertical-scroll-proportion="0.24926972">
           <folding />
         </state>
       </provider>
@@ -908,58 +906,51 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxParserDefinition.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.052805282">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/lib/idea.jar!/com/intellij/psi/impl/source/parsing/ChameleonTransforming.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="15" column="4" selection-start="788" selection-end="788" vertical-scroll-proportion="0.36963695">
+        <state line="15" column="4" selection-start="788" selection-end="788" vertical-scroll-proportion="0.21811101">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar://C:/Program Files/Java/jdk1.6.0_03/src.zip!/java/util/Collections.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1974" column="0" selection-start="76476" selection-end="76476" vertical-scroll-proportion="0.026402641">
+        <state line="1974" column="0" selection-start="76476" selection-end="76476" vertical-scroll-proportion="0.015579358">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxFile.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.052805282">
+        <state line="25" column="0" selection-start="1202" selection-end="1202" vertical-scroll-proportion="0.031158715">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/psi/PsiFile.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="61" selection-start="202" selection-end="202" vertical-scroll-proportion="0.105610564">
+        <state line="5" column="61" selection-start="202" selection-end="202" vertical-scroll-proportion="0.06231743">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/psi/PsiFileSystemItem.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="17" selection-start="158" selection-end="158" vertical-scroll-proportion="0.105610564">
+        <state line="5" column="17" selection-start="158" selection-end="158" vertical-scroll-proportion="0.06231743">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/extapi/psi/PsiFileBase.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="74" selection-start="222" selection-end="222" vertical-scroll-proportion="0.10829103">
+        <state line="5" column="74" selection-start="222" selection-end="222" vertical-scroll-proportion="0.06324111">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/fxplugin.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="153" column="0" selection-start="5981" selection-end="5981" vertical-scroll-proportion="0.82764506">
+        <state line="153" column="0" selection-start="5981" selection-end="5981" vertical-scroll-proportion="0.4816286">
           <folding />
         </state>
       </provider>
@@ -971,16 +962,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="12" selection-start="1457" selection-end="1457" vertical-scroll-proportion="0.29042906">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/lang/ParserDefinition.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="29" selection-start="820" selection-end="820" vertical-scroll-proportion="0.47524753">
+        <state line="19" column="29" selection-start="820" selection-end="820" vertical-scroll-proportion="0.28042844">
           <folding />
         </state>
       </provider>
@@ -994,68 +978,88 @@
     </entry>
     <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/org/antlr/runtime/BaseRecognizer.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="33" column="0" selection-start="1776" selection-end="1776" vertical-scroll-proportion="0.33333334">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.6.0_03/src.zip!/java/net/PlainDatagramSocketImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="141" column="0" selection-start="4119" selection-end="4119" vertical-scroll-proportion="0.33333334">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/lang/PsiBuilder.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="17" selection-start="159" selection-end="159" vertical-scroll-proportion="0.105610564">
+        <state line="33" column="0" selection-start="1776" selection-end="1776" vertical-scroll-proportion="0.19466403">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/lib/idea.jar!/com/intellij/lang/impl/PsiBuilderImpl.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="41" column="0" selection-start="2474" selection-end="2474" vertical-scroll-proportion="0.33333334">
+        <state line="41" column="0" selection-start="2474" selection-end="2474" vertical-scroll-proportion="0.19466403">
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxParsingLexer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="100" column="0" selection-start="3473" selection-end="3473" vertical-scroll-proportion="0.23432343">
-          <folding>
-            <element signature="method#getIndex#0;class#FxParsingLexer#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxAstNodes.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="28" selection-start="1444" selection-end="1444" vertical-scroll-proportion="0.29042906">
+        <state line="35" column="28" selection-start="1444" selection-end="1444" vertical-scroll-proportion="0.17137294">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="jar://$PROJECT_DIR$/lib/javafxc.jar!/com/sun/tools/javafx/antlr/v3Parser.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="87" column="41" selection-start="3763" selection-end="3763" vertical-scroll-proportion="0.33333334">
+        <state line="87" column="41" selection-start="3763" selection-end="3763" vertical-scroll-proportion="0.19466403">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/openapi.jar!/com/intellij/lang/PsiBuilder.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="4" selection-start="641" selection-end="641" vertical-scroll-proportion="0.50165015">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.6.0_03/src.zip!/java/net/PlainDatagramSocketImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="141" column="0" selection-start="4119" selection-end="4119" vertical-scroll-proportion="0.19668938">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxTokens.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="180" column="57" selection-start="6136" selection-end="6136" vertical-scroll-proportion="0.33300877">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxParsingLexer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="108" column="19" selection-start="3837" selection-end="3837" vertical-scroll-proportion="0.5170399">
+          <folding>
+            <element signature="method#getIndex#0;class#FxParsingLexer#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxParser.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="90" column="0" selection-start="3724" selection-end="3724" vertical-scroll-proportion="0.57755774">
+        <state line="95" column="23" selection-start="4115" selection-end="4115" vertical-scroll-proportion="0.6105161">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxParserDefinition.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="48" column="13" selection-start="1847" selection-end="1847" vertical-scroll-proportion="0.18987341">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#getWhitespaceTokens#0;class#FxParserDefinition#0" expanded="true" />
+            <element signature="method#getCommentTokens#0;class#FxParserDefinition#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/sun/javafx/ideaplugin/FxLanguage.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="57" column="50" selection-start="2147" selection-end="2147" vertical-scroll-proportion="0.6072607">
-          <folding />
+        <state line="43" column="13" selection-start="1734" selection-end="1734" vertical-scroll-proportion="0.17137294">
+          <folding>
+            <element signature="method#getParserDefinition#0;class#FxLanguage#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

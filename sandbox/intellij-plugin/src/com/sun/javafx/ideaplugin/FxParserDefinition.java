@@ -48,20 +48,21 @@ import java.util.*;
  */
 public class FxParserDefinition implements ParserDefinition {
 
-    private final Map<Project, FxParsingLexer> lexerMap = Collections.synchronizedMap(new IdentityHashMap<Project, FxParsingLexer>());
+    private final ThreadLocal<FxParsingLexer> lexerHolder = new ThreadLocal<FxParsingLexer>();
 
     @NotNull
     public Lexer createLexer(Project project) {
-        FxParsingLexer lex = lexerMap.get(project);
-        if (lex == null) {
-            lex = new FxParsingLexer();
-            lexerMap.put(project, lex);
-        }
+        assert(lexerHolder.get() == null);
+        FxParsingLexer lex = new FxParsingLexer();
+        lexerHolder.set(lex);
         return lex;
     }
 
     public PsiParser createParser(Project project) {
-        return new FxParser(lexerMap.get(project));
+        FxParsingLexer lexer = lexerHolder.get();
+        assert(lexer != null);
+        lexerHolder.set(null);
+        return new FxParser(lexer);
     }
 
     public IFileElementType getFileNodeType() {
