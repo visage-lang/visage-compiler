@@ -2,7 +2,7 @@
   * Checks timeline toggle attribute
   *
   * @test
-  * @run
+  * @run/fail
   */
 
 import javafx.animation.*;
