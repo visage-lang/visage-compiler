@@ -32,6 +32,8 @@ import com.sun.tools.javafx.antlr.v3Parser;
  * FxAstNodes
  */
 public enum FxAstNodes {
+    GENERIC_NODE(v3Parser.LAST_TOKEN + 1),
+    ERROR_NODE(v3Parser.LAST_TOKEN + 2),
     MODULE(v3Parser.MODULE),
     PACKAGE_DECL(v3Parser.PACKAGE);
 

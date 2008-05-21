@@ -35,6 +35,8 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * FxParser
  *
@@ -49,45 +51,50 @@ public class FxParser implements PsiParser {
 
     @NotNull
     public ASTNode parse(IElementType rootElement, PsiBuilder psiBuilder) {
+        final AtomicInteger errors = new AtomicInteger();
         v3Parser parser = new v3Parser(new CommonTokenStream(lexer.detachLexer())) {
             public void displayRecognitionError(String[] strings, RecognitionException e) {
+                errors.incrementAndGet();
             }
         };
         try {
             v3Parser.module_return antlrParseTree = parser.module();
-            PsiBuilder.Marker rootMarker = psiBuilder.mark();
-            traverse((CommonTree) antlrParseTree.getTree(), psiBuilder);
-            rootMarker.done(rootElement);
-            return psiBuilder.getTreeBuilt();
+            if (errors.get() == 0) {
+                PsiBuilder.Marker rootMarker = psiBuilder.mark();
+                traverse((CommonTree) antlrParseTree.getTree(), psiBuilder);
+                rootMarker.done(rootElement);
+                return psiBuilder.getTreeBuilt();
+            }
+            else {
+                PsiBuilder.Marker rootMarker = psiBuilder.mark();
+                traverse((CommonTree) antlrParseTree.getTree(), psiBuilder);
+                rootMarker.done(rootElement);
+                return psiBuilder.getTreeBuilt();
+            }
         } catch (RecognitionException e) {
             throw new RuntimeException("Unexpected exception in parsing", e);
         }
     }
 
     private void traverse(CommonTree tree, PsiBuilder builder) {
+        System.out.printf("Token %s at %d:%d%n", tree.getToken(), tree.getTokenStartIndex(), tree.getTokenStopIndex());
         if (tree.getTokenStartIndex() > tree.getTokenStopIndex())
             return;
         if (tree.getTokenStartIndex() < 0)
             return;
         skipTo(builder, tree.getTokenStartIndex());
         PsiBuilder.Marker m = builder.mark();
-        if (builder.getTokenType() != null) {
-            skipTo(builder, tree.getTokenStopIndex());
-        }
-        else {
-            for (int i=0; i<tree.getChildCount(); i++)
-                traverse((CommonTree) tree.getChild(i), builder);
-        }
-        m.done(getElementType(tree));
+        for (int i=0; i<tree.getChildCount(); i++)
+            traverse((CommonTree) tree.getChild(i), builder);
+        skipTo(builder, Math.min(lexer.getMaxIndex(), tree.getTokenStopIndex()));
+        m.done(FxAstNodes.GENERIC_NODE.elementType);
     }
 
-    private IElementType getElementType(CommonTree tree) {
-        int tokenType = tree.getToken().getType();
-        return null;
-    }
-
-    private void skipTo(PsiBuilder builder, int tokenStartIndex) {
-        while (lexer.getIndex() < tokenStartIndex)
+    private void skipTo(PsiBuilder builder, int skipTo) {
+        System.out.println("Skipping to " + skipTo);
+        while (lexer.getIndex() < skipTo) {
+            builder.getTokenType();
             builder.advanceLexer();
+        }
     }
 }

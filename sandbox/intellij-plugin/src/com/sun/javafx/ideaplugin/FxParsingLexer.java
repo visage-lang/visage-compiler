@@ -68,7 +68,7 @@ public class  FxParsingLexer extends LexerBase {
                 t = Token.INVALID_TOKEN;
             }
             if (t.getType() == v3Lexer.EOF) {
-                size = curIndex + 1;
+                size = curIndex;
                 int[] tempInts = new int[size];
                 System.arraycopy(tokenStart, 0, tempInts, 0, size);
                 tokenStart = tempInts;
@@ -77,7 +77,8 @@ public class  FxParsingLexer extends LexerBase {
                 tokenType = tempTokens;
                 break;
             }
-            tokenType[curIndex++] = FxTokens.getElement(t.getType());
+            else
+                tokenType[curIndex++] = FxTokens.getElement(t.getType());
         }
 
         lexer.reset();
@@ -96,6 +97,10 @@ public class  FxParsingLexer extends LexerBase {
 
     public int getIndex() {
         return curIndex;
+    }
+
+    public int getMaxIndex() {
+        return size-1;
     }
 
     @Nullable
