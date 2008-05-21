@@ -101,14 +101,20 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             try {
                 versionRB = ResourceBundle.getBundle(versionRBName);
             } catch (MissingResourceException e) {
-                return Log.getLocalizedString(MsgSym.MESSAGE_VERSION_RESOURCE_MISSING, System.getProperty("java.version"));
+                // HACK: MESSAGE_VERSION_RESOURCE_MISSING is currently defined in javafxcompiler.properties
+                return Main.getJavafxLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC 
+                        + MsgSym.MESSAGE_VERSION_RESOURCE_MISSING, System.getProperty("java.version"));
+//                return Log.getLocalizedString(MsgSym.MESSAGE_VERSION_RESOURCE_MISSING, System.getProperty("java.version"));
             }
         }
         try {
             return versionRB.getString(key);
         }
         catch (MissingResourceException e) {
-            return Log.getLocalizedString(MsgSym.MESSAGE_VERSION_UNKNOWN, System.getProperty("java.version"));
+            // HACK: MESSAGE_VERSION_UNKNOWN is currently defined in javafxcompiler.properties
+            return Main.getJavafxLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC 
+                    + MsgSym.MESSAGE_VERSION_UNKNOWN, System.getProperty("java.version"));
+//            return Log.getLocalizedString(MsgSym.MESSAGE_VERSION_UNKNOWN, System.getProperty("java.version"));
         }
     }
 
@@ -701,7 +707,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             }
 
             if (verboseCompilePolicy)
-                log.printLines(log.noticeWriter, "[flow " + env.enclClass.sym + "]");
+                Log.printLines(log.noticeWriter, "[flow " + env.enclClass.sym + "]");
             JavaFileObject prev = log.useSource(
                                                 env.enclClass.sym.sourcefile != null ?
                                                 env.enclClass.sym.sourcefile :
@@ -771,7 +777,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
 
         if (verbose) {
-	    elapsed_msec = elapsed(start_msec);;
+	    elapsed_msec = elapsed(start_msec);
             printVerbose(MsgSym.MESSAGE_TOTAL, Long.toString(elapsed_msec));
 	}
 

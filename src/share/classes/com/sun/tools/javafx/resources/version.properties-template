@@ -23,5 +23,5 @@
 # have any questions.
 #
 
-fullversion=$(FULL_VERSION)
+full=$(FULL_VERSION)
 release=$(RELEASE)
