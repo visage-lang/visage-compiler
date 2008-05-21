@@ -1,0 +1,3 @@
+start : t.running = true
+pause : t.running = true
+resume: t.running = true
