@@ -2420,6 +2420,7 @@ public final class FXFormatter implements Closeable, Flushable {
      *          If this formatter has been closed by invoking its {@link
      *          #close()} method
      */
+    @Override
     public String toString() {
         ensureOpen();
         return a.toString();
@@ -2628,6 +2629,7 @@ public final class FXFormatter implements Closeable, Flushable {
     private static Pattern fsPattern = Pattern.compile(formatSpecifier);
 
     // Look for format specifiers in the format string.
+    @SuppressWarnings("unchecked")
     private FormatString[] parse(String s) {
         ArrayList al = new ArrayList();
         Matcher m = fsPattern.matcher(s);
@@ -2682,6 +2684,7 @@ public final class FXFormatter implements Closeable, Flushable {
     private interface FormatString {
         int index();
         void print(Object arg, Locale l) throws IOException;
+        @Override
         String toString();
     }
 
@@ -2691,6 +2694,7 @@ public final class FXFormatter implements Closeable, Flushable {
         public int index() { return -2; }
         public void print(Object arg, Locale l)
             throws IOException { a.append(s); }
+        @Override
         public String toString() { return s; }
     }
 
@@ -2954,11 +2958,11 @@ public final class FXFormatter implements Closeable, Flushable {
             Locale loc = l;
             if (useLocalCalendar) {
                 String country = loc.getCountry();
-                if (country == "JP") {
+                if (country.equals("JP")) {
                     // for creating a Japanese imperial calendar in the
                     // DateFormat factory
                     loc = new Locale("ja", "JP", "JP");
-                } else if (country == "TH" && loc.getLanguage() != "th") {
+                } else if (country.equals("TH") && !loc.getLanguage().equals("th")) {
                     // Create a Thai Buddhist calendar in case the country
                     // is Thailand
                     cal = Calendar.getInstance(new Locale("th", country));
@@ -3112,6 +3116,7 @@ public final class FXFormatter implements Closeable, Flushable {
             return sb.toString();
         }
 
+        @Override
         public String toString() {
             StringBuilder sb = new StringBuilder('%');
             // Flags.UPPERCASE is set internally for legal conversions.
@@ -3168,12 +3173,16 @@ public final class FXFormatter implements Closeable, Flushable {
             if (precision != -1)
                 throw new IllegalFormatPrecisionException(precision);
 
-            if (c == Conversion.DECIMAL_INTEGER)
-                checkBadFlags(Flags.ALTERNATE);
-            else if (c == Conversion.OCTAL_INTEGER)
-                checkBadFlags(Flags.GROUP);
-            else
-                checkBadFlags(Flags.GROUP);
+            switch (c) {
+                case Conversion.DECIMAL_INTEGER:
+                    checkBadFlags(Flags.ALTERNATE);
+                    break;
+                case Conversion.OCTAL_INTEGER:
+                case Conversion.HEXADECIMAL_INTEGER:
+                case Conversion.HEXADECIMAL_INTEGER_UPPER:
+                    checkBadFlags(Flags.GROUP);
+                    break;
+            }
         }
 
         private void checkBadFlags(Flags ... badFlags) {
@@ -3184,13 +3193,19 @@ public final class FXFormatter implements Closeable, Flushable {
 
         private void checkFloat() {
             checkNumeric();
-            if (c == Conversion.DECIMAL_FLOAT) {
-            } else if (c == Conversion.HEXADECIMAL_FLOAT) {
-                checkBadFlags(Flags.PARENTHESES, Flags.GROUP);
-            } else if (c == Conversion.SCIENTIFIC) {
-                checkBadFlags(Flags.GROUP);
-            } else if (c == Conversion.GENERAL) {
-                checkBadFlags(Flags.ALTERNATE);
+            switch (c) {
+                case Conversion.DECIMAL_FLOAT:
+                    // nothing left to do
+                    break;
+                case Conversion.HEXADECIMAL_FLOAT:
+                    checkBadFlags(Flags.PARENTHESES, Flags.GROUP);
+                    break;
+                case Conversion.SCIENTIFIC:
+                    checkBadFlags(Flags.GROUP);
+                    break;
+                case Conversion.GENERAL:
+                    checkBadFlags(Flags.ALTERNATE);
+                    break;
             }
         }
 
@@ -3879,134 +3894,6 @@ public final class FXFormatter implements Closeable, Flushable {
             }
         }
 
-        private class BigDecimalLayout {
-            private StringBuilder mant;
-            private StringBuilder exp;
-            private boolean dot = false;
-            private int scale;
-
-            public BigDecimalLayout(BigInteger intVal, int scale, BigDecimalLayoutForm form) {
-                layout(intVal, scale, form);
-            }
-
-            public boolean hasDot() {
-                return dot;
-            }
-
-            public int scale() {
-                return scale;
-            }
-
-            // char[] with canonical string representation
-            public char[] layoutChars() {
-                StringBuilder sb = new StringBuilder(mant);
-                if (exp != null) {
-                    sb.append('E');
-                    sb.append(exp);
-                }
-                return toCharArray(sb);
-            }
-
-            public char[] mantissa() {
-                return toCharArray(mant);
-            }
-
-            // The exponent will be formatted as a sign ('+' or '-') followed
-            // by the exponent zero-padded to include at least two digits.
-            public char[] exponent() {
-                return toCharArray(exp);
-            }
-
-            private char[] toCharArray(StringBuilder sb) {
-                if (sb == null)
-                    return null;
-                char[] result = new char[sb.length()];
-                sb.getChars(0, result.length, result, 0);
-                return result;
-            }
-
-            private void layout(BigInteger intVal, int scale, BigDecimalLayoutForm form) {
-                char coeff[] = intVal.toString().toCharArray();
-                this.scale = scale;
-
-                // Construct a buffer, with sufficient capacity for all cases.
-                // If E-notation is needed, length will be: +1 if negative, +1
-                // if '.' needed, +2 for "E+", + up to 10 for adjusted
-                // exponent.  Otherwise it could have +1 if negative, plus
-                // leading "0.00000"
-                mant = new StringBuilder(coeff.length + 14);
-
-                if (scale == 0) {
-                    int len = coeff.length;
-                    if (len > 1) {
-                        mant.append(coeff[0]);
-                        if (form == BigDecimalLayoutForm.SCIENTIFIC) {
-                            mant.append('.');
-                            dot = true;
-                            mant.append(coeff, 1, len - 1);
-                            exp = new StringBuilder("+");
-                            if (len < 10)
-                                exp.append("0").append(len - 1);
-                            else
-                                exp.append(len - 1);
-                        } else {
-                            mant.append(coeff, 1, len - 1);
-                        }
-                    } else {
-                        mant.append(coeff);
-                        if (form == BigDecimalLayoutForm.SCIENTIFIC)
-                            exp = new StringBuilder("+00");
-                    }
-                    return;
-                }
-                long adjusted = -(long) scale + (coeff.length - 1);
-                if (form == BigDecimalLayoutForm.DECIMAL_FLOAT) {
-                    // count of padding zeros
-                    int pad = scale - coeff.length;
-                    if (pad >= 0) {
-                        // 0.xxx form
-                        mant.append("0.");
-                        dot = true;
-                        for (; pad > 0 ; pad--) mant.append('0');
-                        mant.append(coeff);
-                    } else {
-                        if (-pad < coeff.length) {
-                            // xx.xx form
-                            mant.append(coeff, 0, -pad);
-                            mant.append('.');
-                            dot = true;
-                            mant.append(coeff, -pad, scale);
-                        } else {
-                            // xx form
-                            mant.append(coeff, 0, coeff.length);
-                            for (int i = 0; i < -scale; i++)
-                                mant.append('0');
-                            this.scale = 0;
-                        }
-                    }
-                } else {
-                    // x.xxx form
-                    mant.append(coeff[0]);
-                    if (coeff.length > 1) {
-                        mant.append('.');
-                        dot = true;
-                        mant.append(coeff, 1, coeff.length-1);
-                    }
-                    exp = new StringBuilder();
-                    if (adjusted != 0) {
-                        long abs = Math.abs(adjusted);
-                        // require sign
-                        exp.append(adjusted < 0 ? '-' : '+');
-                        if (abs < 10)
-                            exp.append('0');
-                        exp.append(abs);
-                    } else {
-                        exp.append("+00");
-                    }
-                }
-            }
-        }
-
         private int adjustWidth(int width, Flags f, boolean neg) {
             int newW = width;
             if (newW != -1 && neg && f.contains(Flags.PARENTHESES))
@@ -4408,6 +4295,134 @@ public final class FXFormatter implements Closeable, Flushable {
                     sb.insert(begin, zero);
 
             return sb;
+        }
+    }
+
+    private static class BigDecimalLayout {
+        private StringBuilder mant;
+        private StringBuilder exp;
+        private boolean dot = false;
+        private int scale;
+
+        public BigDecimalLayout(BigInteger intVal, int scale, BigDecimalLayoutForm form) {
+            layout(intVal, scale, form);
+        }
+
+        public boolean hasDot() {
+            return dot;
+        }
+
+        public int scale() {
+            return scale;
+        }
+
+        // char[] with canonical string representation
+        public char[] layoutChars() {
+            StringBuilder sb = new StringBuilder(mant);
+            if (exp != null) {
+                sb.append('E');
+                sb.append(exp);
+            }
+            return toCharArray(sb);
+        }
+
+        public char[] mantissa() {
+            return toCharArray(mant);
+        }
+
+        // The exponent will be formatted as a sign ('+' or '-') followed
+        // by the exponent zero-padded to include at least two digits.
+        public char[] exponent() {
+            return toCharArray(exp);
+        }
+
+        private char[] toCharArray(StringBuilder sb) {
+            if (sb == null)
+                return null;
+            char[] result = new char[sb.length()];
+            sb.getChars(0, result.length, result, 0);
+            return result;
+        }
+
+        private void layout(BigInteger intVal, int scale, BigDecimalLayoutForm form) {
+            char coeff[] = intVal.toString().toCharArray();
+            this.scale = scale;
+
+            // Construct a buffer, with sufficient capacity for all cases.
+            // If E-notation is needed, length will be: +1 if negative, +1
+            // if '.' needed, +2 for "E+", + up to 10 for adjusted
+            // exponent.  Otherwise it could have +1 if negative, plus
+            // leading "0.00000"
+            mant = new StringBuilder(coeff.length + 14);
+
+            if (scale == 0) {
+                int len = coeff.length;
+                if (len > 1) {
+                    mant.append(coeff[0]);
+                    if (form == BigDecimalLayoutForm.SCIENTIFIC) {
+                        mant.append('.');
+                        dot = true;
+                        mant.append(coeff, 1, len - 1);
+                        exp = new StringBuilder("+");
+                        if (len < 10)
+                            exp.append("0").append(len - 1);
+                        else
+                            exp.append(len - 1);
+                    } else {
+                        mant.append(coeff, 1, len - 1);
+                    }
+                } else {
+                    mant.append(coeff);
+                    if (form == BigDecimalLayoutForm.SCIENTIFIC)
+                        exp = new StringBuilder("+00");
+                }
+                return;
+            }
+            long adjusted = -(long) scale + (coeff.length - 1);
+            if (form == BigDecimalLayoutForm.DECIMAL_FLOAT) {
+                // count of padding zeros
+                int pad = scale - coeff.length;
+                if (pad >= 0) {
+                    // 0.xxx form
+                    mant.append("0.");
+                    dot = true;
+                    for (; pad > 0 ; pad--) mant.append('0');
+                    mant.append(coeff);
+                } else {
+                    if (-pad < coeff.length) {
+                        // xx.xx form
+                        mant.append(coeff, 0, -pad);
+                        mant.append('.');
+                        dot = true;
+                        mant.append(coeff, -pad, scale);
+                    } else {
+                        // xx form
+                        mant.append(coeff, 0, coeff.length);
+                        for (int i = 0; i < -scale; i++)
+                            mant.append('0');
+                        this.scale = 0;
+                    }
+                }
+            } else {
+                // x.xxx form
+                mant.append(coeff[0]);
+                if (coeff.length > 1) {
+                    mant.append('.');
+                    dot = true;
+                    mant.append(coeff, 1, coeff.length-1);
+                }
+                exp = new StringBuilder();
+                if (adjusted != 0) {
+                    long abs = Math.abs(adjusted);
+                    // require sign
+                    exp.append(adjusted < 0 ? '-' : '+');
+                    if (abs < 10)
+                        exp.append('0');
+                    exp.append(abs);
+                } else {
+                    exp.append("+00");
+                }
+            }
         }
     }
 
