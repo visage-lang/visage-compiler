@@ -56,24 +56,20 @@ public class StringLocalization {
                         String literal, Locale locale, Object... embeddedExpr) {
         String localization = literal;
 
-        try {
-            ResourceBundle rb = ResourceBundle.getBundle(propertiesName,
-                    locale, getCallerLoader(), FXPropertyResourceBundle.FXPropertiesControl.INSTANCE);
-            if (explicitKey != null) {
-                localization = rb.getString(explicitKey);
-                if (explicitKey.equals(localization) && 
-                    !rb.keySet().contains(explicitKey)) {
-                    localization = literal;
-                }
-            } else {
-                localization = rb.getString(literal.replaceAll("\r\n|\r|\n", "\n"));
+        ResourceBundle rb = ResourceBundle.getBundle(propertiesName,
+                locale, getCallerLoader(), FXPropertyResourceBundle.FXPropertiesControl.INSTANCE);
+        if (explicitKey != null) {
+            localization = rb.getString(explicitKey);
+            if (explicitKey.equals(localization) && 
+                !rb.keySet().contains(explicitKey)) {
+                localization = literal;
             }
+        } else {
+            localization = rb.getString(literal.replaceAll("\r\n|\r|\n", "\n"));
+        }
 
-            if (embeddedExpr.length != 0) {
-                localization = FXFormatter.sprintf(locale, localization, embeddedExpr);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (embeddedExpr.length != 0) {
+            localization = FXFormatter.sprintf(locale, localization, embeddedExpr);
         }
 
         return localization;
@@ -148,11 +144,17 @@ public class StringLocalization {
         try {
             for (Class c : callers) {
                 if (!c.getName().startsWith(PKGNAME)) {
-                    return c.getClassLoader();
+                    ClassLoader cl = c.getClassLoader();
+                    if (cl == null) {
+                        // bootstrap class loader.  use the system class loader instead
+                        break;
+                    } else {
+                        return cl;
+                    }
                 }
             }
         } catch (SecurityException se) {
         }
-        return StringLocalization.class.getClassLoader();
+        return ClassLoader.getSystemClassLoader();
     }
 }
