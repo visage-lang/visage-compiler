@@ -25,15 +25,16 @@
 
 package com.sun.tools.javafx.antlr;
 
-import com.sun.tools.javafx.tree.JavafxTreeMaker;
+import com.sun.tools.javac.code.Source;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
-
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.util.*;
-import static com.sun.tools.javac.util.ListBuffer.lb;
+import com.sun.tools.javac.tree.JCTree.JCAnnotation;
+import com.sun.tools.javac.tree.JCTree.JCErroneous;
+import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.Log;
+import com.sun.tools.javac.util.Name;
+import com.sun.tools.javafx.tree.JavafxTreeMaker;
 import com.sun.tools.javafx.util.MsgSym;
-
 import org.antlr.runtime.*;
 
 /**
@@ -484,8 +485,12 @@ public abstract class AbstractGeneratedParser extends Parser {
         return result;
     }
 
+    protected String getParserName() {
+        return this.getClass().getName();
+    }
+
     public String getErrorMessage(RecognitionException e, String[] tokenNames) {
-        java.util.List stack = getRuleInvocationStack(e, this.getClass().getName());
+        java.util.List stack = getRuleInvocationStack(e, getParserName());
         String stackTop = stack.get(stack.size()-1).toString();
         String posDescription = stackPositionDescription(stackTop);
         StringBuffer mb = new StringBuffer();
