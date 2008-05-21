@@ -66,11 +66,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         new Context.Key<JavafxToJava>();
 
     /*
-     * the result of translating a tree by a visit method
-     */
-    JCTree result;
-
-    /*
      * modules imported by context
      */
     private final JavafxToBound toBound;  

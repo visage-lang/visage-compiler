@@ -79,6 +79,11 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
      */
     private int syntheticNameCounter = 0;
 
+    /*
+     * the result of translating a tree by a visit method
+     */
+    JCTree result;
+
     protected JavafxTranslationSupport(Context context) {
         make = fxmake = JavafxTreeMaker.instance(context);
         log = Log.instance(context);
@@ -266,7 +271,20 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
                 makeEmptySequenceCreator(diagPos, tmi.getElementType()) : 
             tmi.getRealType() == syms.javafx_StringType ? 
                 make.Literal("") : 
+            tmi.getRealType() == syms.javafx_DurationType ?
+                makeTimeDefaultValue() :
                 makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
+    }
+
+    JCExpression makeTimeDefaultValue() {
+        JFXTimeLiteral lit = fxmake.TimeLiteral("0ms");
+        visitTimeLiteral(lit);
+        return (JCExpression)result;
+    }
+
+    // overridden by translating subclasses
+    public void visitTimeLiteral(JFXTimeLiteral tree) {
+        result = tree; // no translation by default
     }
 
     /** Make an attributed tree representing a literal. This will be
