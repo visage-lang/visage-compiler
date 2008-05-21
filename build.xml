@@ -177,7 +177,7 @@
                   destdir="${build.generated.dir}"
                   includes="**/*.properties"/>
         <javac compiler="modern" fork="true"
-               destdir="${build.classes.dir}"
+               destdir="${build.classes.dir}" includes="${includes}" excludes="${excludes}"
                debug="${javac.debug}" deprecation="${javac.deprecation}"
                source="${javac.source}" target="${javac.target}" includeantruntime="false">
             <src path="${src.classes.dir}"/>
