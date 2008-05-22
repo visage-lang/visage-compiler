@@ -38,7 +38,6 @@ import org.antlr.runtime.Token;
  * @author Brian Goetz
  */
 public class FxParsingLexer extends LexerBase {
-    private WrappedAntlrLexer lexer;
     private int bufferEnd;
     private char[] buffer;
     private int curIndex, size;
@@ -51,11 +50,12 @@ public class FxParsingLexer extends LexerBase {
         assert(startOffset == 0);
         this.buffer = buffer;
         this.bufferEnd = endOffset;
-        lexer = new WrappedAntlrLexer(new ANTLRStringStream(buffer, endOffset));
+        WrappedAntlrLexer lexer = new WrappedAntlrLexer(new ANTLRStringStream(buffer, endOffset));
 
         // Inelegant -- prepare buffers that are way too big and resize at end.  Better to resize dynamically -- tbd.
-        tokenStart = new int[endOffset];
-        tokenType = new IElementType[endOffset];
+        // Need to make room for synthetic semicolon tokens
+        tokenStart = new int[endOffset*2];
+        tokenType = new IElementType[endOffset*2];
         curIndex = 0;
         size = 0;
 
@@ -87,14 +87,7 @@ public class FxParsingLexer extends LexerBase {
         }
 
         System.out.printf("%s/%s: done lexing %d%n", Thread.currentThread(), this, getSize());
-        lexer.reset();
         curIndex = 0;
-    }
-
-    public WrappedAntlrLexer detachAntlrLexer() {
-        WrappedAntlrLexer retVal = lexer;
-        lexer = null;
-        return retVal;
     }
 
     public int getState() {

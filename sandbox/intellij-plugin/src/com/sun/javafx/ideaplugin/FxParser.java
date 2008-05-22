@@ -25,17 +25,21 @@
 
 package com.sun.javafx.ideaplugin;
 
-import com.intellij.lang.PsiParser;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
+import com.intellij.lang.PsiParser;
 import com.intellij.psi.tree.IElementType;
 import com.sun.tools.javafx.antlr.v3Parser;
-import org.jetbrains.annotations.NotNull;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
+import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.tree.Tree;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
 
 /**
  * FxParser
@@ -53,34 +57,70 @@ public class FxParser implements PsiParser {
     public ASTNode parse(IElementType rootElement, PsiBuilder psiBuilder) {
         System.out.printf("%s/%s: starting parsing %d tokens, %d chars %n", Thread.currentThread(), lexer, lexer.getSize(), lexer.getBufferEnd());
 
-        final AtomicInteger errors = new AtomicInteger();
-        v3Parser parser = new v3Parser(new CommonTokenStream(lexer.detachAntlrLexer())) {
+        final List<ParseError> errors = new ArrayList<ParseError>();
+        // Potentially inefficient; creating a new ANTLR lexer instead of reusing the one we have
+        WrappedAntlrLexer antlrLexer = new WrappedAntlrLexer(new ANTLRStringStream(lexer.getBufferSequence().toString().substring(0, lexer.getBufferEnd())));
+        v3Parser parser = new v3Parser(new CommonTokenStream(antlrLexer)) {
+            protected String getParserName() {
+                return "com.sun.tools.javafx.antlr.v3Parser";
+            }
+
             public void displayRecognitionError(String[] strings, RecognitionException e) {
-                errors.incrementAndGet();
+                errors.add(new ParseError(e, getErrorMessage(e, strings)));
+                System.out.println(getErrorMessage(e, strings) + " at " + e.token.getTokenIndex());
             }
         };
         try {
             v3Parser.module_return antlrParseTree = parser.module();
+            scrubTree((CommonTree) antlrParseTree.getTree());
             System.out.printf("parsed %d:%d%n", ((CommonTree) antlrParseTree.getTree()).getTokenStartIndex(), ((CommonTree) antlrParseTree.getTree()).getTokenStopIndex());
-            System.out.printf("%d errors%n", errors.get());
-            if (errors.get() == 0) {
-                PsiBuilder.Marker rootMarker = psiBuilder.mark();
+            PsiBuilder.Marker rootMarker = psiBuilder.mark();
+            if (errors.size() == 0) {
+                // @@@ Do the same with v3Walker, so we can get real structural information
                 traverse((CommonTree) antlrParseTree.getTree(), psiBuilder);
-                skipTo(psiBuilder, lexer.getSize());
-                rootMarker.done(rootElement);
-                return psiBuilder.getTreeBuilt();
             }
             else {
-                PsiBuilder.Marker rootMarker = psiBuilder.mark();
-                traverse((CommonTree) antlrParseTree.getTree(), psiBuilder);
-                skipTo(psiBuilder, lexer.getSize());
-                rootMarker.done(rootElement);
-                return psiBuilder.getTreeBuilt();
+                for (ParseError error : errors) {
+                    skipTo(psiBuilder, error.exception.token.getTokenIndex());
+                    PsiBuilder.Marker m = psiBuilder.mark();
+                    skipTo(psiBuilder, error.exception.token.getTokenIndex() + 1);
+                    m.error(error.errorString);
+                }
             }
+            skipTo(psiBuilder, lexer.getSize());
+            rootMarker.done(rootElement);
+            return psiBuilder.getTreeBuilt();
         } catch (RecognitionException e) {
             throw new RuntimeException("Unexpected exception in parsing", e);
         }
     }
+
+    private void scrubTree(Tree tree) {
+        // The top-level tree often has wrong position info, so start one down from the top
+        for (int i=tree.getChildCount()-1; i >= 0; i--) {
+            Tree child = tree.getChild(i);
+            if (child.getTokenStartIndex() > child.getTokenStopIndex()) {
+                System.out.println("Deleting node " + child);
+                tree.deleteChild(i);
+                continue;
+            }
+            if (child.getTokenStartIndex() < 0) {
+//                System.out.println("Deleting node " + child);
+//                tree.deleteChild(i);
+                continue;
+            }
+            scrubTree(child);
+            if (child.getTokenStartIndex() < tree.getTokenStartIndex()) {
+                System.out.println("expanding start index for " + tree);
+                tree.setTokenStartIndex(child.getTokenStartIndex());
+            }
+            if (child.getTokenStopIndex() > tree.getTokenStopIndex()) {
+                System.out.println("expanding stop index for " + tree);
+                tree.setTokenStopIndex(child.getTokenStopIndex());
+            }
+        }
+    }
+
 
     private void traverse(CommonTree tree, PsiBuilder builder) {
         System.out.printf("Token %s at %d:%d%n", tree.getToken(), tree.getTokenStartIndex(), tree.getTokenStopIndex());
@@ -94,6 +134,7 @@ public class FxParser implements PsiParser {
             traverse((CommonTree) tree.getChild(i), builder);
         }
         skipTo(builder, tree.getTokenStopIndex());
+        // @@@ Really, need to move the done one token out
         m.done(FxAstNodes.GENERIC_NODE.elementType);
     }
 
@@ -105,14 +146,58 @@ public class FxParser implements PsiParser {
         if (skipTo > lexer.getSize())
             skipTo = lexer.getSize();
         System.out.println("Skipping to " + skipTo);
-        while (curIndex < skipTo) {
+        while (curIndex < skipTo && !builder.eof()) {
             System.out.println("  advancing from " + lexer.getIndex());
-            int wasCurIndex = curIndex;
             builder.getTokenType();
             builder.advanceLexer();
             curIndex = lexer.getIndex();
-            if (curIndex == wasCurIndex)
-                break;
+        }
+    }
+
+    private static class ParseError {
+        public final RecognitionException exception;
+        public final String errorString;
+
+        private ParseError(RecognitionException exception, String errorString) {
+            this.exception = exception;
+            this.errorString = errorString;
+        }
+    }
+
+    private static abstract class StreamAction {
+        private final int position;
+
+        protected StreamAction(int position) {
+            this.position = position;
+        }
+
+        public abstract void action(PsiBuilder builder);
+    }
+
+    private static class BeginMark extends StreamAction {
+        public PsiBuilder.Marker marker;
+
+        private BeginMark(int position) {
+            super(position);
+        }
+
+        public void action(PsiBuilder builder) {
+            marker = builder.mark();
+        }
+    }
+
+    private static class EndMark extends StreamAction {
+        private final BeginMark marker;
+        private final IElementType elementType;
+
+        private EndMark(int position, BeginMark marker, IElementType elementType) {
+            super(position);
+            this.marker = marker;
+            this.elementType = elementType;
+        }
+
+        public void action(PsiBuilder builder) {
+            marker.marker.done(elementType);
         }
     }
 }
