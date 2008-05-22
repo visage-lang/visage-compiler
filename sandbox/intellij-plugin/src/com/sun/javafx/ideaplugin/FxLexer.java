@@ -67,7 +67,7 @@ public class FxLexer extends LexerBase {
         this.buffer = buffer;
         bufferStart = startOffset;
         bufferEnd = endOffset;
-        lexer = new WrappedAntlrLexer(new ANTLRStringStream(buffer.toString().substring(startOffset, endOffset)));
+        lexer = new WrappedAntlrLexer(new ANTLRStringStream(buffer.toString().substring(startOffset, endOffset)), true);
         advance();
     }
 

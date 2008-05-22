@@ -37,9 +37,11 @@ import org.antlr.runtime.RecognitionException;
 */
 class WrappedAntlrLexer extends v3Lexer {
     public static final int SYNTHETIC_SEMI = -100;
+    public final boolean useSytheticSemi;
 
-    public WrappedAntlrLexer(ANTLRStringStream stringStream) {
+    public WrappedAntlrLexer(ANTLRStringStream stringStream, boolean useSyntheticSemi) {
         super(new Context(), stringStream);
+        this.useSytheticSemi = useSyntheticSemi;
     }
 
     // Workaround IAE exception in creating diagnostic
@@ -50,7 +52,7 @@ class WrappedAntlrLexer extends v3Lexer {
 
     /* Override this so we can distinguish between real and synthetic semicolon in lexing */
     protected int getSyntheticSemiType() {
-        return SYNTHETIC_SEMI;
+        return useSytheticSemi ? SYNTHETIC_SEMI : v3Lexer.SEMI;
     }
 
     public int getState() {

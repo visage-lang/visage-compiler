@@ -59,7 +59,7 @@ public class FxParser implements PsiParser {
 
         final List<ParseError> errors = new ArrayList<ParseError>();
         // Potentially inefficient; creating a new ANTLR lexer instead of reusing the one we have
-        WrappedAntlrLexer antlrLexer = new WrappedAntlrLexer(new ANTLRStringStream(lexer.getBufferSequence().toString().substring(0, lexer.getBufferEnd())));
+        WrappedAntlrLexer antlrLexer = new WrappedAntlrLexer(new ANTLRStringStream(lexer.getBufferSequence().toString().substring(0, lexer.getBufferEnd())), false);
         v3Parser parser = new v3Parser(new CommonTokenStream(antlrLexer)) {
             protected String getParserName() {
                 return "com.sun.tools.javafx.antlr.v3Parser";
@@ -111,11 +111,9 @@ public class FxParser implements PsiParser {
             }
             scrubTree(child);
             if (child.getTokenStartIndex() < tree.getTokenStartIndex()) {
-                System.out.println("expanding start index for " + tree);
                 tree.setTokenStartIndex(child.getTokenStartIndex());
             }
             if (child.getTokenStopIndex() > tree.getTokenStopIndex()) {
-                System.out.println("expanding stop index for " + tree);
                 tree.setTokenStopIndex(child.getTokenStopIndex());
             }
         }
@@ -142,12 +140,9 @@ public class FxParser implements PsiParser {
         int curIndex = lexer.getIndex();
         if (skipTo<curIndex)
             System.out.printf("trying to skip from %d to %d%n", curIndex, skipTo);
-        assert(skipTo >= curIndex);
         if (skipTo > lexer.getSize())
             skipTo = lexer.getSize();
-        System.out.println("Skipping to " + skipTo);
         while (curIndex < skipTo && !builder.eof()) {
-            System.out.println("  advancing from " + lexer.getIndex());
             builder.getTokenType();
             builder.advanceLexer();
             curIndex = lexer.getIndex();

@@ -50,7 +50,7 @@ public class FxParsingLexer extends LexerBase {
         assert(startOffset == 0);
         this.buffer = buffer;
         this.bufferEnd = endOffset;
-        WrappedAntlrLexer lexer = new WrappedAntlrLexer(new ANTLRStringStream(buffer, endOffset));
+        WrappedAntlrLexer lexer = new WrappedAntlrLexer(new ANTLRStringStream(buffer, endOffset), false);
 
         // Inelegant -- prepare buffers that are way too big and resize at end.  Better to resize dynamically -- tbd.
         // Need to make room for synthetic semicolon tokens
@@ -82,8 +82,14 @@ public class FxParsingLexer extends LexerBase {
                 tokenType = tempTokens;
                 break;
             }
-            else
-                tokenType[curIndex++] = FxTokens.getElement(t.getType());
+            else {
+                IElementType element = FxTokens.getElement(t.getType());
+                if (element == null) {
+                    System.out.println("Unknown token type " + t.getType());
+                    element = FxTokens.WS.elementType;
+                }
+                tokenType[curIndex++] = element;
+            }
         }
 
         System.out.printf("%s/%s: done lexing %d%n", Thread.currentThread(), this, getSize());
