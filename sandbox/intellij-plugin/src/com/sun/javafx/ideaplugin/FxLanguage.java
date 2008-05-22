@@ -54,10 +54,10 @@ public class FxLanguage extends Language {
         return new FxHighlighter();
     }
 
-//    @Nullable
-//    public ParserDefinition getParserDefinition() {
-//        return definition;
-//    }
+    @Nullable
+    public ParserDefinition getParserDefinition() {
+        return definition;
+    }
 
     @Nullable
     public PairedBraceMatcher getPairedBraceMatcher() {

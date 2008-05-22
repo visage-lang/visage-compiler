@@ -16,11 +16,19 @@ import com.intellij.psi.tree.IElementType;
  */
 public class Test {
     public static void main(String[] args) throws RecognitionException {
-        String file = "var a = 1; var b = a+1; var c = (a+b)+1;";
-        ANTLRStringStream input = new ANTLRStringStream(file);
-        v3Lexer lexer = new v3Lexer(new Context(), input);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        v3Parser parser = new v3Parser(tokens);
+        String file = "var x;\n" +
+                "x = 1;\n" +
+                "System.out.println(x);";
+        v3Lexer lexer = new v3Lexer(new Context(), new ANTLRStringStream(file));
+        v3Parser parser = new v3Parser(new CommonTokenStream(lexer)) {
+            protected String getParserName() {
+                return "com.sun.tools.javafx.antlr.v3Parser";
+            }
+
+            public void displayRecognitionError(String[] strings, RecognitionException e) {
+                System.out.println(getErrorMessage(e, strings));
+            }
+        };
         v3Parser.module_return comReturn = parser.module();
         traverse((CommonTree) comReturn.getTree(), 0);
     }

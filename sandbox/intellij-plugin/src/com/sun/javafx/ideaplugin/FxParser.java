@@ -30,16 +30,16 @@ import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiParser;
 import com.intellij.psi.tree.IElementType;
 import com.sun.tools.javafx.antlr.v3Parser;
+import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * FxParser
@@ -55,9 +55,10 @@ public class FxParser implements PsiParser {
 
     @NotNull
     public ASTNode parse(IElementType rootElement, PsiBuilder psiBuilder) {
-        System.out.printf("%s/%s: starting parsing %d tokens, %d chars %n", Thread.currentThread(), lexer, lexer.getSize(), lexer.getBufferEnd());
-
+        List<StreamAction> actions = new ArrayList<StreamAction>();
         final List<ParseError> errors = new ArrayList<ParseError>();
+
+        System.out.printf("%s/%s: starting parsing %d tokens, %d chars %n", Thread.currentThread(), lexer, lexer.getSize(), lexer.getBufferEnd());
         // Potentially inefficient; creating a new ANTLR lexer instead of reusing the one we have
         WrappedAntlrLexer antlrLexer = new WrappedAntlrLexer(new ANTLRStringStream(lexer.getBufferSequence().toString().substring(0, lexer.getBufferEnd())), false);
         v3Parser parser = new v3Parser(new CommonTokenStream(antlrLexer)) {
@@ -67,28 +68,26 @@ public class FxParser implements PsiParser {
 
             public void displayRecognitionError(String[] strings, RecognitionException e) {
                 errors.add(new ParseError(e, getErrorMessage(e, strings)));
-                System.out.println(getErrorMessage(e, strings) + " at " + e.token.getTokenIndex());
             }
         };
         try {
             v3Parser.module_return antlrParseTree = parser.module();
             scrubTree((CommonTree) antlrParseTree.getTree());
-            System.out.printf("parsed %d:%d%n", ((CommonTree) antlrParseTree.getTree()).getTokenStartIndex(), ((CommonTree) antlrParseTree.getTree()).getTokenStopIndex());
-            PsiBuilder.Marker rootMarker = psiBuilder.mark();
+            System.out.printf("finished parsing %d:%d%n", ((CommonTree) antlrParseTree.getTree()).getTokenStartIndex(), ((CommonTree) antlrParseTree.getTree()).getTokenStopIndex());
+            BeginMark beginMark = new BeginMark(0);
+            actions.add(beginMark);
             if (errors.size() == 0) {
                 // @@@ Do the same with v3Walker, so we can get real structural information
-                traverse((CommonTree) antlrParseTree.getTree(), psiBuilder);
-            }
-            else {
+                traverse((CommonTree) antlrParseTree.getTree(), actions);
+            } else {
                 for (ParseError error : errors) {
-                    skipTo(psiBuilder, error.exception.token.getTokenIndex());
-                    PsiBuilder.Marker m = psiBuilder.mark();
-                    skipTo(psiBuilder, error.exception.token.getTokenIndex() + 1);
-                    m.error(error.errorString);
+                    BeginMark beginErrorMark = new BeginMark(error.exception.token.getTokenIndex());
+                    actions.add(beginErrorMark);
+                    actions.add(new ErrorMark(error.exception.token.getTokenIndex() + 1, beginErrorMark, error.errorString));
                 }
             }
-            skipTo(psiBuilder, lexer.getSize());
-            rootMarker.done(rootElement);
+            actions.add(new EndMark(lexer.getSize(), beginMark, rootElement));
+            applyActions(actions, psiBuilder);
             return psiBuilder.getTreeBuilt();
         } catch (RecognitionException e) {
             throw new RuntimeException("Unexpected exception in parsing", e);
@@ -97,7 +96,7 @@ public class FxParser implements PsiParser {
 
     private void scrubTree(Tree tree) {
         // The top-level tree often has wrong position info, so start one down from the top
-        for (int i=tree.getChildCount()-1; i >= 0; i--) {
+        for (int i = tree.getChildCount() - 1; i >= 0; i--) {
             Tree child = tree.getChild(i);
             if (child.getTokenStartIndex() > child.getTokenStopIndex()) {
                 System.out.println("Deleting node " + child);
@@ -119,33 +118,31 @@ public class FxParser implements PsiParser {
         }
     }
 
-
-    private void traverse(CommonTree tree, PsiBuilder builder) {
+    private void traverse(CommonTree tree, List<StreamAction> actions) {
         System.out.printf("Token %s at %d:%d%n", tree.getToken(), tree.getTokenStartIndex(), tree.getTokenStopIndex());
         if (tree.getTokenStartIndex() > tree.getTokenStopIndex())
             return;
         if (tree.getTokenStartIndex() < 0)
             return;
-        skipTo(builder, tree.getTokenStartIndex());
-        PsiBuilder.Marker m = builder.mark();
-        for (int i=0; i<tree.getChildCount(); i++) {
-            traverse((CommonTree) tree.getChild(i), builder);
-        }
-        skipTo(builder, tree.getTokenStopIndex());
-        // @@@ Really, need to move the done one token out
-        m.done(FxAstNodes.GENERIC_NODE.elementType);
+        BeginMark beginMark = new BeginMark(tree.getTokenStartIndex());
+        actions.add(beginMark);
+        for (int i = 0; i < tree.getChildCount(); i++)
+            traverse((CommonTree) tree.getChild(i), actions);
+        actions.add(new EndMark(tree.getTokenStopIndex() + 1, beginMark, FxAstNodes.GENERIC_NODE.elementType));
     }
 
-    private void skipTo(PsiBuilder builder, int skipTo) {
-        int curIndex = lexer.getIndex();
-        if (skipTo<curIndex)
-            System.out.printf("trying to skip from %d to %d%n", curIndex, skipTo);
-        if (skipTo > lexer.getSize())
-            skipTo = lexer.getSize();
-        while (curIndex < skipTo && !builder.eof()) {
+
+    private void applyActions(List<StreamAction> actions, PsiBuilder builder) {
+        for (StreamAction action : actions) {
+            while (lexer.getIndex() < action.position && !builder.eof()) {
+                builder.getTokenType();
+                builder.advanceLexer();
+            }
+            action.action(builder);
+        }
+        while (!builder.eof()) {
             builder.getTokenType();
             builder.advanceLexer();
-            curIndex = lexer.getIndex();
         }
     }
 
@@ -160,7 +157,7 @@ public class FxParser implements PsiParser {
     }
 
     private static abstract class StreamAction {
-        private final int position;
+        protected final int position;
 
         protected StreamAction(int position) {
             this.position = position;
@@ -172,7 +169,7 @@ public class FxParser implements PsiParser {
     private static class BeginMark extends StreamAction {
         public PsiBuilder.Marker marker;
 
-        private BeginMark(int position) {
+        public BeginMark(int position) {
             super(position);
         }
 
@@ -185,7 +182,7 @@ public class FxParser implements PsiParser {
         private final BeginMark marker;
         private final IElementType elementType;
 
-        private EndMark(int position, BeginMark marker, IElementType elementType) {
+        public EndMark(int position, BeginMark marker, IElementType elementType) {
             super(position);
             this.marker = marker;
             this.elementType = elementType;
@@ -193,6 +190,21 @@ public class FxParser implements PsiParser {
 
         public void action(PsiBuilder builder) {
             marker.marker.done(elementType);
+        }
+    }
+
+    private static class ErrorMark extends StreamAction {
+        private final BeginMark marker;
+        private final String errorString;
+
+        public ErrorMark(int position, BeginMark marker, String errorString) {
+            super(position);
+            this.marker = marker;
+            this.errorString = errorString;
+        }
+
+        public void action(PsiBuilder builder) {
+            marker.marker.error(errorString);
         }
     }
 }
