@@ -3250,20 +3250,14 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         new FillClassesWithOuters().scan(tree);
     }
 
-    public void visitTimeLiteral(JFXTimeLiteral tree) {
-        // convert time literal to a javafx.lang.Duration object literal
-        JCFieldAccess clsname = (JCFieldAccess) fxmake.at(tree.pos()).Type(syms.javafx_DurationType);
-        clsname.sym = syms.javafx_DurationType.tsym;
-        Name attribute = names.fromString("millis");
-        Symbol symMillis = syms.javafx_DurationType.tsym.members().lookup(attribute).sym;
-        JFXObjectLiteralPart objLiteral = fxmake.at(tree.pos()).ObjectLiteralPart(attribute, tree.value, JavafxBindStatus.UNBOUND);
-        objLiteral.sym = symMillis;
-        JFXInstanciate inst = fxmake.at(tree.pos).Instanciate(clsname, null, List.of((JCTree)objLiteral));
-        inst.type = clsname.type;
-        
+    @Override
+    public void visitTimeLiteral(JFXTimeLiteral tree) {        
+        // convert this time literal to a javafx.lang.Duration object literal
+        JFXInstanciate duration = timeLiteralToDuration(tree); // sets result
+ 
         // now convert that object literal to Java
-        visitInstanciate(inst); // sets result
-    }
+        visitInstanciate(duration); // sets result
+   }
 
     public void visitInterpolate(JFXInterpolate tree) {
         throw new UnsupportedOperationException("Not supported yet.");

@@ -24,6 +24,7 @@
  */
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol;
@@ -570,5 +571,18 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
         }catch(Exception ex) {
             System.err.println("Pretty print got: " + ex);
         }
+    }
+    
+    // convert time literal to a javafx.lang.Duration object literal
+    protected JFXInstanciate timeLiteralToDuration(JFXTimeLiteral tree) {
+        JCFieldAccess clsname = (JCFieldAccess) fxmake.at(tree.pos()).Type(syms.javafx_DurationType);
+        clsname.sym = syms.javafx_DurationType.tsym;
+        Name attribute = names.fromString("millis");
+        Symbol symMillis = syms.javafx_DurationType.tsym.members().lookup(attribute).sym;
+        JFXObjectLiteralPart objLiteral = fxmake.at(tree.pos()).ObjectLiteralPart(attribute, tree.value, JavafxBindStatus.UNBOUND);
+        objLiteral.sym = symMillis;
+        JFXInstanciate inst = fxmake.at(tree.pos).Instanciate(clsname, null, List.of((JCTree) objLiteral));
+        inst.type = clsname.type;
+        return inst;
     }
 }
