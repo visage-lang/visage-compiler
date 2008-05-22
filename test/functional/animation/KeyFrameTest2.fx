@@ -1,5 +1,5 @@
 /**
-  *
+  * 
   * @test
   * @run
   */
@@ -13,7 +13,7 @@ import javafx.lang.Duration;
 var beginNano: Number;
 var threshold = 200;
 
-var t1: Duration = 0s;
+var t1: Duration = 0s;      // checking Duration as a value of KeyFrame.time.
 var t2: Duration = 0.5s;
 
 var t: Timeline = Timeline {
@@ -23,10 +23,8 @@ var t: Timeline = Timeline {
             time: t1            
             action: function() {
                 var elapsed: Number = TimeUnit.NANOSECONDS.toMillis((System.nanoTime() - beginNano).longValue());
-                if(elapsed < (threshold)) {
-                    System.out.println("test1 - pass");
-                } else {
-                    System.out.println("test1 - fail");
+                if(elapsed >= (threshold)) {
+                    throw new AssertionError("test 1 - fail");
                 }
                 beginNano = System.nanoTime();
             }
@@ -35,10 +33,8 @@ var t: Timeline = Timeline {
             time: t2            
             action: function() {
                 var elapsed: Number = TimeUnit.NANOSECONDS.toMillis((System.nanoTime() - beginNano).longValue());
-                if(elapsed > (500-threshold) and elapsed < (500+threshold)) {
-                    System.out.println("test2 - pass");
-                } else {
-                    System.out.println("test2 - fail");
+                if(elapsed <= (500-threshold) and elapsed < (500+threshold)) {
+                    throw new AssertionError("test 2 - fail");
                 }
                 beginNano = System.nanoTime();
             }
@@ -47,10 +43,8 @@ var t: Timeline = Timeline {
             time: Duration { millis: 1000 }            
             action: function() {
                 var elapsed: Number = TimeUnit.NANOSECONDS.toMillis((System.nanoTime() - beginNano).longValue());
-                if(elapsed > (500-threshold) and elapsed < (500+threshold)) {
-                    System.out.println("test3 - pass");
-                } else {
-                    System.out.println("test3 - fail");
+                if(elapsed <= (500-threshold) and elapsed < (500+threshold)) {
+                    throw new AssertionError("test 3 - fail");
                 }
                 beginNano = System.nanoTime();
             }
