@@ -20,7 +20,7 @@ class BoundReverseSequence<T> extends AbstractBoundSequence<T> implements Sequen
     }
 
     private Sequence<T> computeValue() {
-        return location.getAsSequence().reverse();
+        return Sequences.reverse(location.getAsSequence());
     }
 
     private void addTriggers() {
@@ -29,7 +29,7 @@ class BoundReverseSequence<T> extends AbstractBoundSequence<T> implements Sequen
                 int sliceSize = endPos - startPos;
                 int actualStart = oldValue.size() - startPos - (sliceSize + 1);
                 int actualEnd = actualStart + sliceSize;
-                Sequence<? extends T> reverseElements = newElements == null ? null : newElements.reverse();
+                Sequence<? extends T> reverseElements = newElements == null ? null : Sequences.reverse(newElements);
                 updateSlice(actualStart, actualEnd, reverseElements);
             }
         });

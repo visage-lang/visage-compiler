@@ -87,7 +87,7 @@ public class SequenceMutator {
                 result = Sequences.concatenate(elementType, target, newValues);
             else
                 result = Sequences.concatenate(elementType,
-                        target.subsequence(0, startPos), newValues, target.subsequence(startPos, size));
+                        Sequences.subsequence(target, 0, startPos), newValues, Sequences.subsequence(target, startPos, size));
         }
         else if (Sequences.size(newValues) == 0) {
             if (newValues == null)
@@ -96,9 +96,9 @@ public class SequenceMutator {
             if (endPos == startPos-1)
                 result = target;
             else if (endPos >= size-1)
-                result = target.subsequence(0, startPos);
+                result = Sequences.subsequence(target, 0, startPos);
             else if (startPos == 0)
-                result = target.subsequence(endPos+1, size);
+                result = Sequences.subsequence(target, endPos+1, size);
             else {
                 // @@@ OPT: Consider a range-delete sequence type
                 BitSet bits = new BitSet(size);
@@ -110,7 +110,7 @@ public class SequenceMutator {
         else if (startPos <= endPos) {
             // Replacement
             // @@@ OPT: Special-case for replacing leading or trailing slices
-            result = Sequences.concatenate(elementType, target.subsequence(0, startPos), newValues, target.subsequence(endPos+1, size));
+            result = Sequences.concatenate(elementType, Sequences.subsequence(target, 0, startPos), newValues, Sequences.subsequence(target, endPos+1, size));
         }
         else
             throw new IllegalArgumentException();

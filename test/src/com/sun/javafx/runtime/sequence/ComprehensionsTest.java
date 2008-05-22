@@ -41,7 +41,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
                 return value*2;
             }
         };
-        Sequence<Integer> doubled = five.map(Integer.class, doubler);
+        Sequence<Integer> doubled = Sequences.map(Integer.class, five, doubler);
         assertEquals(doubled, 0, 2, 4, 6, 8, 10);
         assertEquals(doubled, doubled.flatten());
     }

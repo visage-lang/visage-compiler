@@ -49,6 +49,12 @@ public final class Sequences {
     // Inhibit instantiation
     private Sequences() { }
 
+
+    /***************************************************/
+    /* Methods for constructing sequences from scratch */
+    /***************************************************/
+
+
     /** Factory for simple sequence generation */
     public static<T> Sequence<T> make(Class<T> clazz, T... values) {
         if (values == null || values.length == 0)
@@ -190,6 +196,19 @@ public final class Sequences {
         return new MapSequence<T,U>(clazz, sequence, mapper);
     }
 
+    /** Convert a Collection<T> to a Sequence<T> */
+    public static<T> Sequence<T> fromCollection(Class<T> clazz, Collection<T> values) {
+        if (values == null)
+            return Sequences.emptySequence(clazz);
+        return new ArraySequence<T>(clazz, values.toArray(Util.<T>newArray(clazz, values.size())));
+    }
+
+
+    /**********************************************/
+    /* Utility methods for dealing with sequences */
+    /**********************************************/
+
+
     /** Upcast a sequence of T to a sequence of superclass-of-T */
     @SuppressWarnings("unchecked")
     public static<T> Sequence<T> upcast(Class<T> clazz, Sequence<? extends T> sequence) {
@@ -215,12 +234,61 @@ public final class Sequences {
         return (seq == null) ? 0 : seq.size();
     }
 
-    /** Convert a Collection<T> to a Sequence<T> */
-    public static<T> Sequence<T> fromCollection(Class<T> clazz, Collection<T> values) {
-        if (values == null)
-            return Sequences.emptySequence(clazz);
-        return new ArraySequence<T>(clazz, values.toArray(Util.<T>newArray(clazz, values.size())));
+    public static<T> boolean isEqual(Sequence<?> one, Sequence<?> other) {
+        int oneSize = size(one);
+        int otherSize = size(other);
+        if (oneSize == 0)
+            return (otherSize == 0);
+        else if (oneSize != otherSize)
+            return false;
+        else {
+            Iterator<?> it1 = one.iterator();
+            Iterator<?> it2 = other.iterator();
+            while (it1.hasNext()) {
+                if (! it1.next().equals(it2.next()))
+                    return false;
+            }
+            return true;
+        }
     }
+
+    public static<T> boolean isEqualByContentIdentity(Sequence<? extends T> one, Sequence<? extends T> other) {
+        int oneSize = size(one);
+        if (oneSize == 0)
+            return size(other) == 0;
+        else if (oneSize != size(other))
+            return false;
+        else {
+            Iterator<? extends T> it1 = one.iterator();
+            Iterator<? extends T> it2 = other.iterator();
+            while (it1.hasNext()) {
+                if (it1.next() != it2.next())
+                    return false;
+            }
+            return true;
+        }
+    }
+
+    public static<T> Sequence<? extends T> forceNonNull(Class<T> clazz, Sequence<? extends T> seq) {
+        return seq == null ? emptySequence(clazz) : seq;
+    }
+
+    /**
+     * Return the single value of a sequence.
+     * Return null if the sequence zero zero or more than 1 elements.
+     * Thid is used to implement 'seq instanceof T'.
+     */
+    public static <T> T getSingleValue (Sequence<T> seq) {
+        if (seq == null || seq.size() != 1)
+            return null;
+        return seq.get(0);
+    }
+
+
+    /*******************************************/
+    /* Converting between sequences and arrays */
+    /*******************************************/
+
 
     /** Convert a T[] to a Sequence<T> */
     public static<T> Sequence<T> fromArray(Class<T> clazz, T[] values) {
@@ -357,44 +425,11 @@ public final class Sequences {
         return unboxed;
     }
 
-    public static<T> boolean isEqual(Sequence<?> one, Sequence<?> other) {
-        int oneSize = size(one);
-        int otherSize = size(other);
-        if (oneSize == 0)
-            return (otherSize == 0);
-        else if (oneSize != otherSize)
-            return false;
-        else {
-            Iterator<?> it1 = one.iterator();
-            Iterator<?> it2 = other.iterator();
-            while (it1.hasNext()) {
-                if (! it1.next().equals(it2.next()))
-                    return false;
-            }
-            return true;
-        }
-    }
 
-    public static<T> boolean isEqualByContentIdentity(Sequence<? extends T> one, Sequence<? extends T> other) {
-        int oneSize = size(one);
-        if (oneSize == 0)
-            return size(other) == 0;
-        else if (oneSize != size(other))
-            return false;
-        else {
-            Iterator<? extends T> it1 = one.iterator();
-            Iterator<? extends T> it2 = other.iterator();
-            while (it1.hasNext()) {
-                if (it1.next() != it2.next())
-                    return false;
-            }
-            return true;
-        }
-    }
+    /*************************/
+    /* Sorting and searching */
+    /*************************/
 
-    public static<T> Sequence<? extends T> forceNonNull(Class<T> clazz, Sequence<? extends T> seq) {
-        return seq == null ? emptySequence(clazz) : seq;
-    }
 
     /**
      * Searches the specified sequence for the specified object using the 
@@ -742,14 +777,72 @@ public final class Sequences {
         return Sequences.make(seq.getElementType(), array);
     }
 
-    /**
-     * Return the single value of a sequence.
-     * Return null if the sequence zero zero or more than 1 elements.
-     * Thid is used to implement 'seq instanceof T'.
-     */
-    public static <T> T getSingleValue (Sequence<T> seq) {
-        if (seq == null || seq.size() != 1)
-            return null;
-        return seq.get(0);
+
+    /***********************************************/
+    /* Sequence manipulations -- insert and delete */
+    /***********************************************/
+
+    public static<T> Sequence<T> insert(Sequence<T> sequence, T value) {
+        return SequenceMutator.insert(sequence, (SequenceMutator.Listener<T>) null, value);
+    }
+
+    public static<T> Sequence<T> insert(Sequence<T> sequence, Sequence<? extends T> values) {
+        return SequenceMutator.insert(sequence, (SequenceMutator.Listener<T>) null, values);
+    }
+
+    public static<T> Sequence<T> insertFirst(Sequence<T> sequence, T value) {
+        return SequenceMutator.insertFirst(sequence, null, value);
+    }
+
+    public static<T> Sequence<T> insertFirst(Sequence<T> sequence, Sequence<? extends T> values) {
+        return SequenceMutator.insertFirst(sequence, (SequenceMutator.Listener<T>) null, values);
+    }
+
+    public static<T> Sequence<T> insertBefore(Sequence<T> sequence, T value, int position) {
+        return SequenceMutator.insertBefore(sequence, null, value, position);
+    }
+
+    public static<T> Sequence<T> insertBefore(Sequence<T> sequence, Sequence<? extends T> values, int position) {
+        return SequenceMutator.<T>insertBefore(sequence, null, values, position);
+    }
+
+    public static<T> Sequence<T> insertAfter(Sequence<T> sequence, T value, int position) {
+        return SequenceMutator.insertAfter(sequence, null, value, position);
+    }
+
+    public static<T> Sequence<T> insertAfter(Sequence<T> sequence, Sequence<? extends T> values, int position) {
+        return SequenceMutator.<T>insertAfter(sequence, null, values, position);
+    }
+
+    public static<T> Sequence<T> insertBefore(Sequence<T> sequence, T value, SequencePredicate<? super T> predicate) {
+        return SequenceMutator.insertBefore(sequence, null, value, predicate);
+    }
+
+    public static<T> Sequence<T> insertBefore(Sequence<T> sequence, Sequence<? extends T> values, SequencePredicate<? super T> predicate) {
+        return SequenceMutator.insertBefore(sequence, null, values, predicate);
+    }
+
+    public static<T> Sequence<T> insertAfter(Sequence<T> sequence, T value, SequencePredicate<? super T> predicate) {
+        return SequenceMutator.insertAfter(sequence, null, value, predicate);
+    }
+
+    public static<T> Sequence<T> insertAfter(Sequence<T> sequence, Sequence<? extends T> values, SequencePredicate<? super T> predicate) {
+        return SequenceMutator.insertAfter(sequence, null, values, predicate);
+    }
+
+    public static<T> Sequence<T> delete(Sequence<T> sequence, int position) {
+        return SequenceMutator.delete(sequence, null, position);
+    }
+
+    public static<T> Sequence<T> delete(Sequence<T> sequence, SequencePredicate<? super T> predicate) {
+        return SequenceMutator.delete(sequence, (SequenceMutator.Listener<T>) null, predicate);
+    }
+
+    public static<T> Sequence<T> set(Sequence<T> sequence, int position, T value) {
+        return SequenceMutator.set(sequence, null, position, value);
+    }
+
+    public static<T> Sequence<T> replaceSlice(Sequence<T> sequence, int startPos, int endPos, Sequence<? extends T> newValues) {
+        return SequenceMutator.replaceSlice(sequence, null, startPos, endPos, newValues);
     }
 }

@@ -46,12 +46,12 @@ class CountingSequenceListener implements SequenceChangeListener<Integer> {
             for (int i=endPos; i >= startPos; i--) {
                 ++deleteCount;
                 ++changeCount;
-                deleted = deleted.insert(oldValue.get(i));
+                deleted = Sequences.insert(deleted, oldValue.get(i));
             }
             for (Integer t : newElements) {
                 ++insertCount;
                 ++changeCount;
-                inserted = inserted.insert(t);
+                inserted = Sequences.insert(inserted, t);
             }
         }
     }

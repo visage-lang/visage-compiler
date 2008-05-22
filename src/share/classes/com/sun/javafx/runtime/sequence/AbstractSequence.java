@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.Formattable;
 import java.util.Formatter;
 import java.util.NoSuchElementException;
-import com.sun.javafx.runtime.sequence.SequenceMutator.Listener;
 
 /**
  * Abstract base class for sequence classes.  A subclass need only define the size() and get() methods; subclasses
@@ -73,10 +72,6 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
 
     public int getDepth() {
         return 0;
-    }
-    
-    public <V> Sequence<V> map(Class<V> clazz, SequenceMapper<T, V> sequenceMapper) {
-        return Sequences.map(clazz, this, sequenceMapper);
     }
 
     public void toArray(Object[] array, int destOffset) {
@@ -146,14 +141,6 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
     }
 
 
-    public Sequence<T> subsequence(int start, int end) {
-        return Sequences.subsequence(this, start, end);
-    }
-
-    public Sequence<T> reverse() {
-        return Sequences.reverse(this);
-    }
-
     public Sequence<T> flatten() {
         if (getDepth() == 0)
             return this;
@@ -164,71 +151,7 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         }
     }
 
-    public final Sequence<T> set(int position, T value) {
-        return SequenceMutator.set(this, null, position, value);
-    }
 
-    public Sequence<T> replaceSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
-        return SequenceMutator.replaceSlice(this, null, startPos, endPos, newValues);
-    }
-
-    public final Sequence<T> delete(int position) {
-        return SequenceMutator.delete(this, null, position);
-    }
-
-    public final Sequence<T> delete(SequencePredicate<? super T> predicate) {
-        return SequenceMutator.delete(this, (Listener<T>) null, predicate);
-    }
-
-    public final Sequence<T> insert(T value) {
-        return SequenceMutator.insert(this, (Listener<T>) null, value);
-    }
-
-    public final Sequence<T> insert(Sequence<? extends T> values) {
-        return SequenceMutator.insert(this, (Listener<T>) null, values);
-    }
-
-    public final Sequence<T> insertFirst(T value) {
-        return SequenceMutator.insertFirst(this, null, value);
-    }
-
-    public final Sequence<T> insertFirst(Sequence<? extends T> values) {
-        return SequenceMutator.insertFirst(this, (Listener<T>) null, values);
-    }
-
-    public final Sequence<T> insertBefore(T value, int position) {
-        return SequenceMutator.insertBefore(this, null, value, position);
-    }
-
-    public final Sequence<T> insertBefore(Sequence<? extends T> values, int position) {
-        return SequenceMutator.<T>insertBefore(this, null, values, position);
-    }
-
-    public final Sequence<T> insertAfter(T value, int position) {
-        return SequenceMutator.insertAfter(this, null, value, position);
-    }
-
-    public final Sequence<T> insertAfter(Sequence<? extends T> values, int position) {
-        return SequenceMutator.<T>insertAfter(this, null, values, position);
-    }
-
-    public final Sequence<T> insertBefore(T value, SequencePredicate<? super T> predicate) {
-        return SequenceMutator.insertBefore(this, null, value, predicate);
-    }
-
-    public final Sequence<T> insertBefore(Sequence<? extends T> values, SequencePredicate<? super T> predicate) {
-        return SequenceMutator.insertBefore(this, null, values, predicate);
-    }
-
-    public final Sequence<T> insertAfter(T value, SequencePredicate<? super T> predicate) {
-        return SequenceMutator.insertAfter(this, null, value, predicate);
-    }
-
-    public final Sequence<T> insertAfter(Sequence<? extends T> values, SequencePredicate<? super T> predicate) {
-        return SequenceMutator.insertAfter(this, null, values, predicate);
-    }
-
-    
     // Allow sequences to be formatted - toString() is just for debugging
     // i.e
     // var seq = [1, 2];
