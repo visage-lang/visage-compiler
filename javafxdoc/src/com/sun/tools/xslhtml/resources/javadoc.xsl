@@ -310,7 +310,7 @@
     
     
     <xsl:template match="class[@language='javafx']" mode="interface">
-        <xsl:for-each select="interfaces/interface">
+        <xsl:for-each select="hierarchy/super">
             <a>
                 <xsl:attribute name="title"><xsl:value-of select="@packageName"/>.<xsl:value-of select="@typeName"/></xsl:attribute>
                 <xsl:attribute name="href">../<xsl:value-of select="@packageName"/>/<xsl:value-of select="@packageName"/>.<xsl:value-of select="@typeName"/>.html</xsl:attribute>
@@ -318,8 +318,6 @@
                 <b><xsl:value-of select="@typeName"/></b>
             </a>
             <xsl:text>, </xsl:text>
-            <xsl:variable name="super"><xsl:value-of select="@packageName"/>.<xsl:value-of select="@typeName"/></xsl:variable>
-            <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="interface"/>
         </xsl:for-each>        
     </xsl:template>
     

@@ -36,10 +36,13 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.xml.sax.*;
@@ -285,6 +288,44 @@ public class XMLDoclet {
         }
     }
 
+    private void generateFullHierarchy(ClassDoc cls) throws SAXException {
+        attrs.clear();
+        hd.startElement("", "", "hierarchy", attrs);
+        
+        
+        //return a list of inherited types, filtering out duplicates
+        //and preserving the in-order traversal
+        List<Type> types = findInheritedTypes(cls);
+        Set<Type> uniqueTypes = new HashSet<Type>();
+        ListIterator<Type> it = types.listIterator();
+        while(it.hasNext()) {
+            Type type = it.next();
+            if(uniqueTypes.contains(type)) {
+                it.remove();
+            } else {
+                uniqueTypes.add(type);
+            }
+        }
+        
+        //generate xml for the final list of inherited types
+        for (Type intf : types) {
+            generateTypeRef(intf, "super", null);
+        }
+        hd.endElement("", "", "hierarchy");
+    }
+    
+    private List<Type> findInheritedTypes(ClassDoc cls) {
+        List<Type> types = new ArrayList<Type>();
+        for (Type type : cls.interfaces()) {
+            if (type != null) {
+                types.add(type);
+                ClassDoc cd = type.asClassDoc();
+                types.addAll(findInheritedTypes(cd));
+            }
+        }
+        return types;
+    }
+
     private void generatePackage(PackageDoc pkg) throws SAXException {
         attrs.clear();
         attrs.addAttribute("", "", "name", "CDATA", pkg.name());
@@ -325,6 +366,7 @@ public class XMLDoclet {
         for (Type intf : cls.interfaces())
             generateTypeRef(intf, "interface", null);
         hd.endElement("", "", "interfaces");
+        generateFullHierarchy(cls);
         if (!fxClass) {
         for (ClassDoc inner : cls.innerClasses())
             generateClass(inner);
