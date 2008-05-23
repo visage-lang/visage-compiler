@@ -769,7 +769,15 @@
         <!-- fx -->
         <xsl:if test="not(../@language='java')">
             <a>
-                <xsl:attribute name="href">#<xsl:apply-templates select="." mode="anchor-signature"/></xsl:attribute>
+                <xsl:attribute name="href">
+                    <xsl:text>../</xsl:text>
+                    <xsl:value-of select="../@packageName"/>
+                    <xsl:text>/</xsl:text>
+                    <xsl:value-of select="../@qualifiedName"/>
+                    <xsl:text>.html</xsl:text>
+                    <xsl:text>#</xsl:text>
+                    <xsl:apply-templates select="." mode="anchor-signature"/>
+                </xsl:attribute>
                 <b><xsl:value-of select="@name"/></b>
             </a>
             <xsl:apply-templates select="parameters" mode="signature"/>
