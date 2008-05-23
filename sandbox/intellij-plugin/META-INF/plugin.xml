@@ -9,6 +9,9 @@
         <component>
             <implementation-class>com.sun.javafx.ideaplugin.FxPlugin</implementation-class>
         </component>
+        <component>
+            <implementation-class>com.sun.javafx.ideaplugin.project.FxSdkType</implementation-class>
+        </component>
     </application-components>
 
     <actions>
