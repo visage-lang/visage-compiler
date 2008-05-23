@@ -37,22 +37,29 @@ import org.antlr.runtime.RecognitionException;
 */
 class WrappedAntlrLexer extends v3Lexer {
     public static final int SYNTHETIC_SEMI = -100;
-    public final boolean useSytheticSemi;
+    public final int syntheticSemi;
+    public final boolean signalOnError;
+
+    public WrappedAntlrLexer(ANTLRStringStream stringStream, boolean useSyntheticSemi, boolean signalOnError) {
+        super(new Context(), stringStream);
+        syntheticSemi = useSyntheticSemi ? SYNTHETIC_SEMI : v3Lexer.SEMI;
+        this.signalOnError = signalOnError;
+    }
 
     public WrappedAntlrLexer(ANTLRStringStream stringStream, boolean useSyntheticSemi) {
-        super(new Context(), stringStream);
-        this.useSytheticSemi = useSyntheticSemi;
+        this(stringStream, useSyntheticSemi, true);
     }
 
     // Workaround IAE exception in creating diagnostic
     public void displayRecognitionError(String[] strings, RecognitionException recognitionException) {
         // Blechh!!  But if we don't do this, we loop forever.
-        throw new RecognitionExceptionSignal(recognitionException);
+        if (signalOnError)
+            throw new RecognitionExceptionSignal(recognitionException);
     }
 
     /* Override this so we can distinguish between real and synthetic semicolon in lexing */
     protected int getSyntheticSemiType() {
-        return useSytheticSemi ? SYNTHETIC_SEMI : v3Lexer.SEMI;
+        return syntheticSemi;
     }
 
     public int getState() {

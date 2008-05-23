@@ -60,7 +60,7 @@ public class FxParser implements PsiParser {
 
         System.out.printf("%s/%s: starting parsing %d tokens, %d chars %n", Thread.currentThread(), lexer, lexer.getSize(), lexer.getBufferEnd());
         // Potentially inefficient; creating a new ANTLR lexer instead of reusing the one we have
-        WrappedAntlrLexer antlrLexer = new WrappedAntlrLexer(new ANTLRStringStream(lexer.getBufferSequence().toString().substring(0, lexer.getBufferEnd())), false);
+        WrappedAntlrLexer antlrLexer = new WrappedAntlrLexer(new ANTLRStringStream(lexer.getBufferSequence().toString().substring(0, lexer.getBufferEnd())), false, false);
         v3Parser parser = new v3Parser(new CommonTokenStream(antlrLexer)) {
             protected String getParserName() {
                 return "com.sun.tools.javafx.antlr.v3Parser";
