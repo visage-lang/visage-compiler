@@ -5,8 +5,8 @@
  */
 
 import java.lang.System;
-import javafx.ui.Color;
-import javafx.ui.canvas.Rect;
+
+class Rect { width: Integer, height: Integer }
 
 var x = 2;
 x => 100 tween LINEAR;
@@ -16,13 +16,12 @@ var rect = Rect {
 };
 rect => {
     height: 400 tween EASEBOTH, 
-    width: 500,
-    fill: Color.BLUE tween LINEAR
+    width: 500
 };
 
 at (1s) { 
     x => 2 tween LINEAR;
-    rect => {width: 400 tween EASEBOTH, fill: Color.RED tween EASEBOTH};
+    rect => {width: 400 tween EASEBOTH};
     trigger {
        System.out.println("at 1 second...");
     }

@@ -122,7 +122,16 @@ public class Entry {
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
-        return iterator.hasNext() ? (RuntimeProvider) iterator.next() : null;
+        try {
+            return iterator.hasNext() ? (RuntimeProvider) iterator.next() : null;
+        } catch (Error e) {
+            // ServiceConfigurationError is in java.util in Java 6, sun.misc in Java 5,
+            // so ignore its package
+            if (e.getClass().getSimpleName().equals("ServiceConfigurationError"))
+                return null; // no service found
+            else
+                throw e;
+        }
     }
     
     public static String entryMethodName() {

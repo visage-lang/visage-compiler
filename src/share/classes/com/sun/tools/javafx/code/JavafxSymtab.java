@@ -60,12 +60,9 @@ public class JavafxSymtab extends Symtab {
     public final Type[] javafx_FunctionTypes = new Type[MAX_FIXED_PARAM_LENGTH+1];
     public final Type javafx_FXObjectType;
     public final Type javafx_SequencesType;
-    public final Type javafx_ColorType;
     public final Type javafx_KeyValueType;
     public final Type javafx_PointerType;
     public final Type javafx_LocationType;
-    public final Type javafx_ColorInterpolatorType;
-    public final Type javafx_NumberInterpolatorType;
     
     public final Type javafx_privateAnnotationType;
     public final Type javafx_protectedAnnotationType;
@@ -116,12 +113,9 @@ public class JavafxSymtab extends Symtab {
         javafx_SequenceType = enterClass("com.sun.javafx.runtime.sequence.Sequence");
         javafx_SequencesType = enterClass("com.sun.javafx.runtime.sequence.Sequences");
         javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);
-        javafx_ColorType = enterClass("javafx.ui.Color");
         javafx_KeyValueType = enterClass("javafx.animation.KeyValue");
         javafx_PointerType = enterClass("com.sun.javafx.runtime.Pointer");
         javafx_LocationType = enterClass("ccom.sun.javafx.runtime.location.Location");
-        javafx_ColorInterpolatorType = enterClass("javafx.ui.animation.ColorInterpolator");
-        javafx_NumberInterpolatorType = enterClass("javafx.ui.animation.NumberInterpolator");
         javafx_privateAnnotationType = enterClass("com.sun.javafx.runtime.Private");
         javafx_protectedAnnotationType = enterClass("com.sun.javafx.runtime.Protected");
         javafx_publicAnnotationType = enterClass("com.sun.javafx.runtime.Public");
