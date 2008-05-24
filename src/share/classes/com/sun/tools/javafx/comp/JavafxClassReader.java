@@ -108,6 +108,19 @@ public class JavafxClassReader extends ClassReader {
     public Name.Table getNames() {
         return names;
     }
+    
+    /** Reassign names of classes that might have been loaded with
+      * their flat names. */
+    void fixupFullname (JavafxClassSymbol cSym, ClassSymbol jsymbol) {
+        if (cSym.fullname != jsymbol.fullname &&
+                cSym.owner.kind == PCK && jsymbol.owner.kind == TYP) {
+            cSym.owner.members().remove(cSym);
+            cSym.name = jsymbol.name;
+            ClassSymbol owner = enterClass(((ClassSymbol) jsymbol.owner).flatname);
+            cSym.owner = owner;
+            cSym.fullname = ClassSymbol.formFullName(cSym.name, owner);
+        }
+    }
 
     public JavafxClassSymbol enterClass(ClassSymbol jsymbol) {
         Name className = jsymbol.flatname;
@@ -118,16 +131,7 @@ public class JavafxClassReader extends ClassReader {
         if (compound)
             cSym.flags_field |= JavafxFlags.COMPOUND_CLASS;
         else {
-            if (cSym.fullname != jsymbol.fullname &&
-                    cSym.owner.kind == PCK && jsymbol.owner.kind == TYP) {
-                // reassign fields of classes that might have been loaded with
-                // their flat names.
-                cSym.owner.members().remove(cSym);
-                cSym.name = jsymbol.name;
-                ClassSymbol owner = enterClass(((ClassSymbol) jsymbol.owner).flatname);
-                cSym.owner = owner;
-                cSym.fullname = ClassSymbol.formFullName(cSym.name, owner);
-            }
+            fixupFullname(cSym, jsymbol);
             cSym.jsymbol = jsymbol;
         }
         return cSym;
@@ -440,6 +444,7 @@ public class JavafxClassReader extends ClassReader {
             JavafxClassSymbol csym = (JavafxClassSymbol) sym;
             ClassSymbol jsymbol = csym.jsymbol;
             csym.jsymbol = jsymbol = jreader.loadClass(csym.flatname);
+            fixupFullname(csym, jsymbol);
             typeMap.put(jsymbol, csym);
             jsymbol.classfile = ((ClassSymbol) sym).classfile;
             
@@ -462,10 +467,11 @@ public class JavafxClassReader extends ClassReader {
                 if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName)
                     csym.flags_field |= JavafxFlags.FX_CLASS;
                 else if (itype.tsym.name.endsWith(defs.interfaceSuffixName)) {
+                    iface = itype;
+                    iface.tsym.complete();
                     assert (csym.fullname.len + defs.interfaceSuffixName.len ==
                             ((ClassSymbol) itype.tsym).fullname.len) &&
                            ((ClassSymbol) itype.tsym).fullname.startsWith(csym.fullname);
-                    iface = itype;
                     csym.flags_field |= JavafxFlags.COMPOUND_CLASS;
                 }
                 else {
@@ -475,7 +481,6 @@ public class JavafxClassReader extends ClassReader {
             }
            
             if (iface != null) {
-                iface.tsym.complete();
                 for (List<Type> it = ((ClassType) iface.tsym.type).interfaces_field;
                  it.tail != null;
                  it = it.tail) {
