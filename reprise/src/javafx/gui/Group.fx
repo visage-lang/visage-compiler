@@ -1,0 +1,64 @@
+/*
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ * CA 95054 USA or visit www.sun.com if you need additional information or
+ * have any questions.
+ */ 
+package javafx.gui;
+
+import com.sun.scenario.scenegraph.SGNode;
+import com.sun.scenario.scenegraph.SGGroup;
+
+// PENDING_DOC_REVIEW
+/**
+ * The {@code Group} class represents a list of {@link Node}s objects.
+ *
+ * @profile common
+ */      
+public class Group extends Node {
+
+    function createSGNode(): SGNode { new SGGroup() }
+
+    function getSGGroup(): SGGroup { getSGNode() as SGGroup }
+
+    // PENDING_DOC_REVIEW
+    /**
+     * Replaces the current array of {@link Node}s with the specified array. 
+     *
+     * @profile common
+     */          
+    public attribute content: Node[] on replace oldNodes[a..b] = newNodes {
+        for (node in oldNodes[a..b]) {
+            getSGGroup().remove(node.getFXNode());
+            node.parent = null;
+        }
+        var index = a;
+        for (node in newNodes) {
+            getSGGroup().add(index, node.getFXNode());
+            index = index + 1;
+            node.parent = this;
+        }
+        requestLayout();
+    }
+       
+    public attribute layout: function(g:Group):Void = null;
+
+}

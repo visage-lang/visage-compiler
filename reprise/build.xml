@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<project name="Reprise" default="default" basedir=".">
+    <description>Builds, tests, and runs the project Reprise.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <!--
+
+    There exist several targets which are by default empty and which can be 
+    used for execution of your tasks. These targets are usually executed 
+    before and after some main targets. They are: 
+
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
+      -pre-compile-single:       called before javac compilation of single file
+      -post-compile-single:      called after javac compilation of single file
+      -pre-compile-test:         called before javac compilation of JUnit tests
+      -post-compile-test:        called after javac compilation of JUnit tests
+      -pre-compile-test-single:  called before javac compilation of single JUnit test
+      -post-compile-test-single: called after javac compilation of single JUunit test
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
+
+    (Targets beginning with '-' are not intended to be called on their own.)
+
+    Example of inserting an obfuscator after compilation could look like this:
+
+        <target name="-post-compile">
+            <obfuscate>
+                <fileset dir="${build.classes.dir}"/>
+            </obfuscate>
+        </target>
+
+    For list of available properties check the imported 
+    nbproject/build-impl.xml file. 
+
+
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are: 
+
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar-with-manifest:    JAR building (if you are using a manifest)
+      -do-jar-without-manifest: JAR building (if you are not using a manifest)
+      run:                      execution of project 
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
+
+    An example of overriding the target for project execution could look like this:
+
+        <target name="run" depends="Reprise-impl.jar">
+            <exec dir="bin" executable="launcher.exe">
+                <arg file="${dist.jar}"/>
+            </exec>
+        </target>
+
+    Notice that the overridden target depends on the jar target and not only on 
+    the compile target as the regular run target does. Again, for a list of available 
+    properties which you can use, check the target you are overriding in the
+    nbproject/build-impl.xml file. 
+
+    -->
+
+    <!--
+    The "-post-compile" target below compile .fx files after .java sources
+    have been compiled.  It depends on a change to build.classes.excludes
+    in nbproject/project.properties: 
+        build.classes.excludes=**/*.fx,**/*.java,**/*.form
+    This prevents the default javac target from copying .fx files into
+    ${build.classes.dir}
+    -->
+
+    <property name="ant.jar" value="${ant.home}/lib/ant.jar"/>
+    <property name="javafxc.jar" value="lib/javafxc.jar"/>
+    <property name="javafxrt.jar" value="lib/javafxrt.jar"/>
+    <property name="javafxc.compilerargs" value=""/>
+    <property name="lib.dir" value="lib"/>
+
+    <target name="-post-compile" if="have.sources" depends="init,deps-jar,-pre-pre-compile,-pre-compile">
+        <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask">
+            <classpath>
+                <pathelement location="${ant.jar}"/>
+                <pathelement location="${javafxc.jar}"/>
+            </classpath>
+        </taskdef>
+        <javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"
+                 destdir="${build.classes.dir}" fork="true" memoryMaximumSize="256m"
+                 encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"
+                 includes="**/*.fx" source="${javac.source}" sourcepath=""
+                 srcdir="${src.dir}" target="${javac.target}"
+                 classpath="${build.classes.dir}:${javac.classpath}:${javafxrt.jar}"
+                 compilerclasspath="${javafxc.jar}">
+            <compilerarg line="${javafxc.compilerargs}"/>
+        </javafxc>
+    </target>
+
+    <!-- Run demo.scratchpad.Main -->
+    <target name="runScratchpad" depends="init,compile" description="Run a main class.">
+        <java classname="demo.scratchpad.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.bubblemark.Main -->
+    <target name="runBubbleMark" depends="init,compile" description="Run a main class.">
+        <java classname="demo.bubblemark.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.containertest.Main -->
+    <target name="runContainerTest" depends="init,compile" description="Run a main class.">
+        <java classname="demo.containertest.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.grouppaneltest.Main -->
+    <target name="runGroupPanelTest" depends="init,compile" description="Run a main class.">
+        <java classname="demo.grouppaneltest.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.borderpaneltest.Main -->
+    <target name="runBorderPanelTest" depends="init,compile" description="Run a main class.">
+        <java classname="demo.borderpaneltest.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run gridpaneltest -->
+    <target name="runGridPanelTest" depends="init,compile" description="Run a main class.">
+        <java classname="demo.gridpaneltest.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run flowpaneltest -->
+    <target name="runFlowPanelTest" depends="init,compile" description="Run a main class.">
+        <java classname="demo.flowpaneltest.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+    
+    <!-- Run demo.listtest.Main -->
+    <target name="runListTest" depends="init,compile" description="Run a main class.">
+        <java classname="demo.listtest.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.combotest.Main -->
+    <target name="runComboTest" depends="init,compile" description="Run a main class.">
+        <java classname="demo.combotest.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.listtest2.Main -->
+    <target name="runListTest2" depends="init,compile" description="Run a main class.">
+        <java classname="demo.listtest2.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.listtest3.Main -->
+    <target name="runListTest3" depends="init,compile" description="Run a main class.">
+        <java classname="demo.listtest3.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.oldtester.Main -->
+    <target name="runOldTester" depends="init,compile" description="Run a main class.">
+        <java classname="demo.oldtester.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+    
+    <!-- Run demo.animation.tester.Main -->
+    <target name="runAnimationTester" depends="init,compile" description="Run a main class.">
+        <java classname="demo.animation.tester.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.animation.bounce.Main -->
+    <target name="runBounceTest" depends="init,compile" description="Run a main class.">
+        <java classname="demo.animation.bounce.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.animation.morph.Main -->
+    <target name="runMorphTest" depends="init,compile" description="Run a main class.">
+        <java classname="demo.animation.morph.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.effects.tester.Main -->
+    <target name="runEffectsTester" depends="init,compile" description="Run a main class.">
+        <java classname="demo.effects.tester.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.effects.shelf.Main -->
+    <target name="runShelfTest" depends="init,compile" description="Run a main class.">
+        <java classname="demo.effects.shelf.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+    
+    <!-- Run demo.grid.Main -->
+    <target name="runGridTest" depends="init,compile" description="Run a main class.">
+        <java classname="demo.gridtest.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.tester.Main -->
+    <target name="runTester" depends="init,compile" description="Run a main class.">
+        <java classname="demo.tester.Main" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.imagetest.ImageTest -->
+    <target name="runImageTest" depends="init,compile" description="Run ImageTest.">
+        <java classname="demo.imagetest.ImageTest" fork="true">
+            <classpath>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.shapetest.ShapeTest -->
+    <target name="runShapeTest" depends="init,compile" description="Run ShapeTest.">
+        <java classname="demo.shapetest.ShapeTest" fork="true">
+            <classpath>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.mousetest.MouseTest -->
+    <target name="runMouseTest" depends="init,compile" description="Run MouseTest.">
+        <java classname="demo.mousetest.MouseTest" fork="true">
+            <classpath>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Run demo.layouttest.LayoutTest -->
+    <target name="runLayoutTest" depends="init,compile" description="Run LayoutTest.">
+        <java classname="demo.layouttest.LayoutTest" fork="true">
+            <classpath>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+
+   <!--
+   This target creates the files we distribute. Example:
+       dist/Reprise-0.1-doc.zip
+       dist/Reprise-0.1-src.zip
+       dist/Reprise-0.1.jar
+   Files in the src.zip file all end up under "Reprise-0.1/" and files
+   in the doc.zip end in up Reprise-0.1/javadoc.  See the
+   zipfileset prefix attribute uses below.
+   -->
+   <target name="dist" depends="jar,javadoc" description="Create the src, doc, and binary release files">
+     <property name="build.version" value="0.1"/>
+     <property name="dist.name" value="${dist.prefix}-${build.version}"/>
+     <zip destfile="${dist.dir}/${dist.name}-doc.zip">
+   <zipfileset dir="${dist.javadoc.dir}" prefix="${dist.name}/javadoc"/>
+     </zip>
+     <zip destfile="${dist.dir}/${dist.name}-src.zip" >
+   <zipfileset dir="." prefix="${dist.name}">
+     <include name="${src.dir}/**" />
+       <exclude name="**/.svn" />
+          </zipfileset>
+   <zipfileset dir="." prefix="${dist.name}">
+     <include name="${test.src.dir}/**" />
+       <exclude name="**/.svn" />
+          </zipfileset>
+   <zipfileset dir="." prefix="${dist.name}">
+     <include name="lib/Scenario.jar" />
+     <include name="lib/javafxc.jar" />
+     <include name="lib/javafxrt.jar" />
+     <include name="nbproject/build-impl.xml" />
+     <include name="nbproject/project.xml" />
+     <include name="nbproject/genfiles.properties" />
+     <include name="nbproject/project.properties" />
+     <include name="build.xml" />
+     <include name="README" />
+   </zipfileset>
+     </zip>
+     <copy file="${dist.jar}"
+       tofile="${dist.dir}/${dist.name}.jar"/>
+   </target>
+
+   <!--
+   This override was provided by Jesse Glick (see the exaplanation
+   in http://wiki.netbeans.org/wiki/view/FaqSpecialJar).  It just
+   removes the demos from the classes used to create
+   Reprise.jar
+   -->
+   <target name="-init-presetdef-jar" xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1">
+   <presetdef name="jar" uri="http://www.netbeans.org/ns/j2se-project/1">
+       <jar jarfile="${dist.jar}" compress="${jar.compress}">
+       <j2seproject1:fileset dir="${build.classes.dir}">
+           <exclude name="demo/"/>
+       </j2seproject1:fileset>
+       </jar>
+   </presetdef>
+       <!--<jar jarfile="dist/demos.jar" compress="${jar.compress}">-->
+           <!--<fileset dir="${build.classes.dir}">-->
+               <!--<exclude name="javafx/"/>-->
+           <!--</fileset>-->
+       <!--</jar>-->
+   </target>
+
+
+   <!--
+   This override builds doc for the JavaFX classes.
+   -->
+   <target name="-javadoc-build" depends="init">
+       <mkdir dir="${dist.javadoc.dir}"/>
+       <path id="bootpath" path="${javac.classpath}"/>
+       <property name="bootjars" refid="bootpath"/>
+       <path id="clspath" path="${build.classes.dir}:${javac.test.classpath}"/>
+       <property name="clsjars" refid="clspath"/>
+       <copy todir="${dist.javadoc.dir}">
+           <fileset dir="${basedir}/javadoc" includes="draft.*"/>
+       </copy>
+       <java jar="lib/javafxdoc.jar" fork="true" failonerror="true">
+           <arg value="-d"/>
+           <arg value="${dist.javadoc.dir}"/>
+           <arg value="-sourcepath"/>
+           <arg value="${src.dir}"/>
+           <arg value="-classpath"/>
+           <arg value="${clsjars}"/>
+           <arg line="-subpackages javafx"/>
+           <arg line="-extracss draft.css"/>
+           <classpath>
+               <path path="${build.classes.dir}:${javac.test.classpath}"/>
+           </classpath>
+           <jvmarg line="-Xbootclasspath/p:${bootjars}"/>
+       </java>
+   </target>
+
+
+   <target name="demo-build" depends="init,compile,-pre-pre-jar,-pre-jar" description="bundle all example classes in dist/demo.jar">
+       <jar destfile="${dist.dir}/demos.jar" basedir="${build.classes.dir}/" includes="demo/**" />
+   </target>
+
+   <target depends="init,deps-clean" description="Clean demos." name="cleanWidgets">
+       <delete dir="${build.dir}/classes/demo/widgets"/>
+   </target>
+
+
+    <!--
+    Build a signed test applet, put everything in dist/applet
+
+    More info about the signjar and genkey ant tasks here:
+    http://ant.apache.org/manual/CoreTasks/signjar.html
+    http://ant.apache.org/manual/CoreTasks/genkey.html
+
+    Ant 1.7 was needed for the signjar command's path element
+    Used NetBeans Tools |Options | Miscellaneous | Ant, switch Ant Home
+    -->
+
+    <property name="keystore" value="local_keystore"/>
+    <property name="alias" value="jfxtest"/>
+    <property name="keypass" value="testjfx531pass"/>
+    <property name="storepass" value="testjfx531pass"/>
+    <property name="applet-dist.dir" value="dist/applet"/>
+
+    <!--
+    This target only needs to be run once, to generate a test certificate.
+    -->
+    <target name="gen-applet-key" description="Create local certificate" depends="init">
+        <genkey keystore="${keystore}" alias="${alias}" storepass="${storepass}" keypass="${keypass}" >
+            <dname>
+                <param name="CN" value="Sun Microsystems"/>
+                <param name="OU" value="JavaFX"/>
+                <param name="C" value="US"/>
+            </dname>
+        </genkey>
+    </target>
+
+    <!--
+    Assuming gen-applet-key has been run (once), this target signs all of the jars, and puts them
+    in dist/applet, along with the html/jnlp resources.
+    -->
+    <target name="gen-test-applet" description="sign jars, copy everything to dist" depends="init,demo-build">
+     <mkdir dir="${applet-dist.dir}"/>
+      <signjar verbose="true" destDir="${applet-dist.dir}" keystore="${keystore}" alias="${alias}" storepass="${storepass}" >
+        <path>
+          <fileset dir="${lib.dir}" includes="*.jar" excludes="javafxc.jar,javafxdoc.jar" />
+          <fileset dir="${dist.dir}" includes="javafxgui.jar,demos.jar" />
+        </path>
+      </signjar>
+      <copy todir="${applet-dist.dir}" flatten="true">
+        <fileset dir="src/demo/applettest" includes="test.html,spinner.gif" />
+        <fileset dir="src/demo/applettest" includes="test.jnlp,javafxrt.jnlp,javafxgui.jnlp,scenario.jnlp" />
+      </copy>
+    </target>
+
+
+
+</project>

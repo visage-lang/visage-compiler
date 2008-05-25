@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp href="test.jnlp">
+  <information>
+    <title>Test</title>
+    <vendor>Sun Microsystems</vendor>
+    <offline-allowed />
+  </information>
+  <security>
+    <all-permissions/>
+  </security>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se" java-vm-args="-Xmx800m" />
+    <jar href="demos.jar" main="true" />
+    <extension name="javafxgui" href="javafxgui.jnlp" />
+    <extension name="javafxrt" href="javafxrt.jnlp" />
+    <extension name="scenario" href="scenario.jnlp" />
+  </resources>
+  <applet-desc 
+    name="test"
+    main-class="javafx.gui.Applet"
+    width="500"
+    height="500">
+  </applet-desc>
+</jnlp>

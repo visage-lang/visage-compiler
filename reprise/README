@@ -1,0 +1,35 @@
+The Java FX Script UI runtime project.  
+
+The contents of this project come from trunk of the java.net SVN repository at:
+https://reprise.dev.java.net/svn/reprise/trunk/Reprise
+ 
+
+*** Useful Links ***
+
+Interpreted - Language reference manual:
+https://openjfx.dev.java.net/JavaFX_Programming_Language.html
+
+Interpreted - Chris's original API:
+https://openjfx.dev.java.net/nonav/api/index.html
+
+Interpreted - JavaFX source for Chris's original API:
+SVN: http://toolssvn.sfbay.sun.com/svn/javafx/trunk/javafxrt/src/javafx/javafx/ui/
+
+Interpreted - Java source for Chris's original API:
+SVN: http://toolssvn.sfbay.sun.com/svn/javafx/trunk/javafxrt/src/java/net/java/javafx/ui/
+
+Compiled - JavaFX source for Chris's original API::
+SVN: https://openjfx-compiler.dev.java.net/svn/openjfx-compiler/trunk/runtime/src/share/classes/javafx/ui/
+
+Compiled - Java source for Chris's original API:
+SVN: https://openjfx-compiler.dev.java.net/svn/openjfx-compiler/trunk/runtime/src/share/classes/com/sun/javafx/api/ui/
+
+Compiled - Language overview:
+http://blogs.sun.com/chrisoliver/resource/lang/javafx.html
+
+Compiled - Chris Oliver's stab at a new UI library:
+Browse: https://openjfx-compiler.dev.java.net/source/browse/openjfx-compiler/trunk/sandbox/chris/hello/
+SVN:    https://openjfx-compiler.dev.java.net/svn/openjfx-compiler/trunk/sandbox/chris/hello/
+
+Compiler Wiki (lots of insight):
+http://jfx.wikia.com/wiki/OpenJFX_Compiler

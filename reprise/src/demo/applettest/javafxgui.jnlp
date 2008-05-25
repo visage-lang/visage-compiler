@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0+" href="reprise.jnlp">
+  <information>
+    <title>Reprise</title>
+    <vendor>Sun Microsystems, Inc.</vendor>
+    <homepage href="https://reprise.dev.java.net/"/>
+    <offline-allowed/>
+  </information>
+  <security>
+    <all-permissions/>
+  </security>
+  <resources>
+    <jar href="javafxgui.jar"/>
+  </resources>
+  <component-desc/>
+</jnlp>

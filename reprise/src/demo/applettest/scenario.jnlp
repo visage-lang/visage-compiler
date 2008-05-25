@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0+" href="scenario.jnlp">
+  <information>
+    <title>Scene Graph</title>
+    <vendor>Sun Microsystems, Inc.</vendor>
+    <homepage href="https://scenegraph.dev.java.net/"/>
+    <offline-allowed/>
+  </information>
+  <security>
+    <all-permissions/>
+  </security>
+  <resources>
+    <jar href="Scenario.jar"/>
+  </resources>
+  <component-desc/>
+</jnlp>
