@@ -24,31 +24,33 @@
  */ 
 package guitar;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.gui.*;
 import java.lang.System;
 
 
 
-public class Guitar extends CompositeNode {
+public class Guitar extends CustomNode {
     attribute loadingSound: Number;
     function play(string:GuitarString){
         string.audioClip.stop();
         string.audioClip.play();
     }
-    public function composeNode(): Node {
+    public function create(): Node {
         var self = this;
         Group {
             var tx = Translate {x: 0, y: 0}
             transform: [tx]
-            onMouseDragged: function(e:CanvasMouseEvent):Void {
-                tx.x += e.localDragTranslation.x;
-                tx.y += e.localDragTranslation.y;
+            onMouseDragged: function(e:MouseEvent):Void {
+                tx.x += e.getDragX();
+                tx.y += e.getDragY();
             }
             content:
                 [ImageView { 
                     transform:[Transform.translate(0, 49)]
-                    image: Image{url: this.getClass().getResource("Resources/Pickup.png").toString()}
+                    image: Image{
+                        backgroundLoading: true, 
+                        url: "{__DIR__}Resources/Pickup.png"
+                    }
                 },
                 GuitarString {
                     theGuitar: self
@@ -85,28 +87,40 @@ public class Guitar extends CompositeNode {
                 },
                 ImageView { 
                     transform: [Transform.translate(9, 0)]
-                    image: Image{url: this.getClass().getResource("Resources/EADGBE.png").toString()}
+                    image: Image{
+                        backgroundLoading: true, 
+                        url: "{__DIR__}Resources/EADGBE.png"
+                    }
                 },
                 ImageView { 
                     visible: false
                     transform: [Transform.translate(9, 0)]
-                    image: Image{url: this.getClass().getResource("Resources/DADGBE.png").toString()}
+                    image: Image{
+                        backgroundLoading: true, 
+                        url: "{__DIR__}Resources/DADGBE.png"
+                    }
                 },
                 ImageView { 
                     transform: [Transform.translate(9, 201)]
-                    image: Image{url: this.getClass().getResource("Resources/Standard.png").toString()}
+                    image: Image{
+                        backgroundLoading: true, 
+                        url: "{__DIR__}Resources/Standard.png"
+                    }
                 },
                 ImageView { 
                     visible: false
                     transform: [Transform.translate(9, 201)]
-                    image: Image{url: this.getClass().getResource("Resources/DropD.png").toString()}
+                    image: Image{
+                        backgroundLoading: true, 
+                        url: "{__DIR__}Resources/DropD.png"
+                    }
                 },
                 Text {
-                    font: Font{faceName:"Verdana", style:[FontStyle.BOLD], size:10}
+                    font: Font{name:"Verdana", style:FontStyle.BOLD, size:10}
                     content: "Loading Sound..."
-                    fill: bind if (loadingSound > 0) then Color.WHITE else Color.BLACK
+                    fill: bind if (loadingSound > 0) then Color.WHITE else Color.TRANSPARENT
                     transform: [Transform.translate(131, -30)]
-                    halign: HorizontalAlignment.CENTER
+                    horizontalAlignment: HorizontalAlignment.CENTER
                 }]
             };   
     }
@@ -120,22 +134,23 @@ Frame {
     title: "Guitar Tuner"
     height: 500
     width: 600
-    onClose: function() {System.exit(0);}
+    closeAction: function() {System.exit(0);}
     visible: true
     background: Color.BLACK
     content: Canvas {
-        cursor: Cursor.DEFAULT
+        
         background: Color.BLACK
         content:
         [ImageView {
-            preload: true
+            cursor: Cursor.DEFAULT
             image: Image{url: "http://dontipton.com/myPictures/guitar-lights-neck-circle.jpg"}
         },
-        View {
+        ComponentView {
+            cursor: Cursor.DEFAULT
             opacity: 0.6
             transform: [Transform.translate(20, 20), Transform.scale(0.5, 0.5)]
-            content: Label {
-                font: Font{faceName:"Tahoma", style:[FontStyle.BOLD], size:20}
+            component: Label {
+                font: Font{name:"Tahoma", style:FontStyle.BOLD, size:20}
                 foreground: Color.WHITE
                 text:
                 "<html>
@@ -143,7 +158,7 @@ Frame {
                    <table>
                    <tr>
                    <td>
-                   <img src='http://widgets.yahoo.com/images/home/maintile/icon.gif'></img>
+                   <img src='http://l.yimg.com/static.widgets.yahoo.com/133/images/minichit_missing.png'></img>
                    </td> 
                    <td width='150'>
                    JavaFX Clone of Yahoo Widget Engine Guitar Tuner Widget
@@ -153,9 +168,10 @@ Frame {
             }
         },
         Guitar {
+            cursor: Cursor.DEFAULT
             transform: bind [Transform.translate(300.0, 200.0) ]
-            valign: VerticalAlignment.CENTER
-            halign: HorizontalAlignment.CENTER
+            verticalAlignment: VerticalAlignment.CENTER
+            horizontalAlignment: HorizontalAlignment.CENTER
         }]
     }
 }
