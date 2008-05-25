@@ -2954,13 +2954,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         for (JCExpression expr : tree.getItems()) {
                 Type itemType = attribTree(expr, env, VAL,
                         expected, Sequenceness.PERMITTED);
-                if (itemType.tag == NONE || itemType.tag == ERROR) {
-                    continue;
-                }
                 if (types.isSequence(itemType)) {
                     itemType = types.elementType(itemType);
                 }
-                if (elemType == null)
+                if (elemType == null || itemType.tag == NONE || itemType.tag == ERROR)
                     elemType = itemType;
                 else
                     elemType = unionType(tree, itemType, elemType);
