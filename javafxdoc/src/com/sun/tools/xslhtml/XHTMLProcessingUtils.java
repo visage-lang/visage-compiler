@@ -255,8 +255,10 @@ public class XHTMLProcessingUtils {
     
     private static void copyDocComment(Element pkg, Element package_elem) {
         Element docComment = (Element) pkg.getElementsByTagName("docComment").item(0);
-        Node copy = package_elem.getOwnerDocument().importNode(docComment, true);
-        package_elem.appendChild(copy);
+        if (docComment != null) {
+            Node copy = package_elem.getOwnerDocument().importNode(docComment, true);
+            package_elem.appendChild(copy);
+        }
     }
     
     private static List<Element> sort(NodeList classesNodeList) {
