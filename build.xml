@@ -4,6 +4,7 @@
 
     <property name="tools.dir" value="${basedir}/tools"/>
     <property name="runtime.dir" value="${basedir}/runtime"/>
+    <property name="reprise.dir" value="${basedir}/reprise"/>
     <property name="javafxdoc.dir" value="${basedir}/javafxdoc"/>
     <property environment="env" />
     <import file="tools-defs.xml"/>
@@ -12,19 +13,19 @@
 
     <import file="nbproject/build-impl.xml"/>
 
-    <target name="default" depends="jar,runtime,javafxdoc,install-scripts"
+    <target name="default" depends="jar,runtime,reprise,javafxdoc,install-scripts"
             description="Build javafxc compiler and runtime distribution"/>
 
-    <target name="all" depends="jar, runtime, test, javafxdoc, install-scripts, spec, javadoc, pack-jars, demos"
+    <target name="all" depends="jar, runtime, reprise, test, javafxdoc, install-scripts, spec, javadoc, pack-jars, demos"
             description="Build and test all project artifacts"/>
             
     <target name="dist" description="Build distribution bundles" depends="dist-init,dist-zip,dist-tgz"/>
     
-    <target name="dist-zip" description="Build distribution zip file" depends="jar, runtime, test, install-scripts, spec, javadoc, pack-jars, demos">
+    <target name="dist-zip" description="Build distribution zip file" depends="jar, runtime, reprise, test, install-scripts, spec, javadoc, pack-jars, demos">
         <zip basedir="dist" compress="true" destfile="${zip.bundle}" includes="${dist.includes}"/>
     </target>
     
-    <target name="dist-tgz" description="Build distribution gzipped tar file" depends="jar, runtime, test, install-scripts, spec, javadoc, pack-jars, demos">
+    <target name="dist-tgz" description="Build distribution gzipped tar file" depends="jar, runtime, reprise, test, install-scripts, spec, javadoc, pack-jars, demos">
         <tar basedir="dist" longfile="fail" compression="gzip" destfile="${tgz.bundle}" includes="${dist.includes}"/>
     </target>
 
@@ -218,15 +219,36 @@
     </target>
     <target name="-pre-compile" depends="generate-parserv3,generate-parserv3w,-def-pcompile"/>
     <target name="-post-compile" depends="compile-runtime-fx" />
-    <target depends="init" name="-javadoc-build">
+    <target depends="init,javafxdoc,runtime,reprise" name="-javadoc-build">
         <mkdir dir="${dist.javadoc.dir}"/>
+        <path id="bootpath" path="${javac.classpath}"/>
+        <property name="bootjars" refid="bootpath"/>
+        <path id="clspath" path="build/classes:runtime/build/classes:reprise/build/classes:${javac.test.classpath}:reprise/lib/jmc.jar"/>
+        <property name="clsjars" refid="clspath"/>
+        <copy todir="${dist.javafxdoc.dir}">
+            <fileset dir="${basedir}/reprise/javadoc" includes="draft.*"/>
+        </copy>
         <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" destdir="${dist.javadoc.dir}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}"
                 packagenames="${javadoc.pkgs}" sourcepath="${src.classes.dir}">
             <classpath>
                 <path path="${javac.classpath}"/>
             </classpath>
         </javadoc>
-        <ant dir="${runtime.dir}" antfile="build.xml" target="javadoc" inheritall="false"/>
+        <java jar="dist/lib/javafxdoc.jar" fork="true" failonerror="true">
+            <arg value="-d"/>
+            <arg value="${dist.javafxdoc.dir}"/>
+            <arg value="-sourcepath"/>
+            <arg value="src/share/classes:runtime/src/share/classes:reprise/src"/>
+            <arg value="-classpath"/>
+            <arg value="${clsjars}"/>
+            <arg line="-extracss draft.css"/>
+            <classpath>
+                <path path="${build.classes.dir}:${javac.test.classpath}"/>
+            </classpath>
+            <jvmarg line="-Xbootclasspath/p:${bootjars}"/>
+            <jvmarg value="-Xmx256m"/>
+            <arg line="${javafxdoc.packages}"/>
+        </java>
     </target>
     
     <target name="-def-pcompile">
@@ -295,7 +317,7 @@
 
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
-    <target name="-post-clean" depends="runtime-clean,javafxdoc-clean,spec-clean">
+    <target name="-post-clean" depends="runtime-clean,reprise-clean,javafxdoc-clean,spec-clean">
         <!-- Delete ANTLR-generated files -->
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v3*.*" excludes="**/v3.g **/v3Walker.g"/>
         <delete dir="${syntax.diagrams.dir}" />
@@ -373,6 +395,16 @@
             </propertyset>
         </ant>
     </target>
+
+    <target name="reprise" depends="jar">
+        <ant dir="${reprise.dir}" antfile="build.xml" target="jar" inheritall="false">
+            <property name="tools.dir" value="${tools.dir}"/>
+            <propertyset>
+                <propertyref regex="^.*\.class\.path$$"/>
+            </propertyset>
+            <property name="dist.dir" value="../dist/lib"/>
+        </ant>
+    </target>
     
     <target name="javafxdoc" depends="jar">
         <ant dir="${javafxdoc.dir}" antfile="build.xml" target="jar" inheritall="false"/>
@@ -388,7 +420,7 @@
         <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>
     </target>
     
-    <target name="demos" depends="jar,runtime">
+    <target name="demos" depends="jar,runtime,reprise">
         <ant antfile="demos/build.xml" target="all" inheritall="false" />
         <copy todir="dist/demos">
             <fileset dir="demos" excludes="StudioMoto/**,**/build/,**/dist/,**/lib/"/>
@@ -402,6 +434,10 @@
     
     <target name="runtime-clean" >
         <ant dir="${runtime.dir}" antfile="build.xml" target="clean" inheritall="false" />
+    </target>
+    
+    <target name="reprise-clean" >
+        <ant dir="${reprise.dir}" antfile="build.xml" target="clean" inheritall="false" />
     </target>
     
     <target name="javafxdoc-clean">
@@ -467,7 +503,7 @@
         </copy>
     </target>
     
-    <target name="runtime-no-ui" depends="jar">
+    <target name="runtime-no-ui" depends="jar,reprise">
         <ant dir="${runtime.dir}" antfile="build.xml" target="jar" inheritall="false">
             <property name="tools.dir" value="${tools.dir}"/>
             <propertyset>
@@ -480,7 +516,7 @@
         </ant>
     </target>
     
-    <target name="pack-jars" depends="runtime">
+    <target name="pack-jars" depends="runtime,reprise">
         <taskdef name="pack200" classpath="${file.reference.pack200task.jar}"
                  classname="com.sun.tools.apache.ant.pack200.Pack200Task"/>
         <pack200 src="${dist.jar}" gzipoutput="true" destfile='${dist.jar}.pack.gz'/>
