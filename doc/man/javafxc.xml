@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+
+ This code is free software; you can redistribute it and/or modify it
+ under the terms of the GNU General Public License version 2 only, as
+ published by the Free Software Foundation.  Sun designates this
+ particular file as subject to the "Classpath" exception as provided
+ by Sun in the LICENSE file that accompanied this code.
+
+ This code is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ version 2 for more details (a copy is included in the LICENSE file that
+ accompanied this code).
+
+ You should have received a copy of the GNU General Public License version
+ 2 along with this work; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+
+ Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ CA 95054 USA or visit www.sun.com if you need additional information or
+ have any questions.
+-->
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<refentry id="javafxc">
+  <refmeta>
+    <refentrytitle>javafxc</refentrytitle>
+
+    <manvolnum>1</manvolnum>
+  </refmeta>
+
+  <refnamediv>
+    <refname>javafxc</refname>
+
+    <refpurpose>JavaFX Script compiler</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>javafxc</command>
+
+      <arg choice="opt">options</arg>
+
+      <arg choice="opt">sourcefiles</arg>
+
+      <arg choice="opt">@argfiles</arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1>
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>options</option>
+        </term>
+
+        <listitem>
+          <para>Command-line options.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>sourcefiles</option>
+        </term>
+
+        <listitem>
+          <para>One or more source files to be compiled (such as
+          MyModule.fx).</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>@argfiles</option>
+        </term>
+
+        <listitem>
+          <para>One or more files that lists options and source files. The -J
+          options are not allowed in these files.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1>
+    <title>Description</title>
+
+    <para>The <command>javafxc</command> tool reads JavaFX Script source files
+    and compiles them into JVM bytecode class files. </para>
+
+    <para>There are two ways to pass source code file names to 
+    <command>javafxc</command>:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>For a small number of source files, simply list the file names
+        on the command line.</para>
+      </listitem>
+
+      <listitem>
+        <para>For a large number of source files, list the file names in a
+        file, separated by blanks or line breaks. Then use the list file name
+        on the <command>javafxc</command> command line, preceded
+        by an <filename>@</filename> character.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>Each source code file must have a <filename>.fx</filename> suffix, 
+    while is compiled into a module class file with the same root name and a
+    <filename>.class</filename>> suffix. For example, a module called
+    <code>MyModule</code> would be written in a source file called
+    <filename>MyModule.fx</filename>> and compiled into a module file called
+    <filename>MyModule.class</filename>>. Module files are Java platform class files,
+    just like class files created with the Java programming language.</para>
+
+    <para>Class definitions produce additional class files. These class files
+    have names combining the module and class names, such as
+    <filename>MyModule$MyClass.class</filename>.</para>
+
+    <para>You should arrange source files in a directory tree that reflects
+    their package tree. For example, if you keep all your source files in
+    <filename>/workspace </filename>, the source code for
+    <code>com.mysoft.mypack.MyModule</code> should be in 
+    <filename>/workspace/com/mysoft/mypack/MyModule.fx</filename>.</para>
+
+    <para>By default, the compiler puts each class file in the same directory
+    as its source file. You can specify a separate destination directory with
+    <option>-d</option> (see <xref linkend="options"/>,
+    below).</para>
+  </refsect1>
+
+  <refsect1 id="options" xreflabel="Options">
+    <title>Options</title>
+
+    <para>The compiler has a set of standard options that are supported on the
+    current development environment and will be supported in future releases.
+    An additional set of non-standard options are specific to the current
+    virtual machine and compiler implementations and are subject to change in
+    the future. Non-standard options begin with -X.</para>
+
+    <refsect2><title>Standard Options</title></refsect2>
+    <variablelist>
+      <varlistentry>
+        <term><option>-cp</option> <parameter>path</parameter> or 
+              <option>-classpath</option> <parameter>path</parameter></term>
+
+        <listitem>
+          <para>Specify where to find user class files, and (optionally)
+          source files. This classpath overrides the user class path in the
+          <envar>CLASSPATH</envar> environment variable. If neither
+          <envar>CLASSPATH</envar>, <option>-cp</option> nor
+          <option>-classpath</option> is specified, the user class path
+          consists of the current directory. </para>
+
+          <para>If the <option>-sourcepath</option> option is not specified,
+          the user class path is also searched for source files.</para>
+          
+          <para>As a special convenience, a class path element containing a basename of
+          <filename>*</filename> is considered equivalent to specifying a list
+          of all the files in the directory with the extension
+          <filename>.jar</filename> or <filename>.JAR</filename>. </para>
+          
+          <para>For example, if directory foo contains <filename>a.jar</filename>
+          and <filename>b.JAR</filename>, then the class path element
+          <filename>foo/*</filename> is expanded to
+          <filename>A.jar:b.JAR</filename>, except that the order of jar files
+          is unspecified. All jar files in the specified directory, even
+          hidden ones, are included in the list. A classpath entry consisting
+          simply of <filename>*</filename> expands to a list of all the jar
+          files in the current directory. The <envar>CLASSPATH</envar>
+          environment variable, where defined, will be similarly expanded.
+          Note: Depending of the configuration of your command line
+          environment, you may have to quote the wild card character, for
+          example, <code>javafxc -cp "*.jar" MyModule.fx.</code></para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>-d</option> <parameter>directory</parameter></term>
+
+        <listitem>
+          <para>Set the destination directory for class files. The directory 
+          must already exist; <command>javafxc</command> will not create it. 
+          If a class is part of a package, <command>javafxc</command> puts the 
+          class file in a subdirectory reflecting the package name, creating 
+          directories as needed. For example, if you specify 
+          <code>-d /home/myclasses</code> and the class is called 
+          <code>com.mypackage.MyClass</code>, then the class file is called 
+          <filename>/home/myclasses/com/mypackage/MyClass.class</filename>.</para>
+          
+          <para>If <option>-d</option> is not specified, <command>javafxc</command> 
+          puts each class files in the same directory as the source file from 
+          which it was generated.</para>
+          
+          <para><note>The directory specified by <option>-d</option> is 
+          not automatically added to your user class path.</note></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+          <term><option>-deprecation</option></term>
+          <listitem>
+              <para>Show a description of each use or override of a deprecated 
+              member or class. Without <option>-deprecation</option>, 
+              <command>javafxc</command> shows a summary of the source files 
+              that use or override deprecated members or classes. 
+              <option>-deprecation</option> is shorthand for 
+              <option>-Xlint:deprecation</option>.</para>
+          </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+  <refsect1>
+      <title>TODO</title>
+      <para><emphasis>Translate the rest of </emphasis><command>javac</command>
+      <emphasis>manual page.</emphasis></para>
+  </refsect1>
+</refentry>

@@ -76,6 +76,28 @@
 	<copy file="doc/langspec/langref.css" tofile="${doc.build.dir}/html/langref.css"/>
     </target>
     
+    <target name="man-pages" depends="prepare,langref.xsl">
+        <mkdir dir="${doc.build.dir}/man"/>
+        <java classname="com.icl.saxon.StyleSheet" fork="true"
+              dir="${doc.build.dir}/man" failonerror="true">
+            <classpath refid="doc.build.class.path"/>
+            <arg file="doc/man/javafx.xml"/>
+            <arg value="${doc.src.dir}/langref.xsl"/>
+            <arg value="use.id.as.filename=1"/>
+            <arg value="root.filename=javafx"/>
+            <arg value="draft.mode=yes"/>
+        </java>        
+        <java classname="com.icl.saxon.StyleSheet" fork="true"
+              dir="${doc.build.dir}/man" failonerror="true">
+            <classpath refid="doc.build.class.path"/>
+            <arg file="doc/man/javafxc.xml"/>
+            <arg value="${doc.src.dir}/langref.xsl"/>
+            <arg value="use.id.as.filename=1"/>
+            <arg value="root.filename=javafxc"/>
+            <arg value="draft.mode=yes"/>
+        </java>        
+    </target>
+    
     <available property="ant.jar" value="${ant.home}/lib/ant.jar" file="${ant.home}/lib/ant.jar"/>
     <pathconvert property="ant.jar">
         <mapper type="regexp" from="${path.separator}([^${path.separator}]*ant.jar)${path.separator}" to="\1"/>
