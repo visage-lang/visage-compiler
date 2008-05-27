@@ -12,6 +12,9 @@
         <component>
             <implementation-class>com.sun.javafx.ideaplugin.project.FxSdkType</implementation-class>
         </component>
+        <component>
+            <implementation-class>com.sun.javafx.ideaplugin.run.FxRunConfigurationType</implementation-class>
+        </component>
     </application-components>
 
     <actions>
