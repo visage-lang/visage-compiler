@@ -63,7 +63,7 @@ public class MsgSym {
     public static final String MESSAGE_OPT_VERBOSE = "opt.verbose";
     public static final String MESSAGE_OPT_DEPRECATION = "opt.deprecation";
     public static final String MESSAGE_OPT_ARG_PATH = "opt.arg.path";
-    public static final String MESSAGE_OPT_CLASSPATH = "opt.classpath";
+    public static final String MESSAGE_OPT_CLASSPATH = "javafx.opt.classpath";
     public static final String MESSAGE_OPT_SOURCEPATH = "opt.sourcepath";
     public static final String MESSAGE_OPT_BOOTCLASSPATH = "opt.bootclasspath";
     public static final String MESSAGE_OPT_XBOOTCLASSPATH_P = "opt.Xbootclasspath.p";

@@ -181,6 +181,9 @@ public interface JavafxOption {
         HiddenOption(OptionName name, String argsNameKey) {
             super(name, argsNameKey, null);
         }
+        HiddenOption(OptionName name, String argsNameKey, String descrKey) {
+            super(name, argsNameKey, descrKey);
+        }
         @Override
         void help(PrintWriter out) {}
         @Override

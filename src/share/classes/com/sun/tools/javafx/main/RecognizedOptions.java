@@ -133,9 +133,9 @@ public class RecognizedOptions {
         DJAVA_EXT_DIRS,
         ENDORSEDDIRS,
         DJAVA_ENDORSED_DIRS,
-        PROC_CUSTOM,
-        PROCESSOR,
-        PROCESSORPATH,
+        //PROC_CUSTOM,
+        //PROCESSOR,
+        //PROCESSORPATH,
         D,
         S,
         IMPLICIT,
@@ -160,8 +160,8 @@ public class RecognizedOptions {
         XMAXWARNS,
         XSTDOUT,
         XPRINT,
-        XPRINTROUNDS,
-        XPRINTPROCESSORINFO,
+        //XPRINTROUNDS,
+        //XPRINTPROCESSORINFO,
         XPREFER,
         O,
         XJCOV,
@@ -182,7 +182,7 @@ public class RecognizedOptions {
         DJAVA_EXT_DIRS,
         ENDORSEDDIRS,
         DJAVA_ENDORSED_DIRS,
-        PROCESSORPATH,
+        //PROCESSORPATH,
         D,
         S,
         ENCODING,
@@ -197,8 +197,8 @@ public class RecognizedOptions {
         NOWARN,
         VERBOSE,
         DEPRECATION,
-        PROC_CUSTOM,
-        PROCESSOR,
+        //PROC_CUSTOM,
+        //PROCESSOR,
         IMPLICIT,
         SOURCE,
         TARGET,
@@ -219,8 +219,8 @@ public class RecognizedOptions {
         XMAXWARNS,
         // XSTDOUT,
         XPRINT,
-        XPRINTROUNDS,
-        XPRINTPROCESSORINFO,
+        //XPRINTROUNDS,
+        //XPRINTPROCESSORINFO,
         XPREFER,
         O,
         XJCOV,
@@ -359,7 +359,7 @@ public class RecognizedOptions {
 	 	return super.process(options, "-endorseddirs", arg);
 	    }
 	},
-	new Option(PROC_CUSTOM,             MsgSym.MESSAGE_OPT_PROC_NONE_ONLY) {
+	new HiddenOption(PROC_CUSTOM,             MsgSym.MESSAGE_OPT_PROC_NONE_ONLY) {
         @Override
 	    public boolean matches(String s) {
 		return s.equals("-proc:none") || s.equals("-proc:only");
@@ -376,8 +376,8 @@ public class RecognizedOptions {
 		return false;
 	    }
         },
-	new Option(PROCESSOR,           MsgSym.MESSAGE_OPT_ARG_CLASS_LIST,	MsgSym.MESSAGE_OPT_PROCESSOR),
-	new Option(PROCESSORPATH,       MsgSym.MESSAGE_OPT_ARG_PATH,		MsgSym.MESSAGE_OPT_PROCESSORPATH),
+	new HiddenOption(PROCESSOR,           MsgSym.MESSAGE_OPT_ARG_CLASS_LIST,	MsgSym.MESSAGE_OPT_PROCESSOR),
+	new HiddenOption(PROCESSORPATH,       MsgSym.MESSAGE_OPT_ARG_PATH,		MsgSym.MESSAGE_OPT_PROCESSORPATH),
 	new Option(D,                   MsgSym.MESSAGE_OPT_ARG_DIRECTORY,	MsgSym.MESSAGE_OPT_D),
 	new Option(S,                   MsgSym.MESSAGE_OPT_ARG_DIRECTORY,	MsgSym.MESSAGE_OPT_SOURCE_DEST),
         //new Option(IMPLICIT,                                    "opt.implicit") {
@@ -536,9 +536,9 @@ public class RecognizedOptions {
 
 	new XOption(XPRINT,   					MsgSym.MESSAGE_OPT_PRINT),
 
-	new XOption(XPRINTROUNDS,   			MsgSym.MESSAGE_OPT_PRINT_ROUNDS),
+	new HiddenOption(XPRINTROUNDS,   			MsgSym.MESSAGE_OPT_PRINT_ROUNDS),
 
-	new XOption(XPRINTPROCESSORINFO,		MsgSym.MESSAGE_OPT_PRINT_PROCESSOR_INFO),
+	new HiddenOption(XPRINTPROCESSORINFO,		MsgSym.MESSAGE_OPT_PRINT_PROCESSOR_INFO),
         
     new XOption(XPREFER,                MsgSym.MESSAGE_OPT_PREFER) {
         @Override
