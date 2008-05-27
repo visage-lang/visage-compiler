@@ -31,9 +31,10 @@ import javafx.lang.Duration;
 
 //import com.sun.media.jmc.Media;
 import java.net.URI;
-import com.sun.javafx.gui.MediaHelper;
+//import com.sun.javafx.gui.MediaHelper;
 
 /**
+ * <para><b>NOTE: disabled pending legal review of media encumbrances.</b></para>
  * The {@code Media} class represents a media resource.
  * It contains information about the media, such
  * as its source, resolution, and metadata.
@@ -41,7 +42,7 @@ import com.sun.javafx.gui.MediaHelper;
  * @profile common
  */
 public class Media {
-    private attribute jmcMediaInfo:com.sun.media.jmc.Media = null;
+/*    private attribute jmcMediaInfo:com.sun.media.jmc.Media = null;
     
     /**
      * Defines the {@code String} which specifies the URI of the media;
@@ -49,7 +50,7 @@ public class Media {
      * relative, such as "./media.mov"
      * 
      * @profile common
-     */
+     *
     public attribute source:String on replace {
         jmcMediaInfo = new com.sun.media.jmc.Media(new URI(source));
     }
@@ -58,26 +59,26 @@ public class Media {
      * The width resolution of the source media
      * 
      * @profile common
-     */
+     *
     public attribute resolutionX:Number;
     /**
      * The height resolution of the source media
      * 
      * @profile common
-     */
+     *
     public attribute resolutionY:Number;
     /**
      * The duration of the source media
      * 
      * @profile common
-     */
+     *
     public attribute duration:Duration;
     
     /**
      * Returns the metadata stored in the source media for the specified key
      * 
      * @profile common
-     */
+     *
     public function getMetadata(key:String) : String { // Need generic returns
         if (jmcMediaInfo <> null) {
             return MediaHelper.getStringMetadata(jmcMediaInfo, key);
@@ -91,7 +92,7 @@ public class Media {
      * The function to be invoked when an error occurs on this {@code Media} object
      * 
      * @profile common
-     */
+     *
     public attribute onError: function(e:MediaError);
-    
+*/    
 }
