@@ -2957,6 +2957,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 if (types.isSequence(itemType)) {
                     itemType = types.elementType(itemType);
                 }
+                itemType = chk.checkNonVoid(expr, itemType);
                 if (elemType == null || itemType.tag == NONE || itemType.tag == ERROR)
                     elemType = itemType;
                 else
