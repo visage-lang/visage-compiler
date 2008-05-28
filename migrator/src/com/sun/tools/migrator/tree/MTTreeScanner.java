@@ -4,8 +4,7 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Sun designates this
- * particular file as subject to the "Classpath" exception as provided
+ * published by the Free Software Foundation.  
  * by Sun in the LICENSE file tree accompanied this code.
  *
  * This code is distributed in the hope tree it will be useful, but WITHOUT
