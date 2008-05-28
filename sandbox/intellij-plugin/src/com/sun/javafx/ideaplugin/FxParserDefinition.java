@@ -39,8 +39,6 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
-
 /**
  * FxParserDefinition
  *
@@ -49,6 +47,7 @@ import java.util.*;
 public class FxParserDefinition implements ParserDefinition {
 
     private final ThreadLocal<FxParsingLexer> lexerHolder = new ThreadLocal<FxParsingLexer>();
+    private final IFileElementType fileElementType = new IFileElementType(Language.findInstance(FxLanguage.class));
 
     @NotNull
     public Lexer createLexer(Project project) {
@@ -66,7 +65,7 @@ public class FxParserDefinition implements ParserDefinition {
     }
 
     public IFileElementType getFileNodeType() {
-        return new IFileElementType(Language.findInstance(FxLanguage.class));
+        return fileElementType;
     }
 
     @NotNull
