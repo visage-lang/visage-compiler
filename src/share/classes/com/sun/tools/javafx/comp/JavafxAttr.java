@@ -108,7 +108,10 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     //TODO: this should be switche to false when the workspace is ready
     private static final boolean allowOldStyleTriggers = false;
 
-    Map<JavafxVarSymbol, JFXVar> varSymToTree = new HashMap<JavafxVarSymbol, JFXVar>();
+    Map<JavafxVarSymbol, JFXVar> varSymToTree =
+            new HashMap<JavafxVarSymbol, JFXVar>();
+    Map<MethodSymbol, JFXFunctionDefinition> methodSymToTree =
+            new HashMap<MethodSymbol, JFXFunctionDefinition>();
     
     public static JavafxAttr instance(Context context) {
         JavafxAttr instance = context.get(javafxAttrKey);
@@ -545,6 +548,24 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         assert false : "This tree should not exist";
     }
 
+    void checkTypeCycle (JCTree tree, Symbol sym) {
+        if (sym.type == null) {
+            JFXVar var = varSymToTree.get(sym);
+            if (var != null)
+                log.error(var, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL, sym.name);
+            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, sym.name);
+            sym.type = syms.objectType;
+        }
+        else if (sym.type instanceof MethodType &&
+                sym.type.getReturnType() == syms.unknownType) {
+            JFXFunctionDefinition fun = methodSymToTree.get(sym);
+            if (fun != null)
+                log.error(fun, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_FUN_DECL, sym.name);
+            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, sym.name);
+            sym.type = syms.objectType;
+        }
+    }
+
     @Override
     public void visitIdent(JCIdent tree) {
         Symbol sym;
@@ -558,13 +579,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         }
         tree.sym = sym;
         sym.complete();
-        if (sym.type == null) {
-            JFXVar var = varSymToTree.get(sym);
-            if (var != null)
-                log.error(var, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL, tree.name);
-            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, tree.name);
-            sym.type = syms.objectType;
-        }
+        checkTypeCycle(tree, sym);
 
         // (1) Also find the environment current for the class where
         //     sym is defined (`symEnv').
@@ -686,13 +701,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         boolean varArgs = env.info.varArgs;
         tree.sym = sym;
 
-        if (sym.type == null) {
-            JFXVar var = varSymToTree.get(sym);
-            if (var != null)
-                log.error(var, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL, sym.name);
-            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, sym.name);
-            sym.type = syms.objectType;
-        }
+        checkTypeCycle(tree, sym);
 
         if (site.tag == TYPEVAR && !isType(sym) && sym.kind != ERR)
             site = capture(site.getUpperBound());
@@ -3730,6 +3739,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     
     public void clearCaches() {
         varSymToTree = null;
+        methodSymToTree = null;
     }
 
     void fixOverride(JFXFunctionDefinition tree, MethodSymbol m) {

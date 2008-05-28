@@ -1,0 +1,19 @@
+jfxc1193.fx:11: Need explicit type for func2 because of cycle in initialization.
+var func2 = function () {
+^
+jfxc1193.fx:12: This is the cyclic reference to func2 that prevents type inference. 
+       return func2;
+              ^
+jfxc1193.fx:7: Need explicit type for func1 because of cycle in definition.
+function func1(){
+^
+jfxc1193.fx:8: This is the cyclic reference to func1 that prevents type inference. 
+       return func1;
+              ^
+jfxc1193.fx:16: Need explicit type for func3 because of cycle in definition.
+  function func3(x:A){
+  ^
+jfxc1193.fx:17: This is the cyclic reference to func3 that prevents type inference. 
+       return x.func3;
+               ^
+6 errors

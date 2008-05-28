@@ -591,6 +591,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             completer.tree = tree;
             completer.attr = attr;
             m.completer = completer;
+            attr.methodSymToTree.put(m, tree);
     }
 
     @Override
