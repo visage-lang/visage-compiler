@@ -115,6 +115,12 @@
                         <li>
                             <a target='classFrame'>
                                 <xsl:attribute name="href"><xsl:value-of select="@qualifiedName"/>.html</xsl:attribute>
+                                <xsl:attribute name="class">
+                                    <xsl:for-each select="tags/cssclass">
+                                        <xsl:value-of select="text()"/>
+                                        <xsl:text> </xsl:text>
+                                    </xsl:for-each>
+                                </xsl:attribute>
                                 <xsl:value-of select="@name"/>
                             </a>
                         </li>
@@ -124,6 +130,12 @@
         </html>
     </xsl:template>
     
+    <xsl:template match="docComment/tags/cssclass" mode="classList">
+<!--
+<xsl:attribute name="class"><xsl:value-of select="."/></xsl:attribute>
+-->
+        <xsl:attribute name="class">stuff</xsl:attribute>
+    </xsl:template>
     
     <xsl:template match="classList[@mode='overview-summary']">
         <html>

@@ -181,6 +181,10 @@ public class XHTMLProcessingUtils {
         p(INFO,getString("finished"));
     }
 
+    private static void p(Transformer trans, Document packages_doc) throws TransformerException {
+        trans.transform(new DOMSource(packages_doc), new StreamResult(System.out));
+    }
+
     private static void processPackage(String packageName, Element pkg, XPath xpath, File docsdir, Transformer trans) throws TransformerException, XPathExpressionException, IOException, FileNotFoundException, ParserConfigurationException {
         File packageDir = new File(docsdir, packageName);
         packageDir.mkdir();
@@ -246,10 +250,17 @@ public class XHTMLProcessingUtils {
     private static void copyClassDoc(Element clazz, Element class_elem) {
         Element docComment = (Element) clazz.getElementsByTagName("docComment").item(0);
         if(docComment == null) return;
-        NodeList firstSent = docComment.getElementsByTagName("firstSentenceTags");
         
+        NodeList firstSent = docComment.getElementsByTagName("firstSentenceTags");
         if(firstSent.getLength() > 0) {
             class_elem.appendChild(class_elem.getOwnerDocument().importNode(firstSent.item(0),true));
+        }
+        NodeList tags = docComment.getElementsByTagName("tags");
+        if(tags.getLength() > 0) {
+            for(int i=0; i<tags.getLength(); i++) {
+                Node tag = tags.item(i);
+                class_elem.appendChild(class_elem.getOwnerDocument().importNode(tag,true));
+            }
         }
     }
     

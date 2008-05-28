@@ -90,7 +90,7 @@ h3 {
 
 
 
-/* === package list === */
+/* === package and class lists === */
 
 #packageList, #classList {
 	padding-left: 0px;
@@ -104,4 +104,13 @@ table#classList {
 
 table#classList td {
         background-color: #dddddd;
+}
+#classList a {
+    background-color: #888888;
+}
+#classList a.needsreview {
+  background-color: #dddddd;
+}
+#classList a.reviewed {
+  background-color: #ffffff;
 }
