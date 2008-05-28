@@ -36,7 +36,7 @@ import java.util.logging.Logger;
 
 /**
  * JavaFX version of javac's ToolProvider class.
- * 
+ *
  * @author Tom Ball
  */
 public class ToolProvider {
@@ -46,7 +46,7 @@ public class ToolProvider {
 
     /**
      * Gets a JavaFX Script compiler instance.
-     * @return the compiler instance or {@code null} if no compiler 
+     * @return the compiler instance or {@code null} if no compiler
      *         is included as part of the application classpath
      */
     public static JavafxCompiler getJavafxCompiler() {
@@ -66,7 +66,7 @@ public class ToolProvider {
     /**
      * Gets a JavaFX Script script engine instance.  This is an alternative
      * to the general use where the script engine is looked up as a service.
-     * @return the script engine instance or {@code null} if no script engine 
+     * @return the script engine instance or {@code null} if no script engine
      *         is included as part of the application classpath
      */
     public static JavaFXScriptEngine getJavaFXScriptEngine() {
@@ -82,7 +82,7 @@ public class ToolProvider {
             throw new RuntimeException(t);
         }
     }
-    
+
     private static ClassLoader createPrivilegedClassLoader(final URL[] urls) throws PrivilegedActionException {
         return (ClassLoader)AccessController.doPrivileged(new PrivilegedAction() {
             public Object run() {
@@ -106,7 +106,7 @@ public class ToolProvider {
             URL url = super.findResource(name);
             return url;
         }
-        
+
         @Override
         protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
             if (name.indexOf("sun.tools") >= 0) {
