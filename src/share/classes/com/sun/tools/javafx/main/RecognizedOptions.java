@@ -137,7 +137,7 @@ public class RecognizedOptions {
         //PROCESSOR,
         //PROCESSORPATH,
         D,
-        S,
+        // S,
         IMPLICIT,
         ENCODING,
         SOURCE,
@@ -146,7 +146,7 @@ public class RecognizedOptions {
         VERSION,
         FULLVERSION,
         HELP,
-        A,
+        // A,
         X,
         J,
         MOREINFO,
@@ -184,7 +184,7 @@ public class RecognizedOptions {
         DJAVA_ENDORSED_DIRS,
         //PROCESSORPATH,
         D,
-        S,
+        // S,
         ENCODING,
 	SOURCE);
 
@@ -205,7 +205,7 @@ public class RecognizedOptions {
         // VERSION,
         // FULLVERSION,
         // HELP,
-        A,
+        // A,
         // X,
         // J,
         MOREINFO,
@@ -319,8 +319,8 @@ public class RecognizedOptions {
 		}
 	    },
 
-	new Option(CLASSPATH,               MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH),
-	new Option(CP,                      MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH) {
+	new JavafxOption.FXOption(CLASSPATH,               MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH),
+	new JavafxOption.FXOption(CP,                      MsgSym.MESSAGE_OPT_ARG_PATH,	MsgSym.MESSAGE_OPT_CLASSPATH) {
         @Override
 	    public boolean process(Options options, String option, String arg) {
 		return super.process(options, "-classpath", arg);
