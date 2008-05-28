@@ -6,6 +6,7 @@ import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.application.ApplicationManager;
 import com.sun.javafx.ideaplugin.project.FxSdkType;
+import com.sun.javafx.ideaplugin.FxPlugin;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,7 +30,7 @@ public class FxRunConfigurationType implements ConfigurationType {
     }
 
     public Icon getIcon () {
-        return FxSdkType.ICON;
+        return FxPlugin.FX_ICON;
     }
 
     public ConfigurationFactory[] getConfigurationFactories () {

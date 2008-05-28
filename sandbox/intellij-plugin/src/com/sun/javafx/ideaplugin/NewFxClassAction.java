@@ -47,7 +47,7 @@ import org.jetbrains.annotations.NotNull;
 public class NewFxClassAction extends CreateElementActionBase {
 
     public NewFxClassAction() {
-        super("JavaFX Class", "Creates JavaFX Class", FxPlugin.FX_CLASS_ICON);
+        super("JavaFX Class", "Creates JavaFX Class", FxPlugin.FX_ICON);
     }
 
     @NotNull

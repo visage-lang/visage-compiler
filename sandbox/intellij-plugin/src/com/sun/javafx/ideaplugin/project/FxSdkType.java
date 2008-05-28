@@ -8,6 +8,7 @@ import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.sun.javafx.ideaplugin.FxPlugin;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +23,6 @@ import java.util.EnumSet;
  */
 public final class FxSdkType extends SdkType implements ApplicationComponent {
 
-    public static final Icon ICON = IconLoader.getIcon ("/com/sun/javafx/ideaplugin/resources/fx.png");
     public static final String JAVAFX_EXEC = SystemInfo.isWindows ? "javafx.bat" : "javafx";
     public static final String JAVA_SDK_PROPERTY_NAME = "java-sdk";
 
@@ -169,11 +169,11 @@ public final class FxSdkType extends SdkType implements ApplicationComponent {
     }
 
     public Icon getIcon () {
-        return ICON;
+        return FxPlugin.FX_ICON;
     }
 
     public Icon getIconForAddAction () {
-        return ICON;
+        return FxPlugin.FX_ICON;
     }
 
     @NonNls @NotNull

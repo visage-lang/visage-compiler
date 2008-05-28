@@ -90,10 +90,10 @@ public class FxRunConfiguration extends ModuleBasedConfiguration {
     }
 
     public Collection<Module> getValidModules () {
-        ArrayList list = new ArrayList ();
+        ArrayList<Module> list = new ArrayList<Module>();
         for (Module module : getModules ())
-            if (module.getModuleType () instanceof JavaModuleType)
-                list.add (module);
+            if (module.getModuleType() instanceof JavaModuleType)
+                list.add(module);
         return list;
     }
 

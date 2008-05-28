@@ -62,6 +62,6 @@ public class FxFileType extends LanguageFileType {
 
     @Nullable
     public Icon getIcon() {
-        return FxPlugin.FX_CLASS_ICON;
+        return FxPlugin.FX_ICON;
     }
 }

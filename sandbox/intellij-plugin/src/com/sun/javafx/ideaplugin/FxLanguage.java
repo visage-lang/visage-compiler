@@ -25,10 +25,7 @@
 
 package com.sun.javafx.ideaplugin;
 
-import com.intellij.lang.Language;
-import com.intellij.lang.PairedBraceMatcher;
-import com.intellij.lang.BracePair;
-import com.intellij.lang.ParserDefinition;
+import com.intellij.lang.*;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -61,20 +58,46 @@ public class FxLanguage extends Language {
 
     @Nullable
     public PairedBraceMatcher getPairedBraceMatcher() {
-        return new PairedBraceMatcher() { 
-            private final BracePair[] PAIRS = new BracePair[] {
-                    new BracePair('(',FxTokens.LPAREN.elementType, ')', FxTokens.RPAREN.elementType, false),
-                    new BracePair('[',FxTokens.LBRACKET.elementType, ']', FxTokens.RBRACKET.elementType, false),
-                    new BracePair('{',FxTokens.LBRACE.elementType, '}', FxTokens.RBRACE.elementType, true)
-            };
-
-            public boolean isPairedBracesAllowedBeforeType(@NotNull IElementType iElementType, @Nullable IElementType iElementType1) {
-                return true;
-            }
-
-            public BracePair[] getPairs() {
-                return PAIRS;
-            }
-        };
+        return PAIRED_BRACE_MATCHER;
     }
+
+    @Nullable
+    public Commenter getCommenter() {
+        return COMMENTER;
+    }
+
+    
+    private static final Commenter COMMENTER = new Commenter() {
+        public String getLineCommentPrefix() {
+            return "//";
+        }
+
+        public boolean isLineCommentPrefixOnZeroColumn() {
+            return false;
+        }
+
+        public String getBlockCommentPrefix() {
+            return "/*";
+        }
+
+        public String getBlockCommentSuffix() {
+            return "*/";
+        }
+    };
+
+    private static final PairedBraceMatcher PAIRED_BRACE_MATCHER = new PairedBraceMatcher() {
+        private final BracePair[] PAIRS = new BracePair[]{
+                new BracePair('(', FxTokens.LPAREN.elementType, ')', FxTokens.RPAREN.elementType, false),
+                new BracePair('[', FxTokens.LBRACKET.elementType, ']', FxTokens.RBRACKET.elementType, false),
+                new BracePair('{', FxTokens.LBRACE.elementType, '}', FxTokens.RBRACE.elementType, true)
+        };
+
+        public boolean isPairedBracesAllowedBeforeType(@NotNull IElementType iElementType, @Nullable IElementType iElementType1) {
+            return true;
+        }
+
+        public BracePair[] getPairs() {
+            return PAIRS;
+        }
+    };
 }
