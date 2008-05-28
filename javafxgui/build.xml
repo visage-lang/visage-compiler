@@ -2,8 +2,8 @@
 <!-- You may freely edit this file. See commented blocks below for -->
 <!-- some examples of how to customize the build. -->
 <!-- (If you delete it and reopen the project it will be recreated.) -->
-<project name="Reprise" default="default" basedir=".">
-    <description>Builds, tests, and runs the project Reprise.</description>
+<project name="javafxgui" default="default" basedir=".">
+    <description>Builds, tests, and runs the project javafxgui.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
 
@@ -54,7 +54,7 @@
 
     An example of overriding the target for project execution could look like this:
 
-        <target name="run" depends="Reprise-impl.jar">
+        <target name="run" depends="javafxgui-impl.jar">
             <exec dir="bin" executable="launcher.exe">
                 <arg file="${dist.jar}"/>
             </exec>
@@ -351,13 +351,7 @@
 
 
    <!--
-   This target creates the files we distribute. Example:
-       dist/Reprise-0.1-doc.zip
-       dist/Reprise-0.1-src.zip
-       dist/Reprise-0.1.jar
-   Files in the src.zip file all end up under "Reprise-0.1/" and files
-   in the doc.zip end in up Reprise-0.1/javadoc.  See the
-   zipfileset prefix attribute uses below.
+   This target creates the files we distribute. 
    -->
    <target name="dist" depends="jar,javadoc" description="Create the src, doc, and binary release files">
      <property name="build.version" value="0.1"/>
@@ -393,8 +387,7 @@
    <!--
    This override was provided by Jesse Glick (see the exaplanation
    in http://wiki.netbeans.org/wiki/view/FaqSpecialJar).  It just
-   removes the demos from the classes used to create
-   Reprise.jar
+   removes the demos from the classes used to create javafxgui.jar.
    -->
    <target name="-init-presetdef-jar" xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1">
    <presetdef name="jar" uri="http://www.netbeans.org/ns/j2se-project/1">
