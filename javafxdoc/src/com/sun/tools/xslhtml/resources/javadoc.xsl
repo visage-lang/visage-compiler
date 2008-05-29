@@ -625,6 +625,18 @@
             </xsl:if>
     </xsl:template>
     
+    <xsl:template match="attribute/type | parameter/type" mode="linkname">
+        <xsl:variable name="atype" select="@qualifiedTypeName"/>
+        <xsl:choose>
+            <xsl:when test="//class[@qualifiedName=$atype]">
+                <xsl:value-of select="@simpleTypeName"/>    
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="@qualifiedTypeName"/>    
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    
     <xsl:template match="attribute" mode="href">
         <xsl:attribute name="href">
             <xsl:text>../</xsl:text>
@@ -754,7 +766,7 @@
                     <!-- build parameter type link, if appropriate -->
                     <a>
                         <xsl:apply-templates select="type" mode="href"/>
-                        <i><xsl:value-of select="type/@typeName"/></i>
+                        <i><xsl:apply-templates select="type" mode="linkname"/></i>
                     </a><xsl:value-of select="type/@dimension"/>,
                 </xsl:if>
                 <xsl:if test="../../../@language='java'">
@@ -770,7 +782,7 @@
     <xsl:template match="returns" mode="signature">
         <a>
            <xsl:apply-templates select="." mode="href"/>
-           <i><xsl:value-of select="@simpleTypeName"/>
+           <i><xsl:apply-templates select="." mode="linkname"/>
            <xsl:value-of select="@dimension"/></i>
         </a>
     </xsl:template>
@@ -782,7 +794,18 @@
         </xsl:if>
     </xsl:template>
     
-    
+    <xsl:template match="returns" mode="linkname">
+        <xsl:variable name="ptype" select="@qualifiedTypeName"/>
+        <xsl:choose>
+            <xsl:when test="//class[@qualifiedName=$ptype]">
+                <xsl:value-of select="@simpleTypeName"/>    
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="@qualifiedTypeName"/>    
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
     <xsl:template match="function | method | constructor" mode="toc-signature">
         <xsl:apply-templates select="modifiers"/>
         <xsl:text> </xsl:text>
