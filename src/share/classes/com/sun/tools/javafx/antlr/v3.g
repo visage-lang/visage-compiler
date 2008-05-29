@@ -778,10 +778,10 @@ primaryExpression
        	| literal 						-> literal
       	| functionExpression					-> functionExpression
        	| LPAREN expression RPAREN				-> expression
-        | AT LPAREN TIME_LITERAL RPAREN keyFrameLiteralPart     -> ^(AT TIME_LITERAL keyFrameLiteralPart)
-       	;
+        | AT LPAREN TIME_LITERAL RPAREN LBRACE keyFrameLiteralPart* RBRACE    -> ^(AT TIME_LITERAL keyFrameLiteralPart*)
+       	;        
 keyFrameLiteralPart
-        : LBRACE (keyValueLiteralExpression (SEMI)?)* RBRACE              -> keyValueLiteralExpression*
+        : keyValueLiteralExpression (SEMI)?                     -> keyValueLiteralExpression
         ;
 functionExpression  
 	: FUNCTION formalParameters typeReference blockExpression

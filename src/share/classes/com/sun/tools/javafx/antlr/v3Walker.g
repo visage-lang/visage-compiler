@@ -440,7 +440,7 @@ expression  returns [JCExpression expr]
                                                           $expr = F.at(pos).Instanciate(class_name, null, parts.toList()); 
                                                           endPos($expr, $SUCHTHAT); 
                                                          }
-        | ^(AT duration=expression keyFrameLiteralPart)  { JCExpression class_name = F.at($AT.pos).Identifier("javafx.animation.KeyFrame");
+        | ^(AT duration=expression keyFrameLiteral) { JCExpression class_name = F.at($AT.pos).Identifier("javafx.animation.KeyFrame");
                                                           
                                                           ListBuffer<JCTree> parts = ListBuffer.<JCTree>lb();
                                                           // time attribute
@@ -449,7 +449,7 @@ expression  returns [JCExpression expr]
                                                           
                                                           // values attribute
                                                           int pos = -1;
-                                                          java.util.Iterator<JCExpression> iterator = $keyFrameLiteralPart.parts.iterator();
+                                                          java.util.Iterator<JCExpression> iterator = $keyFrameLiteral.parts.iterator();
                                                           ListBuffer<JCExpression> key_values = new ListBuffer<JCExpression>();
                                                           while (iterator.hasNext()){
                                                               JCExpression e = iterator.next();
@@ -479,10 +479,12 @@ interpolatedExpression returns [JCTree value, JCTree interpolate]
            )                                                 
         ;
 
-
-keyFrameLiteralPart returns [ListBuffer<JCExpression> parts   = new ListBuffer<JCExpression>()]
-        : ( expression                          { $parts.append($expression.expr); }
+keyFrameLiteral  returns [ListBuffer<JCExpression> parts = ListBuffer.<JCExpression>lb()]
+        : ( keyFrameLiteralPart              { $parts.append($keyFrameLiteralPart.expr); }
           )*
+        ;
+keyFrameLiteralPart returns [JCExpression expr]
+        : expression                          { $expr = $expression.expr; }
         ;
 inClauses  returns [ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb()]
 	: ( inClause					{ clauses.append($inClause.value); } )*	
