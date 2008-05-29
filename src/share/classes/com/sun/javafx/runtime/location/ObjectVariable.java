@@ -121,7 +121,12 @@ public class ObjectVariable<T>
             invalidateDependencies();
         if (replaceListeners != null) {
             for (ObjectChangeListener<T> listener : replaceListeners)
-                listener.onChange(oldValue, newValue);
+                try {
+                    listener.onChange(oldValue, newValue);
+                }
+                catch (RuntimeException e) {
+                    ErrorHandler.triggerException(e);
+                }
         }
     }
 }

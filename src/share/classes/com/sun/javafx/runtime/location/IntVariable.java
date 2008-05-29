@@ -149,8 +149,14 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
         if (notifyDependencies)
             invalidateDependencies();
         if (replaceListeners != null) {
-            for (IntChangeListener listener : replaceListeners)
-                listener.onChange(oldValue, newValue);
+            for (IntChangeListener listener : replaceListeners) {
+                try {
+                    listener.onChange(oldValue, newValue);
+                }
+                catch (RuntimeException e) {
+                    ErrorHandler.triggerException(e);
+                }
+            }
         }
     }
 }

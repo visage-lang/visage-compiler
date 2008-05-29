@@ -155,7 +155,12 @@ public class DoubleVariable
             invalidateDependencies();
         if (replaceListeners != null) {
             for (DoubleChangeListener listener : replaceListeners)
-                listener.onChange(oldValue, newValue);
+                try {
+                    listener.onChange(oldValue, newValue);
+                }
+                catch (RuntimeException e) {
+                    ErrorHandler.triggerException(e);
+                }
         }
     }
 

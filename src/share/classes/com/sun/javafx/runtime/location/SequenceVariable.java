@@ -176,7 +176,12 @@ public class SequenceVariable<T>
             invalidateDependencies();
         if (changeListeners != null) {
             for (SequenceChangeListener<T> listener : changeListeners)
-                listener.onChange(startPos, endPos, newElements, oldValue, newValue);
+                try {
+                    listener.onChange(startPos, endPos, newElements, oldValue, newValue);
+                }
+                catch (RuntimeException e) {
+                    ErrorHandler.triggerException(e);
+                }
         }
     }
 

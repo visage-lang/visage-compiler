@@ -4,7 +4,7 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -25,6 +25,8 @@ package com.sun.javafx.runtime.location;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
+
+import com.sun.javafx.runtime.ErrorHandler;
 
 /**
  * AbstractLocation is a base class for Location implementations, handling change listener notification and lazy updates.
@@ -134,8 +136,13 @@ public abstract class AbstractLocation implements Location {
         if (listeners != null) {
             for (Iterator<ChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
                 ChangeListener listener = iterator.next();
-                if (!listener.onChange())
-                    iterator.remove();
+                try {
+                    if (!listener.onChange())
+                        iterator.remove();
+                }
+                catch (RuntimeException e) {
+                    ErrorHandler.triggerException(e);
+                }
             }
         }
     }

@@ -53,6 +53,11 @@ public class ErrorHandler {
             e.printStackTrace(System.err);
     }
 
+    public static void triggerException(RuntimeException e) {
+        if (debug)
+            e.printStackTrace(System.err);
+    }
+
     /** Called when attempting to coerce a null numeric or boolean value to a primitive */
     public static void nullToPrimitiveCoercion(String type) {
         if (isDebug())
