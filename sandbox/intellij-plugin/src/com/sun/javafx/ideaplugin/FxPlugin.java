@@ -41,6 +41,7 @@ import javax.swing.*;
  * FXSupportLoader
  */
 public class FxPlugin implements ApplicationComponent {
+    
     public static final Language FX_LANGUAGE = new FxLanguage();
     public static final LanguageFileType FX_FILE_TYPE = new FxFileType();
     public static final String FX_FILE_EXTENSION = "fx";
@@ -58,7 +59,7 @@ public class FxPlugin implements ApplicationComponent {
                 ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
                     public void projectOpened(Project project) {
                         CompilerManager compilerManager = CompilerManager.getInstance(project);
-                        compilerManager.addCompiler(new FxCompiler(project));
+                        compilerManager.addCompiler(new FxCompiler());
                         compilerManager.addCompilableFileType(FX_FILE_TYPE);
                     }
                 });

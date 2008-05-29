@@ -28,25 +28,27 @@ import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerMessageCategory;
 import com.intellij.openapi.compiler.TranslatingCompiler;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.ProjectJdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.sun.javafx.api.JavafxCompiler;
-import com.sun.javafx.api.JavafxcTask;
-import com.sun.tools.javafx.api.JavafxcTool;
 import org.jetbrains.annotations.NotNull;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
+import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import java.io.File;
+import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -56,11 +58,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author Brian Goetz
  */
+// TODO - use reflection for classes in "javax.tools" package as well to support JDK 1.5
 public class FxCompiler implements TranslatingCompiler {
-    private static final String PATH_SEPARATOR = File.pathSeparator;
-    private static final Logger LOG = Logger.getInstance("com.sun.javafx.ideaplugin");
-    private static final EnumMap<Diagnostic.Kind, CompilerMessageCategory> diagnosticKindMap
-            = new EnumMap<Diagnostic.Kind, CompilerMessageCategory>(Diagnostic.Kind.class);
+
+    private static final EnumMap<Diagnostic.Kind, CompilerMessageCategory> diagnosticKindMap = new EnumMap<Diagnostic.Kind, CompilerMessageCategory>(Diagnostic.Kind.class);
+
     static {
         diagnosticKindMap.put(Diagnostic.Kind.ERROR, CompilerMessageCategory.ERROR);
         diagnosticKindMap.put(Diagnostic.Kind.MANDATORY_WARNING, CompilerMessageCategory.WARNING);
@@ -69,12 +71,7 @@ public class FxCompiler implements TranslatingCompiler {
         diagnosticKindMap.put(Diagnostic.Kind.OTHER, CompilerMessageCategory.INFORMATION);
     }
 
-    private final Project project;
-    private final JavafxCompiler compiler = compilerLocator();
-    private final JavafxcTool compilerTool = JavafxcTool.create();
-
-    public FxCompiler(Project project) {
-        this.project = project;
+    public FxCompiler() {
     }
 
     public boolean isCompilableFile(VirtualFile virtualFile, CompileContext compileContext) {
@@ -82,75 +79,157 @@ public class FxCompiler implements TranslatingCompiler {
     }
 
     public ExitStatus compile(final CompileContext compileContext, VirtualFile[] virtualFiles) {
-        final AtomicBoolean failed = new AtomicBoolean(false);
-
         Map<Module, Set<VirtualFile>> map = buildModuleToFilesMap(compileContext, virtualFiles);
-        final Set<OutputItem> compiledItems = new HashSet<OutputItem>();
-        final Set<VirtualFile> allCompiling = new HashSet<VirtualFile>();
-        final Map<JavaFileObject, VirtualFile> fileMap = new HashMap<JavaFileObject, VirtualFile>();
+
+        final AtomicBoolean compilationFailed = new AtomicBoolean (false);
+        final ArrayList<VirtualFile> filesToRecompile = new ArrayList<VirtualFile> ();
+        final ArrayList<OutputItem> outputItems = new ArrayList<OutputItem> ();
+
         for (Map.Entry<Module, Set<VirtualFile>> entry : map.entrySet()) {
-            if (failed.get())
+            if (compilationFailed.get ())
                 continue;
             Module module = entry.getKey();
             Set<VirtualFile> files = entry.getValue();
-            allCompiling.addAll(files);
             ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
-            String moduleOutputUrl = rootManager.getCompilerOutputPathUrl();
 
-            OrderEntry[] entries = rootManager.getOrderEntries();
-            List<VirtualFile> cpVFiles = new ArrayList<VirtualFile>();
-            for (OrderEntry orderEntry : entries)
-                cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)));
-            VirtualFile[] cpFilesArray = cpVFiles.toArray(new VirtualFile[cpVFiles.size()]);
+            filesToRecompile.addAll (files);
+            List<String> args = createCommandLine (rootManager);
 
-            List<String> args = new ArrayList<String>();
+            ProjectJdk jdk = rootManager.getJdk (); // TODO - check not-null
+            if (jdk == null) {
+                compileContext.addMessage (CompilerMessageCategory.ERROR, "JDK not set for module: " + module.getName (), null, 0, 0);
+                compilationFailed.set (true);
+                break;
+            }
+
+            ClassLoader loader;
+            try {
+                loader = new URLClassLoader (new URL[] { new URL ("file://" + jdk.getHomeDirectory ().getPath () + "/lib/javafxc.jar") }, getClass ().getClassLoader ());
+            } catch (MalformedURLException e) {
+                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot locate javafxc.jar library in SDK: " + jdk.getName (), null, 0, 0);
+                compilationFailed.set (true);
+                break;
+            }
+
+            Object javafxTool;
+            Class<?> javafxToolClass;
+            Method getStandardFileManagerMethod;
+            Class<?> javafxFileManagerClass;
+            Method getFileForInputMethod;
+            Method getTaskMethod;
+            Class<?> javafxTaskClass;
+            Method callMethod;
+            Method parseMethod;
+            Method analyzeMethod;
+            Method generateMethod;
+            try {
+                javafxToolClass = Class.forName ("com.sun.tools.javafx.api.JavafxcTool", true, loader);
+                javafxTool = javafxToolClass.getMethod ("create").invoke (null);
+                getStandardFileManagerMethod = javafxToolClass.getMethod ("getStandardFileManager", DiagnosticListener.class, Locale.class, Charset.class);
+                javafxFileManagerClass = Class.forName ("com.sun.tools.javafx.util.JavafxFileManager", true, loader);
+                getFileForInputMethod = javafxFileManagerClass.getMethod ("getFileForInput", String.class);
+                getTaskMethod = javafxToolClass.getMethod ("getTask", Writer.class, JavaFileManager.class, DiagnosticListener.class, Iterable.class, Iterable.class);
+                javafxTaskClass = Class.forName ("com.sun.javafx.api.JavafxcTask", true, loader);
+                callMethod = javafxTaskClass.getMethod ("call");
+                parseMethod = javafxTaskClass.getMethod ("parse");
+                analyzeMethod = javafxTaskClass.getMethod ("analyze");
+                generateMethod = javafxTaskClass.getMethod ("generate");
+            } catch (ClassNotFoundException e) {
+                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
+                compilationFailed.set (true);
+                break;
+            } catch (InvocationTargetException e) {
+                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
+                compilationFailed.set (true);
+                break;
+            } catch (NoSuchMethodException e) {
+                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
+                compilationFailed.set (true);
+                break;
+            } catch (IllegalAccessException e) {
+                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
+                compilationFailed.set (true);
+                break;
+            }
+
             List<JavaFileObject> filePaths = new ArrayList<JavaFileObject>();
-            args.add("-target");
-            args.add("1.5");
-            args.add("-d");
-            args.add(VirtualFileManager.extractPath(moduleOutputUrl));
-
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < cpFilesArray.length; i++) {
-                VirtualFile file = cpFilesArray[i];
-                String path = file.getPath();
-                int jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR);
-                if (jarSeparatorIndex > 0)
-                    path = path.substring(0, jarSeparatorIndex);
-                sb.append(path);
-                if (i < cpFilesArray.length - 1) {
-                    sb.append(PATH_SEPARATOR);
+            final Map<JavaFileObject, VirtualFile> fileMap = new HashMap<JavaFileObject, VirtualFile> ();
+            for (VirtualFile file : files) {
+                JavaFileObject javaFileObject;
+                try {
+                    Object javacFileManager = getStandardFileManagerMethod.invoke (javafxTool, null, null, Charset.defaultCharset ());
+                    javaFileObject = (JavaFileObject) getFileForInputMethod.invoke (javacFileManager, file.getPath ());
+                } catch (IllegalAccessException e) {
+                    compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
+                    compilationFailed.set (true);
+                    break;
+                } catch (InvocationTargetException e) {
+                    compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
+                    compilationFailed.set (true);
+                    break;
                 }
-            }
-            args.add("-cp");
-            args.add(sb.toString());
-
-            for (VirtualFile f : files) {
-                JavaFileObject inputFO = compilerTool.getStandardFileManager(null, null, Charset.defaultCharset()).getFileForInput(f.getPath());
-                fileMap.put(inputFO, f);
-                filePaths.add(inputFO);
+                fileMap.put(javaFileObject, file);
+                filePaths.add(javaFileObject);
             }
 
-            LOG.debug(Arrays.asList(args).toString());
-            JavafxcTask compileTask = compiler.getTask(null, null, new DiagnosticListener<JavaFileObject>() {
-                public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
-                    compileContext.addMessage(diagnosticKindMap.get(diagnostic.getKind()),
-                            diagnostic.getMessage(Locale.getDefault()),
-                            fileMap.get(diagnostic.getSource()).getUrl(),
-                            (int) diagnostic.getLineNumber(), (int) diagnostic.getColumnNumber());
+            final AtomicBoolean errorWhileCompiling = new AtomicBoolean (false);
+            Object compilerTask;
+            try {
+                compilerTask = getTaskMethod.invoke (javafxTool, null, null, new DiagnosticListener() {
+                    public void report(Diagnostic diagnostic) {
+                        compileContext.addMessage(diagnosticKindMap.get(diagnostic.getKind()), diagnostic.getMessage(Locale.getDefault()),
+                                fileMap.get(diagnostic.getSource()).getUrl(), (int) diagnostic.getLineNumber(), (int) diagnostic.getColumnNumber());
+                        if (diagnostic.getKind () == Diagnostic.Kind.ERROR) {
+                            errorWhileCompiling.set (true);
+                            compilationFailed.set (true);
+                        }
+                    }
+                }, args, filePaths);
+            } catch (IllegalAccessException e) {
+                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
+                compilationFailed.set (true);
+                break;
+            } catch (InvocationTargetException e) {
+                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
+                compilationFailed.set (true);
+                break;
+            }
+
+            try {
+                Object state = callMethod.invoke (compilerTask);
+                if (state == Boolean.FALSE  &&  ! errorWhileCompiling.get ()) {
+                    compileContext.addMessage (CompilerMessageCategory.ERROR, "Compilation error in module: " + module.getName (), null, 0, 0);
+                    errorWhileCompiling.set (true);
                 }
-            }, args, filePaths);
-            if (!compileTask.call())
-                failed.set(true);
+/*                Object iterable;
+                iterable = parseMethod.invoke (compilerTask);
+                System.out.println ("iterable = " + iterable);
+                iterable = analyzeMethod.invoke (compilerTask);
+                System.out.println ("iterable = " + iterable);
+                iterable = generateMethod.invoke (compilerTask); // TODO - store result
+                System.out.println ("iterable = " + iterable);*/
+            } catch (IllegalAccessException e) {
+                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
+                compilationFailed.set (true);
+                break;
+            } catch (InvocationTargetException e) {
+                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
+                compilationFailed.set (true);
+                break;
+            }
+
+            if (! errorWhileCompiling.get ()) {
+                filesToRecompile.removeAll (files);
+            }
         }
 
         return new ExitStatus() {
             public OutputItem[] getSuccessfullyCompiled() {
-                return (!failed.get()) ? compiledItems.toArray(new OutputItem[compiledItems.size()]) : new OutputItem[0];
-            }
+                return compilationFailed.get () ? new OutputItem[0] : outputItems.toArray (new OutputItem[outputItems.size ()]);
+             }
 
             public VirtualFile[] getFilesToRecompile() {
-                return (!failed.get()) ? new VirtualFile[0] : allCompiling.toArray(new VirtualFile[allCompiling.size()]);
+                return compilationFailed.get() ? filesToRecompile.toArray(new VirtualFile[filesToRecompile.size()]) : new VirtualFile[0];
             }
         };
     }
@@ -184,53 +263,46 @@ public class FxCompiler implements TranslatingCompiler {
         return map;
     }
 
+    private static List<String> createCommandLine (ModuleRootManager moduleRootManager) {
+        OrderEntry[] entries = moduleRootManager.getOrderEntries();
+        List<String> args = new ArrayList<String>();
 
-    protected static JavafxCompiler compilerLocator() {
-        Iterator<?> iterator;
-        Class<?> loaderClass;
-        String loadMethodName;
-        boolean usingServiceLoader;
+        args.add("-target");
+        args.add("1.5");
 
-        try {
-            loaderClass = Class.forName("java.util.ServiceLoader");
-            loadMethodName = "load";
-            usingServiceLoader = true;
-        } catch (ClassNotFoundException cnfe) {
-            try {
-                loaderClass = Class.forName("sun.misc.Service");
-                loadMethodName = "providers";
-                usingServiceLoader = false;
-            } catch (ClassNotFoundException cnfe2) {
-                throw new AssertionError("Failed discovering ServiceLoader");
-            }
+        String moduleOutputUrl = moduleRootManager.getCompilerOutputPathUrl(); // TODO - check and fail when null output path
+        if (moduleOutputUrl != null) {
+            args.add("-d");
+            args.add(VirtualFileManager.extractPath(moduleOutputUrl));
         }
 
-        try {
-            // java.util.ServiceLoader.load or sun.misc.Service.providers
-            Method loadMethod = loaderClass.getMethod(loadMethodName,
-                    Class.class,
-                    ClassLoader.class);
-            ClassLoader cl = FxCompiler.class.getClassLoader();
-            Object result = loadMethod.invoke(null, JavafxCompiler.class, cl);
+        List<VirtualFile> sourcepath = new ArrayList<VirtualFile> ();
+        for (OrderEntry orderEntry : entries)
+            sourcepath.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
+        args.add ("-sourcepath");
+        args.add (path2string (sourcepath));
 
-            // For java.util.ServiceLoader, we have to call another
-            // method to get the iterator.
-            if (usingServiceLoader) {
-                Method m = loaderClass.getMethod("iterator");
-                result = m.invoke(result); // serviceLoader.iterator();
-            }
+        List<VirtualFile> classpath = new ArrayList<VirtualFile> ();
+        for (OrderEntry orderEntry : entries)
+            classpath.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)));
+        args.add("-cp");
+        args.add(path2string (classpath));
 
-            iterator = (Iterator<?>) result;
-        } catch (Throwable t) {
-            t.printStackTrace();
-            throw new IllegalStateException("Failed accessing ServiceLoader: " + t);
-        }
-
-        if (!iterator.hasNext())
-            throw new IllegalStateException("No JavaFX Script compiler found");
-
-        return (JavafxCompiler) iterator.next();
+        return args;
     }
 
+    private static String path2string (List<VirtualFile> pathEntries) {
+        StringBuffer buffer = new StringBuffer();
+        for (VirtualFile entry : pathEntries) {
+            if (buffer.length () != 0)
+                buffer.append(File.pathSeparator);
+            String path = entry.getPath();
+            int jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR);
+            if (jarSeparatorIndex > 0)
+                path = path.substring(0, jarSeparatorIndex);
+            buffer.append(path);
+        }
+        return buffer.toString ();
+    }
 
 }
