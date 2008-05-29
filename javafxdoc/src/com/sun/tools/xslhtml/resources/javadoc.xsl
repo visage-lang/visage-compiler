@@ -595,7 +595,7 @@
             <tr class="attribute">
                 <td>
                     <a>
-                        <xsl:attribute name="href">#<xsl:value-of select="@name"/></xsl:attribute>
+                        <xsl:apply-templates select="." mode="href"/>
                         <b class="name"><xsl:value-of select="@name"/></b>
                     </a>
                 </td>
@@ -623,6 +623,17 @@
                 <xsl:text>.html</xsl:text>
             </xsl:attribute>
             </xsl:if>
+    </xsl:template>
+    
+    <xsl:template match="attribute" mode="href">
+        <xsl:attribute name="href">
+            <xsl:text>../</xsl:text>
+            <xsl:value-of select="../@packageName"/>
+            <xsl:text>/</xsl:text>
+            <xsl:value-of select="../@qualifiedName"/>
+            <xsl:text>.html#</xsl:text>
+            <xsl:value-of select="@name"/>
+        </xsl:attribute>
     </xsl:template>
     
     <!-- full description -->

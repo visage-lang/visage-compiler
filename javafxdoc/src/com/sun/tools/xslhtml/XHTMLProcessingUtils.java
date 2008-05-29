@@ -73,7 +73,7 @@ public class XHTMLProcessingUtils {
      * @param xsltStream the XSLT to implement the transformation, as an input stream.
      * @throws java.lang.Exception
      */
-    public static void process(String xmlInputPath, InputStream xsltStream, File docsdir,
+     public static void process(String xmlInputPath, InputStream xsltStream, File docsdir,
             Map<String,String> parameters
             ) throws Exception {
         System.out.println(getString("transforming.to.html"));
