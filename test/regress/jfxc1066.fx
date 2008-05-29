@@ -66,6 +66,19 @@ var ax = Timeline {
             sy => 1;
         }]
     }
+var txy = Timeline {
+    repeatCount: Timeline.INDEFINITE
+        
+    keyFrames: at (3.15s) {
+            sx => 1;
+            sy => 1;
+        }
+}
+
+var zxy = Timeline {
+	keyFrames: at ( 4.15s) {
+	}
+}
 System.out.println(ax.keyFrames[0].values[0].value);
 System.out.println(ay.keyFrames[1].values[0].value);
 System.out.println(sxy.keyFrames[2].values[1].value);
