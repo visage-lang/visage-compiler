@@ -1,4 +1,4 @@
-package javafx.dev;
+package javafx.tools;
 
 import java.lang.Object;
 import java.lang.System;
