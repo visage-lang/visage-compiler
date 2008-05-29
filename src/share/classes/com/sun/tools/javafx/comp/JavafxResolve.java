@@ -539,8 +539,11 @@ public class JavafxResolve {
                     if ((e.sym.flags_field & SYNTHETIC) != 0)
                         continue;
                     if ((e.sym.kind & (MTH|VAR)) != 0) {
-                        if (innerAccess)
+                        if (innerAccess) {
                             e.sym.flags_field |= JavafxFlags.INNER_ACCESS;
+                            if ((e.sym.flags_field & JavafxFlags.IN_INITIALIZER) != 0)
+                                e.sym.flags_field |= JavafxFlags.ASSIGNED_TO;
+                        }
                         if (checkArgs) {
                             Type mt = e.sym.type;
                             if (mt instanceof FunctionType)

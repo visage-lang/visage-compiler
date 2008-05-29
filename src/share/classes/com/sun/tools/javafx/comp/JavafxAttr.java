@@ -32,7 +32,6 @@ import javax.lang.model.element.ElementKind;
 import javax.tools.JavaFileObject;
 
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
-import com.sun.javafx.api.tree.InterpolateValueTree;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javac.code.*;
 import static com.sun.tools.javac.code.Flags.*;
@@ -959,7 +958,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                 // declaration position to maximal possible value, effectively
                 // marking the variable as undefined.
                 v.pos = Position.MAXPOS;
+                v.flags_field |= JavafxFlags.IN_INITIALIZER;
                 initType = attribExpr(tree.init, initEnv, declType);
+                v.flags_field &= ~JavafxFlags.IN_INITIALIZER;
                 initType = chk.checkNonVoid(tree.pos(), initType);
                 if (declType.tag <= LONG && initType.tag >= FLOAT && initType.tag <= DOUBLE) {
                     // Temporary kludge to supress duplicate warnings.
