@@ -755,7 +755,7 @@
                     <a>
                         <xsl:apply-templates select="type" mode="href"/>
                         <i><xsl:value-of select="type/@typeName"/></i>
-                    </a>,
+                    </a><xsl:value-of select="type/@dimension"/>,
                 </xsl:if>
                 <xsl:if test="../../../@language='java'">
                     <i><xsl:value-of select="type/@toString"/></i>
