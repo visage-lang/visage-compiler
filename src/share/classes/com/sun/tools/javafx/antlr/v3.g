@@ -151,9 +151,6 @@ tokens {
    SLICE_CLAUSE;
    ON_REPLACE_SLICE;
    ON_REPLACE;
-//   ON_REPLACE_ELEMENT;
-//   ON_INSERT_ELEMENT;
-//   ON_DELETE_ELEMENT;
    EXPR_LIST;
    FUNC_APPLY;
    NEGATIVE;
@@ -174,8 +171,6 @@ tokens {
    TYPE_ARG;
    TYPED_ARG_LIST;
    DOC_COMMENT;
-   SUCHTHAT_BLOCK;
-   NAMED_TWEEN;
 }
 
 @lexer::header {
@@ -636,37 +631,6 @@ catchClause
 	: CATCH LPAREN formalParameter RPAREN block
 						-> ^(CATCH formalParameter block)
 	;
-/*
-interpolateExpression
-        : simpleInterpolate
-        | blockInterpolate
-        ;
-simpleInterpolate
-        : attr=expression SUCHTHAT expr=expression (TWEEN interpolate=expression)?
-                                                               -> ^(SUCHTHAT $attr $expr $interpolate?)
-        ;
-
-blockInterpolate
-        : id=qualname SUCHTHAT LBRACE namedTweenValue (COMMA namedTweenValue)* RBRACE                 
-                                                                -> ^(SUCHTHAT_BLOCK $id namedTweenValue*)
-        ;
-namedTweenValue
-        : id=qualname COLON expr=primaryExpression (TWEEN interpolate=expression)? (COMMA | SEMI)?
-                                                                -> ^(NAMED_TWEEN $id $expr $interpolate?)
-        ;
-tweenValue
-        : expr=primaryExpression TWEEN interpolate=expression   -> ^(TWEEN $expr $interpolate)
-        ;
-keyFrameLiteral
-        : AT LPAREN time=TIME_LITERAL RPAREN 
-            LBRACE (interpolateExpression? (SEMI))* 
-              (keyFrameTriggerClause?)
-            RBRACE                              -> ^(AT $time interpolateExpression* keyFrameTriggerClause?)
-        ;
-*/
-keyFrameTriggerClause
-        : TRIGGER blockExpression (SEMI)        -> ^(TRIGGER blockExpression)
-        ;
 boundExpression 
 	: BIND expression (WITH INVERSE)?
 						-> ^(BIND INVERSE? expression)
@@ -677,10 +641,23 @@ expression
        	| ifExpression   		
        	| forExpression   	
        	| newExpression 	
-	| assignmentExpression	 
-        /*| interpolateExpression*/
-        /*| keyFrameLiteral*/
+	| assignmentExpression	
+        | keyValueLiteralExpression
       	;
+keyValueLiteralExpression
+        : qualname SUCHTHAT 
+                ( interpolatedExpression                       
+                                                                -> ^(SUCHTHAT qualname interpolatedExpression)
+  /*              | LBRACE interpolatedExpression (COMMA interpolatedExpression)* RBRACE 
+                                                                -> ^(SUCHTHAT qualname interpolatedExpression+) */
+                )
+        ;
+interpolatedExpression
+        : andExpression tweenExpression?      -> ^(TWEEN andExpression tweenExpression?)
+        ;
+tweenExpression
+        : TWEEN andExpression                                   -> andExpression
+        ;
 forExpression
 	: FOR LPAREN inClause (COMMA inClause)* RPAREN expression
 								-> ^(FOR inClause* expression)
@@ -710,8 +687,8 @@ assignmentOpExpression
 	   |   STAREQ   e2=expression				-> ^(STAREQ $e1 $e2) 
 	   |   SLASHEQ   e2=expression				-> ^(SLASHEQ $e1 $e2) 
 	   |   PERCENTEQ   e2=expression			-> ^(PERCENTEQ $e1 $e2) 
-	   | SUCHTHAT expr=andExpression (TWEEN interpolate=andExpression)?
-                                                               -> ^(SUCHTHAT $e1 $expr $interpolate?)
+/*	   | SUCHTHAT expr=andExpression (TWEEN interpolate=andExpression)?
+                                                               -> ^(SUCHTHAT $e1 $expr $interpolate?)*/
 	   |							-> $e1
 	   )
 	;
@@ -801,7 +778,11 @@ primaryExpression
        	| literal 						-> literal
       	| functionExpression					-> functionExpression
        	| LPAREN expression RPAREN				-> expression
+        | AT LPAREN TIME_LITERAL RPAREN keyFrameLiteralPart     -> ^(AT TIME_LITERAL keyFrameLiteralPart)
        	;
+keyFrameLiteralPart
+        : LBRACE (keyValueLiteralExpression (SEMI)?)* RBRACE              -> keyValueLiteralExpression*
+        ;
 functionExpression  
 	: FUNCTION formalParameters typeReference blockExpression
 								-> ^(FUNC_EXPR[$FUNCTION] formalParameters typeReference blockExpression)

@@ -383,8 +383,8 @@ expression  returns [JCExpression expr]
 	| pipeExpression				{ $expr = $pipeExpression.expr; }
 	| blockExpression				{ $expr = $blockExpression.expr; }
        	| stringExpression				{ $expr = $stringExpression.expr; }
-        | interpolateExpression                         { $expr = $interpolateExpression.expr; }
-        | frame=keyFrameLiteral                         { $expr = $frame.expr; }
+  //      | interpolateExpression                         { $expr = $interpolateExpression.expr; }
+  //      | frame=keyFrameLiteral                         { $expr = $frame.expr; }
 	| explicitSequenceExpression			{ $expr = $explicitSequenceExpression.expr; }
 	| ^(DOTDOT from=expression to=expression step=expression? LT?)
 							{ $expr = F.at(pos($DOTDOT)).RangeSequence($from.expr, $to.expr, $step.expr, $LT!=null); 
@@ -414,7 +414,76 @@ expression  returns [JCExpression expr]
                                                           endPos($expr, $t); }
 	| t=NULL 					{ $expr = F.at(pos($t)).Literal(TypeTags.BOT, null); 
                                                           endPos($expr, $t); } 
+        | ^(SUCHTHAT target=qualident interpolatedExpression) 
+                                                        { int pos = $target.expr.pos;
+                                                          JCExpression class_name = F.at(pos).Identifier("javafx.animation.KeyValue");
+                                                          
+                                                          ListBuffer<JCTree> parts = ListBuffer.<JCTree>lb();
+                                                          
+                                                          // target attribute
+                                                          // convert target name to pointer
+                                                          JCExpression ptr_factory = F.at(pos).Identifier("com.sun.javafx.runtime.PointerFactory");
+                                                          JCExpression pointer_literal = F.at(pos).Instanciate(ptr_factory, null, ListBuffer.<JCTree>lb().toList());
+
+                                                          JCExpression make_method_name = F.at(pos).Select(pointer_literal, Name.fromString(names, "make"));
+                                                          ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
+                                                          args.append($target.expr);
+                                                          JCExpression target_value = F.at(pos).Apply(null, make_method_name, args.toList());
+
+                                                          JCTree target_part = F.at(pos).ObjectLiteralPart(Name.fromString(names, "target"), target_value, UNBOUND);
+                                                          parts.append(target_part);
+                                                          // value attribute
+                                                          parts.append($interpolatedExpression.value);
+                                                          // interpolate attribute
+                                                          if ($interpolatedExpression.interpolate != null)
+                                                            parts.append($interpolatedExpression.interpolate);
+                                                          $expr = F.at(pos).Instanciate(class_name, null, parts.toList()); 
+                                                          endPos($expr, $SUCHTHAT); 
+                                                         }
+        | ^(AT duration=expression keyFrameLiteralPart)  { JCExpression class_name = F.at($AT.pos).Identifier("javafx.animation.KeyFrame");
+                                                          
+                                                          ListBuffer<JCTree> parts = ListBuffer.<JCTree>lb();
+                                                          // time attribute
+                                                          JCTree time = F.at($duration.expr.pos).ObjectLiteralPart(Name.fromString(names,"time"), $duration.expr, UNBOUND); 
+                                                          parts.append(time);
+                                                          
+                                                          // values attribute
+                                                          int pos = -1;
+                                                          java.util.Iterator<JCExpression> iterator = $keyFrameLiteralPart.parts.iterator();
+                                                          ListBuffer<JCExpression> key_values = new ListBuffer<JCExpression>();
+                                                          while (iterator.hasNext()){
+                                                              JCExpression e = iterator.next();
+                                                              // is it a KeyValue literal
+                                                              if (e instanceof JFXInstanciate) {
+                                                                  key_values.append(e);
+                                                                  if (pos == -1) {
+                                                                    pos = e.pos;
+                                                                  }
+                                                              }
+                                                          } 
+                                                          if (!key_values.isEmpty()) {
+                                                        
+                                                              JCExpression value_seq = F.at(pos).ExplicitSequence(key_values.toList());
+                                                              JCTree values = F.at(pos).ObjectLiteralPart(Name.fromString(names, "values"), value_seq, UNBOUND);
+                                                              parts.append(values);
+                                                          }	
+                                                          
+                                                          $expr = F.at($AT.pos).Instanciate(class_name, null, parts.toList()); 
+                                                          endPos($expr, $AT);
+                                                        }
 	;
+interpolatedExpression returns [JCTree value, JCTree interpolate]
+        : ^(TWEEN  e1=expression                     {  $value = F.at($e1.expr.pos).ObjectLiteralPart(Name.fromString(names,"value"), $e1.expr, UNBOUND); }
+                                (e2=expression       {  $interpolate = F.at($e2.expr.pos).ObjectLiteralPart(Name.fromString(names, "interpolate"), $e2.expr, UNBOUND); } 
+                                )?
+           )                                                 
+        ;
+
+
+keyFrameLiteralPart returns [ListBuffer<JCExpression> parts   = new ListBuffer<JCExpression>()]
+        : ( expression                          { $parts.append($expression.expr); }
+          )*
+        ;
 inClauses  returns [ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb()]
 	: ( inClause					{ clauses.append($inClause.value); } )*	
 	;
@@ -472,33 +541,10 @@ stringFormat  returns [JCExpression expr]
 	: fs=FORMAT_STRING_LITERAL			{ $expr = F.at(pos($fs)).Literal(TypeTags.CLASS, $fs.text); }
 	| EMPTY_FORMAT_STRING				{ $expr = F.             Literal(TypeTags.CLASS, ""); }
 	;
+/*
 interpolateExpression  returns [JCExpression expr]
-/*@init { ListBuffer<JFXInterpolateValue> tweenProps = new ListBuffer<JFXInterpolateValue>(); }*/
         : ^(SUCHTHAT attr=expression target=expression interp=expression?)
-                                                        { $expr = F.at($attr.expr.pos).InterpolateValue($attr.expr, $target.expr, $interp.expr);
-                                                          /* ... set endPos ... */}
-/*
-            ( tweenValue                                { tweenProps.append($tweenValue.prop); } )*
-           )                                            { $expr = F.at($identifier.expr.pos).Interpolate($identifier.expr, tweenProps.toList()); 
-                                                          endPos($expr, tweenProps.toList()); }
-        | ^(SUCHTHAT_BLOCK identifier
-            ( namedTweenValue                           { tweenProps.append($namedTweenValue.prop); } )*
-           )                                            { $expr = F.at($identifier.expr.pos).Interpolate($identifier.expr, tweenProps.toList()); 
-                                                          endPos($expr, tweenProps.toList()); }
-*/
-        ;
-/*
-tweenValue returns [JFXInterpolateValue prop]
-        : ^(TWEEN expr=expression interp=expression)                      { $prop = F.at($expression.expr.pos).InterpolateValue(null, $expr.expr, $interp.expr); 
-                                                          //endPos($prop, $interp.pos + $name.value.length());
- }
-        ;
-namedTweenValue returns [JFXInterpolateValue prop]
-        : ^(NAMED_TWEEN identifier expression interp=expression?)
-                                                        { $prop = F.at($identifier.expr.pos).InterpolateValue($identifier.expr, $expression.expr, $interp.expr); 
-                                                          endPos($prop, $name.value != null ? $name.pos + $name.value.length() : $expression.expr.pos); }
-        ;
-*/
+                                                        { $expr = F.at($attr.expr.pos).InterpolateValue($attr.expr, $target.expr, $interp.expr);   
 keyFrameLiteral returns [JFXKeyFrameLiteral expr]
 @init { ListBuffer<JFXInterpolate> exprs = new ListBuffer<JFXInterpolate>(); }
         : ^(AT time=expression 
@@ -511,6 +557,7 @@ keyFrameTriggerClause  returns [JFXBlockExpression expr]
 	: ^(TRIGGER blockExpression)			{ $expr = $blockExpression.expr; 
                                                           endPos($expr, $TRIGGER); }
 	;
+*/
 explicitSequenceExpression   returns [JFXSequenceExplicit expr]
 @init { ListBuffer<JCExpression> exps = new ListBuffer<JCExpression>(); }
 	: ^(SEQ_EXPLICIT   
