@@ -1280,24 +1280,34 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitBlock(JCBlock tree) {
+        JavafxEnv<JavafxAttrContext> localEnv;
         if (env.info.scope.owner.kind == TYP) {
             // Block is a static or instance initializer;
             // let the owner of the environment be a freshly
             // created BLOCK-method.
-            JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
+            localEnv = newLocalEnv(tree);
             if ((tree.flags & STATIC) != 0) localEnv.info.staticLevel++;
             memberEnter.memberEnter(tree.stats, localEnv);
-            attribStats(tree.stats, localEnv);
         } else {
             // Create a new local environment with a local scope.
-            JavafxEnv<JavafxAttrContext> localEnv =
-                env.dup(tree, env.info.dup(env.info.scope.dup()));
+            localEnv = env.dup(tree, env.info.dup(env.info.scope.dup()));
             localEnv.outer = env;
             memberEnter.memberEnter(tree.stats, localEnv);
-            attribStats(tree.stats, localEnv);
-            localEnv.info.scope.leave();
         }
-        result = null;
+        boolean canReturn = true;
+        boolean unreachableReported = false;
+        for (List<JCStatement> l = tree.stats; l.nonEmpty(); l = l.tail) {
+            if (! canReturn && ! unreachableReported) {
+                unreachableReported = true;
+                log.error(l.head.pos(), MsgSym.MESSAGE_UNREACHABLE_STMT);
+            }
+            Type stype = attribStat(l.head, localEnv);
+            if (stype == syms.unreachableType)
+                canReturn = false;
+        }
+        if (env.info.scope.owner.kind != TYP)
+            localEnv.info.scope.leave();
+        result = canReturn ? null : syms.unreachableType;
     }
 
     @Override
@@ -1846,8 +1856,11 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
     @Override
     public void visitTry(JCTry tree) {
+        boolean canReturn = false;
         // Attribute body
-        attribStat(tree.body, env.dup(tree, env.info.dup()));
+        Type stype = attribStat(tree.body, env.dup(tree, env.info.dup()));
+        if (stype != syms.unreachableType)
+            canReturn = true;
 
         // Attribute catch clauses
         for (List<JCCatch> l = tree.catchers; l.nonEmpty(); l = l.tail) {
@@ -1865,13 +1878,15 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 //            chk.checkType(c.param.vartype.pos(),
 //                          chk.checkClassType(c.param.vartype.pos(), ctype),
 //                          syms.throwableType);
-            attribStat(c.body, catchEnv);
+            ctype = attribStat(c.body, catchEnv);
+            if (ctype != syms.unreachableType)
+                canReturn = true;
             catchEnv.info.scope.leave();
         }
 
         // Attribute finalizer
         if (tree.finalizer != null) attribStat(tree.finalizer, env);
-        result = null;
+        result = canReturn ? null : syms.unreachableType;
     }
 
     @Override
@@ -3788,7 +3803,7 @@ public
 	Type otres = types.subst(ot.getReturnType(), otvars, mtvars);
 
 	boolean resultTypesOK =
-	    types.returnTypeSubstitutable(mt, ot, otres, null);
+	    types.returnTypeSubstitutable(mt, ot, otres, noteWarner);
 	if (!resultTypesOK) {
 	    if (!source.allowCovariantReturns() &&
 		m.owner != origin &&
