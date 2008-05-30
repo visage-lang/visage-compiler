@@ -60,8 +60,8 @@ public class AssortisProject  extends MyCompositeComponent{
     private attribute timer: Timer;
     private attribute defaultLocale:Locale;
 
-    private attribute screenX: Number;
-    private attribute screenY: Number;
+    private attribute screenX: Integer;
+    private attribute screenY: Integer;
     
     protected attribute loadedSamples:ProjectSample[];
 

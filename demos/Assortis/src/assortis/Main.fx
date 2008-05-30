@@ -9,8 +9,9 @@ import java.lang.System;
  * @author Alexandr Scherbatiy, Naoto Sato
  */
 
-javax.swing.UIManager.setLookAndFeel("org.jvnet.substance.skin.SubstanceNebulaLookAndFeel");
- 
+
+assortis.core.ProjectManager.setLookAndFeel();
+
 Frame{
     title: "JavaFX Assortis"
     width:  800

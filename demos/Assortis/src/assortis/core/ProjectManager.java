@@ -129,6 +129,16 @@ public class ProjectManager {
     public static Object runFXCode(String className, String code, String localeName, String propertyText) throws Exception {
         return CodeManager.execute(className, code, localeName, propertyText);
     }
+    
+    
+    public static void setLookAndFeel(){
+        try{
+            org.jvnet.substance.SubstanceLookAndFeel.setFontPolicy(org.jvnet.substance.fonts.SubstanceFontUtilities.getScaledFontPolicy(1.25f));
+            javax.swing.UIManager.setLookAndFeel("org.jvnet.substance.skin.SubstanceNebulaLookAndFeel");
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+    }
 }
 
 

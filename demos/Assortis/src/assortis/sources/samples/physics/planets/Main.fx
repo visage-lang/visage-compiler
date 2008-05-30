@@ -51,8 +51,8 @@ var solarSystem:PlanetarySystem = PlanetarySystem{
 };
 
 
-var w = 400.0;
-var h = 250.0;
+var w = 400;
+var h = 250;
 
 
 
