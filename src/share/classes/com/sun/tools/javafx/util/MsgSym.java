@@ -274,6 +274,7 @@ public class MsgSym {
     public static final String MESSAGE_OVERRIDE_UNCHECKED_RET = "override.unchecked.ret";
     public static final String MESSAGE_FATAL_ERR_NO_JAVA_LANG = "fatal.err.no.java.lang";
     public static final String MESSAGE_NOT_ANNOTATION_TYPE = "not.annotation.type";
+    public static final String MESSAGE_TOO_MANY_PARAMETERS = "javafx.too.many.parameters";
     
     // kindname
     public static final String KINDNAME = "kindname";
