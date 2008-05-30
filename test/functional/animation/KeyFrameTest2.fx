@@ -33,7 +33,7 @@ var t: Timeline = Timeline {
             time: t2            
             action: function() {
                 var elapsed: Number = TimeUnit.NANOSECONDS.toMillis((System.nanoTime() - beginNano).longValue());
-                if(elapsed <= (500-threshold) and elapsed < (500+threshold)) {
+                if(elapsed <= (500-threshold) or elapsed > (500+threshold)) {
                     throw new AssertionError("test 2 - fail");
                 }
                 beginNano = System.nanoTime();
@@ -43,7 +43,7 @@ var t: Timeline = Timeline {
             time: Duration { millis: 1000 }            
             action: function() {
                 var elapsed: Number = TimeUnit.NANOSECONDS.toMillis((System.nanoTime() - beginNano).longValue());
-                if(elapsed <= (500-threshold) and elapsed < (500+threshold)) {
+                if(elapsed <= (500-threshold) or elapsed > (500+threshold)) {
                     throw new AssertionError("test 3 - fail");
                 }
                 beginNano = System.nanoTime();
