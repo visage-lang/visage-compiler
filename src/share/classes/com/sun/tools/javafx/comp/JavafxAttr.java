@@ -3140,6 +3140,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         int nargs = 0;
         for (JFXType param : (List<JFXType>)tree.params) {
             Type argtype = attribType(param, env);
+            if (argtype == syms.javafx_UnspecifiedType)
+                argtype = syms.objectType;
             argtypes.append(argtype);
             Type ptype = syms.boxIfNeeded(argtype);
             ptype = new WildcardType(ptype, BoundKind.SUPER, syms.boundClass);
