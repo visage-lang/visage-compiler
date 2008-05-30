@@ -414,32 +414,19 @@ expression  returns [JCExpression expr]
                                                           endPos($expr, $t); }
 	| t=NULL 					{ $expr = F.at(pos($t)).Literal(TypeTags.BOT, null); 
                                                           endPos($expr, $t); } 
-        | ^(SUCHTHAT target=qualident interpolatedExpression) 
-                                                        { int pos = $target.expr.pos;
-                                                          JCExpression class_name = F.at(pos).Identifier("javafx.animation.KeyValue");
-                                                          
-                                                          ListBuffer<JCTree> parts = ListBuffer.<JCTree>lb();
-                                                          
-                                                          // target attribute
-                                                          // convert target name to pointer
-                                                          JCExpression ptr_factory = F.at(pos).Identifier("com.sun.javafx.runtime.PointerFactory");
-                                                          JCExpression pointer_literal = F.at(pos).Instanciate(ptr_factory, null, ListBuffer.<JCTree>lb().toList());
-
-                                                          JCExpression make_method_name = F.at(pos).Select(pointer_literal, Name.fromString(names, "make"));
-                                                          ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-                                                          args.append($target.expr);
-                                                          JCExpression target_value = F.at(pos).Apply(null, make_method_name, args.toList());
-
-                                                          JCTree target_part = F.at(pos).ObjectLiteralPart(Name.fromString(names, "target"), target_value, UNBOUND);
-                                                          parts.append(target_part);
-                                                          // value attribute
-                                                          parts.append($interpolatedExpression.value);
-                                                          // interpolate attribute
-                                                          if ($interpolatedExpression.interpolate != null)
-                                                            parts.append($interpolatedExpression.interpolate);
-                                                          $expr = F.at(pos).Instanciate(class_name, null, parts.toList()); 
+        | ^(SUCHTHAT target=qualident 
+                     (ie=interpolatedExpression 
+                                                        { int target_pos = $target.expr.pos;
+                                                          $expr = createKeyValueLiteral(target_pos, $target.expr, $ie.value, $ie.interpolate);
+                                                         
                                                           endPos($expr, $SUCHTHAT); 
-                                                         }
+                                                        }
+                     | aie=attributedInterpolatedExpressionList[$target.expr] 
+                                                        { $expr = F.at($target.expr.pos).ExplicitSequence($aie.list.toList());
+                                                          endPos($expr, $SUCHTHAT);
+                                                        }                                                                                         
+                     )                                                                                           
+        )                    
         | ^(AT duration=expression keyFrameLiteral) { JCExpression class_name = F.at($AT.pos).Identifier("javafx.animation.KeyFrame");
                                                           
                                                           ListBuffer<JCTree> parts = ListBuffer.<JCTree>lb();
@@ -448,6 +435,7 @@ expression  returns [JCExpression expr]
                                                           parts.append(time);
                                                           
                                                           // values attribute
+                                                          // 
                                                           int pos = -1;
                                                           java.util.Iterator<JCExpression> iterator = $keyFrameLiteral.parts.iterator();
                                                           ListBuffer<JCExpression> key_values = new ListBuffer<JCExpression>();
@@ -459,6 +447,13 @@ expression  returns [JCExpression expr]
                                                                   if (pos == -1) {
                                                                     pos = e.pos;
                                                                   }
+                                                              }
+                                                              if (e instanceof JFXSequenceExplicit) {
+                                                                  if (pos == -1) {
+                                                                    pos = e.pos;
+                                                                  }     
+                                                                  com.sun.tools.javac.util.List<JCExpression> items = ((JFXSequenceExplicit)e).getItems();
+                                                                  key_values.appendList(items);
                                                               }
                                                           } 
                                                           if (!key_values.isEmpty()) {
@@ -477,8 +472,20 @@ interpolatedExpression returns [JCTree value, JCTree interpolate]
                                 (e2=expression       {  $interpolate = F.at($e2.expr.pos).ObjectLiteralPart(Name.fromString(names, "interpolate"), $e2.expr, UNBOUND); } 
                                 )?
            )                                                 
+        ;   
+attributedInterpolatedExpressionList[JCExpression target] returns [ListBuffer<JCExpression> list = ListBuffer.<JCExpression>lb()]
+        : (aie = attributedInterpolatedExpression  { int target_pos = $target.pos;
+                                                     JCExpression full_target = F.at(target_pos).Select($target, ((JCIdent)$aie.name).getName());
+                                                     list.append(createKeyValueLiteral(target_pos, full_target, $aie.value, $aie.interpolate));                                              
+                                                   }
+          )+
         ;
-
+attributedInterpolatedExpression returns [JCExpression name, JCTree value, JCTree interpolate]
+        : ^(ATTR_INTERPOLATE qualname=expression interpolatedExpression)   { $name = $qualname.expr;          
+                                                                  $value = $interpolatedExpression.value;
+                                                                  $interpolate = $interpolatedExpression.interpolate;
+                                                                }
+        ;
 keyFrameLiteral  returns [ListBuffer<JCExpression> parts = ListBuffer.<JCExpression>lb()]
         : ( keyFrameLiteralPart              { $parts.append($keyFrameLiteralPart.expr); }
           )*

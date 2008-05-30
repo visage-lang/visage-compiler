@@ -34,6 +34,7 @@ import com.sun.tools.javafx.util.MsgSym;
 import java.util.HashMap;
 import javax.tools.DiagnosticListener;
 import static com.sun.tools.javac.util.ListBuffer.lb;
+import static com.sun.javafx.api.JavafxBindStatus.*;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
@@ -172,5 +173,34 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
     void endPos(JCTree tree, int end) {
         if (genEndPos)
             endPositions.put(tree, end);
+    }
+    
+   
+    JCExpression createKeyValueLiteral(int target_pos, JCExpression target, JCTree value, JCTree interpolate ) {
+        
+        JCExpression class_name = F.at(target_pos).Identifier("javafx.animation.KeyValue");
+                                                          
+        ListBuffer<JCTree> parts = ListBuffer.<JCTree>lb();
+                                                          
+        // target attribute
+        // convert target name to pointer
+        JCExpression ptr_factory = F.at(target_pos).Identifier("com.sun.javafx.runtime.PointerFactory");
+        JCExpression pointer_literal = F.at(target_pos).Instanciate(ptr_factory, null, ListBuffer.<JCTree>lb().toList());
+
+        JCExpression make_method_name = F.at(target_pos).Select(pointer_literal, Name.fromString(names, "make"));
+        ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
+        args.append(target);
+        JCExpression target_value = F.at(target_pos).Apply(null, make_method_name, args.toList());
+
+        JCTree target_part = F.at(target_pos).ObjectLiteralPart(Name.fromString(names, "target"), target_value, UNBOUND);
+        parts.append(target_part);
+                                                          
+        // value attribute
+        parts.append(value);
+                                                          
+        // interpolate attribute
+        if (interpolate != null)
+            parts.append(interpolate);
+        return (F.at(target_pos).Instanciate(class_name, null, parts.toList()));
     }
 }

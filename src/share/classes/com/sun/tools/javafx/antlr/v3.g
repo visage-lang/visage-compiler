@@ -171,6 +171,7 @@ tokens {
    TYPE_ARG;
    TYPED_ARG_LIST;
    DOC_COMMENT;
+   ATTR_INTERPOLATE;
 }
 
 @lexer::header {
@@ -648,12 +649,20 @@ keyValueLiteralExpression
         : qualname SUCHTHAT 
                 ( interpolatedExpression                       
                                                                 -> ^(SUCHTHAT qualname interpolatedExpression)
-  /*              | LBRACE interpolatedExpression (COMMA interpolatedExpression)* RBRACE 
-                                                                -> ^(SUCHTHAT qualname interpolatedExpression+) */
+                | LBRACE attributedInterpolatedExpression       
+                         (COMMA attributedInterpolatedExpression)*                           
+                  RBRACE                                        -> ^(SUCHTHAT qualname attributedInterpolatedExpression+) 
                 )
         ;
 interpolatedExpression
         : andExpression tweenExpression?      -> ^(TWEEN andExpression tweenExpression?)
+        ;
+
+attributedInterpolatedExpression
+        : qualname COLON 
+                        (interpolatedExpression                     -> ^(ATTR_INTERPOLATE qualname interpolatedExpression)
+ //                       | LBRACE keyValueLiteralExpression RBRACE   -> ^(ATTR_INTERPOLATE qualname keyValueLiteralExpression)
+                        )
         ;
 tweenExpression
         : TWEEN andExpression                                   -> andExpression
