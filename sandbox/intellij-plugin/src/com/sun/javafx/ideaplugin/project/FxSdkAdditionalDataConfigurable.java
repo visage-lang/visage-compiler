@@ -15,12 +15,21 @@ public final class FxSdkAdditionalDataConfigurable implements AdditionalDataConf
     private final SdkModel sdkModel;
     private final SdkModel.Listener listener;
     private final DefaultComboBoxModel model;
+    private final FxSdkAdditionalDataPanel panel;
     private Sdk fxSdk;
 
     public FxSdkAdditionalDataConfigurable (SdkModel sdkModel) {
         this.sdkModel = sdkModel;
 
         model = new DefaultComboBoxModel ();
+
+        panel = new FxSdkAdditionalDataPanel ();
+        panel.javaSdkCombo.setModel (model);
+        panel.javaSdkCombo.setRenderer (new DefaultListCellRenderer() {
+            public Component getListCellRendererComponent (JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                return super.getListCellRendererComponent (list, value instanceof ProjectJdk ? ((ProjectJdk) value).getName (): value, index, isSelected, cellHasFocus);
+            }
+        });
 
         listener = new SdkModel.Listener() {
             public void sdkAdded (Sdk sdk) {
@@ -43,11 +52,13 @@ public final class FxSdkAdditionalDataConfigurable implements AdditionalDataConf
 
     private void reloadModel () {
         model.removeAllElements ();
+        Object previouslySelected = model.getSelectedItem ();
         for (Sdk sdk : sdkModel.getSdks ()) {
             SdkType sdkType = sdk.getSdkType ();
             if (Comparing.equal (sdkType, JavaSdk.getInstance ()) || "IDEA JDK".equals (sdkType.getName ()))
                 model.addElement (sdk);
         }
+        model.setSelectedItem (previouslySelected);
     }
 
     public void setSdk (Sdk sdk) {
@@ -55,26 +66,11 @@ public final class FxSdkAdditionalDataConfigurable implements AdditionalDataConf
     }
 
     public JComponent createComponent () {
-        JPanel panel = new JPanel ();
-        panel.setLayout (new GridBagLayout ());
-        GridBagConstraints gbc = new GridBagConstraints ();
-        panel.add (new JLabel ("Choose Java SDK:"), gbc);
-        gbc.gridx++;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        JComboBox combo = new JComboBox (model);
-        combo.setRenderer (new DefaultListCellRenderer() {
-            public Component getListCellRendererComponent (JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                return super.getListCellRendererComponent (list, value instanceof ProjectJdk ? ((ProjectJdk) value).getName (): value, index, isSelected, cellHasFocus);
-            }
-        });
-        panel.add (combo);
-
         sdkModel.addListener (listener);
         reloadModel ();
+	reset ();
         apply ();
-        reset ();
-        return panel;
+        return panel.panel;
     }
 
     public boolean isModified () {
@@ -86,9 +82,7 @@ public final class FxSdkAdditionalDataConfigurable implements AdditionalDataConf
     public void apply () {
         final SdkModificator modificator = fxSdk.getSdkModificator ();
         Sdk selectedSdk = (Sdk) model.getSelectedItem ();
-        if (selectedSdk != null) {
-            modificator.setSdkAdditionalData (new FxSdkAdditionalData (selectedSdk.getName (), sdkModel));
-        }
+        modificator.setSdkAdditionalData (new FxSdkAdditionalData (selectedSdk != null ? selectedSdk.getName () : null, sdkModel));
         ApplicationManager.getApplication ().runWriteAction (new Runnable() {
             public void run () {
                 modificator.commitChanges ();
