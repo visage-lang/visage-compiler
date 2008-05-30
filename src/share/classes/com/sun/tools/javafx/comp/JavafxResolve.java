@@ -402,7 +402,7 @@ public class JavafxResolve {
  *
  *  If no symbol was found, a ResolveError detailing the problem is returned.
  ****************************************************************************/
-
+int ccounter;
     /** Find field. Synthetic fields are always skipped.
      *  @param env     The current environment.
      *  @param site    The original type from where the selection takes place.
@@ -839,6 +839,7 @@ public class JavafxResolve {
                 if ((e.sym.kind & (VAR|MTH)) == 0 ||
                         (e.sym.flags_field & SYNTHETIC) != 0)
                     continue;
+                e.sym.complete();
                 if (! checkArgs) {
                     // No argument list to disambiguate.
                     if (bestSoFar.kind == ABSENT_VAR || bestSoFar.kind == ABSENT_MTH)
@@ -847,7 +848,6 @@ public class JavafxResolve {
                         bestSoFar = new AmbiguityError(bestSoFar, e.sym);
                 }
                 else if (e.sym.kind == MTH) {
-                    e.sym.complete();
                     bestSoFar = selectBest(env, site, mtype,
                                            e.sym, bestSoFar,
                                            allowBoxing,
@@ -859,8 +859,17 @@ public class JavafxResolve {
                         }
                     }
                 }
-                else if ((e.sym.kind & (VAR|MTH)) != 0 && bestSoFar == methodNotFound)
+                else if ((e.sym.kind & (VAR|MTH)) != 0 && bestSoFar == methodNotFound) {
+                    // FIXME duplicates logic in findVar.
+                    Type mt = e.sym.type;
+                    if (mt instanceof FunctionType)
+                        mt = mt.asMethodType();
+                    if (! (mt instanceof MethodType) ||
+                            ! argumentsAcceptable(mtype.getParameterTypes(), mt.getParameterTypes(),
+                            true, false, Warner.noWarnings))
+                        return wrongMethod.setWrongSym(e.sym);
                     return e.sym;
+                }
             }
             if (! checkArgs &&
                 bestSoFar.kind != ABSENT_VAR && bestSoFar.kind != ABSENT_MTH) {
