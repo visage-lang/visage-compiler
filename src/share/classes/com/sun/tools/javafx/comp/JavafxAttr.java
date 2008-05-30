@@ -3122,7 +3122,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         if (type == null) {
             type = attribType(classNameExpr, env);
         }
-        type = sequenceType(type, tree.getCardinality());
+        Cardinality cardinality = tree.getCardinality();
+        if (cardinality != Cardinality.SINGLETON &&
+                type == syms.voidType) {
+            log.error(tree, MsgSym.MESSAGE_JAVAFX_VOID_SEQUENCE_NOT_ALLOWED);
+            cardinality = Cardinality.SINGLETON;
+        }
+        type = sequenceType(type, cardinality);
         tree.type = type;
         result = type;
     }

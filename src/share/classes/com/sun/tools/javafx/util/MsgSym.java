@@ -311,7 +311,8 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_TYPE_INFER_CYCLE_FUN_DECL = "javafx.type.infer.cycle.fun.decl";
     public static final String MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL = "javafx.type.infer.cycle.var.decl";
     public static final String MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF = "javafx.type.infer.cycle.var.ref";
-    public static final String MESSAGE_JAVAFX_FUNC_TYPE_INFER_CYCLE = "javafx.function.type.infer.cycle"; 
+    public static final String MESSAGE_JAVAFX_FUNC_TYPE_INFER_CYCLE = "javafx.function.type.infer.cycle";
+    public static final String MESSAGE_JAVAFX_VOID_SEQUENCE_NOT_ALLOWED = "javafx.void.sequence.not.allowed";
     public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_JAVA_CLASS_ALLOWED = "javafx.only.one.base.java.class.allowed"; 
     public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEFAULT_INITIALIZER = "javafx.cannot.override.default.initializer"; 
     public static final String MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT = "javafx.not.allowed.in.bind.context"; 
