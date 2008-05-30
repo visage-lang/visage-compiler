@@ -16,6 +16,7 @@ import com.intellij.openapi.projectRoots.ProjectJdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,10 +28,16 @@ import java.util.*;
 public class FxRunConfiguration extends ModuleBasedConfiguration {
 
     private static final String MAIN_CLASS_PROPERTY = "main-class";
+    private static final String VM_PARAMETERS_PROPERTY = "vm-parameters";
+    private static final String PROGRAM_PARAMETERS_PROPERTY = "program-parameters";
+    private static final String WORKING_DIRECTORY_PROPERTY = "working-directory";
 
     private final Map<Class<? extends RunConfigurationExtension>, Object> extensionSettings = new HashMap<Class<? extends RunConfigurationExtension>, Object> ();
 
     private String mainClass;
+    private String vmParameters;
+    private String programParameters;
+    private String workingDirectory;
 
     public FxRunConfiguration (String name, ConfigurationFactory configurationFactory, Project project) {
         super (name, new RunConfigurationModule(project, true), configurationFactory);
@@ -68,7 +75,14 @@ public class FxRunConfiguration extends ModuleBasedConfiguration {
             protected GeneralCommandLine createCommandLine () throws ExecutionException {
                 JavaParameters params = new JavaParameters ();
                 params.configureByModule (module, JavaParameters.CLASSES_ONLY);
-                params.setWorkingDirectory (getProject ().getBaseDir ().getPath ());
+                if (workingDirectory != null  &&  ! "".equals (workingDirectory))
+                    params.setWorkingDirectory (workingDirectory);
+                else
+                    params.setWorkingDirectory (getProject ().getBaseDir ().getPath ());
+                if (vmParameters != null)
+                    params.getVMParametersList ().addParametersString (vmParameters);
+                if (programParameters != null)
+                    params.getProgramParametersList ().addParametersString (programParameters);
                 params.setMainClass (mainClass);
                 params.setJdk (jdk);
                 return GeneralCommandLine.createFromJavaParameters (params);
@@ -100,6 +114,17 @@ public class FxRunConfiguration extends ModuleBasedConfiguration {
     public void readExternal (Element element) throws InvalidDataException {
         super.readExternal (element);
         mainClass = element.getAttributeValue (MAIN_CLASS_PROPERTY);
+        vmParameters = element.getAttributeValue (VM_PARAMETERS_PROPERTY);
+        programParameters = element.getAttributeValue (PROGRAM_PARAMETERS_PROPERTY);
+        workingDirectory = element.getAttributeValue (WORKING_DIRECTORY_PROPERTY);
+        if (workingDirectory == null) {
+            Project project = getProject ();
+            if (project != null) {
+                VirtualFile baseDir = project.getBaseDir ();
+                if (baseDir != null)
+                    workingDirectory = baseDir.getPath ();
+            }
+        }
         getConfigurationModule ().readExternal (element);
     }
 
@@ -107,6 +132,12 @@ public class FxRunConfiguration extends ModuleBasedConfiguration {
         super.writeExternal (element);
         if (mainClass != null)
             element.setAttribute (MAIN_CLASS_PROPERTY, mainClass);
+        if (vmParameters != null  &&  ! "".equals (vmParameters))
+            element.setAttribute (VM_PARAMETERS_PROPERTY, vmParameters);
+        if (programParameters != null  &&  ! "".equals (programParameters))
+            element.setAttribute (PROGRAM_PARAMETERS_PROPERTY, programParameters);
+        if (workingDirectory != null  &&  ! "".equals (workingDirectory))
+            element.setAttribute (WORKING_DIRECTORY_PROPERTY, workingDirectory);
         getConfigurationModule ().writeExternal (element);
     }
 
@@ -120,6 +151,30 @@ public class FxRunConfiguration extends ModuleBasedConfiguration {
 
     public void setMainClass (String mainClass) {
         this.mainClass = mainClass;
+    }
+
+    public String getVmParameters () {
+        return vmParameters;
+    }
+
+    public void setVmParameters (String vmParameters) {
+        this.vmParameters = vmParameters;
+    }
+
+    public String getProgramParameters () {
+        return programParameters;
+    }
+
+    public void setProgramParameters (String programParameters) {
+        this.programParameters = programParameters;
+    }
+
+    public String getWorkingDirectory () {
+        return workingDirectory;
+    }
+
+    public void setWorkingDirectory (String workingDirectory) {
+        this.workingDirectory = workingDirectory;
     }
 
 }
