@@ -416,8 +416,13 @@ public class JavafxCheck {
 	    return req;
         if (found == syms.unreachableType)
             return found;
-	if (found.tag == FORALL)
-	    return instantiatePoly(pos, (ForAll)found, req, convertWarner(pos, found, req));
+	if (found.tag == FORALL) {
+            if (req == syms.javafx_UnspecifiedType)
+                // Is this the right thing to do?  FIXME
+                return types.erasure(found);
+            else
+	        return instantiatePoly(pos, (ForAll)found, req, convertWarner(pos, found, req));
+        }
 	if (req.tag == NONE || req == syms.javafx_UnspecifiedType)
 	    return found;
         if (types.isSequence(req)) {  
