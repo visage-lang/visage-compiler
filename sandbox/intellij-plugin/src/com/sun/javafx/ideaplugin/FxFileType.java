@@ -62,4 +62,8 @@ public class FxFileType extends LanguageFileType {
     public Icon getIcon() {
         return FxPlugin.FX_ICON;
     }
+
+    public boolean isJVMDebuggingSupported () {
+        return true;
+    }
 }

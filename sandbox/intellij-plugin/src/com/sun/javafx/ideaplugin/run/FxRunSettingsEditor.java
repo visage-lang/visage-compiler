@@ -35,7 +35,6 @@ public class FxRunSettingsEditor extends SettingsEditor<FxRunConfiguration> {
 
     protected void resetEditorFrom (FxRunConfiguration configuration) {
         reset (panel.mainClassText, configuration.getMainClass ());
-        reset (panel.mainClassText, configuration.getMainClass ());
         reset (panel.vmParamsText, configuration.getVmParameters ());
         reset (panel.programParamsText, configuration.getProgramParameters ());
         reset (panel.workingDirectoryText, configuration.getWorkingDirectory ());
