@@ -25,13 +25,30 @@ package javafx.gui;
 import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGRectangle;
 
-// PENDING_DOC_REVIEW
+// PENDING_DOC_REVIEW_2
 
 /**
- * The {@code Rectangle} class defines a rectangle 
- * with the specified size and location.
+ * <p>The {@code Rectangle} class defines a rectangle 
+ * with the specified size and location. By default the rectangle
+ * has sharp corners. Rounded corners can be specified using
+ * the arcWidth and arcHeight attributes.</p>
+ 
+ * <p>Example code: the following code creates a rectangle with width and height
+ * of 200x100 with the upper left hand corner at 50,50 and with rounded corners
+ * of radius 10px.</p>
+ 
+ * <pre><code>Rectangle {
+    x: 50
+    y: 50
+    width: 200
+    height: 100
+    arcWidth: 10
+    arcHeight: 10
+    fill: Color.RED
+}</code></pre>
  *
  * @profile common
+ * @cssclass needsreview
  */
 public class Rectangle extends Shape {
 
@@ -41,7 +58,7 @@ public class Rectangle extends Shape {
 
     // PENDING_DOC_REVIEW
     /**
-     * Defines the X coordinate of the upper-left corner of the rectangle
+     * Defines the X coordinate of the upper-left corner of the rectangle.
      *
      * @profile common
      */    

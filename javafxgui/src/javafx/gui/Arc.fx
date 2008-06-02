@@ -26,14 +26,30 @@ import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGArc;
 
 
-// PENDING_DOC_REVIEW
+// PENDING_DOC_REVIEW_2
 /**
  * The {@code Arc} class represents a 2D arc object, defined by 
- * a framing rectangle, start angle, angular extent (length of the arc), 
+ * a center point, start angle (in degrees), angular extent (length of the arc in degrees), 
  * and an arc type ({@link ArcType#OPEN}, {@link ArcType#CHORD},
  * or {@link ArcType#ROUND}).
- *   
+ * 
+ * Example usage: the following code creates an Arc which is centered around 50,50,
+ * has a radius of 25
+ * and extends from the angle 45 to the angle 315 (270 degrees long), and is round.
+ *
+ * <pre><code>Arc { 
+ *  centerX: 50
+ *  centerY: 50
+ *  radiusX: 25,
+ *  radiusY: 25,
+ *  startAngle: 45
+ *  length: 270
+ *  type: ArcType.ROUND
+ *  fill: Color.RED
+ *  }</code></pre>
+ *
  * @profile common
+ * @cssclass needsreview
  */ 
 public class Arc extends Shape {
 
@@ -63,7 +79,7 @@ public class Arc extends Shape {
     
     // PENDING_DOC_REVIEW
     /**
-     * Defines the overall width of the full ellipse 
+     * Defines the overall width (horizontal radius) of the full ellipse 
      * of which this arc is a partial section.
      *
      * @profile common
@@ -74,7 +90,7 @@ public class Arc extends Shape {
     
     // PENDING_DOC_REVIEW
     /**
-     * Defines the overall height of the full ellipse 
+     * Defines the overall height (veritcal radius) of the full ellipse 
      * of which this arc is a partial section.
      * 
      * @profile common

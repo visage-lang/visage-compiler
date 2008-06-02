@@ -24,20 +24,28 @@ package javafx.gui;
 
 import java.awt.geom.AffineTransform;
 
-// PENDING_DOC_REVIEW
+// PENDING_DOC_REVIEW_2
 /**
+ * <p>
  * The {@code Affine} class represents an affine transform that performs 
  * a linear mapping from 2D coordinates to other 2D coordinates 
  * that preserves the "straightness" and "parallelness" of lines. 
  * Affine transformations can be constructed 
- * using sequences translations, scales, and shears.
+ * using sequences translations, scales, and shears.</p>
+ *
+ * <p><b>
+ * Note: developers should not normally use this class directly, but instead use
+ * the specific {@code Translate}, {@code Scale}, {@code Rotate}, or {@code Shear}
+ * transforms instead.</b></p>
+ 
  * <p>
  * Such a coordinate transformation can be represented by a 3 row by
  * 3 column matrix with an implied last row of [ 0 0 1 ].  This matrix 
  * transforms source coordinates {@code (x,y)} into
  * destination coordinates {@code (x',y')} by considering
  * them to be a column vector and multiplying the coordinate vector
- * by the matrix according to the following process:
+ * by the matrix according to the following process:</p>
+ * 
  * <pre>
  *	[ x']   [  m00  m01  m02  ] [ x ]   [ m00x + m01y + m02 ]
  *	[ y'] = [  m10  m11  m12  ] [ y ] = [ m10x + m11y + m12 ]
@@ -45,6 +53,7 @@ import java.awt.geom.AffineTransform;
  * </pre>
  *
  * @profile common
+ * @cssclass needsreview
  */ 
 public class Affine extends Transform {
 

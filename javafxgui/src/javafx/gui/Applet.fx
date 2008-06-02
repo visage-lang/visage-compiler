@@ -32,10 +32,16 @@ import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.javafx.runtime.Entry;
 import com.sun.javafx.gui.InternalHelper;
 
-// PENDING_DOC_REVIEW
+// PENDING_DOC_REVIEW_2
 /**
  * The {@code Applet} class provides
  * support for the JFC/Swing component architecture.
+ 
+ * <p><b>Note, developers should not normally use this class, but should
+ * instead use the environment neutral {@code Application} class, since Applets
+ * may not be available in all operating environments.</b></p>
+ 
+ * @cssclass needsreview
  */
 public class Applet extends JApplet {
 

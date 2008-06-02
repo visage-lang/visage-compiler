@@ -4,7 +4,7 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Sun designates this
+ * published by the Free Software Foundation.  
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -25,23 +25,22 @@ package javafx.gui;
 import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGComponent;
 
-//import com.sun.media.jmc.MediaProvider;
-//import com.sun.media.jmc.control.VideoControl;
+import com.sun.media.jmc.MediaProvider;
+import com.sun.media.jmc.control.VideoControl;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
 import java.lang.System;
-//import com.sun.javafx.gui.MediaHelper;
+import com.sun.javafx.gui.MediaHelper;
 
 /**
- * <para><b>NOTE: disabled pending legal review of media encumbrances.</b></para>
  * A {@code Node} that provides a view of {@code Media} being played
  * @profile core
 */ 
 public class MediaView extends Node {
-//    private attribute mediaProvider:MediaProvider;
+    private attribute mediaProvider:MediaProvider;
     private attribute sgc:SGComponent;
     
     /**
@@ -49,7 +48,7 @@ public class MediaView extends Node {
      * If the {@code mediaPlayer} is already being viewed by another 
      * {@code MediaView}, this operation may fail and {@code onError} will be
      * called with a {@code MediaError}, {@code OPERATION_UNSUPPORTED}
-     *
+     */
     public attribute mediaPlayer:MediaPlayer on replace {
         // get Media player's component and make it ours
         // how to fail on this?
@@ -65,14 +64,14 @@ public class MediaView extends Node {
      * an error occurs on this {@code MediaView}
      * @profile core
      * @see MediaError
-     *
+     */
     public attribute onError:function(me:MediaError);
 
     /**
      * If {@code fullScreen} is {@code true}, the {@code mediaView} will extend to use
      * the full screen, otherwise it will be limited to fit within its node.
      * @profile core
-     *
+     */
     public attribute fullScreen:Boolean;
 
    /**
@@ -82,14 +81,14 @@ public class MediaView extends Node {
      * Otherwise, setting these attributes may have no effect.     
      * @profile core
      * @see node.transform
-     *
+     */
     public attribute transformable:Boolean=true; 
 
     /**
      * If {@code compositable} is {@code true}, the {@code MediaView} may
      * support compositing effects such as translucency. Otherwise, the 
      * {@code MediaView} is constrained to being an opaque node
-     *
+     */
     public attribute compositable:Boolean=true;
 
     /**
@@ -97,7 +96,7 @@ public class MediaView extends Node {
      * rotated by setting its rotation attribute
      * @profile core
      * @see node.rotation
-     *
+     */
     public attribute rotatable:Boolean=true; 
 
     /**
@@ -105,7 +104,7 @@ public class MediaView extends Node {
      * fit the node, but its aspect is preserved. Otherwise, the media is
      * scaled, but will be stretched or sheared in both dimension to fit its
      * node's dimensions
-     *
+     */
     public attribute preserveAspectRatio:Boolean= true;
 
 
@@ -137,10 +136,10 @@ public class MediaView extends Node {
             myJPanel.add(mComp);
         }
     }
-*/
+
     function createSGNode() : SGNode {
         sgc = new SGComponent();
-//        setComponent();
+        setComponent();
         return sgc;
     }
     

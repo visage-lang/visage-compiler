@@ -27,9 +27,11 @@ import javax.swing.JPanel;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
-// PENDING_DOC_REVIEW
+// PENDING_DOC_REVIEW_2
 /**
- * Abstract base class for {@code Panels}.
+ * Abstract base class for {@code Panel}s.
+ * Developers should normally use the concrete Panel class instead of this class.
+ * @cssclass needsreview
  */
 public abstract class AbstractPanel extends Component, Container {
 

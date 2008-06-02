@@ -21,15 +21,14 @@
  * have any questions.
  */ 
 package com.sun.javafx.gui;
-//import com.sun.media.jmc.*;
-//import com.sun.media.jmc.control.VideoControl;
+import com.sun.media.jmc.*;
+import com.sun.media.jmc.control.VideoControl;
 
 /**
- * Disabled pending legal review of media encumbrances.
+ * 
  */
 public class MediaHelper {
     
-/*
     // FX doesn't seem to like our generics, esp. w/
     // classes or unitialized objects obj.getClass()
     public static VideoControl getVideoControl(MediaProvider mp) {
@@ -44,5 +43,5 @@ public class MediaHelper {
     public static String getStringMetadata(Media mediaInfo, String key) {
         return mediaInfo.getMetadata(key, String.class);
     }
-*/
+
 }

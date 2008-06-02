@@ -26,12 +26,24 @@ import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGCircle;
 
 
-// PENDING_DOC_REVIEW
+// PENDING_DOC_REVIEW_2
 /**
  * The {@code Circle} class creates a new circle 
- * with the specified size and location.
+ * with the specified radius and center location. 
+ *
+ * Example usage. The following code creates a circle with radius 50 centered
+ * at 100,100.
+ * 
+ * <pre><code>Circle { 
+ *  centerX: 100
+ *  centerY: 100
+ *  radius: 50
+ *  }</code></pre>
+ 
+ * 
  *
  * @profile common 
+ * @cssclass needsreview
  */ 
 public class Circle extends Shape {
 

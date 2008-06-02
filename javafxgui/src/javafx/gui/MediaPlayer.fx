@@ -4,7 +4,7 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Sun designates this
+ * published by the Free Software Foundation.  
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -24,14 +24,13 @@
 package javafx.gui;
 import javafx.lang.Duration;
 
-//import com.sun.media.jmc.MediaProvider;
-//import com.sun.media.jmc.control.AudioControl;
+import com.sun.media.jmc.MediaProvider;
+import com.sun.media.jmc.control.AudioControl;
 import java.net.URI;
 
 import java.lang.System;
 
 /**
- * <para><b>NOTE: disabled pending legal review of media encumbrances.</b></para>
  * The {@code MediaPlayer} class provides the controls for playing media.
  * It is used in combination with the {@code Media} and {@code MediaViewer}
  * classes to display and control media playing.
@@ -39,15 +38,15 @@ import java.lang.System;
  * @see Media MediaViewer
  */
 public class MediaPlayer {
-//    attribute mediaProvider:MediaProvider = new MediaProvider();
-//    private attribute view:MediaView;
+    attribute mediaProvider:MediaProvider = new MediaProvider();
+    private attribute view:MediaView;
     // FIXME: multiple views
     
    /**
     * Defines the source {@code Media} to be played
     * @see Media
     * @profile common
-    *
+    */
     public attribute media:Media on replace {
         mediaProvider.setSource(new URI(media.source));
         view.setComponent();
@@ -66,7 +65,7 @@ public class MediaPlayer {
     * as possible
     *
     * @profile common
-    *
+    */
     public attribute autoPlay:Boolean on replace {
         if (autoPlay) {
             play();
@@ -76,7 +75,7 @@ public class MediaPlayer {
     
    /**
     * Starts or resumes playing
-    *
+    */
     public
     function play() {
         mediaProvider.play();
@@ -85,7 +84,7 @@ public class MediaPlayer {
     
    /**
     * Pauses playing
-    *
+    */
    public
    function pause() {
        mediaProvider.pause();
@@ -95,14 +94,14 @@ public class MediaPlayer {
    /**
     * Indicated if the player has been paused, either programatically,
     * by the user, or because the media has finished playing
-    *
+    */
    public attribute paused:Boolean;
 
    /**
     * Defines the rate at which the media is being played.
     * Rate {@code 1.0} is normal play, {@code 2.0} is 2 time normal,
     * {@code -1.0} is backwards, etc...
-    *
+    */
    public attribute rate:Number on replace {
        mediaProvider.setRate(rate);
    }
@@ -110,7 +109,7 @@ public class MediaPlayer {
    /**
     * Defines the volume at which the media is being played.
     * {@code 1.0} is full volume, which is the default.
-    *
+    */
    public attribute volume:Number = 1.0 on replace {
        var ac : AudioControl;
        if ((ac = mediaProvider.getControl(ac.getClass())) <> null) {
@@ -121,7 +120,7 @@ public class MediaPlayer {
     * Defines the balance, or left right setting,  of the audio output.
     * Value ranges continuously from {@code -1.0} being left,
     * {@code 0} being center, and {@code 1.0} being right.
-    *
+    */
    public attribute balance:Number=0 on replace {
        ;
    }
@@ -131,7 +130,7 @@ public class MediaPlayer {
     * on 4+ channel output.
     * value ranges continuously from {@code -1.0} being rear,
     * {@code 0} being center, and {@code 1.0} being forward.
-    *
+    */
    public attribute fader:Number on replace {
        ;
    }
@@ -141,14 +140,14 @@ public class MediaPlayer {
    /**
     * Defines the time offset where media should start playing,
     * or restart from when repeating
-    *
+    */
    public attribute startTime:Duration on replace {
        mediaProvider.setStartTime(1000.0*(startTime.millis));
    }
    /**
     * Defines the time offset where media should stop playing
     * or restart when repeating
-    *
+    */
    public attribute stopTime:Duration = DURATION_UNKNOWN on replace {
        if (stopTime == DURATION_UNKNOWN) {
             // do nothing for now, 
@@ -160,20 +159,20 @@ public class MediaPlayer {
    
    /**
     * Defines the current media time
-    *
+    */
    public attribute currentTime:Duration on replace {
        mediaProvider.setMediaTime(1000 * currentTime.millis);
    }
    
     /**
     * Defines the media timers for this player
-    *
+    */
    public attribute timers:MediaTimer[];
    
    /**
     * Defines the number of times the media should repeat.
     * @profile core
-    *
+    */
    public attribute repeatCount: Number = 1 on replace {
       // not yet in MediaProvider
        // mediaProvider.setRepeatCount(repeatCount);
@@ -182,27 +181,27 @@ public class MediaPlayer {
    /**
     * Defines the current number of time the media has repeated
     * @profile core
-    *
+    */
   public attribute currentCount:Number=0; // How many times have we repeated
 
 
   /**
    * Value of {@code repeatCount} for no repeating (play once)
    * @profile core
-   *
+   */
    public static attribute REPEAT_NONE:Number = 1;
 
  /**
    * Value of {@code repeatCount} to repeat forever
    * @profile core
-   *
+   */
    public static attribute REPEAT_FOREVER:Integer = -1;//infinity;// where is Number.infinity;
    
    /**
     * Equals {@code true} if the player's audio is muted, false otherwise.
     * @profile core
     * @see volume
-    *
+    */
    public attribute mute: Boolean on replace {
        var ac : AudioControl;
        if ((ac = mediaProvider.getControl(ac.getClass())) <> null) {
@@ -213,26 +212,26 @@ public class MediaPlayer {
     /**
      * Current status of player
      * @profile core
-     *
+     */
     public static attribute status:Integer;
 
     /**
      * Status value when player is paused
      * @profile core
-     *
+     */
     public static attribute PAUSED:Integer=0;
 
     /**
      * status value when player is playing
      * @profile core
-     *
+     */
     public static attribute PLAYING:Integer=2;
 
     /**
      * Status value when player is buffering.
      * Buffering may occur when player is paused or playing
      * @profile core
-     *
+     */
     public static attribute BUFFERING: Integer=3;
 
     /**
@@ -241,7 +240,7 @@ public class MediaPlayer {
      * data is not being delivered fast enough to continue playing
      * @see onStalled
      * @profile core
-     *
+     */
     public static  attribute STALLED: Integer=4; // occurs during play
    
     /**
@@ -249,21 +248,21 @@ public class MediaPlayer {
      * on this player.
      * @profile common
      * @see MediaError
-     *
+     */
     public attribute onError: function (e: MediaError):Void; // Error in Media
 
 
    /**
      * Invoked when the player reaches the end of media
      * @profile common
-     *
+     */
     public attribute onEndOfMedia: function():Void; // Media has reached its end.
 
    /**
      * Invoked when the player reaches the end of media.
      * @profile common
      * @see repeatCount
-     *
+     */
     public attribute onRepeat:function():Void; // Media has hit the end and is repeating
     
     /**
@@ -271,7 +270,7 @@ public class MediaPlayer {
      * {@code timeRemaining} is an estimate of how much time it will take before
      * the {@code mediaPlayer} can play the media
      * @profile common
-     *
+     */
     public attribute onBuffering:function(timeRemaining: Duration):Void;
 
     /**
@@ -280,7 +279,7 @@ public class MediaPlayer {
      * {@code timeRemaining} is an estimate of how much time it will take before
      * the {@code mediaPlayer} can continue playing.
      * @profile common
-     *
+     */
     public attribute onStalled:function(timeRemaining: Duration):Void;
     
    /**
@@ -288,7 +287,7 @@ public class MediaPlayer {
     * associated with it.
     * @see MediaView
     * @profile common
-    *
+    */
     public attribute supportsMultiViews:Boolean;
    
 
@@ -297,5 +296,5 @@ public class MediaPlayer {
    function addView(view:MediaView) {
        this.view = view;
    }
-*/
+
 }
