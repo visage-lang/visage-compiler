@@ -351,7 +351,13 @@
 
 
    <!--
-   This target creates the files we distribute. 
+   This target creates the files we distribute. Example:
+       dist/javafxgui-0.1-doc.zip
+       dist/javafxgui-0.1-src.zip
+       dist/javafxgui-0.1.jar
+   Files in the src.zip file all end up under "javafxgui-0.1/" and files
+   in the doc.zip end in up javafxgui-0.1/javadoc.  See the
+   zipfileset prefix attribute uses below.
    -->
    <target name="dist" depends="jar,javadoc" description="Create the src, doc, and binary release files">
      <property name="build.version" value="0.1"/>
@@ -387,7 +393,8 @@
    <!--
    This override was provided by Jesse Glick (see the exaplanation
    in http://wiki.netbeans.org/wiki/view/FaqSpecialJar).  It just
-   removes the demos from the classes used to create javafxgui.jar.
+   removes the demos from the classes used to create
+   javafxgui.jar
    -->
    <target name="-init-presetdef-jar" xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1">
    <presetdef name="jar" uri="http://www.netbeans.org/ns/j2se-project/1">

@@ -3,7 +3,7 @@
 
 # Compiler (javafxc.jar, javafxrt.jar and javafxdoc.jar)
 # http://openjfx.java.sun.com/hudson/job/openjfx-compiler/
-compiler=1906
+compiler=1957
 
 # Scenario (Scenario.jar)
 # http://ceres.sfbay.sun.com/hudson/job/JavaFXScenegraph/
