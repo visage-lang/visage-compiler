@@ -19,10 +19,33 @@ public class Preview extends Component{
         timer.addTask( function():Void{ preview(code) } );
     };
     
+    
+    public attribute diagnosticMessages: DiagnosticMessage[] ;
+    public attribute diagnosticMessage: DiagnosticMessage on replace{
+        System.out.println("diagnosticMessage: {diagnosticMessage} ");
+    };
+
+    private attribute diagnosticIndex: Integer = -1 on replace{
+        if(-1 < diagnosticIndex ){
+            diagnosticMessage = diagnosticMessages[diagnosticIndex];
+        }
+    };
+    
     private function preview(code: String){
         var obj = Util.executeFXCode(code);
         var unit = FXUnit.createUnit(obj);
-        component = unit.content;
+        var content = unit.content;
+        diagnosticMessages = unit.diagnosticMessages;
+        
+        if(content == null){
+            component = List{ 
+                items: for(item in diagnosticMessages) ListItem{ text: "{item}" }
+                selectedIndex: bind diagnosticIndex with inverse
+            };
+            
+        }else{
+            component = content;
+        }
     }
     
     public function createJComponent(){
@@ -43,12 +66,16 @@ public class FXUnit {
     attribute background: Color;
 
     attribute isWindow = false;
-    
+
+    attribute diagnosticMessages: DiagnosticMessage[];
+
+
     public static function createUnit(obj: Object){
         var unit = FXUnit{};
         
         if(obj == null){
-            unit.content = Label{ text: "Compiler Error!"};
+            //unit.content = Label{ text: "Compiler Error!"};
+            return unit;
         } else if (obj instanceof DiagnosticCollector ){
             var diagnostics = obj as DiagnosticCollector;
             
@@ -59,11 +86,14 @@ public class FXUnit {
                 var diagnostic = iterator.next() as javax.tools.Diagnostic;
                 insert "line:{diagnostic.getLineNumber()}" into messages;
                 insert "{diagnostic.getMessage(java.util.Locale.getDefault())}" into messages;
+                insert DiagnosticMessage{
+                     //line: diagnostic.getLineNumber()
+                     line: diagnostic.getPosition()
+                     message: diagnostic.getMessage(java.util.Locale.getDefault())
+                } into unit.diagnosticMessages;
             }
             
-            unit.content = List{
-                items: for(item in messages) ListItem{ text: item }
-            };
+            //unit.content = List{ items: for(item in messages) ListItem{ text: item } };
             
         }else if(obj instanceof javafx.gui.Component){
             unit.content = obj as javafx.gui.Component;

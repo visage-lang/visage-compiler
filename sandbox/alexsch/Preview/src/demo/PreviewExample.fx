@@ -8,6 +8,10 @@ import java.lang.System;
 
 var code = "import javafx.gui.*;\nLabel\{ text: \"Hello World!\"\}\n";
 
+var diagnosticMessage: DiagnosticMessage on replace{
+    System.out.println("Trigger Diagnostic Message");
+}
+
 Frame{
     width: 300
     height: 300
@@ -25,10 +29,12 @@ Frame{
     content: BorderPanel{
         top: Preview{
             code:  bind code 
+            diagnosticMessage: bind diagnosticMessage with inverse
         }
         center: BorderPanel{
             center: Editor{
                 dropEnable: true
+                line: bind diagnosticMessage.line
                 text:  bind code with inverse
             } 
             right: Palette{

@@ -13,7 +13,11 @@ public class Editor extends ToolComponent{
     private attribute editorPane: JTextArea;
     private attribute updateComponentFlag: Boolean = false;
     
-    //override attribute drop = function(value: java.lang.Object ) {
+    public attribute line: Integer on replace{
+        System.out.println("[editor] set line: {line}");
+        editorPane.setCaretPosition(line);
+    }
+    
     override attribute drop = function(value: java.lang.Object) {
         System.out.println("[editor] Drop: {value}");
         if(value instanceof String){
