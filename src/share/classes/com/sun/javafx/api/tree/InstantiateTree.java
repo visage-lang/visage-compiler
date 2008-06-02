@@ -46,4 +46,6 @@ public interface InstantiateTree extends JavaFXExpressionTree {
     List<ObjectLiteralPartTree> getLiteralParts();
 
     ClassDeclarationTree getClassBody();
+    
+    List<JavaFXVariableTree> getLocalVariables();
 }

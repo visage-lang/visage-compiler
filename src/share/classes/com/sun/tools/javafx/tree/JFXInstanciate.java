@@ -26,6 +26,7 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.InstantiateTree;
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.JavaFXVariableTree;
 import com.sun.javafx.api.tree.ObjectLiteralPartTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.tools.javac.code.Symbol;
@@ -83,6 +84,10 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
         return null;
     }
 
+    public java.util.List<JavaFXVariableTree> getLocalVariables() {
+        return JFXTree.convertList(JavaFXVariableTree.class, localVars);
+    }
+    
     public List<JFXVar> getLocalvars() {
         return localVars;
     }

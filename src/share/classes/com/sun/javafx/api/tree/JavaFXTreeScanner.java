@@ -94,6 +94,7 @@ public class JavaFXTreeScanner<R,P> extends TreeScanner<R,P> implements JavaFXTr
         R r = scan(node.getArguments(), p);
         r = scanAndReduce(node.getClassBody(), p, r);
         r = scanAndReduce(node.getIdentifier(), p, r);
+        r = scanAndReduce(node.getLocalVariables(), p, r);
         return scanAndReduce(node.getLiteralParts(), p, r);
     }
 
