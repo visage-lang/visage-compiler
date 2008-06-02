@@ -393,8 +393,7 @@
    <!--
    This override was provided by Jesse Glick (see the exaplanation
    in http://wiki.netbeans.org/wiki/view/FaqSpecialJar).  It just
-   removes the demos from the classes used to create
-   javafxgui.jar
+   removes the demos from the classes used to create javafxgui.jar
    -->
    <target name="-init-presetdef-jar" xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1">
    <presetdef name="jar" uri="http://www.netbeans.org/ns/j2se-project/1">
