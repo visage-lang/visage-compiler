@@ -1,5 +1,5 @@
 /* Test for a cycle involing the module class.
- * @test/warning
+ * @test/compile-error
  */
 
 class jfxc1177 extends jfxc1177.A{}
