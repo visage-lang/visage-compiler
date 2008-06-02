@@ -2413,6 +2413,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             newType = syms.javafx_NumberType; 
             jcExpression = make.at(tree.pos()).Ident(syms.javafx_NumberType.tsym);
         }
+        else
+            return newType;
 
         if (tree != null) {
             tree.setType(newType);
@@ -2447,6 +2449,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // Fix types of numeric arguments with non -specified type.
         boolean lhsSet = false;
 
+        // If an operand is untyped AND it's a var or attribute, constrain the
+        // operand based on the operator.  Rather a special-case kludge.
         Symbol lhsSym = TreeInfo.symbol(tree.lhs);
         if (lhsSym != null && 
                 (lhsSym.type == null || lhsSym.type == Type.noType || lhsSym.type == syms.javafx_AnyType)) {
@@ -2454,7 +2458,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             left = setBinaryTypes(tree.getTag(), tree.lhs, lhsVarTree, lhsSym.type, lhsSym);
             lhsSet = true;
         }
-
         Symbol rhsSym = TreeInfo.symbol(tree.rhs);
         if (rhsSym != null  && 
                 (rhsSym.type == null || rhsSym.type == Type.noType || rhsSym.type == syms.javafx_AnyType) || (lhsSet && lhsSym == rhsSym)) {
