@@ -766,7 +766,16 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             // If this is a toplevel-class, make sure any preceding import
             // clauses have been seen.
             if (c.owner.kind == PCK) {
-                memberEnter(localEnv.toplevel, localEnv.enclosing(JCTree.TOPLEVEL));
+                for (JCTree def : localEnv.toplevel.defs) {
+                    // Note we have to be careful to not yet visit member
+                    // classes (and attribute their super-type), until
+                    // we've set the super-types of this class.
+                    // Otherwise we risk a stack overflow, at least in the
+                    // tricky case of an inheritance cycle that includes the
+                    // module class.  There probably is a cleaner way ...
+                    if (def instanceof JCImport)
+                         memberEnter(localEnv.toplevel, localEnv.enclosing(JCTree.TOPLEVEL));
+                }
                 todo.append(localEnv);
             }
 
