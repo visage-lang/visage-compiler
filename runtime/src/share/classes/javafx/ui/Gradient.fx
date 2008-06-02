@@ -4,7 +4,7 @@
  * 
  * This code is free software; you can redistribute it and/or modify it 
  * under the terms of the GNU General Public License version 2 only, as 
- * published by the Free Software Foundation.  Sun designates this 
+ * published by the Free Software Foundation.
  * 
  * This code is distributed in the hope that it will be useful, but WITHOUT 
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU General Public License version 
  * 2 along with this work; if not, write to the Free Software Foundation, 
-n * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA. 
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA. 
  * 
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara, 
  * CA 95054 USA or visit www.sun.com if you need additional information or 
