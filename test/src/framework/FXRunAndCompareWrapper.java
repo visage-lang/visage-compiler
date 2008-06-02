@@ -229,8 +229,30 @@ public class FXRunAndCompareWrapper extends TestCase {
                     && !(compareCompilerMsg 
                             && as.startsWith("test" + File.separator + "should-fail" + File.separator)
                             && as.substring("test/should-fail/".length()).equals(es)))
-                fail("Program output for " + testFile + " differs from expected at line " + lineCount);
+                fail("Program output for " + testFile + " at line "+ lineCount
+                     + " (" + escape(as) +") differs from expected ("+escape(es)+")");
         }
     }
+
+  static void escape (String value, StringBuilder out) {
+    int len = value.length();
+    for (int i = 0; i < len;  i++) {
+      char ch = value.charAt(i);
+      if (ch == '\n')
+        out.append("\\n");
+      else if (ch < ' ' || ch == 127)
+        out.append(String.format("\\%03o", (int) ch));
+      else if (ch > 127)
+        out.append(String.format("\\u%04x", (int) ch));
+      else
+        out.append(ch);
+    }
+  }
+
+  public static String escape (String value) {
+    StringBuilder sb = new StringBuilder();
+    escape(value, sb);
+    return sb.toString();
+  }
 
 }
