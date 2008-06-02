@@ -843,4 +843,16 @@ public final class Sequences {
     public static<T> Sequence<T> replaceSlice(Sequence<T> sequence, int startPos, int endPos, Sequence<? extends T> newValues) {
         return SequenceMutator.replaceSlice(sequence, null, startPos, endPos, newValues);
     }
+
+    /* Returns a new sequence containing the randomly shuffled
+     * contents of the existing sequence
+     */
+    public static <T> Sequence<T> shuffle (Sequence<T> seq) {
+        T[] array = Sequences.toArray(seq);
+        List<T> list = Arrays.asList(array);
+        Collections.shuffle(list);
+        Sequence<T> se = Sequences.make(seq.getElementType(), list);
+        return se;
+    }
+    
 }

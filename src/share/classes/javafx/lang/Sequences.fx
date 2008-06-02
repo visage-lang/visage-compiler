@@ -304,4 +304,10 @@ public class Sequences {
     public static function sort(seq: Object[], c: Comparator): Object[] {
         return com.sun.javafx.runtime.sequence.Sequences.sort(seq, c);
     }
+
+    
+    public static function shuffle(seq: Object[]):Object[] {
+        return com.sun.javafx.runtime.sequence.Sequences.shuffle(seq);
+    }
 }
+
