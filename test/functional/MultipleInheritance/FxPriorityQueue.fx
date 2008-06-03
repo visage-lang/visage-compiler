@@ -1,3 +1,7 @@
+/*
+ *
+ * @subtest
+**/
 class FxPriorityQueue extends FxQueue,java.io.Serializable{ //Fx Class extending another Fx Class and Java interface
 	attribute myPQueue:java.lang.Object[]=bind myQueue with inverse ;
 	public attribute comparatorUsed:FxComparator;

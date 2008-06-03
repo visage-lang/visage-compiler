@@ -1,3 +1,8 @@
+/*
+ *
+ * @subtest
+**/
+
 abstract class FxQueue{
 attribute myQueue:java.lang.Object[] ;
 public abstract function poll();
