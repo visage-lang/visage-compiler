@@ -114,3 +114,5 @@ table#classList td {
 #classList a.reviewed {
   background-color: #ffffff;
 }
+
+p.editor { border: 1px dashed red; background-color: #ffdddd; }
