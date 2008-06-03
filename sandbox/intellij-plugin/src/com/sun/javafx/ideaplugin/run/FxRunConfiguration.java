@@ -11,7 +11,6 @@ import com.intellij.execution.process.DefaultJavaProcessHandler;
 import com.intellij.execution.process.ProcessTerminatedListener;
 import com.intellij.execution.runners.RunnerInfo;
 import com.intellij.execution.ui.ConsoleView;
-import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.module.JavaModuleType;
 import com.intellij.openapi.module.Module;
@@ -21,13 +20,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.ProjectJdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.JDOMExternalizable;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -72,32 +69,23 @@ public class FxRunConfiguration extends ModuleBasedConfiguration {
     }
 
     public RunProfileState getState (DataContext context, RunnerInfo runnerInfo, final RunnerSettings runnerSettings, final ConfigurationPerRunnerSettings configurationSettings) throws ExecutionException {
-        JDOMExternalizable data = runnerSettings.getData ();
+        Object data = runnerSettings.getData ();
         if (data instanceof DebuggingRunnerData) {
-            DebuggingRunnerData data2 = (DebuggingRunnerData) data;
-
-            String localhost;
-            try {
-                localhost = java.net.InetAddress.getLocalHost ().getHostAddress ();
-            } catch (UnknownHostException e) {
-                localhost = "127.0.0.1";
-            }
-
-            final RemoteConnection remoteConnection = new RemoteConnection (true, localhost, data2.getDebugPort (), false);
+            final DebuggingRunnerData data2 = (DebuggingRunnerData) data;
 
             RemoteState remoteState = new RemoteState() {
                 public RemoteConnection getRemoteConnection () {
-                    return remoteConnection;
+                    return new RemoteConnection (true, "127.0.0.1", data2.getDebugPort (), true);
                 }
 
                 @Nullable public ExecutionResult execute () throws ExecutionException {
                     TextConsoleBuilder builder = TextConsoleBuilderFactory.getInstance().createBuilder(getProject ());
                     final ConsoleView consoleView = builder.getConsole ();
 
-                    JavaParameters params = prepareParams (remoteConnection.getLaunchCommandLine ());
+                    JavaParameters params = prepareParams ("-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=" + data2.getDebugPort () + ",suspend=y");
                     GeneralCommandLine commandLine = GeneralCommandLine.createFromJavaParameters (params);
 
-                    final DefaultJavaProcessHandler processHandler = new DefaultJavaProcessHandler(commandLine);
+                    DefaultJavaProcessHandler processHandler = new DefaultJavaProcessHandler (commandLine);
                     ProcessTerminatedListener.attach(processHandler);
                     consoleView.attachToProcess(processHandler);
 
@@ -118,8 +106,8 @@ public class FxRunConfiguration extends ModuleBasedConfiguration {
             };
 
             return remoteState;
-
         }
+
         CommandLineState state = new CommandLineState (runnerSettings, configurationSettings) {
             protected GeneralCommandLine createCommandLine () throws ExecutionException {
                 return GeneralCommandLine.createFromJavaParameters (prepareParams (null));
@@ -148,10 +136,12 @@ public class FxRunConfiguration extends ModuleBasedConfiguration {
             params.setWorkingDirectory (workingDirectory);
         else
             params.setWorkingDirectory (getProject ().getBaseDir ().getPath ());
-        if (customVMparameters != null  &&  vmParameters != null)
-            customVMparameters += " " + vmParameters;
-        else
-            customVMparameters = vmParameters;
+        if (vmParameters != null) {
+            if (customVMparameters != null)
+                customVMparameters += " " + vmParameters;
+            else
+                customVMparameters = vmParameters;
+        }
         if (customVMparameters != null)
             params.getVMParametersList ().addParametersString (customVMparameters);
         if (programParameters != null)
