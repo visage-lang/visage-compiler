@@ -105,6 +105,8 @@ table#classList {
 table#classList td {
         background-color: #dddddd;
 }
+
+/*
 #classList a {
     background-color: #888888;
 }
@@ -114,5 +116,20 @@ table#classList td {
 #classList a.reviewed {
   background-color: #ffffff;
 }
+tr.needsreview td {
+  background-color: #dddddd;
+}*/
 
 .editor { border: 1px dashed red; background-color: #ffdddd; }
+
+.setonce { 
+        border: 1px solid yellow; 
+        background-color: #ffffcc; 
+        padding: 0.5em;
+    }
+
+.needsreview {
+  border: 1px solid blue;
+  background-color: #ccccff;
+  padding: 0.5em;
+}

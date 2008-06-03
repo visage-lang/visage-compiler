@@ -129,14 +129,7 @@
             </body>
         </html>
     </xsl:template>
-    
-    <xsl:template match="docComment/tags/cssclass" mode="classList">
-<!--
-<xsl:attribute name="class"><xsl:value-of select="."/></xsl:attribute>
--->
-        <xsl:attribute name="class">stuff</xsl:attribute>
-    </xsl:template>
-    
+        
     <xsl:template match="classList[@mode='overview-summary']">
         <html>
             <head>
@@ -210,6 +203,7 @@
                     <div class="overview">
                         <xsl:apply-templates select="docComment/inlineTags"/>
                         <xsl:apply-templates select="docComment/tags/profile"/>
+                        <xsl:apply-templates select="docComment/tags/needsreview"/>
                     </div>
                     <xsl:call-template name="toc"/>
                     <xsl:call-template name="inherited"/>
@@ -253,6 +247,13 @@
     </xsl:template>
     <xsl:template match="docComment/tags/profile">
         <p class="profile">Profile: <b><xsl:value-of select="."/></b></p>
+    </xsl:template>
+    <xsl:template match="docComment/tags/setonce">
+        <p class="setonce">Note: this attribute can only be set once. Any changes after
+        the constructor is called will be ignored.</p>
+    </xsl:template>
+    <xsl:template match="docComment/tags/needsreview">
+        <p class="needsreview">This comment needs review.</p>
     </xsl:template>
 
     
@@ -580,7 +581,14 @@
 <!--    <xsl:template match="$foo and attribute[]" mode="toc"><tr><td>skipping because it's a common one</td></tr></xsl:template>-->
     <xsl:template match="attribute" mode="toc">
         <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
-            <tr class="attribute">
+            <tr>
+                <xsl:attribute name="class">
+                    <xsl:text>attribute </xsl:text>
+                    <xsl:for-each select="docComment/tags/cssclass">
+                        <xsl:value-of select="text()"/>
+                        <xsl:text> </xsl:text>
+                    </xsl:for-each>
+                </xsl:attribute>
                 <td>
                     <a>
                         <xsl:apply-templates select="." mode="href"/>
@@ -643,7 +651,14 @@
     <!-- full description -->
     <xsl:template match="attribute">
         <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
-        <div class="attribute member">
+        <div>
+            <xsl:attribute name="class">
+                <xsl:text>attribute member </xsl:text>
+                <xsl:for-each select="docComment/tags/cssclass">
+                    <xsl:value-of select="text()"/>
+                    <xsl:text> </xsl:text>
+                </xsl:for-each>
+            </xsl:attribute>
             <a>
                 <h4>
                     <xsl:attribute name="id"><xsl:value-of select="@name"/></xsl:attribute>
@@ -659,6 +674,8 @@
             </a>
             <xsl:apply-templates select="docComment/tags/profile"/>
             <xsl:apply-templates select="docComment/inlineTags"/>
+            <xsl:apply-templates select="docComment/tags/setonce"/>
+            <xsl:apply-templates select="docComment/tags/needsreview"/>
         </div>
         </xsl:if>
     </xsl:template>
@@ -694,7 +711,14 @@
     <!-- full description -->
     <xsl:template name="method-like">
         <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
-        <div class="method member">
+        <div>
+            <xsl:attribute name="class">
+                <xsl:text>method member </xsl:text>
+                <xsl:for-each select="docComment/tags/cssclass">
+                    <xsl:value-of select="text()"/>
+                    <xsl:text> </xsl:text>
+                </xsl:for-each>
+            </xsl:attribute>
             <a>
                 <xsl:attribute name="id"><xsl:apply-templates select="." mode="anchor-signature"/></xsl:attribute>
                 <h4><xsl:apply-templates select="." mode="detail-signature"/></h4>
@@ -722,6 +746,7 @@
             </xsl:if>
             
             <xsl:apply-templates select="docComment/inlineTags"/>
+            <xsl:apply-templates select="docComment/tags/needsreview"/>
             
         </div>  
         </xsl:if>
