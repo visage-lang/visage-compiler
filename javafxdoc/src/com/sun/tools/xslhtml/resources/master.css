@@ -115,4 +115,4 @@ table#classList td {
   background-color: #ffffff;
 }
 
-p.editor { border: 1px dashed red; background-color: #ffdddd; }
+.editor { border: 1px dashed red; background-color: #ffdddd; }
