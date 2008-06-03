@@ -6,9 +6,9 @@ public abstract class DefaultEase extends NumberInterpolator {
 
     attribute beginPole: Number;
     attribute endPole: Number;
-    attribute beginPoleDelta;
-    attribute endPoleDelta;
-    attribute primary_K;
+    attribute beginPoleDelta: Number;
+    attribute endPoleDelta: Number;
+    attribute primary_K: Number;
 
     function calcControlValues() {
         beginPole = 0.0 - beginPoleDelta; 
