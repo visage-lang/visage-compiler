@@ -1515,8 +1515,9 @@ public class JavafxResolve {
                 break;
             case JCTree.MUL:
                 if (!types.isSameType(left, ((JavafxSymtab)syms).javafx_DurationType)) {
-                    right = left;
-                    dur = right;
+                    left = right;
+                    right = dur;
+                    dur = left;
                 }
                 res =  resolveMethod(pos,  env,
                                      names.fromString("mul"),

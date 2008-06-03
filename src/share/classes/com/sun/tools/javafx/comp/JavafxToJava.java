@@ -2181,6 +2181,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         case JavafxTag.MUL:
                             // lhs.mul(rhs);
                             if (!types.isSameType(l.type, syms.javafx_DurationType)) {
+                                // FIXME This may get side-effects out-of-order.
+                                // A simple fix is to use a static Duration.mul(double,Duration).
+                                // Another is to use a BlockExpression and a temporary.
                                 r = l;
                                 l = tree.rhs;
                             }
