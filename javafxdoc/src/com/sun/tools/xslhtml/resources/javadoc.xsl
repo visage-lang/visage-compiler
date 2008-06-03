@@ -289,8 +289,6 @@
             
             <!-- inheritance hierarchy -->
             <h2>
-                <!--<xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>-->
-                <!--//class[@qualifiedName=$blah]"-->
                 <xsl:apply-templates select="." mode="super"/>
                 <xsl:apply-templates select="." mode="interface"/>
             </h2>
@@ -350,9 +348,11 @@
     <xsl:template match="class" mode="super">        
         <!-- only do stuff if super exists at all -->
         <xsl:variable name="super" select="superclass/@qualifiedTypeName"/>
+        <xsl:variable name="super-package" select="superclass/@packageName"/>
+        <xsl:variable name="super-name" select="superclass/@simpleTypeName"/>
         <xsl:if test="$super">
             <!-- if super can't be found -->
-            <xsl:if test="not(//class[@qualifiedName=$super])">
+            <xsl:if test="not(/javadoc/package[@name=$super-package]/class[@name=$super-name])">
                 <!-- be sure to skip java.lang.Object -->
                 <xsl:if test="not($super='java.lang.Object')">
                     <a>
@@ -364,7 +364,7 @@
             </xsl:if>
 
             <!-- if super can be found -->
-            <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="super"/>
+            <xsl:apply-templates select="/javadoc/package[@name=$super-package]/class[@name=$super-name]" mode="super"/>
             &gt;
             <a>
                 <xsl:attribute name="title"><xsl:value-of select="@packageName"/>.<xsl:value-of select="@name"/></xsl:attribute>
@@ -423,9 +423,10 @@
             
             <!-- inherited attributes -->
             <h3>Inherited Attributes</h3>
-            <xsl:for-each select="interfaces/interface">
-                <xsl:variable name="super" select="@qualifiedTypeName"/>
-                <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="inherited-field"/>
+            <xsl:for-each select="hierarchy/super">
+                <xsl:variable name="super-package" select="@packageName"/>
+                <xsl:variable name="super-name" select="@simpleTypeName"/>
+                <xsl:apply-templates select="/javadoc/package[@name=$super-package]/class[@name=$super-name]" mode="inherited-field"/>
             </xsl:for-each>
 
             
@@ -474,11 +475,11 @@
             
             <!-- inherited -->
             <h3>Inherited Functions</h3>
-            <xsl:for-each select="interfaces/interface">
-                <xsl:variable name="super" select="@qualifiedTypeName"/>
-                <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="inherited-method"/>
+            <xsl:for-each select="hierarchy/super">
+                <xsl:variable name="super-package" select="@packageName"/>
+                <xsl:variable name="super-name" select="@simpleTypeName"/>
+                <xsl:apply-templates select="/javadoc/package[@name=$super-package]/class[@name=$super-name]" mode="inherited-method"/>
             </xsl:for-each>
-<!--            <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="inherited-method"/> -->
         </div>
         
     </xsl:template>
@@ -553,15 +554,6 @@
                 </xsl:for-each>
             </table>
         </xsl:if>
-        
-        <xsl:for-each select="interfaces/interface">
-            <xsl:variable name="super" select="@qualifiedTypeName"/>
-            <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="inherited-field"/>
-        </xsl:for-each>
-        <!--
-        <xsl:variable name="blah" select="superclass/@qualifiedTypeName"/>
-        <xsl:apply-templates select="//class[@qualifiedName=$blah]" mode="inherited-field"/>
-        -->
     </xsl:template>
     
     <xsl:template match="class" mode="inherited-method">
@@ -576,10 +568,6 @@
             </dl>
                 
         </xsl:if>
-        <xsl:for-each select="interfaces/interface">
-            <xsl:variable name="super" select="@qualifiedTypeName"/>
-            <xsl:apply-templates select="//class[@qualifiedName=$super]" mode="inherited-method"/>
-        </xsl:for-each>
     </xsl:template>
     
     
@@ -613,8 +601,10 @@
     </xsl:template>
     
     <xsl:template match="attribute/type | parameter/type" mode="href">
-        <xsl:variable name="atype" select="@qualifiedTypeName"/>
-        <xsl:if test="//class[@qualifiedName=$atype]">
+        <!--<xsl:variable name="atype" select="@qualifiedTypeName"/>-->
+        <xsl:variable name="type-package" select="@packageName"/>
+        <xsl:variable name="type-name" select="@simpleTypeName"/>
+        <xsl:if test="/javadoc/package[@name=$type-package]/class[@name=$type-name]">
             <xsl:attribute name="href">
                 <xsl:text>../</xsl:text>
                 <xsl:value-of select="@packageName"/>
@@ -626,9 +616,11 @@
     </xsl:template>
     
     <xsl:template match="attribute/type | parameter/type" mode="linkname">
+        <xsl:variable name="type-package" select="@packageName"/>
+        <xsl:variable name="type-name" select="@simpleTypeName"/>
         <xsl:variable name="atype" select="@qualifiedTypeName"/>
         <xsl:choose>
-            <xsl:when test="//class[@qualifiedName=$atype]">
+            <xsl:when test="/javadoc/package[@name=$type-package]/class[@name=$type-name]">
                 <xsl:value-of select="@simpleTypeName"/>    
             </xsl:when>
             <xsl:otherwise>
@@ -788,16 +780,18 @@
     </xsl:template>
     
     <xsl:template match="returns" mode="href">
-        <xsl:variable name="ptype" select="@qualifiedTypeName"/>
-        <xsl:if test="//class[@qualifiedName=$ptype]">
+        <xsl:variable name="type-package" select="@packageName"/>
+        <xsl:variable name="type-name" select="@simpleTypeName"/>
+        <xsl:if test="/javadoc/package[@name=$type-package]/class[@name=$type-name]">
             <xsl:attribute name="href">../<xsl:value-of select="@packageName"/>/<xsl:value-of select="@qualifiedTypeName"/>.html</xsl:attribute>
         </xsl:if>
     </xsl:template>
     
     <xsl:template match="returns" mode="linkname">
-        <xsl:variable name="ptype" select="@qualifiedTypeName"/>
+        <xsl:variable name="type-package" select="@packageName"/>
+        <xsl:variable name="type-name" select="@simpleTypeName"/>
         <xsl:choose>
-            <xsl:when test="//class[@qualifiedName=$ptype]">
+            <xsl:when test="/javadoc/package[@name=$type-package]/class[@name=$type-name]">
                 <xsl:value-of select="@simpleTypeName"/>    
             </xsl:when>
             <xsl:otherwise>
