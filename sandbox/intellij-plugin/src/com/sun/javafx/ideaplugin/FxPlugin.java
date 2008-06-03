@@ -23,6 +23,9 @@
 
 package com.sun.javafx.ideaplugin;
 
+import com.intellij.debugger.DebuggerManager;
+import com.intellij.debugger.PositionManager;
+import com.intellij.debugger.engine.DebugProcess;
 import com.intellij.lang.Language;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompilerManager;
@@ -33,6 +36,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerAdapter;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.util.Function;
+import com.sun.javafx.ideaplugin.debug.FxPositionManager;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -62,33 +67,11 @@ public class FxPlugin implements ApplicationComponent {
                         compilerManager.addCompiler(new FxCompiler());
                         compilerManager.addCompilableFileType(FX_FILE_TYPE);
 
-//                        DebuggerManager.getInstance (project).registerPositionManagerFactory (new Function<DebugProcess, PositionManager>() {
-//                            public PositionManager fun (final DebugProcess debugProcess) {
-//                                return new PositionManager () {
-//                                    @Nullable public SourcePosition getSourcePosition (Location location) throws NoDataException {
-//                                        return null; // TODO
-//                                    }
-//
-//                                    @NotNull public List<ReferenceType> getAllClasses (SourcePosition classPosition) throws NoDataException {
-//                                        String className = "a"; // TODO
-//                                        return debugProcess.getVirtualMachineProxy ().classesByName (className);
-//                                    }
-//
-//                                    @NotNull public List<Location> locationsOfLine (ReferenceType type, SourcePosition position) throws NoDataException {
-//                                        try {
-//                                            return type.locationsOfLine (position.getLine ()); // TODO
-//                                        } catch (AbsentInformationException e) {
-//                                            e.printStackTrace ();  // TODO
-//                                            return Collections.emptyList (); // TODO
-//                                        }
-//                                    }
-//
-//                                    @Nullable public ClassPrepareRequest createPrepareRequest (ClassPrepareRequestor requestor, SourcePosition position) throws NoDataException {
-//                                        return null; // TODO
-//                                    }
-//                                };
-//                            }
-//                        });
+                        DebuggerManager.getInstance (project).registerPositionManagerFactory (new Function<DebugProcess, PositionManager>() {
+                            public PositionManager fun (final DebugProcess debugProcess) {
+                                return new FxPositionManager (debugProcess);
+                            }
+                        });
                     }
                 });
             }
@@ -102,4 +85,5 @@ public class FxPlugin implements ApplicationComponent {
     public String getComponentName() {
         return "FXSupportLoader";
     }
+
 }
