@@ -29,7 +29,8 @@ public class FxPositionManager implements PositionManager {
     @Nullable public SourcePosition getSourcePosition (Location location) throws NoDataException {
         if (location == null)
             throw new NoDataException ();
-
+//        FxPlugin.FX_LANGUAGE.getParserDefinition ().createFile ()
+//        SourcePosition.createFromLine ();
         return null; // TODO
     }
 
