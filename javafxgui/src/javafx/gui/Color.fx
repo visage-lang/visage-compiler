@@ -129,7 +129,7 @@ public /* final */ class Color extends Paint, Interpolatable {
 
     // PENDING_DOC_REVIEW
     /**
-     * Creates a Color instance derived from the provide {@code java.awt.Color}. 
+     * Creates a Color instance derived from the provided {@code java.awt.Color}. 
      */
     public static function fromAWTColor(c: java.awt.Color): Color {
         if (c == null) {
