@@ -2416,10 +2416,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         else
             return newType;
 
-        if (tree != null) {
-            tree.setType(newType);
-            treeSym.type = newType;
-        }
+        // tree is not null here
+        tree.setType(newType);
+        treeSym.type = newType;
         
         if (var != null) {
             var.setType(newType);

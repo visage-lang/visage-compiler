@@ -402,7 +402,6 @@ public class JavafxResolve {
  *
  *  If no symbol was found, a ResolveError detailing the problem is returned.
  ****************************************************************************/
-int ccounter;
     /** Find field. Synthetic fields are always skipped.
      *  @param env     The current environment.
      *  @param site    The original type from where the selection takes place.
