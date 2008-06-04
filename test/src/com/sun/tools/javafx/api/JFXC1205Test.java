@@ -73,7 +73,6 @@ public class JFXC1205Test {
     static class MockDiagnosticListener<T> implements DiagnosticListener<T> {
 	public void report(Diagnostic<? extends T> d) {
 	    diagCodes.add(d.getCode());
-	    System.err.println(d);
 	}
 
 	public List<String> diagCodes = new ArrayList<String>();
@@ -86,7 +85,6 @@ public class JFXC1205Test {
         @Override
         public Void visitOnReplace(OnReplaceTree tree, Void voodoo) {
             super.visitOnReplace(tree, null);
-            System.out.println(tree);
             return null;
         }
 
