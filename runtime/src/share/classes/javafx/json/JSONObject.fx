@@ -64,23 +64,27 @@ public class JSONObject extends JSONBase {
     public attribute map:Map = new HashMap() on replace old {
         var keyIter = map.keySet().iterator();
         updateFromMap = true;
-        while(keyIter.hasNext()) {
-            var key = keyIter.next() as String;
-            var value = map.get(key);
-            if(value instanceof Pair) {
-                var p = value as Pair;
-                value = p.value;
+        try {
+            while(keyIter.hasNext()) {
+                var key = keyIter.next() as String;
+                var value = map.get(key);
+                if(value instanceof Pair) {
+                    var p = value as Pair;
+                    value = p.value;
+                }
+                
+                var pair = Pair{name:key, value:value};
+                var found = false;
+                for(p in pairs where p.name == pair.name) {
+                    found = true;
+                    p.value = pair.value;
+                }
+                if(not found) {
+                    insert pair into pairs;
+                }
             }
-            
-            var pair = Pair{name:key, value:value};
-            var found = false;
-            for(p in pairs where p.name == pair.name) {
-                found = true;
-                p.value = pair.value;
-            }
-            if(not found) {
-                insert pair into pairs;
-            }
+        } finally {
+            updateFromMap = false;
         }
         
     };
