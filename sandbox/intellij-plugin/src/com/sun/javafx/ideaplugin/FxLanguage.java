@@ -28,6 +28,9 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.tree.IElementType;
+import com.sun.javafx.ideaplugin.parsing.FxHighlighter;
+import com.sun.javafx.ideaplugin.parsing.FxParserDefinition;
+import com.sun.javafx.ideaplugin.parsing.FxTokens;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

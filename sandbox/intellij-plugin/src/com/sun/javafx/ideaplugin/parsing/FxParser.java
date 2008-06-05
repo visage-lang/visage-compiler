@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.ideaplugin;
+package com.sun.javafx.ideaplugin.parsing;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
@@ -37,7 +37,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Collections;
 
 /**
  * FxParser

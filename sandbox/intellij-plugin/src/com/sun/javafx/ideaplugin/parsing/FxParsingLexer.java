@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.ideaplugin;
+package com.sun.javafx.ideaplugin.parsing;
 
 import com.intellij.lexer.LexerBase;
 import com.intellij.psi.tree.IElementType;

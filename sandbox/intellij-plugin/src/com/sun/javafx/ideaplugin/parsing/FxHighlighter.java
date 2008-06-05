@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.ideaplugin;
+package com.sun.javafx.ideaplugin.parsing;
 
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.editor.HighlighterColors;

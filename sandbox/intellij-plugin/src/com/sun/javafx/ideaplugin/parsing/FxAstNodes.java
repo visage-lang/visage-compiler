@@ -21,10 +21,11 @@
  * have any questions.
  */
 
-package com.sun.javafx.ideaplugin;
+package com.sun.javafx.ideaplugin.parsing;
 
 import com.intellij.psi.tree.IElementType;
 import com.sun.tools.javafx.antlr.v3Parser;
+import com.sun.javafx.ideaplugin.FxPlugin;
 
 /**
  * FxAstNodes

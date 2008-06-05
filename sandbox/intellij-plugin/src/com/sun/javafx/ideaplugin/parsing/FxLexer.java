@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.ideaplugin;
+package com.sun.javafx.ideaplugin.parsing;
 
 import com.intellij.lexer.LexerBase;
 import com.intellij.psi.TokenType;
@@ -30,7 +30,6 @@ import com.intellij.util.text.CharArrayCharSequence;
 import com.intellij.util.text.CharArrayUtil;
 import com.sun.tools.javafx.antlr.v3Lexer;
 import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.Token;
 import org.jetbrains.annotations.Nullable;
 

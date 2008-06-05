@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.ideaplugin;
+package com.sun.javafx.ideaplugin.parsing;
 
 import com.intellij.lang.ParserDefinition;
 import com.intellij.lang.PsiParser;
@@ -35,6 +35,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import com.sun.javafx.ideaplugin.FxLanguage;
+import com.sun.javafx.ideaplugin.FxFile;
 import org.jetbrains.annotations.NotNull;
 
 /**

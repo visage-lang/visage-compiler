@@ -2,7 +2,7 @@
 <idea-plugin>
     <name>JavaFX</name>
     <description>Plugin for the JavaFX Script Programming Language</description>
-    <version>0.2</version>
+    <version>0.21</version>
     <vendor>Sun Microsystems</vendor>
     <idea-version since-build="3000"/>
     <application-components>

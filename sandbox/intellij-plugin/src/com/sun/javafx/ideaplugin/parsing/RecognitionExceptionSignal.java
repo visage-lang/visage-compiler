@@ -1,4 +1,4 @@
-package com.sun.javafx.ideaplugin;
+package com.sun.javafx.ideaplugin.parsing;
 
 import org.antlr.runtime.RecognitionException;
 
