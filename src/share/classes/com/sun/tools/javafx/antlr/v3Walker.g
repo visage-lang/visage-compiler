@@ -398,11 +398,11 @@ expression  returns [JCExpression expr]
        	| identifier					{ $expr = $identifier.expr; }
 	| t=STRING_LITERAL				{ $expr = F.at(pos($t)).Literal(TypeTags.CLASS, $t.text); 
                                                           endPos($expr, $t); }
-	| t=DECIMAL_LITERAL				{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 10)); 
+	| t=DECIMAL_LITERAL				{ $expr = F.at(pos($t)).Literal(TypeTags.INT, (int)Convert.string2long($t.text, 10)); 
                                                           endPos($expr, $t); }
-	| t=OCTAL_LITERAL				{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 8)); 
+	| t=OCTAL_LITERAL				{ $expr = F.at(pos($t)).Literal(TypeTags.INT, (int)Convert.string2long($t.text, 8)); 
                                                           endPos($expr, $t); }
-	| t=HEX_LITERAL					{ $expr = F.at(pos($t)).Literal(TypeTags.INT, Convert.string2int($t.text, 16)); 
+	| t=HEX_LITERAL					{ $expr = F.at(pos($t)).Literal(TypeTags.INT, (int)Convert.string2long($t.text, 16)); 
                                                           endPos($expr, $t); }
 	| t=FLOATING_POINT_LITERAL 			{ $expr = F.at(pos($t)).Literal(TypeTags.DOUBLE, Double.valueOf($t.text)); 
                                                           endPos($expr, $t); }

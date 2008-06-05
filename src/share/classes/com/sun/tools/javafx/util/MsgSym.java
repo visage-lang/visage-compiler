@@ -324,6 +324,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_AMBIGUOUS_RETURN_TYPE_FROM_SUPER = "javafx.ambiguous.return.type.from.super"; 
     public static final String MESSAGE_JAVAFX_NOT_A_FUNC = "javafx.not.a.function"; 
     public static final String MESSAGE_JAVAFX_MUST_BE_AN_ATTRIBUTE = "javafx.must.be.an.attribute"; 
+    public static final String MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE = "javafx.lexer.literal.range";
 
     public static final String MESSAGE_PLUGIN_CANNOT_FIND_PLUGIN = "plugin.cannot.find.plugin"; 
     public static final String MESSAGE_PLUGIN_CANNOT_LOAD_PLUGIN = "plugin.cannot.load.plugin"; 

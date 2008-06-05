@@ -178,7 +178,9 @@ tokens {
 package com.sun.tools.javafx.antlr;
 
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.Log;
+import com.sun.tools.javafx.util.MsgSym;
 }
 
 @header {
@@ -233,11 +235,30 @@ import org.antlr.runtime.*;
     protected boolean verifyPreviousType(int ttype, int previousTokenType) {
         return previousTokenType == RBRACE && (ttype == EOF || semiKind[ttype] == INSERT_SEMI);
     }
+
+
+    protected void checkIntLiteralRange(String text, int pos, int radix) {
+       
+        long value = Convert.string2long(text, radix);
+        
+        pos = pos - text.length();
+        
+        if (previousTokenType == SUB) {
+            value = -value;
+            if ( value < Integer.MIN_VALUE )
+                log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "small", new String("-" + text));
+             
+        } else if (value > Integer.MAX_VALUE) {
+            log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "big", text);
+            
+        } 
+    }
+
     // quote context --
     static final int CUR_QUOTE_CTX	= 0;	// 0 = use current quote context
     static final int SNG_QUOTE_CTX	= 1;	// 1 = single quote quote context
     static final int DBL_QUOTE_CTX	= 2;	// 2 = double quote quote context
- }
+            }
 
 @members {
     Tree getDocComment(Token start) {
@@ -325,11 +346,12 @@ TranslationKeyBody              : (~('[' | ']' | '\\')|'\\' .)+
  
 TIME_LITERAL : (DECIMAL_LITERAL | Digits '.' (Digits)? (Exponent)? | '.' Digits (Exponent)?) ( 'ms' | 'm' | 's' | 'h' ) ;
 
-DECIMAL_LITERAL : ('0' | '1'..'9' '0'..'9'*) ;
+DECIMAL_LITERAL : ('0' | '1'..'9' '0'..'9'*)  { checkIntLiteralRange(getText(), getCharIndex(), 10); };
 
-OCTAL_LITERAL : '0' ('0'..'7')+ ;
+OCTAL_LITERAL : '0' ('0'..'7')+  { checkIntLiteralRange(getText(), getCharIndex(), 8); };
 
-HEX_LITERAL : '0' ('x'|'X') HexDigit+    			{ setText(getText().substring(2, getText().length())); };
+HEX_LITERAL : '0' ('x'|'X') HexDigit+    			{ setText(getText().substring(2, getText().length()));
+                                                                  checkIntLiteralRange(getText(), getCharIndex(), 16); };
 
 fragment
 HexDigit : ('0'..'9'|'a'..'f'|'A'..'F') ;
