@@ -39,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 public class FxLanguage extends Language {
 
     private FxParserDefinition definition = new FxParserDefinition();
+    private PairedBraceMatcher braceMatcher;
 
     public FxLanguage() {
         super(FxPlugin.FX_LANGUAGE_NAME, "text/plain");
@@ -56,7 +57,23 @@ public class FxLanguage extends Language {
 
     @Nullable
     public PairedBraceMatcher getPairedBraceMatcher() {
-        return PAIRED_BRACE_MATCHER;
+        if (braceMatcher == null)
+            braceMatcher = new PairedBraceMatcher() {
+                private final BracePair[] PAIRS = new BracePair[]{
+                        new BracePair('(', FxTokens.LPAREN.elementType, ')', FxTokens.RPAREN.elementType, false),
+                        new BracePair('[', FxTokens.LBRACKET.elementType, ']', FxTokens.RBRACKET.elementType, false),
+                        new BracePair('{', FxTokens.LBRACE.elementType, '}', FxTokens.RBRACE.elementType, true)
+                };
+
+                public boolean isPairedBracesAllowedBeforeType(@NotNull IElementType iElementType, @Nullable IElementType iElementType1) {
+                    return true;
+                }
+
+                public BracePair[] getPairs() {
+                    return PAIRS;
+                }
+            };
+        return braceMatcher;
     }
 
     @Nullable
@@ -83,19 +100,4 @@ public class FxLanguage extends Language {
         }
     };
 
-    private static final PairedBraceMatcher PAIRED_BRACE_MATCHER = new PairedBraceMatcher() {
-        private final BracePair[] PAIRS = new BracePair[]{
-                new BracePair('(', FxTokens.LPAREN.elementType, ')', FxTokens.RPAREN.elementType, false),
-                new BracePair('[', FxTokens.LBRACKET.elementType, ']', FxTokens.RBRACKET.elementType, false),
-                new BracePair('{', FxTokens.LBRACE.elementType, '}', FxTokens.RBRACE.elementType, true)
-        };
-
-        public boolean isPairedBracesAllowedBeforeType(@NotNull IElementType iElementType, @Nullable IElementType iElementType1) {
-            return true;
-        }
-
-        public BracePair[] getPairs() {
-            return PAIRS;
-        }
-    };
 }

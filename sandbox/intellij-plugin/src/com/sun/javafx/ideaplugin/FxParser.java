@@ -37,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Iterator;
+import java.util.Collections;
 
 /**
  * FxParser
@@ -78,10 +78,13 @@ public class FxParser implements PsiParser {
                 // @@@ Do the same with v3Walker, so we can get real structural information
                 traverse((CommonTree) antlrParseTree.getTree(), actions);
             } else {
+                traverse((CommonTree) antlrParseTree.getTree(), actions);
                 for (ParseError error : errors) {
-                    BeginMark beginErrorMark = new BeginMark(error.exception.token.getTokenIndex());
-                    actions.add(beginErrorMark);
-                    actions.add(new ErrorMark(error.exception.token.getTokenIndex() + 1, beginErrorMark, error.errorString));
+                    int position = error.exception.token.getTokenIndex();
+                    int index = findInsertPosition(actions, position);
+                    BeginMark beginErrorMark = new BeginMark(position);
+                    actions.add(index, beginErrorMark);
+                    actions.add(index+1, new ErrorMark(position + 1, beginErrorMark, error.errorString));
                 }
             }
             actions.add(new EndMark(lexer.getSize(), beginMark, rootElement));
@@ -90,6 +93,15 @@ public class FxParser implements PsiParser {
         } catch (RecognitionException e) {
             throw new RuntimeException("Unexpected exception in parsing", e);
         }
+    }
+
+    private int findInsertPosition(List<StreamAction> actions, int tokenPosition) {
+        for (int i=0; i<actions.size(); i++) {
+            StreamAction a = actions.get(i);
+            if (a.position > tokenPosition)
+                return i;
+        }
+        return actions.size();
     }
 
     private void scrubTree(Tree tree) {
@@ -117,7 +129,7 @@ public class FxParser implements PsiParser {
     }
 
     private void traverse(CommonTree tree, List<StreamAction> actions) {
-        System.out.printf("Token %s at %d:%d%n", tree.getToken(), tree.getTokenStartIndex(), tree.getTokenStopIndex());
+        // System.out.printf("Token %s at %d:%d%n", tree.getToken(), tree.getTokenStartIndex(), tree.getTokenStopIndex());
         if (tree.getTokenStartIndex() > tree.getTokenStopIndex())
             return;
         if (tree.getTokenStartIndex() < 0)
@@ -154,7 +166,7 @@ public class FxParser implements PsiParser {
         }
     }
 
-    private static abstract class StreamAction {
+    private static abstract class StreamAction implements Comparable<StreamAction> {
         protected final int position;
 
         protected StreamAction(int position) {
@@ -162,6 +174,15 @@ public class FxParser implements PsiParser {
         }
 
         public abstract void action(PsiBuilder builder);
+
+        public int compareTo(StreamAction other) {
+            if (position < other.position)
+                return -1;
+            else if (position > other.position)
+                return 1;
+            else
+                return 0;
+        }
     }
 
     private static class BeginMark extends StreamAction {
