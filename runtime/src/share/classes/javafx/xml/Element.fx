@@ -24,6 +24,7 @@
 package javafx.xml;
 
 import java.lang.System;
+import java.io.Writer;
 
 /**
  * Represents a DOM Element
@@ -199,6 +200,33 @@ public class Element extends Node {
                 insert attrNode into attributes;
             }
         }
+    }
+
+    /**
+     * Convert this node to an XML format based on 
+     * the attributes indent, doIndent, omitXMLDeclaration, encoding and
+     * standalone. Output is written to the Writer.
+     * @param writer the java.io.Writer that will receive the formated xml.
+     * @param depth the depth of this node in the tree being serialized
+     * @see indent
+     * @see doIndent
+     */  
+    public function serialize(writer:Writer, depth:Integer):Void {
+        var indent:String = getIndent(depth);
+        writer.write("{indent}<{name}");
+        for(a in attributes) {
+            writer.write(" ");
+            a.serialize(writer, depth);
+        }
+        writer.write(">");
+        if(sizeof children > 0 and children[0] instanceof Element) {
+            writer.write("\n");
+        }
+        for(c in children) {
+            c.serialize(writer, depth+1);
+        }
+        writer.write("</{name}>\n");
+        writer.flush();
     }
     
     init {

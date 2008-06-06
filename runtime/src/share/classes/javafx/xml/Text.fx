@@ -33,4 +33,5 @@ public class Text extends Node {
      * sets the node type to TEXT
      */
     override attribute type = NodeType.TEXT;
+
 }

@@ -23,6 +23,8 @@
 
 package javafx.xml;
 
+import java.io.Writer;
+
 /**
  * Represents a DOM Attribute
  * @author jclarke
@@ -33,4 +35,16 @@ public class Attribute extends Node {
      * sets the node type to ATTRIBUTE
      */
     override attribute type = NodeType.ATTRIBUTE;
+
+    /**
+     * Convert this node to an XML format based on 
+     * the attributes indent, doIndent, omitXMLDeclaration, encoding and
+     * standalone. Output is written to the Writer.
+     * @param writer the java.io.Writer that will receive the formated xml.
+     * @param depth the depth of this node in the tree being serialized
+     */  
+    public function serialize(writer:Writer, depth:Integer):Void {
+        writer.write('{name}="{value}"');
+        writer.flush();
+    } 
 }

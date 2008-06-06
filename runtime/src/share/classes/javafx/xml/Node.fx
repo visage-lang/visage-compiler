@@ -366,6 +366,27 @@ public class Node {
         serialize(writer);
         return writer.toString();
     } 
+
+    /**
+     * get the indent string for a particular depth. Used for printing.
+     * @param depth the depth within the tree 
+     * @return the indent string 
+     */
+    public function getIndent(depth):String {
+        var indentStr:String;
+        if(doIndent) {
+            var i = 0;
+            while(i < depth) {
+                var j = 0;
+                while(j < indent) {
+                    indentStr += " ";
+                    j++;
+                }
+                i++;
+            }
+        }
+        indentStr;
+    }
     
     /**
      * Convert this node to an XML format based on 
@@ -374,23 +395,25 @@ public class Node {
      * @param writer the java.io.Writer that will receive the formated xml.
      * @see indent
      * @see doIndent
-     * @see omitXMLDeclaration
-     * @see encoding
-     * @see standalone
      */     
     public function serialize(writer:Writer):Void {
-        var serializer = Document.tfactory.newTransformer();
-        serializer.setOutputProperty(OutputKeys.INDENT, if(doIndent)then "yes" else "no");
-        serializer.setOutputProperty("\{http://xml.apache.org/xslt}indent-amount", "{indent}");
-        serializer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, 
-                                if(omitXMLDeclaration) then "yes" else "no");
-        if( encoding <> null) {
-            serializer.setOutputProperty(OutputKeys.ENCODING, encoding);
-        }
-        serializer.setOutputProperty(OutputKeys.STANDALONE, 
-                                if(standalone) then "yes" else "no");
-        serializer.transform(new DOMSource(domNode), new StreamResult(writer));
+        serialize(writer, 0);
     }
+    /**
+     * Convert this node to an XML format based on 
+     * the attributes indent, doIndent, omitXMLDeclaration, encoding and
+     * standalone. Output is written to the Writer.
+     * @param writer the java.io.Writer that will receive the formated xml.
+     * @param depth the depth of this node in the tree being serialized
+     * @see indent
+     * @see doIndent
+     */     
+    public function serialize(writer:Writer, depth:Integer):Void {
+        writer.write("{value}");
+        writer.flush();
+    }
+
+    
     
     /**
      * create a default node based on this node's node type

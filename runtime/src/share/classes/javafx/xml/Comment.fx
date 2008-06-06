@@ -23,6 +23,8 @@
 
 package javafx.xml;
 
+import java.io.Writer;
+
 /**
  * Represents a DOM Comment
  * @author jclarke
@@ -33,4 +35,18 @@ public class Comment extends Node {
      * sets the node type to COMMENT
      */
     override attribute type = NodeType.COMMENT;
+
+    /**
+     * Convert this node to an XML format based on 
+     * the attributes indent, doIndent, omitXMLDeclaration, encoding and
+     * standalone. Output is written to the Writer.
+     * @param writer the java.io.Writer that will receive the formated xml.
+     * @param depth the depth of this node in the tree being serialized
+     * @see indent
+     * @see doIndent
+     */ 
+    public function serialize(writer:Writer,  depth:Integer):Void {
+        writer.write("{getIndent(depth)}<!--{value}-->\n");
+        writer.flush();
+    } 
 }
