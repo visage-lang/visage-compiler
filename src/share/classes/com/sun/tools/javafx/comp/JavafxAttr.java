@@ -1865,8 +1865,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         // Attribute catch clauses
         for (List<JCCatch> l = tree.catchers; l.nonEmpty(); l = l.tail) {
             JCCatch c = l.head;
-            JavafxEnv<JavafxAttrContext> catchEnv =
-                env.dup(c, env.info.dup(env.info.scope.dup()));
+            JavafxEnv<JavafxAttrContext> catchEnv = newLocalEnv(c);
             memberEnter.memberEnter(c.param, env);
             if (c.param.type == null)
                 c.param.sym.type = c.param.type = syms.throwableType;
@@ -1881,7 +1880,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             ctype = attribStat(c.body, catchEnv);
             if (ctype != syms.unreachableType)
                 canReturn = true;
-            catchEnv.info.scope.leave();
         }
 
         // Attribute finalizer
