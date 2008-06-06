@@ -477,7 +477,7 @@ public class Timeline {
         frameIndex = if (autoReverse) 1 else 0;
     }
 
-    private function visitFrames(curT:Number, backward:Boolean, catchingUp:Boolean) {
+    private function visitFrames(curT:Number, backward:Boolean, catchingUp:Boolean) : Void {
         if (backward) {
             var i1 = sortedFrames.size()-1-frameIndex;
             var i2 = 0;

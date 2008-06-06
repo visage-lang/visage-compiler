@@ -1,0 +1,7 @@
+test/should-fail/jfxc1248.fx:1: unreachable statement
+for(i in [1..100],j in {continue;[2..100];}){
+                                   ^
+test/should-fail/jfxc1248.fx:1: 'void' type not allowed here
+for(i in [1..100],j in {continue;[2..100];}){
+                    ^
+2 errors

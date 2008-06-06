@@ -691,7 +691,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             env.info.selectSuper = true;
         Symbol sym = selectSym(tree, site, env, pt, pkind);
         sym.complete();
-        if (sym.exists() && !isType(sym) && (pkind & (PCK | TYP)) != 0) {
+        if (sym.exists() && ! sym.type.isErroneous() && !isType(sym) && (pkind & (PCK | TYP)) != 0) {
             site = capture(site);
             sym = selectSym(tree, site, env, pt, pkind);
         }
@@ -2046,13 +2046,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
     @Override
     public void visitBreak(JCBreak tree) {
         tree.target = findJumpTarget(tree.pos(), tree.getTag(), tree.label, env);
-        result = null;
+        result = syms.unreachableType;
     }
 
     @Override
     public void visitContinue(JCContinue tree) {
         tree.target = findJumpTarget(tree.pos(), tree.getTag(), tree.label, env);
-        result = null;
+        result = syms.unreachableType;
     }
     //where
         /** Return the target of a break or continue statement, if it exists,
