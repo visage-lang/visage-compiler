@@ -74,6 +74,11 @@ Frame{
     content: Canvas{
         content: Group{
            content: [
+            Rectangle{
+              width: w
+              height: h
+              fill: Color.BLACK
+            },   
             PlanetarySystemShape{
                 transform: bind [Transform.translate(w/2, h/2)]
                 scale: Scale{ coordinateScale:  100.0/150e9 radiusScale: 20.0/14000.0}

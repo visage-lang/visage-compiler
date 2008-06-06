@@ -141,10 +141,7 @@ class Lamp extends ElectronicComponent{
 
     public function create(): Node{
       var r = Function.min(compWidth, compHeight);
-      var h = r / 2.0;
-      System.out.println("[lamp] width: {compWidth}, height: {compHeight}");
-      System.out.println("[lamp] x: {pos.x}, y: {pos.y}, h: {h}");
-      
+      var h = r / 2.0;      
 
       return Group{
         content: [Rectangle{
