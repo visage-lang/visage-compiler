@@ -17,10 +17,7 @@ public class Palette extends ToolComponent{
 
 
     public attribute selectedIndex: Integer on replace{
-        //System.out.println("[palette] selected item: {items[selectedIndex]}");
-        //drag(items[selectedIndex]);
         selectedItem  = items[selectedIndex];
-        
     };
     
     

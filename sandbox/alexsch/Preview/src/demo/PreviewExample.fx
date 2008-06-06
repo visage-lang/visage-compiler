@@ -20,8 +20,8 @@ Frame{
     content: BorderPanel{
         top: Preview{
             code:  bind code 
-            diagnosticMessage:  bind diagnosticMessage with inverse
             diagnosticMessages: bind diagnosticMessages with inverse
+            selectedDiagnosticMessage:  bind diagnosticMessage with inverse
         }
         center: BorderPanel{
             center: ScrollPane { 

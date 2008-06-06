@@ -21,37 +21,36 @@ public class Preview extends Component{
     
     
     public attribute diagnosticMessages: DiagnosticMessage[] ;
-    public attribute diagnosticMessage: DiagnosticMessage;
+    public attribute selectedDiagnosticMessage: DiagnosticMessage;
 
     private attribute diagnosticIndex: Integer = -1 on replace{
+        //System.out.println("[preview] diagnosticIndex: {diagnosticIndex}");
         if(-1 < diagnosticIndex ){
-            diagnosticMessage = diagnosticMessages[diagnosticIndex];
+            selectedDiagnosticMessage = diagnosticMessages[diagnosticIndex];
         }
     };
     
+    
     private function preview(code: String){
-        //var gui = "javafx.gui.*";
-        //if(not code.contains(gui)){ code = "import {gui};\n{code}"; }
+        System.out.println("----------------------------");
+        System.out.println("{code}");
         var obj = Util.executeFXCode(code);
         var unit = FXUnit.createUnit(obj);
-        var content = unit.content;
         diagnosticMessages = unit.diagnosticMessages;
         
         diagnosticIndex = -1;
+        component = unit.content;
         
-        if(content == null){
-            component = List{ 
-                items: for(item in diagnosticMessages) ListItem{ text: "{item}" }
-                selectedIndex: bind diagnosticIndex with inverse
-            };
-            
-        }else{
-            component = content;
-        }
     }
     
     public function createJComponent(){
-        BorderPanel{ center: bind component }.getJComponent();
+        BorderPanel{ 
+            center: bind if( component <> null ) then component else
+                List{
+                    items: bind for(item in diagnosticMessages) ListItem{ text: "{item}" }
+                    selectedIndex: bind diagnosticIndex with inverse
+                }
+        }.getJComponent();
     }
     
 }
@@ -89,8 +88,6 @@ public class FXUnit {
             
             while(iterator.hasNext()){
                 var diagnostic = iterator.next() as javax.tools.Diagnostic;
-                //insert "line:{diagnostic.getLineNumber()}" into messages;
-                //insert "{diagnostic.getMessage(java.util.Locale.getDefault())}" into messages;
                 insert DiagnosticMessage{
                      line: getIntegerFromLong( diagnostic.getLineNumber() )
                      position: getIntegerFromLong( diagnostic.getPosition());
