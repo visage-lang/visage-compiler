@@ -691,7 +691,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             env.info.selectSuper = true;
         Symbol sym = selectSym(tree, site, env, pt, pkind);
         sym.complete();
-        if (sym.exists() && ! sym.type.isErroneous() && !isType(sym) && (pkind & (PCK | TYP)) != 0) {
+        if (sym.exists() && !isType(sym) && (pkind & (PCK | TYP)) != 0) {
             site = capture(site);
             sym = selectSym(tree, site, env, pt, pkind);
         }
