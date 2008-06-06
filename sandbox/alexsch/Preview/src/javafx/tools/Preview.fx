@@ -21,9 +21,7 @@ public class Preview extends Component{
     
     
     public attribute diagnosticMessages: DiagnosticMessage[] ;
-    public attribute diagnosticMessage: DiagnosticMessage on replace{
-        System.out.println("diagnosticMessage: {diagnosticMessage} ");
-    };
+    public attribute diagnosticMessage: DiagnosticMessage;
 
     private attribute diagnosticIndex: Integer = -1 on replace{
         if(-1 < diagnosticIndex ){
@@ -32,10 +30,14 @@ public class Preview extends Component{
     };
     
     private function preview(code: String){
+        //var gui = "javafx.gui.*";
+        //if(not code.contains(gui)){ code = "import {gui};\n{code}"; }
         var obj = Util.executeFXCode(code);
         var unit = FXUnit.createUnit(obj);
         var content = unit.content;
         diagnosticMessages = unit.diagnosticMessages;
+        
+        diagnosticIndex = -1;
         
         if(content == null){
             component = List{ 
@@ -54,6 +56,9 @@ public class Preview extends Component{
     
 }
 
+function getIntegerFromLong(x: Number):Integer{
+    return x.intValue();
+}
 
 public class FXUnit {
     attribute title: String;
@@ -84,12 +89,15 @@ public class FXUnit {
             
             while(iterator.hasNext()){
                 var diagnostic = iterator.next() as javax.tools.Diagnostic;
-                insert "line:{diagnostic.getLineNumber()}" into messages;
-                insert "{diagnostic.getMessage(java.util.Locale.getDefault())}" into messages;
+                //insert "line:{diagnostic.getLineNumber()}" into messages;
+                //insert "{diagnostic.getMessage(java.util.Locale.getDefault())}" into messages;
                 insert DiagnosticMessage{
-                     //line: diagnostic.getLineNumber()
-                     line: diagnostic.getPosition()
-                     message: diagnostic.getMessage(java.util.Locale.getDefault())
+                     line: getIntegerFromLong( diagnostic.getLineNumber() )
+                     position: getIntegerFromLong( diagnostic.getPosition());
+                     startPosition: getIntegerFromLong( diagnostic.getStartPosition());
+                     endPosition: getIntegerFromLong( diagnostic.getEndPosition());
+                     //message: diagnostic.getMessage(java.util.Locale.getDefault())
+                     message: diagnostic.getMessage(java.util.Locale.getDefault()).<<replace>>('\n', ' ')
                 } into unit.diagnosticMessages;
             }
             

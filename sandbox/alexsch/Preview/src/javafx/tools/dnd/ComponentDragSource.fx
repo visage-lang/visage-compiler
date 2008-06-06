@@ -23,21 +23,18 @@ import java.lang.System;
 public class ComponentDragSource extends DragGestureListener, DragSourceListener {
 
     public attribute component: ToolComponent on replace{
-        System.out.println("[drag] constructor: " + component);
         var dragSource = DragSource.getDefaultDragSource();
         dragSource.createDefaultDragGestureRecognizer(component.getJComponent(), DnDConstants.ACTION_COPY_OR_MOVE, this);
     };
 
     public function dragGestureRecognized(dge: DragGestureEvent) {
-        System.out.println("[drag] Value");
+        //System.out.println("[drag] Value");
         //Transferable transferable = new ViewTransferable();
         var drag = component.drag;
         if(drag <> null){
             dge.startDrag(null, new ViewTransferable(drag()), this);
             
         }
-        
-        //dge.startDrag(null, new ViewTransferable(component.drag()), this);
     }
 
     public function dropActionChanged(dsde: DragSourceDragEvent) {

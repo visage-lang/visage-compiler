@@ -22,7 +22,6 @@ import java.lang.System;
 public class ComponentDropTarget extends DropTargetListener {
 
     public attribute component: ToolComponent on replace{
-        System.out.println("[drop] constructor: {component}");
         var dropTarget = new DropTarget(component.getJComponent(), DnDConstants.ACTION_COPY_OR_MOVE, this, true, null);
     };
 
@@ -41,7 +40,7 @@ public class ComponentDropTarget extends DropTargetListener {
     public function drop(dtde: DropTargetDropEvent ) {        
         var transferable = dtde.getTransferable();
         var obj = transferable.getTransferData(DataFlavor.stringFlavor);
-        System.out.println("Drop: {obj}");
+        //System.out.println("Drop: {obj}");
         var drop = component.drop;
         if(drop <> null){
             drop(obj);

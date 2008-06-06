@@ -81,6 +81,7 @@ public class Util {
     }
 
     public static Object executeFXCode(String code) throws Exception {
+        if("".equals(code.trim())) { return null;}
         return CodeManager.execute("Preview", code, Locale.getDefault().getDisplayName(), "");
     }
 
