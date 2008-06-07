@@ -2233,19 +2233,31 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                               restype.tsym);
             }
 
-            if (restype == null) {
-                log.error(tree,
-                         MsgSym.MESSAGE_JAVAFX_NOT_A_FUNC,
-                         mtype,
-                         typeargtypes,
-                         Type.toString(argtypes));
-                tree.type = pt;
-                result = pt;
+            if (mtype instanceof ErrorType) {
+                tree.type = mtype;
+                result = mtype;
+            }
+            else if (mtype instanceof MethodType || mtype instanceof FunctionType) {
+                // If the "method" has a symbol, we've already checked for
+                // formal/actual consistency.  So doing it again would be
+                // wasteful - plus varargs hasn't been properly implemented.
+                if (tree.meth.getTag() != JCTree.SELECT &&
+                    tree.meth.getTag() != JCTree.IDENT &&
+                    ! rs.argumentsAcceptable(argtypes, mtype.getParameterTypes(),
+                        true, false, Warner.noWarnings))
+                    log.error(tree,
+                              MsgSym.MESSAGE_JAVAFX_CANNOT_APPLY_FUNCTION,
+                              mtype.getParameterTypes(), argtypes);
+                // Check that value of resulting type is admissible in the
+                // current context.  Also, capture the return type
+                result = check(tree, capture(restype), VAL, pkind, pt, pSequenceness);
             }
             else {
-            // Check that value of resulting type is admissible in the
-            // current context.  Also, capture the return type
-                result = check(tree, capture(restype), VAL, pkind, pt, pSequenceness);
+                log.error(tree,
+                        MsgSym.MESSAGE_JAVAFX_NOT_A_FUNC,
+                        mtype, typeargtypes, Type.toString(argtypes));
+                tree.type = pt;
+                result = pt;
             }
 
         chk.validate(tree.typeargs);
