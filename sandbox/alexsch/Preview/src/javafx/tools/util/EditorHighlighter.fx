@@ -48,17 +48,17 @@ public class EditorHighlighter{
        
     }
     
-    public function highlightErrors(diagnosticMessages: DiagnosticMessage[]){
-        for(diagnosticMessage in diagnosticMessages){
-            highlightError(diagnosticMessage);
+    public function highlightErrors(ErrorMessages: ErrorMessage[]){
+        for(errorMessage in ErrorMessages){
+            highlightError(errorMessage);
         }
     }
     
-    public function highlightError(diagnosticMessage: DiagnosticMessage){
+    public function highlightError(errorMessage: ErrorMessage){
         var highlight = component.getHighlighter();
         var painter = new javax.swing.text.DefaultHighlighter.DefaultHighlightPainter(new java.awt.Color(254,134,126));
-        var startPosition = diagnosticMessage.startPosition;
-        var endPosition = diagnosticMessage.endPosition;
+        var startPosition = errorMessage.startPosition;
+        var endPosition = errorMessage.endPosition;
         //System.out.println("\n[highliter] error: [{startPosition} - {endPosition}]");
         if(startPosition == endPosition){
             startPosition -= 3;

@@ -47,8 +47,8 @@ public class Editor extends ToolComponent{
 
     private attribute highlighter: EditorHighlighter;// = EditorHighlighter{ component: bind editorPane };
     
-    public attribute diagnosticMessages: DiagnosticMessage[] on replace{
-          highlighter.highlightErrors(diagnosticMessages);
+    public attribute ErrorMessages: ErrorMessage[] on replace{
+          highlighter.highlightErrors(ErrorMessages);
     }
 
     

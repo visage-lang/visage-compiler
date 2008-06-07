@@ -1,5 +1,5 @@
 /*
- * DiagnosticMessage.fx
+ * ErrorMessage.fx
  *
  * Created on 02.06.2008, 10:10:28
  */
@@ -7,7 +7,7 @@
 package javafx.tools;
 
 
-public class DiagnosticMessage {
+public class ErrorMessage {
     public attribute line:Integer;
     public attribute position:Integer;
     public attribute startPosition:Integer;

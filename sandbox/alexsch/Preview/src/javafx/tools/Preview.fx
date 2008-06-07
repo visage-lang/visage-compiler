@@ -20,23 +20,23 @@ public class Preview extends Component{
     };
     
     
-    public attribute diagnosticMessages: DiagnosticMessage[] ;
-    public attribute selectedDiagnosticMessage: DiagnosticMessage;
+    public attribute errors: ErrorMessage[] ;
+    public attribute selectedError: ErrorMessage;
 
     private attribute diagnosticIndex: Integer = -1 on replace{
         //System.out.println("[preview] diagnosticIndex: {diagnosticIndex}");
         if(-1 < diagnosticIndex ){
-            selectedDiagnosticMessage = diagnosticMessages[diagnosticIndex];
+            selectedError = errors[diagnosticIndex];
         }
     };
     
     
     private function preview(code: String){
-        System.out.println("----------------------------");
-        System.out.println("{code}");
+        //System.out.println("----------------------------");
+        //System.out.println("{code}");
         var obj = Util.executeFXCode(code);
         var unit = FXUnit.createUnit(obj);
-        diagnosticMessages = unit.diagnosticMessages;
+        errors = unit.ErrorMessages;
         
         diagnosticIndex = -1;
         component = unit.content;
@@ -47,7 +47,7 @@ public class Preview extends Component{
         BorderPanel{ 
             center: bind if( component <> null ) then component else
                 List{
-                    items: bind for(item in diagnosticMessages) ListItem{ text: "{item}" }
+                    items: bind for(item in errors) ListItem{ text: "{item}" }
                     selectedIndex: bind diagnosticIndex with inverse
                 }
         }.getJComponent();
@@ -71,7 +71,7 @@ public class FXUnit {
 
     attribute isWindow = false;
 
-    attribute diagnosticMessages: DiagnosticMessage[];
+    attribute ErrorMessages: ErrorMessage[];
 
 
     public static function createUnit(obj: Object){
@@ -88,14 +88,14 @@ public class FXUnit {
             
             while(iterator.hasNext()){
                 var diagnostic = iterator.next() as javax.tools.Diagnostic;
-                insert DiagnosticMessage{
+                insert ErrorMessage{
                      line: getIntegerFromLong( diagnostic.getLineNumber() )
                      position: getIntegerFromLong( diagnostic.getPosition());
                      startPosition: getIntegerFromLong( diagnostic.getStartPosition());
                      endPosition: getIntegerFromLong( diagnostic.getEndPosition());
                      //message: diagnostic.getMessage(java.util.Locale.getDefault())
                      message: diagnostic.getMessage(java.util.Locale.getDefault()).<<replace>>('\n', ' ')
-                } into unit.diagnosticMessages;
+                } into unit.ErrorMessages;
             }
             
             //unit.content = List{ items: for(item in messages) ListItem{ text: item } };
