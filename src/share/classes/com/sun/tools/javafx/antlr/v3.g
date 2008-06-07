@@ -661,8 +661,7 @@ boundExpression
 	| expression				-> ^(EXPRESSION expression)
 	;
 expression 
-       	: blockExpression
-       	| ifExpression   		
+       	: ifExpression   		
        	| forExpression   	
        	| newExpression 	
 	| assignmentExpression	
@@ -807,6 +806,7 @@ primaryExpression
        	| SUPER							-> SUPER
        	| stringExpression 					-> stringExpression
        	| bracketExpression 					-> bracketExpression
+        | blockExpression 					-> blockExpression
        	| literal 						-> literal
       	| functionExpression					-> functionExpression
        	| LPAREN expression RPAREN				-> expression
