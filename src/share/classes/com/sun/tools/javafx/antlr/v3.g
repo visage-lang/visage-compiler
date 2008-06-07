@@ -461,6 +461,7 @@ moduleItems
 moduleItem 
 	: importDecl 				-> importDecl
 	| classDefinition 			-> classDefinition
+        | functionDefinition                    -> functionDefinition
 	| statement				-> statement
 	| expression				-> expression
 	|					-> EMPTY_MODULE_ITEM
@@ -585,7 +586,7 @@ blockComponent
 	;
 statement 
 	: variableDeclaration	
-	| functionDefinition 
+//	| functionDefinition 
 	| insertStatement 	
 	| deleteStatement 
  	| whileStatement

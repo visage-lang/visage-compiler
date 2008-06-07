@@ -80,6 +80,7 @@ moduleItems  returns [ListBuffer<JCTree> items = new ListBuffer<JCTree>()]
 moduleItem  returns [JCTree value]
 	: importDecl 					{ $value = $importDecl.value; }
 	| classDefinition 				{ $value = $classDefinition.value; }
+        | functionDefinition                            { $value = $functionDefinition.value; }
 	| statement      				{ $value = $statement.value; } 
 	| expression 					{ $value = $expression.expr; } 
         | EMPTY_MODULE_ITEM                             { $value = null; }
@@ -241,7 +242,7 @@ variableLabel    returns [boolean local, long modifiers, int pos]
 	;
 statement returns [JCStatement value]
 	: variableDeclaration				{ $value = $variableDeclaration.value; }
-	| functionDefinition 				{ $value = $functionDefinition.value; }
+//	| functionDefinition 				{ $value = $functionDefinition.value; }
 	| BREAK    					{ $value = F.at(pos($BREAK)).Break(null); 
                                                           endPos($value, $BREAK); }
 	| CONTINUE  	 	 			{ $value = F.at(pos($CONTINUE)).Continue(null); 
