@@ -108,7 +108,9 @@ public class Parser {
         var string:String;
         var value:Object;
         while(endObject >= myObject and c >= 0) { // '}'
-            if(c == 0x22) { // '"'
+            if(isTerminator(c)) {
+                 break;
+            }else if(c == 0x22) { // '"'
                 string = parseString(reader);
             }else if(c == 0x3A) { // ':'
                 value = parseValue(reader);
@@ -230,7 +232,7 @@ public class Parser {
         var list = new ArrayList();
         while(myArray <= endArray) {
             var item = parseValue(reader);
-            //System.out.println("Add Array item = {item}");
+            //System.out.println("Add Array item = {item} myArray = {myArray} endArray = {endArray}");
             list.add(item);
         }
         var a =  Array{list : list };
@@ -337,6 +339,7 @@ public class Parser {
             endObject--;
         }else if (c == 0x5D) { //']'
             endArray--;
+            //System.out.println("EndArray = {endArray}");
         }
     }
     
@@ -345,6 +348,9 @@ public class Parser {
      * character for a JSONObject, Array or Value
      */
     private function isTerminator(c:Integer):Boolean {
+        //if(c == 0x7D or c == 0x5D or c == 0x2C or c == -1) {
+        //    System.out.println("Terminator is {c}");
+        //}
         return (c == 0x7D or c == 0x5D or c == 0x2C); // '}', ']', ','
         
     }
