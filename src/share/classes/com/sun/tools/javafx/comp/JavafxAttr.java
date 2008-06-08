@@ -1811,6 +1811,9 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
                             && ! (typeToCheck.tag <= LONG && bodyType.tag >= FLOAT && bodyType.tag <= DOUBLE))
                         chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.DISALLOWED);       
                 }
+                if (tree.isBound() && returnType == syms.javafx_VoidType) {
+                    log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_BOUND_FUNCTION_MUST_NOT_BE_VOID);
+                }
             }
             localEnv.info.scope.leave();
 
