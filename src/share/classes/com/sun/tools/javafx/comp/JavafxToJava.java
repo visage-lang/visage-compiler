@@ -1438,9 +1438,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             return;
         }
         
-        JCExpression rhs = translate(tree.rhs);
         if (tree.lhs.getTag() == JavafxTag.SEQUENCE_INDEXED) {
             // assignment of a sequence element --  s[i]=8, call the sequence set method
+            JCExpression rhs = translate(tree.rhs);  //TODO: use  type converted translate?
             JFXSequenceIndexed si = (JFXSequenceIndexed)tree.lhs;
             JCExpression seq = translate(si.getSequence(), Wrapped.InLocation); 
             JCExpression index = translate(si.getIndex());
@@ -1450,6 +1450,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         } else if (tree.lhs.getTag() == JavafxTag.SEQUENCE_SLICE) {
             // assignment of a sequence slice --  s[i..j]=8, call the sequence set method
             JFXSequenceSlice si = (JFXSequenceSlice)tree.lhs;
+            JCExpression rhs = translate(tree.rhs, si.getSequence().type);
             JCExpression seq = translate(si.getSequence(), Wrapped.InLocation); 
             JCExpression firstIndex = translate(si.getFirstIndex());
             JCExpression lastIndex = makeSliceLastIndex(si);
@@ -1458,12 +1459,14 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             result = make.at(diagPos).Apply(null, select, args);
         } else if (shouldMorph(vsym)) {
             // we are setting a var Location, call the set method
+            JCExpression rhs = translate(tree.rhs);  //TODO: use  type converted translate?
             JCExpression lhs = translate(tree.lhs, Wrapped.InLocation);
             JCFieldAccess setSelect = make.Select(lhs, defs.locationSetMethodName[typeMorpher.typeMorphInfo(vsym.type).getTypeKind()]);
             List<JCExpression> setArgs = List.of(rhs);
             result = make.at(diagPos).Apply(null, setSelect, setArgs);
         } else {
             // We are setting a "normal" non-Location, use normal assign
+            JCExpression rhs = translate(tree.rhs);  //TODO: use  type converted translate?
             JCExpression lhs = translate(tree.lhs);
             result = make.at(diagPos).Assign(lhs, rhs); // make a new one so we are non-destructive
         }
