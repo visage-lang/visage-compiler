@@ -899,8 +899,7 @@ typeArgList
  	| /* emprty list */			-> ^(TYPED_ARG_LIST)
 	;
 typeArg 
- 	: name? COLON type			-> ^(COLON name? type)	
- 	| name					-> ^(COLON name ^(TYPE_UNKNOWN))
+ 	: (name? COLON)? type			-> ^(COLON name? type)
  	;
 typeReference 
  	: COLON type				-> type
