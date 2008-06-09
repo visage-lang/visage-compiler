@@ -29,14 +29,12 @@ Frame{
         center: BorderPanel{
             center: ScrollPane { 
                 view: Editor{
-                    dropEnable: true
                     caretPosition: bind error.position
                     ErrorMessages: bind errors
                     text:  bind code with inverse
                 } 
             }
             right: Palette{
-                dragEnable: true
                 items: [
                     PaletteItem{
                         name: "Label"

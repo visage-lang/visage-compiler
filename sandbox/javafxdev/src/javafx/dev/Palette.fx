@@ -18,6 +18,7 @@ public class Palette extends DevComponent{
         selectedItem  = items[selectedIndex];
     };
     
+    override attribute dragEnable = true;
     
     override attribute drag = function(): java.lang.Object {
         System.out.println("[palette] Drag");

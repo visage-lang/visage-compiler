@@ -4,7 +4,7 @@ package javafx.dev;
  * @author Alexandr Scherbatiy, alexsch@dev.java.net
  */
 
- import javafx.gui.*;
+import javafx.gui.*;
 import javafx.gui.Layout.*;
 
 import javax.swing.*;
@@ -26,6 +26,7 @@ public class Editor extends DevComponent{
         editorPane.setCaretPosition(caretPosition);
         editorPane.requestFocus();
     }
+    override attribute dropEnable = true;
     override attribute drop = function(value: java.lang.Object) {
         //System.out.println("[editor] Drop: {value}");
         if(value instanceof String){
