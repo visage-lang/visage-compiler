@@ -127,7 +127,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         return translate(tree, (TypeMorphInfo) null);
     }
 
-    private List<JCExpression> translate(List<JCExpression> trees, Type methType, boolean toStatic, boolean usesVarArgs) {
+    private List<JCExpression> translate(List<JCExpression> trees, Type methType, boolean usesVarArgs) {
         ListBuffer<JCExpression> translated = ListBuffer.lb();
         boolean handlingVarargs = false;
         Type formal = null;
@@ -150,12 +150,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             }
         }
         List<JCExpression> args = translated.toList();
-
-        // if this is a super.foo(x) call, "super" will be translated to referenced class,
-        // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
-        if (toStatic) {
-            args = args.prepend(make.Ident(defs.receiverName));
-        }
 
         return args;
     }
@@ -427,7 +421,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     @Override
                     protected List<JCExpression> translatedConstructorArgs() {
                         if (tree.getArgs().size() > 0) {
-                            buildArgFields(translate(tree.getArgs(), tree.constructor.type, false, false), false);
+                            buildArgFields(translate(tree.getArgs(), tree.constructor.type, false), false);
                             return callArgs.toList();
                         } else {
                             return List.<JCExpression>nil();
@@ -1056,7 +1050,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         result = (new FunctionCallTranslator(tree, toJava) {
 
             final List<JCExpression> typeArgs = toJava.translate(tree.typeargs); //TODO: should, I think, be nil list
-            final List<JCExpression> targs = translate(tree.args, meth.type, superToStatic, usesVarArgs);
+            final List<JCExpression> targs = translate(tree.args, meth.type, usesVarArgs);
 
             public JCExpression doit() {
                 if (callBound) {
@@ -1082,7 +1076,12 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                     }
                                 });
                     } else {
-                        return convert(tree.type, m().Apply(typeArgs, transMeth(), targs));
+                        List<JCExpression> callArgs = targs;
+                        if (superToStatic) {  //TODO: should this be higher?
+                            // This is a super call, add the receiver so that the impl is called directly
+                            callArgs = callArgs.prepend(make.Ident(defs.receiverName));
+                        }
+                        return convert(tree.type, m().Apply(typeArgs, transMeth(), callArgs));
                     }
                 } else {
                     // call to Java method or unbound JavaFX function
@@ -1131,6 +1130,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
                             // construct the actual value computing method (with the method call)
                             protected JCExpression resultValue() {
+                                if (superToStatic) {  //TODO: should this be higher?
+                                    // This is a super call, add the receiver so that the impl is called directly
+                                    callArgs.prepend(make.Ident(defs.receiverName));
+                                }
                                 return m().Apply(toJava.translate(tree.typeargs), transMeth(), callArgs.toList());
                             }
 
