@@ -1,0 +1,63 @@
+<project name="javafxdev" default="run" basedir=".">
+
+
+    <property file="project.properties"/>
+
+
+    <path id="project.path">
+        <fileset dir="${openjfx.compiler.root}/dist/lib"> <include name="**/*.jar"/> </fileset>        
+        <pathelement location="${openjfx.compiler.root}/lib/javac.jar"/>
+
+    </path>   
+
+
+
+    <property name="project.classpath" refid="project.path"/>
+    <property name="build.classes.dir" value="build"/>
+
+
+    <property name="dist.dir" value="dist"/>
+    <property name="dist.library.name" value="javafxdev.jar"/>
+
+
+    <target name="clean">
+       <delete dir="${dist.dir}"/>
+       <delete dir="${build.classes.dir}"/>
+    </target>
+
+
+    <target name="build" depends="clean">
+        <echo message="project classpath = ${project.classpath}"/>
+
+        <mkdir dir="${build.classes.dir}"/>
+
+
+
+        <taskdef classname="com.sun.tools.javafx.ant.JavaFxAntTask" classpath="${project.classpath}" name="javafxc"/>
+
+
+ 	<javac srcdir="src" destdir="${build.classes.dir}" classpath="${project.classpath}"/>
+        <javafxc classpath="${project.classpath}" compilerclasspath="${project.classpath}" destdir="${build.classes.dir}" includes="**/*.fx" srcdir="src"/>
+
+    </target>
+
+    <target name="dist" depends="build">
+
+        <mkdir dir="${dist.dir}"/>
+
+	<jar destfile="${dist.dir}/${dist.library.name}" basedir="${build.classes.dir}"/>
+
+
+    </target>
+
+
+    <target name="run" depends="build">
+  	<java classname="${main.class}" fork="yes"> 
+           <classpath>
+               <pathelement path="${build.classes.dir}"/>
+  	       <path path="${project.classpath}"/>
+           </classpath>
+	</java>
+    </target>
+
+</project>
