@@ -274,6 +274,15 @@
         <p class="setonce">Note: this attribute can only be set once. Any changes after
         the constructor is called will be ignored.</p>
     </xsl:template>
+    
+    <xsl:template match="docComment/tags/defaultvalue">
+        <p class="defaultvalue">
+            <span>Default value:</span> 
+            <xsl:text> </xsl:text>
+            <b><xsl:value-of select="."/></b>
+        </p>
+    </xsl:template>
+    
     <xsl:template match="docComment/tags/needsreview">
         <p class="needsreview">This comment needs review.</p>
     </xsl:template>
@@ -696,6 +705,7 @@
             </a>
             <xsl:apply-templates select="docComment/tags/profile"/>
             <xsl:apply-templates select="docComment/inlineTags"/>
+            <xsl:apply-templates select="docComment/tags/defaultvalue"/>
             <xsl:apply-templates select="docComment/tags/setonce"/>
             <xsl:apply-templates select="docComment/tags/needsreview"/>
         </div>
