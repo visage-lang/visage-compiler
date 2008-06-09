@@ -1440,7 +1440,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         
         if (tree.lhs.getTag() == JavafxTag.SEQUENCE_INDEXED) {
             // assignment of a sequence element --  s[i]=8, call the sequence set method
-            JCExpression rhs = translate(tree.rhs);  //TODO: use  type converted translate?
+            JCExpression rhs = translate(tree.rhs, tree.type); 
             JFXSequenceIndexed si = (JFXSequenceIndexed)tree.lhs;
             JCExpression seq = translate(si.getSequence(), Wrapped.InLocation); 
             JCExpression index = translate(si.getIndex());
