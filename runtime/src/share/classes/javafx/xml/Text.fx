@@ -24,7 +24,7 @@
 package javafx.xml;
 
 /**
- * Represents a DOM TEXT node
+ * Represents a DOM Text node
  * @author jclarke
  */
 

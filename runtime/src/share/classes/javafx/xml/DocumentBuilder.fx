@@ -39,8 +39,16 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 
 /**
- * Provides methods for creating a new document and for parsing xml from 
- * a data stream to create a new document.
+ * <p>Provides methods for creating a new document and for parsing xml from 
+ * a data stream to create a new document. </p>
+ *
+ * <p>example:</p>
+ *
+ * <pre><code>
+ * var builder = DocumentBuilder { };
+ * var doc = builder.parseFile(new File("test.xml"));
+ * </code></pre>
+ * 
  * @see javax.xml.parsers.DocumentBuilder
  * @see javax.xml.parsers.DocumentBuilderFactory
  * @author jclarke
@@ -51,11 +59,12 @@ public class DocumentBuilder {
     private attribute builder:javax.xml.parsers.DocumentBuilder = factory.newDocumentBuilder();
     
     /**
-     * Specify the EntityResolver to be used to resolve entities
+     * <p>Specify the EntityResolver to be used to resolve entities
      * present in the XML document to be parsed. 
      * Setting this to null will result in the underlying implementation
-     * using it's own default implementation and behavior. 
-     * 
+     * using it's own default implementation and behavior. </p>
+     *
+     * @defaultvalue null
      * @see org.xml.sax.EntityResolver
      */ 
     public attribute entityResolver:EntityResolver on replace {
@@ -63,10 +72,12 @@ public class DocumentBuilder {
     };
     
     /**
-     * Specify the ErrorHandler to be used by the parser. 
+     * <p>Specify the ErrorHandler to be used by the parser. 
      * Setting this to null will result in the underlying implementation
-     * using it's own default implementation and behavior.
+     * using it's own default implementation and behavior.</p>
+     *
      * 
+     * @defaultvalue null
      * @see org.xml.sax.ErrorHandler
      */
     public attribute errorHandler:ErrorHandler on replace {
@@ -84,6 +95,7 @@ public class DocumentBuilder {
      * Indicates whether or not this parser is configured to
      * validate XML documents. Set to true to configure 
      * to validate XML documents; false otherwise. Default is false.
+     * @defaultvalue false
      */    
     public attribute validating:Boolean = factory.isValidating() on replace {
         factory.setValidating(validating);
@@ -94,6 +106,7 @@ public class DocumentBuilder {
      * Indicates whether or not this parser is configured to
      * understand namespaces. Set to true if this parser is to understand
      * namespaces; false otherwise. Default is <code>false</code>.
+     * @defaultvalue false
      */    
     public attribute namespaceAware:Boolean = factory.isNamespaceAware() on replace {
         factory.setNamespaceAware(namespaceAware);
@@ -104,6 +117,7 @@ public class DocumentBuilder {
      * Specifies that the parser produced by this code will
      * expand entity reference nodes. By default the value of this is set to
      * <code>true</code>
+     * @defaultvalue false
      */    
     public attribute expandEntityReferences:Boolean = factory.isExpandEntityReferences() on replace {
         factory.setExpandEntityReferences(expandEntityReferences);
@@ -114,6 +128,7 @@ public class DocumentBuilder {
      * <p>Specifies that the parser produced by this code will
      * ignore comments. By default the value of this is set to <code>false
      * </code>.</p>
+     * @defaultvalue false
      */
     public attribute ignoringComments = factory.isIgnoringComments() on replace {
         factory.setIgnoringComments(ignoringComments);
@@ -125,6 +140,7 @@ public class DocumentBuilder {
      * convert CDATA nodes to Text nodes and append it to the
      * adjacent (if any) text node. By default the value of this is set to
      * <code>false</code>
+     * @defaultvalue false
      */
     public attribute coalescing:Boolean = factory.isCoalescing() on replace {
         factory.setCoalescing(coalescing);
@@ -134,6 +150,7 @@ public class DocumentBuilder {
     /**
      * Indicates whether or not the factory is configured to produce
      * parsers which ignore ignorable whitespace in element content.
+     * @defaultvalue false
      */
     public attribute ignoringElementContentWhitespace:Boolean = factory.isIgnoringElementContentWhitespace() on replace {
         factory.setIgnoringElementContentWhitespace(ignoringElementContentWhitespace);
@@ -141,7 +158,7 @@ public class DocumentBuilder {
     };
     
     /**
-     * Obtain a new instance of a DOM {@link Document} object
+     * Creates a new instance of a DOM {@link Document} object
      * to build a DOM tree with.
      *
      * @return A new instance of a DOM Document object.

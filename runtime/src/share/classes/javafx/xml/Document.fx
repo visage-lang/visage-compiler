@@ -39,9 +39,9 @@ import javax.xml.namespace.NamespaceContext;
 
 /**
  * 
- * The <code>Document</code> interface represents the entire HTML or XML
+ * <p>The <code>Document</code> interface represents the entire HTML or XML
  * document. Conceptually, it is the root of the document tree, and provides
- * the primary access to the document's data.
+ * the primary access to the document's data.</p>
  * <p>Since elements, text nodes, comments, processing instructions, etc.
  * cannot exist outside the context of a <code>Document</code>, the
  * <code>Document</code> interface also contains the factory methods needed
@@ -90,29 +90,35 @@ public class Document {
     /**
      * Holds the number of spaces for indenting when printing or serializing.
      * doIndent must be true for this to take effect. Default indent is 2.
+     * @defaultvalue 2
      */
     public attribute indent:Integer = 2;
     
     /**
      * indicates whether or not indenting should be used when printing or serializing.
      * Default is true
+     * @defaultvalue true
      */
     public attribute doIndent:Boolean = true;
     
     /**
      * indicates whether or not to include the xml declaration when printing or serializing.
      * Default is false (xml declaration is included).
+     * @defaultvalue false
      */    
     public attribute omitXMLDeclaration:Boolean = false;
     
     /**
      * indicates which encoding should be used when printing or serializing.
      * Default is null, use system default.
+     * @defaultvalue null
      */    
     public attribute encoding:String;
+    
     /**
      * indicates whether or not the document is standalone.
      * Default is false
+     * @defaultvalue false
      */    
     public attribute standalone:Boolean = false;
     
