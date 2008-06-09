@@ -49,7 +49,7 @@ import com.sun.scenario.scenegraph.SGArc;
  *  }</code></pre>
  *
  * @profile common
- * @cssclass needsreview
+ * @needsreview
  */ 
 public class Arc extends Shape {
 

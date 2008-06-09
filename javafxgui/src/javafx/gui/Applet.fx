@@ -41,7 +41,7 @@ import com.sun.javafx.gui.InternalHelper;
  * instead use the environment neutral {@code Application} class, since Applets
  * may not be available in all operating environments.</b></p>
  
- * @cssclass needsreview
+ * @needsreview
  */
 public class Applet extends JApplet {
 

@@ -29,7 +29,7 @@ package javafx.gui.effect;
 public class ColorAdjust extends Effect {
     private attribute adjust = new com.sun.scenario.effect.ColorAdjust();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    function getImpl():com.sun.scenario.effect.Effect {
         adjust
     };
 

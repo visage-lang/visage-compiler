@@ -31,7 +31,7 @@ import javafx.gui.Color;
 public class InnerShadow extends Effect {
     private attribute shadow = new com.sun.scenario.effect.InnerShadow();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    function getImpl():com.sun.scenario.effect.Effect {
         shadow
     };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+* Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,6 +21,7 @@
  * have any questions.
  */ 
 
+
 package javafx.gui;
 import javafx.lang.Duration;
 
@@ -29,6 +30,8 @@ import com.sun.media.jmc.control.AudioControl;
 import java.net.URI;
 
 import java.lang.System;
+import java.lang.Exception;
+
 
 /**
  * The {@code MediaPlayer} class provides the controls for playing media.
@@ -37,6 +40,7 @@ import java.lang.System;
  * @profile common
  * @see Media MediaViewer
  */
+ 
 public class MediaPlayer {
     attribute mediaProvider:MediaProvider = new MediaProvider();
     private attribute view:MediaView;
@@ -48,14 +52,22 @@ public class MediaPlayer {
     * @profile common
     */
     public attribute media:Media on replace {
-        mediaProvider.setSource(new URI(media.source));
+        try {
+            mediaProvider.setSource(new URI(media.source));
+        } catch (e:java.lang.Exception) {
+            var error:MediaError;
+            error = MediaError.exceptionToError(e);
+            handleError(error);
+       
+            
+        }
         view.setComponent();
         startTime.millis = mediaProvider.getStartTime()/1000.0;
         
         stopTime.millis = mediaProvider.getStopTime()/1000.0;
         if (autoPlay) {
             play();
-        }
+        }        
         
    
     }
@@ -64,7 +76,7 @@ public class MediaPlayer {
     * If {@code autoPlay} is {@code true}, playing will start as soon
     * as possible
     *
-    * @profile common
+    * @profile commom
     */
     public attribute autoPlay:Boolean on replace {
         if (autoPlay) {
@@ -72,7 +84,7 @@ public class MediaPlayer {
         }
     }
 
-    
+     
    /**
     * Starts or resumes playing
     */
@@ -132,8 +144,8 @@ public class MediaPlayer {
     * {@code 0} being center, and {@code 1.0} being forward.
     */
    public attribute fader:Number on replace {
-       ;
-   }
+        ;
+    }
 
    private static attribute  DURATION_UNKNOWN:Duration = Duration{millis:-1};
 
@@ -152,7 +164,7 @@ public class MediaPlayer {
        if (stopTime == DURATION_UNKNOWN) {
             // do nothing for now, 
             // mediaProvider.setStopTime(java.lang.Double.POSITIVE_INFINITY);
-       } else {
+        } else {
             mediaProvider.setStopTime(1000*stopTime.millis);
         }
    }
@@ -171,12 +183,19 @@ public class MediaPlayer {
    
    /**
     * Defines the number of times the media should repeat.
+    * if repeatCount is 1 the media will play once.
+    * if it is REPEAT_FOREVER, it will repeat indefinitely
+    * In this implementation, these are the only values currently supported
     * @profile core
     */
    public attribute repeatCount: Number = 1 on replace {
-      // not yet in MediaProvider
-       // mediaProvider.setRepeatCount(repeatCount);
+       if (repeatCount == REPEAT_FOREVER) {
+           mediaProvider.setRepeating(true);
+       } else {
+           mediaProvider.setRepeating(false);
+       }
    }
+  
 
    /**
     * Defines the current number of time the media has repeated
@@ -191,11 +210,11 @@ public class MediaPlayer {
    */
    public static attribute REPEAT_NONE:Number = 1;
 
- /**
-   * Value of {@code repeatCount} to repeat forever
-   * @profile core
-   */
-   public static attribute REPEAT_FOREVER:Integer = -1;//infinity;// where is Number.infinity;
+    /**
+     * Value of {@code repeatCount} to repeat forever
+     * @profile core
+     */
+    public static attribute REPEAT_FOREVER:Integer = -1;//infinity;// where is Number.infinity;
    
    /**
     * Equals {@code true} if the player's audio is muted, false otherwise.
@@ -297,4 +316,10 @@ public class MediaPlayer {
        this.view = view;
    }
 
+   private function handleError(error: MediaError):Void {
+        if (onError <> null) {
+                onError(error);
+         }
+    }
+        
 }

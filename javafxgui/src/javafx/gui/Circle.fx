@@ -29,10 +29,10 @@ import com.sun.scenario.scenegraph.SGCircle;
 // PENDING_DOC_REVIEW_2
 /**
  * The {@code Circle} class creates a new circle 
- * with the specified radius and center location. 
+ * with the specified radius and center location measured in pixels 
  *
- * Example usage. The following code creates a circle with radius 50 centered
- * at 100,100.
+ * Example usage. The following code creates a circle with radius 50px centered
+ * at (100,100)px.
  * 
  * <pre><code>Circle { 
  *  centerX: 100
@@ -43,7 +43,7 @@ import com.sun.scenario.scenegraph.SGCircle;
  * 
  *
  * @profile common 
- * @cssclass needsreview
+ * @needsreview
  */ 
 public class Circle extends Shape {
 
@@ -51,34 +51,37 @@ public class Circle extends Shape {
 
     function getSGCircle():SGCircle { getSGNode() as SGCircle }
 
-    // PENDING_DOC_REVIEW
+    // PENDING_DOC_REVIEW_2
     /**
-    * Defines the horizontal position of the center of the circle.
-    * The default value is {@code 0.0}
+    * Defines the horizontal position of the center of the circle in pixels.
+    * The default value is {@code 0.0}px
     *
     * @profile common
+    * @needsreview
     */     
     public attribute centerX:Number on replace { 
         getSGCircle().setCenterX(centerX.floatValue());
     }
     
-    // PENDING_DOC_REVIEW
+    // PENDING_DOC_REVIEW_2
     /**
-    * Defines the vertical position of the center of the circle.
-    * The default value is {@code 0.0}
+    * Defines the vertical position of the center of the circle in pixels.
+    * The default value is {@code 0.0}px
     *
     * @profile common
+    * @needsreview
     */        
     public attribute centerY:Number on replace { 
         getSGCircle().setCenterY(centerY.floatValue());
     }
     
-    // PENDING_DOC_REVIEW
+    // PENDING_DOC_REVIEW_2
     /**
-    * Defines the radius of the circle.
-    * The default value is {@code 0.0}
+    * Defines the radius of the circle in pixels.
+    * The default value is {@code 0.0}px
     *
     * @profile common
+    * @needsreview
     */        
     public attribute radius:Number on replace { 
         getSGCircle().setRadius(radius.floatValue());

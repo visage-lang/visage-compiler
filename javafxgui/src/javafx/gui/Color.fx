@@ -30,9 +30,14 @@ import java.util.Map;
 import java.util.HashMap;
 import java.lang.NumberFormatException;
 
-// PENDING_DOC_REVIEW
+// PENDING_DOC_REVIEW_2
 /**
- * The Color class is used to encapsulate colors in the default sRGB color space. 
+ * <p class="editor">
+ * NOTE: this definition, while correct, contains a lot of information which
+ * is irrelevant to most developers. We should get to the basic definition and
+ * usage patterns sooner.</p>
+ *
+ * <p>The Color class is used to encapsulate colors in the default sRGB color space. 
  * Every color has an implicit alpha value of 1.0 or an explicit one provided 
  * in the constructor. The alpha value defines the transparency of a color 
  * and can be  represented by a float value in the range 0.0-1.0 or 0-255. 
@@ -41,40 +46,87 @@ import java.lang.NumberFormatException;
  * When constructing a {@code Color} with an explicit alpha or getting 
  * the color/alpha components of a Color, 
  * the color components are never premultiplied by the alpha component.
+ * </p>
+ * 
+ * <p>{@code Color}s can be created with the constructor or with one of several
+ * static utility methods.  The following lines of code all create the same
+ * blue color:</p>
  *
+ * <pre><code>
+ * var c = Color.BLUE;   //use the blue constant
+ * var c = Color { red: 0 green: 0 blue: 1.0 }; // standard constructor
+ 
+ * var c = Color.color(0,0,1.0); //use 0->1.0 values. implicit alpha of 1.0
+ * var c = Color.color(0,0,1.0,1.0); //use 0->1.0 values, explicit alpha of 1.0
+ 
+ * var c = Color.rgb(0,0,255); //use 0->255 integers, implict alpha of 1.0
+ * var c = Color.rgb(0,0,255,1.0); //use 0->255 integers, explict alpha of 1.0
+ * <b>//NOTE, shouldn't Color.rgb use 0->255 for the alpha?</b>
+ 
+ * var c = Color.hsb(270,1.0,1.0); //hue = 270, saturation & value = 1.0. inplict alpha of 1.0
+ * var c = Color.hsb(270,1.0,1.0,1.0); //hue = 270, saturation & value = 1.0, explict alpha of 1.0
+ 
+ * var c = Color.web("0x0000FF",1.0);// blue as a hex web value, explict alpha
+ * var c = Color.web("0x0000FF");// blue as a hex web value, implict alpha
+ * var c = Color.web("#0000FF",1.0);// blue as a hex web value, explict alpha
+ * var c = Color.web("#0000FF");// blue as a hex web value, implict alpha
+ * var c = Color.web("0000FF",1.0);// blue as a hex web value, explict alpha
+ * var c = Color.web("0000FF");// blue as a hex web value, implict alpha
+ 
+ * var c = Color.fromAWTColor(java.awt.Color.BLUE }; //convert from an AWT color
+ 
+ * 
+ * 
+ * </code></pre>
+ *
+ * Note. Once created the attributes of a color should never be modified.
+ 
  * @profile common
+ * @needsreview
  */    
 public /* final */ class Color extends Paint, Interpolatable {
 
     // PENDING_DOC_REVIEW
     /**
      * Defines the color red in the default sRGB space. 
+     * This attribute should not be modifed once set in the constructor.
      *
      * @profile common
+     * @setonce
+     * @needsreview
      */    
     public /* set-once */ attribute red: Number;
 
     // PENDING_DOC_REVIEW
     /**
      * Defines the color green in the default sRGB space. 
+     * This attribute should not be modifed once set in the constructor.
      *
      * @profile common
+     * @setonce
+     * @needsreview
      */        
     public /* set-once */ attribute green: Number;
 
     // PENDING_DOC_REVIEW
     /**
      * Defines the color blue in the default sRGB space. 
+     * This attribute should not be modifed once set in the constructor.
      *
      * @profile common
+     * @setonce
+     * @needsreview
      */        
     public /* set-once */ attribute blue: Number;
 
     // PENDING_DOC_REVIEW
     /**
      * Defines the opacity for this color. The default value is 1.0.
+     * This attribute should not be modifed once set in the constructor.
      *
      * @profile common
+     * @setonce
+     * @needsreview
      */        
     public /* set-once */ attribute opacity: Number = 1.0;
 
@@ -104,6 +156,8 @@ public /* final */ class Color extends Paint, Interpolatable {
     // PENDING_DOC_REVIEW
     /**
      * Returns the {@code java.awt.Color} delegate for this Color.
+     * <p class="editor">This method should not be public. It is an implementation detail.</p>
+     * @needsreview
      */
     public function getAWTColor(): java.awt.Color {
         getAWTColor0();
@@ -112,11 +166,18 @@ public /* final */ class Color extends Paint, Interpolatable {
     // PENDING_DOC_REVIEW
     /**
      * Returns the {@code java.awt.Paint} delegate for this Color.
+     * <p class="editor">This method should not be public. It is an implementation detail.</p>
+     * @needsreview
      */
     public function getAWTPaint(): java.awt.Paint {
         getAWTColor0();
     }
 
+    /* //PENDING_DOC_REVIEW
+     * Support for interpolation?
+     * <p class="editor">This method should not be public. It is an implementation detail.</p>
+     * @needsreview
+     */
     public function ofTheWay(endVal:Object, t:Number): Object {
         var v2 = endVal as Color;
         Color {
@@ -130,6 +191,7 @@ public /* final */ class Color extends Paint, Interpolatable {
     // PENDING_DOC_REVIEW
     /**
      * Creates a Color instance derived from the provided {@code java.awt.Color}. 
+     * @needsreview
      */
     public static function fromAWTColor(c: java.awt.Color): Color {
         if (c == null) {
@@ -152,58 +214,61 @@ public /* final */ class Color extends Paint, Interpolatable {
         // }
     }
 
-    // PENDING_DOC_REVIEW
+    // PENDING_DOC_REVIEW_2
     /**
      * Creates an sRGB color with the specified red, green, blue,
      * and opacity values in the range (0.0 - 1.0). 
      * The actual color used in rendering depends on finding the best match 
      * given the color space available for a particular output device.
      *
-     * @param red the red component
-     * @param green the green component
-     * @param blue  the blue component
-     * @param the opacity component
+     * @param red the red component, 0->1.0
+     * @param green the green component, 0 -> 1.0
+     * @param blue  the blue component, 0 -> 1.0
+     * @param opacity the opacity component, 0 -> 1.0
      *
      * @profile common
+     * @needsreview
      */        
     public static function color(red: Number, green: Number, blue: Number, opacity: Number): Color {
         Color {red: red, green: green, blue: blue, opacity: opacity}
     }
 
-    // PENDING_DOC_REVIEW
+    // PENDING_DOC_REVIEW_2
     /**
      * Creates an opaque sRGB color with the specified red, green, 
      * and blue values in the range (0.0 - 1.0). Opacity is defaulted to {@code 1.0}. 
      * The actual color used in rendering depends on finding the best match 
      * given the color space available for a particular output device.
      *
-     * @param red the red component
-     * @param green the green component
-     * @param blue the blue component
+     * @param red the red component, 0->1.0
+     * @param green the green component, 0 -> 1.0
+     * @param blue  the blue component, 0 -> 1.0
      *
      * @profile common
+     * @needsreview
      */        
     public static function color(red: Number, green: Number, blue: Number): Color {
         Color {red: red, green: green, blue: blue};
     }
 
-    // PENDING_DOC_REVIEW
+    // PENDING_DOC_REVIEW_2
     /**
      * Creates an sRGB color with the specified red, green, blue 
-     * valuse in the range (0 - 255) and opacity value in the range (0.0 - 1.0).
+     * values in the range (0 - 255) and opacity value in the range (0.0 - 1.0).
      *
-     * @param red the red component
-     * @param green the green component
-     * @param blue the blue component
-     * @param opacity the opacity component
+     * @param red the red component, 0->255
+     * @param green the green component, 0->255
+     * @param blue the blue component, 0->255
+     * @param opacity the opacity component, 0->1.0
      *
      * @profile common
+     * @cssclass needsreview
      */        
     public static function rgb(red: Integer, green: Integer, blue: Integer, opacity: Number): Color {
         Color {red: red / 255.0, green: green / 255.0, blue: blue / 255.0, opacity: opacity};
     }
 
-    // PENDING_DOC_REVIEW
+    // PENDING_DOC_REVIEW_2
     /**
      * Creates an opaque sRGB color with the specified red, green, 
      * and blue values in the range (0 - 255). 
@@ -211,33 +276,40 @@ public /* final */ class Color extends Paint, Interpolatable {
      * given the color space available for a given output device. 
      * Opacity is defaulted to 255.
      *
-     * @param red the red component
-     * @param green the green component
-     * @param blue the blue component
+     * @param red the red component, 0->255
+     * @param green the green component, 0->255
+     * @param blue the blue component, 0->255
      *
      * @profile common
+     * @needsreview
      */        
     public static function rgb(red: Integer, green: Integer, blue: Integer): Color {
         Color {red: red / 255.0, green: green / 255.0, blue: blue / 255.0};
     }
 
-    // PENDING_DOC_REVIEW
+    // PENDING_DOC_REVIEW_2
     /**
-     * Creates a {@code Color} object based on the specified values for 
+     * <p class="editor">
+     * NOTE, the description of the H component is confusing. Why can't
+     * the hue simply be from 0->360 (with wrapping. The devleoper shouldn't have to understand
+     * how it is calculated.</p>
+     * 
+     * <p>Creates a {@code Color} object based on the specified values for 
      * the HSB color model. The {@code saturation}, {@code brightness}, 
      * and {@code opacity}  components should be floating-point values 
      * between zero and one (numbers in the range {@code 0.0 - 1.0)}. 
      * The {@code hue} component can be any floating-point number. 
      * The floor of this number is subtracted from it to create a fraction 
      * between 0 and 1. This fractional number is then multiplied by 360 
-     * to produce the hue angle in the HSB color model.
+     * to produce the hue angle in the HSB color model.</p>
      * 
-     * @param hue the hue component
-     * @param saturation the saturation of the color
-     * @param brightness the brightness of the color 
-     * @param opacity the opacity component
+     * @param hue the hue component, 0->1.0 (wraps)
+     * @param saturation the saturation of the color, 0->1.0
+     * @param brightness the brightness of the color, 0->1.0
+     * @param opacity the opacity component, 0->1.0
      *
      * @profile common
+     * @needsreview
      */        
     public static function hsb(hue: Number, saturation: Number, brightness: Number, opacity: Number) {
         var base = java.awt.Color.getHSBColor(hue.floatValue(), saturation.floatValue(), brightness.floatValue());
@@ -245,7 +317,7 @@ public /* final */ class Color extends Paint, Interpolatable {
         Color {red: rgb[0], green: rgb[1], blue: rgb[2], opacity: opacity};
     }
 
-    // PENDING_DOC_REVIEW
+    // PENDING_DOC_REVIEW_2
     /**
      * Creates a {@code Color} object based on the specified values 
      * for the HSB color model. The {@code saturation} and {@code brightness} 
@@ -256,11 +328,12 @@ public /* final */ class Color extends Paint, Interpolatable {
      * This fractional number is then multiplied by 360 to produce the hue angle 
      * in the HSB color model. 
      *
-     * @param hue the hue component
-     * @param saturation the saturation of the color
-     * @param brightness the brightness of the color
+     * @param hue the hue component, 0->1.0 (wraps)
+     * @param saturation the saturation of the color, 0->1.0
+     * @param brightness the brightness of the color, 0->1.0
      * 
      * @profile common
+     * @needsreview
      */        
     public static function hsb(hue: Number, saturation: Number, brightness: Number) {
         var base = java.awt.Color.getHSBColor(hue.floatValue(), saturation.floatValue(), brightness.floatValue());
@@ -268,15 +341,22 @@ public /* final */ class Color extends Paint, Interpolatable {
         Color {red: rgb[0], green: rgb[1], blue: rgb[2]};
     }
 
-    // PENDING_DOC_REVIEW
+    // PENDING_DOC_REVIEW_2
     /**
      * Creates an RGB color specified with the hexadecimal notation. 
-     * Opacity is in the range 0.0-1.0.
+     * Opacity is in the range 0.0-1.0. ex:
+     * 
+     * <pre><code>
+     * var c = Color.web("0xff6688",1.0);
+     * var c = Color.web("#ff6688",1.0);
+     * var c = Color.web("ff6688",1.0);
+     * </code></pre>
      *
      * @param color the hexadecimal string to identify the RGB color
      * @param opacity the opacity component
      *
      * @profile common
+     * @needsreview
      */        
     public static function web(color: String, opacity: Number): Color {
         color = color.toLowerCase();
@@ -316,14 +396,20 @@ public /* final */ class Color extends Paint, Interpolatable {
         }
     }
 
-    // PENDING_DOC_REVIEW
+    // PENDING_DOC_REVIEW_2
     /**
      * Creates an RGB color specified with the hexadecimal notation. 
-     * Opacity is set to {@code 1.0}.
+     * Opacity is set to {@code 1.0}. ex:
+     * <pre><code>
+     * var c = Color.web("0xff6688");
+     * var c = Color.web("#ff6688");
+     * var c = Color.web("ff6688");
+     * </code></pre>
      *
      * @param color the hexadecimal string to identify the RGB color
      *
      * @profile common
+     * @needsreview
      */        
     public static function web(color: String): Color {
         web(color, 1.0);

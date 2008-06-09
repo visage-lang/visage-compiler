@@ -24,9 +24,10 @@ package javafx.gui;
 
 // PENDING_DOC_REVIEW
 /**
- * The {@code FontStyle} class represents a style of a {@link Font} object.
+ * The {@code FontStyle} class represents the style (plain, bold or italic) of a {@link Font} object.
  *
  * @profile common
+ * @needsreview
  */      
 public /* final */ class FontStyle {
 

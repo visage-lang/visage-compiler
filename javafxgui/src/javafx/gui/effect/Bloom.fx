@@ -29,7 +29,7 @@ package javafx.gui.effect;
 public class Bloom extends Effect {
     private attribute bloom = new com.sun.scenario.effect.Bloom();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    function getImpl():com.sun.scenario.effect.Effect {
         bloom
     };
 

@@ -29,7 +29,7 @@ package javafx.gui.effect;
 public class Glow extends Effect {
     private attribute glow = new com.sun.scenario.effect.Glow();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    function getImpl():com.sun.scenario.effect.Effect {
         glow
     };
 

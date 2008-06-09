@@ -24,41 +24,57 @@ package javafx.gui;
 
 import javax.swing.plaf.UIResource;
 
-// PENDING_DOC_REVIEW
+// PENDING_DOC_REVIEW_2
 /**
- * The {@code Font} class represents fonts, which are used to
- * render text in a visible way.
- * A font provides the information needed to map sequences of
+ * <p>The {@code Font} class represents fonts, which are used to
+ * render text on screen. A {@code Font} includes the name of the
+ * font (such as 'Helvetica' or 'Arial'), the style of
+ * the font (bold, plain or italic), and the size of the font
+ * in points (10pt, 12pt, etc.)</p>
+ * 
+ * <p>A font provides the information needed to map sequences of
  * <em>characters</em> to sequences of <em>glyphs</em>
- * and to render sequences of glyphs on {@code Component} objects.
+ * and to render sequences of glyphs on screen.</p>
  *
  * @profile common
+ * @needsreview
  */      
 public /* final */ class Font {
 
-    // PENDING_DOC_REVIEW
+    // PENDING_DOC_REVIEW_2
     /**
-     * Represents the logical name of this {@code Font}.
+     * <p>The name of this {@code Font}. It can be a logical name
+     * like 'serif' or 'sanserif' or an actual font family name 
+     * like 'Helvetica' or 'Times New Roman'.  If the named
+     * font cannot be found then the default font will
+     * be used. <b class='editor'>Is this correct? What is the default
+     * font? sanserif?</b></p>
      *
      * @profile common
+     * @needsreview
+     * @setonce
      */          
     public /* set-once */ attribute name: String = "Default";
 
-    // PENDING_DOC_REVIEW
+    // PENDING_DOC_REVIEW_2
     /**
-     * Represents the style of this {@code Font}.  The style can be
+     * <p>The style of this {@code Font}.  The style can be
      * {@link FontStyle#PLAIN}, {@link FontStyle#BOLD},
-     * {@link FontStyle#ITALIC}, or {@link FontStyle#BOLD_ITALIC}.
+     * {@link FontStyle#ITALIC}, or {@link FontStyle#BOLD_ITALIC}.</p>
      *
      * @profile common
+     * @needsreview
+     * @setonce
      */          
     public /* set-once */ attribute style: FontStyle = FontStyle.PLAIN;
 
-    // PENDING_DOC_REVIEW
+    // PENDING_DOC_REVIEW_2
     /**
-     * Returns the point size of this {@code Font}.
+     * <p>The point size of this {@code Font}.</p>
      *
      * @profile common
+     * @needsreview
+     * @setonce
      */          
     public /* set-once */ attribute size: Integer = 12;
 
@@ -69,6 +85,10 @@ public /* final */ class Font {
         awtFont;
     }
 
+    /**
+     * Creates a new {@code Font} from a corresponding AWT Font.
+     * @needsreview
+     */
     public static function fromAWTFont(f: java.awt.Font): Font {
         var name = f.getName();
         var style = FontStyle.fromToolkitValue(f.getStyle());

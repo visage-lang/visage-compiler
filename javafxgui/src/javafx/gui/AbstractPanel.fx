@@ -31,7 +31,7 @@ import java.beans.PropertyChangeEvent;
 /**
  * Abstract base class for {@code Panel}s.
  * Developers should normally use the concrete Panel class instead of this class.
- * @cssclass needsreview
+ * @needsreview
  */
 public abstract class AbstractPanel extends Component, Container {
 

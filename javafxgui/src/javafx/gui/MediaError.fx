@@ -23,6 +23,14 @@
 
 package javafx.gui;
 
+
+import com.sun.media.jmc.MediaUnavailableException;
+import com.sun.media.jmc.MediaUnsupportedException;
+import com.sun.media.jmc.MediaInaccessibleException;
+import com.sun.media.jmc.MediaCorruptedException;
+import com.sun.media.jmc.MediaException;
+import com.sun.media.jmc.OperationUnsupportedException;
+
   /** 
    * Contains error information
    * 
@@ -46,7 +54,7 @@ public class MediaError {
      * does not exist or is otherwise unavailable
      * @profile core
      */
-    public static attribute MEDIA_UNAVAILILABLE:Integer=2;
+    public static attribute MEDIA_UNAVAILABLE:Integer=2;
     /**
      * Indicates an error has occurred: the media appears to be
      * invalid or corrupted
@@ -70,9 +78,48 @@ public class MediaError {
      */
     public static attribute MEDIA_UNSPECIFIED=6;
     
+   /**
+     * reason this error
+     * @profile core
+     */
+    public attribute cause:Integer;
     /**
      * Contains more information about this error
      * @profile core
     */
     public attribute message:String;
+
+    /**
+     * converts Java exceptions into mediaErrors
+     */
+    static function exceptionToError(e:java.lang.Exception):MediaError {
+        var mediaErrorN;
+        
+        if (e instanceof MediaUnavailableException) {
+            mediaErrorN = MediaError.MEDIA_UNAVAILABLE;
+        } else if (e instanceof MediaInaccessibleException) {
+            mediaErrorN = MediaError.MEDIA_INACCESSIBLE;
+        } else if (e instanceof MediaCorruptedException) {
+            mediaErrorN = MediaError.MEDIA_CORRUPTED;
+        } else if (e instanceof OperationUnsupportedException) {
+            mediaErrorN = MediaError.OPERATION_UNSUPPORTED;
+        } else if (e instanceof MediaUnsupportedException) {
+            mediaErrorN = MediaError.MEDIA_UNSUPPORTED;
+        } else {
+            mediaErrorN = MediaError.UNKNOWN;
+        }
+        return MediaError{cause: mediaErrorN, message: e.toString()}
+    }
+    
+    private static attribute errorString = [ "unknown",
+                                             "media inaccesible",
+                                             "media unavailable",
+                                             "media corrupted" ,
+                                             "media unsupported" ,
+                                             "operation unsupported",
+                                             "media unspecified" ];
+                                  
+    function toString():String {
+        return "MediaError: {errorString[cause]}:{message}";
+    }
 };

@@ -29,7 +29,7 @@ package javafx.gui.effect;
 public class GaussianBlur extends Effect {
     private attribute blur = new com.sun.scenario.effect.GaussianBlur();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    function getImpl():com.sun.scenario.effect.Effect {
         blur
     };
 

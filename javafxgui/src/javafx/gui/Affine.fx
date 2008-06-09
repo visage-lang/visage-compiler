@@ -53,7 +53,7 @@ import java.awt.geom.AffineTransform;
  * </pre>
  *
  * @profile common
- * @cssclass needsreview
+ * @needsreview
  */ 
 public class Affine extends Transform {
 

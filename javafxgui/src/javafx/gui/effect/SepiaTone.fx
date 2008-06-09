@@ -28,7 +28,7 @@ package javafx.gui.effect;
 public class SepiaTone extends Effect {
     private attribute sepia = new com.sun.scenario.effect.SepiaTone();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    function getImpl():com.sun.scenario.effect.Effect {
         sepia
     };
 

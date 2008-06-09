@@ -36,7 +36,7 @@ public class Lighting extends Effect {
         return new PhongLighting(AccessHelper.getLightImpl(l));
     }
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    function getImpl():com.sun.scenario.effect.Effect {
         phong
     };
 

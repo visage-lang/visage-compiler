@@ -31,7 +31,7 @@ public class DisplacementMap extends Effect {
         new com.sun.scenario.effect.FloatMap(1, 1),
         new com.sun.scenario.effect.Source(true));
         
-    public function getImpl():com.sun.scenario.effect.Effect {
+    function getImpl():com.sun.scenario.effect.Effect {
         displace
     };
 

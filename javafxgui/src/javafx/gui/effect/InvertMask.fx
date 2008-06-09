@@ -29,7 +29,7 @@ package javafx.gui.effect;
 public class InvertMask extends Effect {
     private attribute invert = new com.sun.scenario.effect.InvertMask();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    function getImpl():com.sun.scenario.effect.Effect {
         invert
     };
 

@@ -82,6 +82,13 @@
     <property name="javafxc.compilerargs" value=""/>
     <property name="lib.dir" value="lib"/>
 
+    <!-- Add nimbus jar to bootpath if we are running on mac -->
+    <target name="-post-init" if="have.sources">
+        <condition property="run.javavm.args" value="-Xbootclasspath/p:${lib.dir}/nimbus.jar" else="">
+            <os family="mac"/>
+        </condition>
+    </target>
+
     <target name="-post-compile" if="have.sources" depends="init,deps-jar,-pre-pre-compile,-pre-compile">
         <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask">
             <classpath>
@@ -94,6 +101,15 @@
                  encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"
                  includes="**/*.fx" source="${javac.source}" sourcepath=""
                  srcdir="${src.dir}" target="${javac.target}"
+                 classpath="${build.classes.dir}:${javac.classpath}:${javafxrt.jar}"
+                 compilerclasspath="${javafxc.jar}">
+            <compilerarg line="${javafxc.compilerargs}"/>
+        </javafxc>
+        <javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"
+                 destdir="${build.classes.dir}" fork="true" memoryMaximumSize="256m"
+                 encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"
+                 includes="**/*.fx" source="${javac.source}" sourcepath=""
+                 srcdir="${src.sandbox.dir}" target="${javac.target}"
                  classpath="${build.classes.dir}:${javac.classpath}:${javafxrt.jar}"
                  compilerclasspath="${javafxc.jar}">
             <compilerarg line="${javafxc.compilerargs}"/>
@@ -150,6 +166,7 @@
     <!-- Run demo.scratchpad.Main -->
     <target name="runScratchpad" depends="init,compile" description="Run a main class.">
         <java classname="demo.scratchpad.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -161,6 +178,7 @@
     <!-- Run demo.bubblemark.Main -->
     <target name="runBubbleMark" depends="init,compile" description="Run a main class.">
         <java classname="demo.bubblemark.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -172,6 +190,7 @@
     <!-- Run demo.containertest.Main -->
     <target name="runContainerTest" depends="init,compile" description="Run a main class.">
         <java classname="demo.containertest.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -183,6 +202,7 @@
     <!-- Run demo.grouppaneltest.Main -->
     <target name="runGroupPanelTest" depends="init,compile" description="Run a main class.">
         <java classname="demo.grouppaneltest.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -194,6 +214,7 @@
     <!-- Run demo.borderpaneltest.Main -->
     <target name="runBorderPanelTest" depends="init,compile" description="Run a main class.">
         <java classname="demo.borderpaneltest.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -205,6 +226,7 @@
     <!-- Run gridpaneltest -->
     <target name="runGridPanelTest" depends="init,compile" description="Run a main class.">
         <java classname="demo.gridpaneltest.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -216,6 +238,7 @@
     <!-- Run flowpaneltest -->
     <target name="runFlowPanelTest" depends="init,compile" description="Run a main class.">
         <java classname="demo.flowpaneltest.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -227,6 +250,7 @@
     <!-- Run demo.listtest.Main -->
     <target name="runListTest" depends="init,compile" description="Run a main class.">
         <java classname="demo.listtest.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -238,6 +262,7 @@
     <!-- Run demo.combotest.Main -->
     <target name="runComboTest" depends="init,compile" description="Run a main class.">
         <java classname="demo.combotest.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -249,6 +274,7 @@
     <!-- Run demo.listtest2.Main -->
     <target name="runListTest2" depends="init,compile" description="Run a main class.">
         <java classname="demo.listtest2.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -271,6 +297,7 @@
     <!-- Run demo.oldtester.Main -->
     <target name="runOldTester" depends="init,compile" description="Run a main class.">
         <java classname="demo.oldtester.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -282,6 +309,7 @@
     <!-- Run demo.animation.tester.Main -->
     <target name="runAnimationTester" depends="init,compile" description="Run a main class.">
         <java classname="demo.animation.tester.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -293,6 +321,7 @@
     <!-- Run demo.animation.bounce.Main -->
     <target name="runBounceTest" depends="init,compile" description="Run a main class.">
         <java classname="demo.animation.bounce.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -304,6 +333,7 @@
     <!-- Run demo.animation.morph.Main -->
     <target name="runMorphTest" depends="init,compile" description="Run a main class.">
         <java classname="demo.animation.morph.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -315,6 +345,7 @@
     <!-- Run demo.effects.tester.Main -->
     <target name="runEffectsTester" depends="init,compile" description="Run a main class.">
         <java classname="demo.effects.tester.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -326,6 +357,7 @@
     <!-- Run demo.effects.shelf.Main -->
     <target name="runShelfTest" depends="init,compile" description="Run a main class.">
         <java classname="demo.effects.shelf.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -337,6 +369,7 @@
     <!-- Run demo.grid.Main -->
     <target name="runGridTest" depends="init,compile" description="Run a main class.">
         <java classname="demo.gridtest.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -348,6 +381,7 @@
     <!-- Run demo.tester.Main -->
     <target name="runTester" depends="init,compile" description="Run a main class.">
         <java classname="demo.tester.Main" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${build.classes.dir}"/>
               <pathelement path="${run.classpath}"/>
@@ -359,6 +393,7 @@
     <!-- Run demo.imagetest.ImageTest -->
     <target name="runImageTest" depends="init,compile" description="Run ImageTest.">
         <java classname="demo.imagetest.ImageTest" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${run.classpath}"/>
               <pathelement location="${javafxrt.jar}"/>
@@ -369,16 +404,47 @@
     <!-- Run demo.shapetest.ShapeTest -->
     <target name="runShapeTest" depends="init,compile" description="Run ShapeTest.">
         <java classname="demo.shapetest.ShapeTest" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${run.classpath}"/>
               <pathelement location="${javafxrt.jar}"/>
             </classpath>
         </java>
     </target>
-
+  <!-- Run demo.mediatest.MediaBounce -->
+    <target name="runFxMediaBounce" depends="init,compile" description="Run FxMediaBounce.">
+        <java classname="demo.mediatest.FxMediaBounce" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+     <!-- Run demo.mediatest.fxMediaPlayer -->
+    <target name="runFxMediaPlayer" depends="init,compile" description="Run FxMediaPlayer">
+        <java classname="demo.mediatest.FxMediaPlayer" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
+      <!-- Run demo.mediatest.fxMediaEffects -->
+    <target name="runFxMediaEffects" depends="init,compile" description="Run FxMediaEffects.">
+        <java classname="demo.mediatest.FxMediaEffects" fork="true">
+            <classpath>
+              <pathelement path="${build.classes.dir}"/>
+              <pathelement path="${run.classpath}"/>
+              <pathelement location="${javafxrt.jar}"/>
+            </classpath>
+        </java>
+    </target>
     <!-- Run demo.mousetest.MouseTest -->
     <target name="runMouseTest" depends="init,compile" description="Run MouseTest.">
         <java classname="demo.mousetest.MouseTest" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${run.classpath}"/>
               <pathelement location="${javafxrt.jar}"/>
@@ -389,6 +455,7 @@
     <!-- Run demo.layouttest.LayoutTest -->
     <target name="runLayoutTest" depends="init,compile" description="Run LayoutTest.">
         <java classname="demo.layouttest.LayoutTest" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${run.classpath}"/>
               <pathelement location="${javafxrt.jar}"/>
@@ -396,9 +463,10 @@
         </java>
     </target>
 
-    <!-- Run demo.layouttest.LayoutTest -->
-    <target name="runTableTest" depends="init,compile" description="Run TableTest">
-        <java classname="demo.table.Main" fork="true">
+    <!-- Run demo.pano.PanoViewer -->
+    <target name="runPanoViewer" depends="init,compile" description="Run Pano Viewer">
+        <java classname="demo.pano.PanoViewer" fork="true">
+            <jvmarg value="${run.javavm.args}"/>
             <classpath>
               <pathelement path="${run.classpath}"/>
               <pathelement location="${javafxrt.jar}"/>
@@ -455,15 +523,12 @@
    <presetdef name="jar" uri="http://www.netbeans.org/ns/j2se-project/1">
        <jar jarfile="${dist.jar}" compress="${jar.compress}">
        <j2seproject1:fileset dir="${build.classes.dir}">
-           <exclude name="demo/"/>
+           <include name="META-INF.services/**"/>
+           <include name="com/sun/javafx/**"/>
+           <include name="javafx/**"/>
        </j2seproject1:fileset>
        </jar>
    </presetdef>
-       <!--<jar jarfile="dist/demos.jar" compress="${jar.compress}">-->
-           <!--<fileset dir="${build.classes.dir}">-->
-               <!--<exclude name="javafx/"/>-->
-           <!--</fileset>-->
-       <!--</jar>-->
    </target>
 
 

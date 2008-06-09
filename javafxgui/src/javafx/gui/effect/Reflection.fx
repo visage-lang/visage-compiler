@@ -29,7 +29,7 @@ package javafx.gui.effect;
 public class Reflection extends Effect {
     private attribute reflect = new com.sun.scenario.effect.Reflection();
 
-    public function getImpl():com.sun.scenario.effect.Effect {
+    function getImpl():com.sun.scenario.effect.Effect {
         reflect
     };
 

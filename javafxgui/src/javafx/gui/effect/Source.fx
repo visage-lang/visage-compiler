@@ -34,7 +34,7 @@ public class Source extends Effect {
         update();
     }
     
-    public function getImpl():com.sun.scenario.effect.Effect {
+    function getImpl():com.sun.scenario.effect.Effect {
         source
     };
     

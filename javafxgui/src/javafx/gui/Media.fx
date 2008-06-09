@@ -19,7 +19,8 @@
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
- */ 
+ */
+ 
 
 package javafx.gui;
 import javafx.lang.Duration;
@@ -27,6 +28,8 @@ import javafx.lang.Duration;
 //import com.sun.media.jmc.Media;
 import java.net.URI;
 import com.sun.javafx.gui.MediaHelper;
+import java.lang.System;
+import java.lang.Exception;
 
 /**
  * The {@code Media} class represents a media resource.
@@ -46,7 +49,15 @@ public class Media {
      * @profile common
      */
     public attribute source:String on replace {
-        jmcMediaInfo = new com.sun.media.jmc.Media(new URI(source));
+        if ((source == null)) {
+            jmcMediaInfo = null; // avoid errors while initializing
+        } else {
+            try {
+                jmcMediaInfo = new com.sun.media.jmc.Media(new URI(source));
+            } catch (e:Exception) {
+                handleException(e);
+            }
+        }
     }
     
     /**
@@ -89,4 +100,12 @@ public class Media {
      */
     public attribute onError: function(e:MediaError);
     
+    private function handleException(e: Exception) {
+        if (onError <> null) {
+            onError(MediaError.exceptionToError(e));
+        } else {
+            System.out.println("FX Media Object caught Exception {e}");
+            System.out.println("    source ='{source}'");
+        }
+    }
 }

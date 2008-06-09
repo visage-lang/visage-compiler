@@ -29,23 +29,27 @@ import com.sun.scenario.scenegraph.SGEllipse;
 // PENDING_DOC_REVIEW
 /**
  * The {@code Ellipse} class creates a new ellipse 
- * with the specified size and location.
+ * with the specified size and location in pixels
  *
  * @profile common 
+ * @needsreview
  */      
 public class Ellipse extends Shape {
 
+    //non-public
     function createSGNode():SGNode { new SGEllipse() }
 
+    //non-public
     function getSGEllipse():SGEllipse { getSGNode() as SGEllipse }
 
 
     // PENDING_DOC_REVIEW
     /**
-    * Defines the horizontal position of the center of the ellipse.
-    * The default value is {@code 0.0}
+    * Defines the horizontal position of the center of the ellipse in pixels.
+    * The default value is {@code 0.0}px
     *
     * @profile common
+    * @needsreview
     */          
     public attribute centerX:Number on replace {
         getSGEllipse().setCenterX(centerX.floatValue()); 
@@ -53,10 +57,11 @@ public class Ellipse extends Shape {
     
     // PENDING_DOC_REVIEW
     /**
-    * Defines the vertical position of the center of the ellipse.
-    * The default value is {@code 0.0}
+    * Defines the vertical position of the center of the ellipse in pixels.
+    * The default value is {@code 0.0}px
     *
     * @profile common
+    * @needsreview
     */          
     public attribute centerY:Number on replace { 
         getSGEllipse().setCenterY(centerY.floatValue()); 
@@ -64,10 +69,11 @@ public class Ellipse extends Shape {
     
     // PENDING_DOC_REVIEW
     /**
-    * Defines the width of the ellipse.
-    * The default value is {@code 0.0}
+    * Defines the width of the ellipse in pixels.
+    * The default value is {@code 0.0}px
     *
     * @profile common
+    * @needsreview
     */          
     public attribute radiusX:Number on replace { 
         getSGEllipse().setRadiusX(radiusX.floatValue()); 
@@ -75,10 +81,11 @@ public class Ellipse extends Shape {
     
     // PENDING_DOC_REVIEW
     /**
-    * Defines the height of the ellipse.
-    * The default value is {@code 0.0}
+    * Defines the height of the ellipse in pixels.
+    * The default value is {@code 0.0}px
     *
     * @profile common
+    * @needsreview
     */          
     public attribute radiusY:Number on replace { 
         getSGEllipse().setRadiusY(radiusY.floatValue()); 

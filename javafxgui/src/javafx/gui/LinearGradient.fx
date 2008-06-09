@@ -29,35 +29,41 @@ import com.sun.scenario.scenegraph.ProportionalPaint;
 
 // PENDING_DOC_REVIEW
 /**
- * The {@code LinearGradient} class provides a way to fill a shape
+ * <p>The {@code LinearGradient} class fills a shape
  * with a linear color gradient pattern. The user may specify two or
  * more gradient colors, and this Paint will provide an interpolation
- * between each color.  The start and end points that define where
- * the color gradient should begin and end should be specified
- * relative to a unit square, unless the <code>proportional</code>
- * attribute is false.  By default proportional is true, and the
- * gradient will be scaled to fill whatever shape it is applied to.
- * <p/>
- * The user should provide an array of floats specifying how to distribute 
- * the colors along the gradient. These values should range from 0.0 to 1.0 
- * and act like keyframes along the gradient 
- * (they mark where the gradient should be exactly a particular color). 
- * <p/>
+ * between each color.</p>
+ *
+ * <p>
+ * The user should provide an array of {@code Stop}s specifying how to distribute 
+ * the colors along the gradient. The {@code Stop#offset} attribute should range 
+ * from 0.0 to 1.0 and act like keyframes along the gradient 
+ * (they mark where the gradient should be exactly a particular color). </p>
+ * 
+ * <p>If the proportional attribute is set to true (the default)
+ * then the start and end points of the gradient
+ * should be specified relative to the unit square (0.0->1.0) and will
+ * be stretched across the shape. If proportional attribute is set
+ * to false, then the start and end points should be specified
+ * as absolute pixel values and the gradient will not be stretched at all.</p>
+ *
+ * <p>
  * The two filled rectangles in the example below will render the same.
  * The first uses proportional coordinates (the default) to specify
  * the gradient's end points.  The second uses absolute 
  * coordinates.  Both of them fill the specified rectangle with a 
- * horizontal gradient that varies from black to red
- * <p/>
- * <code>
+ * horizontal gradient that varies from black to red</p>
+ * 
+ * <pre><code>
  * // object bounding box relative (proportional:true, default)
  * Rectangle {
- *     x: 50 y: 50 width: 100 height: 100
+ *     x: 0 y: 0 width: 100 height: 100
  *     fill: LinearGradient {
  *         startX: 0.0
  *         startY: 0.0
  *         endX: 1.0
  *         endY: 0.0
+ *         proportional: true
  *         stops: [
  *            Stop { offset: 0.0 color: Color.BLACK },
  *            Stop { offset: 1.0 color: Color.RED }
@@ -67,12 +73,12 @@ import com.sun.scenario.scenegraph.ProportionalPaint;
  * 
  * // user space relative (proportional:false)
  * Rectangle {
- *     x: 50 y: 50 width: 100 height: 100
+ *     x: 0 y: 0 width: 100 height: 100
  *     fill: LinearGradient {
- *         startX: 50.0
- *         startY: 50.0
- *         endX: 150.0
- *         endY: 50.0
+ *         startX: 0.0
+ *         startY: 0.0
+ *         endX: 100.0
+ *         endY:   0.0
  *         proportional: false
  *         stops: [
  *            Stop { offset: 0.0 color: Color.BLACK },
@@ -80,15 +86,16 @@ import com.sun.scenario.scenegraph.ProportionalPaint;
  *         ]
  *     }
  * } 
- * </code>
+ * </code></pre>
  *
  * @profile common
+ * @needsreview
  */ 
 public class LinearGradient extends Paint {
 
     // PENDING_DOC_REVIEW
     /**
-     * Returns the {java.awt.Paint} delegate for this {@code LinearGradient}.  
+     * Returns the {@code java.awt.Paint} delegate for this {@code LinearGradient}.  
      */
     public function getAWTPaint(): java.awt.Paint { 
         if (sizeof stops > 1) createPaint() else null

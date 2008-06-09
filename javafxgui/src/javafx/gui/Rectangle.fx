@@ -48,7 +48,7 @@ import com.sun.scenario.scenegraph.SGRectangle;
 }</code></pre>
  *
  * @profile common
- * @cssclass needsreview
+ * @needsreview
  */
 public class Rectangle extends Shape {
 

@@ -33,7 +33,7 @@ public class PointLight extends Light {
         new com.sun.scenario.effect.light.PointLight();
     }
 
-    public function getImpl():com.sun.scenario.effect.light.Light {
+    function getImpl():com.sun.scenario.effect.light.Light {
         point
     }
 
