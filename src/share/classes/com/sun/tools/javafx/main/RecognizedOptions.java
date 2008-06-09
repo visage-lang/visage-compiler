@@ -393,7 +393,8 @@ public class RecognizedOptions {
             }
         },
 	new Option(ENCODING,            MsgSym.MESSAGE_OPT_ARG_ENCODING,	MsgSym.MESSAGE_OPT_ENCODING),
-	new Option(SOURCE,              MsgSym.MESSAGE_OPT_ARG_RELEASE,     MsgSym.MESSAGE_OPT_SOURCE) {
+	//new Option(SOURCE,              MsgSym.MESSAGE_OPT_ARG_RELEASE,     MsgSym.MESSAGE_OPT_SOURCE) {
+	new HiddenOption(SOURCE,              MsgSym.MESSAGE_OPT_ARG_RELEASE,     MsgSym.MESSAGE_OPT_SOURCE) {
         @Override
 	    public boolean process(Options options, String option, String operand) {
 		Source source = Source.lookup(operand);
