@@ -42,7 +42,7 @@
 
     <project-components>
         <component>
-            <implementation-class>com.sun.javafx.ideaplugin.palette.SnippetsWindow</implementation-class>
+            <implementation-class>com.sun.javafx.ideaplugin.snippets.FxSnippetsWindow</implementation-class>
         </component>
     </project-components>
 
