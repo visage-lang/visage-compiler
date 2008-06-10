@@ -271,7 +271,7 @@
         </copy>
         <copy todir="dist/doc">
             <fileset dir="build/doc/man">
-                <include name="**/*.html"/>
+                <exclude name="**/*.1"/>
             </fileset>
         </copy>       
     </target>

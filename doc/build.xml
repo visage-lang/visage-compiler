@@ -12,6 +12,7 @@
     <property name="xhtml.style" value="${docbook.dir}/xhtml/chunkfast.xsl"/>
     <property name="manpages.path" value="${docbook.dir}/manpages/docbook.xsl"/>
     <property name="manpages.xsl.path" value="${doc.build.dir}/tmp/manpages.xsl"/>
+    <property name="htmlpages.xsl.path" value="${doc.build.dir}/tmp/htmlpages.xsl"/>
     <property name="doc.name" value="JavaFX-Language"/>
 
     <!-- Choose between HTML and XHTML -->
@@ -58,6 +59,12 @@
      <filter token="manpages-url" value="${manpages.url}"/>
      <copy file="doc/man/manpages-in.xsl" tofile="${manpages.xsl.path}" filtering="true"/>
    </target>
+     
+    <target name="htmlpages.xsl">
+        <makeurl property="chunk.url" file="${chunk.style}"/>
+        <filter token="chunk-xsl" value="${chunk.url}"/>
+        <copy file="doc/man/htmlpages-in.xsl" tofile="${htmlpages.xsl.path}" filtering="true"/>
+   </target>
 
     <!-- arg: doc.name -->
     <target name="chunk-html" depends="prepare,langref.xsl">
@@ -84,14 +91,14 @@
 	<copy file="doc/langspec/langref.css" tofile="${doc.build.dir}/html/langref.css"/>
     </target>
     
-    <target name="man-pages" depends="prepare,langref.xsl,manpages.xsl"
+    <target name="man-pages" depends="prepare,htmlpages.xsl,manpages.xsl"
             description="generate Unix-style manual pages">
         <mkdir dir="${doc.build.dir}/man/man1"/>
         <java classname="com.icl.saxon.StyleSheet" fork="true"
               dir="${doc.build.dir}/man" failonerror="true">
             <classpath refid="doc.build.class.path"/>
             <arg file="doc/man/javafx.xml"/>
-            <arg value="${doc.src.dir}/langref.xsl"/>
+            <arg value="${htmlpages.xsl.path}"/>
             <arg value="use.id.as.filename=1"/>
             <arg value="root.filename=javafx"/>
             <arg value="draft.mode=yes"/>
@@ -106,7 +113,7 @@
               dir="${doc.build.dir}/man" failonerror="true">
             <classpath refid="doc.build.class.path"/>
             <arg file="doc/man/javafxc.xml"/>
-            <arg value="${doc.src.dir}/langref.xsl"/>
+            <arg value="${htmlpages.xsl.path}"/>
             <arg value="use.id.as.filename=1"/>
             <arg value="root.filename=javafxc"/>
             <arg value="draft.mode=yes"/>
@@ -117,6 +124,7 @@
             <arg file="doc/man/javafxc.xml"/>
             <arg value="${manpages.xsl.path}"/>
         </java>        
+	<copy file="doc/man/manpage.css" tofile="${doc.build.dir}/man/manpage.css"/>
     </target>
     
     <available property="ant.jar" value="${ant.home}/lib/ant.jar" file="${ant.home}/lib/ant.jar"/>
