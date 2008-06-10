@@ -25,7 +25,9 @@ public class MyEditorPane extends Component{
         }
     };
 
-    public attribute editable: Boolean;
+    public attribute editable: Boolean = true on replace{
+        editorPane.setEditable(editable);
+    };
 
     public attribute onKeyUp: function(keyEvent :KeyEvent);
 
@@ -39,6 +41,7 @@ public class MyEditorPane extends Component{
 
     protected function createJComponent(): JComponent {
         editorPane = new JEditorPane();
+        editorPane.setEditable(editable);
 
         var keyListener = KeyAdapter{
             public function keyReleased(e: java.awt.event.KeyEvent) {

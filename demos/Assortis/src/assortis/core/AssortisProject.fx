@@ -56,6 +56,7 @@ public class AssortisProject  extends MyCompositeComponent{
     public attribute rootModule:String on replace{ initProject(); };
     
     private attribute debug: Boolean = true;
+    public attribute editable: Boolean = true;
     
     private attribute timer: Timer;
     private attribute defaultLocale:Locale;
@@ -164,6 +165,7 @@ public class AssortisProject  extends MyCompositeComponent{
             content: MySplitPane{
                 weight: 0.7
                 one: MyEditorPane{
+                    editable: bind editable
                     text: bind sample.code with inverse
                     onKeyUp: function(keyEvent :KeyEvent){
                                 timer.addTask(sample.name, function():Void{ reloadSample(sample) } 
@@ -179,6 +181,7 @@ public class AssortisProject  extends MyCompositeComponent{
                             tabs: for (item in  sample.propertyItems ) MyTab{
                                 title: item.locale.getDisplayName(defaultLocale);
                                 content: MyEditorPane{
+                                    editable: bind editable
                                     text: bind item.text with inverse
                                     onKeyUp: function(keyEvent :KeyEvent){
                                                 timer.addTask(sample.name, function():Void{ reloadSample(sample) } 
@@ -223,7 +226,12 @@ public class AssortisProject  extends MyCompositeComponent{
 
         var propertyItem = sample.getPropertyItem();
         
-        var obj = ProjectManager.runFXCode(sample.className, sample.code, propertyItem.getName(), propertyItem.text );
+        var obj = if (editable) then {
+            ProjectManager.runFXCode(sample.className, sample.code, propertyItem.getName(), propertyItem.text );
+        }else{
+            ProjectManager.runFXFile(sample.className);
+        }   
+         
         
         var unit = FXUnit.createUnit(obj);
         var internalFrame = sample.frame;
