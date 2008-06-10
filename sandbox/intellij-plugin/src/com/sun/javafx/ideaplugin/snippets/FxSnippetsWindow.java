@@ -85,9 +85,9 @@ public class FxSnippetsWindow implements ProjectComponent {
         colors.add (new SnippetsNode ("Black", "Color.BLACK"));
         colors.add (new SnippetsNode ("Blue", "Color.BLUE"));
         colors.add (new SnippetsNode ("Cyan", "Color.CYAN"));
-        colors.add (new SnippetsNode ("Dark Gray", "Color.DARK_GRAY"));
+        colors.add (new SnippetsNode ("Dark Gray", "Color.DARKGRAY"));
         colors.add (new SnippetsNode ("Green", "Color.GREEN"));
-        colors.add (new SnippetsNode ("Light Gray", "Color.LIGHT_GRAY"));
+        colors.add (new SnippetsNode ("Light Gray", "Color.LIGHTGRAY"));
         colors.add (new SnippetsNode ("Magenta", "Color.MAGENTA"));
         colors.add (new SnippetsNode ("Orange", "Color.ORANGE"));
         colors.add (new SnippetsNode ("Pink", "Color.PINK"));
