@@ -378,8 +378,7 @@ public class RecognizedOptions {
 	new HiddenOption(PROCESSORPATH,       MsgSym.MESSAGE_OPT_ARG_PATH,		MsgSym.MESSAGE_OPT_PROCESSORPATH),
 	new Option(D,                   MsgSym.MESSAGE_OPT_ARG_DIRECTORY,	MsgSym.MESSAGE_OPT_D),
 	new Option(S,                   MsgSym.MESSAGE_OPT_ARG_DIRECTORY,	MsgSym.MESSAGE_OPT_SOURCE_DEST),
-        //new Option(IMPLICIT,                                    "opt.implicit") {
-        new HiddenOption(IMPLICIT) {
+        new Option(IMPLICIT,                                    "opt.implicit") {
             @Override
             public boolean matches(String s) {
                 return s.equals("-implicit:none") || s.equals("-implicit:class");

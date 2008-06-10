@@ -261,7 +261,7 @@
                  classpath="${build.buildtools.dir}/"/>
     </target>
     
-    <target name="docs" depends="init,javadoc,spec">
+    <target name="docs" depends="init,javadoc,spec,man-pages">
         <copy todir="dist/doc">
             <fileset dir="doc" includes="**/*.pdf"/>
         </copy>
@@ -269,6 +269,11 @@
         <copy todir="dist/doc/images">
             <fileset dir="doc/images"/>
         </copy>
+        <copy todir="dist/doc">
+            <fileset dir="build/doc/man">
+                <include name="**/*.html"/>
+            </fileset>
+        </copy>       
     </target>
 
     <!-- Stuff dealing with adding coverage to JUnit execution -->
@@ -428,6 +433,13 @@
             </filterset>
         </copy>
         <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>
+    </target>
+    
+    <target name="man-pages">
+        <ant antfile="doc/build.xml" target="man-pages" inheritAll="false"/>
+        <copy todir="dist/man/man1">
+            <fileset dir="build/doc/man/man1"/>
+        </copy>       
     </target>
     
     <target name="demos" depends="jar,runtime,javafxgui">

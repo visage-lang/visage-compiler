@@ -26,7 +26,6 @@
 <refentry id="javafxc">
   <refmeta>
     <refentrytitle>javafxc</refentrytitle>
-
     <manvolnum>1</manvolnum>
   </refmeta>
 
@@ -209,11 +208,327 @@
               <option>-Xlint:deprecation</option>.</para>
           </listitem>
       </varlistentry>
+      <varlistentry>
+          <term><option>-encoding</option> <parameter>encoding</parameter></term>
+          <listitem>
+              <para>
+                  Set the source file encoding name, such as 
+                  <constant>EUC-JP</constant> and <constant>UTF-8</constant>. 
+                  If <option>-encoding</option> is not specified, the platform 
+                  default converter is used
+              </para>
+          </listitem>
+      </varlistentry>
+      <varlistentry>
+          <term><option>-g</option></term>
+          <listitem>
+              <para>
+                  Generate all debugging information, including local variables. 
+                  By default, only line number and source file information is generated.
+              </para>
+          </listitem>
+      </varlistentry>
+      <varlistentry>
+          <term><option>-g:none</option></term>
+          <listitem>
+              <para>Do not generate any debugging information.</para>
+          </listitem>
+      </varlistentry>
+      <varlistentry>
+          <term><option>-g:</option><parameter>{class,none}</parameter></term>
+          <listitem>
+              <para>Generate only some kinds of debugging information, specified 
+              by a comma separated list of keywords. Valid keywords are:</para>
+              <variablelist>
+                  <varlistentry>
+                      <term><option>source</option></term>
+                      <listitem>
+                          <para>Source file debugging information</para>
+                      </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                      <term><option>lines</option></term>
+                      <listitem>
+                          <para>Line number debugging information</para>
+                      </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                      <term><option>vars</option></term>
+                      <listitem>
+                          <para>Local variable debugging information</para>
+                      </listitem>
+                  </varlistentry>
+              </variablelist>
+          </listitem>
+      </varlistentry>
+      <varlistentry>
+          <term><option>-help</option></term>
+          <listitem>
+              <para>Print a synopsis of standard options.</para>
+          </listitem>
+      </varlistentry>
+      <varlistentry id="implicit" xreflabel="-implicit">
+          <term><option>-implicit:</option><parameter>{class,none}</parameter></term>
+          <listitem>
+              <para>
+                Controls the generation of class files for implicitly loaded 
+                source files. To automatically generate class files, use 
+                <option>-implicit:class</option>. To suppress class file generation, 
+                use <option>-implicit:none</option>. If this option is not specified, 
+                the default is to automatically generate class files. 
+                See <xref linkend="searching"/>.
+              </para>
+          </listitem>
+      </varlistentry>
+      <varlistentry>
+          <term><option>-nowarn</option></term>
+          <listitem>
+              <para>Disable warning messages. This has the same meaning as 
+              <option>-Xlint:none</option>.</para>
+          </listitem>
+      </varlistentry>
+      <varlistentry id="sourcepath" xreflabel="-sourcepath">
+          <term><option>-sourcepath</option> <parameter>sourcepath</parameter></term>
+          <listitem>
+             <para>
+                Specify the source code path to search for class or 
+                interface definitions. As with the user class path, source path 
+                entries are separated by colons (:) and can be directories, JAR 
+                archives, or ZIP archives. If packages are used, the local path 
+                name within the directory or archive must reflect the package name.
+                See <xref linkend="searching"/>.
+             </para>
+             <para>
+                <note>Classes found through the classpath may be subject to 
+                automatic recompilation if their sources are also found.</note>
+             </para>
+          </listitem>
+      </varlistentry>
+      <varlistentry>
+          <term><option>-verbose</option></term>
+          <listitem>
+              <para>Verbose output. This includes information about each class 
+              loaded and each source file compiled.</para>
+          </listitem>
+      </varlistentry>
+      <varlistentry>
+          <term><option>-X</option></term>
+          <listitem>
+              <para>Display information about non-standard options and exit.</para>
+          </listitem>
+      </varlistentry>
+    </variablelist>
+    <refsect2><title>Cross-Compilation Options</title></refsect2>
+    <variablelist>
+      <para>
+        By default, classes are compiled against the bootstrap and 
+        extension classes of the platform that javafxc shipped with. But javafxc 
+        also supports cross-compiling, where classes are compiled against a 
+        bootstrap and extension classes of a different JavaFX platform implementation. 
+        It is important to use -bootclasspath and -extdirs when cross-compiling.
+      </para>
+      <variablelist>
+          <varlistentry>
+              <term><option>-target</option> <parameter>version</parameter></term>
+              <listitem>
+                  <para>Generate class files that target a specified version of 
+                  the VM. Class files will run on the specified target and on 
+                  later versions, but not on earlier versions of the VM. Valid 
+                  targets are 1.1 1.2 1.3 1.4 1.5 (also 5) and 1.6 (also 6).</para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+              <term><option>-bootclasspath</option> <parameter>bootclasspath</parameter></term>
+              <listitem>
+                  <para>Cross-compile against the specified set of boot classes. 
+                  As with the user class path, boot class path entries are 
+                  separated by colons (:) and can be directories, JAR archives, 
+                  or ZIP archives.</para>
+              </listitem>
+          </varlistentry>
+          <varlistentry>
+              <term><option>-extdirs</option> <parameter>directories</parameter></term>
+              <listitem>
+                  <para>Cross-compile against the specified extension directories. 
+                  Directories is a colon-separated list of directories. Each JAR 
+                  archive in the specified directories is searched for class files.</para>
+              </listitem>
+          </varlistentry>
+      </variablelist>
+    </variablelist>
+    <refsect2><title>Non-Standard Options</title></refsect2>
+    <variablelist>
+        <varlistentry>
+            <term><option>-Xbootclasspath/p:</option><parameter>path</parameter></term>
+            <listitem>
+                <para>Prepend to the bootstrap class path.</para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term><option>-Xbootclasspath/a:</option><parameter>path</parameter></term>
+            <listitem>
+                <para>Append to the bootstrap class path.</para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term><option>-Xbootclasspath/:</option><parameter>path</parameter></term>
+            <listitem>
+                <para>Override location of bootstrap class files.</para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term><option>-Xlint</option></term>
+            <listitem>
+                <para>Enable all recommended warnings. In this release, all 
+                available warnings are recommended.</para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term><option>-Xlint:none</option></term>
+            <listitem>
+                <para>Disable all lint warnings.</para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term><option>-Xmaxerrors</option> <parameter>number</parameter></term>
+            <listitem>
+                <para>Set the maximum number of errors to print.</para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term><option>-Xmaxwarns</option> <parameter>number</parameter></term>
+            <listitem>
+                <para>Set the maximum number of warnings to print.</para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term><option>-Xstdout</option> <parameter>filename</parameter></term>
+            <listitem>
+                <para>Send compiler messages to the named file. By default, 
+                compiler messages go to <command>System.err</command>.</para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term><option>-Xprefer:</option><parameter>{newer,source}</parameter></term>
+            <listitem>
+                <para>
+                    Specify which file to read when both a source file and 
+                    class file are found for a type. (See <xref linkend="searching"/>). 
+                    If <command>-Xprefer:newer</command> is used, it reads the newer 
+                    of the source or class file for a type (default). If the 
+                    <command>-Xprefer:source</command> option is used, it reads 
+                    source file.
+                </para>
+            </listitem>
+        </varlistentry>
+    </variablelist>
+    <refsect2><title>The -J Option</title></refsect2>
+    <variablelist>
+        <varlistentry>
+            <term><option>-J</option><parameter>option</parameter></term>
+            <listitem>
+                <para>
+                    Pass option to the <command>java</command> launcher 
+                    called by <command>javafxc</command>. For example, 
+                    <option>-J-Xms48m</option> sets the startup memory to 48 
+                    megabytes. Although it does not begin with <option>-X</option>, 
+                    it is not a `standard option' of <command>javac</command>.
+                </para>
+                <para>
+                    <note><envar>CLASSPATH</envar>, <option>-classpath</option>, 
+                    <option>-bootclasspath</option>, and <option>-extdirs</option> 
+                    do not  specify the classes used to run <command>javafxc</command>. 
+                    Fiddling with the implementation of the compiler in this way is 
+                    usually pointless and always risky. If you do need to do this, 
+                    use the <option>-J</option> option to pass through options to 
+                    the underlying <command>java</command> launcher.</note>
+                </para>
+            </listitem>
+        </varlistentry>
     </variablelist>
   </refsect1>
   <refsect1>
-      <title>TODO</title>
-      <para><emphasis>Translate the rest of </emphasis><command>javac</command>
-      <emphasis>manual page.</emphasis></para>
+      <title>COMMAND LINE ARGUMENT FILES</title>
+      <para>
+          To shorten or simplify the javac command line, you can specify one 
+          or more files that themselves contain arguments to the 
+          javafxc command (except <option>-J</option> options). 
+          This enables you to create javafxc commands of any 
+          length on any operating system.
+      </para>
+      <para>
+          An argument file can include javafxc options and source filenames 
+          in any combination. The arguments within a file can be space-separated or 
+          newline-separated. If a filename contains embedded spaces, put the whole 
+          filename in double quotes.
+      </para>
+      <para>
+          Filenames within an argument file are relative to the current directory, 
+          not the location of the argument file. Wildcards (*) are not allowed in 
+          these lists (such as for specifying <filename>*.java</filename>). Use of 
+          the '@' character to recursively interpret files is 
+          not supported. The <option>-J</option> options are not supported because 
+          they are passed to the launcher, which does not support argument files.
+      </para>
+      <para>
+          When executing javac, pass in the path and name of each argument 
+          file with the '@' leading character. When javac encounters an argument 
+          beginning with the character `@', it expands the contents of that file 
+          into the argument list.
+      </para>
+  </refsect1>
+  <refsect1 id="searching" xreflabel="Searching For Types">
+      <title>SEARCHING FOR TYPES</title>
+      <para>
+          When compiling a source file, the compiler often needs information 
+          about a type whose definition did not appear in the source files given on 
+          the command line. The compiler needs type information for every class or 
+          interface used, extended, or implemented in the source file. This includes 
+          classes and interfaces not explicitly mentioned in the source file but 
+          which provide information through inheritance.
+      </para>
+      <para>
+          For example, when you subclass <classname>javafx.gui.Button</classname>, 
+          you are also using Button's ancestor classes: 
+          <classname>javafx.gui.AbstractButton</classname>, 
+          <classname>javafx.gui.Component</classname>,
+          <classname>javafx.gui.ClusterElement</classname>and 
+          <classname>java.lang.Object</classname>.
+      </para>
+      <para>
+          When the compiler needs type information, it looks for a source file 
+          or class file which defines the type. The compiler searches for class files 
+          first in the bootstrap and extension classes, then in the user class path 
+          (which by default is the current directory). The user class path is defined 
+          by setting the <envar>CLASSPATH</envar> environment variable or by using 
+          the <option>-classpath</option> command line option.
+      </para>
+      <para>
+          If you set the <xref linkend="sourcepath"/> option, the compiler 
+          searches the indicated path for source files; otherwise the compiler 
+          searches the user class path for both class files and source files.
+      </para>
+      <para>
+          You can specify different bootstrap or extension classes with the 
+          <option>-bootclasspath</option> and <option>-extdirs</option> options.
+      </para>
+      <para>
+          A successful type search may produce a class file, a source file, or 
+          both. If both are found, you can use the <option>-Xprefer</option> option 
+          to instruct the compiler which to use. If <parameter>newer</parameter> is 
+          given, the compiler will use the newer of the two files. If 
+          <parameter>source</parameter> is given, it will use the source file. The 
+          default is <parameter>newer</parameter>.
+      </para>
+      <para>
+          If a type search finds a source file for a required type, either by 
+          itself, or as a result of the setting for <option>-Xprefer</option>, the 
+          compiler will read the source file to get the information it needs. In 
+          addition, it will by default compile the source file as well. You can use 
+          the <xref linkend="implicit"/> option to specify the behavior. If 
+          <parameter>none</parameter> is given, no class files will be generated for 
+          the source file. If <parameter>class</parameter> is given, class files will 
+          be generated for the source file.
+      </para>
   </refsect1>
 </refentry>
