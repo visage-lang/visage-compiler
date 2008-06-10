@@ -1,4 +1,4 @@
-test/should-fail/jfxc1213.fx:10: Bound function must not be void.
+jfxc1213.fx:10: Bound function must not be void.
    bound function func2(){
          ^
 1 error
