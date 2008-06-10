@@ -134,19 +134,9 @@ public class FxCompiler implements TranslatingCompiler {
                 parseMethod = javafxTaskClass.getMethod ("parse");
                 analyzeMethod = javafxTaskClass.getMethod ("analyze");
                 generateMethod = javafxTaskClass.getMethod ("generate");
-            } catch (ClassNotFoundException e) {
-                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
-                compilationFailed.set (true);
-                break;
-            } catch (InvocationTargetException e) {
-                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
-                compilationFailed.set (true);
-                break;
-            } catch (NoSuchMethodException e) {
-                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
-                compilationFailed.set (true);
-                break;
-            } catch (IllegalAccessException e) {
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
                 compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
                 compilationFailed.set (true);
                 break;
@@ -159,11 +149,9 @@ public class FxCompiler implements TranslatingCompiler {
                 try {
                     Object javacFileManager = getStandardFileManagerMethod.invoke (javafxTool, null, null, Charset.defaultCharset ());
                     javaFileObject = (JavaFileObject) getFileForInputMethod.invoke (javacFileManager, file.getPath ());
-                } catch (IllegalAccessException e) {
-                    compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
-                    compilationFailed.set (true);
-                    break;
-                } catch (InvocationTargetException e) {
+                } catch (RuntimeException e) {
+                    throw e;
+                } catch (Exception e) {
                     compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
                     compilationFailed.set (true);
                     break;
@@ -185,11 +173,9 @@ public class FxCompiler implements TranslatingCompiler {
                         }
                     }
                 }, args, filePaths);
-            } catch (IllegalAccessException e) {
-                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
-                compilationFailed.set (true);
-                break;
-            } catch (InvocationTargetException e) {
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
                 compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
                 compilationFailed.set (true);
                 break;
@@ -208,11 +194,9 @@ public class FxCompiler implements TranslatingCompiler {
                 System.out.println ("iterable = " + iterable);
                 iterable = generateMethod.invoke (compilerTask); // TODO - store result
                 System.out.println ("iterable = " + iterable);*/
-            } catch (IllegalAccessException e) {
-                compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
-                compilationFailed.set (true);
-                break;
-            } catch (InvocationTargetException e) {
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
                 compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
                 compilationFailed.set (true);
                 break;
