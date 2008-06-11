@@ -9,7 +9,13 @@
 
 <sect2 id="attribute"><title>Attributes</title>
 
-<para>Attributes define the state of an object. They are declared using the <code>attribute</code> keyword followed by the attribute's name, a colon, the attribute's type, optionally a cardinality specification (<code>[]</code> meaning zero or more, terminated with a semicolon:</para>
+<para>Attributes define the state of an object. They are declared using the
+<code>attribute</code> keyword followed by the attribute's name, a colon, the
+attribute's type terminated with a semicolon:
+
+
+
+Attributes define the state of an object. They are declared using the <code>attribute</code> keyword followed by the attribute's name, a colon, the attribute's type, optionally a cardinality specification (<code>[]</code> meaning zero or more, terminated with a semicolon:</para>
 
 
 <programlisting>
@@ -63,10 +69,10 @@ Default Value: false
 Default Value: 
 </programlisting>
 
-<para>For for more information on these data types, see Chapter 4, 
+<para>For for more information on these data types, see  
 
 <ulink
-    url="types.html"><emphasis>Variables and Basic Data Types</emphasis></ulink>.
+    url="types.html"><emphasis>Chapter 4</emphasis></ulink>.
 </para>
 
 </sect2>
@@ -126,7 +132,7 @@ component:
 <programlisting>
 
 import java.lang.System;
-import javafx.ui.*;
+import javafx.gui.*;
 
 Frame {
      visible: true

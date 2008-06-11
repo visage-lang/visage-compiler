@@ -8,7 +8,7 @@
 
 
 
-<para>This chapter provides an overview of the <trademark>JavaFX</trademark> Script programming language. It describes -- at a high level -- its main features, saving detailed coverage of specific constructs for subsequent chapters. This book is intended for designers and developers of rich Internet client applications and elements, which run in web pages, as <trademark>Java</trademark> Web Start software, or as traditional desktop applications. It assumes the reader to be familiar with JavaScript and/or the <trademark>Java</trademark> programming language. While this book does not define a formal language specification, it can be considered a complete reference for all currently supported language features.</para>
+<para>This chapter provides an overview of the <trademark>JavaFX</trademark> Script programming language. It describes -- at a high level -- its main features, saving detailed coverage of specific constructs for subsequent chapters. This book is intended for designers and developers of rich Internet client applications and elements, which run in web pages, as <trademark>Java</trademark> Web Start software, or as traditional desktop applications. It assumes the reader to be familiar with JavaScript and/or the <trademark>Java</trademark> programming language. <!-- While this book does not define a formal language specification, it can be considered a complete reference for all currently supported language features.  --> </para>
 
 <para>
 The JavaFX Script programming language:
@@ -54,7 +54,7 @@ programming language where appropriate. Each topic is then covered in
 Classes</title>
 
 <para>Class definitions share many similarities with the Java programming language, but there are differences as well. 
-State, for example, is information stored in <emphasis>attributes</emphasis>, not <!-- <FONT COLOR=RED>fields </FONT> -->>. Behavior is exposed through <emphasis>functions</emphasis>, not methods. The following 
+State, for example, is information stored in <emphasis>attributes</emphasis>, not fields. Behavior is exposed through <emphasis>functions</emphasis>, not methods. The following 
 example defines a simple <code>Rectangle</code> class that demonstrates the basic syntax of each. </para>
 
 
@@ -97,7 +97,7 @@ Classes are covered in detail in
 Attributes and Functions are covered in detail in 
 
 <ulink
-    url="functions.html">Chapter 3</ulink>
+    url="functions.html"><emphasis>Chapter 3</emphasis></ulink>
 
 <!-- <A HREF="ch3.html">Chapter 3</A>. -->
 </para>
@@ -164,12 +164,12 @@ Expressions, Statements, and Operators</title>
 
 
 <para>Like other programming languages, the JavaFX Script programming language supports  expressions, statements, and 
-operators. However, unlike the Java programming language, the JavaFX Script
+operators. <!--  However, unlike the Java programming language, the JavaFX Script
 programming language is an expression language, which means that all
 executable statements -- inluding conditionals, loops, and even
-blocks -- are expressions.</para>
+blocks -- are expressions. --> </para>
 
-<!--  </FONT> -->> -->
+<!--  </FONT> -->
 
 
 
@@ -248,8 +248,8 @@ first object is updated. A common use of data binding is to keep GUI components 
 their underlying data. </para>
 
 <programlisting>
-import javafx.ui.Frame;
-import javafx.ui.Button;
+import javafx.gui.Frame;
+import javafx.gui.Button;
 
 var myString = "Click Me";
 

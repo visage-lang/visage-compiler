@@ -66,7 +66,7 @@ for its built-in library classes (packages <code>javafx.*</code>), but it is als
 
 <programlisting>
 import java.lang.System;
-import javafx.ui.*;
+import javafx.gui.*;
 
 Frame {
      visible: true
@@ -122,7 +122,7 @@ separated list of the names of base classes, an open curly brace, a list of attr
 <programlisting>
 <!-- 
 <FONT COLOR="RED"> 
-TO-DO: INSERT SYNTAX DIAGRAM
+TO-DO: INSERT SYNTAX 
 </FONT> -->
 </programlisting>
 
@@ -161,7 +161,7 @@ FORMAL SYNTAX LISTING</FONT> *** -->
 <para>
 It is possible to use the <code>new</code> keyword when creating an object, 
  but this should be saved for cases where instantiating a Java programming 
-language class is not possible via object literal syntax:  
+language class is not possible via object literal s:  
 </para>
 
 <programlisting>

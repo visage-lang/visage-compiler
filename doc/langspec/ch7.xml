@@ -7,7 +7,9 @@
 
 
 
-<para>The JavaFX Script programming language supports sequence comprehensions with the <code>for</code> operator. A sequence comprehension consists of one or more input sequences, an optional filter, and an expression. Each input sequence is associated with a variable. The result of the sequence comprehension is a new sequence which is the result of applying the expression to the subset of the cartesian product of the source sequences' elements that satisfy the filter.
+<para>The JavaFX Script programming language supports sequence comprehensions with the <code>for</code> operator. A sequence comprehension consists of one or more input sequences, an optional filter, and an expression. Each input sequence is associated with a variable. The result of the sequence comprehension is a new sequence which is the
+result of applying the expression to the combination of the source
+sequences' elements that satisfy the filter.
 </para>
 
 <programlisting><emphasis role="red">TO-DO: INSERT SYNTAX DIAGRAM HERE</emphasis></programlisting>
@@ -15,7 +17,7 @@
 <!--
 <programlisting >
 &nbsp;
- **** <FONT COLOR="RED">ENGINEERING TO PROVIDE FORMAL SYNTAX HERE
+ **** <FONT COLOR="RED">ENGINEERING TO PROVIDE FORMAL SYNTAX DIAGRAM HERE
 </FONT> *** 
 </programlisting>
 -->
@@ -66,8 +68,8 @@ for (album in albums, track in album.tracks) {
     else
         java.lang.System.out.println("Track = {track}")
         } 
-    }
-}
+    
+
 </programlisting>
 
 <para><emphasis role="bold">Output:</emphasis></para>
@@ -228,7 +230,7 @@ It is also possible to reverse elements of a sequence:
 </para>
 
 <programlisting>
-nums = [1..5];
+var nums = [1..5];
 reverse nums; // returns 5,4,3,2,1
 </programlisting>
 

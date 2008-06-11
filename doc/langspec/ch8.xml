@@ -255,9 +255,10 @@ The change to the value assigned to <code>scale</code> now causes an update (20.
 Invoking a bound function from outside a bind is just like invokling a non-bound function.
 </para>
 
+<!--
 </sect2><sect2 id="bindseq"><title>Binding and Sequences</title>
 
-<!-- **** <FONT COLOR="RED">TBD</FONT> *** --> 
+ **** <FONT COLOR="RED">TBD</FONT> *** --> 
 
 </sect2>
 </chapter>
