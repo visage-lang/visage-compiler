@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="45">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>src/configuration.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>src/configuration.cpp</itemPath>
+      <itemPath>src/javafx.cpp</itemPath>
+      <itemPath>src/javafxc.cpp</itemPath>
+      <itemPath>src/javafxdoc.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceEncoding>UTF-8</sourceEncoding>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="javafx_debug" type="1">
+      <toolsSet>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <ccCompilerTool>
+          <preprocessorList>
+            <Elem>PROJECT_JAVAFX</Elem>
+          </preprocessorList>
+          <warningLevel>2</warningLevel>
+        </ccCompilerTool>
+        <linkerTool>
+          <output>dist/Debug/javafx</output>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="src/configuration.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/configuration.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="src/javafx.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxdoc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+    </conf>
+    <conf name="javafxc_debug" type="1">
+      <toolsSet>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <ccCompilerTool>
+          <preprocessorList>
+            <Elem>PROJECT_JAVAFXC</Elem>
+          </preprocessorList>
+          <warningLevel>2</warningLevel>
+        </ccCompilerTool>
+        <linkerTool>
+          <output>dist/Debug/javafxc</output>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="src/configuration.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/configuration.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="src/javafx.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxdoc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+    </conf>
+    <conf name="javafx_release" type="1">
+      <toolsSet>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <cCompilerTool>
+          <developmentMode>5</developmentMode>
+        </cCompilerTool>
+        <ccCompilerTool>
+          <developmentMode>5</developmentMode>
+          <preprocessorList>
+            <Elem>PROJECT_JAVAFX</Elem>
+          </preprocessorList>
+        </ccCompilerTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <output>dist/Release/javafx</output>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="src/configuration.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/configuration.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="src/javafx.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxdoc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+    </conf>
+    <conf name="javafxc_release" type="1">
+      <toolsSet>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <cCompilerTool>
+          <developmentMode>5</developmentMode>
+        </cCompilerTool>
+        <ccCompilerTool>
+          <developmentMode>5</developmentMode>
+          <preprocessorList>
+            <Elem>PROJECT_JAVAFXC</Elem>
+          </preprocessorList>
+        </ccCompilerTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <output>dist/Release/javafxc</output>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="src/configuration.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/configuration.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="src/javafx.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxdoc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+    </conf>
+    <conf name="javafxdoc_debug" type="1">
+      <toolsSet>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <ccCompilerTool>
+          <preprocessorList>
+            <Elem>PROJECT_JAVAFXDOC</Elem>
+          </preprocessorList>
+          <warningLevel>2</warningLevel>
+        </ccCompilerTool>
+        <linkerTool>
+          <output>dist/Debug/javafxdoc</output>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="src/configuration.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/configuration.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="src/javafx.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxdoc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+    </conf>
+    <conf name="javafxdoc_release" type="1">
+      <toolsSet>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <cCompilerTool>
+          <developmentMode>5</developmentMode>
+        </cCompilerTool>
+        <ccCompilerTool>
+          <developmentMode>5</developmentMode>
+          <preprocessorList>
+            <Elem>PROJECT_JAVAFXDOC</Elem>
+          </preprocessorList>
+        </ccCompilerTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <output>dist/Release/javafxdoc</output>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="src/configuration.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/configuration.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="src/javafx.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxdoc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
