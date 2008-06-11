@@ -47,6 +47,7 @@ public class BackgroundExecutor {
                     return t;
                 }
             });
+            ((ThreadPoolExecutor) instance).setKeepAliveTime(1, TimeUnit.SECONDS);
         }
 
         return instance;

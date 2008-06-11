@@ -3,35 +3,42 @@ package javafx.async;
 import java.lang.*;
 import com.sun.javafx.runtime.async.AsyncOperationListener;
 
-public abstract class AbstractAsyncOperation extends AsyncOperationListener {
+public abstract class AbstractAsyncOperation {
     attribute done : Boolean;
     attribute canceled : Boolean;
     attribute failed : Boolean;
     attribute failureText : String;
     attribute progressCur : Integer;
     attribute progressMax : Integer;
+    private attribute self = this;
+    protected attribute listener = AsyncOperationListener {
+        function onCancel() {
+            canceled = true;
+        }
 
-    function onCancel() {
-        canceled = true;
-    }
+        function onException(exception : Exception) {
+            failureText = exception.getMessage();
+            failed = true;
+            System.out.println("fail {failureText}");
+            exception.printStackTrace();
+        }
 
-    function onException(exception : Exception) {
-        failureText = exception.getMessage();
-        failed = true;
-        System.out.println("fail {failureText}");
-        exception.printStackTrace();
-    }
+        function onCompletion(value : Object) {
+            done = true;
+            self.onCompletion(value);
+        }
 
-    function onCompletion(value : Object) {
-        done = true;
-    }
-
-    function onProgress(cur : Integer, max : Integer) {
-        progressCur = cur;
-        progressMax = max;
+        function onProgress(cur : Integer, max : Integer) {
+            progressCur = cur;
+            progressMax = max;
+        }
     }
 
     abstract function start() : Void;
+
+    abstract function cancel() : Void;
+
+    abstract function onCompletion(value : Object) : Void;
 
     init {
         start();

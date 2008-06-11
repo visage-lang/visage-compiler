@@ -21,12 +21,11 @@ public class RemoteImage extends AbstractAsyncOperation {
     }
 
     function onCompletion(value : Object) {
-        AbstractAsyncOperation.onCompletion(value);
         image = MemoryImage { theImage : value as java.awt.Image };
     }
 
     function start() : Void {
-        peer = new com.sun.javafx.runtime.async.RemoteImage(this, url);
+        peer = new com.sun.javafx.runtime.async.RemoteImage(listener, url);
         peer.start();
     }
 }

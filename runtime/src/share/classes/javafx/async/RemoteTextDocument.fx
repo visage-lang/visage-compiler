@@ -13,12 +13,11 @@ public class RemoteTextDocument extends AbstractAsyncOperation {
     }
 
     function onCompletion(value : Object) {
-        AbstractAsyncOperation.onCompletion(value);
         document = value as String;
     }
 
     function start() : Void {
-        peer = new com.sun.javafx.runtime.async.RemoteTextDocument(this, url, method);
+        peer = new com.sun.javafx.runtime.async.RemoteTextDocument(listener, url, method);
         peer.start();
     }
 }
