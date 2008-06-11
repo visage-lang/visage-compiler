@@ -76,6 +76,7 @@ public class Entry {
     public static void deferTask(Runnable function) {
         if (provider == null)
             provider = runtimeProviderLocator();
+        assert provider != null;
         provider.deferTask(function);
     }
 
@@ -126,7 +127,7 @@ public class Entry {
             // ServiceConfigurationError is in java.util in Java 6, sun.misc in Java 5,
             // so ignore its package
             if (e.getClass().getSimpleName().equals("ServiceConfigurationError"))
-                return null; // no service found
+                return new NoRuntimeDefault(); // no service found
             else
                 throw e;
         }
@@ -134,5 +135,24 @@ public class Entry {
     
     public static String entryMethodName() {
         return "javafx$run$";
+    }
+    
+    private static class NoRuntimeDefault implements RuntimeProvider {
+
+        public boolean usesRuntimeLibrary(Class application) {
+            return true;
+        }
+
+        public Object run(Method entryPoint, String... args) throws Throwable {
+            try {
+                return entryPoint.invoke(null, (Object)args);
+            } catch (InvocationTargetException e) {
+                throw e.getCause();
+            }
+        }
+
+        public void deferTask(Runnable task) {
+            java.awt.EventQueue.invokeLater(task);
+        }        
     }
 }
