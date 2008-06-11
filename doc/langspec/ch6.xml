@@ -19,7 +19,7 @@ The following code presents some examples:
 
 <programlisting>
 var weekDays = ["Mon","Tue","Wed","Thur","Fri"];
-var days = [week_days, ["Sat","Sun"]];
+var days = [weekDays, ["Sat","Sun"]];
 </programlisting>
 
 <para>Sequences represent ordered lists of objects. Sequences are not themselves objects, however, and do not nest. Sequences are compared for equality by value; if their lengths are equal and their elements are equal, then they are equal. Expressions that produce nested sequences (as in the initialization of <code>days</code> above) are automatically flattened.
