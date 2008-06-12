@@ -37,9 +37,9 @@ public abstract class AbstractAsyncOperation {
         }
     }
 
-    abstract function start() : Void;
-
     abstract function cancel() : Void;
+
+    protected abstract function start() : Void;
 
     protected abstract function onCompletion(value : Object) : Void;
 

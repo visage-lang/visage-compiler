@@ -16,7 +16,7 @@ public class RemoteTextDocument extends AbstractAsyncOperation {
         document = value as String;
     }
 
-    function start() : Void {
+    protected function start() : Void {
         peer = new com.sun.javafx.runtime.async.RemoteTextDocument(listener, url, method);
         peer.start();
     }
