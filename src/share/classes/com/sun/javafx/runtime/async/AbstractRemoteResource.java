@@ -23,12 +23,14 @@
 
 package com.sun.javafx.runtime.async;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.BufferedInputStream;
 import java.io.InterruptedIOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Abstract base class for representing remote resources identified by a URL.  Subclasses may plug in arbitrary
@@ -42,6 +44,7 @@ public abstract class AbstractRemoteResource<T> extends AbstractAsyncOperation<T
     protected final String url;
     protected final String method;
     protected int fileSize;
+    private Map<String, String> headers = new HashMap<String, String>();
 
     protected AbstractRemoteResource(String url, AsyncOperationListener<T> listener) {
         this(url, "GET", listener);
@@ -59,6 +62,13 @@ public abstract class AbstractRemoteResource<T> extends AbstractAsyncOperation<T
         URL u = new URL(url);
         HttpURLConnection conn = (HttpURLConnection) u.openConnection();
         conn.setRequestMethod(method);
+        for (Map.Entry<String,String> entry : headers.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (value != null && !value.equals(""))
+                conn.setRequestProperty(key, value);
+        }
+        conn.connect();
         fileSize = conn.getContentLength();
         setProgressMax(fileSize);
 
@@ -102,5 +112,9 @@ public abstract class AbstractRemoteResource<T> extends AbstractAsyncOperation<T
             addProgress(bytes);
             return bytes;
         }
+    }
+
+    public void setHeader(String header, String value) {
+        headers.put(header, value);
     }
 }

@@ -10,25 +10,27 @@ public abstract class AbstractAsyncOperation {
     attribute failureText : String;
     attribute progressCur : Integer;
     attribute progressMax : Integer;
-    attribute onDone : function() : Void;
+    attribute onDone : function(success : Boolean) : Void;
 
     private attribute self = this;
     protected attribute listener = AsyncOperationListener {
         function onCancel() {
             canceled = true;
+            done = true;
+            if (onDone <> null) then onDone(false);
         }
 
         function onException(exception : Exception) {
             failureText = exception.getMessage();
             failed = true;
-            System.out.println("fail {failureText}");
-            exception.printStackTrace();
+            done = true;
+            if (onDone <> null) then onDone(false);
         }
 
         function onCompletion(value : Object) {
             done = true;
             self.onCompletion(value);
-            if (onDone <> null) then onDone();
+            if (onDone <> null) then onDone(true);
         }
 
         function onProgress(cur : Integer, max : Integer) {
