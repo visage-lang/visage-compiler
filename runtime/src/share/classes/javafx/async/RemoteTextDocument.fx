@@ -12,7 +12,7 @@ public class RemoteTextDocument extends AbstractAsyncOperation {
         if (peer <> null) then peer.cancel();
     }
 
-    function onCompletion(value : Object) {
+    protected function onCompletion(value : Object) {
         document = value as String;
     }
 

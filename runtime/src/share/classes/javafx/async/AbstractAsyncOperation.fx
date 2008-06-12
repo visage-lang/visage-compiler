@@ -10,6 +10,8 @@ public abstract class AbstractAsyncOperation {
     attribute failureText : String;
     attribute progressCur : Integer;
     attribute progressMax : Integer;
+    attribute onDone : function() : Void;
+
     private attribute self = this;
     protected attribute listener = AsyncOperationListener {
         function onCancel() {
@@ -26,6 +28,7 @@ public abstract class AbstractAsyncOperation {
         function onCompletion(value : Object) {
             done = true;
             self.onCompletion(value);
+            if (onDone <> null) then onDone();
         }
 
         function onProgress(cur : Integer, max : Integer) {
@@ -38,7 +41,7 @@ public abstract class AbstractAsyncOperation {
 
     abstract function cancel() : Void;
 
-    abstract function onCompletion(value : Object) : Void;
+    protected abstract function onCompletion(value : Object) : Void;
 
     init {
         start();
