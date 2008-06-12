@@ -20,6 +20,7 @@ public class RemoteImage extends AbstractAsyncOperation {
         if (peer <> null) then peer.cancel();
     }
 
+    // @@@ better for this to be protected, and have a callback hook.
     function onCompletion(value : Object) {
         image = MemoryImage { theImage : value as java.awt.Image };
     }
