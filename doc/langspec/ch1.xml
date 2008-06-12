@@ -166,8 +166,8 @@ Expressions, Statements, and Operators</title>
 <para>Like other programming languages, the JavaFX Script programming language supports  expressions, statements, and 
 operators. <!--  However, unlike the Java programming language, the JavaFX Script
 programming language is an expression language, which means that all
-executable statements -- inluding conditionals, loops, and even
-blocks -- are expressions. --> </para>
+executable statements - including conditionals, loops, and even
+blocks -  are expressions. --> </para>
 
 <!--  </FONT> -->
 
