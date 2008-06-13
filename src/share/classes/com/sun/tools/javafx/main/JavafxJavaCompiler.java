@@ -65,7 +65,7 @@ public class JavafxJavaCompiler extends JavaCompiler {
         modules = externalModules;
         this.results = results;
         compile(null, List.<String>nil(), null);
-        results = null;
+        this.results = null;
     }
     
     public Name.Table getNames() {

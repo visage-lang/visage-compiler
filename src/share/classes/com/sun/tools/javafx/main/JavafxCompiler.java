@@ -792,7 +792,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     /**
      * Generate any files on the todo list.  Called by JavafxcTaskImpl.
      */
-    public void generate(ListBuffer<JavaFileObject> results) throws IOException {
+    public void generate(List<JavafxEnv<JavafxAttrContext>> genlist, ListBuffer<JavaFileObject> results) throws IOException {
+        todo.appendList(genlist);
         compile2(results);
     }
     
@@ -875,8 +876,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     /**
      * Attribute the existing JavafxTodo list.  Called by JavafxTaskImpl.
      */
-    public void attribute() {
-        attribute(todo);
+    public List<JavafxEnv<JavafxAttrContext>> attribute() {
+        return attribute(todo);
     }
 
     /**

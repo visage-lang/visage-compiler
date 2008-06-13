@@ -37,6 +37,8 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Options;
+import com.sun.tools.javafx.comp.JavafxAttrContext;
+import com.sun.tools.javafx.comp.JavafxEnv;
 import com.sun.tools.javafx.main.CommandLine;
 import com.sun.tools.javafx.main.Main;
 import java.io.File;
@@ -67,6 +69,7 @@ public class JavafxcTaskImpl extends JavafxcTask {
     private TaskListener taskListener;
     private AtomicBoolean used = new AtomicBoolean();
     private Integer result = null;
+    private List<JavafxEnv<JavafxAttrContext>> genList;
 
     JavafxcTaskImpl(JavafxcTool tool, Main compilerMain, String[] args, Context context, List<JavaFileObject> fileObjects) {
         this.compilerMain = compilerMain;
@@ -143,6 +146,7 @@ public class JavafxcTaskImpl extends JavafxcTask {
             for (JavaFileObject file: fileObjects)
                 notYetEntered.put(file, null);
             args = null;
+            genList = List.<JavafxEnv<JavafxAttrContext>>nil();
         }
     }
 
@@ -239,7 +243,7 @@ public class JavafxcTaskImpl extends JavafxcTask {
     public Iterable<? extends CompilationUnitTree> analyze() throws IOException {
         try {
             enter();
-            compiler.attribute();
+            genList = compiler.attribute();
             return units;
         } finally {
             if (compiler != null && compiler.log != null)
@@ -263,7 +267,7 @@ public class JavafxcTaskImpl extends JavafxcTask {
     public Iterable<? extends JavaFileObject> generate() throws IOException {
         analyze();
         final ListBuffer<JavaFileObject> results = new ListBuffer<JavaFileObject>();
-        compiler.generate(results);
+        compiler.generate(genList, results);
         return results;
     }
     
