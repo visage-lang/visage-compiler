@@ -8,11 +8,11 @@ public class RemoteTextDocument extends AbstractAsyncOperation {
     attribute url : String;
     attribute method : String = "GET";
 
-    function cancel() {
+    function cancel() : Void {
         if (peer <> null) then peer.cancel();
     }
 
-    protected function onCompletion(value : Object) {
+    protected function onCompletion(value : Object) : Void {
         document = value as String;
     }
 

@@ -16,11 +16,11 @@ public class RemoteImage extends AbstractAsyncOperation {
     attribute image : Image;
     attribute url : String;
 
-    function cancel() {
+    function cancel() : Void {
         if (peer <> null) then peer.cancel();
     }
 
-    protected function onCompletion(value : Object) {
+    protected function onCompletion(value : Object) : Void {
         image = MemoryImage { theImage : value as java.awt.Image };
     }
 

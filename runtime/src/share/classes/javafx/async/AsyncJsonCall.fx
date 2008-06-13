@@ -10,7 +10,7 @@ public class AsyncJsonCall extends AbstractAsyncOperation {
     attribute method : String = "GET";
     attribute referer: String;
 
-    function cancel() {
+    function cancel() : Void {
         if (peer <> null) then peer.cancel();
     }
 
