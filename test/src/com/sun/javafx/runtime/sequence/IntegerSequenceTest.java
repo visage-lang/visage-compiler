@@ -94,9 +94,9 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertTrue(Sequences.isEqual(seq, null));
         assertTrue(Sequences.isEqual(null, seq));
         assertEquals(0, seq.hashCode());
-        assertEquals((Integer)null, seq.get(-1));
-        assertEquals((Integer)null, seq.get(0));
-        assertEquals((Integer)null, seq.get(1));
+        assertEquals(Integer.valueOf(0), seq.get(-1));
+        assertEquals(Integer.valueOf(0), seq.get(0));
+        assertEquals(Integer.valueOf(0), seq.get(1));
         assertEquals("[ ]", seq.toString());
         assertEquals(seq, EMPTY_SEQUENCE);
         assertEquals(seq, seq.get(nullMatcher));
@@ -115,9 +115,9 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(seq, seq);
         assertEquals(value, seq.hashCode());
         assertEquals("[ " + value + " ]", seq.toString());
-        assertEquals((Integer)null, seq.get(-1));
+        assertEquals(Integer.valueOf(0), seq.get(-1));
         assertEquals(Integer.valueOf(value), seq.get(0));
-        assertEquals((Integer)null, seq.get(1));
+        assertEquals(Integer.valueOf(0), seq.get(1));
         assertEmpty(seq.get(nullMatcher));
         assertEquals(seq, seq.get(firstMatcher));
         assertEquals(seq, seq.get(lastMatcher));
@@ -134,10 +134,10 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(seq, seq);
         assertEquals(seq, new ArraySequence<Integer>(Integer.class, seq.get(0), seq.get(1)));
         assertEquals("[ " + a + ", " + b + " ]", seq.toString());
-        assertEquals((Integer)null, seq.get(-1));
+        assertEquals(Integer.valueOf(0), seq.get(-1));
         assertEquals(a, seq.get(0));
         assertEquals(b, seq.get(1));
-        assertEquals((Integer)null, seq.get(2));
+        assertEquals(Integer.valueOf(0), seq.get(2));
         assertEmpty(seq.get(nullMatcher));
         assertEquals(seq, seq.get(allMatcher));
         assertOneElement(seq.get(firstMatcher), a);
@@ -463,10 +463,10 @@ public class IntegerSequenceTest extends JavaFXTestCase {
      * Test out-of-bounds sets and gets
      */
     public void testOutOfBounds() {
-        assertEquals((Integer)null, EMPTY_SEQUENCE.get(-1));
+        assertEquals(Integer.valueOf(0), EMPTY_SEQUENCE.get(-1));
         assertEquals(Sequences.set(EMPTY_SEQUENCE, 0, 1), EMPTY_SEQUENCE);
-        assertEquals((Integer)null, TWO_SEQUENCE.get(-1));
-        assertEquals((Integer)null, TWO_SEQUENCE.get(100));
+        assertEquals(Integer.valueOf(0), TWO_SEQUENCE.get(-1));
+        assertEquals(Integer.valueOf(0), TWO_SEQUENCE.get(100));
         assertEquals(Sequences.set(TWO_SEQUENCE, -1, 400), TWO_SEQUENCE);
         assertEquals(Sequences.set(TWO_SEQUENCE, 200, 400), TWO_SEQUENCE);
     }

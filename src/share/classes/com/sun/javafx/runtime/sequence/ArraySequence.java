@@ -91,7 +91,7 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
     @Override
     public T get(int position) {
         if (position < 0 || position >= array.length)
-            return null;
+            return Util.defaultValue(getElementType());
         else 
             return array[position];
     }

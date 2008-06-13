@@ -23,6 +23,8 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.Util;
+
 /**
  * Intermediate (view) sequence implementation that represents the concatenation of zero or more other sequences of
  * the same element type.  Concatenating sequences should be done through the Sequences.concatenate() factory,
@@ -70,7 +72,7 @@ class CompositeSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     @Override
     public T get(int position) {
         if (position < 0 || position >= size)
-        		return null;
+            return Util.defaultValue(getElementType());
         // Linear search should be good enough for now
         // @@@ OPT: cache last chunk accessed, use that as predictive starting point for next get
         int chunk = 0;

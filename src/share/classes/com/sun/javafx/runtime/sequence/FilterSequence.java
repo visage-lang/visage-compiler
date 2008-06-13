@@ -25,6 +25,8 @@ package com.sun.javafx.runtime.sequence;
 
 import java.util.BitSet;
 
+import com.sun.javafx.runtime.Util;
+
 /**
  * Represents a view of another sequence that has some elements removed, suitable for "delete from" or foo[predicate]
  * sequence operations.  Instances of FilterSequence should be constructed with the Sequences.filter() factory, rather
@@ -59,7 +61,7 @@ class FilterSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     @Override
     public T get(int position) {
         if (position < 0 || position >= indices.length)
-            return null;
+            return Util.defaultValue(getElementType());
         else
             return sequence.get(indices[position]);
     }

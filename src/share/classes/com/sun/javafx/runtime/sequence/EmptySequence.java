@@ -26,6 +26,8 @@ package com.sun.javafx.runtime.sequence;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sun.javafx.runtime.Util;
+
 /**
  * Represents an empty sequence of a specific type.  Empty sequences are cached using the "Flyweight" pattern.
  * To construct an empty sequence, use the Sequences.emptySequence() factory, not the EmptySequence constructor.
@@ -58,6 +60,6 @@ class EmptySequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
     @Override
     public T get(int position) {
-        return null;
+        return Util.defaultValue(getElementType());
     }
 }
