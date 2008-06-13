@@ -14,26 +14,26 @@ public abstract class AbstractAsyncOperation {
 
     private attribute self = this;
     protected attribute listener = AsyncOperationListener {
-        function onCancel() {
+        function onCancel() : Void {
             canceled = true;
             done = true;
             if (onDone <> null) then onDone(false);
         }
 
-        function onException(exception : Exception) {
+        function onException(exception : Exception) : Void {
             failureText = exception.getMessage();
             failed = true;
             done = true;
             if (onDone <> null) then onDone(false);
         }
 
-        function onCompletion(value : Object) {
+        function onCompletion(value : Object) : Void {
             done = true;
             self.onCompletion(value);
             if (onDone <> null) then onDone(true);
         }
 
-        function onProgress(cur : Integer, max : Integer) {
+        function onProgress(cur : Integer, max : Integer) : Void {
             progressCur = cur;
             progressMax = max;
         }
