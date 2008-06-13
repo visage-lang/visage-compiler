@@ -23,9 +23,5 @@ var fib4 = [ fib3[0], fib3[0]+fib3[1], fib3[1]+fib3[2], fib3[2] ] ;
 var fibs =[ fib1, fib2, fib3, fib4 ] ;
 System.out.println(fibs);
 System.out.println("You may expect to see the usual Fibonacci tree, but...");
-try{
-   for (i in [0..sizeof fibs]){   System.out.println("{i}:  {fibs[i]}");}
-} catch( e: Exception )  {
- System.out.println("...fx flattens our sequences of sequences");
-}
-
+for (i in [0..sizeof fibs]){   System.out.println("{i}:  {fibs[i]}");}
+System.out.println("...fx flattens our sequences of sequences");

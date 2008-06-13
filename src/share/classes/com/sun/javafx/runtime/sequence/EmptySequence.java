@@ -58,6 +58,6 @@ class EmptySequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
     @Override
     public T get(int position) {
-        throw new IndexOutOfBoundsException(Integer.toString(position));
+        return null;
     }
 }

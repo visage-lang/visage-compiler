@@ -83,7 +83,7 @@ public class SequenceBuilder<T> {
     /** Get the nth element of the sequence being constructed, returning the null sequence value if n is out of range */
     public T get(int n) {
         if (n < 0 || n >= size)
-            throw new IndexOutOfBoundsException(Integer.toString(n));
+            return null;
         else
             return array[n];
     }

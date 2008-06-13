@@ -59,7 +59,7 @@ class FilterSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     @Override
     public T get(int position) {
         if (position < 0 || position >= indices.length)
-            throw new IndexOutOfBoundsException(Integer.toString(position));
+            return null;
         else
             return sequence.get(indices[position]);
     }

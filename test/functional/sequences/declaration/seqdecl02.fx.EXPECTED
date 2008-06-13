@@ -13,4 +13,5 @@ You may expect to see the usual Fibonacci tree, but...
 7:  3
 8:  3
 9:  1
+10:  null
 ...fx flattens our sequences of sequences
