@@ -7,6 +7,10 @@ Module {
     name: "Samples"
     samples: [
     Sample{
+        name: "Cube3D"
+        className: "assortis.sources.samples.mathematics.geometry.HyperCube"
+    },
+    Sample{
         name: "Electro Simulator"
         className: "assortis.sources.samples.physics.electrosim.ElectroSimulator"
     },
