@@ -79,7 +79,7 @@ public class Document {
     public attribute documentElement:Element on replace old {
         if(documentElement.domNode <> document.getDocumentElement()) {
             if(document.getDocumentElement() <> null) {
-                document.removeChild(old.domNode);
+                document.removeChild(document.getDocumentElement());
             }
             document.appendChild(documentElement.domNode);
             

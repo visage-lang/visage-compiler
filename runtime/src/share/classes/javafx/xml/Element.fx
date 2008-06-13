@@ -43,18 +43,25 @@ public class Element extends Node {
      * Holds the node's attributes
      */
     public attribute attributes:Attribute[]  on replace oldValue[lo..hi]=newVals {
+        if(domNode == null) {
+            initDomNode();
+        }
         for(n in oldValue[lo..hi]) { 
             n.parent = null;
-            var elem = domNode as org.w3c.dom.Element;
-            if(elem.hasAttribute(n.name)) {
-                elem.removeAttributeNode(n.domNode as org.w3c.dom.Attr); 
+            if(domNode <> null) {
+                var elem = domNode as org.w3c.dom.Element;
+                if(elem.hasAttribute(n.name)) {
+                    elem.removeAttributeNode(n.domNode as org.w3c.dom.Attr); 
+                }
             }
         }
         for(n in newVals) {
             n.parent = this;
-            var elem = domNode as org.w3c.dom.Element;
-            if(not elem.hasAttribute(n.name)) {
-                elem.setAttributeNode(n.domNode as org.w3c.dom.Attr);
+            if(domNode <> null) {
+                var elem = domNode as org.w3c.dom.Element;
+                if(not elem.hasAttribute(n.name)) {
+                    elem.setAttributeNode(n.domNode as org.w3c.dom.Attr);
+                }
             }
         }
     };
@@ -228,40 +235,26 @@ public class Element extends Node {
         writer.write("</{name}>\n");
         writer.flush();
     }
-    
-    init {
-        var elem = domNode as org.w3c.dom.Element;
-        if(domNode == null) {
-            domNode = createNode();
-
-            for(e in children) {
-                if(e.parent <> null and e.parent <> this) {
-                    delete e from e.parent.children;
-                }                
-                if(e.parent <> this) {
-                    e.parent = this;
+    protected function initDomNode():Void {
+        super.initDomNode();
+        if(domNode <> null) {
+            var elem = domNode as org.w3c.dom.Element;
+            for(a in attributes) {
+                if(a.domNode == null ) {
+                    var attr = document.document.createAttributeNS(a.namespaceURI, a.name);
+                    attr.setValue(a.value);
+                    a.domNode = attr;
+                }            
+                if(a.parent <> this) {
+                    a.parent = this;
                 }
-                if(not isChild(e)) {
-                    if(e.domNode == null) {
-                        e.domNode = e.createNode();
-                    }
-                    domNode.appendChild(e.domNode);
+                if(not elem.hasAttributeNS(a.namespaceURI, a.name)) {
+                    elem.setAttributeNode(a.domNode as org.w3c.dom.Attr);
                 }
-            }
-            
-        }
-        for(a in attributes) {
-            if(a.domNode == null ) {
-                var attr = document.document.createAttributeNS(a.namespaceURI, a.name);
-                attr.setValue(a.value);
-                a.domNode = attr;
-            }            
-            if(a.parent <> this) {
-                a.parent = this;
-            }
-            if(not elem.hasAttributeNS(a.namespaceURI, a.name)) {
-                elem.setAttributeNode(a.domNode as org.w3c.dom.Attr);
             }
         }
     }
+
+  
+    
 }

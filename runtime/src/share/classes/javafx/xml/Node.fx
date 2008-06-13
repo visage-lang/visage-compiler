@@ -45,16 +45,28 @@ import javax.xml.xpath.XPathConstants;
  * @author jclarke
  */
 public class Node {
+
+    /**
+     * flag indicating child is being added to the children
+     */
+    private attribute addingChild:Boolean;
+
     /**
      * holds the associated document
      */
-    public attribute document:Document;
+    public attribute document:Document on replace {
+        if(document <> null) {
+            initDomNode();
+        }
+    };
     
     /**
      *  holds the associated dom node
      */
     public attribute domNode:org.w3c.dom.Node on replace {
-        setDomNode(domNode);
+        if(domNode <> null) {
+            setDomNode(domNode);
+        }
     };
     
     
@@ -121,11 +133,13 @@ public class Node {
      * to include this node.
      */
     public attribute parent:Node on replace oldValue {
-        if(oldValue <> null) {
+        if(oldValue <> null ) {
             delete this from oldValue.children;
         }
         if(parent <> null and type <> NodeType.ATTRIBUTE) {
-            insert this into parent.children;
+            if(not parent.addingChild) {
+                insert this into parent.children;
+            }
             document = parent.document;
         }
     };
@@ -136,28 +150,37 @@ public class Node {
      * for the child node is set to this node.
      */
     public attribute children:Node[]   on replace oldValue[lo..hi]=newVals {
-        for(n in oldValue[lo..hi]) { 
-            if(n.parent <> null) {
-                delete n from n.parent.children;
-                n.parent = null;
-            }
-            if(isChild(n)) {
-                domNode.removeChild(n.domNode);
-            }
+        addingChild = true;
+        if(domNode == null) {
+            initDomNode();
         }
-        for(n in newVals) {
-            if(n.parent <> null and n.parent <> this) {
-                delete n from n.parent.children;
-            }
-            if(n.parent <> this) {
-                n.parent = this;
-            }
-            if(not isChild(n)) {
-                if(n.domNode == null) {
-                    n.domNode = n.createNode();
+        try {
+            for(n in oldValue[lo..hi]) { 
+                if(n.parent <> null) {
+                    delete n from n.parent.children;
+                    n.parent = null;
                 }
-                domNode.appendChild(n.domNode);
+                if(domNode <> null and isChild(n)) {
+                    domNode.removeChild(n.domNode);
+                }
+
             }
+            for(n in newVals) {
+                if(n.parent <> null and n.parent <> this) {
+                    delete n from n.parent.children;
+                }
+                if(n.parent <> this) {
+                    n.parent = this;
+                }
+                if(domNode <> null and not isChild(n)) {
+                    if(n.domNode == null) {
+                        n.domNode = n.createNode();
+                    }
+                    domNode.appendChild(n.domNode);
+                }
+            }
+        } finally {
+            addingChild = false;
         }
     };
     
@@ -176,7 +199,9 @@ public class Node {
      * holds the node's qualified name
      */
     public attribute name:String on replace old {
-
+        if(domNode == null) {
+            initDomNode();
+        }
         if(document <> null and domNode <> null and 
                 (type == NodeType.ATTRIBUTE or type == NodeType.ELEMENT) ) {
             if(name <> domNode.getNodeName()) {
@@ -442,12 +467,9 @@ public class Node {
             return null;
         };
     }
-    
-    /**
-     * initialize the domNode if it is null
-     */
-    init {
-        if(domNode == null) {
+
+    protected function initDomNode():Void {
+        if(document <> null and domNode == null) {
             domNode = createNode();
 
             for(e in children) {
@@ -464,7 +486,14 @@ public class Node {
                     domNode.appendChild(e.domNode);
                 }
             }
-        }
+        }    
+    }
+    
+    /**
+     * initialize the domNode if it is null
+     */
+    postinit {
+        initDomNode();
     }
 
     
