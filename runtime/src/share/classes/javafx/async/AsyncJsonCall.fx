@@ -14,7 +14,7 @@ public class AsyncJsonCall extends AbstractAsyncOperation {
         if (peer <> null) then peer.cancel();
     }
 
-    protected function onCompletion(value : Object) {
+    protected function onCompletion(value : Object) : Void {
         var p = new Parser();
         document = p.parseString(value as String);
     }
