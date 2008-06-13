@@ -8,6 +8,7 @@
 <title>Classes and Objects</title>
 
 
+<!-- 
 <sect2 id="class"><title>Classes</title>
 
 <para>Classes allow for the creation of user-defined types.  
@@ -24,11 +25,14 @@ multiple inheritance, and as such, defines some new terminology and rules: </par
 <listitem>Classes can extend, at most, one plain class; if it does, it becomes 
 a plain class. It may also extend any number of compound classes, or Java programming language interfaces. </listitem>
 
+-->
+
 <!--
 <FONT SIZE="-1"><SUpara>
 <A HREF="#foot1">1</A>
 </SUpara></FONT>  -->
 
+<!--
 </itemizedlist>
 
 <para>
@@ -36,13 +40,16 @@ The syntax for specifying a class is the <code>class</code> keyword followed by 
 separated list of the names of base classes, an open curly brace, a list of attributes and functions that each end in a semicolon, and a closing curly brace.</para>
 
 <programlisting>
-&nbsp;
+&nbsp; 
+
+-->
 
 <!-- **** <FONT COLOR="RED">ENGINEERING TO FILL IN THIS BOX WITH A 
 FORMAL SYNTAX LISTING</FONT> *** -->
-</programlisting>
 
-</sect2>
+<!-- </programlisting> 
+
+</sect2> -->
 <sect2 id="importing"><title> Importing Classes</title> 
 
 <para>
@@ -111,7 +118,7 @@ multiple inheritance, and as such, defines some new terminology and rules: </par
 a plain class. It may also extend any number of compound classes, or Java programming language interfaces. </listitem>
 </itemizedlist>
 
-
+<para><emphasis role="bold">Note:</emphasis> A plain class is currently translated into a Java class, while a compound class is translated to a Java class and a Java interface.</para>
 
 <para>
 The syntax for specifying a class is the <code>class</code> keyword followed by the class name, optionally the <code>extends</code> keyword, and a comma 
@@ -171,7 +178,9 @@ var tmpPath = "/home/users/docs/tmp.txt"
 var myFile = new File("tmp.txt");
 </programlisting>
 
+<!-- 
 <para> 1. A plain class is currently translated into a Java class, while a compound class is translated to a Java class and a Java interface. </para>
+-->
 
 </sect2> </chapter>
 

@@ -164,9 +164,8 @@ If <code>myX</code> changes, the JavaFX Script programming language will create 
 
 <para>To make the value of <code>x</code> track the value of <code>myX</code> without creating a new <code>Point</code>, then binding is required:</para>
 
-<programlisting>
 
-let pt = bind Point { x: bind myX  y: myY  }
+<programlisting>let pt = bind Point { x: bind myX  y: myY  }
 </programlisting>
 
 <para>
