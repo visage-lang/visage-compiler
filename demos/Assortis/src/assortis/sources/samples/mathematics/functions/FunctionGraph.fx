@@ -1,0 +1,134 @@
+package assortis.sources.samples.mathematics.functions;
+
+import javafx.gui.*;
+import java.lang.Math;
+import java.lang.System;
+
+
+function f1(x:Number):Number{
+    return 3 * Math.exp( -(x * x ) / 2 );
+};
+
+function f2(x:Number):Number{
+    var n = 10; 
+
+    var sum = 0.0;
+    var sign = 1.0;
+    
+
+    for(i in [1..n]){
+
+        sign = -sign;
+        sum += ((1 - sign) * Math.sin(i * x)) / i; 
+    }
+
+    return sum;
+};
+
+
+public class FunctionGraph extends CustomNode{
+    
+    attribute scale:Number = 1;
+    attribute xMin: Number;
+    attribute xMax: Number;
+    attribute dx: Number = 1;
+    attribute color: Color;
+    
+    attribute func: function(a: Number):Number;
+
+    public function create():Node{
+
+      var n = (xMax - xMin) / dx;
+    
+      var polyline = Polyline{ stroke: color };
+    
+      for(i in [0..n]){
+        var x = xMin + i * dx;
+        var y =  (this.func)(x);
+        
+        insert(   x * scale ) into polyline.points;
+        insert( - y * scale ) into polyline.points;   
+      }
+    
+      return Group{ content: [ polyline] };
+    }
+}
+
+
+public class Coordinats extends CustomNode{
+
+    attribute xMin: Number;
+    attribute xMax: Number;
+    attribute scale: Number;
+    attribute color: Color = Color.GREEN;
+
+    public function create():Node{
+      var min = xMin * scale;
+      var max = xMax * scale;
+      var h = 7;
+    
+      return Group{
+        content:[
+        Line{ x1: min x2: max stroke: color },
+        Line{ x1: max x2: max - h y2: h stroke: color },
+        Line{ x1: max x2: max - h y2: -h stroke: color },
+        Line{ y1: min y2: max stroke: color },
+        Line{ y1: min  x2: -h y2: min + h stroke: color },
+        Line{ y1: min  x2:  h y2: min + h stroke: color },
+        Group{
+            content: [
+            Text{ x: min y: -3 content: "{xMin}" },
+            Text{ x: max y: -3 content: "{xMax}"}
+            //Text{ x: min font: Font{faceName: "Arial", size: 18} content: "{xMin}" },
+            //Text{ x: max font: Font{faceName: "Arial", size: 18} content: "{xMax}"}
+            ] }
+        ]
+        
+      };
+    }
+}
+
+
+var w = 300;
+var h = 300;
+
+var xMin = -4;
+var xMax = 4;
+
+var dx = 0.1;
+var scale = 20;
+
+
+Frame{
+    width:  300
+    height: 300
+    title: "Function Graph"
+
+    content: Canvas{
+	 content: [ Group{
+
+            transform: Translate.translate(w/2, h/2)
+            content: [ Coordinats{
+                xMin: xMin
+                xMax: xMax
+                scale: scale
+            }, FunctionGraph {
+                xMin: xMin
+                xMax: xMax
+                scale: scale
+                dx: dx
+                color: Color.DARKORANGE
+                func: f1
+            },FunctionGraph {
+                xMin: xMin
+                xMax: xMax
+                scale: scale
+                dx: dx
+                color: Color.BLUE
+                func: f2                
+            }]
+      
+          
+        }]
+    }
+}
