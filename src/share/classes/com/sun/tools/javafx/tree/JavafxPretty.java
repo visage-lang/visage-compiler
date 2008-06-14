@@ -38,6 +38,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Position;
 import java.util.Iterator;
 
@@ -148,7 +149,8 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             align();
             printDocComment(tree);
             print("class ");
-            print(tree.getName());
+            Name n = tree.getName();
+            print(n == null ? "<anonymous>" : n);
             print(" {");
             println();
             indent();
