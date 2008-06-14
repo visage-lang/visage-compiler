@@ -118,6 +118,15 @@ public class JavafxEnter extends JavafxTreeScanner {
     public JavafxEnv<JavafxAttrContext> getEnv(TypeSymbol sym) {
 	return typeEnvs.get(sym);
     }
+
+    public JavafxEnv<JavafxAttrContext> getClassEnv(TypeSymbol sym) {
+        JavafxEnv<JavafxAttrContext> localEnv = getEnv(sym);
+        JavafxEnv<JavafxAttrContext> lintEnv = localEnv;
+        while (lintEnv.info.lint == null)
+            lintEnv = lintEnv.next;
+        localEnv.info.lint = lintEnv.info.lint.augment(sym.attributes_field, sym.flags());
+        return localEnv;
+    }
     
     /** The queue of all classes that might still need to be completed;
      *	saved and initialized by main().
@@ -173,6 +182,15 @@ public class JavafxEnter extends JavafxTreeScanner {
 	localEnv.info.lint = lint;
 	return localEnv;
     } 
+
+    public JavafxEnv<JavafxAttrContext> getTopLevelEnv(JCCompilationUnit tree) {
+        JavafxEnv<JavafxAttrContext> localEnv = new JavafxEnv<JavafxAttrContext>(tree, new JavafxAttrContext());
+        localEnv.toplevel = tree;
+        localEnv.enclClass = predefClassDef;
+        localEnv.info.scope = tree.namedImportScope;
+        localEnv.info.lint = lint;
+        return localEnv;
+    }
 
     /** The scope in which a member definition in environment env is to be entered
      *	This is usually the environment's scope, except for class environments,

@@ -303,6 +303,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             this.pt = pt;
             this.pSequenceness = pSequenceness;
             tree.accept(this);
+            if (tree == breakTree)
+                throw new BreakAttr(env);
             return result;
         } catch (CompletionFailure ex) {
             tree.type = syms.errType;
@@ -3937,5 +3939,43 @@ public
     
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    private JCTree breakTree = null;
+
+    public JavafxEnv<JavafxAttrContext> attribExprToTree(JCTree expr, JavafxEnv<JavafxAttrContext> env, JCTree tree) {
+        breakTree = tree;
+        JavaFileObject prev = log.useSource(null);
+        try {
+            attribExpr(expr, env);
+        } catch (BreakAttr b) {
+            return b.env;
+        } finally {
+            breakTree = null;
+            log.useSource(prev);
+        }
+        return env;
+    }
+
+    public JavafxEnv<JavafxAttrContext> attribStatToTree(JCTree stmt, JavafxEnv<JavafxAttrContext> env, JCTree tree) {
+        breakTree = tree;
+        JavaFileObject prev = log.useSource(null);
+        try {
+            attribStat(stmt, env);
+        } catch (BreakAttr b) {
+            return b.env;
+        } finally {
+            breakTree = null;
+            log.useSource(prev);
+        }
+        return env;
+    }
+
+    private static class BreakAttr extends RuntimeException {
+        static final long serialVersionUID = -6924771130405446405L;
+        private JavafxEnv<JavafxAttrContext> env;
+        private BreakAttr(JavafxEnv<JavafxAttrContext> env) {
+            this.env = env;
+        }
     }
 }

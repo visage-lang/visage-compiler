@@ -23,12 +23,14 @@
 
 package com.sun.tools.javafx.api;
 
+import com.sun.tools.javac.code.Symtab;
+import com.sun.tools.javac.util.Context;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 
-import com.sun.tools.javac.comp.AttrContext;
-import com.sun.tools.javac.comp.Env;
+import com.sun.tools.javafx.comp.JavafxAttrContext;
+import com.sun.tools.javafx.comp.JavafxEnv;
 
 /**
  * Provides an implementation of Scope.
@@ -41,20 +43,24 @@ import com.sun.tools.javac.comp.Env;
  * @author Jonathan Gibbons;
  */
 public class JavafxcScope implements com.sun.source.tree.Scope {
-    protected final Env<AttrContext> env;
+    protected final JavafxEnv<JavafxAttrContext> env;
+    private final Symtab syms;
+    private final Context ctx;
 
     /** Creates a new instance of JavacScope */
-    JavafxcScope(Env<AttrContext> env) {
+    JavafxcScope(Context context, JavafxEnv<JavafxAttrContext> env) {
         env.getClass(); // null-check
         this.env = env;
+        this.ctx = context;
+        this.syms = Symtab.instance(context);
     }
 
     public JavafxcScope getEnclosingScope() {
         if (env.outer != null && env.outer != env)
-            return  new JavafxcScope(env.outer);
+            return  new JavafxcScope(ctx, env.outer);
         else {
             // synthesize an outermost "star-import" scope
-            return new JavafxcScope(env) {
+            return new JavafxcScope(ctx, env) {
                 @Override
                 public boolean isStarImportScope() {
                     return true;
@@ -84,7 +90,7 @@ public class JavafxcScope implements com.sun.source.tree.Scope {
         return env.info.getLocalElements();
     }
 
-    public Env<AttrContext> getEnv() {
+    public JavafxEnv<JavafxAttrContext> getEnv() {
         return env;
     }
 

@@ -46,21 +46,24 @@ import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
-import com.sun.tools.javac.comp.Attr;
-import com.sun.tools.javac.comp.AttrContext;
-import com.sun.tools.javac.comp.Enter;
-import com.sun.tools.javac.comp.Env;
-import com.sun.tools.javac.comp.MemberEnter;
-import com.sun.tools.javac.comp.Resolve;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeCopier;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Pair;
+import com.sun.tools.javafx.comp.JavafxAttr;
+import com.sun.tools.javafx.comp.JavafxAttrContext;
+import com.sun.tools.javafx.comp.JavafxEnter;
+import com.sun.tools.javafx.comp.JavafxEnv;
+import com.sun.tools.javafx.comp.JavafxMemberEnter;
+import com.sun.tools.javafx.comp.JavafxResolve;
+import com.sun.tools.javafx.tree.JFXBlockExpression;
+import com.sun.tools.javafx.tree.JFXClassDeclaration;
+import com.sun.tools.javafx.tree.JFXFunctionDefinition;
+import com.sun.tools.javafx.tree.JFXVar;
 import com.sun.tools.javafx.tree.JavafxTreeInfo;
 
 /**
@@ -72,13 +75,14 @@ import com.sun.tools.javafx.tree.JavafxTreeInfo;
  */
 public class JavafxcTrees {
 
-    private final Resolve resolve;
-    private final Enter enter;
+    private final JavafxResolve resolve;
+    private final JavafxEnter enter;
     private final Log log;
-    private final MemberEnter memberEnter;
-    private final Attr attr;
+    private final JavafxMemberEnter memberEnter;
+    private final JavafxAttr attr;
     private final TreeMaker treeMaker;
     private final JavafxcTaskImpl javafxcTaskImpl;
+    private final Context ctx;
 
     public static JavafxcTrees instance(JavafxCompiler.CompilationTask task) {
         if (!(task instanceof JavafxcTaskImpl))
@@ -95,12 +99,13 @@ public class JavafxcTrees {
 
     private JavafxcTrees(Context context) {
         context.put(JavafxcTrees.class, this);
-        attr = Attr.instance(context);
-        enter = Enter.instance(context);
+        ctx = context;
+        attr = JavafxAttr.instance(context);
+        enter = JavafxEnter.instance(context);
         log = Log.instance(context);
-        resolve = Resolve.instance(context);
+        resolve = JavafxResolve.instance(context);
         treeMaker = TreeMaker.instance(context);
-        memberEnter = MemberEnter.instance(context);
+        memberEnter = JavafxMemberEnter.instance(context);
         javafxcTaskImpl = context.get(JavafxcTaskImpl.class);
     }
 
@@ -128,10 +133,10 @@ public class JavafxcTrees {
     public Tree getTree(Element element) {
         Symbol symbol = (Symbol) element;
         TypeSymbol enclosing = symbol.enclClass();
-        Env<AttrContext> env = enter.getEnv(enclosing);
+        JavafxEnv<JavafxAttrContext> env = enter.getEnv(enclosing);
         if (env == null)
             return null;
-        JCClassDecl classNode = env.enclClass;
+        JFXClassDeclaration classNode = env.enclClass;
         if (classNode != null) {
             if (JavafxTreeInfo.symbolFor(classNode) == element)
                 return classNode;
@@ -169,6 +174,7 @@ public class JavafxcTrees {
             }
         }
         class PathFinder extends JavaFXTreePathScanner<TreePath,Tree> {
+            @Override
             public TreePath scan(Tree tree, Tree target) {
                 if (tree == target)
                     throw new Result(new TreePath(getCurrentPath(), target));
@@ -195,12 +201,12 @@ public class JavafxcTrees {
     }
 
     public JavafxcScope getScope(TreePath path) {
-        return new JavafxcScope(getAttrContext(path));
+        return new JavafxcScope(ctx, getAttrContext(path));
     }
 
     public boolean isAccessible(Scope scope, TypeElement type) {
         if (scope instanceof JavafxcScope && type instanceof ClassSymbol) {
-            Env<AttrContext> env = ((JavafxcScope) scope).env;
+            JavafxEnv<JavafxAttrContext> env = ((JavafxcScope) scope).env;
             return resolve.isAccessible(env, (ClassSymbol)type);
         } else
             return false;
@@ -210,13 +216,13 @@ public class JavafxcTrees {
         if (scope instanceof JavafxcScope
                 && member instanceof Symbol
                 && type instanceof com.sun.tools.javac.code.Type) {
-            Env<AttrContext> env = ((JavafxcScope) scope).env;
+            JavafxEnv<JavafxAttrContext> env = ((JavafxcScope) scope).env;
             return resolve.isAccessible(env, (com.sun.tools.javac.code.Type)type, (Symbol)member);
         } else
             return false;
     }
 
-    private Env<AttrContext> getAttrContext(TreePath path) {
+    private JavafxEnv<JavafxAttrContext> getAttrContext(TreePath path) {
         if (!(path.getLeaf() instanceof JCTree))  // implicit null-check
             throw new IllegalArgumentException();
 
@@ -235,9 +241,9 @@ public class JavafxcTrees {
         JCCompilationUnit unit = (JCCompilationUnit) path.getCompilationUnit();
         Copier copier = new Copier(treeMaker.forToplevel(unit));
 
-        Env<AttrContext> env = null;
-        JCMethodDecl method = null;
-        JCVariableDecl field = null;
+        JavafxEnv<JavafxAttrContext> env = null;
+        JFXFunctionDefinition function = null;
+        JFXVar field = null;
 
         List<Tree> l = List.nil();
         TreePath p = path;
@@ -248,45 +254,35 @@ public class JavafxcTrees {
 
         for ( ; l.nonEmpty(); l = l.tail) {
             Tree tree = l.head;
-            switch (tree.getKind()) {
-                case COMPILATION_UNIT:
-//                    System.err.println("COMP: " + ((JCCompilationUnit)tree).sourcefile);
-                    env = enter.getTopLevelEnv((JCCompilationUnit)tree);
-                    break;
-                case CLASS:
-//                    System.err.println("CLASS: " + ((JCClassDecl)tree).sym.getSimpleName());
-                    env = enter.getClassEnv(((JCClassDecl)tree).sym);
-                    break;
-                case METHOD:
-//                    System.err.println("METHOD: " + ((JCMethodDecl)tree).sym.getSimpleName());
-                    method = (JCMethodDecl)tree;
-                    break;
-                case VARIABLE:
-//                    System.err.println("FIELD: " + ((JCVariableDecl)tree).sym.getSimpleName());
-                    field = (JCVariableDecl)tree;
-                    break;
-                case BLOCK: {
-//                    System.err.println("BLOCK: ");
-                    if (method != null)
-                        env = memberEnter.getMethodEnv(method, env);
-                    JCTree body = copier.copy((JCTree)tree, (JCTree) path.getLeaf());
-                    env = attribStatToTree(body, env, copier.leafCopy);
-                    return env;
-                }
-                default:
-//                    System.err.println("DEFAULT: " + tree.getKind());
-                    if (field != null && field.getInitializer() == tree) {
-                        env = memberEnter.getInitEnv(field, env);
-                        JCExpression expr = copier.copy((JCExpression)tree, (JCTree) path.getLeaf());
-                        env = attribExprToTree(expr, env, copier.leafCopy);
-                        return env;
-                    }
+            if (tree instanceof JCCompilationUnit) {
+                env = enter.getTopLevelEnv((JCCompilationUnit)tree);
+            }
+            else if (tree instanceof JFXClassDeclaration) {
+                env = enter.getClassEnv(((JFXClassDeclaration)tree).sym);
+            }
+            else if (tree instanceof JFXFunctionDefinition) {
+                function = (JFXFunctionDefinition)tree;
+            }
+            else if (tree instanceof JCVariableDecl) {
+                field = (JFXVar)tree;
+            }
+            else if (tree instanceof JFXBlockExpression) {
+                if (function != null)
+                    env = memberEnter.getMethodEnv(function, env);
+                JCTree body = copier.copy((JCTree)tree, (JCTree) path.getLeaf());
+                env = attribStatToTree(body, env, copier.leafCopy);
+                return env;
+            } else if (field != null && field.getInitializer() == tree) {
+                env = memberEnter.getInitEnv(field, env);
+                JCExpression expr = copier.copy((JCExpression)tree, (JCTree) path.getLeaf());
+                env = attribExprToTree(expr, env, copier.leafCopy);
+                return env;
             }
         }
         return field != null ? memberEnter.getInitEnv(field, env) : env;
     }
 
-    private Env<AttrContext> attribStatToTree(JCTree stat, Env<AttrContext>env, JCTree tree) {
+    private JavafxEnv<JavafxAttrContext> attribStatToTree(JCTree stat, JavafxEnv<JavafxAttrContext>env, JCTree tree) {
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
         try {
             return attr.attribStatToTree(stat, env, tree);
@@ -295,7 +291,7 @@ public class JavafxcTrees {
         }
     }
 
-    private Env<AttrContext> attribExprToTree(JCExpression expr, Env<AttrContext>env, JCTree tree) {
+    private JavafxEnv<JavafxAttrContext> attribExprToTree(JCExpression expr, JavafxEnv<JavafxAttrContext>env, JCTree tree) {
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
         try {
             return attr.attribExprToTree(expr, env, tree);
@@ -312,7 +308,7 @@ public class JavafxcTrees {
         TypeSymbol ts = (sym.kind != Kinds.PCK)
                         ? sym.enclClass()
                         : (PackageSymbol) sym;
-        Env<AttrContext> enterEnv = ts != null ? enter.getEnv(ts) : null;        
+        JavafxEnv<JavafxAttrContext> enterEnv = ts != null ? enter.getEnv(ts) : null;        
         if (enterEnv == null)
             return null;
         
@@ -320,6 +316,19 @@ public class JavafxcTrees {
         if (tree == null || enterEnv.toplevel == null)
             return null;
         return new Pair<JCTree,JCCompilationUnit>(tree, enterEnv.toplevel);
+    }
+
+    public JavafxEnv<JavafxAttrContext> getFunctionEnv(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
+        JavafxEnv<JavafxAttrContext> mEnv = memberEnter.methodEnv(tree, env);
+        mEnv.info.lint = mEnv.info.lint.augment(tree.sym.attributes_field, tree.sym.flags());
+        for (List<JFXVar> l = tree.getParameters(); l.nonEmpty(); l = l.tail)
+            mEnv.info.scope.enterIfAbsent(l.head.sym);
+        return mEnv;
+    }
+
+    public JavafxEnv<JavafxAttrContext> getInitEnv(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
+        JavafxEnv<JavafxAttrContext> iEnv = memberEnter.initEnv(tree, env);
+        return iEnv;
     }
 
     /**

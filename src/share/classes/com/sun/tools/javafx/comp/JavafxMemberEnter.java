@@ -495,7 +495,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
      *  @param tree     The method definition.
      *  @param env      The environment current outside of the method definition.
      */
-    JavafxEnv<JavafxAttrContext> methodEnv(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
+    public JavafxEnv<JavafxAttrContext> methodEnv(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
         Scope localScope = new Scope(tree.sym);
         localScope.next = env.info.scope;
         JavafxEnv<JavafxAttrContext> localEnv =
@@ -504,6 +504,39 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         localEnv.enclMethod = tree;
         if ((tree.mods.flags & STATIC) != 0) localEnv.info.staticLevel++;
         return localEnv;
+    }
+
+    public JavafxEnv<JavafxAttrContext> getMethodEnv(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
+        JavafxEnv<JavafxAttrContext> mEnv = methodEnv(tree, env);
+        mEnv.info.lint = mEnv.info.lint.augment(tree.sym.attributes_field, tree.sym.flags());
+         for (List<JFXVar> l = tree.getParameters(); l.nonEmpty(); l = l.tail)
+            mEnv.info.scope.enterIfAbsent(l.head.sym);
+        return mEnv;
+    }
+
+    /** Create a fresh environment for a variable's initializer.
+     *  If the variable is a field, the owner of the environment's scope
+     *  is be the variable itself, otherwise the owner is the method
+     *  enclosing the variable definition.
+     *
+     *  @param tree     The variable definition.
+     *  @param env      The environment current outside of the variable definition.
+     */
+    public JavafxEnv<JavafxAttrContext> initEnv(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
+        JavafxEnv<JavafxAttrContext> localEnv = env.dupto(new JavafxAttrContextEnv(tree, env.info.dup()));
+        if (tree.sym.owner.kind == TYP) {
+            localEnv.info.scope = new Scope.DelegatedScope(env.info.scope);
+            localEnv.info.scope.owner = tree.sym;
+        }
+        if ((tree.mods.flags & STATIC) != 0 ||
+            (env.enclClass.sym.flags() & INTERFACE) != 0)
+            localEnv.info.staticLevel++;
+        return localEnv;
+    }
+
+    public JavafxEnv<JavafxAttrContext> getInitEnv(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
+        JavafxEnv<JavafxAttrContext> iEnv = initEnv(tree, env);
+        return iEnv;
     }
 
     @Override
