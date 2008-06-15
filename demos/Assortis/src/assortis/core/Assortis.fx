@@ -15,7 +15,7 @@ import javafx.gui.*;
 import java.lang.System;
 
 
-ProjectManager.setLookAndFeel();
+//ProjectManager.setLookAndFeel();
 
 Application{
     content: AssortisProject{ 
