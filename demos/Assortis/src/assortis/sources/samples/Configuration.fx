@@ -7,7 +7,7 @@ Module {
     name: "Samples"
     samples: [
     Sample{
-        name: "Cube3D"
+        name: "Hyper Cube"
         className: "assortis.sources.samples.mathematics.geometry.HyperCube"
     },
     Sample{

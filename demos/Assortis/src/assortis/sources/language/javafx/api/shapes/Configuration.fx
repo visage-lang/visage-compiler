@@ -7,6 +7,9 @@ import assortis.core.Sample;
 Module {
     
     name: "2D"
+    modules: [
+        //"assortis.sources.language.javafx.api.shapes.transform.Configuration"
+    ]
     
     samples: [
     Sample{

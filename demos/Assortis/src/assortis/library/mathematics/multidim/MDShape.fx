@@ -8,7 +8,7 @@ public class MDShape {
 
     //public attribute dim:Integer = 0;
     
-    public attribute transforms: IMDSquareTransform[] ;
+    public attribute transforms: IMDSquareTransform[];
     
     public function getPoints():   MDPoint[]  { [] }    
     public function getSegments(): MDSegment[]{ [] }    

@@ -5,5 +5,4 @@ package assortis.library.mathematics.multidim;
  */
 
 public abstract class IMDSquareMatrix  extends IMDSquareTransform, IMDMatrix {
-
 }

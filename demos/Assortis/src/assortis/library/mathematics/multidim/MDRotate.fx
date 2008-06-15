@@ -6,6 +6,8 @@ package assortis.library.mathematics.multidim;
 
 import java.lang.Math; 
  
+ import java.lang.System;
+ 
 public class MDRotate extends IMDSquareTransform{
     
     public attribute dim:Integer ;
@@ -22,8 +24,9 @@ public class MDRotate extends IMDSquareTransform{
         //System.out.println("[rotate] vector: {vector}");
         var res:Number[];
         
-        var cos = Math.cos(angle);
-        var sin = Math.sin(angle);
+        var radians = Math.toRadians(angle);
+        var cos = Math.cos(radians);
+        var sin = Math.sin(radians);
         
         var elemN = vector.getElem(axisN);
         var elemM = vector.getElem(axisM);
@@ -42,6 +45,9 @@ public class MDRotate extends IMDSquareTransform{
             dim: dim
             elems: res
         };
+        //return vector;
     } 
+    
+    public function toString ():String { "MDRotate\{ dim: {dim}, angle: {angle} \}"  } 
 
 }

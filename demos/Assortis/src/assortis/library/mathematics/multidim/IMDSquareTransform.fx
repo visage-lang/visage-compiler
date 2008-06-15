@@ -11,4 +11,5 @@ package assortis.library.mathematics.multidim;
      public function getDimN ():Integer { getDim() } 
      public function getDimM ():Integer { getDim() } 
      
+     public abstract function transform (vector: IMDVector):IMDVector; 
 }

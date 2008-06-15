@@ -11,10 +11,11 @@ package assortis.library.mathematics.multidim;
 public class MDUniverse extends CustomNode, MDGroup{
 
     public attribute dimension: Number ;
-
     
     public attribute projection: IMDTransform;
-
+    
+    private attribute totalTransform: IMDSquareTransform ;
+    
     public function create ():Node {
 //        System.out.println("[universe]");
         
@@ -37,27 +38,18 @@ public class MDUniverse extends CustomNode, MDGroup{
             },
             for(segment in  getSegments()) 
                 Line{
-                    var point1 = projection.transform(transformVector(segment.point1))
-                    var point2 = projection.transform(transformVector(segment.point2))
-                    x1: point1.getElem(0)
-                    y1: point1.getElem(1)
-                    x2: point2.getElem(0)
-                    y2: point2.getElem(1)
+                    var totalTransform = bind MDTransform.composite(transforms, dimension) 
+                    var point1 = bind projection.transform(totalTransform.transform(segment.point1))
+                    var point2 = bind projection.transform(totalTransform.transform(segment.point2))
+                    x1: bind point1.getElem(0)
+                    y1: bind point1.getElem(1)
+                    x2: bind point2.getElem(0)
+                    y2: bind point2.getElem(1)
                     
                     stroke: Color.BLACK
                 }
             ]
         }
-    } 
-    
-    private function transformVector (vector:IMDVector): IMDVector{
-        //System.out.println("[universe] transform: {vector}");
-        var res = vector;
-        for(transform in transforms){
-            res = transform.transform(res);
-        }
-        //System.out.println("[universe] transform: {vector}, result: {vector}");
-        return res;
     } 
     
 }

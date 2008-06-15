@@ -13,7 +13,7 @@ public abstract class IMDMatrix extends IMDTransform{
     
     public abstract function mul(vector: IMDVector):IMDVector;
     
-    public function transform (vector: IMDVector):IMDVector {
+    public  function transform (vector: IMDVector):IMDVector {
         mul(vector);
     } 
     
