@@ -21,12 +21,19 @@ For more information see the online help.
 
 <P>
 <APPLET  
-    codebase="./dist"
-    archive="Assortis.jar,lib/javafxrt.jar,lib/Scenario.jar,lib/javafxgui.jar,lib/substance.jar" 
-    code="javafx.gui.Applet" 
+    archive="dist/Assortis.jar,lib/javafxrt.jar,lib/Scenario.jar,lib/javafxgui.jar,lib/substance.jar" 
+    code="assortis.core.AssortisApplet" 
     width=800 
     height=600>
-<param name="ApplicationClass" value="assortis.core.Assortis">
+  <param name="ApplicationClass" value="assortis.core.Assortis">
+
+<!--
+  <param name="JavaFXLibraryURL" value="http://openjfx.java.sun.com/current-build">
+-->
+
+  <param name="JavaFXLibraryURL" value="file:///E:/Sun/javafx/compiler/openjfx-compiler/dist">
+  <param name="AssortisProjectURL" value="file:///E:/Sun/javafx/compiler/openjfx-compiler/demos/Assortis">
+
 </APPLET>
 </P>
 
