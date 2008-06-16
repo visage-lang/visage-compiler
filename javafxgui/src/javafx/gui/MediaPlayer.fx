@@ -1,5 +1,5 @@
 /*
-* Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+* Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -147,7 +147,7 @@ public class MediaPlayer {
         ;
     }
 
-   private static attribute  DURATION_UNKNOWN:Duration = Duration{millis:-1};
+   private static attribute  DURATION_UNKNOWN:Duration = -1ms;
 
    /**
     * Defines the time offset where media should start playing,
