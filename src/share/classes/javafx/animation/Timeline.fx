@@ -247,14 +247,14 @@ public class Timeline {
 
         for (keyFrame in keyFrames) {
             if (duration >= 0) {
-                duration = java.lang.Math.max(duration, keyFrame.time.millis);
+                duration = java.lang.Math.max(duration, keyFrame.time.toMillis());
             }
 
             if (keyFrame.timelines <> null) {
                 for (timeline in keyFrame.timelines) {
                     var subDur = timeline.getTotalDur();
                     if (duration >= 0 and subDur >= 0) {
-                        duration = java.lang.Math.max(duration, keyFrame.time.millis + subDur);
+                        duration = java.lang.Math.max(duration, keyFrame.time.toMillis() + subDur);
                     } else {
                         duration = -1;
                     }
@@ -412,7 +412,7 @@ public class Timeline {
         for (i in [0..<targets.size()]) {
             var pairlist = targets.get(i) as KFPairList;
             var kfpair1 = pairlist.get(0);
-            var leftT = kfpair1.frame.time.millis;
+            var leftT = kfpair1.frame.time.toMillis();
 
             if (curT < leftT) {
                 // haven't yet reached the first key frame
@@ -427,7 +427,7 @@ public class Timeline {
             for (j in [1..<pairlist.size()]) {
                 // find keyframes on either side of the curT value
                 var kfpair2 = pairlist.get(j);
-                var rightT = kfpair2.frame.time.millis;
+                var rightT = kfpair2.frame.time.toMillis();
                 if (curT <= rightT) {
                     v1 = kfpair1.value;
                     v2 = kfpair2.value;
@@ -436,7 +436,7 @@ public class Timeline {
                 }
 
                 kfpair1 = kfpair2;
-                leftT = kfpair1.frame.time.millis;
+                leftT = kfpair1.frame.time.toMillis();
             }
 
             if (v1 <> null and v2 <> null) {
@@ -448,10 +448,10 @@ public class Timeline {
         // on any active SubTimeline objects
         for (i in [0..<subtimelines.size()]) {
             var sub = subtimelines.get(i) as SubTimeline;
-            if (curT >= sub.startTime.millis) {
+            if (curT >= sub.startTime.toMillis()) {
                 var subDur = sub.timeline.getTotalDur();
-                if (subDur < 0 or curT <= sub.startTime.millis + subDur) {
-                    sub.timeline.process(curT - sub.startTime.millis);
+                if (subDur < 0 or curT <= sub.startTime.toMillis() + subDur) {
+                    sub.timeline.process(curT - sub.startTime.toMillis());
                 }
             }
         }
@@ -483,7 +483,7 @@ public class Timeline {
             var i2 = 0;
             for (fi in [i1..i2 step -1]) {
                 var kf = sortedFrames[fi];
-                if (curT <= kf.time.millis) {
+                if (curT <= kf.time.toMillis()) {
                     if (not (catchingUp and kf.canSkip)) {
                         kf.visit();
                     }
@@ -497,7 +497,7 @@ public class Timeline {
             var i2 = sortedFrames.size()-1;
             for (fi in [i1..i2]) {
                 var kf = sortedFrames[fi];
-                if (curT >= kf.time.millis) {
+                if (curT >= kf.time.toMillis()) {
                     if (not (catchingUp and kf.canSkip)) {
                         kf.visit();
                     }
