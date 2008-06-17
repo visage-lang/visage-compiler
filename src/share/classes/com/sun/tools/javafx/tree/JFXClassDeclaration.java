@@ -115,10 +115,6 @@ public class JFXClassDeclaration extends JFXStatement implements ClassDeclaratio
     public List<JCTypeParameter> getEmptyTypeParameters() {
         return List.<JCTypeParameter>nil();
     }
-    
-    public void appendToMembers(ListBuffer<JCTree> members) {
-        defs = defs.appendList(members.toList());
-    }
 
     public boolean generateClassOnly () {
         return (sym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0;

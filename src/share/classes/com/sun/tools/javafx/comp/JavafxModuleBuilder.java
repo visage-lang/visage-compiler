@@ -181,7 +181,7 @@ public class JavafxModuleBuilder {
                 List.<JCExpression>nil(),             // no supertypes
                 moduleClassDefs.toList());
         } else {
-            moduleClass.appendToMembers(moduleClassDefs);
+            moduleClass.setMembers(moduleClassDefs.appendList(moduleClass.getMembers()).toList());
         }
         moduleClass.isModuleClass = true;
         moduleClass.runMethod = runMethod;
