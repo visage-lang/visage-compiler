@@ -41,7 +41,10 @@ public class JSONArray extends JSONBase {
     public attribute array:Object[];
     
     /**
-     * Convenience attribute to load array from a java.util.List
+     * Convenience attribute to load <code>array</code> from a java.util.List
+     * If array is updated directly, this list will not in turn
+     * be updated.
+     * @see #array
      */
     public attribute list: List on replace {
         var iter = list.iterator();
