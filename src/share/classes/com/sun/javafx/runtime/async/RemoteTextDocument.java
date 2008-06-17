@@ -45,7 +45,11 @@ public class RemoteTextDocument extends AbstractRemoteResource<String> {
         Reader reader = new InputStreamReader(stream);
         // @@@ Might be too large -- is content-length the length of the actual resource, or the encoded length?
         // @@@ What if fileSize is -1?  Will SB freak out? 
-        StringBuilder sb = new StringBuilder(fileSize);
+        StringBuilder sb;
+        if (fileSize == -1)
+            sb = new StringBuilder(BUF_SIZE);
+        else
+            sb = new StringBuilder(fileSize);
         char buf[] = new char[BUF_SIZE];
         while (true) {
             int nRead = reader.read(buf);
