@@ -24,6 +24,7 @@
 package guitar;
 
 import javafx.gui.*;
+import javafx.gui.component.*;
 import java.lang.Math;
 import java.lang.System;
 import java.net.URL;

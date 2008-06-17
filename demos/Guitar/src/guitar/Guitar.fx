@@ -23,6 +23,7 @@
 package guitar;
 
 import javafx.gui.*;
+import javafx.gui.component.*;
 import java.lang.System;
 
 
