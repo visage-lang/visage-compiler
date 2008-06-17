@@ -4,13 +4,13 @@ import java.lang.*;
 import com.sun.javafx.runtime.async.AsyncOperationListener;
 
 public abstract class AbstractAsyncOperation {
-    attribute done : Boolean;
-    attribute canceled : Boolean;
-    attribute failed : Boolean;
-    attribute failureText : String;
-    attribute progressCur : Integer;
-    attribute progressMax : Integer;
-    attribute onDone : function(success : Boolean) : Void;
+    public attribute done : Boolean;
+    public attribute canceled : Boolean;
+    public attribute failed : Boolean;
+    public attribute failureText : String;
+    public attribute progressCur : Integer;
+    public attribute progressMax : Integer;
+    public attribute onDone : function(success : Boolean) : Void;
 
     private attribute self = this;
     protected attribute listener = AsyncOperationListener {
@@ -22,6 +22,7 @@ public abstract class AbstractAsyncOperation {
 
         function onException(exception : Exception) : Void {
             failureText = exception.getMessage();
+            exception.printStackTrace();
             failed = true;
             done = true;
             if (onDone <> null) then onDone(false);
@@ -39,7 +40,7 @@ public abstract class AbstractAsyncOperation {
         }
     }
 
-    abstract function cancel() : Void;
+    public abstract function cancel() : Void;
 
     protected abstract function start() : Void;
 

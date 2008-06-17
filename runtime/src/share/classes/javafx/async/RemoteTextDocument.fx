@@ -4,11 +4,11 @@ import java.lang.*;
 
 public class RemoteTextDocument extends AbstractAsyncOperation {
     private attribute peer : com.sun.javafx.runtime.async.RemoteTextDocument;
-    attribute document : String;
-    attribute url : String;
-    attribute method : String = "GET";
+    public attribute document : String;
+    public attribute url : String;
+    public attribute method : String = "GET";
 
-    function cancel() : Void {
+    public function cancel() : Void {
         if (peer <> null) then peer.cancel();
     }
 

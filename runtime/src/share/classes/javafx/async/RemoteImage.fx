@@ -13,10 +13,10 @@ import javafx.ui.canvas.*;
 
 public class RemoteImage extends AbstractAsyncOperation {
     private attribute peer : com.sun.javafx.runtime.async.RemoteImage;
-    attribute image : Image;
-    attribute url : String;
+    public attribute image : Image;
+    public attribute url : String;
 
-    function cancel() : Void {
+    public function cancel() : Void {
         if (peer <> null) then peer.cancel();
     }
 

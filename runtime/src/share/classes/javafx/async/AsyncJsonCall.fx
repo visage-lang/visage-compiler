@@ -5,18 +5,17 @@ import javafx.json.*;
 
 public class AsyncJsonCall extends AbstractAsyncOperation {
     private attribute peer : com.sun.javafx.runtime.async.RemoteTextDocument;
-    attribute document : JSONObject;
-    attribute url : String;
-    attribute method : String = "GET";
-    attribute referer: String;
+    public attribute document : JSONObject;
+    public attribute url : String;
+    public attribute method : String = "GET";
+    public attribute referer: String;
 
-    function cancel() : Void {
+    public function cancel() : Void {
         if (peer <> null) then peer.cancel();
     }
 
     protected function onCompletion(value : Object) : Void {
-        var p = new Parser();
-        document = p.parseString(value as String);
+        document = JSONObject { text: value as String};
     }
 
     protected function start() : Void {
