@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -75,8 +75,8 @@ import com.sun.scenario.scenegraph.ProportionalPaint;
  * Rectangle {
  *     x: 0 y: 0 width: 100 height: 100
  *     fill: LinearGradient {
- *         startX: 0.0
- *         startY: 0.0
+ *         startX:   0.0
+ *         startY:   0.0
  *         endX: 100.0
  *         endY:   0.0
  *         proportional: false
@@ -89,7 +89,7 @@ import com.sun.scenario.scenegraph.ProportionalPaint;
  * </code></pre>
  *
  * @profile common
- * @needsreview
+ * @needsreview josh
  */ 
 public class LinearGradient extends Paint {
 

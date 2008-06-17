@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,9 +26,19 @@ import java.awt.geom.GeneralPath;
 
 // PENDING_DOC_REVIEW
 /**
- * Creates a horizontal line from the current point to x.
+ * <p>Creates a horizontal line from the current point to x. Example:</p>
+ * <pre><code>Path {
+    stroke:Color.RED
+    elements: [
+        MoveTo { x: 0 y: 50 },
+        HLineTo { x: 100 },
+    ]
+}</code></pre>
+ *<p><img src="doc-files/HLineTo01.png"/></p>
  *
+ * 
  * @profile common
+ * @needsreview
  */ 
 public class HLineTo extends PathElement {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,7 +19,8 @@
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
- */ 
+ */
+
 package javafx.gui;
 
 import com.sun.scenario.scenegraph.SGNode;
@@ -39,6 +40,7 @@ import java.lang.Math;
 import java.math.BigInteger;
 import javafx.gui.effect.Effect;
 import com.sun.javafx.gui.AccessHelper;
+import javafx.gui.component.Util;
 
 
 // PENDING_DOC_REVIEW
@@ -48,6 +50,7 @@ import com.sun.javafx.gui.AccessHelper;
  * right, {@code y} increases downwards.
  * 
  * @profile common
+ * @needsreview
  */     
 public abstract class Node {
 
@@ -173,6 +176,18 @@ public abstract class Node {
         if (cachedBounds <> null) cachedBounds.getHeight() else getFXNode().getBounds().getHeight();
     }
 
+   /**
+     * Returns {@code true} if the given point (specified in the local coordinate 
+     * space of this {@code Node}) is contained within the visual bounds
+     * of this {@code Node}.  Note that this method does not take visibility
+     * into account; the test is based on the geometry of this {@code Node} only.
+     *
+     * @profile common
+     */
+    public function contains(x:Number, y:Number):Boolean {
+        getFXNode().contains(new java.awt.geom.Point2D.Double(x, y));
+    }
+
 
     // PENDING_DOC_REVIEW
     /**
@@ -209,8 +224,9 @@ public abstract class Node {
         getSGNode().getPanel().revalidate();
     }
 
-    /**
+    /** The id of this node.
      * @profile common
+     * @defaultvalue null
      */         
     public attribute id:String on replace {
         getSGNode().setID(id);
@@ -234,6 +250,7 @@ public abstract class Node {
      * Defines if this {@code Node} is shown or hidden.
      *
      * @profile common
+     * @defaultvalue true
      */      
     public attribute visible:Boolean = true on replace {
         getSGNode().setVisible(visible);
@@ -264,6 +281,7 @@ public abstract class Node {
      *               graphics nodes might be visualized differently</li>
      *    </ul>
      * 
+     * @defaultvalue: 1.0
      */         
     public attribute opacity:Number = 1.0 on replace {
         getFXNode().setOpacity(opacity.floatValue());
@@ -295,6 +313,7 @@ public abstract class Node {
      * X axis direction of this {@code Node}.
      *
      * @profile common
+     * @defaultvalue 0
      */         
     public attribute translateX:Number on replace {
         getFXNode().setTranslateX(translateX + layoutX);
@@ -306,6 +325,7 @@ public abstract class Node {
      * Y axis direction of this {@code Node}.
      *
      * @profile common
+     * @defaultvalue 0
      */     
     public attribute translateY:Number on replace {
         getFXNode().setTranslateY(translateY + layoutY);
@@ -316,6 +336,7 @@ public abstract class Node {
      * Defines the X coordinate of the rotation anchor point of this {@code Node}.
      *
      * @profile common
+     * @defaultvalue 0
      */     
     public attribute anchorX:Number on replace {
         getFXNode().setAnchorX(anchorX);
@@ -326,6 +347,7 @@ public abstract class Node {
      * Defines the Y coordinate of the rotation anchor point of this {@code Node}.
      *
      * @profile common
+     * @defaultvalue 0
      */     
     public attribute anchorY:Number on replace {
         getFXNode().setAnchorY(anchorY);
@@ -337,6 +359,7 @@ public abstract class Node {
      * X axis direction of this {@code Node}.
      *
      * @profile common
+     * @defaultvalue 1.0
      */     
     public attribute scaleX:Number = 1.0 on replace {
         getFXNode().setScaleX(scaleX);
@@ -348,6 +371,7 @@ public abstract class Node {
      * Y axis direction of this {@code Node}.
      *
      * @profile common
+     * @defaultvalue 1.0
      */     
     public attribute scaleY:Number = 1.0 on replace {
         getFXNode().setScaleY(scaleY);
@@ -381,18 +405,19 @@ public abstract class Node {
      *
      * @profile common
      */     
-    public attribute rotation:Number on replace {
-        getFXNode().setRotation(Math.toRadians(rotation));
+    public attribute rotate:Number on replace {
+        getFXNode().setRotation(Math.toRadians(rotate));
     }
 
     // PENDING_DOC_REVIEW
     /**
-     * Defines the {@link HorizontalAlignment} of this {@code Node}.
+     * Defines the {@link HorizontalAlignment} of this {@code Node}. 
      *
      * @profile common
+     * @defaultvalue HorizontalAlignment.LEADING
      */     
     public attribute horizontalAlignment:HorizontalAlignment = HorizontalAlignment.LEADING on replace {
-        getFXNode().setHorizontalAlignment(horizontalAlignment.getToolkitValue());
+        getFXNode().setHorizontalAlignment(Util.HA_To_SwingConstant(horizontalAlignment));
     }
 
     // PENDING_DOC_REVIEW
@@ -400,9 +425,10 @@ public abstract class Node {
      * Defines the {@link VerticalAlignment} of this {@code Node}.
      *
      * @profile common
+     * @defaultvalue VerticalAlignment.TOP
      */     
     public attribute verticalAlignment:VerticalAlignment = VerticalAlignment.TOP on replace {
-        getFXNode().setVerticalAlignment(verticalAlignment.getToolkitValue());
+        getFXNode().setVerticalAlignment(Util.VA_To_SwingConstant(verticalAlignment));
     }
 
     // PENDING_DOC_REVIEW
@@ -426,16 +452,21 @@ public abstract class Node {
     }
 
     /**
+     * Defines if this node should be cached as a bitmap
      * @profile common
      */         
     public attribute cache:Boolean on replace {
         getFXNode().setCachedAsBitmap(cache);
     }
 
+    /**
+     * Sets an effect on this node.
+     */
     public attribute effect:Effect on replace {
         getFXNode().setEffect(AccessHelper.getEffectImpl(effect));
     }
 
+    /** Moves this node to the front of it's sibiling nodes */
     public function toFront(): Void {
         var group:Group = if (parent instanceof Group) parent as Group else null;
         if ((group <> null) and (group.content[0] <> this)) {
@@ -443,6 +474,7 @@ public abstract class Node {
         }
     }
 
+    /** Moves this node to the back of it's sibiling nodes */
     public function toBack(): Void {
         var group:Group = if (parent instanceof Group) parent as Group else null;
         if ((group <> null) and (group.content[sizeof group.content -1] <> this)) {

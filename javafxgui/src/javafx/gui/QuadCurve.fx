@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -46,8 +46,8 @@ public class QuadCurve extends Shape {
      * 
      * @profile common
      */    
-    public attribute x1:Number on replace {
-        getSGQuadCurve().setX1(x1.floatValue());
+    public attribute startX:Number on replace {
+        getSGQuadCurve().setX1(startX.floatValue());
     }
     
     // PENDING_DOC_REVIEW
@@ -57,8 +57,8 @@ public class QuadCurve extends Shape {
      * 
      * @profile common
      */
-    public attribute y1:Number on replace { 
-        getSGQuadCurve().setY1(y1.floatValue());
+    public attribute startY:Number on replace { 
+        getSGQuadCurve().setY1(startY.floatValue());
     }
     
     // PENDING_DOC_REVIEW
@@ -68,8 +68,8 @@ public class QuadCurve extends Shape {
      * 
      * @profile common
      */
-    public attribute ctrlX:Number on replace { 
-        getSGQuadCurve().setCtrlX(ctrlX.floatValue());
+    public attribute controlX:Number on replace { 
+        getSGQuadCurve().setCtrlX(controlX.floatValue());
     }
     
     // PENDING_DOC_REVIEW
@@ -79,8 +79,8 @@ public class QuadCurve extends Shape {
      * 
      * @profile common
      */
-    public attribute ctrlY:Number on replace { 
-        getSGQuadCurve().setCtrlY(ctrlY.floatValue());
+    public attribute controlY:Number on replace { 
+        getSGQuadCurve().setCtrlY(controlY.floatValue());
     }
     
     // PENDING_DOC_REVIEW
@@ -90,8 +90,8 @@ public class QuadCurve extends Shape {
      * 
      * @profile common
      */
-    public attribute x2:Number on replace { 
-        getSGQuadCurve().setX2(x2.floatValue());
+    public attribute endX:Number on replace { 
+        getSGQuadCurve().setX2(endX.floatValue());
     }
 
     // PENDING_DOC_REVIEW
@@ -101,8 +101,8 @@ public class QuadCurve extends Shape {
      * 
      * @profile common
      */
-    public attribute y2:Number on replace { 
-        getSGQuadCurve().setY2(y2.floatValue());
+    public attribute endY:Number on replace { 
+        getSGQuadCurve().setY2(endY.floatValue());
     }
 
 }

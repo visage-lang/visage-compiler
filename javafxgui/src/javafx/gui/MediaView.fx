@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -93,9 +93,9 @@ public class MediaView extends Node {
 
     /**
      * If {@code rotatable} is {@code true}, the {@code mediaView} may be 
-     * rotated by setting its rotation attribute
+     * rotated by setting its {@code rotate} attribute
      * @profile core
-     * @see node.rotation
+     * @see Node#rotate
      */
     public attribute rotatable:Boolean=true; 
 

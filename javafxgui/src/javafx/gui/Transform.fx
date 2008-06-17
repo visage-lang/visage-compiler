@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,10 +26,21 @@ import java.awt.geom.AffineTransform;
 
 // PENDING_DOC_REVIEW
 /**
- * This class provides functions to perform rotating, scaling, shearing, 
+ * This class provides static functions to perform rotating, scaling, shearing, 
  * and translation transformations for {@code Affine} objects.
  *
+ * <p>Example:</p>
+ *
+ * <pre><code>Rectangle {
+ *  width: 50
+ *  height: 50
+ *  fill:Color.RED
+ *  transform: Transform.rotate(45,0,0); //rotate by 45 degress
+ * }
+ * </code></pre>
+ *
  * @profile common
+ * @needsreview josh
  */
 public abstract class Transform {
 

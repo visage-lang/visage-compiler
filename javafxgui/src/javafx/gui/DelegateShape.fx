@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,11 +26,11 @@ import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGShape;
 
 /**
- * The {@code DelegateShape} class is a variant of {@code Shape} that
+ * <p>The {@code DelegateShape} class is a variant of {@code Shape} that
  * inherits its geometry from another {@code Shape} instance.  It is
  * primarily useful as the scene graph representation for morphing shapes;
- * as in the following example:
- * <pre>
+ * as in the following example:</p>
+ * <pre><code>
  *     var shape1 = Rectangle { x: 0 y: 0 width: 100 height: 50 };
  *     var shape2 = Circle { centerX: 30 centerY: 30 radius: 20 };
  *     var geom = shape1;
@@ -48,9 +48,10 @@ import com.sun.scenario.scenegraph.SGShape;
  *         ]
  *     };
  *     t.start();
- * </pre>
+ * </code></pre>
  *
  * @profile common
+ * @needsreview
  */              
 public class DelegateShape extends Shape {
 

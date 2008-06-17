@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -34,9 +34,11 @@ public class Icon {
 
     private attribute toolkitIcon:javax.swing.Icon;
 
+    // PENDING(shannonh) - don't like the tie-in to Swing
+
     public function getToolkitIcon():javax.swing.Icon { toolkitIcon }
 
-    static function fromToolkitIcon(value:javax.swing.Icon):Icon { 
+    public static function fromToolkitIcon(value:javax.swing.Icon):Icon { 
         Icon { toolkitIcon: value } 
     }
 

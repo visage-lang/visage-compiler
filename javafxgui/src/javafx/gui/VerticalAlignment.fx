@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,7 +19,8 @@
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
- */ 
+ */
+
 package javafx.gui;
 
 // PENDING_DOC_REVIEW
@@ -31,9 +32,9 @@ package javafx.gui;
  */
 public class VerticalAlignment {
 
-    private attribute toolkitValue: Integer = javax.swing.SwingConstants.CENTER;
+    // PENDING(shannonh) - need private constructor to prevent bogus instance
 
-    private attribute name: String = "CENTER";
+    private attribute name: String;
 
     // PENDING_DOC_REVIEW
     /**
@@ -41,8 +42,7 @@ public class VerticalAlignment {
      *
      * @profile common
      */
-    public static attribute CENTER = VerticalAlignment {
-    }
+    public static attribute CENTER = VerticalAlignment { name: "CENTER" }
 
     // PENDING_DOC_REVIEW
     /**
@@ -50,10 +50,7 @@ public class VerticalAlignment {
      *
      * @profile common
      */
-    public static attribute TOP = VerticalAlignment {
-        toolkitValue: javax.swing.SwingConstants.TOP
-        name: "TOP"
-    }
+    public static attribute TOP = VerticalAlignment { name: "TOP" }
 
     // PENDING_DOC_REVIEW
     /**
@@ -61,18 +58,7 @@ public class VerticalAlignment {
      *
      * @profile common
      */
-    public static attribute BOTTOM = VerticalAlignment {
-        toolkitValue: javax.swing.SwingConstants.BOTTOM
-        name: "BOTTOM"
-    }
-
-    static function fromToolkitValue(value: Integer): VerticalAlignment {
-         if (value == CENTER.toolkitValue) CENTER
-         else if (value == TOP.toolkitValue) TOP
-         else BOTTOM
-    }
-
-    function getToolkitValue(): Integer { toolkitValue }
+    public static attribute BOTTOM = VerticalAlignment { name: "BOTTOM" }
 
     public function toString(): String { name }
 

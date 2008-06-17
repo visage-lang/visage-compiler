@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,8 +27,21 @@ import com.sun.scenario.scenegraph.SGShape;
 
 
 /**
- * A Shape that is the result of the union of all shapes in sequence <code>a</code> with
- * all shapes in <code>b</code> subtracted from it.
+ * <p>A Shape that is the result of the union of all shapes in sequence <code>a</code> with
+ * all shapes in <code>b</code> subtracted from it. This class implements
+ * the Constructive Area Geometry (CAG) <b>Subtract</b> operation.</p>
+ *
+ * <p>example:</p>
+ *
+ * <pre><code>ShapeSubtract {
+ *    fill: Color.RED
+ *    a: Rectangle { width: 100 height: 50 }
+ *    b: Ellipse { centerX: 50 centerY: 25 radiusX: 50 radiusY: 25}
+ * }</code></pre>
+ * 
+ * <p>looks like this</p>
+ *
+ * <p><img src="doc-files/ShapeSubtract01.png"/></p>
  */
 public class ShapeSubtract extends Shape {
 
@@ -38,8 +51,12 @@ public class ShapeSubtract extends Shape {
 
     private attribute area:java.awt.geom.Area = new java.awt.geom.Area();
 
+    /** The outer shape that shape (@code b) will be subtracted from.
+    */
     public attribute a:Shape[] on replace { u(); }
 
+    /** The inner shape that will be subtracted from shape {@code a}
+    */
     public attribute b:Shape[] on replace { u(); }
 
     private function u():Void {

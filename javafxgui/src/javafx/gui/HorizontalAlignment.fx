@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,7 +19,8 @@
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
- */ 
+ */
+
 package javafx.gui;
 
 // PENDING_DOC_REVIEW
@@ -31,72 +32,49 @@ package javafx.gui;
  */
 public class HorizontalAlignment {
 
-    private attribute toolkitValue: Integer = javax.swing.SwingConstants.LEADING;
+    // PENDING(shannonh) - need private constructor to prevent bogus instance
 
-    private attribute name: String = "LEADING";
-    
+    private attribute name: String;
+
     // PENDING_DOC_REVIEW
     /**
      * Represents the leading position.
      *
      * @profile common
-     */          
-    public static attribute LEADING = HorizontalAlignment { 
-    }
+     */
+    public static attribute LEADING = HorizontalAlignment { name: "LEADING" }
 
     // PENDING_DOC_REVIEW
     /**
      * Represents the trailing position.
      *
      * @profile common
-     */          
-    public static attribute TRAILING = HorizontalAlignment {
-        toolkitValue: javax.swing.SwingConstants.TRAILING
-        name: "TRAILING"
-    }
+     */
+    public static attribute TRAILING = HorizontalAlignment { name: "TRAILING" }
 
     // PENDING_DOC_REVIEW
     /**
      * Represents the left position.
      *
      * @profile common
-     */          
-    public static attribute LEFT = HorizontalAlignment {
-        toolkitValue: javax.swing.SwingConstants.LEFT
-        name: "LEFT"
-    }
+     */
+    public static attribute LEFT = HorizontalAlignment { name: "LEFT" }
 
     // PENDING_DOC_REVIEW
     /**
      * Represents the central position.
      *
      * @profile common
-     */          
-    public static attribute CENTER = HorizontalAlignment {
-        toolkitValue: javax.swing.SwingConstants.CENTER
-        name: "CENTER"
-    }
+     */
+    public static attribute CENTER = HorizontalAlignment { name: "CENTER" }
 
     // PENDING_DOC_REVIEW
     /**
      * Represents the right position.
      *
      * @profile common
-     */          
-    public static attribute RIGHT = HorizontalAlignment {
-        toolkitValue: javax.swing.SwingConstants.RIGHT
-        name: "RIGHT"
-    }
-
-    static function fromToolkitValue(value: Integer): HorizontalAlignment {
-         if (value == LEADING.toolkitValue) LEADING
-         else if (value == TRAILING.toolkitValue) TRAILING
-         else if (value == LEFT.toolkitValue) LEFT
-         else if (value == CENTER.toolkitValue) CENTER
-         else RIGHT
-    }
-
-    function getToolkitValue(): Integer { toolkitValue }
+     */
+    public static attribute RIGHT = HorizontalAlignment { name: "RIGHT" }
 
     public function toString(): String { name }
 

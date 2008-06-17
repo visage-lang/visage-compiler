@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -29,9 +29,29 @@ import com.sun.scenario.scenegraph.fx.FXNode;
 
 /**
  * Define your own node classes by extending this class and 
- * implementing its create method.
+ * implementing its create method. Example:
+ 
+ <pre><code>public class Bars extends CustomNode {
+    public function create():Node {
+        return Group {
+            content: for(x in [0..4]) {
+                Rectangle {
+                    y: indexof x * 20
+                    width: 100 
+                    height: 10 
+                    fill:Color.RED
+                }
+            }
+        }
+    }
+}
+
+Bars { }</code></pre>
+ *
+ *<p><img src="doc-files/CustomNode01.png"/></p>
  * 
  * @profile common
+ * @needsreview josh
  */
 public abstract class CustomNode extends Node {
 

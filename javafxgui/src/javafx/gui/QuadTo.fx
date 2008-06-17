@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,8 +28,8 @@ import java.awt.geom.GeneralPath;
 /**
  * Creates a curved path element, defined by two new points, 
  * by drawing a Quadratic curve that intersects both the current coordinates 
- * and the specified coordinates {@code (x2, y2)},
- * using the specified point {@code (x1, y1)}
+ * and the specified coordinates {@code (x, y)},
+ * using the specified point {@code (controlX, controlY)}
  * as a quadratic parametric control point. 
  * All coordinates are specified in double precision.
  * 
@@ -47,7 +47,7 @@ public class QuadTo extends PathElement {
      *
      * @profile common
      */
-    public attribute x1:Number on replace { u(); }
+    public attribute controlX:Number on replace { u(); }
 
     // PENDING_DOC_REVIEW
     /**
@@ -55,7 +55,7 @@ public class QuadTo extends PathElement {
      *
      * @profile common
      */
-    public attribute y1:Number on replace { u(); }
+    public attribute controlY:Number on replace { u(); }
     
     // PENDING_DOC_REVIEW
     /**
@@ -63,7 +63,7 @@ public class QuadTo extends PathElement {
      *
      * @profile common
      */
-    public attribute x2:Number on replace { u(); }
+    public attribute x:Number on replace { u(); }
 
     // PENDING_DOC_REVIEW
     /**
@@ -71,19 +71,19 @@ public class QuadTo extends PathElement {
      *
      * @profile common
      */
-    public attribute y2:Number on replace { u(); }
+    public attribute y:Number on replace { u(); }
 
     function addTo(path2D:GeneralPath):Void {
         if (absolute) {
-            path2D.quadTo(x1.floatValue(), y1.floatValue(), 
-            x2.floatValue(), y2.floatValue());
+            path2D.quadTo(controlX.floatValue(), controlY.floatValue(), 
+            x.floatValue(), y.floatValue());
         }
         else {
             var cp = path2D.getCurrentPoint();
             var dx = cp.getX();
             var dy = cp.getY();
-            path2D.quadTo((x1+dx).floatValue(), (y1+dy).floatValue(), 
-            (x2+dx).floatValue(), (y2+dy).floatValue());
+            path2D.quadTo((controlX+dx).floatValue(), (controlY+dy).floatValue(), 
+            (x+dx).floatValue(), (y+dy).floatValue());
         }
     }
 

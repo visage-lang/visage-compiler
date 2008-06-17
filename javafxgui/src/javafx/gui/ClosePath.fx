@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,7 +25,10 @@ package javafx.gui;
 import java.awt.geom.GeneralPath;
 
 /**
- * The subclass of {@code PathElement} which closes the current path.   
+ * <p>The subclass of {@code PathElement} which closes the current path.   
+ * for more information on paths see the {@code Path} class.
+ * 
+ * 
  *
  * @profile common
  */    

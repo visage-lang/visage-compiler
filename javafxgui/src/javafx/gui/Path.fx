@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,11 +28,20 @@ import java.awt.geom.GeneralPath;
 
 // PENDING_DOC_REVIEW
 /**
- * The {@code Path} class represents a simple shape 
+ * <p>The {@code Path} class represents a simple shape 
  * and provides facilities required for basic construction 
- * and management of a geometric path. 
+ * and management of a geometric path.  Example:</p>
+ * <pre><code>Path {
+    stroke:Color.RED
+    elements: [
+        MoveTo { x: 0   y: 0 },
+        LineTo { x: 100 y: 100},
+    ]
+}</code></pre>
+ *<p><img src="doc-files/LineTo01.png"/></p>
  *
  * @profile common
+ * @needsreview josh
  */
 public class Path extends Shape {
 
@@ -56,6 +65,7 @@ public class Path extends Shape {
      * The default value is {@code FillRule.NON_ZERO}.
      *
      * @profile common
+     * @defaultvalue FillRule.NON_ZERO
      */
     public attribute fillRule:FillRule = FillRule.NON_ZERO on replace { 
         updatePath2D();

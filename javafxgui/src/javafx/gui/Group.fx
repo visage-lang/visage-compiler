@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,9 +27,23 @@ import com.sun.scenario.scenegraph.SGGroup;
 
 // PENDING_DOC_REVIEW
 /**
- * The {@code Group} class represents a list of {@link Node}s objects.
+ * <p>The {@code Group} class represents a list of {@link Node}s objects.
+ * Example:</p>
+ *
+ * <pre><code>Group {
+    content: for(x in [0..4]) {
+        Rectangle {
+            y: indexof x * 20
+            width: 100 
+            height: 10 
+            fill:Color.RED
+        }
+    }
+}</code></pre>
+* <p><img src="doc-files/Group01.png"/></p>
  *
  * @profile common
+ * @needsreview
  */      
 public class Group extends Node {
 

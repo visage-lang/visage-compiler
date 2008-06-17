@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -301,7 +301,7 @@ public class Image {
      * This function is essentially the same as the getScaledInstance() 
      * example from Chris Campbell's "The Perils of Image.getScaledInstance()" 
      * article:
-     * http://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html
+     * http://today.java.net/pub/a/today/2008/04/03/perils-of-image-getscaledinstance.html
      */
     private static function scale(image:BufferedImage, width:Number, height:Number):BufferedImage {
         var w:Number = image.getWidth();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,7 +19,8 @@
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
- */ 
+ */
+
 package javafx.gui;
 
 import com.sun.scenario.scenegraph.SGNode;
@@ -28,14 +29,14 @@ import com.sun.scenario.scenegraph.SGArc;
 
 // PENDING_DOC_REVIEW_2
 /**
- * The {@code Arc} class represents a 2D arc object, defined by 
- * a center point, start angle (in degrees), angular extent (length of the arc in degrees), 
+ * The {@code Arc} class represents a 2D arc object, defined by a center point,
+ * start angle (in degrees), angular extent (length of the arc in degrees), 
  * and an arc type ({@link ArcType#OPEN}, {@link ArcType#CHORD},
  * or {@link ArcType#ROUND}).
  * 
- * Example usage: the following code creates an Arc which is centered around 50,50,
- * has a radius of 25
- * and extends from the angle 45 to the angle 315 (270 degrees long), and is round.
+ * Example usage: the following code creates an Arc which is centered around
+ * 50,50, has a radius of 25 and extends from the angle 45 to the angle 315
+ * (270 degrees long), and is round.
  *
  * <pre><code>Arc { 
  *  centerX: 50
@@ -48,6 +49,8 @@ import com.sun.scenario.scenegraph.SGArc;
  *  fill: Color.RED
  *  }</code></pre>
  *
+ * <p><img src="doc-files/Arc01.png"/></p>
+ *
  * @profile common
  * @needsreview
  */ 
@@ -59,7 +62,7 @@ public class Arc extends Shape {
     
     // PENDING_DOC_REVIEW
     /**
-     * Defines the X coordinate of the upper-left corner of the arc. 
+     * Defines the X coordinate of the center point of the arc. 
      *
      * @profile common
      */     
@@ -69,7 +72,7 @@ public class Arc extends Shape {
     
     // PENDING_DOC_REVIEW
     /**
-     * Defines the Y coordinate of the upper-left corner of the arc. 
+     * Defines the Y coordinate of the center point of the arc. 
      *
      * @profile common
      */     

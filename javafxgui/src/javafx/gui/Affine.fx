@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,14 +27,14 @@ import java.awt.geom.AffineTransform;
 // PENDING_DOC_REVIEW_2
 /**
  * <p>
- * The {@code Affine} class represents an affine transform that performs 
+ * The {@code Affine} class represents an affine transform. An affine transform performs 
  * a linear mapping from 2D coordinates to other 2D coordinates 
- * that preserves the "straightness" and "parallelness" of lines. 
+ * while preserving the "straightness" and "parallelness" of lines. 
  * Affine transformations can be constructed 
  * using sequences translations, scales, and shears.</p>
  *
  * <p><b>
- * Note: developers should not normally use this class directly, but instead use
+ * Note: application developers should not normally use this class directly, but instead use
  * the specific {@code Translate}, {@code Scale}, {@code Rotate}, or {@code Shear}
  * transforms instead.</b></p>
  
@@ -70,54 +70,54 @@ public class Affine extends Transform {
     // PENDING_DOC_REVIEW
     /**
      * Defines the X coordinate scaling element of the 3x3 matrix. 
-     * The default value is {@code 1.0}.
      *
      * @profile common
+     * @defaultvalue 1.0
      */ 
     public attribute m00:Number = 1.0 on replace { u(); }
     
     // PENDING_DOC_REVIEW
     /**
      * Defines the X coordinate shearing element of the 3x3 matrix. 
-     * The default value is {@code 0.0}.
      * 
      * @profile common
+     * @defaultvalue 0.0
      */     
     public attribute m01:Number = 0.0 on replace { u(); }
     
     // PENDING_DOC_REVIEW
     /**
      * Defines the X coordinate translation element of the 3x3 matrix. 
-     * The default value is {@code 0.0}.
      *
      * @profile common
+     * @defaultvalue 0.0
      */     
     public attribute m02:Number = 0.0 on replace { u(); }
     
     // PENDING_DOC_REVIEW
     /**
      * Defines the Y coordinate shearing element of the 3x3 matrix.
-     * The default value is {@code 0.0}.
      *
      * @profile common
+     * @defaultvalue 0.0
      */     
     public attribute m10:Number = 0.0 on replace { u(); }
     
     // PENDING_DOC_REVIEW
     /**
      * Defines the Y coordinate scaling element of the 3x3 matrix.
-     * The default value is {@code 1.0}.
      *
      * @profile common
+     * @defaultvalue 1.0
      */     
     public attribute m11:Number = 1.0 on replace { u(); }
     
      // PENDING_DOC_REVIEW
      /**
      * Defines the Y coordinate translation element of the 3x3 matrix.
-     * The default value is {@code 0.0}.
      *
      * @profile common
+     * @defaultvalue 0.0
      */     
     public attribute m12:Number = 0.0 on replace { u(); }
 

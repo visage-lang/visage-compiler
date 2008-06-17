@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,11 +19,12 @@
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
- */ 
+ */
 
 package demo.layouttest;
 
 import javafx.gui.*;
+import javafx.gui.component.*;
 
 class Disk extends CustomNode {
 
@@ -85,7 +86,7 @@ var hDisks = HBox {
       ]
       spacing: bind circleSpacing
    translateX: 100
-     rotation: 25
+       rotate: 25
 };
 
 var hRectangle = Rectangle {

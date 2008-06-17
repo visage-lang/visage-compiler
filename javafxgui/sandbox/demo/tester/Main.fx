@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,10 +19,12 @@
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
- */ 
+ */
+
 package demo.tester;
 
 import javafx.gui.*;
+import javafx.gui.component.*;
 import java.lang.System;
 import java.awt.BorderLayout;
 
@@ -232,6 +234,7 @@ var canvas = Canvas {
                component: Button { 
                    preferredSize: bind [hSlider.value + 100, 30]
                             text: "Button Node"
+             horizontalAlignment: HorizontalAlignment.CENTER
                         action: function():Void { list.visible = not list.visible }}},
         ComponentView {
               translateX: bind vSlider.value/3.0 + 200.0

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,10 +28,21 @@ import com.sun.scenario.scenegraph.SGCubicCurve;
 
 // PENDING_DOC_REVIEW
 /**
- * The {@code CubiCurve} class defines a cubic parametric curve segment 
- * in (x,y) coordinate space.
+ * <p>The {@code CubiCurve} class defines a cubic parametric curve segment 
+ * in (x,y) coordinate space. Example:</p>
+ * 
+ *<pre><code>CubicCurve {
+       startX:   0     startY:  50
+    controlX1:  25  controlY1:   0
+    controlX2:  75  controlY2: 100
+         endX: 100       endY:  50
+         fill: Color.RED
+}</code></pre>
+
+* <p><img src="doc-files/CubicCurve01.png"/></p>
  * 
  * @profile common
+ * @needsreview josh
  */  
 public class CubicCurve extends Shape {
 
@@ -45,8 +56,8 @@ public class CubicCurve extends Shape {
      *
      * @profile common
      */      
-    public attribute x1:Number on replace { 
-        getSGCubicCurve().setX1(x1.floatValue());
+    public attribute startX:Number on replace { 
+        getSGCubicCurve().setX1(startX.floatValue());
     }
 
     // PENDING_DOC_REVIEW
@@ -55,8 +66,8 @@ public class CubicCurve extends Shape {
      *
      * @profile common
      */      
-    public attribute y1: Number on replace { 
-        getSGCubicCurve().setY1(y1.floatValue());
+    public attribute startY: Number on replace { 
+        getSGCubicCurve().setY1(startY.floatValue());
     }
     
     // PENDING_DOC_REVIEW
@@ -66,8 +77,8 @@ public class CubicCurve extends Shape {
      * 
      * @profile common
      */          
-    public attribute ctrlX1: Number on replace { 
-        getSGCubicCurve().setCtrlX1(ctrlX1.floatValue());
+    public attribute controlX1: Number on replace { 
+        getSGCubicCurve().setCtrlX1(controlX1.floatValue());
     }
     
     // PENDING_DOC_REVIEW
@@ -77,8 +88,8 @@ public class CubicCurve extends Shape {
      * 
      * @profile common
      */      
-    public attribute ctrlY1: Number on replace {
-        getSGCubicCurve().setCtrlY1(ctrlY1.floatValue());
+    public attribute controlY1: Number on replace {
+        getSGCubicCurve().setCtrlY1(controlY1.floatValue());
     }
 
     // PENDING_DOC_REVIEW
@@ -88,8 +99,8 @@ public class CubicCurve extends Shape {
      * 
      * @profile common
      */      
-    public attribute ctrlX2: Number on replace { 
-        getSGCubicCurve().setCtrlX2(ctrlX2.floatValue());
+    public attribute controlX2: Number on replace { 
+        getSGCubicCurve().setCtrlX2(controlX2.floatValue());
     }
 
     // PENDING_DOC_REVIEW
@@ -99,8 +110,8 @@ public class CubicCurve extends Shape {
      * 
      * @profile common
      */      
-    public attribute ctrlY2: Number on replace { 
-        getSGCubicCurve().setCtrlY2(ctrlY2.floatValue());
+    public attribute controlY2: Number on replace { 
+        getSGCubicCurve().setCtrlY2(controlY2.floatValue());
     }
 
     // PENDING_DOC_REVIEW
@@ -109,8 +120,8 @@ public class CubicCurve extends Shape {
      *
      * @profile common
      */      
-    public attribute x2: Number on replace { 
-        getSGCubicCurve().setX2(x2.floatValue());
+    public attribute endX: Number on replace { 
+        getSGCubicCurve().setX2(endX.floatValue());
     }
 
 
@@ -120,7 +131,7 @@ public class CubicCurve extends Shape {
      *
      * @profile common
      */      
-    public attribute y2: Number on replace { 
-        getSGCubicCurve().setY2(y2.floatValue());
+    public attribute endY: Number on replace { 
+        getSGCubicCurve().setY2(endY.floatValue());
     }
 }

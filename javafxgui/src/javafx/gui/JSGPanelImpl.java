@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,13 +19,15 @@
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
- */ 
+ */
+
 package javafx.gui;
 
 import javax.swing.*;
 import java.awt.*;
 import java.beans.*;
 import com.sun.scenario.scenegraph.JSGPanel;
+import com.sun.javafx.gui.BackgroundSupport;
 
 // PENDING(shannonh) - this is public only to work around a compiler bug.
 // Remove public modifier when resolved.

@@ -23,6 +23,7 @@
 
 package javafx.gui;
 import java.awt.geom.Point2D;
+import java.lang.System;
 import javafx.fxunit.*;
 import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGRectangle;
@@ -100,6 +101,49 @@ public class NodeTest extends FXTestCase {
         node.getSGRectangle().setHeight(100);
         node.scaleY = 2.0;
         assertTrue(height == 200);
+    }
+
+    function testContains() {
+        var node = MockNode{};
+        node.getSGRectangle().setHeight(50);
+        node.getSGRectangle().setWidth(50);
+
+        assertTrue(node.contains(0,0));
+        assertTrue(node.contains(25,25));
+        assertTrue(node.contains(49,49));
+        assertFalse(node.contains(50,50));
+
+        node.scaleX = 2.0;
+        node.scaleY = 2.0;
+
+        assertTrue(node.contains(0,0));
+        assertTrue(node.contains(50,50));
+        assertTrue(node.contains(99,99));
+        assertFalse(node.contains(100,100));
+
+        node.translateX = 10;
+        node.translateY = 10;
+
+        assertFalse(node.contains(0,0));
+        assertFalse(node.contains(9,9));
+        assertTrue(node.contains(10,10));
+        assertTrue(node.contains(109,109));
+        assertFalse(node.contains(110,110));
+
+        var rnode = MockNode {
+            rotate:45
+            anchorX:50
+            anchorY:50
+            translateX:50
+            translateY:50
+        };
+        node.getSGRectangle().setWidth(100);
+        node.getSGRectangle().setHeight(100);
+
+        assertFalse(rnode.contains(0,0));
+        // Currently fails due to [likely] a Scenario bug where bounds is 0x0:
+        assertTrue(rnode.contains(100,30));
+
     }
 
     function testToFront() {
@@ -348,7 +392,7 @@ public class NodeTest extends FXTestCase {
 
     function testRotation() {
         var node = MockNode {
-            rotation:180
+            rotate:180
         };
         node.getSGRectangle().setWidth(100);
         node.getSGRectangle().setHeight(100);
@@ -365,7 +409,7 @@ public class NodeTest extends FXTestCase {
 
     function testRotationAboutCenter() {
         var node = MockNode {
-            rotation:180
+            rotate:180
             anchorX:50
             anchorY:50
         };

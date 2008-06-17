@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,8 +28,16 @@ import com.sun.scenario.scenegraph.SGLine;
 
 // PENDING_DOC_REVIEW
 /**
- * This {@code Line} represents a line segment in {@code (x,y)}
- * coordinate space. 
+ * <p>This Line represents a line segment in {@code (x,y)}
+ * coordinate space. Example:</p>
+ * <pre><code>Line {
+    startX:   0  startY:   0
+      endX: 100    endY: 100
+    stroke:Color.RED
+}</code></pre>
+ <p><img src="doc-files/Line01.png"/></p>
+ * @profile common
+ * @needsreview josh
  */
 public class Line extends Shape {
 
@@ -41,32 +49,32 @@ public class Line extends Shape {
     /**
      * The X coordinate of the start point of the line segment.
      */
-    public attribute x1:Number on replace { 
-        getSGLine().setX1(x1.floatValue());
+    public attribute startX:Number on replace { 
+        getSGLine().setX1(startX.floatValue());
     }
     
     // PENDING_DOC_REVIEW
     /**
      * The Y coordinate of the start point of the line segment.
      */
-    public attribute y1:Number on replace { 
-        getSGLine().setY1(y1.floatValue());        
+    public attribute startY:Number on replace { 
+        getSGLine().setY1(startY.floatValue());        
     }
     
     // PENDING_DOC_REVIEW
     /**
      * The X coordinate of the end point of the line segment.
      */
-    public attribute x2:Number on replace { 
-        getSGLine().setX2(x2.floatValue());
+    public attribute endX:Number on replace { 
+        getSGLine().setX2(endX.floatValue());
     }
 
     // PENDING_DOC_REVIEW
     /**
      * The Y coordinate of the end point of the line segment.
      */
-    public attribute y2:Number on replace { 
-        getSGLine().setY2(y2.floatValue());
+    public attribute endY:Number on replace { 
+        getSGLine().setY2(endY.floatValue());
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -38,9 +38,10 @@ import com.sun.scenario.scenegraph.SGCircle;
  *  centerX: 100
  *  centerY: 100
  *  radius: 50
+ *  fill:Color.RED
  *  }</code></pre>
  
- * 
+ * <p><img src="doc-files/Circle01.png"/></p>
  *
  * @profile common 
  * @needsreview
@@ -58,6 +59,7 @@ public class Circle extends Shape {
     *
     * @profile common
     * @needsreview
+    * @defaultvalue 0.0
     */     
     public attribute centerX:Number on replace { 
         getSGCircle().setCenterX(centerX.floatValue());
@@ -70,6 +72,7 @@ public class Circle extends Shape {
     *
     * @profile common
     * @needsreview
+    * @defaultvalue 0.0
     */        
     public attribute centerY:Number on replace { 
         getSGCircle().setCenterY(centerY.floatValue());
@@ -82,6 +85,7 @@ public class Circle extends Shape {
     *
     * @profile common
     * @needsreview
+    * @defaultvalue 0.0
     */        
     public attribute radius:Number on replace { 
         getSGCircle().setRadius(radius.floatValue());

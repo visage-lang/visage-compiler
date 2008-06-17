@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,7 +23,29 @@
 package javafx.gui;
 
 /**
- * Defines one element of the ramp of colors to use on a gradient. 
+ * <p>Defines one element of the ramp of colors to use on a gradient. 
+ * For more information see {@code javafx.gui.LinearGradient} and 
+ * {@code javafx.gui.RadialGradient}.</p>
+ *
+ * <p>Example:</p>
+ * <pre><code>
+ * // object bounding box relative (proportional:true, default)
+ * Rectangle {
+ *     x: 0 y: 0 width: 100 height: 100
+ *     fill: LinearGradient {
+ *         startX: 0.0
+ *         startY: 0.0
+ *         endX: 1.0
+ *         endY: 0.0
+ *         stops: [
+ *            <b>Stop { offset: 0.0 color: Color.BLACK },</b>
+ *            <b>Stop { offset: 1.0 color: Color.RED }</b>
+ *         ]
+ *     }
+ * }
+ *</code></pre>
+ *
+ * @needsreview josh
  * @profile common
  */
 public class Stop {

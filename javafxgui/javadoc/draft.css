@@ -4,3 +4,5 @@ body {
         background-repeat: no-repeat;
         background-position: top left;
 }
+
+.private { display: none; }

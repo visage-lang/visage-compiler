@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,9 +26,13 @@ import java.awt.geom.AffineTransform;
 
 // PENDING_DOC_REVIEW
 /**
- * This class represents an {@code Affine} object that translates coordinates 
- * by the specified factors. The matrix representing the translating transformation 
- * is as follows:
+ * <p>This class represents an {@code Affine} object that translates coordinates 
+ * by the specified factors. Normally application developers will use the
+ * static {@code Transform.translate} method instead of accessing this class
+ * directly.</p>
+ 
+ * <p>The matrix representing the translating transformation 
+ * is as follows:</p>
  * <pre>
  *		[   1    0    tx  ]
  *		[   0    1    ty  ]
@@ -36,6 +40,7 @@ import java.awt.geom.AffineTransform;
  * </pre>
  *
  * @profile common
+ * @needsreview josh
  */
 public class Translate extends Transform {
 

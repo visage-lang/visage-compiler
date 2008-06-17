@@ -1,16 +1,17 @@
 /**
-*   JavaFXBalls.fx
-*
-*   JavaFX Bubblemark demo 
-*   www.bubblemark.com
-*
-*   License: The code is released under Creative Commons Attribution 2.5 License
-*   (http://creativecommons.org/licenses/by/2.5/)
-*/
+ *   JavaFXBalls.fx
+ *
+ *   JavaFX Bubblemark demo 
+ *   www.bubblemark.com
+ *
+ *   License: The code is released under Creative Commons Attribution 2.5 License
+ *   (http://creativecommons.org/licenses/by/2.5/)
+ */
 
 package demo.bubblemark;
 
 import javafx.gui.*;
+import javafx.gui.component.*;
 import java.lang.System;
 import java.lang.Math;
 import java.awt.event.ActionListener;
@@ -57,42 +58,42 @@ class BallsTest {
                                    absolute: true
                                },
                                CurveTo {
-                                   x1: 130.602
-                                   y1: 70.889
-                                   x2: 129.01
-                                   y2: 84.643
-                                   x3: 119.59
-                                   y3: 91.813
+                                   controlX1: 130.602
+                                   controlY1: 70.889
+                                   controlX2: 129.01
+                                   controlY2: 84.643
+                                   x: 119.59
+                                   y: 91.813
                                    // smooth: false
                                    absolute: true
                                },
                                CurveTo {
-                                   x1: 110.171
-                                   y1: 98.981
-                                   x2: 96.489
-                                   y2: 96.843
-                                   x3: 89.032
-                                   y3: 87.043
+                                   controlX1: 110.171
+                                   controlY1: 98.981
+                                   controlX2: 96.489
+                                   controlY2: 96.843
+                                   x: 89.032
+                                   y: 87.043
                                    // smooth: false
                                    absolute: true
                                },
                                CurveTo {
-                                   x1: 81.573
-                                   y1: 77.24
-                                   x2: 83.165
-                                   y2: 63.486
-                                   x3: 92.584
-                                   y3: 56.316
+                                   controlX1: 81.573
+                                   controlY1: 77.24
+                                   controlX2: 83.165
+                                   controlY2: 63.486
+                                   x: 92.584
+                                   y: 56.316
                                    // smooth: false
                                    absolute: true
                                },
                                CurveTo {
-                                   x1: 102.004
-                                   y1: 49.149
-                                   x2: 115.686
-                                   y2: 51.285
-                                   x3: 123.143
-                                   y3: 61.088
+                                   controlX1: 102.004
+                                   controlY1: 49.149
+                                   controlX2: 115.686
+                                   controlY2: 51.285
+                                   x: 123.143
+                                   y: 61.088
                                    // smooth: false
                                    absolute: true
                                },

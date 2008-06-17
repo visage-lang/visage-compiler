@@ -523,7 +523,7 @@
    <presetdef name="jar" uri="http://www.netbeans.org/ns/j2se-project/1">
        <jar jarfile="${dist.jar}" compress="${jar.compress}">
        <j2seproject1:fileset dir="${build.classes.dir}">
-           <include name="META-INF.services/**"/>
+           <include name="META-INF/services/**"/>
            <include name="com/sun/javafx/**"/>
            <include name="javafx/**"/>
        </j2seproject1:fileset>
@@ -544,6 +544,7 @@
        <copy todir="${dist.javadoc.dir}">
            <fileset dir="${basedir}/javadoc" includes="draft.*"/>
        </copy>
+       
        <java jar="lib/javafxdoc.jar" fork="true" failonerror="true">
            <arg value="-d"/>
            <arg value="${dist.javadoc.dir}"/>
@@ -553,11 +554,19 @@
            <arg value="${clsjars}"/>
            <arg line="-subpackages javafx"/>
            <arg line="-extracss draft.css"/>
+           <arg line="-xsltfile javadoc/custom.xsl"/>
            <classpath>
                <path path="${build.classes.dir}:${javac.test.classpath}"/>
            </classpath>
            <jvmarg line="-Xbootclasspath/p:${bootjars}"/>
        </java>
+       
+       <mkdir  dir="${dist.javadoc.dir}/javafx.gui/doc-files"/>
+       <copy todir="${dist.javadoc.dir}/javafx.gui/doc-files">
+           <fileset dir="${src.dir}/javafx/gui/doc-files">
+               <include name="*.png"/>
+           </fileset>
+       </copy>
    </target>
 
 
