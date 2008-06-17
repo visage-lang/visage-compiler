@@ -5,7 +5,8 @@ package assortis.library.mathematics.multidim;
  */
 
  import javafx.gui.*;
- 
+ import javafx.gui.component.*;
+
  import java.lang.System;
  
 public class MDUniverse extends CustomNode, MDGroup{
@@ -41,10 +42,10 @@ public class MDUniverse extends CustomNode, MDGroup{
                     var totalTransform = bind MDTransform.composite(transforms, dimension) 
                     var point1 = bind projection.transform(totalTransform.transform(segment.point1))
                     var point2 = bind projection.transform(totalTransform.transform(segment.point2))
-                    x1: bind point1.getElem(0)
-                    y1: bind point1.getElem(1)
-                    x2: bind point2.getElem(0)
-                    y2: bind point2.getElem(1)
+                    startX: bind point1.getElem(0)
+                    startY: bind point1.getElem(1)
+                    endX: bind point2.getElem(0)
+                    endY: bind point2.getElem(1)
                     
                     stroke: Color.BLACK
                 }

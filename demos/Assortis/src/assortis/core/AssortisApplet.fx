@@ -10,6 +10,7 @@ import com.sun.javafx.runtime.Entry;
 import com.sun.javafx.gui.InternalHelper;
 
 import javafx.gui.*;
+import javafx.gui.component.*;
 import java.lang.System;
 
 import java.net.URLClassLoader;

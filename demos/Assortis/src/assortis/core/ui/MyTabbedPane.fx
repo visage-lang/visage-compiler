@@ -3,6 +3,7 @@ package assortis.core.ui;
 
 
 import javafx.gui.*;
+import javafx.gui.component.*;
 
 
 import javax.swing.Box;

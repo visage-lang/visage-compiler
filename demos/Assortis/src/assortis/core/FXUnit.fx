@@ -8,6 +8,7 @@ package assortis.core;
 import java.lang.Object;
 
 import javafx.gui.*;
+import javafx.gui.component.*;
 
 
 import java.util.Locale;
@@ -50,9 +51,9 @@ public class FXUnit {
         
         //java.lang.System.out.println("[object] {obj}" );
         
-        if(obj instanceof javafx.gui.Component){
+        if(obj instanceof javafx.gui.component.Component){
             
-            var component = obj as javafx.gui.Component;
+            var component = obj as javafx.gui.component.Component;
             //unit.content = CustomWidget{  comp: component.getJComponent() };
             unit.content = component;
         }else if(obj instanceof javafx.gui.Node){

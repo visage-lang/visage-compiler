@@ -94,10 +94,10 @@ class Wire extends ElectronicComponent{
     public function create():Node{
       return Group{
         content: [ Line{
-            x1: bind pin1.pos.x
-            y1: bind pin1.pos.y
-            x2: bind pin2.pos.x
-            y2: bind pin2.pos.y
+            startX: bind pin1.pos.x
+            startY: bind pin1.pos.y
+            endX: bind pin2.pos.x
+            endY: bind pin2.pos.y
             stroke: Color.GREEN
         }]
       };
@@ -204,26 +204,26 @@ class Battery extends  ElectronicComponent {
             fill: Color.CHOCOLATE
             stroke: Color.BROWN
         },Line{
-            x1: bind pos.x + w - 5 + 3
-            y1: bind pos.y - h + 10
-            x2: bind pos.x + w - 5 - 3
-            y2: bind pos.y - h  + 10
+            startX: bind pos.x + w - 5 + 3
+            startY: bind pos.y - h + 10
+            endX: bind pos.x + w - 5 - 3
+            endY: bind pos.y - h  + 10
             
             stroke: Color.DARKBLUE
             strokeWidth: 2
         },Line{
-            x1: bind pos.x - w + 5 + 3
-            y1: bind pos.y - h + 10
-            x2: bind pos.x - w  + 5 - 3
-            y2: bind pos.y - h  + 10
+            startX: bind pos.x - w + 5 + 3
+            startY: bind pos.y - h + 10
+            endX: bind pos.x - w  + 5 - 3
+            endY: bind pos.y - h  + 10
             
             stroke: Color.DARKBLUE
             strokeWidth: 2
         },Line{
-            x1: bind pos.x - w + 5
-            y1: bind pos.y - h + 10 + 3
-            x2: bind pos.x - w  + 5
-            y2: bind pos.y - h  + 10 -3
+            startX: bind pos.x - w + 5
+            startY: bind pos.y - h + 10 + 3
+            endX: bind pos.x - w  + 5
+            endY: bind pos.y - h  + 10 -3
             
             stroke: Color.DARKBLUE
             strokeWidth: 2
@@ -279,17 +279,17 @@ class Switch extends ElectronicComponent{
             }            
         }, Group{ 
             content: bind if (switchOn) then Line{
-              x1: bind pos.x - compWidth
-              y1: bind pos.y
-              x2: bind pos.x + compWidth
-              y2: bind pos.y
+              startX: bind pos.x - compWidth
+              startY: bind pos.y
+              endX: bind pos.x + compWidth
+              endY: bind pos.y
               stroke: Color.BROWN
               strokeWidth: 2
           } else Line{
-              x1: bind pos.x - compWidth / 1.7
-              y1: bind pos.y + compHeight /1.7
-              x2: bind pos.x + compWidth / 1.7
-              y2: bind pos.y - compHeight /1.7
+              startX: bind pos.x - compWidth / 1.7
+              startY: bind pos.y + compHeight /1.7
+              endX: bind pos.x + compWidth / 1.7
+              endY: bind pos.y - compHeight /1.7
               stroke: Color.BROWN
               strokeWidth: 2
           } 

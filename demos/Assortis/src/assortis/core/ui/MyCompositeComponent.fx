@@ -12,13 +12,14 @@ package assortis.core.ui;
 
 
 import javafx.gui.*;
+import javafx.gui.component.*;
 
 import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
 import javax.swing.JComponent;
 
-import javafx.gui.Layout.*;
+import javafx.gui.component.Layout.*;
 
 public abstract class MyCompositeComponent extends Component{
     

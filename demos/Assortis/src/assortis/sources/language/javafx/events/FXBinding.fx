@@ -1,6 +1,7 @@
 package assortis.sources.language.javafx.events;
 
 import javafx.gui.*;
+import javafx.gui.component.*;
 
 var animals = ["cat", "dog", "mouse"];
 var index = 0;

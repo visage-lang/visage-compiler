@@ -1,6 +1,6 @@
 
 package assortis.sources.language.javafx.api.gui.localization;
 
-import javafx.gui.*;
+import javafx.gui.component.*;
 
 Label{ text: ##"Welcome to JavaFX" }

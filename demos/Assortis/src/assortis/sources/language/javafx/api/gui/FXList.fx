@@ -1,6 +1,6 @@
 package assortis.sources.language.javafx.api.gui;
 
-import javafx.gui.*;
+import javafx.gui.component.*;
 
 var numbers = ["one", "two", "three", "four", "five"];
 

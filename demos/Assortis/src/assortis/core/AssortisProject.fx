@@ -41,7 +41,8 @@ import java.lang.Object;
 import java.lang.System;
 
 import javafx.gui.*;
-import javafx.gui.Layout.*;
+import javafx.gui.component.*;
+import javafx.gui.component.Layout.*;
 
 import assortis.core.ui.*;
 import assortis.core.util.*;

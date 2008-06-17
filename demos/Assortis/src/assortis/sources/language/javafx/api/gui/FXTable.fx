@@ -1,6 +1,6 @@
 package assortis.sources.language.javafx.api.gui;
 
-import javafx.gui.*;
+import javafx.gui.component.*;
 
 Label{ text: "Table has not been added into javafx.gui library yet!"} 
 

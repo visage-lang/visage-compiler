@@ -1,6 +1,7 @@
 package assortis.sources.language.javafx.animation;
 
 import javafx.gui.*;
+import javafx.gui.component.*;
 import javafx.animation.*;
 
 import java.lang.Math;
@@ -42,7 +43,7 @@ Frame{
             content: Group{
                 transform: Transform.translate(110, 30);
                 content: [
-                    Line{ x2: bind cx, y2: bind cy, stroke: Color.ORANGE },
+                    Line{ endX: bind cx, endY: bind cy, stroke: Color.ORANGE },
                     Circle{ centerX: 0, centerY: 0,  radius: 5 fill: Color.GRAY },
                     Circle{ centerX: bind cx, centerY: bind cy, radius: 15 fill: Color.ORANGE stroke: Color.ORANGE }
 

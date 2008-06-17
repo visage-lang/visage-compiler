@@ -69,12 +69,12 @@ public class Coordinats extends CustomNode{
     
       return Group{
         content:[
-        Line{ x1: min x2: max stroke: color },
-        Line{ x1: max x2: max - h y2: h stroke: color },
-        Line{ x1: max x2: max - h y2: -h stroke: color },
-        Line{ y1: min y2: max stroke: color },
-        Line{ y1: min  x2: -h y2: min + h stroke: color },
-        Line{ y1: min  x2:  h y2: min + h stroke: color },
+        Line{ startX: min endX: max stroke: color },
+        Line{ startX: max endX: max - h endY: h stroke: color },
+        Line{ startX: max endX: max - h endY: -h stroke: color },
+        Line{ startY: min endY: max stroke: color },
+        Line{ startY: min  endX: -h endY: min + h stroke: color },
+        Line{ startY: min  endX:  h endY: min + h stroke: color },
         Group{
             content: [
             Text{ x: min y: -3 content: "{xMin}" },
