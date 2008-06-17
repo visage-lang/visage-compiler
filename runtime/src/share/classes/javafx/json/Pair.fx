@@ -35,42 +35,37 @@ import java.util.Map;
  */
 
 public class Pair extends JSONBase {
-    
     /**
      *  the name of the pair
      */
     public attribute name:String;
     
     /**
-     * holds the value of the pair. if value is not null
-     * then the array attribute will be emptied.
+     * Holds the value of the pair. 
      * 
-     * @see #array
+     * @see #sequence
      */
     public attribute value:Object on replace {
-        if(value <> null ) {
-            delete array;
-        }
         if(value instanceof java.util.List) {
             var list = value as java.util.List;
-            value = null;
             var iter = list.iterator();
+            var array = JSONArray{};
+            value = array;
             while(iter.hasNext()) {
-                insert iter.next() into array;
+                insert iter.next() into array.array;
             }
         }
     }
     
     /**
-     * holds an array value of the pair. if array is not empty and 
-     * then the value attribute will be set to null
+     * Convenience attribute for setting the attribute <code>value</code> to a 
+     * JSONArray. If the <code>value</code> is set directly or via a java.util.List
+     * to a JSONArray, then this attribute will not be updated.
      * 
      * @see #value
      */    
-    public attribute array:Object[] on replace oldValue[lo..hi]=newVals {
-        if(sizeof array > 0 and value <> null) {
-            value = null;
-        }
+    public attribute sequence:Object[] on replace oldValue[lo..hi]=newVals {
+        value = JSONArray{ array: sequence };
     };
     
     /**
@@ -154,8 +149,8 @@ public class Pair extends JSONBase {
      */    
     public function serialize(writer:Writer, curIndent:Integer, indentAmount:Integer):Void {
         writer.write('"{name}": ');
-        if(value == null) {
-            Array.serialize(array, writer, curIndent, indentAmount);
+        if(value instanceof JSONArray) {
+            JSONArray.serialize((value as JSONArray).array, writer, curIndent, indentAmount);
         }else if(value instanceof JSONObject) {
             var arr = value as JSONObject;
             arr.serialize(writer, curIndent + indentAmount, indentAmount);

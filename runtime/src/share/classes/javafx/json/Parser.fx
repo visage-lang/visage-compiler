@@ -56,7 +56,19 @@ public class Parser {
      * @see java.io.InputStream
      */
     public function parse(instream:InputStream):JSONObject {
-        return parseReader(new InputStreamReader(instream));
+        return parse(new InputStreamReader(instream));
+    }
+
+    /**
+     * Parse an input stream into a JSONObject
+     * 
+     * @param instream the input stream
+     * @param jsonObject the JSONObject to hold the result, may be null
+     * @return the JSONObject
+     * @see java.io.InputStream
+     */
+    public function parse(instream:InputStream, jsonObject:JSONObject):JSONObject {
+        return parse(new InputStreamReader(instream), jsonObject);
     }
     
     /**
@@ -65,11 +77,21 @@ public class Parser {
      * @param str the string
      * @return the JSONObject
      */
-    public function parseString(str:String):JSONObject {
-        return parseReader(new StringReader(str));
+    public function parse(str:String):JSONObject {
+        return parse(new StringReader(str));
+    }
+
+    /**
+     * Parse a string into a JSONObject
+     * 
+     * @param str the string
+     * @param jsonObject the JSONObject to hold the result, may be null
+     * @return the JSONObject
+     */
+    public function parse(str:String, jsonObject:JSONObject):JSONObject {
+        return parse(new StringReader(str), jsonObject);
     }
     
-
     /**
      * Parse an reader into a JSONObject
      * 
@@ -77,7 +99,18 @@ public class Parser {
      * @return the JSONObject
      * @see java.io.Reader
      */
-    public function parseReader(reader:Reader):JSONObject {
+    public function parse(reader:Reader):JSONObject {
+            return parse(reader, null);
+    }
+    /**
+     * Parse an reader into a JSONObject
+     * 
+     * @param reader the reader
+     * @param jsonObject the JSONObject to hold the result, may be null
+     * @return the JSONObject
+     * @see java.io.Reader
+     */
+    public function parse(reader:Reader, jsonObject:JSONObject):JSONObject {
         
         var c = reader.read();
         while(c <> 0x7B and c >= 0) { // '{'
@@ -88,12 +121,11 @@ public class Parser {
         
         if(handler <> null)
             handler(ElementType.START, result);
-        result = parseJSONObject(reader);
+        result = parseJSONObject(reader, jsonObject);
         if(handler <> null)
             handler(ElementType.END, result);
         return result;
     }
-    
     /**
      * process a JSONObject
      * 
@@ -101,9 +133,20 @@ public class Parser {
      * @return the JSONObject
      */
     private function parseJSONObject(reader:Reader):JSONObject {
+        parseJSONObject(reader, null);
+    }
+    
+    /**
+     * process a JSONObject
+     * 
+     * @param reader the input stream
+     * @param jsonObject the JSONObject to hold the result, may be null
+     * @return the JSONObject
+     */
+    private function parseJSONObject(reader:Reader, jsonObject:JSONObject):JSONObject {
         //System.out.println("parseJSONObject");
         var myObject = ++endObject;
-        var result = JSONObject{};
+        var result = if(jsonObject <> null) {jsonObject} else {JSONObject{};} ;
         var c = reader.read();
         var string:String;
         var value:Object;
@@ -224,21 +267,20 @@ public class Parser {
      * process a JSON Array
      * 
      * @param reader the input stream
-     * @return the Array
+     * @return the JSONArray
      */     
     private function parseJSONArray(reader:Reader):Object {
         //System.out.println("parseJSONArray");
         var myArray = ++endArray;
-        var list = new ArrayList();
+        var items:Object[] = [];
         while(myArray <= endArray) {
             var item = parseValue(reader);
-            //System.out.println("Add Array item = {item} myArray = {myArray} endArray = {endArray}");
-            list.add(item);
+            insert item into items;
         }
-        var a =  Array{list : list };
+        var a =  JSONArray{array: items };
         //System.out.println("parseJSONArray = {a}");
         if(handler <> null)
-            handler(ElementType.ARRAY, a);
+            handler(ElementType.JSONARRAY, a);
         return a;
     }
     
@@ -274,9 +316,9 @@ public class Parser {
             return java.lang.Boolean.TRUE;
         } else if(str.equalsIgnoreCase("null")) {
             //System.out.println("parseLiteral return NULL");
-            var result = Null{}
+            var result = JSONNull{}
             if(handler <> null)
-                handler(ElementType.NULL, result);            
+                handler(ElementType.JSONNULL, result);            
             return result;
         }else {
             if(handler <> null)

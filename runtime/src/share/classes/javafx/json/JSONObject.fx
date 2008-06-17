@@ -27,9 +27,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.io.InputStream;
+import java.io.Reader;
 import java.lang.StringBuffer;
 import java.lang.Object;
 import java.lang.System;
+
 
 /**
  * Represents a JSON Object
@@ -43,6 +46,14 @@ public class JSONObject extends JSONBase {
      * from a java.util.Map or not
      */
     private attribute updateFromMap = false;
+
+    /**
+     * a handler that will be called as each type is identified during
+     * parsing, may be null
+     */
+    public attribute handler: function(type:ElementType, object:Object):Void;
+
+
 
     /**
      *  Holds the pairs for this JSONObject
@@ -88,6 +99,53 @@ public class JSONObject extends JSONBase {
         }
         
     };
+
+    /**
+     * Holds a string representation that will be parsed to populate
+     * this JSONObject. The attributes <code>text</code>, <code>reader</code>, 
+     * and <code>stream</code> are mutually exclusive with each
+     * causing a new parsing and replacement of the contents of this JSONObject.
+     * @see #reader
+     * @see #stream
+     */
+    public attribute text:String on replace {
+        if(text <> null) {
+            var parser = Parser{handler: handler};
+            parser.parse(text, this);
+        }
+    };
+
+    /**
+     * Holds a java.io.Reader that provides the string representation 
+     * that will be parsed to populate this JSONObject.
+     * The attributes <code>text</code>, <code>reader</code>, 
+     * and <code>stream</code> are mutually exclusive with each
+     * causing a new parsing and replacement of the contents of this JSONObject.
+     * @see #text
+     * @see #stream
+     */
+    public attribute reader:Reader on replace {
+        if(reader <> null) {
+            var parser = Parser{handler: handler};
+            parser.parse(reader, this);
+        }
+    };
+
+    /**
+     * holds java.io.InputStream that provides the string representation 
+     * that will be parsed to populate this JSONObject.
+     * The attributes <code>text</code>, <code>reader</code>, 
+     * and <code>stream</code> are mutually exclusive with each
+     * causing a new parsing and replacement of the contents of this JSONObject.
+     * @see #text
+     * @see #reader
+     */
+    public attribute stream:InputStream on replace {
+        if(stream <> null) {
+            var parser = Parser{handler: handler};
+            parser.parse(stream, this);
+        }
+    };
     
     /**
      * Add a new pair to this JSONObject
@@ -106,7 +164,7 @@ public class JSONObject extends JSONBase {
      * @param value the array
      */    
     public function addArray(name:String, value:Object[]):Void {
-        var pair = Pair{name:name, array:value};
+        var pair = Pair{name:name, sequence:value};
         insert pair into pairs;
     }
     
@@ -116,7 +174,7 @@ public class JSONObject extends JSONBase {
      * @param name the name of the pair
      */     
     public function addNullPair(name:String):Void {
-        addPair(name, Null{});
+        addPair(name, JSONNull{});
     }
     
     /**
@@ -157,7 +215,7 @@ public class JSONObject extends JSONBase {
      */     
     public function getArray(name:String):Object[] {
         var pair = map.get(name) as Pair;
-        return if (pair <> null) pair.array else null;
+        return if (pair <> null and pair.value instanceof JSONArray) (pair.value as JSONArray).array else null;
     }    
     /**
      * Determine whether a pair is a JSON array or not
@@ -166,7 +224,7 @@ public class JSONObject extends JSONBase {
      */ 
     public function isArray(name:String):Boolean {
         var pair = map.get(name) as Pair;
-        return pair.value == null;
+        return pair.value instanceof JSONArray;
     }
     
 
@@ -212,6 +270,5 @@ public class JSONObject extends JSONBase {
             writer.write("\n{indentStr}}");
          }
     }    
-    
     
 }

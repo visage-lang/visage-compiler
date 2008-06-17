@@ -37,7 +37,7 @@ public class ElementType {
     /** Indicates that a JSONObject has been idenfitied*/
     public static attribute OBJECT:ElementType = ElementType{name:"JSONObject"};
     /** Indicates that a JSON Array has been idenfitied*/
-    public static attribute ARRAY:ElementType = ElementType{name:"Array"};
+    public static attribute JSONARRAY:ElementType = ElementType{name:"JSONArray"};
     /** Indicates that a JSON Pair has been idenfitied*/
     public static attribute PAIR:ElementType = ElementType{name:"Pair"};
     /** Indicates that a JSON VALUE has been idenfitied*/
@@ -47,7 +47,7 @@ public class ElementType {
     /** Indicates that a JSON Number has been idenfitied*/
     public static attribute NUMBER:ElementType = ElementType{name:"Number"};
     /** Indicates that a JSON Null has been idenfitied*/
-    public static attribute NULL:ElementType = ElementType{name:"Null"};
+    public static attribute JSONNULL:ElementType = ElementType{name:"JSONNull"};
     /** Indicates that a JSON Boolean has been idenfitied*/
     public static attribute BOOLEAN:ElementType = ElementType{name:"Boolean"};
     /** Start indicates that parsing has started*/
