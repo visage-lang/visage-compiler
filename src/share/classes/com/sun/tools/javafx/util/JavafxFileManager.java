@@ -26,6 +26,8 @@ package com.sun.tools.javafx.util;
 import com.sun.tools.javac.util.BaseFileObject;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JavacFileManager;
+import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.ListBuffer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +39,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Set;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.NestingKind;
 import javax.tools.JavaFileManager;
@@ -108,6 +111,31 @@ public class JavafxFileManager extends JavacFileManager {
         return (JavaFileObject)getFileForInput(location, "", externalizeFileName(className, kind));
     }
 
+    @Override
+    public Iterable<JavaFileObject> list(Location location,
+                                         String packageName,
+                                         Set<JavaFileObject.Kind> kinds,
+                                         boolean recurse)
+        throws IOException
+    {
+        if (!kinds.contains(JavaFileObject.Kind.SOURCE))
+            return super.list(location, packageName, kinds, recurse);
+
+        nullCheck(packageName);
+        nullCheck(kinds);
+
+        Iterable<? extends File> path = getLocation(location);
+        if (path == null)
+            return List.nil();
+        String subdirectory = packageName.toString().replace('.', File.separatorChar);
+        ListBuffer<JavaFileObject> results = new ListBuffer<JavaFileObject>();
+
+        for (File directory : path)
+            listDirectory(directory, subdirectory, kinds, recurse, results);
+
+        return results.toList();
+    }
+
     private static <T> T nullCheck(T o) {
         o.getClass(); // null check
         return o;
@@ -118,6 +146,167 @@ public class JavafxFileManager extends JavacFileManager {
         String suffix = kind == JavaFileObject.Kind.SOURCE ? 
             FX_SOURCE_SUFFIX : kind.extension;
         return basename + suffix;
+    }
+   
+    /**
+     * Insert all files in subdirectory `subdirectory' of `directory' which end
+     * in one of the extensions in `extensions' into packageSym.
+     */
+    private void listDirectory(File directory,
+                               String subdirectory,
+                               Set<JavaFileObject.Kind> fileKinds,
+                               boolean recurse,
+                               ListBuffer<JavaFileObject> l) {
+
+        boolean isFile = directory.isFile();
+
+        if (isFile) {
+            Archive archive = null;
+            try {
+                archive = openArchive(directory);
+            } catch (IOException ex) {
+                log.error("error.reading.file",
+                   directory, ex.getLocalizedMessage());
+                return;
+            }
+            if (subdirectory.length() != 0) {
+                subdirectory = subdirectory.replace('\\', '/');
+                if (!subdirectory.endsWith("/")) 
+                    subdirectory = subdirectory + "/";
+            }
+            else {
+                if (File.separatorChar == '/') {
+                    subdirectory = subdirectory.replace('\\', '/');
+                }
+                else {
+                    subdirectory = subdirectory.replace('/', '\\');
+                }
+
+                if (!subdirectory.endsWith(File.separator)) 
+                    subdirectory = subdirectory + File.separator;
+            }
+
+            List<String> files = archive.getFiles(subdirectory);
+            if (files != null) {
+                for (String file; !files.isEmpty(); files = files.tail) {
+                    file = files.head;
+                    if (isValidFile(file, fileKinds)) {
+                        l.append(archive.getFileObject(subdirectory, file));
+                    }
+                }
+            }
+            if (recurse) {
+                for (String s: archive.getSubdirectories()) {
+                    if (s.startsWith(subdirectory) && !s.equals(subdirectory)) {
+                        // Because the archive map is a flat list of directories,
+                        // the enclosing loop will pick up all child subdirectories.
+                        // Therefore, there is no need to recurse deeper.
+                        listDirectory(directory, s, fileKinds, false, l);
+                    }
+                }
+            }
+        } else {
+            File d = subdirectory.length() != 0
+                ? new File(directory, subdirectory)
+                : directory;
+            if (!caseMapCheck(d, subdirectory))
+                return;
+
+            File[] files = d.listFiles();
+            if (files == null)
+                return;
+
+            for (File f: files) {
+                String fname = f.getName();
+                if (f.isDirectory()) {
+                    if (recurse && SourceVersion.isIdentifier(fname)) {
+                        listDirectory(directory,
+                                      subdirectory + File.separator + fname,
+                                      fileKinds,
+                                      recurse,
+                                      l);
+                    }
+                } else {
+                    if (isValidFile(fname, fileKinds)) {
+                        JavaFileObject fe =
+                        new DelegateJavaFileObject(super.getRegularFile(new File(d, fname)));
+                        l.append(fe);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isValidFile(String s, Set<JavaFileObject.Kind> fileKinds) {
+        int lastDot = s.lastIndexOf(".");
+        String extn = (lastDot == -1 ? s : s.substring(lastDot));
+        JavaFileObject.Kind kind = getKind(extn);
+        return fileKinds.contains(kind);
+    }
+
+    @Override
+    public String inferBinaryName(Location location, JavaFileObject file) {
+        file.getClass(); // null check
+        location.getClass(); // null check
+        // Need to match the path semantics of list(location, ...)
+        Iterable<? extends File> path = getLocation(location);
+        if (path == null) {
+            return null;
+        }
+
+        if (file instanceof DelegateJavaFileObject) {
+            DelegateJavaFileObject r = (DelegateJavaFileObject) file;
+            String rPath = r.getPath();
+            for (File dir: path) {
+                String dPath = dir.getPath();
+                if (!dPath.endsWith(File.separator))
+                    dPath += File.separator;
+                if (rPath.regionMatches(true, 0, dPath, 0, dPath.length())
+                    && new File(rPath.substring(0, dPath.length())).equals(new File(dPath))) {
+                    String relativeName = rPath.substring(dPath.length());
+                    return removeExtension(relativeName).replace(File.separatorChar, '.');
+                }
+            }
+        }
+        return super.inferBinaryName(location, file);
+    }
+
+    private static String removeExtension(String fileName) {
+        int lastDot = fileName.lastIndexOf(".");
+        return (lastDot == -1 ? fileName : fileName.substring(0, lastDot));
+    }
+        
+    private static final boolean fileSystemIsCaseSensitive =
+        File.separatorChar == '/';
+
+    /** Hack to make Windows case sensitive. Test whether given path
+     *  ends in a string of characters with the same case as given name.
+     *  Ignore file separators in both path and name.
+     */
+    private boolean caseMapCheck(File f, String name) {
+        if (fileSystemIsCaseSensitive) return true;
+        // Note that getCanonicalPath() returns the case-sensitive
+        // spelled file name.
+        String path;
+        try {
+            path = f.getCanonicalPath();
+        } catch (IOException ex) {
+            return false;
+        }
+        char[] pcs = path.toCharArray();
+        char[] ncs = name.toCharArray();
+        int i = pcs.length - 1;
+        int j = ncs.length - 1;
+        while (i >= 0 && j >= 0) {
+            while (i >= 0 && pcs[i] == File.separatorChar) i--;
+            while (j >= 0 && ncs[j] == File.separatorChar) j--;
+            if (i >= 0 && j >= 0) {
+                if (pcs[i] != ncs[j]) return false;
+                i--;
+                j--;
+            }
+        }
+        return j < 0;
     }
 
     private final Set<JavaFileObject.Kind> sourceOrClass =
