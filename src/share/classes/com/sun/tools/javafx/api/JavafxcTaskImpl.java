@@ -243,7 +243,7 @@ public class JavafxcTaskImpl extends JavafxcTask {
     public Iterable<? extends CompilationUnitTree> analyze() throws IOException {
         try {
             enter();
-            genList = compiler.attribute();
+            genList = genList.appendList(compiler.attribute());
             return units;
         } finally {
             if (compiler != null && compiler.log != null)
