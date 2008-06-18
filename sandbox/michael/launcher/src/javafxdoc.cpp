@@ -50,8 +50,8 @@ int main(int argc, char** argv) {
     cmd += config.fxargs;
     
     // debug
-    printf (cmd.c_str());
-//    system (cmd.c_str());
+//    printf (cmd.c_str());
+    system (cmd.c_str());
 
     return EXIT_SUCCESS;
 }
