@@ -921,12 +921,6 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
 
     public void finishVar(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
         VarSymbol v = tree.sym;
-        Type declType = attribType(tree.getJFXType(), env);
-        if (declType != syms.javafx_UnspecifiedType) {
-            result = tree.type = v.type = declType;
-        }
-        // Check that the variable's declared type is well-formed.
-//        chk.validate(tree.vartype);
 
         // The info.lint field in the envs stored in enter.typeEnvs is deliberately uninitialized,
         // because the annotations were not available at the time the env was created. Therefore,
@@ -941,6 +935,13 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
               
         try {
+            Type declType = attribType(tree.getJFXType(), env);
+            if (declType != syms.javafx_UnspecifiedType) {
+                result = tree.type = v.type = declType;
+            }
+            // Check that the variable's declared type is well-formed.
+            //        chk.validate(tree.vartype);
+            
             chk.checkDeprecatedAnnotation(tree.pos(), v);
 
             Type initType;

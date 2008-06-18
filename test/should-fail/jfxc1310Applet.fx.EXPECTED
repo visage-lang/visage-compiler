@@ -1,0 +1,6 @@
+test/should-fail/jfxc1310Application.fx:6: cannot find symbol
+symbol  : class Component
+location: class jfxc1310Application
+    public attribute content: Component;
+                              ^
+1 error
