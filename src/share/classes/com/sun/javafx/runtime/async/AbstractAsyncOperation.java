@@ -138,6 +138,9 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
         else {
             this.progressMax = progressMax;
             progressIncrement = progressMax / progressGranularity;
+            if(progressIncrement < 1) {
+                progressIncrement = 1;
+            }
         }
         nextProgress = ((lastProgress / progressIncrement) + 1) * progressIncrement;
         notifyProgress();
