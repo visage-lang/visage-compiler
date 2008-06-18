@@ -12,15 +12,21 @@ public:
     std::string vmargs;
     std::string fxargs;
     
+    std::string javafx_classpath_libs;
+    std::string javafxc_bootclasspath_libs;
+    std::string javafxc_classpath_libs;
+    std::string javafxdoc_bootclasspath_libs;
+    
     Configuration();
     ~Configuration();
     
-    int getConfiguration (int argc, char** argv);
+    int initConfiguration (int argc, char** argv);
+    std::string evaluatePath (std::string& libs);
     
 private:
     void init();
+    void readConfigFile();
     int parseArgs(int argc, char** argv);
-    void setDefaults();
     int fileExists(const std::string& path);
 };
 

@@ -31,38 +31,27 @@ int main(int argc, char** argv) {
     Configuration config;
     int error;
     
-    if ( (error =  config.getConfiguration(argc, argv)) != (EXIT_SUCCESS) )  {
+    if ( (error =  config.initConfiguration(argc, argv)) != (EXIT_SUCCESS) )  {
         return error;
     }
     
     // construct command
-    // "%_JAVACMD%" %_JVM_ARGS% "-Xbootclasspath/p:%_JAVAFXC_HOME%\javafxc.jar;%_JAVAFXC_HOME%\javafxrt.jar" com.sun.tools.javafx.Main -classpath "%_CLASSPATH%" %_FX_ARGS%
     std::string cmd = "\"" + config.javacmd + "\" ";
-
-    if (config.vmargs != "") {
+    if (! config.vmargs.empty()) {
         cmd += config.vmargs + " ";
     }
-
-    cmd += "\"-Xbootclasspath/p:";
-    cmd += config.javafxpath + "\\javafxc.jar;";
-    cmd += config.javafxpath + "\\javafxrt.jar\" ";
-
+    cmd += "\"-Xbootclasspath/p:" + config.evaluatePath(config.javafxc_bootclasspath_libs) + "\" ";
     cmd += "com.sun.tools.javafx.Main ";
-    
-    cmd += "-classpath \"";
-    cmd += config.javafxpath + "\\javafxgui.jar;";
-    cmd += config.javafxpath + "\\Scenario.jar;";
-    cmd += config.javafxpath + "\\jmc.jar";
-    if (config.classpath != "") {
+    cmd += "-classpath \"" + config.evaluatePath(config.javafxc_classpath_libs);
+    if (! config.classpath.empty()) {
         cmd += ";" + config.classpath;
     }
     cmd += "\" ";
-
     cmd += config.fxargs;
     
     // debug
-//    printf (cmd.c_str());
-    system (cmd.c_str());
+    printf (cmd.c_str());
+//    system (cmd.c_str());
 
     return EXIT_SUCCESS;
 }

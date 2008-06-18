@@ -31,35 +31,23 @@ int main(int argc, char** argv) {
     Configuration config;
     int error;
     
-    if ( (error =  config.getConfiguration(argc, argv)) != (EXIT_SUCCESS) )  {
+    if ( (error =  config.initConfiguration(argc, argv)) != (EXIT_SUCCESS) )  {
         return error;
     }
     
     // construct command
-    // "%_JAVACMD%" -Djava.library.path="%_JAVAFX_LIBS%" -classpath "%_CLASSPATH%" %_FX_ARGS%    
     std::string cmd = "\"" + config.javacmd + "\" ";
-
-    if (config.javafxpath != "") {
-        cmd += "-Djava.library.path=\"" + config.javafxpath + "\" ";
-    }
-
-    cmd += "-classpath \"";
-    cmd += config.javafxpath + "\\javafxgui.jar;";
-    cmd += config.javafxpath + "\\javafxrt.jar;";
-    cmd += config.javafxpath + "\\Scenario.jar;";
-    cmd += config.javafxpath + "\\Decora-HW.jar;";
-    cmd += config.javafxpath + "\\Decora-D3D.jar;";
-    cmd += config.javafxpath + "\\jmc.jar";
-    if (config.classpath != "") {
+    cmd += "-Djava.library.path=\"" + config.javafxpath + "\" ";
+    cmd += "-classpath \"" + config.evaluatePath(config.javafx_classpath_libs);
+    if (! config.classpath.empty()) {
         cmd += ";" + config.classpath;
     }
     cmd += "\" ";
-
     cmd += config.fxargs;
     
     // debug
-//    printf (cmd.c_str());
-    system (cmd.c_str());
+    printf (cmd.c_str());
+//    system (cmd.c_str());
 
     return EXIT_SUCCESS;
 }

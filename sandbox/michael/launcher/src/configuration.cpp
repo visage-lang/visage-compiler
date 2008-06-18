@@ -22,7 +22,8 @@
  */
 
 #include <windows.h>
-#include <stdlib.h>
+#include <fstream>
+#include <regex.h>
 
 #include "configuration.h"
 
@@ -33,21 +34,48 @@ Configuration::Configuration()
 Configuration::~Configuration() {
 }
 
-int Configuration::getConfiguration(int argc, char** argv) {
+int Configuration::initConfiguration(int argc, char** argv) {
     int error;
     
     // set inital values
     init();
+    
+    // read config-file
+    readConfigFile();
     
     // read arguments
     if ( (error =  parseArgs(--argc, ++argv)) != EXIT_SUCCESS )  {
         return error;
     }
     
-    // set defaults, if neccessary
-    setDefaults();
+    // evaluate JAVA_HOME, if javacmd not set
+    if (javacmd.empty()) {
+        const char* s = getenv("JAVA_HOME");
+        if (s != NULL) {
+            javacmd = s;
+            javacmd += "/bin/java.exe";
+            if (! fileExists(javacmd)) {
+                javacmd = "java.exe";
+            }
+
+        } else {
+            javacmd = "java.exe";
+        }
+    }
     
     return EXIT_SUCCESS;
+}
+
+std::string Configuration::evaluatePath (std::string& libs) {
+    std::string result = "";
+    std::string::size_type start=0, end;
+    while ((end = libs.find(";", start)) != std::string::npos) {
+        ++end; // include semicolon
+        result += javafxpath + "\\" + libs.substr (start, end-start);
+        start = end;
+    }
+    result += javafxpath + "\\" + libs.substr (start);
+    return result;
 }
 
 void Configuration::init() {
@@ -57,9 +85,89 @@ void Configuration::init() {
     s = getenv("_JAVACMD");
     javacmd = (s != NULL)? s : "";
     
+    // evaluate CLASSPATH
+    classpath = ".";
+    s = getenv("CLASSPATH");
+    if (s != NULL) {
+        classpath += ";";
+        classpath += s;
+    }
+    
+    // set default javafxpath
+    char buf[MAX_PATH];
+    GetModuleFileName (NULL, buf, MAX_PATH);
+    javafxpath = buf;
+    javafxpath.erase (javafxpath.rfind("\\"));
+    javafxpath += "\\..\\lib";
+    
     // set fxargs if given directly in _FX_ARGS
     s = getenv("_FX_ARGS");
     fxargs = (s != NULL)? s : "";
+
+    // set default classpath-libraries for javafx
+    if (javafx_classpath_libs.empty()) {
+        javafx_classpath_libs = "javafxgui.jar;javafxrt.jar;Scenario.jar;Decora-HW.jar;Decora-D3D.jar;jmc.jar";
+    }
+    
+    // set default bootclass-libraries for javafxc
+    if (javafxc_bootclasspath_libs.empty()) {
+        javafxc_bootclasspath_libs = "javafxc.jar;javafxrt.jar";
+    }
+    
+    // set default classpath-libraries for javafxc
+    if (javafxc_classpath_libs.empty()) {
+        javafxc_classpath_libs = "javafxgui.jar;Scenario.jar;jmc.jar";
+    }
+    
+    // set default bootclass-libraries for javafxdoc
+    if (javafxdoc_bootclasspath_libs.empty()) {
+        javafxdoc_bootclasspath_libs = "javafxc.jar;javafxdoc.jar";
+    }
+}
+
+void Configuration::readConfigFile() {
+    // find file
+    std::string path = javafxpath;
+    path += "\\javafx.properties";
+    std::ifstream file(path.c_str());
+    if (file == NULL) {
+        return;
+    }
+    
+    // prepare regular expression
+    std::string line, key, value;
+    std::string::size_type pos;
+    regex_t pattern;
+    regmatch_t match[3];
+    assert (REG_OKAY == regcomp (&pattern, "([[:alnum:]_]+)[[:space:]]*[:=][[:space:]]*([^[:space:]].*[^[:space:]])", REG_EXTENDED | REG_ICASE | REG_NEWLINE));
+    
+    while (getline (file, line)) {
+        // remove comment
+        if ((pos = line.find('#')) != std::string::npos) {
+            line.erase (pos);
+        }
+
+        // evaluate key-value pair
+        if (REG_OKAY == regexec (&pattern, line.c_str(), 3 /* 3 matches */, match, 0 /* no flags */)) {
+            key   = line.substr (match[1].rm_so, match[1].rm_eo-match[1].rm_so);
+            value = line.substr (match[2].rm_so, match[2].rm_eo-match[2].rm_so);
+            
+            if (key == "javafx_classpath_libs") {
+                javafx_classpath_libs = value;
+            } else
+            if (key == "javafxc_bootclasspath_libs") {
+                javafxc_bootclasspath_libs = value;
+            } else
+            if (key == "javafxc_classpath_libs") {
+                javafxc_classpath_libs = value;
+            } else
+            if (key == "javafxdoc_bootclasspath_libs") {
+                javafxdoc_bootclasspath_libs = value;
+            };
+        }
+    }
+    regfree (&pattern);
+    file.close();
 }
 
 int Configuration::parseArgs(int argc, char** argv) {
@@ -87,58 +195,18 @@ int Configuration::parseArgs(int argc, char** argv) {
     return (EXIT_SUCCESS);
 }
 
-void Configuration::setDefaults() {
-    char* s;
-    
-    // evaluate JAVA_HOME, if javacmd not set
-    if (javacmd == "") {
-        s = getenv("JAVA_HOME");
-        if (s != NULL) {
-            javacmd = s;
-            javacmd += "/bin/java.exe";
-            if (! fileExists(javacmd)) {
-                javacmd = "java.exe";
-            }
-
-        } else {
-            javacmd = "java.exe";
-        }
-    }
-    
-    // evaluate classpath if not set
-    if (classpath == "") {
-        classpath = ".";
-        s = getenv("CLASSPATH");
-        if (s != NULL) {
-            classpath += ";";
-            classpath += s;
-        }
-    }
-    
-    // set default javafxpath if not set
-    if (javafxpath == "") {
-        s = new char[MAX_PATH];
-        GetModuleFileName (NULL, s, MAX_PATH);
-        javafxpath = s;
-        javafxpath.erase (javafxpath.rfind("\\"));
-        javafxpath += "\\..\\lib";
-
-        delete[] s;
-    }
-}
-
 int Configuration::fileExists(const std::string& path) {
-   WIN32_FIND_DATA ffd;
-   HANDLE hFind;
+    WIN32_FIND_DATA ffd;
+    HANDLE hFind;
 
-   hFind = FindFirstFile(path.c_str(), &ffd);
-   if (hFind == INVALID_HANDLE_VALUE) 
-   {
-       return FALSE;
-   } 
-   else 
-   {
-      FindClose(hFind);
-      return (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0;
-   }
+    hFind = FindFirstFile(path.c_str(), &ffd);
+    if (hFind == INVALID_HANDLE_VALUE) 
+    {
+        return FALSE;
+    }
+    else 
+    {
+        FindClose(hFind);
+        return (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0;
+    }
 }
