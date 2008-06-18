@@ -9,6 +9,8 @@ public class AsyncJsonCall extends AbstractAsyncOperation {
     public attribute url : String;
     public attribute method : String = "GET";
     public attribute referer: String;
+    public attribute outboundContent: String;
+    public attribute contentType: String;
 
     public function cancel() : Void {
         if (peer <> null) then peer.cancel();
@@ -20,8 +22,11 @@ public class AsyncJsonCall extends AbstractAsyncOperation {
 
     protected function start() : Void {
         // TODO: ensure that resulting document has type text/javascript -- must be done in peer, so subclass RTD
-        peer = new com.sun.javafx.runtime.async.RemoteTextDocument(listener, url, method);
+        peer = new com.sun.javafx.runtime.async.RemoteTextDocument(listener, url, method, outboundContent);
         peer.setHeader("Referer", referer);
+        if(contentType <> null) {
+            peer.setHeader("Content-Type", contentType);
+        }
         peer.start();
     }
 }
