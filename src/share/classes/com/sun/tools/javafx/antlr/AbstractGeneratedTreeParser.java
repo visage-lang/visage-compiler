@@ -120,7 +120,8 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
     /** What is the error header, normally line/character position information? */
     @Override
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
-        int pos = ((CommonToken)(e.token)).getStartIndex();
+     //   int pos = ((CommonToken)(e.token)).getStartIndex();
+        int pos = e.index;
         String msg = getErrorMessage(e, tokenNames);
         //        System.err.println("ERROR: " + msg);
         log.error(pos, MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
