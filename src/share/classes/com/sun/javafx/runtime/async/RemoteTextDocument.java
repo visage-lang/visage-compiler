@@ -40,6 +40,10 @@ public class RemoteTextDocument extends AbstractRemoteResource<String> {
     public RemoteTextDocument(AsyncOperationListener<String> listener, String url, String method) {
         super(url, method, listener);
     }
+    
+    public RemoteTextDocument(AsyncOperationListener<String> listener, String url, String method, String outboundContent) {
+        super(url, method, outboundContent, listener);
+    }    
 
     protected String processStream(InputStream stream) throws IOException {
         Reader reader = new InputStreamReader(stream);
