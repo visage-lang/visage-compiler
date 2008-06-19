@@ -133,8 +133,11 @@ public class ProjectManager {
     
     public static void setLookAndFeel(){
         try{
-            org.jvnet.substance.SubstanceLookAndFeel.setFontPolicy(org.jvnet.substance.fonts.SubstanceFontUtilities.getScaledFontPolicy(1.25f));
-            javax.swing.UIManager.setLookAndFeel("org.jvnet.substance.skin.SubstanceNebulaLookAndFeel");
+            //org.jvnet.substance.SubstanceLookAndFeel.setFontPolicy(org.jvnet.substance.fonts.SubstanceFontUtilities.getScaledFontPolicy(1.25f));
+            //javax.swing.UIManager.setLookAndFeel("org.jvnet.substance.skin.SubstanceNebulaLookAndFeel");
+            
+            javax.swing.UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+
         } catch(Exception e){
             e.printStackTrace();
         }
