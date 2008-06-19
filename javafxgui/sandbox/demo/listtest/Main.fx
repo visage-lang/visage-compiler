@@ -24,7 +24,7 @@
 package demo.listtest;
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 import javax.swing.*;
 import java.awt.BorderLayout;
 import java.lang.System;

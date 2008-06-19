@@ -8,7 +8,7 @@ package assortis.core;
 import java.lang.Object;
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 
 
 import java.util.Locale;
@@ -51,9 +51,9 @@ public class FXUnit {
         
         //java.lang.System.out.println("[object] {obj}" );
         
-        if(obj instanceof javafx.gui.component.Component){
+        if(obj instanceof javafx.gui.swing.Component){
             
-            var component = obj as javafx.gui.component.Component;
+            var component = obj as javafx.gui.swing.Component;
             //unit.content = CustomWidget{  comp: component.getJComponent() };
             unit.content = component;
         }else if(obj instanceof javafx.gui.Node){
@@ -62,10 +62,10 @@ public class FXUnit {
             //unit.content = CustomWidget{  comp: canvas.getJComponent() };
             unit.content = Canvas{ content: node };
             
-        }else if(obj instanceof javafx.gui.Frame){
+        }else if(obj instanceof javafx.gui.swing.Frame){
         
             unit.isWindow = true;
-            var frame = obj as javafx.gui.Frame;
+            var frame = obj as javafx.gui.swing.Frame;
             
             //java.lang.System.out.println("[visible] set: {false}" );
             frame.visible = false;

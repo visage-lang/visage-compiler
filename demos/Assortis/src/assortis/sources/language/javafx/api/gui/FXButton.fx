@@ -1,6 +1,6 @@
 package assortis.sources.language.javafx.api.gui;
 
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 import java.lang.System;
 
 Button {

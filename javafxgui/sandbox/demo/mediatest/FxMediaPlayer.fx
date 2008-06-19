@@ -24,6 +24,7 @@
 package demo.mediatest;
 
 import javafx.gui.*;
+import javafx.gui.swing.*;
 
 import java.lang.System;
 

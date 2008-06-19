@@ -32,7 +32,7 @@ import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.javafx.runtime.Entry;
 import com.sun.javafx.gui.InternalHelper;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 
 // PENDING_DOC_REVIEW_2
 /**

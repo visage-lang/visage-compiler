@@ -25,7 +25,7 @@ package javafx.gui;
 
 import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGComponent;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 
 
 public class ComponentView extends Node {

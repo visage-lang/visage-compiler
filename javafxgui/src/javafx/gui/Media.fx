@@ -21,7 +21,6 @@
  * have any questions.
  */
  
-
 package javafx.gui;
 import javafx.lang.Duration;
 

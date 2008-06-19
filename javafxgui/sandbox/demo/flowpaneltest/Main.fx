@@ -24,7 +24,7 @@
 package demo.flowpaneltest;
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 import java.lang.System;
 
 var b1 = Button{name: "Button 1" text: "Button 1"};

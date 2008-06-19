@@ -24,7 +24,7 @@
 package demo.containertest;
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 import java.lang.System;
 import javax.swing.JComponent;
 

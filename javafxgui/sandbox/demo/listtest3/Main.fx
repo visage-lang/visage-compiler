@@ -24,7 +24,7 @@
 package demo.listtest3;
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 import javax.swing.*;
 import java.awt.GridLayout;
 import java.awt.BorderLayout;

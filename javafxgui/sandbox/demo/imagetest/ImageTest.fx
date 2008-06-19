@@ -24,7 +24,7 @@
 package demo.imagetest;
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 import java.lang.System;
 
 var imageURL = "{__DIR__}/sun_logo.png";

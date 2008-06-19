@@ -40,7 +40,7 @@ import java.lang.Math;
 import java.math.BigInteger;
 import javafx.gui.effect.Effect;
 import com.sun.javafx.gui.AccessHelper;
-import javafx.gui.component.Util;
+import com.sun.javafx.gui.Util;
 
 
 // PENDING_DOC_REVIEW

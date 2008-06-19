@@ -24,7 +24,7 @@
 package demo.layouttest;
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 
 class Disk extends CustomNode {
 

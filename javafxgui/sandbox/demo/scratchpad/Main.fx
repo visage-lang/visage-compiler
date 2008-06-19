@@ -24,7 +24,7 @@
 package demo.scratchpad;
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 import java.lang.System;
 
 var name = "";

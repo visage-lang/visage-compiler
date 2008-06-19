@@ -19,7 +19,8 @@
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
- */ 
+ */
+
 package javafx.gui;
 
 // PENDING_DOC_REVIEW
@@ -30,15 +31,13 @@ package javafx.gui;
  */
 public class Orientation {
 
-    private attribute toolkitValue: Integer = javax.swing.SwingConstants.VERTICAL;
-
    // PENDING_DOC_REVIEW
    /**
     * Represents the name of the current orientation.
     *
     * @profile common
     */
-    private attribute name: String = "VERTICAL";
+    private attribute name: String;
 
    // PENDING_DOC_REVIEW
    /**
@@ -46,7 +45,7 @@ public class Orientation {
     *
     * @profile common
     */
-    public static attribute VERTICAL = Orientation {}
+    public static attribute VERTICAL = Orientation { name: "VERTICAL" }
 
    // PENDING_DOC_REVIEW
    /**
@@ -54,17 +53,8 @@ public class Orientation {
     *
     * @profile common
     */
-    public static attribute HORIZONTAL = Orientation {
-        toolkitValue: javax.swing.SwingConstants.HORIZONTAL
-        name: "HORIZONTAL"
-    }
+    public static attribute HORIZONTAL = Orientation { name: "HORIZONTAL" }
 
     public function toString(): String { name }
-
-    function getToolkitValue(): Integer { toolkitValue }
-    
-    static function fromToolkitValue(toolkitValue: Integer): Orientation {
-         if (toolkitValue == HORIZONTAL.toolkitValue) HORIZONTAL else VERTICAL        
-    }
 
 }

@@ -8,7 +8,7 @@ package assortis.core.ui;
 
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 import javax.swing.*;
 
 public class MyTab {

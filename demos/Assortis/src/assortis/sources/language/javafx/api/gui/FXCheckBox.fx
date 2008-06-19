@@ -1,6 +1,6 @@
 package assortis.sources.language.javafx.api.gui;
 
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 
 var animals = ["Bird","Cat","Dog","Rabbit","Pig"];
 

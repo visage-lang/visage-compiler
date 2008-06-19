@@ -1,6 +1,7 @@
 package assortis.sources.samples.mathematics.functions;
 
 import javafx.gui.*;
+import javafx.gui.swing.Frame;
 import java.lang.Math;
 import java.lang.System;
 

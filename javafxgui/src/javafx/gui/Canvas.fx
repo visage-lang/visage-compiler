@@ -31,7 +31,7 @@ import com.sun.scenario.scenegraph.JSGPanel;
 import com.sun.scenario.scenegraph.SGGroup;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 import com.sun.javafx.gui.BackgroundSupport;
 
 

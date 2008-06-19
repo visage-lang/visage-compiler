@@ -25,6 +25,7 @@ package demo.animation.bounce;
 
 import javafx.animation.*;
 import javafx.gui.*;
+import javafx.gui.swing.*;
 import java.lang.System;
 
 Frame {

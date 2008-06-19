@@ -3,11 +3,11 @@ package assortis.core.ui;
 
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 
-import javafx.gui.component.Layout.*;
+import javafx.gui.swing.Layout.*;
 
 import java.lang.System;
 

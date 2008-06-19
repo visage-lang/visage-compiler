@@ -19,7 +19,8 @@
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
- */ 
+ */
+
 package javafx.gui;
 
 import java.awt.Paint;
@@ -80,24 +81,24 @@ class Gradients {
     }
 
     private static class Factory5 implements Factory {
-        private javafx.gui.gradients.MultipleGradientPaint.CycleMethod cm(int cycleMethodInt) {
+        private com.sun.javafx.gui.gradients.MultipleGradientPaint.CycleMethod cm(int cycleMethodInt) {
             if (cycleMethodInt == 1) {
-                return javafx.gui.gradients.MultipleGradientPaint.CycleMethod.REFLECT;
+                return com.sun.javafx.gui.gradients.MultipleGradientPaint.CycleMethod.REFLECT;
             }
             else if (cycleMethodInt == 2) {
-                return javafx.gui.gradients.MultipleGradientPaint.CycleMethod.REPEAT;
+                return com.sun.javafx.gui.gradients.MultipleGradientPaint.CycleMethod.REPEAT;
             }
             else {
-                return javafx.gui.gradients.MultipleGradientPaint.CycleMethod.NO_CYCLE;
+                return com.sun.javafx.gui.gradients.MultipleGradientPaint.CycleMethod.NO_CYCLE;
             }
         }
 
         public Paint createLinearGradientPaint(Point2D start, Point2D end, float[] fractions, Color[] colors, int cycleMethodInt) {
-            return new javafx.gui.gradients.LinearGradientPaint(start, end, fractions, colors, cm(cycleMethodInt));
+            return new com.sun.javafx.gui.gradients.LinearGradientPaint(start, end, fractions, colors, cm(cycleMethodInt));
         }
 
         public Paint createRadialGradientPaint(Point2D center, float radius, Point2D focus, float[] fractions, Color[] colors, int cycleMethodInt) {
-            return new javafx.gui.gradients.RadialGradientPaint(center, radius, focus, fractions, colors, cm(cycleMethodInt));
+            return new com.sun.javafx.gui.gradients.RadialGradientPaint(center, radius, focus, fractions, colors, cm(cycleMethodInt));
         }
     }
 

@@ -24,7 +24,7 @@
 package demo.shapetest;
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 
 var doUnion = function():Void {
     resultText = "A + B";

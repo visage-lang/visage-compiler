@@ -1,7 +1,7 @@
 package assortis.sources.language.javafx.api.gui;
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 import java.lang.System;
 
 function menuAction(text: String): function() { function() {System.out.println(text);} }

@@ -24,7 +24,7 @@
 package demo.mousetest;
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 
 var menuItems = [
     MenuItem{ text:"Exit" action:function(){java.lang.System.exit(0)} }

@@ -24,7 +24,7 @@
 package demo.grouppaneltest;
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 import java.lang.System;
 
 // Here's a simple Java layout with two buttons in bottom-right.

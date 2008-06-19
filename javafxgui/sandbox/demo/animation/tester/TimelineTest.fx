@@ -24,6 +24,7 @@
 package demo.animation.tester;
 
 import javafx.gui.*;
+import javafx.gui.swing.*;
 import javafx.animation.*;
 import java.lang.System;
 import java.lang.Thread;

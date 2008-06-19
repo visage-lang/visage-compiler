@@ -25,7 +25,7 @@ package demo.effects.shelf;
 
 import javafx.animation.*;
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 import javafx.gui.effect.*;
 import javafx.gui.effect.light.*;
 import java.lang.System;

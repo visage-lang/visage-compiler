@@ -24,7 +24,7 @@
 package demo.borderpaneltest;
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 import java.lang.System;
 import javax.swing.JPanel;
 import javax.swing.JComponent;

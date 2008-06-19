@@ -23,7 +23,7 @@
 
 package javafx.gui;
 
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 
 /**
  * Base JavaFX application class. Provides application lifecycle support methods

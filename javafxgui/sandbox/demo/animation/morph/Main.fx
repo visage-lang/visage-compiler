@@ -25,6 +25,7 @@ package demo.animation.morph;
 
 import javafx.animation.*;
 import javafx.gui.*;
+import javafx.gui.swing.*;
 import java.lang.System;
 
 var shape1 = Rectangle { x: 10 y: 10 width: 200 height: 100 };

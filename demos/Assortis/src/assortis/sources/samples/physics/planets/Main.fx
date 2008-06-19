@@ -2,6 +2,7 @@ package assortis.sources.samples.physics.planets;
 
 
 import javafx.gui.*;
+import javafx.gui.swing.Frame;
 import javafx.animation.*;
 
 import java.lang.Math;

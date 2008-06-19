@@ -1,7 +1,7 @@
 package assortis.sources.language.javafx.api.shapes;
 
 import javafx.gui.*;
-import javafx.gui.component.*;
+import javafx.gui.swing.*;
 
 var x1 = 40;
 var y1 = 30;
