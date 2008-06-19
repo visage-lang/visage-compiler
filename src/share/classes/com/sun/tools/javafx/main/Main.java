@@ -317,7 +317,12 @@ public class Main {
         try {
             String[] allArgs = CommandLine.parse(args);
             for (int i = 0; i < allArgs.length; i++) {
-                if (allArgs[i].endsWith("-target") && ++i < allArgs.length)
+                String opt = allArgs[i];
+                if (opt.equals("-g") || opt.startsWith("-g:"))
+                    options.put(opt, opt);
+                if (opt.equals("-Xjcov"))
+                    options.put(opt, opt);
+                if (opt.endsWith("-target") && ++i < allArgs.length)
                     options.put("-target", allArgs[i]);
             }
         } catch (IOException e) {
