@@ -29,7 +29,7 @@ public class JSONRPCRequest extends JSONObject {
             this.pairs = object.pairs;
             try {
                 method = getValue("method") as String;
-                params = getValue("params") as JSONObject;
+                params = getValue("params") as JSONArray;
                 id = getValue("id");
             }finally {
                 parsing = false;
@@ -50,7 +50,7 @@ public class JSONRPCRequest extends JSONObject {
     /*
      * An JSONArray  to pass as arguments to the method.
      */
-    public attribute params:JSONObject on replace {
+    public attribute params:JSONArray on replace {
         if(not parsing) {
             var old = for(p in pairs where p.name == "params")p;
             for(p in old) { delete p from pairs; }    
@@ -79,7 +79,7 @@ public class JSONRPCRequest extends JSONObject {
                 if(pair.name == "method") {
                     method = pair.value as String;
                 }else if(pair.name == "params") {
-                    params = pair.value as JSONObject;
+                    params = pair.value as JSONArray;
                 }else if(pair.name == "id") {
                     id = pair.value;
                 }
