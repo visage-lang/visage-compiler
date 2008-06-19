@@ -108,7 +108,29 @@ public class JavafxFileManager extends JavacFileManager {
         nullCheck(kind);
         if (!sourceOrClass.contains(kind))
             throw new IllegalArgumentException("Invalid kind " + kind);
-        return (JavaFileObject)getFileForInput(location, "", externalizeFileName(className, kind));
+
+        String name = externalizeFileName(className, kind);
+        Iterable<? extends File> path = getLocation(location);
+        if (path == null)
+            return null;
+
+        for (File dir: path) {
+            if (dir.isDirectory()) {
+                File f = new File(dir, name.replace('/', File.separatorChar));
+                if (f.exists())
+                    return new DelegateJavaFileObject(getRegularFile(f));
+            } else {
+                Archive a = openArchive(dir);
+                if (a.contains(name)) {
+                    int i = name.lastIndexOf('/');
+                    String dirname = name.substring(0, i+1);
+                    String basename = name.substring(i+1);
+                    return new DelegateJavaFileObject(a.getFileObject(dirname, basename));
+                }
+
+            }
+        }
+        return null;
     }
 
     @Override
@@ -318,7 +340,7 @@ public class JavafxFileManager extends JavacFileManager {
         
         DelegateJavaFileObject(JavaFileObject jfo) {
             delegate = jfo;
-            isFXSourceFile = jfo.toString().endsWith(FX_SOURCE_SUFFIX);
+            isFXSourceFile = jfo.getName().endsWith(FX_SOURCE_SUFFIX);
         }
 
         @Override

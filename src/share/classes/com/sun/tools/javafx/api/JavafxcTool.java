@@ -115,7 +115,7 @@ public final class JavafxcTool implements JavafxCompiler {
                 option.getClass(); // null check
         if (compilationUnits != null) {
             for (JavaFileObject cu : compilationUnits) {
-                if (cu.getKind() != JavaFileObject.Kind.SOURCE) // implicit null check
+                if (!cu.getKind().name().equals("SOURCE")) // implicit null check
                     throw new IllegalArgumentException(kindMsg);
             }
         }
