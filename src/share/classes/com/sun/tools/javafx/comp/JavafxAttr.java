@@ -1194,7 +1194,8 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             forClauses.add(clause);
             JFXVar var = clause.getVar();
             Type declType = attribType(var.getJFXType(), forExprEnv);
-            Type exprType = types.upperBound(attribExpr((JCExpression)clause.getSequenceExpression(), forExprEnv));
+            JCExpression expr = (JCExpression)clause.getSequenceExpression();
+            Type exprType = types.upperBound(attribExpr(expr, forExprEnv));
             attribVar(var, forExprEnv);
             chk.checkNonVoid(((JCTree)clause).pos(), exprType);
             Type elemtype;
@@ -1203,6 +1204,7 @@ public class JavafxAttr extends JCTree.Visitor implements JavafxVisitor {
             if (base == null)
                 base = types.asSuper(exprType, syms.iterableType.tsym);
             if (base == null) {
+                log.warning(expr, MsgSym.MESSAGE_JAVAFX_ITERATING_NON_SEQUENCE);
                 elemtype = exprType;
             } else {
                 List<Type> iterableParams = base.allparams();
