@@ -38,6 +38,8 @@ import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxFlags;
 
+import com.sun.tools.javafx.main.JavafxCompiler;
+import javax.tools.JavaFileObject;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
 /** Provides operations to read a classfile into an internal
@@ -68,6 +70,7 @@ public class JavafxClassReader extends ClassReader {
     public ClassReader jreader;
 
     private final Name functionClassPrefixName;
+    private SourceCompleter fxSourceCompleter;
     
     public static void registerBackendReader(final Context context, final ClassReader jreader) {
         context.put(backendClassReaderKey, jreader);
@@ -101,6 +104,7 @@ public class JavafxClassReader extends ClassReader {
         super(context, definitive);
         defs = JavafxDefs.instance(context);
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
+        fxSourceCompleter = JavafxCompiler.instance(context);
     }
 
     public Name.Table getNames() {
@@ -441,7 +445,14 @@ public class JavafxClassReader extends ClassReader {
             sym.owner.complete();
             JavafxClassSymbol csym = (JavafxClassSymbol) sym;
             ClassSymbol jsymbol = csym.jsymbol;
-            csym.jsymbol = jsymbol = jreader.loadClass(csym.flatname);
+            if (jsymbol != null && jsymbol.classfile != null && 
+                jsymbol.classfile.getKind() == JavaFileObject.Kind.SOURCE &&
+                jsymbol.classfile.getName().endsWith(".fx")) {
+                fxSourceCompleter.complete(csym);
+                return;
+            } else { 
+                csym.jsymbol = jsymbol = jreader.loadClass(csym.flatname);
+            }
             fixupFullname(csym, jsymbol);
             typeMap.put(jsymbol, csym);
             jsymbol.classfile = ((ClassSymbol) sym).classfile;
