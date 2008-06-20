@@ -132,6 +132,7 @@ tokens {
    STAREQ='*=';
    SLASHEQ='/=';
    PERCENTEQ='%=';
+   NOTEQ='!=';
    COLON=':';
    QUES='?';
    TWEEN='tween';
@@ -189,6 +190,8 @@ package com.sun.tools.javafx.antlr;
 import com.sun.tools.javac.util.Context;
 import org.antlr.runtime.tree.*;
 import org.antlr.runtime.*;
+
+import com.sun.tools.javafx.util.MsgSym;
 }
 
 @lexer::members {
@@ -740,7 +743,9 @@ typeExpression
 	;
 relationalExpression  
 	: ( additiveExpression					-> additiveExpression )
-	   (   LTGT   e=additiveExpression			-> ^(LTGT $relationalExpression $e)
+	   (   LTGT   e=additiveExpression      { log.warning(pos($LTGT), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The not-equal operator <> will be replaced by !=" );}	
+                                                                -> ^(LTGT $relationalExpression $e)
+           |   NOTEQ  e=additiveExpression                      -> ^(NOTEQ $relationalExpression $e)
 	   |   EQEQ   e=additiveExpression			-> ^(EQEQ $relationalExpression $e)
 	   |   LTEQ   e=additiveExpression			-> ^(LTEQ $relationalExpression $e)
 	   |   GTEQ   e=additiveExpression			-> ^(GTEQ $relationalExpression $e)

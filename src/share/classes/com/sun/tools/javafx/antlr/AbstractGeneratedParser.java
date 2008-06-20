@@ -150,6 +150,7 @@ public abstract class AbstractGeneratedParser extends Parser {
         tokenMap.put("GT", ">");
         tokenMap.put("LT", "<");
         tokenMap.put("LTGT", "<>");
+        tokenMap.put("NOTEQ", "!=");
         tokenMap.put("LTEQ", "<=");
         tokenMap.put("GTEQ", ">=");
         tokenMap.put("PLUS", "+");
@@ -455,6 +456,7 @@ public abstract class AbstractGeneratedParser extends Parser {
         tokenClassMap[v3Parser.GT]                  = TokenClassification.OPERATOR;
         tokenClassMap[v3Parser.LT]                  = TokenClassification.OPERATOR;
         tokenClassMap[v3Parser.LTGT]                = TokenClassification.OPERATOR;
+        tokenClassMap[v3Parser.NOTEQ]               = TokenClassification.OPERATOR;
         tokenClassMap[v3Parser.LTEQ]                = TokenClassification.OPERATOR;
         tokenClassMap[v3Parser.GTEQ]                = TokenClassification.OPERATOR;
         tokenClassMap[v3Parser.PLUS]                = TokenClassification.OPERATOR;

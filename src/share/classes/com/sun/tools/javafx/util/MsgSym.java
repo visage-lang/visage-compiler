@@ -298,6 +298,7 @@ public class MsgSym {
     
     // jfx-compiler messages
     public static final String MESSAGE_JAVAFX_GENERALERROR = "javafx.generalerror"; 
+    public static final String MESSAGE_JAVAFX_GENERALWARNING = "javafx.generalwarning";
     public static final String MESSAGE_JAVAFX_RANGE_START_INT_OR_NUMBER = "javafx.range.start.int.or.number"; 
     public static final String MESSAGE_JAVAFX_RANGE_END_INT_OR_NUMBER = "javafx.range.end.int.or.number"; 
     public static final String MESSAGE_JAVAFX_RANGE_STEP_INT_OR_NUMBER = "javafx.range.step.int.or.number"; 

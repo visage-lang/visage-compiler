@@ -321,6 +321,8 @@ expression  returns [JCExpression expr]
                                                           endPos($expr, $AS); }   
 	| ^(LTGT e1=expression e2=expression)		{ $expr = F.at(pos($LTGT)).Binary(JCTree.NE, $e1.expr, $e2.expr); 
                                                           endPos($expr, $LTGT); }
+        | ^(NOTEQ e1=expression e2=expression)		{ $expr = F.at(pos($NOTEQ)).Binary(JCTree.NE, $e1.expr, $e2.expr); 
+                                                          endPos($expr, $NOTEQ); }                                                 
 	| ^(EQEQ e1=expression e2=expression)		{ $expr = F.at(pos($EQEQ)).Binary(JCTree.EQ, $e1.expr, $e2.expr); 
                                                           endPos($expr, $EQEQ); }
 	| ^(LTEQ e1=expression e2=expression)		{ $expr = F.at(pos($LTEQ)).Binary(JCTree.LE, $e1.expr, $e2.expr); 
