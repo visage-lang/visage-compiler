@@ -24,7 +24,7 @@ public class AsyncJsonCall extends AbstractAsyncOperation {
         // TODO: ensure that resulting document has type text/javascript -- must be done in peer, so subclass RTD
         peer = new com.sun.javafx.runtime.async.RemoteTextDocument(listener, url, method, outboundContent);
         peer.setHeader("Referer", referer);
-        if(contentType <> null) {
+        if(contentType != null) {
             peer.setHeader("Content-Type", contentType);
         }
         peer.start();

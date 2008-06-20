@@ -9,7 +9,7 @@ public class RemoteTextDocument extends AbstractAsyncOperation {
     public attribute method : String = "GET";
 
     public function cancel() : Void {
-        if (peer <> null) then peer.cancel();
+        if (peer != null) then peer.cancel();
     }
 
     protected function onCompletion(value : Object) : Void {

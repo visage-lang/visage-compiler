@@ -17,7 +17,7 @@ public class RemoteImage extends AbstractAsyncOperation {
     public attribute url : String;
 
     public function cancel() : Void {
-        if (peer <> null) then peer.cancel();
+        if (peer != null) then peer.cancel();
     }
 
     protected function onCompletion(value : Object) : Void {

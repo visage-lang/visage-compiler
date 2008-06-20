@@ -17,7 +17,7 @@ public abstract class AbstractAsyncOperation {
         function onCancel() : Void {
             canceled = true;
             done = true;
-            if (onDone <> null) then onDone(false);
+            if (onDone != null) then onDone(false);
         }
 
         function onException(exception : Exception) : Void {
@@ -25,13 +25,13 @@ public abstract class AbstractAsyncOperation {
             exception.printStackTrace();
             failed = true;
             done = true;
-            if (onDone <> null) then onDone(false);
+            if (onDone != null) then onDone(false);
         }
 
         function onCompletion(value : Object) : Void {
             done = true;
             self.onCompletion(value);
-            if (onDone <> null) then onDone(true);
+            if (onDone != null) then onDone(true);
         }
 
         function onProgress(cur : Integer, max : Integer) : Void {
