@@ -16,16 +16,16 @@
     <target name="default" depends="jar,runtime,javafxgui,javafxdoc,install-scripts"
             description="Build javafxc compiler and runtime distribution"/>
 
-    <target name="all" depends="jar, runtime, javafxgui, test, javafxdoc, install-scripts, spec, docs, pack-jars, demos"
+    <target name="all" depends="jar, runtime, javafxgui, javafxdoc, install-scripts, source-zip, test, spec, docs, pack-jars, demos"
             description="Build and test all project artifacts"/>
             
     <target name="dist" description="Build distribution bundles" depends="dist-init,dist-zip,dist-tgz"/>
     
-    <target name="dist-zip" description="Build distribution zip file" depends="jar, runtime, javafxgui, test, install-scripts, spec, docs, pack-jars, demos">
+    <target name="dist-zip" description="Build distribution zip file" depends="all">
         <zip basedir="dist" compress="true" destfile="${zip.bundle}" includes="${dist.includes}"/>
     </target>
     
-    <target name="dist-tgz" description="Build distribution gzipped tar file" depends="jar, runtime, javafxgui, test, install-scripts, spec, docs, pack-jars, demos">
+    <target name="dist-tgz" description="Build distribution gzipped tar file" depends="all">
         <tar basedir="dist" longfile="fail" compression="gzip" destfile="${tgz.bundle}" includes="${dist.includes}"/>
     </target>
 
@@ -545,5 +545,14 @@
         <pack200 src="${dist.javafxrt.jar}" gzipoutput="true" destfile='${dist.javafxrt.jar}.pack.gz'/>
         <pack200 src="${dist.javafxgui.jar}" gzipoutput="true" destfile='${dist.javafxgui.jar}.pack.gz'/>
         <pack200 src="${dist.dir}/lib/Scenario.jar" gzipoutput="true" destfile='${dist.dir}/lib/Scenario.jar.pack.gz'/>
+    </target>
+    
+    <target name="source-zip" depends="init">
+        <zip destfile="${dist.dir}/src.zip">
+            <zipfileset dir="${src.classes.dir}"/>
+            <zipfileset dir="runtime/src/share/classes"/>
+            <zipfileset dir="javafxgui/src"/>
+            <zipfileset dir="javafxdoc/src"/>
+        </zip>
     </target>
 </project>
