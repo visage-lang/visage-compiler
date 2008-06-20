@@ -36,7 +36,7 @@ public class ClipPanel extends Widget {
 
     // public
     public attribute content: Widget on replace  {
-        if (p <> null) {
+        if (p != null) {
             if (p.getComponentCount() > 0) {
                 p.remove(0);
             }

@@ -37,7 +37,7 @@ public class ColorChooser extends Widget {
      * Indicates if Drag and Drop is enabled.
      */
     public attribute enableDND: Boolean = true on replace {
-        if(jcolorchooser <> null)
+        if(jcolorchooser != null)
             jcolorchooser.setDragEnabled(enableDND);
     };    
     /**
@@ -57,7 +57,7 @@ public class ColorChooser extends Widget {
                                                               title,
                                                               initialColor.getColor());
         visible = false;
-        if (result <> null and action <> null) {
+        if (result != null and action <> null) {
             action(Color.fromAWTColor(result));
         }
     }

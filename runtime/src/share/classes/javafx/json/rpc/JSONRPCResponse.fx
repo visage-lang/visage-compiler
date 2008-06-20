@@ -26,7 +26,7 @@ public class JSONRPCResponse extends JSONObject {
      * Convenience attribute for setting this JSONRPCResponse from a plain JSONObject
      */
     public attribute object:JSONObject on replace {
-        if(object <> null) {
+        if(object != null) {
             parsing = true;
             this.pairs = object.pairs;
             try {
@@ -47,7 +47,7 @@ public class JSONRPCResponse extends JSONObject {
         if(not parsing) {
             var old = for(p in pairs where p.name == "result")p;
             for(p in old) { delete p from pairs; }           
-            insert Pair{name:"result" value: if(result <> null) then result else JSONNull{} } into pairs;
+            insert Pair{name:"result" value: if(result != null) then result else JSONNull{} } into pairs;
         }
     };
 
@@ -59,7 +59,7 @@ public class JSONRPCResponse extends JSONObject {
         if(not parsing) {        
             var old = for(p in pairs where p.name == "error")p;
             for(p in old) { delete p from pairs; }    
-            var pair = Pair{name:"error" value: if(error <> null) then error else JSONNull{} };
+            var pair = Pair{name:"error" value: if(error != null) then error else JSONNull{} };
             insert pair into pairs;;
         }
     };
@@ -71,7 +71,7 @@ public class JSONRPCResponse extends JSONObject {
         if(not parsing) {
             var old = for(p in pairs where p.name == "id")p;
             for(p in old) { delete p from pairs; }    
-            var pair = Pair{name:"id" value: if(id <> null) then id else JSONNull{} };
+            var pair = Pair{name:"id" value: if(id != null) then id else JSONNull{} };
             insert pair into pairs;
         }
     }; 

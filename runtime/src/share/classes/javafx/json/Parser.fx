@@ -113,16 +113,16 @@ public class Parser {
     public function parse(reader:Reader, jsonObject:JSONObject):JSONObject {
         
         var c = reader.read();
-        while(c <> 0x7B and c >= 0) { // '{'
+        while(c != 0x7B and c >= 0) { // '{'
             c = reader.read();
         }
         //System.out.println("parse() callsing parseJSONObject");
         var result:JSONObject;
         
-        if(handler <> null)
+        if(handler != null)
             handler(ElementType.START, result);
         result = parseJSONObject(reader, jsonObject);
-        if(handler <> null)
+        if(handler != null)
             handler(ElementType.END, result);
         return result;
     }
@@ -146,7 +146,7 @@ public class Parser {
     private function parseJSONObject(reader:Reader, jsonObject:JSONObject):JSONObject {
         //System.out.println("parseJSONObject");
         var myObject = ++endObject;
-        var result = if(jsonObject <> null) {jsonObject} else {JSONObject{};} ;
+        var result = if(jsonObject != null) {jsonObject} else {JSONObject{};} ;
         var c = reader.read();
         var string:String;
         var value:Object;
@@ -159,12 +159,12 @@ public class Parser {
                 value = parseValue(reader);
                 var pair = Pair{name:string, value:value};
                 insert pair into result.pairs;
-                if(handler <> null)
+                if(handler != null)
                     handler(ElementType.PAIR, pair);
             }
             c = reader.read();
         }
-        if(handler <> null)
+        if(handler != null)
             handler(ElementType.OBJECT, result);
         return result;
     }
@@ -179,7 +179,7 @@ public class Parser {
         //System.out.println("parseString");
         var sb = new StringBuffer();
         var c = reader.read();
-        while(c <> 0x22 and c >= 0) { // '"'
+        while(c != 0x22 and c >= 0) { // '"'
             if(c == 0x5C){ // '\\'
                 c = escapeChar(reader);
             }
@@ -189,7 +189,7 @@ public class Parser {
         }
         //System.out.println("parseString = {sb}");
         var result = sb.toString();
-        if(handler <> null)
+        if(handler != null)
             handler(ElementType.STRING, result);        
         return result;
     }
@@ -233,7 +233,7 @@ public class Parser {
         }
         checkEnd(c);
         //System.out.println("parseValue = {result}");
-        if(handler <> null)
+        if(handler != null)
             handler(ElementType.VALUE, result);
         return result;
     }
@@ -257,7 +257,7 @@ public class Parser {
         //System.out.println("parseNumber = {sb}");
         var d =  java.lang.Double.parseDouble(sb.toString());
         //System.out.println("parseNumber(d) = {d}");
-        if(handler <> null)
+        if(handler != null)
             handler(ElementType.NUMBER, d);        
         return d;
             
@@ -279,7 +279,7 @@ public class Parser {
         }
         var a =  JSONArray{array: items };
         //System.out.println("parseJSONArray = {a}");
-        if(handler <> null)
+        if(handler != null)
             handler(ElementType.JSONARRAY, a);
         return a;
     }
@@ -306,22 +306,22 @@ public class Parser {
         //System.out.println("parseLiteral = {str}");
         if(str.equalsIgnoreCase("false")) {
             //System.out.println("parseLiteral return FALSE");
-            if(handler <> null)
+            if(handler != null)
                 handler(ElementType.BOOLEAN, java.lang.Boolean.FALSE);
             return java.lang.Boolean.FALSE;
         } else if (str.equalsIgnoreCase("true")) {
             //System.out.println("parseLiteral return TRUE");
-            if(handler <> null)
+            if(handler != null)
                 handler(ElementType.BOOLEAN, java.lang.Boolean.TRUE);            
             return java.lang.Boolean.TRUE;
         } else if(str.equalsIgnoreCase("null")) {
             //System.out.println("parseLiteral return NULL");
             var result = JSONNull{}
-            if(handler <> null)
+            if(handler != null)
                 handler(ElementType.JSONNULL, result);            
             return result;
         }else {
-            if(handler <> null)
+            if(handler != null)
                 handler(ElementType.STRING, "");            
             return "";
         }

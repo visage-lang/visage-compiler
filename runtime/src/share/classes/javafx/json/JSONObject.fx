@@ -109,7 +109,7 @@ public class JSONObject extends JSONBase {
      * @see #stream
      */
     public attribute text:String on replace {
-        if(text <> null) {
+        if(text != null) {
             var parser = Parser{handler: handler};
             parser.parse(text, this);
         }
@@ -125,7 +125,7 @@ public class JSONObject extends JSONBase {
      * @see #stream
      */
     public attribute reader:Reader on replace {
-        if(reader <> null) {
+        if(reader != null) {
             var parser = Parser{handler: handler};
             parser.parse(reader, this);
         }
@@ -141,7 +141,7 @@ public class JSONObject extends JSONBase {
      * @see #reader
      */
     public attribute stream:InputStream on replace {
-        if(stream <> null) {
+        if(stream != null) {
             var parser = Parser{handler: handler};
             parser.parse(stream, this);
         }
@@ -184,7 +184,7 @@ public class JSONObject extends JSONBase {
      */     
     public function removePair(name:String):Void {
         var pair = map.get(name) as Pair;
-        if(pair <> null) {  
+        if(pair != null) {  
             delete pair from pairs;
         }
     }  
@@ -205,7 +205,7 @@ public class JSONObject extends JSONBase {
      */ 
     public function getValue(name:String):Object {
         var pair = map.get(name) as Pair;
-        return if (pair <> null) pair.value else null;
+        return if (pair != null) pair.value else null;
     } 
     
     /**
@@ -215,7 +215,7 @@ public class JSONObject extends JSONBase {
      */     
     public function getArray(name:String):Object[] {
         var pair = map.get(name) as Pair;
-        return if (pair <> null and pair.value instanceof JSONArray) (pair.value as JSONArray).array else null;
+        return if (pair != null and pair.value instanceof JSONArray) (pair.value as JSONArray).array else null;
     }    
     /**
      * Determine whether a pair is a JSON array or not

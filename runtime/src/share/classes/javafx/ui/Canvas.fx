@@ -60,9 +60,9 @@ public class Canvas extends Widget, CanvasElement, Container {
     public attribute focusedNode: Node;
     
     protected function getFX(obj:SGNode): Node {
-        while (obj <> null) {
+        while (obj != null) {
            var n = obj.getAttribute("FX") as Node;
-            if (n <> null) {
+            if (n != null) {
                 return n;
             }
             obj = obj.getParent();
@@ -71,7 +71,7 @@ public class Canvas extends Widget, CanvasElement, Container {
     };
 
     public attribute content: Node[] on replace oldValue[lo..hi]=newVals {
-        if (root <> null and oldValue <> null) {
+        if (root != null and oldValue != null) {
             for(n in oldValue[lo..hi]) { 
                 root.remove(n.getNode()); 
             }
@@ -79,7 +79,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         var ndx = lo;
         for(n in newVals) {
             n.parentCanvasElement = this;
-            if (root <> null) {
+            if (root != null) {
                 root.add(ndx, n.getNode());
             }
             ndx++;
@@ -100,7 +100,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         var size = path.size();
         for (i in [0..path.size()-1]) {
             var n = getFX(path.get(i) as SGNode);
-            if (n <> null and n <> lastNode) {
+            if (n != null and n != lastNode) {
                 insert n into result;
             }
             lastNode = n;
@@ -145,7 +145,7 @@ public class Canvas extends Widget, CanvasElement, Container {
         };
         for (i in path) {
             if (i.handleAcceptDrop(e)) {          
-               if (dropTargetNode <> i) {
+               if (dropTargetNode != i) {
                    dropTargetNode.handleDragExit(e);
                }
                dropTargetNode = i;
@@ -154,13 +154,13 @@ public class Canvas extends Widget, CanvasElement, Container {
         }
         dropTargetNode.handleDragExit(e);
         dropTargetNode = null;
-        if (this.canAcceptDrop <> null) {
+        if (this.canAcceptDrop != null) {
             e = CanvasDropEvent {
                 x: p.x, y: p.y, localX: p.x, localY: p.y
             };
             return (this.canAcceptDrop)(e);
         }
-        return onDrop <> null;
+        return onDrop != null;
     }
 
     private function handleDragEnter(value) {
@@ -177,14 +177,14 @@ public class Canvas extends Widget, CanvasElement, Container {
         };
         for (i in path) {
             if (i.handleDragEnter(e)) {
-               if (dropTargetNode <> i) {
+               if (dropTargetNode != i) {
                    dropTargetNode.handleDragExit(e);
                }
                dropTargetNode = i;
                break;
             }
         }
-        if (this.onDragEnter <> null) {
+        if (this.onDragEnter != null) {
             e.localX = e.x;
             e.localY = e.y;
             (this.onDragEnter)(e);
@@ -208,7 +208,7 @@ public class Canvas extends Widget, CanvasElement, Container {
                break;
             }
         }
-        if (this.onDragExit <> null) {
+        if (this.onDragExit != null) {
             e.localX = e.x;
             e.localY = e.y;
             (this.onDragExit)(e);
@@ -340,7 +340,7 @@ public class Canvas extends Widget, CanvasElement, Container {
                 //if (isPreferredSizeSet()) {
                 //    return super.getPreferredSize(); // fails to compile
                 //}
-                if (prefSize <> null) {return prefSize;}
+                if (prefSize != null) {return prefSize;}
                 var b = root.getBounds();
                 var insets = getInsets();
                 var w:Number = insets.left + insets.right;
@@ -415,15 +415,15 @@ public class Canvas extends Widget, CanvasElement, Container {
         );
         jsgpanel.addKeyListener(KeyListener {
             public function keyTyped(e:KeyEvent): Void {
-                if(focusedNode.onKeyTyped <> null)
+                if(focusedNode.onKeyTyped != null)
                     focusedNode.onKeyTyped(makeKeyEvent(e));
             }
             public function keyPressed(e:KeyEvent): Void {
-                if(focusedNode.onKeyDown <> null)
+                if(focusedNode.onKeyDown != null)
                     focusedNode.onKeyDown(makeKeyEvent(e));
             }
             public function keyReleased(e:KeyEvent): Void {
-                if(focusedNode.onKeyUp <> null)
+                if(focusedNode.onKeyUp != null)
                     focusedNode.onKeyUp(makeKeyEvent(e));
             }
         });

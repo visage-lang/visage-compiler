@@ -55,7 +55,7 @@ public class Button extends Widget, ActionWidget {
 
     /** Sets this button's mnemonic. */
     public attribute mnemonic: KeyStroke on replace {
-	if (mnemonic <> null) {
+	if (mnemonic != null) {
 	    button.setMnemonic(mnemonic.id);
 	}
     };
@@ -63,14 +63,14 @@ public class Button extends Widget, ActionWidget {
     /** Sets this button's default icon. */
     public attribute icon: Icon on replace {
         var jicon:javax.swing.Icon = null;
-        if (icon <> null) {
+        if (icon != null) {
             jicon = icon.getIcon();
         }
         button.setIcon(jicon);
         if (selectedIcon == null) {
             button.setSelectedIcon(jicon);
         }   
-        if (icon <> null) {
+        if (icon != null) {
             button.setIcon(icon.getIcon());
             if(selectedIcon == null) {
                 button.setSelectedIcon(icon.getIcon());
@@ -84,7 +84,7 @@ public class Button extends Widget, ActionWidget {
     /** Sets this button's selected icon. */
     public attribute selectedIcon: Icon on replace {
         var jicon:javax.swing.Icon = null;
-        if (selectedIcon <> null) {
+        if (selectedIcon != null) {
             jicon = selectedIcon.getIcon();
         }
         button.setSelectedIcon(jicon);        
@@ -93,7 +93,7 @@ public class Button extends Widget, ActionWidget {
     /** Sets this button's pressed icon. */
     public attribute pressedIcon: Icon on replace {
         var jicon:javax.swing.Icon = null;
-        if (pressedIcon <> null) {
+        if (pressedIcon != null) {
             jicon = pressedIcon.getIcon();
         }
         button.setPressedIcon(jicon);        
@@ -102,7 +102,7 @@ public class Button extends Widget, ActionWidget {
     /** Sets this button's rollover icon. */
     public attribute rolloverIcon: Icon on replace {
         var jicon:javax.swing.Icon = null;
-        if (rolloverIcon <> null) {
+        if (rolloverIcon != null) {
             jicon = rolloverIcon.getIcon();
         }
         button.setRolloverIcon(jicon);        
@@ -111,7 +111,7 @@ public class Button extends Widget, ActionWidget {
     /** Sets this button's selected rollover icon. */
     public attribute rolloverSelectedIcon: Icon on replace {
         var jicon:javax.swing.Icon = null;
-        if (rolloverSelectedIcon <> null) {
+        if (rolloverSelectedIcon != null) {
             jicon = rolloverSelectedIcon.getIcon();
         }
         button.setRolloverSelectedIcon(jicon);        
@@ -125,11 +125,11 @@ public class Button extends Widget, ActionWidget {
     /** Sets this button's disabled icon. */
     public attribute disabledIcon: Icon on replace {
         var jicon:javax.swing.Icon = null;
-        if (disabledIcon <> null) {
+        if (disabledIcon != null) {
             jicon = disabledIcon.getIcon();
         }
         button.setDisabledIcon(jicon);
-        if (disabledIcon <> null) {
+        if (disabledIcon != null) {
             button.setDisabledIcon(disabledIcon.getIcon());
         }else {
             button.setDisabledIcon(null);
@@ -139,7 +139,7 @@ public class Button extends Widget, ActionWidget {
     /** Sets this button's disabled selected icon. */
     public attribute disabledSelectedIcon: Icon on replace {
         var jicon:javax.swing.Icon = null;
-        if (disabledSelectedIcon <> null) {
+        if (disabledSelectedIcon != null) {
             jicon = disabledSelectedIcon.getIcon();
         }
         button.setDisabledSelectedIcon(jicon);        
@@ -199,7 +199,7 @@ public class Button extends Widget, ActionWidget {
      * effectively be ignored).
      */
     public attribute margin:Insets on replace {
-	if (margin <> null) {
+	if (margin != null) {
 	    button.setMargin(margin.awtinsets);
 	    button.revalidate();        
 	}
@@ -216,7 +216,7 @@ public class Button extends Widget, ActionWidget {
      */
     public attribute horizontalTextPosition: HorizontalAlignment = HorizontalAlignment.TRAILING 
         on replace {
-            if (horizontalTextPosition <> null) {
+            if (horizontalTextPosition != null) {
                 button.setHorizontalTextPosition(horizontalTextPosition.id.intValue());
                 button.revalidate();
             }
@@ -233,7 +233,7 @@ public class Button extends Widget, ActionWidget {
      */
     public attribute verticalTextPosition: VerticalAlignment  = VerticalAlignment.CENTER
         on replace {
-            if (verticalTextPosition <> null) {
+            if (verticalTextPosition != null) {
                 button.setVerticalTextPosition(verticalTextPosition.id.intValue());
                 button.revalidate();
             }
@@ -250,7 +250,7 @@ public class Button extends Widget, ActionWidget {
      */
     public attribute horizontalAlignment: HorizontalAlignment = HorizontalAlignment.CENTER 
     on replace {
-	if (horizontalAlignment <> null) {
+	if (horizontalAlignment != null) {
 	    button.setHorizontalAlignment(horizontalAlignment.id.intValue());
 	    button.revalidate();
 	}
@@ -268,7 +268,7 @@ public class Button extends Widget, ActionWidget {
      */
     public attribute verticalAlignment: VerticalAlignment  = VerticalAlignment.CENTER
         on replace {
-            if (verticalAlignment <> null) {
+            if (verticalAlignment != null) {
                 button.setVerticalAlignment(verticalAlignment.id.intValue());
                 button.revalidate();
             }
@@ -278,7 +278,7 @@ public class Button extends Widget, ActionWidget {
     public function createComponent():javax.swing.JComponent { 
         button.addActionListener(java.awt.event.ActionListener {
                  public function actionPerformed(e:java.awt.event.ActionEvent) {
-                    if(action <> null) {
+                    if(action != null) {
                          action();
                     }
                  }

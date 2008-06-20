@@ -51,7 +51,7 @@ public class DB {
      * indicates if the connection is in autoCommit mode or not.
      */
     public attribute autoCommit:Boolean = true on replace {
-        if(connection <> null) {
+        if(connection != null) {
             connection.setAutoCommit(autoCommit);
         }
     }
@@ -73,7 +73,7 @@ public class DB {
      * be used.     
      */     
     public attribute dbUrl:String on replace {
-        if(connection <> null and not connection.isClosed()) {
+        if(connection != null and not connection.isClosed()) {
             connection.close();
         }
     };
@@ -85,7 +85,7 @@ public class DB {
      * be used.
      */
     public attribute dataSource:DataSource on replace {
-        if(connection <> null and not connection.isClosed()) {
+        if(connection != null and not connection.isClosed()) {
             connection.close();
         }
     };
@@ -131,7 +131,7 @@ public class DB {
     public function getConnection():Connection { 
         if(connection == null or connection.isClosed()) {
             try {
-                if(dataSource <> null) {
+                if(dataSource != null) {
                     connection = dataSource.getConnection();
                 }else if(user == null) {
                     connection = DriverManager.getConnection(dbUrl);
@@ -150,7 +150,7 @@ public class DB {
      * close the database connection
      */
     public function closeConnection():Void { 
-        if(connection <> null and not connection.isClosed()) {
+        if(connection != null and not connection.isClosed()) {
             connection.close();
         }
     }
@@ -162,7 +162,7 @@ public class DB {
     private function setWarnings(sqlWarnings:SQLWarning):Void {
         delete warnings;
         var sqlWarn = sqlWarnings;
-        while(sqlWarn <> null) {
+        while(sqlWarn != null) {
             var ww = Warning {
                 message: sqlWarn.getMessage()
                 SQLState: sqlWarn.getSQLState()
@@ -412,7 +412,7 @@ public class DB {
             var attr = iter.next() as AttributeRef;
             var attrName = attr.getName();
             var colMap = col2FXMap.get(attrName);
-            if(colMap <> null) {
+            if(colMap != null) {
                 colMap.fxName = attrName;
                 colMap.fxAttribute = attr;
                 colMap.fxClass = resultClass;
@@ -439,7 +439,7 @@ public class DB {
                 var colMap = col2FXMap.get(rsmd.getColumnName(i)) as Column2FX;
                 // PER, I would like to get the type of the fx attribute here
                 // Integer, Number, Boolean or String only.
-                if(colMap <> null) {
+                if(colMap != null) {
                     var type = colMap.fxAttribute.getType();
                     if(type instanceof java.lang.Integer) {
                          fxAttribute.setValue(obj,rs,getInt(i));

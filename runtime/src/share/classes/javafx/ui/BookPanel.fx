@@ -40,7 +40,7 @@ public class BookPanel extends Widget {
     
     public attribute pages: Widget[];
     public attribute leftPageIndex: Integer on replace {
-        if(bookPanel <> null) {
+        if(bookPanel != null) {
             bookPanel.setLeftPageIndex(leftPageIndex);
         }
     }
@@ -71,7 +71,7 @@ public class BookPanel extends Widget {
                     leftPageIndex = bookPanel.getLeftPageIndex();
                 }
             });
-        if (pageBounds <> null) {
+        if (pageBounds != null) {
             bookPanel.setMargins(pageBounds.x, pageBounds.y, pageBounds.width, pageBounds.height);
         }
         bookPanel.setRefreshSpeed(refreshSpeed.intValue());

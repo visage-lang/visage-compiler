@@ -30,7 +30,7 @@ public class CheckBoxMenuItem extends MenuItem {
     private attribute jcheckboxmenuitem:javax.swing.JCheckBoxMenuItem;
 
     public attribute selected: Boolean on replace{
-        if(onChange <> null) {
+        if(onChange != null) {
             onChange(selected);
         }
     }

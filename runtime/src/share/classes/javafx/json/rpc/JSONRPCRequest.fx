@@ -24,7 +24,7 @@ public class JSONRPCRequest extends JSONObject {
      * Convenience attribute for setting this JSONRPCResponse from a plain JSONObject
      */
     public attribute object:JSONObject on replace {
-        if(object <> null) {
+        if(object != null) {
             parsing = true;
             this.pairs = object.pairs;
             try {
@@ -54,7 +54,7 @@ public class JSONRPCRequest extends JSONObject {
         if(not parsing) {
             var old = for(p in pairs where p.name == "params")p;
             for(p in old) { delete p from pairs; }    
-            var pair = Pair{name:"params" value:  if(params <> null) then params else JSONNull{}};
+            var pair = Pair{name:"params" value:  if(params != null) then params else JSONNull{}};
             insert pair into pairs;
         }
     };

@@ -36,10 +36,10 @@ public class CheckBox extends Widget {
         jcheckbox.addActionListener(java.awt.event.ActionListener {
                                         public function actionPerformed(e:java.awt.event.ActionEvent):Void {
                                             selected = jcheckbox.isSelected();
-                                            if(onChange <> null) {
+                                            if(onChange != null) {
                                                 onChange(selected);
                                             }
-                                            if(action <> null) {
+                                            if(action != null) {
                                                 action();
                                             }
                                         }
@@ -53,49 +53,49 @@ public class CheckBox extends Widget {
     };
     public attribute icon: Icon on replace {
         var sicon:javax.swing.Icon = null;
-        if (icon <> null) {
+        if (icon != null) {
             sicon = icon.getIcon();
         }
         jcheckbox.setIcon(sicon);
     };
     public attribute selectedIcon: Icon on replace {
         var sicon:javax.swing.Icon = null;
-        if (icon <> null) {
+        if (icon != null) {
             sicon = selectedIcon.getIcon();
         }
         jcheckbox.setSelectedIcon(sicon);
     };
     public attribute pressedIcon: Icon on replace {
         var sicon:javax.swing.Icon = null;
-        if (icon <> null) {
+        if (icon != null) {
             sicon = pressedIcon.getIcon();
         }
         jcheckbox.setPressedIcon(sicon);
     };
     public attribute rolloverIcon: Icon on replace {
         var sicon:javax.swing.Icon = null;
-        if (icon <> null) {
+        if (icon != null) {
             sicon = rolloverIcon.getIcon();
         }
         jcheckbox.setRolloverIcon(sicon);
     };
     public attribute rolloverSelectedIcon: Icon on replace {
         var sicon:javax.swing.Icon = null;
-        if (icon <> null) {
+        if (icon != null) {
             sicon = rolloverSelectedIcon.getIcon();
         }
         jcheckbox.setRolloverSelectedIcon(sicon);
     };
     public attribute disabledIcon: Icon on replace {
         var sicon:javax.swing.Icon = null;
-        if (icon <> null) {
+        if (icon != null) {
             sicon = disabledIcon.getIcon();
         }
         jcheckbox.setDisabledIcon(sicon);
     };
     public attribute disabledSelectedIcon: Icon on replace {
         var sicon:javax.swing.Icon = null;
-        if (icon <> null) {
+        if (icon != null) {
             sicon = disabledSelectedIcon.getIcon();
         }
         jcheckbox.setDisabledSelectedIcon(sicon);

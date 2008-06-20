@@ -44,7 +44,7 @@ public class CardPanel extends Widget {
                             var comp = w.getComponent();
                             var id = "{java.lang.System.identityHashCode(comp)}";
 
-                            if (comp.getParent() <> jpanel) {
+                            if (comp.getParent() != jpanel) {
                                 jpanel.add(comp, id);
                                 jpanel.validate();
                             }
@@ -57,13 +57,13 @@ public class CardPanel extends Widget {
     };
     public attribute cards: Widget[]on replace oldValue[lo..hi]=newVals {
         for(n in oldValue[lo..hi]) { 
-            if (n.component <> null) {
+            if (n.component != null) {
                 jpanel.remove(n.component);
             }
         }
         var ndx = lo;
         for(n in newVals) {
-            if (component <> null and ndx == selection) {
+            if (component != null and ndx == selection) {
                 var comp = n.getComponent();
                 var id = "{java.lang.System.identityHashCode(comp)}";
                 jpanel.add(comp, id);
@@ -80,9 +80,9 @@ public class CardPanel extends Widget {
         layout = java.awt.CardLayout{};
         jpanel.setLayout(layout);
         jpanel.setOpaque(false);
-        if (selection <> -1) {
+        if (selection != -1) {
             var w = cards[selection];
-            if (w <> null) {
+            if (w != null) {
                 var comp = w.getComponent();
                 var id = "{java.lang.System.identityHashCode(comp)}";
                 jpanel.add(comp, id);
