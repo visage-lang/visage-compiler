@@ -41,11 +41,11 @@ public class KeyFrame extends Comparable {
 
     function visit() {
         for (kv in values) {
-            if (kv.target <> null and kv.value <> null) {
+            if (kv.target != null and kv.value != null) {
                 kv.target.set(kv.value);
             }
         }
-        if (action <> null) {
+        if (action != null) {
             action();
         }
     }

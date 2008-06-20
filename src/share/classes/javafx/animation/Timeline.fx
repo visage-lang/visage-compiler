@@ -193,7 +193,7 @@ public class Timeline {
     }
 
     private function buildClip() {
-        if (clip <> null and clip.isRunning()) {
+        if (clip != null and clip.isRunning()) {
             clip.stop();
         }
         clip = Clip.create(Clip.INDEFINITE, adapter);
@@ -250,7 +250,7 @@ public class Timeline {
                 duration = java.lang.Math.max(duration, keyFrame.time.toMillis());
             }
 
-            if (keyFrame.timelines <> null) {
+            if (keyFrame.timelines != null) {
                 for (timeline in keyFrame.timelines) {
                     var subDur = timeline.getTotalDur();
                     if (duration >= 0 and subDur >= 0) {
@@ -281,7 +281,7 @@ public class Timeline {
                     pairlist = KFPairList { 
                         target: keyValue.target 
                     }
-                    if (keyFrame.time <> 0s) {
+                    if (keyFrame.time != 0s) {
                         // get current value and attach it to zero frame
                         var kv = KeyValue {
                             target: keyValue.target;
@@ -370,9 +370,9 @@ public class Timeline {
             curT = totalElapsed;
             cycle = 0;
         } else {
-            curT = totalElapsed % duration;
+            curT = totalElapsed mod duration;
             cycle = totalElapsed / duration as Integer;
-            if (curT == 0 and totalElapsed <> 0) {
+            if (curT == 0 and totalElapsed != 0) {
                 // we're at the end, or exactly on a cycle boundary;
                 // treat this as the "1.0" case of the previous cycle
                 // instead of the "0.0" case of the current cycle
@@ -381,7 +381,7 @@ public class Timeline {
                 cycle -= 1;
             }
             if (autoReverse) {
-                if (cycle % 2 == 1) {
+                if (cycle mod 2 == 1) {
                     curT = duration - curT;
                     backward = true;
                 }
@@ -439,7 +439,7 @@ public class Timeline {
                 leftT = kfpair1.frame.time.toMillis();
             }
 
-            if (v1 <> null and v2 <> null) {
+            if (v1 != null and v2 != null) {
                 pairlist.target.set(v2.interpolate.interpolate(v1.value, v2.value, segT));
             } 
         }
@@ -456,7 +456,7 @@ public class Timeline {
             }
         }
 
-        if (needsStop and clip <> null) {
+        if (needsStop and clip != null) {
             clip.stop();
         }
     }
@@ -464,7 +464,7 @@ public class Timeline {
     private function visitCycle(cycle:Integer, catchingUp:Boolean) {
         var cycleBackward = false;
         if (autoReverse) {
-            if (cycle % 2 == 1) {
+            if (cycle mod 2 == 1) {
                 cycleBackward = true;
             }
         }
