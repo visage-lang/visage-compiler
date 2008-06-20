@@ -70,7 +70,7 @@ public class JavafxClassReader extends ClassReader {
     public ClassReader jreader;
 
     private final Name functionClassPrefixName;
-    private SourceCompleter fxSourceCompleter;
+    private Context ctx;
     
     public static void registerBackendReader(final Context context, final ClassReader jreader) {
         context.put(backendClassReaderKey, jreader);
@@ -104,7 +104,7 @@ public class JavafxClassReader extends ClassReader {
         super(context, definitive);
         defs = JavafxDefs.instance(context);
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
-        fxSourceCompleter = JavafxCompiler.instance(context);
+        ctx = context;
     }
 
     public Name.Table getNames() {
@@ -448,6 +448,7 @@ public class JavafxClassReader extends ClassReader {
             if (jsymbol != null && jsymbol.classfile != null && 
                 jsymbol.classfile.getKind() == JavaFileObject.Kind.SOURCE &&
                 jsymbol.classfile.getName().endsWith(".fx")) {
+                SourceCompleter fxSourceCompleter = JavafxCompiler.instance(ctx);
                 fxSourceCompleter.complete(csym);
                 return;
             } else { 
