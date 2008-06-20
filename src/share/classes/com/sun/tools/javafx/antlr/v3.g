@@ -100,6 +100,7 @@ tokens {
    INVERSE='inverse';
    LAST='last';
    LAZY='lazy';
+   MOD='mod';
    ON='on';
    OR='or';
    REPLACE='replace';
@@ -720,7 +721,8 @@ assignmentOpExpression
 	   |   SUBEQ   e2=expression				-> ^(SUBEQ $e1 $e2) 
 	   |   STAREQ   e2=expression				-> ^(STAREQ $e1 $e2) 
 	   |   SLASHEQ   e2=expression				-> ^(SLASHEQ $e1 $e2) 
-	   |   PERCENTEQ   e2=expression			-> ^(PERCENTEQ $e1 $e2) 
+	   |   PERCENTEQ   e2=expression	{ log.warning(pos($PERCENTEQ), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The operator \%= will not be supported in the JavaFX 1.0 release" );}			
+                                                                -> ^(PERCENTEQ $e1 $e2) 
 /*	   | SUCHTHAT expr=andExpression (TWEEN interpolate=andExpression)?
                                                                -> ^(SUCHTHAT $e1 $expr $interpolate?)*/
 	   |							-> $e1
@@ -763,7 +765,9 @@ multiplicativeExpression
 	: ( unaryExpression					-> unaryExpression )
 	   (   STAR    e=unaryExpression			-> ^(STAR    $multiplicativeExpression $e)
 	   |   SLASH   e=unaryExpression			-> ^(SLASH   $multiplicativeExpression $e)
-	   |   PERCENT e=unaryExpression			-> ^(PERCENT $multiplicativeExpression $e)
+	   |   PERCENT e=unaryExpression	{ log.warning(pos($PERCENT), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The remainder operator \% will be replaced by mod" );}	
+                                                                -> ^(PERCENT $multiplicativeExpression $e)
+           |   MOD     e=unaryExpression			-> ^(MOD $multiplicativeExpression $e)
 	   ) * 
 	;
 //TODO: POUND QUES TYPEOF REVERSE

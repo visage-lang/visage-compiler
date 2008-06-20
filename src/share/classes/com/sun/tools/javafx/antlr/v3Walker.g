@@ -342,7 +342,9 @@ expression  returns [JCExpression expr]
 	| ^(SLASH   e1=expression e2=expression)	{ $expr = F.at(pos($SLASH))  .Binary(JCTree.DIV  , $e1.expr, $e2.expr); 
                                                           endPos($expr, $SLASH); }
 	| ^(PERCENT e1=expression e2=expression)	{ $expr = F.at(pos($PERCENT)).Binary(JCTree.MOD  , $e1.expr, $e2.expr); 
-                                                          endPos($expr, $PERCENT); }   
+                                                          endPos($expr, $PERCENT); } 
+        | ^(MOD e1=expression e2=expression)            { $expr = F.at(pos($MOD)).Binary(JCTree.MOD  , $e1.expr, $e2.expr); 
+                                                          endPos($expr, $MOD); } 
 	| ^(NEGATIVE e0=expression)			{ $expr = F.at(pos($NEGATIVE)).Unary(JCTree.NEG, $e0.expr); 
                                                           endPos($expr, $NEGATIVE); }
 	| ^(NOT e0=expression)				{ $expr = F.at(pos($NOT)).Unary(JCTree.NOT, $e0.expr); 
