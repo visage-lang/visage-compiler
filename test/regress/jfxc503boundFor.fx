@@ -9,9 +9,9 @@ import java.lang.System;
 var enableBindingOverhaul;
 
 function xxxxx() {
-  var mod = 2;
+  var modvalue = 2;
   var xs = [1..5];
-  var bfseq = bind for (x in xs where x % mod == 0) [ "bar", "foo" ];
+  var bfseq = bind for (x in xs where x mod modvalue == 0) [ "bar", "foo" ];
   var extern = 5;
   var iseq = bind for (x in xs) x*extern;
   var sseq = bind for (x in ["be", "bop", "bong", "bip"]) x;
@@ -33,7 +33,7 @@ function xxxxx() {
   System.out.println(iseq);
 
   extern = 2;
-  mod = 3;
+  modvalue = 3;
 
   System.out.println(bfseq);
   System.out.println(iseq);
