@@ -83,10 +83,10 @@ class ViewOutline extends CompositeNode {
                 selectable: true
                 width: bind rectWidth
                 height: bind rectHeight
-                stroke: bind if (sizing <> null) then strokeColor else transparentFill
+                stroke: bind if (sizing != null) then strokeColor else transparentFill
                 strokeWidth: 1
                      //strokeDashArray: outlineDash
-                fill: bind if (sizing <> null) then Color.color(1, 1, 1, 0.5) else null
+                fill: bind if (sizing != null) then Color.color(1, 1, 1, 0.5) else null
                 var mouseX:Number = 0
                 var mouseY:Number = 0
                 onMousePressed: function(e:CanvasMouseEvent):Void {
@@ -411,7 +411,7 @@ class ViewOutline extends CompositeNode {
                     }
                 },
                 Text {
-                    visible: bind sizing <> null
+                    visible: bind sizing != null
                     content: bind "{rectWidth} X {rectHeight}"
                     transform: bind Transform.translate(sizing.currentX + sizing.currentWidth + 5, sizing.currentY + sizing.currentHeight + 5)   
                 }]

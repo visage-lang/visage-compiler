@@ -32,17 +32,17 @@ public class Canvas extends Widget, CanvasElement, Container {
     // public:
     public attribute content: Node[] on insert[i](c) {
 	c.parentCanvasElement = (this as java.lang.Object) as CanvasElement;
-	if (root <> null) {
+	if (root != null) {
 	    root.add(c.getNode());
 	}
     } on delete[i](c) {
-	if (root <> null) {
+	if (root != null) {
 	    root.remove(c.getNode());
 	}
     } on replace[i](oldValue) {
 	var newValue = content[i];
 	newValue.parentCanvasElement = (this as java.lang.Object) as CanvasElement;
-	if (root <> null) {
+	if (root != null) {
 	    root.remove(oldValue.getNode());
 	    root.add(newValue.getNode());
 	}
@@ -53,7 +53,7 @@ public class Canvas extends Widget, CanvasElement, Container {
     public function getF3(obj:SGNode): Node {
 	if (obj == null) { return null; }
 	var n = obj.getAttribute("f3") as Node;
-	if (n <> null) {
+	if (n != null) {
 	    return n;
 	}
 	obj = obj.getParent();
@@ -70,7 +70,7 @@ public class Canvas extends Widget, CanvasElement, Container {
 	var lastNode:Node = null;
 	for (i in [0..path.size()-1]) {
 	    var n = getF3(path.get(i) as SGNode);
-	    if (n <> null and n <> lastNode) {
+	    if (n != null and n != lastNode) {
 		insert n into result;
 	    }
 	    lastNode = n;

@@ -75,7 +75,7 @@ public class Animation {
     public function start():Void {
         if((not isRunning() and changed) or animation == null) {
             changed = false;
-            animation = if(property <> null and property.length() > 0) then 
+            animation = if(property != null and property.length() > 0) then 
                     new FXAnimation (timingTarget, duration, instance, property, stopInstance, stopProperty, stopValue, sequence)
                 else 
                     new FXAnimation (timingTarget, interpolator, sequence, duration, resolution, 
@@ -86,33 +86,33 @@ public class Animation {
     }
     
     public function isRunning():Boolean{
-        return if(animation <> null) then animation.isRunning() else false;
+        return if(animation != null) then animation.isRunning() else false;
     }
     
     public function stop():Void {
-        if(animation <> null) {
+        if(animation != null) {
             animation.stop();
         }
     }
     public function cancel():Void {
-        if(animation <> null) {
+        if(animation != null) {
             animation.cancel();
         }      
     }
     public function pause():Void {
-        if(animation <> null) {
+        if(animation != null) {
             animation.pause();
         }
     }
     
     public function resume():Void {
-        if(animation <> null) {
+        if(animation != null) {
             animation.resume();
         }
     }    
     
     public function waitUntilDone(): Void {
-        if(animation <> null) {
+        if(animation != null) {
             animation.waitUntilDone();
         }
     }

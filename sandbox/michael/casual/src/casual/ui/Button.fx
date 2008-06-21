@@ -113,7 +113,7 @@ public class Button extends CompositeNode
                     }
                     onMouseReleased: function(e:CanvasMouseEvent)
                     {   
-                        if ((clickRect.pressedHover == true) and (onClick <> null))
+                        if ((clickRect.pressedHover == true) and (onClick != null))
                         {
                             pressed = false;
 

@@ -47,7 +47,7 @@ public class MyEditorPane extends Component{
         var keyListener = KeyAdapter{
             public function keyReleased(e: java.awt.event.KeyEvent) {
                 updateComponentField();
-                if(onKeyUp <> null){onKeyUp(KeyEvent{}); }
+                if(onKeyUp != null){onKeyUp(KeyEvent{}); }
             }
         };
 

@@ -154,7 +154,7 @@ public class Buddy
     public function endChat()
     {
         chatting = false;
-        if (window <> null)
+        if (window != null)
         {
             window.visible = false;
             window.close();

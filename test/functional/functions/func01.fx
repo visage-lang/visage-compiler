@@ -143,7 +143,7 @@ public class TestIntStack {
 }
 
 function check( msg:String,f:Integer, ExpectedValue:Integer) {
-	if(f <> ExpectedValue) { System.out.println("FAILED: {msg}; {f} != {ExpectedValue}"); }
+	if(f != ExpectedValue) { System.out.println("FAILED: {msg}; {f} != {ExpectedValue}"); }
 }
 
 System.out.println("a simple Stack application");

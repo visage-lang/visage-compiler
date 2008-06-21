@@ -20,7 +20,7 @@ class jfxc211Button extends jfxc211Widget, jfxc211ActionWidget {
     init {
         java.awt.event.ActionListener {
             public function actionPerformed(e:java.awt.event.ActionEvent) {
-                if(action <> null) {
+                if(action != null) {
                    action();
                 }
             }

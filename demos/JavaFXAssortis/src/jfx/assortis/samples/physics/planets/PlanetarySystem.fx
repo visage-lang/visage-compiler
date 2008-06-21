@@ -44,7 +44,7 @@ public class PlanetarySystem {
             p1.acceleration[i] = 0.0;
 	}
         
-        for(p2 in planets[p| p<>p1]){
+        for(p2 in planets[p| p!=p1]){
             
             var k = G * p2.mass;
             

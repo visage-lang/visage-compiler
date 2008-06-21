@@ -44,7 +44,7 @@ class CloseButton extends CompositeNode {
                 Circle {
                     onMousePressed: function(e) {pressed = true;}
                     onMouseReleased: function(e) {
-                            if (group.hover and action <> null) {
+                            if (group.hover and action != null) {
                                 action();
                             } 
                             pressed = false;
@@ -110,7 +110,7 @@ class SearchField  extends CompositeNode {
                             text: bind fSearchValue with inverse
                             onKeyDown: function(e:KeyEvent):Void {
                                 if (e.keyStroke == KeyStroke.ESCAPE) {
-                                    if(cancel <> null) 
+                                    if(cancel != null) 
                                         cancel();
                                 }
                             }
@@ -171,7 +171,7 @@ class SearchButton extends CompositeNode {
             [r = Rect {
                 onMousePressed: function(e) {pressed = true;}
                 onMouseReleased: function(e) {
-                    if (hover and action <> null) {
+                    if (hover and action != null) {
                         action();
                     }
                     pressed = false;
@@ -208,7 +208,7 @@ public class SearchPanel extends CompositeNode {
     }
     public attribute searchField:SearchField;
     attribute open: Boolean on replace {
-        if(open and searchField<> null) {
+        if(open and searchField!= null) {
             searchField.requestFocus();
         }
     }

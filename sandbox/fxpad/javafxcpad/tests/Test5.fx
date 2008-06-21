@@ -12,7 +12,7 @@ public abstract class AbstractWidget  {
 
 public abstract class Widget extends AbstractWidget {
     private function updateBounds() {
-        if (component <> null) {
+        if (component != null) {
             component.setBounds(x.intValue(), y.intValue(), width.intValue(), height.intValue());
         }
     }
@@ -24,7 +24,7 @@ public abstract class Widget extends AbstractWidget {
     attribute x: Number on replace { updateBounds(); }
     attribute y: Number on replace { updateBounds(); }
     attribute opaque: Boolean on replace { 
-        if (component <> null) {
+        if (component != null) {
             component.setOpaque(opaque);
         } 
     }
@@ -74,7 +74,7 @@ public class Button extends Widget, AbstractButton {
     }
     public attribute text: String = "" on replace(oldValue) { 
         System.out.println("text replaced {text}");
-        if (button <> null) {
+        if (button != null) {
             button.setText(text);
         }
     }

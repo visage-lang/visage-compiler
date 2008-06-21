@@ -48,7 +48,7 @@ public class AssortisApplet extends JApplet {
         var urlClassLoader = new URLClassLoader(urls);
 
         
-        if (appClassName <> null) {
+        if (appClassName != null) {
             try {
                 var appClass:Class = Class.forName(appClassName);
                 var name = Entry.entryMethodName();
@@ -70,7 +70,7 @@ public class AssortisApplet extends JApplet {
         else {
             throw new Error("{errorPrefix}: no ApplicationClass applet param specified");
         }
-        if (app <> null) {
+        if (app != null) {
             setContentPane(app.content.getJComponent());
         }
     }

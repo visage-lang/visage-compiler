@@ -31,7 +31,7 @@ public class ComponentDragSource extends DragGestureListener, DragSourceListener
         //System.out.println("[drag] Value");
         //Transferable transferable = new ViewTransferable();
         var drag = component.drag;
-        if(drag <> null){
+        if(drag != null){
             dge.startDrag(null, new ViewTransferable(drag()), this);
             
         }

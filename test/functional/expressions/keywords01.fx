@@ -35,7 +35,7 @@ f2.roi();
 
 function checkfoo( i:Integer, i2:Integer):Integer {
    var ret = 1;
-	if(i <> i2) { 
+	if(i != i2) { 
 		throw new Exception("{i}!={i2}"); 
 	} else {  
 		ret = 0; 
@@ -65,7 +65,7 @@ try {
 	TU.checkB(be instanceof com.sun.javafx.runtime.BindingException,
 		"check BindingExecption2: " + be);
 }
-if( f2.ros().compareTo("readonly")<>0){
+if( f2.ros().compareTo("readonly")!=0){
 	throw new Exception("failed on check of initial value of readonly string"); 
 }
 f2.roS = "Hello, World!";
@@ -80,7 +80,7 @@ class ro {
 	function roa():Integer { return ROA; }
 }
 var r = new ro;
-if(r.roa()<>10){ 
+if(r.roa()!=10){ 
 	throw new Exception("initial value of ROA is incorrect!");
 }
 r.ROA=100;  //<--should not be allowed???

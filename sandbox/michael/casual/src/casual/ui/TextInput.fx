@@ -41,7 +41,7 @@ public class TextInput extends CompositeNode
 
         onKeyDown: function(e:KeyEvent)
         {
-            if (onKeyDown <> null)
+            if (onKeyDown != null)
             {
                 (this.onKeyDown)(e);
             }

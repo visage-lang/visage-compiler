@@ -8,20 +8,20 @@ public class Panel extends Widget {
 
     public attribute content: Widget[]
 	on replace[i](w) {
-	    if (jpanel <> null) {
+	    if (jpanel != null) {
 		System.out.println("REPLACE: {i} {w}");
 		jpanel.remove(i);
 		jpanel.add(content[i].getComponent(), i);
 	    }
         }
 	on insert[i](w) {
-	    if (jpanel <> null) {
+	    if (jpanel != null) {
 		System.out.println("INSERT: {i} {w}");
 		jpanel.add(content[i].getComponent(), i);
 	    }
 	}
 	on delete[i](w) {
-	    if (jpanel <> null) {
+	    if (jpanel != null) {
 		System.out.println("DELETE: {i} {w}");
 		jpanel.remove(i);
 	    }

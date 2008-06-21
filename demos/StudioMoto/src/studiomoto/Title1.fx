@@ -13,11 +13,11 @@ public class Title1 extends CompositeNode {
     attribute label3: String;
     attribute logoGroup: Node;
     attribute height: Number = bind currentHeight on replace {
-        if(rect <> null)
+        if(rect != null)
             rect.height = height;
     };
     attribute width: Number = bind currentWidth on replace {
-        if(rect <> null)
+        if(rect != null)
             rect.width = width;      
     }
     attribute power: Node;

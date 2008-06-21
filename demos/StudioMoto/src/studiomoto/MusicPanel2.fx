@@ -58,7 +58,7 @@ public class MusicPanel2 extends CompositeNode {
     private attribute _softY:Pointer = __softY.unwrap(); 
     // From javafx.ui.Node        
     public attribute lhover: Boolean = bind hover on replace {
-        if(hoverClip <> null) {
+        if(hoverClip != null) {
             // stop old clip, this assumes if old clip is already stopped
             // then nothing bad will happen.
             hoverClip.stop();

@@ -256,7 +256,7 @@ operation SourceEditor.createView():<<javax.swing.JComponent>> {
                                 compoundEdit.end();
                             }
                         }
-                        if (self.edit <> null) {
+                        if (self.edit != null) {
                             self.undoManager.addEdit(self.edit);
                             self.edit = null;
                         }

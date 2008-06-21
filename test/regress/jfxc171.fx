@@ -12,9 +12,9 @@ public class Font {
     public attribute faceName: String; 
 
     function bar() : Void {
-        if(face <> null ) { 
-        } else if (face <> null) { 
-        } else if (faceName <> null) { 
+        if(face != null ) { 
+        } else if (face != null) { 
+        } else if (faceName != null) { 
         } else { 
         } 
     }

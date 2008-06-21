@@ -19,7 +19,7 @@ class CalcButton extends CompositeNode {
             }
             onMouseReleased:  function(e:CanvasMouseEvent):Void {
                 pressed = false; 
-                if (hover and action <> null) {
+                if (hover and action != null) {
                     action()
                 }
             }

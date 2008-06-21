@@ -106,10 +106,10 @@ public class Dialog extends CompositeNode
     function composeNode() { 
         Group {
             var strokeWidth = 2;
-            var dialogWidth = bind if (width<>0) then width else (frame.width - 100);
-            var dialogHeight = bind if (height<>0) then height else (0.4 * frame.height);
-            var dialogX = bind if (x<>0) then x else ((frame.width/2) - (dialogWidth/2));
-            var dialogY = bind if (y<>0) then y else ((frame.height/2) - (dialogHeight/2));
+            var dialogWidth = bind if (width!=0) then width else (frame.width - 100);
+            var dialogHeight = bind if (height!=0) then height else (0.4 * frame.height);
+            var dialogX = bind if (x!=0) then x else ((frame.width/2) - (dialogWidth/2));
+            var dialogY = bind if (y!=0) then y else ((frame.height/2) - (dialogHeight/2));
             var margin = 10;
 
             visible: bind active
@@ -184,7 +184,7 @@ public class Dialog extends CompositeNode
                     } as Node,
                     Text
                     {
-                        visible: bind (headline<>null)
+                        visible: bind (headline!=null)
                         x: bind (dialogX + margin)
                         y: bind (dialogY + 2*margin)
                         valign: VerticalAlignment.MIDDLE
@@ -195,7 +195,7 @@ public class Dialog extends CompositeNode
                     } as Node,
                     Text
                     {
-                        var offset = if (headline<>null) then 0 else margin
+                        var offset = if (headline!=null) then 0 else margin
 
                         x: bind (dialogX + (dialogWidth/2))
                         y: bind (dialogY + (dialogHeight/2) - offset)

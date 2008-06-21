@@ -9,7 +9,7 @@ import com.sun.javafx.runtime.Pointer;
 public class MusicPanels extends CompositeNode {
     attribute pf: PointerFactory = PointerFactory{};
     attribute selection: Integer on replace {
-        if(selectionClip <> null) {
+        if(selectionClip != null) {
             selectionClip.stop();
             selectionClip.start();
         }

@@ -70,7 +70,7 @@ public abstract class CanvasElement {
         }
     }
     public function hasParent(): Boolean {
-        parentCanvasElement <> null;
+        parentCanvasElement != null;
     }
 }
 

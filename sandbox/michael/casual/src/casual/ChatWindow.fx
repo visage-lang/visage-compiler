@@ -68,7 +68,7 @@ class ChatLines extends VBox
                     }
                 });
             }
-            else if (frame.scrollFactor <> 1)
+            else if (frame.scrollFactor != 1)
             {
                 var scrollFactor = (oldHeight*frame.scrollFactor)/currentHeight;
                 //TODO DO LATER - this is a work around until a more permanent solution is provided
@@ -233,7 +233,7 @@ public class ChatWindow extends CasualFrame
     public function receiveMessage(message:String){
     //println("ChatWindow.receiveMessage:\"{message}\"");
 
-        if (message <> null)
+        if (message != null)
         {
             if (visible == false)
             {
@@ -241,7 +241,7 @@ public class ChatWindow extends CasualFrame
             }
 
             buddyTyping = true;
-            if (feedbackMsg <> null)
+            if (feedbackMsg != null)
             {
                 delete feedbackMsg from messages;
                 feedbackMsg = null;
@@ -257,7 +257,7 @@ public class ChatWindow extends CasualFrame
         else //if (buddyTyping == true)
         {
             buddyTyping = false;
-            if (feedbackMsg <> null)
+            if (feedbackMsg != null)
             {
                 delete feedbackMsg from messages;
                 feedbackMsg = null;
@@ -304,7 +304,7 @@ public class ChatWindow extends CasualFrame
         var parser = new MessageParser;
         var parsedMessageStr = parser.parse(messageStr, type);
 
-        if (parsedMessageStr <> null)
+        if (parsedMessageStr != null)
         {
             var message = Message
             {
@@ -320,7 +320,7 @@ public class ChatWindow extends CasualFrame
                 sendMessage(null);
             }
 
-            if (type <> MessageType.COMMENT)
+            if (type != MessageType.COMMENT)
             {
                 timer.alarm = true;
             }

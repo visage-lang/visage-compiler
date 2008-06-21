@@ -7,11 +7,11 @@ public class BorderPanel {
     public attribute top: Widget 
 			  /*
 	on replace(old) {
-	if (jpanel <> null) {
-	    if (old <> null) {
+	if (jpanel != null) {
+	    if (old != null) {
 		jpanel.remove(old.getComponent());
 	    }
-	    if (top  <> null) {
+	    if (top  != null) {
 		jpanel.add(top.getComponent(), java.awt.BorderLayout.NORTH);
 	    }
 	    jpanel.revalidate();
@@ -21,11 +21,11 @@ public class BorderPanel {
 			  */;
 
     public attribute left: Widget /* on replace(old) {
-	if (jpanel <> null) {
-	    if (old <> null) {
+	if (jpanel != null) {
+	    if (old != null) {
 		jpanel.remove(old.getComponent());
 	    }
-	    if (left  <> null) {
+	    if (left  != null) {
 		jpanel.add(left.getComponent(), java.awt.BorderLayout.WEST);
 	    }
 	    jpanel.revalidate();
@@ -33,11 +33,11 @@ public class BorderPanel {
 	}
 	}*/;
     public attribute bottom: Widget /* on replace(old) {
-	if (jpanel <> null) {
-	    if (old <> null) {
+	if (jpanel != null) {
+	    if (old != null) {
 		jpanel.remove(old.getComponent());
 	    }
-	    if (bottom  <> null) {
+	    if (bottom  != null) {
 		jpanel.add(bottom.getComponent(), java.awt.BorderLayout.SOUTH);
 	    }
 	    jpanel.revalidate();
@@ -46,11 +46,11 @@ public class BorderPanel {
 	}*/;
 
     public attribute right: Widget /* on replace(old) {
-	if (jpanel <> null) {
-	    if (old <> null) {
+	if (jpanel != null) {
+	    if (old != null) {
 		jpanel.remove(old.getComponent());
 	    }
-	    if (right  <> null) {
+	    if (right  != null) {
 		jpanel.add(right.getComponent(), java.awt.BorderLayout.EAST);
 	    }
 	    jpanel.revalidate();
@@ -58,11 +58,11 @@ public class BorderPanel {
 	}
 	} */;
     public attribute center: Widget /* on replace(old) {
-	if (jpanel <> null) {
-	    if (old <> null) {
+	if (jpanel != null) {
+	    if (old != null) {
 		jpanel.remove(old.getComponent());
 	    }
-	    if (center  <> null) {
+	    if (center  != null) {
 		jpanel.add(center.getComponent(), java.awt.BorderLayout.CENTER);
 	    }
 	    jpanel.revalidate();
@@ -72,19 +72,19 @@ public class BorderPanel {
 
     protected function createComponent(): javax.swing.JComponent {
 	jpanel = new javax.swing.JPanel();
-	if (top <> null) {
+	if (top != null) {
 	    jpanel.add(top.getComponent(), java.awt.BorderLayout.NORTH);
 	}
-	if (left <> null) {
+	if (left != null) {
 	    jpanel.add(left.getComponent(), java.awt.BorderLayout.WEST);
 	}
-	if (center <> null) {
+	if (center != null) {
 	    jpanel.add(center.getComponent(), java.awt.BorderLayout.CENTER);
 	}
-	if (bottom <> null) {
+	if (bottom != null) {
 	    jpanel.add(bottom.getComponent(), java.awt.BorderLayout.SOUTH);
 	}
-	if (right <> null) {
+	if (right != null) {
 	    jpanel.add(right.getComponent(), java.awt.BorderLayout.EAST);
 	}
 	return jpanel;

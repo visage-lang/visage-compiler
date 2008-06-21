@@ -13,7 +13,7 @@ public class Foo {
         jmenuitem = new javax.swing.JMenuItem(); 
         jmenuitem.addActionListener(java.awt.event.ActionListener { 
                                         public function actionPerformed(e:ActionEvent) { 
-                                            if (action <> null) { 
+                                            if (action != null) { 
                                                 action(); 
                                             } 
                                         } 

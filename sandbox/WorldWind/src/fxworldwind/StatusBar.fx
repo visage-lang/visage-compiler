@@ -42,13 +42,13 @@ public class StatusBar extends GridPanel, PositionListener, RenderingListener {
     override attribute rows = 1;
     override attribute columns = 5;
     public attribute eventSource:WorldWindow on replace(old) {
-        if (old <> null)
+        if (old != null)
         {
             old.removePositionListener(this);
             old.removeRenderingListener(this);
         }
 
-        if (this.eventSource <> null)
+        if (this.eventSource != null)
         {
             this.eventSource.addPositionListener(this);
             this.eventSource.addRenderingListener(this);
@@ -77,7 +77,7 @@ public class StatusBar extends GridPanel, PositionListener, RenderingListener {
     ];
     public function moved(event:PositionEvent):Void {
         var newPos = event.getPosition();
-        if (newPos <> null)
+        if (newPos != null)
         {
             var elev = 
                 (eventSource.getModel().getGlobe().getElevation(newPos.getLatitude(), newPos.getLongitude())).intValue();
@@ -94,7 +94,7 @@ public class StatusBar extends GridPanel, PositionListener, RenderingListener {
     }
     
     public function stageChanged(event:RenderingEvent):Void {
-        if (eventSource.getView() <> null and eventSource.getView().getEyePosition() <> null) {
+        if (eventSource.getView() != null and eventSource.getView().getEyePosition() != null) {
             var elev:Number = eventSource.getView().getEyePosition().getElevation();
             var div:Number = 1e3.doubleValue();
             var alt = Math.round(elev / div);

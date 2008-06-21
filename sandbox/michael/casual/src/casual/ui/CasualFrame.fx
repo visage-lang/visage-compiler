@@ -9,7 +9,7 @@ public abstract class CasualFrame extends javafx.ui.Frame
     public abstract function requestFocus() : Void;
 
     public function showErrorMessage(text:String, headline:String, interactive:Boolean) {
-        if (dialog <> null) {
+        if (dialog != null) {
             dialog.type = Dialog.DialogType.ERROR;
             dialog.active = true;
             dialog.text = text;
@@ -19,7 +19,7 @@ public abstract class CasualFrame extends javafx.ui.Frame
     };
     
     public function showWarningMessage(text:String, headline:String, interactive:Boolean) {
-        if (dialog <> null) {
+        if (dialog != null) {
             dialog.type = Dialog.DialogType.WARNING;
             dialog.active = true;
             dialog.text = text;
@@ -29,7 +29,7 @@ public abstract class CasualFrame extends javafx.ui.Frame
     };
     
     public function showInfoMessage(text:String, headline:String, interactive:Boolean) {
-        if (dialog <> null) {
+        if (dialog != null) {
             dialog.type = Dialog.DialogType.INFO;
             dialog.active = true;
             dialog.text = text;
@@ -39,7 +39,7 @@ public abstract class CasualFrame extends javafx.ui.Frame
     };
     
     public function hideMessage() {
-        if (dialog <> null) {
+        if (dialog != null) {
             dialog.active = false;
         }
     };

@@ -5,7 +5,7 @@ public class CheckBox extends AbstractButton {
     private attribute jcheckbox: javax.swing.JCheckBox;
 
     public attribute borderPaintedFlat: Boolean on replace {
-	if (jcheckbox <> null) {
+	if (jcheckbox != null) {
 	    jcheckbox.setBorderPaintedFlat(borderPaintedFlat);
 	}
     }

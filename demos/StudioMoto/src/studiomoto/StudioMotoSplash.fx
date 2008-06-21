@@ -12,7 +12,7 @@ class StudioMotoSplash extends CompositeNode {
     attribute studioX: Number = 50;
     attribute phoneY: Number = -120;
     attribute alpha: Number on replace {
-        if (alpha < 0.01) { if(onDone <> null) onDone();}
+        if (alpha < 0.01) { if(onDone != null) onDone();}
     }
     attribute backgroundAlpha: Number = 1;
     function doSplash() {

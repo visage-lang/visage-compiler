@@ -282,7 +282,7 @@ public class JavaFXPad extends CompositeWidget {
     }
     
     public function composeWidget(): Widget {
-        if(url <> null) {
+        if(url != null) {
                 javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                           public function run():Void {
                                go();

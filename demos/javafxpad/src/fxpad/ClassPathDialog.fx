@@ -88,7 +88,7 @@ public class ClassPathDialog {
             [Button {
                 text: "OK"
                 action: function():Void {
-                    if(self.action <> null) 
+                    if(self.action != null) 
                         self.action(self.classPath);
                     dlg.hide();
                 }

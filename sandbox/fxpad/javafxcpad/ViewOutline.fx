@@ -80,10 +80,10 @@ operation ViewOutline.composeNode() {
             selectable: true
             width: bind rectWidth
             height: bind rectHeight
-            stroke: bind if sizing <> null then strokeColor else transparentFill
+            stroke: bind if sizing != null then strokeColor else transparentFill
             strokeWidth: 1
                  //strokeDashArray: outlineDash
-            fill: bind if sizing <> null then new Color(1, 1, 1, 0.5) else null
+            fill: bind if sizing != null then new Color(1, 1, 1, 0.5) else null
             var mouseX = 0
             var mouseY = 0
             onMousePressed: operation(e:CanvasMouseEvent) {
@@ -424,7 +424,7 @@ operation ViewOutline.composeNode() {
                 }
             },
             Text {
-                visible: bind sizing <> null
+                visible: bind sizing != null
                 content: bind "{rectWidth} X {rectHeight}"
                 transform: bind translate(sizing.currentX + sizing.currentWidth + 5, sizing.currentY + sizing.currentHeight + 5)   
             }]

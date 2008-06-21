@@ -51,7 +51,7 @@ var albums =
      var titleTracks =
           for (album in albums, track in album.tracks where track == album.title)
                        indexof track + 1;  // yields [1,4]
-	if(titleTracks <> [1,4] ) { 
+	if(titleTracks != [1,4] ) { 
 		throw new java.lang.Exception("FAILED: querying with for-each");
    }else {
          for (album in albums, track in album.tracks where track == album.title)

@@ -88,7 +88,7 @@ public class SourcePathDialog {
             [Button {
                 text: "OK"
                 action: function():Void {
-                    if(self.action <> null) 
+                    if(self.action != null) 
                         self.action(self.sourcePath);
                     dlg.hide();
                 }

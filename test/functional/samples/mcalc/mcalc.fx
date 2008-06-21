@@ -189,7 +189,7 @@ function saveThisMortgage() {
 	for(M in savedMortgages) {
 	  if( M.compareTo(tempMortgage) ) { isSaved = true; }
 	}
-	if( isSaved <> true) { 	insert tempMortgage into savedMortgages; }
+	if( isSaved != true) { 	insert tempMortgage into savedMortgages; }
 	else { System.out.println("Mortgage is already saved."); }
 }
 

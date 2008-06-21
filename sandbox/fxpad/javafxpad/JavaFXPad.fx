@@ -245,7 +245,7 @@ trigger on new JavaFXPad {
     /*
    Thread.currentThread().getThreadGroup().setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
            operation uncaughtException(thr, t:Throwable) {
-               if (t.message <> null) {
+               if (t.message != null) {
                    insert ErrorMessage {message: "{t.message}"} into self.errMessages;
                }
            }
@@ -324,7 +324,7 @@ operation JavaFXPad.makeOp(op:Operation): String {
         }
         sep = ", ";
     }
-    if (ret <> null) {
+    if (ret != null) {
         content = "{content}): {formatType(ret.Type)}";
     } else {
         content = "{content})";
@@ -337,7 +337,7 @@ operation JavaFXPad.makeFunction(funName: String, op:Operation): String {
     var contentx = "{funName}(";
     var sep = "";
     var ret = null;
-    for (i in op.Attributes[a|a.Name <> 'this' and a.Name <> 'return']) {
+    for (i in op.Attributes[a|a.Name != 'this' and a.Name != 'return']) {
         contentx = "{contentx}{sep}{i.Name}";
         sep = ", ";
     }
@@ -615,8 +615,8 @@ operation JavaFXPad.formatCode() {
         stack.clear();
         var skipDec = false;
         var newLineCount = 0;
-        while (special <> null) {
-            if (special.image <> "\r") {
+        while (special != null) {
+            if (special.image != "\r") {
                 if (special.image == "\n") {
                     newLineCount++;
                 }
@@ -709,13 +709,13 @@ operation JavaFXPad.formatCode() {
     while (c == space) {
         newColOff++;
         c = newText.charAt(lineOff+newColOff);
-        if (c <> space) {
+        if (c != space) {
             break;
         }
     }
     //println("colOffset={colOffset} newColOff={newColOff}");
     lineOff += if newColOff > colOffset-1 then newColOff else colOffset-1;
-    if (userCode <> newText) {
+    if (userCode != newText) {
         editor.text = newText;
     }
     editor.setCaretPosition(lineOff);
@@ -794,7 +794,7 @@ operation JavaFXPad.completionRequest(k:KeyStroke) {
 	err.printStackTrace();
         compileError = err.getMessage();
         compileError = "";
-        while (err <> null) {
+        while (err != null) {
             compileError = "{compileError}{err.getMessage()}\n";
             var loc = err;
             var line = loc.getBeginLine();
@@ -858,7 +858,7 @@ operation JavaFXPad.completionRequest(k:KeyStroke) {
             }
             var replacement = name;
             var cursorOffset = 0;
-            if (nextToken.image <> '{') {
+            if (nextToken.image != '{') {
                 var indent = getIndentAtOffset();
                 replacement = "{name} \{\n{indent}\t\n{indent}}";
 	        cursorOffset = -(indent.length() + 2);
@@ -881,10 +881,10 @@ operation JavaFXPad.completionRequest(k:KeyStroke) {
             var cursorOffset = 0;
             if (processor.isObjLiteral()) {
                 if (lastToken.next.next.image == "attribute") {
-                    if (nextToken.image <> "=") {
+                    if (nextToken.image != "=") {
                         replacement = "{a.Name} = ";
                     }
-                } else if (nextToken.image <> ":") {
+                } else if (nextToken.image != ":") {
                     replacement = "{a.Name}: ";
                 }
                 if (a.OneToMany or a.ManyToMany) {
@@ -937,7 +937,7 @@ operation JavaFXPad.completionRequest(k:KeyStroke) {
             }
             if (value.class instanceof Operation) {
                 displayValue = makeFunction(key, (Operation) value.class);
-                var args = value.class.Attributes[a|a.Name <> 'this' and a.Name <> 'return'];
+                var args = value.class.Attributes[a|a.Name != 'this' and a.Name != 'return'];
                 off = key.length()+2;
                 key = "{key}({foreach (a in args) "{a.Name}{if indexof a < sizeof args-1 then ", " else ""}"})";
                 off = off - key.length();
@@ -1014,7 +1014,7 @@ operation JavaFXPad.evaluate(sourceCode:String, run:Boolean) {
         err.printStackTrace();
         compileError = "";
         delete errMessages;
-        while (err <> null) {
+        while (err != null) {
             compileError = "{compileError}{err.getMessage()}\n";
             var loc = err;
             var line = loc.getBeginLine();
@@ -1034,9 +1034,9 @@ operation JavaFXPad.evaluate(sourceCode:String, run:Boolean) {
     var err = compilation.getLastError();
     delete errMessages;
     compileError = null;
-    if (err <> null) {
+    if (err != null) {
         compileError = "";
-        while (err <> null) {
+        while (err != null) {
             compileError = "{compileError}{err.getMessage()}\n";
             var line = err.getBeginLine();
             insert ErrorMessage {line: line, column: err.getBeginColumn(), length: err.getEndColumn() - err.getBeginColumn()+1, message: err.getMessage().replaceAll("<", "&lt;")} into errMessages;
@@ -1050,7 +1050,7 @@ operation JavaFXPad.evaluate(sourceCode:String, run:Boolean) {
             //println("result={result}");
         } catch (err:ValidationError) {
 	    err.printStackTrace();
-            while (err <> null) {
+            while (err != null) {
                 compileError = "{compileError}{err.getMessage()}\n";
                 var line = err.getBeginLine();
                 var loc = err;
@@ -1061,14 +1061,14 @@ operation JavaFXPad.evaluate(sourceCode:String, run:Boolean) {
             return;
         } catch (e) {
             var st = (Locatable).;
-	    var stackTrace = st[s|s.getURI() <> __FILE__];
+	    var stackTrace = st[s|s.getURI() != __FILE__];
             //println("stackTrace={stackTrace}");
             result = e;
             var msg = "{e}";
             for (s in stackTrace) {
                 msg = "{msg}\n\t at {s} ({s.getURI()} Line {s.getBeginLine()})";
             }
-            if (st[0] <> null) {
+            if (st[0] != null) {
                 insert ErrorMessage {line: st[0].getBeginLine(), column: st[0].getBeginColumn(), length: st[0].getEndColumn() - st[0].getBeginColumn()+1, message: "{st[0].getURI()} Line {st[0].getBeginLine()}: uncaught exception: {e}"} into errMessages;
             }
 	    if (e instanceof Throwable) {
@@ -1087,7 +1087,7 @@ operation JavaFXPad.evaluate(sourceCode:String, run:Boolean) {
             if (h == null or h == 0) {
                 h = widget.getComponent().getPreferredSize().height;
             }
-	    if (f.menubar <> null) {
+	    if (f.menubar != null) {
 		widget = RootPane {
 		    menubar: f.menubar
 		    content: BorderPanel {
@@ -1100,7 +1100,7 @@ operation JavaFXPad.evaluate(sourceCode:String, run:Boolean) {
             f.content = null;
 	    f.visible = false;
             f.close();
-	    if (resultFrame <> null) {resultFrame.showing = false;}
+	    if (resultFrame != null) {resultFrame.showing = false;}
             resultFrame = f;
             result = Group {
                 var: group
@@ -1114,7 +1114,7 @@ operation JavaFXPad.evaluate(sourceCode:String, run:Boolean) {
             };
         }
         var notNode = select n from n in result where not (n instanceof Node) and not (n instanceof Widget);
-        if (notNode <> null) {
+        if (notNode != null) {
             compileError = "Incompatible type: expected Node, found {notNode[0].class.Name}";     compiledContent = View {
                 content: TextArea {
                     text: "{if sizeof result > 1 then "[{foreach (i in result) "{if indexof i > 0 then " ," else ""}{i}"}]" else result}"
@@ -1187,7 +1187,7 @@ operation JavaFXPad.compile() {
 }
 
 operation JavaFXPad.composeWidget() {
-    do later {if (url <> null) {go();}}
+    do later {if (url != null) {go();}}
     return Canvas {
         trigger on not assert a {
              insert ErrorMessage {line: a.lineNumber, message: "{a.sourceURL}:{a.lineNumber}: Assertion failed: {a.assertion} {a.description}"} into errMessages;
@@ -1527,7 +1527,7 @@ operation JavaFXPad.composeWidget() {
                             var: self
                             action: operation() { 
                                 var err = errMessages[self.selection];
-                                if (err <> null) {
+                                if (err != null) {
                                     do later {
                                         try {
                                             editor.selectLocation(err.line, err.column, err.line, err.column + err.length);

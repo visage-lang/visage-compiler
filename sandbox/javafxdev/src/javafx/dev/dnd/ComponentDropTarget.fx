@@ -41,7 +41,7 @@ public class ComponentDropTarget extends DropTargetListener {
         var transferable = dtde.getTransferable();
         var obj = transferable.getTransferData(DataFlavor.stringFlavor);
         var drop = component.drop;
-        if(drop <> null){
+        if(drop != null){
             drop(obj);
         }
     }

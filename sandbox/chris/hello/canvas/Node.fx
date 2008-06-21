@@ -75,7 +75,7 @@ public abstract class Node extends CanvasElement {
 
     private function getScreenLocation(component:java.awt.Component): java.awt.Point{
         var comp = component;
-        while (comp <> null and not (comp instanceof java.awt.Frame) and 
+        while (comp != null and not (comp instanceof java.awt.Frame) and 
                not (comp instanceof java.awt.Window) and
                not (comp instanceof java.applet.Applet)) {
             comp = comp.getParent();
@@ -100,24 +100,24 @@ public abstract class Node extends CanvasElement {
             alignmentFilter = new SGAlignment();
             alignmentFilter.setChild(transformFilter);
 
-            if (halign <> null) {
+            if (halign != null) {
                 alignmentFilter.setHorizontalAlignment(halign.id.intValue());
             }
-            if (valign <> null) {
+            if (valign != null) {
                 alignmentFilter.setVerticalAlignment(valign.id.intValue());
             }
             alignmentFilter.setVisible(visible);
-            if (opacity <> 1.0) {
+            if (opacity != 1.0) {
                 compositeFilter.setOpacity(clamp(opacity, 0, 1).floatValue());
             }
-            //if (filter <> null) {
+            //if (filter != null) {
                 //JXFC-XXX com.sun.javafx.runtime.sequence.Sequence<java.awt.image.BufferedImageOp>
                 //effectFilter.setImageOps(for(i in filter)i.getFilter());
             //}
-            if (toolTipText <> null) {
+            if (toolTipText != null) {
                 //alignmentFilter.setToolTipText(toolTipText); // TODO: hmm
             }
-            if (id <> null) {
+            if (id != null) {
                 alignmentFilter.putAttribute("id", id); // TODO: use ID
             }
             var b = alignmentFilter.getBounds();
@@ -135,7 +135,7 @@ public abstract class Node extends CanvasElement {
     //TODO: implement properly...
     public attribute toolTipText: String on replace  {
     /*
-        if (alignmentFilter <> null) {
+        if (alignmentFilter != null) {
             alignmentFilter.setToolTipText(value);
         }
     */
@@ -160,21 +160,21 @@ public abstract class Node extends CanvasElement {
      * be used to paint the node.
     public attribute filter: Filter[]
         on insert [ndx] (f) {
-            if (effectFilter <> null) {
+            if (effectFilter != null) {
                 //JXFC-XXX com.sun.javafx.runtime.sequence.Sequence<java.awt.image.BufferedImageOp>
                 //effectFilter.setImageOps(for(i in filter) i.getFilter());
                     
             }
         }
         on delete [ndx] (f)  {
-            if (effectFilter <> null) {
+            if (effectFilter != null) {
                 //JXFC-XXX com.sun.javafx.runtime.sequence.Sequence<java.awt.image.BufferedImageOp>
                 //effectFilter.setImageOps(for(i in filter) i.getFilter());
             }
         }
 
         on replace [ndx] (f)  {
-            if (effectFilter <> null) {
+            if (effectFilter != null) {
                 //JXFC-XXX com.sun.javafx.runtime.sequence.Sequence<java.awt.image.BufferedImageOp>
                 //effectFilter.setImageOps(for(i in filter) i.getFilter());
             }
@@ -182,7 +182,7 @@ public abstract class Node extends CanvasElement {
      */
     /** A number between 0 and 1, 0 being transparent and 1 opaque. */
     public attribute opacity: Number = 1.0 on replace {
-        if (compositeFilter <> null) {
+        if (compositeFilter != null) {
             compositeFilter.setOpacity(clamp(opacity, 0, 1).floatValue());
         }
     }
@@ -192,7 +192,7 @@ public abstract class Node extends CanvasElement {
         if (halign == null) {
             //halign = HorizontalAlignment.LEADING;
         }
-	if (alignmentFilter <> null and halign <> null) {
+	if (alignmentFilter != null and halign != null) {
 	    alignmentFilter.setHorizontalAlignment(halign.id.intValue());
 	}
     }
@@ -202,7 +202,7 @@ public abstract class Node extends CanvasElement {
         if (valign == null) {
             //valign = VerticalAlignment.TOP;
         }
-	if (alignmentFilter <> null and valign <> null) {
+	if (alignmentFilter != null and valign != null) {
 	    alignmentFilter.setVerticalAlignment(valign.id.intValue());
 	}
     };
@@ -213,7 +213,7 @@ public abstract class Node extends CanvasElement {
      * will not receive events.
      */
     public attribute visible: Boolean = true on replace {
-	    if (alignmentFilter <> null) {
+	    if (alignmentFilter != null) {
 		alignmentFilter.setVisible(visible);
 	    }
     };
@@ -230,14 +230,14 @@ public abstract class Node extends CanvasElement {
     public attribute hover: Boolean;
 
     public attribute id: String on replace {
-	if (contentNode <> null) {
+	if (contentNode != null) {
 	    contentNode.setID(id);   
 	}
     };
 
     public function getCanvas(): Canvas {
         var n:CanvasElement = parentCanvasElement;
-        while (n <> null) {
+        while (n != null) {
             if ((n as java.lang.Object) instanceof Canvas) {
 	        return (n as java.lang.Object) as Canvas;
             }

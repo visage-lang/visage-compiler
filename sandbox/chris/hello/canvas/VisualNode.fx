@@ -131,14 +131,14 @@ public abstract class VisualNode extends Node {
 
     private attribute awtStroke: java.awt.Paint = bind if (this.stroke == null) then null else this.stroke.getPaint()
         on replace  {
-            if (sgvisualnode <> null and awtStroke <> null) {
+            if (sgvisualnode != null and awtStroke != null) {
                 sgvisualnode.setDrawPaint(awtStroke);
             }
             updateMode();
         };
     private attribute awtFill: java.awt.Paint = bind if (fill == null) null else fill.getPaint() 
         on replace {
-            if (sgvisualnode <> null and awtFill <> null) {
+            if (sgvisualnode != null and awtFill != null) {
                 sgvisualnode.setFillPaint(awtFill);
             }
             updateMode();
@@ -153,10 +153,10 @@ public abstract class VisualNode extends Node {
     }
 
    private  function updateMode() {
-        if (sgvisualnode <> null) {
-            if (awtFill <> null and awtStroke <> null) {
+        if (sgvisualnode != null) {
+            if (awtFill != null and awtStroke != null) {
                 sgvisualnode.setMode(SGAbstractShape.Mode.STROKE_FILL);
-            } else if (awtFill <> null) {
+            } else if (awtFill != null) {
                 sgvisualnode.setMode(SGAbstractShape.Mode.FILL);
             } else {
                 sgvisualnode.setMode(SGAbstractShape.Mode.STROKE);
@@ -165,7 +165,7 @@ public abstract class VisualNode extends Node {
     }
 
     public function updateStroke():Void {
-        if (false and sgvisualnode <> null) {
+        if (false and sgvisualnode != null) {
             sgvisualnode.setDrawStroke(new BasicStroke(strokeWidth.floatValue(),
                                                        strokeLineCap.id.intValue(),
                                                        strokeLineJoin.id.intValue(),
@@ -178,10 +178,10 @@ public abstract class VisualNode extends Node {
 
     protected function createNode(): SGNode {
         sgvisualnode = this.createVisualNode();
-        if (awtFill <> null) {
+        if (awtFill != null) {
             sgvisualnode.setFillPaint(awtFill);
         }
-        if (awtStroke <> null) {
+        if (awtStroke != null) {
             sgvisualnode.setDrawPaint(stroke.getPaint());
         }
         updateStroke(); // will also call updateMode()...

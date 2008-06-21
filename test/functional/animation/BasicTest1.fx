@@ -20,7 +20,7 @@ var t: Timeline = Timeline {
             time: 0ms
             values: [ strValue => "dog", intValue => 0, numValue => 0.0, booValue => true ]
             action: function() {
-                if(strValue <> "dog" or intValue <> 0 or numValue <> 0.0 or booValue <> true) {
+                if(strValue != "dog" or intValue != 0 or numValue != 0.0 or booValue != true) {
                     System.out.println("fail");
                 }
             }
@@ -29,7 +29,7 @@ var t: Timeline = Timeline {
             time: 300ms
             values: [ strValue => "", intValue => Integer.MAX_VALUE, numValue => Double.POSITIVE_INFINITY, booValue => false ]
             action: function() {        
-                if(strValue <> '' or intValue <> 2147483647 or numValue <> Double.POSITIVE_INFINITY/*Double.longBitsToDouble(0x7ff0000000000000L)*/ or booValue <> false) {
+                if(strValue != '' or intValue != 2147483647 or numValue != Double.POSITIVE_INFINITY/*Double.longBitsToDouble(0x7ff0000000000000L)*/ or booValue != false) {
                     System.out.println("fail");
                 } else {
                     System.out.println("pass");

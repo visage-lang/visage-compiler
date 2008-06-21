@@ -74,7 +74,7 @@ public class Editor extends DevComponent{
         var keyListener = KeyAdapter{
             public function keyReleased(e: java.awt.event.KeyEvent) {
                 updateComponentField(editorPane.getText());
-                //if(onKeyUp <> null){onKeyUp(KeyEvent{}); }
+                //if(onKeyUp != null){onKeyUp(KeyEvent{}); }
             }
         };
 

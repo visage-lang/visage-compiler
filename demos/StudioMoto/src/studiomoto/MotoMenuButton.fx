@@ -72,7 +72,7 @@ public class MotoMenuButton extends CompositeNode {
                     fill: Color.BLACK
                     arcHeight: 20
                     arcWidth: 20
-                    onMouseClicked: function(e) {if(action <> null) action();}
+                    onMouseClicked: function(e) {if(action != null) action();}
                 },
                 Rect {
                     clip: Clip{shape: Rect {height: h*.25, width: w}}

@@ -238,7 +238,7 @@ public class AssortisProject  extends MyCompositeComponent{
         var internalFrame = sample.frame;
         
         var title =  unit.title;
-        if (title <> "") { internalFrame.title = title; }
+        if (title != "") { internalFrame.title = title; }
 
         if ( unit.isWindow ){
             internalFrame.width = unit.width;

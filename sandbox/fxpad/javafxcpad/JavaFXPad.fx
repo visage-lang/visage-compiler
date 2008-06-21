@@ -260,7 +260,7 @@ attribute JavaFXPad.fontSize = 16;
 trigger on new JavaFXPad {
     preferences = Preferences.userRoot().node("JavaFXCPad");
     var path = preferences.get("CLASSPATH", "");
-    if (path <> "") {
+    if (path != "") {
 	var izer = new StringTokenizer(path, ";");
 	var urls = [];
 	while (izer.hasMoreTokens()) {
@@ -343,7 +343,7 @@ operation JavaFXPad.makeOp(op:Operation): String {
         }
         sep = ", ";
     }
-    if (ret <> null) {
+    if (ret != null) {
         content = "{content}): {formatType(ret.Type)}";
     } else {
         content = "{content})";
@@ -356,7 +356,7 @@ operation JavaFXPad.makeFunction(funName: String, op:Operation): String {
     var contentx = "{funName}(";
     var sep = "";
     var ret = null;
-    for (i in op.Attributes[a|a.Name <> 'this' and a.Name <> 'return']) {
+    for (i in op.Attributes[a|a.Name != 'this' and a.Name != 'return']) {
         contentx = "{contentx}{sep}{i.Name}";
         sep = ", ";
     }
@@ -740,7 +740,7 @@ operation JavaFXPad.evaluate(sourceCode:String, run:Boolean) {
 	e.printStackTrace(new PrintWriter(w));
 	result = w.toString();
     }
-    if (compileError <> null) {
+    if (compileError != null) {
         //result = compileError;
     } else if (run) {
     }
@@ -750,11 +750,11 @@ operation JavaFXPad.evaluate(sourceCode:String, run:Boolean) {
     } 
     if (comp == null) {
 	var a = result.class.Attributes[a|a.Name == 'JComponent'][0];
-	if (a <> null and a.Type == :JComponent) {
+	if (a != null and a.Type == :JComponent) {
 	   comp = (JComponent)result[a];
 	} 
     }
-    if (comp <> null) {
+    if (comp != null) {
 	compiledContent = View {
 	    content: WidgetHolder {
 		content: comp
@@ -762,7 +762,7 @@ operation JavaFXPad.evaluate(sourceCode:String, run:Boolean) {
 	};
     } else {
 	var a = result.class.Attributes[a | a.Name == 'frame'][0];
-	if (a <> null and a.Type == :JFrame) {
+	if (a != null and a.Type == :JFrame) {
 	    var frame = (JFrame)result[a];
 	    var widget = (JComponent)frame.getContentPane();
 	    var w = frame.getRootPane().getWidth();
@@ -866,7 +866,7 @@ operation JavaFXPad.compile() {
 }
 
 operation JavaFXPad.composeWidget() {
-    do later {if (url <> null) {go();}}
+    do later {if (url != null) {go();}}
     return Canvas {
         trigger on not assert a {
              insert ErrorMessage {line: a.lineNumber, message: "{a.sourceURL}:{a.lineNumber}: Assertion failed: {a.assertion} {a.description}"} into errMessages;
@@ -1206,7 +1206,7 @@ operation JavaFXPad.composeWidget() {
                             var: self
                             action: operation() { 
                                 var err = errMessages[self.selection];
-                                if (err <> null) {
+                                if (err != null) {
                                     do later {
                                         try {
                                             editor.selectLocation(err.line, err.column, err.line, err.column + err.length);

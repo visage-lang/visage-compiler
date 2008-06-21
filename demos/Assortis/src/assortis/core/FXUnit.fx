@@ -70,7 +70,7 @@ public class FXUnit {
             //java.lang.System.out.println("[visible] set: {false}" );
             frame.visible = false;
             var title =  frame.title;
-            if (title <> "") { unit.title = title; }
+            if (title != "") { unit.title = title; }
             var w = frame.width;
             var h = frame.height;
             if ( 0 < w ){ unit.width = w; }

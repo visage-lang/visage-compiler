@@ -59,7 +59,7 @@ public class ClickAndGoSelectListener extends SelectListener  {
                     var targetPos:Position = event.getTopPickedObject().getPosition();
                     var view:OrbitView = this.wwd.getView() as OrbitView;
                     var globe:Globe = this.wwd.getModel().getGlobe();
-                    if(globe <> null and view <> null)
+                    if(globe != null and view != null)
                     {
                         // Use a PanToIterator to iterate view to target position
                         view.applyStateIterator(FlyToOrbitViewStateIterator.createPanToIterator(

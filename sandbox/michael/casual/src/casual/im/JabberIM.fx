@@ -63,7 +63,7 @@ public class JabberIM extends InstantMessenger
         }
         catch (any2)
         {
-            if ((connection <> null) and (connection.isConnected() == true))
+            if ((connection != null) and (connection.isConnected() == true))
             {
                 connection.disconnect();
             }
@@ -219,12 +219,12 @@ public class JabberIM extends InstantMessenger
 
     function isConnected(): Boolean
     {
-        return ((connection <> null) and (connection.isConnected() == true));
+        return ((connection != null) and (connection.isConnected() == true));
     }
 
     function isAuthenticated(): Boolean
     {
-        return ((connection <> null) and (connection.isAuthenticated() == true));
+        return ((connection != null) and (connection.isAuthenticated() == true));
     }
 
     function logout(): Void

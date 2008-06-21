@@ -31,7 +31,7 @@ Frame {
     var javafxPad = JavaFXPad {
         userCode: userCode()
         frame: frame
-        url: if ARGUMENTS:String <> null then ARGUMENTS:String else null
+        url: if ARGUMENTS:String != null then ARGUMENTS:String else null
     }        
     onClose: operation() {System.exit(0);}
     visible: true

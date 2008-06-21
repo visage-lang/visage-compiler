@@ -45,7 +45,7 @@ public abstract class ToolComponent extends Component{
 //                //public function mouseEntered(e: java.awt.event.MouseEvent) {  } 
 //                public function mouseReleased(e: java.awt.event.MouseEvent) {  
 //                    //System.out.println("[tools] mouse released");
-//                    if(dragFlag and dragValue <> null){ 
+//                    if(dragFlag and dragValue != null){ 
 //                        dragFlag = false;
 //                        drop(dragValue);
 //                    }
@@ -56,7 +56,7 @@ public abstract class ToolComponent extends Component{
 //                public function mouseDragged(e: java.awt.event.MouseEvent) {  
 //                    dragFlag = true;
 //                    //System.out.println("[tools] mouse released");
-//                    //if(dragValue <> null){ drop(dragValue);}
+//                    //if(dragValue != null){ drop(dragValue);}
 //                } 
 //                //public function mouseClicked(e: java.awt.event.MouseEvent) {  } 
 //            };

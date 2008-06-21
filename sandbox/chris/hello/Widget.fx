@@ -9,7 +9,7 @@ public abstract class Widget extends AbstractWidget {
     private attribute inComponentListener = false;
 
     private function updateBounds() {
-        if (not inComponentListener and component <> null) {
+        if (not inComponentListener and component != null) {
             component.setBounds(x.intValue(), y.intValue(), width.intValue(), height.intValue());
         }
     }
@@ -20,7 +20,7 @@ public abstract class Widget extends AbstractWidget {
     public attribute y: Number = 0 on replace { updateBounds(); }
 
     public attribute opaque: Boolean = false on replace { 
-        if (component <> null) {
+        if (component != null) {
             component.setOpaque(opaque);
         } 
     }
@@ -33,16 +33,16 @@ public abstract class Widget extends AbstractWidget {
     private function setBounds() {
         var b = component.getBounds();
         inComponentListener = true;
-	if (x.intValue() <> b.getX()) {
+	if (x.intValue() != b.getX()) {
 	    x = b.getX();
 	}
-	if (y.intValue() <> b.getY()) {
+	if (y.intValue() != b.getY()) {
 	    y = b.getY();
 	}
-	if (width.intValue() <> b.getWidth()) {
+	if (width.intValue() != b.getWidth()) {
 	    width = b.getWidth();
 	}
-	if (height.intValue() <> b.getHeight()) {
+	if (height.intValue() != b.getHeight()) {
 	    height = b.getHeight();
 	}
         inComponentListener = false;
@@ -71,13 +71,13 @@ public abstract class Widget extends AbstractWidget {
             comp.addMouseMotionListener(MouseMotionListener {
                 public function mouseDragged(event:java.awt.event.MouseEvent):Void {
                     var e = MouseEvent { x: event.getX(), y: event.getY(), button: 1 };
-		    if (onMouseDrag <> null) {
+		    if (onMouseDrag != null) {
 			onMouseDrag(e);
 		    }
                 }
                 public function mouseMoved(event:java.awt.event.MouseEvent):Void {
                     var e = MouseEvent { x: event.getX(), y: event.getY(), button: 1 };
-		    if (onMouseMove <> null) {
+		    if (onMouseMove != null) {
 			onMouseMove(e);
 		    }
                 }

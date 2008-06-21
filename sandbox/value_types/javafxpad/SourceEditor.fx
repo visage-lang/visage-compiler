@@ -143,7 +143,7 @@ attribute SourceEditor.addEditTimeline = Timeline {
                     compoundEdit.end();
                 }
             }
-            if (edit <> null) {
+            if (edit != null) {
                 undoManager.addEdit(edit);
                 edit = null;
             }

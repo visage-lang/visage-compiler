@@ -43,7 +43,7 @@ public class ScrollBar extends CompositeNode
 //    }
 //    trigger on Workaround.visible = value
 //    {
-//        if (ag<>null and value==true)
+//        if (ag!=null and value==true)
 //        {
 //            do later
 //            {

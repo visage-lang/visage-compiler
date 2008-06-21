@@ -38,42 +38,42 @@ public class Rect extends Shape {
 
     /** The x coordinate of this rectangle's location. */
     public attribute x: Number on replace {
-	if (sgrect <> null) {
+	if (sgrect != null) {
 	    awtrect.setRoundRect(x, y, width, height, arcWidth, arcHeight);
 	    sgrect.setShape(awtrect);
 	}
     };
     /** The y coordinate of this rectangle's location. */
     public attribute y: Number on replace {
-	if (sgrect <> null) {
+	if (sgrect != null) {
 	    awtrect.setRoundRect(x, y, width, height, arcWidth, arcHeight);
 	    sgrect.setShape(awtrect);
 	}
     };
     /** The width of this rectangle. */
     public attribute width: Number on replace {
-	if (sgrect <> null) {
+	if (sgrect != null) {
 	    awtrect.setRoundRect(x, y, width, height, arcWidth, arcHeight);
 	    sgrect.setShape(awtrect);
 	}
     };
     /** The height of this rectangle. */
     public attribute height: Number on replace {
-	if (sgrect <> null) {
+	if (sgrect != null) {
 	    awtrect.setRoundRect(x, y, width, height, arcWidth, arcHeight);
 	    sgrect.setShape(awtrect);
 	}
     };
     /** The width of the corner arc of this rectangle. */
     public attribute arcWidth: Number on replace {
-	if (sgrect <> null) {
+	if (sgrect != null) {
 	    awtrect.setRoundRect(x, y, width, height, arcWidth, arcHeight);
 	    sgrect.setShape(awtrect);
 	}
     };
     /** The height of the corner arc of this rectangle. */
     public attribute arcHeight: Number on replace {
-	if (sgrect <> null) {
+	if (sgrect != null) {
 	    awtrect.setRoundRect(x, y, width, height, arcWidth, arcHeight);
 	    sgrect.setShape(awtrect);
 	}

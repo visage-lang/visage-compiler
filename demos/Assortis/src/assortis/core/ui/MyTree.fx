@@ -24,7 +24,7 @@ public class MyTree extends Component{
     
     public attribute root: MyTreeCell on replace{
         //System.out.println("[tree cell] {root}");
-        if (root <> null){
+        if (root != null){
             //System.out.println("[tree cell] {root.text}");
             //(tree.getModel() as DefaultTreeModel).setRoot(getCell(root));
 
@@ -62,11 +62,11 @@ public class MyTree extends Component{
                 var lastPath = selPath.getPathComponent(selPath.getPathCount() - 1);
                 var obj = (lastPath as DefaultMutableTreeNode).getUserObject(); 
 
-                if(onMouseClicked <> null ){
+                if(onMouseClicked != null ){
                     onMouseClicked(MyMouseEvent{ source: obj clickCount: e.getClickCount()});
                 }
                 
-                if(selRow <> -1) {
+                if(selRow != -1) {
                     if(e.getClickCount() == 1) {
                         selectedValue = obj; 
                         //System.out.println("[tree] Single Click: {selectedValue}");

@@ -6,49 +6,49 @@ public abstract class AbstractButton extends Widget {
 
     private attribute swingIcon: javax.swing.Icon = bind if (icon == null) null else icon.getIcon()
 	on replace {
-	    if (buttonComponent <> null) {
+	    if (buttonComponent != null) {
 		buttonComponent.setIcon(swingIcon);
 	    }
 	}
 
     private attribute swingDisabledIcon: javax.swing.Icon = bind if (disabledIcon == null) null else disabledIcon.getIcon()
 	on replace {
-	    if (buttonComponent <> null) {
+	    if (buttonComponent != null) {
 		buttonComponent.setDisabledIcon(swingDisabledIcon);
 	    }
 	}
 
     private attribute swingSelectedIcon: javax.swing.Icon = bind if (selectedIcon == null) null else selectedIcon.getIcon()
 	on replace {
-	    if (buttonComponent <> null) {
+	    if (buttonComponent != null) {
 		buttonComponent.setSelectedIcon(swingSelectedIcon);
 	    }
 	}
 
     private attribute swingDisabledSelectedIcon: javax.swing.Icon = bind if (disabledSelectedIcon == null) null else disabledSelectedIcon.getIcon()
 	on replace {
-	    if (buttonComponent <> null) {
+	    if (buttonComponent != null) {
 		buttonComponent.setDisabledSelectedIcon(swingDisabledSelectedIcon);
 	    }
 	}
 
     private attribute swingRolloverIcon: javax.swing.Icon = bind if (rolloverIcon == null) null else rolloverIcon.getIcon()
 	on replace {
-	    if (buttonComponent <> null) {
+	    if (buttonComponent != null) {
 		buttonComponent.setRolloverIcon(swingRolloverIcon);
 	    }
 	}
 
     private attribute swingRolloverSelectedIcon: javax.swing.Icon = bind if (rolloverSelectedIcon == null) null else rolloverSelectedIcon.getIcon()
 	on replace {
-	    if (buttonComponent <> null) {
+	    if (buttonComponent != null) {
 		buttonComponent.setRolloverSelectedIcon(swingRolloverSelectedIcon);
 	    }
 	}
 
     private attribute swingPressedIcon: javax.swing.Icon = bind if (pressedIcon == null) null else pressedIcon.getIcon()
 	on replace {
-	    if (buttonComponent <> null) {
+	    if (buttonComponent != null) {
 		buttonComponent.setPressedIcon(swingPressedIcon);
 	    }
 	}
@@ -56,7 +56,7 @@ public abstract class AbstractButton extends Widget {
     public attribute action: function() = null;
     public attribute selected: Boolean;
     public attribute text: String = "" on replace {
-        if (buttonComponent <> null) buttonComponent.setText(text);
+        if (buttonComponent != null) buttonComponent.setText(text);
     }
 
     public attribute icon: Icon = null;
@@ -70,10 +70,10 @@ public abstract class AbstractButton extends Widget {
 
     /*
     public attribute buttonGroup: ButtonGroup on replace(old {
-	if (old <> null) {
+	if (old != null) {
 	    delete this from old.content;
 	}
-	if (buttonGroup <> null) {
+	if (buttonGroup != null) {
 	    insert this into buttonGroup.content;
 	}
     }
@@ -99,7 +99,7 @@ public abstract class AbstractButton extends Widget {
 	buttonComponent.setPressedIcon(swingPressedIcon);
 	buttonComponent.addActionListener(java.awt.event.ActionListener {
 				     public function actionPerformed(e:java.awt.event.ActionEvent): Void {
-					 if (action <> null) {
+					 if (action != null) {
 					     action();
 					 }
 				     }

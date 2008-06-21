@@ -41,7 +41,7 @@ public class MyInternalFrame extends Component{
             if( not selected){
                 internalFrame.setSelected(false);
             }else{
-                for ( f in rootPane.frames[fr| fr <> this]){
+                for ( f in rootPane.frames[fr| fr != this]){
                     f.selected = false; 
                 }
                 internalFrame.setSelected(true);
@@ -53,7 +53,7 @@ public class MyInternalFrame extends Component{
     public attribute background: Color;
     
     public attribute content: Component on replace{
-        if(content <> null){
+        if(content != null){
             internalFrame.setContentPane(content.getJComponent());
             //internalFrame.repaint();
         }
@@ -83,7 +83,7 @@ public class MyInternalFrame extends Component{
             }
 
             public function internalFrameClosing(e: javax.swing.event.InternalFrameEvent):Void {
-                if(onClose <> null) {
+                if(onClose != null) {
                     onClose();
                 }
                 rootPane.getJComponent().repaint();

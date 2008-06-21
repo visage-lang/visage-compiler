@@ -8,7 +8,7 @@ public class SimpleLabel extends Widget {
 
     private attribute swingIcon: javax.swing.Icon = bind if (icon == null) null else icon.getIcon()
 	on replace {
-	    if (jlabel <> null) {
+	    if (jlabel != null) {
 		jlabel.setIcon(swingIcon);
 	    }
 	}
@@ -16,7 +16,7 @@ public class SimpleLabel extends Widget {
     public attribute icon: Icon = null;
 
     public attribute text: String = "" on replace {
-        if (jlabel <> null) jlabel.setText(text);
+        if (jlabel != null) jlabel.setText(text);
     }
 
     protected function createComponent(): JComponent {

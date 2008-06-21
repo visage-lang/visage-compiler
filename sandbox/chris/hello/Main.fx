@@ -139,7 +139,7 @@ class BallModel {
     }
 
     function stop() {
-	if (timer <> null) {
+	if (timer != null) {
 	    timer.stop();
 	}
     }

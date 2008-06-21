@@ -142,7 +142,7 @@ public class AccountWindow extends CasualFrame
 
             if ((buddy.userName.length() > 0) and (buddy.accountName.length() > 0) and (buddy.type == Buddy.BuddyType.USER))
             {
-                if (passwordField<>null)
+                if (passwordField!=null)
                 {
                     passwordField.requestFocus();
                 }

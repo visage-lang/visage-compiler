@@ -29,7 +29,7 @@ public class ComponentDragSource extends DragGestureListener, DragSourceListener
 
     public function dragGestureRecognized(dge: DragGestureEvent) {
         var drag = component.drag;
-        if(drag <> null){
+        if(drag != null){
             dge.startDrag(null, new ViewTransferable(drag()), this);
             
         }

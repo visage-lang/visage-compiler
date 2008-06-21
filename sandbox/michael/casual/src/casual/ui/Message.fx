@@ -89,7 +89,7 @@ public class Message extends CompositeNode
                 },
                 Rect
                 {
-                    visible: bind (type <> MessageType.COMMENT)
+                    visible: bind (type != MessageType.COMMENT)
                     stroke: bind ThemeManager.getInstance().messageBorderColor
                     x: 0
                     y: -1

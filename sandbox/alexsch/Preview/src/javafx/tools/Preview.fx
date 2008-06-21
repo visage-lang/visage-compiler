@@ -45,7 +45,7 @@ public class Preview extends Component{
     
     public function createJComponent(){
         BorderPanel{ 
-            center: bind if( component <> null ) then component else
+            center: bind if( component != null ) then component else
                 List{
                     items: bind for(item in errors) ListItem{ text: "{item}" }
                     selectedIndex: bind diagnosticIndex with inverse
@@ -111,7 +111,7 @@ public class FXUnit {
             
             frame.visible = false;
             var title =  frame.title;
-            if (title <> "") { unit.title = title; }
+            if (title != "") { unit.title = title; }
             var w = frame.width;
             var h = frame.height;
             if ( 0 < w ){ unit.width = w; }

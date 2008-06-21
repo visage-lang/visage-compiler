@@ -160,13 +160,13 @@ operation SourcePathDialog.show(win:UIElement) {
                     preferredSize: {width: 80}
                     text: "Up"
                     action: operation() {self.up();}
-                    enabled: bind self.selectedSourcePath <> null and self.selectedSourcePath > 0
+                    enabled: bind self.selectedSourcePath != null and self.selectedSourcePath > 0
                 },
                 Button {
                     preferredSize: {width: 80}
                     text: "Down"
                     action: operation() {self.down();}
-                    enabled: bind self.selectedSourcePath <> null and self.selectedSourcePath < sizeof self.sourcePath-1
+                    enabled: bind self.selectedSourcePath != null and self.selectedSourcePath < sizeof self.sourcePath-1
                 }]
             }
         }

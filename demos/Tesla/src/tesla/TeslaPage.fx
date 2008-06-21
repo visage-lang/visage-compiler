@@ -69,7 +69,7 @@ class TeslaPage extends CompositeNode {
                 fill: Color.rgba(0, 0, 0, 0) as Paint
                 onMouseClicked: function(e:CanvasMouseEvent) {
                     //             println("buy...");
-                    if (buySelect <> null) {
+                    if (buySelect != null) {
                         buySelect();
                     }
                 }

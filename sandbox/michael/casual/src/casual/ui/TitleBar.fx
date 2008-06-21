@@ -119,7 +119,7 @@ public class TitleBar extends CompositeNode
                         if (hover)
                         {
                             frame.close();
-                            if (onClose <> null)
+                            if (onClose != null)
                             {
                                 (onClose)();
                             }

@@ -10,7 +10,7 @@ import java.lang.System;
         readonly attribute a = 3; 
         private attribute b = bind a * 10; 
         function f1(x, y, z) { x - y } 
-        public function f2(a, b, c) { a + b <> 6; } 
+        public function f2(a, b, c) { a + b != 6; } 
     } 
 
 

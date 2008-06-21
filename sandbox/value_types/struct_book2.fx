@@ -651,7 +651,7 @@ function Book.composeNode():Node {
         Group {
             
             content: 
-            [Group { content: bind pages[p|indexof p <= page-3 and indexof p % 2 <> 0]},
+            [Group { content: bind pages[p|indexof p <= page-3 and indexof p % 2 != 0]},
             Clip {
                 var shape = bind if dragPage == leftBack then
                 Path {
@@ -773,7 +773,7 @@ function Book.composeNode():Node {
             },
             Rect {
                 opacity: 0.5
-                visible: bind dragPage <> null
+                visible: bind dragPage != null
                 width: bind gradientWidth
                 height: bind gradientHeight
                 transform: bind [rotate(gradientRotation, 0, 0), translate(gradientX, gradientY)]

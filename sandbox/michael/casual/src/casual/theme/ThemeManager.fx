@@ -128,7 +128,7 @@ public class ThemeManager extends Theme
 
     function add(t:Theme)
     {
-        if (t <> null)
+        if (t != null)
         {
             insert t into themes;
         }

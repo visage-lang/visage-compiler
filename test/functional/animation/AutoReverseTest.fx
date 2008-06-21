@@ -22,7 +22,7 @@ var t : Timeline = Timeline {
                 if(id == sizeof golden) {
                     System.out.println("pass");
                     t.stop(); 
-                } else if(indexof image <> golden[id++]) {
+                } else if(indexof image != golden[id++]) {
                     System.out.println("false");
                     t.stop();
                 }

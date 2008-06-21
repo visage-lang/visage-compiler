@@ -123,7 +123,7 @@ public class SourceEditor extends ScrollableWidget {
         jtextarea.setSelectedTextColor(selectedTextColor.getColor());
     };
     public attribute selectionColor: Color =  Color.fromAWTColor(jtextarea.getSelectionColor()) on replace {
-        if(selectionColor <> null) {
+        if(selectionColor != null) {
             jtextarea.setSelectionColor(selectionColor.getColor());
         }
     };
@@ -141,7 +141,7 @@ public class SourceEditor extends ScrollableWidget {
     };
     public attribute text:String on replace old {
         if (not inUpdate) {
-            if(text <> jtextarea.getText()) {
+            if(text != jtextarea.getText()) {
                 inUpdate = true;
                 jtextarea.setText(text);
                 lineCount = jtextarea.getLineCount();
@@ -176,7 +176,7 @@ public class SourceEditor extends ScrollableWidget {
                         compoundEdit.end();
                     }
                 }
-                if (edit <> null) {
+                if (edit != null) {
                     undoManager.addEdit(edit);
                     edit = null;
                 }

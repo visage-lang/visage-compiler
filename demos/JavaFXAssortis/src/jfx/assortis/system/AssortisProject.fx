@@ -124,7 +124,7 @@ public class AssortisProject  extends CompositeWidget{
     
     private attribute selectedCodeIndex: Number on replace{
         
-        if ( codeTabs <> [] and 0 <= selectedCodeIndex ){
+        if ( codeTabs != [] and 0 <= selectedCodeIndex ){
             var title = codeTabs[selectedCodeIndex.intValue()].title;
             selectFrame(title);
             
@@ -136,11 +136,11 @@ public class AssortisProject  extends CompositeWidget{
     private attribute defLocale:Locale = Locale.getDefault();
 
     private attribute selectedPropIndex: Number on replace {
-        if (currentPropTabs <> [] and 0 <= selectedPropIndex ){
+        if (currentPropTabs != [] and 0 <= selectedPropIndex ){
             var index = selectedPropIndex.intValue();
             var codeIndex = selectedCodeIndex.intValue();
             var l = currentPropLocales.get(index) as Locale;
-            if (l <> null) {
+            if (l != null) {
                 Locale.setDefault(l);
             }
             createFrame(executedSamples[codeIndex], 
@@ -319,7 +319,7 @@ public class AssortisProject  extends CompositeWidget{
             if ( 0 < h ){ internalFrame.height = h; }
             
             var title =  frame.title;
-            if (title <> "") { internalFrame.title = title; }
+            if (title != "") { internalFrame.title = title; }
 
             internalFrame.menubar = frame.menubar;
             internalFrame.content = frame.content;
@@ -481,7 +481,7 @@ public class AssortisProject  extends CompositeWidget{
     function selectFrame(name: String):Void{
         //System.out.println("[select sample] name: {name}");
         var sample = executedSamples[s| s.name == name];
-        if (sample <> [] ) {
+        if (sample != [] ) {
             var f = sample[0].frame;
             if ( not f.selected) {
                 f.selected = true;
@@ -494,12 +494,12 @@ public class AssortisProject  extends CompositeWidget{
         for( tab in codeTabs){
             if (tab.title == name){
                 var ind = indexof tab;                
-                if ( ind <> selectedCodeIndex ){
+                if ( ind != selectedCodeIndex ){
                     selectedCodeIndex = ind;
                 }
                 currentPropTabs = executedSamples[ind].propTabs;
                 currentPropLocales = executedSamples[ind].propLocales;
-                if (currentPropTabs <> null) {
+                if (currentPropTabs != null) {
                     selectedPropIndex = 0;
                 }
                 break;

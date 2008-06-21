@@ -17,7 +17,7 @@ import javafx.ui.canvas.*;
  */
 class JavaFxBall extends BallBase {
     attribute img: ball on replace {
-        if (img <> null) {
+        if (img != null) {
             img.transform = [Translate{x:bind _x, y: bind _y}];
             initialize();
         }

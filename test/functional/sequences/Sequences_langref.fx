@@ -9,28 +9,28 @@ import java.lang.System;
 var failures=0;
 var passes=0;
 function compareis( seq1:Integer[], seq2:Integer[],msg:String) {
-	if(seq1<> seq2) {
-		System.out.println("FAILED: {msg}: {seq1}<>{seq2}");
+	if(seq1!= seq2) {
+		System.out.println("FAILED: {msg}: {seq1}!={seq2}");
 		failures++
     } else { passes++;}
 }
 
 function comparess( seq1:String[], seq2:String[],msg:String) {
-	if(seq1<> seq2) {
-		System.out.println("FAILED: {msg}: {seq1}<>{seq2}");
+	if(seq1!= seq2) {
+		System.out.println("FAILED: {msg}: {seq1}!={seq2}");
 		failures++
     } else { passes++;}
 }
 
 function comparei( i1:Integer, i2:Integer,msg:String) {
-	if(i1<>i2) {
-		System.out.println("FAILED: {msg}: {i1}<>{i2}");
+	if(i1!=i2) {
+		System.out.println("FAILED: {msg}: {i1}!={i2}");
 		failures++
     } else { passes++;}
 }
 
 function check(istrue:Boolean,msg:String) {	
-	if(istrue <> true) { failures++; System.out.println("FAILED: {msg}"); }
+	if(istrue != true) { failures++; System.out.println("FAILED: {msg}"); }
 	 else {passes++; } 
 	 }
 

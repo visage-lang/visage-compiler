@@ -161,16 +161,16 @@ public class Main extends CompositeNode {
                                 self.elapsedMinutes = seconds / 60;
                                 self.elapsedSeconds = seconds % 60;
                                 var bitrate = streamProperties.get("bitrate") as Number;
-                                if (bitrate <> null) {
+                                if (bitrate != null) {
                                       self.bitRate = Math.round(bitrate/1000) as Integer;
                                 }
                                 var fr = streamProperties.get("audio.framerate.fps") as Number;
                                 var fs = streamProperties.get("audio.framesize.bytes") as Number;
-                                if (fr <> null) {
+                                if (fr != null) {
                                     self.frameRate = Math.round(fs *fr *8);
                                 }
                                 var samplerate = streamProperties.get("audio.samplerate.hz") as Number;
-                                if (samplerate <> null) {
+                                if (samplerate != null) {
                                     self.sampleRate = Math.round(samplerate/1000) as Integer;
                                 }
                             } else {
@@ -327,7 +327,7 @@ public class Main extends CompositeNode {
         try {
             var url = new URL("{baseURL}/{imageFile}");
             var is = url.openStream();
-            if (is <> null) {
+            if (is != null) {
                 return "{baseURL}/{imageFile}";
             }
         } catch (e) {
@@ -492,7 +492,7 @@ public class Main extends CompositeNode {
 
     attribute playButton: ButtonView =
         ButtonView {
-            enabled: bind songUrl <> null
+            enabled: bind songUrl != null
             toolTipText: "Play"
             normal: bind controlButtonsNormal[1]
             pressed: bind controlButtonsPressed[1]
@@ -502,7 +502,7 @@ public class Main extends CompositeNode {
     
     attribute pauseButton: ButtonView = 
         ButtonView {
-            enabled: bind songUrl <> null
+            enabled: bind songUrl != null
             toolTipText: "Pause"
             normal: bind controlButtonsNormal[2]
             pressed: bind controlButtonsPressed[2]
@@ -512,7 +512,7 @@ public class Main extends CompositeNode {
 
     attribute stopButton: ButtonView = 
         ButtonView {
-            enabled: bind songUrl <> null
+            enabled: bind songUrl != null
             toolTipText: "Stop"
             normal: bind controlButtonsNormal[3]
             pressed: bind controlButtonsPressed[3]

@@ -31,7 +31,7 @@ public class Frame extends UIElement {
 
     private function setSize() {
 	size = new java.awt.Dimension(width.intValue(), height.intValue());
-	if (frame <> null and not inListener) {
+	if (frame != null and not inListener) {
 	    frame.setSize(size);
 	}
     }
@@ -42,7 +42,7 @@ public class Frame extends UIElement {
     public attribute y: Number = 0 on replace { setLocation(); }
 
     private function setLocation() {
-	if (frame <> null and not inListener) {
+	if (frame != null and not inListener) {
 	    var location = new java.awt.Point(x.intValue(), y.intValue());
 	    frame.setLocation(location);
 	}
@@ -81,7 +81,7 @@ public class Frame extends UIElement {
 			    show();
 			}
 		    });
-	    } else if (frame <> null) {
+	    } else if (frame != null) {
 		frame.hide();
 	    }
 	}
@@ -116,19 +116,19 @@ public class Frame extends UIElement {
 	    frame = createFrame();
 	    frame.setUndecorated(undecorated);
 	    frame.setResizable(resizable);
-	    //if (background <> null)  {
+	    //if (background != null)  {
 	    //frame.setBackground(background.getColor());
 	    //}
-	    if (content <> null) {
+	    if (content != null) {
 		frame.getContentPane().add(content.getComponent());
 	    }
-	    if (iconImage <> null) {
+	    if (iconImage != null) {
 		frame.setIconImage(iconImage.getImage());
 	    }
 	    frame.setTitle(title);
 	    windowListener = java.awt.event.WindowListener {
 		public function windowClosing(event:java.awt.event.WindowEvent): Void {
-		    if (onClose <> null) {
+		    if (onClose != null) {
 			onClose();
 		    }
 		    if (hideOnClose) {
@@ -143,7 +143,7 @@ public class Frame extends UIElement {
 		    inListener = true;
 		    iconified = false;
 		    inListener = false;
-		    if (onOpen <> null) {
+		    if (onOpen != null) {
 			onOpen();
 		    }
 		}
@@ -213,23 +213,23 @@ public class Frame extends UIElement {
 	if (size == null or height == 0 or width == 0) {
 	    frame.pack();
 	    size = frame.getSize();
-	    if (height <> 0) {
+	    if (height != 0) {
 		size.height = height.intValue();
 	    }
-	    if (width <> 0) {
+	    if (width != 0) {
 		size.width = width.intValue();
 	    }
-	    if (size.height <> 0 or size.width <> 0) {
+	    if (size.height != 0 or size.width != 0) {
 		frame.setSize(size);
 	    }
 	} else {
 	    frame.pack();
 	    frame.setSize(size);
 	}
-	if (owner <> null) {
+	if (owner != null) {
 	    frame.setLocationRelativeTo(owner.getWindow());
 	} else {
-	    if (x <> 0 or y <> 0) {
+	    if (x != 0 or y != 0) {
 		var location = new java.awt.Point(x.intValue(), y.intValue());
 		frame.setLocation(location);
 	    } else if (centerOnScreen) {

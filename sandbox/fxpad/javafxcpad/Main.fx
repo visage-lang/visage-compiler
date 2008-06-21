@@ -34,7 +34,7 @@ Frame {
 	frame: frame
     }
     operation setSourcePath() {
-	if (ARGUMENTS:String <> null) {
+	if (ARGUMENTS:String != null) {
 	    var path = ARGUMENTS:String;
 	    var izer = new StringTokenizer(path, ";");
 	    var urls = [];
