@@ -58,7 +58,7 @@ public class Table extends ScrollableWidget {
 
     public attribute locked: Boolean;
     public attribute autoResizeMode: TableAutoResizeMode on replace {
-        if (autoResizeMode <> null) {
+        if (autoResizeMode != null) {
             table.setAutoResizeMode(autoResizeMode.id.intValue());
         }        
     };
@@ -66,7 +66,7 @@ public class Table extends ScrollableWidget {
     public attribute visibleRowCount: Number;
 
     public attribute selection: Integer = -1 on replace old {
-        if (table <> null) {
+        if (table != null) {
             var model = table.getSelectionModel();
             if (old >= 0 and old < table.getRowCount()) {
                 var c1 = old * sizeof columns;
@@ -82,7 +82,7 @@ public class Table extends ScrollableWidget {
                 model.clearSelection();
                 selection = -1;
             } else {
-                if (table.getSelectedRow() <> selection) {
+                if (table.getSelectedRow() != selection) {
                     inSetSelection = true;
                     table.setRowSelectionInterval(selection, selection);
                     inSetSelection = false;
@@ -127,13 +127,13 @@ public class Table extends ScrollableWidget {
     public attribute onSelectionChange: function():Void;
 
     public attribute gridColor: Color on replace {
-        if(gridColor <> null and gridColor.getColor() <> null)
+        if(gridColor != null and gridColor.getColor() != null)
             table.setGridColor(gridColor.getColor());
     };
     public attribute columns: TableColumn[];
     public attribute cells: TableCell[] on replace oldValue[lo..hi]=newVals {
         var s = selection;
-        if (tableModel <> null) {
+        if (tableModel != null) {
             for(k in [lo..hi]) { 
                 tableModel.removeCell(lo);
             }
@@ -141,7 +141,7 @@ public class Table extends ScrollableWidget {
         var ndx = lo;
         for(cell in newVals) {
             cell.table = this;
-            if (tableModel <> null) {
+            if (tableModel != null) {
                 tableModel.addCell(ndx, cell.text, cell.toolTipText,
                                    cell.font.getFont(), cell.background.getColor(), cell.foreground.getColor(),
                                    cell.border.getBorder());
@@ -152,7 +152,7 @@ public class Table extends ScrollableWidget {
         selection = s;
     };
     public attribute intercellSpacing: Dimension on replace {
-        if(table <> null and intercellSpacing <> null)
+        if(table != null and intercellSpacing != null)
             table.setIntercellSpacing(intercellSpacing);
     };
     protected function createTable(): javax.swing.JTable {
@@ -174,7 +174,7 @@ public class Table extends ScrollableWidget {
      * default drop action will occur.
      */
     public attribute dropMode:DropMode = DropMode.USE_SELECTION on replace {
-        if(table <> null) {
+        if(table != null) {
             UIElement.context.setDropMode(dropMode.id, table);
         }
     }
@@ -184,12 +184,12 @@ public class Table extends ScrollableWidget {
      */    
     public attribute enableDND: Boolean on replace {
         if (enableDND) {
-            if (transferHandler == null and table <> null) {
+            if (transferHandler == null and table != null) {
                 addTransferHandler();
             }
-            if(table <> null)
+            if(table != null)
                 table.setDragEnabled(true);
-        } else if (table <> null) {
+        } else if (table != null) {
             table.setDragEnabled(false);
         }
     };
@@ -326,7 +326,7 @@ public class Table extends ScrollableWidget {
     };     
     
     private bound function acceptDrop(value:Object):Boolean{
-        if (this.canAcceptDrop <> null) {
+        if (this.canAcceptDrop != null) {
             var info = MouseInfo.getPointerInfo();
             var location = table.getLocationOnScreen();
             var p = info.getLocation();
@@ -338,7 +338,7 @@ public class Table extends ScrollableWidget {
             };
             return (this.canAcceptDrop)(e);
         } else {
-            return onDrop <> null;
+            return onDrop != null;
         }
     }
     private bound function getDragValue(): java.lang.Object  {
@@ -354,7 +354,7 @@ public class Table extends ScrollableWidget {
         
     }
     private function setDropValue(value:Object):Void {
-        if (onDrop <> null) {
+        if (onDrop != null) {
             var info = MouseInfo.getPointerInfo();
             var location = table.getLocationOnScreen();
             var p = info.getLocation();
@@ -396,14 +396,14 @@ public class Table extends ScrollableWidget {
         var columnModel = table.getColumnModel();
         for (i in [0..<table.getColumnCount()]) {
             var col = columns[i.intValue()];
-            if (col.width <> UNSET) {
+            if (col.width != UNSET) {
                 columnModel.getColumn(i.intValue()).setPreferredWidth(col.width.intValue());
             }
         }
-        if (autoResizeMode <> null) {
+        if (autoResizeMode != null) {
             //table.setAutoResizeMode(autoResizeMode.id);
         }
-        if (intercellSpacing <> null) {
+        if (intercellSpacing != null) {
             table.setIntercellSpacing(intercellSpacing);
         }
         if (selection >= 0 and selection < table.getRowCount()) {
@@ -425,7 +425,7 @@ public class Table extends ScrollableWidget {
             com.sun.javafx.api.ui.ValueSetter {
                 public
                 function set(value:Object):Void {
-                    if(onDrop <> null) {
+                    if(onDrop != null) {
                         setDropValue(value);
                     }
                 }
@@ -433,7 +433,7 @@ public class Table extends ScrollableWidget {
             com.sun.javafx.api.ui.ValueAcceptor {
                 public
                 function accept(value:Object):Boolean {
-                    return if(onDrop <> null and enableDND) {
+                    return if(onDrop != null and enableDND) {
                         acceptDrop(value);
                     } else {
                         enableDND;

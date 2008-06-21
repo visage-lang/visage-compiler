@@ -48,7 +48,7 @@ public abstract class ScrollableWidget extends Widget {
      * of the main view of the scrollpane depending on the current component orientation.
      */
     public attribute rowHeader:Widget on replace  {
-        if (scrollpane <> null) {
+        if (scrollpane != null) {
             var x = rowHeader.getNonScrollPaneComponent();
             scrollpane.setRowHeaderView(x);
         }
@@ -59,7 +59,7 @@ public abstract class ScrollableWidget extends Widget {
      * of the main view of the scrollpane depending on the current component orientation.
      */
     public attribute columnHeader:Widget on replace  {
-        if (scrollpane <> null) {
+        if (scrollpane != null) {
             var x = columnHeader.getNonScrollPaneComponent();
             scrollpane.setColumnHeaderView(x);
         }
@@ -70,7 +70,7 @@ public abstract class ScrollableWidget extends Widget {
      * if there's room. 
      */
     public attribute lowerLeftCorner:Widget  on replace {
-        if (scrollpane <> null) {
+        if (scrollpane != null) {
             var x = lowerLeftCorner.getNonScrollPaneComponent();
             scrollpane.setCorner(scrollpane.LOWER_LEFT_CORNER, x);
         }
@@ -81,7 +81,7 @@ public abstract class ScrollableWidget extends Widget {
      * if there's room. 
      */
     public attribute lowerRightCorner:Widget on replace  {
-        if (scrollpane <> null) {
+        if (scrollpane != null) {
             var x = lowerRightCorner.getNonScrollPaneComponent();
             scrollpane.setCorner(scrollpane.LOWER_RIGHT_CORNER, x);
         }
@@ -92,7 +92,7 @@ public abstract class ScrollableWidget extends Widget {
      * if there's room. 
      */
     public attribute upperLeftCorner:Widget on replace {
-        if (scrollpane <> null) {
+        if (scrollpane != null) {
             var x = upperLeftCorner.getNonScrollPaneComponent();
             scrollpane.setCorner(scrollpane.UPPER_LEFT_CORNER, x);
         }
@@ -103,7 +103,7 @@ public abstract class ScrollableWidget extends Widget {
      * if there's room. 
      */
     public attribute upperRightCorner:Widget on replace {
-        if (scrollpane <> null) {
+        if (scrollpane != null) {
             var x = upperRightCorner.getNonScrollPaneComponent();
             scrollpane.setCorner(scrollpane.UPPER_RIGHT_CORNER, x);
         }
@@ -113,7 +113,7 @@ public abstract class ScrollableWidget extends Widget {
      * Sets the border of the scroll pane's viewport
      */
     public attribute viewportBorder:Border on replace  {
-        if (scrollpane <> null) {
+        if (scrollpane != null) {
             scrollpane.setViewportBorder(viewportBorder.getBorder());
         }
     };
@@ -122,7 +122,7 @@ public abstract class ScrollableWidget extends Widget {
      * Sets the scroll pane's border
      */
     public attribute scrollPaneBorder:Border on replace {
-        if (scrollpane <> null) {
+        if (scrollpane != null) {
             scrollpane.setBorder(scrollPaneBorder.getBorder());
         }
     };
@@ -131,8 +131,8 @@ public abstract class ScrollableWidget extends Widget {
      * Optional handler for changes to the scroll pane's view's location.
      */
     public attribute onViewChange: function():Void on replace {
-        if (scrollpane <> null) {
-            if (onViewChange <> null) {
+        if (scrollpane != null) {
+            if (onViewChange != null) {
                 this.installViewChangeListener();
             } else {
                 scrollpane.getViewport().removeChangeListener(viewChangeListener);
@@ -143,7 +143,7 @@ public abstract class ScrollableWidget extends Widget {
     /** The display policy for the horizontal scrollbar. Defaults to AS_NEEDED.*/
     public attribute horizontalScrollBarPolicy: HorizontalScrollBarPolicy = 
             HorizontalScrollBarPolicy.AS_NEEDED on replace {
-                if (scrollpane <> null) {
+                if (scrollpane != null) {
                     var n = horizontalScrollBarPolicy.id.intValue();
                     scrollpane.setHorizontalScrollBarPolicy(n);
                 }
@@ -161,7 +161,7 @@ public abstract class ScrollableWidget extends Widget {
     /** The display policy for the vertical scrollbar. Defaults to AS_NEEDED.*/
     public attribute verticalScrollBarPolicy: VerticalScrollBarPolicy =
         VerticalScrollBarPolicy.AS_NEEDED on replace {
-            if (scrollpane <> null) {
+            if (scrollpane != null) {
                 var n = verticalScrollBarPolicy.id.intValue();
                 scrollpane.setVerticalScrollBarPolicy(n);
             }
@@ -180,7 +180,7 @@ public abstract class ScrollableWidget extends Widget {
         if (viewChangeListener == null) {
             viewChangeListener = ChangeListener {
                     public function stateChanged(e:ChangeEvent):Void {
-                        if(onViewChange <> null)
+                        if(onViewChange != null)
                             onViewChange();
                     }
                 };
@@ -189,7 +189,7 @@ public abstract class ScrollableWidget extends Widget {
     }
     
     public bound function getViewRect(): java.awt.Rectangle  {
-        if (scrollpane <> null) {
+        if (scrollpane != null) {
             return new java.awt.Rectangle(scrollpane.getViewport().getViewRect());
         } else {
             return new java.awt.Rectangle();
@@ -197,22 +197,22 @@ public abstract class ScrollableWidget extends Widget {
     }
     // hide it for now - buggy <http://bugs.sun.com/bugdatabase/view_bug.dobug_id=6333318>
     private function scrollRectToVisible(rect:java.awt.Rectangle):Void {
-        if (scrollpane <> null) {
-            if (rect <> null) {
+        if (scrollpane != null) {
+            if (rect != null) {
                 scrollpane.getViewport().scrollRectToVisible(rect);
             }
         }
     }
     public bound function getViewPosition(): java.awt.Point  {
-        if (scrollpane <> null) {
+        if (scrollpane != null) {
             return new java.awt.Point(scrollpane.getViewport().getViewPosition());
         } else {
             return new java.awt.Point();
         }
     }
     public function setViewPosition(point:java.awt.Point):Void {
-        if (scrollpane <> null) {
-            if (point <> null) {
+        if (scrollpane != null) {
+            if (point != null) {
                 //println(java.lang.Thread.currentThread());
                 //println("setting viewPosition to {point}");
                 scrollpane.getViewport().setViewPosition(point);
@@ -237,46 +237,46 @@ public abstract class ScrollableWidget extends Widget {
         scrollpane.setHorizontalScrollBarPolicy(horizontalScrollBarPolicy.id.intValue());
         scrollpane.setVerticalScrollBarPolicy(verticalScrollBarPolicy.id.intValue());
         scrollpane.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        if (rowHeader <> null) {
+        if (rowHeader != null) {
             scrollpane.setRowHeaderView(rowHeader.getNonScrollPaneComponent());
         }
-        if (columnHeader <> null) {
+        if (columnHeader != null) {
             scrollpane.setColumnHeaderView(columnHeader.getNonScrollPaneComponent());
         }
-        if (lowerLeftCorner <> null) {
+        if (lowerLeftCorner != null) {
             scrollpane.setCorner(scrollpane.LOWER_LEFT_CORNER,
                                  lowerLeftCorner.getNonScrollPaneComponent());
         }
-        if (lowerRightCorner <> null) {
+        if (lowerRightCorner != null) {
             scrollpane.setCorner(scrollpane.LOWER_RIGHT_CORNER,
                                  lowerRightCorner.getNonScrollPaneComponent());
         }
-        if (upperLeftCorner <> null) {
+        if (upperLeftCorner != null) {
             scrollpane.setCorner(scrollpane.UPPER_LEFT_CORNER,
                                  upperLeftCorner.getNonScrollPaneComponent());
         }
-        if (upperRightCorner <> null) {
+        if (upperRightCorner != null) {
             scrollpane.setCorner(scrollpane.UPPER_RIGHT_CORNER,
                                  upperRightCorner.getNonScrollPaneComponent());
         }
-        if (viewportBorder <> null) {
+        if (viewportBorder != null) {
             scrollpane.setViewportBorder(viewportBorder.getBorder());
         }
-        if (scrollPaneBorder <> null) {
+        if (scrollPaneBorder != null) {
             scrollpane.setBorder(scrollPaneBorder.getBorder());
         }
-        if (onViewChange <> null) {
+        if (onViewChange != null) {
             this.installViewChangeListener();
         }
-        if(horizontalScrollBarPolicy <> null) {
+        if(horizontalScrollBarPolicy != null) {
             var n = horizontalScrollBarPolicy.id.intValue();
             scrollpane.setHorizontalScrollBarPolicy(n);
         }
-        if(verticalScrollBarPolicy <> null) {
+        if(verticalScrollBarPolicy != null) {
             var n = verticalScrollBarPolicy.id.intValue();
             scrollpane.setVerticalScrollBarPolicy(n);
         }
-        if (awtScrollBarBackground <> null) {
+        if (awtScrollBarBackground != null) {
             scrollpane.getVerticalScrollBar().setBackground(awtScrollBarBackground);
            scrollpane.getHorizontalScrollBar().setBackground(awtScrollBarBackground);
         }

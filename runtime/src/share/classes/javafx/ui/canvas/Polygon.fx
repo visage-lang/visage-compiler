@@ -43,7 +43,7 @@ public class Polygon extends Shape {
 
     private function updatePolygon() {
         //fix me: OPT
-        if (awtPath <> null and (sizeof points % 2 == 0)) {
+        if (awtPath != null and (sizeof points mod 2 == 0)) {
             awtPath.reset();
             for (i in [0..((sizeof points)/2-1)]) {
                 var px = points[i*2+0];
@@ -55,7 +55,7 @@ public class Polygon extends Shape {
                 }
             }
             awtPath.closePath();
-            if (sgshape <> null) {
+            if (sgshape != null) {
                 sgshape.setShape(awtPath);
             }
         }

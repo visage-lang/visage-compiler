@@ -60,7 +60,7 @@ public class TextArea extends ScrollableWidget {
         jtextarea.setLineWrap(lineWrap);
     };
     public attribute tabSize: Number on replace {
-        if(jtextarea <> null) {
+        if(jtextarea != null) {
             jtextarea.setTabSize(tabSize.intValue());
         }
     };
@@ -94,7 +94,7 @@ public class TextArea extends ScrollableWidget {
         jtextarea.revalidate();
     }
     public function setCaretPosition(pos:Number) {
-        if(jtextarea <> null) {
+        if(jtextarea != null) {
             jtextarea.setCaretPosition(pos.intValue());
         }
     }
@@ -114,13 +114,13 @@ public class TextArea extends ScrollableWidget {
      * TextComponents are USE_SELECTION and INSERT
      */
     public attribute dropMode:DropMode = DropMode.USE_SELECTION on replace {
-        if(dropMode <> DropMode.USE_SELECTION and dropMode <> DropMode.INSERT) {
+        if(dropMode != DropMode.USE_SELECTION and dropMode != DropMode.INSERT) {
             System.out.println("Illegal drop mode for text component,");
             System.out.println("only USE_SELECTION and INSERT are allowed.");
             System.out.println("Reverting to USE_SELECTION");
             dropMode = DropMode.USE_SELECTION;
         }else {
-            if(jtextarea <> null)
+            if(jtextarea != null)
                 UIElement.context.setDropMode(dropMode.id, jtextarea);
         }
     };
@@ -195,7 +195,7 @@ public class TextArea extends ScrollableWidget {
     
     
     private bound function acceptDrop(value:Object):Boolean{
-        if (this.canAcceptDrop <> null) {
+        if (this.canAcceptDrop != null) {
             var info = MouseInfo.getPointerInfo();
             var location = jtextarea.getLocationOnScreen();
             var p = info.getLocation();
@@ -206,12 +206,12 @@ public class TextArea extends ScrollableWidget {
             };
             (this.canAcceptDrop)(e);
         } else {
-            onDrop <> null
+            onDrop != null
         }
     }
     
     private function setDropValue(value:Object):Void {
-        if (onDrop <> null) {
+        if (onDrop != null) {
             var info = MouseInfo.getPointerInfo();
             var location = jtextarea.getLocationOnScreen();
             var p = info.getLocation();
@@ -232,12 +232,12 @@ public class TextArea extends ScrollableWidget {
     
     
     public attribute selectionStart:Integer = 0 on replace {
-        if (inSelectionUpdate == false and jtextarea <> null) {
+        if (inSelectionUpdate == false and jtextarea != null) {
             jtextarea.setSelectionStart(selectionStart);
         }
     };
     public attribute selectionEnd:Integer = 0 on replace {
-        if (inSelectionUpdate == false and jtextarea <> null) {
+        if (inSelectionUpdate == false and jtextarea != null) {
             jtextarea.setSelectionEnd(selectionEnd);
         }
     };
@@ -309,14 +309,14 @@ public class TextArea extends ScrollableWidget {
             },
             com.sun.javafx.api.ui.ValueSetter {
                 public function set(val:Object):Void {
-                    if(onDrop <> null) {
+                    if(onDrop != null) {
                         setDropValue(val);
                     }  
                 }
             },
             com.sun.javafx.api.ui.ValueAcceptor {
                 public function accept(value:Object):Boolean {
-                    return if(onDrop <> null and enableDND) {
+                    return if(onDrop != null and enableDND) {
                         acceptDrop(value);
                     } else {
                         enableDND;

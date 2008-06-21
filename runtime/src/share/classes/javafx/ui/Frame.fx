@@ -57,19 +57,19 @@ public class Frame extends AbstractFrame {
     public attribute hideOnClose: Boolean;
     public attribute owner: UIElement;
     public attribute screenx: Number = UNSET on replace  {
-        if (frame <> null and not inListener and screenx <> UNSET and screeny <> UNSET) {
+        if (frame != null and not inListener and screenx != UNSET and screeny != UNSET) {
             frame.setLocation(new java.awt.Point(screenx.intValue(), screeny.intValue()));
         }
         
     };
     public attribute screeny: Number = UNSET on replace  {
-        if (frame <> null and not inListener and screeny <> UNSET and screenx <> UNSET) {
+        if (frame != null and not inListener and screeny != UNSET and screenx != UNSET) {
             frame.setLocation(new java.awt.Point(screenx.intValue(), screeny.intValue()));
         }
         
     };
     public attribute menubar: MenuBar on replace {
-	if (frame <> null) {
+	if (frame != null) {
 	    frame.setJMenuBar(if (menubar == null) null else menubar.getComponent() as javax.swing.JMenuBar);
 	}
     };
@@ -87,10 +87,10 @@ public class Frame extends AbstractFrame {
      * at any time.  
      */
     public attribute title: String on replace {
-        if (frame <> null) frame.setTitle(title);
+        if (frame != null) frame.setTitle(title);
     };
     public attribute height: Number = UNSET on replace  {
-        if (frame <> null and not inListener and height <> UNSET) {
+        if (frame != null and not inListener and height != UNSET) {
             
             var dim = frame.getSize();
             dim.height = height.intValue();
@@ -98,7 +98,7 @@ public class Frame extends AbstractFrame {
         }
     };
     public attribute width: Number = UNSET on replace  {
-        if (frame <> null and not inListener and width <> UNSET) {
+        if (frame != null and not inListener and width != UNSET) {
             var dim = frame.getSize();
             dim.width = width.intValue();
             frame.setSize(dim);
@@ -111,13 +111,13 @@ public class Frame extends AbstractFrame {
 		this.pack();
                 frame.getPreferredSize();
 		var dim = frame.getSize();
-		if (height <> UNSET) {
+		if (height != UNSET) {
 		    dim.height = height.intValue();
 		}
-		if (width <> UNSET) {
+		if (width != UNSET) {
 		    dim.width = width.intValue();
 		}
-		if (height <> UNSET or width <> UNSET) {
+		if (height != UNSET or width != UNSET) {
 		    System.out.println("setting size to { dim }");
 		    frame.setSize(dim);
 		}
@@ -125,10 +125,10 @@ public class Frame extends AbstractFrame {
 		frame.pack();
 		frame.setSize(new Dimension(width.intValue(), height.intValue()));
 	    }
-	    if (owner <> null) {
+	    if (owner != null) {
 		frame.setLocationRelativeTo(owner.getWindow());
 	    } else {
-		if (screenx <> UNSET and screeny <> UNSET) {
+		if (screenx != UNSET and screeny != UNSET) {
 		    frame.setLocation(screenx.intValue(), screeny.intValue());
 		} else if (centerOnScreen) {
 		    var d = java.awt.Toolkit.getDefaultToolkit().getScreenSize();                 
@@ -150,7 +150,7 @@ public class Frame extends AbstractFrame {
 		       screenx = loc.getX();
 		       screeny = loc.getY();
 		       var size = frame.getSize();
-                       if (size <> null) {
+                       if (size != null) {
                            height = size.height;
 		           width = size.width;
                        }
@@ -164,7 +164,7 @@ public class Frame extends AbstractFrame {
         //TODO DO LATER - this is a work around until a more permanent solution is provided
         javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                 public function run():Void {
-		    if (frame <> null) {
+		    if (frame != null) {
 			frame.toFront();
 		    }
                 }
@@ -175,7 +175,7 @@ public class Frame extends AbstractFrame {
         //TODO DO LATER - this is a work around until a more permanent solution is provided
         javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                   public function run():Void {
-		      if (frame <> null) {
+		      if (frame != null) {
                         frame.toBack();
 		      }
                   }
@@ -193,7 +193,7 @@ public class Frame extends AbstractFrame {
     public attribute onClose: function():Void;
     public attribute centerOnScreen: Boolean;
     public attribute background: AbstractColor on replace {
-	if (frame <> null) {
+	if (frame != null) {
 	    frame.setBackground(if (background == null) null else background.getColor());
 	}
     };
@@ -216,7 +216,7 @@ public class Frame extends AbstractFrame {
                     disposeOnClose = false;
                     this.close();
                 } else {
-		    if (frame <> null) {
+		    if (frame != null) {
 			frame.setVisible(false);
 		    }
                 }
@@ -230,7 +230,7 @@ public class Frame extends AbstractFrame {
      * resizable, otherwise it will be false.
      */
     public attribute resizable: Boolean = true on replace {
-	if (frame <> null) {
+	if (frame != null) {
 	    frame.setResizable(resizable);
 	}
     };
@@ -239,7 +239,7 @@ public class Frame extends AbstractFrame {
      * if this frame doesn't have an icon image.
      */
     public attribute iconImage: Image on replace {
-	if (frame <> null) {
+	if (frame != null) {
 	    frame.setIconImage(if (iconImage == null) then null else iconImage.getImage());
 	}
     };
@@ -248,13 +248,13 @@ public class Frame extends AbstractFrame {
      * This attribute can only be set while the frame is not displayable.
      */
     public attribute undecorated: Boolean = false on replace {
-	if (frame <> null and frame.isUndecorated() <> undecorated) {
+	if (frame != null and frame.isUndecorated() != undecorated) {
 	    frame.setUndecorated(undecorated);
 	}
     };
     public attribute showing: Boolean;
     public attribute iconified: Boolean = false on replace {
-	if (frame <> null) {
+	if (frame != null) {
 	    var state = frame.getExtendedState();
 	    var newState = 0;
 	    if (iconified) {
@@ -262,7 +262,7 @@ public class Frame extends AbstractFrame {
 	    } else {
 		newState = UIElement.getUIContext().clearBit(state, frame.ICONIFIED);
 	    }
-	    if (state <> newState) {
+	    if (state != newState) {
 		frame.setExtendedState(newState);
 	    }
 	}
@@ -309,7 +309,7 @@ public class Frame extends AbstractFrame {
         inListener = false;
     }
     protected function setContentPane(widget:Widget){
-        if (widget <> null) {
+        if (widget != null) {
             frame.setContentPane(widget.getComponent());
             frame.validate();
         }
@@ -319,7 +319,7 @@ public class Frame extends AbstractFrame {
     }
     public function close(){
         disposeOnClose = false;
-	if (frame <> null) {
+	if (frame != null) {
 	    frame.dispose();
 	}
         showing = false;
@@ -330,13 +330,13 @@ public class Frame extends AbstractFrame {
     }
 
     init {
-        if (background <> null) {
+        if (background != null) {
             frame.setBackground(background.getColor());
         }
         frame.getRootPane().putClientProperty("apple.awt.draggableWindowBackground", false);
         frame.setDefaultCloseOperation(frame.DO_NOTHING_ON_CLOSE);
         //frame.getRootPane().getGlassPane().setVisible(true);
-        if(menubar <> null) {
+        if(menubar != null) {
             frame.setJMenuBar(menubar.getComponent() as javax.swing.JMenuBar);
         }
         win = frame;
@@ -347,7 +347,7 @@ public class Frame extends AbstractFrame {
                                            frame.removeComponentListener(compListener);
                                            frame.dispose(); // fix me...
                                       }
-                                      if(onClose <> null) {
+                                      if(onClose != null) {
                                         onClose();
                                       }
                                       if (hideOnClose) {
@@ -359,7 +359,7 @@ public class Frame extends AbstractFrame {
                                     //empty
                                   }
                                   public function windowOpened(e:WindowEvent):Void {
-                                        if(onOpen <> null) {
+                                        if(onOpen != null) {
                                             onOpen();
                                         }
                                     }

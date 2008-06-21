@@ -55,7 +55,7 @@ public class CenterPanel extends Widget {
         jpanel = javax.swing.JPanel{};
         jpanel.setOpaque(false);
         jpanel.setLayout(new java.awt.GridBagLayout());
-        if (content <> null) {
+        if (content != null) {
             this.replaceComponent(content);
         }
         return jpanel;

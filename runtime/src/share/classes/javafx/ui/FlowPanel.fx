@@ -50,20 +50,20 @@ public class FlowPanel extends Widget {
     }
 
     public attribute alignment:Alignment = Alignment.CENTER on replace {
-        if (panel <> null) {
+        if (panel != null) {
             this.createLayout();
         }
     };
     public attribute vgap: Number = 5 on replace {
-        if (layout <> null)
+        if (layout != null)
             layout.setVgap(vgap.intValue());
     };
     public attribute hgap: Number = 5 on replace {
-        if (layout <> null)
+        if (layout != null)
             layout.setHgap(hgap.intValue());
     };
     public attribute content: Widget[] on replace oldValue[lo..hi]=newVals {
-        if(panel <> null) {
+        if(panel != null) {
             for(k in [lo..hi]) { 
                 panel.remove(lo);
             }

@@ -53,10 +53,10 @@ public class Morph extends Shape {
         updateFill();
     };
     private function updateMorphing2D() {
-        if (awtStartShape <> null and awtEndShape <> null) {
+        if (awtStartShape != null and awtEndShape != null) {
             morphing2D = new Morphing2D(awtStartShape, awtEndShape);
             morphing2D.setMorphing(morph);
-            if (sgshape <> null) {
+            if (sgshape != null) {
                 sgshape.setShape(morphing2D);
             }
         }

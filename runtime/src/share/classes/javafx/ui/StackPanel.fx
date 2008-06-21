@@ -37,7 +37,7 @@ public class StackPanel extends Widget {
     private attribute jpanel: javax.swing.JPanel;
     
     public attribute content: Widget[] on replace oldValue[lo..hi]=newVals {
-        if (jpanel <> null) {
+        if (jpanel != null) {
             for(k in [lo..hi]) { 
                 jpanel.remove(lo);
             }

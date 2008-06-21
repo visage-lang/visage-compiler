@@ -33,7 +33,7 @@ import java.awt.geom.GeneralPath;
  */
 public class ClosePath extends PathElement {
     public function addTo(gp:GeneralPath):Void {
-        if (path <> null) {
+        if (path != null) {
             var currentPoint = gp.getCurrentPoint();
             path.currentX = currentPoint.getX();
             path.currentY = currentPoint.getY();

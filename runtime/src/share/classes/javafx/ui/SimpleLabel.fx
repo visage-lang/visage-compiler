@@ -35,27 +35,27 @@ public class SimpleLabel extends Widget {
     private attribute jlabel:javax.swing.JLabel;
     
     public attribute text:String on replace {
-        if(jlabel <> null) {
+        if(jlabel != null) {
             jlabel.setText(text);
         }
     };
     public attribute icon:Icon on replace {
-        if(jlabel <> null) {
+        if(jlabel != null) {
             jlabel.setIcon(icon.getIcon());
         }
     };
     public attribute horizontalAlignment:HorizontalAlignment on replace {
-        if(jlabel <> null) {
+        if(jlabel != null) {
            jlabel.setHorizontalAlignment(horizontalAlignment.id.intValue());
         }
     };
     public attribute mnemonic: KeyStroke on replace {
-        if(jlabel <> null) {
+        if(jlabel != null) {
             jlabel.setDisplayedMnemonic(mnemonic.id);
         }
     };
     public attribute labelFor: Widget on replace {
-        if(jlabel <> null) {
+        if(jlabel != null) {
             jlabel.setLabelFor(labelFor.getComponent());
         }
     };
@@ -69,10 +69,10 @@ public class SimpleLabel extends Widget {
         jlabel.setText(text);
         jlabel.setIcon(icon.getIcon());
         jlabel.setHorizontalAlignment(horizontalAlignment.id.intValue());
-        if (labelFor <> null) {
+        if (labelFor != null) {
             jlabel.setLabelFor(labelFor.getComponent());
         }
-        if (mnemonic <> null) {
+        if (mnemonic != null) {
             jlabel.setDisplayedMnemonic(mnemonic.id.intValue());
         }
         return jlabel;

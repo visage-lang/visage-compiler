@@ -36,17 +36,17 @@ public class RootPane extends Widget {
         jrootpane.setJMenuBar(menubar.getComponent() as javax.swing.JMenuBar);
     };
     public attribute content: Widget on replace {
-        if (content <> null) {
+        if (content != null) {
            jrootpane.setContentPane(content.getComponent());
         }
     };
 
     public function createComponent():javax.swing.JComponent {
         jrootpane = new javax.swing.JRootPane();
-        if (menubar <> null) {
+        if (menubar != null) {
             jrootpane.setJMenuBar(menubar.getComponent() as javax.swing.JMenuBar);
         }
-        if (content <> null) {
+        if (content != null) {
             jrootpane.setContentPane(content.getComponent());
         }
         return jrootpane;

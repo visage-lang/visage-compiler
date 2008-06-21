@@ -50,7 +50,7 @@ public class Spinner extends Widget {
     };
     public attribute onChange: function(value:Number);
     public attribute editorForeground: Color on replace {
-        if (editorForeground <> null) {
+        if (editorForeground != null) {
             var comp = spinner.getEditor();
             if (comp instanceof javax.swing.JSpinner.DefaultEditor) {
                 var def = comp as javax.swing.JSpinner.DefaultEditor;
@@ -59,7 +59,7 @@ public class Spinner extends Widget {
         }
     };
     public attribute editorBackground: Color on replace {
-        if (editorBackground <> null) {
+        if (editorBackground != null) {
             var comp = spinner.getEditor();
             if (comp instanceof javax.swing.JSpinner.DefaultEditor) {
                 var def = comp as javax.swing.JSpinner.DefaultEditor;
@@ -68,7 +68,7 @@ public class Spinner extends Widget {
         }
     };
     public attribute editorFont: Font on replace {
-        if (editorFont <> null) {
+        if (editorFont != null) {
             var comp = spinner.getEditor();
             if (comp instanceof javax.swing.JSpinner.DefaultEditor) {
                 var def = comp as javax.swing.JSpinner.DefaultEditor;

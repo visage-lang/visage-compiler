@@ -28,7 +28,7 @@ import java.lang.Object;
 public class TableCell {
     protected attribute table:Table;
     public attribute text:String on replace {
-        if (table.tableModel <> null) {
+        if (table.tableModel != null) {
             var seq = for(x in table.cells where x == this) indexof x;
             if(sizeof seq > 0) {
                 var cr = seq[0];
@@ -38,7 +38,7 @@ public class TableCell {
         }        
     };
     public attribute toolTipText: String on replace {
-        if (table.tableModel <> null) {
+        if (table.tableModel != null) {
             var seq = for(x in table.cells where x == this) indexof x;
             if(sizeof seq > 0) {
                 var cr = seq[0];
@@ -48,7 +48,7 @@ public class TableCell {
         }        
     };
     public attribute background: Color on replace {
-        if (table.tableModel <> null) {
+        if (table.tableModel != null) {
             var seq = for(x in table.cells where x == this) indexof x;
             if(sizeof seq > 0) {
                 var cr = seq[0];
@@ -58,7 +58,7 @@ public class TableCell {
         }        
     };
     public attribute foreground: Color on replace {
-        if (table.tableModel <> null) {
+        if (table.tableModel != null) {
             var seq = for(x in table.cells where x == this) indexof x;
             if(sizeof seq > 0) {
                 var cr = seq[0];
@@ -68,7 +68,7 @@ public class TableCell {
         }        
     };
     public attribute font: Font on replace {
-        if (table.tableModel <> null) {
+        if (table.tableModel != null) {
             var seq = for(x in table.cells where x == this) indexof x;
             if(sizeof seq > 0) {
                 var cr = seq[0];
@@ -80,7 +80,7 @@ public class TableCell {
     public attribute border: Border;
     public attribute value:Object;
     public attribute selected: Boolean on replace {
-        if (table <> null) {
+        if (table != null) {
             if (selected) {
                 var seq = for(x in table.cells where x == this) indexof x;
                 if(sizeof seq > 0) {

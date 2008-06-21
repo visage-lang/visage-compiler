@@ -43,7 +43,7 @@ class Window extends AbstractFrame {
         win = frame;
         win.addWindowListener(java.awt.event.WindowAdapter  {
               public function windowClosing(e:java.awt.event.WindowEvent) {
-                  if(onClose <> null)
+                  if(onClose != null)
                         onClose();
                   if (disposeOnClose) {
                       frame.dispose();
@@ -73,17 +73,17 @@ class Window extends AbstractFrame {
     public function show(){
         this.pack();
         var dim = frame.getSize();
-        if (height <> -1) {
+        if (height != -1) {
             dim.height = height.intValue();
         }
-        if (width <> -1) {
+        if (width != -1) {
             dim.width = width.intValue();
         }
         frame.setSize(dim);
         frame.setLocation(-2000, -2000);
         frame.setVisible(true);
         frame.setVisible(false);
-        if (owner <> null) {
+        if (owner != null) {
             frame.setLocationRelativeTo(owner.getWindow());
         } else {
             frame.setLocation(screenx.intValue(), screeny.intValue());

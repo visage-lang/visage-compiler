@@ -120,10 +120,10 @@ public class TimerImpl {
                             Math.log(this.primary_K));
         // calculate nextValue using the pole and new K value
         //System.out.println("K="+K);
-        if( K <> 1.0 ) {
+        if( K != 1.0 ) {
             var aNumerator   = aBeginPole*aEndPole*(1 - K);
             var aDenominator = aEndPole - K*aBeginPole;
-            if( aDenominator <> 0.0 ) nextValue = aNumerator/aDenominator;
+            if( aDenominator != 0.0 ) nextValue = aNumerator/aDenominator;
         }
         return nextValue.intValue();
     }

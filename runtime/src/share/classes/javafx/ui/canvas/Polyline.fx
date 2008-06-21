@@ -45,7 +45,7 @@ public class Polyline extends Shape {
 
     private function updatePolyline() {
         //fix me: OPT
-        if (awtPath <> null and (sizeof points % 2 == 0)) {
+        if (awtPath != null and (sizeof points mod 2 == 0)) {
             awtPath.reset();
             for (i in [0..((sizeof points)/2-1)]) {
                 var px = points[i*2+0];
@@ -56,7 +56,7 @@ public class Polyline extends Shape {
                     awtPath.lineTo(px.floatValue(), py.floatValue());
                 }
             }
-            if (sgshape <> null) {
+            if (sgshape != null) {
                 sgshape.setShape(awtPath);
             }
         }

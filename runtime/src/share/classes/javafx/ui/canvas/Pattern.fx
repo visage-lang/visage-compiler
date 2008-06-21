@@ -91,13 +91,13 @@ public class Pattern extends Paint {
             }
             var w:Number = im.getWidth();
             var h:Number = im.getHeight();
-            if (height <> UNSET) {
+            if (height != UNSET) {
                 h = height;
             }
-            if (width <> UNSET) {
+            if (width != UNSET) {
                 w = width;
             }
-            if (im <> null) {
+            if (im != null) {
                 var rect = new Rectangle2D.Double(x, y, w, h);
                 texturePaint = new TexturePaint(im, rect);
             }

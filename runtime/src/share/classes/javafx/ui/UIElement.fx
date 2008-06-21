@@ -178,11 +178,11 @@ public class UIElement {
     public bound function getWindow():java.awt.Window {return null; }
     public attribute lookAndFeel: String = null
         on replace {
-	if (lookAndFeel <> null) {
+	if (lookAndFeel != null) {
             javax.swing.UIManager.setLookAndFeel(lookAndFeel);
             //javax.swing.SwingUtilities.updateComponentTreeUI(getWindow());
             var win = getWindow();
-            if(win <> null){
+            if(win != null){
                 javax.swing.SwingUtilities.updateComponentTreeUI(win);
             }
 	}

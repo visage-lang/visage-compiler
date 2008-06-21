@@ -47,13 +47,13 @@ public abstract class Transformable {
     protected function updateTransform() {
         var t = new AffineTransform();
         for (i in transform) {
-            if (i.transform <> null) {
+            if (i.transform != null) {
                 t.concatenate(i.transform);
             }
         }
-        if (affineTransform <> t) {
+        if (affineTransform != t) {
             affineTransform = t;
-            if(onTransformChanged <> null) {
+            if(onTransformChanged != null) {
                 onTransformChanged(affineTransform);
             }
         }

@@ -38,14 +38,14 @@ public class Star extends Shape {
     private attribute awtPath: java.awt.geom.GeneralPath;
     
     private function updatePolygon() {
-        if (awtPath <> null) {
+        if (awtPath != null) {
             awtPath.reset();
             var angle = Math.toRadians(startAngle);
             var dth = Math.PI/points;
             var n = (points*2-1).intValue();
             for (i in [0..n] ) {
-                var px = cx + (if (i %2 == 0) then rin else rout)*Math.cos(angle+dth* i);
-                var py = cy + (if (i %2 == 0) then rin else rout)*Math.sin(angle+dth* i);
+                var px = cx + (if (i mod 2 == 0) then rin else rout)*Math.cos(angle+dth* i);
+                var py = cy + (if (i mod 2 == 0) then rin else rout)*Math.sin(angle+dth* i);
                 if (i == 0) {
                     awtPath.moveTo(px.floatValue(), py.floatValue());
                 } else {
@@ -53,7 +53,7 @@ public class Star extends Shape {
                 }
             }
             awtPath.closePath();
-            if (sgshape <> null) {
+            if (sgshape != null) {
                 sgshape.setShape(awtPath);
             }
         }

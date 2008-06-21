@@ -55,7 +55,7 @@ public class Node {
      * holds the associated document
      */
     public attribute document:Document on replace {
-        if(document <> null) {
+        if(document != null) {
             initDomNode();
         }
     };
@@ -64,7 +64,7 @@ public class Node {
      *  holds the associated dom node
      */
     public attribute domNode:org.w3c.dom.Node on replace {
-        if(domNode <> null) {
+        if(domNode != null) {
             setDomNode(domNode);
         }
     };
@@ -133,10 +133,10 @@ public class Node {
      * to include this node.
      */
     public attribute parent:Node on replace oldValue {
-        if(oldValue <> null ) {
+        if(oldValue != null ) {
             delete this from oldValue.children;
         }
-        if(parent <> null and type <> NodeType.ATTRIBUTE) {
+        if(parent != null and type != NodeType.ATTRIBUTE) {
             if(not parent.addingChild) {
                 insert this into parent.children;
             }
@@ -156,23 +156,23 @@ public class Node {
         }
         try {
             for(n in oldValue[lo..hi]) { 
-                if(n.parent <> null) {
+                if(n.parent != null) {
                     delete n from n.parent.children;
                     n.parent = null;
                 }
-                if(domNode <> null and isChild(n)) {
+                if(domNode != null and isChild(n)) {
                     domNode.removeChild(n.domNode);
                 }
 
             }
             for(n in newVals) {
-                if(n.parent <> null and n.parent <> this) {
+                if(n.parent != null and n.parent != this) {
                     delete n from n.parent.children;
                 }
-                if(n.parent <> this) {
+                if(n.parent != this) {
                     n.parent = this;
                 }
-                if(domNode <> null and not isChild(n)) {
+                if(domNode != null and not isChild(n)) {
                     if(n.domNode == null) {
                         n.domNode = n.createNode();
                     }
@@ -202,11 +202,11 @@ public class Node {
         if(domNode == null) {
             initDomNode();
         }
-        if(document <> null and domNode <> null and 
+        if(document != null and domNode != null and 
                 (type == NodeType.ATTRIBUTE or type == NodeType.ELEMENT) ) {
-            if(name <> domNode.getNodeName()) {
+            if(name != domNode.getNodeName()) {
                 var newNode = document.document.renameNode(domNode, namespaceURI, name);
-                if(newNode <> domNode) {
+                if(newNode != domNode) {
                     setDomNode(newNode);
                 }else {
                     namespaceURI = domNode.getNamespaceURI();
@@ -222,9 +222,9 @@ public class Node {
      * holds the node's namespace
      */
     public attribute namespaceURI:String on replace {
-        if(document <> null and (type == NodeType.ATTRIBUTE or type == NodeType.ELEMENT) ) {
+        if(document != null and (type == NodeType.ATTRIBUTE or type == NodeType.ELEMENT) ) {
             var newNode = document.document.renameNode(domNode, namespaceURI, name);
-            if(newNode <> domNode) {
+            if(newNode != domNode) {
                 setDomNode(newNode);
                 }else {
                     name = domNode.getNodeName();
@@ -244,9 +244,9 @@ public class Node {
      * holds the node's prefix
      */
     public attribute prefix:String on replace {
-        if(domNode <> null and prefix <> null and prefix.length() > 0 and
+        if(domNode != null and prefix != null and prefix.length() > 0 and
             (type == NodeType.ELEMENT or type == NodeType.ATTRIBUTE) ) {
-            if(prefix <> domNode.getPrefix()) {
+            if(prefix != domNode.getPrefix()) {
                 domNode.setPrefix(prefix);
             }
         }
@@ -295,7 +295,7 @@ public class Node {
      */    
     public function query(query:String):Node[] {
         var xpath = Document.xfactory.newXPath();
-        if(document.namespace <> null) {
+        if(document.namespace != null) {
             xpath.setNamespaceContext(document.namespace);
         }        
         var expr = xpath.compile(query);
@@ -304,7 +304,7 @@ public class Node {
         for( i in [0..<result.getLength()]) {
             var n = result.item(i);
             var fxnode = n.getUserData("FX") as Node;
-            if(fxnode <> null) {
+            if(fxnode != null) {
                 insert fxnode into nodes;
             }else {
                 Logger.getLogger(this.getClass().getName()).warning("dom node has no FX node assigned: {n}");
@@ -321,7 +321,7 @@ public class Node {
      */     
     public function queryBoolean(query:String):Boolean {
         var xpath = Document.xfactory.newXPath();
-        if(document.namespace <> null) {
+        if(document.namespace != null) {
             xpath.setNamespaceContext(document.namespace);
         }          
         var expr = xpath.compile(query);
@@ -336,7 +336,7 @@ public class Node {
      */      
     public function queryNumber(query:String):Number {
         var xpath = Document.xfactory.newXPath();
-        if(document.namespace <> null) {
+        if(document.namespace != null) {
             xpath.setNamespaceContext(document.namespace);
         }          
         var expr = xpath.compile(query);
@@ -351,7 +351,7 @@ public class Node {
      */    
     public function queryString(query:String):String {
         var xpath = Document.xfactory.newXPath();
-        if(document.namespace <> null) {
+        if(document.namespace != null) {
             xpath.setNamespaceContext(document.namespace);
         }          
         var expr = xpath.compile(query);
@@ -366,12 +366,12 @@ public class Node {
      */     
     public function queryNode(query:String):Node {
         var xpath = Document.xfactory.newXPath();
-        if(document.namespace <> null) {
+        if(document.namespace != null) {
             xpath.setNamespaceContext(document.namespace);
         }          
         var expr = xpath.compile(query);
         var n = expr.evaluate(domNode, XPathConstants.NODE) as org.w3c.dom.Node;
-        return if(n <> null) then n.getUserData("FX") as Node  else null;
+        return if(n != null) then n.getUserData("FX") as Node  else null;
     }    
     
     /**
@@ -469,14 +469,14 @@ public class Node {
     }
 
     protected function initDomNode():Void {
-        if(document <> null and domNode == null) {
+        if(document != null and domNode == null) {
             domNode = createNode();
 
             for(e in children) {
-                if(e.parent <> null and e.parent <> this) {
+                if(e.parent != null and e.parent != this) {
                     delete e from e.parent.children;
                 }                
-                if(e.parent <> this) {
+                if(e.parent != this) {
                     e.parent = this;
                 }
                 if(not isChild(e)) {

@@ -31,7 +31,7 @@ public class ButtonGroup {
         javax.swing.ButtonGroup{};
 
     public attribute buttons: SelectableButton[] on replace oldValue[lo..hi]=newVals {
-        //if (oldValue <> null) {
+        //if (oldValue != null) {
             for(n in oldValue[lo..hi]) {
                 java.lang.System.out.println("oldValue = {n} lo = {lo}, hi={hi}");
                 buttongroup.remove(n.getComponent() as javax.swing.AbstractButton); 
@@ -54,7 +54,7 @@ public class ButtonGroup {
         if (sizeof buttons > 0) {
             buttons[oldValue].selected = false;
             buttons[selection].selected = true;
-            if (this.onSelectionChange <> null) {
+            if (this.onSelectionChange != null) {
                 (this.onSelectionChange)(SingleSelection {
                                              anchorIndex: oldValue
                                                  },

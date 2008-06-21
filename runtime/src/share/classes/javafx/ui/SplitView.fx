@@ -40,18 +40,18 @@ public class SplitView {
         = new com.sun.javafx.api.ui.MultiSplitLayout.Leaf(id);
 
     public attribute weight: Number on replace {
-        if (splitnode <> null) {
+        if (splitnode != null) {
             splitnode.setWeight(weight);
         }
     };
     
     public attribute content: Widget on replace old {
         content.getComponent().setMinimumSize(new Dimension(0, 0));
-        if (splitpane <> null) {
-            if (old <> null) {
+        if (splitpane != null) {
+            if (old != null) {
                 splitpane.getComponent().remove(old.getComponent());
             }
-            if (content <> null) {
+            if (content != null) {
                 splitpane.getComponent().add(content.getComponent(), id);
             }
         }

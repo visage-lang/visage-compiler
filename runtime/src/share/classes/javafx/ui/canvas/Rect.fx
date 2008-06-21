@@ -77,7 +77,7 @@ public class Rect extends Shape, SizeableCanvasElement {
     }
 
     protected function onSizeToFitCanvas(value:Boolean):Void {
-        if (parentCanvasElement <> null) {
+        if (parentCanvasElement != null) {
             var canvas = this.getCanvas();
             var canvasElement = this as SizeableCanvasElement;
             if (value) {

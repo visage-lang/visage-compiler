@@ -47,7 +47,7 @@ public abstract class CanvasElement {
 
    /** Returns the closest parent which is a container */
    private static function getParentContainer(p: CanvasElement): Container{
-       while (p <> null) {
+       while (p != null) {
            if (p instanceof Container) {
                return p as Container;
            }
@@ -82,7 +82,7 @@ public abstract class CanvasElement {
         }
     }
     public bound function hasParent(): Boolean {
-        parentCanvasElement <> null;
+        parentCanvasElement != null;
     }
 }
 

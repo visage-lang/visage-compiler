@@ -37,7 +37,7 @@ public class FXNodeListener extends SGNodeListener {
         }
         var b = n.getBounds();
         readonly var node = n.getAttribute("FX") as Node;
-        if (node <> null) {
+        if (node != null) {
             // really shouldn't invoke later here, but scenario
             // gets confused if you modify a parent node
             // from the event call back, which we may do below.

@@ -44,7 +44,7 @@ public class InternalFrame extends Widget {
         jinternalframe.setTitle(title);
     };
     public attribute content: Widget on replace {
-        if (content <> null) {
+        if (content != null) {
             jinternalframe.setContentPane(content.getComponent());
             content.getComponent().setOpaque(true);
         }
@@ -81,7 +81,7 @@ public class InternalFrame extends Widget {
             public function internalFrameActivated(e:javax.swing.event.InternalFrameEvent):Void {
                 for (i in desk.frames) {
 
-                    if (i <> self) {
+                    if (i != self) {
                         i.selected = false;
                     }
                 }
@@ -89,7 +89,7 @@ public class InternalFrame extends Widget {
             }
 
             public function internalFrameClosing(e: InternalFrameEvent):Void {
-                if(onClose <> null) {
+                if(onClose != null) {
                     onClose();
                 }
             }

@@ -29,10 +29,10 @@ import javafx.ui.ButtonGroup;
 public abstract class SelectableButton extends Widget {
     public abstract function setSelected(value:Boolean):Void;
     public attribute buttonGroup: ButtonGroup on replace old{
-        if (old <> null) {
+        if (old != null) {
             delete this from old.buttons;
         } 
-        if (buttonGroup <> null) {
+        if (buttonGroup != null) {
             insert this into buttonGroup.buttons;
         }
     };

@@ -68,13 +68,13 @@ public class PasswordField extends Widget {
      * TextComponents are USE_SELECTION and INSERT
      */
     public attribute dropMode:DropMode = DropMode.USE_SELECTION on replace {
-        if(dropMode <> DropMode.USE_SELECTION and dropMode <> DropMode.INSERT) {
+        if(dropMode != DropMode.USE_SELECTION and dropMode != DropMode.INSERT) {
             System.out.println("Illegal drop mode for text component,");
             System.out.println("only USE_SELECTION and INSERT are allowed.");
             System.out.println("Reverting to USE_SELECTION");
             dropMode = DropMode.USE_SELECTION;
         }else {
-            if(textField <> null)
+            if(textField != null)
                 UIElement.context.setDropMode(dropMode.id, textField);
         }
     };
@@ -155,7 +155,7 @@ public class PasswordField extends Widget {
     
     
     private bound function acceptDrop(value:Object):Boolean{
-        if (this.canAcceptDrop <> null) {
+        if (this.canAcceptDrop != null) {
             var info = MouseInfo.getPointerInfo();
             var location = textField.getLocationOnScreen();
             var p = info.getLocation();
@@ -169,12 +169,12 @@ public class PasswordField extends Widget {
             };
             return (this.canAcceptDrop)(e);
         } else {
-            return onDrop <> null;
+            return onDrop != null;
         }
     }
     
     private function setDropValue(value:Object):Void {
-        if (onDrop <> null) {
+        if (onDrop != null) {
             var info = MouseInfo.getPointerInfo();
             var location = textField.getLocationOnScreen();
             var p = info.getLocation();
@@ -234,14 +234,14 @@ public class PasswordField extends Widget {
                                         inListener = true;
                                         value = textField.getText();
                                         inListener = false;
-                                        if(onChange <> null) {
+                                        if(onChange != null) {
                                             onChange(value);
                                         }
                                     }
                                     public function removeUpdate(e:javax.swing.event.DocumentEvent):Void {
                                         inListener = true;
                                         value = textField.getText();
-                                        if(onChange <> null) {
+                                        if(onChange != null) {
                                             onChange(value);
                                         }
                                         inListener = false;
@@ -250,7 +250,7 @@ public class PasswordField extends Widget {
                                         inListener = true;
                                         value = textField.getText();
                                         inListener = false;
-                                        if(onChange <> null) {
+                                        if(onChange != null) {
                                             onChange(value);
                                         }
                                     }
@@ -259,13 +259,13 @@ public class PasswordField extends Widget {
             textField.addActionListener(java.awt.event.ActionListener{
                                     public function actionPerformed(e:java.awt.event.ActionEvent):Void {
                                         value = textField.getText();
-                                        if (action <> null) {
+                                        if (action != null) {
                                               (action)();
                                         } else {
                                               var root = textField.getRootPane();      
                                               var but = root.getDefaultButton();
-                                              if (but <> null) {
-                                                  if(onChange <> null) {
+                                              if (but != null) {
+                                                  if(onChange != null) {
                                                     onChange(textField.getText());
                                                   }
                                                   but.doClick(0);
@@ -300,14 +300,14 @@ public class PasswordField extends Widget {
             },
             com.sun.javafx.api.ui.ValueSetter {
                 public function set(val:Object):Void {
-                    if(onDrop <> null) {
+                    if(onDrop != null) {
                         setDropValue(val);
                     }
                 }
             },
             com.sun.javafx.api.ui.ValueAcceptor {
                 public function accept(value:Object):Boolean {
-                    return if(onDrop <> null and enableDND) {
+                    return if(onDrop != null and enableDND) {
                         acceptDrop(value);
                     } else {
                         enableDND;

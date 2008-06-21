@@ -43,12 +43,12 @@ public class SplitPane extends Widget {
                                = com.sun.javafx.api.ui.MultiSplitLayout.Split{};
 
     public attribute orientation: Orientation = Orientation.HORIZONTAL on replace {
-        if (root <> null) {
+        if (root != null) {
             root.setRowLayout(orientation == Orientation.HORIZONTAL);
         }
     };
     public attribute content: SplitView[] on replace oldValue[lo..hi]=newVals {
-        if (split <> null) {
+        if (split != null) {
             for(k in [lo..hi]) { 
                 split.remove(lo);
             }
@@ -66,7 +66,7 @@ public class SplitPane extends Widget {
         var div = null;
         var result = new ArrayList();
         for (i in n) {
-            if (div <> null) {
+            if (div != null) {
                 result.add(div);
             }
             result.add(i);

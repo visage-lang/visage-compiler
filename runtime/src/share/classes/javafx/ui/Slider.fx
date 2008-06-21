@@ -32,64 +32,64 @@ public class Slider extends Widget {
     private attribute jslider:JSlider;
 
     public attribute min: Number = 0 on replace {
-        if(jslider <> null) {
+        if(jslider != null) {
             jslider.setMinimum(min.intValue());
         }
     };
     public attribute max: Number = 100 on replace {
-        if(jslider <> null) {
+        if(jslider != null) {
             jslider.setMaximum(max.intValue());
         }
     };
     public attribute value: Number = 50 on replace {
-        if(jslider <> null) {
+        if(jslider != null) {
             jslider.setValue(value.intValue());
         }
     };
     public attribute extent: Number = -1 on replace {
-        if(jslider <> null) {
+        if(jslider != null) {
             jslider.setExtent(extent.intValue());
         }
     };
     public attribute orientation: Orientation = Orientation.HORIZONTAL on replace {
-        if(jslider <> null) {
+        if(jslider != null) {
              jslider.setOrientation(if (orientation == Orientation.VERTICAL) 
                                then JSlider.VERTICAL
                                else JSlider.HORIZONTAL);
         }
     };
     public attribute majorTickSpacing: Number = 0 on replace {
-        if(jslider <> null) {
+        if(jslider != null) {
             jslider.setMajorTickSpacing(majorTickSpacing.intValue());
         }
     };
     public attribute minorTickSpacing: Number = 0 on replace {
-        if(jslider <> null) {
+        if(jslider != null) {
             jslider.setMinorTickSpacing(minorTickSpacing.intValue());
         }
     };
     public attribute snapToTicks: Boolean = false on replace {
-        if(jslider <> null) {
+        if(jslider != null) {
             jslider.setSnapToTicks(snapToTicks);
         }
     };
     public attribute paintTicks: Boolean = false on replace {
-        if(jslider <> null) {
+        if(jslider != null) {
             jslider.setPaintTicks(paintTicks);
         }
     };
     public attribute paintTrack: Boolean = true on replace {
-        if(jslider <> null) {
+        if(jslider != null) {
             jslider.setPaintTrack(paintTrack);
         }
     };
     public attribute paintLabels: Boolean = false on replace {
-        if(jslider <> null) {
+        if(jslider != null) {
             jslider.setPaintLabels(paintLabels);
         }
     };
     public attribute labels: SliderLabel[] on replace oldValue[lo..hi]=newVals {
-        if(jslider <> null) {
+        if(jslider != null) {
             var dict = new java.util.Hashtable();
             for (i in labels) {
                 dict.put(i.value.intValue(), i.label.getComponent());
@@ -100,7 +100,7 @@ public class Slider extends Widget {
     };
 
     public attribute filled: Boolean = false on replace {
-        if(jslider <> null) {
+        if(jslider != null) {
             jslider.putClientProperty("JSlider.isFilled", filled);
         }
     };
@@ -122,7 +122,7 @@ public class Slider extends Widget {
         jslider.setMajorTickSpacing(majorTickSpacing.intValue());
         jslider.setMinorTickSpacing(minorTickSpacing.intValue());
         jslider.setPaintTrack(paintTrack);
-        if (extent <> -1) {
+        if (extent != -1) {
             jslider.setExtent(extent.intValue());
         }
         if (sizeof labels > 0) {

@@ -62,14 +62,14 @@ public class Tree extends ScrollableWidget {
                 }
             };
             node = nnode;
-            if (node <> null) {
+            if (node != null) {
                 insert node[0] into path;
                 node = node[0].cells;
             } else {
                 break;
             }
         }
-        if (node <> null and sizeof path > 0) {
+        if (node != null and sizeof path > 0) {
             var tp = new javax.swing.tree.TreePath(path[0]);
             for (i in [1..<sizeof path]) {
                 tp = tp.pathByAddingChild(path[i]);
@@ -85,7 +85,7 @@ public class Tree extends ScrollableWidget {
         if (true or sizeof listeners > 0) {
             var path:TreeCell[] = [];
             var r = row.parent;
-            while (r <> null) {
+            while (r != null) {
                 insert r into path;
                 r = r.parent;
             }
@@ -101,7 +101,7 @@ public class Tree extends ScrollableWidget {
         if (row.selected) {
             var p:TreeCell[] = [];
             var r = row;
-            while (r <> null) {
+            while (r != null) {
                 insert r into p;
                 r = r.parent;
             }
@@ -114,7 +114,7 @@ public class Tree extends ScrollableWidget {
         if (true or sizeof listeners > 0) {
             var path:TreeCell[] = [];
             var r = row.parent;
-            while (r <> null) {
+            while (r != null) {
                 insert r into path;
                 r = r.parent;
             }
@@ -133,7 +133,7 @@ public class Tree extends ScrollableWidget {
         if (true or sizeof listeners > 0) {
             var path:TreeCell[] = [];
             var r = row;
-            while (r <> null) {
+            while (r != null) {
                 insert r into path;
                 r = r.parent;
             }
@@ -149,7 +149,7 @@ public class Tree extends ScrollableWidget {
         if (true or sizeof listeners > 0) {
             var path:TreeCell[] = [];
             var r = row.parent;
-            while (r <> null) {
+            while (r != null) {
                 insert r into path;
                 r = r.parent;
             }
@@ -181,7 +181,7 @@ public class Tree extends ScrollableWidget {
     public attribute selection: TreePath on replace {
         if(sizeof selection.nodes > 0) {
             selectedValue = selection.nodes[sizeof selection.nodes-1];
-            if (treemodel <> null) {
+            if (treemodel != null) {
                 this.selectionUpdate(selection);
             }    
         }
@@ -200,7 +200,7 @@ public class Tree extends ScrollableWidget {
                            break;
                        }
                    }
-                   if (cell <> null) {
+                   if (cell != null) {
                        tp = tp.pathByAddingChild(cell);
                    } else {
                        break;
@@ -233,7 +233,7 @@ public class Tree extends ScrollableWidget {
         if (rootSelected) {
             var p:TreeCell[] = [];
             var r = root;
-            while (r <> null) {
+            while (r != null) {
                 insert r into p;
                 r = r.parent;
             }
@@ -278,14 +278,14 @@ public class Tree extends ScrollableWidget {
      * TextComponents are USE_SELECTION, ON, INSERT or ON_OR_INSERT
      */
     public attribute dropMode:DropMode = DropMode.USE_SELECTION on replace {
-        if(dropMode <> DropMode.USE_SELECTION and dropMode <> DropMode.INSERT and
-            dropMode <> DropMode.ON and dropMode <> DropMode.ON_OR_INSERT) {
+        if(dropMode != DropMode.USE_SELECTION and dropMode != DropMode.INSERT and
+            dropMode != DropMode.ON and dropMode != DropMode.ON_OR_INSERT) {
             System.out.println("Illegal drop mode for text component,");
             System.out.println("only USE_SELECTION,INSERT, ON, or ON_OR_INSERT are allowed.");
             System.out.println("Reverting to USE_SELECTION");
             dropMode = DropMode.USE_SELECTION;
         }else {
-            if(tree <> null)
+            if(tree != null)
                 UIElement.context.setDropMode(dropMode.id, tree);
         }
     };
@@ -295,11 +295,11 @@ public class Tree extends ScrollableWidget {
      */    
     public attribute enableDND: Boolean on replace {
         if (enableDND) {
-            if (transferHandler == null and tree <> null) {
+            if (transferHandler == null and tree != null) {
                 addTransferHandler();
             }
             tree.setDragEnabled(true);
-        } else if (tree <> null) {
+        } else if (tree != null) {
             tree.setDragEnabled(false);
         }
     };
@@ -317,7 +317,7 @@ public class Tree extends ScrollableWidget {
         } 
         var dropPath = tree.getClosestPathForLocation(e.x, e.y);
         var dropCell = dropPath.getLastPathComponent() as TreeCell;
-        var parent = if(dropCell.parent <> null)dropCell.parent else root;
+        var parent = if(dropCell.parent != null)dropCell.parent else root;
         for(value in values) {
             if(value instanceof java.awt.Color) {
                 if(colorDropChangesForeground) {
@@ -368,7 +368,7 @@ public class Tree extends ScrollableWidget {
                         insert newCells into root.cells;
                     }else {
                         var r = tree.getPathBounds(dropPath);
-                        if(r <> null) {
+                        if(r != null) {
                             if(r.contains(dropPoint)) {
                                 insert newCells into dropCell.cells;
                             }else if(e.x < r.x or e.y < r.y) { // insert before
@@ -408,7 +408,7 @@ public class Tree extends ScrollableWidget {
                         }
                     }
                 }else {// if(dropMode == DropMode.USE_SELECTION) {
-                    if(selectedCell <> null) {
+                    if(selectedCell != null) {
                         insert newCells into selectedCell.cells;
                     }else{
                         insert newCells into root.cells;
@@ -433,7 +433,7 @@ public class Tree extends ScrollableWidget {
     
     
     private bound function acceptDrop(value:Object):Boolean{
-        if (this.canAcceptDrop <> null) {
+        if (this.canAcceptDrop != null) {
             var info = MouseInfo.getPointerInfo();
             var location = tree.getLocationOnScreen();
             var p = tree.getLocation();
@@ -445,7 +445,7 @@ public class Tree extends ScrollableWidget {
             };
            (this.canAcceptDrop)(e)
         } else {
-           onDrop <> null
+           onDrop != null
         }
     }
     private function getDragValue(): java.lang.Object  {
@@ -458,7 +458,7 @@ public class Tree extends ScrollableWidget {
         //TODO MULTIPLE SELECTION
     }
     private function setDropValue(value:Object):Void {
-        if (onDrop <> null) {
+        if (onDrop != null) {
             var info = MouseInfo.getPointerInfo();
             var location = tree.getLocationOnScreen();
             var p = info.getLocation();
@@ -488,7 +488,7 @@ public class Tree extends ScrollableWidget {
             com.sun.javafx.api.ui.ValueSetter {
                 public
                 function set(value:Object):Void {
-                    if(onDrop <> null) {
+                    if(onDrop != null) {
                         setDropValue(value);
                     }
                 }
@@ -496,7 +496,7 @@ public class Tree extends ScrollableWidget {
             com.sun.javafx.api.ui.ValueAcceptor {
                 public
                 function accept(value:Object):Boolean {
-                    return if(onDrop <> null and enableDND) {
+                    return if(onDrop != null and enableDND) {
                         acceptDrop(value);
                     } else {
                         enableDND;

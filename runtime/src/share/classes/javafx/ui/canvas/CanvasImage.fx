@@ -45,7 +45,7 @@ public class CanvasImage extends Image {
     };
     
     public attribute content: Node on replace  {
-        if (canvas <> null) {
+        if (canvas != null) {
             canvas.content = [ content ];
         }
     }
@@ -60,11 +60,11 @@ public class CanvasImage extends Image {
         if (canvas == null) {
             canvas = Canvas { content: [this.content] };
         }
-        if (canvasIcon <> canvas.jsgpanel.toIcon()) {
+        if (canvasIcon != canvas.jsgpanel.toIcon()) {
             canvas.getComponent();
             canvasIcon = canvas.jsgpanel.toIcon();
             image = canvas.jsgpanel.getIconImage();        
-            if (url <> null) {
+            if (url != null) {
                 UIElement.context.defineImage(url, image);
             }
         }

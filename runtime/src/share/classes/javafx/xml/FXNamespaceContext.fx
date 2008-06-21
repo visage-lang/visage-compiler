@@ -58,7 +58,7 @@ public class FXNamespaceContext extends  NamespaceContext {
             throw new IllegalArgumentException("prefix cannot be null");
         }
         var uri = prefixMap.get(prefix) as String;
-        return if(uri <> null) then uri else XMLConstants.NULL_NS_URI;
+        return if(uri != null) then uri else XMLConstants.NULL_NS_URI;
     }
     /**
      * for a given uri get its associated prefix
@@ -71,7 +71,7 @@ public class FXNamespaceContext extends  NamespaceContext {
             throw new IllegalArgumentException("uri cannot be null");
         }
         var prefixes = uriMap.get(uri) as Set;
-        return if(prefixes <> null) then prefixes.iterator().next() as String else null;        
+        return if(prefixes != null) then prefixes.iterator().next() as String else null;        
     }
     /**
      * for a given uri get its associated prefixes
@@ -84,7 +84,7 @@ public class FXNamespaceContext extends  NamespaceContext {
             throw new IllegalArgumentException("uri cannot be null");
         }
         var prefixes = uriMap.get(uri) as Set;
-        return if(prefixes <> null) then prefixes.iterator() 
+        return if(prefixes != null) then prefixes.iterator() 
             else Collections.EMPTY_SET.iterator();   
     }
     

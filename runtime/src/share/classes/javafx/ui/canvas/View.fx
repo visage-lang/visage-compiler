@@ -59,7 +59,7 @@ public class View extends Node, SizeableCanvasElement {
     public attribute baseline: Number;
 
     private function updateBaseline(){
-        if (sgcomponent <> null) {
+        if (sgcomponent != null) {
             var c = sgcomponent.getComponent();
             if (c instanceof JComponent) {
                 baseline = Baseline.getBaseline(c as JComponent);
@@ -78,7 +78,7 @@ public class View extends Node, SizeableCanvasElement {
         //sgcomponent.setAntialias(antialias);
         //sgcomponent.setAntialiasText(antialiasText);
         //sgcomponent.setFractionalMetrics(fractionalMetrics);
-        if (size <> null) {
+        if (size != null) {
             sgcomponent.setSize(size);
         }
         updateBaseline();

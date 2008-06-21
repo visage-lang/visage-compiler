@@ -47,16 +47,16 @@ public class Clip extends Node, Container {
 
     /** Sets the shape that defines the visible region of the content*/
     public attribute shape: VisualNode on replace {
-        if (shape <> null) {
+        if (shape != null) {
             shape.parentCanvasElement = this;
-            if (clipFilter <> null) {
+            if (clipFilter != null) {
                 clipFilter.setShape(shape.getVisualNode().getShape());
             }
         }
     };
     /** The content of this node */
     public attribute content: Node[] on replace oldValue[lo..hi]=newVals {
-        if (childGroup <> null) {
+        if (childGroup != null) {
             for(k in [lo..hi]) { 
                 childGroup.remove(lo);
             }
@@ -64,7 +64,7 @@ public class Clip extends Node, Container {
         var ndx = lo;
         for(c in newVals) {
             c.parentCanvasElement = this;
-            if (childGroup <> null) {
+            if (childGroup != null) {
                 childGroup.add(ndx, c.getNode());
             }
             ndx++
@@ -72,7 +72,7 @@ public class Clip extends Node, Container {
     };
     /** If true then clipping will be antialiased. Defaults to false */
     public attribute antialias: Boolean = false on replace {
-        if (clipFilter <> null) {
+        if (clipFilter != null) {
             clipFilter.setAntialiased(antialias);
         }
     };

@@ -42,9 +42,9 @@ public class Image extends Icon {
     public attribute cache: Boolean;
 
     private function getImage0():java.awt.Image {
-        if (image == null and url <> null) {
+        if (image == null and url != null) {
             var imageUrl = url;
-            if (baseURL <> null and baseURL.length() > 0) {
+            if (baseURL != null and baseURL.length() > 0) {
                 var base = new java.net.URL(baseURL);
                 var tmpUrl = new java.net.URL(base, url); 
                 imageUrl = tmpUrl.toString();
@@ -64,7 +64,7 @@ public class Image extends Icon {
                                       public function run():Void {
                                             totalDownloadSize = ofTotal;
                                             totalDownloaded = totalRead;
-                                            if(downloadProgress <> null) {
+                                            if(downloadProgress != null) {
                                                 downloadProgress(totalRead, ofTotal);
                                             }
                                       }
@@ -75,13 +75,13 @@ public class Image extends Icon {
                         }
                     });
                 if (notifierDL.getTotalRead() > 0 and notifierDL.getTotalRead() == notifierDL.getTotalSize()) {
-                    if(downloadProgress <> null) {
+                    if(downloadProgress != null) {
                         downloadProgress(notifierDL.getTotalRead(), notifierDL.getTotalSize());
                     }
                 }
             }
             
-            if (image <> null and size <> null) {
+            if (image != null and size != null) {
                 new javax.swing.ImageIcon(image);
                 var w = image.getWidth(null).doubleValue();
                 var h = image.getHeight(null).doubleValue();
@@ -143,7 +143,7 @@ public class Image extends Icon {
             }
         }
 
-        if (cache and image <>  null) {
+        if (cache and image !=  null) {
             PERM_IMAGE_CACHE.add(image);
         }
         return image;
@@ -164,16 +164,16 @@ public class Image extends Icon {
     public attribute stretchDirection: StretchDirection;
     public attribute downloadProgress: function(totalRead:Number, ofTotal:Number):Void;
     private function installListener() {
-        if (image <> null and onLoad <> null) {
+        if (image != null and onLoad != null) {
             var loadingListener = com.sun.javafx.api.ui.ImageLoadingNotifier.ImageLoadingListener {
                                 public function imageLoadingDone(img:java.awt.Image):Void {
-                                    if(onLoad <> null) {
+                                    if(onLoad != null) {
                                         onLoad();
                                     }
                                     notifier = null;
                                 }
                                 public function imageLoadingFailed(img:java.awt.Image):Void {
-                                    if(onLoad <> null) {
+                                    if(onLoad != null) {
                                         onLoad();
                                     }
                                     notifier = null;

@@ -41,7 +41,7 @@ public abstract class VisualNode extends Node {
     private attribute sgvisualnode: SGAbstractShape;
     
     public attribute stroke: Paint on replace {
-        if(stroke <> null) {
+        if(stroke != null) {
             awtStroke = stroke.getPaint();
         } else {
             awtStroke = null;
@@ -50,23 +50,23 @@ public abstract class VisualNode extends Node {
         updateMode();
     };
     public attribute fill: Paint on replace {
-        if(fill <> null) {
+        if(fill != null) {
             awtFill = fill.getPaint();
         } else {
             awtFill = null;
         }
         updateMode();
     };
-    private attribute awtStroke: java.awt.Paint  //TODO:JFXC-329 = bind if (stroke <> null) then stroke.getPaint() else null
+    private attribute awtStroke: java.awt.Paint  //TODO:JFXC-329 = bind if (stroke != null) then stroke.getPaint() else null
         on replace  {
-            if (sgvisualnode <> null and awtStroke <> null) {
+            if (sgvisualnode != null and awtStroke != null) {
                 sgvisualnode.setDrawPaint(awtStroke);
             }
             updateStroke();
         };
-    private attribute awtFill: java.awt.Paint //TODO:JFXC-329 = bind if (fill <> null) then fill.getPaint() else null
+    private attribute awtFill: java.awt.Paint //TODO:JFXC-329 = bind if (fill != null) then fill.getPaint() else null
         on replace {
-            if (sgvisualnode <> null and awtFill <> null) {
+            if (sgvisualnode != null and awtFill != null) {
                 sgvisualnode.setFillPaint(awtFill);
             }
         };
@@ -80,10 +80,10 @@ public abstract class VisualNode extends Node {
     }
 
    private function updateMode() {
-        if (sgvisualnode <> null) {
-            if (awtFill <> null and awtStroke <> null) {
+        if (sgvisualnode != null) {
+            if (awtFill != null and awtStroke != null) {
                 sgvisualnode.setMode(SGAbstractShape.Mode.STROKE_FILL);
-            } else if (awtStroke <> null) {
+            } else if (awtStroke != null) {
                  sgvisualnode.setMode(SGAbstractShape.Mode.STROKE);
             } else {
                 // should have Mode.NONE
@@ -100,8 +100,8 @@ public abstract class VisualNode extends Node {
     static private attribute NO_STROKE = new BasicStroke(0.0.floatValue());
 
     public function updateStroke():Void {
-        if (sgvisualnode <> null) {
-            if (awtStroke <> null) {
+        if (sgvisualnode != null) {
+            if (awtStroke != null) {
                 var basic = new BasicStroke(strokeWidth.floatValue(),
                                             strokeLineCap.id.intValue(),
                                             strokeLineJoin.id.intValue(),
@@ -117,16 +117,16 @@ public abstract class VisualNode extends Node {
 
     public function createNode(): SGNode {
         sgvisualnode = this.createVisualNode();
-        if(fill <> null) {
+        if(fill != null) {
             awtFill = fill.getPaint();
         }
-        if (awtFill <> null) {
+        if (awtFill != null) {
             sgvisualnode.setFillPaint(awtFill);
         }
-        if(stroke <> null) {
+        if(stroke != null) {
             awtStroke = stroke.getPaint();
         }
-        if (awtStroke <> null) {
+        if (awtStroke != null) {
             sgvisualnode.setDrawPaint(awtStroke);
         }
         updateStroke(); 

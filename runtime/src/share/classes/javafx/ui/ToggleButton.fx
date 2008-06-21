@@ -38,7 +38,7 @@ public class ToggleButton extends SelectableButton {
     public attribute mnemonic: KeyStroke;
     public attribute icon: Icon on replace {
         var jicon = null;
-        if (icon <> null) {
+        if (icon != null) {
             jicon = icon.getIcon();
         }
         button.setIcon(jicon);
@@ -48,7 +48,7 @@ public class ToggleButton extends SelectableButton {
     };
     public attribute selectedIcon: Icon on replace {
         var jicon = null;
-        if (icon <> null) {
+        if (icon != null) {
             jicon = icon.getIcon();
         }
         button.setSelectedIcon(jicon);
@@ -56,35 +56,35 @@ public class ToggleButton extends SelectableButton {
     
     public attribute pressedIcon: Icon on replace {
         var jicon = null;
-        if (icon <> null) {
+        if (icon != null) {
             jicon = icon.getIcon();
         }
         button.setPressedIcon(jicon);
     };
     public attribute rolloverIcon: Icon on replace {
         var jicon = null;
-        if (icon <> null) {
+        if (icon != null) {
             jicon = icon.getIcon();
         }
         button.setRolloverIcon(jicon);
     };
     public attribute rolloverSelectedIcon: Icon on replace {
         var jicon = null;
-        if (icon <> null) {
+        if (icon != null) {
             jicon = icon.getIcon();
         }
         button.setRolloverSelectedIcon(jicon);
     };
     public attribute disabledIcon: Icon on replace {
         var jicon = null;
-        if (icon <> null) {
+        if (icon != null) {
             jicon = icon.getIcon();
         }
         button.setDisabledIcon(jicon);
     };
     public attribute disabledSelectedIcon: Icon on replace {
         var jicon = null;
-        if (icon <> null) {
+        if (icon != null) {
             jicon = icon.getIcon();
         }
         button.setDisabledSelectedIcon(jicon);
@@ -118,7 +118,7 @@ public class ToggleButton extends SelectableButton {
         button.setOpaque(false);
         button.addActionListener(java.awt.event.ActionListener {
                                      public function actionPerformed(e:java.awt.event.ActionEvent):Void {
-                                         if(action <> null) 
+                                         if(action != null) 
                                             action();
                                      }
                                  });

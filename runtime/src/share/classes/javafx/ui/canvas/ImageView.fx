@@ -46,7 +46,7 @@ public class ImageView extends Node {
     private attribute awtImage: java.awt.Image //= bind image.getImage() 
     on replace {
         //java.lang.System.out.println("ImageView.awtImage on replace: sgimage = {sgimage}");
-        if (sgimage <> null) {
+        if (sgimage != null) {
             this.getImage();
         }
     };
@@ -55,7 +55,7 @@ public class ImageView extends Node {
     public attribute image: Image on replace {
         //java.lang.System.out.println("ImageView.image on replace image = {image}, sgimage = {sgimage}");
         awtImage = image.getImage();
-        if (sgimage <> null) {
+        if (sgimage != null) {
             this.getImage();
         }
     };
@@ -63,7 +63,7 @@ public class ImageView extends Node {
     public attribute imageOpacity: Number = 1.0;
     public attribute loaded: Boolean;
     public attribute size: Dimension on replace {
-        if (sgimage <> null) {
+        if (sgimage != null) {
             this.getImage();
         }
     };
@@ -75,7 +75,7 @@ public class ImageView extends Node {
     }
     public function getImage(){
         //java.lang.System.out.println("getImage() {image}={awtImage}-{size} ");
-        if (image <> null and size <> null) {
+        if (image != null and size != null) {
             loaded = false;
             var curImage = image;
             var im = curImage.getImage();

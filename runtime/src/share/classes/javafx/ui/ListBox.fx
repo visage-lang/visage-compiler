@@ -68,14 +68,14 @@ public class ListBox extends ScrollableWidget {
      * TextComponents are USE_SELECTION, ON, INSERT or ON_OR_INSERT
      */
     public attribute dropMode:DropMode = DropMode.USE_SELECTION on replace {
-        if(dropMode <> DropMode.USE_SELECTION and dropMode <> DropMode.INSERT and
-            dropMode <> DropMode.ON and dropMode <> DropMode.ON_OR_INSERT) {
+        if(dropMode != DropMode.USE_SELECTION and dropMode != DropMode.INSERT and
+            dropMode != DropMode.ON and dropMode != DropMode.ON_OR_INSERT) {
             System.out.println("Illegal drop mode for text component,");
             System.out.println("only USE_SELECTION,INSERT, ON, or ON_OR_INSERT are allowed.");
             System.out.println("Reverting to USE_SELECTION");
             dropMode = DropMode.USE_SELECTION;
         }else {
-            if(list <> null)
+            if(list != null)
                 UIElement.context.setDropMode(dropMode.id, list);
         }
     };
@@ -85,18 +85,18 @@ public class ListBox extends ScrollableWidget {
      */    
     public attribute enableDND: Boolean on replace {
         if (enableDND) {
-            if (transferHandler == null and list <> null) {
+            if (transferHandler == null and list != null) {
                 addTransferHandler();
             }
-            if(list <> null)
+            if(list != null)
                 list.setDragEnabled(true);
-        } else if (list <> null) {
+        } else if (list != null) {
             list.setDragEnabled(false);
         }
     };
     
     private function acceptDrop(value:Object):Boolean{
-        if (this.canAcceptDrop <> null) {
+        if (this.canAcceptDrop != null) {
             var info = MouseInfo.getPointerInfo();
             var location = list.getLocationOnScreen();
             var p = info.getLocation();
@@ -112,7 +112,7 @@ public class ListBox extends ScrollableWidget {
             };
             return (this.canAcceptDrop)(e);
         }
-        return onDrop <> null;
+        return onDrop != null;
     }
     private function getDragValue(): java.lang.Object  {
         var result:ListCell[] = [];
@@ -125,7 +125,7 @@ public class ListBox extends ScrollableWidget {
         return result as java.lang.Object;
     };
     private bound function getDragText(): String  {
-        return if(cells[selection].dragText <> null) then
+        return if(cells[selection].dragText != null) then
             cells[selection].dragText else
             cells[selection].text;
 
@@ -137,12 +137,12 @@ public class ListBox extends ScrollableWidget {
             insert cells[i] into selectedCells;
         }
          fix me...
-        return if (selectedCells[0].dragText <> null) then
+        return if (selectedCells[0].dragText != null) then
             selectedCells[0].dragText else selectedCells[0].text;
 *******************/
     }
     private function setDropValue(value:Object):Void {
-        if (onDrop <> null) {
+        if (onDrop != null) {
             var info = MouseInfo.getPointerInfo();
             var location = list.getLocationOnScreen();
             var p = info.getLocation();
@@ -172,7 +172,7 @@ public class ListBox extends ScrollableWidget {
             },
             com.sun.javafx.api.ui.ValueSetter {
                 public function set(value:Object):Void {
-                    if(onDrop <> null) {
+                    if(onDrop != null) {
                         setDropValue(value);
                     }
                 }
@@ -180,7 +180,7 @@ public class ListBox extends ScrollableWidget {
             com.sun.javafx.api.ui.ValueAcceptor {
                 public
                 function accept(value:Object):Boolean {
-                    return if(onDrop <> null and enableDND) {
+                    return if(onDrop != null and enableDND) {
                         acceptDrop(value);
                     } else {
                         enableDND;
@@ -249,7 +249,7 @@ public class ListBox extends ScrollableWidget {
                     var ndx = e.listIndex;
                     var dropPoint = new Point(e.x, e.y);
                     var r = list.getCellBounds(ndx,ndx);
-                    if(r <> null) {
+                    if(r != null) {
                         if(r.y+r.height/2 > e.y) { //insert before
                             var head = cells[0..<ndx];
                             var tail =  cells[ndx..];
@@ -281,7 +281,7 @@ public class ListBox extends ScrollableWidget {
                     var ndx = e.listIndex;
                     var dropPoint = new Point(e.x, e.y);
                     var r = list.getCellBounds(ndx,ndx);
-                    if(r <> null) {
+                    if(r != null) {
                         if(r.y+5 > e.y) { //insert before
                             var head = cells[0..<ndx];
                             var tail =  cells[ndx..];
@@ -346,22 +346,22 @@ public class ListBox extends ScrollableWidget {
     attribute listeners:javax.swing.event.ListDataListener[];
     private attribute listmodel:javax.swing.ListModel;
     public attribute cellBackground: AbstractColor on replace {
-        if(list <> null) {
+        if(list != null) {
             list.setCellRenderer(makeCellRenderer());
         }
     };
     public attribute cellForeground: AbstractColor on replace {
-        if(list <> null) {
+        if(list != null) {
             list.setCellRenderer(makeCellRenderer());
         }
     };
     public attribute selectedCellBackground: AbstractColor on replace {
-        if(list <> null) {
+        if(list != null) {
             list.setCellRenderer(makeCellRenderer());
         }
     };
     public attribute selectedCellForeground: AbstractColor on replace {
-        if(list <> null) {
+        if(list != null) {
             list.setCellRenderer(makeCellRenderer());
         }
     };
@@ -433,7 +433,7 @@ public class ListBox extends ScrollableWidget {
      * <p>
      */
     public attribute layoutOrientation: ListLayoutOrientation = ListLayoutOrientation.VERTICAL on replace {
-        if(layoutOrientation <> null) {
+        if(layoutOrientation != null) {
             list.setLayoutOrientation(layoutOrientation.id.intValue());
         }
     };
@@ -540,10 +540,10 @@ public class ListBox extends ScrollableWidget {
      */
     public attribute action: function():Void on replace  {
         if (action == null) {
-            if (keyListener <> null) {
+            if (keyListener != null) {
                 list.removeKeyListener(keyListener);
             }
-            if (listMouseListener <> null) {
+            if (listMouseListener != null) {
                 list.removeMouseListener(listMouseListener);
             }
         } else {
@@ -588,27 +588,27 @@ public class ListBox extends ScrollableWidget {
                                       listCell.text,
                                       i, selected, focused,
                                       listCell.toolTipText) as javax.swing.JLabel;
-                    if (listCell.border <> null) {
+                    if (listCell.border != null) {
                          label.setBorder(listCell.border.getBorder());
                     }
-                    if (listCell.horizontalAlignment <> null) {
+                    if (listCell.horizontalAlignment != null) {
                         label.setHorizontalAlignment(listCell.horizontalAlignment.id.intValue());
                     } 
-                    if (listCell.verticalAlignment <> null) {
+                    if (listCell.verticalAlignment != null) {
                         label.setVerticalAlignment(listCell.verticalAlignment.id.intValue());
                     }
                     if (selected) {
-                        if (selectedCellForeground <> null) {
+                        if (selectedCellForeground != null) {
                             label.setForeground(selectedCellForeground.getColor());
                         }
-                        if (selectedCellBackground <> null) {
+                        if (selectedCellBackground != null) {
                             label.setBackground(selectedCellBackground.getColor());
                         }
                     } else {
-                        if (cellForeground <> null) {
+                        if (cellForeground != null) {
                             label.setForeground(cellForeground.getColor());
                         }
-                        if (cellBackground <> null) {
+                        if (cellBackground != null) {
                             label.setBackground(cellBackground.getColor());
                         }
                     }

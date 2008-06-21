@@ -57,7 +57,7 @@ public class ColorChooser extends Widget {
                                                               title,
                                                               initialColor.getColor());
         visible = false;
-        if (result != null and action <> null) {
+        if (result != null and action != null) {
             action(Color.fromAWTColor(result));
         }
     }

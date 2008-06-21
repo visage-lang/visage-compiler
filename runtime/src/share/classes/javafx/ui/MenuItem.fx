@@ -34,7 +34,7 @@ public class MenuItem extends AbstractMenuItem {
     // TODO MARK AS FINAL
     protected attribute jmenuitem:javax.swing.JMenuItem;
     public attribute actionCommand:javax.swing.Action on replace {
-        if(jmenuitem <> null) {
+        if(jmenuitem != null) {
             jmenuitem.setAction(actionCommand);
         }
     }
@@ -46,12 +46,12 @@ public class MenuItem extends AbstractMenuItem {
     }
 
     public attribute mnemonic: KeyStroke on replace {
-        if (jmenuitem <> null) {
+        if (jmenuitem != null) {
             jmenuitem.setMnemonic(mnemonic.id);
         }
     }
     public attribute accelerator: Accelerator on replace  {
-        if (jmenuitem <> null) {
+        if (jmenuitem != null) {
             var mask = 0;
             for (i in accelerator.modifier) {
                 var id = i.id;
@@ -62,12 +62,12 @@ public class MenuItem extends AbstractMenuItem {
     }
 
     public attribute text: String on replace {
-        if (jmenuitem <> null) {
+        if (jmenuitem != null) {
             jmenuitem.setText(text);
         }
     }
     public attribute icon: Icon on replace {
-        if (jmenuitem <> null) {
+        if (jmenuitem != null) {
             jmenuitem.setIcon(icon.getIcon());
         }
     }
@@ -80,18 +80,18 @@ public class MenuItem extends AbstractMenuItem {
         jmenuitem.setOpaque(false);
         jmenuitem.addActionListener(java.awt.event.ActionListener {
                                         public function actionPerformed(e:ActionEvent):Void {
-                                            if (action <> null) {
+                                            if (action != null) {
                                                 action();
                                             }
                                         }
                                     });
-        if (mnemonic <> null) {
+        if (mnemonic != null) {
             jmenuitem.setMnemonic(mnemonic.id);
         }
-        if (icon <> null) {
+        if (icon != null) {
             jmenuitem.setIcon(icon.getIcon());
         }
-        if (accelerator <> null) {
+        if (accelerator != null) {
             var mask = 0;
             for (i in accelerator.modifier) {
                 var id = i.id;
@@ -99,7 +99,7 @@ public class MenuItem extends AbstractMenuItem {
             }
             jmenuitem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(accelerator.keyStroke.id, mask)); 
         }
-        if (text <> null) {
+        if (text != null) {
             jmenuitem.setText(text);
         }
         return jmenuitem;

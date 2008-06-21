@@ -79,10 +79,10 @@ public abstract class Node extends CanvasElement, Transformable {
             mouseListener = SGMouseAdapter {
                     public function mouseClicked(e:MouseEvent, node:SGNode):Void {
                         focused = true;
-                        if (onMouseClicked <> null) {
+                        if (onMouseClicked != null) {
                             (onMouseClicked)(makeCanvasMouseEvent(e));
                             e.consume();
-                        } else if (onMousePressed <> null) {
+                        } else if (onMousePressed != null) {
                             e.consume();
                         } else {
                             if (isSelectionRoot) {e.consume();}
@@ -90,14 +90,14 @@ public abstract class Node extends CanvasElement, Transformable {
                     }
 
                     public function mouseEntered(e:MouseEvent, node:SGNode):Void {
-                        if (onMouseEntered <> null) {
+                        if (onMouseEntered != null) {
                             (onMouseEntered)(makeCanvasMouseEvent(e));
                         }
                         if (isSelectionRoot) { e.consume(); }
                     }
 
                     public function mouseExited(e:MouseEvent, node:SGNode):Void {
-                        if (onMouseExited <> null) {
+                        if (onMouseExited != null) {
                             (onMouseExited)(makeCanvasMouseEvent(e));
                         } 
                         if (isSelectionRoot) { e.consume(); }
@@ -108,10 +108,10 @@ public abstract class Node extends CanvasElement, Transformable {
                         Node.MOUSE_PRESS = e;        
                         var c = getCanvas();
                         //MOUSE_DRAG_SCREEN = getScreenLocation(c.getComponent());
-                        if (onMousePressed <> null) {
+                        if (onMousePressed != null) {
                             (onMousePressed)(makeCanvasMouseEvent(e));
                             e.consume();
-                        } else if (onMouseClicked <> null) {
+                        } else if (onMouseClicked != null) {
                             e.consume();
                         } else {
                             if (isSelectionRoot) { e.consume(); }
@@ -122,10 +122,10 @@ public abstract class Node extends CanvasElement, Transformable {
                         MOUSE_DRAG = null;
                         MOUSE_PRESS = null;
                         MOUSE_DRAG_SCREEN = null;
-                        if (onMouseReleased <> null) {
+                        if (onMouseReleased != null) {
                             (onMouseReleased)(makeCanvasMouseEvent(e));
                             e.consume();
-                        } else if (onMousePressed <> null or onMouseClicked <> null) {
+                        } else if (onMousePressed != null or onMouseClicked != null) {
                             e.consume();
                         } else {
                             if (isSelectionRoot) {e.consume();}
@@ -141,16 +141,16 @@ public abstract class Node extends CanvasElement, Transformable {
                         if (not (onMouseDragged == null and onMouseMoved == null and not isSelectionRoot)) {
                             e.consume();
                         }
-                        if (onMouseDragged <> null) {
+                        if (onMouseDragged != null) {
                             var dragDeltaX = 0;
                             var dragDeltaY = 0;
                             var localDragDeltaX = 0;
                             var localDragDeltaY = 0;
-                            var prev = if (MOUSE_DRAG <> null)
+                            var prev = if (MOUSE_DRAG != null)
                                             then MOUSE_DRAG
                                         else MOUSE_PRESS;
                             var screen = new java.awt.Point(0,0); //!!getScreenLocation(getCanvas().getComponent());
-                            if (prev <> null) {
+                            if (prev != null) {
                                if (MOUSE_DRAG_SCREEN == null) {
                                    MOUSE_DRAG_SCREEN = screen;
                                }
@@ -171,19 +171,19 @@ public abstract class Node extends CanvasElement, Transformable {
                             var event = makeCanvasMouseEvent(e);
                             event.dragTranslation = XY{x: dragDeltaX, y: dragDeltaY};
                             event.localDragTranslation = XY{x: localDragDeltaX, y: localDragDeltaY};
-                            if(onMouseDragged <> null)
+                            if(onMouseDragged != null)
                                 (onMouseDragged)(event);
                         }
                     }
 
                     public function mouseMoved(e:MouseEvent, node:SGNode):Void {
                         //e.percolate = onMouseMoved == null and onMouseDragged == null and not isSelectionRoot;
-                        if (onMouseMoved <> null) {
+                        if (onMouseMoved != null) {
                             (onMouseMoved)(makeCanvasMouseEvent(e));
                         }
                     }
                 };
-            if (filterRoot <> null) {
+            if (filterRoot != null) {
                 filterRoot.addMouseListener(mouseListener);
             }
         }
@@ -197,16 +197,16 @@ public abstract class Node extends CanvasElement, Transformable {
             var entered = false;
             keyListener = SGKeyListener {
                 public function keyTyped(event:java.awt.event.KeyEvent, node:SGNode):Void {
-                    if(onKeyTyped <> null) { onKeyTyped(makeKeyEvent(event)); }
+                    if(onKeyTyped != null) { onKeyTyped(makeKeyEvent(event)); }
                 }
                 public function keyPressed(event:java.awt.event.KeyEvent, node:SGNode):Void {
-                    if(onKeyDown <> null) { onKeyDown(makeKeyEvent(event)); }
+                    if(onKeyDown != null) { onKeyDown(makeKeyEvent(event)); }
                 }
                 public function keyReleased(event:java.awt.event.KeyEvent, node:SGNode):Void {
-                    if(onKeyUp <> null) { onKeyUp(makeKeyEvent(event)); }
+                    if(onKeyUp != null) { onKeyUp(makeKeyEvent(event)); }
                 }
             };
-            if (filterRoot <> null) {
+            if (filterRoot != null) {
                 filterRoot.addKeyListener(keyListener);
             }
 
@@ -214,7 +214,7 @@ public abstract class Node extends CanvasElement, Transformable {
     }
     protected function installFocusListener() {
         var canvas = this.getCanvas();
-        if (focusListener == null and canvas.jsgpanel <> null) {
+        if (focusListener == null and canvas.jsgpanel != null) {
             var self = this;
             focusListener = FocusListener {
                     public function focusGained(e:FocusEvent):Void {
@@ -280,12 +280,12 @@ public abstract class Node extends CanvasElement, Transformable {
     private attribute filterRoot: FXNode;
     public attribute clip: Clip;
     private attribute clipNode: VisualNode = bind if (clip == null) null else clip.shape on replace {
-        if (clipNode <> null)
+        if (clipNode != null)
             filterRoot.setClip(clipNode.getVisualNode().getShape());
     };
     private attribute antialiasClip: Boolean  = bind if (clip == null) false else clip.antialias on replace {
         antialiasClipSet = true;
-        if (filterRoot <> null)
+        if (filterRoot != null)
             filterRoot.setClipAntialiased(antialiasClip);
     };
     private attribute antialiasClipSet = false;
@@ -295,9 +295,9 @@ public abstract class Node extends CanvasElement, Transformable {
     private attribute focusListener: FocusListener;
     
     private function getFX(obj:SGNode): Node {
-        while (obj <> null) {
+        while (obj != null) {
             var n:Node = obj.getAttribute("FX") as Node;
-            if (n <> null) {
+            if (n != null) {
                 return n;
             }
             obj = obj.getParent();
@@ -315,7 +315,7 @@ public abstract class Node extends CanvasElement, Transformable {
 
     private static function getScreenLocation(component:java.awt.Component): java.awt.Point{
         var comp = component;
-        while (comp <> null and not (comp instanceof java.awt.Frame) and 
+        while (comp != null and not (comp instanceof java.awt.Frame) and 
                not (comp instanceof java.awt.Window) and
                not (comp instanceof java.applet.Applet)) {
             comp = comp.getParent();
@@ -329,7 +329,7 @@ public abstract class Node extends CanvasElement, Transformable {
     }
 
     private function updateEffect() {
-        if (filterRoot <> null) {
+        if (filterRoot != null) {
             filterRoot.setEffect(filter.getImpl());
         }
     }
@@ -351,32 +351,32 @@ public abstract class Node extends CanvasElement, Transformable {
             filterRoot.putAttribute("FX", this);
             filterRoot.addNodeListener(Node.LISTENER);
 
-            if (halign <> null) {
+            if (halign != null) {
                 filterRoot.setHorizontalAlignment(halign.id.intValue());
             }
-            if (valign <> null) {
+            if (valign != null) {
                 filterRoot.setVerticalAlignment(valign.id.intValue());
             }
-            if (clipNode <> null) {
+            if (clipNode != null) {
                 filterRoot.setClip(clipNode.getVisualNode().getShape());
             }
             if (antialiasClipSet) {
                 filterRoot.setClipAntialiased(antialiasClip);
             }
-            if (transform <> null and sizeof transform > 0) {
+            if (transform != null and sizeof transform > 0) {
                 for (t in transform) {
                     t.transformable = this;
                 }
                 updateTransform()
             }
-            if (affineTransform <> null) {
+            if (affineTransform != null) {
                 filterRoot.setTransform(affineTransform);
             }
-            if (mouseListener <> null) {
+            if (mouseListener != null) {
                 filterRoot.removeMouseListener(mouseListener);
                 filterRoot.addMouseListener(mouseListener);
             }
-            if (keyListener <> null) {
+            if (keyListener != null) {
                 filterRoot.removeKeyListener(keyListener);
                 filterRoot.addKeyListener(keyListener);
             }
@@ -391,14 +391,14 @@ public abstract class Node extends CanvasElement, Transformable {
                     insert r into canvas.sizeToFitList;
                 }
             }
-            if (opacitySet and opacity <> 1.0) {
+            if (opacitySet and opacity != 1.0) {
                 filterRoot.setOpacity(clamp(opacity, 0, 1).floatValue());
             }
             updateEffect();
-            if (toolTipText <> null) {
+            if (toolTipText != null) {
                 //alignmentFilter.setToolTipText(toolTipText); // TODO: hmm
             }
-            if (id <> null) {
+            if (id != null) {
                 contentNode.setID(id);
             }
             var b = filterRoot.getBounds();
@@ -418,7 +418,7 @@ public abstract class Node extends CanvasElement, Transformable {
     //TODO: implement properly...
     public attribute toolTipText: String on replace  {
     /*
-        if (alignmentFilter <> null) {
+        if (alignmentFilter != null) {
             alignmentFilter.setToolTipText(value);
         }
     */
@@ -445,9 +445,9 @@ public abstract class Node extends CanvasElement, Transformable {
     };
     /** A number between 0 and 1, 0 being transparent and 1 opaque. */
     public attribute opacity: Number = 1 on replace {
-        if (opacitySet == false and opacity <> 1) // ignore initial opaque setting
+        if (opacitySet == false and opacity != 1) // ignore initial opaque setting
             opacitySet = true;
-        if (filterRoot <> null) {
+        if (filterRoot != null) {
             filterRoot.setOpacity(clamp(opacity, 0, 1).floatValue());
         }
     }
@@ -456,7 +456,7 @@ public abstract class Node extends CanvasElement, Transformable {
 
     /** If true this node will be scaled to the size of its containing canvas. */
     public attribute scaleToFitCanvas: Boolean  on replace {
-        if (this.parentCanvasElement <> null) {
+        if (this.parentCanvasElement != null) {
             var canvas = this.getCanvas();
             if (scaleToFitCanvas) {
                 insert this into canvas.scaleToFitList;
@@ -470,7 +470,7 @@ public abstract class Node extends CanvasElement, Transformable {
         if (halign == null) {
             halign = HorizontalAlignment.LEADING;
         }
-        else if (filterRoot <> null) {
+        else if (filterRoot != null) {
             filterRoot.setHorizontalAlignment(halign.id.intValue());
         }
     }
@@ -479,7 +479,7 @@ public abstract class Node extends CanvasElement, Transformable {
         if (valign == null) {
             valign = VerticalAlignment.TOP;
         }
-        else if (filterRoot <> null) {
+        else if (filterRoot != null) {
             filterRoot.setVerticalAlignment(valign.id.intValue());
         }
     };
@@ -490,7 +490,7 @@ public abstract class Node extends CanvasElement, Transformable {
      * will not receive events.
      */
     public attribute visible: Boolean = true on replace {
-        if (filterRoot <> null) {
+        if (filterRoot != null) {
             filterRoot.setVisible(visible);
         }
     };
@@ -528,7 +528,7 @@ public abstract class Node extends CanvasElement, Transformable {
             requestFocus();
         } else {
             var canvas = this.getCanvas();
-            if (canvas <> null and canvas.focusedNode == this) {
+            if (canvas != null and canvas.focusedNode == this) {
                 canvas.focusedNode = null;
             }
         }
@@ -546,7 +546,7 @@ public abstract class Node extends CanvasElement, Transformable {
     public attribute onDragExit: function(e:CanvasDropEvent):Void;
 
     public function handleDrop(e:CanvasDropEvent):Boolean{
-        if (onDrop <> null) {
+        if (onDrop != null) {
             var pt = new java.awt.Point(e.x.intValue(), e.y.intValue());
             filterRoot.globalToLocal(pt, pt);
             e.localX = pt.getX();
@@ -557,17 +557,17 @@ public abstract class Node extends CanvasElement, Transformable {
         return false;
     }
     public function handleAcceptDrop(e:CanvasDropEvent):Boolean {
-        if (canAcceptDrop <> null) {
+        if (canAcceptDrop != null) {
             var pt = new java.awt.Point(e.x.intValue(), e.y.intValue());
             filterRoot.globalToLocal(pt, pt);
             e.localX = pt.getX();
             e.localY = pt.getY();
             return (this.canAcceptDrop)(e);
         }
-        return onDrop <> null;
+        return onDrop != null;
     }
     public function handleDragEnter(e:CanvasDropEvent):Boolean{
-        if (onDragEnter <> null) {
+        if (onDragEnter != null) {
             var pt = new java.awt.Point(e.x.intValue(), e.y.intValue());
             filterRoot.globalToLocal(pt, pt);
             e.localX = pt.getX();
@@ -578,7 +578,7 @@ public abstract class Node extends CanvasElement, Transformable {
         return false;
     }
     public function handleDragExit(e:CanvasDropEvent):Boolean{
-        if (onDragExit <> null) {
+        if (onDragExit != null) {
             var pt = new java.awt.Point(e.x.intValue(), e.y.intValue());
             filterRoot.globalToLocal(pt, pt);
             e.localX = pt.getX();
@@ -653,8 +653,8 @@ public abstract class Node extends CanvasElement, Transformable {
     public attribute currentHeight: Number;
 
     private function updateCursor():Void {
-        if (filterRoot <> null) {
-            filterRoot.setCursor(if (cursor <> null) cursor.getCursor() else null);
+        if (filterRoot != null) {
+            filterRoot.setCursor(if (cursor != null) cursor.getCursor() else null);
         }
     }
     
@@ -667,7 +667,7 @@ public abstract class Node extends CanvasElement, Transformable {
     }
     
     public attribute id: String on replace {
-        if (contentNode <> null) {
+        if (contentNode != null) {
             contentNode.setID(id);
         }   
     };
@@ -676,7 +676,7 @@ public abstract class Node extends CanvasElement, Transformable {
     
     init {
         onTransformChanged = function (t:AffineTransform):Void {
-            if (filterRoot <> null) {
+            if (filterRoot != null) {
                 filterRoot.setTransform(t);
             } 
         }
@@ -685,11 +685,11 @@ public abstract class Node extends CanvasElement, Transformable {
     // TODO: remove (this is a hack workaround, not currently used)
     /*
     function realign():Void {
-        if (filterRoot <> null) {
-            if (halign <> null and halign <> HorizontalAlignment.LEADING) {
+        if (filterRoot != null) {
+            if (halign != null and halign != HorizontalAlignment.LEADING) {
                 filterRoot.setHorizontalAlignment(halign.id.intValue());
             }
-            if (valign <> null and valign <> VerticalAlignment.TOP) {
+            if (valign != null and valign != VerticalAlignment.TOP) {
                 filterRoot.setVerticalAlignment(valign.id.intValue());
             }
         }

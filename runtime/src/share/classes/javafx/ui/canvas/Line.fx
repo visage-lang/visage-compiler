@@ -36,9 +36,9 @@ public class Line extends Shape {
     private attribute awtLine: java.awt.geom.Line2D;
 
     private function updateLine():Void {
-        if (awtLine <> null) {
+        if (awtLine != null) {
             awtLine.setLine(x1, y1, x2, y2);
-            if (sgshape <> null) {
+            if (sgshape != null) {
                 sgshape.setShape(awtLine);
             }
         }

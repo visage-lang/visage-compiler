@@ -30,13 +30,13 @@ import java.awt.geom.AffineTransform;
 public class Scale extends Transform {
     /** The factor to scale along the x axis */
     public attribute x: Number on replace {
-        if (x <> 0 and y <> 0) {
+        if (x != 0 and y != 0) {
            transform = AffineTransform.getScaleInstance(x, y);
         }
     };
     /** The factor to scale along the y axis */
     public attribute y: Number on replace {
-        if (x <> 0 and y <> 0) {
+        if (x != 0 and y != 0) {
            transform = AffineTransform.getScaleInstance(x, y);
         }
     };

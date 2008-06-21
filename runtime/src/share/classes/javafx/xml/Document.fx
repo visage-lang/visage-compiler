@@ -62,7 +62,7 @@ public class Document {
      * holds the internal org.w3c.dom.Document
      */
     public attribute document:org.w3c.dom.Document on replace {
-        if(document.getDocumentElement() <> null ) {
+        if(document.getDocumentElement() != null ) {
             documentElement = Element{domNode:document.getDocumentElement(), document:this};
         }
     }
@@ -77,8 +77,8 @@ public class Document {
      *  holds the document element 
      */
     public attribute documentElement:Element on replace old {
-        if(documentElement.domNode <> document.getDocumentElement()) {
-            if(document.getDocumentElement() <> null) {
+        if(documentElement.domNode != document.getDocumentElement()) {
+            if(document.getDocumentElement() != null) {
                 document.removeChild(document.getDocumentElement());
             }
             document.appendChild(documentElement.domNode);
@@ -241,7 +241,7 @@ public class Document {
      */
     public function getElementById(elementId:String) : Element {
         var elem = document.getElementById(elementId);
-        return if(elem <> null) elem.getUserData("FX") as Element else null;
+        return if(elem != null) elem.getUserData("FX") as Element else null;
     }
     
     
@@ -263,7 +263,7 @@ public class Document {
         for( i in [0..<result.getLength()]) {
             var n = result.item(i);
             var fxnode = n.getUserData("FX") as Element;
-            if(fxnode <> null) {
+            if(fxnode != null) {
                 insert fxnode into elements;
             }else {
                 Logger.getLogger(this.getClass().getName()).warning("dom node has no FX node assigned: {n}");
@@ -289,7 +289,7 @@ public class Document {
         for( i in [0..<result.getLength()]) {
             var n = result.item(i);
             var fxnode = n.getUserData("FX") as Element;
-            if(fxnode <> null) {
+            if(fxnode != null) {
                 insert fxnode into elements;
             }else {
                 Logger.getLogger(this.getClass().getName()).warning("dom node has no FX node assigned: {n}");
@@ -306,7 +306,7 @@ public class Document {
      */
     public function query(query:String):Node[] {
         var xpath = xfactory.newXPath();
-        if(namespace <> null) {
+        if(namespace != null) {
             xpath.setNamespaceContext(namespace);
         }
         var expr = xpath.compile(query);
@@ -316,7 +316,7 @@ public class Document {
         for( i in [0..<result.getLength()]) {
             var n = result.item(i);
             var fxnode = n.getUserData("FX") as Node;
-            if(fxnode <> null) {
+            if(fxnode != null) {
                 insert fxnode into nodes;
             }else {
                 Logger.getLogger(this.getClass().getName()).warning("dom node has no FX node assigned: {n}");
@@ -333,7 +333,7 @@ public class Document {
      */    
     public function queryBoolean(query:String):Boolean {
         var xpath = xfactory.newXPath();
-        if(namespace <> null) {
+        if(namespace != null) {
             xpath.setNamespaceContext(namespace);
         }
         var expr = xpath.compile(query);
@@ -348,7 +348,7 @@ public class Document {
      */   
     public function queryNumber(query:String):Number {
         var xpath = xfactory.newXPath();
-        if(namespace <> null) {
+        if(namespace != null) {
             xpath.setNamespaceContext(namespace);
         }
         var expr = xpath.compile(query);
@@ -363,7 +363,7 @@ public class Document {
      */   
     public function queryString(query:String):String {
         var xpath = xfactory.newXPath();
-        if(namespace <> null) {
+        if(namespace != null) {
             xpath.setNamespaceContext(namespace);
         }
         var expr = xpath.compile(query);
@@ -378,12 +378,12 @@ public class Document {
      */    
     public function queryNode(query:String):Node {
         var xpath = xfactory.newXPath();
-        if(namespace <> null) {
+        if(namespace != null) {
             xpath.setNamespaceContext(namespace);
         }
         var expr = xpath.compile(query);
         var n = expr.evaluate(document, XPathConstants.NODE) as org.w3c.dom.Node;
-        return if(n <> null) then n.getUserData("FX") as Node  else null;
+        return if(n != null) then n.getUserData("FX") as Node  else null;
     }      
     
     /**
@@ -421,7 +421,7 @@ public class Document {
         serializer.setOutputProperty("\{http://xml.apache.org/xslt}indent-amount", "{indent}");
         serializer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, 
                                 if(omitXMLDeclaration) then "yes" else "no");
-        if( encoding <> null) {
+        if( encoding != null) {
             serializer.setOutputProperty(OutputKeys.ENCODING, encoding);
         }
         serializer.setOutputProperty(OutputKeys.STANDALONE, 

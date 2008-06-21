@@ -57,7 +57,7 @@ public class FileChooser extends Widget {
             filechooser.removePropertyChangeListener(propertyChangeListener);
         }
         if (rc == JFileChooser.APPROVE_OPTION) {
-            if(action <> null) {
+            if(action != null) {
                 action(filechooser.getSelectedFile());
             }
             cwd = filechooser.getCurrentDirectory();
@@ -67,7 +67,7 @@ public class FileChooser extends Widget {
     public function showSaveDialog(w:UIElement):Void {
         configure();
         if (filechooser.showSaveDialog(w.getWindow()) == JFileChooser.APPROVE_OPTION) {
-            if(action <> null) {
+            if(action != null) {
                 action(filechooser.getSelectedFile());
             }
             cwd = filechooser.getCurrentDirectory();
@@ -105,7 +105,7 @@ public class FileChooser extends Widget {
                                                });
         }
 
-        if (cwd <> null) {
+        if (cwd != null) {
             filechooser.setCurrentDirectory(cwd.getCanonicalFile());
         }
     }

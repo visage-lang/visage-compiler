@@ -28,12 +28,12 @@ import java.lang.System;
 
 public class TreeCell {
     protected function getTree():Tree {
-        if (tree <> null) {
+        if (tree != null) {
             return tree;
         }
         var p = parent;
-        while (p <> null) {
-            if (p.tree <> null) {
+        while (p != null) {
+            if (p.tree != null) {
                 tree = p.tree;
                 break;
             }
@@ -66,10 +66,10 @@ public class TreeCell {
     };
     public attribute value: Object;
     public attribute selected: Boolean on replace {
-        if (tree <> null and not tree.inSelectionChange) {
+        if (tree != null and not tree.inSelectionChange) {
             var p:TreeCell[] = [];
             var r = this;
-            while (r <> null) {
+            while (r != null) {
                 insert r into p;
                 r = r.parent;
             }

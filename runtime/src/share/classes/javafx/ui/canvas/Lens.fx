@@ -77,7 +77,7 @@ trigger on Lens.viewComposite = value {
 }
 
 trigger on Lens.viewBounds = value {
-    if (value <> null) {
+    if (value != null) {
         this.setView();
     }
 }
@@ -85,7 +85,7 @@ trigger on Lens.viewBounds = value {
 function Lens.setView() {
     if (zcamera.getDrawingSurface() == null) {
          var zcanvas = this.getCanvas().zcanvas;
-         if (zcanvas <> null) {
+         if (zcanvas != null) {
               zcamera.setDrawingSurface(zcanvas.getDrawingSurface());	 
          }
     }
@@ -96,9 +96,9 @@ trigger on Lens.view = value {
         value.parentCanvasElement = this;
     }
     setView();
-    if (zcamera <> null) {
-        if (lg <> null) {
-            if (value.getNode() <> null) {
+    if (zcamera != null) {
+        if (lg != null) {
+            if (value.getNode() != null) {
                 if (lg.getNumChildren() > 0) {
                     lg.removeChild(0);
                 }

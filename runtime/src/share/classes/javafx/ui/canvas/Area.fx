@@ -41,7 +41,7 @@ import com.sun.scenario.scenegraph.SGShape;
 public abstract class Area extends Shape {
     protected abstract function performOp(area1:java.awt.geom.Area, area2:java.awt.geom.Area):Void;
     private function getArea() {
-        if (sgshape <> null) {
+        if (sgshape != null) {
             var s1 = shape1.getTransformedShape();
             var s2 = shape2.getTransformedShape();
             if (s1 == null) {

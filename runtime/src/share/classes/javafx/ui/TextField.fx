@@ -46,19 +46,19 @@ public class TextField extends Widget {
     private attribute verifier: com.sun.javafx.api.ui.XInputVerifierImpl;
 
     public attribute value: String on replace  {
-        if (value <> textField.getText()) {
+        if (value != textField.getText()) {
             textField.setText(value);
         }
-        if(value <> text) text = value;
+        if(value != text) text = value;
     };
     public attribute text: String on replace {
-        if(text <> value)
+        if(text != value)
             value = text;
     }
     public attribute onChange: function(newValue:String) on replace old {
-        if (old == null and onChange <> null) {
+        if (old == null and onChange != null) {
             textField.addPropertyChangeListener(propertyChangeListener);
-        } else if (old <> null) {
+        } else if (old != null) {
             textField.removePropertyChangeListener(propertyChangeListener);
         }
     };
@@ -85,13 +85,13 @@ public class TextField extends Widget {
      * TextComponents are USE_SELECTION and INSERT
      */
     public attribute dropMode:DropMode = DropMode.USE_SELECTION on replace {
-        if(dropMode <> DropMode.USE_SELECTION and dropMode <> DropMode.INSERT) {
+        if(dropMode != DropMode.USE_SELECTION and dropMode != DropMode.INSERT) {
             System.out.println("Illegal drop mode for text component,");
             System.out.println("only USE_SELECTION and INSERT are allowed.");
             System.out.println("Reverting to USE_SELECTION");
             dropMode = DropMode.USE_SELECTION;
         }else {
-            if(textField <> null)
+            if(textField != null)
                 UIElement.context.setDropMode(dropMode.id, textField);
         }
     };
@@ -173,7 +173,7 @@ public class TextField extends Widget {
     };
     
     private bound function acceptDrop(value:Object):Boolean{
-        if (this.canAcceptDrop <> null) {
+        if (this.canAcceptDrop != null) {
             var info = MouseInfo.getPointerInfo();
             var location = textField.getLocationOnScreen();
             var p = info.getLocation();
@@ -184,12 +184,12 @@ public class TextField extends Widget {
             };
             (this.canAcceptDrop)(e)
         } else {
-             onDrop <> null
+             onDrop != null
         }
     }
     
     private function setDropValue(value:Object):Void {
-        if (onDrop <> null) {
+        if (onDrop != null) {
             var info = MouseInfo.getPointerInfo();
             var location = textField.getLocationOnScreen();
             var p = info.getLocation();
@@ -222,12 +222,12 @@ public class TextField extends Widget {
         }
     };
     public attribute horizontalAlignment:HorizontalAlignment on replace {
-        if (horizontalAlignment <> null) {
+        if (horizontalAlignment != null) {
             textField.setHorizontalAlignment(horizontalAlignment.id.intValue());
         }
     };
     public attribute margin: Insets on replace {
-        if (margin <> null) {
+        if (margin != null) {
             textField.setMargin(margin.awtinsets);
         }
     };
@@ -259,7 +259,7 @@ public class TextField extends Widget {
     }
 
     private attribute awtCaretColor:java.awt.Color = bind caretColor.getColor() on replace {
-           if (awtCaretColor <> null) {
+           if (awtCaretColor != null) {
                textField.setCaretColor(awtCaretColor);
            }
     };
@@ -289,7 +289,7 @@ public class TextField extends Widget {
                     javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                           public function run():Void {
                                 value  = textField.getText();
-                                if(onChange <> null)
+                                if(onChange != null)
                                     onChange(textField.getText());
                           }
                      });
@@ -302,15 +302,15 @@ public class TextField extends Widget {
         textField.addActionListener(java.awt.event.ActionListener {
                                         public function actionPerformed(e:ActionEvent):Void {
                                             value = textField.getText();
-                                            if(onChange <> null) {
+                                            if(onChange != null) {
                                                 onChange(textField.getText());
                                             }
-                                            if (action <> null) {
+                                            if (action != null) {
                                                 (action)();
                                             } else {
                                                   var root = textField.getRootPane();      
                                                   var but = root.getDefaultButton();
-                                                  if (but <> null) {
+                                                  if (but != null) {
                                                       but.doClick(0);
                                                   }
                                             }
@@ -326,7 +326,7 @@ public class TextField extends Widget {
             },
             com.sun.javafx.api.ui.ValueSetter {
                 public function set(val:Object):Void {
-                    if(onDrop <> null) {
+                    if(onDrop != null) {
                         setDropValue(val);
                     }
 
@@ -334,7 +334,7 @@ public class TextField extends Widget {
             },
             com.sun.javafx.api.ui.ValueAcceptor {
                 public function accept(value:Object):Boolean {
-                    return if(onDrop <> null and enableDND) {
+                    return if(onDrop != null and enableDND) {
                         acceptDrop(value);
                     } else {
                         enableDND;

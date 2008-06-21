@@ -41,7 +41,7 @@ public class ListCell {
     public attribute horizontalAlignment: HorizontalAlignment;
     public attribute verticalAlignment: VerticalAlignment;
     public attribute text: String on replace {
-        if (listbox <> null) {
+        if (listbox != null) {
             if (not listbox.locked) {
                 var e:javax.swing.event.ListDataEvent;
                 if (cacheGeneration < listbox.updateGeneration) {
@@ -64,7 +64,7 @@ public class ListCell {
     };
     public attribute toolTipText: String;
     public attribute selected: Boolean on replace {
-        if (listbox <> null) {
+        if (listbox != null) {
             if (not listbox.locked) {
                 if (cacheGeneration < listbox.updateGeneration) {
                     for ( i in [0..<sizeof listbox.cells] ) {
@@ -74,7 +74,7 @@ public class ListCell {
                     }
                 }
                 
-                if (selected and myIndex <> listbox.selection) {
+                if (selected and myIndex != listbox.selection) {
                     //TODO MULTIPLE SELECTION
                     //insert myIndex into listbox.selection;
                     listbox.selection = myIndex;

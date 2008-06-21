@@ -59,7 +59,7 @@ public class SlideTab {
     };
     public attribute content: Widget;
     public attribute selected: Boolean on replace {
-        if(slider <> null) {
+        if(slider != null) {
             slider.updateTabSelection(this);
         }
     };

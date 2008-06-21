@@ -78,13 +78,13 @@ public class EditorPane extends ScrollableWidget {
      * TextComponents are USE_SELECTION and INSERT
      */
     public attribute dropMode:DropMode = DropMode.USE_SELECTION on replace {
-        if(dropMode <> DropMode.USE_SELECTION and dropMode <> DropMode.INSERT) {
+        if(dropMode != DropMode.USE_SELECTION and dropMode != DropMode.INSERT) {
             System.out.println("Illegal drop mode for text component,");
             System.out.println("only USE_SELECTION and INSERT are allowed.");
             System.out.println("Reverting to USE_SELECTION");
             dropMode = DropMode.USE_SELECTION;
         }else {
-            if(jeditorpane <> null)
+            if(jeditorpane != null)
                 UIElement.context.setDropMode(dropMode.id, jeditorpane);
         }
     };
@@ -159,7 +159,7 @@ public class EditorPane extends ScrollableWidget {
     };
     
     private function acceptDrop(value:Object):Boolean{
-        if (this.canAcceptDrop <> null) {
+        if (this.canAcceptDrop != null) {
             var info = MouseInfo.getPointerInfo();
             var location = jeditorpane.getLocationOnScreen();
             var p = info.getLocation();
@@ -173,11 +173,11 @@ public class EditorPane extends ScrollableWidget {
             };
             return (this.canAcceptDrop)(e);
         }
-        return onDrop <> null;
+        return onDrop != null;
     }
     
     private function setDropValue(value:Object):Void {
-        if (onDrop <> null) {
+        if (onDrop != null) {
             var info = MouseInfo.getPointerInfo();
             var location = jeditorpane.getLocationOnScreen();
             var p = info.getLocation();
@@ -229,14 +229,14 @@ public class EditorPane extends ScrollableWidget {
             },
             com.sun.javafx.api.ui.ValueSetter {
                 public function set(val:Object):Void {
-                    if(onDrop <> null) {
+                    if(onDrop != null) {
                         setDropValue(val);
                     }
                 }
             },
             com.sun.javafx.api.ui.ValueAcceptor {
                 public function accept(value:Object):Boolean {
-                    return if(onDrop <> null and enableDND) {
+                    return if(onDrop != null and enableDND) {
                         acceptDrop(value);
                     } else {
                         enableDND;

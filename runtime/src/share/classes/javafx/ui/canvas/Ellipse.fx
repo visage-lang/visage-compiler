@@ -41,9 +41,9 @@ public class Ellipse extends Shape {
         var y = cy - radiusY;
         var width = 2*radiusX;
         var height = 2*radiusY;
-        if (awtEllipse <> null)
+        if (awtEllipse != null)
             awtEllipse.setFrame(x, y, width, height);
-        if (sgshape <> null)
+        if (sgshape != null)
             sgshape.setShape(awtEllipse);
     };
     /** the y coordinate of the center point of this ellipse.*/
@@ -52,9 +52,9 @@ public class Ellipse extends Shape {
         var y = cy - radiusY;
         var width = 2*radiusX;
         var height = 2*radiusY;
-        if (awtEllipse <> null)
+        if (awtEllipse != null)
             awtEllipse.setFrame(x, y, width, height);
-        if (sgshape <> null)
+        if (sgshape != null)
             sgshape.setShape(awtEllipse);
     };
     /** the horizontal radius of this ellipse.*/
@@ -63,9 +63,9 @@ public class Ellipse extends Shape {
         var y = cy - radiusY;
         var width = 2*radiusX;
         var height = 2*radiusY;
-        if (awtEllipse <> null)
+        if (awtEllipse != null)
             awtEllipse.setFrame(x, y, width, height);
-        if (sgshape <> null)
+        if (sgshape != null)
             sgshape.setShape(awtEllipse);
     };
     /** the vertical radius of this ellipse.*/
@@ -74,9 +74,9 @@ public class Ellipse extends Shape {
         var y = cy - radiusY;
         var width = 2*radiusX;
         var height = 2*radiusY;
-        if (awtEllipse <> null)
+        if (awtEllipse != null)
             awtEllipse.setFrame(x, y, width, height);
-        if (sgshape <> null)
+        if (sgshape != null)
             sgshape.setShape(awtEllipse);
     };
 

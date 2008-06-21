@@ -29,7 +29,7 @@ public class ComboBoxCell {
     protected attribute combobox:ComboBox;
     public attribute value:java.lang.Object;
     public attribute text: String on replace {
-        if (combobox <> null) {
+        if (combobox != null) {
             var e:javax.swing.event.ListDataEvent;
            var i = for(x in combobox.cells where x == this) indexof x; 
            if (sizeof i > 0) {

@@ -37,11 +37,11 @@ public class TabbedPane extends Widget {
     private attribute changeListener: javax.swing.event.ChangeListener;
 
     public attribute selectedIndex: Number = -1 on replace {
-        if (component <> null and selectedIndex <> -1) {
+        if (component != null and selectedIndex != -1) {
             var model = tabbedpane.getModel();
             model.removeChangeListener(changeListener);
             var tab = tabs[selectedIndex.intValue()];
-            if (tab <> null) {
+            if (tab != null) {
                 tab.selectTab();
                 model.setSelectedIndex(selectedIndex.intValue());
             }
@@ -52,16 +52,16 @@ public class TabbedPane extends Widget {
             oldSelection:SingleSelection, newSelection:SingleSelection):Void;
     //TODO JFXC-267  //  The issue has been fixed but some problems still exist
     public attribute selection: SingleSelection on replace old {
-        if (component <> null) {
+        if (component != null) {
             selectedIndex = selection.anchorIndex;
             //tabs[selection.anchorIndex.intValue()].selectTab();
-            //if(onSelectionChange <> null) {
+            //if(onSelectionChange != null) {
             //    onSelectionChange(old, selection);
             //}
         }        
     };
     public attribute tabPlacement: TabPlacement on replace {
-        if (tabPlacement <> null) {
+        if (tabPlacement != null) {
             tabbedpane.setTabPlacement(tabPlacement.id.intValue());
         } 
     };
@@ -80,7 +80,7 @@ public class TabbedPane extends Widget {
         for(tab in newVals) {
             tab.tabbedPane = this;
             var sicon:javax.swing.Icon = null;
-            if (tab.icon <> null) {
+            if (tab.icon != null) {
                 sicon = tab.icon.getIcon();
             }
             tabbedpane.insertTab(tab.title, sicon, tab.panel, tab.toolTipText, ndx);

@@ -30,7 +30,7 @@ public class Union extends Shape {
     };
 
     protected function getArea() {
-        if (sgshape <> null) {
+        if (sgshape != null) {
             if (sizeof content == 1) {
                sgshape.setShape(content[0].getTransformedShape());
             } else if (sizeof content > 1) {
@@ -43,7 +43,7 @@ public class Union extends Shape {
                 for (c in content) {
                     if (i > 0) {
                         var s1 = c.getTransformedShape();
-                        if (s1 <> null) {
+                        if (s1 != null) {
                             area.add(new java.awt.geom.Area(s1));
                         }
                     }

@@ -39,13 +39,13 @@ public class RadioButton extends SelectableButton {
         jradiobutton.setText(text);
     };
     public attribute mnemonic: KeyStroke on replace {
-        if (mnemonic <> null) {
+        if (mnemonic != null) {
             jradiobutton.setMnemonic(mnemonic.id.intValue());
         }
     };
     public attribute icon: Icon on replace {
         var sicon = null;
-        if (icon <> null) {
+        if (icon != null) {
             sicon = icon.getIcon();
         }
         jradiobutton.setIcon(sicon);
@@ -55,42 +55,42 @@ public class RadioButton extends SelectableButton {
     };
     public attribute selectedIcon: Icon on replace {
         var jicon = null;
-        if (selectedIcon <> null) {
+        if (selectedIcon != null) {
             jicon = selectedIcon.getIcon();
         }
         jradiobutton.setSelectedIcon(jicon);        
     };
     public attribute pressedIcon: Icon on replace {
         var jicon = null;
-        if (pressedIcon <> null) {
+        if (pressedIcon != null) {
             jicon = pressedIcon.getIcon();
         }
         jradiobutton.setPressedIcon(jicon);        
     };
     public attribute rolloverIcon: Icon on replace {
         var jicon = null;
-        if (rolloverIcon <> null) {
+        if (rolloverIcon != null) {
             jicon = rolloverIcon.getIcon();
         }
         jradiobutton.setRolloverIcon(jicon);        
     };
     public attribute rolloverSelectedIcon: Icon on replace {
         var jicon = null;
-        if (rolloverSelectedIcon <> null) {
+        if (rolloverSelectedIcon != null) {
             jicon = rolloverSelectedIcon.getIcon();
         }
         jradiobutton.setRolloverSelectedIcon(jicon);        
     };
     public attribute disabledIcon: Icon on replace {
         var jicon = null;
-        if (disabledIcon <> null) {
+        if (disabledIcon != null) {
             jicon = disabledIcon.getIcon();
         }
         jradiobutton.setDisabledIcon(jicon);        
     };
     public attribute disabledSelectedIcon: Icon on replace {
         var jicon = null;
-        if (disabledSelectedIcon <> null) {
+        if (disabledSelectedIcon != null) {
             jicon = disabledSelectedIcon.getIcon();
         }
         jradiobutton.setDisabledSelectedIcon(jicon);        
@@ -148,7 +148,7 @@ public class RadioButton extends SelectableButton {
                 public function itemStateChanged(e:java.awt.event.ItemEvent):Void {
                     var i = for(x in buttonGroup.buttons where x == self) indexof x;
                     selected = jradiobutton.isSelected();
-                    if(onChange <> null){
+                    if(onChange != null){
                         (onChange)(selected);
                      }
                     if (selected) {
@@ -158,7 +158,7 @@ public class RadioButton extends SelectableButton {
             });
         jradiobutton.addActionListener(java.awt.event.ActionListener {
                 public function actionPerformed(e:java.awt.event.ActionEvent):Void {
-                    if(action <> null) {
+                    if(action != null) {
                         action();
                     }
                 }

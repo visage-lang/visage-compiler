@@ -42,7 +42,7 @@ public class Timeline {
     public attribute duration: Duration;
 
     public function start():Void {
-        if (animator <> null and toggle) {
+        if (animator != null and toggle) {
             animator.<<reverse>>();
         } else {
             if (animator == null) {
@@ -103,7 +103,7 @@ public class Timeline {
             var k1 = animator.createKeyFrame();
             k1.setActionListener(ActionListener {
                 public function doAction():Void {
-                    if (i.action <> null) {
+                    if (i.action != null) {
                         i.action();
                     }
                 }

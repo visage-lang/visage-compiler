@@ -73,7 +73,7 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
         if (awtTransformedShape == null) {
             var t = affineTransformHACK ;
             var s = getShape().getShape();
-            if (t <> null) {
+            if (t != null) {
                 awtTransformedShape = t.createTransformedShape(s);
             } else {
                 awtTransformedShape = s;
@@ -84,7 +84,7 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
     public attribute outline: Boolean = false;
     public bound function length(): Number {
         var shape = this.getTransformedShape();
-        if (shape <> null) {
+        if (shape != null) {
             return pathLength.lengthOfPath();
         } else {
             return java.lang.Double.NaN;
@@ -92,7 +92,7 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
     }
     public bound function pointAt(length: Number): java.awt.geom.Point2D {
         var shape = this.getTransformedShape();
-        if (shape <> null) {
+        if (shape != null) {
             return pathLength.pointAtLength(length.floatValue());
         } else {
             return null;
@@ -100,7 +100,7 @@ public abstract class Shape extends VisualNode, AbstractPathElement {
     }
     public bound function angleAt(length: Number): Number {
         var shape = this.getTransformedShape();
-        if (shape <> null) {
+        if (shape != null) {
             var angle = pathLength.angleAtLength(length.floatValue());
             return Math.toDegrees(angle);
         } else {

@@ -65,7 +65,7 @@ class StoryBoarder {
             klist.add(k1);
             k1.setActionListener(ActionListener {
                 public function doAction():Void {
-                    if (i.action <> null) {
+                    if (i.action != null) {
                         i.action();
                     }
                 }

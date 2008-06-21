@@ -50,17 +50,17 @@ class TabSlider extends Widget {
             return;
         }
         var oldTab = tabs[oldIndex];
-        if (oldTab <> null) {
+        if (oldTab != null) {
             inSelection = true;
             oldTab.selected = false;
             inSelection = false;
         }
 	var newTab = tabs[newIndex];
         if (orientation == Orientation.VERTICAL) {
-            if (newTab <> null) {
+            if (newTab != null) {
                 var availHeight = panel.getHeight() - sizeof tabs*23;
                 var ins = panel.getInsets();
-                if (ins <> null) {
+                if (ins != null) {
                     availHeight -= ins.top + ins.bottom;
                 }
                 newTab.scrollable.setScrollableTracksViewportHeight(false);
@@ -68,7 +68,7 @@ class TabSlider extends Widget {
                 var dim = newTab.viewport.getSize();
                 dim.height = availHeight;
                 newTab.scrollable.setPreferredScrollableViewportSize(dim);
-                if (oldTab <> null) {
+                if (oldTab != null) {
                     oldTab.scrollable.setScrollableTracksViewportWidth(false);
                     oldTab.scrollable.setScrollableTracksViewportHeight(false);
                     oldTab.scrollable.setPreferredScrollableViewportSize(oldTab.viewport.getSize());
@@ -77,7 +77,7 @@ class TabSlider extends Widget {
                 //TODO DUR
                 for (i in [0..availHeight]) { // (dur slideDuration) {
                     newTab.size = i;
-                    if (oldTab <> null) {
+                    if (oldTab != null) {
                         oldTab.size = availHeight - i;
                     }
                     panel.validate();
@@ -99,7 +99,7 @@ class TabSlider extends Widget {
                     }
                 }
                 newTab.content.getNonScrollPaneComponent().requestFocus();
-            } else if (oldTab <> null) {
+            } else if (oldTab != null) {
                 resizing = true;
                 oldTab.scrollable.setScrollableTracksViewportHeight(false);
                 oldTab.scrollable.setScrollableTracksViewportWidth(false);
@@ -124,19 +124,19 @@ class TabSlider extends Widget {
                 }
             }
         } else {
-            if (newTab <> null) {
+            if (newTab != null) {
                 var avail = panel.getWidth() - sizeof tabs*23;
                 var ins = panel.getInsets();
                 var dim = newTab.viewport.getSize();
                 dim.width = avail;
-                if (ins <> null) {
+                if (ins != null) {
                     avail -= ins.left + ins.right;
                 }
                 resizing = true;
                 newTab.scrollable.setScrollableTracksViewportWidth(false);
                 newTab.scrollable.setScrollableTracksViewportHeight(false);
                 newTab.scrollable.setPreferredScrollableViewportSize(dim);
-                if (oldTab <> null) {
+                if (oldTab != null) {
                     oldTab.scrollable.setScrollableTracksViewportWidth(false);
                     oldTab.scrollable.setScrollableTracksViewportHeight(false);
                     oldTab.scrollable.setPreferredScrollableViewportSize(oldTab.viewport.getSize());
@@ -144,7 +144,7 @@ class TabSlider extends Widget {
                 //TODO DUR
                 for (i in [0..avail]){ // (dur slideDuration) {
                     newTab.size = i;
-                    if (oldTab <> null) {
+                    if (oldTab != null) {
                         oldTab.size = avail - i;
                     }
                     panel.validate();
@@ -166,7 +166,7 @@ class TabSlider extends Widget {
                     }
                 }
                 newTab.content.getNonScrollPaneComponent().requestFocus();
-            } else if (oldTab <> null) {
+            } else if (oldTab != null) {
                 oldTab.scrollable.setScrollableTracksViewportHeight(false);
                 oldTab.scrollable.setScrollableTracksViewportWidth(false);
                 oldTab.scrollable.setPreferredScrollableViewportSize(oldTab.viewport.getSize());
@@ -224,7 +224,7 @@ class TabSlider extends Widget {
                 selectedIndex = sizeof tabs -1;
                 inUpdateSelection = false;
             } 
-            if (old <> selectedIndex) {
+            if (old != selectedIndex) {
                 updateSelection(old, selectedIndex);
             }
         }
@@ -273,7 +273,7 @@ class TabSlider extends Widget {
                             h += tab.size;
                         }
                         var ins = panel.getInsets();
-                        if (ins <> null) {
+                        if (ins != null) {
                             w += ins.left + ins.right;
                             h += ins.top + ins.bottom;
                         } 
@@ -297,7 +297,7 @@ class TabSlider extends Widget {
                             w += tab.size;
                         }
                         var ins = panel.getInsets();
-                        if (ins <> null) {
+                        if (ins != null) {
                             w += ins.left + ins.right;
                             h += ins.top + ins.bottom;
                         } 
@@ -332,7 +332,7 @@ class TabSlider extends Widget {
                         }
                         availHeight -= ins.top + ins.bottom;
                         var showing = tabs[selectedIndex.intValue()];
-                        if (showing <> null and not resizing) {
+                        if (showing != null and not resizing) {
                             showing.size = availHeight;
                         }
                         for (tab in tabs) {
@@ -356,13 +356,13 @@ class TabSlider extends Widget {
                         var y = 0;
                         var h = panel.getHeight();
                         var ins = panel.getInsets();
-                        if (ins <> null) {
+                        if (ins != null) {
                             x += ins.left;
                             y += ins.top;
                             h -= ins.top + ins.bottom+1;
                         } 
                         var showing = tabs[selectedIndex.intValue()];
-                        if (showing <> null and not resizing) {
+                        if (showing != null and not resizing) {
                             showing.size = avail;
                         }
                         for (tab in tabs) {
@@ -387,13 +387,13 @@ class TabSlider extends Widget {
         for (tab in tabs) {
             if (tab.button == null) {
                 tab.button = new Button(); 
-                if (tab.title <> null) {
+                if (tab.title != null) {
                     (tab.button as Button).text = tab.title;
                 }
-                if (tab.icon <> null) {
+                if (tab.icon != null) {
                     (tab.button as Button).icon = tab.icon;
                 }
-                if (tab.icon <> null) {
+                if (tab.icon != null) {
                     (tab.button as Button).icon = tab.icon;
                 }
             } 
@@ -450,7 +450,7 @@ class TabSlider extends Widget {
         //TODO DO LATER - this is a work around until a more permanent solution is provided
         javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                   public function run():Void {
-                    if (selection >= 0 and selection <> selectedIndex) {
+                    if (selection >= 0 and selection != selectedIndex) {
                         selectedIndex = selection;
                     } else {
                         updateSelection(-1.0, selectedIndex);

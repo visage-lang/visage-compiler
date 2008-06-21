@@ -32,7 +32,7 @@ import java.lang.Math;
 public abstract class Transform {
     protected attribute transformable :Transformable;
     protected attribute transform :AffineTransform on replace {
-        if (transformable <> null)
+        if (transformable != null)
             transformable.updateTransform();
     };
 

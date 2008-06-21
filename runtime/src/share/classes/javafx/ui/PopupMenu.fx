@@ -34,7 +34,7 @@ public class PopupMenu {
     private attribute jpopupMenu: JPopupMenu;
     public attribute owner: Widget;
     public attribute items: MenuItem[] on replace oldValue[lo..hi]=newVals {
-        if (jpopupMenu <> null) {
+        if (jpopupMenu != null) {
             for(k in [lo..hi]) { 
                 jpopupMenu.remove(lo);
             }

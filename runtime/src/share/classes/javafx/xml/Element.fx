@@ -48,7 +48,7 @@ public class Element extends Node {
         }
         for(n in oldValue[lo..hi]) { 
             n.parent = null;
-            if(domNode <> null) {
+            if(domNode != null) {
                 var elem = domNode as org.w3c.dom.Element;
                 if(elem.hasAttribute(n.name)) {
                     elem.removeAttributeNode(n.domNode as org.w3c.dom.Attr); 
@@ -57,7 +57,7 @@ public class Element extends Node {
         }
         for(n in newVals) {
             n.parent = this;
-            if(domNode <> null) {
+            if(domNode != null) {
                 var elem = domNode as org.w3c.dom.Element;
                 if(not elem.hasAttribute(n.name)) {
                     elem.setAttributeNode(n.domNode as org.w3c.dom.Attr);
@@ -201,7 +201,7 @@ public class Element extends Node {
         super.setDomNode(domNode);
         
         var attrs = domNode.getAttributes();
-        if(attrs <> null) {
+        if(attrs != null) {
             for(i in [0..<attrs.getLength()]) {
                 var attrNode = Attribute { domNode:attrs.item(i), document:document};
                 insert attrNode into attributes;
@@ -237,7 +237,7 @@ public class Element extends Node {
     }
     protected function initDomNode():Void {
         super.initDomNode();
-        if(domNode <> null) {
+        if(domNode != null) {
             var elem = domNode as org.w3c.dom.Element;
             for(a in attributes) {
                 if(a.domNode == null ) {
@@ -245,7 +245,7 @@ public class Element extends Node {
                     attr.setValue(a.value);
                     a.domNode = attr;
                 }            
-                if(a.parent <> this) {
+                if(a.parent != this) {
                     a.parent = this;
                 }
                 if(not elem.hasAttributeNS(a.namespaceURI, a.name)) {

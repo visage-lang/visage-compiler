@@ -67,7 +67,7 @@ public class GroupLayout extends GroupElement {
                     if (c == null) {
                         throw new java.lang.Exception("Component was null for Widget {w}");
                     }
-                    if (j.vertical <> null) {
+                    if (j.vertical != null) {
                         var spring = j.vertical;
                         pgroup.add(c, spring.min.intValue(), spring.pref.intValue(), spring.max.intValue());
                     } else if (i.resizable) {
@@ -120,7 +120,7 @@ public class GroupLayout extends GroupElement {
                     if (w.sizeToFitColumn) {
                         insert c into comps;
                     }
-                    if (j.horizontal <> null) {
+                    if (j.horizontal != null) {
                         var spring = j.horizontal;
                         pgroup.add(c, spring.min.intValue(), spring.pref.intValue(), spring.max.intValue());
                     } else if (i.resizable) {

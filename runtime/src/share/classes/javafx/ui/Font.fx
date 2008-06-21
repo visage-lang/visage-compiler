@@ -78,18 +78,18 @@ public class Font {
     private attribute awtFont: java.awt.Font
     /*TODO: NPE in initialization 
      =  bind
-                 if(face <> null and face.url <> null  ) {
+                 if(face != null and face.url != null  ) {
                     getCachedFont(face.url, computeStyle(style), size) 
-                 } else if (face <> null) {
+                 } else if (face != null) {
                      new java.awt.Font(face.id, computeStyle(style), size);
-                 } else if (faceName <> null)  {
+                 } else if (faceName != null)  {
                      new java.awt.Font(faceName, computeStyle(style), size);
                  } else {
                     new java.awt.Font("Dialog", computeStyle(style), size);
                  }
      */
         on replace {
-            if (awtFont <> null) {
+            if (awtFont != null) {
                 var layout = new TextLayout(" ", awtFont, HIGH_QUALITY_FONT_CONTEXT);
                 ascent = layout.getAscent();
                 descent = layout.getDescent();
@@ -134,11 +134,11 @@ public class Font {
     //TODO: workaround for awtFont initialization NPE
     init {
         awtFont = {
-             if (face <> null and face.url <> null and face.url.length() <> 0) {
+             if (face != null and face.url != null and face.url.length() != 0) {
                 getCachedFont(face.url, computeStyle(style), size);
-             } else if (face <> null) {
+             } else if (face != null) {
                  new java.awt.Font(face.id, computeStyle(style), size);
-             } else if (faceName <> null)  {
+             } else if (faceName != null)  {
                  new java.awt.Font(faceName, computeStyle(style), size);
              } else {
                 new java.awt.Font("Dialog", computeStyle(style), size);

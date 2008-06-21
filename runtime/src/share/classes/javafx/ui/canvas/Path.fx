@@ -46,7 +46,7 @@ public class Path extends Shape {
     public attribute xCenter: Number = UNSET;
     public attribute yCenter: Number = UNSET;
     protected function buildPath() {
-        if (sgshape <> null and not locked) {
+        if (sgshape != null and not locked) {
             var gp = new GeneralPath(fillRule.id.intValue(), sizeof d);
             for (i in d) {
                 i.addTo(gp);

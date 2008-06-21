@@ -140,7 +140,7 @@ public class StringLocalizer {
     }
 
     private attribute localizedStr : String = bind {
-        if (defaultString <> null) {
+        if (defaultString != null) {
             StringLocalization.getLocalizedString(propertiesName, key, defaultString, locale);
         } else {
             StringLocalization.getLocalizedString(propertiesName, key, key, locale);

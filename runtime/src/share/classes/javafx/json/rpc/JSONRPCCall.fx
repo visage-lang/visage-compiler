@@ -47,7 +47,7 @@ public class JSONRPCCall {
     public attribute request: JSONRPCRequest;
     
     init {
-        if(request <> null) {
+        if(request != null) {
             var call:AsyncJsonCall;
             call = AsyncJsonCall{
                 url: url

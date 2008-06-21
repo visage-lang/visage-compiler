@@ -33,44 +33,44 @@ public class ProgressBar extends Widget {
     // TODO MARK AS FINAL
     private attribute jprogressbar: javax.swing.JProgressBar;
     public attribute min: Number = 0 on replace {
-        if(jprogressbar <> null) {
+        if(jprogressbar != null) {
             jprogressbar.setMinimum(min.intValue());
         }
     };
     public attribute max: Number = 100 on replace {
-        if(jprogressbar <> null) {
+        if(jprogressbar != null) {
             jprogressbar.setMaximum(max.intValue());
         }
     };
     public attribute value: Number = 0 on replace {
-        if(jprogressbar <> null) {
+        if(jprogressbar != null) {
             jprogressbar.setValue(value.intValue());
         }
     };
     public attribute stringPainted: Boolean = false on replace {
-        if(jprogressbar <> null) {
+        if(jprogressbar != null) {
             jprogressbar.setStringPainted(stringPainted);
         }
     };
     public attribute borderPainted: Boolean = false on replace {
-        if(jprogressbar <> null) {
+        if(jprogressbar != null) {
             jprogressbar.setBorderPainted(borderPainted);
         }
     };
     public attribute string: String on replace {
-        if(jprogressbar <> null) {
+        if(jprogressbar != null) {
             jprogressbar.setString(string);
         }
     };
     public attribute orientation: Orientation = Orientation.HORIZONTAL on replace {
-        if(jprogressbar <> null) {
+        if(jprogressbar != null) {
             jprogressbar.setOrientation(if (orientation == Orientation.VERTICAL) 
                                 then jprogressbar.VERTICAL
                                 else jprogressbar.HORIZONTAL);
         }
     };
     public attribute indeterminate: Boolean = false on replace {
-        if(jprogressbar <> null) {
+        if(jprogressbar != null) {
             jprogressbar.setIndeterminate(indeterminate);
         }
     };

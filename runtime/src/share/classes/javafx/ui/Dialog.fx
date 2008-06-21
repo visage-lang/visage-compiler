@@ -41,7 +41,7 @@ public class Dialog extends AbstractFrame {
     public attribute owner: UIElement;
     public attribute title: String;
     public attribute content:Widget on replace {
-        if (content.getComponent() <> null) {
+        if (content.getComponent() != null) {
             p.add(content.getComponent(), java.awt.BorderLayout.CENTER);
         }
     };
@@ -106,10 +106,10 @@ public class Dialog extends AbstractFrame {
                   public function windowClosing(e:java.awt.event.WindowEvent):Void {
                       var root = jdialog.getRootPane();
                       var but = root.getClientProperty("net.java.javafx.ui.defaultClose") as javax.swing.JButton;
-                      if (but <> null) {
+                      if (but != null) {
                             but.doClick(0);
                       }
-                      if(onClose <> null)
+                      if(onClose != null)
                         onClose();
                       jdialog.dispose();
                       jdialog = null;
@@ -119,14 +119,14 @@ public class Dialog extends AbstractFrame {
         jdialog.setTitle(title);
         jdialog.pack();
         var dim = jdialog.getSize();
-        if (height <> -1) {
+        if (height != -1) {
             dim.height = height.intValue();
         }
-        if (width <> -1) {
+        if (width != -1) {
             dim.width = width.intValue();
         }
         jdialog.setSize(dim);
-        if (win <> null) {
+        if (win != null) {
             jdialog.setLocationRelativeTo(win);
         }
         jdialog.requestFocus();

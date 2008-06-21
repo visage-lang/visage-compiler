@@ -38,7 +38,7 @@ public class Group extends Node, Container {
 
     public attribute content: Node[]  on replace oldValue[lo..hi]=newVals {
         for(n in oldValue[lo..hi]) { 
-            if (sggroup <> null) {
+            if (sggroup != null) {
                 try {
                    sggroup.remove(lo);
                 } catch (e) {
@@ -52,7 +52,7 @@ public class Group extends Node, Container {
         var ndx = lo;
         for(c in newVals) {
             c.parentCanvasElement = this as CanvasElement;
-            if (sggroup <> null) {
+            if (sggroup != null) {
                 sggroup.add(ndx, c.getNode());
             }
             ndx++
@@ -63,7 +63,7 @@ public class Group extends Node, Container {
     public function createNode(): SGNode {
         sggroup  = new SGGroup();
         for (i in content) {
-            if (i <> null) {
+            if (i != null) {
                 i.parentCanvasElement = this as CanvasElement;
                 sggroup.add(i.getNode());
             }

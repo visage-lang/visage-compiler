@@ -43,7 +43,7 @@ public class MessageDialog {
                                                                           title,
                                                                           messageType.id.intValue(),
                                                                           icon.getIcon());
-                             if(onClose <> null)
+                             if(onClose != null)
                                  onClose();
                       }
             });

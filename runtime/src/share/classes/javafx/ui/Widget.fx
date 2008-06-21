@@ -78,27 +78,27 @@ public abstract class Widget extends GroupElement, UIElement {
         if (mouseListener == null) {
             mouseListener = MouseListener {
                     public function mouseEntered(e:java.awt.event.MouseEvent):Void {
-                        if(onMouseEntered <> null)
+                        if(onMouseEntered != null)
                             onMouseEntered(makeMouseEvent(e));
                     }
                     public function mouseExited(e:java.awt.event.MouseEvent):Void {
-                        if(onMouseExited <> null)
+                        if(onMouseExited != null)
                             onMouseExited(makeMouseEvent(e));
                     }
                     public function mouseClicked(e:java.awt.event.MouseEvent):Void {
-                        if(onMouseClicked <> null)
+                        if(onMouseClicked != null)
                             onMouseClicked(makeMouseEvent(e));
                     }
                     public function mouseReleased(e:java.awt.event.MouseEvent):Void {
-                        if(onMouseReleased <> null)
+                        if(onMouseReleased != null)
                             onMouseReleased(makeMouseEvent(e));
                     }
                     public function mousePressed(e:java.awt.event.MouseEvent):Void {
-                        if(onMousePressed <> null)
+                        if(onMousePressed != null)
                             onMousePressed(makeMouseEvent(e));
                     }
                 };
-            if (component <> null) {
+            if (component != null) {
                 this.getNonScrollPaneComponent().addMouseListener(mouseListener);
             }
         }
@@ -108,12 +108,12 @@ public abstract class Widget extends GroupElement, UIElement {
             mouseWheelListener = MouseWheelListener {
                     public function mouseWheelMoved(e:java.awt.event.MouseWheelEvent):Void {
 
-                        if(onMouseWheelMoved <> null)
+                        if(onMouseWheelMoved != null)
                             (onMouseWheelMoved)(makeMouseWheelEvent(e));
                     }
                 };
 
-            if (component <> null) {
+            if (component != null) {
 
                 this.getNonScrollPaneComponent().addMouseWheelListener(mouseWheelListener);
             }
@@ -123,15 +123,15 @@ public abstract class Widget extends GroupElement, UIElement {
         if (mouseMotionListener == null) {
             mouseMotionListener = MouseMotionListener {
                     public function mouseMoved(e:java.awt.event.MouseEvent):Void {
-                        if(onMouseMoved <> null)
+                        if(onMouseMoved != null)
                             onMouseMoved(makeMouseEvent(e));
                     }
                     public function mouseDragged(e:java.awt.event.MouseEvent):Void {
-                        if(onMouseDragged <> null)
+                        if(onMouseDragged != null)
                             onMouseDragged(makeMouseEvent(e));
                     }
                 };
-            if (component <> null) {
+            if (component != null) {
                 this.getNonScrollPaneComponent().addMouseMotionListener(mouseMotionListener);
             }
         }
@@ -176,7 +176,7 @@ public abstract class Widget extends GroupElement, UIElement {
     protected attribute keyListener: KeyListener;
     protected attribute mouseMotionListener: MouseMotionListener;
     protected function onSetOpaque(value:Boolean):Void {
-        if (component <> null) {
+        if (component != null) {
             component.setOpaque(value);
         }
     }        
@@ -197,7 +197,7 @@ public abstract class Widget extends GroupElement, UIElement {
         
         if (w == null) {
             target = component;
-            while (target.getParent() <> null) {
+            while (target.getParent() != null) {
                 target = target.getParent();
             }
         } else {
@@ -212,7 +212,7 @@ public abstract class Widget extends GroupElement, UIElement {
     }  
 
     public attribute name: String on replace {
-	if (component <> null) {
+	if (component != null) {
 	    component.setName(name);
 	}
     };
@@ -244,7 +244,7 @@ public abstract class Widget extends GroupElement, UIElement {
     };
 
     public attribute focusTraversalKeysEnabled: Boolean on replace {
-        if (component <> null) {
+        if (component != null) {
             this.getNonScrollPaneComponent().setFocusTraversalKeysEnabled(focusTraversalKeysEnabled);
         }
     };       
@@ -256,7 +256,7 @@ public abstract class Widget extends GroupElement, UIElement {
      *  the be copied onto the screen.
      */
     public attribute doubleBuffered: Boolean on replace {
-	if (component <> null) {
+	if (component != null) {
 	    component.setDoubleBuffered(doubleBuffered);
 	}
     };
@@ -264,7 +264,7 @@ public abstract class Widget extends GroupElement, UIElement {
 
     /** Sets the x coordinate of this component within its parent. Has no effect unless contained in a Panel. */
     public attribute x: Number on replace {
-        if (component <> null and not inBoundsListener){
+        if (component != null and not inBoundsListener){
             var b = this.getBounds();
             b.x = x.intValue();
             this.setBounds(b);
@@ -273,7 +273,7 @@ public abstract class Widget extends GroupElement, UIElement {
     
     /** Sets the y coordinate of this component within its parent. Has no effect unless contained in a Panel. */
     public attribute y: Number on replace {
-        if (component <> null and not inBoundsListener) {
+        if (component != null and not inBoundsListener) {
             var b = this.getBounds();
             b.y = y.intValue();
             this.setBounds(b);
@@ -282,7 +282,7 @@ public abstract class Widget extends GroupElement, UIElement {
 
     /** Sets width of this component. Has no effect unless contained in a Panel.  */
     public attribute width: Number on replace  {
-        if (component <> null and not inBoundsListener) {
+        if (component != null and not inBoundsListener) {
             var b = this.getBounds();
             b.width = width.intValue();
             this.setBounds(b);
@@ -291,7 +291,7 @@ public abstract class Widget extends GroupElement, UIElement {
 
     /** Sets the height of this component. Has no effect unless contained in a Panel.  */
     public attribute height: Number on replace {
-        if (component <> null and not inBoundsListener) {
+        if (component != null and not inBoundsListener) {
             var b = this.getBounds();
             b.height = height.intValue();
             this.setBounds(b);
@@ -314,7 +314,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * The text displays when the cursor lingers over the component.
      */
     public attribute toolTipText: String on replace {
-        if (component <> null) {
+        if (component != null) {
             //TODO workaround until scenegraph handles tool tips okay
                 //this.getNonScrollPaneComponent().setToolTipText(toolTipText);
         }
@@ -327,7 +327,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * visible is not drawn on the screen.
      */
     public attribute visible: Boolean = true on replace {
-        if (component <> null) {
+        if (component != null) {
             component.setVisible(visible);
         }
     };       
@@ -336,9 +336,9 @@ public abstract class Widget extends GroupElement, UIElement {
      * Sets the background color of this component.
      */
     public attribute background: Color on replace {
-        if (component <> null) {
+        if (component != null) {
             var c = this.getNonScrollPaneComponent();
-            if (background <> null) {
+            if (background != null) {
                 opaque = true;
             }
             c.setBackground(awtBackground);
@@ -351,9 +351,9 @@ public abstract class Widget extends GroupElement, UIElement {
      * Sets the foreground color of this component.
      */
     public attribute foreground: Color on replace {
-        if (component <> null) {
+        if (component != null) {
             var c = this.getNonScrollPaneComponent();
-            if (foreground <> null) {
+            if (foreground != null) {
                 c.setForeground(awtForeground);
             }
         }
@@ -376,7 +376,7 @@ public abstract class Widget extends GroupElement, UIElement {
     public attribute font: Font;
     
     protected attribute awtFont: java.awt.Font = bind if (font == null) null else font.getFont() on replace {
-        if (component <> null) {
+        if (component != null) {
             var c = this.getNonScrollPaneComponent();
             c.setFont(awtFont);
         }
@@ -388,7 +388,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * value overrides the Widget's default focusability, wich is true.
      */
     public attribute focusable: Boolean = true on replace {
-        if (component <> null) {
+        if (component != null) {
             if (component instanceof javax.swing.JScrollPane) {
                 (component as javax.swing.JScrollPane).getViewport().getView().setFocusable(focusable);
             } else {
@@ -417,7 +417,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * Resizes this component to the specified dimensions.
      */
     public attribute size: Dimension on replace  {
-        if (size <> null) {
+        if (size != null) {
             component.setSize(size);
         }
     };
@@ -428,8 +428,8 @@ public abstract class Widget extends GroupElement, UIElement {
      * be asked for the preferred size.
      */
     public attribute preferredSize: Dimension on replace {
-        if (component <> null and preferredSize <> null) {
-            if(component.getPreferredSize() <> null) {
+        if (component != null and preferredSize != null) {
+            if(component.getPreferredSize() != null) {
                 if (preferredSize.height <= 0 ) {
                     preferredSize.height = component.getPreferredSize().height;
                 }
@@ -452,8 +452,8 @@ public abstract class Widget extends GroupElement, UIElement {
      * restores the default behavior.
      */
     public attribute maximumSize: Dimension on replace {
-        if (component <> null and maximumSize <> null) {
-            if(component.getMaximumSize() <> null) {
+        if (component != null and maximumSize != null) {
+            if(component.getMaximumSize() != null) {
                 if (maximumSize.height <= 0) {
                     maximumSize.height = component.getMaximumSize().height;
                 }
@@ -475,8 +475,8 @@ public abstract class Widget extends GroupElement, UIElement {
      * restores the default behavior.
      */
     public attribute minimumSize: Dimension on replace {
-        if (component <> null and minimumSize <> null) {
-            if(component.getMinimumSize() <> null) {
+        if (component != null and minimumSize != null) {
+            if(component.getMinimumSize() != null) {
                 if (minimumSize.height <= 0) {
                     minimumSize.height = component.getMinimumSize().height;
                 }
@@ -504,7 +504,7 @@ public abstract class Widget extends GroupElement, UIElement {
      */
     public attribute border: Border on replace {
         var c:java.awt.Component = component;
-        if (c <> null) {
+        if (c != null) {
             if (c instanceof javax.swing.JScrollPane) {
                 c = (component as javax.swing.JScrollPane).getViewport().getView();
             } 
@@ -527,7 +527,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * that have a non-<code>null</code> cursor. 
      */
     public attribute cursor: Cursor on replace {
-	if (component <> null) {
+	if (component != null) {
 	    component.setCursor(cursor.getCursor());
 	}
     };
@@ -537,7 +537,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * enabled does not interact with the user. Defaults to <code>true</code>.
      */
     public attribute enabled: Boolean = true on replace {
-        if (component <> null) {
+        if (component != null) {
             var c = this.getNonScrollPaneComponent();
             c.setEnabled(enabled);
         }
@@ -552,7 +552,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * the furthest away from the origin, 0.5 is centered, etc.
      */
     public attribute alignmentX: Number on replace {
-	if (component <> null) {
+	if (component != null) {
 	    component.setAlignmentX(alignmentX.floatValue());
 	}
     };
@@ -565,7 +565,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * the furthest away from the origin, 0.5 is centered, etc.
      */
     public attribute alignmentY: Number on replace {
-	if (component <> null) {
+	if (component != null) {
 	    component.setAlignmentY(alignmentY.floatValue());
 	}
     };         
@@ -578,7 +578,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * determine how to lay out and draw components.
      */
     public attribute componentOrientation: ComponentOrientation = ComponentOrientation.UNKNOWN on replace {
-        if (component <> null and componentOrientation <> null) {
+        if (component != null and componentOrientation != null) {
             this.getNonScrollPaneComponent().setComponentOrientation(componentOrientation);
         }
     };        
@@ -594,10 +594,10 @@ public abstract class Widget extends GroupElement, UIElement {
                 c = (c as javax.swing.JScrollPane).getViewport().getView() as javax.swing.JComponent;
             }
             c.setDoubleBuffered(doubleBuffered);
-            if (cursor <> null) {
+            if (cursor != null) {
                 c.setCursor(cursor.getCursor());
             }
-            if (toolTipText <> null ) {
+            if (toolTipText != null ) {
                 c.setToolTipText(toolTipText);
             }
             c.setVisible(visible);
@@ -609,17 +609,17 @@ public abstract class Widget extends GroupElement, UIElement {
             }else {
                 c.setOpaque(opaque);
             }
-            if (background <> null) {
+            if (background != null) {
                 c.setBackground(background.getColor());
                 c.setOpaque(true);
             }
-            if (foreground <> null) {
+            if (foreground != null) {
                 c.setForeground(foreground.getColor());
             }
-            if (awtFont <> null) {
+            if (awtFont != null) {
                 c.setFont(awtFont);
             }
-            if (focusable <> c.isFocusable()) {
+            if (focusable != c.isFocusable()) {
                c.setFocusable(focusable);
             }
             focusListener = FocusListener {
@@ -631,23 +631,23 @@ public abstract class Widget extends GroupElement, UIElement {
                     }
                };
             c.addFocusListener(focusListener);
-            if (componentOrientation <> null) {
+            if (componentOrientation != null) {
                 c.setComponentOrientation(componentOrientation);
             }
-            if (border <> null) {
+            if (border != null) {
                 try {
                    c.setBorder(border.getBorder());
                 } catch (e) {
                 }
             }
             c.setEnabled(enabled);
-            if (size <> null) {
+            if (size != null) {
                 c.setSize(size);
             }
             c.setAlignmentX(alignmentX.floatValue());
-            if (preferredSize <> null) {
+            if (preferredSize != null) {
                 var dim = c.getPreferredSize();
-                if (dim <> null) {
+                if (dim != null) {
                     if (preferredSize.height <= 0) {
                         preferredSize.height = dim.height;
                     }
@@ -658,7 +658,7 @@ public abstract class Widget extends GroupElement, UIElement {
                 c.setPreferredSize(preferredSize);
             }
             c.setAlignmentY(alignmentY.floatValue());
-            if (keyboardAction <> null) {
+            if (keyboardAction != null) {
                 var inputMap = c.getInputMap();
                 var actionMap = c.getActionMap();
                 for (i in keyboardAction) {
@@ -678,30 +678,30 @@ public abstract class Widget extends GroupElement, UIElement {
                 }
             }
             c.setFocusTraversalKeysEnabled(focusTraversalKeysEnabled);
-            if (keyListener <> null) {
+            if (keyListener != null) {
                 c.addKeyListener(keyListener);
             }
-            if (mouseListener <> null) {
+            if (mouseListener != null) {
                 c.addMouseListener(mouseListener);
             }
-            if (mouseMotionListener <> null) {
+            if (mouseMotionListener != null) {
                 c.addMouseMotionListener(mouseMotionListener);
             }
-            if (mouseWheelListener <> null) {
+            if (mouseWheelListener != null) {
                 c.addMouseWheelListener(mouseWheelListener);
             }
-            if (x <> 0 or y <> 0 or height <> 0 or width <> 0) {
+            if (x != 0 or y != 0 or height != 0 or width != 0) {
                 var bounds = comp.getBounds();
-                if (x <> 0) {
+                if (x != 0) {
                     bounds.x = x.intValue();
                 } 
-                if (y <> 0) {
+                if (y != 0) {
                     bounds.y = y.intValue();
                 }
-                if (width <> 0) {
+                if (width != 0) {
                     bounds.width = width.intValue();
                 }
-                if (height <> 0) {
+                if (height != 0) {
                     bounds.height = height.intValue();
                 }
                 if (bounds.width == 0) {
@@ -734,7 +734,7 @@ public abstract class Widget extends GroupElement, UIElement {
                           }
                 });
             }
-            if (name <> null) {    
+            if (name != null) {    
                 comp.setName(name);
             }
             component = comp;
@@ -837,7 +837,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * Optional handler for key release events.
      */
     public attribute onKeyUp: function(:KeyEvent):Void on replace {
-        if (onKeyUp <> null) {
+        if (onKeyUp != null) {
             installKeyListener();
         } 
     };
@@ -846,7 +846,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * Optional handler for key press events.
      */
     public attribute onKeyDown: function(:KeyEvent):Void on replace {
-        if (onKeyDown <> null) {
+        if (onKeyDown != null) {
             installKeyListener();
         } 
     };
@@ -856,7 +856,7 @@ public abstract class Widget extends GroupElement, UIElement {
      * Optional handler for key typed events.
      */
     public attribute onKeyTyped: function(:KeyEvent):Void on replace {
-        if (onKeyTyped <> null) {
+        if (onKeyTyped != null) {
             installKeyListener();
         } 
     };
@@ -869,19 +869,19 @@ public abstract class Widget extends GroupElement, UIElement {
         if (keyListener == null) {
             keyListener = KeyListener {
                     public function keyTyped(e:java.awt.event.KeyEvent):Void {
-                        if(onKeyTyped <> null) 
+                        if(onKeyTyped != null) 
                             onKeyTyped(makeKeyEvent(e));
                     }
                     public function keyPressed(e:java.awt.event.KeyEvent):Void {
-                        if(onKeyDown <> null) 
+                        if(onKeyDown != null) 
                             onKeyDown(makeKeyEvent(e));
                     }
                     public function keyReleased(e:java.awt.event.KeyEvent):Void {
-                        if(onKeyUp <> null) 
+                        if(onKeyUp != null) 
                             onKeyUp(makeKeyEvent(e));
                     }
                 };
-            if (component <> null) {
+            if (component != null) {
                 getNonScrollPaneComponent().addKeyListener(keyListener);
             }
         }

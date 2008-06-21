@@ -35,7 +35,7 @@ public class Tab {
         panel.setLayout(new java.awt.BorderLayout());
     };
     public function selectTab() {
-        if (content <> null and panel.getComponentCount() == 0) {
+        if (content != null and panel.getComponentCount() == 0) {
             panel.add(content.getComponent(),
                       java.awt.BorderLayout.CENTER);
             panel.getParent().validate();
@@ -44,7 +44,7 @@ public class Tab {
 
     public attribute toolTipText: String;
     public attribute icon: Icon on replace {
-         if (tabbedPane <> null) {
+         if (tabbedPane != null) {
             var i = 0;
             for (ii in [0..<sizeof tabbedPane.tabs] ) {
                     if(tabbedPane.tabs[i] == this){
@@ -53,7 +53,7 @@ public class Tab {
                     }
             }
             var sicon:javax.swing.Icon = null;
-            if (icon <> null) {
+            if (icon != null) {
                 sicon = icon.getIcon();
             }
             tabbedPane.tabbedpane.setIconAt(i, sicon);
@@ -70,7 +70,7 @@ public class Tab {
         tabbedPane.tabbedpane.setTitleAt(i, title);
     };
     public attribute content: Widget on replace {
-        if (tabbedPane <> null) {
+        if (tabbedPane != null) {
             if (panel.getComponentCount() > 0) {
                 panel.remove(0);
             }
@@ -78,7 +78,7 @@ public class Tab {
         }
     };
     public attribute preferredSize: Dimension on replace {
-        if (preferredSize <> null) {
+        if (preferredSize != null) {
             panel.setPreferredSize(preferredSize);
         }
     };

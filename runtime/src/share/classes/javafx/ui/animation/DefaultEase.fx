@@ -28,10 +28,10 @@ public abstract class DefaultEase extends NumberInterpolator {
                                 t:Number):Number {
         var K = Math.exp(t * Math.log(primary_K));
         var nextValue = t;
-        if (K <> 1.0) {
+        if (K != 1.0) {
             var aNumerator = beginPole * endPole * (1-K);
             var aDenominator = endPole - K*beginPole;
-            if (aDenominator <> 0) {
+            if (aDenominator != 0) {
                 nextValue = aNumerator / aDenominator;
             }
         }

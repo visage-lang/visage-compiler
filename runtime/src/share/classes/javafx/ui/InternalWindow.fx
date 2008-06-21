@@ -61,7 +61,7 @@ class InternalWindow extends UIElement {
         }
         if (e instanceof Widget) {
             var c = (e as Widget).getComponent() as java.awt.Component;
-            while (c <> null) {
+            while (c != null) {
                 if (c instanceof JApplet) {
                     result = (c as JApplet).getRootPane();
                     return result;
@@ -129,7 +129,7 @@ class InternalWindow extends UIElement {
         javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                   public function run():Void {
                     if (visible) {
-                        if (glass <> null) {
+                        if (glass != null) {
                             return;
                         }
                     } else {
@@ -162,7 +162,7 @@ class InternalWindow extends UIElement {
                         vp.setOpaque(false);
                         var p = new JPanel();
                         p.setOpaque(false);
-                        if (background <> null) {
+                        if (background != null) {
                             p.setBackground(background.getColor());
                         }
                         p.setLayout(new BorderLayout());
@@ -179,7 +179,7 @@ class InternalWindow extends UIElement {
                         } else {
                            frame.setFrameIcon(icon.getIcon());
                         }
-                        if (contentComponent <> null) {
+                        if (contentComponent != null) {
                             sp.add(contentComponent);
                         }
                         if (modal) {
@@ -214,7 +214,7 @@ class InternalWindow extends UIElement {
                         /************************
                         frame.addInternalFrameListener(InternalFrameAdapter {
                                 public function internalFrameClosing(e:InternalFrameEvent):Void {
-                                    if (onClose <> null) {
+                                    if (onClose != null) {
                                         (onClose)();
                                     } else {
                                         visible = false;
@@ -233,7 +233,7 @@ class InternalWindow extends UIElement {
                             }
                             inBounds = false;
                         } 
-                        if (anchor <> null) {
+                        if (anchor != null) {
                             inBounds = true;
                             var r = root.getBounds();
                             if (anchor == Anchor.CENTER) {
@@ -275,7 +275,7 @@ class InternalWindow extends UIElement {
                             oldGlass = null;
                             glass = null;
                             frame = null;
-                            if (anchor <> null) {
+                            if (anchor != null) {
                                 x = dx;
                                 y = dy;
                             }
@@ -377,7 +377,7 @@ class InternalWindow extends UIElement {
                             var h = frame.getHeight();
                             (glass.getParent() as JLayeredPane).moveToFront(glass);
                             for (i in [h..0 step -1]) {//TODO DUR ANIMATION(dur animationDuration easeboth) 
-                                if (frame <> null) {
+                                if (frame != null) {
                                     if (slide) {
                                         frame.setBounds(x.intValue(), y.intValue(), width.intValue(), i);
                                     }
@@ -393,7 +393,7 @@ class InternalWindow extends UIElement {
                                         glass = null;
                                         frame = null;
                                         height = h;
-                                        if (anchor <> null) {
+                                        if (anchor != null) {
                                             x = dx;
                                             y = dy;
                                         }
@@ -404,7 +404,7 @@ class InternalWindow extends UIElement {
                             var h = frame.getHeight();
                             var y1 = y;
                             for (i in [0..h]) {//TODO DUR ANIMATION(dur animationDuration easeboth) 
-                                if (frame <> null) {
+                                if (frame != null) {
                                     if (slide) {
                                         frame.setBounds(x.intValue(), y1.intValue() + i, width.intValue(), h.intValue() - i);
                                     }
@@ -420,7 +420,7 @@ class InternalWindow extends UIElement {
                                         glass = null;
                                         frame = null;
                                         height = h;
-                                        if (anchor <> null) {
+                                        if (anchor != null) {
                                             x = dx;
                                             y = dy;
                                         }
@@ -478,11 +478,11 @@ class InternalWindow extends UIElement {
     public function setContent(value:javax.swing.JComponent) {
         contentComponent = value;
         var container = sp;
-        if (container <> null) {
+        if (container != null) {
             if (container.getComponentCount() > 0) {
                 container.remove(0);
             }
-            if (value <> null) {
+            if (value != null) {
                 container.add(value);
             }
             frame.validate();

@@ -58,7 +58,7 @@ public class ArcTo extends PathElement {
         var dx2 = (x0 - x) / 2.0;
         var dy2 = (y0 - y) / 2.0;
         // Convert angle from degrees to radians
-        var xAxisRotation = Math.toRadians(this.xAxisRotation % 360.0);
+        var xAxisRotation = Math.toRadians(this.xAxisRotation mod 360.0);
         var cosAngle = Math.cos(xAxisRotation);
         var sinAngle = Math.sin(xAxisRotation);
 
@@ -124,8 +124,8 @@ public class ArcTo extends PathElement {
         } else if (sweepFlag and angleExtent < 0) {
             angleExtent += 360;
         }
-        angleExtent %= 360;
-        angleStart %= 360;
+        angleExtent = angleExtent mod 360;
+        angleStart = angleStart mod 360;
 
         //
         // We can now build the resulting Arc2D in double precision

@@ -36,7 +36,7 @@ public class InfiniteProgressPanel extends Widget {
     };
     attribute pane:com.sun.javafx.api.ui.HiPerfInfiniteProgressPanel;
     public attribute progress: Boolean on replace {
-        if (content <> null) {
+        if (content != null) {
             pane.setVisible(progress);
         }
     };

@@ -109,7 +109,7 @@ public class ComboBox extends Widget {
         jcombobox.setSelectedIndex(-1);
         jcombobox.addActionListener(ActionListener {
                  public function actionPerformed(e:ActionEvent) {
-                    if (action <> null and jcombobox.getSelectedIndex() >= 0) {
+                    if (action != null and jcombobox.getSelectedIndex() >= 0) {
                        action();
                     }
                  }
@@ -185,7 +185,7 @@ public class ComboBox extends Widget {
                                      return o == this;
                                  }
                               });        
-        if (( selection == -1) and (cells <> [] ) ) { selection = 0; }
+        if (( selection == -1) and (cells != [] ) ) { selection = 0; }
         return jcombobox;
     }
     init {

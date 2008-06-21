@@ -32,7 +32,7 @@ public class Label extends Widget {
     private attribute updateCount: Number;
     private attribute jlabel: com.sun.javafx.api.ui.XLabel;
     public attribute text: String on replace {
-        if (jlabel <> null) {
+        if (jlabel != null) {
             //TODO ++
             updateCount = updateCount + 1;
             var c = updateCount;
@@ -50,7 +50,7 @@ public class Label extends Widget {
         }
     };
     public attribute honorDisplayProperties: Boolean = true on replace  {
-        if (jlabel <> null) {
+        if (jlabel != null) {
             jlabel.putClientProperty(jlabel.HONOR_DISPLAY_PROPERTIES, honorDisplayProperties);
         }
     };
@@ -65,7 +65,7 @@ public class Label extends Widget {
                     if (type == HyperlinkEvent.EventType.ACTIVATED) {
                         var url = e.getDescription();
                         if (not url.startsWith("object;")) {
-                            if(onHyperlinkActivated <> null) {
+                            if(onHyperlinkActivated != null) {
                                 onHyperlinkActivated(url);
                             }
                         }
@@ -74,7 +74,7 @@ public class Label extends Widget {
             });
         jlabel.setFocusable(true);
         jlabel.setOpaque(false);
-        if (text <> null) {
+        if (text != null) {
             jlabel.setText(text);
             if (jlabel.isFocusable()) {
                 jlabel.select(0, 0);

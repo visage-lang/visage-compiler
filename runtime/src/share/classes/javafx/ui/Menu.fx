@@ -36,7 +36,7 @@ public class Menu extends AbstractMenuItem {
     // TODO MARK AS FINAL
     private attribute jmenu:javax.swing.JMenu;
     public attribute text:String on replace {
-        if (jmenu <> null) {
+        if (jmenu != null) {
             jmenu.setText(text);
         }
     };
@@ -68,10 +68,10 @@ public class Menu extends AbstractMenuItem {
     public function createComponent():javax.swing.JComponent {
             jmenu = new javax.swing.JMenu();
             jmenu.setOpaque(true);
-            if (text <> null) {
+            if (text != null) {
                 jmenu.setText(text);
             }
-            if (mnemonic <> null) {
+            if (mnemonic != null) {
                 jmenu.setMnemonic(mnemonic.id);
             }
             if ( not opaque) {

@@ -48,7 +48,7 @@ public class GridPanel extends Widget {
         layout.setVgap(vgap.intValue());
     };
     public attribute cells: Widget[] on replace oldValue[lo..hi]=newVals {
-        if(jpanel <> null) {
+        if(jpanel != null) {
             for(k in [lo..hi]) { 
                 jpanel.remove(lo);
             }
@@ -65,10 +65,10 @@ public class GridPanel extends Widget {
         jpanel = javax.swing.JPanel{};
         jpanel.setOpaque(false);
         layout = new java.awt.GridLayout(rows.intValue(), columns.intValue());
-        if (vgap <> UNSET) {
+        if (vgap != UNSET) {
             layout.setVgap(vgap.intValue());
         }
-        if (hgap <> UNSET) {
+        if (hgap != UNSET) {
             layout.setHgap(hgap.intValue());
         }
         jpanel.setLayout(layout);

@@ -17,7 +17,7 @@ public class StringPath extends Shape {
     private attribute pathShape: SGShape;
 
     public attribute content: String on replace {
-        if (pathShape <> null) {
+        if (pathShape != null) {
             parseContent();
         }
     }
