@@ -1134,7 +1134,16 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                     // This is a super call, add the receiver so that the impl is called directly
                                     callArgs.prepend(make.Ident(defs.receiverName));
                                 }
-                                return m().Apply(toJava.translate(tree.typeargs), transMeth(), callArgs.toList());
+                                JCExpression transMeth = transMeth();
+                                if (msym != null && (msym.flags() & (Flags.PRIVATE|Flags.STATIC)) == Flags.PRIVATE &&
+                                    transMeth instanceof JCFieldAccess) {
+                                  JCFieldAccess selectTr = (JCFieldAccess) transMeth;
+                                  callArgs.prepend(selectTr.getExpression());
+                                  JCExpression receiverType = makeTypeTree(diagPos,msym.owner.type, false);
+                                  transMeth = make.at(transMeth).Select(receiverType, functionName(msym, true, false));
+                                  
+                                }
+                                return m().Apply(toJava.translate(tree.typeargs), transMeth, callArgs.toList());
                             }
 
                             @Override

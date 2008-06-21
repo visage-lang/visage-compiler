@@ -261,7 +261,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (def.getTag() == JavafxTag.FUNCTION_DEF) {
                 JFXFunctionDefinition func = (JFXFunctionDefinition) def;
                 MethodSymbol sym = func.sym;
-                if ((sym.flags() & (Flags.SYNTHETIC | Flags.STATIC)) == 0) {
+                if ((sym.flags() & (Flags.SYNTHETIC | Flags.STATIC | Flags.PRIVATE)) == 0) {
                     appendMethodClones(methods, cDecl, sym, false);
                 }
             }
@@ -278,7 +278,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private List<JCTree> makeClassFunctionProxyMethods(JFXClassDeclaration cDecl, List<MethodSymbol> needDispatch) {
         ListBuffer<JCTree> methods = ListBuffer.lb();
         for (MethodSymbol sym : needDispatch) {
-            appendMethodClones(methods, cDecl, sym, true);
+            if ((sym.flags() & Flags.PRIVATE) == 0) {
+                appendMethodClones(methods, cDecl, sym, true);
+            }
         }
         return methods.toList();
     }

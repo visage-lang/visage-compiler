@@ -1300,7 +1300,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             long flags = tree.mods.flags;
             long originalFlags = flags;
             flags &= ~(Flags.PROTECTED | Flags.PRIVATE);
-            flags |=  Flags.PUBLIC;
+            if ((tree.mods.flags & Flags.PRIVATE) == 0)
+                flags |=  Flags.PUBLIC;
             if (((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) && !classOnly) {
                 flags |= Flags.STATIC;
             }
@@ -2681,7 +2682,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     transMeth = make.Select(transMeth, defs.invokeName);
                 }
 
-                JCMethodInvocation app = m().Apply( translate(tree.typeargs), transMeth, determineArgs());
+                JCMethodInvocation app = determineArgs(transMeth);
                 JCExpression fresult = app;
                 if (callBound) {
                     fresult = makeBoundCall(app);
@@ -2739,10 +2740,22 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             // if this is a bound call, use left-hand side references for arguments consisting
             // solely of a  var or attribute reference, or function call, otherwise, wrap it
             // in an expression location
-            List<JCExpression> determineArgs() {
-                List<JCExpression> args;
+            JCMethodInvocation determineArgs(JCExpression transMeth) {
+                ListBuffer<JCExpression> targs = ListBuffer.lb();
+               // if this is a super.foo(x) call, "super" will be translated to referenced class,
+                // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
+                if (superToStatic) {
+                    targs.append(make.Ident(defs.receiverName));
+                }
+
+                if (msym != null && (msym.flags() & (Flags.PRIVATE|Flags.STATIC)) == Flags.PRIVATE &&
+                    transMeth instanceof JCFieldAccess) {
+                  JCFieldAccess selectTr = (JCFieldAccess) transMeth;
+                  JCExpression receiverType = makeTypeTree(diagPos,msym.owner.type, false);
+                  transMeth = make.at(transMeth).Select(receiverType, functionName(msym, true, callBound));
+                  targs.append(selectTr.getExpression());
+                }
                 if (callBound) {
-                    ListBuffer<JCExpression> targs = ListBuffer.lb();
                     List<Type> formal = formals;
                     for (JCExpression arg : tree.args) {
                         switch (arg.getTag()) {
@@ -2777,9 +2790,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         }
                         formal = formal.tail;
                     }
-                    args = targs.toList();
                 } else {
-                    ListBuffer<JCExpression> translated = ListBuffer.lb();
                     boolean handlingVarargs = false;
                     Type formal = null;
                     List<Type> t = formals;
@@ -2792,18 +2803,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                                 handlingVarargs = true;
                             }
                         }
-                        translated.append( translate(l.head, formal) );
+                        targs.append( translate(l.head, formal) );
                     }
-	            args = translated.toList();
                 }
-
-               // if this is a super.foo(x) call, "super" will be translated to referenced class,
-                // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
-                if (superToStatic) {
-                    args = args.prepend(make.Ident(defs.receiverName));
-                }
-
-                return args;
+                return m().Apply( translate(tree.typeargs), transMeth, targs.toList()); 
             }
 
             // This is for calls from non-bound contexts (code for true bound calls is in JavafxToBound)
