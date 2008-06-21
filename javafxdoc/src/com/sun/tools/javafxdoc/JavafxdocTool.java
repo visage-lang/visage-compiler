@@ -41,6 +41,7 @@ import com.sun.tools.javafx.tree.JavafxTreeInfo;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
 import com.sun.tools.javafx.util.JavafxFileManager;
 import com.sun.tools.javafx.comp.JavafxClassReader;
+import com.sun.tools.javafx.tree.JFXClassDeclaration;
 import static com.sun.javadoc.LanguageVersion.*;
 
 /**
@@ -361,12 +362,12 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
     /**
      * From a list of top level trees, return the list of contained class definitions
      */
-    List<JCClassDecl> listClasses(List<JCCompilationUnit> trees) {
-        ListBuffer<JCClassDecl> result = new ListBuffer<JCClassDecl>();
+    List<JFXClassDeclaration> listClasses(List<JCCompilationUnit> trees) {
+        ListBuffer<JFXClassDeclaration> result = new ListBuffer<JFXClassDeclaration>();
         for (JCCompilationUnit t : trees) {
             for (JCTree def : t.defs) {
-                if (def.getTag() == JCTree.CLASSDEF)
-                    result.append((JCClassDecl)def);
+                if (def instanceof JFXClassDeclaration)
+                    result.append((JFXClassDeclaration)def);
             }
         }
         return result.toList();

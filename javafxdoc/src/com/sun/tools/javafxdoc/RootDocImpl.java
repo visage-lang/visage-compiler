@@ -25,15 +25,13 @@ package com.sun.tools.javafxdoc;
 
 import java.io.IOException;
 import java.io.FileInputStream;
-import java.io.File;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.tree.JCTree.JCClassDecl;
-import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Position;
+import com.sun.tools.javafx.tree.JFXClassDeclaration;
 
 /**
  * This class holds the information from one run of javadoc.
@@ -70,7 +68,7 @@ public class RootDocImpl extends DocImpl implements RootDoc {
      * @param packages list of package names specified on the commandline
      * @param options list of options
      */
-    public RootDocImpl(DocEnv env, List<JCClassDecl> classes, List<String> packages, List<String[]> options) {
+    public RootDocImpl(DocEnv env, List<JFXClassDeclaration> classes, List<String> packages, List<String[]> options) {
         super(env, null);
         this.options = options;
         setPackages(env, packages);
@@ -106,9 +104,9 @@ public class RootDocImpl extends DocImpl implements RootDoc {
      * @param env the compilation environment
      * @param classes a list of ClassDeclaration
      */
-    private void setClasses(DocEnv env, List<JCClassDecl> classes) {
+    private void setClasses(DocEnv env, List<JFXClassDeclaration> classes) {
         ListBuffer<ClassDocImpl> result = new ListBuffer<ClassDocImpl>();
-        for (JCClassDecl def : classes) {
+        for (JFXClassDeclaration def : classes) {
             //### Do we want modifier check here?
             if (env.shouldDocument(def.sym)) {
                 ClassDocImpl cd = env.getClassDoc(def.sym);

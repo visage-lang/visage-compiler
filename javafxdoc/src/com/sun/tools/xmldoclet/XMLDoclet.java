@@ -33,6 +33,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -206,6 +207,17 @@ public class XMLDoclet {
         return true;
     }
 
+    private PackageDoc[] packagesToProcess(RootDoc root) {
+        Set set = new HashSet(Arrays.asList(root.specifiedPackages()));
+        ClassDoc[] classes = root.specifiedClasses();
+        for (int i = 0; i < classes.length; i++) {
+            set.add(classes[i].containingPackage());
+        }
+        ArrayList results = new ArrayList(set);
+        Collections.sort(results);
+        return (PackageDoc[]) results.toArray(new PackageDoc[] {});
+    }
+
     /**
      * Return the version of the Java Programming Language supported
      * by this doclet.
@@ -221,7 +233,7 @@ public class XMLDoclet {
         attrs.clear();
         hd.startElement("", "", "javadoc", attrs);
         generateComment(root);
-        for (PackageDoc pkg : root.specifiedPackages())
+        for (PackageDoc pkg : packagesToProcess(root))
             generatePackage(pkg);
         hd.endElement("","","javadoc");
         hd.endDocument();
