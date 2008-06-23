@@ -149,7 +149,7 @@ public class JavafxFileManager extends JavacFileManager {
         Iterable<? extends File> path = getLocation(location);
         if (path == null)
             return List.nil();
-        String subdirectory = packageName.toString().replace('.', File.separatorChar);
+        String subdirectory = packageName.replace('.', File.separatorChar);
         ListBuffer<JavaFileObject> results = new ListBuffer<JavaFileObject>();
 
         for (File directory : path)
