@@ -12,7 +12,9 @@ result of applying the expression to the combination of the source
 sequences' elements that satisfy the filter.
 </para>
 
+<!-- 
 <programlisting><emphasis role="red">TO-DO: INSERT SYNTAX DIAGRAM HERE</emphasis></programlisting>
+-->
 
 <!--
 <programlisting >
@@ -62,12 +64,12 @@ var albums =
      }];
 
 
-for (album in albums, track in album.tracks) {
+for (album in albums, track in album.tracks)  {
     if (album.title == track)
         java.lang.System.out.println("TITLE TRACK = {track}")
     else
         java.lang.System.out.println("Track = {track}")
-        } 
+  } 
     
 
 </programlisting>
@@ -106,11 +108,12 @@ function factors(n:Number) {
 }
 </programlisting>
 
-<para>Within a for-comprehension, the <code>indexof</code> operator can be used; its syntax is <code>indexof <emphasis>name</emphasis>  </code> where <emphasis>name</emphasis> is the name of an iteration variable. The value is the "index" of the iteration within in the base sequence:</para>
+<para>Within a for-comprehension, the <code>indexof</code> operator can be used; its syntax is <code>indexof <emphasis>name</emphasis>  </code> where <emphasis>name</emphasis> is the name of an iteration variable. The value is the "index" of the iteration within in the base sequence.</para>
 
+<!-- delete for now 
 <programlisting role="red">
 TBD: CODE SAMPLE
-</programlisting>
+</programlisting>-->
 
 <para>The <emphasis>indexof</emphasis> operator can also be used in sequence selection, as shown in the following example: </para>
 
@@ -149,7 +152,8 @@ insert x after seq[idx]
 delete seq
 delete x from seq
 delete seq[idx]
-delete seq[a..b] // and all other slice forms: a..&gt;b a..
+delete seq[a..b] // and all other slice forms  
+<!--  a..&gt;b a.. -->
 </programlisting>
 
 <!--
