@@ -17,10 +17,13 @@
 	
 	<caption>Key Words and Reserved Words</caption>
           <tbody>
+	  
+	  <tr> <th colspan="5">Implemented Keywords </th>
+ </tr>
             <tr>
               <td><code>abstract</code></td>
 
-              <td><code>assert</code></td>
+              <td><code><!--  assert--></code></td>
 
               <td><code>attribute</code></td>
 
@@ -56,7 +59,7 @@
             </tr>
 
             <tr>
-              <td><code>let</code></td>
+              <td><code><!-- let --></code></td>
 
               <td><code>new</code></td>
 
@@ -70,11 +73,11 @@
             <tr>
               <td><code>private</code></td>
 
-              <td><code>protected</code></td>
+              <td><code><!-- protected --></code></td>
 
               <td><code>public</code></td>
 
-              <td><code>readonly</code></td>
+              <td><code> <!-- readonly --></code></td>
 
               <td><code>return</code></td>
             </tr>
@@ -110,13 +113,13 @@
 
               <td><code>before</code></td>
 
-              <td><code>by</code></td>
+              <td><code><!-- by --></code></td>
 
               <td><code>catch</code></td>
             </tr>
 
             <tr>
-              <td><code>do</code></td>
+              <td><code><!--  do --></code></td>
 
               <td><code>dur</code></td>
 
@@ -130,9 +133,9 @@
             <tr>
               <td><code>finally</code></td>
 
-              <td><code>first</code></td>
+              <td><code><!-- first  --></code></td>
 
-              <td><code>from</code></td>
+              <td><code><!--  from --> </code></td>
 
               <td><code>in</code></td>
 
@@ -148,7 +151,7 @@
 
               <td><code>lazy</code></td>
 	      
-	      <td><code>last</code></td>
+	      <td><code> <!-- last  --></code></td>
             </tr>
 
             <tr>
@@ -160,7 +163,7 @@
 
               <td><code>step</code></td>
 
-              <td><code>typeof</code></td>
+              <td><code> <!--   typeof  --></code></td>
             </tr>
 
             <tr>
@@ -187,10 +190,43 @@
               <td>&nbsp;</td>
               <td>&nbsp;</td>
             </tr>
-	    
-    
-          </tbody>
+
+
+ <tr> <th colspan="5">Reserved Keywords </th>
+ </tr>
+ 
+ <tr>
+
+<td><code>assert</code></td> 
+<td><code>by</code></td> 
+<td><code>do</code></td> 
+<td><code>first</code></td> 
+<td><code>from</code></td> 
+
+</tr>
+
+<tr>
+
+<td><code>last</code></td> 
+<td><code>let</code></td> 
+<td><code>protected</code></td> 
+<td><code>readonly</code></td> 
+<td><code>typeof</code></td> 
+
+</tr>
+
+<tr>
+
+<td><code>lazy</code></td>
+</tr>
+	
+
+  </tbody>
         </table>
+	
+	
+	
+	
 <!-- </sect1>
     --> 
  
