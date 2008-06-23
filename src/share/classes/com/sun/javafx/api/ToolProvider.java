@@ -85,45 +85,9 @@ public class ToolProvider {
         return (ClassLoader)AccessController.doPrivileged(new PrivilegedAction() {
             public Object run() {
                 ClassLoader parent = JavafxCompiler.class.getClassLoader();
-                return new CompilerClassLoader(urls, parent);
+                return new URLClassLoader(urls, parent);
             }
         });
-    }
-
-    /**
-     * ClassLoader which loads internal javafxc and javac classes from the
-     * specified path instead of the classpath default.
-     */
-    private static class CompilerClassLoader extends URLClassLoader {
-        public CompilerClassLoader(URL[] urls, ClassLoader parent) {
-            super(urls, parent);
-        }
-
-        @Override
-        public URL findResource(String name) {
-            URL url = super.findResource(name);
-            return url;
-        }
-
-        @Override
-        protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-            if (name.indexOf("sun.tools") >= 0) {
-                Class c = findLoadedClass(name);
-                if (c != null) {
-                    logger.info("found loaded class: " + name);
-                    return c;
-                }
-                c = findClass(name);
-                if (c == null) {
-                    logger.info("didn't find class:  " + name);
-                    return super.loadClass(name, resolve);
-                }
-                if (resolve)
-                    resolveClass(c);
-                return c;
-            }
-            return super.loadClass(name, resolve);
-        }
     }
 
     /**
