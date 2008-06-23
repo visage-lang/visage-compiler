@@ -126,13 +126,14 @@ separated list of the names of base classes, an open curly brace, a list of attr
 
 </para>
 
+<!--
 <programlisting>
-<!-- 
+ 
 <FONT COLOR="RED"> 
 TO-DO: INSERT SYNTAX 
-</FONT> -->
+</FONT> 
 </programlisting>
-
+-->
 
 <para>
 By default a class 
@@ -158,12 +159,12 @@ TBD: INSERT code SAMPLES FOR PLAIN CLASSES AND COMPOUND CLASSES
 preferred way to instantiate a class is with an <emphasis>object literal</emphasis>.
 This form of object allocation uses a declarative syntax consisting of the name of the class followed by a curly brace delimited list of attribute initializers. Each initializer consists of the attribute name followed by a colon, followed by an expression which defines its value.</para>
 
-<programlisting>
+<!--<programlisting>
 &nbsp;
-<!-- **** <FONT COLOR="RED">ENGINEERING TO FILL IN THIS BOX WITH A
-FORMAL SYNTAX LISTING</FONT> *** -->
+ **** <FONT COLOR="RED">ENGINEERING TO FILL IN THIS BOX WITH A
+FORMAL SYNTAX LISTING</FONT> *** 
 </programlisting>
-
+-->
 
 <para>
 It is possible to use the <code>new</code> keyword when creating an object, 

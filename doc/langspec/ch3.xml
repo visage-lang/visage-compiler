@@ -9,13 +9,10 @@
 
 <sect2 id="attribute"><title>Attributes</title>
 
-<para>Attributes define the state of an object. They are declared using the
-<code>attribute</code> keyword followed by the attribute's name, a colon, the
-attribute's type terminated with a semicolon:
-
+<para>Attributes define the state of an object. They are declared using the <code>attribute</code> keyword followed by the attribute's name, a colon, the attribute's type terminated with a semicolon. </para>
 
 <!--  
-Attributes define the state of an object. They are declared using the <code>attribute</code> keyword followed by the attribute's name, a colon, the attribute's type, optionally a cardinality specification (<code>[]</code> meaning zero or more, terminated with a semicolon:--> </para>
+Attributes define the state of an object. They are declared using the <code>attribute</code> keyword followed by the attribute's name, a colon, the attribute's type, optionally a cardinality specification (<code>[]</code> meaning zero or more, terminated with a semicolon:--> 
 
 
 <programlisting>

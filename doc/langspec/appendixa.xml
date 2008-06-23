@@ -4,9 +4,11 @@
 <?xml-stylesheet href="docbook.css" type="text/css"?>
 <appendix id="apxa">
   <title>Key Words and Reserved Words </title>
-
+<!-- 
   <sect1 id="reserved">
     <title>Key Words and Reserved Words</title>
+    
+    -->
 
     <para><emphasis>This Appendix reports words reserved in the  <trademark>JavaFX</trademark> Script programming language. </emphasis></para>
     
@@ -189,7 +191,7 @@
     
           </tbody>
         </table>
-</sect1>
-    
+<!-- </sect1>
+    --> 
  
 </appendix>

@@ -148,10 +148,10 @@ if (condition1) {
 
 </sect3><sect3 id="loop"><title>Looping Expressions</title>
 <para>
-The <code>for</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** --> <emphasis role="red">TBD</emphasis>
+The <code>for</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** --> <emphasis role="red">Copy to come </emphasis>
 </para>
 <para>
-The <code>while</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** --><emphasis role="red">TBD</emphasis>
+The <code>while</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** --><emphasis role="red">Copy to come</emphasis>
 </para>
 
 </sect3></sect2>
@@ -245,9 +245,9 @@ The JavaFX Script programming language provides standard operators similar to
     <tr style="padding-top: 9pt; padding-bottom: 9pt;">
 
       <th width="50" valign="top" >Priority</th>
-      <th width="105" valign="top" >JavaFX Operator</th>
+      <th width="105" valign="top" >JavaFX Script Programming Language Operator</th>
       <th width="98" valign="top" >Operation</th>
-      <th width="100" valign="top" >Java Operator</th>
+      <th width="100" valign="top" >Java Programming Language  Operator</th>
       <th width="107" valign="top" >Order of Evaluation</th>
     </tr>
 	
