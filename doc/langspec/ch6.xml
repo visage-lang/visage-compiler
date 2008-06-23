@@ -49,7 +49,7 @@ var strs:String[]; // sequence of String
 </programlisting>
 
 <para>
-The elements of a sequence must have a common type, which may be Object. Sequences may be indexed like Java programming language arrays:
+The elements of a sequence must have a common type, which may be <code>Object</code>. Sequences may be indexed like Java programming language arrays:
 </para>
 
 
@@ -96,9 +96,9 @@ Such an expression returns a new sequence consisting of those elements of the or
 <para>Finally, sequence <emphasis>slices</emphasis> provide access to portions of a sequence:</para>
 
 <programlisting>
-seq[a..b] // the sequence between the indicies a and b inclusive
+seq[a..b]  // the sequence between the indicies a and b inclusive
 seq[a..&lt;b] // the sequence between the indicies a inclusive and b exclusive
-seq[a..] // same as seq[a..&lt;sizeof seq]
+seq[a..]  // same as seq[a..&lt;sizeof seq]
 seq[a..&lt;] // for consistancy.  This is the same as seq[a..&lt;sizeof seq-1] 
 </programlisting>
 

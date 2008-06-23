@@ -162,7 +162,9 @@ The first four data types will already be familiar to most developers
 The <code>Duration</code> type, however, 
  is a new specific to the JavaFX Script programming language. The <code>javafx.lang.Duration</code> class represents a unit of time 
 (millisecond, second, minute, or hour.) The language also supports time literals, a shorthand for instantiating
-the Duration class. </para>
+the 
+
+<code>Duration</code>class. </para>
 
 
 <programlisting>

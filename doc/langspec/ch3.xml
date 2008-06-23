@@ -14,8 +14,8 @@
 attribute's type terminated with a semicolon:
 
 
-
-Attributes define the state of an object. They are declared using the <code>attribute</code> keyword followed by the attribute's name, a colon, the attribute's type, optionally a cardinality specification (<code>[]</code> meaning zero or more, terminated with a semicolon:</para>
+<!--  
+Attributes define the state of an object. They are declared using the <code>attribute</code> keyword followed by the attribute's name, a colon, the attribute's type, optionally a cardinality specification (<code>[]</code> meaning zero or more, terminated with a semicolon:--> </para>
 
 
 <programlisting>
@@ -69,7 +69,8 @@ Default Value: false
 Default Value: 
 </programlisting>
 
-<para>For for more information on these data types, see  
+
+<para>Data types are covered in   
 
 <ulink
     url="types.html"><emphasis>Chapter 4</emphasis></ulink>.
