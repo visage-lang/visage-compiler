@@ -42,6 +42,7 @@ import java.util.Set;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.NestingKind;
+import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 
@@ -65,7 +66,7 @@ public class JavafxFileManager extends JavacFileManager {
     }
 
     public JavafxFileManager(Context context, boolean register, Charset charset) {
-        super(context, register, charset);      
+        super(context, register, charset);  
     }
 
     @Override
@@ -169,7 +170,19 @@ public class JavafxFileManager extends JavacFileManager {
             FX_SOURCE_SUFFIX : kind.extension;
         return basename + suffix;
     }
-   
+
+    @Override
+    public JavaFileObject getJavaFileForOutput(Location location,
+                                               String className,
+                                               JavaFileObject.Kind kind,
+                                               FileObject sibling)
+        throws IOException {
+        if (sibling != null && sibling instanceof DelegateJavaFileObject) {
+            sibling = ((DelegateJavaFileObject)sibling).delegate;
+        }
+        return super.getJavaFileForOutput(location, className, kind, sibling);        
+    }
+
     /**
      * Insert all files in subdirectory `subdirectory' of `directory' which end
      * in one of the extensions in `extensions' into packageSym.
