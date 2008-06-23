@@ -253,12 +253,12 @@ statement returns [JCStatement value]
                                                           endPos($value, $WHILE); }
 	| ^(INTO elem=expression eseq=expression)	{ $value = F.at(pos($INTO)).SequenceInsert($eseq.expr, $elem.expr, null, false); 
                                                           endPos($value, $INTO); } 
-	| ^(BEFORE elem=expression ^(SEQ_INDEX eseq=expression idx=expression))
+	| ^(BEFORE elem=expression ^(SEQ_INDEX eseq=expression idx=expression rb=RBRACKET))
 							{ $value = F.at(pos($BEFORE)).SequenceInsert($eseq.expr, $elem.expr, $idx.expr, false); 
-                                                          endPos($value, $BEFORE); } 
-	| ^(AFTER elem=expression ^(SEQ_INDEX eseq=expression idx=expression))
+                                                          endPos($value, $rb); } 
+	| ^(AFTER elem=expression ^(SEQ_INDEX eseq=expression idx=expression rb=RBRACKET))
 							{ $value = F.at(pos($AFTER)).SequenceInsert($eseq.expr, $elem.expr, $idx.expr, true); 
-                                                          endPos($value, $AFTER); } 
+                                                          endPos($value, $rb); } 
 	| ^(FROM e1=expression e2=expression)		{ $value = F.at(pos($FROM)).SequenceDelete($e2.expr,$e1.expr); 
                                                           endPos($value, $FROM); } 
 	| ^(DELETE expression)				{ $value = F.at(pos($DELETE)).SequenceDelete($expression.expr); 
@@ -365,8 +365,9 @@ expression  returns [JCExpression expr]
                                                           endPos($expr, $name.start); } // start is the CommonTree for the node
 	| ^(FUNC_APPLY e0=expression expressionList)	{ $expr = F.at(pos($FUNC_APPLY)).Apply(null, $e0.expr, $expressionList.args.toList()); 
                                                           endPos($expr, $FUNC_APPLY); } 
-	| ^(SEQ_INDEX seq=expression idx=expression)	{ $expr = F.at(pos($SEQ_INDEX)).SequenceIndexed($seq.expr, $idx.expr); 
-                                                          endPos($expr, $SEQ_INDEX); }
+	| ^(SEQ_INDEX seq=expression idx=expression rb=RBRACKET?)	
+                                                        { $expr = F.at($seq.expr.pos).SequenceIndexed($seq.expr, $idx.expr); 
+                                                          endPos($expr, $rb); }
 	| ^(SEQ_SLICE seq=expression first=expression last=expression?)
 	                                                { $expr = F.at(pos($SEQ_SLICE)).SequenceSlice($seq.expr, $first.expr, $last.expr, 
 	                                                                                              SequenceSliceTree.END_INCLUSIVE); 
