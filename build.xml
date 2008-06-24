@@ -6,6 +6,7 @@
     <property name="runtime.dir" value="${basedir}/runtime"/>
     <property name="javafxgui.dir" value="${basedir}/javafxgui"/>
     <property name="javafxdoc.dir" value="${basedir}/javafxdoc"/>
+    <property name="launcher.dir" value="${basedir}/launcher"/>
     <property environment="env" />
     <import file="tools-defs.xml"/>
     <property name="antlr.grammarv3" value="v3" />
@@ -13,10 +14,10 @@
 
     <import file="nbproject/build-impl.xml"/>
 
-    <target name="default" depends="jar,runtime,javafxgui,javafxdoc,install-scripts"
+    <target name="default" depends="jar,runtime,javafxgui,javafxdoc,launcher"
             description="Build javafxc compiler and runtime distribution"/>
 
-    <target name="all" depends="jar, runtime, javafxgui, javafxdoc, install-scripts, source-zip, test, spec, docs, pack-jars, demos"
+    <target name="all" depends="jar, runtime, javafxgui, javafxdoc, launcher, source-zip, test, spec, docs, pack-jars, demos"
             description="Build and test all project artifacts"/>
             
     <target name="dist" description="Build distribution bundles" depends="dist-init,dist-zip,dist-tgz"/>
@@ -332,7 +333,7 @@
 
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
-    <target name="-post-clean" depends="runtime-clean,javafxgui-clean,javafxdoc-clean,spec-clean">
+    <target name="-post-clean" depends="runtime-clean,javafxgui-clean,javafxdoc-clean,spec-clean,launcher-clean">
         <!-- Delete ANTLR-generated files -->
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v3*.*" excludes="**/v3.g **/v3Walker.g"/>
         <delete dir="${syntax.diagrams.dir}" />
@@ -425,7 +426,10 @@
         <ant dir="${javafxdoc.dir}" antfile="build.xml" target="jar" inheritall="false"/>
     </target>
     
-    <target name="install-scripts" description="Copy command wrappers to dest/bin directory.">
+    <target name="launcher" description="Copy command wrappers to dist/bin directory.">
+    		<ant dir="${launcher.dir}" antfile="build.xml" target="all" inheritall="false">
+    				<property name="compiler.dist.dir" location="${basedir}/dist/bin" />
+    		</ant>
         <copy todir="dist/bin">
             <fileset dir="src/bin"/>
             <filterset>
@@ -464,6 +468,10 @@
     
     <target name="javafxdoc-clean">
         <ant dir="${javafxdoc.dir}" antfile="build.xml" target="clean" inheritall="false" />
+    </target>
+    
+    <target name="launcher-clean">
+    		<ant dir="${launcher.dir}" antfile="build.xml" target="clean" inheritall="false" />
     </target>
 
     <target name="spec-clean">
