@@ -46,6 +46,7 @@
 				<copy file="${source.path}/javafx.exe" todir="${compiler.dist.dir}" />
 				<copy file="${source.path}/javafxc.exe" todir="${compiler.dist.dir}" />
 				<copy file="${source.path}/javafxdoc.exe" todir="${compiler.dist.dir}" />
+				<copy file="${basedir}/lib/javafx.properties" todir="${compiler.dist.dir}/../lib" />
   	</target>
   			
   	
