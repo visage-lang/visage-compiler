@@ -247,7 +247,7 @@
             <arg value="-classpath"/>
             <arg value="${clsjars}"/>
             <arg line="-extracss draft.css"/>
-            <arg line="-xsltfile ${basedir}/javadoc-files/custom.xsl"/>
+            <!--<arg line="-xsltfile ${basedir}/javadoc-files/custom.xsl"/>-->
             <classpath>
                 <path path="${build.classes.dir}:${javac.test.classpath}"/>
             </classpath>
