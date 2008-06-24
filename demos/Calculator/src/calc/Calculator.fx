@@ -1,50 +1,53 @@
 package calc;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.gui.*;
+import javafx.gui.swing.*;
 import java.text.DecimalFormat;
 import java.lang.System;
 
-class CalcButton extends CompositeNode {
+class CalcButton extends CustomNode {
     attribute name: String;
-    attribute pressedImage: Image = Image{url: this.getClass().getResource('images/d{name}.png').toString()};
-    attribute image: Image = Image{url: this.getClass().getResource('images/{name}.png').toString()};
+    attribute pressedImage: Image = Image{
+        url: "{__DIR__}images/d{name}.png"
+    };
+    attribute image: Image = Image{
+        url: "{__DIR__}images/{name}.png"
+    };
     attribute pressed: Boolean;
     attribute action: function():Void;
-    override attribute isSelectionRoot = true;
+    override attribute blocksMouse = true;
     
-    public function composeNode(): Node {
+    public function create(): Node {
         ImageView {
-            onMousePressed: function(e:CanvasMouseEvent):Void  {
+            onMousePressed: function(e:MouseEvent):Void  {
                 pressed = true
             }
-            onMouseReleased:  function(e:CanvasMouseEvent):Void {
+            onMouseReleased:  function(e:MouseEvent):Void {
                 pressed = false; 
-                if (hover and action != null) {
-                    action()
+                if (mouseOver and action != null) {
+                    action();
                 }
             }
-            image: bind if (hover and pressed) then pressedImage else image
+            image: bind if (mouseOver and pressed) then pressedImage else image
         }
     }
 }
 
-public class Calculator extends CompositeNode {
+public class Calculator extends CustomNode {
     attribute register: Number;
     attribute mem: Number;
     attribute operator: String;
     attribute isFixReg = true;
     attribute text = '0';
 
-    override attribute focusable = true;
-    override attribute onKeyDown = function(e:KeyEvent):Void {
-            if (e.keyStroke == KeyStroke.ENTER) {
+    override attribute onKeyPressed = function(e:KeyEvent):Void {
+            if (e.getKeyCode() == KeyCode.VK_ENTER or e.getKeyCode() == 10 /* TODO BUG IN javafx.gui.KeyCode */) {
                 input('=')
-            } else if (e.keyStroke == KeyStroke.BACK_SPACE) {        
+            } else if (e.getKeyCode() == KeyCode.VK_BACK_SPACE) {        
                 input('del')
             }
         }
     override attribute onKeyTyped = function(e:KeyEvent):Void {
-            input(e.keyChar)
+            input(e.getKeyChar())
         }      
 
     function calculate(op:String, r1:Number, r2:Number):Number {
@@ -121,7 +124,7 @@ public class Calculator extends CompositeNode {
         }    
     }
 
-    public function composeNode(): Node {
+    public function create(): Node {
         var bottom = 191;
         var left = 16;
         var sz = 38;
@@ -129,22 +132,22 @@ public class Calculator extends CompositeNode {
         Group {
             content:
             [ImageView {
-                image: Image{url: this.getClass().getResource('images/Calculator.png').toString()}
+                image: Image{url: "{__DIR__}images/Calculator.png"}
             },
             ImageView { 
                 transform: [Transform.translate(13, 8)]
-                image: Image{url: this.getClass().getResource('images/lcd-backlight.png').toString()}
+                image: Image{url: "{__DIR__}images/lcd-backlight.png"}
             },
             Text {
-                transform: [Transform.translate(150, 18)]
-                halign: HorizontalAlignment.TRAILING
-                font: Font {face: FontFace.ARIAL size: 20}
+                transform: [Transform.translate(150, 38)]
+                horizontalAlignment: HorizontalAlignment.TRAILING
+                font: Font {name: "ARIAL" size: 20}
                 content: bind text
                 fill: Color.WHITE
             },
             for(key in ['0', 'decimal', 'c',  '1','2','3',  '4','5','6',  '7','8','9']) {
                 var row = indexof key / 3;
-                var col = indexof key % 3;
+                var col = indexof key mod 3;
                 CalcButton {
                     transform: [Transform.translate(left + col * sz, bottom - sz * row)]
                     name: key
@@ -181,7 +184,7 @@ public class Calculator extends CompositeNode {
 
 
 var canvas = Canvas {
-    background: Color.rgba(0, 0, 0, 0)
+    background: Color.TRANSPARENT
     content: [Calculator {
         focused: true
     }]
@@ -190,7 +193,6 @@ var canvas = Canvas {
 Frame {
   title: 'JavaFX Calculator'
   background: Color.WHITE
-  onClose: function():Void { System.exit(0); }
   content: canvas
   visible: true
 }      
