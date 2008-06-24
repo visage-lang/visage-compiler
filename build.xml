@@ -228,6 +228,8 @@
         <property name="bootjars" refid="bootpath"/>
         <path id="clspath" path="build/classes:runtime/build/classes:javafxgui/build/classes:${javac.test.classpath}:javafxgui/lib/jmc.jar"/>
         <property name="clsjars" refid="clspath"/>
+        <path id="srcpath" path="src/share/classes:runtime/src/share/classes:javafxgui/src"/>
+        <property name="srcpathprop" refid="srcpath"/>
         <copy todir="${dist.javafxdoc.dir}">
             <fileset dir="${basedir}/javafxgui/javadoc" includes="draft.*"/>
         </copy>
@@ -241,7 +243,7 @@
             <arg value="-d"/>
             <arg value="${dist.javafxdoc.dir}"/>
             <arg value="-sourcepath"/>
-            <arg value="src/share/classes:runtime/src/share/classes:javafxgui/src"/>
+            <arg value="${srcpathprop}"/>
             <arg value="-classpath"/>
             <arg value="${clsjars}"/>
             <arg line="-extracss draft.css"/>
