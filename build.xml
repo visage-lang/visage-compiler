@@ -231,7 +231,7 @@
         <path id="srcpath" path="src/share/classes:runtime/src/share/classes:javafxgui/src"/>
         <property name="srcpathprop" refid="srcpath"/>
         <copy todir="${dist.javafxdoc.dir}">
-            <fileset dir="${basedir}/javafxgui/javadoc" includes="draft.*"/>
+            <fileset dir="${basedir}/javadoc-files" includes="draft.*"/>
         </copy>
         <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" destdir="${dist.javadoc.dir}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}"
                 packagenames="${javadoc.pkgs}" sourcepath="${src.classes.dir}">
@@ -247,6 +247,7 @@
             <arg value="-classpath"/>
             <arg value="${clsjars}"/>
             <arg line="-extracss draft.css"/>
+            <arg line="-xsltfile ${basedir}/javadoc-files/custom.xsl"/>
             <classpath>
                 <path path="${build.classes.dir}:${javac.test.classpath}"/>
             </classpath>
