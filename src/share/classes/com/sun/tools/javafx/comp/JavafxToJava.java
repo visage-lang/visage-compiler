@@ -1299,7 +1299,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             // The interface methods cannot be package level and an error is reported.
             long flags = tree.mods.flags;
             long originalFlags = flags;
-            flags &= ~(Flags.PROTECTED | Flags.PRIVATE);
+            flags &= ~Flags.PROTECTED;
             if ((tree.mods.flags & Flags.PRIVATE) == 0)
                 flags |=  Flags.PUBLIC;
             if (((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) && !classOnly) {
@@ -2748,10 +2748,12 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     targs.append(make.Ident(defs.receiverName));
                 }
 
-                if (msym != null && (msym.flags() & (Flags.PRIVATE|Flags.STATIC)) == Flags.PRIVATE &&
+                if (msym != null &&
+                    (msym.flags() & (Flags.PRIVATE|Flags.STATIC)) == Flags.PRIVATE &&
+                    types.isCompoundClass(msym.owner) &&
                     transMeth instanceof JCFieldAccess) {
                   JCFieldAccess selectTr = (JCFieldAccess) transMeth;
-                  JCExpression receiverType = makeTypeTree(diagPos,msym.owner.type, false);
+                  JCExpression receiverType = makeTypeTree(diagPos, msym.owner.type, false);
                   transMeth = make.at(transMeth).Select(receiverType, functionName(msym, true, callBound));
                   targs.append(selectTr.getExpression());
                 }
