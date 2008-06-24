@@ -23,59 +23,61 @@
 
 package com.sun.tools.javafx.antlr;
 
-import com.sun.tools.javafx.tree.JavafxTreeMaker;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
-
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javafx.tree.JFXInterpolateValue;
-import com.sun.tools.javafx.util.MsgSym;
 import java.util.HashMap;
 import javax.tools.DiagnosticListener;
-import static com.sun.tools.javac.util.ListBuffer.lb;
-import static com.sun.javafx.api.JavafxBindStatus.*;
 
+import static com.sun.javafx.api.JavafxBindStatus.UNBOUND;
+import com.sun.tools.javac.code.Source;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCAnnotation;
+import com.sun.tools.javac.tree.JCTree.JCErroneous;
+import com.sun.tools.javac.util.*;
+import com.sun.tools.javafx.tree.JFXInterpolateValue;
+import com.sun.tools.javafx.tree.JavafxTreeMaker;
+import com.sun.tools.javafx.util.MsgSym;
 import org.antlr.runtime.*;
-import org.antlr.runtime.tree.*;
+import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.tree.TreeNodeStream;
+import org.antlr.runtime.tree.TreeParser;
 
 /**
- * Base class for ANTLR generated parsers 
- * 
+ * Base class for ANTLR generated parsers
+ *
  * @author Robert Field
  */
 public abstract class AbstractGeneratedTreeParser extends TreeParser {
-    
+
     /** The factory to be used for abstract syntax tree construction.
      */
     protected JavafxTreeMaker F;
-    
+
     /** The log to be used for error diagnostics.
      */
     protected Log log;
-    
+
     /** The Source language setting. */
     protected Source source;
-    
+
     /** The name table. */
     protected Name.Table names;
-    
+
     /** should parser generate an end positions map? */
     protected boolean genEndPos;
-    
+
     /** The end positions map. */
     HashMap<JCTree,Integer> endPositions;
-    
+
     /** The doc comments map */
     HashMap<JCTree,String> docComments;
 
     /** the token id for white space */
     protected int whiteSpaceToken;
-    
+
     /* ---------- error recovery -------------- */
-    
+
     protected JCErroneous errorTree;
-    
+
     /** initializes a new instance of GeneratedParser */
     protected void initialize(Context context) {
         this.F = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
@@ -87,23 +89,23 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
                          context.get(DiagnosticListener.class) != null ||
                          Boolean.getBoolean("JavafxModuleBuilder.debugBadPositions");
     }
-    
+
     protected AbstractGeneratedTreeParser(TreeNodeStream input) {
         super(input);
     }
-    
+
     protected AbstractGeneratedTreeParser(TreeNodeStream input, RecognizerSharedState state) {
         super(input, state);
     }
-    
+
     public String getErrorMessage(RecognitionException e, String[] tokenNames) {
         //java.util.List stack = getRuleInvocationStack(e, this.getClass().getName());
         String msg = null;
         if (e instanceof NoViableAltException) {
             NoViableAltException nvae = (NoViableAltException) e;
             msg = "Trying to understand your program, I'm confused at " + getRuleInvocationStack(e, this.getClass().getName());
-            //msg = " no viable alt; token=" + e.token + " (decision=" 
-            //        + nvae.decisionNumber + " state " + nvae.stateNumber + ")" 
+            //msg = " no viable alt; token=" + e.token + " (decision="
+            //        + nvae.decisionNumber + " state " + nvae.stateNumber + ")"
             //        + " decision=<<" + nvae.grammarDecisionDescription + ">>";
         } else {
             msg = super.getErrorMessage(e, tokenNames);
@@ -116,7 +118,7 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
         return t.toString();
     }
 **/
-    
+
     /** What is the error header, normally line/character position information? */
     @Override
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
@@ -126,16 +128,16 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
         //        System.err.println("ERROR: " + msg);
         log.error(pos, MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
     }
-    
+
     protected int pos(CommonTree tree) {
         //System.out.println("TOKEN: line: " + tok.getLine() + " char: " + tok.getCharPositionInLine() + " pos: " + ((CommonToken)tok).getStartIndex());
         return ((CommonToken)tree.getToken()).getStartIndex();
     }
-    
+
     protected List noJCTrees() {
         return List.<JCTree>nil();
     }
-    
+
     protected List<JCAnnotation> noJCAnnotations() {
         return List.<JCAnnotation>nil();
     }
@@ -154,7 +156,7 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
             TokenStream src = input.getTokenStream();
             CommonToken endToken = (CommonToken)src.get(endIndex);
             // backtrack over WS and imaginary tokens
-            while (endToken.getType() == whiteSpaceToken || endToken.getCharPositionInLine() == -1) { 
+            while (endToken.getType() == whiteSpaceToken || endToken.getCharPositionInLine() == -1) {
                 if (--endIndex < 0)
                     return;
                 endToken = (CommonToken)src.get(endIndex);
@@ -175,14 +177,14 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
         if (genEndPos)
             endPositions.put(tree, end);
     }
-    
-   
+
+
     JCExpression createKeyValueLiteral(int target_pos, JCExpression target, JCTree value, JCTree interpolate ) {
-        
+
         JCExpression class_name = F.at(target_pos).Identifier("javafx.animation.KeyValue");
-                                                          
+
         ListBuffer<JCTree> parts = ListBuffer.<JCTree>lb();
-                                                          
+
         // target attribute
         // convert target name to pointer
         JCExpression ptr_factory = F.at(target_pos).Identifier("com.sun.javafx.runtime.PointerFactory");
@@ -195,10 +197,10 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
 
         JCTree target_part = F.at(target_pos).ObjectLiteralPart(Name.fromString(names, "target"), target_value, UNBOUND);
         parts.append(target_part);
-                                                          
+
         // value attribute
         parts.append(value);
-                                                          
+
         // interpolate attribute
         if (interpolate != null)
             parts.append(interpolate);

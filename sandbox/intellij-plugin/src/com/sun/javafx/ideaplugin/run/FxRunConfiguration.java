@@ -96,7 +96,7 @@ public class FxRunConfiguration extends ModuleBasedConfiguration {
         if (data instanceof DebuggingRunnerData) {
             final DebuggingRunnerData data2 = (DebuggingRunnerData) data;
 
-            RemoteState remoteState = new RemoteState() {
+            return new RemoteState() {
                 public RemoteConnection getRemoteConnection () {
                     return new RemoteConnection (true, "127.0.0.1", data2.getDebugPort (), true);
                 }
@@ -127,8 +127,6 @@ public class FxRunConfiguration extends ModuleBasedConfiguration {
                     return ModuleRootManager.getInstance (getConfigurationModule ().getModule ()).getDependencies ();
                 }
             };
-
-            return remoteState;
         }
 
         CommandLineState state = new CommandLineState (runnerSettings, configurationSettings) {

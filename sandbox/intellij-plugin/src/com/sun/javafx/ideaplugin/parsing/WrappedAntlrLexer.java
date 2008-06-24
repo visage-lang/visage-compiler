@@ -23,9 +23,8 @@
 
 package com.sun.javafx.ideaplugin.parsing;
 
-import com.sun.tools.javafx.antlr.v3Lexer;
 import com.sun.tools.javac.util.Context;
-import com.sun.javafx.ideaplugin.parsing.RecognitionExceptionSignal;
+import com.sun.tools.javafx.antlr.v3Lexer;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.RecognitionException;
 

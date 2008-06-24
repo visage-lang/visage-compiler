@@ -53,7 +53,7 @@ import org.antlr.runtime.tree.*;
 }
 
 @members {
-    protected void initialize(Context context) {
+    public void initialize(Context context) {
         super.initialize(context);
         whiteSpaceToken = v3Lexer.WS;
     }
