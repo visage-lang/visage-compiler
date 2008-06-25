@@ -24,6 +24,7 @@ public class TestUtils  {
 	/* Test increment checks. These print msg string only upon failure.  */
    function checkS(s1:String, s2:String, msg:String) { if(s1==s2){pass++; }else {fail++;print("FAILED: {msg} : {s1} != {s2}");} }
    function checkI(i1:Integer, i2:Integer, msg:String) { if(i1==i2){pass++; }else {fail++;print("FAILED: {msg} : {i1} != {i2}");} }
+   function checkN(n1:Number, n2:Number, msg:String) { if(n1==n2){pass++; }else {fail++;print("FAILED: {msg} : {n1} != {n2}");} }
    function checkIs(i1s:Integer[], i2s:Integer[], msg:String) { if(i1s==i2s){pass++; }else {fail++;print("FAILED: {msg} : {i1s} != {i2s}");} }
    function checkSs(s1s:String[], s2s:String[], msg:String) { if(s1s==s2s){pass++; }else {fail++;print("FAILED: {msg} : {s1s} != {s2s}");} }
    function checkNs(n1s:Number[], n2s:Number[], msg:String) { if(n1s==n2s){pass++; }else {fail++;print("FAILED: {msg} : {n1s} != {n2s}");} }
@@ -74,7 +75,7 @@ public class TestUtils  {
 		else if (sizeof s1<sizeof s2) { 	retval = false; }
 		else {
 			for(i in [ 0..sizeof s1]) {
-				if(s1[i] != s2[i])	retval = false;
+				if(s1[i] <> s2[i])	retval = false;
 			}
 		}
 		return retval;
@@ -86,7 +87,7 @@ public class TestUtils  {
 		else if (sizeof i1<sizeof i2) { 	retval = false; }
 		else {
 			for(i in [ 0..sizeof i1]) {
-				if(i1[i] != i2[i])	retval = false;
+				if(i1[i] <> i2[i])	retval = false;
 			}
 		}
 		return retval;
