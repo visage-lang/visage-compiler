@@ -80,6 +80,7 @@
             <zipfileset src="${file.reference.swing-layout.jar}" excludes="META-INF/**/,${swing-layout.excludes}"/>
         </jar>
         <copy file="${file.reference.scenegraph.jar}" todir="${dist.jar.dir}"/>
+        <copy file="${file.reference.jmc.jar}" todir="${dist.jar.dir}"/>
     </target>
 
     <target name="-do-clean" depends="init">
