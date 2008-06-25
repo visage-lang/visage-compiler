@@ -1,6 +1,10 @@
 import java.lang.System;
 
 /**
+ * @test
+ * @compilefirst ../../TestUtils.fx
+ * @run
+ *
  * This set of tests is mainly within priority classes.
  * Where appropriate check associativity (order of evaluation).
  *
@@ -299,5 +303,5 @@ test7();
 test8();
 test9();
 
-TA.report();
+TA.report();  
 
