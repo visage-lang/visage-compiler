@@ -1,6 +1,11 @@
 package calc;
-import javafx.gui.*;
-import javafx.gui.swing.*;
+import javafx.scene.*;
+import javafx.scene.paint.*;
+import javafx.scene.transform.*;
+import javafx.scene.image.*;
+import javafx.scene.text.*;
+import javafx.input.*;
+import javafx.ext.swing.*;
 import java.text.DecimalFormat;
 import java.lang.System;
 
