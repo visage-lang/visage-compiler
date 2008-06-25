@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     }
     
     // construct command
-    std::string cmd = "\"" + config.javacmd + "\" ";
+    std::string cmd = config.javacmd + " ";
     cmd += "-Djava.library.path=\"" + config.javafxpath + "\" ";
     cmd += "-classpath \"" + config.evaluatePath(config.javafx_classpath_libs);
     if (! config.classpath.empty()) {

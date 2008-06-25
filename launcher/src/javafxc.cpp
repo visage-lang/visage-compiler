@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     }
     
     // construct command
-    std::string cmd = "\"" + config.javacmd + "\" ";
+    std::string cmd = config.javacmd + " ";
     if (! config.vmargs.empty()) {
         cmd += config.vmargs + " ";
     }
