@@ -1,6 +1,7 @@
 package assortis.sources.language.javafx.api.shapes;
 
-import javafx.gui.*;
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
 
 Ellipse{
     centerX: 50

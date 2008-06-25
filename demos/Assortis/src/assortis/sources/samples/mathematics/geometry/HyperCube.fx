@@ -2,11 +2,9 @@ package assortis.sources.samples.mathematics.geometry;
 
 import assortis.library.mathematics.multidim.*;
 
-import javafx.gui.*;
-import javafx.gui.swing.Frame;
+import javafx.ext.swing.*;
 import javafx.animation.*;
-
-
+import javafx.scene.transform.*;
 import java.lang.System;
 
 var dim = 4;

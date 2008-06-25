@@ -1,6 +1,6 @@
 package assortis.sources.language.javafx.events;
 
-import javafx.gui.swing.*;
+import javafx.ext.swing.*;
 import java.lang.System;
 
 Button {

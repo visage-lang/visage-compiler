@@ -4,9 +4,10 @@ package assortis.library.mathematics.multidim;
  * @author Alexandr Scherbatiy
  */
 
- import javafx.gui.*;
- import javafx.gui.swing.*;
-
+ import javafx.ext.swing.*;
+ import javafx.scene.*;
+ import javafx.scene.paint.*;
+ import javafx.scene.geometry.*;
  import java.lang.System;
  
 public class MDUniverse extends CustomNode, MDGroup{

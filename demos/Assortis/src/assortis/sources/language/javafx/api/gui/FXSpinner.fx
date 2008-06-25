@@ -1,8 +1,8 @@
 package assortis.sources.language.javafx.api.gui;
 
-import javafx.gui.swing.*;
+import javafx.ext.swing.*;
 
-Label{ text: "Spinner has not been added into javafx.gui library yet!"} 
+Label{ text: "Spinner has not been added into runtime library yet!"} 
 
 //var value = 20.0;
 //

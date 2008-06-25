@@ -1,10 +1,12 @@
 package assortis.sources.samples.physics.planets;
 
 
-import javafx.gui.*;
-import javafx.gui.swing.Frame;
+import javafx.ext.swing.*;
 import javafx.animation.*;
-
+import javafx.scene.*;
+import javafx.scene.paint.*;
+import javafx.scene.transform.*;
+import javafx.scene.geometry.*;
 import java.lang.Math;
 import java.lang.System;
 

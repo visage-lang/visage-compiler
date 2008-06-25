@@ -1,8 +1,8 @@
 package assortis.sources.language.javafx.api.gui;
 
-import javafx.gui.swing.*;
+import javafx.ext.swing.*;
 
-Label{ text: "Table has not been added into javafx.gui library yet!"} 
+Label{ text: "Table has not been added into runtime library yet!"} 
 
 
 //var N=5;

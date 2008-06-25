@@ -2,7 +2,6 @@
 package assortis.core.ui;
 
 
-import javafx.gui.*;
 
 import java.lang.Object;
 

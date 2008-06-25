@@ -1,7 +1,8 @@
 package assortis.sources.language.javafx.api.shapes;
 
-import javafx.gui.*;
-import javafx.gui.swing.*;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
 
 var x1 = 40;
 var y1 = 30;

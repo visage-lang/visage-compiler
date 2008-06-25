@@ -7,8 +7,8 @@ package assortis.core;
 
 import java.lang.Object;
 
-import javafx.gui.*;
-import javafx.gui.swing.*;
+import javafx.ext.swing.*;
+import javafx.scene.paint.*;
 
 
 import java.util.Locale;
@@ -51,21 +51,21 @@ public class FXUnit {
         
         //java.lang.System.out.println("[object] {obj}" );
         
-        if(obj instanceof javafx.gui.swing.Component){
+        if(obj instanceof javafx.ext.swing.Component){
             
-            var component = obj as javafx.gui.swing.Component;
+            var component = obj as javafx.ext.swing.Component;
             //unit.content = CustomWidget{  comp: component.getJComponent() };
             unit.content = component;
-        }else if(obj instanceof javafx.gui.Node){
-            var node = obj as javafx.gui.Node;
-            var canvas = javafx.gui.Canvas { content: node };
+        }else if(obj instanceof javafx.scene.Node){
+            var node = obj as javafx.scene.Node;
+            var canvas = javafx.ext.swing.Canvas { content: node };
             //unit.content = CustomWidget{  comp: canvas.getJComponent() };
             unit.content = Canvas{ content: node };
             
-        }else if(obj instanceof javafx.gui.swing.Frame){
+        }else if(obj instanceof javafx.ext.swing.Frame){
         
             unit.isWindow = true;
-            var frame = obj as javafx.gui.swing.Frame;
+            var frame = obj as javafx.ext.swing.Frame;
             
             //java.lang.System.out.println("[visible] set: {false}" );
             frame.visible = false;
@@ -91,8 +91,8 @@ public class FXUnit {
 //            while(iterator.hasNext()){
 //                var element = iterator.next();
 //                
-//                if(element instanceof javafx.gui.Component){
-//                    var elem = element as javafx.gui.Component;
+//                if(element instanceof javafx.ext.swing.Component){
+//                    var elem = element as javafx.ext.swing.Component;
 //                    insert CustomWidget{  comp: elem.getJComponent() } into panel.content;
 //                }
 //                unit.content = panel;
@@ -103,7 +103,7 @@ public class FXUnit {
         return unit;
     }
     
-    static function getColor(color: javafx.gui.Color):Color{
+    static function getColor(color: javafx.scene.paint.Color):Color{
         return Color{
             red: color.red
             green: color.green

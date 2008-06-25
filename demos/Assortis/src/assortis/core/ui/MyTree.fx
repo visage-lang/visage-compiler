@@ -2,12 +2,11 @@
 package assortis.core.ui;
 
 
-import javafx.gui.*;
-import javafx.gui.swing.*;
+import javafx.ext.swing.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 
-import javafx.gui.swing.Layout.*;
+import javafx.ext.swing.Layout.*;
 
 import java.lang.System;
 

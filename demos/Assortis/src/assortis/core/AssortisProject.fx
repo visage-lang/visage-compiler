@@ -39,11 +39,10 @@ import java.io.*;
 
 import java.lang.Object;
 import java.lang.System;
-
-import javafx.gui.*;
-import javafx.gui.swing.*;
-import javafx.gui.swing.Layout.*;
-
+import javafx.input.*;
+import javafx.ext.swing.*;
+import javafx.ext.swing.Layout.*;
+import javafx.scene.*;
 import assortis.core.ui.*;
 import assortis.core.util.*;
 

@@ -1,8 +1,8 @@
 package assortis.core.ui;
 
 
-import javafx.gui.*;
-import javafx.gui.swing.*;
+import javafx.ext.swing.*;
+import javafx.scene.*;
 import javax.swing.*;
 
 import java.awt.BorderLayout;

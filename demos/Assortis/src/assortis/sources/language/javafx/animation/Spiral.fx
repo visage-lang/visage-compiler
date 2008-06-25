@@ -1,8 +1,10 @@
 package assortis.sources.language.javafx.animation;
 
-import javafx.gui.*;
-import javafx.gui.swing.Frame;
+import javafx.ext.swing.*;
 import javafx.animation.*;
+import javafx.scene.paint.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
 
 import java.lang.Math;
 

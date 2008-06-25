@@ -1,6 +1,8 @@
 package assortis.sources.language.javafx.events;
 
-import javafx.gui.*;
+import javafx.input.*;
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
 
 var x = 50.0;
 var y = 30.0;

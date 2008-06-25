@@ -1,7 +1,6 @@
 package assortis.sources.language.javafx.api.gui;
 
-import javafx.gui.*;
-import javafx.gui.swing.*;
+import javafx.ext.swing.*;
 
 var value = 20;
 

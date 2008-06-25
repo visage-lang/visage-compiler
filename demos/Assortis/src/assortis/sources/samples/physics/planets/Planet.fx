@@ -1,6 +1,6 @@
 package assortis.sources.samples.physics.planets;
 
-import javafx.gui.*;
+import javafx.scene.paint.*;
 
 public class Planet {
     attribute name: String;

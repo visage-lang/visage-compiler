@@ -1,6 +1,6 @@
 package assortis.sources.language.javafx.api.shapes;
 
-import javafx.gui.*;
+import javafx.scene.text.*;
 
 Text{
     x: 50

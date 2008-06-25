@@ -1,7 +1,11 @@
 package assortis.sources.samples.mathematics.functions;
 
-import javafx.gui.*;
-import javafx.gui.swing.Frame;
+import javafx.ext.swing.*;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.scene.paint.*;
+import javafx.scene.text.*;
 import java.lang.Math;
 import java.lang.System;
 

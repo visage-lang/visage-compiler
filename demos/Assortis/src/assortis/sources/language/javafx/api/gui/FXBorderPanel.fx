@@ -1,6 +1,6 @@
 package assortis.sources.language.javafx.api.gui;
 
-import javafx.gui.swing.*;
+import javafx.ext.swing.*;
 
 BorderPanel{
     top   :  Button{ text: "Top"    }

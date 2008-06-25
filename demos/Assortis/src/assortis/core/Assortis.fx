@@ -11,7 +11,7 @@ package assortis.core;
  */
 
 
-import javafx.gui.*;
+import javafx.application.Application;
 import java.lang.System;
 
 

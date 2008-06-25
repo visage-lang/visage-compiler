@@ -1,7 +1,6 @@
 package assortis;
 
-import javafx.gui.*;
-import javafx.gui.swing.Frame;
+import javafx.ext.swing.Frame;
 import assortis.core.*;
 
 import java.lang.System;

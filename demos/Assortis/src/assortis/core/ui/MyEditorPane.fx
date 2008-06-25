@@ -6,9 +6,8 @@
 
 package assortis.core.ui;
 
-
-import javafx.gui.*;
-import javafx.gui.swing.*;
+import javafx.input.*;
+import javafx.ext.swing.*;
 import javax.swing.*;
 import java.awt.event.KeyAdapter;
 

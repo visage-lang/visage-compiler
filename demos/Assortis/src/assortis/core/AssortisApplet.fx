@@ -7,10 +7,10 @@ import javax.swing.JApplet;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.javafx.runtime.Entry;
-import com.sun.javafx.gui.InternalHelper;
+import com.sun.javafx.application.InternalHelper;
 
-import javafx.gui.*;
-import javafx.gui.swing.*;
+import javafx.application.Application;
+import javafx.ext.swing.*;
 import java.lang.System;
 
 import java.net.URLClassLoader;

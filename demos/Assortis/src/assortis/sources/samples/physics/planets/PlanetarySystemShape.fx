@@ -1,7 +1,9 @@
 package assortis.sources.samples.physics.planets;
 
-import javafx.gui.*;
-
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+import javafx.scene.text.*;
 import java.lang.Math;
                                                                                                                                               
 public class PlanetarySystemShape extends CustomNode{

@@ -1,9 +1,11 @@
 package assortis.sources.samples.physics.electrosim;
 
-import javafx.gui.*;
-import javafx.gui.swing.Frame;
+import javafx.ext.swing.*;
 import javafx.animation.*;
-
+import javafx.input.*;
+import javafx.scene.*;
+import javafx.scene.paint.*;
+import javafx.scene.geometry.*;
 import java.lang.System;
 
 
