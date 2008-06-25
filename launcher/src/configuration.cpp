@@ -23,7 +23,6 @@
 
 #include <windows.h>
 #include <fstream>
-#include <regex.h>
 
 #include "configuration.h"
 
@@ -136,22 +135,32 @@ void Configuration::readConfigFile() {
     
     // prepare regular expression
     std::string line, key, value;
-    std::string::size_type pos;
-    regex_t pattern;
-    regmatch_t match[3];
-    assert (REG_OKAY == regcomp (&pattern, "([[:alnum:]_]+)[[:space:]]*[:=][[:space:]]*([^[:space:]].*[^[:space:]])", REG_EXTENDED | REG_ICASE | REG_NEWLINE));
+    std::string::size_type pos, start, end;
     
     while (getline (file, line)) {
         // remove comment
         if ((pos = line.find('#')) != std::string::npos) {
             line.erase (pos);
         }
+        
+        // parse line
+        pos = line.find_first_of("=;");
+        if (pos > 0 && pos != std::string::npos) {
+            start = line.find_first_not_of(" \t\n\r");
+            end = line.find_last_not_of(" \t\n\r", pos-1);
+            if (start == std::string::npos || end == std::string::npos) {
+                continue;
+            }
+            key   = line.substr (start, end - start + 1);
 
-        // evaluate key-value pair
-        if (REG_OKAY == regexec (&pattern, line.c_str(), 3 /* 3 matches */, match, 0 /* no flags */)) {
-            key   = line.substr (match[1].rm_so, match[1].rm_eo-match[1].rm_so);
-            value = line.substr (match[2].rm_so, match[2].rm_eo-match[2].rm_so);
+            start = line.find_first_not_of(" \t\n\r", pos+1);
+            end = line.find_last_not_of(" \t\n\r");
+            if (start == std::string::npos || end == std::string::npos) {
+                continue;
+            }
+            value = line.substr (start, end - start + 1);
             
+            // evaluate key/value-pair
             if (key == "javafx_classpath_libs") {
                 javafx_classpath_libs = value;
             } else
@@ -166,7 +175,6 @@ void Configuration::readConfigFile() {
             };
         }
     }
-    regfree (&pattern);
     file.close();
 }
 

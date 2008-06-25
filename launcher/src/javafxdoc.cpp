@@ -25,7 +25,6 @@
 #ifdef PROJECT_JAVAFXDOC
 
 #include <string>
-#include <regex.h>
 
 #include "configuration.h"
 

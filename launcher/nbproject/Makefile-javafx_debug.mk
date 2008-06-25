@@ -21,7 +21,7 @@ FC=
 include Makefile
 
 # Object Directory
-OBJECTDIR=build/javafx_debug
+OBJECTDIR=build/javafx_debug/Cygwin-Windows
 
 # Object Files
 OBJECTFILES= \
@@ -34,8 +34,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=
-CXXFLAGS=
+CCFLAGS=-mno-cygwin -s
+CXXFLAGS=-mno-cygwin -s
 
 # Fortran Compiler Flags
 FFLAGS=

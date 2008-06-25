@@ -34,6 +34,7 @@
       </toolsSet>
       <compileType>
         <ccCompilerTool>
+          <commandLine>-mno-cygwin -s</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFX</Elem>
           </preprocessorList>
@@ -68,6 +69,7 @@
       </toolsSet>
       <compileType>
         <ccCompilerTool>
+          <commandLine>-mno-cygwin -s</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFXC</Elem>
           </preprocessorList>
@@ -106,6 +108,7 @@
         </cCompilerTool>
         <ccCompilerTool>
           <developmentMode>5</developmentMode>
+          <commandLine>-mno-cygwin -s</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFX</Elem>
           </preprocessorList>
@@ -146,6 +149,7 @@
         </cCompilerTool>
         <ccCompilerTool>
           <developmentMode>5</developmentMode>
+          <commandLine>-mno-cygwin -s</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFXC</Elem>
           </preprocessorList>
@@ -182,6 +186,7 @@
       </toolsSet>
       <compileType>
         <ccCompilerTool>
+          <commandLine>-mno-cygwin -s</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFXDOC</Elem>
           </preprocessorList>
@@ -220,6 +225,7 @@
         </cCompilerTool>
         <ccCompilerTool>
           <developmentMode>5</developmentMode>
+          <commandLine>-mno-cygwin -s</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFXDOC</Elem>
           </preprocessorList>
