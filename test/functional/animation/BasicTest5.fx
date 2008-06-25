@@ -41,8 +41,8 @@ function launchIn(ms: Integer, func: function(): Void): Void {
 }
 
 function f1() {
-    t.start();
     keepalive.start();
+    t.start();
     launchIn(3000, f2);
 }
 

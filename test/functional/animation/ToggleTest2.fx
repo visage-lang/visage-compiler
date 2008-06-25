@@ -7,6 +7,8 @@
 
 import javafx.animation.*;
 import java.lang.*;
+import javax.swing.Timer;
+import java.awt.event.*;
 
 //var image:Image;
 
@@ -23,16 +25,47 @@ var t : Timeline = Timeline {
         }
 };
 
-t.toggle = false;
-System.out.println("toggle: {t.toggle}");
-t.start();
+var keepalive: Timeline = Timeline {
+    repeatCount: 100
+    keyFrames: [
+        KeyFrame {
+            time: 1000ms
+        }
+    ]
+}
 
-Thread.sleep(3000);
-t.toggle = true;
-System.out.println("toggle: {t.toggle}");
-t.start();
+function launchIn(ms: Integer, func: function(): Void): Void {
+    var timer = new Timer(ms, ActionListener {
+        public function actionPerformed(e: ActionEvent) {
+            func();
+        }
+    });
+    timer.setRepeats(false);
+    timer.start();
+}
 
-Thread.sleep(3000);
-t.start();
+function f1() {
+    keepalive.start();
+    t.toggle = false;
+    System.out.println("toggle: {t.toggle}");
+    t.start();
+    launchIn(3000, f2);
+}
 
-Thread.sleep(3000);
+function f2() {
+    t.toggle = true;
+    System.out.println("toggle: {t.toggle}");
+    t.start();
+    launchIn(3000, f3);
+}
+
+function f3() {
+    t.start();
+    launchIn(3000, f4);
+}
+
+function f4() {
+    keepalive.stop();
+}
+
+f1();
