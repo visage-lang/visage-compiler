@@ -1,16 +1,20 @@
 import java.lang.System;
 
-/**
+/*
  * @test
  * @compilefirst ../../TestUtils.fx
  * @run
+ */
+
+/**
+ *
  *
  * This set of tests is mainly within priority classes.
  * Where appropriate check associativity (order of evaluation).
  *
  * This table is Table 5.1 of Language Reference
  *
- * BUGS: 
+ * BUGS:
  * jfxc-1414: Table 5.1 - order of evaluation for *,/,% should be left to right
  * jfxc-1415: unary minus should have higher precedence than add and sub and evaluates right to left instead of left to right
  * jfxc-1416: Table 5.1 -  divide and assign is listed twice
