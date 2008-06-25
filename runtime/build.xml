@@ -73,10 +73,13 @@
     <property name="jar.excludes" value=""/>
     <property name="swing-layout.excludes" value=""/>
     
-    <target name="jar" description="Build JAR." depends="init,compile,-pre-pre-jar">
+    <target name="jar" description="Build JARs" depends="init,compile,-pre-pre-jar">
         <jar compress="${jar.compress}" destfile="${dist.jar}">
-            <fileset dir="${build.classes.dir}" excludes="${jar.excludes}"/>
+            <fileset dir="${build.classes.dir}" excludes="${jar.excludes},javafx/ext/**"/>
             <zipfileset src="${file.reference.javafxc.jar}" includes="com/sun/javafx/**,javafx/**" excludes="${javafxc.excludes}"/>
+        </jar>
+        <jar compress="${jar.compress}" destfile="${dist.ext.jar}">
+            <fileset dir="${build.classes.dir}" includes="javafx/ext/**"/>
             <zipfileset src="${file.reference.swing-layout.jar}" excludes="META-INF/**/,${swing-layout.excludes}"/>
         </jar>
         <copy file="${file.reference.scenegraph.jar}" todir="${dist.jar.dir}"/>
