@@ -40,7 +40,8 @@ public class VBox extends Group {
         layout = doVBoxLayout;
     }
 
-    private function doVBoxLayout(g:Group):Void {
+    // PENDING(shannonh) - should be private. Fix after http://openjfx.java.sun.com/jira/browse/JFXC-1421
+    public function doVBoxLayout(g:Group):Void {
         var x:Number = 0;
         var y:Number = 0;
         for (node in content) {
