@@ -81,32 +81,6 @@
         </jar>
         <copy file="${file.reference.scenegraph.jar}" todir="${dist.jar.dir}"/>
     </target>
-    
-    <target name="-javadoc-build" depends="init">
-        <mkdir dir="${dist.javadoc.dir}"/>
-        <path id="bootpath" path="${javac.classpath}"/>
-        <property name="bootjars" refid="bootpath"/>
-        <path id="clspath" path="${build.classes.dir}:${javac.test.classpath}"/>
-        <property name="clsjars" refid="clspath"/>
-        <java jar="../dist/lib/javafxdoc.jar" fork="true">
-            <arg value="-d"/>
-            <arg value="${dist.javadoc.dir}"/>
-            <arg value="-sourcepath"/>
-            <arg value="${src.classes.dir}:${compiler.src.dir}"/>
-            <arg value="-classpath"/>
-            <arg value="${clsjars}"/>
-            <classpath>
-                <path path="${build.classes.dir}:${javac.test.classpath}"/>
-            </classpath>
-            <jvmarg line="-Xbootclasspath/p:${bootjars}"/>
-            <jvmarg value="-Xmx256m"/>
-            <arg line="${javafxdoc.packages}"/>
-        </java>
-        <copy todir="${dist.javadoc.dir}" file="javadoc/draft.png"/>
-        <concat append="yes" destfile="${dist.javadoc.dir}/master.css">
-            <filelist dir="javadoc" files="draft.css"/>
-        </concat>
-    </target>
 
     <target name="-do-clean" depends="init">
         <delete dir="${build.dir}"/>
