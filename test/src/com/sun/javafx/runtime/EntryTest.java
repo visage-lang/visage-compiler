@@ -10,7 +10,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Test Entry default implementation.
+ * This originally tested that the default Entry implementation started on main.
+ * Now this tests that the runtime provider in the workspace starts up on the AWT EDT.
  * @author tball
  */
 public class EntryTest {
@@ -19,7 +20,7 @@ public class EntryTest {
         // JavaFX Script main method
         public static Object javafx$run$(Sequence<String> __ARGS__) {
             assertEquals("Test was not started on main thread", 
-                         "main", Thread.currentThread().getName());
+                         "AWT-EventQueue-0", Thread.currentThread().getName());
             return null;
         }
     }
