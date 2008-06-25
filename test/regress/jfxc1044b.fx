@@ -10,6 +10,8 @@ import javafx.animation.*;
 import javafx.lang.Duration;
 import java.lang.System;
 import java.lang.Thread;
+import javax.swing.Timer;
+import java.awt.event.*;
 
 class CLS {
     public attribute a:Number = -1;
@@ -34,38 +36,65 @@ var t: Timeline = Timeline {
     ]
 };
 
-System.out.println("starting timeline (autoReverse=false, toggle=false)");
-t.autoReverse = false;
-t.toggle = false;
-t.start();
-Thread.sleep(200);
-System.out.println("timeline finished (running={t.running})");
+function launchIn(ms: Integer, func: function(): Void): Void {
+    var timer = new Timer(ms, ActionListener {
+        public function actionPerformed(e: ActionEvent) {
+            func();
+        }
+    });
+    timer.setRepeats(false);
+    timer.start();
+}
 
-System.out.println("starting timeline (autoReverse=false, toggle=true)");
-t.toggle = true;
-t.start();
-Thread.sleep(200);
-System.out.println("timeline finished (running={t.running})");
+function f1() {
+    System.out.println("starting timeline (autoReverse=false, toggle=false)");
+    t.autoReverse = false;
+    t.toggle = false;
+    t.start();
+    launchIn(200, f2);
+}
 
-System.out.println("starting timeline (autoReverse=false, toggle=true)");
-t.start();
-Thread.sleep(200);
-System.out.println("timeline finished (running={t.running})");
+function f2() {
+    System.out.println("timeline finished (running={t.running})");
+    System.out.println("starting timeline (autoReverse=false, toggle=true)");
+    t.toggle = true;
+    t.start();
+    launchIn(200, f3);
+}
 
-System.out.println("starting timeline (autoReverse=true, toggle=false)");
-t.autoReverse = true;
-t.toggle = false;
-t.start();
-Thread.sleep(200);
-System.out.println("timeline finished (running={t.running})");
+function f3() {
+    System.out.println("timeline finished (running={t.running})");
+    System.out.println("starting timeline (autoReverse=false, toggle=true)");
+    t.start();
+    launchIn(200, f4);
+}
 
-System.out.println("starting timeline (autoReverse=true, toggle=true)");
-t.toggle = true;
-t.start();
-Thread.sleep(200);
-System.out.println("timeline finished (running={t.running})");
+function f4() {
+    System.out.println("timeline finished (running={t.running})");
+    System.out.println("starting timeline (autoReverse=true, toggle=false)");
+    t.autoReverse = true;
+    t.toggle = false;
+    t.start();
+    launchIn(200, f5);
+}
 
-System.out.println("starting timeline (autoReverse=true, toggle=true)");
-t.start();
-Thread.sleep(200);
-System.out.println("timeline finished (running={t.running})");
+function f5() {
+    System.out.println("timeline finished (running={t.running})");
+    System.out.println("starting timeline (autoReverse=true, toggle=true)");
+    t.toggle = true;
+    t.start();
+    launchIn(200, f6);
+}
+
+function f6() {
+    System.out.println("timeline finished (running={t.running})");
+    System.out.println("starting timeline (autoReverse=true, toggle=true)");
+    t.start();
+    launchIn(200, f7);
+}
+
+function f7() {
+    System.out.println("timeline finished (running={t.running})");
+}
+
+f1();
