@@ -39,6 +39,7 @@ import javafx.scene.geometry.MoveTo;
 import javafx.scene.geometry.CurveTo;
 import javafx.scene.geometry.ClosePath;
 import javafx.scene.geometry.Ellipse;
+import javafx.util.StringLocalizer;
 import java.lang.System;
 import java.lang.Math;
 import java.awt.event.ActionListener;
@@ -227,7 +228,7 @@ class BallsTest {
     attribute fpsListener:ActionListener = ActionListener {
         public function actionPerformed(evt:ActionEvent): Void {
             if (_is_running) {
-                fps = "{Math.round( 1000*_frames/(System.currentTimeMillis() - _startTime) )} fps";
+                fps = ##"{Math.round( 1000*_frames/(System.currentTimeMillis() - _startTime) )} fps";
                 _frames = 0;
                 _startTime = System.currentTimeMillis();
             } else {
@@ -250,7 +251,7 @@ class BallsTest {
         _frames = _frames + 1;
     };
 
-    attribute fps:String = "-- fps";
+    attribute fps:String = ##"-- fps";
     
     function start(): Void {
         timer.start();
@@ -262,16 +263,18 @@ class BallsTest {
             _is_running = false;
             timer.stop();
             fpsTimer.stop();
-            fps = "-- fps";
+            fps = ##"-- fps";
         }
     }
 }
+
+StringLocalizer.associate("javafxballs.resources.JavaFXBalls", "javafxballs");
 
 var test = new BallsTest();
 
 /*
 var win = Frame {
-        title: "JavaFX Balls"
+        title: ##"JavaFX Balls"
         width: 510
         height: 366
         content: BorderPanel {
@@ -286,7 +289,7 @@ var win = Frame {
                             x: 4
                             y: 4
                             content: bind test.fps
-                            font: Font {faceName: "Arial", size: 14}
+                            font: Font {faceName: ##"Arial", size: 14}
                         },
                         Group {
                             // content: bind for (b in test.balls) (b.img as java.lang.Object) as Node
@@ -299,13 +302,13 @@ var win = Frame {
                 alignment: Alignment.LEADING
                 content: [
                     Button{
-                        text: bind if (not test._is_running) then "Start" else "Stop"
+                        text: bind if (not test._is_running) then ##"Start" else ##"Stop"
                         action: function() {
                             test._is_running = not test._is_running;
                         }
                     },
                     Label {
-                        text: "# of balls:"
+                        text: ##"# of balls:"
                     }, 
                     Spinner {
                       min: 2
@@ -331,24 +334,24 @@ var tg2 = ToggleGroup {}
 
 var win = Frame {
             closeAction: function() {System.exit(0);}
-            title: "JavaFX Balls"
+            title: ##"JavaFX Balls"
           visible: true
         resizable: false
         menus: [
-            Menu {text: "File"
-                  items: [MenuItem {text: "Exit" action: function() {System.exit(0);}}]
+            Menu {text: ##"File"
+                  items: [MenuItem {text: ##"Exit" action: function() {System.exit(0);}}]
                  },
-            Menu {text: "Options"
+            Menu {text: ##"Options"
                   items: [
-                             Menu {text: "Ball Count" items: [
-                                                    RadioButtonMenuItem {text: "1 ball" toggleGroup: tg action: function() {test._N = 1;}},
-                                                    RadioButtonMenuItem {text: "10 balls" toggleGroup: tg action: function() {test._N = 10;}},
-                                                    RadioButtonMenuItem {text: "16 balls" selected: true toggleGroup: tg action: function() {test._N = 16;}},
-                                                    RadioButtonMenuItem {text: "32 balls" toggleGroup: tg action: function() {test._N = 32;}},
-                                                    RadioButtonMenuItem {text: "100 balls" toggleGroup: tg action: function() {test._N = 100;}}]},
-                             Menu {text: "Ball Painting" items: [
-                                                    RadioButtonMenuItem {text: "Image Rendering" selected: true toggleGroup: tg2 action: function() {test.imageBalls = true;}},
-                                                    RadioButtonMenuItem {text: "2D Rendering" toggleGroup: tg2 action: function() {test.imageBalls = false;}}]}
+                             Menu {text: ##"Ball Count" items: [
+                                                    RadioButtonMenuItem {text: ##"1 ball" toggleGroup: tg action: function() {test._N = 1;}},
+                                                    RadioButtonMenuItem {text: ##"10 balls" toggleGroup: tg action: function() {test._N = 10;}},
+                                                    RadioButtonMenuItem {text: ##"16 balls" selected: true toggleGroup: tg action: function() {test._N = 16;}},
+                                                    RadioButtonMenuItem {text: ##"32 balls" toggleGroup: tg action: function() {test._N = 32;}},
+                                                    RadioButtonMenuItem {text: ##"100 balls" toggleGroup: tg action: function() {test._N = 100;}}]},
+                             Menu {text: ##"Ball Painting" items: [
+                                                    RadioButtonMenuItem {text: ##"Image Rendering" selected: true toggleGroup: tg2 action: function() {test.imageBalls = true;}},
+                                                    RadioButtonMenuItem {text: ##"2D Rendering" toggleGroup: tg2 action: function() {test.imageBalls = false;}}]}
 
                          ]
                  }
@@ -371,10 +374,10 @@ var win = Frame {
                     textOrigin: TextOrigin.TOP
                     content: bind test.fps
                     fill: Color {red: 0.5 green: 0.5 blue: 0.5}
-                    font: Font {name: "Arial", style: FontStyle.BOLD size: 14}
+                    font: Font {name: ##"Arial", style: FontStyle.BOLD size: 14}
                 }]}
               bottom: FlowPanel {content: Button{
-                        text: bind if (not test._is_running) then "Start" else "Stop"
+                        text: bind if (not test._is_running) then ##"Start" else ##"Stop"
                         action: function() {
                             test._is_running = not test._is_running;
                         }
