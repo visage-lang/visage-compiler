@@ -23,8 +23,11 @@
 
 package guitar;
 
-import javafx.gui.*;
-import javafx.gui.swing.*;
+import javafx.scene.*;
+import javafx.scene.transform.*;
+import javafx.scene.image.*;
+import javafx.input.*;
+import javafx.ext.swing.*;
 import java.lang.Math;
 import java.lang.System;
 import java.net.URL;
