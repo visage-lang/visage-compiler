@@ -4,7 +4,6 @@
 
     <property name="tools.dir" value="${basedir}/tools"/>
     <property name="runtime.dir" value="${basedir}/runtime"/>
-    <property name="javafxgui.dir" value="${basedir}/javafxgui"/>
     <property name="javafxdoc.dir" value="${basedir}/javafxdoc"/>
     <property name="launcher.dir" value="${basedir}/launcher"/>
     <property environment="env" />
@@ -14,10 +13,10 @@
 
     <import file="nbproject/build-impl.xml"/>
 
-    <target name="default" depends="jar,runtime,javafxgui,javafxdoc,launcher"
+    <target name="default" depends="jar,runtime,javafxdoc,launcher"
             description="Build javafxc compiler and runtime distribution"/>
 
-    <target name="all" depends="jar, runtime, javafxgui, javafxdoc, launcher, source-zip, test, spec, docs, pack-jars, demos"
+    <target name="all" depends="jar, runtime, javafxdoc, launcher, source-zip, test, spec, docs, pack-jars, demos"
             description="Build and test all project artifacts"/>
             
     <target name="dist" description="Build distribution bundles" depends="dist-init,dist-zip,dist-tgz"/>
@@ -222,13 +221,13 @@
     </target>
     <target name="-pre-compile" depends="generated-java, -def-pcompile"/>
     <target name="-post-compile" depends="compile-runtime-fx" />
-    <target depends="init,javafxdoc,runtime,javafxgui" name="-javadoc-build">
+    <target depends="init,javafxdoc,runtime" name="-javadoc-build">
         <mkdir dir="${dist.javadoc.dir}"/>
         <path id="bootpath" path="${javac.classpath}"/>
         <property name="bootjars" refid="bootpath"/>
-        <path id="clspath" path="build/classes:runtime/build/classes:javafxgui/build/classes:${javac.test.classpath}:javafxgui/lib/jmc.jar"/>
+        <path id="clspath" path="build/classes:runtime/build/classes:${javac.test.classpath}"/>
         <property name="clsjars" refid="clspath"/>
-        <path id="srcpath" path="src/share/classes:runtime/src/share/classes:javafxgui/src"/>
+        <path id="srcpath" path="src/share/classes:runtime/src/share/classes"/>
         <property name="srcpathprop" refid="srcpath"/>
         <copy todir="${dist.javafxdoc.dir}">
             <fileset dir="${basedir}/javadoc-files" includes="draft.*"/>
@@ -339,7 +338,7 @@
 
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
-    <target name="-post-clean" depends="runtime-clean,javafxgui-clean,javafxdoc-clean,spec-clean,launcher-clean">
+    <target name="-post-clean" depends="runtime-clean,javafxdoc-clean,spec-clean,launcher-clean">
         <!-- Delete ANTLR-generated files -->
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v3*.*" excludes="**/v3.g **/v3Walker.g"/>
         <delete dir="${syntax.diagrams.dir}" />
@@ -418,16 +417,6 @@
         </ant>
     </target>
 
-    <target name="javafxgui" depends="jar">
-        <ant dir="${javafxgui.dir}" antfile="build.xml" target="jar" inheritall="false">
-            <property name="tools.dir" value="${tools.dir}"/>
-            <propertyset>
-                <propertyref regex="^.*\.class\.path$$"/>
-            </propertyset>
-            <property name="dist.dir" value="../dist/lib"/>
-        </ant>
-    </target>
-    
     <target name="javafxdoc" depends="jar">
         <ant dir="${javafxdoc.dir}" antfile="build.xml" target="jar" inheritall="false"/>
     </target>
@@ -452,7 +441,7 @@
         </copy>       
     </target>
     
-    <target name="demos" depends="jar,runtime,javafxgui">
+    <target name="demos" depends="jar,runtime">
         <ant antfile="demos/build.xml" target="all" inheritall="false" />
         <copy todir="dist/demos">
             <fileset dir="demos" excludes="StudioMoto/**,**/build/,**/dist/,**/lib/"/>
@@ -466,10 +455,6 @@
     
     <target name="runtime-clean" >
         <ant dir="${runtime.dir}" antfile="build.xml" target="clean" inheritall="false" />
-    </target>
-    
-    <target name="javafxgui-clean" >
-        <ant dir="${javafxgui.dir}" antfile="build.xml" target="clean" inheritall="false" />
     </target>
     
     <target name="javafxdoc-clean">
@@ -539,7 +524,7 @@
         </copy>
     </target>
     
-    <target name="runtime-no-ui" depends="jar,javafxgui">
+    <target name="runtime-no-ui" depends="jar">
         <ant dir="${runtime.dir}" antfile="build.xml" target="jar" inheritall="false">
             <property name="tools.dir" value="${tools.dir}"/>
             <propertyset>
@@ -552,20 +537,19 @@
         </ant>
     </target>
     
-    <target name="pack-jars" depends="runtime,javafxgui">
+    <target name="pack-jars" depends="runtime">
         <taskdef name="pack200" classpath="${file.reference.pack200task.jar}"
                  classname="com.sun.tools.apache.ant.pack200.Pack200Task"/>
         <pack200 src="${dist.jar}" gzipoutput="true" destfile='${dist.jar}.pack.gz'/>
         <pack200 src="${dist.javafxrt.jar}" gzipoutput="true" destfile='${dist.javafxrt.jar}.pack.gz'/>
-        <pack200 src="${dist.javafxgui.jar}" gzipoutput="true" destfile='${dist.javafxgui.jar}.pack.gz'/>
         <pack200 src="${dist.dir}/lib/Scenario.jar" gzipoutput="true" destfile='${dist.dir}/lib/Scenario.jar.pack.gz'/>
+        <pack200 src="${dist.dir}/lib/jmc.jar" gzipoutput="true" destfile='${dist.dir}/lib/jmc.jar.pack.gz'/>
     </target>
     
     <target name="source-zip" depends="init">
         <zip destfile="${dist.dir}/src.zip">
             <zipfileset dir="${src.classes.dir}"/>
             <zipfileset dir="runtime/src/share/classes"/>
-            <zipfileset dir="javafxgui/src"/>
             <zipfileset dir="javafxdoc/src"/>
         </zip>
     </target>
