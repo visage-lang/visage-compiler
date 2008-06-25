@@ -106,7 +106,7 @@ void Configuration::init() {
 
     // set default classpath-libraries for javafx
     if (javafx_classpath_libs.empty()) {
-        javafx_classpath_libs = "javafxgui.jar;javafxrt.jar;Scenario.jar;Decora-HW.jar;Decora-D3D.jar;jmc.jar";
+        javafx_classpath_libs = "javafxrt.jar;Scenario.jar;Decora-HW.jar;Decora-D3D.jar;jmc.jar";
     }
     
     // set default bootclass-libraries for javafxc
@@ -116,7 +116,7 @@ void Configuration::init() {
     
     // set default classpath-libraries for javafxc
     if (javafxc_classpath_libs.empty()) {
-        javafxc_classpath_libs = "javafxgui.jar;Scenario.jar;jmc.jar";
+        javafxc_classpath_libs = "Scenario.jar;jmc.jar";
     }
     
     // set default bootclass-libraries for javafxdoc

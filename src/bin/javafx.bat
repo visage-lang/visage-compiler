@@ -41,7 +41,7 @@ shift
 goto jvmoptsLoop
 
 :jvmoptsDone
-set _CLASSPATH=%_JAVAFX_LIBS%\javafxgui.jar;%_JAVAFX_LIBS%\javafxrt.jar;%_JAVAFX_LIBS%\@SCENEGRAPH_JAR@;%_JAVAFX_LIBS%\Decora-HW.jar;%_JAVAFX_LIBS%\Decora-D3D.jar;%_JAVAFX_LIBS%\jmc.jar;%_CP_%
+set _CLASSPATH=%_JAVAFX_LIBS%\javafxrt.jar;%_JAVAFX_LIBS%\@SCENEGRAPH_JAR@;%_JAVAFX_LIBS%\Decora-HW.jar;%_JAVAFX_LIBS%\Decora-D3D.jar;%_JAVAFX_LIBS%\jmc.jar;%_CP_%
 set _CP_=
 set _VAL=
 set _CMP=

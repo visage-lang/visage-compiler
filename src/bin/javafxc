@@ -60,7 +60,7 @@ if [ -z "$CLASSPATH" ] ; then
 else
   USER_CP="$CLASSPATH"
 fi 
-classpath="$HOME/javafxgui.jar:$HOME/@SCENEGRAPH_JAR@:$HOME/jmc.jar:$USER_CP"
+classpath="$HOME/@SCENEGRAPH_JAR@:$HOME/jmc.jar:$USER_CP"
 
 args=""
 jargs=""

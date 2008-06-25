@@ -34,7 +34,7 @@ public class AssortisApplet extends JApplet {
         System.out.println("[applet] lib url: '{javafxLibURL}'");
         System.out.println("[applet] app url: '{assortisLibURL}'");
         
-        var urls = for(lib in ["javafxc","javafxrt","javafxgui","Scenario"]) new java.net.URL("{javafxLibURL}/lib/{lib}.jar");
+        var urls = for(lib in ["javafxc","javafxrt","Scenario"]) new java.net.URL("{javafxLibURL}/lib/{lib}.jar");
         
         insert new java.net.URL("{assortisLibURL}/dist/Assortis.jar") into urls;
         

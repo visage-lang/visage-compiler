@@ -45,7 +45,7 @@ public class GenerateTest {
                 nerrors++;
             }
         }, Arrays.asList ("-target", "1.5", "-d", outputDir, "-cp",
-            javafxLibs + DIR + "javafxc.jar" + SEP + javafxLibs + DIR + "javafxrt.jar" + SEP + javafxLibs + DIR + "javafxgui.jar" + SEP + javafxLibs + DIR + "Scenario.jar" + SEP + inputDir
+            javafxLibs + DIR + "javafxc.jar" + SEP + javafxLibs + DIR + "javafxrt.jar" + SEP + javafxLibs + DIR + "Scenario.jar" + SEP + inputDir
         ), filesToCompile);
 
         Iterable parseUnits = task.parse();
