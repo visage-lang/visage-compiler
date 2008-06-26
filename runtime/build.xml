@@ -81,6 +81,7 @@
         </jar>
         <jar compress="${jar.compress}" destfile="${dist.gui.jar}">
             <fileset dir="${build.classes.dir}" includes="${javafxgui.includes}"/>
+            <zipfileset src="${file.reference.swing-layout.jar}" excludes="META-INF/**/,${swing-layout.excludes}"/>
         </jar>
         <jar compress="${jar.compress}" destfile="${dist.ext.jar}">
             <fileset dir="${build.classes.dir}" includes="javafx/ext/**"/>
