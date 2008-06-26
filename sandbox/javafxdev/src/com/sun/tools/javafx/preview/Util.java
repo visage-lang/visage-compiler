@@ -1,30 +1,18 @@
 package com.sun.tools.javafx.preview;
 
-import com.sun.javafx.api.JavafxcTask;
 import com.sun.javafx.runtime.Entry;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 
-import com.sun.tools.javafx.api.JavafxcTool;
-import com.sun.tools.javafx.script.MemoryFileManager;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticListener;
-import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 
 
@@ -50,6 +38,11 @@ public class Util {
         return readResource(cls.getResourceAsStream(resource));
     }
 
+    
+    public static String readResource(File resource) throws Exception {
+        return readResource(new FileInputStream(resource));
+    }
+    
     public static String readResource(InputStream is) throws Exception {
         StringBuffer contents = new StringBuffer();
         if (is != null) {
@@ -61,6 +54,7 @@ public class Util {
                 contents.append(System.getProperty("line.separator"));
             }
         }
+        System.out.println("content: " + contents);
         return contents.toString();
     }
 
@@ -85,6 +79,12 @@ public class Util {
         return CodeManager.execute("Preview", code, Locale.getDefault().getDisplayName(), "");
     }
 
+    public static Object executeFXFile(String file) throws Exception {
+        System.out.println("execute fx file: " + file);
+        return executeFXCode(readResource(new File(file)));
+    }
+    
+    
     public static Object executeFXCode(String className, String code, String localeName, String propertyText) throws Exception {
         return CodeManager.execute(className, code, localeName, propertyText);
     }
