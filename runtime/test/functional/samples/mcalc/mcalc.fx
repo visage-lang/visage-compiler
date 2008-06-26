@@ -7,14 +7,17 @@ import java.lang.System;
 /**
  * @test
  *
- * Sample of various ui element bindings.
+ * Sample of various ui element bindings; this has no animations, but it's useful.
  * A mortgage and amortization calculator. 
  * Some functionality does not fully work due to apparent bugs in javfx.ui.
  *
+ * Below bug seems to be fixed! 
  * BUG: Down Payment % does not cause ui updates. This works with javafx.gui libraries but not with javafx.ui
  * Same bug shows up on page 2 with the yearly interest, but javafx.gui has no table support so I can't complete
  * this application with javafx.gui.
  * See mcalc_bug for simple repeatable version of bug.
+ *
+ * 6/05/08 - Added a page3 with saved loans. It would be nice to have a table that can be sorted.
  */
 
 /** 
@@ -106,6 +109,8 @@ var assessedTextField = TextField{background: Color.WHITE columns:8 value: bind 
 //row7
 var monthlyPandILabel = SimpleLabel{font: font2 text:"Monthly P&I $"};
 var monthlyPandITextField = TextField{background: Color.YELLOW columns:8 editable: false value: bind formatNumber(MonthlyPI,1,2)};
+var SaveButton = Button{text:"Save" action: function(){saveThisMortgage();} };
+var ViewSavedButton = Button{text:"View Saved" action: function(){	currentPage = 2} };
 //row8
 var monthlyRETaxLabel = SimpleLabel{font: font2 text:"Monthly R.E.Tax $"};
 var monthlyRETaxTextField = TextField{background: Color.YELLOW columns:6 editable: false value: bind formatNumber(RETax,1,2)};
@@ -133,7 +138,7 @@ var Page1Row3  = FlowPanel {alignment: Alignment{name:"left"} content: [purchase
 var Page1Row4  = FlowPanel {alignment: Alignment{name:"left"} content: [downPaymentLabel,downPercentTextField,downAmountTextField]};
 var Page1Row5  = FlowPanel {alignment: Alignment{name:"left"} content: [principleLabel,principleTextField]};
 var Page1Row6  = FlowPanel {alignment: Alignment{name:"left"} content: [propTaxLabel,propTaxTextField,assessedLabel,assessedTextField]};
-var Page1Row7  = FlowPanel {alignment: Alignment{name:"left"} content: [monthlyPandILabel,monthlyPandITextField]};
+var Page1Row7  = FlowPanel {alignment: Alignment{name:"left"} content: [monthlyPandILabel,monthlyPandITextField,SaveButton,ViewSavedButton]};
 var Page1Row8  = FlowPanel {alignment: Alignment{name:"left"} content: [monthlyRETaxLabel,monthlyRETaxTextField]};
 var Page1Row9  = FlowPanel {alignment: Alignment{name:"left"} content: [yearlyInsuranceLabel,yearlyInsuranceTextField]};
 var Page1Row10 = FlowPanel {alignment: Alignment{name:"left"} content: [MonthlyPaymentLabel,MonthlyPaymentTextField]};
@@ -149,6 +154,45 @@ var Page1 = GridPanel {
 /** 
  * Amortization Page 
  */
+
+/**
+ * Data structure to hold saved mortagages
+ *
+ */
+ class amortgage {
+   attribute tempTerm = "30";
+	attribute tempIRate = "0.0";
+	attribute tempPurchasePrice = "0";
+	attribute tempDownPercent = "0.0";
+	attribute tempPrinciple = 0;
+	attribute tempMonthlyPI = 0.0;
+	function compareTo(m:amortgage):Boolean {
+		 var isSame=false;
+		 if(tempTerm.compareTo(m.tempTerm)==0 and 
+			 tempIRate.compareTo(m.tempIRate)==0 and
+			 tempPurchasePrice.compareTo(m.tempPurchasePrice)==0 and
+			 tempDownPercent.compareTo(m.tempDownPercent)==0){ isSame=true; }
+			return isSame;
+	}
+}
+var savedMortgages:amortgage[];
+function saveThisMortgage() {
+	var tempMortgage = amortgage {
+		 tempTerm:Term;
+		 tempIRate:InterestRate;
+		 tempPurchasePrice:PurchasePrice;
+		 tempDownPercent:DownPercent;
+		 tempPrinciple:Principle;
+		 tempMonthlyPI:MonthlyPI;
+	}
+	var isSaved = false;
+	for(M in savedMortgages) {
+	  if( M.compareTo(tempMortgage) ) { isSaved = true; }
+	}
+	if( isSaved != true) { 	insert tempMortgage into savedMortgages; }
+	else { System.out.println("Mortgage is already saved."); }
+}
+
 
 /**
  * Data structure for basic row unit in the amortization table
@@ -280,6 +324,14 @@ var mortgageSummary = GridPanel {
 	cells: [Page2Row1,Page2Row2,Page2Row3,Page2Row4,Page2Row5,Page2Row6,Page2Row7,Page2Row8,Page2Row9]
 };
 
+//  0, 1, 2, 3, 4   5, 6, 7, 8, 9 
+// 10,11,12,13,14  15,16,17,18,19
+// 20,21,22,23,24  25,26,27,28,29
+
+/** A way to alternate row colors on the amortization table*/
+var CCnt = 0;  
+function getTCbg():Color { if (CCnt++ % 10 < 5) {return Color.WHITE;} return Color.WHITESMOKE;}
+
 /** Page2 has mortgage summary and amortization table */
 var Page2 = BorderPanel {
    top: mortgageSummary
@@ -292,18 +344,57 @@ var Page2 = BorderPanel {
 		TableColumn{alignment: HorizontalAlignment.CENTER width: 48 text:"Balance"}
 		]
 		cells: bind for (arow in atable) [
-		TableCell{background: Color.WHITESMOKE text: bind (arow.month).toString()  },
-		TableCell{background: Color.WHITESMOKE text: bind formatNumber((arow.payment as Integer),1,0)  },
-		TableCell{background: Color.WHITESMOKE text: bind formatNumber((arow.principle as Integer),1,0)},
-		TableCell{background: Color.WHITESMOKE text: bind formatNumber((arow.interest as Integer),1,0) },
-		TableCell{background: Color.WHITESMOKE text: bind formatNumber((arow.balance as Integer),1,0)  }
+		TableCell{background: getTCbg() text: bind (arow.month).toString()  },
+		TableCell{background: getTCbg() text: bind formatNumber((arow.payment as Integer),1,0)  },
+		TableCell{background: getTCbg() text: bind formatNumber((arow.principle as Integer),1,0)},
+		TableCell{background: getTCbg() text: bind formatNumber((arow.interest as Integer),1,0) },
+		TableCell{background: getTCbg() text: bind formatNumber((arow.balance as Integer),1,0)  }
 		]
 		}
 }
 
+var saveLoansLabel = SimpleLabel{text: "Save Loans" font: font1 };
+var Page3Row1 = FlowPanel {content: saveLoansLabel};
+var loansSummary = GridPanel {
+	background: Color.LIGHTGREEN
+	rows: 1 
+	columns: 1 
+	cells: [Page3Row1]
+};
+
+
+var Page3 = BorderPanel {
+   top: loansSummary
+	center:  table = Table {
+		columns: [
+		TableColumn{alignment: HorizontalAlignment.CENTER width: 24 text:"Term"},
+		TableColumn{alignment: HorizontalAlignment.CENTER width: 24 text:"IntRate"},
+		TableColumn{alignment: HorizontalAlignment.CENTER width: 32 text:"PurchasePrice"},
+		TableColumn{alignment: HorizontalAlignment.CENTER width: 24 text:"DownPercent"},
+		TableColumn{alignment: HorizontalAlignment.CENTER width: 32 text:"Principle"},
+		TableColumn{alignment: HorizontalAlignment.CENTER width: 48 text:"Monthly P&I"}
+		]
+		cells: bind for (arow in savedMortgages) [
+		TableCell{background: getTCbg() text: bind (arow.tempTerm)  },
+		TableCell{background: getTCbg() text: bind (arow.tempIRate)  },
+		TableCell{background: getTCbg() text: bind formatNumber((INT.parseInt(arow.tempPurchasePrice)),1,0)},
+		TableCell{background: getTCbg() text: bind (arow.tempDownPercent) },
+		TableCell{background: getTCbg() text: bind formatNumber((arow.tempPrinciple as Integer),1,0)  },
+		TableCell{background: getTCbg() text: bind formatNumber((arow.tempMonthlyPI as Integer),1,0) }
+		]
+		}
+	bottom: FlowPanel {
+		background: Color.LIGHTGREEN
+	    alignment: Alignment{name:"center"}
+       content: [ Button{font: font2 text:"Back" action: function(){currentPage = 0; }},
+						Button{font: font2 text:"Exit" action: function(){java.lang.System.exit(0);}} ]
+	}
+}
+
+
 /** CardPanel and Application Frame */
 var cardPanel = CardPanel {
-    cards: [Page1,Page2]
+    cards: [Page1,Page2,Page3]
     selection: bind currentPage
 };
 

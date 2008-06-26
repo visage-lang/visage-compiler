@@ -55,7 +55,7 @@ classpath="$USER_CP"
 # Jars with classes already defined in the JDK's tools.jar file need to be put
 # on the bootclasspath, along with any classes they reference, due to those
 # classes being on the bootclasspath with Mac OS X Java distributions.
-bootclasspath="$JFX_HOME/javafxrt.jar:$JFX_HOME/@SCENEGRAPH_JAR@:$JFX_HOME/Decora-HW.jar:$JFX_HOME/Decora-D3D.jar:$JFX_HOME/jmc.jar"
+bootclasspath="$JFX_HOME/javafxrt.jar:$HOME/javafxgui.jar:$HOME/javafx-swing.jar:$JFX_HOME/@SCENEGRAPH_JAR@:$JFX_HOME/Decora-HW.jar:$JFX_HOME/Decora-D3D.jar:$JFX_HOME/jmc.jar"
 nativelibpath="$JFX_HOME"
 
 args=""

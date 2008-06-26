@@ -75,12 +75,15 @@
     
     <target name="jar" description="Build JARs" depends="init,compile,-pre-pre-jar">
         <jar compress="${jar.compress}" destfile="${dist.jar}">
-            <fileset dir="${build.classes.dir}" excludes="${jar.excludes},javafx/ext/**"/>
-            <zipfileset src="${file.reference.javafxc.jar}" includes="com/sun/javafx/**,javafx/**" excludes="${javafxc.excludes}"/>
+            <fileset dir="${build.classes.dir}" includes="${javafxrt.includes}"/>
+            <zipfileset src="${file.reference.javafxc.jar}" includes="com/sun/javafx/**,javafx/**" 
+                        excludes="com/sun/javafx/api/**,${javafxc.excludes}"/>
+        </jar>
+        <jar compress="${jar.compress}" destfile="${dist.gui.jar}">
+            <fileset dir="${build.classes.dir}" includes="${javafxgui.includes}"/>
         </jar>
         <jar compress="${jar.compress}" destfile="${dist.ext.jar}">
             <fileset dir="${build.classes.dir}" includes="javafx/ext/**"/>
-            <zipfileset src="${file.reference.swing-layout.jar}" excludes="META-INF/**/,${swing-layout.excludes}"/>
         </jar>
         <copy file="${file.reference.scenegraph.jar}" todir="${dist.jar.dir}"/>
         <copy file="${file.reference.jmc.jar}" todir="${dist.jar.dir}"/>
