@@ -49,7 +49,7 @@ public class Panel extends AbstractPanel {
         for (component in newSlice) {
             var rootj = component.getRootJComponent();
             var oldidx = indexOfJComponentInJPanel(rootj, jPanel);
-            if (oldidx <> -1 and oldidx < index) {
+            if (oldidx != -1 and oldidx < index) {
                 jPanel.add(rootj, index - 1);
             } else {
                 jPanel.add(rootj, index++);
@@ -71,7 +71,7 @@ public class Panel extends AbstractPanel {
         var jPanel = getJPanel();
         var fromJPanel = for (i in [0..<jPanel.getComponentCount()],
                               j in [Component.getComponentFor(jPanel.getComponent(i) as JComponent)]
-                              where j <> null) j as Component;
+                              where j != null) j as Component;
 
         if (not Sequences.isEqualByContentIdentity(content, fromJPanel)) {
             // PENDING(shannonh) - want to do this without firing the trigger

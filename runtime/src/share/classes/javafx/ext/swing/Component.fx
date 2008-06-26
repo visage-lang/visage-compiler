@@ -270,11 +270,11 @@ public abstract class Component extends ClusterElement {
 
                 var p = getRootJComponent().getLocation();
 
-                if (x <> p.x) {
+                if (x != p.x) {
                     x = p.x;
                 }
 
-                if (y <> p.y) {
+                if (y != p.y) {
                     y = p.y;
                 }
             }
@@ -286,11 +286,11 @@ public abstract class Component extends ClusterElement {
 
                 var d = getRootJComponent().getSize();
 
-                if (width <> d.width) {
+                if (width != d.width) {
                     width = d.width;
                 }
 
-                if (height <> d.height) {
+                if (height != d.height) {
                     height = d.height;
                 }
             }
@@ -379,7 +379,7 @@ public abstract class Component extends ClusterElement {
         }
 
         var comp = getComponentFor(jComponent);
-        if (comp <> null) {
+        if (comp != null) {
             return comp;
         }
 

@@ -38,7 +38,7 @@ public class ComponentView extends Node {
     function getSGComponent():SGComponent { impl_getSGNode() as SGComponent }
 
     public attribute component:Component on replace {
-        if (component <> null) {
+        if (component != null) {
             getSGComponent().setComponent(component.getRootJComponent());
         } else {
             getSGComponent().setComponent(null);

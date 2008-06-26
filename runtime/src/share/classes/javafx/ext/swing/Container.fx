@@ -87,7 +87,7 @@ public abstract class Container {
             return;
         }
 
-        if (component.parent <> null) {
+        if (component.parent != null) {
             component.parent.remove(component);
         }
 

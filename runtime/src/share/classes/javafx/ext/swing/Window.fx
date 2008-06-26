@@ -79,13 +79,13 @@ public class Window extends Container {
      * This {@code Window's} content.
      */
     public attribute content: Component = null on replace oldContent {
-        if (oldContent <> null) {
+        if (oldContent != null) {
             unparentFromThisContainer(oldContent);
         }
 
         parentToThisContainer(content);
 
-        if (content <> null) {
+        if (content != null) {
             getRootPaneContainer().setContentPane(content.getRootJComponent());
         } else {
             getRootPaneContainer().setContentPane(new JPanel());
@@ -165,7 +165,7 @@ public class Window extends Container {
             w.setSize(width, height);
 
             if (not w.isLocationByPlatform() and (w.getX() == 0) and (w.getY() == 0)) {
-                w.setLocationRelativeTo(if (owner <> null) owner.window else null);
+                w.setLocationRelativeTo(if (owner != null) owner.window else null);
             }
         }
 
@@ -204,11 +204,11 @@ public class Window extends Container {
             public function componentMoved(e:ComponentEvent): Void {
                 var p = window.getLocation();
 
-                if (x <> p.x) {
+                if (x != p.x) {
                     x = p.x;
                 }
 
-                if (y <> p.y) {
+                if (y != p.y) {
                     y = p.y;
                 }
             }
@@ -216,11 +216,11 @@ public class Window extends Container {
             public function componentResized(e:ComponentEvent): Void {
                 var d = window.getSize();
 
-                if (width <> d.width) {
+                if (width != d.width) {
                     width = d.width;
                 }
 
-                if (height <> d.height) {
+                if (height != d.height) {
                     height = d.height;
                 }
             }
@@ -284,7 +284,7 @@ public class Window extends Container {
      * Creates the {@link java.awt.Window} delegate for this component.
      */
     function createWindow(): java.awt.Window {
-        if (owner <> null) {
+        if (owner != null) {
             new JWindow(owner.window)
         } else {
             new JWindow();

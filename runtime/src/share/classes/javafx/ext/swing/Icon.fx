@@ -49,7 +49,7 @@ public class Icon {
      * Defines the {@link Image} to be painted by this {@code Icon}. 
      */
     public attribute image:Image = null on replace {
-        toolkitIcon = if (image <> null) new ImageIcon(image.getBufferedImage()) else null;
+        toolkitIcon = if (image != null) new ImageIcon(image.getBufferedImage()) else null;
     }
     
     function getImage(): java.awt.Image  {

@@ -99,7 +99,7 @@ public class Canvas extends Component {
         }
         if (root instanceof Group) {
             var group:Group = root as Group;
-            if (group.layout <> null) {
+            if (group.layout != null) {
                 group.layout(group); 
             }
             for (child in group.content) {

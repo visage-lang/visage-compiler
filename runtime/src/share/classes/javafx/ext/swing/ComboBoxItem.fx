@@ -37,7 +37,7 @@ public class ComboBoxItem {
      * Defines a string of a {@code ComboBoxItem}.
      */    
     public attribute text: String on replace {
-        if (combo <> null) {
+        if (combo != null) {
             combo.fireContentsChanged(this);
         }
     }
@@ -47,7 +47,7 @@ public class ComboBoxItem {
      * Defines whether a combobox item is selected or not.
      */ 
     public attribute selected: Boolean on replace {
-        if (combo <> null) {
+        if (combo != null) {
             if (selected) {
                 combo.selectedItem = this;
             } else if (FX.isSameObject(combo.selectedItem, this)) {

@@ -38,7 +38,7 @@ public class ListItem {
      * If the value of text is null or empty string, nothing is displayed.
      */
     public attribute text: String on replace {
-        if (list <> null) {
+        if (list != null) {
             list.fireContentsChanged(this);
         }
     }
@@ -48,7 +48,7 @@ public class ListItem {
      * Defines whether this {@code ListItem} is selected.
      */
     public attribute selected: Boolean on replace {
-        if (list <> null) {
+        if (list != null) {
             if (selected) {
                 list.selectedItem = this;
             } else if (FX.isSameObject(list.selectedItem, this)) {

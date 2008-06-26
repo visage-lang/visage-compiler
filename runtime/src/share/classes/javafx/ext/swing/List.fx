@@ -78,7 +78,7 @@ public class List extends ScrollableComponent {
             }
 
             for (item in newSlice) {
-                if (item.list <> null) {
+                if (item.list != null) {
                     delete item from item.list.items;
                 }
                 item.list = this;
@@ -119,11 +119,11 @@ public class List extends ScrollableComponent {
      * the smallest selected index. Returns {@code null} if there is no selection.
      */
     public attribute selectedItem: ListItem = null on replace oldValue {
-        if (oldValue <> null and FX.isSameObject(oldValue.list, this)) {
+        if (oldValue != null and FX.isSameObject(oldValue.list, this)) {
             oldValue.selected = false;
         }
 
-        if (selectedItem <> null and FX.isSameObject(selectedItem.list, this)) {
+        if (selectedItem != null and FX.isSameObject(selectedItem.list, this)) {
             selectedItem.selected = true;
         } else {
             selectedItem = null;

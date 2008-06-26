@@ -105,7 +105,7 @@ public class Slider extends Component {
                     return;
                 }
 
-                if (value <> jSlider.getValue()) {
+                if (value != jSlider.getValue()) {
                     value = jSlider.getValue();
                 }
             }

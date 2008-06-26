@@ -91,7 +91,7 @@ public class ComboBox extends Component {
             }
 
             for (item in newSlice) {
-                if (item.combo <> null) {
+                if (item.combo != null) {
                     delete item from item.combo.items;
                 }
                 item.combo = this;
@@ -134,11 +134,11 @@ public class ComboBox extends Component {
      * The default value is {@code null}. 
      */
     public attribute selectedItem: ComboBoxItem = null on replace oldValue {
-        if (oldValue <> null and FX.isSameObject(oldValue.combo, this)) {
+        if (oldValue != null and FX.isSameObject(oldValue.combo, this)) {
             oldValue.selected = false;
         }
 
-        if (selectedItem <> null and FX.isSameObject(selectedItem.combo, this)) {
+        if (selectedItem != null and FX.isSameObject(selectedItem.combo, this)) {
             selectedItem.selected = true;
         } else {
             selectedItem = null;
@@ -243,7 +243,7 @@ public class ComboBox extends Component {
         initialized = true;
         var txt = text;
         updateJComboBoxSelection();
-        if (editable and txt <> "") {
+        if (editable and txt != "") {
             getJComboBox().setSelectedItem(txt);
         }
     }
@@ -286,12 +286,12 @@ public class ComboBox extends Component {
 
         var impl = getJComboBox() as JComboBoxImpl;
 
-        if (oldValue <> null ) {
+        if (oldValue != null ) {
             var ie = new ItemEvent(impl, ItemEvent.ITEM_STATE_CHANGED, oldValue, ItemEvent.DESELECTED);
             impl.fireItemStateChanged(ie);
         }
 
-        if (newValue <> null) {
+        if (newValue != null) {
             var ie = new ItemEvent(impl, ItemEvent.ITEM_STATE_CHANGED, newValue, ItemEvent.SELECTED);
             impl.fireItemStateChanged(ie);
         }

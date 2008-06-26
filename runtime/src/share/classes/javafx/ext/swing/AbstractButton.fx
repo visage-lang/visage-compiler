@@ -164,7 +164,7 @@ public abstract class AbstractButton extends Component {
 
             ab.addActionListener(ActionListener {
                 public function actionPerformed(e: ActionEvent): Void {
-                    if (action <> null) {
+                    if (action != null) {
                         action();
                     }
                 }

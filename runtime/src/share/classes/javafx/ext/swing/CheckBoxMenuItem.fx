@@ -42,11 +42,11 @@ public class CheckBoxMenuItem extends MenuItem, SelectableButton {
      * A check box menu item can belong only to a single {@code ToggleGroup}.
      */
     public attribute toggleGroup: ToggleGroup on replace oldValue {
-        if (oldValue <> null) {
+        if (oldValue != null) {
             oldValue.remove(this);
         }
         
-        if (toggleGroup <> null) {
+        if (toggleGroup != null) {
             toggleGroup.add(this);
         }
     }

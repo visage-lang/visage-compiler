@@ -223,7 +223,7 @@ public class TextField extends Component {
 
         jTextField.addActionListener(ActionListener {
             public function actionPerformed(e: ActionEvent): Void {
-                if (action <> null) {
+                if (action != null) {
                     action();
                 }
             }
@@ -234,7 +234,7 @@ public class TextField extends Component {
         var v = bind verify;
         jTextField.setInputVerifier(InputVerifier {
             public function verify(c: JComponent): Boolean {
-                if (v <> null) v(text) else true;
+                if (v != null) v(text) else true;
             }
         });
     }

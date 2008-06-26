@@ -205,12 +205,12 @@ public class BorderPanel extends AbstractPanel {
 
         var jPanel = getJPanel();
 
-        if (oldComp <> null) {
+        if (oldComp != null) {
             jPanel.remove(oldComp.getRootJComponent());
             unparentFromThisContainer(oldComp);
         }
 
-        if (newComp <> null) {
+        if (newComp != null) {
             jPanel.add(newComp.getRootJComponent(), constraint);
             parentToThisContainer(newComp);
         }
@@ -224,23 +224,23 @@ public class BorderPanel extends AbstractPanel {
             return;
         }
 
-        if (ignore <> TOP and FX.isSameObject(comp, top)) {
+        if (ignore != TOP and FX.isSameObject(comp, top)) {
             top = null;
-        } else if (ignore <> BOTTOM and FX.isSameObject(comp, bottom)) {
+        } else if (ignore != BOTTOM and FX.isSameObject(comp, bottom)) {
             bottom = null;
-        } else if (ignore <> LEFT and FX.isSameObject(comp, left)) {
+        } else if (ignore != LEFT and FX.isSameObject(comp, left)) {
             left = null;
-        } else if (ignore <> RIGHT and FX.isSameObject(comp, right)) {
+        } else if (ignore != RIGHT and FX.isSameObject(comp, right)) {
             right = null;
-        } else if (ignore <> CENTER and FX.isSameObject(comp, center)) {
+        } else if (ignore != CENTER and FX.isSameObject(comp, center)) {
             center = null;
-        } else if (ignore <> PAGE_START and FX.isSameObject(comp, pageStart)) {
+        } else if (ignore != PAGE_START and FX.isSameObject(comp, pageStart)) {
             pageStart = null;
-        } else if (ignore <> PAGE_END and FX.isSameObject(comp, pageEnd)) {
+        } else if (ignore != PAGE_END and FX.isSameObject(comp, pageEnd)) {
             pageEnd = null;
-        } else if (ignore <> LINE_START and FX.isSameObject(comp, lineStart)) {
+        } else if (ignore != LINE_START and FX.isSameObject(comp, lineStart)) {
             lineStart = null;
-        } else if (ignore <> LINE_END and FX.isSameObject(comp, lineEnd)) {
+        } else if (ignore != LINE_END and FX.isSameObject(comp, lineEnd)) {
             lineEnd = null;
         }
     }

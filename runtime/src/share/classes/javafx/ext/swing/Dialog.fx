@@ -78,7 +78,7 @@ public class Dialog extends Window {
 
         jDialog.addWindowListener(WindowAdapter {
             public function windowClosing(e: WindowEvent): Void {
-                if (closeAction <> null) {
+                if (closeAction != null) {
                     closeAction();
                 }
             }
@@ -98,7 +98,7 @@ public class Dialog extends Window {
      * Creates the specific {@link java.awt.Window} delegate for this dialog.
      */
     /* final */ function createWindow(): java.awt.Window {
-        var d = if (owner <> null) new JDialog(owner.window) else new JDialog();
+        var d = if (owner != null) new JDialog(owner.window) else new JDialog();
         d.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         return d;
     }

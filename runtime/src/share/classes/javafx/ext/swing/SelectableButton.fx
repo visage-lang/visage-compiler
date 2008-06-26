@@ -58,7 +58,7 @@ public abstract class SelectableButton extends AbstractButton {
                 // Remember that selected could be bound, and we don't
                 // want to try to update it (and risk an exception) if
                 // it's not actually the selected state changing
-                if (selected <> ab.isSelected()) {
+                if (selected != ab.isSelected()) {
                     selected = ab.isSelected();
                 }
             }

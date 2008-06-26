@@ -114,7 +114,7 @@ public class Frame extends Window {
             var index = if (a == 0) 0 else indexOfJMenuInJMenuBar(menus[a - 1].getJMenu(), menubar) + 1;
             for (menu in newSlice) {
                 var oldidx = indexOfJMenuInJMenuBar(menu.getJMenu(), menubar);
-                if (oldidx <> -1 and oldidx < index) {
+                if (oldidx != -1 and oldidx < index) {
                     menubar.add(menu.getJMenu(), index - 1);
                 } else {
                     menubar.add(menu.getJMenu(), index++);
@@ -155,7 +155,7 @@ public class Frame extends Window {
         
         jFrame.addWindowListener(WindowAdapter {
             public function windowClosing(e: WindowEvent): Void {
-                if (closeAction <> null) {
+                if (closeAction != null) {
                     closeAction();
                 }
             }

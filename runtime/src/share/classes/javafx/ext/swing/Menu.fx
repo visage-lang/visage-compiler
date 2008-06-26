@@ -51,7 +51,7 @@ public class Menu extends MenuItem, Container {
         var index = if (a == 0) 0 else indexOfJMenuItemInJMenu(items[a - 1].getJMenuItem(), jMenu) + 1;
         for (menuItem in newSlice) {
             var oldidx = indexOfJMenuItemInJMenu(menuItem.getJMenuItem(), jMenu);
-            if (oldidx <> -1 and oldidx < index) {
+            if (oldidx != -1 and oldidx < index) {
                 jMenu.add(menuItem.getJMenuItem(), index - 1);
             } else {
                 jMenu.add(menuItem.getJMenuItem(), index++);
