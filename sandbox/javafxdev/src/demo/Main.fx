@@ -4,12 +4,12 @@ package demo;
  * @author Alexandr Scherbatiy, alexsch@dev.java.net
  */
 
-import javafx.gui.*;
+import javafx.ext.swing.*;
 import javafx.dev.*;
 
 import java.lang.System;
 
-var code = "import javafx.gui.*;\nLabel\{ text: \"Hello World!\"\}\n";
+var code = "import javafx.ext.swing.*;\nLabel\{ text: \"Hello World!\"\}\n";
 
 var error: ErrorMessage;
 var errors: ErrorMessage[];

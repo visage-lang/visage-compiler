@@ -4,8 +4,7 @@ package javafx.dev;
  * @author Alexandr Scherbatiy, alexsch@dev.java.net
  */
 
-import javafx.gui.*;
-import javafx.gui.Layout.*;
+import javafx.ext.swing.*;
 
 import javax.swing.*;
 import java.awt.event.KeyAdapter;

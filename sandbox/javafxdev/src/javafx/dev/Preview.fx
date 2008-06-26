@@ -7,8 +7,9 @@ package javafx.dev;
 import java.lang.Object;
 import java.lang.System;
 
-import javafx.gui.*;
-import javafx.gui.Layout.*;
+import javafx.ext.swing.*;
+import javafx.scene.*;
+import javafx.scene.paint.*;
 
 import javafx.util.*;
 
@@ -104,14 +105,14 @@ public class FXUnit {
             
             //unit.content = List{ items: for(item in messages) ListItem{ text: item } };
             
-        }else if(obj instanceof javafx.gui.Component){
-            unit.content = obj as javafx.gui.Component;
-        }else if(obj instanceof javafx.gui.Node){
-            unit.content = Canvas{ content: obj as javafx.gui.Node };
-        }else if(obj instanceof javafx.gui.Frame){
+        }else if(obj instanceof Component){
+            unit.content = obj as Component;
+        }else if(obj instanceof Node){
+            unit.content = Canvas{ content: obj as Node };
+        }else if(obj instanceof Frame){
         
             unit.isWindow = true;
-            var frame = obj as javafx.gui.Frame;
+            var frame = obj as Frame;
             
             frame.visible = false;
             var title =  frame.title;
@@ -123,21 +124,22 @@ public class FXUnit {
 
             unit.menus = frame.menus; 
             unit.content = frame.content;
-            unit.background = getColor(frame.background);
+            //unit.background = getColor(frame.background);
+            unit.background = frame.background;
             
         }
         
         return unit;
     }
     
-    static function getColor(color: javafx.gui.Color):Color{
-        return Color{
-            red: color.red
-            green: color.green
-            blue: color.blue
-        };
-        
-    }
+//    static function getColor(color: javafx.gui.Color):Color{
+//        return Color{
+//            red: color.red
+//            green: color.green
+//            blue: color.blue
+//        };
+//        
+//    }
 }
 
 

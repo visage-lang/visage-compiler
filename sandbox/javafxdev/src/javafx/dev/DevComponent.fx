@@ -5,7 +5,8 @@ package javafx.dev;
  * @author Alexandr Scherbatiy, alexsch@dev.java.net
  */
 
- import javafx.gui.*;
+import javafx.ext.swing.*;
+
 import javafx.dev.dnd.*;
 
 import java.awt.BorderLayout;
