@@ -53,7 +53,7 @@ public class Applet extends JApplet {
 
         var appClassName = getParameter("ApplicationClass");
         var errorPrefix = "Couldn't launch FX Application";
-        if (appClassName <> null) {
+        if (appClassName != null) {
             try {
                 var appClass:Class = Class.forName(appClassName);
                 var name = Entry.entryMethodName();
@@ -68,9 +68,9 @@ public class Applet extends JApplet {
         else {
             throw new Error("{errorPrefix}: no ApplicationClass applet param specified");
         }
-        if (app <> null) {
+        if (app != null) {
             setContentPane(app.content.getJComponent());
-            if (app.onStart <> null) app.onStart();
+            if (app.onStart != null) app.onStart();
         }
     }
 
@@ -81,11 +81,11 @@ public class Applet extends JApplet {
     }
 
     public function start():Void {
-        if (app.resume <> null) app.resume();
+        if (app.resume != null) app.resume();
     }
     
     public function stop():Void {
-        if (app.suspend <> null) app.suspend();
+        if (app.suspend != null) app.suspend();
     }
 }
 
