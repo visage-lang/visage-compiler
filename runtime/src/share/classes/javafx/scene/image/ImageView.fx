@@ -54,7 +54,7 @@ public class ImageView extends Node {
        in the bind expression, you get a stack overflow.
     */
     private attribute bufferedImage:BufferedImage = 
-        bind if (image <> null) { image.bufferedImage } else { null }
+        bind if (image != null) { image.bufferedImage } else { null }
         on replace {
             getSGImage().setImage(bufferedImage);
         }

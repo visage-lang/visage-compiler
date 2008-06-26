@@ -66,7 +66,7 @@ public class Affine extends Transform {
     }
 
     private function u():Void {
-        if (impl_node <> null) {
+        if (impl_node != null) {
             impl_node.impl_updateFXNodeTransform();
         }
     }

@@ -141,9 +141,9 @@ public abstract class Shape extends Node, Interpolatable {
    
      private function updateMode():Void {
         var mode = 
-            if (fill <> null and stroke <> null) 
+            if (fill != null and stroke != null) 
                 { SGAbstractShape.Mode.STROKE_FILL }
-            else if (fill <> null) 
+            else if (fill != null) 
                 { SGAbstractShape.Mode.FILL }
             else 
                 { SGAbstractShape.Mode.STROKE }
@@ -159,7 +159,7 @@ public abstract class Shape extends Node, Interpolatable {
     * @profile common
     */     
     public attribute fill:Paint on replace {
-        if (fill <> null) {
+        if (fill != null) {
             impl_getSGAbstractShape().setFillPaint(fill.getAWTPaint());
         }
         updateMode();
@@ -174,7 +174,7 @@ public abstract class Shape extends Node, Interpolatable {
     * @profile common
     */     
     public attribute stroke:Paint on replace {
-        if (stroke <> null) {
+        if (stroke != null) {
             impl_getSGAbstractShape().setDrawPaint(stroke.getAWTPaint());
         }
         updateMode();

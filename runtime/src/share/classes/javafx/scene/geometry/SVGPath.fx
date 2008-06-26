@@ -39,7 +39,7 @@ public class SVGPath extends Shape {
     }
          
     private function updateSVGPath():Void {
-        if (content <> null) {
+        if (content != null) {
             path2D = AWTPathProducer.createPath(new StringReader(content), fillRule.getToolkitValue());        
             getSGShape().setShape(path2D);
         } else {

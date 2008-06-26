@@ -40,7 +40,7 @@ import java.awt.geom.GeneralPath;
 public class VLineTo extends PathElement {
 
     private function u():Void { 
-        if (path <> null) { path.updatePath2D(); }
+        if (path != null) { path.updatePath2D(); }
     }
     
 

@@ -121,7 +121,7 @@ public class MediaPlayer {
     */
    public attribute volume:Number = 1.0 on replace {
        var ac : AudioControl;
-       if ((ac = mediaProvider.getControl(ac.getClass())) <> null) {
+       if ((ac = mediaProvider.getControl(ac.getClass())) != null) {
            ac.setVolume(volume.floatValue());
        }
    }
@@ -220,7 +220,7 @@ public class MediaPlayer {
     */
    public attribute mute: Boolean on replace {
        var ac : AudioControl;
-       if ((ac = mediaProvider.getControl(ac.getClass())) <> null) {
+       if ((ac = mediaProvider.getControl(ac.getClass())) != null) {
            ac.setMute(mute);
        }
    }
@@ -314,7 +314,7 @@ public class MediaPlayer {
    }
 
    private function handleError(error: MediaError):Void {
-        if (onError <> null) {
+        if (onError != null) {
                 onError(error);
          }
     }

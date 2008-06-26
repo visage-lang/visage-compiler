@@ -39,7 +39,7 @@ import java.awt.geom.GeneralPath;
 public class QuadTo extends PathElement {
 
     private function u():Void { 
-        if (path <> null) { path.updatePath2D(); }
+        if (path != null) { path.updatePath2D(); }
     }
 
     // PENDING_DOC_REVIEW

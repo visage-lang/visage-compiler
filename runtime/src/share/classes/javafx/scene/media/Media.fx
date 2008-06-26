@@ -84,7 +84,7 @@ public class Media {
      * @profile common
      */
     public function getMetadata(key:String) : String { // Need generic returns
-        if (jmcMediaInfo <> null) {
+        if (jmcMediaInfo != null) {
             return MediaHelper.getStringMetadata(jmcMediaInfo, key);
         } else {
             return null;
@@ -100,7 +100,7 @@ public class Media {
     public attribute onError: function(e:MediaError);
     
     private function handleException(e: Exception) {
-        if (onError <> null) {
+        if (onError != null) {
             onError(MediaError.exceptionToError(e));
         } else {
             System.out.println("FX Media Object caught Exception {e}");

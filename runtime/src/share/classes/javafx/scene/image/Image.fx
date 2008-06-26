@@ -159,13 +159,13 @@ public class Image {
 
     private function initialize() {
         ImageIO.setUseCache(false);  // HACK
-        if (bufferedImage <> null) {
+        if (bufferedImage != null) {
             bufferedImage = maybeScaleImage(asCompatibleImage(bufferedImage), width, height, size);
             syncSizeAttributes();
             progress = 100.0;
         }
         else if (backgroundLoading) {
-             if  (placeholder <> null) {
+             if  (placeholder != null) {
                  bufferedImage = placeholder.getBufferedImage();
              } 
             createLoadImageTask().execute();
@@ -173,7 +173,7 @@ public class Image {
         }
         else {
             var reader:ImageReader = findImageReader(new URL(url));
-            if (reader <> null) {
+            if (reader != null) {
                 bufferedImage = maybeScaleImage(readImage(reader), width, height, size);
                 syncSizeAttributes();
                 progress = 100.0;
@@ -189,7 +189,7 @@ public class Image {
             attribute s:Number = size;
             public function doInBackground():java.lang.Object {
                 reader = findImageReader(new URL(url));
-                if (reader <> null) {
+                if (reader != null) {
                     // reader.addIIOReadProgressListener(createProgressListener());
                     var i:BufferedImage = readImage(reader);
                     return maybeScaleImage(i, w, h, s);
@@ -204,7 +204,7 @@ public class Image {
                 progress = 100;
             }
             private function abort() {
-                if (reader <> null) {
+                if (reader != null) {
                     reader.abort();
                 }
             }
@@ -237,7 +237,7 @@ public class Image {
     }
 
     private function syncSizeAttributes():Void {
-        if (bufferedImage <> null) {
+        if (bufferedImage != null) {
             width = bufferedImage.getWidth();
             height = bufferedImage.getHeight();
             size = Math.max(width, height);
@@ -257,7 +257,7 @@ public class Image {
             return image;
         }
         else {
-            if (size <> 0.0) {
+            if (size != 0.0) {
                 var scale = size / Math.max(w, h);
                 width = w * scale;
                 height = h * scale;
@@ -268,7 +268,7 @@ public class Image {
             else if (width == 0.0) {
                 width = height/h * w;
             }
-            return if (w <> width or h <> height) scale(image, width, height) else image;
+            return if (w != width or h != height) scale(image, width, height) else image;
         }
     }
 
@@ -335,14 +335,14 @@ public class Image {
         }
 	var reader:ImageReader = null;
         var readers:Iterator = ImageIO.getImageReaders(input);
-        while((reader == null) and (readers <> null) and readers.hasNext()) {
+        while((reader == null) and (readers != null) and readers.hasNext()) {
             reader = readers.next() as ImageReader;
         }
-        if (reader <> null) {
+        if (reader != null) {
             reader.setInput(input);
         }
         else {
-	    if (input <> null) {
+	    if (input != null) {
 		try { input.close(); } catch (e:IOException) { }
 	    }
         }
@@ -357,10 +357,10 @@ public class Image {
 	catch (ignored:IOException) { }
 	finally {
 	    var input:ImageInputStream = reader.getInput() as ImageInputStream;
-	    if (input <> null) {
+	    if (input != null) {
 		try { input.close(); } catch (e:IOException) { }
 	    }
-	    if (reader <> null) {
+	    if (reader != null) {
 		reader.removeAllIIOReadProgressListeners();
 		reader.dispose();
 	    }
@@ -369,12 +369,12 @@ public class Image {
     }
 
     public function cancel():Void {
-        if (loadImageTask <> null) {
+        if (loadImageTask != null) {
             loadImageTask.cancel(true);
             loadImageTask = null;
-            if (bufferedImage <> null) {
+            if (bufferedImage != null) {
                 bufferedImage.flush();
-                if (placeholder <> null) {
+                if (placeholder != null) {
                     bufferedImage = placeholder.getBufferedImage();
                     width = placeholder.width;
                     height = placeholder.height;

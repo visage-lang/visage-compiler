@@ -65,12 +65,12 @@ public class ShapeSubtract extends Shape {
 
     private function u():Void {
         area.reset();
-        if (a <> null) {
+        if (a != null) {
             for (shape in a) {
                 area.add(new java.awt.geom.Area(shape.impl_getSGAbstractShape().getShape()));
             }
         }
-        if (b <> null) {
+        if (b != null) {
             for (shape in b){
                 area.subtract(new java.awt.geom.Area(shape.impl_getSGAbstractShape().getShape()));
             }

@@ -52,7 +52,7 @@ public class Polygon extends Shape {
 
     private function u():Void { // update polygon
         if (initializingXX) { return; }
-        if (sizeof points == 0 or sizeof points %2 <> 0) { return; }
+        if (sizeof points == 0 or sizeof points mod 2 != 0) { return; }
         gPath.reset();
         gPath.moveTo(points[0], points[1]);
         for (i in [1 .. ((sizeof points)/2-1)]) {

@@ -57,7 +57,7 @@ public abstract class PathElement {
      * @profile common
      */
     public attribute absolute: Boolean = true on replace {
-        if (path <> null) { path.updatePath2D(); }
+        if (path != null) { path.updatePath2D(); }
     }
 
 }

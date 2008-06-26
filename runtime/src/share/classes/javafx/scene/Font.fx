@@ -134,10 +134,10 @@ public /* final */ class Font {
      */
     public static function font(name: String, style: FontStyle, size: Integer, url:String): Font {
         var font:Font = null;        
-        if (url <> null) {
+        if (url != null) {
             var awtFont:java.awt.Font = Font.loadAWTFont( new URL(url));            
-            if ( awtFont <> null) {
-                if (style <> null) {
+            if ( awtFont != null) {
+                if (style != null) {
                     awtFont = awtFont.deriveFont( style.getToolkitValue(), size.floatValue());
                 } else {
                     awtFont = awtFont.deriveFont( size.floatValue());
@@ -169,7 +169,7 @@ public /* final */ class Font {
                 input = url.openStream();
                 font = java.awt.Font.createFont( java.awt.Font.TRUETYPE_FONT, input);
             } finally {
-                if (input <> null) {
+                if (input != null) {
                     input.close();
                 }
             }

@@ -118,7 +118,7 @@ public class MediaView extends Node {
             var mComp:JComponent;
             vc = MediaHelper.getVideoControl(mediaProvider);
 
-            if (vc <> null) {
+            if (vc != null) {
                 mComp = vc.getVideoPane();
             }
 
@@ -131,7 +131,7 @@ public class MediaView extends Node {
             myJPanel.validate();
             sgc.setComponent(myJPanel);
         }
-        if (mComp <> null) {
+        if (mComp != null) {
             myJPanel.removeAll();
             myJPanel.add(mComp);
         }

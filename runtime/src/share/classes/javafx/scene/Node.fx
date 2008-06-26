@@ -120,7 +120,7 @@ public abstract class Node {
      * @profile common
      */         
     public bound function getX():Number { 
-        if (impl_cachedXYWH <> null) impl_cachedXYWH.getX() else impl_getSGNode().getBounds().getX();
+        if (impl_cachedXYWH != null) impl_cachedXYWH.getX() else impl_getSGNode().getBounds().getX();
     }
     
     // PENDING_DOC_REVIEW
@@ -131,7 +131,7 @@ public abstract class Node {
      * @profile common
      */         
     public bound function getY():Number { 
-        if (impl_cachedXYWH <> null) impl_cachedXYWH.getY() else impl_getSGNode().getBounds().getY();
+        if (impl_cachedXYWH != null) impl_cachedXYWH.getY() else impl_getSGNode().getBounds().getY();
     }
     
     // PENDING_DOC_REVIEW
@@ -142,7 +142,7 @@ public abstract class Node {
      * @profile common
      */     
     public bound function getWidth():Number { 
-        if (impl_cachedXYWH <> null) impl_cachedXYWH.getWidth() else impl_getSGNode().getBounds().getWidth();
+        if (impl_cachedXYWH != null) impl_cachedXYWH.getWidth() else impl_getSGNode().getBounds().getWidth();
     }
 
     // PENDING_DOC_REVIEW
@@ -153,7 +153,7 @@ public abstract class Node {
      * @profile common
      */     
     public bound function getHeight():Number { 
-        if (impl_cachedXYWH <> null) impl_cachedXYWH.getHeight() else impl_getSGNode().getBounds().getHeight();
+        if (impl_cachedXYWH != null) impl_cachedXYWH.getHeight() else impl_getSGNode().getBounds().getHeight();
     }
 
     /**
@@ -163,7 +163,7 @@ public abstract class Node {
      * @profile common
      */         
     public bound function getBoundsX() {
-        if (impl_cachedBounds <> null) impl_cachedBounds.getX() else impl_getFXNode().getBounds().getX();
+        if (impl_cachedBounds != null) impl_cachedBounds.getX() else impl_getFXNode().getBounds().getX();
     }
 
     /**
@@ -173,7 +173,7 @@ public abstract class Node {
      * @profile common
      */         
     public bound function getBoundsY() {
-        if (impl_cachedBounds <> null) impl_cachedBounds.getY() else impl_getFXNode().getBounds().getY();
+        if (impl_cachedBounds != null) impl_cachedBounds.getY() else impl_getFXNode().getBounds().getY();
     }
 
     /**
@@ -183,7 +183,7 @@ public abstract class Node {
      * @profile common
      */     
     public bound function getBoundsWidth() {
-        if (impl_cachedBounds <> null) impl_cachedBounds.getWidth() else impl_getFXNode().getBounds().getWidth();
+        if (impl_cachedBounds != null) impl_cachedBounds.getWidth() else impl_getFXNode().getBounds().getWidth();
     }
 
     /**
@@ -193,7 +193,7 @@ public abstract class Node {
      * @profile common
      */     
     public bound function getBoundsHeight() {
-        if (impl_cachedBounds <> null) impl_cachedBounds.getHeight() else impl_getFXNode().getBounds().getHeight();
+        if (impl_cachedBounds != null) impl_cachedBounds.getHeight() else impl_getFXNode().getBounds().getHeight();
     }
 
    /**
@@ -241,12 +241,12 @@ public abstract class Node {
      */
     function requestLayout():Void {
         var n:Node = this;
-        while (n <> null) {
+        while (n != null) {
             if ((n instanceof Group) or (n instanceof CustomNode)) { 
                 n.impl_needsLayout = true; 
             }
             n = n.getParent();
-            if (n <> null and n.impl_needsLayout) { break; }
+            if (n != null and n.impl_needsLayout) { break; }
         }
         impl_getSGNode().getPanel().revalidate();
     }
@@ -269,7 +269,7 @@ public abstract class Node {
      */         
      public function lookup(id:String):Node { 
          var node:SGNode = impl_getSGNode().lookup(id);
-         if (node <> null) node.getAttribute("FXNode") as Node else null;
+         if (node != null) node.getAttribute("FXNode") as Node else null;
      }
 
     // PENDING_DOC_REVIEW
@@ -290,7 +290,7 @@ public abstract class Node {
      * @profile common conditional cursor
      */         
     public attribute cursor:Cursor on replace {
-        impl_getSGNode().setCursor(if (cursor <> null) cursor.getAWTCursor() else null);
+        impl_getSGNode().setCursor(if (cursor != null) cursor.getAWTCursor() else null);
     }
 
     /**
@@ -499,16 +499,16 @@ public abstract class Node {
     /** Moves this node to the front of it's sibiling nodes */
     public function toFront(): Void {
         var group:Group = if (parent instanceof Group) parent as Group else null;
-        if ((group <> null) and (group.content[0] <> this)) {
-            group.content = [this, group.content[n | n <> this]];
+        if ((group != null) and (group.content[0] != this)) {
+            group.content = [this, group.content[n | n != this]];
         }
     }
 
     /** Moves this node to the back of it's sibiling nodes */
     public function toBack(): Void {
         var group:Group = if (parent instanceof Group) parent as Group else null;
-        if ((group <> null) and (group.content[sizeof group.content -1] <> this)) {
-            group.content = [group.content[n | n <> this], this];
+        if ((group != null) and (group.content[sizeof group.content -1] != this)) {
+            group.content = [group.content[n | n != this], this];
         }
     }
 
@@ -553,7 +553,7 @@ public abstract class Node {
         SGMouseAdapter {
             private function call(f:function(e:MouseEvent):Void, e:java.awt.event.MouseEvent) {
                 modifiers = e.getModifiersEx();
-                if (f <> null) f(createMouseEvent(e));
+                if (f != null) f(createMouseEvent(e));
             }
 
             public function mouseClicked(e:java.awt.event.MouseEvent, node:SGNode):Void {
@@ -680,7 +680,7 @@ public abstract class Node {
     private function createKeyListener():SGKeyListener {
         SGKeyListener {
             private function call(f:function(e:KeyEvent):Void, e:java.awt.event.KeyEvent) {
-                if (f <> null) f(createKeyEvent(e));
+                if (f != null) f(createKeyEvent(e));
             }
             public function keyTyped(e:java.awt.event.KeyEvent, node:SGNode):Void { 
                 call(onKeyTyped, e);

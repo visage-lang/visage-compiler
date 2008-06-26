@@ -50,7 +50,7 @@ public class Cursor {
     private function createBlankAWTCursor():java.awt.Cursor {
         var toolkit:Toolkit = Toolkit.getDefaultToolkit();
         var d:Dimension = toolkit.getBestCursorSize(1, 1);
-        if (d.width <> 0 and d.height <> 0) {
+        if (d.width != 0 and d.height != 0) {
             var image:java.awt.Image = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_ARGB);
             return toolkit.createCustomCursor(image, new Point(0, 0), "NONE");
         }
@@ -181,7 +181,7 @@ public class Cursor {
         awtCursor: {
             var toolkit:Toolkit = Toolkit.getDefaultToolkit();
             var d:Dimension = toolkit.getBestCursorSize(1, 1);
-            if (d.width <> 0 and d.height <> 0) {
+            if (d.width != 0 and d.height != 0) {
                 var image:java.awt.Image = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_ARGB);
                 toolkit.createCustomCursor(image, new Point(0, 0), "NONE");
             }
