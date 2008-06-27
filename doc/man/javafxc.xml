@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 
  This code is free software; you can redistribute it and/or modify it
@@ -38,20 +38,15 @@
   <refsynopsisdiv>
     <cmdsynopsis>
       <command>javafxc</command>
-
       <arg choice="opt">options</arg>
-
       <arg choice="opt">sourcefiles</arg>
-
       <arg choice="opt">@argfiles</arg>
     </cmdsynopsis>
-  </refsynopsisdiv>
-
-  <refsect1>
+    <para>Arguments may be in any order.</para>
     <variablelist>
       <varlistentry>
         <term>
-          <option>options</option>
+          <option><xref linkend="options"/></option>
         </term>
 
         <listitem>
@@ -72,7 +67,7 @@
 
       <varlistentry>
         <term>
-          <option>@argfiles</option>
+          <option><xref linkend="commandlineargfile"/></option>
         </term>
 
         <listitem>
@@ -81,7 +76,7 @@
         </listitem>
       </varlistentry>
     </variablelist>
-  </refsect1>
+  </refsynopsisdiv>
 
   <refsect1>
     <title>Description</title>
@@ -447,7 +442,7 @@
         </varlistentry>
     </variablelist>
   </refsect1>
-  <refsect1>
+  <refsect1 id="commandlineargfile" xreflabel="@argfiles">
       <title>COMMAND LINE ARGUMENT FILES</title>
       <para>
           To shorten or simplify the javac command line, you can specify one 

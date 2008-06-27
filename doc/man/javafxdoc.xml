@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+
+ This code is free software; you can redistribute it and/or modify it
+ under the terms of the GNU General Public License version 2 only, as
+ published by the Free Software Foundation.  
+
+ This code is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ version 2 for more details (a copy is included in the LICENSE file that
+ accompanied this code).
+
+ You should have received a copy of the GNU General Public License version
+ 2 along with this work; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+
+ Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ CA 95054 USA or visit www.sun.com if you need additional information or
+ have any questions.
+-->
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<refentry id="javafxdoc">
+    <refmeta>
+        <refentrytitle>javafxdoc</refentrytitle>
+        <manvolnum>1</manvolnum>
+    </refmeta>
+    <refnamediv>
+        <refname>javafxdoc</refname>
+        <refpurpose>JavaFX Script API documentation generator</refpurpose>
+    </refnamediv>
+    <refsynopsisdiv>
+        <cmdsynopsis>
+            <command>javafxdoc</command>
+            <arg choice="opt"><xref linkend="options"/></arg>
+            <arg choice="opt">packagenames</arg>
+            <arg choice="opt">sourcefilenames</arg>
+            <arg choice="opt">
+                <option>-subpackages</option>
+                <parameter>pkg1:pkg2:...</parameter>
+            </arg>
+            <arg choice="opt">@argfiles</arg>
+        </cmdsynopsis>
+        <para>
+            Arguments can be in any order. See <xref linkend="processingofsourcefiles"/>
+            for details on how the javafxdoc tool determines which "<filename>.fx</filename>" 
+            files to process.
+        </para>
+        <variablelist>
+            <varlistentry>
+                <term><option><xref linkend="options"/></option></term>
+                <listitem>
+                    <para>
+                        Command-line options, as specified in this document.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>packagenames</term>
+                <listitem>
+                    <para>
+                        A series of names of packages, separated by spaces, such as 
+                        <classname>javafx.lang</classname> <classname>javafx.xml</classname> 
+                        or <classname>javafx.gui.effect</classname>. You must separately specify 
+                        each package you want to document. Wildcards are not allowed; use 
+                        <option>-subpackages</option> for recursion. The javafxdoc tool uses 
+                        <xref linkend="sourcepath" endterm="sourcepath.txt"/> to look for these package names. 
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>sourcefilenames</term>
+                <listitem>
+                    <para>
+                        A series of source file names, separated by spaces, each of which 
+                        can begin with a path and contain a wildcard such as asterisk (*). 
+                        The javafxdoc tool will process every file whose name ends with 
+                        "<filename>.fx</filename>", and whose name, when stripped of 
+                        that suffix, is a legal module name (see 
+                        <ulink linkend="http://java.sun.com/docs/books/jls/second_edition/html/lexical.doc.html#40625">Identifiers</ulink>).
+                        Therefore, you can name files with dashes (such as 
+                        <classname>X-Buffer</classname>), or other illegal characters, to 
+                        prevent them from being documented. The path that precedes the source file name 
+                        determines where javafxdoc will look for the file. (The javafxdoc 
+                        tool does not use <xref linkend="sourcepath" endterm="sourcepath.txt"/>  
+                        to look for these 
+                        source file names.) Relative paths are relative to the current 
+                        directory, so passing in <filename>Button.fx</filename> is identical to 
+                        <filename>./Button.fx</filename>. A source file name with an absolute 
+                        path and a wildcard, for example, is <filename>/home/src/java/awt/Graphics*.fx</filename>. 
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><xref linkend="subpackages" endterm="subpackages.txt"/></term>
+                <listitem>
+                    <para>
+                        Generates documentation from source files in the specified 
+                        packages and recursively in their subpackages. An alternative 
+                        to supplying packagenames or sourcefilenames.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><xref linkend="argumentfiles" endterm="argumentfiles.txt"/></term>
+                <listitem>
+                    <para>
+                        One or more files that contain a list of javafxdoc options, 
+                        packagenames and sourcefilenames in any order. Wildcards (*) 
+                        and <option>-J</option> options are not allowed in these files.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsynopsisdiv>
+    
+    <refsect1>
+        <title>Description</title>
+        <para>
+            The <command>javafxdoc</command> tool parses the declarations and 
+            documentation comments in a set of JavaFX Script source files and 
+            produces a corresponding set of HTML pages describing (by default) 
+            the public and protected classes, attributes and functions. You can 
+            use it to generate the API (Application Programming Interface) 
+            documentation or the implementation documentation for a set of source 
+            files.  This tool is intentionally very similar to Java's 
+            <ulink linkend="http://java.sun.com/javase/6/docs/technotes/tools/solaris/javadoc.html">javadoc</ulink> tool.
+        </para>
+        <para>
+            You can run the <command>javafxdoc</command> tool on entire packages, 
+            individual source files, or both. When documenting entire packages, 
+            you can either use <xref linkend="subpackages" endterm="subpackages.txt"/> for traversing 
+            recursively down from a top-level directory, or pass in an explicit 
+            list of package names. When documenting individual source files, 
+            you pass in a list of source (<filename>.fx</filename>) filenames. 
+        </para>
+        <refsect2>
+            <title id="processingofsourcefiles" xreflabel="Processing Source Files">Processing of source files</title>
+            <para>
+                The <command>javafxdoc</command> tool processes files that end 
+                in "<filename>.fx</filename>" plus other files described under 
+                <xref linkend="sourcefiles"/>. 
+                If you run the <command>javafxdoc</command> tool by explicitly 
+                passing in individual source filenames, you can determine exactly 
+                which "<filename>.fx</filename>" files are processed. However, 
+                that is not how most developers want to work, as it is simpler 
+                to pass in package names. The <command>javafxdoc</command> tool 
+                can be run three ways without explicitly specifying the source 
+                filenames. You can (1) pass in package names, (2) use 
+                <xref linkend="subpackages" endterm="subpackages.txt"/>, and (3) use wildcards with source 
+                filenames (<filename>.fx</filename>). In these cases, the 
+                <command>javafxdoc</command> tool processes a 
+                "<filename>.fx</filename>" file only if it fulfills all of the 
+                following requirements: 
+            </para>
+            <itemizedlist>
+                Its name, after stripping off the "<filename>.fx</filename>" suffix, 
+                is actually a legal class name (see 
+                <ulink linkend="http://java.sun.com/docs/books/jls/second_edition/html/lexical.doc.html#40625">Identifiers</ulink>
+                for legal characters)
+            </itemizedlist>
+            <refsect3>
+                <title id="links">Processing of links</title>
+                <para>
+                    During a run, the <command>javafxdoc</command> tool 
+                    automatically adds cross-reference links to package, class 
+                    and member names that are being documented as part of that 
+                    run. Links appear in several places:
+                </para>
+                <itemizedlist>
+                    <member>
+                        Declarations (return types, argument types, field types)
+                    </member>
+                    <member>
+                        "See Also" sections generated from <xref linkend="@see"/> tags
+                    </member>
+                    <member>
+                        In-line text generated from <xref linkend="{@link}" endterm="{@link}.txt"/> tags
+                    </member>
+                    <member>
+                        Exception names generated from <xref linkend="@throws"/> tags
+                    </member>
+                    <member>
+                        "<xref linkend="inheritingcomments"/>" links to members in classes
+                    </member>
+                    <member>
+                        Summary tables listing packages, modules and members
+                    </member>
+                    <member>
+                        Package and class inheritance trees
+                    </member>
+                    <member>
+                        The index
+                    </member>
+                </itemizedlist>
+                <para>
+                    You can add hyperlinks to existing text for classes not included 
+                    on the command line (but generated separately) by way of the 
+                    <xref linkend="link" endterm="link.txt"/> and 
+                    <xref linkend="linkoffline" endterm="linkoffline.txt"/> options. 
+                </para>
+            </refsect3>
+            <refsect3>
+                <title>Other processing details</title>
+                <para>
+                    The <command>javafxdoc</command> tool produces one complete 
+                    document each time it is run; it cannot do incremental builds -- 
+                    that is, it cannot modify or directly incorporate results 
+                    from previous runs of the <command>javafxdoc</command> tool. 
+                    However, it can link to results from other runs, as just mentioned.
+                    The <command>javafxdoc</command> tool also has the option to
+                    save the intermediate data from a set of packages in an XML
+                    file.  These intermediate files can be included with a
+                    <command>javafxdoc</command> task, to incorporate previous
+                    runs into a complete document.
+                </para>
+                <para>
+                    As implemented, the <command>javafxdoc</command> tool requires 
+                    and relies on the JavaFX Script compiler to do its job. The 
+                    <command>javafxdoc</command> tool calls part of 
+                    <command>javafxc</command> to compile the declarations, 
+                    ignoring the member implementation. It builds a rich internal 
+                    representation of the classes, including the class hierarchy, 
+                    and "use" relationships, then generates the HTML from that. 
+                    The <command>javafxdoc</command> tool also picks up 
+                    user-supplied documentation from documentation comments in 
+                    the source code.
+                </para>
+                <para>
+                    In fact, the <command>javafxdoc</command> tool will run on
+                    <filename>.fx</filename> source files that are pure stub files 
+                    with no method bodies. This means you can write documentation 
+                    comments and run the <command>javafxdoc</command> tool in the 
+                    earliest stages of design while creating the API, before 
+                    writing the implementation.
+                </para>
+                <para>
+                    When the <command>javafxdoc</command> tool builds its internal 
+                    structure for the documentation, it loads all referenced classes. 
+                    Because of this, the <command>javafxdoc</command> tool must be 
+                    able to find all referenced classes, whether bootstrap classes, 
+                    extensions, or user classes. For more about this, see 
+                    <ulink linkend="http://java.sun.com/javase/6/docs/technotes/tools/findingclasses.html">How 
+                    Classes Are Found</ulink>. Generally speaking, classes you create 
+                    must either be loaded as an extension or in the 
+                    <command>javafxdoc</command> tool's class path.
+                </para>
+            </refsect3>
+        </refsect2>
+    </refsect1>
+    <refsect1>
+        <title id="sourcefiles" xreflabel="Source Files">Source Files</title>
+        <para><emphasis>TBD</emphasis></para>
+    </refsect1>
+    <refsect1>
+        <title id="generatedfiles" xreflabel="Generated Files">Generated Files</title>
+        <para><emphasis>TBD</emphasis></para>
+    </refsect1>
+    <refsect1>
+        <title id="documentationcomments" xreflabel="Documentation Comments">Documentation Comments</title>
+        <refsect2 id="inheritingcomments">
+            <title>Automatic Copying of Method Comments</title>
+            <para>
+                The <command>javafxdoc</command> tool has the ability to copy or 
+                "inherit" function comments in classes under the following two 
+                circumstances. Attributes do not inherit doc comments. 
+            </para>
+        </refsect2>
+        <para><emphasis>TBD</emphasis></para>
+    </refsect1>
+    <refsect1>
+        <title id="javafxdoctags" xreflabel="Javafxdoc Tags">Javafxdoc Tags</title>
+        <para>
+            The <command>javafxdoc</command> tool parses special tags when they 
+            are embedded within a JavaFX Script doc comment. These doc tags enable 
+            you to autogenerate a complete, well-formatted API from your source code. 
+            The tags start with an "at" sign (@) and are case-sensitive -- they 
+            must be typed with the uppercase and lowercase letters as shown. A tag 
+            must start at the beginning of a line (after any leading spaces and an 
+            optional asterisk) or it is treated as normal text. By convention, tags 
+            with the same name are grouped together. For example, put all 
+            <code>@see</code> tags together. 
+        </para>
+        <para>The current tags are:</para>
+        <variablelist>
+            <varlistentry>
+                <term id="{@link}">
+                    <option id="{@link}.txt">{@link</option> 
+                    <parameter>package.class#member label</parameter>
+                    <option>}</option>
+                </term>
+                <listitem>
+                    <para>
+                        Inserts an in-line link with visible text 
+                        <parameter>label</parameter> that points to the 
+                        documentation for the specified package, class or member 
+                        name of a referenced class. This tag is valid in all doc 
+                        comments: overview, package, module, class, function and 
+                        attribute, including the text portion of any tag (such as 
+                        @return, @param and @deprecated). 
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term id="@see">
+                    <option id="@see.txt">@see</option> 
+                    <parameter>package.class#member label</parameter>
+                </term>
+                <listitem>
+                    <para>
+                         Adds a link, with visible text <parameter>label</parameter>, 
+                         that points to the documentation for the specified name 
+                         in the JavaFX Script API that is referenced. The 
+                         <parameter>label</parameter> is optional; if omitted, the 
+                         name appears instead as the visible text, suitably shortened. 
+                         Use <option>-noqualifier</option> to globally remove the 
+                         package name from this visible text. Use the 
+                         <parameter>label</parameter> when you want the visible 
+                         text to be different from the auto-generated visible text. 
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term id="@throws">
+                    <option id="@throws.txt">@throws</option> 
+                    <parameter>class-name description</parameter>
+                </term>
+                <listitem>
+                    <para>
+                        The <code>@throws</code> and <code>@exception</code> tags 
+                        are synonyms. Adds a "Throws" subheading to the generated 
+                        documentation, with the <parameter>class-name</parameter> 
+                        and <parameter>description</parameter> text. The 
+                        <parameter>class-name</parameter> is the name of the 
+                        exception that may be thrown by the method.  This tag is 
+                        valid only in the doc comment for a function. Multiple 
+                        <code>@throws</code> tags can be used in a given doc 
+                        comment for the same or different exceptions. 
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para><emphasis>TBD</emphasis></para>
+    </refsect1>
+    <refsect1>
+        <title id="options" xreflabel="options">Options</title>
+        <variablelist>
+            <title>Javafxdoc Options</title>
+            <varlistentry>
+                <term id="link"><option id="link.txt">-link</option> <parameter>extdocURL</parameter></term>
+                <listitem>
+                    <para>
+                        Creates links to existing javadoc-generated documentation of external referenced classes.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term id="linkoffline"><option id="linkoffline.txt">-linkoffline</option> <parameter>extdocURL</parameter></term>
+                <listitem>
+                    <para>
+                        This option is a variation of <option>-link</option>; 
+                        they both create links to javafxdoc-generated documentation 
+                        for external referenced classes. Use the 
+                        <option>-linkoffline</option> option when linking to a 
+                        document on the web when the Javafxdoc tool itself is 
+                        "offline" -- that is, it cannot access the document 
+                        through a web connection.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term id="subpackages"><option id="subpackages.txt">-subpackages</option> <parameter>package1:package2:...</parameter></term>
+                <listitem>
+                    <para>
+                        Generates documentation from source files in the 
+                        specified packages and recursively in their subpackages.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term id="sourcepath"><option id="sourcepath.txt">-sourcepath</option> <parameter>sourcepathlist</parameter></term>
+                <listitem>
+                    <para>
+                        Specifies the search paths for finding source files 
+                        (<filename>.fx</filename>) when passing package names or 
+                        <option>-subpackages</option> into the <command>javafxdoc</command> command.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+        <para><emphasis>TBD</emphasis></para>
+    </refsect1>
+    <refsect1 id="argumentfiles">
+        <title id="argumentfiles.txt">Command Line Argument Files</title>
+        <para>
+            To shorten or simplify the <command>javafxdoc</command> command line, 
+            you can specify one or more files that themselves contain arguments 
+            to the <command>javafxdoc</command> command (except <option>-J</option>  
+            options). This enables you to create <command>javafxdoc</command> 
+            commands of any length on any operating system. 
+        </para>
+        <para><emphasis>TBD</emphasis></para>
+    </refsect1>
+</refentry>

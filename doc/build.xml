@@ -28,10 +28,11 @@
         <exec dir="doc/langspec" command="make langspec"/>
     </target>
 
-    <target name="prepare">
+    <target name="prepare" depends="-init-macrodef-manpage">
         <mkdir dir="${doc.build.dir}"/>
         <mkdir dir="${doc.build.dir}/html"/>
         <mkdir dir="${doc.build.dir}/tmp"/>
+        <mkdir dir="${doc.build.dir}/man/man1"/>
     </target>
 
     <target name="spec"
@@ -91,40 +92,45 @@
 	<copy file="doc/langspec/langref.css" tofile="${doc.build.dir}/html/langref.css"/>
     </target>
     
-    <target name="man-pages" depends="prepare,htmlpages.xsl,manpages.xsl"
+    <target name="man-pages" depends="javafx-man-page,javafxc-man-page,javafxdoc-man-page"
             description="generate Unix-style manual pages">
-        <mkdir dir="${doc.build.dir}/man/man1"/>
-        <java classname="com.icl.saxon.StyleSheet" fork="true"
-              dir="${doc.build.dir}/man" failonerror="true">
-            <classpath refid="doc.build.class.path"/>
-            <arg file="doc/man/javafx.xml"/>
-            <arg value="${htmlpages.xsl.path}"/>
-            <arg value="use.id.as.filename=1"/>
-            <arg value="root.filename=javafx"/>
-            <arg value="draft.mode=yes"/>
-        </java>        
-        <java classname="com.icl.saxon.StyleSheet" fork="true"
-              dir="${doc.build.dir}/man/man1" failonerror="true">
-            <classpath refid="doc.build.class.path"/>
-            <arg file="doc/man/javafx.xml"/>
-            <arg value="${manpages.xsl.path}"/>
-        </java>        
-        <java classname="com.icl.saxon.StyleSheet" fork="true"
-              dir="${doc.build.dir}/man" failonerror="true">
-            <classpath refid="doc.build.class.path"/>
-            <arg file="doc/man/javafxc.xml"/>
-            <arg value="${htmlpages.xsl.path}"/>
-            <arg value="use.id.as.filename=1"/>
-            <arg value="root.filename=javafxc"/>
-            <arg value="draft.mode=yes"/>
-        </java>        
-        <java classname="com.icl.saxon.StyleSheet" fork="true"
-              dir="${doc.build.dir}/man/man1" failonerror="true">
-            <classpath refid="doc.build.class.path"/>
-            <arg file="doc/man/javafxc.xml"/>
-            <arg value="${manpages.xsl.path}"/>
-        </java>        
 	<copy file="doc/man/manpage.css" tofile="${doc.build.dir}/man/manpage.css"/>
+    </target>
+    
+    <target name="javafx-man-page" depends="prepare,htmlpages.xsl,manpages.xsl">
+        <manpage src="doc/man/javafx.xml" title="javafx"/>
+    </target>
+    
+    <target name="javafxc-man-page" depends="prepare,htmlpages.xsl,manpages.xsl">
+        <manpage src="doc/man/javafxc.xml" title="javafxc"/>
+    </target>
+    
+    <target name="javafxdoc-man-page" depends="prepare,htmlpages.xsl,manpages.xsl">
+        <manpage src="doc/man/javafxdoc.xml" title="javafxdoc"/>
+    </target>
+
+    <target name="-init-macrodef-manpage">
+        <macrodef name="manpage">
+            <attribute name="src"/>
+            <attribute name="title"/>
+            <sequential>
+                <java classname="com.icl.saxon.StyleSheet" fork="true"
+                      dir="${doc.build.dir}/man" failonerror="true">
+                    <classpath refid="doc.build.class.path"/>
+                    <arg file="@{src}"/>
+                    <arg value="${htmlpages.xsl.path}"/>
+                    <arg value="use.id.as.filename=1"/>
+                    <arg value="root.filename=@{title}"/>
+                    <arg value="draft.mode=yes"/>
+                </java>        
+                <java classname="com.icl.saxon.StyleSheet" fork="true"
+                      dir="${doc.build.dir}/man/man1" failonerror="true">
+                    <classpath refid="doc.build.class.path"/>
+                    <arg file="@{src}"/>
+                    <arg value="${manpages.xsl.path}"/>
+                </java>         
+            </sequential>
+        </macrodef>
     </target>
     
     <available property="ant.jar" value="${ant.home}/lib/ant.jar" file="${ant.home}/lib/ant.jar"/>
