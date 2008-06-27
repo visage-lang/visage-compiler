@@ -344,6 +344,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
                 tp = Ident(syms.numberTypeName);
                 break;
             case INT:
+            case LONG:
                 tp = Ident(syms.integerTypeName);
                 break;
             case BOOLEAN:
