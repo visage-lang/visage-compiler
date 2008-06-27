@@ -58,6 +58,14 @@ import javax.tools.DiagnosticListener;
  */
 public class Main {
 
+    static {
+        ClassLoader loader = Main.class.getClassLoader();
+        if (loader != null) {
+            loader.setPackageAssertionStatus("com.sun.tools.javafx", true);
+            loader.setPackageAssertionStatus("com.sun.tools.javac", true);
+        }
+    }
+
     /** The name of the compiler, for use in diagnostics.
      */
     String ownName;
