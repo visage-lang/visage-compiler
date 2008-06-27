@@ -23,7 +23,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.ExpressionTree;
 import com.sun.javafx.api.JavafxBindStatus;
 import javax.lang.model.element.Name;
 
@@ -39,7 +38,7 @@ import javax.lang.model.element.Name;
  *
  * @author Tom Ball
  */
-public interface ObjectLiteralPartTree extends JavaFXStatementTree {
+public interface ObjectLiteralPartTree extends StatementTree {
     Name getName();
     ExpressionTree getExpression();
     JavafxBindStatus getBindStatus();

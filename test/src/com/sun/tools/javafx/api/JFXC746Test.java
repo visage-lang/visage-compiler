@@ -26,10 +26,10 @@ package com.sun.tools.javafx.api;
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.tools.javafx.api.JavafxcTrees;
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.ExpressionTree;
-import com.sun.source.tree.Tree;
-import com.sun.source.util.SourcePositions;
+import com.sun.javafx.api.tree.UnitTree;
+import com.sun.javafx.api.tree.ExpressionTree;
+import com.sun.javafx.api.tree.Tree;
+import com.sun.javafx.api.tree.SourcePositions;
 import java.io.File;
 import java.util.List;
 import javax.tools.FileObject;
@@ -61,11 +61,11 @@ public class JFXC746Test {
             File file = new File("test/src/com/sun/tools/javafx/api/Test.fx");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file);
             JavafxcTask javafxTask = tool.getTask(null, fileManager, dl, null, fileObjects);
-            List<? extends CompilationUnitTree> treeList = (List)javafxTask.parse();
+            List<? extends UnitTree> treeList = (List)javafxTask.parse();
             assertTrue(treeList.size() == 1);
 
             SourcePositions sp = JavafxcTrees.instance(javafxTask).getSourcePositions();
-            CompilationUnitTree tree = treeList.iterator().next();
+            UnitTree tree = treeList.iterator().next();
             ExpressionTree pkg = tree.getPackageName();
             long start = sp.getStartPosition(tree, pkg);
             long end = sp.getEndPosition(tree, pkg);

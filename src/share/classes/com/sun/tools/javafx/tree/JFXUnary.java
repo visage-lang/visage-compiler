@@ -23,42 +23,60 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.source.tree.Tree.Kind;
-import com.sun.source.tree.TreeVisitor;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.tree.JCTree.Visitor;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.tree.JCTree.JCUnary;
-import com.sun.javafx.api.tree.IndexofTree;
-import com.sun.javafx.api.tree.JavaFXTree;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
+import com.sun.tools.javac.code.Symbol;
 
 /**
  * JavaFX unary expressions
  *
  * @author Tom Ball
  */
-public class JFXUnary extends JCUnary implements JavaFXTree {
+public class JFXUnary extends JFXExpression implements UnaryTree, Tree {
+
+    private JavafxTag opcode;
+    public JFXExpression arg;
+    public Symbol operator;
+
+    protected JFXUnary(JavafxTag opcode, JFXExpression arg) {
+        this.opcode = opcode;
+        this.arg = arg;
+    }
+
+    @Override
+    public void accept(JavafxVisitor v) {
+        v.visitUnary(this);
+    }
+
+    @Override
+    public JavafxTag getFXTag() {
+        return opcode;
+    }
     
-    protected JFXUnary (int opcode, JCExpression arg) {
-        super(opcode, arg);
+    public int getOperatorTag() {
+        return opcode.asOperatorTag();
+    }
+
+    public JFXExpression getExpression() {
+        return arg;
+    }
+
+    public Symbol getOperator() {
+        return operator;
     }
 
     @Override
     public JavaFXKind getJavaFXKind() {
-        switch (getTag()) {
-            case JavafxTag.SIZEOF: 
+        switch (getFXTag()) {
+            case SIZEOF:
                 return JavaFXKind.SIZEOF;
-            case JavafxTag.REVERSE: 
+            case REVERSE:
                 return JavaFXKind.REVERSE;
             default:
-                return null;
+                return JavafxTreeInfo.tagToKind(getFXTag());
         }
     }
-    
-    @Override
-    public Kind getKind() { return JavafxTreeInfo.tagToKind(getTag()); }
 
     @Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {

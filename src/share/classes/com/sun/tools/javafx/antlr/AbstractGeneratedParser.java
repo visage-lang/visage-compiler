@@ -24,13 +24,12 @@
 package com.sun.tools.javafx.antlr;
 
 import com.sun.tools.javac.code.Source;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCAnnotation;
-import com.sun.tools.javac.tree.JCTree.JCErroneous;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
+import com.sun.tools.javafx.tree.JFXTree;
+import com.sun.tools.javafx.tree.JFXErroneous;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
 import com.sun.tools.javafx.util.MsgSym;
 import org.antlr.runtime.*;
@@ -286,7 +285,7 @@ public abstract class AbstractGeneratedParser extends Parser {
     
     /* ---------- error recovery -------------- */
     
-    protected JCErroneous errorTree;
+    protected JFXErroneous errorTree;
     
     /** initializes a new instance of GeneratedParser */
     protected void initialize(Context context) {
@@ -573,12 +572,8 @@ public abstract class AbstractGeneratedParser extends Parser {
         return ((CommonToken)tok).getStartIndex();
     }
     
-    protected List noJCTrees() {
-        return List.<JCTree>nil();
-    }
-    
-    protected List<JCAnnotation> noJCAnnotations() {
-        return List.<JCAnnotation>nil();
+    protected List noJFXTrees() {
+        return List.<JFXTree>nil();
     }
     
     protected Object getMissingSymbol(IntStream input,

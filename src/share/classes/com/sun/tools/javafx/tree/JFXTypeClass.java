@@ -23,11 +23,10 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.TypeClassTree;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.tree.JCTree;
 
 /**
  * Type referencing a class
@@ -35,13 +34,13 @@ import com.sun.tools.javac.tree.JCTree;
  * @author Robert Field
  */
 public class JFXTypeClass extends JFXType implements TypeClassTree {
-    private final JCExpression className;
+    private final JFXExpression className;
     private final ClassSymbol sym;
     
     /*
      * @param cardinality one of the cardinality constants
      */
-    protected JFXTypeClass(JCExpression className,
+    protected JFXTypeClass(JFXExpression className,
             Cardinality cardinality,
             ClassSymbol sym) {
         super(cardinality);
@@ -49,17 +48,17 @@ public class JFXTypeClass extends JFXType implements TypeClassTree {
         this.sym = sym;
     }
 
-    public JCTree getJCTypeTree() {
+    public JFXTree getTypeExpression() {
         return className;
     }
 
     @Override
     public void accept(JavafxVisitor v) { v.visitTypeClass(this); }
     
-    public JCExpression getClassName() { return className; }
+    public JFXExpression getClassName() { return className; }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.TYPECLASS;
     }
 

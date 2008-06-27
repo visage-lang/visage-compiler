@@ -24,7 +24,7 @@
 package com.sun.tools.javafx.api;
 
 import com.sun.javafx.api.JavafxcTask;
-import com.sun.source.tree.CompilationUnitTree;
+import com.sun.javafx.api.tree.UnitTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.javafx.api.tree.OnReplaceTree;
 
@@ -59,12 +59,12 @@ public class JFXC1205Test {
 	Iterable<? extends JavaFileObject> files = fm.getJavaFileObjects(file);
         JavafxcTask task = instance.getTask(null, fm, dl, null, files);
         assertNotNull("no task returned", task);
-        Iterable<? extends CompilationUnitTree> result1 = task.parse();
+        Iterable<? extends UnitTree> result1 = task.parse();
         assertEquals("parse error(s)", 0, dl.errors());
         assertTrue("no compilation units returned", result1.iterator().hasNext());
-        Iterable<? extends CompilationUnitTree> result2 = task.analyze();
+        Iterable<? extends UnitTree> result2 = task.analyze();
         assertTrue("no compilation units returned", result2.iterator().hasNext());
-        CompilationUnitTree t = result2.iterator().next();
+        UnitTree t = result2.iterator().next();
         FindOnReplaceVisitor v = new FindOnReplaceVisitor();
         v.scan(t, null);
     }

@@ -25,6 +25,7 @@ package com.sun.tools.javafx.script;
 
 import com.sun.javafx.api.JavaFXScriptEngine;
 import com.sun.javafx.api.JavafxcTask;
+import com.sun.javafx.api.tree.*;
 import com.sun.javafx.runtime.Entry;
 import com.sun.tools.javac.util.JCDiagnostic;
 import java.io.*;
@@ -37,12 +38,10 @@ import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.ExpressionTree;
-import com.sun.source.util.SourcePositions;
-import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.tools.javafx.api.JavafxcTrees;
+import com.sun.tools.javafx.tree.JFXUnit;
+import com.sun.tools.javafx.tree.JFXTree;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -225,14 +224,14 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                     List<JavaFileObject> compUnits = new ArrayList<JavaFileObject>(1);
                     compUnits.add(manager.makeStringSource(fileName, script));
                     JavafxcTask task = tool.getTask(null, manager, diagnostics, null, compUnits);
-                    Iterable<? extends CompilationUnitTree> units = task.parse();
+                    Iterable<? extends UnitTree> units = task.parse();
                     if (units.iterator().hasNext()) {
-                        CompilationUnitTree unit = units.iterator().next();
+                        UnitTree unit = units.iterator().next();
                         ExpressionTree pkg = unit.getPackageName();
                         if (pkg != null) {
                             // insert bindings after package and before first unit member
                             SourcePositions positions = JavafxcTrees.instance(task).getSourcePositions();
-                            JCTree firstDef = ((JCTree.JCCompilationUnit)unit).defs.head;
+                            JFXTree firstDef = ((JFXUnit)unit).defs.head;
                             bindingInsert = (int)positions.getStartPosition(unit, firstDef);
                         }
                     }

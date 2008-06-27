@@ -23,8 +23,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.ExpressionTree;
-
 /**
  * Common interface for statement nodes in an abstract syntax tree for the 
  * JavaFX Script language.
@@ -37,7 +35,7 @@ import com.sun.source.tree.ExpressionTree;
  *
  * @author Tom Ball
  */
-public interface SequenceSliceTree extends JavaFXExpressionTree {
+public interface SequenceSliceTree extends ExpressionTree {
     ExpressionTree getSequence();
 
     /** An expression for the start of the slice. */

@@ -1,10 +1,10 @@
 /*
- * Copyright 2005-2006 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -23,20 +23,21 @@
 
 package com.sun.javafx.api.tree;
 
-import javax.lang.model.element.Name;
-
 /**
- * Common interface for set attribute statement nodes ("attribute: name")
- * in an abstract syntax tree for the JavaFX Script language.
+ * A tree node for a literal expression.
+ * Use {@link #getKind getKind} to determine the kind of literal.
  *
- * <p><b>WARNING:</b> This interface and its sub-interfaces are 
- * subject to change as the JavaFX Script programming language evolves.
- * These interfaces are implemented by Sun's JavaFX Script compiler (javafxc) 
- * and should not be implemented either directly or indirectly by 
- * other applications.
+ * For example:
+ * <pre>
+ *   <em>value</em>
+ * </pre>
  *
- * @author Tom Ball
+ * @see "The Java Language Specification, 3rd ed, section 15.28"
+ *
+ * @author Peter von der Ah&eacute;
+ * @author Jonathan Gibbons
+ * @since 1.6
  */
-public interface SetAttributeToObjectTree extends JavaFXStatementTree {
-    Name getAttributeName();
+public interface LiteralTree extends ExpressionTree {
+    Object getValue();
 }

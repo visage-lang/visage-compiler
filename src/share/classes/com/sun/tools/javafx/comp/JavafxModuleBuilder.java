@@ -27,9 +27,8 @@ import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Type;
-import static com.sun.tools.javac.code.Flags.*;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
+import static com.sun.tools.javac.code.Flags.*;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
@@ -54,7 +53,7 @@ public class JavafxModuleBuilder {
 
     private final JavafxDefs defs;
     private Table names;
-    private JavafxTreeMaker make;
+    private JavafxTreeMaker fxmake;
     private Log log;
     private JavafxSymtab syms;
     private Set<Name> topLevelNamesSet;
@@ -74,7 +73,7 @@ public class JavafxModuleBuilder {
     protected JavafxModuleBuilder(Context context) {
         defs = JavafxDefs.instance(context);
         names = Table.instance(context);
-        make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
+        fxmake = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         log = Log.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         pseudoFile = names.fromString("__FILE__");
@@ -82,15 +81,15 @@ public class JavafxModuleBuilder {
         commandLineArgs = names.fromString("__ARGS__");
     }
 
-    public void preProcessJfxTopLevel(JCCompilationUnit module) {
+    public void preProcessJfxTopLevel(JFXUnit module) {
         Name moduleClassName = moduleName(module);
         
         if (debugBadPositions) {
             checkForBadPositions(module);
         }
 
-        ListBuffer<JCTree> moduleClassDefs = new ListBuffer<JCTree>();
-        ListBuffer<JCStatement> stats = new ListBuffer<JCStatement>();
+        ListBuffer<JFXTree> moduleClassDefs = new ListBuffer<JFXTree>();
+        ListBuffer<JFXStatement> stats = new ListBuffer<JFXStatement>();
 
         // check for references to pseudo variables and if found, declare them
         final boolean[] usesFile = new boolean[1];
@@ -98,7 +97,7 @@ public class JavafxModuleBuilder {
         final DiagnosticPosition[] diagPos = new DiagnosticPosition[1];
         new JavafxTreeScanner() {
             @Override
-            public void visitIdent(JCIdent id) {
+            public void visitIdent(JFXIdent id) {
                 super.visitIdent(id);
                 if (id.name.equals(pseudoFile)) {
                     usesFile[0] = true;
@@ -109,24 +108,25 @@ public class JavafxModuleBuilder {
                     markPosition(id);
                 }
             }
-            void markPosition(JCTree tree) {
+            void markPosition(JFXTree tree) {
                 if (diagPos[0] == null) { // want the first only
                     diagPos[0] = tree.pos();
                 }
             }
         }.scan(module.defs);
+        //debugPositions(module);
         addPseudoVariables(diagPos[0], moduleClassName, module, moduleClassDefs, usesFile[0], usesDir[0]);
 
         // Divide module defs between run method body, Java compilation unit, and module class
-        ListBuffer<JCTree> topLevelDefs = new ListBuffer<JCTree>();
+        ListBuffer<JFXTree> topLevelDefs = new ListBuffer<JFXTree>();
         JFXClassDeclaration moduleClass = null;
-        JCExpression value = null;
-        for (JCTree tree : module.defs) {
+        JFXExpression value = null;
+        for (JFXTree tree : module.defs) {
             if (value != null) {
-                stats.append( make.at(value).Exec(value) );
+                stats.append( fxmake.at(value).Exec(value) );
                 value = null;
             }
-            switch (tree.getTag()) {
+            switch (tree.getFXTag()) {
             case IMPORT:
                 topLevelDefs.append(tree);
                 break;
@@ -161,10 +161,10 @@ public class JavafxModuleBuilder {
                 break;
             }
             default:
-                if (tree instanceof JCExpression) {
-                    value = (JCExpression)tree;
+                if (tree instanceof JFXExpression) {
+                    value = (JFXExpression)tree;
                 } else {
-                    stats.append((JCStatement)tree);
+                    stats.append((JFXStatement)tree);
                 }
                 break;
             }
@@ -175,10 +175,10 @@ public class JavafxModuleBuilder {
         moduleClassDefs.prepend(runMethod);        
 
         if (moduleClass == null) {
-            moduleClass =  make.ClassDeclaration(
-                make.Modifiers(PUBLIC),   //public access needed for applet initialization 
+            moduleClass =  fxmake.ClassDeclaration(
+                fxmake.Modifiers(PUBLIC),   //public access needed for applet initialization 
                 moduleClassName, 
-                List.<JCExpression>nil(),             // no supertypes
+                List.<JFXExpression>nil(),             // no supertypes
                 moduleClassDefs.toList());
         } else {
             moduleClass.setMembers(moduleClassDefs.appendList(moduleClass.getMembers()).toList());
@@ -193,31 +193,45 @@ public class JavafxModuleBuilder {
         topLevelNamesSet = null;
     }
     
-    private void addPseudoVariables(DiagnosticPosition diagPos, Name moduleClassName, JCCompilationUnit module,
-            ListBuffer<JCTree> stats, boolean usesFile, boolean usesDir) {
+    private void debugPositions(final JFXUnit module) {
+        new JavafxTreeScanner() {
+
+            @Override
+            public void scan(JFXTree tree) {
+                super.scan(tree);
+                if (tree != null) {
+                    System.out.println("[" + tree.getStartPosition() + "," + tree.getEndPosition(module.endPositions) + "]  " + tree.toString());
+                }
+            }
+        }.scan(module);
+
+    }
+    
+    private void addPseudoVariables(DiagnosticPosition diagPos, Name moduleClassName, JFXUnit module,
+            ListBuffer<JFXTree> stats, boolean usesFile, boolean usesDir) {
         if (usesFile || usesDir) {
             // java.net.URL __FILE__ = Util.get__FILE__(moduleClass);
-            JCExpression moduleClassFQN = module.pid != null ?
-                make.at(diagPos).Select(module.pid, moduleClassName) : make.at(diagPos).Ident(moduleClassName);
-            JCExpression getFile = make.at(diagPos).Identifier("com.sun.javafx.runtime.Util.get__FILE__");
-            JCExpression forName = make.at(diagPos).Identifier("java.lang.Class.forName");
-            List<JCExpression> args = List.<JCExpression>of(make.at(diagPos).Literal(moduleClassFQN.toString()));
-            JCExpression loaderCall = make.at(diagPos).Apply(List.<JCExpression>nil(), forName, args);
-            args = List.<JCExpression>of(loaderCall);
-            JCExpression getFileURL = make.at(diagPos).Apply(List.<JCExpression>nil(), getFile, args);
-            JCStatement fileVar =
-                make.at(diagPos).Var(pseudoFile, getURLType(diagPos), 
-                         make.at(diagPos).Modifiers(Flags.FINAL|Flags.STATIC), 
+            JFXExpression moduleClassFQN = module.pid != null ?
+                fxmake.at(diagPos).Select(module.pid, moduleClassName) : fxmake.at(diagPos).Ident(moduleClassName);
+            JFXExpression getFile = fxmake.at(diagPos).Identifier("com.sun.javafx.runtime.Util.get__FILE__");
+            JFXExpression forName = fxmake.at(diagPos).Identifier("java.lang.Class.forName");
+            List<JFXExpression> args = List.<JFXExpression>of(fxmake.at(diagPos).Literal(moduleClassFQN.toString()));
+            JFXExpression loaderCall = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), forName, args);
+            args = List.<JFXExpression>of(loaderCall);
+            JFXExpression getFileURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getFile, args);
+            JFXStatement fileVar =
+                fxmake.at(diagPos).Var(pseudoFile, getURLType(diagPos), 
+                         fxmake.at(diagPos).Modifiers(Flags.FINAL|Flags.STATIC), 
                          false, getFileURL, JavafxBindStatus.UNBOUND, null);
 
             // java.net.URL __DIR__;
             if (usesDir) {
-                JCExpression getDir = make.at(diagPos).Identifier("com.sun.javafx.runtime.Util.get__DIR__");
-                args = List.<JCExpression>of(make.at(diagPos).Ident(pseudoFile));
-                JCExpression getDirURL = make.at(diagPos).Apply(List.<JCExpression>nil(), getDir, args);
+                JFXExpression getDir = fxmake.at(diagPos).Identifier("com.sun.javafx.runtime.Util.get__DIR__");
+                args = List.<JFXExpression>of(fxmake.at(diagPos).Ident(pseudoFile));
+                JFXExpression getDirURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getDir, args);
                 stats.prepend(
-                    make.at(diagPos).Var(pseudoDir, getURLType(diagPos), 
-                             make.at(diagPos).Modifiers(Flags.FINAL|Flags.STATIC), 
+                    fxmake.at(diagPos).Var(pseudoDir, getURLType(diagPos), 
+                             fxmake.at(diagPos).Modifiers(Flags.FINAL|Flags.STATIC), 
                              false, getDirURL, JavafxBindStatus.UNBOUND, null));
             }
 
@@ -226,31 +240,31 @@ public class JavafxModuleBuilder {
     }
     
     private JFXType getURLType(DiagnosticPosition diagPos) {
-        JCExpression urlFQN = make.at(diagPos).Identifier("java.net.URL");
-        return make.at(diagPos).TypeClass(urlFQN, TypeTree.Cardinality.SINGLETON);
+        JFXExpression urlFQN = fxmake.at(diagPos).Identifier("java.net.URL");
+        return fxmake.at(diagPos).TypeClass(urlFQN, TypeTree.Cardinality.SINGLETON);
     }
 
-    private JFXFunctionDefinition makeRunFunction(Name name, List<JCStatement> stats, JCExpression value, Type returnType) {
-        JFXVar mainArgs = make.Param(commandLineArgs, 
-                make.TypeClass(make.Ident(Name.fromString(names, "String")), TypeTree.Cardinality.ANY));
+    private JFXFunctionDefinition makeRunFunction(Name name, List<JFXStatement> stats, JFXExpression value, Type returnType) {
+        JFXVar mainArgs = fxmake.Param(commandLineArgs, 
+                fxmake.TypeClass(fxmake.Ident(Name.fromString(names, "String")), TypeTree.Cardinality.ANY));
         List<JFXVar> argsVarList = List.<JFXVar>of(mainArgs);
         return makeMethod(name, stats, value, returnType, argsVarList);
     }
     
-    private JFXFunctionDefinition makeMethod(Name name, List<JCStatement> stats, JCExpression value, Type returnType, List<JFXVar> param) {
-        JFXBlockExpression body = make.BlockExpression(0, stats, value);
-        JCExpression rettree = make.Type(returnType);
+    private JFXFunctionDefinition makeMethod(Name name, List<JFXStatement> stats, JFXExpression value, Type returnType, List<JFXVar> param) {
+        JFXBlockExpression body = fxmake.BlockExpression(0, stats, value);
+        JFXExpression rettree = fxmake.Type(returnType);
 
         rettree.type = returnType;
-        return make.FunctionDefinition(
-                make.Modifiers(PUBLIC | STATIC | SYNTHETIC), 
+        return fxmake.FunctionDefinition(
+                fxmake.Modifiers(PUBLIC | STATIC | SYNTHETIC), 
                 name, 
-                make.TypeClass(rettree, JFXType.Cardinality.SINGLETON),
+                fxmake.TypeClass(rettree, JFXType.Cardinality.SINGLETON),
                 param, 
                 body);        
     }
     
-    private Name moduleName(JCCompilationUnit tree) {
+    private Name moduleName(JFXUnit tree) {
         String fileObjName = null;
 
         FileObject fo = tree.getSourceFile();
@@ -283,20 +297,19 @@ public class JavafxModuleBuilder {
         topLevelNamesSet.add(name);
     }
     
-    private void checkForBadPositions(JCCompilationUnit testTree) {
-        final Map<JCTree, Integer> endPositions = testTree.endPositions;
+    private void checkForBadPositions(JFXUnit testTree) {
+        final Map<JCTree, Integer> endPositions = testTree.endPositions;  
         new JavafxTreeScanner() {
 
             @Override
-            public void scan(JCTree tree) {
+            public void scan(JFXTree tree) {
                 super.scan(tree);
                 
                 // A Modifiers instance with no modifier tokens and no annotations
                 // is defined as having no position.
-                if (tree instanceof JCModifiers) {
-                    JCModifiers mods = (JCModifiers)tree;
-                    if (mods.getAnnotations().isEmpty() &&
-                        mods.getFlags().isEmpty() || 
+                if (tree instanceof JFXModifiers) {
+                    JFXModifiers mods = (JFXModifiers)tree;
+                    if (mods.getFlags().isEmpty() || 
                         (mods.flags & Flags.SYNTHETIC) != 0)
                         return;
                 }

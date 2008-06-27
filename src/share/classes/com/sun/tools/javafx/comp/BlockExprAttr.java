@@ -25,17 +25,13 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import static com.sun.tools.javac.code.Flags.FINAL;
 import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.TypeTags.*;
-import static com.sun.tools.javac.code.TypeTags.WILDCARD;
 import com.sun.tools.javac.comp.Attr;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.*;
-import com.sun.tools.javafx.tree.JFXBlockExpression;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
 
@@ -74,7 +70,7 @@ public class BlockExprAttr extends Attr  {
     }
 
 
-    public void visitBlockExpression(JFXBlockExpression tree) {
+    public void visitBlockExpression(BlockExprJCBlockExpression tree) {
         // Create a new local environment with a local scope.
         Env<AttrContext> localEnv =
                 env.dup(tree,
@@ -91,6 +87,7 @@ public class BlockExprAttr extends Attr  {
     }
 
     /** Finish the attribution of a class. */
+    @Override
     protected void attribClassBody(Env<AttrContext> env, ClassSymbol c) {
         JCClassDecl tree = (JCClassDecl)env.tree;
         assert c == tree.sym;

@@ -25,9 +25,9 @@ package com.sun.tools.javafx.api;
 
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.tools.javafx.api.JavafxcTool;
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.javafx.api.tree.UnitTree;
 import com.sun.tools.javafx.tree.JFXClassDeclaration;
+import com.sun.tools.javafx.tree.JFXTree;
 import com.sun.tools.javafx.tree.JavafxTreeScanner;
 import java.io.File;
 import java.util.Iterator;
@@ -56,7 +56,7 @@ public class JFXC739Test {
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
             JavafxcTask javafxTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             //Iterable<? extends CompilationUnitTree> treeList = javafxTask.parse();
-            Iterator<? extends CompilationUnitTree> treeList = javafxTask.analyze().iterator();
+            Iterator<? extends UnitTree> treeList = javafxTask.analyze().iterator();
             assertTrue(treeList.hasNext());
             
             // scan classes
@@ -70,7 +70,7 @@ public class JFXC739Test {
                     assertTrue(that.pos >= 0);
                     assertTrue(that.pos().getStartPosition() == that.pos);
                 }
-            }.scan((JCTree)treeList.next());
+            }.scan((JFXTree)treeList.next());
             assertTrue(classes[0] == 2);
         } finally {
             Thread.currentThread().setContextClassLoader(orig);

@@ -23,43 +23,42 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.StringExpressionTree;
-import com.sun.source.tree.ExpressionTree;
-import com.sun.tools.javac.util.List;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.util.List;
 
 /**
  * 
  * @author Robert Field
  */
 public class JFXStringExpression extends JFXExpression implements StringExpressionTree {
-    public List<JCExpression> parts;
+    public List<JFXExpression> parts;
     public String translationKey;
 
-    JFXStringExpression(List<JCExpression> parts, String translationKey) {
+    JFXStringExpression(List<JFXExpression> parts, String translationKey) {
         this.parts = parts;
         this.translationKey = translationKey;
     }
     
-    public void accept(JavafxVisitor v) { v.visitStringExpression(this);}
+    public void accept(JavafxVisitor v) {
+        v.visitStringExpression(this);
+    }
 
     /**
      * Parts are:
      *    (StringPart FormatPartOrNull ExpressionPart)* StringPart
      */
-    public List<JCExpression> getParts() {
+    public List<JFXExpression> getParts() {
         return parts;
     }
 
     public java.util.List<ExpressionTree> getPartList() {
-        return JFXTree.convertList(ExpressionTree.class, parts);
+        return convertList(ExpressionTree.class, parts);
     }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.STRING_EXPRESSION;
     }
 

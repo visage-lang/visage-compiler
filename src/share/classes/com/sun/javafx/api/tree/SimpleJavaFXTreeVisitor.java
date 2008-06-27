@@ -23,14 +23,150 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.util.SimpleTreeVisitor;
-
 /**
  * A simple visitor for JavaFX tree nodes.
  *
  * @author Tom Ball
  */
-public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> implements JavaFXTreeVisitor<R,P> {
+public class SimpleJavaFXTreeVisitor <R,P> implements JavaFXTreeVisitor<R,P> {
+
+    protected final R DEFAULT_VALUE;
+
+    protected SimpleJavaFXTreeVisitor() {
+        DEFAULT_VALUE = null;
+    }
+
+    protected SimpleJavaFXTreeVisitor(R defaultValue) {
+        DEFAULT_VALUE = defaultValue;
+    }
+
+    protected R defaultAction(Tree node, P p) {
+        return DEFAULT_VALUE;
+    }
+
+    public final R visit(Tree node, P p) {
+        return (node == null) ? null : node.accept(this, p);
+    }
+
+    public final R visit(Iterable<? extends Tree> nodes, P p) {
+        R r = null;
+        if (nodes != null)
+            for (Tree node : nodes)
+                r = visit(node, p);
+        return r;
+    }
+
+    public R visitCompilationUnit(UnitTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitImport(ImportTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitClass(ClassTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitVariable(VariableTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitEmptyStatement(EmptyStatementTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitBlock(BlockTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitWhileLoop(WhileLoopTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitTry(TryTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitCatch(CatchTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitConditionalExpression(ConditionalExpressionTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitExpressionStatement(ExpressionStatementTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitBreak(BreakTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitContinue(ContinueTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitReturn(ReturnTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitThrow(ThrowTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitMethodInvocation(FunctionInvocationTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitParenthesized(ParenthesizedTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitAssignment(AssignmentTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitCompoundAssignment(CompoundAssignmentTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitUnary(UnaryTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitBinary(BinaryTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitTypeCast(TypeCastTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitInstanceOf(InstanceOfTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitMemberSelect(MemberSelectTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitIdentifier(IdentifierTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitLiteral(LiteralTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitModifiers(ModifiersTree node, P p) {
+        return defaultAction(node, p);
+    }
+
+    public R visitErroneous(ErroneousTree node, P p) {
+        return defaultAction(node, p);
+    }
 
     public R visitBindExpression(BindExpressionTree node, P p) {
         return defaultAction(node, p);
@@ -116,10 +252,6 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
         return defaultAction(node, p);
     }
 
-    public R visitSetAttributeToObject(SetAttributeToObjectTree node, P p) {
-        return defaultAction(node, p);
-    }
-
     public R visitStringExpression(StringExpressionTree node, P p) {
         return defaultAction(node, p);
     }
@@ -153,10 +285,6 @@ public class SimpleJavaFXTreeVisitor <R,P> extends SimpleTreeVisitor<R, P> imple
     }
     
     public R visitKeyFrameLiteral(KeyFrameLiteralTree node, P p) {
-        return defaultAction(node, p);
-    }
-
-    public R visitVariable(JavaFXVariableTree node, P p) {
         return defaultAction(node, p);
     }
 }

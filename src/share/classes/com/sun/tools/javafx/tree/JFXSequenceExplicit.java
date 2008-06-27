@@ -23,22 +23,19 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.SequenceExplicitTree;
-import com.sun.source.tree.ExpressionTree;
-import com.sun.tools.javac.util.List;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.util.List;
 
 /**
  *
  * @author Robert Field
  */
 public class JFXSequenceExplicit extends JFXAbstractSequenceCreator implements SequenceExplicitTree {
-    private final List<JCExpression> items;
+    private final List<JFXExpression> items;
 
-    public JFXSequenceExplicit(List<JCExpression> items) {
+    public JFXSequenceExplicit(List<JFXExpression> items) {
         this.items = items;
     }
 
@@ -46,16 +43,16 @@ public class JFXSequenceExplicit extends JFXAbstractSequenceCreator implements S
         v.visitSequenceExplicit(this);
     }
 
-    public List<JCExpression> getItems() {
+    public List<JFXExpression> getItems() {
         return items;
     }
     
     public java.util.List<ExpressionTree> getItemList() {
-        return JFXTree.convertList(ExpressionTree.class, items);
+        return convertList(ExpressionTree.class, items);
     }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.SEQUENCE_EXPLICIT;
     }
 

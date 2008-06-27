@@ -30,13 +30,10 @@ import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.code.Type.*;
-import com.sun.tools.javac.tree.JCTree.*;
 
 import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.Kinds.*;
 import static com.sun.tools.javac.code.TypeTags.*;
-
-import static com.sun.tools.javac.tree.JCTree.SELECT;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
@@ -75,7 +72,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     private final JavafxCheck chk;
     private final JavafxAttr attr;
     private final JavafxSymtab syms;
-    private final JavafxTreeMaker make;
+    private final JavafxTreeMaker fxmake;
     private final ClassReader reader;
     private final JavafxTodo todo;
     private final JavafxAnnotate annotate;
@@ -100,7 +97,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         chk = (JavafxCheck)JavafxCheck.instance(context);
         attr = JavafxAttr.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
-        make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
+        fxmake = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         reader = JavafxClassReader.instance(context);
         todo = JavafxTodo.instance(context);
         annotate = JavafxAnnotate.instance(context);
@@ -365,7 +362,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     /** Enter field and method definitions and process import
      *  clauses, catching any completion failure exceptions.
      */
-    void memberEnter(JCTree tree, JavafxEnv<JavafxAttrContext> env) {
+    void memberEnter(JFXTree tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> prevEnv = this.env;
         try {
             this.env = env;
@@ -379,13 +376,13 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
     /** Enter members from a list of trees.
      */
-    void memberEnter(List<? extends JCTree> trees, JavafxEnv<JavafxAttrContext> env) {
-        for (List<? extends JCTree> l = trees; l.nonEmpty(); l = l.tail)
+    void memberEnter(List<? extends JFXTree> trees, JavafxEnv<JavafxAttrContext> env) {
+        for (List<? extends JFXTree> l = trees; l.nonEmpty(); l = l.tail)
             memberEnter(l.head, env);
     }
 
     @Override
-    public void visitTree(JCTree tree) {
+    public void visitTree(JFXTree tree) {
         if (tree instanceof JFXBlockExpression)
             visitBlockExpression((JFXBlockExpression) tree);
         else
@@ -393,12 +390,12 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     }
 
     @Override
-    public void visitErroneous(JCErroneous tree) {
+    public void visitErroneous(JFXErroneous tree) {
         memberEnter(tree.errs, env);
     }
     
     @Override
-    public void visitTopLevel(JCCompilationUnit tree) {
+    public void visitUnit(JFXUnit tree) {
         if (tree.starImportScope.elems != null) {
             // we must have already processed this toplevel
             return;
@@ -419,9 +416,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             }
         }
 
-        // process package annotations
-        annotateLater(tree.packageAnnotations, env, tree.packge);
-
         // Import-on-demand the JavaFX types 
         importNamed(tree.pos(), syms.javafx_StringType.tsym, env);
         importNamed(tree.pos(), syms.javafx_IntegerType.tsym, env);
@@ -433,13 +427,13 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     }
 
     @Override
-    public void visitImport(JCImport tree) {
-        JCTree imp = tree.qualid;
-        Name name = TreeInfo.name(imp);
+    public void visitImport(JFXImport tree) {
+        JFXTree imp = tree.qualid;
+        Name name = JavafxTreeInfo.name(imp);
         TypeSymbol p;
 
         if (!tree.isStatic()) {
-            if (tree.qualid.getTag() == SELECT) {
+            if (tree.qualid.getFXTag() == JavafxTag.SELECT) {
                 if (name == names.fromString("Integer")) { // TODO: use the constant in the new NameTable when available.
                     log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_INTEGER_PRIMITIVE_TYPE);
                 }
@@ -462,8 +456,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         // Attribute qualifying package or class.
         // The code structure here is rather ugly, but we'll
         // fix it when we do implicit-static-import.  FIXME.
-        if (imp instanceof JCFieldAccess) {
-            JCFieldAccess s = (JCFieldAccess) imp;
+        if (imp instanceof JFXSelect) {
+            JFXSelect s = (JFXSelect) imp;
             p = attr.
                 attribTree(s.selected,
                        localEnv,
@@ -540,12 +534,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     }
 
     @Override
-    public void scan(JCTree tree) {
-    }
-
-    @Override
-    public void visitVarDef(JCVariableDecl tree) {
-        assert false : "should not be here";
+    public void scan(JFXTree tree) {
     }
 
     @Override
@@ -576,18 +565,12 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             chk.checkTransparentVar(tree.pos(), v, enclScope);
             enclScope.enter(v);
         }
-        annotateLater(tree.mods.annotations, localEnv, v);
         v.pos = tree.pos;
     }
 
-    @Override
-    public void visitMethodDef(JCMethodDecl tree) {
-        assert false;
-    }
-    
     static class SymbolCompleter implements Completer {
         JavafxEnv<JavafxAttrContext> env;
-        JCTree tree;
+        JFXTree tree;
         JavafxAttr attr;
 
         public void complete(Symbol m) throws CompletionFailure {
@@ -626,7 +609,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     }
 
     @Override
-    public void visitReturn(JCReturn tree) {
+    public void visitReturn(JFXReturn tree) {
         super.visitReturn(tree);
     }
 
@@ -634,7 +617,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     // Begin JavaFX trees
     @Override
     public void visitClassDeclaration(JFXClassDeclaration that) {
-        for (JCExpression superClass : that.getSupertypes()) {
+        for (JFXExpression superClass : that.getSupertypes()) {
             Type superType = attr.attribType(superClass, env);
             if (that.sym != null && that.sym instanceof JavafxClassSymbol) {
                 if (superType != null && superType != Type.noType) {
@@ -648,7 +631,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
  * Type completion
  *********************************************************************/
 
-    Type attribImportType(JCTree tree, JavafxEnv<JavafxAttrContext> env) {
+    Type attribImportType(JFXTree tree, JavafxEnv<JavafxAttrContext> env) {
         assert completionEnabled;
         try {
             // To prevent deep recursion, suppress completion of some
@@ -658,114 +641,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         } finally {
             completionEnabled = true;
         }
-    }
-
-/* ********************************************************************
- * Annotation processing
- *********************************************************************/
-
-    /** Queue annotations for later processing. */
-// JavaFX change
-    protected
-// JavaFX change
-    void annotateLater(final List<JCAnnotation> annotations,
-                       final JavafxEnv<JavafxAttrContext> localEnv,
-                       final Symbol s) {
-        if (annotations.isEmpty()) return;
-        if (s.kind != PCK) s.attributes_field = null; // mark it incomplete for now
-        annotate.later(new JavafxAnnotate.Annotator() {
-                @Override
-                public String toString() {
-                    return "annotate " + annotations + " onto " + s + " in " + s.owner;
-                }
-                public void enterAnnotation() {
-                    assert s.kind == PCK || s.attributes_field == null;
-                    JavaFileObject prev = log.useSource(localEnv.toplevel.sourcefile);
-                    try {
-                        if (s.attributes_field != null &&
-                            s.attributes_field.nonEmpty() &&
-                            annotations.nonEmpty())
-                            log.error(annotations.head.pos,
-                                      MsgSym.MESSAGE_ALREADY_ANNOTATED,
-                                      JavafxResolve.kindName(s), s);
-                        enterAnnotations(annotations, localEnv, s);
-                    } finally {
-                        log.useSource(prev);
-                    }
-                }
-            });
-    }
-
-    /**
-     * Check if a list of annotations contains a reference to
-     * java.lang.Deprecated.
-     **/
-    private boolean hasDeprecatedAnnotation(List<JCAnnotation> annotations) {
-        for (List<JCAnnotation> al = annotations; al.nonEmpty(); al = al.tail) {
-            JCAnnotation a = al.head;
-            if (a.annotationType.type == syms.deprecatedType && a.args.isEmpty())
-                return true;
-        }
-        return false;
-    }
-
-    /** Enter a set of annotations. */
-    private void enterAnnotations(List<JCAnnotation> annotations,
-                          JavafxEnv<JavafxAttrContext> env,
-                          Symbol s) {
-        ListBuffer<Attribute.Compound> buf =
-            new ListBuffer<Attribute.Compound>();
-        Set<TypeSymbol> annotated = new HashSet<TypeSymbol>();
-        if (!skipAnnotations)
-        for (List<JCAnnotation> al = annotations; al.nonEmpty(); al = al.tail) {
-            JCAnnotation a = al.head;
-            Attribute.Compound c = annotate.enterAnnotation(a,
-                                                            syms.annotationType,
-                                                            env);
-            if (c == null) continue;
-            buf.append(c);
-            // Note: @Deprecated has no effect on local variables and parameters
-            if (!c.type.isErroneous()
-                && s.owner.kind != MTH
-                && types.isSameType(c.type, syms.deprecatedType))
-                s.flags_field |= Flags.DEPRECATED;
-            if (!annotated.add(a.type.tsym))
-                log.error(a.pos, MsgSym.MESSAGE_DUPLICATE_ANNOTATION);
-        }
-        s.attributes_field = buf.toList();
-    }
-
-// Javafx change
-    protected
-// Javafx change
-    /** Queue processing of an attribute default value. */
-    void annotateDefaultValueLater(final JCExpression defaultValue,
-                                   final JavafxEnv<JavafxAttrContext> localEnv,
-                                   final MethodSymbol m) {
-        annotate.later(new JavafxAnnotate.Annotator() {
-               @Override
-                public String toString() {
-                    return "annotate " + m.owner + "." +
-                        m + " default " + defaultValue;
-                }
-                public void enterAnnotation() {
-                    JavaFileObject prev = log.useSource(localEnv.toplevel.sourcefile);
-                    try {
-                        enterDefaultValue(defaultValue, localEnv, m);
-                    } finally {
-                        log.useSource(prev);
-                    }
-                }
-            });
-    }
-
-    /** Enter a default value for an attribute method. */
-    private void enterDefaultValue(final JCExpression defaultValue,
-                                   final JavafxEnv<JavafxAttrContext> localEnv,
-                                   final MethodSymbol m) {
-        m.defaultValue = annotate.enterAttributeValue(m.type.getReturnType(),
-                                                      defaultValue,
-                                                      localEnv);
     }
 
 /* ********************************************************************
@@ -799,15 +674,15 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             // If this is a toplevel-class, make sure any preceding import
             // clauses have been seen.
             if (c.owner.kind == PCK) {
-                for (JCTree def : localEnv.toplevel.defs) {
+                for (JFXTree def : localEnv.toplevel.defs) {
                     // Note we have to be careful to not yet visit member
                     // classes (and attribute their super-type), until
                     // we've set the super-types of this class.
                     // Otherwise we risk a stack overflow, at least in the
                     // tricky case of an inheritance cycle that includes the
                     // module class.  There probably is a cleaner way ...
-                    if (def instanceof JCImport)
-                         memberEnter(localEnv.toplevel, localEnv.enclosing(JCTree.TOPLEVEL));
+                    if (def instanceof JFXImport)
+                         memberEnter(localEnv.toplevel, localEnv.enclosing(JavafxTag.TOPLEVEL));
                 }
                 todo.append(localEnv);
             }
@@ -825,10 +700,10 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             ListBuffer<Type> interfaces = new ListBuffer<Type>();
             Set<Type> interfaceSet = new HashSet<Type>();
             {
-                ListBuffer<JCExpression> extending = ListBuffer.<JCExpression>lb();
-                ListBuffer<JCExpression> implementing = ListBuffer.<JCExpression>lb();
+                ListBuffer<JFXExpression> extending = ListBuffer.<JFXExpression>lb();
+                ListBuffer<JFXExpression> implementing = ListBuffer.<JFXExpression>lb();
                 boolean compound = (tree.getModifiers().flags & Flags.FINAL) == 0;
-                for (JCExpression stype : tree.getSupertypes()) {
+                for (JFXExpression stype : tree.getSupertypes()) {
                     Type st = attr.attribType(stype, localEnv);
                     
                     if (st.isInterface()) {
@@ -853,28 +728,24 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             }
             
             if (supertype == null)
-                supertype =
-                ((tree.mods.flags & Flags.ENUM) != 0 && !target.compilerBootstrap(c))
-                ? attr.attribBase(enumBase(tree.pos, c), baseEnv,
-                                  true, false, false)
-                : (c.fullname == names.java_lang_Object)
+                supertype = (c.fullname == names.java_lang_Object)
                 ? Type.noType
                 : syms.objectType;
             ct.supertype_field = supertype;
 
             // Determine interfaces.
-            List<JCExpression> interfaceTrees = tree.getImplementing();
+            List<JFXExpression> interfaceTrees = tree.getImplementing();
             if ((tree.mods.flags & Flags.ENUM) != 0 && target.compilerBootstrap(c)) {
                 // add interface Comparable<T>
                 interfaceTrees =
-                    interfaceTrees.prepend(make.Type(new ClassType(syms.comparableType.getEnclosingType(),
+                    interfaceTrees.prepend(fxmake.Type(new ClassType(syms.comparableType.getEnclosingType(),
                                                                    List.of(c.type),
                                                                    syms.comparableType.tsym)));
                 // add interface Serializable
                 interfaceTrees =
-                    interfaceTrees.prepend(make.Type(syms.serializableType));
+                    interfaceTrees.prepend(fxmake.Type(syms.serializableType));
             }
-            for (JCExpression iface : interfaceTrees) {
+            for (JFXExpression iface : interfaceTrees) {
                 Type i = attr.attribBase(iface, baseEnv, false, true, true);
                 if (i.tag == CLASS) {
                     interfaces.append(i);
@@ -898,17 +769,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                     ct.interfaces_field = List.nil();
                 }
             }
-
-            // Annotations.
-            // In general, we cannot fully process annotations yet,  but we
-            // can attribute the annotation types and then check to see if the
-            // @Deprecated annotation is present.
-            attr.attribAnnotationTypes(tree.mods.annotations, baseEnv);
-            if (hasDeprecatedAnnotation(tree.mods.annotations))
-                c.flags_field |= DEPRECATED;
-            annotateLater(tree.mods.annotations, baseEnv, c);
-
-            attr.attribTypeVariables(tree.getEmptyTypeParameters(), baseEnv);
 
             chk.checkNonCyclic(tree.pos(), c.type);
 
@@ -962,11 +822,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
         private JavafxEnv<JavafxAttrContext> baseEnv(JFXClassDeclaration tree, JavafxEnv<JavafxAttrContext> env) {
         Scope typaramScope = new Scope(tree.sym);
-        if (tree.getEmptyTypeParameters() != null)
-            for (List<JCTypeParameter> typarams = tree.getEmptyTypeParameters();
-                 typarams.nonEmpty();
-                 typarams = typarams.tail)
-                typaramScope.enter(typarams.head.type.tsym);
         JavafxEnv<JavafxAttrContext> outer = env.outer; // the base clause can't see members of this class
         JavafxEnv<JavafxAttrContext> localEnv = outer.dup(tree, outer.info.dup(typaramScope));
         localEnv.baseClause = true;
@@ -987,17 +842,4 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             log.useSource(prev);
         }
     }
-
-    /** Generate a base clause for an enum type.
-     *  @param pos              The position for trees and diagnostics, if any
-     *  @param c                The class symbol of the enum
-     */
-    private JCExpression enumBase(int pos, ClassSymbol c) {
-        JCExpression result = make.at(pos).
-            TypeApply(make.QualIdent(syms.enumSym),
-                      List.<JCExpression>of(make.Type(c.type)));
-        return result;
-    }
-
-
 }

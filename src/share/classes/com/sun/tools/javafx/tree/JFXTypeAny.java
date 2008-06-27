@@ -23,9 +23,8 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.TypeAnyTree;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
 /**
  * Any Type
@@ -42,7 +41,7 @@ public class JFXTypeAny extends JFXType implements TypeAnyTree {
     public void accept(JavafxVisitor v) { v.visitTypeAny(this); }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.TYPEANY;
     }
 
@@ -53,6 +52,6 @@ public class JFXTypeAny extends JFXType implements TypeAnyTree {
 
     @Override
     public JavaFXKind getJavaFXKind() {
-        return JavaFXTree.JavaFXKind.TYPE_ANY;
+        return Tree.JavaFXKind.TYPE_ANY;
     }
 }

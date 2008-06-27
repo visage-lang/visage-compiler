@@ -23,15 +23,14 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.TreeInfo;
-import com.sun.tools.javac.tree.JCTree;
-
-import com.sun.source.tree.Tree;
+import com.sun.javafx.api.tree.Tree;
 import java.util.Map;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.tree.JCTree;
+
+import static com.sun.tools.javac.code.Flags.*;
 
 /** Utility class containing inspector methods for trees.
  *
@@ -40,60 +39,66 @@ import com.sun.tools.javac.tree.JCTree.*;
  *  This code and its internal interfaces are subject to change or
  *  deletion without notice.</b>
  */
-public class JavafxTreeInfo extends TreeInfo {
+public class JavafxTreeInfo {
 
-    public static void preRegister(final Context context) {
-        context.put(treeInfoKey, new Context.Factory<TreeInfo>() {
-	       public TreeInfo make() {
-		   return new JavafxTreeInfo(context);
-	       }
-        });
+    /** The names of all operators.
+     */
+    protected Name[] opname = new Name[JavafxTag.MOD.ordinal() - JavafxTag.NEG.ordinal() + 1];
+
+    protected static final Context.Key<JavafxTreeInfo> fxTreeInfoKey =
+        new Context.Key<JavafxTreeInfo>();
+
+    public static JavafxTreeInfo instance(Context context) {
+        JavafxTreeInfo instance = context.get(fxTreeInfoKey);
+        if (instance == null)
+            instance = new JavafxTreeInfo(context);
+        return instance;
     }
 
-    protected JavafxTreeInfo(Context context) {
-        super(context);
-
+     protected JavafxTreeInfo(Context context) {
 	Name.Table names = Name.Table.instance(context);
-        opname = new Name[JavafxTag.JFX_OP_LAST - JCTree.POS + 1];
-        opname[JCTree.POS     - JCTree.POS] = names.fromString("+");
-	opname[JCTree.NEG     - JCTree.POS] = names.hyphen;
-	opname[JCTree.NOT     - JCTree.POS] = names.fromString("!");
-	opname[JCTree.COMPL   - JCTree.POS] = names.fromString("~");
-	opname[JCTree.PREINC  - JCTree.POS] = names.fromString("++");
-	opname[JCTree.PREDEC  - JCTree.POS] = names.fromString("--");
-	opname[JCTree.POSTINC - JCTree.POS] = names.fromString("++");
-	opname[JCTree.POSTDEC - JCTree.POS] = names.fromString("--");
-	opname[JCTree.NULLCHK - JCTree.POS] = names.fromString("<*nullchk*>");
-	opname[JCTree.OR      - JCTree.POS] = names.fromString("or");
-	opname[JCTree.AND     - JCTree.POS] = names.fromString("and");
-	opname[JCTree.EQ      - JCTree.POS] = names.fromString("==");
-	opname[JCTree.NE      - JCTree.POS] = names.fromString("<>");
-	opname[JCTree.LT      - JCTree.POS] = names.fromString("<");
-	opname[JCTree.GT      - JCTree.POS] = names.fromString(">");
-	opname[JCTree.LE      - JCTree.POS] = names.fromString("<=");
-	opname[JCTree.GE      - JCTree.POS] = names.fromString(">=");
-	opname[JCTree.SL      - JCTree.POS] = names.fromString("<<");
-	opname[JCTree.SR      - JCTree.POS] = names.fromString(">>");
-	opname[JCTree.USR     - JCTree.POS] = names.fromString(">>>");
-	opname[JCTree.PLUS    - JCTree.POS] = names.fromString("+");
-	opname[JCTree.MINUS   - JCTree.POS] = names.hyphen;
-	opname[JCTree.MUL     - JCTree.POS] = names.asterisk;
-	opname[JCTree.DIV     - JCTree.POS] = names.slash;
-	opname[JCTree.MOD     - JCTree.POS] = names.fromString("%");
-	opname[JavafxTag.XOR     - JCTree.POS] = names.fromString("xor");
-	opname[JavafxTag.SIZEOF  - JCTree.POS] = names.fromString("sizeof");
-	opname[JavafxTag.INDEXOF  - JCTree.POS] = names.fromString("indexof");
-	opname[JavafxTag.REVERSE  - JCTree.POS] = names.fromString("reverse");
+        int base = JavafxTag.NEG.ordinal();
+        opname = new Name[JavafxTag.JFX_OP_LAST.ordinal() - base + 1];
+	opname[JavafxTag.NEG    .ordinal() - base] = names.hyphen;
+	opname[JavafxTag.NOT    .ordinal() - base] = names.fromString("!");
+	opname[JavafxTag.PREINC .ordinal() - base] = names.fromString("++");
+	opname[JavafxTag.PREDEC .ordinal() - base] = names.fromString("--");
+	opname[JavafxTag.POSTINC.ordinal() - base] = names.fromString("++");
+	opname[JavafxTag.POSTDEC.ordinal() - base] = names.fromString("--");
+	opname[JavafxTag.NULLCHK.ordinal() - base] = names.fromString("<*nullchk*>");
+	opname[JavafxTag.OR     .ordinal() - base] = names.fromString("or");
+	opname[JavafxTag.AND    .ordinal() - base] = names.fromString("and");
+	opname[JavafxTag.EQ     .ordinal() - base] = names.fromString("==");
+	opname[JavafxTag.NE     .ordinal() - base] = names.fromString("<>");
+	opname[JavafxTag.LT     .ordinal() - base] = names.fromString("<");
+	opname[JavafxTag.GT     .ordinal() - base] = names.fromString(">");
+	opname[JavafxTag.LE     .ordinal() - base] = names.fromString("<=");
+	opname[JavafxTag.GE     .ordinal() - base] = names.fromString(">=");
+	opname[JavafxTag.PLUS   .ordinal() - base] = names.fromString("+");
+	opname[JavafxTag.MINUS  .ordinal() - base] = names.hyphen;
+	opname[JavafxTag.MUL    .ordinal() - base] = names.asterisk;
+	opname[JavafxTag.DIV    .ordinal() - base] = names.slash;
+	opname[JavafxTag.MOD    .ordinal() - base] = names.fromString("%");
+	opname[JavafxTag.XOR    .ordinal() - base] = names.fromString("xor");
+	opname[JavafxTag.SIZEOF .ordinal() - base] = names.fromString("sizeof");
+	opname[JavafxTag.INDEXOF .ordinal() - base] = names.fromString("indexof");
+	opname[JavafxTag.REVERSE .ordinal() - base] = names.fromString("reverse");
     }    
+
+    /** Return name of operator with given tree tag.
+     */
+    public Name operatorName(JavafxTag tag) {
+        return opname[tag.ordinal() - JavafxTag.NEG.ordinal()];
+    }
 
     /** A DiagnosticPosition with the preferred position set to the 
      *  end position of given tree, if it is a block with
      *  defined endpos.
      */
-    public static DiagnosticPosition diagEndPos(final JCTree tree) {
+    public static DiagnosticPosition diagEndPos(final JFXTree tree) {
         final int endPos = JavafxTreeInfo.endPos(tree);
         return new DiagnosticPosition() {
-            public JCTree getTree() { return tree; }
+            public JFXTree getTree() { return tree; }
             public int getStartPosition() { return JavafxTreeInfo.getStartPos(tree); }
             public int getPreferredPosition() { return endPos; }
             public int getEndPosition(Map<JCTree, Integer> endPosTable) { 
@@ -102,30 +107,25 @@ public class JavafxTreeInfo extends TreeInfo {
         };
     }
 
-    public static DiagnosticPosition diagnosticPositionFor(final Symbol sym, final JCTree tree) {
-        JCTree decl = declarationFor(sym, tree);
+    public static DiagnosticPosition diagnosticPositionFor(final Symbol sym, final JFXTree tree) {
+        JFXTree decl = declarationFor(sym, tree);
         return ((decl != null) ? decl : tree).pos();
     }
 
     /** Find the declaration for a symbol, where
      *  that symbol is defined somewhere in the given tree. */
-    public static JCTree declarationFor(final Symbol sym, final JCTree tree) {
+    public static JFXTree declarationFor(final Symbol sym, final JFXTree tree) {
 	class DeclScanner extends JavafxTreeScanner {
-            JCTree result = null;
+            JFXTree result = null;
             @Override
-            public void scan(JCTree tree) {
+            public void scan(JFXTree tree) {
                 if (tree!=null && result==null)
                     tree.accept(this);
             }
             @Override
-	    public void visitTopLevel(JCCompilationUnit that) {
+	    public void visitUnit(JFXUnit that) {
 		if (that.packge == sym) result = that;
-		else super.visitTopLevel(that);
-	    }
-            @Override
-	    public void visitClassDef(JCClassDecl that) {
-		if (that.sym == sym) result = that;
-		else super.visitClassDef(that);
+		else super.visitUnit(that);
 	    }
             @Override
             public void visitFunctionDefinition(JFXFunctionDefinition that) {
@@ -133,37 +133,28 @@ public class JavafxTreeInfo extends TreeInfo {
                 else super.visitFunctionDefinition(that);
             }
             @Override
-	    public void visitMethodDef(JCMethodDecl that) {
-		if (that.sym == sym) result = that;
-		else super.visitMethodDef(that);
-	    }
-            @Override
             public void visitVar(JFXVar that) {
 		if (that.sym == sym) result = that;
 		else super.visitVar(that);
             }
-            @Override
-	    public void visitVarDef(JCVariableDecl that) {
-		if (that.sym == sym) result = that;
-		else super.visitVarDef(that);
-	    }
 	}
 	DeclScanner s = new DeclScanner();
 	tree.accept(s);
 	return s.result;
     }
 
-    public static List<JCTree> pathFor(final JCTree node, final JCCompilationUnit unit) {
+    public static List<JFXTree> pathFor(final JFXTree node, final JFXUnit unit) {
 	class Result extends Error {
 	    static final long serialVersionUID = -5942088234594905625L;
-	    List<JCTree> path;
-	    Result(List<JCTree> path) {
+	    List<JFXTree> path;
+	    Result(List<JFXTree> path) {
 		this.path = path;
 	    }
 	}
 	class PathFinder extends JavafxTreeScanner {
-	    List<JCTree> path = List.nil();
-	    public void scan(JCTree tree) {
+	    List<JFXTree> path = List.nil();
+            @Override
+	    public void scan(JFXTree tree) {
 		if (tree != null) {
 		    path = path.prepend(tree);
 		    if (tree == node)
@@ -179,6 +170,22 @@ public class JavafxTreeInfo extends TreeInfo {
 	    return result.path;
 	}
         return List.nil();
+    }
+
+    /** Return first (smallest) flag in `flags':
+     *  pre: flags != 0
+     */
+    public static long firstFlag(long flags) {
+        int flag = 1;
+        while ((flag & StandardFlags) != 0 && (flag & flags) == 0)
+            flag = flag << 1;
+        return flag;
+    }
+
+    /** Return flags as a string, separated by " ".
+     */
+    public static String flagNames(long flags) {
+        return Flags.toString(flags & StandardFlags).trim();
     }
 
     /** Operator precedences values.
@@ -201,163 +208,128 @@ public class JavafxTreeInfo extends TreeInfo {
 
     /** Map operators to their precedence levels.
      */
-    public static int opPrec(int op) {
+    public static int opPrec(JavafxTag op) {
 	switch(op) {
-	case JCTree.ASSIGN: // Java distinguished, JavaFX doesn't -- Java-style
+	case ASSIGN: // Java distinguished, JavaFX doesn't -- Java-style
             return assignPrec;
-	case JCTree.USR_ASG:
-	case JCTree.PLUS_ASG:
-	case JCTree.MINUS_ASG:
-	case JCTree.MUL_ASG:
-	case JCTree.DIV_ASG:
-	case JCTree.MOD_ASG: 
+	case PLUS_ASG:
+	case MINUS_ASG:
+	case MUL_ASG:
+	case DIV_ASG:
+	case MOD_ASG: 
             return assignopPrec;
-        case JCTree.OR: 
-        case JavafxTag.XOR: 
+        case OR: 
+        case XOR: 
             return orPrec;
-        case JCTree.AND: 
+        case AND: 
             return andPrec;
-        case JCTree.EQ:
-        case JCTree.NE: 
+        case EQ:
+        case NE: 
             return eqPrec;
-        case JCTree.LT:
-        case JCTree.GT:
-        case JCTree.LE:
-        case JCTree.GE: 
+        case LT:
+        case GT:
+        case LE:
+        case GE: 
             return ordPrec;
-        case JCTree.PLUS:
-        case JCTree.MINUS: 
+        case PLUS:
+        case MINUS: 
             return addPrec;
-        case JCTree.MUL:
-        case JCTree.DIV:
-        case JCTree.MOD: 
+        case MUL:
+        case DIV:
+        case MOD: 
             return mulPrec;
-	case JCTree.TYPETEST: 
+	case TYPETEST: 
             return ordPrec;
-	case JCTree.POS:
-	case JCTree.NEG:
-	case JCTree.NOT:
-	case JCTree.COMPL:
-	case JCTree.PREINC:
-	case JCTree.PREDEC: 
+	case NEG:
+	case NOT:
+	case PREINC:
+	case PREDEC: 
             return prefixPrec;
-	case JCTree.POSTINC:
-	case JCTree.POSTDEC:
-	case JCTree.NULLCHK: 
+	case POSTINC:
+	case POSTDEC:
+	case NULLCHK: 
             return postfixPrec;
 	default: throw new AssertionError();
 	}
     }
 
-    static Tree.Kind tagToKind(int tag) {
+    static Tree.JavaFXKind tagToKind(JavafxTag tag) {
         switch (tag) {
         // Postfix expressions
-        case JCTree.POSTINC:           // _ ++
-            return Tree.Kind.POSTFIX_INCREMENT;
-        case JCTree.POSTDEC:           // _ --
-            return Tree.Kind.POSTFIX_DECREMENT;
+        case POSTINC:           // _ ++
+            return Tree.JavaFXKind.POSTFIX_INCREMENT;
+        case POSTDEC:           // _ --
+            return Tree.JavaFXKind.POSTFIX_DECREMENT;
 
         // Unary operators
-        case JCTree.PREINC:            // ++ _
-            return Tree.Kind.PREFIX_INCREMENT;
-        case JCTree.PREDEC:            // -- _
-            return Tree.Kind.PREFIX_DECREMENT;
-        case JCTree.POS:               // +
-            return Tree.Kind.UNARY_PLUS;
-        case JCTree.NEG:               // -
-            return Tree.Kind.UNARY_MINUS;
-        case JCTree.COMPL:             // ~
-            return Tree.Kind.BITWISE_COMPLEMENT;
-        case JCTree.NOT:               // !
-            return Tree.Kind.LOGICAL_COMPLEMENT;
+        case PREINC:            // ++ _
+            return Tree.JavaFXKind.PREFIX_INCREMENT;
+        case PREDEC:            // -- _
+            return Tree.JavaFXKind.PREFIX_DECREMENT;
+        case NEG:               // -
+            return Tree.JavaFXKind.UNARY_MINUS;
+        case NOT:               // !
+            return Tree.JavaFXKind.LOGICAL_COMPLEMENT;
 
         // Binary operators
 
         // Multiplicative operators
-        case JCTree.MUL:               // *
-            return Tree.Kind.MULTIPLY;
-        case JCTree.DIV:               // /
-            return Tree.Kind.DIVIDE;
-        case JCTree.MOD:               // %
-            return Tree.Kind.REMAINDER;
+        case MUL:               // *
+            return Tree.JavaFXKind.MULTIPLY;
+        case DIV:               // /
+            return Tree.JavaFXKind.DIVIDE;
+        case MOD:               // %
+            return Tree.JavaFXKind.REMAINDER;
 
         // Additive operators
-        case JCTree.PLUS:              // +
-            return Tree.Kind.PLUS;
-        case JCTree.MINUS:             // -
-            return Tree.Kind.MINUS;
+        case PLUS:              // +
+            return Tree.JavaFXKind.PLUS;
+        case MINUS:             // -
+            return Tree.JavaFXKind.MINUS;
 
-        // Shift operators
-        case JCTree.SL:                // <<
-            return Tree.Kind.LEFT_SHIFT;
-        case JCTree.SR:                // >>
-            return Tree.Kind.RIGHT_SHIFT;
-        case JCTree.USR:               // >>>
-            return Tree.Kind.UNSIGNED_RIGHT_SHIFT;
-
-        // Relational operators
-        case JCTree.LT:                // <
-            return Tree.Kind.LESS_THAN;
-        case JCTree.GT:                // >
-            return Tree.Kind.GREATER_THAN;
-        case JCTree.LE:                // <=
-            return Tree.Kind.LESS_THAN_EQUAL;
-        case JCTree.GE:                // >=
-            return Tree.Kind.GREATER_THAN_EQUAL;
+         // Relational operators
+        case LT:                // <
+            return Tree.JavaFXKind.LESS_THAN;
+        case GT:                // >
+            return Tree.JavaFXKind.GREATER_THAN;
+        case LE:                // <=
+            return Tree.JavaFXKind.LESS_THAN_EQUAL;
+        case GE:                // >=
+            return Tree.JavaFXKind.GREATER_THAN_EQUAL;
 
         // Equality operators
-        case JCTree.EQ:                // ==
-            return Tree.Kind.EQUAL_TO;
-        case JCTree.NE:                // !=
-            return Tree.Kind.NOT_EQUAL_TO;
+        case EQ:                // ==
+            return Tree.JavaFXKind.EQUAL_TO;
+        case NE:                // !=
+            return Tree.JavaFXKind.NOT_EQUAL_TO;
 
-        // Bitwise and logical operators
-        case JCTree.BITAND:            // &
-            return Tree.Kind.AND;
-        case JCTree.BITXOR:            // ^
-            return Tree.Kind.XOR;
-        case JCTree.BITOR:             // |
-            return Tree.Kind.OR;
-
-        // Conditional operators
-        case JCTree.AND:               // &&
-            return Tree.Kind.CONDITIONAL_AND;
-        case JCTree.OR:                // ||
-            return Tree.Kind.CONDITIONAL_OR;
+         // Conditional operators
+        case AND:               // &&
+            return Tree.JavaFXKind.CONDITIONAL_AND;
+        case OR:                // ||
+            return Tree.JavaFXKind.CONDITIONAL_OR;
 
         // Assignment operators
-        case JCTree.MUL_ASG:           // *=
-            return Tree.Kind.MULTIPLY_ASSIGNMENT;
-        case JCTree.DIV_ASG:           // /=
-            return Tree.Kind.DIVIDE_ASSIGNMENT;
-        case JCTree.MOD_ASG:           // %=
-            return Tree.Kind.REMAINDER_ASSIGNMENT;
-        case JCTree.PLUS_ASG:          // +=
-            return Tree.Kind.PLUS_ASSIGNMENT;
-        case JCTree.MINUS_ASG:         // -=
-            return Tree.Kind.MINUS_ASSIGNMENT;
-        case JCTree.SL_ASG:            // <<=
-            return Tree.Kind.LEFT_SHIFT_ASSIGNMENT;
-        case JCTree.SR_ASG:            // >>=
-            return Tree.Kind.RIGHT_SHIFT_ASSIGNMENT;
-        case JCTree.USR_ASG:           // >>>=
-            return Tree.Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT;
-        case JCTree.BITAND_ASG:        // &=
-            return Tree.Kind.AND_ASSIGNMENT;
-        case JCTree.BITXOR_ASG:        // ^=
-            return Tree.Kind.XOR_ASSIGNMENT;
-        case JCTree.BITOR_ASG:         // |=
-            return Tree.Kind.OR_ASSIGNMENT;
+        case MUL_ASG:           // *=
+            return Tree.JavaFXKind.MULTIPLY_ASSIGNMENT;
+        case DIV_ASG:           // /=
+            return Tree.JavaFXKind.DIVIDE_ASSIGNMENT;
+        case MOD_ASG:           // %=
+            return Tree.JavaFXKind.REMAINDER_ASSIGNMENT;
+        case PLUS_ASG:          // +=
+            return Tree.JavaFXKind.PLUS_ASSIGNMENT;
+        case MINUS_ASG:         // -=
+            return Tree.JavaFXKind.MINUS_ASSIGNMENT;
 
         // Null check (implementation detail), for example, __.getClass()
-        case JCTree.NULLCHK:
-            return Tree.Kind.OTHER;
+        case NULLCHK:
+            return Tree.JavaFXKind.OTHER;
 
         // JavaFX tags which are used in javac trees
-        case JavafxTag.SIZEOF:
-            return Tree.Kind.OTHER;
-        case JavafxTag.REVERSE:
-            return Tree.Kind.OTHER;
+        case SIZEOF:
+            return Tree.JavaFXKind.OTHER;
+        case REVERSE:
+            return Tree.JavaFXKind.OTHER;
 
         default:
             return null;
@@ -366,56 +338,85 @@ public class JavafxTreeInfo extends TreeInfo {
     /** If this tree is an identifier or a field, return its symbol,
      *  otherwise return null.
      */
-    public static Symbol symbol(JCTree tree) {
+    public static Symbol symbol(JFXTree tree) {
 	tree = skipParens(tree);
-	switch (tree.getTag()) {
-	case JCTree.IDENT:
-	    return ((JCIdent) tree).sym;
-	case JCTree.SELECT:
-	    return ((JCFieldAccess) tree).sym;
-	case JCTree.TYPEAPPLY:
-	    return symbol(((JCTypeApply) tree).clazz);
-        case JCTree.INDEXED:
-            return symbol(((JCArrayAccess) tree).indexed);
-        case JavafxTag.SEQUENCE_INDEXED:
+	switch (tree.getFXTag()) {
+	case IDENT:
+	    return ((JFXIdent) tree).sym;
+	case SELECT:
+	    return ((JFXSelect) tree).sym;
+        case SEQUENCE_INDEXED:
             return symbol(((JFXSequenceIndexed) tree).getSequence());
-        case JavafxTag.SEQUENCE_SLICE:
+        case SEQUENCE_SLICE:
             return symbol(((JFXSequenceSlice) tree).getSequence());
 	default:
 	    return null;
 	}
     }
 
-    public static Symbol symbolFor(JCTree node) {
+    /** Skip parens and return the enclosed expression
+     */
+    public static JFXTree skipParens(JFXTree tree) {
+        if (tree.getFXTag() == JavafxTag.PARENS)
+            return skipParens((JFXParens)tree);
+        else
+            return tree;
+    }
+
+    /** If this tree is a qualified identifier, its return fully qualified name,
+     *  otherwise return null.
+     */
+    public static Name fullName(JFXTree tree) {
+        tree = skipParens(tree);
+        switch (tree.getFXTag()) {
+        case IDENT:
+            return ((JFXIdent) tree).name;
+        case SELECT:
+            Name sname = fullName(((JFXSelect) tree).selected);
+            return sname == null ? null : sname.append('.', name(tree));
+        default:
+            return null;
+        }
+    }
+
+    /** If this tree is an identifier or a field or a parameterized type,
+     *  return its name, otherwise return null.
+     */
+    public static Name name(JFXTree tree) {
+        switch (tree.getFXTag()) {
+        case IDENT:
+            return ((JFXIdent) tree).name;
+        case SELECT:
+            return ((JFXSelect) tree).name;
+        default:
+            return null;
+        }
+    }
+
+    public static Symbol symbolFor(JFXTree node) {
         node = skipParens(node);
-        switch (node.getTag()) {
-        case JavafxTag.VAR_DEF:
+        switch (node.getFXTag()) {
+        case VAR_DEF:
             return ((JFXVar) node).sym;
-        case JavafxTag.CLASS_DEF:
+        case CLASS_DEF:
             return ((JFXClassDeclaration) node).sym;
-        case JavafxTag.FUNCTION_DEF:
+        case FUNCTION_DEF:
             return ((JFXFunctionDefinition) node).sym;
-        case JavafxTag.OBJECT_LITERAL_PART:
+        case OBJECT_LITERAL_PART:
             return ((JFXObjectLiteralPart) node).sym;
-        case JavafxTag.TYPECLASS:
-            return symbolFor(((JFXTypeClass) node).getJCTypeTree());
-        case JCTree.IDENT:
-            return ((JCIdent) node).sym;
-        case JCTree.SELECT:
-            return ((JCFieldAccess) node).sym;
-        case JCTree.NEWCLASS:
-            return ((JCNewClass) node).constructor;
-        case JCTree.APPLY:
-            return symbolFor(((JCMethodInvocation) node).meth);
-        case JCTree.TYPEAPPLY:
-            return symbolFor(((JCTypeApply) node).clazz);
-        case JCTree.TYPEPARAMETER:
-            return ((JCTypeParameter) node).type.tsym;
-        case JCTree.TOPLEVEL:
-            return ((JCCompilationUnit) node).packge;
+        case TYPECLASS:
+            return symbolFor(((JFXTypeClass) node).getTypeExpression());
+        case IDENT:
+            return ((JFXIdent) node).sym;
+        case SELECT:
+            return ((JFXSelect) node).sym;
+        case APPLY:
+            return symbolFor(((JFXFunctionInvocation) node).meth);
+        case TOPLEVEL:
+            return ((JFXUnit) node).packge;
 
         default:
-            return TreeInfo.symbolFor(node);
+            return JavafxTreeInfo.symbolFor(node);
         }
     }
 
@@ -424,57 +425,103 @@ public class JavafxTreeInfo extends TreeInfo {
      * token of the node's source text.
      * @param tree  The tree node
      */
-    public static int getStartPos(JCTree tree) {
+    public static int getStartPos(JFXTree tree) {
         if (tree == null)
             return Position.NOPOS;
         
-        return TreeInfo.getStartPos(tree);
+        switch(tree.getFXTag()) {
+        case APPLY:
+            return getStartPos(((JFXFunctionInvocation) tree).meth);
+        case ASSIGN:
+            return getStartPos(((JFXAssign) tree).lhs);
+        case PLUS_ASG: case MINUS_ASG: case MUL_ASG:
+        case DIV_ASG: case MOD_ASG:
+            return getStartPos(((JFXAssignOp) tree).lhs);
+        case OR: case AND: 
+        case EQ:
+        case NE: case LT: case GT:
+        case LE: case GE: 
+        case PLUS:
+        case MINUS: case MUL: case DIV:
+        case MOD:
+            return getStartPos(((JFXBinary) tree).lhs);
+         case EXEC:
+            return getStartPos(((JFXExpressionStatement) tree).expr);
+        case SELECT:
+            return getStartPos(((JFXSelect) tree).selected);
+        case TYPETEST:
+            return getStartPos(((JFXInstanceOf) tree).expr);
+        case POSTINC:
+        case POSTDEC:
+            return getStartPos(((JFXUnary) tree).arg);
+        case ERRONEOUS: {
+            JFXErroneous node = (JFXErroneous)tree;
+            if (node.errs != null && node.errs.nonEmpty())
+                return getStartPos(node.errs.head);
+        }
+        }
+        return tree.pos;
+    }
+
+    /** The end position of given tree, if it is a block with
+     *  defined endpos.
+     */
+    public static int endPos(JFXTree tree) {
+        if (tree.getFXTag() == JavafxTag.BLOCK && ((JFXBlock) tree).endpos != Position.NOPOS)
+            return ((JFXBlock) tree).endpos;
+        else if (tree.getFXTag() == JavafxTag.TRY) {
+            JFXTry t = (JFXTry) tree;
+            return endPos((t.finalizer != null)
+                          ? t.finalizer
+                          : t.catchers.last().body);
+        } else
+            return tree.pos;
     }
 
     /** The end position of given tree, given  a table of end positions generated by the parser
      */
-    public static int getEndPos(JCTree tree, Map<JCTree, Integer> endPositions) {
+    public static int getEndPos(JFXTree tree, Map<JCTree, Integer> endPositions) {
         if (tree == null)
             return Position.NOPOS;
 
         if (endPositions == null) {
             // fall back on limited info in the tree
             return tree instanceof JFXBlockExpression ? 
-                ((JFXBlockExpression)tree).endpos : TreeInfo.endPos(tree);
+                ((JFXBlockExpression)tree).endpos : JavafxTreeInfo.endPos(tree);
         }
 
         Integer mapPos = endPositions.get(tree);
         if (mapPos != null)
             return mapPos;
 
-        switch(tree.getTag()) {
-          case(JavafxTag.INIT_DEF):
-            return getEndPos((JCTree) ((JFXInitDefinition) tree).getBody(), endPositions);
-          case(JavafxTag.POSTINIT_DEF):
-            return getEndPos((JCTree) ((JFXPostInitDefinition) tree).getBody(), endPositions);
-          case(JavafxTag.OVERRIDE_ATTRIBUTE_DEF): {
+        switch(tree.getFXTag()) {
+          case INIT_DEF:
+            return getEndPos((JFXTree) ((JFXInitDefinition) tree).getBody(), endPositions);
+          case POSTINIT_DEF:
+            return getEndPos((JFXTree) ((JFXPostInitDefinition) tree).getBody(), endPositions);
+          case OVERRIDE_ATTRIBUTE_DEF: {
             JFXOverrideAttribute t = (JFXOverrideAttribute)tree;
             if (t.getOnReplace() != null)
                 return getEndPos(t.getOnReplace(), endPositions);
             return getEndPos(t.getInitializer(), endPositions);
           }
-          case(JavafxTag.ON_REPLACE):
+          case ON_REPLACE:
             return getEndPos(((JFXOnReplace) tree).getBody(), endPositions);
-          case(JavafxTag.OBJECT_LITERAL_PART):
+          case OBJECT_LITERAL_PART:
             return getEndPos(((JFXObjectLiteralPart) tree).getExpression(), endPositions);
-          case(JavafxTag.STRING_EXPRESSION):
+          case STRING_EXPRESSION:
             return tree.pos + ((JFXStringExpression) tree).translationKey.length();
-          case(JavafxTag.BIND_EXPRESSION):
+          case BIND_EXPRESSION:
             return getEndPos(((JFXBindExpression) tree).getExpression(), endPositions);
-          case(JavafxTag.FOR_EXPRESSION):
+          case FOR_EXPRESSION:
             return getEndPos(((JFXForExpression) tree).getBodyExpression(), endPositions);
-          case(JavafxTag.FOR_EXPRESSION_IN_CLAUSE):
+          case FOR_EXPRESSION_IN_CLAUSE:
             return getEndPos(((JFXForExpressionInClause) tree).getWhereExpression(), endPositions);
-          case(JavafxTag.TYPECLASS):
+          case TYPECLASS:
             return getEndPos(((JFXTypeClass) tree).getClassName(), endPositions);
-          case(JavafxTag.TIME_LITERAL):
+          case TIME_LITERAL:
             return tree.pos + tree.toString().length();
         }
-        return TreeInfo.getStartPos(tree);
+        return JavafxTreeInfo.getStartPos(tree);
     }
 }

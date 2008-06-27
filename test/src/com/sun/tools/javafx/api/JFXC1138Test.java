@@ -25,11 +25,11 @@ package com.sun.tools.javafx.api;
 
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.javafx.api.tree.JavaFXTreeScanner;
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.IdentifierTree;
-import com.sun.source.tree.MemberSelectTree;
-import com.sun.source.tree.Tree;
-import com.sun.source.util.SourcePositions;
+import com.sun.javafx.api.tree.UnitTree;
+import com.sun.javafx.api.tree.IdentifierTree;
+import com.sun.javafx.api.tree.MemberSelectTree;
+import com.sun.javafx.api.tree.Tree;
+import com.sun.javafx.api.tree.SourcePositions;
 
 import java.io.File;
 import java.util.HashMap;
@@ -60,11 +60,11 @@ public class JFXC1138Test {
             File file = new File("test/src/com/sun/tools/javafx/api/JFXC1138.fx");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
             JavafxcTask javafxTask = tool.getTask(null, fileManager, dl, null, fileObjects);
-            Iterable<? extends CompilationUnitTree> treeList = javafxTask.analyze();
+            Iterable<? extends UnitTree> treeList = javafxTask.analyze();
             
             JavafxcTrees trees = JavafxcTrees.instance(javafxTask);
             SourcePositions sp = trees.getSourcePositions();
-            CompilationUnitTree unit = treeList.iterator().next();
+            UnitTree unit = treeList.iterator().next();
             
             TreeFinder d = new TreeFinder(unit, testTrees);
             d.scan(treeList, null);
@@ -80,17 +80,17 @@ public class JFXC1138Test {
         }
     }
     
-    private void testPositions(Tree tree, SourcePositions sp, CompilationUnitTree unit, int start, int end) {
+    private void testPositions(Tree tree, SourcePositions sp, UnitTree unit, int start, int end) {
         assertNotNull(tree);
         assertEquals(start, sp.getStartPosition(unit, tree));
         assertEquals(end, sp.getEndPosition(unit, tree));
     }
 
     static class TreeFinder extends JavaFXTreeScanner<Void,Object> {
-        CompilationUnitTree unit;
+        UnitTree unit;
         Map<String,Tree> trees;
 
-        TreeFinder(CompilationUnitTree unit, Map<String,Tree>trees) {
+        TreeFinder(UnitTree unit, Map<String,Tree>trees) {
             this.unit = unit;
             this.trees = trees;
         }

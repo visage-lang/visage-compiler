@@ -23,13 +23,11 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.LiteralTree;
-
 /**
  * A tree node for a JavaFX Script time literal.
  * @author tball
  */
-public interface TimeLiteralTree extends JavaFXTree {
+public interface TimeLiteralTree extends Tree {
 
     public enum Duration {
         

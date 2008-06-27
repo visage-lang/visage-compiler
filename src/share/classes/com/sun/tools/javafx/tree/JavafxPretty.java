@@ -32,15 +32,16 @@ import java.util.Map;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.javafx.api.tree.InterpolateValueTree;
-import com.sun.javafx.api.tree.TypeTree.Cardinality;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.tree.Pretty;
-import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Position;
 import java.util.Iterator;
+
+import static com.sun.tools.javac.code.Flags.*;
 
 /** Prints out a tree as an indented Java source program.
  *
@@ -51,12 +52,31 @@ import java.util.Iterator;
  *
  * @author Robert Field
  */
-public class JavafxPretty extends Pretty implements JavafxVisitor {
+public class JavafxPretty implements JavafxVisitor {
     public static final int SCOPE_OUTER = 0;
     public static final int SCOPE_CLASS = 1;
     public static final int SCOPE_METHOD = 2;
     public static final int SCOPE_PARAMS = 3;
     protected int variableScope = SCOPE_OUTER;
+
+   /** Set when we are producing source output.  If we're not
+     *  producing source output, we can sometimes give more detail in
+     *  the output even though that detail would not be valid java
+     *  soruce.
+     */
+    protected final boolean sourceOutput;
+
+    /** The output stream on which trees are printed.
+     */
+    Writer out;
+
+    /** Indentation width (can be reassigned from outside).
+     */
+    public int width = 4;
+
+    /** The current left margin.
+     */
+    int lmargin = 0;
 
     /** A hashtable mapping trees to their documentation comments
      *  (can be null)
@@ -66,19 +86,631 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     CharSequence sourceContent;
 
     public JavafxPretty(Writer out, boolean sourceOutput, CharSequence content) {
-        super(out, sourceOutput);
+        this.out = out;
+        this.sourceOutput = sourceOutput;
         sourceContent = content;
     }
 
     public JavafxPretty(Writer out, boolean sourceOutput) {
-        super(out, sourceOutput);
+        this.out = out;
+        this.sourceOutput = sourceOutput;
         sourceContent = null;
     }
 
-    @Override
-    public void printUnit(JCCompilationUnit tree, JCClassDecl cdef) throws IOException {
+    /** The enclosing class name.
+     */
+    Name enclClassName;
+
+    /** Align code to be indented to left margin.
+     */
+    public void align() throws IOException {
+        for (int i = 0; i < lmargin; i++) out.write(" ");
+    }
+
+    /** Increase left margin by indentation width.
+     */
+    public void indent() {
+        lmargin = lmargin + width;
+    }
+
+    /** Decrease left margin by indentation width.
+     */
+    public void undent() {
+        lmargin = lmargin - width;
+    }
+
+    /** Enter a new precedence level. Emit a `(' if new precedence level
+     *  is less than precedence level so far.
+     *  @param contextPrec    The precedence level in force so far.
+     *  @param ownPrec        The new precedence level.
+     */
+    void open(int contextPrec, int ownPrec) throws IOException {
+        if (ownPrec < contextPrec) out.write("(");
+    }
+
+    /** Leave precedence level. Emit a `(' if inner precedence level
+     *  is less than precedence level we revert to.
+     *  @param contextPrec    The precedence level we revert to.
+     *  @param ownPrec        The inner precedence level.
+     */
+    void close(int contextPrec, int ownPrec) throws IOException {
+        if (ownPrec < contextPrec) out.write(")");
+    }
+
+    /** Print string, replacing all non-ascii character with unicode escapes.
+     */
+    public void print(Object s) throws IOException {
+        out.write(Convert.escapeUnicode(s.toString()));
+    }
+
+    /** Print new line.
+     */
+    public void println() throws IOException {
+        out.write(lineSep);
+    }
+
+    String lineSep = System.getProperty("line.separator");
+
+    /**************************************************************************
+     * Traversal methods
+     *************************************************************************/
+
+    /** Exception to propogate IOException through visitXXX methods */
+    protected static class UncheckedIOException extends Error {
+        static final long serialVersionUID = -4032692679158424751L;
+        public UncheckedIOException(IOException e) {
+            super(e.getMessage(), e);
+        }
+    }
+
+    /** Visitor argument: the current precedence level.
+     */
+    protected int prec;
+
+    /** Visitor method: print expression tree.
+     *  @param prec  The current precedence level.
+     */
+    public void printExpr(JFXTree tree, int prec) throws IOException {
+        int prevPrec = this.prec;
+        try {
+//          uncomment to debug position information
+//            println();
+//            print(posAsString(tree.getStartPosition()));
+            this.prec = prec;
+            if (tree == null) {
+                print("/*missing*/");
+            } else {
+                tree.accept(this);
+            }
+        } catch (UncheckedIOException ex) {
+            IOException e = new IOException(ex.getMessage());
+            e.initCause(ex);
+            throw e;
+        } finally {
+            this.prec = prevPrec;
+        }
+    }
+
+    /** Derived visitor method: print expression tree at minimum precedence level
+     *  for expression.
+     */
+    public void printExpr(JFXTree tree) throws IOException {
+        printExpr(tree, JavafxTreeInfo.noPrec);
+    }
+
+    /** Derived visitor method: print statement tree.
+     */
+    public void printStat(JFXTree tree) throws IOException {
+        printExpr(tree, JavafxTreeInfo.notExpression);
+    }
+
+    /** Derived visitor method: print list of expression trees, separated by given string.
+     *  @param sep the separator string
+     */
+    public <T extends JFXTree> void printExprs(List<T> trees, String sep) throws IOException {
+        if (trees.nonEmpty()) {
+            printExpr(trees.head);
+            for (List<T> l = trees.tail; l.nonEmpty(); l = l.tail) {
+                print(sep);
+                printExpr(l.head);
+            }
+        }
+    }
+
+    /** Derived visitor method: print list of expression trees, separated by commas.
+     */
+    public <T extends JFXTree> void printExprs(List<T> trees) throws IOException {
+        printExprs(trees, ", ");
+    }
+
+    /** Derived visitor method: print list of statements, each on a separate line.
+     */
+    public void printStats(List<? extends JFXTree> trees) throws IOException {
+        for (List<? extends JFXTree> l = trees; l.nonEmpty(); l = l.tail) {
+            align();
+            printStat(l.head);
+            println();
+        }
+    }
+
+    /** Print a set of modifiers.
+     */
+    public void printFlags(long flags) throws IOException {
+        if ((flags & SYNTHETIC) != 0) print("/*synthetic*/ ");
+        print(JavafxTreeInfo.flagNames(flags));
+        if ((flags & StandardFlags) != 0) print(" ");
+        if ((flags & ANNOTATION) != 0) print("@");
+    }
+
+    /** Print documentation comment, if it exists
+     *  @param tree    The tree for which a documentation comment should be printed.
+     */
+    public void printDocComment(JFXTree tree) throws IOException {
+        if (docComments != null) {
+            String dc = docComments.get(tree);
+            if (dc != null) {
+                print("/**"); println();
+                int pos = 0;
+                int endpos = lineEndPos(dc, pos);
+                while (pos < dc.length()) {
+                    align();
+                    print(" *");
+                    if (pos < dc.length() && dc.charAt(pos) > ' ') print(" ");
+                    print(dc.substring(pos, endpos)); println();
+                    pos = endpos + 1;
+                    endpos = lineEndPos(dc, pos);
+                }
+                align(); print(" */"); println();
+                align();
+            }
+        }
+    }
+//where
+    static int lineEndPos(String s, int start) {
+        int pos = s.indexOf('\n', start);
+        if (pos < 0) pos = s.length();
+        return pos;
+    }
+
+    /** Print a block.
+     */
+    public void printBlock(List<? extends JFXTree> stats) throws IOException {
+        print("{");
+        println();
+        indent();
+        printStats(stats);
+        undent();
+        align();
+        print("}");
+    }
+
+    /** Print unit consisting of package clause and import statements in toplevel,
+     *  followed by class definition. if class definition == null,
+     *  print all definitions in toplevel.
+     *  @param tree     The toplevel tree
+     *  @param cdef     The class definition, which is assumed to be part of the
+     *                  toplevel tree.
+     */
+    public void printUnit(JFXUnit tree) throws IOException {
         docComments = tree.docComments;
-        super.printUnit(tree, cdef);
+        printDocComment(tree);
+        if (tree.pid != null) {
+            print("package ");
+            printExpr(tree.pid);
+            print(";");
+            println();
+        }
+        boolean firstImport = true;
+        for (List<JFXTree> l = tree.defs; l.nonEmpty(); l = l.tail) {
+            if (l.head.getFXTag() == JavafxTag.IMPORT) {
+                JFXImport imp = (JFXImport)l.head;
+                    if (firstImport) {
+                        firstImport = false;
+                        println();
+                    }
+                    printStat(imp);
+            } else {
+                printStat(l.head);
+            }
+        }
+    }
+    // where
+    boolean isUsed(final Symbol t, JFXTree cdef) {
+        class UsedVisitor extends JavafxTreeScanner {
+            public void scan(JFXTree tree) {
+                if (tree!=null && !result) tree.accept(this);
+            }
+            boolean result = false;
+            public void visitIdent(JFXIdent tree) {
+                if (tree.sym == t) result = true;
+            }
+        }
+        UsedVisitor v = new UsedVisitor();
+        v.scan(cdef);
+        return v.result;
+    }
+
+    /**************************************************************************
+     * Visitor methods
+     *************************************************************************/
+
+    public void visitUnit(JFXUnit tree) {
+        try {
+            printUnit(tree);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitImport(JFXImport tree) {
+        try {
+            print("import ");
+            if (tree.staticImport) print("static ");
+            printExpr(tree.qualid);
+            print(";");
+            println();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitSkip(JFXSkip tree) {
+        try {
+            print(";");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitBlock(JFXBlock tree) {
+        try {
+            printFlags(tree.flags);
+            printBlock(tree.stats);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitWhileLoop(JFXWhileLoop tree) {
+        try {
+            print("while ");
+            if (tree.cond.getFXTag() == JavafxTag.PARENS) {
+                printExpr(tree.cond);
+            } else {
+                print("(");
+                printExpr(tree.cond);
+                print(")");
+            }
+            print(" ");
+            printStat(tree.body);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitTry(JFXTry tree) {
+        try {
+            print("try ");
+            printStat(tree.body);
+            for (List<JFXCatch> l = tree.catchers; l.nonEmpty(); l = l.tail) {
+                printStat(l.head);
+            }
+            if (tree.finalizer != null) {
+                print(" finally ");
+                printStat(tree.finalizer);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitCatch(JFXCatch tree) {
+        try {
+            print(" catch (");
+            printExpr(tree.param);
+            print(") ");
+            printStat(tree.body);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitIfExpression(JFXIfExpression tree) {
+        try {
+            print(" if (");
+            printExpr(tree.cond);
+            print(") ");
+            printExpr(tree.truepart);
+            if (tree.falsepart != null) {
+                print(" else ");
+                printExpr(tree.falsepart);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitExec(JFXExpressionStatement tree) {
+        try {
+            printExpr(tree.expr);
+            if (prec == JavafxTreeInfo.notExpression) print(";");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitBreak(JFXBreak tree) {
+        try {
+            print("break");
+            if (tree.label != null) print(" " + tree.label);
+            print(";");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitContinue(JFXContinue tree) {
+        try {
+            print("continue");
+            if (tree.label != null) print(" " + tree.label);
+            print(";");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitReturn(JFXReturn tree) {
+        try {
+            print("return");
+            if (tree.expr != null) {
+                print(" ");
+                printExpr(tree.expr);
+            }
+            print(";");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitThrow(JFXThrow tree) {
+        try {
+            print("throw ");
+            printExpr(tree.expr);
+            print(";");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+        try {
+            if (!tree.typeargs.isEmpty()) {
+                if (tree.meth.getFXTag() == JavafxTag.SELECT) {
+                    JFXSelect left = (JFXSelect)tree.meth;
+                    printExpr(left.selected);
+                    print(".<");
+                    printExprs(tree.typeargs);
+                    print(">" + left.name);
+                } else {
+                    print("<");
+                    printExprs(tree.typeargs);
+                    print(">");
+                    printExpr(tree.meth);
+                }
+            } else {
+                printExpr(tree.meth);
+            }
+            print("(");
+            printExprs(tree.args);
+            print(")");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitParens(JFXParens tree) {
+        try {
+            print("(");
+            printExpr(tree.expr);
+            print(")");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitAssign(JFXAssign tree) {
+        try {
+            open(prec, JavafxTreeInfo.assignPrec);
+            printExpr(tree.lhs, JavafxTreeInfo.assignPrec + 1);
+            print(" = ");
+            printExpr(tree.rhs, JavafxTreeInfo.assignPrec);
+            close(prec, JavafxTreeInfo.assignPrec);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public String operatorName(JavafxTag tag) {
+        switch(tag) {
+            case NEG:     return "-";
+            case NOT:     return "not";
+            case PREINC:  return "++";
+            case PREDEC:  return "--";
+            case POSTINC: return "++";
+            case POSTDEC: return "--";
+            case NULLCHK: return "<*nullchk*>";
+            case OR:      return "or";
+            case AND:     return "and";
+            case EQ:      return "==";
+            case NE:      return "!=";
+            case LT:      return "<";
+            case GT:      return ">";
+            case LE:      return "<=";
+            case GE:      return ">=";
+            case PLUS:    return "+";
+            case MINUS:   return "-";
+            case MUL:     return "*";
+            case DIV:     return "/";
+            case MOD:     return "%";
+            case PLUS_ASG:   return "+=";
+            case MINUS_ASG:  return "-=";
+            case MUL_ASG:    return "*=";
+            case DIV_ASG:    return "/=";
+            case MOD_ASG:    return "%=";
+
+            default: throw new Error();
+        }
+    }
+
+    public void visitAssignop(JFXAssignOp tree) {
+        try {
+            open(prec, JavafxTreeInfo.assignopPrec);
+            printExpr(tree.lhs, JavafxTreeInfo.assignopPrec + 1);
+            print(" " + operatorName(tree.getFXTag()));
+            printExpr(tree.rhs, JavafxTreeInfo.assignopPrec);
+            close(prec, JavafxTreeInfo.assignopPrec);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void visitUnary(JFXUnary tree) {
+        try {
+           if (tree.getFXTag() == JavafxTag.SIZEOF) {
+               print("(sizeof ");
+               printExpr(tree.arg);
+               print(")");
+            } else {
+                int ownprec = JavafxTreeInfo.opPrec(tree.getFXTag());
+                String opname = operatorName(tree.getFXTag());
+                open(prec, ownprec);
+                if (tree.getFXTag().ordinal() <= JavafxTag.PREDEC.ordinal()) {
+                    print(opname);
+                    printExpr(tree.arg, ownprec);
+                } else {
+                    printExpr(tree.arg, ownprec);
+                    print(opname);
+                }
+                close(prec, ownprec);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitBinary(JFXBinary tree) {
+        try {
+            int ownprec = JavafxTreeInfo.opPrec(tree.getFXTag());
+            String opname = operatorName(tree.getFXTag());
+            open(prec, ownprec);
+            printExpr(tree.lhs, ownprec);
+            print(" " + opname + " ");
+            printExpr(tree.rhs, ownprec + 1);
+            close(prec, ownprec);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitTypeCast(JFXTypeCast tree) {
+        try {
+            printExpr(tree.expr, JavafxTreeInfo.prefixPrec);
+            print(" as ");
+            printExpr(tree.clazz);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitInstanceOf(JFXInstanceOf tree) {
+        try {
+            open(prec, JavafxTreeInfo.ordPrec);
+            printExpr(tree.expr, JavafxTreeInfo.ordPrec);
+            print(" instanceof ");
+            printExpr(tree.clazz, JavafxTreeInfo.ordPrec + 1);
+            close(prec, JavafxTreeInfo.ordPrec);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitSelect(JFXSelect tree) {
+        try {
+            printExpr(tree.selected, JavafxTreeInfo.postfixPrec);
+            print("." + tree.name);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitIdent(JFXIdent tree) {
+        try {
+            print(tree.name);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitLiteral(JFXLiteral tree) {
+        try {
+            switch (tree.typetag) {
+                case TypeTags.INT:
+                    print(tree.value.toString());
+                    break;
+                case TypeTags.LONG:
+                    print(tree.value + "L");
+                    break;
+                case TypeTags.FLOAT:
+                    print(tree.value + "F");
+                    break;
+                case TypeTags.DOUBLE:
+                    print(tree.value.toString());
+                    break;
+                case TypeTags.CHAR:
+                    print("\'" +
+                            Convert.quote(
+                            String.valueOf((char)((Number)tree.value).intValue())) +
+                            "\'");
+                    break;
+                case TypeTags.BOOLEAN:
+                    print(((Number)tree.value).intValue() == 1 ? "true" : "false");
+                    break;
+                case TypeTags.BOT:
+                    print("null");
+                    break;
+                default:
+                    print("\"" + Convert.quote(tree.value.toString()) + "\"");
+                    break;
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitErroneous(JFXErroneous tree) {
+        try {
+            print("(ERROR)");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitModifiers(JFXModifiers mods) {
+        try {
+            printFlags(mods.flags);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void visitTree(JFXTree tree) {
+        try {
+            print("(UNKNOWN: " + tree + ")");
+            println();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
     
     private String posAsString(int pos) {
@@ -101,31 +733,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
                 }
         }
         return " %(" + pos + ")" + line + "% ";
-    }
-
-    /** Visitor method: print expression tree.
-     *  @param prec  The current precedence level.
-     */
-    @Override
-    public void printExpr(JCTree tree, int prec) throws IOException {
-        int prevPrec = this.prec;
-        try {
-//          uncomment to debug position information
-//            println();
-//            print(posAsString(tree.getStartPosition()));
-            this.prec = prec;
-            if (tree == null) {
-                print("/*missing*/");
-            } else {
-                tree.accept(this);
-            }
-        } catch (UncheckedIOException ex) {
-            IOException e = new IOException(ex.getMessage());
-            e.initCause(ex);
-            throw e;
-        } finally {
-            this.prec = prevPrec;
-        }
     }
 
     private void printInterpolateValue(JFXInterpolateValue tree) {
@@ -154,7 +761,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             print(" {");
             println();
             indent();
-            for (JCTree mem : tree.getMembers()) {
+            for (JFXTree mem : tree.getMembers()) {
                 align();
                 printExpr(mem);
             }
@@ -169,7 +776,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-     public static void visitFunctionValue(Pretty pretty, JFXFunctionValue tree) {
+     public static void visitFunctionValue(JavafxPretty pretty, JFXFunctionValue tree) {
         try {
             pretty.println();
             pretty.align();
@@ -195,7 +802,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
           visitFunctionValue(this, tree);
     }
 
-    public static void visitFunctionDefinition(Pretty pretty, JFXFunctionDefinition tree) {
+    public static void visitFunctionDefinition(JavafxPretty pretty, JFXFunctionDefinition tree) {
         try {
             JavafxPretty fxpretty = (JavafxPretty)pretty;
             int oldScope = fxpretty.variableScope;
@@ -265,7 +872,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         visitBlockExpression(this, tree);
     }
 
-    public static void visitBlockExpression(Pretty pretty, JFXBlockExpression tree) {
+    public static void visitBlockExpression(JavafxPretty pretty, JFXBlockExpression tree) {
         try {
             pretty.printFlags(tree.flags);
             pretty.print("{");
@@ -295,22 +902,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             }
             if (bindStatus.isLazy()) {
                 print(" bind /*lazy*/ ");
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
-    public void visitConditional(JCConditional tree) {
-        try {
-            print("if (");
-            printExpr(tree.cond, TreeInfo.condPrec);
-            print(") ");
-            printExpr(tree.truepart, TreeInfo.condPrec);
-            if (tree.falsepart != null) {
-                print(" else ");
-                printExpr(tree.falsepart, TreeInfo.condPrec);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -348,7 +939,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         try {
             boolean first = true;
             print("[");
-            for (JCExpression expr : that.getItems()) {
+            for (JFXExpression expr : that.getItems()) {
                 if (!first) {
                     print(", ");
                 }
@@ -418,11 +1009,11 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     public void visitStringExpression(JFXStringExpression tree) {
         try {
             int i;
-            List<JCExpression> parts = tree.getParts();
+            List<JFXExpression> parts = tree.getParts();
             for (i = 0; i < parts.length() - 1; i += 3) {
                 printExpr(parts.get(i));
                 print("{");
-                JCExpression format = parts.get(i + 1);
+                JFXExpression format = parts.get(i + 1);
                 if (format != null) {
                     printExpr(format);
                 }
@@ -437,7 +1028,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
 
     public void visitInstanciate(JFXInstanciate tree) {
         try {
-            JCExpression id = tree.getIdentifier();
+            JFXExpression id = tree.getIdentifier();
             if (tree.getArgs().nonEmpty())
                 print("new ");
             if (id != null) {
@@ -470,15 +1061,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
 
-    public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized tree) {
-        try {
-            print("attribute : ");
-            print(tree.getAttributeName());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         try {
             print(tree.getName());
@@ -494,17 +1076,6 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         try {
             print("* ");
             print(ary(tree));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
-    public void visitTypeCast(JCTypeCast tree) {
-        try {
-            printExpr(tree.expr, TreeInfo.prefixPrec);
-            print(" as ");
-            printExpr(tree.clazz);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -586,7 +1157,9 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
                     printExpr(tree.getInitializer());
                 }
             }
-            printExpr(tree.getOnReplace());
+            if (tree.getOnReplace() != null) {
+                printExpr(tree.getOnReplace());
+            }
             print(";");
             if (variableScope == SCOPE_OUTER || variableScope == SCOPE_CLASS) {
                 println();
@@ -693,39 +1266,8 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
         }
     }
     
-    @Override
-    public void visitUnary(JCUnary tree) {
-        try {
-           if (tree.getTag() == JavafxTag.SIZEOF) {
-               print("(sizeof ");
-               printExpr(tree.arg);
-               print(")");
-           } else {
-               super.visitUnary(tree);
-           }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
-    public void visitTree(JCTree tree) {
-        assert false : "Should not be here!!!";
-    }
-
-    @Override
-    public String operatorName(int tag) {
-        switch(tag) {
-            case JCTree.OR:      return "or";
-            case JCTree.AND:     return "and";
-            case JCTree.EQ:      return "==";
-            case JCTree.NE:      return "<>";
-            default: return super.operatorName(tag);
-        }
-    }
-    
     /** Convert a tree to a pretty-printed string. */
-    public static String toString(JCTree tree) {
+    public static String toString(JFXTree tree) {
         StringWriter s = new StringWriter();
         try {
             new JavafxPretty(s, false).printExpr(tree);
@@ -773,7 +1315,7 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
     }
     
     private void printTween(JFXInterpolateValue tree) throws IOException {
-        JCExpression tween = tree.getInterpolation();
+        JFXExpression tween = tree.getInterpolation();
         if (tween != null) {
             print(" tween ");
             print(tween);
@@ -786,16 +1328,16 @@ public class JavafxPretty extends Pretty implements JavafxVisitor {
             print(tree.getStartDuration());
             print(") {");
             println();
-            super.indent();
-            printStats(List.convert(JCTree.class, tree.getInterpolationExpression()));
+            indent();
+            printStats(List.convert(JFXTree.class, tree.getInterpolationExpression()));
             if (tree.getTriggerExpression() != null) {
-                super.align();
+                align();
                 print("trigger ");
                 visitBlockExpression(this, (JFXBlockExpression)tree.getTriggerExpression());
             }
-            super.undent();
+            undent();
             println();
-            super.align();
+            align();
             print("}");
         } catch (IOException e) {
             throw new UncheckedIOException(e);

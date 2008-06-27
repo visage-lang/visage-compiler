@@ -23,7 +23,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.ExpressionTree;
 import java.util.List;
 
 /**
@@ -38,7 +37,7 @@ import java.util.List;
  *
  * @author Tom Ball
  */
-public interface InstantiateTree extends JavaFXExpressionTree {
+public interface InstantiateTree extends ExpressionTree {
     ExpressionTree getIdentifier();
 
     List<ExpressionTree> getArguments();
@@ -47,5 +46,5 @@ public interface InstantiateTree extends JavaFXExpressionTree {
 
     ClassDeclarationTree getClassBody();
     
-    List<JavaFXVariableTree> getLocalVariables();
+    List<VariableTree> getLocalVariables();
 }

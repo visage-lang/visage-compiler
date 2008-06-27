@@ -35,22 +35,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
-import javax.tools.DiagnosticListener;
+import com.sun.javafx.api.JavafxTaskEvent;
+import com.sun.javafx.api.JavafxTaskListener;
 import com.sun.source.util.TaskEvent;
-import com.sun.source.util.TaskListener;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.tree.*;
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javac.comp.*;
 import com.sun.tools.javac.jvm.*;
 import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.processing.*;
+import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javafx.comp.*;
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.util.MsgSym;
-import static javax.tools.StandardLocation.CLASS_OUTPUT;
 import static com.sun.tools.javac.util.ListBuffer.lb;
 import com.sun.tools.javafx.antlr.JavafxSyntacticAnalysis;
 import com.sun.tools.javafx.util.PlatformPlugin;
@@ -258,7 +254,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** Optional listener for progress events
      */
-    protected TaskListener taskListener;
+    protected JavafxTaskListener taskListener;
 
     protected JavafxSyntacticAnalysis syntacticAnalysis;
     protected JavafxVarUsageAnalysis varUsageAnalysis;
@@ -311,7 +307,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         chk = JavafxCheck.instance(context);
         annotate = JavafxAnnotate.instance(context);
         types = Types.instance(context);
-        taskListener = context.get(TaskListener.class);
+        taskListener = context.get(JavafxTaskListener.class);
 
         Options options = Options.instance(context);
 
@@ -461,15 +457,15 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      *  @param filename     The name of the file from which input stream comes.
      *  @param input        The input stream to be parsed.
      */
-    protected JCCompilationUnit parse(JavaFileObject filename, CharSequence content) {
+    protected JFXUnit parse(JavaFileObject filename, CharSequence content) {
         long msec = now();
-        JCCompilationUnit tree = null;
+        JFXUnit tree = null;
         if (content != null) {
             if (verbose) {
                 printVerbose(MsgSym.MESSAGE_PARSING_STARTED, filename);
             }
             if (taskListener != null) {
-                TaskEvent e = new TaskEvent(TaskEvent.Kind.PARSE, filename);
+                JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.PARSE, filename);
                 taskListener.started(e);
             }
             int initialErrorCount = log.nerrors;
@@ -489,8 +485,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         // test shouldn't be needed when we have better error recovery
         if (tree == null) {
             // We have nothing, so make an empty module
-            tree = make.TopLevel(List.<JCTree.JCAnnotation>nil(),
-                    null, List.<JCTree>nil());
+            tree = make.TopLevel(null, List.<JFXTree>nil());
         }
 
         tree.sourcefile = filename;
@@ -498,7 +493,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         printJavafxSource(tree, content);
 
         if (content != null && taskListener != null) {
-            TaskEvent e = new TaskEvent(TaskEvent.Kind.PARSE, tree);
+            JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.PARSE, tree);
             taskListener.finished(e);
         }
 
@@ -513,10 +508,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         /** Parse contents of file.
      *  @param filename     The name of the file to be parsed.
      */
-    public JCTree.JCCompilationUnit parse(JavaFileObject filename) {
+    public JFXUnit parse(JavaFileObject filename) {
         JavaFileObject prev = log.useSource(filename);
         try {
-            JCTree.JCCompilationUnit t = parse(filename, readSource(filename));
+            JFXUnit t = parse(filename, readSource(filename));
             if (t.endPositions != null)
                 log.setEndPosTable(filename, t.endPositions);
             return t;
@@ -525,7 +520,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
     }
 
-    /** Emit Java-like source corresponding to an input file.
+    /** Emit Java-like source corresponding to translated tree.
      */
     void printJavaSource(JavafxEnv<JavafxAttrContext> env) {
         String dump = options.get("dumpjava");
@@ -536,7 +531,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 FileWriter fw = new FileWriter(outFile);
                 BufferedWriter out = new BufferedWriter(fw);
                 try {
-                    new JavaPretty(out, true, context).printUnit(env.toplevel, null);
+                    new JavaPretty(out, true, context).printUnit(env.translatedToplevel, null);
                 } finally {
                     out.close();
                 }
@@ -548,7 +543,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** Emit pretty=printed fx source corresponding to an input file.
      */
-    void printJavafxSource(JCCompilationUnit cu, CharSequence content) {
+    void printJavafxSource(JFXUnit cu, CharSequence content) {
         String dump = options.get("dumpfx");
         BufferedWriter out = null;
         if (dump != null) {
@@ -558,7 +553,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                     File outFile = new File(dump, (new File(fn)).getName());
                     FileWriter fw = new FileWriter(outFile);
                     out = new BufferedWriter(fw);
-                    new JavafxPretty(out, true, content).printUnit(cu, null);
+                    new JavafxPretty(out, true, content).printUnit(cu);
                 } finally {
                     if (out != null) {
                         out.close();
@@ -581,7 +576,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         if (completionFailureName == c.fullname) {
             throw new CompletionFailure(c, "user-selected completion failure by class name");
         }
-        JCCompilationUnit tree;
+        JFXUnit tree;
         JavaFileObject filename = c.classfile;
         JavaFileObject prev = log.useSource(filename);
 
@@ -589,20 +584,20 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             tree = parse(filename, filename.getCharContent(false));
         } catch (IOException e) {
             log.error(MsgSym.MESSAGE_ERROR_READING_FILE, filename, e);
-            tree = make.TopLevel(List.<JCTree.JCAnnotation>nil(), null, List.<JCTree>nil());
+            tree = make.TopLevel(null, List.<JFXTree>nil());
         } finally {
             log.useSource(prev);
         }
 
         if (taskListener != null) {
-            TaskEvent e = new TaskEvent(TaskEvent.Kind.ENTER, tree);
+            JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ENTER, tree);
             taskListener.started(e);
         }
 
         enter.complete(List.of(tree), c);
 
         if (taskListener != null) {
-            TaskEvent e = new TaskEvent(TaskEvent.Kind.ENTER, tree);
+            JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ENTER, tree);
             taskListener.finished(e);
         }
 
@@ -662,7 +657,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         start_msec = now();
         try {
             // Translate JavafxTrees into Javac trees.
-            List<JCCompilationUnit> cus = stopIfError(parseFiles(sourceFileObjects));
+            List<JFXUnit> cus = stopIfError(parseFiles(sourceFileObjects));
 
 //             stopIfError(buildJavafxModule(cus, sourceFileObjects));
 
@@ -725,7 +720,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
         finally {
             if (taskListener != null) {
-                TaskEvent e = new TaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
+                JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ANALYZE, env.translatedToplevel, env.enclClass.sym);
                 taskListener.finished(e);
             }
         }
@@ -798,9 +793,11 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
     
     private void backEnd(List<JavafxEnv<JavafxAttrContext>> envs, ListBuffer<JavaFileObject> results) throws IOException {
-        ListBuffer<JCCompilationUnit> trees = lb();
+        ListBuffer<JFXUnit> trees = lb();
+        ListBuffer<JCCompilationUnit> javaTrees = lb();
         for (JavafxEnv<JavafxAttrContext> env : envs) {
             trees.append(env.toplevel);
+            javaTrees.append(env.translatedToplevel);
         }
 
         PlatformPlugin plugin = PlatformPlugin.instance(context);
@@ -810,18 +807,18 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 return;
         }
 
-        javafxJavaCompiler.backEnd(trees.toList(), results);
+        javafxJavaCompiler.backEnd(javaTrees.toList(), results);
     }
 
     /**
      * Parses a list of files.
      */
-   public List<JCCompilationUnit> parseFiles(List<JavaFileObject> fileObjects) throws IOException {
+   public List<JFXUnit> parseFiles(List<JavaFileObject> fileObjects) throws IOException {
        if (errorCount() > 0)
        	   return List.nil();
 
         //parse all files
-        ListBuffer<JCCompilationUnit> trees = lb();
+        ListBuffer<JFXUnit> trees = lb();
         for (JavaFileObject fileObject : fileObjects)
             trees.append(parse(fileObject));
         return trees.toList();
@@ -832,11 +829,11 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * As a side-effect, this puts elements on the "todo" list.
      * Also stores a list of all top level classes in rootClasses.
      */
-    public List<JCCompilationUnit> enterTrees(List<JCCompilationUnit> roots) {
+    public List<JFXUnit> enterTrees(List<JFXUnit> roots) {
         //enter symbols for all files
         if (taskListener != null) {
-            for (JCCompilationUnit unit: roots) {
-                TaskEvent e = new TaskEvent(TaskEvent.Kind.ENTER, unit);
+            for (JFXUnit unit: roots) {
+                JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ENTER, unit);
                 taskListener.started(e);
             }
         }
@@ -844,8 +841,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         enter.main(roots);
         
         if (taskListener != null) {
-            for (JCCompilationUnit unit: roots) {
-                TaskEvent e = new TaskEvent(TaskEvent.Kind.ENTER, unit);
+            for (JFXUnit unit: roots) {
+                JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ENTER, unit);
                 taskListener.finished(e);
             }
         }
@@ -853,13 +850,13 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         //If generating source, remember the classes declared in
         //the original compilation units listed on the command line.
         if (sourceOutput || stubOutput) {
-            ListBuffer<JCClassDecl> cdefs = lb();
-            for (JCCompilationUnit unit : roots) {
-                for (List<JCTree> defs = unit.defs;
+            ListBuffer<JFXClassDeclaration> cdefs = lb();
+            for (JFXUnit unit : roots) {
+                for (List<JFXTree> defs = unit.defs;
                      defs.nonEmpty();
                      defs = defs.tail) {
-                    if (defs.head instanceof JCClassDecl)
-                        cdefs.append((JCClassDecl)defs.head);
+                    if (defs.head instanceof JFXClassDeclaration)
+                        cdefs.append((JFXClassDeclaration)defs.head);
                 }
             }
         }
@@ -905,7 +902,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             printVerbose(MsgSym.MESSAGE_CHECKING_ATTRIBUTION, env.enclClass.sym);
 
         if (taskListener != null) {
-            TaskEvent e = new TaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
+            JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
             taskListener.started(e);
         }
 
@@ -984,10 +981,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
         // where
-        Map<JCCompilationUnit, List<JavafxEnv<JavafxAttrContext>>> groupByFile(List<JavafxEnv<JavafxAttrContext>> list) {
+        Map<JFXUnit, List<JavafxEnv<JavafxAttrContext>>> groupByFile(List<JavafxEnv<JavafxAttrContext>> list) {
             // use a LinkedHashMap to preserve the order of the original list as much as possible
-            Map<JCCompilationUnit, List<JavafxEnv<JavafxAttrContext>>> map = new LinkedHashMap<JCCompilationUnit, List<JavafxEnv<JavafxAttrContext>>>();
-            Set<JCCompilationUnit> fixupSet = new HashSet<JCTree.JCCompilationUnit>();
+            Map<JFXUnit, List<JavafxEnv<JavafxAttrContext>>> map = new LinkedHashMap<JFXUnit, List<JavafxEnv<JavafxAttrContext>>>();
+            Set<JFXUnit> fixupSet = new HashSet<JFXUnit>();
             for (List<JavafxEnv<JavafxAttrContext>> l = list; l.nonEmpty(); l = l.tail) {
                 JavafxEnv<JavafxAttrContext> env = l.head;
                 List<JavafxEnv<JavafxAttrContext>> sublist = map.get(env.toplevel);
@@ -1002,59 +999,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 map.put(env.toplevel, sublist);
             }
             // fixup any lists that need reversing back to the correct order
-            for (JCTree.JCCompilationUnit tree: fixupSet)
+            for (JFXUnit tree: fixupSet)
                 map.put(tree, map.get(tree).reverse());
             return map;
-        }
-
-        JCClassDecl removeMethodBodies(JCClassDecl cdef) {
-            final boolean isInterface = (cdef.mods.flags & Flags.INTERFACE) != 0;
-            class MethodBodyRemover extends TreeTranslator { // TODO: Javafx change Do we need JavafxTreeTranslator here?
-                public void visitMethodDef(JCMethodDecl tree) {
-                    tree.mods.flags &= ~Flags.SYNCHRONIZED;
-                    for (JCVariableDecl vd : tree.params)
-                        vd.mods.flags &= ~Flags.FINAL;
-                    tree.body = null;
-                    super.visitMethodDef(tree);
-                }
-                public void visitVarDef(JCVariableDecl tree) {
-                    if (tree.init != null && tree.init.type.constValue() == null)
-                        tree.init = null;
-                    super.visitVarDef(tree);
-                }
-                public void visitClassDef(JCClassDecl tree) {
-                    ListBuffer<JCTree> newdefs = lb();
-                    for (List<JCTree> it = tree.defs; it.tail != null; it = it.tail) {
-                        JCTree t = it.head;
-                        switch (t.getTag()) {
-                        case JCTree.CLASSDEF:
-                            if (isInterface ||
-                                (((JCClassDecl) t).mods.flags & (Flags.PROTECTED|Flags.PUBLIC)) != 0 ||
-                                (((JCClassDecl) t).mods.flags & (Flags.PRIVATE)) == 0 && ((JCClassDecl) t).sym.packge().getQualifiedName() == names.java_lang)
-                                newdefs.append(t);
-                            break;
-                        case JCTree.METHODDEF:
-                            if (isInterface ||
-                                (((JCMethodDecl) t).mods.flags & (Flags.PROTECTED|Flags.PUBLIC)) != 0 ||
-                                ((JCMethodDecl) t).sym.name == names.init ||
-                                (((JCMethodDecl) t).mods.flags & (Flags.PRIVATE)) == 0 && ((JCMethodDecl) t).sym.packge().getQualifiedName() == names.java_lang)
-                                newdefs.append(t);
-                            break;
-                        case JCTree.VARDEF:
-                            if (isInterface || (((JCVariableDecl) t).mods.flags & (Flags.PROTECTED|Flags.PUBLIC)) != 0 ||
-                                (((JCVariableDecl) t).mods.flags & (Flags.PRIVATE)) == 0 && ((JCVariableDecl) t).sym.packge().getQualifiedName() == names.java_lang)
-                                newdefs.append(t);
-                            break;
-                        default:
-                            break;
-                        }
-                    }
-                    tree.defs = newdefs.toList();
-                    super.visitClassDef(tree);
-                }
-            }
-            MethodBodyRemover r = new MethodBodyRemover();
-            return r.translate(cdef);
         }
         
     public void reportDeferredDiagnostics() {
@@ -1143,8 +1090,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         if (context.get(JavaFileManager.class) == null) {
             com.sun.tools.javafx.util.JavafxFileManager.preRegister(context);
         }
-        com.sun.tools.javafx.tree.JavafxTreeMaker.preRegister(context);
-        com.sun.tools.javafx.tree.JavafxTreeInfo.preRegister(context);
         com.sun.tools.javafx.code.JavafxSymtab.preRegister(context);
         com.sun.tools.javafx.code.JavafxTypes.preRegister(context);
     }

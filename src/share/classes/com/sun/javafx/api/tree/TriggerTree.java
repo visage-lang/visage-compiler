@@ -23,8 +23,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.ExpressionTree;
-
 /**
  * Common interface for trigger definition nodes in an abstract syntax tree for the 
  * JavaFX Script language.
@@ -37,7 +35,7 @@ import com.sun.source.tree.ExpressionTree;
  *
  * @author Robert Field
  */
-public interface TriggerTree extends JavaFXTree {
+public interface TriggerTree extends Tree {
     ExpressionTree getExpressionTree();
     OnReplaceTree getOnReplaceTree();
 }

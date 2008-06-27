@@ -23,8 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.tree.JCTree;
-
+import com.sun.tools.javafx.tree.JFXTree;
 
 /** {@code JavafxEnv<A>} specialized as {@code JavafxEnv<JavafxAttrContext>}
  *
@@ -38,7 +37,7 @@ public class JavafxAttrContextEnv extends JavafxEnv<JavafxAttrContext> {
     /** Create an outermost environment for a given (toplevel)tree,
      *  with a given info field.
      */
-    public JavafxAttrContextEnv(JCTree tree, JavafxAttrContext info) {
+    public JavafxAttrContextEnv(JFXTree tree, JavafxAttrContext info) {
 	super(tree, info);
     }
 }

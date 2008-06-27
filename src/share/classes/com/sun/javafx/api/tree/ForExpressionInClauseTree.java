@@ -23,13 +23,11 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.ExpressionTree;
-
 /**
  * A tree node for an "any" JavaFX Script type.
  */
-public interface ForExpressionInClauseTree extends JavaFXTree {
-    JavaFXVariableTree getVariable();
+public interface ForExpressionInClauseTree extends Tree {
+    VariableTree getVariable();
     ExpressionTree getSequenceExpression();
     ExpressionTree getWhereExpression();
 }

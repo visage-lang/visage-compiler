@@ -30,7 +30,7 @@ import java.util.List;
  * A tree node for a JavaFX Script keyframe literal.
  * @author tball
  */
-public interface KeyFrameLiteralTree extends JavaFXTree {
+public interface KeyFrameLiteralTree extends Tree {
     
     /**
      * @return the elapsed time to wait before start running the keyframe.

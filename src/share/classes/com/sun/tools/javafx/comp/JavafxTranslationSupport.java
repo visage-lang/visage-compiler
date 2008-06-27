@@ -45,6 +45,7 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javac.util.Context;
 
+import com.sun.tools.javac.util.Position;
 import java.io.OutputStreamWriter;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
@@ -55,11 +56,11 @@ import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
  * 
  * @author Robert Field
  */
-public abstract class JavafxTranslationSupport extends JCTree.Visitor {
+public abstract class JavafxTranslationSupport {
     protected final JavafxDefs defs;
     protected final Log log;
     protected final JavafxTreeMaker fxmake;
-    protected final TreeMaker make; // translation should yield a Java AST, use fxmake where needed
+    protected final TreeMaker make; // translation should yield a Java AST, use fxmake when building FX trees
     protected final Name.Table names;
     protected final JavafxResolve rs;
     protected final JavafxSymtab syms;
@@ -84,7 +85,8 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
     JCTree result;
 
     protected JavafxTranslationSupport(Context context) {
-        make = fxmake = JavafxTreeMaker.instance(context);
+        make = TreeMaker.instance(context);
+        fxmake = JavafxTreeMaker.instance(context);
         log = Log.instance(context);
         names = Name.Table.instance(context);
         types = JavafxTypes.instance(context);
@@ -96,12 +98,12 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
         syntheticNameCounter = 0;
     }
 
-    protected Symbol expressionSymbol(JCExpression tree) {
-        switch (tree.getTag()) {
-            case JavafxTag.IDENT:
-                return ((JCIdent) tree).sym;
-            case JavafxTag.SELECT:
-                return ((JCFieldAccess) tree).sym;
+    protected Symbol expressionSymbol(JFXExpression tree) {
+        switch (tree.getFXTag()) {
+            case IDENT:
+                return ((JFXIdent) tree).sym;
+            case SELECT:
+                return ((JFXSelect) tree).sym;
             default:
                 return null;
         }
@@ -127,11 +129,34 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
     }
 
     protected JCExpression makeIdentifier(DiagnosticPosition diagPos, Name aName) {
-        return fxmake.at(diagPos).Identifier(aName);
+        String str = aName.toString();
+        if (str.indexOf('.') < 0 && str.indexOf('<') < 0) {
+            return make.at(diagPos).Ident(aName);
+        }
+        return makeIdentifier(diagPos, str);
     }
     
     protected JCExpression makeIdentifier(DiagnosticPosition diagPos, String str) {
-        return fxmake.at(diagPos).Identifier(str);
+        assert str.indexOf('<') < 0 : "attempt to parse a type with 'Identifier'.  Use TypeTree";
+        JCExpression tree = null;
+        int inx;
+        int lastInx = 0;
+        do {
+            inx = str.indexOf('.', lastInx);
+            int endInx;
+            if (inx < 0) {
+                endInx = str.length();
+            } else {
+                endInx = inx;
+            }
+            String part = str.substring(lastInx, endInx);
+            Name partName = Name.fromString(names, part);
+            tree = tree == null? 
+                make.at(diagPos).Ident(partName) : 
+                make.at(diagPos).Select(tree, partName);
+            lastInx = endInx + 1;
+        } while (inx >= 0);
+        return tree;
     }
     
     /**
@@ -501,8 +526,14 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
                 attributeGetMethodNamePrefix + attribName);
    }
 
-    JFXBlockExpression makeBlockExpression(DiagnosticPosition diagPos, ListBuffer<JCStatement> stmts, JCExpression value) {
-        return ((JavafxTreeMaker) make).at(diagPos).BlockExpression(0, stmts.toList(), value);
+    BlockExprJCBlockExpression makeBlockExpression(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value) {
+        BlockExprJCBlockExpression bexpr = new BlockExprJCBlockExpression(0L, stmts, value);
+        bexpr.pos = (diagPos == null ? Position.NOPOS : diagPos.getStartPosition());
+        return bexpr;
+    }
+
+    BlockExprJCBlockExpression makeBlockExpression(DiagnosticPosition diagPos, ListBuffer<JCStatement> stmts, JCExpression value) {
+        return makeBlockExpression(diagPos, stmts.toList(), value);
     }
 
     JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, String rootName, Type type, JCExpression value) {
@@ -554,9 +585,9 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
         }
     }
 
-    protected void fxPretty(JCTree tree) {
+    protected void fxPretty(JFXTree tree) {
         OutputStreamWriter osw = new OutputStreamWriter(System.out);
-        Pretty pretty = new JavafxPretty(osw, false);
+        JavafxPretty pretty = new JavafxPretty(osw, false);
         try {
             pretty.println();
             pretty.print("+++++++++++++++++++++++++++++++++");
@@ -573,13 +604,13 @@ public abstract class JavafxTranslationSupport extends JCTree.Visitor {
     
     // convert time literal to a javafx.lang.Duration object literal
     protected JFXInstanciate timeLiteralToDuration(JFXTimeLiteral tree) {
-        JCFieldAccess clsname = (JCFieldAccess) fxmake.at(tree.pos()).Type(syms.javafx_DurationType);
+        JFXSelect clsname = (JFXSelect) fxmake.at(tree.pos()).Type(syms.javafx_DurationType);
         clsname.sym = syms.javafx_DurationType.tsym;
         Name attribute = names.fromString("millis");
         Symbol symMillis = syms.javafx_DurationType.tsym.members().lookup(attribute).sym;
         JFXObjectLiteralPart objLiteral = fxmake.at(tree.pos()).ObjectLiteralPart(attribute, tree.value, JavafxBindStatus.UNBOUND);
         objLiteral.sym = symMillis;
-        JFXInstanciate inst = fxmake.at(tree.pos).Instanciate(clsname, null, List.of((JCTree) objLiteral));
+        JFXInstanciate inst = fxmake.at(tree.pos).Instanciate(clsname, null, List.<JFXTree>of(objLiteral));
         inst.type = clsname.type;
         return inst;
     }

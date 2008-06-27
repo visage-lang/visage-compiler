@@ -23,24 +23,23 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.TimeLiteralTree;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
 /**
  * Tree node for time literals, such as "100ms" or "3m".
  * @author tball
  */
 public class JFXTimeLiteral extends JFXExpression implements TimeLiteralTree {
-    public JCLiteral value;
+    public JFXLiteral value;
     public Duration duration;
     
-    protected JFXTimeLiteral(JCLiteral value, Duration duration) {
+    protected JFXTimeLiteral(JFXLiteral value, Duration duration) {
         this.value = value;
         this.duration = duration;
     }
 
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.TIME_LITERAL;
     }
 
@@ -61,7 +60,7 @@ public class JFXTimeLiteral extends JFXExpression implements TimeLiteralTree {
         return duration;
     }
 
-    public JCLiteral getValue() {
+    public JFXLiteral getValue() {
         return value;
     }
 }

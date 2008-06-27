@@ -23,40 +23,44 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.ForExpressionInClauseTree;
-import com.sun.javafx.api.tree.ForExpressionTree;
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.util.List;
 
 /**
  * for (name in seqExpr where whereExpr) bodyExpr
  */
 public class JFXForExpression extends JFXExpression implements ForExpressionTree {
+
     public final List<JFXForExpressionInClause> inClauses;
-    public final JCExpression bodyExpr;
+    public final JFXExpression bodyExpr;
 
     protected JFXForExpression(
             List<JFXForExpressionInClause> inClauses,
-            JCExpression bodyExpr) {
+            JFXExpression bodyExpr) {
         this.inClauses = inClauses;
         this.bodyExpr = bodyExpr;
     }
-    public void accept(JavafxVisitor v) { v.visitForExpression(this); }
-    
-    public java.util.List<ForExpressionInClauseTree> getInClauses() { 
+
+    public void accept(JavafxVisitor v) {
+        v.visitForExpression(this);
+    }
+
+    public java.util.List<ForExpressionInClauseTree> getInClauses() {
         return JFXTree.convertList(ForExpressionInClauseTree.class, inClauses);
     }
-    
-    public List<JFXForExpressionInClause> getForExpressionInClauses() { 
+
+    public List<JFXForExpressionInClause> getForExpressionInClauses() {
         return inClauses;
     }
 
-    public JCExpression getBodyExpression() { return bodyExpr; }
+    public JFXExpression getBodyExpression() {
+        return bodyExpr;
+    }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.FOR_EXPRESSION;
     }
 

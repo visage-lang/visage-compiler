@@ -7,7 +7,7 @@ package com.sun.tools.javafx.api;
 
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.tools.javafx.api.JavafxcTool;
-import com.sun.source.tree.CompilationUnitTree;
+import com.sun.javafx.api.tree.UnitTree;
 import java.io.File;
 import java.util.List;
 import javax.tools.FileObject;
@@ -41,7 +41,7 @@ public class JFXC143Test {
             File file = new File("test/src/com/sun/tools/javafx/api/Hello.fx");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
             JavafxcTask javafxTask = tool.getTask(null, fileManager, dl, null, fileObjects);
-            List<? extends CompilationUnitTree> treeList = (List)javafxTask.parse();
+            List<? extends UnitTree> treeList = (List)javafxTask.parse();
             assertTrue(treeList.size() == 1);
         } finally {
             Thread.currentThread().setContextClassLoader(orig);
@@ -57,7 +57,7 @@ public class JFXC143Test {
 	Iterable<? extends JavaFileObject> fileList = fm.getJavaFileObjects(file);
         JavafxcTask task = instance.getTask(null, fm, dl, null, fileList);
         assertNotNull("no task returned", task);
-        Iterable<? extends CompilationUnitTree> result = task.parse();
+        Iterable<? extends UnitTree> result = task.parse();
         assertEquals("parse error(s)", 0, dl.errors());
         assertTrue("no compilation units returned", result.iterator().hasNext());
     }

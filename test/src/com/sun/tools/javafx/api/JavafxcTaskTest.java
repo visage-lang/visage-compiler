@@ -25,8 +25,8 @@ package com.sun.tools.javafx.api;
 
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.tools.javafx.api.JavafxcTool;
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.Tree;
+import com.sun.javafx.api.tree.UnitTree;
+import com.sun.javafx.api.tree.Tree;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,7 +62,7 @@ public class JavafxcTaskTest {
 	Iterable<? extends JavaFileObject> files = fm.getJavaFileObjects(file);
         JavafxcTask task = instance.getTask(null, fm, dl, null, files);
         assertNotNull("no task returned", task);
-        Iterable<? extends CompilationUnitTree> result = task.parse();
+        Iterable<? extends UnitTree> result = task.parse();
         assertEquals("parse error(s)", 0, dl.errors());
         assertTrue("no compilation units returned", result.iterator().hasNext());
     }
@@ -71,7 +71,7 @@ public class JavafxcTaskTest {
     public void parseNullSourceList() throws Exception {
         JavafxcTool instance = new JavafxcTool();
         JavafxcTask task = instance.getTask(null, null, null, null, null);
-        Iterable<? extends CompilationUnitTree> result = task.parse();
+        Iterable<? extends UnitTree> result = task.parse();
         assertFalse("unexpected compilation units returned", result.iterator().hasNext());
     }
 
@@ -87,7 +87,7 @@ public class JavafxcTaskTest {
     public void analyzeNullSourceList() throws Exception {
         JavafxcTool instance = new JavafxcTool();
         JavafxcTask task = instance.getTask(null, null, null, null, null);
-        Iterable<? extends CompilationUnitTree> result = task.analyze();
+        Iterable<? extends UnitTree> result = task.analyze();
         assertNull("unexpected compilation units returned", result);
     }
 

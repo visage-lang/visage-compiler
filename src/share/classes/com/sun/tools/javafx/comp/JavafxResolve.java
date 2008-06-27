@@ -61,7 +61,7 @@ public class JavafxResolve {
     JavafxCheck chk;
     Infer infer;
     JavafxClassReader reader;
-    TreeInfo treeinfo;
+    JavafxTreeInfo treeinfo;
     JavafxTypes types;
     public final boolean boxingEnabled; // = source.allowBoxing();
     public final boolean varargsEnabled; // = source.allowVarargs();
@@ -94,7 +94,7 @@ public class JavafxResolve {
         chk = (JavafxCheck)JavafxCheck.instance(context);
         infer = Infer.instance(context);
         reader = JavafxClassReader.instance(context);
-        treeinfo = TreeInfo.instance(context);
+        treeinfo = JavafxTreeInfo.instance(context);
         types = JavafxTypes.instance(context);
         Source source = Source.instance(context);
         boxingEnabled = source.allowBoxing();
@@ -1092,7 +1092,7 @@ public class JavafxResolve {
                 staticOnly = true;
         }
 
-        if (env.tree.getTag() != JCTree.IMPORT) {
+        if (env.tree.getFXTag() != JavafxTag.IMPORT) {
             sym = findGlobalType(env, env.toplevel.namedImportScope, name);
             if (sym.exists()) return sym;
             else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
@@ -1448,7 +1448,7 @@ public class JavafxResolve {
      *  @param env       The environment current at the operation.
      *  @param argtypes  The types of the operands.
      */
-    Symbol resolveOperator(DiagnosticPosition pos, int optag,
+    Symbol resolveOperator(DiagnosticPosition pos, JavafxTag optag,
                            JavafxEnv<JavafxAttrContext> env, List<Type> argtypes) {
         Name name = treeinfo.operatorName(optag);
         Symbol sym = findMethod(env, syms.predefClass.type, name, argtypes,
@@ -1466,12 +1466,12 @@ public class JavafxResolve {
      *  @param env       The environment current at the operation.
      *  @param arg       The type of the operand.
      */
-    Symbol resolveUnaryOperator(DiagnosticPosition pos, int optag, JavafxEnv<JavafxAttrContext> env, Type arg) {
+    Symbol resolveUnaryOperator(DiagnosticPosition pos, JavafxTag optag, JavafxEnv<JavafxAttrContext> env, Type arg) {
         // check for Duration unary minus
         if (types.isSameType(arg, ((JavafxSymtab)syms).javafx_DurationType)) {
             Symbol res = null;
             switch (optag) {
-            case JCTree.NEG:
+            case NEG:
                 res = resolveMethod(pos,  env,
                                     names.fromString("negate"),
                                     arg, List.<Type>nil());
@@ -1491,9 +1491,8 @@ public class JavafxResolve {
      *  @param left      The types of the left operand.
      *  @param right     The types of the right operand.
      */
-    public // Javafx change
     Symbol resolveBinaryOperator(DiagnosticPosition pos,
-                                 int optag,
+                                 JavafxTag optag,
                                  JavafxEnv<JavafxAttrContext> env,
                                  Type left,
                                  Type right) {
@@ -1503,17 +1502,17 @@ public class JavafxResolve {
             Type dur = left;
             Symbol res = null;
             switch (optag) {
-            case JCTree.PLUS:
+            case PLUS:
                 res = resolveMethod(pos,  env,
                                      names.fromString("add"),
                                      dur, List.of(right));
                 break;
-            case JCTree.MINUS:
+            case MINUS:
                 res =  resolveMethod(pos,  env,
                                      names.fromString("sub"),
                                      dur, List.of(right));
                 break;
-            case JCTree.MUL:
+            case MUL:
                 if (!types.isSameType(left, ((JavafxSymtab)syms).javafx_DurationType)) {
                     left = right;
                     right = dur;
@@ -1524,29 +1523,29 @@ public class JavafxResolve {
                                      dur,
                                      List.of(right));
                 break;
-            case JCTree.DIV:
+            case DIV:
                 res =  resolveMethod(pos,  env,
                                      names.fromString("div"),
                                      dur, List.of(right));
                 break;
 
             //fix me...inline or move to static helper?
-            case JCTree.LT:
+            case LT:
                 res =  resolveMethod(pos,  env,
                                      names.fromString("lt"),
                                      dur, List.of(right));
                 break;
-            case JCTree.LE:
+            case LE:
                 res =  resolveMethod(pos,  env,
                                      names.fromString("le"),
                                      dur, List.of(right));
                 break;
-            case JCTree.GT:
+            case GT:
                 res =  resolveMethod(pos,  env,
                                      names.fromString("gt"),
                                      dur, List.of(right));
                 break;
-            case JCTree.GE:
+            case GE:
                 res =  resolveMethod(pos,  env,
                                      names.fromString("ge"),
                                      dur, List.of(right));
@@ -1947,7 +1946,7 @@ public class JavafxResolve {
                         sym, sym.location());
                 else if ((sym.flags() & (PRIVATE | PROTECTED)) != 0)
                     log.error(pos, MsgSym.MESSAGE_REPORT_ACCESS, sym,
-                              TreeInfo.flagNames(sym.flags() & (PRIVATE | PROTECTED)),
+                              JavafxTreeInfo.flagNames(sym.flags() & (PRIVATE | PROTECTED)),
                               sym.location());
                 else
                     log.error(pos, MsgSym.MESSAGE_NOT_DEF_PUBLIC_CANNOT_ACCESS,

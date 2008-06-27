@@ -23,17 +23,12 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.OnReplaceTree;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.tree.JCTree.JCModifiers;
-import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.javafx.api.JavafxBindStatus;
-import com.sun.javafx.api.tree.JavaFXVariableTree;
-import com.sun.source.tree.TreeVisitor;
-import com.sun.tools.javac.tree.JCTree;
 import java.util.Map;
 
 /**
@@ -42,22 +37,30 @@ import java.util.Map;
  * @author Robert Field
  * @author Zhiqun Chen
  */
-public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
+public class JFXVar extends JFXStatement implements VariableTree {
+    public JFXModifiers mods;
+    public Name name;
+    public JFXExpression vartype;
+    public JFXExpression init;
+    public VarSymbol sym;
     private JFXType jfxtype;
     private final JavafxBindStatus bindStatus;
     private final boolean local;
-    
     private final JFXOnReplace onReplace;
 
     protected JFXVar(Name name,
             JFXType jfxtype,
-            JCModifiers mods,
+            JFXModifiers mods,
             boolean local,
-            JCExpression init,
+            JFXExpression init,
             JavafxBindStatus bindStat,
             JFXOnReplace onReplace,
             VarSymbol sym) {
-        super(mods, name, jfxtype, init, sym);
+            this.mods = mods;
+            this.name = name;
+            this.vartype = jfxtype;
+            this.init = init;
+            this.sym = sym;
         this.local = local;
         this.jfxtype = jfxtype;
         this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
@@ -65,15 +68,20 @@ public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
         this.sym = sym;
     }
     
-    public void accept(JavafxVisitor v) { v.visitVar(this); }
-    
-    @Override
-    public void accept(Visitor v) {
-        if (v instanceof JavafxVisitor) {
-            this.accept((JavafxVisitor)v);
-        } else {
-            v.visitVarDef(this);
-        }
+    public Name getName() {
+        return name;
+    }
+
+    public JFXTree getType() {
+        return vartype;
+    }
+
+    public JFXExpression getInitializer() {
+        return init;
+    }
+
+    public void accept(JavafxVisitor v) {
+        v.visitVar(this);
     }
 
     public JFXType getJFXType() {
@@ -117,43 +125,23 @@ public class JFXVar extends JCVariableDecl implements JavaFXVariableTree {
     }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.VAR_DEF;
     }
     
-    public JCModifiers getModifiers() {
+    public JFXModifiers getModifiers() {
         return mods;
     }
-
     
     public boolean isOverride() {
         return false;
     }
 
     public JavaFXKind getJavaFXKind() {
-        throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
+        return JavaFXKind.VARIABLE;
     }
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
         return visitor.visitVariable(this, data);
      }
-
-    @Override
-    public final <R, D> R accept(TreeVisitor<R, D> v, D d) {
-        if (v instanceof JavaFXTreeVisitor) {
-            return (R)this.accept((JavaFXTreeVisitor)v, d);
-        } else {
-            throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
-        }
-    }
-    
-    @Override
-    public int getStartPosition() {
-        return JavafxTreeInfo.getStartPos(this);
-    }
-    
-    @Override
-    public int getEndPosition(Map<JCTree, Integer> endPosTable) {
-        return JavafxTreeInfo.getEndPos(this, endPosTable);
-    }
 }

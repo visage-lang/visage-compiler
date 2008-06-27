@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * A tree node for a functional JavaFX Script type.
  */
-public interface TypeFunctionalTree extends JavaFXTree {
+public interface TypeFunctionalTree extends Tree {
     TypeTree getReturnType();
     List<? extends TypeTree> getParameters();
 }

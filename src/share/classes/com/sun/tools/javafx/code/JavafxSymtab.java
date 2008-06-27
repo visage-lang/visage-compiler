@@ -67,6 +67,12 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_publicAnnotationType;
     public final Type javafx_staticAnnotationType;
     
+    public final Name numberTypeName;
+    public final Name integerTypeName;
+    public final Name booleanTypeName;
+    public final Name stringTypeName;
+    public final Name voidTypeName;  
+    
     public final Name runMethodName;
     
     /** The type of expressions that never returns a value to its parent.
@@ -122,6 +128,12 @@ public class JavafxSymtab extends Symtab {
             javafx_FunctionTypes[i] = enterClass(functionClassPrefix+i);
         }
         
+        numberTypeName  = names.fromString("Number");
+        integerTypeName = names.fromString("Integer");
+        booleanTypeName = names.fromString("Boolean");
+        stringTypeName = names.fromString("String");
+        voidTypeName = names.fromString("Void");
+
         runMethodName = names.fromString(JavafxDefs.runMethodString);
         
         javafx_FXObjectType = enterClass("com.sun.javafx.runtime.FXObject");

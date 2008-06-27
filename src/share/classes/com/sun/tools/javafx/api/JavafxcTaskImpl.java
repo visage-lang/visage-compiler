@@ -23,15 +23,13 @@
 
 package com.sun.tools.javafx.api;
 
-import com.sun.javafx.api.*;
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.Tree;
-import com.sun.source.util.TaskEvent;
-import com.sun.source.util.TaskListener;
+import com.sun.javafx.api.JavafxTaskEvent;
+import com.sun.javafx.api.JavafxTaskListener;
+import com.sun.javafx.api.JavafxcTask;
+import com.sun.javafx.api.tree.Tree;
+import com.sun.javafx.api.tree.UnitTree;
 import com.sun.tools.javac.model.JavacElements;
 import com.sun.tools.javac.model.JavacTypes;
-import com.sun.tools.javac.tree.*;
-import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.ClientCodeException;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
@@ -41,6 +39,8 @@ import com.sun.tools.javafx.comp.JavafxAttrContext;
 import com.sun.tools.javafx.comp.JavafxEnv;
 import com.sun.tools.javafx.main.CommandLine;
 import com.sun.tools.javafx.main.Main;
+import com.sun.tools.javafx.tree.JFXUnit;
+import com.sun.tools.javafx.tree.JFXTree;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -64,9 +64,9 @@ public class JavafxcTaskImpl extends JavafxcTask {
     private String[] args;
     private Context context;
     private List<JavaFileObject> fileObjects;
-    private Map<JavaFileObject, JCCompilationUnit> notYetEntered;
-    private List<JCCompilationUnit> units;
-    private TaskListener taskListener;
+    private Map<JavaFileObject, JFXUnit> notYetEntered;
+    private List<JFXUnit> units;
+    private JavafxTaskListener taskListener;
     private AtomicBoolean used = new AtomicBoolean();
     private Integer result = null;
     private List<JavafxEnv<JavafxAttrContext>> genList;
@@ -111,7 +111,6 @@ public class JavafxcTaskImpl extends JavafxcTask {
         return result.toList();
     }
 
-    @Override
     public Boolean call() {
         if (!used.getAndSet(true)) {
             beginContext();
@@ -142,7 +141,7 @@ public class JavafxcTaskImpl extends JavafxcTask {
                 throw new IllegalArgumentException("Malformed arguments " + filenames.toString(" "));
             compiler = com.sun.tools.javafx.main.JavafxCompiler.instance(context);
             compiler.keepComments = true;
-            notYetEntered = new HashMap<JavaFileObject, JCCompilationUnit>();
+            notYetEntered = new HashMap<JavaFileObject, JFXUnit>();
             for (JavaFileObject file: fileObjects)
                 notYetEntered.put(file, null);
             args = null;
@@ -152,11 +151,11 @@ public class JavafxcTaskImpl extends JavafxcTask {
 
     private void beginContext() {
         context.put(JavafxcTaskImpl.class, this);
-        if (context.get(TaskListener.class) != null) {
-            context.put(TaskListener.class, (TaskListener) null);
+        if (context.get(JavafxTaskListener.class) != null) {
+            context.put(JavafxTaskListener.class, (JavafxTaskListener) null);
         }
         if (taskListener != null) {
-            context.put(TaskListener.class, wrap(taskListener));
+            context.put(JavafxTaskListener.class, wrap(taskListener));
         }
         if (compilationInProgress) {
             throw new IllegalStateException("Compilation in progress");
@@ -164,11 +163,11 @@ public class JavafxcTaskImpl extends JavafxcTask {
         compilationInProgress = true;
     }
 
-    private TaskListener wrap(final TaskListener tl) {
+    private JavafxTaskListener wrap(final JavafxTaskListener tl) {
         tl.getClass(); // null check
-        return new TaskListener() {
+        return new JavafxTaskListener() {
 
-            public void started(TaskEvent e) {
+            public void started(JavafxTaskEvent e) {
                 try {
                     tl.started(e);
                 } catch (Throwable t) {
@@ -176,7 +175,7 @@ public class JavafxcTaskImpl extends JavafxcTask {
                 }
             }
 
-            public void finished(TaskEvent e) {
+            public void finished(JavafxTaskEvent e) {
                 try {
                     tl.finished(e);
                 } catch (Throwable t) {
@@ -190,11 +189,11 @@ public class JavafxcTaskImpl extends JavafxcTask {
         compilationInProgress = false;
     }
 
-    public Iterable<? extends CompilationUnitTree> parse() throws IOException {
+    public Iterable<? extends UnitTree> parse() throws IOException {
         try {
             prepareCompiler();
             units = compiler.parseFiles(fileObjects);
-            for (JCCompilationUnit unit: units) {
+            for (JFXUnit unit: units) {
                 JavaFileObject file = unit.getSourceFile();
                 if (notYetEntered.containsKey(file))
                     notYetEntered.put(file, unit);
@@ -213,16 +212,16 @@ public class JavafxcTaskImpl extends JavafxcTask {
     void enter() throws IOException {
         prepareCompiler();
 
-        ListBuffer<JCCompilationUnit> roots = null;
+        ListBuffer<JFXUnit> roots = null;
 
         if (notYetEntered.size() > 0) {
             if (!parsed)
                 parse();
             for (JavaFileObject file: fileObjects) {
-                JCCompilationUnit unit = notYetEntered.remove(file);
+                JFXUnit unit = notYetEntered.remove(file);
                 if (unit != null) {
                     if (roots == null)
-                        roots = new ListBuffer<JCCompilationUnit>();
+                        roots = new ListBuffer<JFXUnit>();
                     roots.append(unit);
                 }
             }
@@ -239,8 +238,7 @@ public class JavafxcTaskImpl extends JavafxcTask {
             }
     }
 
-    @Override
-    public Iterable<? extends CompilationUnitTree> analyze() throws IOException {
+    public Iterable<? extends UnitTree> analyze() throws IOException {
         try {
             enter();
             genList = genList.appendList(compiler.attribute());
@@ -251,7 +249,6 @@ public class JavafxcTaskImpl extends JavafxcTask {
         }
     }
     
-    @Override
     public int errorCheck() throws IOException {
         try {
             enter();
@@ -263,7 +260,6 @@ public class JavafxcTaskImpl extends JavafxcTask {
         return compiler.errorCount();
     }
 
-    @Override
     public Iterable<? extends JavaFileObject> generate() throws IOException {
         analyze();
         final ListBuffer<JavaFileObject> results = new ListBuffer<JavaFileObject>();
@@ -271,12 +267,10 @@ public class JavafxcTaskImpl extends JavafxcTask {
         return results;
     }
     
-    @Override
-    public void setTaskListener(TaskListener taskListener) {
+    public void setTaskListener(JavafxTaskListener taskListener) {
         this.taskListener = taskListener;
     }
 
-    @Override
     public TypeMirror getTypeMirror(Iterable<? extends Tree> path) {
         if (path == null)
             return null;
@@ -284,10 +278,9 @@ public class JavafxcTaskImpl extends JavafxcTask {
         for (Tree node : path) {
             last = node;
         }
-        return ((JCTree) last).type;
+        return ((JFXTree) last).type;
     }
 
-    @Override
     public JavacElements getElements() {
         if (context == null) {
             throw new IllegalStateException();
@@ -295,7 +288,6 @@ public class JavafxcTaskImpl extends JavafxcTask {
         return JavacElements.instance(context);
     }
 
-    @Override
     public JavacTypes getTypes() {
         if (context == null) {
             throw new IllegalStateException();

@@ -30,28 +30,27 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.OnReplaceTree;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
 public class JFXOnReplace extends JFXStatement implements OnReplaceTree {
     
     private final JFXVar firstIndex;
     private final JFXVar oldValue;
-    private final JCBlock body;
+    private final JFXBlock body;
     private int endKind;
 
     private JFXVar lastIndex;
     private JFXVar newElements;
 
     
-    public JFXOnReplace( JFXVar oldValue, JCBlock body) {
+    public JFXOnReplace( JFXVar oldValue, JFXBlock body) {
         this(oldValue, null, null, 0, null, body);
     }
     
     
     public JFXOnReplace(JFXVar oldValue, JFXVar firstIndex, JFXVar lastIndex,
-            int endKind, JFXVar newElements, JCBlock body) {
+            int endKind, JFXVar newElements, JFXBlock body) {
         this.oldValue = oldValue;
         this.firstIndex = firstIndex;
         this.lastIndex = lastIndex;
@@ -63,9 +62,8 @@ public class JFXOnReplace extends JFXStatement implements OnReplaceTree {
     public void accept(JavafxVisitor v) {
         v.visitOnReplace(this);
     }
-
     
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.ON_REPLACE;
     }
     
@@ -73,7 +71,7 @@ public class JFXOnReplace extends JFXStatement implements OnReplaceTree {
         return oldValue;
     }
     
-    public JCBlock getBody() {
+    public JFXBlock getBody() {
         return body;
     }
     

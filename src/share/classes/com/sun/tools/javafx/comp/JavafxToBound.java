@@ -104,35 +104,51 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     /** Visitor method: Translate a single node.
      */
     @SuppressWarnings("unchecked")
-    <T extends JCExpression> T translate(T tree, TypeMorphInfo tmi) {
+    private <TFX extends JFXExpression, TC extends JCTree> TC translateGeneric(TFX tree, TypeMorphInfo tmi) {
         TypeMorphInfo tmiPrevTarget = tmiTarget;
         this.tmiTarget = tmi;
-        T ret;
+        TC ret;
 	if (tree == null) {
 	    ret = null;
 	} else {
 	    tree.accept(this);
-	    ret = (T)this.result;
+	    ret = (TC)this.result;
 	    this.result = null;
 	}
         this.tmiTarget = tmiPrevTarget;
         return ret;
     }
 
-    public <T extends JCExpression> T translate(T tree, Type type) {
-        return translate(tree, typeMorpher.typeMorphInfo(type));
+    public JCExpression translate(JFXExpression tree) {
+        return translateGeneric(tree);
+    }
+    
+    public JCExpression translate(JFXExpression tree, TypeMorphInfo tmi) {
+        return translateGeneric(tree, tmi);
+    }
+    
+    public JCExpression translate(JFXExpression tree, Type type) {
+        return translateGeneric(tree, type);
+    }
+    
+    public <TFX extends JFXExpression, TC extends JCTree> TC translateGeneric(TFX tree, Type type) {
+        return translateGeneric(tree, typeMorpher.typeMorphInfo(type));
     }
 
-    public <T extends JCExpression> T translate(T tree) {
-        return translate(tree, (TypeMorphInfo) null);
+    public <TFX extends JFXExpression, TC extends JCTree> TC translateGeneric(TFX tree) {
+        return translateGeneric(tree, (TypeMorphInfo) null);
     }
 
-    private List<JCExpression> translate(List<JCExpression> trees, Type methType, boolean usesVarArgs) {
-        ListBuffer<JCExpression> translated = ListBuffer.lb();
+    private List<JCExpression> translate(List<JFXExpression> trees, Type methType, boolean usesVarArgs) {
+        return translateGeneric(trees, methType, usesVarArgs);
+    }
+
+    private <TFX extends JFXExpression, TC extends JCExpression> List<TC> translateGeneric(List<TFX> trees, Type methType, boolean usesVarArgs) {
+        ListBuffer<TC> translated = ListBuffer.lb();
         boolean handlingVarargs = false;
         Type formal = null;
         List<Type> t = methType.getParameterTypes();
-        for (List<JCExpression> l = trees; l.nonEmpty(); l = l.tail) {
+        for (List<TFX> l = trees; l.nonEmpty(); l = l.tail) {
             if (!handlingVarargs) {
                 formal = t.head;
                 t = t.tail;
@@ -141,7 +157,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     handlingVarargs = true;
                 }
             }
-            JCExpression tree = translate(l.head, formal);
+            TC tree = translateGeneric(l.head, formal);
             if (tree != null) {
                 if (tree.type == null) { // if not set by convert()
                     tree.type = formal; // mark the type to declare the holder of this arg
@@ -149,7 +165,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 translated.append(tree);
             }
         }
-        List<JCExpression> args = translated.toList();
+        List<TC> args = translated.toList();
 
         return args;
     }
@@ -201,10 +217,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     private JCVariableDecl translateVar(JFXVar tree) {
         DiagnosticPosition diagPos = tree.pos();
 
-        JCModifiers mods = tree.getModifiers();
+        JFXModifiers mods = tree.getModifiers();
         long modFlags = mods == null ? 0L : mods.flags;
         modFlags |= Flags.FINAL;  // Locations are never overwritten
-        mods = make.at(diagPos).Modifiers(modFlags);
+        JCModifiers tmods = make.at(diagPos).Modifiers(modFlags);
 
         VarMorphInfo vmi = typeMorpher.varMorphInfo(tree.sym);
         toJava.setLocallyBound(tree.sym); //TODO temporary until only one function is generated, and bound functions can be handled in var usage analysis (note: fragile, requires unbound version to be processed first).
@@ -217,20 +233,20 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         } else {
             init = translate(tree.init, vmi.getRealFXType());
         }
-        return make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
+        return make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
     }
 
     private JCStatement definitionalAssignmentToSet(DiagnosticPosition diagPos,
             JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
-            JCExpression instance, int milieu) {
+            Name attrName, int milieu) {
         return make.at(diagPos).Exec( definitionalAssignmentToSetExpression(diagPos,
             init, bindStatus, vsym,
-             instance, milieu) );
+             attrName, milieu) );
     }
 
     private JCExpression definitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
             JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
-            JCExpression instance, int milieu) {
+            Name attrName, int milieu) {
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         JCExpression nonNullInit = (init == null)? makeDefaultValue(diagPos, vmi) : init;
         List<JCExpression> args = List.<JCExpression>of( nonNullInit );
@@ -240,7 +256,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             localAttr = make.Ident(vsym);
         } else {
             String attrAccess = attributeGetMethodNamePrefix + vsym;
-            localAttr = callExpression(diagPos, instance, attrAccess);
+            localAttr = callExpression(diagPos, make.Ident(attrName), attrAccess);
         }
         Name methName;
         if (bindStatus.isUnidiBind()) {
@@ -411,7 +427,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 return new InstanciateTranslator(tree, toJava) {
 
                     protected void processLocalVar(JFXVar var) {
-                        JCExpression init = var.getInitializer();
+                        JFXExpression init = var.getInitializer();
                         JCExpression tinit = init==null?
                                 makeLocationAttributeVariable(typeMorpher.varMorphInfo(var.sym), diagPos)
                                 : translate(init);
@@ -428,10 +444,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         }
                     }
 
-                    protected JCStatement translateAttributeSet(JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression instance) {
+                    protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name attrName) {
                         JCExpression initRef = buildArgField(translate(init, vsym.type), vsym.type, vsym.name.toString() + "$attr", bindStatus.isBound());
                         return definitionalAssignmentToSet(diagPos, initRef, bindStatus,
-                                vsym, instance, FROM_LITERAL_MILIEU);
+                                vsym, attrName, FROM_LITERAL_MILIEU);
                     }
                 }.doit();
             }
@@ -445,7 +461,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             protected JCExpression resultValue() {
                 return new StringExpressionTranslator(tree, toJava) {
 
-                    protected JCExpression translateArg(JCExpression arg) {
+                    protected JCExpression translateArg(JFXExpression arg) {
                         return buildArgField(translate(arg), arg.type);
                     }
                 }.doit();
@@ -463,16 +479,16 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         assert (tree.type != syms.voidType) : "void block expressions should be not exist in bind expressions";
         DiagnosticPosition diagPos = tree.pos();
 
-        JCExpression value = tree.value;
+        JFXExpression value = tree.value;
         ListBuffer<JCStatement> translatedVars = ListBuffer.lb();
 
-        for (JCStatement stmt : tree.getStatements()) {
-            switch (stmt.getTag()) {
-                case JavafxTag.RETURN:
+        for (JFXStatement stmt : tree.getStmts()) {
+            switch (stmt.getFXTag()) {
+                case RETURN:
                     assert value == null;
-                    value = ((JCReturn) stmt).getExpression();
+                    value = ((JFXReturn) stmt).getExpression();
                     break;
-                case JavafxTag.VAR_DEF:
+                case VAR_DEF:
                     translatedVars.append(translateVar((JFXVar) stmt));
                     break;
                 default:
@@ -480,13 +496,13 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     break;
             }
         }
-        result = ((JavafxTreeMaker) make).at(diagPos).BlockExpression(tree.flags,
+        result = makeBlockExpression(diagPos,  //TODO tree.flags lost
                 translatedVars.toList(),
                 translate(value, tmiTarget) );
     }
 
     @Override
-    public void visitAssign(JCAssign tree) {
+    public void visitAssign(JFXAssign tree) {
         //TODO: this should probably not be allowed
         // log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "=");
         DiagnosticPosition diagPos = tree.pos();
@@ -503,13 +519,13 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     defs.locationGetMethodName[typeKind]));
         // bundle it all into a block-expression that looks like --
         // { ObjectLocation tmp = rhs; lhs.set(tmp.get()); tmp }
-        result = ((JavafxTreeMaker) make).at(diagPos).BlockExpression(0L,
+        result = makeBlockExpression(diagPos,
                 List.of(varDecl, setStmt),
                 make.at(diagPos).Ident(varDecl.name));
     }
 
     @Override
-    public void visitAssignop(JCAssignOp tree) {
+    public void visitAssignop(JFXAssignOp tree) {
         log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "=");
     }
 
@@ -563,7 +579,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
-    public void visitSelect(final JCFieldAccess tree) {
+    public void visitSelect(final JFXSelect tree) {
         if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
             result = convert(tree.type, toJava.translate(tree, Wrapped.InLocation)); //TODO -- for now punt, translate like normal case
             return;
@@ -578,7 +594,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 result = convert(tree.type, make.at(diagPos).Select(classRef, tree.getIdentifier()));
             } else {
                 // this is a dynamic reference to an attribute
-                JCExpression expr = tree.getExpression();
+                JFXExpression expr = tree.getExpression();
                 result = makeBoundSelect(diagPos,
                         tree.type,
                         translate(expr),
@@ -600,7 +616,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 // dynamic reference to a Java member
                 result = (new BindingExpressionClosureTranslator(diagPos, tree.type) {
 
-                    private JCExpression selector = tree.getExpression();
+                    private JFXExpression selector = tree.getExpression();
                     private TypeMorphInfo tmiSelector = typeMorpher.typeMorphInfo(selector.type);
                     private Name selectorName = getSyntheticName("selector");
 
@@ -632,7 +648,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
-    public void visitIdent(JCIdent tree)   {  //TODO: don't use toJava
+    public void visitIdent(JFXIdent tree)   {  //TODO: don't use toJava
        // assert (tree.sym.flags() & Flags.PARAMETER) != 0 || tree.name == names._this || tree.sym.isStatic() || toJava.shouldMorph(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
         JCExpression transId = toJava.translate(tree, Wrapped.InLocation);
         result = convert(tree.type, transId );
@@ -644,7 +660,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         Type elemType = elementType(targetType(tree.type));
         UseSequenceBuilder builder = toJava.useBoundSequenceBuilder(tree.pos(), elemType);
         stmts.append(builder.makeBuilderVar());
-        for (JCExpression item : tree.getItems()) {
+        for (JFXExpression item : tree.getItems()) {
             stmts.append(builder.makeAdd( item ) );
         }
         result = makeBlockExpression(tree.pos(), stmts, builder.makeToSequence());
@@ -826,7 +842,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
              * new BoundComprehension<T,V>(V.class, IN_SEQUENCE, USE_INDEX) { ... }
              */
             private JCExpression makeBoundComprehension(JFXForExpressionInClause clause, JCExpression inner) {
-                JCExpression seq = clause.getSequenceExpression();
+                JFXExpression seq = clause.getSequenceExpression();
                 TypeMorphInfo tmiSeq = typeMorpher.typeMorphInfo(seq.type);
                 TypeMorphInfo tmiInduction = typeMorpher.typeMorphInfo(clause.getVar().type);
                 Type elementType = tmiSeq.getElementType();
@@ -947,7 +963,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
-    public void visitConditional(final JCConditional tree) {
+    public void visitIfExpression(final JFXIfExpression tree) {
         Type targetType = targetType(tree.type);
         result = makeBoundConditional(tree.pos(),
                 targetType,
@@ -957,13 +973,13 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
-    public void visitParens(JCParens tree) { //done
+    public void visitParens(JFXParens tree) { //done
         JCExpression expr = translate(tree.expr);
         result = make.at(tree.pos).Parens(expr);
     }
 
     @Override
-    public void visitTypeTest(final JCInstanceOf tree) {
+    public void visitInstanceOf(final JFXInstanceOf tree) {
         result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
 
             protected JCExpression resultValue() {
@@ -975,7 +991,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
-    public void visitTypeCast(final JCTypeCast tree) {
+    public void visitTypeCast(final JFXTypeCast tree) {
         result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
 
            protected JCExpression resultValue() {
@@ -990,7 +1006,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
-    public void visitLiteral(JCLiteral tree) {
+    public void visitLiteral(JFXLiteral tree) {
         final DiagnosticPosition diagPos = tree.pos();
         if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
             Type elemType = types.elementType(targetType(tree.type));
@@ -1046,10 +1062,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
-    public void visitApply(final JCMethodInvocation tree) {
+    public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
         result = (new FunctionCallTranslator(tree, toJava) {
 
-            final List<JCExpression> typeArgs = toJava.translate(tree.typeargs); //TODO: should, I think, be nil list
+            final List<JCExpression> typeArgs = toJava.translateExpressions(tree.typeargs); //TODO: should, I think, be nil list
             final List<JCExpression> targs = translate(tree.args, meth.type, usesVarArgs);
 
             public JCExpression doit() {
@@ -1098,7 +1114,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                 JCExpression transSelector = makeGetField(selectorName, TYPE_KIND_OBJECT);
 
                                 // construct the actuall method invocation
-                                Name methName = ((JCFieldAccess) tree.meth).name;
+                                Name methName = ((JFXSelect) tree.meth).name;
                                 JCExpression callMeth = m().Select(transSelector, methName);
                                 JCExpression call = m().Apply(typeArgs, callMeth, callArgs.toList());
 
@@ -1143,7 +1159,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                   transMeth = make.at(transMeth).Select(receiverType, functionName(msym, true, false));
                                   
                                 }
-                                return m().Apply(toJava.translate(tree.typeargs), transMeth, callArgs.toList());
+                                return m().Apply(null, transMeth, callArgs.toList());
                             }
 
                             @Override
@@ -1168,17 +1184,17 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 //TODO: this is a paranoid cloning of the below -- integrate this
                 if (superToStatic) {
                     Name name = functionName(msym, superToStatic, callBound);
-                    if (transMeth.getTag() == JavafxTag.IDENT) {
+                    if (transMeth.getTag() == JCTree.IDENT) {
                         transMeth = m().Ident(name);
-                    } else if (transMeth.getTag() == JavafxTag.SELECT) {
+                    } else if (transMeth.getTag() == JCTree.SELECT) {
                         transMeth = m().Select(makeTypeTree(diagPos, msym.owner.type, false), name);
                     }
                 } else 
                 if (callBound && ! renameToSuper) {
                     Name name = functionName(msym, superToStatic, callBound);
-                    if (transMeth.getTag() == JavafxTag.IDENT) {
+                    if (transMeth.getTag() == JCTree.IDENT) {
                         transMeth = m().Ident(name);
-                    } else if (transMeth.getTag() == JavafxTag.SELECT) {
+                    } else if (transMeth.getTag() == JCTree.SELECT) {
                         JCFieldAccess faccess = (JCFieldAccess) transMeth;
                         transMeth = m().Select(faccess.getExpression(), name);
                     }
@@ -1192,53 +1208,53 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
-    public void visitBinary(final JCBinary tree) {
+    public void visitBinary(final JFXBinary tree) {
         DiagnosticPosition diagPos = tree.pos();
-        final JCExpression l = tree.lhs;
-        final JCExpression r = tree.rhs;
+        final JFXExpression l = tree.lhs;
+        final JFXExpression r = tree.rhs;
         final JCExpression lhs = translate(l);
         final JCExpression rhs = translate(r);
         final String typeCode = typeCode(l.type) + typeCode(r.type);
         JCExpression res;
 
-        switch (tree.getTag()) {
-            case JavafxTag.PLUS:
+        switch (tree.getFXTag()) {
+            case PLUS:
                 res = runtime(diagPos, cBoundOperators, "plus_" + typeCode, List.of(lhs, rhs));
                 break;
-            case JavafxTag.MINUS:
+            case MINUS:
                 res = runtime(diagPos, cBoundOperators, "minus_" + typeCode, List.of(lhs, rhs));
                 break;
-            case JavafxTag.DIV:
+            case DIV:
                 res = runtime(diagPos, cBoundOperators, "divide_" + typeCode, List.of(lhs, rhs));
                 break;
-            case JavafxTag.MUL:
+            case MUL:
                 res = runtime(diagPos, cBoundOperators, "times_" + typeCode, List.of(lhs, rhs));
                 break;
-            case JavafxTag.MOD:
+            case MOD:
                 res = runtime(diagPos, cBoundOperators, "modulo_" + typeCode, List.of(lhs, rhs));
                 break;
-            case JavafxTag.EQ:
+            case EQ:
                 res = runtime(diagPos, cBoundOperators, "eq_" + typeCode, List.of(lhs, rhs));
                 break;
-            case JavafxTag.NE:
+            case NE:
                 res = runtime(diagPos, cBoundOperators, "ne_" + typeCode, List.of(lhs, rhs));
                 break;
-            case JavafxTag.LT:
+            case LT:
                 res = runtime(diagPos, cBoundOperators, "lt_" + typeCode, List.of(lhs, rhs));
                 break;
-            case JavafxTag.LE:
+            case LE:
                 res = runtime(diagPos, cBoundOperators, "le_" + typeCode, List.of(lhs, rhs));
                 break;
-            case JavafxTag.GT:
+            case GT:
                 res = runtime(diagPos, cBoundOperators, "gt_" + typeCode, List.of(lhs, rhs));
                 break;
-            case JavafxTag.GE:
+            case GE:
                 res = runtime(diagPos, cBoundOperators, "ge_" + typeCode, List.of(lhs, rhs));
                 break;
-            case JavafxTag.AND:
+            case AND:
                 res = runtime(diagPos, cBoundOperators, "and_" + typeCode, List.of(lhs, rhs));
                 break;
-            case JavafxTag.OR:
+            case OR:
                 res = runtime(diagPos, cBoundOperators, "or_" + typeCode, List.of(lhs, rhs));
                 break;
             default:
@@ -1250,24 +1266,24 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
-    public void visitUnary(final JCUnary tree) {
+    public void visitUnary(final JFXUnary tree) {
         DiagnosticPosition diagPos = tree.pos();
-        JCExpression expr = tree.getExpression();
+        JFXExpression expr = tree.getExpression();
         JCExpression transExpr = translate(expr);
         String typeCode = typeCode(expr.type);
         JCExpression res;
 
-        switch (tree.getTag()) {
-            case JavafxTag.SIZEOF:
+        switch (tree.getFXTag()) {
+            case SIZEOF:
                 res = runtime(diagPos, cBoundSequences, "sizeof", List.of(transExpr) );
                 break;
-            case JavafxTag.REVERSE:
+            case REVERSE:
                 res = runtime(diagPos, cBoundSequences, "reverse", List.of(transExpr) );
                 break;
-            case JCTree.NOT:
+            case NOT:
                 res = runtime(diagPos, cBoundOperators, "not_"+typeCode, List.of(transExpr) );
                 break;
-            case JCTree.NEG:
+            case NEG:
                 if (types.isSameType(tree.type, syms.javafx_DurationType)) {   //TODO
                     res = make.at(diagPos).Apply(null,
                             make.at(diagPos).Select(translate(tree.arg), Name.fromString(names, "negate")), List.<JCExpression>nil());
@@ -1275,19 +1291,19 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     res = runtime(diagPos, cBoundOperators, "negate_"+typeCode, List.of(transExpr));
                 }
                 break;
-            case JCTree.PREINC:
+            case PREINC:
                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "++");
                 res = transExpr;
                 break;
-            case JCTree.PREDEC:
+            case PREDEC:
                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "--");
                 res = transExpr;
                 break;
-            case JCTree.POSTINC:
+            case POSTINC:
                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "++");
                 res = transExpr;
                 break;
-            case JCTree.POSTDEC:
+            case POSTDEC:
                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "--");
                 res = transExpr;
                 break;
@@ -1376,63 +1392,28 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
-    public void visitModifiers(JCModifiers tree) {
+    public void visitModifiers(JFXModifiers tree) {
         assert false : "should not be processed as part of a binding";
     }
 
     @Override
-    public void visitNewArray(JCNewArray tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitNewClass(JCNewClass tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitSkip(JCSkip tree) {
+    public void visitSkip(JFXSkip tree) {
         assert false : "should not be processed as part of a binding";
     }
 
     @Override
-    public void visitSwitch(JCSwitch tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitSynchronized(JCSynchronized tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitThrow(JCThrow tree) {
+    public void visitThrow(JFXThrow tree) {
         assert false : "should not be processed as part of a binding";
     }
 
     @Override
-    public void visitTry(JCTry tree) {
+    public void visitTry(JFXTry tree) {
         assert false : "should not be processed as part of a binding";
     }
 
     @Override
-    public void visitVarDef(JCVariableDecl tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitWhileLoop(JCWhileLoop tree) {
+    public void visitWhileLoop(JFXWhileLoop tree) {
         assert false : "should not be processed as part of a binding";
-    }
-
-    @Override
-    public void visitLetExpr(LetExpr tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitTree(JCTree tree) {
-        assert false : "should not be in JavaFX AST";
     }
 
     @Override
@@ -1447,7 +1428,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
 
     @Override
-    public void visitTopLevel(JCCompilationUnit tree) {
+    public void visitUnit(JFXUnit tree) {
         assert false : "should not be processed as part of a binding";
    }
 
@@ -1475,7 +1456,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
-    public void visitBlock(JCBlock tree) {
+    public void visitBlock(JFXBlock tree) {
         assert false : "should not be processed as part of a binding";
     }
 
@@ -1490,123 +1471,33 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
-    public void visitContinue(JCContinue tree) {
+    public void visitContinue(JFXContinue tree) {
         assert false : "should not be processed as part of a binding";
     }
 
     @Override
-    public void visitDoLoop(JCDoWhileLoop tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitReturn(JCReturn tree) {
+    public void visitReturn(JFXReturn tree) {
         assert false : "should not be processed as part of a binding";
     }
 
     @Override
-    public void visitExec(JCExpressionStatement tree) {
+    public void visitExec(JFXExpressionStatement tree) {
         assert false : "should not be processed as part of a binding";
     }
 
     @Override
-    public void visitForeachLoop(JCEnhancedForLoop tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitForLoop(JCForLoop tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitIf(JCIf tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitImport(JCImport tree) {
+    public void visitImport(JFXImport tree) {
         assert false : "should not be processed as part of a binding";
     }
 
     @Override
-    public void visitIndexed(JCArrayAccess tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitTypeArray(JCArrayTypeTree tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitTypeBoundKind(TypeBoundKind tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitLabelled(JCLabeledStatement tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitMethodDef(JCMethodDecl tree) {
-         assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitTypeApply(JCTypeApply tree) {
+    public void visitBreak(JFXBreak tree) {
         assert false : "should not be processed as part of a binding";
     }
 
     @Override
-    public void visitTypeIdent(JCPrimitiveTypeTree tree) {
+    public void visitCatch(JFXCatch tree) {
         assert false : "should not be processed as part of a binding";
-    }
-
-    @Override
-    public void visitTypeParameter(JCTypeParameter tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    @Override
-    public void visitAnnotation(JCAnnotation tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    @Override
-    public void visitAssert(JCAssert tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    @Override
-    public void visitBreak(JCBreak tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    @Override
-   public void visitCase(JCCase tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitCatch(JCCatch tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    @Override
-    public void visitClassDef(JCClassDecl tree) {
-        assert false : "should not be in JavaFX AST";
-    }
-
-    @Override
-    public void visitWildcard(JCWildcard tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    @Override
-    public void visitSetAttributeToObjectBeingInitialized(JFXSetAttributeToObjectBeingInitialized that) {
-        assert false : "not yet implemented";
     }
 
     @Override
@@ -1646,7 +1537,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
-    public void visitErroneous(JCErroneous tree) {
+    public void visitErroneous(JFXErroneous tree) {
         assert false : "erroneous nodes shouldn't have gotten this far";
     }
 }

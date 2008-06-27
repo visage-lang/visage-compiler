@@ -23,23 +23,21 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.SequenceInsertTree;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
 /**
  *
  * @author Robert Field
  */
 public class JFXSequenceInsert extends JFXStatement implements SequenceInsertTree {
-    private final JCExpression element;
-    private final JCExpression sequence;
-    private final JCExpression position;
+    private final JFXExpression element;
+    private final JFXExpression sequence;
+    private final JFXExpression position;
     private final boolean after;
 
-    public JFXSequenceInsert(JCExpression sequence, JCExpression element, 
-            JCExpression position, boolean after) {
+    public JFXSequenceInsert(JFXExpression sequence, JFXExpression element, 
+            JFXExpression position, boolean after) {
         this.element = element;
         this.sequence = sequence;
         this.position = position;
@@ -50,15 +48,15 @@ public class JFXSequenceInsert extends JFXStatement implements SequenceInsertTre
         v.visitSequenceInsert(this);
     }
 
-    public JCExpression getElement() {
+    public JFXExpression getElement() {
         return element;
     }
     
-    public JCExpression getSequence() {
+    public JFXExpression getSequence() {
         return sequence;
     }
     
-    public JCExpression getPosition() {
+    public JFXExpression getPosition() {
         return position;
     }
     
@@ -67,7 +65,7 @@ public class JFXSequenceInsert extends JFXStatement implements SequenceInsertTre
     }
     
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.INSERT;
     }
 

@@ -23,8 +23,7 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.TypeTree;
-import com.sun.source.tree.TreeVisitor;
+import com.sun.javafx.api.tree.*;
 
 /**
  * Abstract base for types

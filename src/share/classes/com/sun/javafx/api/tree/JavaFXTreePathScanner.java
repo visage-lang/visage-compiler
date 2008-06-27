@@ -23,9 +23,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.*;
-import com.sun.source.util.TreePath;
-
 /**
  * A TreeVisitor that visits all the child tree nodes, and provides
  * support for maintaining a path for the parent nodes.
@@ -42,7 +39,7 @@ public class JavaFXTreePathScanner<R, P> extends JavaFXTreeScanner<R, P> {
     /**
      * Scan a tree from a position identified by a TreePath.
      */
-    public R scan(TreePath path, P p) {
+    public R scan(JavaFXTreePath path, P p) {
         this.path = path;
         try {
             return path.getLeaf().accept(this, p);
@@ -60,8 +57,8 @@ public class JavaFXTreePathScanner<R, P> extends JavaFXTreeScanner<R, P> {
         if (tree == null)
             return null;
 
-        TreePath prev = path;
-        path = new TreePath(path, tree);
+        JavaFXTreePath prev = path;
+        path = new JavaFXTreePath(path, tree);
         try {
             return tree.accept(this, p);
         } finally {
@@ -73,9 +70,9 @@ public class JavaFXTreePathScanner<R, P> extends JavaFXTreeScanner<R, P> {
      * Get the current path for the node, as built up by the currently
      * active set of scan calls.
      */
-    public TreePath getCurrentPath() {
+    public JavaFXTreePath getCurrentPath() {
         return path;
     }
 
-    private TreePath path;
+    private JavaFXTreePath path;
 }

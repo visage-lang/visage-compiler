@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2006 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2005-2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,8 +22,6 @@
  */
 
 package com.sun.javafx.api.tree;
-
-import com.sun.source.tree.TreeVisitor;
 
 /**
  * A visitor of JavaFX Script trees, which extends the TreeVisitor in 
@@ -49,7 +47,35 @@ import com.sun.source.tree.TreeVisitor;
  *
  * @author Tom Ball
  */
-public interface JavaFXTreeVisitor<R,P> extends TreeVisitor<R,P> {
+public interface JavaFXTreeVisitor<R,P> {
+    R visitMethodInvocation(FunctionInvocationTree node, P p);
+    R visitAssignment(AssignmentTree node, P p);
+    R visitCompoundAssignment(CompoundAssignmentTree node, P p);
+    R visitBinary(BinaryTree node, P p);
+    R visitBlock(BlockTree node, P p);
+    R visitBreak(BreakTree node, P p);
+    R visitCatch(CatchTree node, P p);
+    R visitClass(ClassTree node, P p);
+    R visitConditionalExpression(ConditionalExpressionTree node, P p);
+    R visitContinue(ContinueTree node, P p);
+    R visitErroneous(ErroneousTree node, P p);
+    R visitExpressionStatement(ExpressionStatementTree node, P p);
+    R visitIdentifier(IdentifierTree node, P p);
+    R visitImport(ImportTree node, P p);
+    R visitLiteral(LiteralTree node, P p);
+    R visitModifiers(ModifiersTree node, P p);
+    R visitParenthesized(ParenthesizedTree node, P p);
+    R visitReturn(ReturnTree node, P p);
+    R visitMemberSelect(MemberSelectTree node, P p);
+    R visitEmptyStatement(EmptyStatementTree node, P p);
+    R visitThrow(ThrowTree node, P p);
+    R visitCompilationUnit(UnitTree node, P p);
+    R visitTry(TryTree node, P p);
+    R visitTypeCast(TypeCastTree node, P p);
+    R visitInstanceOf(InstanceOfTree node, P p);
+    R visitUnary(UnaryTree node, P p);
+    R visitVariable(VariableTree node, P p);
+    R visitWhileLoop(WhileLoopTree node, P p);
     R visitBlockExpression(BlockExpressionTree node, P p);
     R visitBindExpression(BindExpressionTree node, P p);
     R visitClassDeclaration(ClassDeclarationTree node, P p);
@@ -73,7 +99,6 @@ public interface JavaFXTreeVisitor<R,P> extends TreeVisitor<R,P> {
     R visitSequenceSlice(SequenceSliceTree node, P p);
     R visitSequenceInsert(SequenceInsertTree node, P p);
     R visitSequenceRange(SequenceRangeTree node, P p);
-    R visitSetAttributeToObject(SetAttributeToObjectTree node, P p);
     R visitStringExpression(StringExpressionTree node, P p);
     R visitTimeLiteral(TimeLiteralTree node, P p);
     R visitTrigger(TriggerTree node, P p);
@@ -81,5 +106,4 @@ public interface JavaFXTreeVisitor<R,P> extends TreeVisitor<R,P> {
     R visitTypeClass(TypeClassTree node, P p);
     R visitTypeFunctional(TypeFunctionalTree node, P p);
     R visitTypeUnknown(TypeUnknownTree node, P p);
-    R visitVariable(JavaFXVariableTree node, P p);
 }

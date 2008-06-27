@@ -23,10 +23,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.source.tree.BlockTree;
-import com.sun.source.tree.Tree.Kind;
-
 /**
  * Common interface for on-replace statement nodes in an abstract syntax tree 
  * for the JavaFX Script language.
@@ -40,11 +36,11 @@ import com.sun.source.tree.Tree.Kind;
  * @author Tom Ball
  */
 
-public interface OnReplaceTree extends JavaFXStatementTree {
-    JavaFXVariableTree getFirstIndex();
-    JavaFXVariableTree getLastIndex();
-    JavaFXVariableTree getOldValue();
-    JavaFXVariableTree getNewElements();
+public interface OnReplaceTree extends StatementTree {
+    VariableTree getFirstIndex();
+    VariableTree getLastIndex();
+    VariableTree getOldValue();
+    VariableTree getNewElements();
     BlockTree getBody();    
     int getEndKind();
 }

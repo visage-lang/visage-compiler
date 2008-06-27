@@ -23,11 +23,11 @@
 
 package com.sun.tools.javafx.util;
 
-import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Options;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Log;
+import com.sun.tools.javafx.tree.JFXUnit;
 
 /**
  * JavaFX Script compiler platform plug-in.
@@ -81,5 +81,5 @@ public abstract class PlatformPlugin
      *
      * @param trees The abstract syntax tree list.
      */
-    public abstract void process(ListBuffer<JCCompilationUnit> trees);
+    public abstract void process(ListBuffer<JFXUnit> trees);
 }

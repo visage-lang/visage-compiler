@@ -27,82 +27,452 @@ import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TimeLiteralTree.Duration;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Symbol.PackageSymbol;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.tree.TreeMaker;
+import com.sun.tools.javac.code.Symbol.TypeSymbol;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import java.io.IOException;
-import java.io.StringWriter;
-import javax.tools.JavaFileObject;
+
+import com.sun.tools.javafx.code.JavafxSymtab;
+import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.javac.code.Kinds.*;
+import static com.sun.tools.javac.code.TypeTags.*;
+
 
 /* JavaFX version of tree maker
  */
-public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
-     /** Get the JavafxTreeMaker instance.
-     */
+public class JavafxTreeMaker implements JavafxTreeFactory {
+
+    /** The context key for the tree factory. */
+    protected static final Context.Key<JavafxTreeMaker> fxTreeMakerKey =
+        new Context.Key<JavafxTreeMaker>();
+
+    /** Get the JavafxTreeMaker instance. */
     public static JavafxTreeMaker instance(Context context) {
-        JavafxTreeMaker instance = (JavafxTreeMaker) context.get(treeMakerKey);
+        JavafxTreeMaker instance = context.get(fxTreeMakerKey);
         if (instance == null)
             instance = new JavafxTreeMaker(context);
         return instance;
     }
-    
-    public static void preRegister(final Context context) {
-        context.put(treeMakerKey, new Context.Factory<TreeMaker>() {
-            @Override
-            public TreeMaker make() {
-                return new JavafxTreeMaker(context);
-            }
-        });
-    }
-    
+
+    /** The position at which subsequent trees will be created.
+     */
+    public int pos = Position.NOPOS;
+
+    /** The toplevel tree to which created trees belong.
+     */
+    public JFXUnit toplevel;
+
+    /** The current name table. */
+    protected Name.Table names;
+
+    protected Types types;
+
+    /** The current symbol table. */
+    protected JavafxSymtab syms;
+
     /** Create a tree maker with null toplevel and NOPOS as initial position.
      */
     protected JavafxTreeMaker(Context context) {
-        this(null,
-                Name.Table.instance(context),
-                Types.instance(context),
-                Symtab.instance(context)
-                );
-        context.put(treeMakerKey, this);
+        context.put(fxTreeMakerKey, this);
         this.pos = Position.NOPOS;
+        this.toplevel = null;
+        this.names = Name.Table.instance(context);
+        this.syms = (JavafxSymtab)JavafxSymtab.instance(context);
+        this.types = Types.instance(context);
     }
-    
+
     /** Create a tree maker with a given toplevel and FIRSTPOS as initial position.
      */
-    JavafxTreeMaker(JCCompilationUnit toplevel, Name.Table names, Types types, Symtab syms) {
-        super(toplevel, names, types, syms);
+    protected JavafxTreeMaker(JFXUnit toplevel, Name.Table names, Types types, JavafxSymtab syms) {
+        this.pos = Position.FIRSTPOS;
+        this.toplevel = toplevel;
+        this.names = names;
+        this.types = types;
+        this.syms = syms;
     }
-    
+
     /** Create a new tree maker for a given toplevel.
      */
-    @Override
-    public JavafxTreeMaker forToplevel(JCCompilationUnit toplevel) {
+    public JavafxTreeMaker forToplevel(JFXUnit toplevel) {
         return new JavafxTreeMaker(toplevel, names, types, syms);
     }
 
     /** Reassign current position.
      */
-    @Override
     public JavafxTreeMaker at(int pos) {
         this.pos = pos;
         return this;
     }
-    
+
     /** Reassign current position.
      */
-    @Override
     public JavafxTreeMaker at(DiagnosticPosition pos) {
         this.pos = (pos == null ? Position.NOPOS : pos.getStartPosition());
         return this;
     }
-    
-    public JFXClassDeclaration ClassDeclaration(JCModifiers mods,
+
+    public JFXImport Import(JFXExpression qualid, boolean importStatic) {
+        JFXImport tree = new JFXImport(qualid, importStatic);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXSkip Skip() {
+        JFXSkip tree = new JFXSkip();
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXBlock Block(long flags, List<JFXStatement> stats) {
+        JFXBlock tree = new JFXBlock(flags, stats);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXWhileLoop WhileLoop(JFXExpression cond, JFXStatement body) {
+        JFXWhileLoop tree = new JFXWhileLoop(cond, body);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXTry Try(JFXBlock body, List<JFXCatch> catchers, JFXBlock finalizer) {
+        JFXTry tree = new JFXTry(body, catchers, finalizer);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXCatch Catch(JFXVar param, JFXBlock body) {
+        JFXCatch tree = new JFXCatch(param, body);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXIfExpression Conditional(JFXExpression cond,
+                                   JFXExpression thenpart,
+                                   JFXExpression elsepart)
+    {
+        JFXIfExpression tree = new JFXIfExpression(cond, thenpart, elsepart);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXExpressionStatement Exec(JFXExpression expr) {
+        JFXExpressionStatement tree = new JFXExpressionStatement(expr);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXBreak Break(Name label) {
+        JFXBreak tree = new JFXBreak(label, null);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXContinue Continue(Name label) {
+        JFXContinue tree = new JFXContinue(label, null);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXReturn Return(JFXExpression expr) {
+        JFXReturn tree = new JFXReturn(expr);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXThrow Throw(JFXExpression expr) {
+        JFXThrow tree = new JFXThrow(expr);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXFunctionInvocation Apply(List<JFXExpression> typeargs,
+                       JFXExpression fn,
+                       List<JFXExpression> args)
+    {
+        JFXFunctionInvocation tree = new JFXFunctionInvocation(typeargs, fn, args);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXParens Parens(JFXExpression expr) {
+        JFXParens tree = new JFXParens(expr);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXAssign Assign(JFXExpression lhs, JFXExpression rhs) {
+        JFXAssign tree = new JFXAssign(lhs, rhs);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXAssignOp Assignop(JavafxTag opcode, JFXExpression lhs, JFXExpression rhs) {
+        JFXAssignOp tree = new JFXAssignOp(opcode, lhs, rhs, null);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXBinary Binary(JavafxTag opcode, JFXExpression lhs, JFXExpression rhs) {
+        JFXBinary tree = new JFXBinary(opcode, lhs, rhs, null);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXTypeCast TypeCast(JFXTree clazz, JFXExpression expr) {
+        JFXTypeCast tree = new JFXTypeCast(clazz, expr);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXInstanceOf TypeTest(JFXExpression expr, JFXTree clazz) {
+        JFXInstanceOf tree = new JFXInstanceOf(expr, clazz);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXSelect Select(JFXExpression selected, Name selector) {
+        JFXSelect tree = new JFXSelect(selected, selector, null);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXIdent Ident(Name name) {
+        JFXIdent tree = new JFXIdent(name, null);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXLiteral Literal(int tag, Object value) {
+        JFXLiteral tree = new JFXLiteral(tag, value);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXModifiers Modifiers(long flags) {
+        JFXModifiers tree = new JFXModifiers(flags);
+        boolean noFlags = (flags & Flags.StandardFlags) == 0;
+        tree.pos = (noFlags) ? Position.NOPOS : pos;
+        return tree;
+    }
+
+    public JFXErroneous Erroneous() {
+        return Erroneous(List.<JFXTree>nil());
+    }
+
+    public JFXErroneous Erroneous(List<? extends JFXTree> errs) {
+        JFXErroneous tree = new JFXErroneous(errs);
+        tree.pos = pos;
+        return tree;
+    }
+
+/* ***************************************************************************
+ * Derived building blocks.
+ ****************************************************************************/
+
+    /** Create an identifier from a symbol.
+     */
+    public JFXIdent Ident(Symbol sym) {
+        return (JFXIdent)new JFXIdent((sym.name != names.empty)
+                                ? sym.name
+                                : sym.flatName(), sym)
+            .setPos(pos)
+            .setType(sym.type);
+    }
+
+    /** Create a selection node from a qualifier tree and a symbol.
+     *  @param base   The qualifier tree.
+     */
+    public JFXExpression Select(JFXExpression base, Symbol sym) {
+        return new JFXSelect(base, sym.name, sym).setPos(pos).setType(sym.type);
+    }
+
+    /** Create an identifier that refers to the variable declared in given variable
+     *  declaration.
+     */
+    public JFXExpression Ident(JFXVar param) {
+        return Ident(param.sym);
+    }
+
+    /** Create a list of identifiers referring to the variables declared
+     *  in given list of variable declarations.
+     */
+    public List<JFXExpression> Idents(List<JFXVar> params) {
+        ListBuffer<JFXExpression> ids = new ListBuffer<JFXExpression>();
+        for (List<JFXVar> l = params; l.nonEmpty(); l = l.tail)
+            ids.append(Ident(l.head));
+        return ids.toList();
+    }
+
+    /** Create a tree representing `this', given its type.
+     */
+    public JFXExpression This(Type t) {
+        return Ident(new VarSymbol(FINAL, names._this, t, t.tsym));
+    }
+
+    /** Create a tree representing `super', given its type and owner.
+     */
+    public JFXIdent Super(Type t, TypeSymbol owner) {
+        return Ident(new VarSymbol(FINAL, names._super, t, owner));
+    }
+
+    /**
+     * Create a method invocation from a method tree and a list of
+     * argument trees.
+     */
+    public JFXFunctionInvocation App(JFXExpression meth, List<JFXExpression> args) {
+        return Apply(null, meth, args).setType(meth.type.getReturnType());
+    }
+
+    /**
+     * Create a no-arg method invocation from a method tree
+     */
+    public JFXFunctionInvocation App(JFXExpression meth) {
+        return Apply(null, meth, List.<JFXExpression>nil()).setType(meth.type.getReturnType());
+    }
+
+    /** Create a tree representing given type.
+     */
+    public JFXExpression Type(Type t) {
+        if (t == null) {
+            return null;
+        }
+        JFXExpression tp;
+        switch (t.tag) {
+            case FLOAT:
+            case DOUBLE:
+                tp = Ident(syms.numberTypeName);
+                break;
+            case INT:
+                tp = Ident(syms.integerTypeName);
+                break;
+            case BOOLEAN:
+                tp = Ident(syms.booleanTypeName);
+                break;
+            case VOID:
+                tp = Ident(syms.voidTypeName);
+                break;
+            case CLASS:
+                Type outer = t.getEnclosingType();
+                tp = outer.tag == CLASS && t.tsym.owner.kind == TYP
+                        ? Select(Type(outer), t.tsym)
+                        : QualIdent(t.tsym);
+                break;
+            default:
+                throw new AssertionError("unexpected type: " + t);
+        }
+        return tp.setType(t);
+    }
+//where
+        private JFXExpression Selectors(JFXExpression base, Symbol sym, Symbol limit) {
+            if (sym == limit) return base;
+            else return Select(Selectors(base, sym.owner, limit), sym);
+        }
+
+    /** Create a list of trees representing given list of types.
+     */
+    public List<JFXExpression> Types(List<Type> ts) {
+        ListBuffer<JFXExpression> typeList = new ListBuffer<JFXExpression>();
+        for (List<Type> l = ts; l.nonEmpty(); l = l.tail)
+            typeList.append(Type(l.head));
+        return typeList.toList();
+    }
+
+    public JFXLiteral Literal(Object value) {
+        JFXLiteral result = null;
+        if (value instanceof String) {
+            result = Literal(CLASS, value).
+                setType(syms.stringType.constType(value));
+        } else if (value instanceof Integer) {
+            result = Literal(INT, value).
+                setType(syms.intType.constType(value));
+        } else if (value instanceof Long) {
+            result = Literal(LONG, value).
+                setType(syms.longType.constType(value));
+        } else if (value instanceof Byte) {
+            result = Literal(BYTE, value).
+                setType(syms.byteType.constType(value));
+        } else if (value instanceof Character) {
+            result = Literal(CHAR, value).
+                setType(syms.charType.constType(value));
+        } else if (value instanceof Double) {
+            result = Literal(DOUBLE, value).
+                setType(syms.doubleType.constType(value));
+        } else if (value instanceof Float) {
+            result = Literal(FLOAT, value).
+                setType(syms.floatType.constType(value));
+        } else if (value instanceof Short) {
+            result = Literal(SHORT, value).
+                setType(syms.shortType.constType(value));
+        } else {
+            throw new AssertionError(value);
+        }
+        return result;
+    }
+
+    /** Wrap a method invocation in an expression statement or return statement,
+     *  depending on whether the method invocation expression's type is void.
+     */
+    public JFXStatement Call(JFXExpression apply) {
+        return apply.type.tag == VOID ? Exec(apply) : Return(apply);
+    }
+
+    /** Construct an assignment from a variable symbol and a right hand side.
+     */
+    public JFXStatement Assignment(Symbol v, JFXExpression rhs) {
+        return Exec(Assign(Ident(v), rhs).setType(v.type));
+    }
+
+    /** Make an attributed type cast expression.
+     */
+    public JFXTypeCast TypeCast(Type type, JFXExpression expr) {
+        return (JFXTypeCast)TypeCast(Type(type), expr).setType(type);
+    }
+
+/* ***************************************************************************
+ * Helper methods.
+ ****************************************************************************/
+
+    /** Can given symbol be referred to in unqualified form?
+     */
+    boolean isUnqualifiable(Symbol sym) {
+        if (sym.name == names.empty ||
+            sym.owner == null ||
+            sym.owner.kind == MTH || sym.owner.kind == VAR) {
+            return true;
+        } else if (sym.kind == TYP && toplevel != null) {
+            Scope.Entry e;
+            e = toplevel.namedImportScope.lookup(sym.name);
+            if (e.scope != null) {
+                return
+                  e.sym == sym &&
+                  e.next().scope == null;
+            }
+            e = toplevel.packge.members().lookup(sym.name);
+            if (e.scope != null) {
+                return
+                  e.sym == sym &&
+                  e.next().scope == null;
+            }
+            e = toplevel.starImportScope.lookup(sym.name);
+            if (e.scope != null) {
+                return
+                  e.sym == sym &&
+                  e.next().scope == null;
+            }
+        }
+        return false;
+    }
+
+    /** The name of synthetic parameter number `i'.
+     */
+    public Name paramName(int i)   { return names.fromString("x" + i); }
+
+
+    public JFXClassDeclaration ClassDeclaration(JFXModifiers mods,
             Name name,
-            List<JCExpression> supertypes,
-            List<JCTree> declarations) {
+            List<JFXExpression> supertypes,
+            List<JFXTree> declarations) {
         JFXClassDeclaration tree = new JFXClassDeclaration(mods,
                 name,
                 supertypes,
@@ -112,7 +482,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXBindExpression BindExpression(JCExpression expr, JavafxBindStatus bindStatus) {
+    public JFXBindExpression BindExpression(JFXExpression expr, JavafxBindStatus bindStatus) {
         if (bindStatus == null)
             bindStatus = JavafxBindStatus.UNBOUND;
         JFXBindExpression tree = new JFXBindExpression(expr, bindStatus);
@@ -120,7 +490,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JCExpression MaybeBindExpression(JCExpression expr, JavafxBindStatus bindStatus) {
+    public JFXExpression MaybeBindExpression(JFXExpression expr, JavafxBindStatus bindStatus) {
         if (bindStatus == null || ! bindStatus.isBound())
             return expr;
         JFXBindExpression tree = new JFXBindExpression(expr, bindStatus);
@@ -128,14 +498,14 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXBlockExpression BlockExpression(long flags, List<JCStatement> stats, JCExpression value) {
+    public JFXBlockExpression BlockExpression(long flags, List<JFXStatement> stats, JFXExpression value) {
         JFXBlockExpression tree = new JFXBlockExpression(flags, stats, value);
         tree.pos = pos;
         return tree;
     }
     
     public JFXFunctionDefinition FunctionDefinition(
-            JCModifiers modifiers,
+            JFXModifiers modifiers,
             Name name,
             JFXType restype,
             List<JFXVar> params, 
@@ -164,14 +534,14 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     }
 
     public JFXInitDefinition InitDefinition(
-            JCBlock body) {
+            JFXBlock body) {
         JFXInitDefinition tree = new JFXInitDefinition(
                 body);
         tree.pos = pos;
         return tree;
     }
     
-    public JFXPostInitDefinition PostInitDefinition(JCBlock body) {
+    public JFXPostInitDefinition PostInitDefinition(JFXBlock body) {
         JFXPostInitDefinition tree = new JFXPostInitDefinition(body);
         tree.pos = pos;
         return tree;
@@ -183,64 +553,64 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXSequenceRange RangeSequence(JCExpression lower, JCExpression upper, JCExpression stepOrNull, boolean exclusive) {
+    public JFXSequenceRange RangeSequence(JFXExpression lower, JFXExpression upper, JFXExpression stepOrNull, boolean exclusive) {
         JFXSequenceRange tree = new JFXSequenceRange(lower, upper,  stepOrNull,  exclusive);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSequenceExplicit ExplicitSequence(List<JCExpression> items) {
+    public JFXSequenceExplicit ExplicitSequence(List<JFXExpression> items) {
         JFXSequenceExplicit tree = new JFXSequenceExplicit(items);
         tree.pos = pos;
         return tree;
     }
     
-    public JFXSequenceIndexed SequenceIndexed(JCExpression sequence, JCExpression index) {
+    public JFXSequenceIndexed SequenceIndexed(JFXExpression sequence, JFXExpression index) {
         JFXSequenceIndexed tree = new JFXSequenceIndexed(sequence, index);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSequenceSlice SequenceSlice(JCExpression sequence, JCExpression firstIndex, JCExpression lastIndex, int endKind) {
+    public JFXSequenceSlice SequenceSlice(JFXExpression sequence, JFXExpression firstIndex, JFXExpression lastIndex, int endKind) {
         JFXSequenceSlice tree = new JFXSequenceSlice(sequence, firstIndex,
                 lastIndex, endKind);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSequenceInsert SequenceInsert(JCExpression sequence, JCExpression element, JCExpression position, boolean after) {
+    public JFXSequenceInsert SequenceInsert(JFXExpression sequence, JFXExpression element, JFXExpression position, boolean after) {
         JFXSequenceInsert tree = new JFXSequenceInsert(sequence, element, position, after);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSequenceDelete SequenceDelete(JCExpression sequence) {
+    public JFXSequenceDelete SequenceDelete(JFXExpression sequence) {
         JFXSequenceDelete tree = new JFXSequenceDelete(sequence, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXSequenceDelete SequenceDelete(JCExpression sequence, JCExpression element) {
+    public JFXSequenceDelete SequenceDelete(JFXExpression sequence, JFXExpression element) {
         JFXSequenceDelete tree = new JFXSequenceDelete(sequence, element);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXStringExpression StringExpression(List<JCExpression> parts,
+    public JFXStringExpression StringExpression(List<JFXExpression> parts,
                                         String translationKey) {
         JFXStringExpression tree = new JFXStringExpression(parts, translationKey);
         tree.pos = pos;
         return tree;
     }
     
-    public JFXInstanciate Instanciate(JCExpression ident,
-            List<JCExpression> args,
-            List<JCTree> defs) {
+    public JFXInstanciate Instanciate(JFXExpression ident,
+            List<JFXExpression> args,
+            List<JFXTree> defs) {
         ListBuffer<JFXObjectLiteralPart> partsBuffer = ListBuffer.lb();
-        ListBuffer<JCTree> defsBuffer = ListBuffer.lb();
+        ListBuffer<JFXTree> defsBuffer = ListBuffer.lb();
         ListBuffer<JFXVar> varsBuffer = ListBuffer.lb();
         if (defs != null) {
-            for (JCTree def : defs) {
+            for (JFXTree def : defs) {
                 if (def instanceof JFXObjectLiteralPart) {
                     partsBuffer.append((JFXObjectLiteralPart) def);
                 } else if (def instanceof JFXVar && ((JFXVar)def).isLocal()) {
@@ -252,16 +622,16 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         }
         JFXClassDeclaration klass = null;
         if (defsBuffer.size() > 0) {
-            JCExpression id = ident;
-            while (id instanceof JCFieldAccess) id = ((JCFieldAccess)id).getExpression();
-            Name cname = syntheticClassName(((JCIdent)id).getName());
+            JFXExpression id = ident;
+            while (id instanceof JFXSelect) id = ((JFXSelect)id).getExpression();
+            Name cname = syntheticClassName(((JFXIdent)id).getName());
             long innerClassFlags = Flags.SYNTHETIC | Flags.FINAL; // to enable, change to Flags.FINAL
-            klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<JCExpression>of(ident), defsBuffer.toList());
+            klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<JFXExpression>of(ident), defsBuffer.toList());
         }
         
         JFXInstanciate tree = new JFXInstanciate(ident, 
                 klass, 
-                args==null? List.<JCExpression>nil() : args, 
+                args==null? List.<JFXExpression>nil() : args, 
                 partsBuffer.toList(), 
                 varsBuffer.toList(), 
                 null);
@@ -269,22 +639,16 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXSetAttributeToObjectBeingInitialized SetAttributeToObjectBeingInitialized(Name name) {
-        JFXSetAttributeToObjectBeingInitialized tree = new JFXSetAttributeToObjectBeingInitialized(name, null);
-        tree.pos = pos;
-        return tree;
-    }
-    
     public JFXObjectLiteralPart ObjectLiteralPart(
             Name attrName,
-            JCExpression expr,
+            JFXExpression expr,
             JavafxBindStatus bindStatus) {
         return ObjectLiteralPart(attrName, MaybeBindExpression(expr, bindStatus));
     }
 
     public JFXObjectLiteralPart ObjectLiteralPart(
             Name attrName,
-            JCExpression expr) {
+            JFXExpression expr) {
         JFXObjectLiteralPart tree =
                 new JFXObjectLiteralPart(attrName, expr, null);
         tree.pos = pos;
@@ -303,7 +667,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXType  TypeClass(JCExpression className,Cardinality cardinality) {
+    public JFXType  TypeClass(JFXExpression className,Cardinality cardinality) {
         JFXType tree = new JFXTypeClass(className, cardinality, null);
         tree.pos = pos;
         return tree;
@@ -320,26 +684,26 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     }
     
     
-    public JFXOverrideAttribute TriggerWrapper(JCIdent expr, JFXOnReplace onr) {
+    public JFXOverrideAttribute TriggerWrapper(JFXIdent expr, JFXOnReplace onr) {
         JFXOverrideAttribute tree = new JFXOverrideAttribute(expr, null, null, onr, null);
         tree.pos = pos;
         return tree;
     }
     
-    public JFXOnReplace OnReplace(JFXVar oldValue, JCBlock body) {
+    public JFXOnReplace OnReplace(JFXVar oldValue, JFXBlock body) {
         JFXOnReplace tree = new JFXOnReplace(oldValue, body);
         tree.pos = pos;
         return tree;
     }
     
      public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
-             JFXVar lastIndex, JFXVar newElements, JCBlock body) {
+             JFXVar lastIndex, JFXVar newElements, JFXBlock body) {
          return OnReplace(oldValue, firstIndex, lastIndex,
                  JFXSequenceSlice.END_INCLUSIVE, newElements, body);
     }
 
      public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
-             JFXVar lastIndex, int endKind, JFXVar newElements, JCBlock body) {
+             JFXVar lastIndex, int endKind, JFXVar newElements, JFXBlock body) {
          JFXOnReplace tree = new JFXOnReplace(oldValue, firstIndex, lastIndex,
                  endKind, newElements, body);
         tree.pos = pos;
@@ -349,9 +713,9 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
    
     public JFXVar Var(Name name,
             JFXType type,
-            JCModifiers mods,
+            JFXModifiers mods,
             boolean isLocal,
-            JCExpression initializer,
+            JFXExpression initializer,
             JavafxBindStatus bindStatus,
             JFXOnReplace onReplace) {
             JFXVar tree = new JFXVar(name, type, 
@@ -359,8 +723,8 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }   
-    public JFXOverrideAttribute OverrideAttribute(JCIdent expr, 
-            JCExpression initializer,
+    public JFXOverrideAttribute OverrideAttribute(JFXIdent expr, 
+            JFXExpression initializer,
             JavafxBindStatus bindStatus,
             JFXOnReplace onr) {
         JFXOverrideAttribute tree = new JFXOverrideAttribute(expr, initializer, 
@@ -379,7 +743,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     
     public JFXForExpression ForExpression(
             List<JFXForExpressionInClause> inClauses,
-            JCExpression bodyExpr) {
+            JFXExpression bodyExpr) {
         JFXForExpression tree = new JFXForExpression(inClauses, bodyExpr);       
         tree.pos = pos;
         return tree;
@@ -387,14 +751,14 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     
     public JFXForExpressionInClause InClause(
             JFXVar var, 
-            JCExpression seqExpr,
-            JCExpression whereExpr) {
+            JFXExpression seqExpr,
+            JFXExpression whereExpr) {
         JFXForExpressionInClause tree = new JFXForExpressionInClause(var, seqExpr, whereExpr);       
         tree.pos = pos;
         return tree;
     }
     
-    public JCExpression Identifier(Name name) {
+    public JFXExpression Identifier(Name name) {
         String str = name.toString();
         if (str.indexOf('.') < 0 && str.indexOf('<') < 0) {
             return Ident(name);
@@ -402,9 +766,9 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return Identifier(str);
     }
     
-    public JCExpression Identifier(String str) {
+    public JFXExpression Identifier(String str) {
         assert str.indexOf('<') < 0 : "attempt to parse a type with 'Identifier'.  Use TypeTree";
-        JCExpression tree = null;
+        JFXExpression tree = null;
         int inx;
         int lastInx = 0;
         do {
@@ -425,13 +789,13 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXInterpolate Interpolate(JCExpression var, List<JFXInterpolateValue> values) {
+    public JFXInterpolate Interpolate(JFXExpression var, List<JFXInterpolateValue> values) {
         JFXInterpolate tree = new JFXInterpolate(var, values);
         tree.pos = pos;
         return tree;
     }
     
-    public JFXInterpolateValue InterpolateValue(JCExpression attr, JCExpression v, JCExpression interp) {
+    public JFXInterpolateValue InterpolateValue(JFXExpression attr, JFXExpression v, JFXExpression interp) {
         JFXInterpolateValue tree = new JFXInterpolateValue(attr, v, interp);
         tree.pos = pos;
         return tree;
@@ -467,7 +831,7 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
             // error already reported in scanner
             value = Double.NaN;
         }
-        JCLiteral literal = Literal(value);
+        JFXLiteral literal = Literal(value);
         JFXTimeLiteral tree = new JFXTimeLiteral(literal, duration);
         tree.pos = pos;
         return tree;
@@ -479,18 +843,10 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    @Override
-    public JCUnary Unary(int opcode, JCExpression arg) {
-        switch (opcode) {
-            case JavafxTag.SIZEOF:
-            case JavafxTag.REVERSE: {
-                JCUnary tree = new JFXUnary(opcode, arg);
-                tree.pos = pos;
-                return tree;
-            }
-            default:
-                return super.Unary(opcode, arg);
-        }
+    public JFXUnary Unary(JavafxTag opcode, JFXExpression arg) {
+        JFXUnary tree = new JFXUnary(opcode, arg);
+        tree.pos = pos;
+        return tree;
     }
    
     private int syntheticClassNumber = 0;
@@ -500,47 +856,21 @@ public class JavafxTreeMaker extends TreeMaker implements JavafxTreeFactory {
     }
     
     /**
-     * Clone of javac's TreeMaker.TopLevel, minus the assertion check of defs types.
+     * Clone of javac's JavafxTreeMaker.TopLevel, minus the assertion check of defs types.
      */
-    @Override
-    public JCCompilationUnit TopLevel(List<JCAnnotation> packageAnnotations,
-                                      JCExpression pid,
-                                      List<JCTree> defs) {
-        assert packageAnnotations != null;
-        JCCompilationUnit tree = new JFXCompilationUnit(packageAnnotations, pid, defs,
+    public JFXUnit TopLevel(JFXExpression pid,
+                                      List<JFXTree> defs) {
+        JFXUnit tree = new JFXUnit(pid, defs,
                                      null, null, null, null);
         tree.pos = pos;
         return tree;
     }
-    private static class JFXCompilationUnit extends JCCompilationUnit {
-        protected JFXCompilationUnit(List<JCAnnotation> packageAnnotations,
-                        JCExpression pid,
-                        List<JCTree> defs,
-                        JavaFileObject sourcefile,
-                        PackageSymbol packge,
-                        Scope namedImportScope,
-                        Scope starImportScope) {
-            super(packageAnnotations, pid, defs, sourcefile, packge, namedImportScope, starImportScope);
-        }
-        
-        @Override
-        public String toString() {
-            StringWriter s = new StringWriter();
-            try {
-                new JavafxPretty(s, false).printExpr(this);
-            }
-            catch (IOException e) {
-                // should never happen, because StringWriter is defined
-                // never to throw any IOExceptions
-                throw new AssertionError(e);
-            }
-            return s.toString();
-        }
-    }
     
-    public JCExpression QualIdent(Symbol sym) {
+    public JFXExpression QualIdent(Symbol sym) {
         if (sym.kind ==Kinds.PCK && sym.owner == syms.rootPackage)
             return Ident(sym);
-        return super.QualIdent(sym);
+        return isUnqualifiable(sym)
+            ? Ident(sym)
+            : Select(QualIdent(sym.owner), sym);
     }
 }

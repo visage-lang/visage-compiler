@@ -23,10 +23,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.ExpressionTree;
-import com.sun.source.tree.ModifiersTree;
-import com.sun.source.tree.Tree;
-import com.sun.source.tree.TypeParameterTree;
 import java.util.List;
 import javax.lang.model.element.Name;
 
@@ -42,7 +38,7 @@ import javax.lang.model.element.Name;
  *
  * @author Tom Ball
  */
-public interface ClassDeclarationTree extends JavaFXTree {
+public interface ClassDeclarationTree extends Tree {
     Name getSimpleName();
     ModifiersTree getModifiers();
     List<ExpressionTree> getImplements();

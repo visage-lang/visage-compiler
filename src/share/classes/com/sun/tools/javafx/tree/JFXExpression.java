@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,88 +23,26 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXExpressionTree;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
-import com.sun.tools.javac.tree.JCTree.Visitor;
+import com.sun.javafx.api.tree.*;
 
-import com.sun.source.tree.TreeVisitor;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.Pretty;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Map;
+import com.sun.tools.javac.code.Type;
 
-/**
- * Statements.
- * Should be a subclass of JFXTree (but can't for now)
- * @see JFXTree
- */
-public abstract class JFXExpression extends JCExpression implements JavaFXExpressionTree {
+public abstract class JFXExpression extends JFXTree implements ExpressionTree {
     
     /** Initialize tree with given tag.
      */
     protected JFXExpression() {
     }
     
-    public abstract void accept(JavafxVisitor v);
-    
     @Override
-    public void accept(Visitor v) {
-        if (v instanceof JavafxVisitor) {
-            this.accept((JavafxVisitor)v);
-        } else if (v instanceof Pretty) {
-            try {
-                Pretty pretty = (Pretty) v;
-                pretty.print('[');
-                pretty.print(getClass().getName());
-                //pretty.print(' ');
-                //v.visitTree(this); visit children?
-                pretty.print(']');
-            } catch (java.io.IOException ex) { throw new RuntimeException(ex); }
-        } else {
-            assert false : "should be seen by a non-JavaFX visitor: " + this.getClass();
-            v.visitTree(this);
-        }
+    public JFXExpression setType(Type type) {
+        super.setType(type);
+        return this;
     }
 
     @Override
-    public final Kind getKind() {
-        return Kind.OTHER;
+    public JFXExpression setPos(int pos) {
+        super.setPos(pos);
+        return this;
     }
-
-    @Override
-    public final <R, D> R accept(TreeVisitor<R, D> v, D d) {
-        if (v instanceof JavaFXTreeVisitor) {
-            return (R)this.accept((JavaFXTreeVisitor)v, d);
-        } else {
-            throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
-        }
-    }
-
-    /** Convert a tree to a pretty-printed string. */
-    @Override
-    public String toString() {
-        StringWriter s = new StringWriter();
-        try {
-            new JavafxPretty(s, false).printExpr(this);
-        }
-        catch (IOException e) {
-            // should never happen, because StringWriter is defined
-            // never to throw any IOExceptions
-            throw new AssertionError(e);
-        }
-        return s.toString();
-    }
-    
-    @Override
-    public int getStartPosition() {
-        return JavafxTreeInfo.getStartPos(this);
-    }
-    
-    @Override
-    public int getEndPosition(Map<JCTree, Integer> endPosTable) {
-        return JavafxTreeInfo.getEndPos(this, endPosTable);
-    }
-
 }

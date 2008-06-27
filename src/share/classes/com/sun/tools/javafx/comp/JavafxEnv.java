@@ -23,8 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.tree.*;
+import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javafx.tree.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -53,11 +52,15 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
 
     /** The tree with which this environment is associated.
      */
-    public JCTree tree;
+    public JFXTree tree;
 
     /** The enclosing toplevel tree.
      */
-    public JCTree.JCCompilationUnit toplevel;
+    public JFXUnit toplevel;
+
+    /** The translated toplevel tree.
+     */
+    public JCCompilationUnit translatedToplevel;
 
     /** The next enclosing class definition.
      */
@@ -78,7 +81,7 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
     /** Create an outermost environment for a given (toplevel)tree,
      *  with a given info field.
      */
-    public JavafxEnv(JCTree tree, A info) {
+    public JavafxEnv(JFXTree tree, A info) {
 	this.next = null;
 	this.outer = null;
 	this.tree = tree;
@@ -91,7 +94,7 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
     /** Duplicate this environment, updating with given tree and info,
      *  and copying all other fields.
      */
-    public JavafxEnv<A> dup(JCTree tree, A info) {
+    public JavafxEnv<A> dup(JFXTree tree, A info) {
 	return dupto(new JavafxEnv<A>(tree, info));
     }
 
@@ -110,18 +113,19 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
     /** Duplicate this environment, updating with given tree,
      *  and copying all other fields.
      */
-    public JavafxEnv<A> dup(JCTree tree) {
+    public JavafxEnv<A> dup(JFXTree tree) {
 	return dup(tree, this.info);
     }
 
     /** Return closest enclosing environment which points to a tree with given tag.
      */
-    public JavafxEnv<A> enclosing(int tag) {
+    public JavafxEnv<A> enclosing(JavafxTag tag) {
 	JavafxEnv<A> env1 = this;
-	while (env1 != null && env1.tree.getTag() != tag) env1 = env1.next;
+	while (env1 != null && env1.tree.getFXTag() != tag) env1 = env1.next;
 	return env1;
     }
     
+    @Override
     public String toString() {
         return "JavafxEnv[" + info + (outer == null ? "" : ",outer=" + outer) + "]";
     }

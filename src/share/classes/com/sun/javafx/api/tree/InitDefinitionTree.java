@@ -23,8 +23,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.BlockTree;
-
 /**
  * Common interface for init definition nodes in an abstract syntax tree for the 
  * JavaFX Script language.
@@ -37,6 +35,6 @@ import com.sun.source.tree.BlockTree;
  *
  * @author Tom Ball
  */
-public interface InitDefinitionTree extends JavaFXTree {
+public interface InitDefinitionTree extends Tree {
     BlockTree getBody();
 }

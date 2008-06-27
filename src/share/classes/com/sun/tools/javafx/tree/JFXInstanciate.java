@@ -23,16 +23,11 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.InstantiateTree;
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.JavaFXVariableTree;
-import com.sun.javafx.api.tree.ObjectLiteralPartTree;
-import com.sun.source.tree.ExpressionTree;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.List;
 
 /**
@@ -40,15 +35,15 @@ import com.sun.tools.javac.util.List;
  */
 public class JFXInstanciate extends JFXExpression implements InstantiateTree {
 
-    private final JCExpression clazz;
+    private final JFXExpression clazz;
     private final JFXClassDeclaration def;
-    private final List<JCExpression> args;
+    private final List<JFXExpression> args;
     private final List<JFXObjectLiteralPart> parts;
     private final List<JFXVar> localVars;
     public ClassSymbol sym;
     public Symbol constructor;
 
-    protected JFXInstanciate(JCExpression clazz, JFXClassDeclaration def, List<JCExpression> args, List<JFXObjectLiteralPart> parts, List<JFXVar> localVars, ClassSymbol sym) {
+    protected JFXInstanciate(JFXExpression clazz, JFXClassDeclaration def, List<JFXExpression> args, List<JFXObjectLiteralPart> parts, List<JFXVar> localVars, ClassSymbol sym) {
         this.clazz = clazz;
         this.def = def;
         this.args = args;
@@ -61,11 +56,11 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
         v.visitInstanciate(this);
     }
 
-    public JCExpression getIdentifier() {
+    public JFXExpression getIdentifier() {
         return clazz;
     }
     
-    public List<JCExpression> getArgs() {
+    public List<JFXExpression> getArgs() {
         return args;
     }
 
@@ -74,18 +69,18 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
     }
 
     public Symbol getIdentifierSym() {
-        switch (clazz.getTag()) {
-            case JCTree.IDENT:
-                return ((JCIdent) clazz).sym;
-            case JCTree.SELECT:
-                return ((JCFieldAccess) clazz).sym;
+        switch (clazz.getFXTag()) {
+            case IDENT:
+                return ((JFXIdent) clazz).sym;
+            case SELECT:
+                return ((JFXSelect) clazz).sym;
         }
         assert false;
         return null;
     }
 
-    public java.util.List<JavaFXVariableTree> getLocalVariables() {
-        return JFXTree.convertList(JavaFXVariableTree.class, localVars);
+    public java.util.List<VariableTree> getLocalVariables() {
+        return convertList(VariableTree.class, localVars);
     }
     
     public List<JFXVar> getLocalvars() {
@@ -105,7 +100,7 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
     }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.OBJECT_LITERAL;
     }
 

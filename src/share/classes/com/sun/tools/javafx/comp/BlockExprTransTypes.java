@@ -22,7 +22,7 @@
  */
 
 package com.sun.tools.javafx.comp;
-import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javafx.tree.BlockExprJCBlockExpression;
 import com.sun.tools.javac.comp.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.tree.*;
@@ -52,7 +52,7 @@ public class BlockExprTransTypes extends TransTypes {
         return instance;
     }
      
-     public void visitBlockExpression(JFXBlockExpression tree) {
+     public void visitBlockExpression(BlockExprJCBlockExpression tree) {
          tree.stats = translate(tree.stats);
          tree.value = translate(tree.value, null);
          result = tree;
@@ -60,8 +60,8 @@ public class BlockExprTransTypes extends TransTypes {
      
      @Override
      public void visitTree(JCTree tree) {
-         if (tree instanceof JFXBlockExpression)
-             visitBlockExpression((JFXBlockExpression) tree);
+         if (tree instanceof BlockExprJCBlockExpression)
+             visitBlockExpression((BlockExprJCBlockExpression) tree);
          else
              super.visitTree(tree);
     }

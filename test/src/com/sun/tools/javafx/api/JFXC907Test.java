@@ -28,11 +28,12 @@ import com.sun.tools.javafx.api.JavafxcTrees;
 import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.javafx.api.tree.ClassDeclarationTree;
-import com.sun.source.tree.CompilationUnitTree;
+import com.sun.javafx.api.tree.JavaFXTreePath;
+import com.sun.javafx.api.tree.UnitTree;
 import javax.lang.model.element.Element;
-import com.sun.source.util.SourcePositions;
+import com.sun.javafx.api.tree.SourcePositions;
 
-import com.sun.source.tree.VariableTree;
+import com.sun.javafx.api.tree.VariableTree;
 import com.sun.source.util.TreePath;
 import java.io.File;
 import javax.tools.FileObject;
@@ -59,11 +60,11 @@ public class JFXC907Test {
             File file = new File("test/src/com/sun/tools/javafx/api/Point.fx");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
             JavafxcTask javafxTask = tool.getTask(null, fileManager, dl, null, fileObjects);
-            Iterable<? extends CompilationUnitTree> treeList = javafxTask.analyze();
+            Iterable<? extends UnitTree> treeList = javafxTask.analyze();
             
             JavafxcTrees trees = JavafxcTrees.instance(javafxTask);
             SourcePositions sp = trees.getSourcePositions();
-            CompilationUnitTree unit = treeList.iterator().next();
+            UnitTree unit = treeList.iterator().next();
             
             DetectorVisitor d = new DetectorVisitor(trees, sp, unit);
             d.scan(treeList, null);
@@ -76,9 +77,9 @@ public class JFXC907Test {
 class DetectorVisitor<Void,EnumSet> extends JavaFXTreePathScanner<Void,EnumSet> {
     JavafxcTrees trees;
     SourcePositions sp;
-    CompilationUnitTree unit;
+    UnitTree unit;
                     
-    DetectorVisitor(JavafxcTrees trees, SourcePositions sp, CompilationUnitTree unit) {
+    DetectorVisitor(JavafxcTrees trees, SourcePositions sp, UnitTree unit) {
         this.trees = trees;
         this.sp = sp;
         this.unit = unit;
@@ -88,7 +89,7 @@ class DetectorVisitor<Void,EnumSet> extends JavaFXTreePathScanner<Void,EnumSet> 
     public Void visitClassDeclaration(ClassDeclarationTree tree, EnumSet p) {
         Element e = trees.getElement(getCurrentPath());
         Assert.assertNotNull(e);
-        TreePath pth = trees.getPath(unit, tree);
+        JavaFXTreePath pth = trees.getPath(unit, tree);
         Assert.assertNotNull(pth);
 
         scan(tree.getClassMembers(), null);
@@ -99,7 +100,7 @@ class DetectorVisitor<Void,EnumSet> extends JavaFXTreePathScanner<Void,EnumSet> 
     public Void visitVariable(VariableTree tree, EnumSet p) {                
         Element e = trees.getElement(getCurrentPath());
         Assert.assertNotNull(e);        
-        TreePath pth = trees.getPath(unit, tree);
+        JavaFXTreePath pth = trees.getPath(unit, tree);
         Assert.assertNotNull(pth);
         return null;
     }

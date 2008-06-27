@@ -22,26 +22,36 @@
  */
 
 package com.sun.tools.javafx.tree;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.BindExpressionTree;
+
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.javafx.api.JavafxBindStatus;
 
 /**
  *
  * @author Per Bothner
  */
-public class JFXBindExpression  extends JFXExpression implements BindExpressionTree {
-    JCExpression expr;
+public class JFXBindExpression extends JFXExpression implements BindExpressionTree {
+
+    JFXExpression expr;
     private JavafxBindStatus bindStatus;
-    protected JFXBindExpression (JCExpression expr, JavafxBindStatus bindStatus) {
+
+    protected JFXBindExpression(JFXExpression expr, JavafxBindStatus bindStatus) {
         this.expr = expr;
         this.bindStatus = bindStatus;
     }
-    public JCExpression getExpression() { return expr; }
-    public JavafxBindStatus getBindStatus() { return bindStatus; }
-    
+
+    public JFXExpression getExpression() {
+        return expr;
+    }
+
+    public JavafxBindStatus getBindStatus() {
+        return bindStatus;
+    }
+
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.BIND_EXPRESSION;
     }
 
@@ -49,8 +59,10 @@ public class JFXBindExpression  extends JFXExpression implements BindExpressionT
         return JavaFXKind.BIND_EXPRESSION;
     }
 
-    public void accept(JavafxVisitor v) { v.visitBindExpression(this); }
-    
+    public void accept(JavafxVisitor v) {
+        v.visitBindExpression(this);
+    }
+
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
         return visitor.visitBindExpression(this, data);
     }

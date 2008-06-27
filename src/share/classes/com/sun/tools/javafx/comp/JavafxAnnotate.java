@@ -26,12 +26,8 @@ package com.sun.tools.javafx.comp;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.tree.*;
-import com.sun.tools.javac.tree.JCTree.*;
 
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
-import com.sun.tools.javafx.comp.JavafxAttr.Sequenceness;
-import com.sun.tools.javafx.util.MsgSym;
 
 /** Enter annotations on symbols.  Annotations accumulate in a queue,
  *  which is processed at the top level of any set of recursive calls
@@ -54,7 +50,7 @@ public class JavafxAnnotate {
     }
 
     final JavafxAttr attr;
-    final TreeMaker make;
+    final JavafxTreeMaker fxmake;
     final Log log;
     final Symtab syms;
     final Name.Table names;
@@ -66,7 +62,7 @@ public class JavafxAnnotate {
     protected JavafxAnnotate(Context context) {
 	context.put(javafxAnnotateKey, this);
 	attr = JavafxAttr.instance(context);
-	make = JavafxTreeMaker.instance(context);
+	fxmake = JavafxTreeMaker.instance(context);
 	log = Log.instance(context);
 	syms = Symtab.instance(context);
 	names = Name.Table.instance(context);
@@ -129,131 +125,4 @@ public class JavafxAnnotate {
  * Compute an attribute from its annotation.
  *********************************************************************/
 
-    /** Process a single compound annotation, returning its
-     *  Attribute. Used from MemberEnter for attaching the attributes
-     *  to the annotated symbol.
-     */
-    Attribute.Compound enterAnnotation(JCAnnotation a,
-                                       Type expected,
-				       JavafxEnv<JavafxAttrContext> env) {
-	// The annotation might have had its type attributed (but not checked)
-	// by attr.attribAnnotationTypes during MemberEnter, in which case we do not
-	// need to do it again.
-	Type at = (a.annotationType.type != null ? a.annotationType.type
-		  : attr.attribType(a.annotationType, env));
-	a.type = chk.checkType(a.annotationType.pos(), at, expected, Sequenceness.DISALLOWED);
-	if (a.type.isErroneous())
-	    return new Attribute.Compound(a.type, List.<Pair<MethodSymbol,Attribute>>nil());
-	if ((a.type.tsym.flags() & Flags.ANNOTATION) == 0) {
-	    log.error(a.annotationType.pos(), 
-                      MsgSym.MESSAGE_NOT_ANNOTATION_TYPE, a.type.toString());
-	    return new Attribute.Compound(a.type, List.<Pair<MethodSymbol,Attribute>>nil());
-	}
-	List<JCExpression> args = a.args;
-	if (args.length() == 1 && args.head.getTag() != JCTree.ASSIGN) {
-	    // special case: elided "value=" assumed
-	    args.head = make.at(args.head.pos).
-		Assign(make.Ident(names.value), args.head);
-	}
-	ListBuffer<Pair<MethodSymbol,Attribute>> buf =
-	    new ListBuffer<Pair<MethodSymbol,Attribute>>();
-	for (List<JCExpression> tl = args; tl.nonEmpty(); tl = tl.tail) {
-	    JCExpression t = tl.head;
-	    if (t.getTag() != JCTree.ASSIGN) {
-		log.error(t.pos(), MsgSym.MESSAGE_ANNOTATION_VALUE_MUST_BE_NAME_VALUE);
-                continue;
-	    }
-	    JCAssign assign = (JCAssign)t;
-	    if (assign.lhs.getTag() != JCTree.IDENT) {
-		log.error(t.pos(), MsgSym.MESSAGE_ANNOTATION_VALUE_MUST_BE_NAME_VALUE);
-                continue;
-	    }
-	    JCIdent left = (JCIdent)assign.lhs;
-	    Symbol method = rs.resolveQualifiedMethod(left.pos(),
-						      env,
-						      a.type,
-						      left.name,
-						      rs.newMethTemplate(List.<Type>nil(), null));
-	    left.sym = method;
-	    left.type = method.type;
-	    if (method.owner != a.type.tsym)
-		log.error(left.pos(), MsgSym.MESSAGE_NO_ANNOTATION_MEMBER, left.name, a.type);
-	    Type result = method.type.getReturnType();
-	    Attribute value = enterAttributeValue(result, assign.rhs, env);
-	    if (!method.type.isErroneous())
-                buf.append(new Pair<MethodSymbol,Attribute>
-                           ((MethodSymbol)method, value));
-	}
-	return new Attribute.Compound(a.type, buf.toList());
-    }
-
-    Attribute enterAttributeValue(Type expected,
-				  JCExpression tree,
-				  JavafxEnv<JavafxAttrContext> env) {
-	if (expected.isPrimitive() || types.isSameType(expected, syms.stringType)) {
-	    Type result = attr.attribExpr(tree, env, expected);
-            if (result.isErroneous())
-		return new Attribute.Error(expected);
-	    if (result.constValue() == null) {
-                log.error(tree.pos(), MsgSym.MESSAGE_ATTRIBUTE_VALUE_MUST_BE_CONSTANT);
-		return new Attribute.Error(expected);
-	    }
-//TODO:?            result = cfolder.coerce(result, expected);
-	    return new Attribute.Constant(expected, result.constValue());
-	}
-	if (expected.tsym == syms.classType.tsym) {
-	    Type result = attr.attribExpr(tree, env, expected);
-            if (result.isErroneous())
-		return new Attribute.Error(expected);
-	    if (TreeInfo.name(tree) != names._class) {
-		log.error(tree.pos(), MsgSym.MESSAGE_ANNOTATION_VALUE_MUST_BE_CLASS_LITERAL);
-		return new Attribute.Error(expected);
-	    }
-	    return new Attribute.Class(types,
-				       (((JCFieldAccess) tree).selected).type);
-	}
-	if ((expected.tsym.flags() & Flags.ANNOTATION) != 0) {
-	    if (tree.getTag() != JCTree.ANNOTATION) {
-		log.error(tree.pos(), MsgSym.MESSAGE_ANNOTATION_VALUE_MUST_BE_ANNOTATION);
-                expected = syms.errorType;
-	    }
-	    return enterAnnotation((JCAnnotation)tree, expected, env);
-	}
-	if (expected.tag == TypeTags.ARRAY) { // should really be isArray()
-	    if (tree.getTag() != JCTree.NEWARRAY) {
-		tree = make.at(tree.pos).
-		    NewArray(null, List.<JCExpression>nil(), List.of(tree));
-	    }
-	    JCNewArray na = (JCNewArray)tree;
-	    if (na.elemtype != null) {
-		log.error(na.elemtype.pos(), MsgSym.MESSAGE_NEW_NOT_ALLOWED_IN_ANNOTATION);
-		return new Attribute.Error(expected);
-	    }
-	    ListBuffer<Attribute> buf = new ListBuffer<Attribute>();
-	    for (List<JCExpression> l = na.elems; l.nonEmpty(); l=l.tail) {
-		buf.append(enterAttributeValue(types.elemtype(expected),
-					       l.head,
-					       env));
-	    }
-	    return new Attribute.
-		Array(expected, buf.toArray(new Attribute[buf.length()]));
-	}
-	if (expected.tag == TypeTags.CLASS &&
-            (expected.tsym.flags() & Flags.ENUM) != 0) {
-	    attr.attribExpr(tree, env, expected);
-	    Symbol sym = TreeInfo.symbol(tree);
-	    if (sym == null ||
-		TreeInfo.nonstaticSelect(tree) ||
-		sym.kind != Kinds.VAR ||
-		(sym.flags() & Flags.ENUM) == 0) {
-		log.error(tree.pos(), MsgSym.MESSAGE_ENUM_ANNOTATION_MUST_BE_ENUM_CONSTANT);
-		return new Attribute.Error(expected);
-	    }
-	    VarSymbol enumerator = (VarSymbol) sym;
-	    return new Attribute.Enum(expected, enumerator);
-	}
-	if (!expected.isErroneous())
-            log.error(tree.pos(), MsgSym.MESSAGE_ANNOTATION_VALUE_NOT_ALLOWABLE_TYPE);
-	return new Attribute.Error(attr.attribExpr(tree, env, expected));
-    }
 }

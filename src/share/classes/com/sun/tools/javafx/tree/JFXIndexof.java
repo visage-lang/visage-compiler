@@ -23,15 +23,10 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.source.tree.Tree.Kind;
-import com.sun.source.tree.TreeVisitor;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.tree.JCTree.Visitor;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
-import com.sun.javafx.api.tree.IndexofTree;
 
 /**
  * Indexof expression
@@ -39,26 +34,35 @@ import com.sun.javafx.api.tree.IndexofTree;
  * @author Per Bothner
  */
 public class JFXIndexof extends JFXExpression implements IndexofTree {
+
     /** Name of corresponding 'for'/'where' variable. */
     public Name fname;
     public JFXForExpressionInClause clause;
-    
-    protected JFXIndexof (Name fname) {
+
+    protected JFXIndexof(Name fname) {
         this.fname = fname;
     }
-    public Name getForVarName() { return fname; }
 
-    public void accept(JavafxVisitor v) { v.visitIndexof(this); }
+    public Name getForVarName() {
+        return fname;
+    }
 
     @Override
-    public int getTag() {
+    public void accept(JavafxVisitor v) {
+        v.visitIndexof(this);
+    }
+
+    @Override
+    public JavafxTag getFXTag() {
         return JavafxTag.INDEXOF;
     }
 
+    @Override
     public JavaFXKind getJavaFXKind() {
         throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
     }
 
+    @Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
         return visitor.visitIndexof(this, data);
     }

@@ -23,8 +23,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.ExpressionTree;
-
 /**
  * Common interface for statement nodes in an abstract syntax tree for the 
  * JavaFX Script language.

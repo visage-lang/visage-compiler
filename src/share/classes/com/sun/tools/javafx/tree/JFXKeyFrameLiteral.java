@@ -23,12 +23,9 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.BlockExpressionTree;
-import com.sun.javafx.api.tree.InterpolateTree;
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.KeyFrameLiteralTree;
-import com.sun.javafx.api.tree.TimeLiteralTree;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.util.List;
 
 public class JFXKeyFrameLiteral extends JFXExpression implements KeyFrameLiteralTree {
@@ -68,7 +65,7 @@ public class JFXKeyFrameLiteral extends JFXExpression implements KeyFrameLiteral
     }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.KEYFRAME_LITERAL;
     }
 }

@@ -23,74 +23,49 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.BlockExpressionTree;
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.source.tree.Tree.Kind;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.tree.*;
-import com.sun.source.tree.*;
 import com.sun.tools.javac.code.*;
-import com.sun.source.tree.*;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javafx.comp.*;
+import com.sun.tools.javac.util.Position;
+
 /**
  *
  * @author bothner
  */
 public class JFXBlockExpression extends JFXExpression implements BlockExpressionTree {
+
     public long flags;
-    public List<JCStatement> stats;
-    public JCExpression value;
+    public List<JFXStatement> stats;
+    public JFXExpression value;
     /** Position of closing brace, optional. */
     public int endpos = Position.NOPOS;
-    protected JFXBlockExpression(long flags, List<JCStatement> stats, JCExpression value) {
+
+    protected JFXBlockExpression(long flags, List<JFXStatement> stats, JFXExpression value) {
         this.stats = stats;
         this.flags = flags;
         this.value = value;
     }
-    
-    public void accept(JavafxVisitor v) { v.visitBlockExpression(this);}
 
-    public List<JCStatement> getStatements() {
+    public java.util.List<StatementTree> getStatements() {
+        return convertList(StatementTree.class, stats);
+    }
+
+    public List<JFXStatement> getStmts() {
         return stats;
     }
-    
-    public JCExpression getValue() {
+
+   public JFXExpression getValue() {
         return value;
     }
-    
-    public void accept(Visitor v) {
-        // Kludge
-        if (v instanceof JavafxVisitor)
-            this.accept((JavafxVisitor)v);
-        else if (v instanceof Pretty)
-            JavaPretty.visitBlockExpression((Pretty) v, this);
-        else if (v instanceof BlockExprAttr)
-            ((BlockExprAttr) v).visitBlockExpression(this);
-        else if (v instanceof BlockExprEnter)
-            ((BlockExprEnter) v).visitBlockExpression(this);
-        else if (v instanceof BlockExprMemberEnter)
-            ((BlockExprMemberEnter) v).visitBlockExpression(this);
-        else if (v instanceof JavafxPrepForBackEnd)
-            ((JavafxPrepForBackEnd) v).visitBlockExpression(this);
-        
-        else if (v instanceof TreeScanner) {
-            ((TreeScanner)v).scan(stats);
-            ((TreeScanner)v).scan(value);
-        } else if (v instanceof TreeTranslator) {
-            stats = ((TreeTranslator)v).translate(stats);
-            value = ((TreeTranslator)v).translate(value);
-            ((TreeTranslator)v).result = this;
-        } else {
-            v.visitTree(this);
-        }
+
+    public boolean isStatic() {
+        return (flags & Flags.STATIC) != 0;
     }
-    public boolean isStatic() { return (flags & Flags.STATIC) != 0; }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.BLOCK_EXPRESSION;
     }
 
@@ -99,8 +74,11 @@ public class JFXBlockExpression extends JFXExpression implements BlockExpression
         return v.visitBlockExpression(this, d);
     }
 
+    public void accept(JavafxVisitor v) {
+        v.visitBlockExpression(this);
+    }
+
     public JavaFXKind getJavaFXKind() {
         return JavaFXKind.BLOCK_EXPRESSION;
     }
-
 }

@@ -9,8 +9,8 @@ import com.sun.javafx.api.JavafxcTask;
 import com.sun.javafx.api.tree.ClassDeclarationTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.javafx.api.tree.SequenceIndexedTree;
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.util.SourcePositions;
+import com.sun.javafx.api.tree.UnitTree;
+import com.sun.javafx.api.tree.SourcePositions;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,12 +48,12 @@ public class JFXC1330Test {
             File file = new File("test/src/com/sun/tools/javafx/api/Boids.fx");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file); 
             JavafxcTask javafxTask = tool.getTask(null, fileManager, dl, null, fileObjects);
-            Iterable<? extends CompilationUnitTree> treeList = javafxTask.parse();
+            Iterable<? extends UnitTree> treeList = javafxTask.parse();
             assertTrue("no parse tree(s) returned", treeList.iterator().hasNext());
             
             final JavafxcTrees trees = JavafxcTrees.instance(javafxTask);
             final SourcePositions sp = trees.getSourcePositions();
-            for (final CompilationUnitTree unit : treeList) {
+            for (final UnitTree unit : treeList) {
                 JavaFXTreePathScanner scanner = new JavaFXTreePathScanner<Object,Void>() {
                     @Override
                     public Object visitSequenceIndexed(SequenceIndexedTree node, Void p) {

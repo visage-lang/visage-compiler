@@ -23,7 +23,6 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
@@ -116,7 +115,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitAssign(JCAssign tree) {
+    public void visitAssign(JFXAssign tree) {
         boolean wasLHS = inLHS;
         inLHS = true;
         scan(tree.lhs);
@@ -125,12 +124,12 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitIdent(JCIdent tree) {
+    public void visitIdent(JFXIdent tree) {
         markVarUse(tree.sym);
     }
     
     @Override
-    public void visitSelect(JCFieldAccess tree) {
+    public void visitSelect(JFXSelect tree) {
         // this may or may not be in a LHS but in either
         // event the selector is a value expression
         boolean wasLHS = inLHS;

@@ -23,7 +23,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.ExpressionTree;
 import java.util.List;
 
 /**

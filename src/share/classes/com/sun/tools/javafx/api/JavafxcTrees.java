@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2006 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -24,9 +24,7 @@
 package com.sun.tools.javafx.api;
 
 import com.sun.javafx.api.*;
-import com.sun.javafx.api.tree.ClassDeclarationTree;
-import com.sun.javafx.api.tree.JavaFXTreePathScanner;
-import com.sun.javafx.api.tree.FunctionDefinitionTree;
+import com.sun.javafx.api.tree.*;
 import java.io.IOException;
 import java.util.Map;
 import javax.lang.model.element.Element;
@@ -36,20 +34,12 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
 
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.Scope;
-import com.sun.source.tree.Tree;
-import com.sun.source.util.SourcePositions;
-import com.sun.source.util.TreePath;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
-import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeCopier;
-import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Log;
@@ -60,11 +50,7 @@ import com.sun.tools.javafx.comp.JavafxEnter;
 import com.sun.tools.javafx.comp.JavafxEnv;
 import com.sun.tools.javafx.comp.JavafxMemberEnter;
 import com.sun.tools.javafx.comp.JavafxResolve;
-import com.sun.tools.javafx.tree.JFXBlockExpression;
-import com.sun.tools.javafx.tree.JFXClassDeclaration;
-import com.sun.tools.javafx.tree.JFXFunctionDefinition;
-import com.sun.tools.javafx.tree.JFXVar;
-import com.sun.tools.javafx.tree.JavafxTreeInfo;
+import com.sun.tools.javafx.tree.*;
 
 /**
  * Provides an implementation of Trees for the JavaFX Script compiler, based
@@ -80,7 +66,7 @@ public class JavafxcTrees {
     private final Log log;
     private final JavafxMemberEnter memberEnter;
     private final JavafxAttr attr;
-    private final TreeMaker treeMaker;
+    private final JavafxTreeMaker fxmake;
     private final JavafxcTaskImpl javafxcTaskImpl;
     private final Context ctx;
 
@@ -104,20 +90,20 @@ public class JavafxcTrees {
         enter = JavafxEnter.instance(context);
         log = Log.instance(context);
         resolve = JavafxResolve.instance(context);
-        treeMaker = TreeMaker.instance(context);
+        fxmake = JavafxTreeMaker.instance(context);
         memberEnter = JavafxMemberEnter.instance(context);
         javafxcTaskImpl = context.get(JavafxcTaskImpl.class);
     }
 
     public SourcePositions getSourcePositions() {
         return new SourcePositions() {
-                public long getStartPosition(CompilationUnitTree file, Tree tree) {
-                    return JavafxTreeInfo.getStartPos((JCTree) tree);
+                public long getStartPosition(UnitTree file, Tree tree) {
+                    return JavafxTreeInfo.getStartPos((JFXTree) tree);
                 }
 
-                public long getEndPosition(CompilationUnitTree file, Tree tree) {
-                    Map<JCTree,Integer> endPositions = ((JCCompilationUnit) file).endPositions;
-                    return JavafxTreeInfo.getEndPos((JCTree) tree, endPositions);
+                public long getEndPosition(UnitTree file, Tree tree) {
+                    Map<JCTree,Integer> endPositions = ((JFXUnit) file).endPositions;
+                    return JavafxTreeInfo.getEndPos((JFXTree)tree, endPositions);
                 }
             };
     }
@@ -140,44 +126,44 @@ public class JavafxcTrees {
         if (classNode != null) {
             if (JavafxTreeInfo.symbolFor(classNode) == element)
                 return classNode;
-            for (JCTree node : classNode.getMembers())
+            for (JFXTree node : classNode.getMembers())
                 if (JavafxTreeInfo.symbolFor(node) == element)
                     return node;
         }
         return null;
     }
 
-    public TreePath getPath(CompilationUnitTree unit, Tree node) {
-        return getPath(new TreePath(unit), node);
+    public JavaFXTreePath getPath(UnitTree unit, Tree node) {
+        return getPath(new JavaFXTreePath(unit), node);
     }
 
-    public TreePath getPath(Element e) {
-        final Pair<JCTree, JCCompilationUnit> treeTopLevel = getTreeAndTopLevel(e);
+    public JavaFXTreePath getPath(Element e) {
+        final Pair<JFXTree, JFXUnit> treeTopLevel = getTreeAndTopLevel(e);
         if (treeTopLevel == null)
             return null;
         return getPath(treeTopLevel.snd, treeTopLevel.fst);
     }
     
     /**
-     * Gets a tree path for a tree node within a subtree identified by a TreePath object.
+     * Gets a tree path for a tree node within a subtree identified by a JavaFXTreePath object.
      * @return null if the node is not found
      */
-    public static TreePath getPath(TreePath path, Tree target) {
+    public static JavaFXTreePath getPath(JavaFXTreePath path, Tree target) {
         path.getClass();
         target.getClass();
 
         class Result extends Error {
             static final long serialVersionUID = -5942088234594905625L;
-            TreePath path;
-            Result(TreePath path) {
+            JavaFXTreePath path;
+            Result(JavaFXTreePath path) {
                 this.path = path;
             }
         }
-        class PathFinder extends JavaFXTreePathScanner<TreePath,Tree> {
+        class PathFinder extends JavaFXTreePathScanner<JavaFXTreePath,Tree> {
             @Override
-            public TreePath scan(Tree tree, Tree target) {
+            public JavaFXTreePath scan(Tree tree, Tree target) {
                 if (tree == target)
-                    throw new Result(new TreePath(getCurrentPath(), target));
+                    throw new Result(new JavaFXTreePath(getCurrentPath(), target));
                 return super.scan(tree, target);
             }
         }
@@ -190,17 +176,17 @@ public class JavafxcTrees {
         return null;
     }
 
-    public Element getElement(TreePath path) {
+    public Element getElement(JavaFXTreePath path) {
         Tree t = path.getLeaf();
-        return JavafxTreeInfo.symbolFor((JCTree) t);
+        return JavafxTreeInfo.symbolFor((JFXTree) t);
     }
 
-    public TypeMirror getTypeMirror(TreePath path) {
+    public TypeMirror getTypeMirror(JavaFXTreePath path) {
         Tree t = path.getLeaf();
-        return ((JCTree)t).type;
+        return ((JFXTree)t).type;
     }
 
-    public JavafxcScope getScope(TreePath path) {
+    public JavafxcScope getScope(JavaFXTreePath path) {
         return new JavafxcScope(ctx, getAttrContext(path));
     }
 
@@ -222,8 +208,8 @@ public class JavafxcTrees {
             return false;
     }
 
-    private JavafxEnv<JavafxAttrContext> getAttrContext(TreePath path) {
-        if (!(path.getLeaf() instanceof JCTree))  // implicit null-check
+    private JavafxEnv<JavafxAttrContext> getAttrContext(JavaFXTreePath path) {
+        if (!(path.getLeaf() instanceof JFXTree))  // implicit null-check
             throw new IllegalArgumentException();
 
         // if we're being invoked via from a JSR199 client, we need to make sure
@@ -236,17 +222,18 @@ public class JavafxcTrees {
                 throw new Error("unexpected error while entering symbols: " + e);
             }
         }
+     throw new Error("JavafxTreeCopier not implemented");
 
-
-        JCCompilationUnit unit = (JCCompilationUnit) path.getCompilationUnit();
-        Copier copier = new Copier(treeMaker.forToplevel(unit));
+    /*** TODO: unpunt tree copy
+        JFXUnit unit = (JFXUnit) path.getCompilationUnit();
+        Copier copier = new Copier(fxmake.forToplevel(unit));
 
         JavafxEnv<JavafxAttrContext> env = null;
         JFXFunctionDefinition function = null;
         JFXVar field = null;
 
         List<Tree> l = List.nil();
-        TreePath p = path;
+        JavaFXTreePath p = path;
         while (p != null) {
             l = l.prepend(p.getLeaf());
             p = p.getParentPath();
@@ -254,8 +241,8 @@ public class JavafxcTrees {
 
         for ( ; l.nonEmpty(); l = l.tail) {
             Tree tree = l.head;
-            if (tree instanceof JCCompilationUnit) {
-                env = enter.getTopLevelEnv((JCCompilationUnit)tree);
+            if (tree instanceof JFXUnit) {
+                env = enter.getTopLevelEnv((JFXUnit)tree);
             }
             else if (tree instanceof JFXClassDeclaration) {
                 env = enter.getClassEnv(((JFXClassDeclaration)tree).sym);
@@ -263,26 +250,27 @@ public class JavafxcTrees {
             else if (tree instanceof JFXFunctionDefinition) {
                 function = (JFXFunctionDefinition)tree;
             }
-            else if (tree instanceof JCVariableDecl) {
+            else if (tree instanceof JFXVar) {
                 field = (JFXVar)tree;
             }
             else if (tree instanceof JFXBlockExpression) {
                 if (function != null)
                     env = memberEnter.getMethodEnv(function, env);
-                JCTree body = copier.copy((JCTree)tree, (JCTree) path.getLeaf());
+                JFXTree body = copier.copy((JFXTree)tree, (JFXTree) path.getLeaf());
                 env = attribStatToTree(body, env, copier.leafCopy);
                 return env;
             } else if (field != null && field.getInitializer() == tree) {
                 env = memberEnter.getInitEnv(field, env);
-                JCExpression expr = copier.copy((JCExpression)tree, (JCTree) path.getLeaf());
+                JFXExpression expr = copier.copy((JFXExpression)tree, (JFXTree) path.getLeaf());
                 env = attribExprToTree(expr, env, copier.leafCopy);
                 return env;
             }
         }
         return field != null ? memberEnter.getInitEnv(field, env) : env;
+     * ****/
     }
 
-    private JavafxEnv<JavafxAttrContext> attribStatToTree(JCTree stat, JavafxEnv<JavafxAttrContext>env, JCTree tree) {
+    private JavafxEnv<JavafxAttrContext> attribStatToTree(JFXTree stat, JavafxEnv<JavafxAttrContext>env, JFXTree tree) {
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
         try {
             return attr.attribStatToTree(stat, env, tree);
@@ -291,7 +279,7 @@ public class JavafxcTrees {
         }
     }
 
-    private JavafxEnv<JavafxAttrContext> attribExprToTree(JCExpression expr, JavafxEnv<JavafxAttrContext>env, JCTree tree) {
+    private JavafxEnv<JavafxAttrContext> attribExprToTree(JFXExpression expr, JavafxEnv<JavafxAttrContext>env, JFXTree tree) {
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
         try {
             return attr.attribExprToTree(expr, env, tree);
@@ -300,7 +288,7 @@ public class JavafxcTrees {
         }
     }
     
-    private Pair<JCTree, JCCompilationUnit> getTreeAndTopLevel(Element e) {
+    private Pair<JFXTree, JFXUnit> getTreeAndTopLevel(Element e) {
         if (e == null)
             return null;
 
@@ -312,10 +300,10 @@ public class JavafxcTrees {
         if (enterEnv == null)
             return null;
         
-        JCTree tree = JavafxTreeInfo.declarationFor(sym, enterEnv.tree);
+        JFXTree tree = JavafxTreeInfo.declarationFor(sym, enterEnv.tree);
         if (tree == null || enterEnv.toplevel == null)
             return null;
-        return new Pair<JCTree,JCCompilationUnit>(tree, enterEnv.toplevel);
+        return new Pair<JFXTree,JFXUnit>(tree, enterEnv.toplevel);
     }
 
     public JavafxEnv<JavafxAttrContext> getFunctionEnv(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
@@ -334,19 +322,21 @@ public class JavafxcTrees {
     /**
      * Makes a copy of a tree, noting the value resulting from copying a particular leaf.
      **/
-    static class Copier extends TreeCopier<JCTree> {
-        JCTree leafCopy = null;
+    /*** TODO: unpunt tree copy
+    static class Copier extends TreeCopier<JFXTree> {
+        JFXTree leafCopy = null;
 
         Copier(TreeMaker M) {
             super(M);
         }
 
         @Override
-        public <T extends JCTree> T copy(T t, JCTree leaf) {
+        public <T extends JFXTree> T copy(T t, JFXTree leaf) {
             T t2 = super.copy(t, leaf);
             if (t == leaf)
                 leafCopy = t2;
             return t2;
         }
     }
+     * ****/
 }

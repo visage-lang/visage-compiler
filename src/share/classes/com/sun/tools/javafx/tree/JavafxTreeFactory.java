@@ -23,11 +23,9 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree;
-
 /** An interface for JavaFX tree factories
  */
-public interface JavafxTreeFactory extends JCTree.Factory {
+public interface JavafxTreeFactory {
     // Was only slightly implemented, never utilized, and needing complete change
     //TODO: reimplement or discard
 }

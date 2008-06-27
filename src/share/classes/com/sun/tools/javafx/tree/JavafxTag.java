@@ -25,174 +25,337 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.tools.javac.tree.JCTree;
 
-/* Just a class to hang JavaFX specific tags on.
- * Never instanciated.
- */
-public abstract class JavafxTag extends JCTree {
+    /* Tree tag values, identifying kinds of trees */
+public enum JavafxTag {
     
-    private JavafxTag() {
-    }
+    /** Toplevel nodes, of type TopLevel, representing entire source files.
+     */
+    TOPLEVEL,
+
+    /** Import clauses, of type Import.
+     */
+    IMPORT,
+
+    /** The no-op statement ";", of type Skip
+     */
+    SKIP,
+
+    /** Blocks, of type Block.
+     */
+    BLOCK,
+
+    /** While-loops, of type WhileLoop.
+     */
+    WHILELOOP,
+
+    /** Try statements, of type Try.
+     */
+    TRY,
+
+    /** Catch clauses in try statements, of type Catch.
+     */
+    CATCH,
+
+    /** Conditional expressions, of type Conditional.
+     */
+    CONDEXPR,
+
+    /** Expression statements, of type Exec.
+     */
+    EXEC,
+
+    /** Break statements, of type Break.
+     */
+    BREAK,
+
+    /** Continue statements, of type Continue.
+     */
+    CONTINUE,
+
+    /** Return statements, of type Return.
+     */
+    RETURN,
+
+    /** Throw statements, of type Throw.
+     */
+    THROW,
+
+    /** Method invocation expressions, of type Apply.
+     */
+    APPLY,
+
+    /** Parenthesized subexpressions, of type Parens.
+     */
+    PARENS,
+
+    /** Assignment expressions, of type Assign.
+     */
+    ASSIGN,
+
+    /** Type cast expressions, of type TypeCast.
+     */
+    TYPECAST,
+
+    /** Type test expressions, of type TypeTest.
+     */
+    TYPETEST,
+
+    /** Selections, of type Select.
+     */
+    SELECT,
+
+    /** Simple identifiers, of type Ident.
+     */
+    IDENT,
+
+    /** Literals, of type Literal.
+     */
+    LITERAL,
+
+    /** metadata: Modifiers
+     */
+    MODIFIERS,
+
+    /** Error trees, of type Erroneous.
+     */
+    ERRONEOUS,
+
+    /** Unary operators, of type Unary.
+     */
+    NEG,
+    NOT,
+    PREINC,
+    PREDEC,
+    POSTINC,
+    POSTDEC,
+
+    /** unary operator for null reference checks, only used internally.
+     */
+    NULLCHK,
+
+    /** Binary operators, of type Binary.
+     */
+    OR,
+    AND,
+    EQ,
+    NE,
+    LT,
+    GT,
+    LE,
+    GE,
+    PLUS,
+    MINUS,
+    MUL,
+    DIV,
+    MOD,
+
+    /** Assignment operators, of type Assignop.
+     */
+    PLUS_ASG,
+    MINUS_ASG,
+    MUL_ASG,
+    DIV_ASG,
+    MOD_ASG,
 
     /** class declaration
      */
-    public static final int CLASS_DEF = LETEXPR + 1;  
+    CLASS_DEF,
 
     /** Operation definition
      */
-    public static final int FUNCTION_DEF = CLASS_DEF + 1;      
+    FUNCTION_DEF,
 
     /** init definition
      */
-    public static final int INIT_DEF = FUNCTION_DEF + 1;     
+    INIT_DEF,
 
     /** postinit definition
      */
-    public static final int POSTINIT_DEF = INIT_DEF + 1;     
+    POSTINIT_DEF,
 
     /** any var declaration including formal params
      */
-    public static final int VAR_DEF = POSTINIT_DEF + 1;
+    VAR_DEF,
 
     /** loose trigger wrapper
      */
-    public static final int OVERRIDE_ATTRIBUTE_DEF = VAR_DEF + 1;
+    OVERRIDE_ATTRIBUTE_DEF,
 
     /** on change triggers
      */
-    public static final int ON_REPLACE = OVERRIDE_ATTRIBUTE_DEF + 1;        
+    ON_REPLACE,
 
     /** on change triggers
      */
-    public static final int ON_REPLACE_ELEMENT = ON_REPLACE + 1;        
+    ON_REPLACE_ELEMENT,
 
-    /** on change triggers
-     */
-    public static final int ON_INSERT_ELEMENT = ON_REPLACE_ELEMENT + 1;        
-
-    /** on change triggers
-     */
-    public static final int ON_DELETE_ELEMENT = ON_INSERT_ELEMENT + 1;        
-
-    /** on change triggers
-     */
-    public static final int ON_DELETE_ALL = ON_DELETE_ELEMENT + 1;        
-
-    /** In object literal  "var: name"
-     */
-    public static final int VARISOBJECTBEINGINITIALIZED = ON_DELETE_ALL + 1;     
-    
-    /** In object literal  "attribute: name"
-     */
-    public static final int SETATTRIBUTETOOBJECTBEINGINITIALIZED = VARISOBJECTBEINGINITIALIZED + 1;     
-    
     /** In object literal  "Identifier ':' [ 'bind' 'lazy'?] expression"
      */
-    public static final int OBJECT_LITERAL_PART = SETATTRIBUTETOOBJECTBEINGINITIALIZED + 1;     
+    OBJECT_LITERAL_PART,
     
     /** pure object literal 
      */
-    public static final int OBJECT_LITERAL = OBJECT_LITERAL_PART + 1;     
+    OBJECT_LITERAL,
     
     /** String expression "Hello { world() %s }"
      */
-    public static final int STRING_EXPRESSION = OBJECT_LITERAL + 1;
+    STRING_EXPRESSION,
     
     /** Bind expression 'bind expr'
      */
-    public static final int BIND_EXPRESSION = STRING_EXPRESSION + 1;
+    BIND_EXPRESSION,
 
     /** for expression 
      */
-    public static final int FOR_EXPRESSION = BIND_EXPRESSION + 1;     
+    FOR_EXPRESSION,
 
     /** for expression (x in seq where cond) clause
      */
-    public static final int FOR_EXPRESSION_IN_CLAUSE = FOR_EXPRESSION + 1;     
+    FOR_EXPRESSION_IN_CLAUSE,
 
     /** block expression { ... }
      */
-    public static final int BLOCK_EXPRESSION = FOR_EXPRESSION_IN_CLAUSE + 1;
+    BLOCK_EXPRESSION,
 
     /** explicit sequence [78, 6, 14, 21]
      */
-    public static final int SEQUENCE_EXPLICIT = BLOCK_EXPRESSION + 1;        
+    SEQUENCE_EXPLICIT,
 
     /** range sequence [1..100]
      */
-    public static final int SEQUENCE_RANGE = SEQUENCE_EXPLICIT + 1;        
+    SEQUENCE_RANGE,
 
     /** empty sequence []
      */
-    public static final int SEQUENCE_EMPTY = SEQUENCE_RANGE + 1;        
+    SEQUENCE_EMPTY,
 
     /** index into a sequence
      */
-    public static final int SEQUENCE_INDEXED = SEQUENCE_EMPTY + 1;        
+    SEQUENCE_INDEXED,
 
     /** slice index into a sequence
      */
-    public static final int SEQUENCE_SLICE = SEQUENCE_INDEXED + 1;        
+    SEQUENCE_SLICE,
 
     /** insert statement
      */
-    public static final int INSERT = SEQUENCE_SLICE + 1;        
+    INSERT,
 
     /** delete statement
      */
-    public static final int DELETE = INSERT + 1;             
+    DELETE,
 
     /** function expression
      */
-    public static final int FUNCTIONEXPRESSION = DELETE + 1;        
+    FUNCTIONEXPRESSION,
 
     /** class type
      */
-    public static final int TYPECLASS = FUNCTIONEXPRESSION + 1;        
+    TYPECLASS,
 
     /** functional type
      */
-    public static final int TYPEFUNC = TYPECLASS + 1;        
+    TYPEFUNC,
 
     /** any type
      */
-    public static final int TYPEANY = TYPEFUNC + 1;        
+    TYPEANY,
 
     /** type unspecified
      */
-    public static final int TYPEUNKNOWN = TYPEANY + 1;        
+    TYPEUNKNOWN,
 
     /** xor operator
      */
-    public static final int XOR = TYPEUNKNOWN + 1;        
-    public static final int JFX_OP_FIRST = XOR;        
+    XOR,
+    JFX_OP_FIRST,
     
     /** sizeof operator
      */
-    public static final int SIZEOF = XOR + 1;
+    SIZEOF,
 
     /** The 'indexof name' operator.
      */
-    public static final int INDEXOF = SIZEOF + 1;
+    INDEXOF,
 
     /** reverse unary operator
      */
-    public static final int REVERSE = INDEXOF + 1;
+    REVERSE,
 
     /** time literal
      */
-    public static final int TIME_LITERAL = REVERSE + 1;
+    TIME_LITERAL,
     
     /** interpolation expression
      */
-    public static final int INTERPOLATION_EXPR = TIME_LITERAL + 1;
+    INTERPOLATION_EXPR,
     
     /** value clause in an interpolation
      */
-    public static final int INTERPOLATION_VALUE = INTERPOLATION_EXPR + 1;
+    INTERPOLATION_VALUE,
     
     /** keyframe literal
      */
-    public static final int KEYFRAME_LITERAL = INTERPOLATION_VALUE + 1;
+    KEYFRAME_LITERAL,
 
-    public static final int JFX_OP_LAST = KEYFRAME_LITERAL;        
+    JFX_OP_LAST;
+    
+    public boolean isIncDec() {
+        return (PREINC.ordinal() <= ordinal() && ordinal() <= POSTDEC.ordinal());
+    }
+    
+    public int asOperatorTag() {
+        switch (this) {
+            case PLUS_ASG:
+                return JCTree.PLUS_ASG;
+            case MINUS_ASG:
+                return JCTree.MINUS_ASG;
+            case MUL_ASG:
+                return JCTree.MUL_ASG;
+            case DIV_ASG:
+                return JCTree.DIV_ASG;
+            case MOD_ASG:
+                return JCTree.MOD_ASG;
+            case OR:
+                return JCTree.OR;
+            case AND:
+                return JCTree.AND;
+            case EQ:
+                return JCTree.EQ;
+            case NE:
+                return JCTree.NE;
+            case LT:
+                return JCTree.LT;
+            case GT:
+                return JCTree.GT;
+            case LE:
+                return JCTree.LE;
+            case GE:
+                return JCTree.GE;
+            case PLUS:
+                return JCTree.PLUS;
+            case MINUS:
+                return JCTree.MINUS;
+            case MUL:
+                return JCTree.MUL;
+            case DIV:
+                return JCTree.DIV;
+            case MOD:
+                return JCTree.MOD;
+            case PREINC:
+                return JCTree.PREINC;
+            case PREDEC:
+                return JCTree.PREDEC;
+            case POSTINC:
+                return JCTree.POSTINC;
+            case POSTDEC:
+                return JCTree.POSTDEC;
+            case NEG:
+                return JCTree.NEG;
+            case NOT:
+                return JCTree.NOT;
+            default:
+                throw new RuntimeException("Unexpected operator" + this);
+        }
+    }
 }

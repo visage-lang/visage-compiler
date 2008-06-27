@@ -4,11 +4,10 @@
  */
 package com.sun.tools.javafx.antlr;
 
-import com.sun.tools.javac.tree.JCTree.*;
-
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 import com.sun.tools.javac.util.*;
+import com.sun.tools.javafx.tree.JFXUnit;
 
 /**
  *
@@ -48,8 +47,8 @@ public class JavafxSyntacticAnalysis {
         log = Log.instance(context);
     }
 
-    public JCCompilationUnit parse(CharSequence content, String fileName) {
-        JCCompilationUnit unit = null;
+    public JFXUnit parse(CharSequence content, String fileName) {
+        JFXUnit unit = null;
         String parserChoice = options.get("parser");
         if (parserChoice == null) {
             parserChoice = "v3"; // default

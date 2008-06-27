@@ -26,7 +26,7 @@ package com.sun.tools.javafx.comp;
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.Context;
-import com.sun.tools.javafx.tree.JFXBlockExpression;
+import com.sun.tools.javafx.tree.BlockExprJCBlockExpression;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -56,7 +56,7 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     }
     
     public void prep(JavafxEnv<JavafxAttrContext> attrEnv) {
-        scan(attrEnv.toplevel);
+        scan(attrEnv.translatedToplevel);
     }
     
     private void assertUnique(JCTree that) {
@@ -425,7 +425,7 @@ public class JavafxPrepForBackEnd extends TreeScanner {
         that.type = null;
     }
 
-    public void visitBlockExpression(JFXBlockExpression that) {
+    public void visitBlockExpression(BlockExprJCBlockExpression that) {
         assertUnique(that);
         scan(that.stats);
         scan(that.value);

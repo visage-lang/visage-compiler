@@ -23,42 +23,58 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.ForExpressionInClauseTree;
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.JavaFXVariableTree;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
 /**
  * for (name in seqExpr where whereExpr) bodyExpr
  */
 public class JFXForExpressionInClause extends JFXTree implements ForExpressionInClauseTree {
-    public final JFXVar var; 
-    public final JCExpression seqExpr;
-    public final JCExpression whereExpr;
-    
+
+    public final JFXVar var;
+    public final JFXExpression seqExpr;
+    public final JFXExpression whereExpr;
     private boolean indexUsed;
 
     protected JFXForExpressionInClause(
-            JFXVar var, 
-            JCExpression seqExpr,
-            JCExpression whereExpr) {
+            JFXVar var,
+            JFXExpression seqExpr,
+            JFXExpression whereExpr) {
         this.var = var;
         this.seqExpr = seqExpr;
         this.whereExpr = whereExpr;
     }
-    public void accept(JavafxVisitor v) { v.visitForExpressionInClause(this); }
-    
-    public JFXVar getVar() { return var; }
-    public JavaFXVariableTree getVariable() { return var; }
-    public JCExpression getSequenceExpression() { return seqExpr; }
-    public JCExpression getWhereExpression() { return whereExpr; }
-    
-    public boolean getIndexUsed() { return indexUsed; }
-    public void setIndexUsed(boolean indexUsed) { this.indexUsed = indexUsed; }
+
+    public void accept(JavafxVisitor v) {
+        v.visitForExpressionInClause(this);
+    }
+
+    public JFXVar getVar() {
+        return var;
+    }
+
+    public JFXVar getVariable() {
+        return var;
+    }
+
+    public JFXExpression getSequenceExpression() {
+        return seqExpr;
+    }
+
+    public JFXExpression getWhereExpression() {
+        return whereExpr;
+    }
+
+    public boolean getIndexUsed() {
+        return indexUsed;
+    }
+
+    public void setIndexUsed(boolean indexUsed) {
+        this.indexUsed = indexUsed;
+    }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.FOR_EXPRESSION_IN_CLAUSE;
     }
 

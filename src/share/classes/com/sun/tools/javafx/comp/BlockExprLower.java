@@ -26,7 +26,7 @@ package com.sun.tools.javafx.comp;
 import com.sun.tools.javac.comp.Lower;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Context;
-import com.sun.tools.javafx.tree.JFXBlockExpression;
+import com.sun.tools.javafx.tree.BlockExprJCBlockExpression;
 
 /**
  * @author bothner
@@ -52,7 +52,7 @@ public class BlockExprLower extends Lower {
         super(context);
     }
 
-    public void visitBlockExpression(JFXBlockExpression tree) {
+    public void visitBlockExpression(BlockExprJCBlockExpression tree) {
         tree.stats = translate(tree.stats);
         tree.value = translate(tree.value);
         result = tree;
@@ -60,8 +60,8 @@ public class BlockExprLower extends Lower {
 
     @Override
     public void visitTree(JCTree tree) {
-        if (tree instanceof JFXBlockExpression)
-            visitBlockExpression((JFXBlockExpression) tree);
+        if (tree instanceof BlockExprJCBlockExpression)
+            visitBlockExpression((BlockExprJCBlockExpression) tree);
         else
             super.visitTree(tree);
     }

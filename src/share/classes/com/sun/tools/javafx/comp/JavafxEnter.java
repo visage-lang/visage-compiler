@@ -30,8 +30,6 @@ import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.jvm.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
@@ -52,7 +50,7 @@ public class JavafxEnter extends JavafxTreeScanner {
     private final Log log;
     private final JavafxSymtab syms;
     private final JavafxCheck chk;
-    private final JavafxTreeMaker make;
+    private final JavafxTreeMaker fxmake;
     private final ClassReader reader;
     private final JavafxAnnotate annotate;
     private final JavafxMemberEnter memberEnter;
@@ -74,7 +72,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 
 	log = Log.instance(context);
 	reader = ClassReader.instance(context);
-	make = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
+	fxmake = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
 	syms = (JavafxSymtab)JavafxSymtab.instance(context);
 	chk = JavafxCheck.instance(context);
 	memberEnter = JavafxMemberEnter.instance(context);
@@ -82,9 +80,9 @@ public class JavafxEnter extends JavafxTreeScanner {
 	lint = Lint.instance(context);
         javafxModuleBuilder = JavafxModuleBuilder.instance(context);
 
-	predefClassDef = make.ClassDeclaration(
-	    make.Modifiers(PUBLIC),
-	    syms.predefClass.name, List.<JCExpression>nil(), null);
+	predefClassDef = fxmake.ClassDeclaration(
+	    fxmake.Modifiers(PUBLIC),
+	    syms.predefClass.name, List.<JFXExpression>nil(), null);
 	predefClassDef.sym = syms.predefClass;
 	todo = JavafxTodo.instance(context);
         fileManager = context.get(JavaFileManager.class);
@@ -100,16 +98,16 @@ public class JavafxEnter extends JavafxTreeScanner {
     /** Visitor method: Scan a single node.
      */
     @Override
-    public void scan(JCTree tree) {
+    public void scan(JFXTree tree) {
 	if(tree!=null) tree.accept(this);
     }
 
     /** Visitor method: scan a list of nodes.
      */
     @Override
-    public void scan(List<? extends JCTree> trees) {
+    public void scan(List<? extends JFXTree> trees) {
 	if (trees != null)
-	for (List<? extends JCTree> l = trees; l.nonEmpty(); l = l.tail)
+	for (List<? extends JFXTree> l = trees; l.nonEmpty(); l = l.tail)
 	    scan(l.head);
     }
 
@@ -172,7 +170,7 @@ public class JavafxEnter extends JavafxTreeScanner {
     /** Create a fresh environment for toplevels.
      *	@param tree	The toplevel tree.
      */
-    JavafxEnv<JavafxAttrContext> topLevelEnv(JCCompilationUnit tree) {
+    JavafxEnv<JavafxAttrContext> topLevelEnv(JFXUnit tree) {
 	JavafxEnv<JavafxAttrContext> localEnv = new JavafxEnv<JavafxAttrContext>(tree, new JavafxAttrContext());
 	localEnv.toplevel = tree;
 	localEnv.enclClass = predefClassDef;
@@ -183,7 +181,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 	return localEnv;
     } 
 
-    public JavafxEnv<JavafxAttrContext> getTopLevelEnv(JCCompilationUnit tree) {
+    public JavafxEnv<JavafxAttrContext> getTopLevelEnv(JFXUnit tree) {
         JavafxEnv<JavafxAttrContext> localEnv = new JavafxEnv<JavafxAttrContext>(tree, new JavafxAttrContext());
         localEnv.toplevel = tree;
         localEnv.enclClass = predefClassDef;
@@ -198,7 +196,7 @@ public class JavafxEnter extends JavafxTreeScanner {
      *	only, and members go into the class member scope.
      */
     public static Scope enterScope(JavafxEnv<JavafxAttrContext> env) {
-	return (env.tree.getTag() == JavafxTag.CLASS_DEF)
+	return (env.tree.getFXTag() == JavafxTag.CLASS_DEF)
 	    ? ((JFXClassDeclaration) env.tree).sym.members_field
 	    : env.info.scope;
     }
@@ -224,7 +222,7 @@ public class JavafxEnter extends JavafxTreeScanner {
      *	@param tree    The tree to be visited.
      *	@param env     The environment visitor argument.
      */
-    Type classEnter(JCTree tree, JavafxEnv<JavafxAttrContext> env) {
+    Type classEnter(JFXTree tree, JavafxEnv<JavafxAttrContext> env) {
 	JavafxEnv<JavafxAttrContext> prevEnv = this.env;
         try {
 	    this.env = env;
@@ -242,7 +240,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 // JavaFX change
     protected
 // JavaFX change
-    <T extends JCTree> List<Type> classEnter(List<T> trees, JavafxEnv<JavafxAttrContext> env) {
+    <T extends JFXTree> List<Type> classEnter(List<T> trees, JavafxEnv<JavafxAttrContext> env) {
 	ListBuffer<Type> ts = new ListBuffer<Type>();
 	for (List<T> l = trees; l.nonEmpty(); l = l.tail)
 	    ts.append(classEnter(l.head, env));
@@ -250,21 +248,12 @@ public class JavafxEnter extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitTopLevel(JCCompilationUnit tree) {
+    public void visitUnit(JFXUnit tree) {
 	JavaFileObject prev = log.useSource(tree.sourcefile);
-        boolean addEnv = false;
 	boolean isPkgInfo = tree.sourcefile.isNameCompatible("package-info",
 							     JavaFileObject.Kind.SOURCE);
 	if (tree.pid != null) {
 	    tree.packge = reader.enterPackage(JavafxTreeInfo.fullName(tree.pid));
-	    if (tree.packageAnnotations.nonEmpty()) {
-                if (isPkgInfo) {
-                    addEnv = true;
-                } else {
-                    log.error(tree.packageAnnotations.head.pos(),
-                              MsgSym.MESSAGE_PKG_ANNOTATIONS_SB_IN_PACKAGE_INFO_JAVA);
-                }
-	    }
 	} else {
 	    tree.packge = syms.unnamedPackage;
 	}
@@ -279,24 +268,16 @@ public class JavafxEnter extends JavafxTreeScanner {
 	    if (env0 == null) {
 		typeEnvs.put(tree.packge, localEnv);
 	    } else {
-		JCCompilationUnit tree0 = env0.toplevel;
+		JFXUnit tree0 = env0.toplevel;
                 if (!fileManager.isSameFile(tree.sourcefile, tree0.sourcefile)) {
 		    log.warning(tree.pid != null ? tree.pid.pos()
 						 : null,
 				MsgSym.MESSAGE_PKG_INFO_ALREADY_SEEN,
 				tree.packge);
-		    if (addEnv || (tree0.packageAnnotations.isEmpty() &&
-				   tree.docComments != null &&
-				   tree.docComments.get(tree) != null)) {
-			typeEnvs.put(tree.packge, localEnv);
-		    }
 		}
 	    }
 	}
 	classEnter(tree.defs, localEnv);
-        if (addEnv) {
-            todo.append(localEnv);
-        }
 	log.useSource(prev);
 	result = null;
     }
@@ -372,9 +353,6 @@ public class JavafxEnter extends JavafxTreeScanner {
             }
         }
 
-        // Enter type parameters.
-        ct.typarams_field = classEnter(tree.getEmptyTypeParameters(), localEnv);
-
         // Add non-local class to uncompleted, to make sure it will be
         // completed later.
         if (!c.isLocal() && uncompleted != null) uncompleted.append(c);
@@ -390,33 +368,10 @@ public class JavafxEnter extends JavafxTreeScanner {
 	log.error(pos, MsgSym.MESSAGE_DUPLICATE_CLASS, c.fullname);
     }
 
-/** Class enter visitor method for type parameters.
-     *	Enter a symbol for type parameter in local scope, after checking that it
-     *	is unique.
-     */
-    @Override
-    public void visitTypeParameter(JCTypeParameter tree) {
-	TypeVar a = (tree.type != null)
-	    ? (TypeVar)tree.type
-	    : new TypeVar(tree.name, env.info.scope.owner, syms.botType);
-	tree.type = a;
-	if (chk.checkUnique(tree.pos(), a.tsym, env.info.scope)) {
-	    env.info.scope.enter(a.tsym);
-	}
-	result = a;
-    }
-
-    /** Default class enter visitor method: do nothing.
-     */
-    @Override
-    public void visitTree(JCTree tree) {
-	result = null;
-    }
-    
     /** Main method: enter all classes in a list of toplevel trees.
      *	@param trees	  The list of trees to be processed.
      */
-    public void main(List<JCCompilationUnit> trees) {
+    public void main(List<JFXUnit> trees) {
 	complete(trees, null);
     }
 
@@ -425,7 +380,7 @@ public class JavafxEnter extends JavafxTreeScanner {
      *  @param trees      The list of trees to be processed.
      *  @param c          The class symbol to be processed.
      */
-    public void complete(List<JCCompilationUnit> trees, ClassSymbol c) {
+    public void complete(List<JFXUnit> trees, ClassSymbol c) {
         annotate.enterStart();
 	ListBuffer<ClassSymbol> prevUncompleted = uncompleted;
 	if (memberEnter.completionEnabled) uncompleted = new ListBuffer<ClassSymbol>();
@@ -447,7 +402,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 
 		// if there remain any unimported toplevels (these must have
 		// no classes at all), process their import statements as well.
-		for (JCCompilationUnit tree : trees) {
+		for (JFXUnit tree : trees) {
 		    if (tree.starImportScope.elems == null) {
 			JavaFileObject prev = log.useSource(tree.sourcefile);
 			JavafxEnv<JavafxAttrContext> localEnv = typeEnvs.get(tree.packge);

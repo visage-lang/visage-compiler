@@ -23,16 +23,13 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.ExpressionTree;
-import com.sun.source.tree.IdentifierTree;
-
 /**
  * A tree node for a JavaFX interpolate value description, such as 
  * "<code>500 tween LINEAR</code>", where the interpolate type is LINEAR
  * while 500 is the value to interpolate over.
  * @author tball
  */
-public interface InterpolateValueTree extends JavaFXExpressionTree {
+public interface InterpolateValueTree extends ExpressionTree {
     
     /**
      * Returns the target attribute to which this value applies.

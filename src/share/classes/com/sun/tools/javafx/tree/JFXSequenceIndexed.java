@@ -23,20 +23,18 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.SequenceIndexedTree;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
 /**
  *
  * @author Robert Field
  */
 public class JFXSequenceIndexed extends JFXExpression implements SequenceIndexedTree {
-    private final JCExpression sequence;
-    private final JCExpression index;
+    private final JFXExpression sequence;
+    private final JFXExpression index;
 
-    public JFXSequenceIndexed(JCExpression sequence, JCExpression index) {
+    public JFXSequenceIndexed(JFXExpression sequence, JFXExpression index) {
         this.sequence = sequence;
         this.index = index;
     }
@@ -45,16 +43,16 @@ public class JFXSequenceIndexed extends JFXExpression implements SequenceIndexed
         v.visitSequenceIndexed(this);
     }
 
-    public JCExpression getSequence() {
+    public JFXExpression getSequence() {
         return sequence;
     }
     
-    public JCExpression getIndex() {
+    public JFXExpression getIndex() {
         return index;
     }
     
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.SEQUENCE_INDEXED;
     }
 

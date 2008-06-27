@@ -22,14 +22,13 @@
  */
 
 package com.sun.javafx.api.tree;
-import com.sun.source.tree.ExpressionTree;
 import com.sun.javafx.api.JavafxBindStatus;
 
 /**
  *
  * @author Per Bothner
  */
-public interface BindExpressionTree  extends JavaFXExpressionTree {
+public interface BindExpressionTree  extends ExpressionTree {
     ExpressionTree getExpression();
     JavafxBindStatus getBindStatus();
 }

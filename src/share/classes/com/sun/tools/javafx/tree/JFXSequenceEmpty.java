@@ -23,9 +23,8 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.SequenceEmptyTree;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
 /**
  *
@@ -41,7 +40,7 @@ public class JFXSequenceEmpty extends JFXAbstractSequenceCreator implements Sequ
     }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.SEQUENCE_EMPTY;
     }
 

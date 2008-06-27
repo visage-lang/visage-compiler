@@ -23,11 +23,9 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.InitDefinitionTree;
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.source.tree.BlockTree;
-import com.sun.tools.javac.tree.JCTree.JCBlock;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 
 /**
@@ -35,14 +33,14 @@ import com.sun.tools.javac.code.Symbol.MethodSymbol;
  * @author Robert Field
  */
 public class JFXInitDefinition extends JFXTree implements InitDefinitionTree{
-    public JCBlock body;
+    public JFXBlock body;
     public MethodSymbol sym;
 
-    protected JFXInitDefinition(JCBlock body) {
+    protected JFXInitDefinition(JFXBlock body) {
         this.body = body;
     }
     
-    public BlockTree getBody() {
+    public JFXBlock getBody() {
         return body;
     }
 
@@ -52,7 +50,7 @@ public class JFXInitDefinition extends JFXTree implements InitDefinitionTree{
     }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.INIT_DEF;
     }
 

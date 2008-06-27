@@ -22,66 +22,58 @@
  */
 
 package com.sun.tools.javafx.tree;
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.FunctionValueTree;
-import com.sun.source.tree.TreeVisitor;
-import com.sun.source.tree.VariableTree;
+
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.tree.Pretty;
-import com.sun.tools.javac.tree.JCTree.*;
 
 /**
  *
  * @author bothner
  */
 public class JFXFunctionValue extends JFXExpression implements FunctionValueTree {
+
     public JFXType rettype;
     public List<JFXVar> funParams;
     public JFXBlockExpression bodyExpression;
     public JFXFunctionDefinition definition;
 
-    public JFXFunctionValue(JFXType rettype, 
-            List<JFXVar> params, 
+    public JFXFunctionValue(JFXType rettype,
+            List<JFXVar> params,
             JFXBlockExpression bodyExpression) {
         this.rettype = rettype;
         this.funParams = params;
         this.bodyExpression = bodyExpression;
     }
 
-    public JFXType getJFXReturnType() { return rettype; }
+    public JFXType getJFXReturnType() {
+        return rettype;
+    }
+
     public JFXType getType() {
         return rettype;
     }
-    
+
     public List<JFXVar> getParams() {
         return funParams;
     }
-    
+
     public java.util.List<? extends VariableTree> getParameters() {
-        return (java.util.List)funParams;
+        return (java.util.List) funParams;
     }
 
     public JFXBlockExpression getBodyExpression() {
         return bodyExpression;
     }
 
-    public void accept(JavafxVisitor v) { v.visitFunctionValue(this); }
-    
-    @Override
-    public void accept(Visitor v) {
-        if (v instanceof JavafxVisitor) {
-            this.accept((JavafxVisitor)v);
-        } else if (v instanceof Pretty) {
-            JavafxPretty.visitFunctionValue((Pretty) v, this);
-        } else {
-            assert false;
-        }
+    public void accept(JavafxVisitor v) {
+        v.visitFunctionValue(this);
     }
 
     @Override
-    public int getTag() {
-     return JavafxTag.FUNCTIONEXPRESSION;
+    public JavafxTag getFXTag() {
+        return JavafxTag.FUNCTIONEXPRESSION;
     }
 
     public JavaFXKind getJavaFXKind() {

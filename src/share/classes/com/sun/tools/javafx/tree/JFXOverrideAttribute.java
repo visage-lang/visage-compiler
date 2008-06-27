@@ -23,15 +23,11 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.OnReplaceTree;
-import com.sun.javafx.api.tree.JavaFXExpressionTree;
-import com.sun.javafx.api.tree.TriggerTree;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.javafx.api.JavafxBindStatus;
-import com.sun.source.tree.ExpressionTree;
 
 /**
  * Wrapper for loose triggers
@@ -39,15 +35,15 @@ import com.sun.source.tree.ExpressionTree;
  * @author Robert Field
  */
 public class JFXOverrideAttribute extends JFXStatement implements TriggerTree {
-    private final JCIdent expr;
-    private final JCExpression init;
+    private final JFXIdent expr;
+    private final JFXExpression init;
     private final JavafxBindStatus bindStatus;
     private final JFXOnReplace onReplace;
     
     public VarSymbol sym;
     
-    protected JFXOverrideAttribute(JCIdent expr,
-            JCExpression init,
+    protected JFXOverrideAttribute(JFXIdent expr,
+            JFXExpression init,
             JavafxBindStatus bindStat,
             JFXOnReplace onReplace,
             VarSymbol sym) {
@@ -58,13 +54,15 @@ public class JFXOverrideAttribute extends JFXStatement implements TriggerTree {
         this.sym = sym;
     }
     
-    public void accept(JavafxVisitor v) { v.visitOverrideAttribute(this); }
+    public void accept(JavafxVisitor v) {
+        v.visitOverrideAttribute(this);
+    }
     
-    public JCIdent getId() {
+    public JFXIdent getId() {
         return expr;
     }
 
-    public JCExpression getInitializer() {
+    public JFXExpression getInitializer() {
         return init;
     }
 
@@ -105,7 +103,7 @@ public class JFXOverrideAttribute extends JFXStatement implements TriggerTree {
     }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.OVERRIDE_ATTRIBUTE_DEF;
     }
     

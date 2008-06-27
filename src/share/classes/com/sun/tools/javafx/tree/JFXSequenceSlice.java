@@ -23,23 +23,21 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.SequenceSliceTree;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
 /**
  *
  * @author Robert Field
  */
 public class JFXSequenceSlice extends JFXExpression implements SequenceSliceTree {
-    private final JCExpression sequence;
-    private final JCExpression firstIndex;
-    private final JCExpression lastIndex;
+    private final JFXExpression sequence;
+    private final JFXExpression firstIndex;
+    private final JFXExpression lastIndex;
     private final int endKind;
 
-    public JFXSequenceSlice(JCExpression sequence, JCExpression firstIndex,
-            JCExpression lastIndex, int endKind) {
+    public JFXSequenceSlice(JFXExpression sequence, JFXExpression firstIndex,
+            JFXExpression lastIndex, int endKind) {
         this.sequence = sequence;
         this.firstIndex = firstIndex;
         this.lastIndex = lastIndex;
@@ -50,15 +48,15 @@ public class JFXSequenceSlice extends JFXExpression implements SequenceSliceTree
         v.visitSequenceSlice(this);
     }
 
-    public JCExpression getSequence() {
+    public JFXExpression getSequence() {
         return sequence;
     }
     
-    public JCExpression getFirstIndex() {
+    public JFXExpression getFirstIndex() {
         return firstIndex;
     }
     
-    public JCExpression getLastIndex() {
+    public JFXExpression getLastIndex() {
         return lastIndex;
     }
 
@@ -67,7 +65,7 @@ public class JFXSequenceSlice extends JFXExpression implements SequenceSliceTree
     }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.SEQUENCE_SLICE;
     }
 

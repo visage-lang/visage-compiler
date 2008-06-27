@@ -61,11 +61,11 @@ public class JavaPretty extends Pretty {
                 importedPackages.add(defs.javaLangPackageName);
     }
 
-    public void visitBlockExpression(JFXBlockExpression tree) {
+    public void visitBlockExpression(BlockExprJCBlockExpression tree) {
         visitBlockExpression(this, tree);
     }
 
-    public static void visitBlockExpression(Pretty pretty, JFXBlockExpression tree) {
+    public static void visitBlockExpression(Pretty pretty, BlockExprJCBlockExpression tree) {
         try {
             pretty.printFlags(tree.flags);
             pretty.print("{");

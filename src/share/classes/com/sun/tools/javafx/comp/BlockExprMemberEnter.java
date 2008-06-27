@@ -26,7 +26,7 @@ package com.sun.tools.javafx.comp;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.Env;
-import com.sun.tools.javafx.tree.JFXBlockExpression;
+import com.sun.tools.javafx.tree.BlockExprJCBlockExpression;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.comp.MemberEnter;
@@ -65,13 +65,14 @@ public class BlockExprMemberEnter extends MemberEnter {
         super(context);
     }
 
-    public void visitBlockExpression(JFXBlockExpression tree) {
+    public void visitBlockExpression(BlockExprJCBlockExpression tree) {
         for (JCStatement stmt : tree.stats) {
             stmt.accept(this);
         }
         tree.value.accept(this);
     }
 
+    @Override
     public Type attribImportType(JCTree tree, Env<AttrContext> env) {
         assert completionEnabled;
         try {

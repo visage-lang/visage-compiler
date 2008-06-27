@@ -23,7 +23,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.ExpressionTree;
 import java.util.List;
 
 /**
@@ -37,7 +36,7 @@ import java.util.List;
  * 
  * @author tball
  */
-public interface InterpolateTree extends JavaFXStatementTree {
+public interface InterpolateTree extends StatementTree {
     
     /**
      * Returns the variable to be interpolated.

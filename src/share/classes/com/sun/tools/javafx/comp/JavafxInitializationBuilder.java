@@ -31,7 +31,6 @@ import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
@@ -214,7 +213,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 superType.tsym instanceof ClassSymbol &&
                 (superType.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0) {
         } else if ((cDecl.mods.flags & Flags.FINAL) != 0L && cDecl.getExtending().nonEmpty()) {
-            Symbol sym1 = TreeInfo.symbol(cDecl.getExtending().head);
+            Symbol sym1 = JavafxTreeInfo.symbol(cDecl.getExtending().head);
             if (sym1 != null &&
                     (sym1.flags_field & JavafxFlags.COMPOUND_CLASS) == 0) {
                 superType = cDecl.getExtending().head.type;
@@ -225,7 +224,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
    
     private List<ClassSymbol> immediateJavafxSupertypes(JFXClassDeclaration cDecl) {
         ListBuffer<ClassSymbol> javafxClassNamesBuff = ListBuffer.lb();
-        for (JCExpression stype : cDecl.getSupertypes()) {
+        for (JFXExpression stype : cDecl.getSupertypes()) {
             Symbol sym = expressionSymbol(stype);
             if (types.isJFXClass(sym)) {
                 ClassSymbol cSym = (ClassSymbol) sym;
@@ -238,7 +237,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
    
     private List<ClassSymbol> immediateJavaInterfaceNames(JFXClassDeclaration cDecl) {
         ListBuffer<ClassSymbol> javaInterfacesBuff = ListBuffer.lb();
-        for (JCExpression sup : cDecl.getSupertypes()) {
+        for (JFXExpression sup : cDecl.getSupertypes()) {
             ClassSymbol cSym = (ClassSymbol) expressionSymbol(sup);
             if (cSym != null) {
                 String className = cSym.fullname.toString();
@@ -257,8 +256,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
     private List<JCTree> makeInterfaceFunctionMethods(JFXClassDeclaration cDecl) {
         ListBuffer<JCTree> methods = ListBuffer.lb();
-        for (JCTree def : cDecl.getMembers()) {
-            if (def.getTag() == JavafxTag.FUNCTION_DEF) {
+        for (JFXTree def : cDecl.getMembers()) {
+            if (def.getFXTag() == JavafxTag.FUNCTION_DEF) {
                 JFXFunctionDefinition func = (JFXFunctionDefinition) def;
                 MethodSymbol sym = func.sym;
                 if ((sym.flags() & (Flags.SYNTHETIC | Flags.STATIC | Flags.PRIVATE)) == 0) {
@@ -297,7 +296,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             List<ClassSymbol> baseInterfaces) {
         ListBuffer<JCExpression> implementing = ListBuffer.lb();
         implementing.append(makeIdentifier(diagPos, fxObjectString));
-        for (List<JCExpression> l = cDecl.getImplementing(); l.nonEmpty(); l = l.tail) {
+        for (List<JFXExpression> l = cDecl.getImplementing(); l.nonEmpty(); l = l.tail) {
             implementing.append(makeTypeTree( null,l.head.type));
         }
 
@@ -535,7 +534,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // no default, look for the supertype which defines it, and defer to it
                     ClassSymbol attrParent = null;
                     Name getterName = names.fromString(attributeGetMethodNamePrefix + attribString);
-                    for (JCExpression supertype : cDecl.getSupertypes()) {
+                    for (JFXExpression supertype : cDecl.getSupertypes()) {
                         Symbol sym = supertype.type.tsym;
                         if (isAttributeOriginClass(sym, ai.getName(), getterName) ) {
                             attrParent = (ClassSymbol) sym;
@@ -674,7 +673,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Add the initialization of this class' attributesa
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         for (TranslatedAttributeInfo tai : translatedAttrInfo) {
-            assert tai.attribute != null && tai.attribute.getTag() == JavafxTag.VAR_DEF && tai.attribute.pos != Position.NOPOS;
+            assert tai.attribute != null && tai.attribute.getFXTag() == JavafxTag.VAR_DEF && tai.attribute.pos != Position.NOPOS;
             if (tai.isStatic()) {
                 if (tai.isDirectOwner()) {
                     DiagnosticPosition diagPos = tai.pos();
@@ -756,20 +755,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         
         //TODO: TranslatedAttributeInfo should be simplified to hold onReplace attribute only
         //
-        JFXOnReplace onReplace = null;
-        
-        if (info instanceof TranslatedAttributeInfo) {
-            TranslatedAttributeInfo tran_info = (TranslatedAttributeInfo)info;
-       
-            onReplace = tran_info.onReplace();
-            if (onReplace == null)
-                return null;
-        } else {
-            if (info instanceof TranslatedOverrideAttributeInfo) 
-                onReplace = ((TranslatedOverrideAttributeInfo)info).onReplace();
-        }
-        
-        
+        JFXOnReplace onReplace = info.onReplace();
         if (onReplace == null) return null;
         
         DiagnosticPosition diagPos = info.pos();
@@ -792,11 +778,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 makeParam(diagPos, seqValType, onReplace.getOldValue(), "$oldValue$"),
                 makeParam(diagPos, seqValType, null, "$newValue$"));
    //         members.append(makeChangeListenerMethod(diagPos, onReplace, setUpStmts, "onReplace", onChangeArgs, TypeTags.VOID));
-            members.append(makeChangeListenerMethod(diagPos, onReplace, setUpStmts, "onChange", onChangeArgs, TypeTags.VOID));
+            members.append(makeChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), setUpStmts, "onChange", onChangeArgs, TypeTags.VOID));
         }
         else {
             changeListener = makeIdentifier(diagPos, changeListenerInterfaceName[attributeKind]);
-            members.append(makeOnReplaceChangeListenerMethod(diagPos, onReplace, info.getRealType()));
+            members.append(makeOnReplaceChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), info.getRealType()));
         }
 
         if (attributeKind == JavafxVarSymbol.TYPE_KIND_OBJECT)
@@ -854,6 +840,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
      */
     private JCMethodDecl makeOnReplaceChangeListenerMethod(DiagnosticPosition diagPos,
                                                            JFXOnReplace onReplace,
+                                                           JCBlock onReplaceTranslatedBody,
                                                            Type attributeType) {
         List<JCVariableDecl> onChangeArgs = List.<JCVariableDecl>nil()
                 .append(make.VarDef(make.Modifiers(0L), onChangeArgName1, makeTypeTree(diagPos, attributeType), null))
@@ -883,7 +870,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         makeTypeTree( diagPos, vmi.getRealType(),types.isJFXClass(vmi.getRealType().tsym)),
                         makeIdentifier(diagPos, onChangeArgName2)));
         }
-        return makeChangeListenerMethod(diagPos, onReplace, setUpStmts, "onChange", onChangeArgs, TypeTags.VOID);
+        return makeChangeListenerMethod(diagPos, onReplace, onReplaceTranslatedBody, setUpStmts, "onChange", onChangeArgs, TypeTags.VOID);
     }
 
     /**
@@ -895,6 +882,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private JCMethodDecl makeChangeListenerMethod(
             DiagnosticPosition diagPos,
             JFXOnReplace onReplace,
+            JCBlock onReplaceTranslatedBody,
             ListBuffer<JCStatement> prefixStmts,
             String methodName,
             List<JCVariableDecl> args,
@@ -904,7 +892,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         
         if (onReplace != null) {
             diagPos = onReplace.pos();
-            ocMethStmts.appendList(onReplace.getBody().getStatements());
+            ocMethStmts.appendList(onReplaceTranslatedBody.getStatements());
         }
         
         if (returnTypeTag == TypeTags.BOOLEAN) {

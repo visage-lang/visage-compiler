@@ -26,18 +26,13 @@ package com.sun.tools.javafx.comp;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.jvm.*;
-import com.sun.tools.javac.tree.*;
 
 import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.comp.MemberEnter;
 import com.sun.tools.javac.comp.Resolve;
 import com.sun.tools.javac.tree.JCTree.*;
 
-import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.TypeTags.*;
 
 /** Helper class for name resolution, used mostly by the attribution phase.
  *
@@ -84,6 +79,7 @@ public class BlockExprResolve extends Resolve {
      *  @param typeargtypes  The invocation's type arguments,
      *                   if we looked for a method.
      */
+    @Override
     public Symbol access(Symbol sym,
                   DiagnosticPosition pos,
                   Type site,

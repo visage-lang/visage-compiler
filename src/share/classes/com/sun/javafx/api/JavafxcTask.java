@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,9 +23,8 @@
 
 package com.sun.javafx.api;
 
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.Tree;
-import com.sun.source.util.TaskListener;
+import com.sun.javafx.api.tree.UnitTree;
+import com.sun.javafx.api.tree.Tree;
 import com.sun.javafx.api.JavafxCompiler.CompilationTask;
 import java.io.IOException;
 import javax.lang.model.type.TypeMirror;
@@ -48,7 +47,7 @@ public abstract class JavafxcTask implements CompilationTask {
      * @return a list of abstract syntax trees
      * @throws IOException if an unhandled I/O error occurred in the compiler.
      */
-    public abstract Iterable<? extends CompilationUnitTree> parse()
+    public abstract Iterable<? extends UnitTree> parse()
         throws IOException;
     
     /**
@@ -66,7 +65,7 @@ public abstract class JavafxcTask implements CompilationTask {
      * @return a list of abstract syntax trees
      * @throws IOException if an unhandled I/O error occurred in the compiler.
      */
-    public abstract Iterable<? extends CompilationUnitTree> analyze() throws IOException;
+    public abstract Iterable<? extends UnitTree> analyze() throws IOException;
 
     /**
      * Generate code.
@@ -80,7 +79,7 @@ public abstract class JavafxcTask implements CompilationTask {
      * The specified listener will receive events describing the progress of
      * this compilation task.
      */
-    public abstract void setTaskListener(TaskListener taskListener);
+    public abstract void setTaskListener(JavafxTaskListener taskListener);
 
     /**
      * Get a type mirror of the tree node determined by the specified path.

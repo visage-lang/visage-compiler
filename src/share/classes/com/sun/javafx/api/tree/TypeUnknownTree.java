@@ -26,5 +26,5 @@ package com.sun.javafx.api.tree;
 /**
  * A tree node for an unknown JavaFX Script type.
  */
-public interface TypeUnknownTree extends JavaFXTree {
+public interface TypeUnknownTree extends Tree {
 }

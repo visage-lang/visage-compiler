@@ -23,10 +23,9 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.TypeFunctionalTree;
-import com.sun.javafx.api.tree.TypeTree;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.util.List;
 
 /**
@@ -48,27 +47,34 @@ public class JFXTypeFunctional extends JFXType implements TypeFunctionalTree {
         this.params = params;
         this.restype = restype;
     }
-    public void accept(JavafxVisitor v) { v.visitTypeFunctional(this); }
-    
-    public TypeTree getReturnType() { return restype; }
+    public void accept(JavafxVisitor v) {
+        v.visitTypeFunctional(this);
+    }
+
+    public TypeTree getReturnType() {
+        return restype;
+    }
+
     public java.util.List<? extends TypeTree> getParameters() {
         return params;
     }
+
     public List<JFXType> getParams() {
-        return (List<JFXType>)params;
+        return (List<JFXType>) params;
     }
+
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.TYPEFUNC;
     }
 
     @Override
-    public <R,D> R accept(JavaFXTreeVisitor<R,D> v, D d) {
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitTypeFunctional(this, d);
     }
 
     @Override
     public JavaFXKind getJavaFXKind() {
-        return JavaFXTree.JavaFXKind.TYPE_FUNCTIONAL;
+        return Tree.JavaFXKind.TYPE_FUNCTIONAL;
     }
 }

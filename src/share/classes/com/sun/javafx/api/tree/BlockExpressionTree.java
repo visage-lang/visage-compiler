@@ -23,8 +23,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.ExpressionTree;
-import com.sun.source.tree.StatementTree;
 import java.util.List;
 
 /**
@@ -39,7 +37,7 @@ import java.util.List;
  *
  * @author Tom Ball
  */
-public interface BlockExpressionTree extends JavaFXExpressionTree {
+public interface BlockExpressionTree extends ExpressionTree {
     boolean isStatic();
     List<? extends StatementTree> getStatements();
     ExpressionTree getValue();

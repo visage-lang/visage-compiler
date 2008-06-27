@@ -23,7 +23,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.ExpressionTree;
 import java.util.List;
 
 /**
@@ -38,7 +37,7 @@ import java.util.List;
  *
  * @author Tom Ball
  */
-public interface ForExpressionTree extends JavaFXExpressionTree {
+public interface ForExpressionTree extends ExpressionTree {
     List<ForExpressionInClauseTree> getInClauses();
     ExpressionTree getBodyExpression();
 }

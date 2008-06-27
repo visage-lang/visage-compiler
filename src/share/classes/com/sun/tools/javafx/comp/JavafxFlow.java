@@ -29,8 +29,9 @@ import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Context;
 
 /**
- *
- * @author Robert
+ * Override error handling in Flow
+ * 
+ * @author Robert Field
  */
 public class JavafxFlow extends Flow {
 
@@ -51,12 +52,14 @@ public class JavafxFlow extends Flow {
 
     /** DO NOT complain that pending exceptions are not caught.
      */
+    @Override
     protected void errorUncaught() {
 	/* nada */
     }
 
     /** Perform definite assignment/unassignment analysis on a tree.
      */
+    @Override
     public void analyzeTree(JCTree tree, TreeMaker make) {
         // Do not do anything here for now. JavaFX doesn't need assignment/unassignment, reachability and checked exceptions analysis
     }

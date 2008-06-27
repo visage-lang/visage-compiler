@@ -23,11 +23,9 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.ExpressionTree;
-
 /**
  * A tree node for a class JavaFX Script type.
  */
-public interface TypeClassTree extends JavaFXTree {
+public interface TypeClassTree extends Tree {
     ExpressionTree getClassName();
 }

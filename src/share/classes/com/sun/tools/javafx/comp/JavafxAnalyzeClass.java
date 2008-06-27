@@ -9,8 +9,7 @@ import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.MethodType;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
@@ -133,6 +132,11 @@ class JavafxAnalyzeClass {
             return initStmt;
         }
         
+        JFXOnReplace onReplace() { return null; }
+        
+        JCBlock onReplaceTranslatedBody() { return null; }
+
+        @Override
         public String toString() {
             return getNameString();
         }
@@ -162,23 +166,28 @@ class JavafxAnalyzeClass {
     static class TranslatedAttributeInfo extends AttributeInfo {
         final JFXVar attribute;
         private final JFXOnReplace onReplace;
+        private final JCBlock onReplaceTranslatedBody;
         TranslatedAttributeInfo(JFXVar attribute, VarMorphInfo vmi,
-                JCStatement initStmt, JFXOnReplace onReplace) {
+                JCStatement initStmt, JFXOnReplace onReplace, JCBlock onReplaceTranslatedBody) {
             super(attribute.pos(), attribute.sym.name, attribute.sym, vmi, initStmt, true);
             this.attribute = attribute;
             this.onReplace = onReplace;
+            this.onReplaceTranslatedBody = onReplaceTranslatedBody;
         }
         
         private void setNeedsCloning(boolean needs) {
             assert needs;
         }
         
+        @Override
         public boolean needsCloning() {
             return true; // these are from current class, so always need cloning
         }
         
+        @Override
         JFXOnReplace onReplace() { return onReplace; }
-        
+        @Override
+        JCBlock onReplaceTranslatedBody() { return onReplaceTranslatedBody; }       
     }  
     
     
@@ -186,14 +195,19 @@ class JavafxAnalyzeClass {
   
     static class TranslatedOverrideAttributeInfo extends AttributeInfo {
         private final JFXOnReplace onReplace;
+        private final JCBlock onReplaceTranslatedBody;
         TranslatedOverrideAttributeInfo(JFXOverrideAttribute override, 
                  VarMorphInfo vmi,
-                JCStatement initStmt, JFXOnReplace onReplace) {
+                JCStatement initStmt, JFXOnReplace onReplace, JCBlock onReplaceTranslatedBody) {
             super(override.pos(), override.sym.name, override.sym, vmi, initStmt, true);
             this.onReplace = onReplace;
+            this.onReplaceTranslatedBody = onReplaceTranslatedBody;
         }
         
+        @Override
         JFXOnReplace onReplace() { return onReplace; }
+        @Override
+        JCBlock onReplaceTranslatedBody() { return onReplaceTranslatedBody; }       
     }
      
     JavafxAnalyzeClass(DiagnosticPosition diagPos,
@@ -292,13 +306,13 @@ class JavafxAnalyzeClass {
                     
                 }
             } else {
-                for (JCExpression supertype : cDecl.getSupertypes()) {
+                for (JFXExpression supertype : cDecl.getSupertypes()) {
                     process(supertype.type.tsym, cloneVisible);
                 }
-                for (JCTree def : cDecl.getMembers()) {
-                    if (def.getTag() == JavafxTag.VAR_DEF) {
+                for (JFXTree def : cDecl.getMembers()) {
+                    if (def.getFXTag() == JavafxTag.VAR_DEF) {
                         processAttributeFromSource((JFXVar) def, cDecl, cloneVisible);
-                    } else if (cloneVisible && def.getTag() == JavafxTag.FUNCTION_DEF) {
+                    } else if (cloneVisible && def.getFXTag() == JavafxTag.FUNCTION_DEF) {
                         processFunctionFromSource((JFXFunctionDefinition) def);
                     }
                 }

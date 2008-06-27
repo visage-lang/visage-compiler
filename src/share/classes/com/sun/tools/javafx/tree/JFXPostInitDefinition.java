@@ -23,10 +23,11 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.InitDefinitionTree;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.code.Symbol;
-import com.sun.source.tree.BlockTree;
+
 
 /**
  * JFXPostInitDefinition
@@ -34,14 +35,14 @@ import com.sun.source.tree.BlockTree;
  * @author Brian Goetz
  */
 public class JFXPostInitDefinition extends JFXTree implements InitDefinitionTree {
-    public JCBlock body;
+    public JFXBlock body;
     public Symbol.MethodSymbol sym;
 
-    protected JFXPostInitDefinition(JCBlock body) {
+    protected JFXPostInitDefinition(JFXBlock body) {
         this.body = body;
     }
 
-    public BlockTree getBody() {
+    public JFXBlock getBody() {
         return body;
     }
 
@@ -51,7 +52,7 @@ public class JFXPostInitDefinition extends JFXTree implements InitDefinitionTree
     }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.POSTINIT_DEF;
     }
 

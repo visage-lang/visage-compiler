@@ -23,28 +23,26 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.FunctionDefinitionTree;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
-import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.tree.Pretty;
-import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javafx.code.JavafxFlags;
 
 /**
  * A function definition.
  */
 public class JFXFunctionDefinition extends JFXStatement implements FunctionDefinitionTree {
-    public final JCModifiers mods;
+
+    public final JFXModifiers mods;
     public final Name name;
     public final JFXFunctionValue operation;
     public MethodSymbol sym;
 
     public JFXFunctionDefinition(
-            JCModifiers mods, 
+            JFXModifiers mods,
             Name name,
             JFXFunctionValue operation) {
         this.mods = mods;
@@ -53,24 +51,40 @@ public class JFXFunctionDefinition extends JFXStatement implements FunctionDefin
     }
 
     protected JFXFunctionDefinition(
-            JCModifiers mods, 
-            Name name, 
-            JFXType rettype, 
-            List<JFXVar> funParams, 
+            JFXModifiers mods,
+            Name name,
+            JFXType rettype,
+            List<JFXVar> funParams,
             JFXBlockExpression bodyExpression) {
         this.mods = mods;
         this.name = name;
         this.operation = new JFXFunctionValue(rettype, funParams, bodyExpression);
     }
-    
+
     public JFXBlockExpression getBodyExpression() {
         return operation.getBodyExpression();
     }
-    public JCModifiers getModifiers() { return mods; }
-    public boolean isBound() { return (mods.flags & JavafxFlags.BOUND) != 0; }
-    public Name getName() { return name; }
-    public JFXType getJFXReturnType() { return operation.rettype; }
-    public List<JFXVar> getParameters() { return operation.funParams; }
+
+    public JFXModifiers getModifiers() {
+        return mods;
+    }
+
+    public boolean isBound() {
+        return (mods.flags & JavafxFlags.BOUND) != 0;
+    }
+
+    public Name getName() {
+        return name;
+    }
+
+    public JFXType getJFXReturnType() {
+        return operation.rettype;
+    }
+
+    public List<JFXVar> getParameters() {
+        return operation.funParams;
+    }
+
     public JFXFunctionValue getFunctionValue() {
         return operation;
     }
@@ -80,18 +94,7 @@ public class JFXFunctionDefinition extends JFXStatement implements FunctionDefin
     }
 
     @Override
-    public void accept(Visitor v) {
-        if (v instanceof JavafxVisitor) {
-            this.accept((JavafxVisitor)v);
-        } else if (v instanceof Pretty) {
-            JavafxPretty.visitFunctionDefinition((Pretty) v, this);
-        } else {
-            assert false;
-        }
-    }
-
-    @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.FUNCTION_DEF;
     }
 

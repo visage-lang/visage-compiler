@@ -23,10 +23,9 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.ObjectLiteralPartTree;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.javafx.api.JavafxBindStatus;
@@ -35,9 +34,9 @@ import com.sun.javafx.api.JavafxBindStatus;
  * In object literal  "Identifier ':' [ 'bind' 'lazy'?] expression"
  */
 public class JFXObjectLiteralPart extends JFXStatement implements ObjectLiteralPartTree {
-    private JCExpression expr;
+    private JFXExpression expr;
     public Name name; // Make this an Ident. Tools might need position information.
-    private JCExpression translationInit = null;
+    private JFXExpression translationInit = null;
     public Symbol sym;
    /*
     * @param selector member name and class name of member
@@ -46,7 +45,7 @@ public class JFXObjectLiteralPart extends JFXStatement implements ObjectLiteralP
     */
     protected JFXObjectLiteralPart(
             Name name,
-            JCExpression expr,
+            JFXExpression expr,
             JavafxBindStatus bindStatus,
             Symbol sym) {
         this.name = name;
@@ -62,7 +61,7 @@ public class JFXObjectLiteralPart extends JFXStatement implements ObjectLiteralP
     */
     protected JFXObjectLiteralPart(
             Name name,
-            JCExpression expr,
+            JFXExpression expr,
             Symbol sym) {
         this.name = name;
         this.expr = expr;
@@ -71,13 +70,13 @@ public class JFXObjectLiteralPart extends JFXStatement implements ObjectLiteralP
     public void accept(JavafxVisitor v) { v.visitObjectLiteralPart(this); }
     
     public javax.lang.model.element.Name getName() { return name; }
-    public JCExpression getExpression() {
+    public JFXExpression getExpression() {
         return expr instanceof JFXBindExpression ?
             ((JFXBindExpression) expr).getExpression() :
             expr; }
-    public JCExpression getMaybeBindExpression() { return expr; }
-    public void setTranslationInit(JCExpression tra) { translationInit = tra; }
-    public JCExpression getTranslationInit() { assert false : "currently not being used"; return translationInit; }
+    public JFXExpression getMaybeBindExpression() { return expr; }
+    public void setTranslationInit(JFXExpression tra) { translationInit = tra; }
+    public JFXExpression getTranslationInit() { assert false : "currently not being used"; return translationInit; }
     public JavafxBindStatus getBindStatus() {
         return expr instanceof JFXBindExpression ?
             ((JFXBindExpression) expr).getBindStatus() :
@@ -88,7 +87,7 @@ public class JFXObjectLiteralPart extends JFXStatement implements ObjectLiteralP
     public boolean isLazy()      { return getBindStatus().isLazy(); }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.OBJECT_LITERAL_PART;
     }
 

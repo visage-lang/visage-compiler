@@ -23,25 +23,20 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.VariableTree;
-import com.sun.javafx.api.JavafxBindStatus;
-import com.sun.tools.javafx.tree.JFXType;
-import java.util.List;
-
 /**
- * Common interface for init definition nodes in an abstract syntax tree for the 
- * JavaFX Script language.
+ * A tree node for a 'throw' statement.
  *
- * <p><b>WARNING:</b> This interface and its sub-interfaces are 
- * subject to change as the JavaFX Script programming language evolves.
- * These interfaces are implemented by Sun's JavaFX Script compiler (javafxc) 
- * and should not be implemented either directly or indirectly by 
- * other applications.
+ * For example:
+ * <pre>
+ *   throw <em>expression</em>;
+ * </pre>
  *
- * @author Tom Ball
+ * @see "The Java Language Specification, 3rd ed, section 14.18"
+ *
+ * @author Peter von der Ah&eacute;
+ * @author Jonathan Gibbons
+ * @since 1.6
  */
-public interface JavaFXVariableTree extends VariableTree, JavaFXTree {
-    JFXType getJFXType();
-    OnReplaceTree getOnReplaceTree();
-    JavafxBindStatus getBindStatus();
+public interface ThrowTree extends StatementTree {
+    ExpressionTree getExpression();
 }

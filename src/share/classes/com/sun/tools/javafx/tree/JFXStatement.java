@@ -23,78 +23,29 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.JavaFXStatementTree;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.source.tree.Tree.Kind;
-import com.sun.tools.javac.tree.JCTree.JCStatement;
-import com.sun.tools.javac.tree.JCTree.Visitor;
+import com.sun.javafx.api.tree.*;
 
-import com.sun.source.tree.TreeVisitor;
-import com.sun.tools.javac.tree.JCTree;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Map;
+import com.sun.tools.javac.code.Type;
 
 /**
  * Statements.
- * Should be a subclass of JFXTree (but can't for now)
- * @see JFXTree
  */
-public abstract class JFXStatement extends JCStatement implements JavaFXStatementTree {
+public abstract class JFXStatement extends JFXTree implements StatementTree {
     
     /** Initialize tree with given tag.
      */
     protected JFXStatement() {
     }
     
-    public abstract void accept(JavafxVisitor v);
-    
     @Override
-    public void accept(Visitor v) {
-        if (v instanceof JavafxVisitor) {
-            this.accept((JavafxVisitor)v);
-        } else {
-            assert false : "FX tree should not reach here";
-            v.visitTree(this);
-        }
+    public JFXStatement setType(Type type) {
+        super.setType(type);
+        return this;
     }
 
     @Override
-    public final Kind getKind() {
-        return Kind.OTHER;
-    }
-
-    @Override
-    public final <R, D> R accept(TreeVisitor<R, D> v, D d) {
-        if (v instanceof JavaFXTreeVisitor) {
-            return (R)this.accept((JavaFXTreeVisitor)v, d);
-        } else {
-            throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
-        }
-    }
-
-    /** Convert a tree to a pretty-printed string. */
-    @Override
-    public String toString() {
-        StringWriter s = new StringWriter();
-        try {
-            new JavafxPretty(s, false).printExpr(this);
-        }
-        catch (IOException e) {
-            // should never happen, because StringWriter is defined
-            // never to throw any IOExceptions
-            throw new AssertionError(e);
-        }
-        return s.toString();
-    }
-    
-    @Override
-    public int getStartPosition() {
-        return JavafxTreeInfo.getStartPos(this);
-    }
-    
-    @Override
-    public int getEndPosition(Map<JCTree, Integer> endPosTable) {
-        return JavafxTreeInfo.getEndPos(this, endPosTable);
+    public JFXStatement setPos(int pos) {
+        super.setPos(pos);
+        return this;
     }
 }

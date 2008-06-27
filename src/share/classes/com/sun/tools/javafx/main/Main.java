@@ -533,6 +533,12 @@ public class Main {
                        Context context,
                        List<JavaFileObject> fileObjects)
     {
+     String[] args2 = new String[args.length + 1];
+     for (int i = 0; i < args.length; ++i) {
+          args2[i+1] = args[i];
+     }
+     args2[0] = "-XDdumpjava=I:\\work";
+     args = args2;
         registerServices(context, args);
         if (options == null)
             options = Options.instance(context); // creates a new one

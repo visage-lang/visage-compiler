@@ -23,7 +23,6 @@
 
 package com.sun.javafx.api.tree;
 
-import com.sun.source.tree.VariableTree;
 import java.util.List;
 
 /**
@@ -38,7 +37,7 @@ import java.util.List;
  *
  * @author Tom Ball
  */
-public interface FunctionValueTree extends JavaFXExpressionTree {
+public interface FunctionValueTree extends ExpressionTree {
     TypeTree getType();
     
     List<? extends VariableTree> getParameters();

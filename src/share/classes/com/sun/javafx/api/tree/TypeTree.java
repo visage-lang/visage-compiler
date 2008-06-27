@@ -28,7 +28,7 @@ package com.sun.javafx.api.tree;
  * 
  * @author tball
  */
-public interface TypeTree extends JavaFXTree {
+public interface TypeTree extends Tree {
 
     public enum Cardinality {
 //      OPTIONAL,  // default: zero or one

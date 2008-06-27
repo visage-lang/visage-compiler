@@ -53,7 +53,7 @@ public class BlockExprGen extends Gen {
             instance = new BlockExprGen(context);
         return instance;
     }
-  public void visitBlockExpression(JFXBlockExpression tree) {
+  public void visitBlockExpression(BlockExprJCBlockExpression tree) {
       // super.visitBlock(tree, tree.stats, tree.value, tree.endpos);
       int limit = code.nextreg;
       Env<GenContext> localEnv = env.dup(tree, new GenContext());
@@ -75,8 +75,8 @@ public class BlockExprGen extends Gen {
   
   @Override
   public void visitTree(JCTree tree) {
-         if (tree instanceof JFXBlockExpression)
-             visitBlockExpression((JFXBlockExpression) tree);
+         if (tree instanceof BlockExprJCBlockExpression)
+             visitBlockExpression((BlockExprJCBlockExpression) tree);
          else
              super.visitTree(tree);
   }

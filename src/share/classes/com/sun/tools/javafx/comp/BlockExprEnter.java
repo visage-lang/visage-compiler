@@ -38,11 +38,10 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
-import com.sun.tools.javafx.tree.JFXBlockExpression;
+import com.sun.tools.javafx.tree.BlockExprJCBlockExpression;
 
 import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.TypeTags.*;
 
 public class BlockExprEnter extends Enter {
     public static Enter instance0(Context context) {
@@ -79,6 +78,7 @@ public class BlockExprEnter extends Enter {
     }
 
     // Override this method and disable the enforcing of public class being in file with the same name.
+    @Override
     public void visitClassDef(JCClassDecl tree) {
 	Symbol owner = env.info.scope.owner;
 	Scope enclScope = enterScope(env);
@@ -174,7 +174,7 @@ public class BlockExprEnter extends Enter {
 	result = c.type;
     }
 
-    public void visitBlockExpression(JFXBlockExpression that) {
+    public void visitBlockExpression(BlockExprJCBlockExpression that) {
         scan(that.stats);
         scan(that.value);
     }

@@ -23,23 +23,21 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.InterpolateTree;
-import com.sun.javafx.api.tree.InterpolateValueTree;
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
 import com.sun.tools.javac.util.List;
 
 public class JFXInterpolate extends JFXExpression implements InterpolateTree {
-    public JCExpression var;
+    public JFXExpression var;
     public List<JFXInterpolateValue> values;
     
-    public JFXInterpolate(JCExpression var, List<JFXInterpolateValue> values) {
+    public JFXInterpolate(JFXExpression var, List<JFXInterpolateValue> values) {
         this.var = var;
         this.values = values;
     }
 
-    public JCExpression getVariable() {
+    public JFXExpression getVariable() {
         return var;
     }
 
@@ -61,7 +59,7 @@ public class JFXInterpolate extends JFXExpression implements InterpolateTree {
     }
 
     @Override
-    public int getTag() {
+    public JavafxTag getFXTag() {
         return JavafxTag.INTERPOLATION_EXPR;
     }
 }

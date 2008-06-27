@@ -45,8 +45,6 @@ import com.sun.tools.javac.comp.Infer;
 import com.sun.tools.javac.jvm.ByteCodes;
 import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javac.jvm.Target;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
@@ -55,9 +53,7 @@ import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.comp.JavafxAttr.Sequenceness;
-import com.sun.tools.javafx.tree.JFXClassDeclaration;
-import com.sun.tools.javafx.tree.JavafxTreeInfo;
-import com.sun.tools.javafx.tree.JavafxTreeScanner;
+import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
 
 /** Type checking helper class for the attribution phase.
@@ -79,7 +75,6 @@ public class JavafxCheck {
     private final Target target;
     private final Source source;
     private final JavafxTypes types;
-    private final boolean skipAnnotations;
     private final JavafxTreeInfo treeinfo;
     private final JavafxResolve rs;
 
@@ -121,7 +116,6 @@ public class JavafxCheck {
 	allowGenerics = source.allowGenerics();
 	allowAnnotations = source.allowAnnotations();
 	complexInference = options.get("-complexinference") != null;
-	skipAnnotations = options.get("skipAnnotations") != null;
 
 	boolean verboseDeprecated = lint.isEnabled(LintCategory.DEPRECATION);
 	boolean verboseUnchecked = lint.isEnabled(LintCategory.UNCHECKED);
@@ -754,7 +748,7 @@ public class JavafxCheck {
 // JavaFX change
     public
 // JavaFX change
-    long checkFlags(DiagnosticPosition pos, long flags, Symbol sym, JCTree tree) {
+    long checkFlags(DiagnosticPosition pos, long flags, Symbol sym, JFXTree tree) {
 	long mask;
 	long implicit = 0;
 	switch (sym.kind) {
@@ -813,11 +807,6 @@ public class JavafxCheck {
 	    // Interfaces are always ABSTRACT
 	    if ((flags & INTERFACE) != 0) implicit |= ABSTRACT;
 
-	    if ((flags & ENUM) != 0) {
-		// enums can't be declared abstract or final
-		mask &= ~(ABSTRACT | FINAL);
-		implicit |= implicitEnumFinalFlag(tree);
-	    }
 	    // Imply STRICTFP if owner has STRICTFP set.
 	    implicit |= sym.owner.flags_field & STRICTFP;
 	    break;
@@ -867,45 +856,6 @@ public class JavafxCheck {
         return flags & (mask | ~StandardFlags) | implicit;
     }
 
-
-    /** Determine if this enum should be implicitly final.
-     *
-     *  If the enum has no specialized enum contants, it is final.
-     *
-     *  If the enum does have specialized enum contants, it is
-     *  <i>not</i> final.
-     */
-    private long implicitEnumFinalFlag(JCTree tree) {
-	if (tree.getTag() != JCTree.CLASSDEF) return 0;
-        class SpecialTreeVisitor extends JCTree.Visitor {
-            boolean specialized;
-            SpecialTreeVisitor() {
-                this.specialized = false;
-            }
-		
-            @Override
-            public void visitTree(JCTree tree) { /* no-op */ }
-	
-            @Override
-            public void visitVarDef(JCVariableDecl tree) {
-                if ((tree.mods.flags & ENUM) != 0) {
-                    if (tree.init instanceof JCNewClass &&
-                        ((JCNewClass) tree.init).def != null) {
-                        specialized = true;
-                    }
-                }
-            }
-        }
-
-        SpecialTreeVisitor sts = new SpecialTreeVisitor();
-        JFXClassDeclaration cdef = (JFXClassDeclaration) tree;
-        for (JCTree localDefs: cdef.getMembers()) {
-            localDefs.accept(sts);
-            if (sts.specialized) return 0;
-        }
-        return FINAL;
-    }
-
 /* *************************************************************************
  * Type Validation
  **************************************************************************/
@@ -929,7 +879,7 @@ public class JavafxCheck {
 // JavaFX change
     public
 // JavaFX change
-    void validate(JCTree tree) {
+    void validate(JFXTree tree) {
 	try {
 	    if (tree != null) tree.accept(validator);
 	} catch (CompletionFailure ex) {
@@ -942,18 +892,8 @@ public class JavafxCheck {
 // JavaFX change
     public
 // JavaFX change
-    void validate(List<? extends JCTree> trees) {
-	for (List<? extends JCTree> l = trees; l.nonEmpty(); l = l.tail)
-	    validate(l.head);
-    }
-
-    /** Visitor method: Validate a list of type parameters.
-     */
-// Javafx modification
-public
-// Javafx modification
-    void validateTypeParams(List<JCTypeParameter> trees) {
-	for (List<JCTypeParameter> l = trees; l.nonEmpty(); l = l.tail)
+    void validate(List<? extends JFXTree> trees) {
+	for (List<? extends JFXTree> l = trees; l.nonEmpty(); l = l.tail)
 	    validate(l.head);
     }
 
@@ -962,78 +902,7 @@ public
     class Validator extends JavafxTreeScanner {
 
         @Override
-        public void visitTypeArray(JCArrayTypeTree tree) {
-	    validate(tree.elemtype);
-	}
-
-        @Override
-        public void visitTypeApply(JCTypeApply tree) {
-	    if (tree.type.tag == CLASS) {
-		List<Type> formals = tree.type.tsym.type.getTypeArguments();
-		List<Type> actuals = tree.type.getTypeArguments();
-		List<JCExpression> args = tree.arguments;
-		List<Type> forms = formals;
-		ListBuffer<TypeVar> tvars_buf = new ListBuffer<TypeVar>();
-
-		// For matching pairs of actual argument types `a' and
-		// formal type parameters with declared bound `b' ...
-		while (args.nonEmpty() && forms.nonEmpty()) {
-		    validate(args.head);
-
-		    // exact type arguments needs to know their
-		    // bounds (for upper and lower bound
-		    // calculations).  So we create new TypeVars with
-		    // bounds substed with actuals.
-		    tvars_buf.append(types.substBound(((TypeVar)forms.head),
-						      formals,
-						      Type.removeBounds(actuals)));
-
-		    args = args.tail;
-		    forms = forms.tail;
-		}
-
-		args = tree.arguments;
-		List<TypeVar> tvars = tvars_buf.toList();
-		while (args.nonEmpty() && tvars.nonEmpty()) {
-		    // Let the actual arguments know their bound
-		    args.head.type.withTypeVar(tvars.head);
-		    args = args.tail;
-		    tvars = tvars.tail;
-		}
-
-		args = tree.arguments;
-		tvars = tvars_buf.toList();
-		while (args.nonEmpty() && tvars.nonEmpty()) {
-		    checkExtends(args.head.pos(),
-				 args.head.type,
-				 tvars.head);
-		    args = args.tail;
-		    tvars = tvars.tail;
-		}
-
-                // Check that this type is either fully parameterized, or
-                // not parameterized at all.
-                if (tree.type.getEnclosingType().isRaw())
-                    log.error(tree.pos(), MsgSym.MESSAGE_IMPROPERLY_FORMED_TYPE_INNER_RAW_PARAM);
-                if (tree.clazz.getTag() == JCTree.SELECT)
-                    visitSelectInternal((JCFieldAccess)tree.clazz);
-	    }
-	}
-
-        @Override
-        public void visitTypeParameter(JCTypeParameter tree) {
-	    validate(tree.bounds);
-	    checkClassBounds(tree.pos(), tree.type);
-	}
-
-	@Override
-        public void visitWildcard(JCWildcard tree) {
-	    if (tree.inner != null)
-		validate(tree.inner);
-	}
-
-        @Override
-        public void visitSelect(JCFieldAccess tree) {
+        public void visitSelect(JFXSelect tree) {
 	    if (tree.type.tag == CLASS) {
                 visitSelectInternal(tree);
 
@@ -1043,7 +912,7 @@ public
                     log.error(tree.pos(), MsgSym.MESSAGE_IMPROPERLY_FORMED_TYPE_PARAM_MISSING);
             }
 	}
-        public void visitSelectInternal(JCFieldAccess tree) {
+        public void visitSelectInternal(JFXSelect tree) {
             if (tree.type.getEnclosingType().tag != CLASS &&
                 tree.selected.type.isParameterized()) {
                 // The enclosing type is not a class, so we are
@@ -1059,7 +928,7 @@ public
 	/** Default visitor method: do nothing.
 	 */
 	@Override
-	public void visitTree(JCTree tree) {
+	public void visitTree(JFXTree tree) {
 	}
     }
 
@@ -1278,7 +1147,7 @@ public
      *			    is a member.
      */
 public
-    void checkOverride(JCTree tree,
+    void checkOverride(JFXTree tree,
 		       MethodSymbol m,
 		       MethodSymbol other,
 		       ClassSymbol origin) {
@@ -1600,7 +1469,7 @@ public
 // JavaFX change
     public
 // JavaFX change
-    void checkOverride(JCTree tree, MethodSymbol m) {
+    void checkOverride(JFXTree tree, MethodSymbol m) {
 	ClassSymbol origin = (ClassSymbol)m.owner;
 	if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name))
 	    if (m.overrides(syms.enumFinalFinalize, origin, types, false)) {
@@ -1892,324 +1761,8 @@ public
     }
 	
 /* *************************************************************************
- * Check annotations
- **************************************************************************/
-
-    /** Annotation types are restricted to primitives, String, an
-     *  enum, an annotation, Class, Class<?>, Class<? extends
-     *  Anything>, arrays of the preceding.
-     */
-// Javafx modification
-public
-// Javafx modification
-    void validateAnnotationType(JCTree restype) {
-        // restype may be null if an error occurred, so don't bother validating it
-        if (restype != null) {
-            validateAnnotationType(restype.pos(), restype.type);
-        }
-    }
-
-    void validateAnnotationType(DiagnosticPosition pos, Type type) {
-	if (type.isPrimitive()) return;
-	if (types.isSameType(type, syms.stringType)) return;
-        if ((type.tsym.flags() & Flags.ENUM) != 0) return;
-	if ((type.tsym.flags() & Flags.ANNOTATION) != 0) return;
-	if (types.lowerBound(type).tsym == syms.classType.tsym) return;
-	if (types.isArray(type) && !types.isArray(types.elemtype(type))) {
-	    validateAnnotationType(pos, types.elemtype(type));
-	    return;
-	}
-	log.error(pos, MsgSym.MESSAGE_INVALID_ANNOTATION_MEMBER_TYPE);
-    }
-
-    /**
-     * "It is also a compile-time error if any method declared in an
-     * annotation type has a signature that is override-equivalent to
-     * that of any public or protected method declared in class Object
-     * or in the interface annotation.Annotation."
-     *
-     * @jls3 9.6 Annotation Types
-     */
-// Javafx modification
-public
-// Javafx modification
-    void validateAnnotationMethod(DiagnosticPosition pos, MethodSymbol m) {
-        for (Type sup = syms.annotationType; sup.tag == CLASS; sup = types.supertype(sup)) {
-            Scope s = sup.tsym.members();
-            for (Scope.Entry e = s.lookup(m.name); e.scope != null; e = e.next()) {
-                if (e.sym.kind == MTH &&
-                    (e.sym.flags() & (PUBLIC | PROTECTED)) != 0 &&
-                    types.overrideEquivalent(m.type, e.sym.type))
-                    log.error(pos, MsgSym.MESSAGE_INTF_ANNOTATION_MEMBER_CLASH, e.sym, sup);
-            }
-        }
-    }
-
-    /** Check the annotations of a symbol.
-     */
-    public void validateAnnotations(List<JCAnnotation> annotations, Symbol s) {
-	if (skipAnnotations) return;
-	for (JCAnnotation a : annotations)
-	    validateAnnotation(a, s);
-    }
-
-    /** Check an annotation of a symbol.
-     */
-    public void validateAnnotation(JCAnnotation a, Symbol s) {
-	validateAnnotation(a);
-
-	if (!annotationApplicable(a, s))
-	    log.error(a.pos(), MsgSym.MESSAGE_ANNOTATION_TYPE_NOT_APPLICABLE);
-
-	if (a.annotationType.type.tsym == syms.overrideType.tsym) {
-	    if (!isOverrider(s))
-		log.error(a.pos(), MsgSym.MESSAGE_METHOD_DOES_NOT_OVERRIDE_SUPERCLASS);
-	}
-    }
-
-    /** Is s a method symbol that overrides a method in a superclass? */
-    boolean isOverrider(Symbol s) {
-        if (s.kind != MTH || s.isStatic())
-            return false;
-        MethodSymbol m = (MethodSymbol)s;
-        TypeSymbol owner = (TypeSymbol)m.owner;
-        for (Type sup : types.closure(owner.type)) {
-            if (sup == owner.type)
-                continue; // skip "this"
-            Scope scope = sup.tsym.members();
-            for (Scope.Entry e = scope.lookup(m.name); e.scope != null; e = e.next()) {
-                if (!e.sym.isStatic() && m.overrides(e.sym, owner, types, true))
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    /** Is the annotation applicable to the symbol? */
-    boolean annotationApplicable(JCAnnotation a, Symbol s) {
-	Attribute.Compound atTarget =
-	    a.annotationType.type.tsym.attribute(syms.annotationTargetType.tsym);
-	if (atTarget == null) return true;
-	Attribute atValue = atTarget.member(names.value);
-	if (!(atValue instanceof Attribute.Array)) return true; // error recovery
-	Attribute.Array arr = (Attribute.Array) atValue;
-	for (Attribute app : arr.values) {
-	    if (!(app instanceof Attribute.Enum)) return true; // recovery
-	    Attribute.Enum e = (Attribute.Enum) app;
-	    if (e.value.name == names.TYPE)
-		{ if (s.kind == TYP) return true; }
-	    else if (e.value.name == names.FIELD)
-		{ if (s.kind == VAR && s.owner.kind != MTH) return true; }
-	    else if (e.value.name == names.METHOD)
-		{ if (s.kind == MTH && !s.isConstructor()) return true; }
-	    else if (e.value.name == names.PARAMETER)
-		{ if (s.kind == VAR &&
-		      s.owner.kind == MTH &&
-		      (s.flags() & PARAMETER) != 0)
-		    return true;
-		}
-	    else if (e.value.name == names.CONSTRUCTOR)
-		{ if (s.kind == MTH && s.isConstructor()) return true; }
-	    else if (e.value.name == names.LOCAL_VARIABLE)
-		{ if (s.kind == VAR && s.owner.kind == MTH &&
-		      (s.flags() & PARAMETER) == 0)
-		    return true;
-		}
-	    else if (e.value.name == names.ANNOTATION_TYPE)
-		{ if (s.kind == TYP && (s.flags() & ANNOTATION) != 0)
-		    return true;
-		}
-	    else if (e.value.name == names.PACKAGE)
-		{ if (s.kind == PCK) return true; }
-	    else
-		return true; // recovery
-	}
-	return false;
-    }
-
-    /** Check an annotation value.
-     */
-    public void validateAnnotation(JCAnnotation a) {
-        if (a.type.isErroneous()) return;
-
-	// collect an inventory of the members
-	Set<MethodSymbol> members = new HashSet<MethodSymbol>();
-	for (Scope.Entry e = a.annotationType.type.tsym.members().elems;
-	     e != null;
-	     e = e.sibling)
-	    if (e.sym.kind == MTH)
-                members.add((MethodSymbol) e.sym);
-
-	// count them off as they're annotated
-	for (JCTree arg : a.args) {
-	    if (arg.getTag() != JCTree.ASSIGN) continue; // recovery
-	    JCAssign assign = (JCAssign) arg;
-	    Symbol m = JavafxTreeInfo.symbol(assign.lhs);
-	    if (m == null || m.type.isErroneous()) continue;
-	    if (!members.remove(m))
-		log.error(arg.pos(), MsgSym.MESSAGE_DUPLICATE_ANNOTATION_MEMBER_VALUE,
-			  m.name, a.type);
-	    if (assign.rhs.getTag() == ANNOTATION)
-		validateAnnotation((JCAnnotation)assign.rhs);
-	}
-
-	// all the remaining ones better have default values
-	for (MethodSymbol m : members)
-	    if (m.defaultValue == null && !m.type.isErroneous())
-		log.error(a.pos(), MsgSym.MESSAGE_ANNOTATION_MISSING_DEFAULT_VALUE, 
-                          a.type, m.name);
-
-	// special case: java.lang.annotation.Target must not have
-	// repeated values in its value member
-	if (a.annotationType.type.tsym != syms.annotationTargetType.tsym ||
-	    a.args.tail == null)
-	    return;
-
-        if (a.args.head.getTag() != JCTree.ASSIGN) return; // error recovery
-	JCAssign assign = (JCAssign) a.args.head;
-	Symbol m = JavafxTreeInfo.symbol(assign.lhs);
-	if (m.name != names.value) return;
-	JCTree rhs = assign.rhs;
-	if (rhs.getTag() != JCTree.NEWARRAY) return;
-	JCNewArray na = (JCNewArray) rhs;
-	Set<Symbol> targets = new HashSet<Symbol>();
-	for (JCTree elem : na.elems) {
-	    if (!targets.add(JavafxTreeInfo.symbol(elem))) {
-		log.error(elem.pos(), MsgSym.MESSAGE_REPEATED_ANNOTATION_TARGET);
-	    }
-	}
-    }
-
-// JavaFX change
-    public
-// JavaFX change
-    void checkDeprecatedAnnotation(DiagnosticPosition pos, Symbol s) {
-	if (allowAnnotations &&
-	    lint.isEnabled(Lint.LintCategory.DEP_ANN) &&
-	    (s.flags() & DEPRECATED) != 0 &&
-	    !syms.deprecatedType.isErroneous() &&
-	    s.attribute(syms.deprecatedType.tsym) == null) {
-	    log.warning(pos, MsgSym.MESSAGE_MISSING_DEPRECATED_ANNOTATION);
-	}
-    }
-
-/* *************************************************************************
- * Check for recursive annotation elements.
- **************************************************************************/
-
-    /** Check for cycles in the graph of annotation elements.
-     */
-// JavaFX change
-    public
-// JavaFX change
-    void checkNonCyclicElements(JFXClassDeclaration tree) {
-        if ((tree.sym.flags_field & ANNOTATION) == 0) return;
-        assert (tree.sym.flags_field & LOCKED) == 0;
-        try {
-            tree.sym.flags_field |= LOCKED;
-            for (JCTree def : tree.getMembers()) {
-                if (def.getTag() != JCTree.METHODDEF) continue;
-                JCMethodDecl meth = (JCMethodDecl)def;
-                checkAnnotationResType(meth.pos(), meth.restype.type);
-            }
-        } finally {
-            tree.sym.flags_field &= ~LOCKED;
-            tree.sym.flags_field |= ACYCLIC_ANN;
-        }
-    }
-
-    void checkNonCyclicElementsInternal(DiagnosticPosition pos, TypeSymbol tsym) {
-        if ((tsym.flags_field & ACYCLIC_ANN) != 0)
-            return;
-        if ((tsym.flags_field & LOCKED) != 0) {
-            log.error(pos, MsgSym.MESSAGE_CYCLIC_ANNOTATION_ELEMENT);
-            return;
-        }
-        try {
-            tsym.flags_field |= LOCKED;
-            for (Scope.Entry e = tsym.members().elems; e != null; e = e.sibling) {
-                Symbol s = e.sym;
-                if (s.kind != Kinds.MTH)
-                    continue;
-                checkAnnotationResType(pos, ((MethodSymbol)s).type.getReturnType());
-            }
-        } finally {
-            tsym.flags_field &= ~LOCKED;
-            tsym.flags_field |= ACYCLIC_ANN;
-        }
-    }
-
-    void checkAnnotationResType(DiagnosticPosition pos, Type type) {
-        switch (type.tag) {
-        case TypeTags.CLASS:
-            if ((type.tsym.flags() & ANNOTATION) != 0)
-                checkNonCyclicElementsInternal(pos, type.tsym);
-            break;
-        case TypeTags.ARRAY:
-            checkAnnotationResType(pos, types.elemtype(type));
-            break;
-        default:
-            break; // int etc
-        }
-    }
-
-/* *************************************************************************
- * Check for cycles in the constructor call graph.
- **************************************************************************/
-
-    /** Check for cycles in the graph of constructors calling other
-     *  constructors.
-     */
-// JavaFX change
-    public
-// JavaFX change
-    void checkCyclicConstructors(JFXClassDeclaration tree) {
-	Map<Symbol,Symbol> callMap = new HashMap<Symbol, Symbol>();
-
-	// enter each constructor this-call into the map
-	for (List<JCTree> l = tree.getMembers(); l.nonEmpty(); l = l.tail) {
-	    JCMethodInvocation app = JavafxTreeInfo.firstConstructorCall(l.head);
-	    if (app == null) continue;
-	    JCMethodDecl meth = (JCMethodDecl) l.head;
-	    if (JavafxTreeInfo.name(app.meth) == names._this) {
-		callMap.put(meth.sym, JavafxTreeInfo.symbol(app.meth));
-	    } else {
-		meth.sym.flags_field |= ACYCLIC;
-	    }
-	}
-
-	// Check for cycles in the map
-	Symbol[] ctors = new Symbol[0];
-	ctors = callMap.keySet().toArray(ctors);
-	for (Symbol caller : ctors) {
-	    checkCyclicConstructor(tree, caller, callMap);
-	}
-    }
-
-    /** Look in the map to see if the given constructor is part of a
-     *  call cycle.
-     */
-    private void checkCyclicConstructor(JFXClassDeclaration tree, Symbol ctor,
-					Map<Symbol,Symbol> callMap) {
-	if (ctor != null && (ctor.flags_field & ACYCLIC) == 0) {
-	    if ((ctor.flags_field & LOCKED) != 0) {
-		log.error(JavafxTreeInfo.diagnosticPositionFor(ctor, tree),
-			  MsgSym.MESSAGE_RECURSIVE_CTOR_INVOCATION);
-	    } else {
-		ctor.flags_field |= LOCKED;
-		checkCyclicConstructor(tree, callMap.remove(ctor), callMap);
-		ctor.flags_field &= ~LOCKED;
-	    }
-	    ctor.flags_field |= ACYCLIC;
-	}
-    }
-
-/* *************************************************************************
  * Miscellaneous
  **************************************************************************/
-// Javafx change
-    public
-// Javafx change
     /**
      * Return the opcode of the operator but emit an error if it is an
      * error.
@@ -2221,7 +1774,7 @@ public
      */
     int checkOperator(DiagnosticPosition pos,
                        OperatorSymbol operator,
-                       int tag,
+                       JavafxTag tag,
                        Type left,
                        Type right) {
         if (operator.opcode == ByteCodes.error) {
@@ -2254,17 +1807,6 @@ public
 		log.warning(pos, MsgSym.MESSAGE_DIV_ZERO);
 	    }
 	}
-    }
-
-    /**
-     * Check for empty statements after if
-     */
-// JavaFX change
-    public
-// JavaFX change
-    void checkEmptyIf(JCIf tree) {
-	if (tree.thenpart.getTag() == JCTree.SKIP && tree.elsepart == null && lint.isEnabled(Lint.LintCategory.EMPTY))
-	    log.warning(tree.thenpart.pos(), MsgSym.MESSAGE_EMPTY_IF);
     }
 
     /** Check that symbol is unique in given scope.
@@ -2355,15 +1897,15 @@ public
 
     /** Check that a qualified name is in canonical form (for import decls).
      */
-    public void checkCanonical(JCTree tree) {
+    public void checkCanonical(JFXTree tree) {
 	if (!isCanonical(tree))
 	    log.error(tree.pos(), MsgSym.MESSAGE_IMPORT_REQUIRES_CANONICAL,
 		      JavafxTreeInfo.symbol(tree));
     }
         // where
-	private boolean isCanonical(JCTree tree) {
-	    while (tree.getTag() == JCTree.SELECT) {
-		JCFieldAccess s = (JCFieldAccess) tree;
+	private boolean isCanonical(JFXTree tree) {
+	    while (tree.getFXTag() == JavafxTag.SELECT) {
+		JFXSelect s = (JFXSelect) tree;
 		if (s.sym.owner != JavafxTreeInfo.symbol(s.selected))
 		    return false;
 		tree = s.selected;
@@ -2400,7 +1942,7 @@ public
 	return new ConversionWarner(pos, MsgSym.MESSAGE_UNCHECKED_ASSIGN, found, expected);
     }
 	
-	public void warnEmptyRangeLiteral(DiagnosticPosition pos, JCLiteral lower, JCLiteral upper, JCLiteral step, boolean isExclusive) {
+	public void warnEmptyRangeLiteral(DiagnosticPosition pos, JFXLiteral lower, JFXLiteral upper, JFXLiteral step, boolean isExclusive) {
         double lowerValue = ((Number)lower.getValue()).doubleValue();
         double upperValue = ((Number)upper.getValue()).doubleValue();
         double stepValue = step != null? ((Number)step.getValue()).doubleValue() : 1;

@@ -29,10 +29,8 @@ import javax.tools.DiagnosticListener;
 import static com.sun.javafx.api.JavafxBindStatus.UNBOUND;
 import com.sun.tools.javac.code.Source;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
-import com.sun.tools.javac.tree.JCTree.JCAnnotation;
-import com.sun.tools.javac.tree.JCTree.JCErroneous;
 import com.sun.tools.javac.util.*;
+import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.tree.JFXInterpolateValue;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
 import com.sun.tools.javafx.util.MsgSym;
@@ -76,7 +74,7 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
 
     /* ---------- error recovery -------------- */
 
-    protected JCErroneous errorTree;
+    protected JFXErroneous errorTree;
 
     /** initializes a new instance of GeneratedParser */
     protected void initialize(Context context) {
@@ -134,12 +132,8 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
         return ((CommonToken)tree.getToken()).getStartIndex();
     }
 
-    protected List noJCTrees() {
-        return List.<JCTree>nil();
-    }
-
-    protected List<JCAnnotation> noJCAnnotations() {
-        return List.<JCAnnotation>nil();
+    protected List noJFXTrees() {
+        return List.<JFXTree>nil();
     }
 
     void setDocComment(JCTree tree, CommonTree comment) {
@@ -179,23 +173,23 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
     }
 
 
-    JCExpression createKeyValueLiteral(int target_pos, JCExpression target, JCTree value, JCTree interpolate ) {
+    JFXExpression createKeyValueLiteral(int target_pos, JFXExpression target, JFXTree value, JFXTree interpolate ) {
 
-        JCExpression class_name = F.at(target_pos).Identifier("javafx.animation.KeyValue");
+        JFXExpression class_name = F.at(target_pos).Identifier("javafx.animation.KeyValue");
 
-        ListBuffer<JCTree> parts = ListBuffer.<JCTree>lb();
+        ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb();
 
         // target attribute
         // convert target name to pointer
-        JCExpression ptr_factory = F.at(target_pos).Identifier("com.sun.javafx.runtime.PointerFactory");
-        JCExpression pointer_literal = F.at(target_pos).Instanciate(ptr_factory, null, ListBuffer.<JCTree>lb().toList());
+        JFXExpression ptr_factory = F.at(target_pos).Identifier("com.sun.javafx.runtime.PointerFactory");
+        JFXExpression pointer_literal = F.at(target_pos).Instanciate(ptr_factory, null, ListBuffer.<JFXTree>lb().toList());
 
-        JCExpression make_method_name = F.at(target_pos).Select(pointer_literal, Name.fromString(names, "make"));
-        ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
+        JFXExpression make_method_name = F.at(target_pos).Select(pointer_literal, Name.fromString(names, "make"));
+        ListBuffer<JFXExpression> args = new ListBuffer<JFXExpression>();
         args.append(target);
-        JCExpression target_value = F.at(target_pos).Apply(null, make_method_name, args.toList());
+        JFXExpression target_value = F.at(target_pos).Apply(null, make_method_name, args.toList());
 
-        JCTree target_part = F.at(target_pos).ObjectLiteralPart(Name.fromString(names, "target"), target_value, UNBOUND);
+        JFXTree target_part = F.at(target_pos).ObjectLiteralPart(Name.fromString(names, "target"), target_value, UNBOUND);
         parts.append(target_part);
 
         // value attribute
