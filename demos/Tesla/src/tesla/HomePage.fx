@@ -6,32 +6,36 @@
  */
 
 package tesla;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.ext.swing.*;
+import javafx.scene.image.*;
+import javafx.scene.paint.*;
 
 
-class HomeSectionView extends CompositeNode {
+class HomeSectionView extends CustomNode {
     attribute imageUrl: String;
     attribute text: String;
     
-    function composeNode():Node {
+    function create():Node {
         return Group {
             content:
-            [Rect {
+            [Rectangle {
                 transform: Transform.translate(0, 20)
                 height: 56
                 width: 165
-                stroke: Color.rgba(.5, 0, 0, 1) as Paint
+                stroke: Color.color(.5, 0, 0, 1)
             },
             ImageView {
                 transform: Transform.translate(10, 0)
                 cursor: Cursor.HAND
                 image: Image {url: bind imageUrl }
             },    
-            View {
+            ComponentView {
                 transform: Transform.translate(0, 85)
-                content: Label {
-                    font: Font.Font("Arial", ["PLAIN"], 12)
+                component: Label {
+                    font: Font.font("Arial", FontStyle.PLAIN, 12)
                     foreground: Color.WHITE
                     text: bind text
                 }
@@ -43,15 +47,14 @@ class HomeSectionView extends CompositeNode {
 
 class HomePage extends TeslaPage {
         override attribute menuImageUrl = "http://www.teslamotors.com/images/nav/nav_home.gif";
-        override attribute content =
-        [Group {
+        override attribute content = Group {
             content:
             [Group {
                 transform: Transform.translate(0, 20)
-                var red = Color.rgba(0.7, 0, 0, 1)
+                var red = Color.color(0.7, 0, 0, 1)
                 content:
-                [Line {x2: 750 stroke: Color.RED as Paint, strokeWidth: 0.5},
-                Line {y1: 2 y2: 2, x2: 750, stroke: Color.RED as Paint, strokeWidth: 0.5}]
+                [Line {endX: 750 stroke: Color.RED, strokeWidth: 0.5},
+                Line {startY: 2 endY: 2, endX: 750, stroke: Color.RED, strokeWidth: 0.5}]
             },
             ImageView {
                 transform: Transform.translate(2, 40)
@@ -68,10 +71,10 @@ class HomePage extends TeslaPage {
             },
             Group {
                 transform: Transform.translate(0, 336)
-                var gray = Color.rgba(0.7, 0.7, 0.7, 1)
+                var gray = Color.color(0.7, 0.7, 0.7, 1)
                 content:
-                [Line {x2: 750 stroke: Color.GRAY as Paint, strokeWidth: 0.5},
-                Line {y1: 2 y2: 2, x2: 750, stroke: Color.GRAY as Paint, strokeWidth: 0.5}]
+                [Line {endX: 750 stroke: Color.GRAY, strokeWidth: 0.5},
+                Line {startY: 2 endY: 2, endX: 750, stroke: Color.GRAY, strokeWidth: 0.5}]
             },
             ImageView {
                 transform: Transform.translate(120, 360)
@@ -109,6 +112,6 @@ class HomePage extends TeslaPage {
                 }]
             }]
 
-        } as Node];
+        };
 
 }

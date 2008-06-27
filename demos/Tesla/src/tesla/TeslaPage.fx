@@ -6,26 +6,58 @@
  */
 
 package tesla;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
 import java.lang.System;
+import javafx.ext.swing.*;
+import javafx.scene.image.*;
+import javafx.scene.paint.*;
+import javafx.input.*;
+import javafx.animation.*;
 
-class TeslaPage extends CompositeNode {
+class TeslaPage extends CustomNode {
     public attribute menuImageUrl: String;
     public attribute content: Node[];
     public attribute menuSelect: function(i:Integer):Void;
     public attribute buySelect: function();
-    attribute opacityValue: Number;
+    attribute opacityValue: Number = 1.0;
+    private attribute fadein:Timeline = Timeline {
+        keyFrames: [
+            KeyFrame {
+                time: 0s
+                values: opacityValue => 0
+            },
+            KeyFrame {
+                time: 1s
+                values: opacityValue => 1.0 tween Interpolator.EASEBOTH
+            }
+        ]
+    };  
+    private attribute fadeout:Timeline = Timeline {
+        keyFrames: [
+            KeyFrame {
+                time: 0s
+                values: opacityValue => 1.0
+            },
+            KeyFrame {
+                time: 1s
+                values: opacityValue => 0.0 tween Interpolator.EASEBOTH
+            }
+        ]
+    };     
     
-    /*
-    attribute visible:Boolean on replace (value) {
-        if (value) {
-        //   opacityValue = [0, 100] dur 1000 motion EASEBOTH while visible == value;
+    override attribute visible on replace  {
+        if (visible) {
+            fadeout.stop();
+            fadein.start();
+        }else {
+            fadein.stop();
+            fadeout.start();
         }
     }
-  */
     
-    function composeNode():Node {
+    function create():Node {
         return Group {
             content: 
             [ImageView {
@@ -33,41 +65,30 @@ class TeslaPage extends CompositeNode {
             //image: bind select Image {url: u} from u in menuImageUrl
                 image: Image {url: bind menuImageUrl }
             },
-            Rect {
-                selectable: true
+            Rectangle {
                 cursor: Cursor.HAND
                 transform: Transform.translate(180, 0)
                 height: 40
                 width: 380
-                fill: Color.rgba(0, 0, 0, 0) as Paint
-                var offsets = [180, 230, 335, 430, 490, 540] 
-                onMouseReleased: function(e:CanvasMouseEvent) {
-                    var x = e.localX;
-                    System.out.println("localX={e.localX} e.x={e.x}");
-                    //var i = (reverse (select indexof o from o in offsets where x > o))[0];
-                    //             println("i={i}");
-                    System.out.println("x = {x}");
-                    //var is = reverse (for (o in offsets where x > 0) indexof o);
-                    var is = reverse offsets;
-                    var j = 0;
-                    for (i in is) {
+                fill: Color.TRANSPARENT
+                var offsets = reverse [0, 60, 155, 250, 310, 365]
+                onMouseReleased: function(e:MouseEvent) {
+                    var x = e.getX();
+                    for (i in offsets) {
                         if (x > i) {
-                             System.out.println("x > {i}");
-                             menuSelect(5-j);
+                             menuSelect(5- indexof i);
                              break;
                         }
-                        j++;
                     }
                 }
             },
-            Rect {
-                selectable: true
+            Rectangle {
                 cursor: Cursor.HAND
                 transform: Transform.translate(560, 0)
                 height: 33
                 width: 60
-                fill: Color.rgba(0, 0, 0, 0) as Paint
-                onMouseClicked: function(e:CanvasMouseEvent) {
+                fill: Color.TRANSPARENT
+                onMouseClicked: function(e:MouseEvent) {
                     //             println("buy...");
                     if (buySelect != null) {
                         buySelect();
@@ -82,17 +103,6 @@ class TeslaPage extends CompositeNode {
         };
         
     }
-    //trigger on TeslaPage.menuImageUrl = value {
-    //println("menu image url = {value}");
-    //}
-    
-    /*
-trigger on TeslaPage.visible = value {
-    if (value) {
-        opacityValue = [0, 100] dur 1000 motion EASEBOTH while visible == value;
-    }
-}
-*/
     
 }
 

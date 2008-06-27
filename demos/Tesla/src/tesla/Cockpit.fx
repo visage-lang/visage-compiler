@@ -6,41 +6,46 @@
  */
 
 package tesla;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.ext.swing.*;
+import javafx.scene.image.*;
+import javafx.scene.paint.*;
+import javafx.input.MouseEvent;
+import javafx.scene.text.Text;
 
-
-class CockpitDetailView extends CompositeNode {
+class CockpitDetailView extends CustomNode {
     attribute imageUrl: String;
     attribute text: String;
     
-    function composeNode():Node {
+    function create():Node {
         return Group {
             // Image: 374x259
             content:
-            [Rect {
+            [Rectangle {
                 arcHeight: 10
                 arcWidth: 10
                 height: 400
                 width: 400
-                fill: Color.rgba(.4, .4, .5, .7) as Paint
-                onMouseClicked: function(e:CanvasMouseEvent) {
+                fill: Color.color(.4, .4, .5, .7)
+                onMouseClicked: function(e:MouseEvent) {
                     visible = false;
                 }
             },
             Text {
                 transform: Transform.translate(384-15, 4)
-                fill: Color.rgba(.7, .7, .7, 1) as Paint
+                fill: Color.color(.7, .7, .7, 1)
                 content: "close"
-                halign: HorizontalAlignment.TRAILING
-                font: Font.Font("Verdana", ["PLAIN"], 8)
+                horizontalAlignment: HorizontalAlignment.TRAILING
+                font: Font.font("Verdana", FontStyle.PLAIN, 8)
             },
             Text {
                 transform: Transform.translate(384, 6)
-                fill: Color.rgba(.7, .7, .7, 1) as Paint
+                fill: Color.color(.7, .7, .7, 1)
                 content: "X"
-                halign: HorizontalAlignment.TRAILING
-                font: Font.Font("Verdana", ["BOLD"], 8)
+                horizontalAlignment: HorizontalAlignment.TRAILING
+                font: Font.font("Verdana", FontStyle.BOLD, 8)
             },
             ImageView {
                 transform: Transform.translate(12.5, 20)
@@ -48,15 +53,15 @@ class CockpitDetailView extends CompositeNode {
             },
             Text {
                 transform: Transform.translate(15, 259 + 20 + 10)
-                font: Font.Font("Verdana", ["BOLD"], 11)
+                font: Font.font("Verdana", FontStyle.BOLD, 11)
                 content: bind text
-                fill: Color.WHITE as Paint
+                fill: Color.WHITE
             }]
         }
     }
 }
 
-class Hotspot extends CompositeNode {
+class Hotspot extends CustomNode {
     attribute text: String;
     attribute action: function();
     attribute scaleValue: Number;
@@ -65,70 +70,69 @@ class Hotspot extends CompositeNode {
     attribute g: Group;
     attribute whiteCircle: Circle;
     
-    function composeNode():Node {
+    function create():Node {
         return Group {
             var x = bind (scaleValue-0.4) * -15
             var y = bind (scaleValue-0.4) * -15
+            var txt:Text;
             onMouseClicked: function(e) {
                 /*
                 do later {hover = false;}
                 (this.action)();*/
             }
             cursor: Cursor.HAND
-            var blue = Color.rgba(.5, .5, .8, 1)
+            var blue = Color.color(.5, .5, .8, 1)
             content: [g = Group {
                 //                attribute: g
                 //transform: bind [Transform.translate(x, y), Transform.scale(scaleValue, scaleValue)]
                 transform: [Transform.translate(x, y), Transform.scale(scaleValue, scaleValue)]
                 content:
-                [Rect {
-                    selectable: true
+                [Rectangle {
                     height: 30
                     width: 30
-                    fill: Color.rgba(0, 0, 0, 0) as Paint
+                    fill: Color.color(0, 0, 0, 0)
                 },
                 Circle {
-                    cx: 15
-                    cy: 5
+                    centerX: 15
+                    centerY: 5
                     radius: 5
-                    fill: Color.BLUE as Paint
+                    fill: Color.BLUE
                 },
                 Circle {
-                    cx: 5
-                    cy: 15
+                    centerX: 5
+                    centerY: 15
                     radius: 5
-                    fill: Color.BLUE as Paint
+                    fill: Color.BLUE
                 },
                 Circle {
-                    cx: 15
-                    cy: 25
+                    centerX: 15
+                    centerY: 25
                     radius: 5
-                    fill: Color.BLUE as Paint
+                    fill: Color.BLUE
                 },
                 whiteCircle = Circle {
-                    cx: 25
-                    cy: 15
+                    centerX: 25
+                    centerY: 15
                     radius: 5
                     //attribute: whiteCircle
-                    fill: bind (if (hover) then Color.rgba(0, 0, 0, 0) else Color.WHITE)  as Paint
+                    fill: bind (if (whiteCircle.isMouseOver()) then Color.TRANSPARENT else Color.WHITE) 
                 }]
             },
-            Text {
-                selectable: true
+            txt = Text {
                 //transform: bind translate(x, y)
                 x: 20/2
                 y: 15/2
-                valign: VerticalAlignment.CENTER
+                verticalAlignment: VerticalAlignment.CENTER
                 content: bind text
-                fill: Color.WHITE  as Paint
-                font: Font.Font("Verdana", ["BOLD"], 12)
-                visible: bind hover
+                fill: Color.WHITE
+                font: Font.font("Verdana", FontStyle.BOLD, 12)
+                visible: bind txt.isMouseOver()
             }]
         }
     }
 }
 
-class Cockpit extends CompositeNode {
+class Cockpit extends CustomNode {
     //var __DOCBASE__:String = "";
     attribute detailImageUrl: String;
     attribute detailText: String;
@@ -141,14 +145,14 @@ class Cockpit extends CompositeNode {
     attribute detailOpacity: Number;
     
     
-    function composeNode():Node {
+    function create():Node {
         return Group {
             content:
-            [View {
+            [ComponentView {
                 transform: Transform.translate(10, 10)
-                content: Label {
+                component: Label {
                     foreground: Color.WHITE
-                    font: Font.Font("Arial", ["PLAIN"], 12)
+                    font: Font.font("Arial", FontStyle.PLAIN, 12)
                     text:
                     "<html><div width='200'><h1>Cockpit
 </h1>
@@ -222,7 +226,7 @@ class Cockpit extends CompositeNode {
                     transform: Transform.translate(130, 140)
                     text: "VDS Screen"
                     action: function() {
-                        detailText = "The Vehicle Display System (VDS) screen provides real-time\ninformation about the performance, range, and efficiency of\nyour Tesla Roadster.";
+                        detailText = "The Vehicle Display System (VDS) screen provides real-time\ninformation about the performance, range, and efficiencenterY of\nyour Tesla Roadster.";
                         detailImageUrl = "{__DIR__}Image/6.jpg";
                         detailVisible = true;
                     }
@@ -231,7 +235,7 @@ class Cockpit extends CompositeNode {
                     transform: Transform.translate(10, 375)
                 },
                 Text {
-                    fill: Color.WHITE as Paint
+                    fill: Color.WHITE
                     transform: Transform.translate(25, 378)
                     content: "Click on hot spots to view more."
                 },

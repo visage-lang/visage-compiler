@@ -6,9 +6,16 @@
  */
 
 package tesla;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.ext.swing.*;
+import javafx.scene.image.*;
+import javafx.scene.paint.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.*;
+import javafx.animation.*;
+import java.lang.System;
 
 class Picture {
     attribute imageUrl: String;
@@ -17,34 +24,30 @@ class Picture {
 
 // 454x275
 
-public class ProcessInPictures extends CompositeNode {
+public class ProcessInPictures extends CustomNode {
     
     
     attribute selectedPictureIndex: Integer
     on replace oldValue = newValue {
-        var c = ++counter;
-        /*
-        trigger on (i = [false, true] dur 12000 while c == counter) {
-            if (i) {
-                if (newValue + 1 < sizeof pictures) {
-                    selectedPictureIndex++;
-                } else {
-                    selectedPictureIndex = 0;
-                    ++counter;
-                    opacityValue = 1.0;
-                }
-            }
-        }*/
-        lastSelectedPicture = if (oldValue >= 0 and oldValue < sizeof pictures) pictures[oldValue] else null;
-    //        opacityValue = [0, 1] dur 2000 motion EASEOUT while c == counter;
+        fadeIn.start();
     }
+    attribute fadeIn = Timeline {
+        keyFrames: [
+            KeyFrame {
+                time: 0s
+                values: opacityValue => 0
+            },
+            KeyFrame {
+                time: 2s
+                values: opacityValue => 1.0 tween Interpolator.EASEOUT
+            }
+        ] 
+   };
     
     attribute selectedPicture: Picture = bind pictures[selectedPictureIndex];
     
     
-    attribute lastSelectedPicture: Picture;
     attribute opacityValue: Number = 1.0;
-    attribute counter: Number;
     function forward() {
         ++selectedPictureIndex;
     }
@@ -109,15 +112,14 @@ with painted film, rear wheels, mirrors, wiper, windscreen, and headlights."
     }];
     
     
-    function composeNode():Node {
+    function create():Node {
         return Group {
             content:
             [Group {
                 content:
-                View {
+                ComponentView {
                     transform: Transform.translate(15, 0)
-                    content:
-                    Label {
+                    component: Label {
                         foreground: Color.WHITE
                         text:
                         "<html>
@@ -139,16 +141,16 @@ with painted film, rear wheels, mirrors, wiper, windscreen, and headlights."
                 }
             },
             Group {
-                var blue = Color.rgba(.2, .2, .2, 1)
-                var darkBlue = Color.rgba(.1, .1, .1, .8)
+                var blue = Color.color(.2, .2, .2, 1)
+                var darkBlue = Color.color(.1, .1, .1, .8)
                 transform: Transform.translate(210, 0)
                 content:
-                [Rect {
+                [Rectangle {
                     arcHeight: 10
                     arcWidth: 10
                     height: 420
                     width: 520
-                    fill: Color.BLUE as Paint
+                    fill: Color.BLUE
                 },
                 Group {
                     transform: Transform.translate(35, 25)
@@ -158,14 +160,14 @@ with painted film, rear wheels, mirrors, wiper, windscreen, and headlights."
                         var f = function(url:String) {
                              Image {url: url};
                         }
-                        image: bind f(selectedPicture.imageUrl) 
+                        image: bind Image{ url: selectedPicture.imageUrl}
                     },
-                    ImageView {
-                        opacity: bind 1-opacityValue
+                    //ImageView {
+                    //    opacity: bind 1-opacityValue
                     //image: bind select Image {url: u} from u in lastSelectedPicture.imageUrl
-                    },
-                    Rect {
-                        stroke: Color.WHITE as Paint
+                    //},
+                    Rectangle {
+                        stroke: Color.WHITE
                         height: 275
                         width: 454
                     },
@@ -176,65 +178,65 @@ with painted film, rear wheels, mirrors, wiper, windscreen, and headlights."
                             visible: bind selectedPictureIndex > 0
                             transform: Transform.translate(10, 0)
                             content:
-                            [{var r: Rect;
-                                r = Rect {                                   
-                                    selectable: true
+                            [{var r: Rectangle;
+                                r = Rectangle {                                   
                                     cursor: Cursor.HAND
                                     arcHeight: 20
                                     arcWidth: 20
                                     height: 20
                                     width: 100
-                                    fill: bind (if (r.hover) then Color.BLACK else Color.DARKBLUE) as Paint
+                                    fill: bind (if (r.isMouseOver()) then Color.BLACK else Color.DARKBLUE)
                                     onMouseClicked: function(e) {
                                         this.back();
                                     }
                                 }},
                             HBox {
-                                transform: Transform.translate(50, 10)
-                                valign: VerticalAlignment.CENTER
-                                halign: HorizontalAlignment.CENTER
+                                transform: Transform.translate(50, 12)
+                                verticalAlignment: VerticalAlignment.CENTER
+                                horizontalAlignment: HorizontalAlignment.CENTER
                                 content:
                                 [Polygon {
-                                    fill: Color.WHITE as Paint
+                                    fill: Color.WHITE
                                     points: [0, 5, 10, 0, 10, 10]
                                 },
                                 Text {
+                                    textOrigin: TextOrigin.TOP
                                     transform: Transform.translate(5, 0)
                                     content: "Back"
-                                    fill: Color.rgba(1, 1, 1, .8) as Paint
+                                    fill: Color.color(1, 1, 1, .8)
                                 }]
                             }]
                         },
                         Group {
                             visible: bind selectedPictureIndex + 1 < sizeof pictures
                             transform: Transform.translate(454-10, 0)
-                            halign: HorizontalAlignment.TRAILING
+                            horizontalAlignment: HorizontalAlignment.TRAILING
                             content:
-                            [{ var r:Rect;
-                                r = Rect {                                    
-                                    selectable: true
+                            [{ var r:Rectangle;
+                                r = Rectangle {                                    
                                     cursor: Cursor.HAND
                                     arcHeight: 20
                                     arcWidth: 20
                                     height: 20
                                     width: 100
-                                    fill: bind (if (r.hover) then Color.BLACK else Color.DARKBLUE) as Paint
+                                    fill: bind (if (r.isMouseOver()) then Color.BLACK else Color.DARKBLUE)
                                     onMouseClicked: function(e) {
                                         this.forward();
                                     }
                                 }},
                             HBox {
-                                transform: Transform.translate(50, 10)
-                                valign: VerticalAlignment.CENTER
-                                halign: HorizontalAlignment.CENTER
+                                transform: Transform.translate(50, 12)
+                                verticalAlignment: VerticalAlignment.CENTER
+                                horizontalAlignment: HorizontalAlignment.CENTER
                                 content:
                                 [Text {
-                                    fill: Color.color(1, 1, 1, .8) as Paint
+                                    textOrigin: TextOrigin.TOP
+                                    fill: Color.color(1, 1, 1, .8)
                                     content: "Forward"
                                 },
                                 Polygon {
                                     transform: Transform.translate(5, 0)
-                                    fill: Color.WHITE as Paint
+                                    fill: Color.WHITE
                                     points: [0, 0, 10, 5, 0, 10]
                                 }]
                             }]
@@ -244,8 +246,8 @@ with painted film, rear wheels, mirrors, wiper, windscreen, and headlights."
                         transform: Transform.translate(0, 288)
                         content: Text {
                             opacity: bind opacityValue
-                            fill: Color.WHITE as Paint
-                            font: Font.Font("Verdana", ["BOLD"], 11)
+                            fill: Color.WHITE
+                            font: Font.font("Verdana", FontStyle.BOLD, 11)
                             content: bind selectedPicture.text
                         }
                     }]

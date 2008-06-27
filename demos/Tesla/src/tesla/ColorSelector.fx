@@ -6,37 +6,45 @@
  */
 
 package tesla;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.scene.image.*;
+import javafx.scene.paint.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.*;
+import javafx.ext.swing.*;
 
-class ColorButton extends CompositeNode {
+class ColorButton extends CustomNode {
     attribute color: BodyColor;
     attribute selector: ColorSelector;
     attribute selected: Boolean = bind selector.selectedColor == color;
     
-    function composeNode():Node {
-        return Clip {
-            shape: Rect {height: 31, width: 33}
-            content:
-            [ImageView {
-                image: Image{url: bind color.imageUrl}
-            },
-            Rect {
-                width: 32
-                height: 23
-                stroke: Color.WHITE as Paint
-                fill: Color.rgba(0, 0, 0, 0) as Paint
-                cursor: Cursor.HAND
-                onMouseEntered: function(e) {
-                    selector.selectedColor = color;
+    function create():Node {
+        return Group {
+            content: [
+                Rectangle {height: 31, width: 33, stroke: Color.TRANSPARENT},
+                ImageView {
+                    image: Image{url: bind color.imageUrl}
+                },
+                Rectangle {
+                    width: 33
+                    height: 23
+                    stroke: Color.WHITE
+                    fill: Color.TRANSPARENT
+                    cursor: Cursor.HAND
+                    onMouseEntered: function(e) {
+                        selector.selectedColor = color;
+                    }
+                },
+                Rectangle {
+                    transform: Transform.translate(0, 26)
+                    height: 4
+                    width: 33
+                    stroke: Color.TRANSPARENT
+                    fill: bind (if (selected) then Color.WHITE else Color.TRANSPARENT)
                 }
-            },
-            Rect {
-                transform: Transform.translate(0, 26)
-                height: 4
-                width: 33
-                fill: bind (if (selected) then Color.WHITE else Color.rgba(0, 0, 0, 0)) as Paint
-            }]
+            ]
         }
     }
 }
@@ -48,8 +56,7 @@ class BodyColor {
     attribute group: String;
 }
 
-public class ColorSelector extends CompositeNode {
-    //var __DOCBASE__ = "";
+public class ColorSelector extends CustomNode {
     attribute fusionRed: BodyColor = BodyColor {
         imageUrl: "{__DIR__}Image/colors/6.jpg"
         carUrl: "{__DIR__}Image/colors/15.jpg"
@@ -142,7 +149,7 @@ public class ColorSelector extends CompositeNode {
     [solidColors, metallicColors, premiumColors];
     
     attribute colorIndex: Number;
-    attribute selectedColor: BodyColor;
+    attribute selectedColor: BodyColor = fusionRed;
     
     attribute solidGroup: Node;
     attribute metallicGroup: Node;
@@ -150,14 +157,14 @@ public class ColorSelector extends CompositeNode {
     
     
     
-    function composeNode():Node {
+    function create():Node {
         return Group {
             content:
-            [View {
+            [ComponentView {
                 transform: Transform.translate(10, 10)
-                content: Label {
+                component: Label {
                     foreground: Color.WHITE
-                    font: Font.Font("Arial", ["PLAIN"], 12)
+                    font: Font.font("Arial", FontStyle.PLAIN, 12)
                     text:
                     "<html><div width='200'><h1>Available Colors
 </h1>
@@ -173,38 +180,39 @@ The Tesla Roadster is available in metallic and non-metallic colors.
                 content:
                 [ImageView {
                 // 486x225
+                    image: bind if(selectedColor != null) { Image{url: selectedColor.carUrl} } else null
                 //                    image: bind select Image{url: u} from u in selectedColor.carUrl
                 },
                 Group {
                     content:
-                    [Rect {
+                    [Rectangle {
                         height: 200
                         width: 500
                         arcHeight: 10
                         arcWidth: 10
-                        fill: Color.rgba(.2, .2, .25, 1) as Paint
+                        fill: Color.color(.2, .2, .25, 1)
                     },
                     VBox {
                         transform: Transform.translate(20, 20)
                         content:
-                        [Clip {
-                            shape: Rect {height: 20, width: 400}
+                        [Group { 
+                            //clip: Rectangle {height: 20, width: 400}
                             content:
                             HBox {
                                 content:
                                 [Text {
                                     content: "Exterior Color:"
-                                    fill: Color.rgba(.8, .8, .8, 1) as Paint
+                                    fill: Color.color(.8, .8, .8, 1)
                                 },
                                 Text {
                                     transform: bind Transform.translate(5, 0)
                                     content: bind "{selectedColor.name}"
-                                    fill: Color.WHITE as Paint
+                                    fill: Color.WHITE
                                 },
                                 Text {
                                     transform: bind Transform.translate(5, 0)
                                     content: bind "({selectedColor.group})"
-                                    fill: Color.GRAY as Paint
+                                    fill: Color.GRAY
                                 }]
                             }
                         },
@@ -228,13 +236,14 @@ The Tesla Roadster is available in metallic and non-metallic colors.
                                 },
                                 Line {
                                     transform: Transform.translate(0, 5)
-                                    stroke: Color.GRAY as Paint
-                                    x1: 0
-                                    x2: bind solidGroup.currentWidth
+                                    stroke: Color.GRAY
+                                    startX: 0
+                                    endX: bind solidGroup.getWidth()
                                 },
                                 Text {
-                                    font: Font.Font("Arial", ["PLAIN"], 9)
-                                    fill: Color.GRAY as Paint
+                                    textOrigin: TextOrigin.TOP
+                                    font: Font.font("Arial", FontStyle.PLAIN, 9)
+                                    fill: Color.GRAY
                                     transform: Transform.translate(0, 5)
                                     content: "Solid Colors"
                                 }]
@@ -272,13 +281,14 @@ The Tesla Roadster is available in metallic and non-metallic colors.
                                 },
                                 Line {
                                     transform: Transform.translate(0, 5)
-                                    stroke: Color.GRAY as Paint
-                                    x1: 0
-                                    x2: bind metallicGroup.currentWidth
+                                    stroke: Color.GRAY
+                                    startX: 0
+                                    endX: bind metallicGroup.getWidth()
                                 },
                                 Text {
-                                    font: Font.Font("Arial", ["PLAIN"], 9)
-                                    fill: Color.GRAY as Paint
+                                    textOrigin: TextOrigin.TOP
+                                    font: Font.font("Arial", FontStyle.PLAIN, 9)
+                                    fill: Color.GRAY
                                     transform: Transform.translate(0, 5)
                                     content: "Metallic Colors"
                                 }]
@@ -316,35 +326,38 @@ The Tesla Roadster is available in metallic and non-metallic colors.
                                 },
                                 Line {
                                     transform: Transform.translate(0, 5)
-                                    stroke: Color.GRAY as Paint
-                                    x1: 0
-                                    x2: bind premiumGroup.currentWidth
+                                    stroke: Color.GRAY
+                                    startX: 0
+                                    endX: bind premiumGroup.getWidth()
                                 },
                                 Text {
-                                    font: Font.Font("Arial", ["PLAIN"], 9)
-                                    fill: Color.GRAY as Paint
+                                    textOrigin: TextOrigin.TOP
+                                    font: Font.font("Arial", FontStyle.PLAIN, 9)
+                                    fill: Color.GRAY
                                     transform: Transform.translate(0, 5)
                                     content: "Premium Colors"
                                 }]
                             }]
                         },
                         Text {
+                            textOrigin: TextOrigin.TOP
                             transform: Transform.translate(0, 15)
-                            font: Font.Font("Verdana", ["BOLD"], 10)
+                            font: Font.font("Verdana", FontStyle.BOLD, 10)
                             content: 
                             "Which of our 12 different colors is your favorite? Bold or subtle? Metallic or non-
 metallic? No matter what color you choose, you'll be proud of how green your
 Tesla Roadster really is."
-                            fill: Color.rgba(.8, .8, .8, 1) as Paint
+                            fill: Color.color(.8, .8, .8, 1)
                             
                         },
                         Text {
-                            font: Font.Font("Arial", ["PLAIN"], 9)
+                            textOrigin: TextOrigin.TOP
+                            font: Font.font("Arial", FontStyle.PLAIN, 9)
                             transform: Transform.translate(0, 15)
                             content: 
                             "Please note that these colors are intended as a guide only and are not an exact match to the actual 
 cars' colors."
-                            fill: Color.GRAY as Paint
+                            fill: Color.GRAY
                         }]
                     }]
                 }]

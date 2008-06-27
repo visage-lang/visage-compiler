@@ -8,9 +8,15 @@
 
 package tesla;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.ext.swing.*;
+import javafx.scene.paint.*;
+import javafx.scene.image.*;
+import javafx.scene.text.*;
+import javafx.input.*;
+import javafx.animation.*;
 
 class UnderTheSkinView {
     attribute title: String;
@@ -18,12 +24,12 @@ class UnderTheSkinView {
     attribute imageUrl: String;
 }
 
-class UnderTheSkin extends CompositeNode {
+class UnderTheSkin extends CustomNode {
     attribute views: UnderTheSkinView[] =
     [UnderTheSkinView {
         title: "Overview"
         text: "Our minimalist design philosophy encourages multiple uses for each\ncomponent and fanatical attention to weight, which helps to maximize\n energy use, efficiency, and performance."
-        imageUrl: "/tesla/Image/skin/1.jpg"
+        imageUrl: "{__DIR__}Image/skin/1.jpg"
     },
     UnderTheSkinView {
         title: "ESS"
@@ -32,14 +38,14 @@ class UnderTheSkin extends CompositeNode {
 lithium-ion cells - is the heart of the Tesla Roadster. Battery conditions are
 continuously monitored and fed to the Vehicle Management System (VMS),
 allowing for precise tracking of battery history, performance, and available energy."
-        imageUrl: "/tesla/Image/skin/2.jpg"
+        imageUrl: "{__DIR__}Image/skin/2.jpg"
     },
     UnderTheSkinView {
         title: "Chassis"
         text: 
         "The Tesla chassis uses extruded aluminum to create a lightweight, stiff
 structure. Front and rear crumple zones are integral parts of the design."
-        imageUrl: "/tesla/Image/skin/3.jpg"
+        imageUrl: "{__DIR__}Image/skin/3.jpg"
     },
     UnderTheSkinView {
         title: "Motor"
@@ -47,7 +53,7 @@ structure. Front and rear crumple zones are integral parts of the design."
         "The Tesla motor weighs less than 70 pounds yet produces horsepower equivalent to
 a much heavier internal combustion engine. And unlike a gasoline engine, Tesla's
 electric motor doesn't sacrifice mileage for performance."
-        imageUrl: "/tesla/Image/skin/4.jpg"
+        imageUrl: "{__DIR__}Image/skin/4.jpg"
     },
     UnderTheSkinView {
         title: "PEM"
@@ -56,7 +62,7 @@ electric motor doesn't sacrifice mileage for performance."
 control the motor and allow for integrated battery charging. The motor and
 PEM have been designed as a tightly integrated system that delivers up to
 185 kW of motor output."
-        imageUrl: "/tesla/Image/skin/5.jpg"
+        imageUrl: "{__DIR__}Image/skin/5.jpg"
     }]
     on replace oldValues[i..j] = newValues {
         if (selectedView == null) {
@@ -65,27 +71,36 @@ PEM have been designed as a tightly integrated system that delivers up to
             }
         }   
     }
+    private attribute fadein:Timeline = Timeline {
+        keyFrames: [
+            KeyFrame {
+                time: 0s
+                values: opacityValue => 0
+            },
+            KeyFrame {
+                time: 500ms
+                values: opacityValue => 1.0 tween Interpolator.LINEAR
+            }
+        ]
+    };     
     
     attribute selectedView: UnderTheSkinView
     on replace {
-/*
-        for (i in [0..100]) dur 500 while v == selectedView {
-            opacityValue = i/100;
-        }
-*/
+        fadein.stop();
+        fadein.start();
     }
-    attribute opacityValue: Number;
+    attribute opacityValue: Number = 1.0;
     
     
     
-    function composeNode():Node {
+    function create():Node {
         return Group {
             content:
-            [View {
+            [ComponentView {
                 transform: Transform.translate(10, 10)
-                content: Label {
+                component: Label {
                     foreground: Color.WHITE
-                    font: Font.Font("Arial", ["PLAIN"], 12)
+                    font: Font.font("Arial", FontStyle.PLAIN, 12)
                     text:
                     "<html><div width='190'><h1>Under the Skin
 </h1>
@@ -108,12 +123,12 @@ PEM have been designed as a tightly integrated system that delivers up to
                 var darkBlue = Color.color(.1, .1, .1, 1)
                 transform: Translate.translate(210, 0)
                 content:
-                [Rect {
+                [Rectangle {
                     arcHeight: 10
                     arcWidth: 10
                     height: 420
                     width: 520
-                    fill: Color.BLUE as Paint
+                    fill: Color.BLUE
                 },
                 Group {
                     transform: Translate.translate(40, 20)
@@ -121,34 +136,35 @@ PEM have been designed as a tightly integrated system that delivers up to
                     Group {
                         transform: bind Translate.translate(indexof v * (453/5), 0)
                         content: 
-                        [Rect {
+                        [Rectangle {
                             cursor: Cursor.HAND
                             arcHeight: 20
                             arcWidth: 20
                             height: 18
                             width: 400/5
-                            fill: bind (if (selectedView == v) then Color.WHITE else Color.MIDNIGHTBLUE) as Paint
-                            onMouseClicked: function(e:CanvasMouseEvent) {
+                            fill: bind (if (selectedView == v) then Color.WHITE else Color.MIDNIGHTBLUE)
+                            onMouseClicked: function(e:MouseEvent) {
                                 selectedView = v;
                             }
                         },
                         Group {
-                            transform: Translate.translate(40, 9)
+                            transform: Translate.translate(40, 12)
                             content:
-                            [Rect {
+                            [Rectangle {
                                 y: 2
                                 height: 5
                                 width: 5
-                                fill: bind (if (selectedView == v) then Color.BLACK else Color.WHITE) as Paint
+                                fill: bind (if (selectedView == v) then Color.BLACK else Color.WHITE)
                             },
                             Text {
+                                textOrigin: TextOrigin.TOP
                                 x: 10
-                                fill: bind (if (selectedView == v) then Color.BLACK else Color.WHITE) as Paint
+                                fill: bind (if (selectedView == v) then Color.BLACK else Color.WHITE)
                                 content: bind v.title
-                                font: Font.Font("Helvetica", ["BOLD"], 12)
+                                font: Font.font("Helvetica", FontStyle.BOLD, 12)
                             }]
-                            valign: VerticalAlignment.CENTER
-                            halign: HorizontalAlignment.CENTER
+                            verticalAlignment: VerticalAlignment.CENTER
+                            horizontalAlignment: HorizontalAlignment.CENTER
                         }]
                     }
                 },
@@ -162,17 +178,18 @@ PEM have been designed as a tightly integrated system that delivers up to
                         }
                         image: bind f(selectedView.imageUrl) 
                     },
-                    Rect {
+                    Rectangle {
                         width: 440
                         height: 275
-                        stroke: Color.WHITE as Paint
+                        stroke: Color.WHITE
                         strokeWidth: 2
                     }]
                 },
+                //TODO: Need to wrap this text
                 Text {
                     opacity: bind opacityValue
-                    fill: Color.WHITE as Paint
-                    font: Font.Font("Helvetica", ["BOLD"], 12)
+                    fill: Color.WHITE
+                    font: Font.font("Helvetica", FontStyle.BOLD, 12)
                     transform: Transform.translate(35, 345)
                     content: bind selectedView.text
                 }]

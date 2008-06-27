@@ -6,47 +6,48 @@
  */
 
 package tesla;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.ext.swing.*;
+import javafx.scene.paint.*;
 
-public class Arrow extends CompositeNode {
-    public attribute color: Paint = Color.color(.75, .75, .75, 1) as Paint;
+public class Arrow extends CustomNode {
+    public attribute color: Paint = Color.color(.75, .75, .75, 1);
     public attribute left: Boolean;
     public attribute arrowShape: Shape = Path {
-        d: Path {  
-            outline: true
-            d:
-            [MoveTo {
-                x: 0
-                y: 10
-            },
-            LineTo {
-                x: 25
-                y: 10
-            },
-            LineTo {
-                x: 15
-                y: 0
-            },
-            MoveTo {    
-                x: 25
-                y: 10
-            },
-            LineTo {
-                x: 15
-                y: 20
-            }]
+            //outline: true
+            elements: [
+                MoveTo {
+                    x: 0
+                    y: 10
+                },
+                LineTo {
+                    x: 25
+                    y: 10
+                },
+                LineTo {
+                    x: 15
+                    y: 0
+                },
+                MoveTo {    
+                    x: 25
+                    y: 10
+                },
+                LineTo {
+                    x: 15
+                    y: 20
+                }
+            ]
             stroke: bind color;
             strokeWidth: 5
-        //            strokeLineJoin: BEVEL
-        }
-        fill: bind color
+            strokeLineJoin: StrokeLineJoin.BEVEL
     };
     
     
-    function composeNode():Node {
+    function create():Node {
         return Group {
-            transform: if (left) then Rotate.rotate(180, arrowShape.currentWidth/2, arrowShape.currentHeight/2) else null as Transform
+            transform: if (left) then Transform.rotate(180, arrowShape.getWidth()/2, arrowShape.getHeight()/2) else null
             content: bind arrowShape
         };
     }

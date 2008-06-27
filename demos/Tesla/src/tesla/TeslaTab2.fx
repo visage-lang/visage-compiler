@@ -6,38 +6,41 @@
  */
 
 package tesla;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.filter.*;
-
+import javafx.scene.*;
+import javafx.scene.transform.*;
+import javafx.scene.geometry.*;
+import javafx.ext.swing.*;
+import javafx.scene.paint.*;
+import javafx.scene.image.*;
+import javafx.scene.text.*;
+import javafx.input.*;
 
 public class TeslaTab2 extends TeslaTab {
     
-    function composeNode():Node {
+    function create():Node {
         return Group {
             content:
-            [rect = Rect {
+            [rect = Rectangle {
 //                attribute: rect
-                height: bind text.currentHeight + 15
-                width: bind text.currentWidth + 10
-                stroke: bind (if (selected) then Color.WHITE else Color.rgba(0, 0, 0, 0)) as Paint
-                fill: Color.rgba(0, 0, 0, 0) as Paint
-                onMouseReleased: function(e:CanvasMouseEvent) {
+                height: bind text.getHeight() + 15
+                width: bind text.getWidth() + 10
+                stroke: bind (if (selected) then Color.WHITE else Color.TRANSPARENT)
+                fill: Color.TRANSPARENT
+                onMouseReleased: function(e:MouseEvent) {
                     this.selected = true;
                 }
-                selectable: true
                 cursor: Cursor.HAND
             },
             Group {
                 transform: Transform.translate(5, 7.5)
                 content:
                 text = Text {
-//                    attribute: text
-                    font: Font.Font("Arial", ["BOLD"], 12)
+                    textOrigin: TextOrigin.TOP
+                    font: Font.font("Arial", FontStyle.BOLD, 12)
                     content: bind title
                     var grayColor = Color.color(0.7, 0.7, 0.7, 1)
-                    var cond = bind not selected and rect.hover
-                    fill: bind (if (cond) then grayColor else Color.WHITE) as Paint
+                    var cond = bind not selected and rect.isMouseOver()
+                    fill: bind (if (cond) then grayColor else Color.WHITE)
                 }
             }]
         }

@@ -6,13 +6,16 @@
  */
 
 package tesla;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.filter.*;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.ext.swing.*;
+import javafx.scene.paint.*;
+import javafx.scene.image.*;
 
 import java.lang.System;
 
-class Tesla extends CompositeNode {
+class Tesla extends CustomNode {
     
     attribute selectedPage: TeslaPage;
     
@@ -55,33 +58,33 @@ class Tesla extends CompositeNode {
     ];
     
     
-    function composeNode():Node {
+    function create():Node {
         return Group {
-            var gray = Color.rgba(0.4, 0.4, 0.4, 1)
+            var gray = Color.color(0.4, 0.4, 0.4, 1)
             content: 
             [ImageView {
                 image: Image {
                     url: "http://www.teslamotors.com/images/nav/header_logoandnav.gif"
                 }
             },
-            Rect {
+            Rectangle {
                 x: 30
                 y: 116
                 height: 500
                 width: 940
                 arcHeight: 20
                 arcWidth: 20
-                fill: Color.GRAY as Paint
+                fill: Color.GRAY
             },
-            Rect {
+            Rectangle {
                 x: 40
                 y: 92 + 33-1
-                height: bind contentGroup.currentHeight + 10
+                height: bind contentGroup.getHeight() + 10
                 width: 750
                 arcHeight: 20
                 arcWidth: 20
-                fill: Color.BLACK as Paint
-                stroke: Color.GRAY as Paint
+                fill: Color.BLACK
+                stroke: Color.GRAY
             },
             contentGroup = Group {
                 transform: Transform.translate(0, 92)
@@ -101,10 +104,10 @@ Frame {
     title: "Tesla"
     //onClose: function() {System.exit(0);}
     content: ScrollPane {
-        background: Color.BLACK
+        //background: Color.BLACK
         view: Canvas {
             background: Color.BLACK
-            cursor: Cursor.DEFAULT
+            //cursor: Cursor.DEFAULT
             content: Tesla{}
         }
     }

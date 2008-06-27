@@ -6,14 +6,18 @@
  */
 
 package tesla;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.scene.image.*;
+import javafx.scene.paint.*;
+import javafx.ext.swing.*;
 
 
-class EfficiencyAndPerformance extends CompositeNode {
+class EfficiencyAndPerformance extends CustomNode {
     attribute textContent: Node;
     
-    function composeNode():Node {
+    function create():Node {
         Group {
             content:
             [ImageView {
@@ -21,12 +25,12 @@ class EfficiencyAndPerformance extends CompositeNode {
                 transform: Transform.translate(10, 10)
                 image: Image {url: "http://teslamotors.com/images/content/fullfromabove.jpg"}
             },
-            textContent = View {
+            textContent = ComponentView {
 //                attribute: textContent
                 transform: Transform.translate(165+25,10)
-                content: Label {
+                component: Label {
                     foreground: Color.WHITE
-                    font: Font.Font("Arial", ["PLAIN"], 12)
+                    font: Font.font("Arial", FontStyle.PLAIN, 12)
                     text:
                     "<html><div width='400px'><h1>Efficiency & Performance
 </h1>
@@ -85,7 +89,7 @@ class EfficiencyAndPerformance extends CompositeNode {
                 }
             },
             ImageView {
-                transform: bind Transform.translate(textContent.currentX, textContent.currentY + textContent.currentHeight + 5)
+                transform: bind Transform.translate(textContent.getX(), textContent.getY() + textContent.getHeight() + 5)
                 image: Image{url: "http://www.teslamotors.com/images/content/motor_torque_curve.gif"}
             }]
         };

@@ -6,15 +6,15 @@
  */
 
 package tesla;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
 
 
 class PerformancePage extends TeslaPage {
     override attribute menuImageUrl = 
     "http://www.teslamotors.com/images/nav/nav_performance.gif";
-    override attribute content =
-   [ Group {
+    override attribute content = Group {
         content:
         [TeslaTabPane {
             transform: Transform.translate(0, 10)
@@ -38,5 +38,5 @@ class PerformancePage extends TeslaPage {
                 content: PerformanceSpecs{}
             }]
         }]
-    } as Node];
+    };
 }

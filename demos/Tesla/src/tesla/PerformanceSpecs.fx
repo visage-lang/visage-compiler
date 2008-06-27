@@ -6,11 +6,15 @@
  */
 
 package tesla;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.ext.swing.*;
+import javafx.scene.image.*;
+import javafx.scene.paint.*;
 
-class PerformanceSpecs extends CompositeNode {
-    function composeNode():Node {
+class PerformanceSpecs extends CustomNode {
+    function create():Node {
         return Group {
             content:
             [ImageView {
@@ -18,11 +22,11 @@ class PerformanceSpecs extends CompositeNode {
                 transform: Transform.translate(10, 10)
                 image: Image {url: "http://teslamotors.com/images/content/rear8.jpg"}
             },
-            View {
+            ComponentView {
                 transform: Transform.translate(165+25,10)
-                content: Label {
+                component: Label {
                     foreground: Color.WHITE
-                    font: Font.Font("Arial", ["PLAIN"], 10)
+                    font: Font.font("Arial", FontStyle.PLAIN, 10)
                     text:
                     "<html>
 <head>
