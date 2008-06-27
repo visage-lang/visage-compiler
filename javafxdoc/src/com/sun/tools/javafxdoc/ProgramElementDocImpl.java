@@ -30,7 +30,7 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javafx.tree.JFXTree;
 
 import com.sun.tools.javac.util.Position;
 
@@ -56,7 +56,7 @@ public abstract class ProgramElementDocImpl
     private final Symbol sym;
 
     // For source position information.
-    JCTree tree = null;
+    JFXTree tree = null;
     Position.LineMap lineMap = null;
 
 
@@ -64,14 +64,14 @@ public abstract class ProgramElementDocImpl
     private int modifiers = -1;
 
     protected ProgramElementDocImpl(DocEnv env, Symbol sym,
-                                    String doc, JCTree tree, Position.LineMap lineMap) {
+                                    String doc, JFXTree tree, Position.LineMap lineMap) {
         super(env, doc);
         this.sym = sym;
         this.tree = tree;
         this.lineMap = lineMap;
     }
 
-    void setTree(JCTree tree) {
+    void setTree(JFXTree tree) {
         this.tree = tree;
     }
 

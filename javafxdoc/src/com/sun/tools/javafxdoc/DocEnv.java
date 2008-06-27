@@ -34,15 +34,13 @@ import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.comp.Check;
 import com.sun.tools.javac.parser.DocCommentScanner;
 import com.sun.tools.javac.parser.Token;
-import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Position;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxAttr;
-import com.sun.tools.javafx.tree.JFXClassDeclaration;
-import com.sun.tools.javafx.tree.JFXFunctionDefinition;
+import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxClassReader;
 
 
@@ -548,7 +546,7 @@ public class DocEnv {
     /**
      * Create the PackageDoc (or a subtype) for a package symbol.
      */
-    void makePackageDoc(PackageSymbol pack, String docComment, JCCompilationUnit tree) {
+    void makePackageDoc(PackageSymbol pack, String docComment, JFXUnit tree) {
         PackageDocImpl result = packageMap.get(pack);
         docComment = processDocComment(docComment);
         if (result != null) {
@@ -604,7 +602,7 @@ public class DocEnv {
     /**
      * Create a FieldDoc for a var symbol.
      */
-    void makeFieldDoc(VarSymbol var, String docComment, JCVariableDecl tree, Position.LineMap lineMap) {
+    void makeFieldDoc(VarSymbol var, String docComment, JFXVar tree, Position.LineMap lineMap) {
         FieldDocImpl result = fieldMap.get(var);
         docComment = processDocComment(docComment);
         if (result != null) {

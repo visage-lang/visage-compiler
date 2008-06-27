@@ -26,7 +26,7 @@ package com.sun.tools.javafxdoc;
 import com.sun.javadoc.*;
 
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javafx.tree.JFXTree;
 import com.sun.tools.javac.util.Position;
 
 /**
@@ -50,7 +50,7 @@ public abstract class MemberDocImpl
     /**
      * constructor.
      */
-    public MemberDocImpl(DocEnv env, Symbol sym, String doc, JCTree tree, Position.LineMap lineMap) {
+    public MemberDocImpl(DocEnv env, Symbol sym, String doc, JFXTree tree, Position.LineMap lineMap) {
         super(env, sym, doc, tree, lineMap);
     }
 

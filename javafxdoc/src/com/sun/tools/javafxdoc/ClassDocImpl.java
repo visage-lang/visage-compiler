@@ -44,14 +44,9 @@ import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.*;
 
 
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
-import com.sun.tools.javac.tree.JCTree.JCImport;
-import com.sun.tools.javac.tree.TreeInfo;
-
 import com.sun.tools.javafx.comp.JavafxAttrContext;
 import com.sun.tools.javafx.comp.JavafxEnv;
-import com.sun.tools.javafx.tree.JFXClassDeclaration;
+import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.Kinds.*;
 import static com.sun.tools.javac.code.TypeTags.*;
@@ -1039,10 +1034,10 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
         if (compenv == null) return new ClassDocImpl[0];
 
         Name asterisk = tsym.name.table.asterisk;
-        for (JCTree t : compenv.toplevel.defs) {
-            if (t.getTag() == JCTree.IMPORT) {
-                JCTree imp = ((JCImport) t).qualid;
-                if ((TreeInfo.name(imp) != asterisk) &&
+        for (JFXTree t : compenv.toplevel.defs) {
+            if (t.getFXTag() == JavafxTag.IMPORT) {
+                JFXTree imp = ((JFXImport) t).qualid;
+                if ((JavafxTreeInfo.name(imp) != asterisk) &&
                         (imp.type.tsym.kind & Kinds.TYP) != 0) {
                     importedClasses.append(
                             env.getClassDoc((ClassSymbol)imp.type.tsym));
@@ -1080,11 +1075,11 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
         JavafxEnv<JavafxAttrContext> compenv = env.enter.getEnv(tsym);
         if (compenv == null) return new PackageDocImpl[0];
 
-        for (JCTree t : compenv.toplevel.defs) {
-            if (t.getTag() == JCTree.IMPORT) {
-                JCTree imp = ((JCImport) t).qualid;
-                if (TreeInfo.name(imp) == names.asterisk) {
-                    JCFieldAccess sel = (JCFieldAccess)imp;
+        for (JFXTree t : compenv.toplevel.defs) {
+            if (t.getFXTag() == JavafxTag.IMPORT) {
+                JFXTree imp = ((JFXImport) t).qualid;
+                if (JavafxTreeInfo.name(imp) == names.asterisk) {
+                    JFXSelect sel = (JFXSelect)imp;
                     Symbol s = sel.selected.type.tsym;
                     PackageDocImpl pdoc = env.getPackageDoc(s.packge());
                     if (!importedPackages.contains(pdoc))

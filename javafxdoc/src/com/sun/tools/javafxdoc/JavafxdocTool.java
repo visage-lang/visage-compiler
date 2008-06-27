@@ -32,16 +32,12 @@ import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.comp.*;
 import com.sun.tools.javac.parser.DocCommentScanner;
 import com.sun.tools.javac.util.Paths;
-import com.sun.tools.javac.tree.*;
-import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
-import com.sun.tools.javafx.tree.JavafxTreeInfo;
-import com.sun.tools.javafx.tree.JavafxTreeMaker;
 import com.sun.tools.javafx.util.JavafxFileManager;
 import com.sun.tools.javafx.comp.JavafxClassReader;
-import com.sun.tools.javafx.tree.JFXClassDeclaration;
 import static com.sun.javadoc.LanguageVersion.*;
 
 /**
@@ -99,12 +95,10 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
             // done before we allocate JavafxdocTool.  Hence we do all this
             // stuff here rather than in registerServices.  Sigh.
             JavafxFileManager.preRegister(context);
-            JavafxTreeMaker.preRegister(context);
             JavafxdocEnter.preRegister(context);
             JavafxdocMemberEnter.preRegister(context);
             JavafxSymtab.preRegister(context);
             JavadocTodo.preRegister(context);
-            JavafxTreeInfo.preRegister(context);
             JavafxTypes.preRegister(context);
             DocCommentScanner.Factory.preRegister(context);
 
@@ -141,15 +135,15 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
         clsreader.sourceCompleter = docClasses ? null : this;
 
         ListBuffer<String> filenames = new ListBuffer<String>();
-        ListBuffer<JCCompilationUnit> classTrees = new ListBuffer<JCCompilationUnit>();
-        ListBuffer<JCCompilationUnit> packTrees = new ListBuffer<JCCompilationUnit>();
+        ListBuffer<JFXUnit> classTrees = new ListBuffer<JFXUnit>();
+        ListBuffer<JFXUnit> packTrees = new ListBuffer<JFXUnit>();
 
         try {
             for (List<String> it = javaNames; it.nonEmpty(); it = it.tail) {
                 String name = it.head;
                 if (!docClasses && name.endsWith(".fx") && new File(name).exists()) {
                     docenv.notice("main.Loading_source_file", name);
-                        JCCompilationUnit tree = parse(name);
+                        JFXUnit tree = parse(name);
                         classTrees.append(tree);
                 } else if (isValidPackageName(name)) {
                     filenames = filenames.append(name);
@@ -205,7 +199,7 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
      * .java files found in such a directory to args.
      */
     private void parsePackageClasses(String name,
-                                     ListBuffer<JCCompilationUnit> trees,
+                                     ListBuffer<JFXUnit> trees,
                                      List<String> excludedPackages)
         throws IOException {
         if (excludedPackages.contains(name)) {
@@ -362,10 +356,10 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
     /**
      * From a list of top level trees, return the list of contained class definitions
      */
-    List<JFXClassDeclaration> listClasses(List<JCCompilationUnit> trees) {
+    List<JFXClassDeclaration> listClasses(List<JFXUnit> trees) {
         ListBuffer<JFXClassDeclaration> result = new ListBuffer<JFXClassDeclaration>();
-        for (JCCompilationUnit t : trees) {
-            for (JCTree def : t.defs) {
+        for (JFXUnit t : trees) {
+            for (JFXTree def : t.defs) {
                 if (def instanceof JFXClassDeclaration)
                     result.append((JFXClassDeclaration)def);
             }
@@ -373,7 +367,7 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
         return result.toList();
     }
     
-    private JCTree.JCCompilationUnit parse(String filename) throws IOException {
+    private JFXUnit parse(String filename) throws IOException {
         JavacFileManager fm = (JavacFileManager)fileManager;
         return parse(fm.getJavaFileObjectsFromStrings(List.of(filename)).iterator().next());
     }

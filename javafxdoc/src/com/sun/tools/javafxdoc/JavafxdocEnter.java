@@ -29,9 +29,8 @@ import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javafx.comp.JavafxEnter;
-import com.sun.tools.javafx.tree.JFXClassDeclaration;
+import com.sun.tools.javafx.tree.*;
 import java.util.HashMap;
 import javax.tools.JavaFileObject;
 
@@ -66,7 +65,7 @@ public class JavafxdocEnter extends JavafxEnter {
     final DocEnv docenv;
 
     @Override
-    public void main(List<JCCompilationUnit> trees) {
+    public void main(List<JFXUnit> trees) {
         // count all Enter errors as warnings.
         int nerrors = messager.nerrors;
         super.main(trees);
@@ -75,10 +74,10 @@ public class JavafxdocEnter extends JavafxEnter {
     }
 
     @Override
-    public void visitTopLevel(JCCompilationUnit tree) {
+    public void visitUnit(JFXUnit tree) {
         if (tree.docComments == null)
             tree.docComments = new HashMap<JCTree, String>();
-        super.visitTopLevel(tree);
+        super.visitUnit(tree);
         if (tree.sourcefile.isNameCompatible("package-info", JavaFileObject.Kind.SOURCE)) {
             String comment = tree.docComments.get(tree);
             docenv.makePackageDoc(tree.packge, comment, tree);

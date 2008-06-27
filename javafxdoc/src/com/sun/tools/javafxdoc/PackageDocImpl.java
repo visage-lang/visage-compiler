@@ -35,13 +35,12 @@ import java.util.zip.ZipEntry;
 import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.PackageSymbol;
-import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Position;
 
-import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.javafx.tree.*;
 
 
 /**
@@ -61,7 +60,7 @@ public class PackageDocImpl extends DocImpl implements PackageDoc {
     private static final String PACKAGE_HTML_FILE_NAME = "package.html";
 
     protected PackageSymbol sym;
-    private JCCompilationUnit tree = null;    // for source position
+    private JFXUnit tree = null;    // for source position
 
     public String docPath = null;
     public String zipDocPath = null;
@@ -83,15 +82,15 @@ public class PackageDocImpl extends DocImpl implements PackageDoc {
      * Constructor
      */
     public PackageDocImpl(DocEnv env, PackageSymbol sym,
-                          String documentation, JCTree tree) {
+                          String documentation, JFXTree tree) {
         super(env, documentation);
         this.sym = sym;
-        this.tree = (JCCompilationUnit) tree;
+        this.tree = (JFXUnit) tree;
         foundDoc = (documentation != null);
     }
 
-    void setTree(JCTree tree) {
-        this.tree = (JCCompilationUnit) tree;
+    void setTree(JFXTree tree) {
+        this.tree = (JFXUnit) tree;
     }
 
     @Override

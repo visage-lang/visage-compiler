@@ -32,7 +32,7 @@ import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.TypeTags;
 
-import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import com.sun.tools.javafx.tree.*;
 
 import com.sun.tools.javac.util.Position;
 
@@ -57,7 +57,7 @@ public class FieldDocImpl extends MemberDocImpl implements FieldDoc {
      * Constructor.
      */
     public FieldDocImpl(DocEnv env, VarSymbol sym,
-                        String rawDocs, JCVariableDecl tree, Position.LineMap lineMap) {
+                        String rawDocs, JFXVar tree, Position.LineMap lineMap) {
         super(env, sym, rawDocs, tree, lineMap);
         this.sym = sym;
     }

@@ -28,10 +28,8 @@ import com.sun.tools.javac.util.Position;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxMemberEnter;
-import com.sun.tools.javafx.tree.JFXFunctionDefinition;
-import com.sun.tools.javafx.tree.JFXVar;
 
 /**
  *  Javadoc's own memberEnter phase does a few things above and beyond that
