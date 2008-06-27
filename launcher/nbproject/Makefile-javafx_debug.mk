@@ -27,6 +27,7 @@ OBJECTDIR=build/javafx_debug
 OBJECTFILES= \
 	${OBJECTDIR}/src/configuration.o \
 	${OBJECTDIR}/src/javafxc.o \
+	${OBJECTDIR}/src/util.o \
 	${OBJECTDIR}/src/javafxdoc.o \
 	${OBJECTDIR}/src/javafx.o
 
@@ -52,19 +53,23 @@ dist/Debug/javafx.exe: ${OBJECTFILES}
 
 ${OBJECTDIR}/src/configuration.o: src/configuration.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFX -o ${OBJECTDIR}/src/configuration.o src/configuration.cpp
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFX -DDEBUG -o ${OBJECTDIR}/src/configuration.o src/configuration.cpp
 
 ${OBJECTDIR}/src/javafxc.o: src/javafxc.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFX -o ${OBJECTDIR}/src/javafxc.o src/javafxc.cpp
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFX -DDEBUG -o ${OBJECTDIR}/src/javafxc.o src/javafxc.cpp
+
+${OBJECTDIR}/src/util.o: src/util.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFX -DDEBUG -o ${OBJECTDIR}/src/util.o src/util.cpp
 
 ${OBJECTDIR}/src/javafxdoc.o: src/javafxdoc.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFX -o ${OBJECTDIR}/src/javafxdoc.o src/javafxdoc.cpp
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFX -DDEBUG -o ${OBJECTDIR}/src/javafxdoc.o src/javafxdoc.cpp
 
 ${OBJECTDIR}/src/javafx.o: src/javafx.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFX -o ${OBJECTDIR}/src/javafx.o src/javafx.cpp
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFX -DDEBUG -o ${OBJECTDIR}/src/javafx.o src/javafx.cpp
 
 # Subprojects
 .build-subprojects:

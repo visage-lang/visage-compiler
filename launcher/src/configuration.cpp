@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -63,18 +63,6 @@ int Configuration::initConfiguration(int argc, char** argv) {
     }
     
     return EXIT_SUCCESS;
-}
-
-std::string Configuration::evaluatePath (std::string& libs) {
-    std::string result = "";
-    std::string::size_type start=0, end;
-    while ((end = libs.find(";", start)) != std::string::npos) {
-        ++end; // include semicolon
-        result += javafxpath + "\\" + libs.substr (start, end-start);
-        start = end;
-    }
-    result += javafxpath + "\\" + libs.substr (start);
-    return result;
 }
 
 void Configuration::init() {

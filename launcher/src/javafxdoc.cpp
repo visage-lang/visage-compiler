@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,15 +21,16 @@
  * have any questions.
  */
 
-
 #ifdef PROJECT_JAVAFXDOC
 
 #include <string>
 
 #include "configuration.h"
+#include "util.h"
 
 int main(int argc, char** argv) {
     Configuration config;
+    Util util;
     int error;
     
     if ( (error =  config.initConfiguration(argc, argv)) != (EXIT_SUCCESS) )  {
@@ -37,20 +38,18 @@ int main(int argc, char** argv) {
     }
     
     // construct command
-    std::string cmd = config.javacmd + " ";
+    std::string cmd = "\"" + config.javacmd + "\" ";
     if (! config.vmargs.empty()) {
         cmd += config.vmargs + " ";
     }
-    cmd += "\"-Xbootclasspath/p:" + config.evaluatePath(config.javafxdoc_bootclasspath_libs) + "\" ";
+    cmd += "\"-Xbootclasspath/p:" + util.evaluatePath(config.javafxpath, config.javafxdoc_bootclasspath_libs) + "\" ";
     cmd += "com.sun.tools.javafxdoc.Main ";
     if (! config.classpath.empty()) {
         cmd += "-classpath \"" + config.classpath + "\" ";
     }
     cmd += config.fxargs;
     
-    // debug
-//    printf (cmd.c_str());
-    system (cmd.c_str());
+    util.createProcess (cmd);
 
     return EXIT_SUCCESS;
 }

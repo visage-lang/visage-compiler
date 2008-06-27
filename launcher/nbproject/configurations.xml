@@ -5,6 +5,7 @@
                    displayName="Header Files"
                    projectFiles="true">
       <itemPath>src/configuration.h</itemPath>
+      <itemPath>src/util.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -17,6 +18,7 @@
       <itemPath>src/javafx.cpp</itemPath>
       <itemPath>src/javafxc.cpp</itemPath>
       <itemPath>src/javafxdoc.cpp</itemPath>
+      <itemPath>src/util.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -37,6 +39,9 @@
           <commandLine>-mno-cygwin</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFX</Elem>
+          </preprocessorList>
+          <preprocessorList>
+            <Elem>DEBUG</Elem>
           </preprocessorList>
           <warningLevel>2</warningLevel>
         </ccCompilerTool>
@@ -61,6 +66,12 @@
       <item path="src/javafxdoc.cpp">
         <itemTool>1</itemTool>
       </item>
+      <item path="src/util.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/util.h">
+        <itemTool>3</itemTool>
+      </item>
     </conf>
     <conf name="javafxc_debug" type="1">
       <toolsSet>
@@ -72,6 +83,9 @@
           <commandLine>-mno-cygwin</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFXC</Elem>
+          </preprocessorList>
+          <preprocessorList>
+            <Elem>DEBUG</Elem>
           </preprocessorList>
           <warningLevel>2</warningLevel>
         </ccCompilerTool>
@@ -95,6 +109,12 @@
       </item>
       <item path="src/javafxdoc.cpp">
         <itemTool>1</itemTool>
+      </item>
+      <item path="src/util.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/util.h">
+        <itemTool>3</itemTool>
       </item>
     </conf>
     <conf name="javafx_release" type="1">
@@ -137,6 +157,12 @@
       <item path="src/javafxdoc.cpp">
         <itemTool>1</itemTool>
       </item>
+      <item path="src/util.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/util.h">
+        <itemTool>3</itemTool>
+      </item>
     </conf>
     <conf name="javafxc_release" type="1">
       <toolsSet>
@@ -178,6 +204,12 @@
       <item path="src/javafxdoc.cpp">
         <itemTool>1</itemTool>
       </item>
+      <item path="src/util.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/util.h">
+        <itemTool>3</itemTool>
+      </item>
     </conf>
     <conf name="javafxdoc_debug" type="1">
       <toolsSet>
@@ -189,6 +221,9 @@
           <commandLine>-mno-cygwin</commandLine>
           <preprocessorList>
             <Elem>PROJECT_JAVAFXDOC</Elem>
+          </preprocessorList>
+          <preprocessorList>
+            <Elem>DEBUG</Elem>
           </preprocessorList>
           <warningLevel>2</warningLevel>
         </ccCompilerTool>
@@ -212,6 +247,12 @@
       </item>
       <item path="src/javafxdoc.cpp">
         <itemTool>1</itemTool>
+      </item>
+      <item path="src/util.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/util.h">
+        <itemTool>3</itemTool>
       </item>
     </conf>
     <conf name="javafxdoc_release" type="1">
@@ -253,6 +294,12 @@
       </item>
       <item path="src/javafxdoc.cpp">
         <itemTool>1</itemTool>
+      </item>
+      <item path="src/util.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/util.h">
+        <itemTool>3</itemTool>
       </item>
     </conf>
   </confs>

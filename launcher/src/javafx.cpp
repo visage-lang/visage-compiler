@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,14 +21,16 @@
  * have any questions.
  */
 
-
 #ifdef PROJECT_JAVAFX
 
 #include "configuration.h"
+#include "util.h"
+
 #include <string>
 
 int main(int argc, char** argv) {
     Configuration config;
+    Util util;
     int error;
     
     if ( (error =  config.initConfiguration(argc, argv)) != (EXIT_SUCCESS) )  {
@@ -36,18 +38,17 @@ int main(int argc, char** argv) {
     }
     
     // construct command
-    std::string cmd = config.javacmd + " ";
+    std::string cmd = "\"" + config.javacmd + "\" ";
     cmd += "-Djava.library.path=\"" + config.javafxpath + "\" ";
-    cmd += "-classpath \"" + config.evaluatePath(config.javafx_classpath_libs);
+    cmd += "-classpath \"" + util.evaluatePath(config.javafxpath, config.javafx_classpath_libs);
     if (! config.classpath.empty()) {
         cmd += ";" + config.classpath;
     }
     cmd += "\" ";
     cmd += config.fxargs;
     
-    // debug
-//    printf (cmd.c_str());
-    system (cmd.c_str());
+    
+    util.createProcess(cmd);
 
     return EXIT_SUCCESS;
 }

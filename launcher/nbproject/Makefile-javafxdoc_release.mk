@@ -27,6 +27,7 @@ OBJECTDIR=build/javafxdoc_release
 OBJECTFILES= \
 	${OBJECTDIR}/src/configuration.o \
 	${OBJECTDIR}/src/javafxc.o \
+	${OBJECTDIR}/src/util.o \
 	${OBJECTDIR}/src/javafxdoc.o \
 	${OBJECTDIR}/src/javafx.o
 
@@ -57,6 +58,10 @@ ${OBJECTDIR}/src/configuration.o: src/configuration.cpp
 ${OBJECTDIR}/src/javafxc.o: src/javafxc.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	$(COMPILE.cc) -O2 -DPROJECT_JAVAFXDOC -o ${OBJECTDIR}/src/javafxc.o src/javafxc.cpp
+
+${OBJECTDIR}/src/util.o: src/util.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	$(COMPILE.cc) -O2 -DPROJECT_JAVAFXDOC -o ${OBJECTDIR}/src/util.o src/util.cpp
 
 ${OBJECTDIR}/src/javafxdoc.o: src/javafxdoc.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
