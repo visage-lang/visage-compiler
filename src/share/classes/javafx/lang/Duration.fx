@@ -40,7 +40,7 @@ import java.lang.Math;
 public class Duration extends Comparable {
 
     /** The duration of time, as expressed in milliseconds. */
-    private attribute millis: Number = 0;
+    public readonly attribute millis: Number = 0;
 
     public function equals(obj:Object):Boolean {
         if (obj instanceof Duration) {

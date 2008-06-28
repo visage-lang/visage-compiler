@@ -59,9 +59,9 @@ public class MediaPlayer {
             
         }
         view.setComponent();
-        startTime.millis = mediaProvider.getStartTime()/1000.0;
+        startTime = Duration { millis: mediaProvider.getStartTime()/1000.0 };
         
-        stopTime.millis = mediaProvider.getStopTime()/1000.0;
+        stopTime = Duration { millis: mediaProvider.getStopTime()/1000.0 };
         if (autoPlay) {
             play();
         }        
@@ -151,7 +151,7 @@ public class MediaPlayer {
     * or restart from when repeating
     */
    public attribute startTime:Duration on replace {
-       mediaProvider.setStartTime(1000.0*(startTime.millis));
+       mediaProvider.setStartTime(1000.0*(startTime.toMillis()));
    }
    /**
     * Defines the time offset where media should stop playing
@@ -162,7 +162,7 @@ public class MediaPlayer {
             // do nothing for now, 
             // mediaProvider.setStopTime(java.lang.Double.POSITIVE_INFINITY);
         } else {
-            mediaProvider.setStopTime(1000*stopTime.millis);
+            mediaProvider.setStopTime(1000*stopTime.toMillis());
         }
    }
    
@@ -170,7 +170,7 @@ public class MediaPlayer {
     * Defines the current media time
     */
    public attribute currentTime:Duration on replace {
-       mediaProvider.setMediaTime(1000 * currentTime.millis);
+       mediaProvider.setMediaTime(1000 * currentTime.toMillis());
    }
    
     /**
