@@ -71,6 +71,7 @@ public abstract class JavafxTranslationSupport {
     private static final String protectedAnnotationStr = "com.sun.javafx.runtime.Protected";
     private static final String publicAnnotationStr = "com.sun.javafx.runtime.Public";
     private static final String staticAnnotationStr = "com.sun.javafx.runtime.Static";
+    protected static final String inheritedAnnotationStr = "com.sun.javafx.runtime.Inherited";
 
     protected static final String sequencesEmptyString = "com.sun.javafx.runtime.sequence.Sequences.emptySequence";
     
@@ -456,6 +457,15 @@ public abstract class JavafxTranslationSupport {
         }
         return functionName(sym, sym.name.toString(), markAsImpl, isBound);
     }
+    
+    
+    Name attributeName(Symbol sym, String prefix) {
+        return names.fromString(attributeNameString(sym, prefix));
+    }
+
+    String attributeNameString(Symbol sym, String prefix) {
+        return prefix + sym.name;
+    }
 
     private String getParameterTypeSuffix(MethodSymbol sym) {
         StringBuilder sb = new StringBuilder();
@@ -520,10 +530,10 @@ public abstract class JavafxTranslationSupport {
      * For an attribute "attr" make an access to it via the receiver and getter
      *      "receiver$.get$attr()"
      * */
-   JCExpression makeAttributeAccess(DiagnosticPosition diagPos, String attribName) {
+   JCExpression makeAttributeAccess(DiagnosticPosition diagPos, Symbol attribSym) {
        return callExpression(diagPos,
                 make.Ident(defs.receiverName),
-                attributeGetMethodNamePrefix + attribName);
+                attributeNameString(attribSym, attributeGetMethodNamePrefix));
    }
 
     BlockExprJCBlockExpression makeBlockExpression(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value) {
@@ -566,6 +576,10 @@ public abstract class JavafxTranslationSupport {
             ret = make.Modifiers(mods.flags, annotations.toList());
         }
         return ret;
+    }
+    
+    protected JCModifiers addInheritedAnnotationModifiers(DiagnosticPosition diagPos, long flags, JCModifiers mods) {
+        return make.Modifiers(mods.flags, List.of(make.Annotation(makeIdentifier(diagPos, inheritedAnnotationStr), List.<JCExpression>nil())));
     }
 
     protected void pretty(JCTree tree) {

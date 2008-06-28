@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,17 +23,17 @@
 
 package com.sun.javafx.runtime;
 
-import java.lang.annotation.*;
-import static java.lang.annotation.RetentionPolicy.*;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
- * Public
- *
- * @author Brian Goetz
+ * Inherited is used to mark a compiler-generated stub method.
  */
 @Retention(CLASS)
 @Documented
 @Target({METHOD, FIELD, TYPE})
-public @interface Public {
+public @interface Inherited {
 }

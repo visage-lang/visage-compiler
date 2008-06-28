@@ -790,7 +790,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                             dupSet.add(className);
                             List<JCExpression> args1 = List.nil();
                             args1 = args1.append(make.TypeCast(makeTypeTree( diagPos,cSym.type, true), make.Ident(defs.receiverName)));
-                            initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, className), initBuilder.userInitName, args1));
+                            initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, className), defs.userInitName, args1));
                         }
                     }
                 }
@@ -799,7 +799,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 JCBlock userInitBlock = make.Block(0L, initStats.toList());
                 translatedDefs.append(make.MethodDef(
                         make.Modifiers(classIsFinal? Flags.PUBLIC  : Flags.PUBLIC | Flags.STATIC), 
-                        initBuilder.userInitName, 
+                        defs.userInitName, 
                         makeTypeTree( null,syms.voidType), 
                         List.<JCTypeParameter>nil(), 
                         receiverVarDeclList, 
@@ -828,7 +828,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                             dupSet.add(className);
                             List<JCExpression> args1 = List.nil();
                             args1 = args1.append(make.TypeCast(makeTypeTree( diagPos,cSym.type, true), make.Ident(defs.receiverName)));
-                            initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, className), initBuilder.postInitName, args1));
+                            initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, className), defs.postInitName, args1));
                         }
                     }
                 }
@@ -837,7 +837,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 JCBlock postInitBlock = make.Block(0L, initStats.toList());
                 translatedDefs.append(make.MethodDef(
                         make.Modifiers(classIsFinal? Flags.PUBLIC  : Flags.PUBLIC | Flags.STATIC),
-                        initBuilder.postInitName,
+                        defs.postInitName,
                         makeTypeTree( null,syms.voidType),
                         List.<JCTypeParameter>nil(),
                         receiverVarDeclList,
@@ -1172,7 +1172,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 // statics are accessed directly
                 localAttr = make.Ident(vsym);
             } else {
-                String attrAccess = attributeGetMethodNamePrefix + vsym;
+                String attrAccess = attributeNameString(vsym, attributeGetMethodNamePrefix);
                 localAttr = callExpression(diagPos, make.Ident(attrName), attrAccess); 
             }
         } else {
@@ -3056,7 +3056,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     // this is a non-static reference to an attribute, use the get$ form
                     assert varRef.getTag() == JCTree.SELECT : "attribute must be accessed through receiver";
                     JCFieldAccess select = (JCFieldAccess) varRef;
-                    Name attrAccessName = names.fromString(attributeGetMethodNamePrefix + select.name.toString());
+                    Name attrAccessName = attributeName(vsym, attributeGetMethodNamePrefix);
                     select = make.at(diagPos).Select(select.getExpression(), attrAccessName);
                     List<JCExpression> emptyArgs = List.nil();
                     expr = make.at(diagPos).Apply(null, select, emptyArgs);
@@ -3267,7 +3267,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                             // statics are accessed directly
                             localAttr = make.Ident(vsym);
                         } else {
-                            String attrAccess = attributeGetMethodNamePrefix + vsym;
+                            String attrAccess = attributeNameString(vsym, attributeGetMethodNamePrefix);
                             localAttr = callExpression(diagPos, make.Ident(attrName), attrAccess);
                         }
                     } else {

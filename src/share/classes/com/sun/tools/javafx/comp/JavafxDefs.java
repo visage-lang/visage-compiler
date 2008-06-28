@@ -113,6 +113,11 @@ public class JavafxDefs {
     final Name valueName;
     final Name targetName;
     final Name interpolateName;
+    final Name addTriggersName;
+    final Name userInitName;
+    final Name postInitName;
+    final Name attributeGetPrefixName;
+    final Name applyDefaultsPrefixName;
     final Name[] locationGetMethodName;
     final Name[] locationSetMethodName;
     final Name[][] locationSetMilieuMethodName;
@@ -126,6 +131,7 @@ public class JavafxDefs {
 	public final Name javaLangPackageName;
     public final Name[] locationVariableName;
     public final Name[] locationInterfaceName;
+    public final Name implFunctionSuffixName;
     
     public Type delocationize(Name flatname) {
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
@@ -182,6 +188,12 @@ public class JavafxDefs {
         targetName = names.fromString("target");
         valueName = names.fromString("value");
         interpolateName = names.fromString("interpolate");
+        addTriggersName = names.fromString("addTriggers$");
+        userInitName = names.fromString("userInit$");
+        postInitName = names.fromString("postInit$");
+        implFunctionSuffixName = names.fromString(implFunctionSuffix);
+        attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
+        applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
 		runtimePackageName = names.fromString(runtimePackageNameString);
 		javaLangPackageName = names.fromString(javaLangPackageNameString);
 		locationPackageName = names.fromString(locationPackageNameString);

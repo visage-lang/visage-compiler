@@ -255,7 +255,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             // statics are accessed directly
             localAttr = make.Ident(vsym);
         } else {
-            String attrAccess = attributeGetMethodNamePrefix + vsym;
+            String attrAccess = attributeNameString(vsym, attributeGetMethodNamePrefix);
             localAttr = callExpression(diagPos, make.Ident(attrName), attrAccess);
         }
         Name methName;

@@ -37,9 +37,8 @@ class JavafxAnalyzeClass {
     private final ClassSymbol currentClassSym;
     private final ListBuffer<AttributeInfo> attributeInfos = ListBuffer.lb();
     private final Map<String,MethodSymbol> needDispatchMethods = new HashMap<String, MethodSymbol>();
-    private final Map<String, AttributeInfo> translatedAttributes = new HashMap<String, AttributeInfo>();
-    private final Map<String, AttributeInfo> visitedSourceAttributes = new HashMap<String, AttributeInfo>();
-    private final Map<String, AttributeInfo> visitedClassFileAttributes = new HashMap<String, AttributeInfo>();
+    private final Map<Name, AttributeInfo> translatedAttributes = new HashMap<Name, AttributeInfo>();
+    private final Map<Name, AttributeInfo> visitedAttributes = new HashMap<Name, AttributeInfo>();
     private final Set<Symbol> addedBaseClasses = new HashSet<Symbol>();
     private final List<TranslatedAttributeInfo> translatedAttrInfo;
     private final Log log;
@@ -229,10 +228,10 @@ class JavafxAnalyzeClass {
         
         this.translatedAttrInfo = translatedAttrInfo;
         for (TranslatedAttributeInfo tai : translatedAttrInfo) {
-            translatedAttributes.put(tai.getNameString(), tai);
+            translatedAttributes.put(tai.getName(), tai);
         }
         for (TranslatedOverrideAttributeInfo tai : translatedOverrideAttrInfo) {
-            translatedAttributes.put(tai.getNameString(), tai);
+            translatedAttributes.put(tai.getName(), tai);
         }
 
         // do the analysis
@@ -294,16 +293,16 @@ class JavafxAnalyzeClass {
                     }
                      * ***/
                     //TODO: fiz this hack back to the above. for some reason the order of symbols within a scope is inverted
-                    ListBuffer<MethodSymbol> reversed = ListBuffer.lb();
+                    ListBuffer<Symbol> reversed = ListBuffer.lb();
                     for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
-                        if (e.sym.kind == Kinds.MTH) {
-                            reversed.prepend((MethodSymbol) e.sym);
-                        }
+                        reversed.prepend(e.sym);
                     }
-                    for (MethodSymbol meth : reversed) {
-                        processMethodFromClassFile(meth, cSym, cloneVisible);
+                    for (Symbol mem : reversed) {
+                        if (mem.kind == Kinds.MTH)
+                            processMethodFromClassFile((MethodSymbol) mem, cSym, cloneVisible);
+                        else if (mem instanceof VarSymbol)
+                            processAttribute((VarSymbol) mem, cSym, cloneVisible);
                     }
-                    
                 }
             } else {
                 for (JFXExpression supertype : cDecl.getSupertypes()) {
@@ -311,20 +310,20 @@ class JavafxAnalyzeClass {
                 }
                 for (JFXTree def : cDecl.getMembers()) {
                     if (def.getFXTag() == JavafxTag.VAR_DEF) {
-                        processAttributeFromSource((JFXVar) def, cDecl, cloneVisible);
+                        processAttribute(((JFXVar) def).sym, cDecl.sym, cloneVisible);
                     } else if (cloneVisible && def.getFXTag() == JavafxTag.FUNCTION_DEF) {
-                        processFunctionFromSource((JFXFunctionDefinition) def);
+                        processMethod(((JFXFunctionDefinition) def).sym);
                     }
                 }
             }
         }
     }
 
-    private AttributeInfo addAttribute(String attrName, Symbol sym, boolean needsCloning) {
+    private AttributeInfo addAttribute(Name attrName, Symbol sym, boolean needsCloning) {
         AttributeInfo attrInfo = translatedAttributes.get(attrName);
         if (attrInfo == null) {
             attrInfo = new AttributeInfo(diagPos, 
-                    names.fromString(attrName),
+                    attrName,
                     sym, typeMorpher.varMorphInfo(sym), null, sym.owner == currentClassSym);
         }
         attrInfo.setNeedsCloning(needsCloning || attrInfo.isDirectOwner());
@@ -333,63 +332,29 @@ class JavafxAnalyzeClass {
     }
 
     private void processMethodFromClassFile(MethodSymbol meth, ClassSymbol cSym, boolean cloneVisible) {
-        String methName = meth.name.toString();
-        if (methName.startsWith(attributeGetMethodNamePrefix)) {
-            String nameSig = methName.substring(attributeGetMethodNamePrefix.length());
-            if (visitedSourceAttributes.containsKey(nameSig)) {
-                log.error(MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEFAULT_INITIALIZER, nameSig, cSym.className(), visitedSourceAttributes.get(nameSig));
-            } else if (visitedClassFileAttributes.containsKey(nameSig)) {
-                // not an error since they are replicated in class files, but we need to make sure needsCloning is updated
-                AttributeInfo attrInfo = visitedClassFileAttributes.get(nameSig);
-                attrInfo.setNeedsCloning(cloneVisible && attrInfo.needsCloning());
-            } else {
-                visitedClassFileAttributes.put(nameSig, addAttribute(nameSig, meth, cloneVisible) );
-            }
-        } else if (cloneVisible && methName.endsWith(JavafxDefs.implFunctionSuffix)) {
-            // implementation method
-            methName = methName.substring(0, methName.length() - JavafxDefs.implFunctionSuffix.length());
-            int cnt = 0;
-            ListBuffer<VarSymbol> params = ListBuffer.lb();
-            ListBuffer<Type> paramTypes = ListBuffer.lb();
-            for (VarSymbol param : meth.getParameters()) {
-                cnt++;
-                if (cnt > 1) {
-                    params.append(param);
-                    paramTypes.append(param.type);
-                }
-            }
-            MethodType mtype = new MethodType(paramTypes.toList(), meth.type.getReturnType(), meth.type.getThrownTypes(), meth.type.tsym);
-            MethodSymbol fixedMeth = new MethodSymbol(meth.flags() & ~Flags.STATIC, names.fromString(methName), mtype, meth.owner);
-            fixedMeth.params = params.toList();
-            String nameSig = methodSignature(fixedMeth);
-            needDispatchMethods.put(nameSig, fixedMeth);  // because we traverse super-to-sub class, last one wins
+        if (cloneVisible && meth.name != names.init) {
+            processMethod(meth);
         }
     }
 
-    private void processFunctionFromSource(JFXFunctionDefinition def) {
-        MethodSymbol meth = def.sym;
+     private void processMethod(MethodSymbol meth) {
         // no dispatch methods for abstract or static functions,
         // and none for methods from non-compound classes (this test is not redundant 
         // since the current class is allowed through if non-compound
         if ((meth.flags() & (Flags.SYNTHETIC | Flags.ABSTRACT | Flags.STATIC)) == 0  &&
                 (meth.owner.flags() & JavafxFlags.COMPOUND_CLASS) != 0) {
-            assert def.pos != Position.NOPOS;
             String nameSig = methodSignature(meth);
             needDispatchMethods.put(nameSig, meth);  // because we traverse super-to-sub class, last one wins
         }
     }
 
-    private void processAttributeFromSource(JFXVar def, JFXClassDeclaration cDecl, boolean cloneVisible) {
-        VarSymbol var = def.sym;
+    private void processAttribute(VarSymbol var, ClassSymbol cSym, boolean cloneVisible) {
         if (var.owner.kind == Kinds.TYP && (var.flags() & Flags.STATIC) == 0) {
-            String attrName = var.name.toString();
-            String className = cDecl.getName().toString();
-            if (visitedSourceAttributes.containsKey(attrName)) {
-                log.error(MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEFAULT_INITIALIZER, attrName, className, visitedSourceAttributes.get(attrName));
-            } else if (visitedClassFileAttributes.containsKey(attrName)) {
-                log.error(MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEFAULT_INITIALIZER, attrName, className, visitedClassFileAttributes.get(attrName));
+            Name attrName = var.name;
+            if (visitedAttributes.containsKey(attrName)) {
+                log.error(MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEFAULT_INITIALIZER, attrName, cSym.name, visitedAttributes.get(attrName));
             } else {
-                visitedSourceAttributes.put(attrName, addAttribute(attrName, var, cloneVisible) );
+                visitedAttributes.put(attrName, addAttribute(attrName, var, cloneVisible) );
             }
         }
     }

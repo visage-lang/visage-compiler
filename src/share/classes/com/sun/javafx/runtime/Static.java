@@ -24,8 +24,7 @@
 package com.sun.javafx.runtime;
 
 import java.lang.annotation.Documented;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.ElementType.*;
 import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 import java.lang.annotation.Target;
@@ -35,6 +34,6 @@ import java.lang.annotation.Target;
  */
 @Retention(CLASS)
 @Documented
-@Target({METHOD, TYPE})
+@Target({METHOD, FIELD, TYPE})
 public @interface Static {
 }

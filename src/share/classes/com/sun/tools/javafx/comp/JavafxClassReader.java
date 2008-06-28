@@ -183,35 +183,6 @@ public class JavafxClassReader extends ClassReader {
                 List<Attribute.Compound> newList = deproxyCompoundList(l);
                 JavafxSymtab javafxSyms = (JavafxSymtab)classReader.syms;
                 for (Attribute.Compound comp : newList) {
-                    if (comp.type.tsym.flatName() == javafxSyms.javafx_staticAnnotationType.tsym.flatName()) {
-                        if (sym != null && sym.kind == MTH &&
-                                sym.name.toString().startsWith(classReader.defs.attributeGetMethodNamePrefix)) {
-                            sym.flags_field |=  Flags.STATIC;
-                        }
-                    }
-                    if (comp.type.tsym.flatName() == javafxSyms.javafx_privateAnnotationType.tsym.flatName()) {
-                        if (sym != null && sym.kind == MTH  && false) {// TODO: Need a way to deal with private methods. The interface 
-                                                              // of a base class defines them, but for a superclasss that implements 
-                                                              // them they are not considered overriding methods since they are private.
-                                // See above TODO; !sym.name.toString().startsWith(classReader.defs.attributeGetMethodNamePrefix)) {
-                            sym.flags_field &= ~(Flags.PROTECTED | Flags.PUBLIC);
-                            sym.flags_field |=  Flags.PRIVATE;
-                        }
-                    }
-                    else if (comp.type.tsym.flatName() == javafxSyms.javafx_protectedAnnotationType.tsym.flatName()) {
-                        if (sym != null && sym.kind == MTH &&
-                                !sym.name.toString().startsWith(classReader.defs.attributeGetMethodNamePrefix)) {
-                            sym.flags_field &= ~(Flags.PRIVATE | Flags.PUBLIC);
-                            sym.flags_field |=  Flags.PROTECTED;
-                        }
-                    }
-                    else if (comp.type.tsym.flatName() == javafxSyms.javafx_publicAnnotationType.tsym.flatName()) {
-                        if (sym != null && sym.kind == MTH &&
-                                !sym.name.toString().startsWith(classReader.defs.attributeGetMethodNamePrefix)) {
-                            sym.flags_field &= ~(Flags.PROTECTED | Flags.PRIVATE);
-                            sym.flags_field |=  Flags.PUBLIC;
-                        }
-                    }
                 }
 
                 sym.attributes_field = ((sym.attributes_field == null)
@@ -515,12 +486,43 @@ public class JavafxClassReader extends ClassReader {
                     continue;
                 syms = syms.prepend(e.sym);
             }
+            handleSyms:
             for (List<Symbol> l = syms; l.nonEmpty(); l=l.tail) {
                 Name name = l.head.name;
                 long flags = l.head.flags_field;
                 if ((flags & PRIVATE) != 0)
                     continue;
+                for (Attribute.Compound a : l.head.getAnnotationMirrors()) {
+                    JavafxSymtab javafxSyms = (JavafxSymtab) this.syms;
+                    if (a.type.tsym.flatName() == javafxSyms.javafx_staticAnnotationType.tsym.flatName()) {
+                        flags |=  Flags.STATIC;
+                    }
+                    if (a.type.tsym.flatName() == javafxSyms.javafx_privateAnnotationType.tsym.flatName()) {
+                        flags &= ~(Flags.PROTECTED | Flags.PUBLIC);
+                        flags |=  Flags.PRIVATE;
+                    }
+                    else if (a.type.tsym.flatName() == javafxSyms.javafx_protectedAnnotationType.tsym.flatName()) {
+                        flags &= ~(Flags.PRIVATE | Flags.PUBLIC);
+                        flags |=  Flags.PROTECTED;
+                    }
+                    else if (a.type.tsym.flatName() == javafxSyms.javafx_publicAnnotationType.tsym.flatName()) {
+                        flags &= ~(Flags.PROTECTED | Flags.PRIVATE);
+                        flags |=  Flags.PUBLIC;
+                    }
+                    else if (a.type.tsym.flatName() == javafxSyms.javafx_inheritedAnnotationType.tsym.flatName()) {
+                        continue handleSyms;
+                    }
+                }
+
                 if (l.head instanceof MethodSymbol) {
+                    if (name == defs.runMethodName || name == defs.initializeName ||
+                            name == defs.postInitName || name == defs.userInitName ||
+                            name == defs.addTriggersName ||
+                            name == names.clinit ||
+                            name.startsWith(defs.attributeGetPrefixName) ||
+                            name.startsWith(defs.applyDefaultsPrefixName) ||
+                            name.endsWith(defs.implFunctionSuffixName))
+                        continue;
                     // This should be merged with translateSymbol.
                     // But that doesn't work for some unknown reason.  FIXME
                     Type type = translateType(l.head.type);

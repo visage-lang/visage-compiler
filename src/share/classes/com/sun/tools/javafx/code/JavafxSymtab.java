@@ -66,6 +66,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_protectedAnnotationType;
     public final Type javafx_publicAnnotationType;
     public final Type javafx_staticAnnotationType;
+    public final Type javafx_inheritedAnnotationType;
     
     public final Name numberTypeName;
     public final Name integerTypeName;
@@ -124,6 +125,7 @@ public class JavafxSymtab extends Symtab {
         javafx_protectedAnnotationType = enterClass("com.sun.javafx.runtime.Protected");
         javafx_publicAnnotationType = enterClass("com.sun.javafx.runtime.Public");
         javafx_staticAnnotationType = enterClass("com.sun.javafx.runtime.Static");
+        javafx_inheritedAnnotationType = enterClass("com.sun.javafx.runtime.Inherited");
         for (int i = MAX_FIXED_PARAM_LENGTH; i >= 0;  i--) {
             javafx_FunctionTypes[i] = enterClass(functionClassPrefix+i);
         }
