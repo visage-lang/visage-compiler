@@ -191,7 +191,6 @@ public class Calculator extends CustomNode {
 var canvas = Canvas {
     background: Color.TRANSPARENT
     content: [Calculator {
-        focused: true
     }]
 }
 
