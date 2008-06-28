@@ -4,7 +4,9 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -23,21 +25,14 @@
 
 package fxpad;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import fxpad.gui.*;
+import javafx.ext.swing.*;
+import javafx.scene.paint.*;
 import java.lang.System;
 import java.io.File;
 import java.io.FileWriter;
 import java.net.URL;
 
-var row1     = Row {alignment: Alignment.LEADING};
-var row2     = Row {resizable: true};
-var row      =  Row {alignment: Alignment.BASELINE};
-var col      = Column {resizable: true};
-var labelCol = Column{};
-var fieldCol = Column {resizable: true};
-var butCol   = Column{};
-var zoomCol  = Column{};
 
 var javafxPad = JavaFXPad{ url: if(sizeof __ARGS__ > 0) __ARGS__[0] else null };
 
@@ -70,215 +65,214 @@ var frame:Frame;
 
 frame = Frame {
     visible: true
-    onClose: function() { System.exit(0); }
+    closeAction: function() { System.exit(0); }
     title: "JavaFXPad"
     height: 800
     width: 1000
-    menubar: MenuBar {
-        menus: [
-            Menu {
-                text: "File"
-                mnemonic: KeyStroke.F
-                items: [
-                    MenuItem {
-                        text: "Open"
-                        mnemonic: KeyStroke.O
-                        action: function() {
-                            // do open
-                            fileChooser.action = function(f:File):Void {
-                                 javafxPad.url = f.toURL().toString();
-                                 javafxPad.go();
-                            };
-                            fileChooser.showOpenDialog(null);
-                            
-                        }
-                    },
-                    MenuItem {
-                        text: "Save"
-                        mnemonic: KeyStroke.S
-                        accelerator: Accelerator{modifier: KeyModifier.COMMAND, keyStroke: KeyStroke.S}
-                        enabled: bind fileExists(javafxPad.url)
-                        action: function() {
-                            // do save
-                             var url = javafxPad.url;
-                             var fname = url.substring("file:".length());
-                             var fw = new FileWriter(fname);
-                             fw.write(javafxPad.userCode);
-                             fw.close();
-                        }
-                    },
-                    MenuItem {
-                        text: "Save As"
-                        mnemonic: KeyStroke.A
-                        action: function() {
-                            // do save as
-                            fileChooser.action = function(f:File):Void {
-                                /*** TODO this causes an NPE in compiler
-                                function writeFile():Void {
-                                    var fw = new FileWriter(f);
-                                    fw.write(javafxPad.userCode);
-                                    fw.close();
-                                    javafxPad.url = f.toURL().toString();
-                                }
-                                 * ***/
-                                if (f.exists()) {
-                                    ConfirmDialog {
-                                      confirmType: ConfirmType.YES_NO
-                                      title: "Save As"
-                                      message: "File exists, overwrite?"
-                                      //onYes: writeFile();
-                                      onYes: function ():Void {
-                                            var fw = new FileWriter(f);
-                                            fw.write(javafxPad.userCode);
-                                            fw.close();
-                                            javafxPad.url = f.toURL().toString();
-                                        }
-                                      visible: true
-                                    }
-                                } else {
-                                    //TODO NPE - writeFile();  
-                                    var fw = new FileWriter(f);
-                                    fw.write(javafxPad.userCode);
-                                    fw.close();
-                                    javafxPad.url = f.toURL().toString();                                    
-                                }
-                            };
-                            fileChooser.showSaveDialog(null);
-                            
-                        }
-                    },
-                    MenuSeparator {},
-                    MenuItem {
-                        text: "Exit"
-                        mnemonic: KeyStroke.X
-                        action: function() {
-                            System.exit(0);
-                        }
+    menus: [
+        Menu {
+            text: "File"
+            //TODO mnemonic: KeyCode.VK_F
+            items: [
+                MenuItem {
+                    text: "Open"
+                    //TODO mnemonic: KeyCode.VK_O
+                    action: function() {
+                        // do open
+                        fileChooser.action = function(f:File):Void {
+                             javafxPad.url = f.toURL().toString();
+                             javafxPad.go();
+                        };
+                        fileChooser.showOpenDialog(null);
+
                     }
-                ]
-            },
-            Menu {
-                text: "Edit"
-                mnemonic: KeyStroke.E
-                items: [
-                    MenuItem {
-                        text: "Find"
-                        mnemonic: KeyStroke.F
-                        accelerator: Accelerator{modifier: KeyModifier.COMMAND, keyStroke: KeyStroke.F}
-                        action: function() {
-                            javafxPad.doSearch();
-                        }
-                    },
-                    MenuSeparator{},
-                    MenuItem {
-                        text: "Clear Console"
-                        mnemonic: KeyStroke.C
-                        accelerator: Accelerator{modifier: KeyModifier.COMMAND, keyStroke: KeyStroke.C}
-                        action: function() {
-                            javafxPad.clearConsole();
-                        }
-                    },
-                ] 
-            },
-            Menu {
-                text: "Run"
-                mnemonic: KeyStroke.R
-                items: [
-                    //CheckBoxMenuItem {
-                    RadioButtonMenuItem {
-                        mnemonic: KeyStroke.U
-                        text: "Run Automatically"
-                        selected: bind javafxPad.runAutomatically with inverse
-                    },
-                    MenuItem {
-                        mnemonic: KeyStroke.R
-                        text: "Run"
-                        enabled: bind not javafxPad.runAutomatically and javafxPad.isValid()
-                        action: function() {
-                            javafxPad.runNow();
-                        }
-                    },
-                    MenuItem {
-                        mnemonic: KeyStroke.S
-                        text: "Source Path..."
-                        action: function() {
-                            var d = SourcePathDialog {
-                                sourcePath: for (u in javafxPad.sourcePath) new File(u.getPath())
-                                action: function(path:File[]):Void {
-                                    javafxPad.setSourcePath(for(f in path)f.toURL());
+                },
+                MenuItem {
+                    text: "Save"
+                    //TODO mnemonic: KeyCode.VK_S
+                    //TODO accelerator: Accelerator{modifier: KeyModifier.COMMAND, keyStroke: KeyStroke.S}
+                    enabled: bind fileExists(javafxPad.url)
+                    action: function() {
+                        // do save
+                         var url = javafxPad.url;
+                         var fname = url.substring("file:".length());
+                         var fw = new FileWriter(fname);
+                         fw.write(javafxPad.userCode);
+                         fw.close();
+                    }
+                },
+                MenuItem {
+                    text: "Save As"
+                    //TODO mnemonic: KeyCode.VK_A
+                    action: function() {
+                        // do save as
+                        fileChooser.action = function(f:File):Void {
+                            // TODO this causes an NPE in compiler
+                            //function writeFile():Void {
+                            //    var fw = new FileWriter(f);
+                            //     fw.write(javafxPad.userCode);
+                            //     fw.close();
+                            //     javafxPad.url = f.toURL().toString();
+                            // }
+                            if (f.exists()) {
+                                ConfirmDialog {
+                                  confirmType: ConfirmType.YES_NO
+                                  title: "Save As"
+                                  message: "File exists, overwrite?"
+                                  //onYes: writeFile();
+                                  onYes: function ():Void {
+                                        var fw = new FileWriter(f);
+                                        fw.write(javafxPad.userCode);
+                                        fw.close();
+                                        javafxPad.url = f.toURL().toString();
+                                    }
+                                  visible: true
                                 }
-                            };
-                            d.show(frame);
-                            
-                        }
-                    },
-                    MenuItem {
-                        mnemonic: KeyStroke.C
-                        text: "Class Path..."
-                        action: function() {
-                            var d = ClassPathDialog {
-                                classPath: for (u in javafxPad.classPath) new File(u.getPath())
-                                action: function(path:File[]):Void {
-                                    javafxPad.setClassPath(for(f in path)f.toURL());
-                                }
-                            };
-                            d.show(frame);
-                            
-                        }
-                    }                    
-                ]
+                            } else {
+                                //TODO NPE - writeFile();  
+                                var fw = new FileWriter(f);
+                                fw.write(javafxPad.userCode);
+                                fw.close();
+                                javafxPad.url = f.toURL().toString();                                    
+                            }
+                        };
+                        fileChooser.showSaveDialog(null);
+
+                    }
+                },
+                //TODO MenuSeparator {},
+                MenuItem {
+                    text: "Exit"
+                    //mnemonic: KeyCode.VK_X
+                    action: function() {
+                        System.exit(0);
+                    }
+                }
+            ]
+        },
+        Menu {
+            text: "Edit"
+            //TODO mnemonic: KeyCode.VK_E
+            items: [
+                MenuItem {
+                    text: "Find"
+                    //TODO mnemonic: KeyCode.VK_F
+                    //TODO accelerator: Accelerator{modifier: KeyModifier.COMMAND, keyStroke: KeyStroke.F}
+                    action: function() {
+                        javafxPad.doSearch();
+                    }
+                },
+                // TODO MenuSeparator{},
+                MenuItem {
+                    text: "Clear console"
+                    //TODO mnemonic: KeyCode.VK_C
+                    //TODO accelerator: Accelerator{modifier: KeyModifier.COMMAND, keyStroke: KeyStroke.C}
+                    action: function() {
+                        javafxPad.clearConsole();
+                    }
+                }
+            ] 
+        },
+        Menu {
+            text: "Run"
+            //TODO mnemonic: KeyCode.VK_R
+            items: [
+
+                RadioButtonMenuItem {
+                    //TODO mnemonic: KeyCode.VK_U
+                    text: "Run Automatically"
+                    selected: bind javafxPad.runAutomatically with inverse
+                },
+                MenuItem {
+                    //TODO mnemonic: KeyCode.VK_R
+                    text: "Run"
+                    enabled: bind not javafxPad.runAutomatically and javafxPad.isValid()
+                    action: function() {
+                        javafxPad.runNow();
+                    }
+                },
+                MenuItem {
+                    //TODO mnemonic: KeyCode.VK_S
+                    text: "Source Path..."
+                    action: function() {
+                        var d = SourcePathDialog {
+                            sourcePath: for (u in javafxPad.sourcePath) new File(u.getPath())
+                            action: function(path:File[]):Void {
+                                javafxPad.setSourcePath(for(f in path)f.toURL());
+                            }
+                        };
+                        d.show(frame);
+
+                    }
+                },
+                MenuItem {
+                    //TODO mnemonic: KeyCode.VK_C
+                    text: "Class Path..."
+                    action: function() {
+                        var d = ClassPathDialog {
+                            classPath: for (u in javafxPad.classPath) new File(u.getPath())
+                            action: function(path:File[]):Void {
+                                javafxPad.setClassPath(for(f in path)f.toURL());
+                            }
+                        };
+                        d.show(frame);
+
+                    }
+                }                    
+            ]
+        }
+
+    ]
+    content: ClusterPanel {
+        var locLabel = Label { text: "Location:" }
+        var urlTextField = TextField {
+            columns: 60
+            background: Color.WHITE
+            hmax: Layout.UNLIMITED_SIZE
+            vmax: Layout.PREFERRED_SIZE
+            text: bind javafxPad.url with inverse
+            action: function() {
+                javafxPad.go();
             }
-            
-        ]
-    }
-    content: GroupPanel {
-        rows: [row1, row2]
-        columns: [col]
-        content: [
-            GroupLayout {
-                row:row1
-                column: col 
-                rows: [row]
-                columns: [labelCol, fieldCol, butCol, zoomCol]
+        };
+        var goButton = Button {
+            text: "Go"
+            vmax: Layout.PREFERRED_SIZE
+            action: function() {
+                javafxPad.go();
+            }
+        };
+        var zoomComboBox = ComboBox {
+            vmax: Layout.PREFERRED_SIZE
+            items:  for (i in javafxPad.zoomOptions)
+                ComboBoxItem{ text: "{i}%" } 
+                selectedIndex: bind  javafxPad.zoomSelection with inverse
+        }
+        var bp = BorderPanel {
+            hmax: Layout.UNLIMITED_SIZE
+            vmax: Layout.UNLIMITED_SIZE
+            center: javafxPad
+        };
+        hcluster: SequentialCluster {
+            content: [
+            ParallelCluster {
                 content: [
-                    SimpleLabel {
-                        row: row
-                        column: labelCol
-                        text: "Location:"
-                    } as GroupElement,
-                    TextField {
-                        row: row
-                        column: fieldCol
-                        columns: 60
-                        background: Color.WHITE
-                        value: bind javafxPad.url with inverse
-                        action: function() {
-                            javafxPad.go();
-                        }
-                    } as GroupElement, 
-                    Button {
-                        row: row
-                        column: butCol
-                        text: "Go"
-                        action: function() {
-                            javafxPad.go();
-                        }
-                    } as GroupElement,
-                    ComboBox {
-                        row: row
-                        column: zoomCol
-                        
-                        cells:  for (i in javafxPad.zoomOptions)
-                           ComboBoxCell { text: "{i}%%" } //TODO JXFC-924
-                        selection: bind  javafxPad.zoomSelection with inverse
-                    } as GroupElement                   
-                ]
-            },
-            BorderPanel {
-                row:row2
-                column: col
-                center: javafxPad
-            } as GroupElement
-        ]
+                    SequentialCluster {
+                        content: [locLabel, urlTextField, goButton, zoomComboBox]
+                    },/* LEADING, RESIZABLE */
+                    bp
+                ] 
+            }
+            ]
+        }
+        vcluster: SequentialCluster {
+            content: [
+                ParallelCluster {
+                    content: [locLabel, urlTextField, goButton, zoomComboBox]
+                },
+                bp  
+            ]
+        }
     }
+
 }

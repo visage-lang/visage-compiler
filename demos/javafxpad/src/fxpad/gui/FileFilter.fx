@@ -23,32 +23,21 @@
  * have any questions.
  */ 
 
-package fxpad;
+package fxpad.gui;
 
+import java.io.File;
 import javafx.ext.swing.*;
-
 /**
  * @author jclarke
  */
 
-public class LineNumberPanel extends Component {
-    private attribute panel: LineNumberPanelImpl on replace {
-        if(panel != null)
-            panel.setOpaque(false);
+public class FileFilter extends javax.swing.filechooser.FileFilter {
+    public attribute filter: function(:File):Boolean;
+    public attribute description: String;
+    public function accept(f:File):Boolean {
+        filter(f);
     }
-    public attribute lineCount:Integer on replace {
-         getLineNumberPanel().setLineCount(lineCount);
-    };
-    
-    public function getCellBounds(line:Integer):java.awt.Rectangle {
-        return getLineNumberPanel().getCellBounds(line);
-    }
-    
-    public function getLineNumberPanel(): LineNumberPanelImpl {
-        return getJComponent() as LineNumberPanelImpl;
-    }
-    public function createJComponent() : javax.swing.JComponent {
-        panel = new LineNumberPanelImpl();
-    }
-
+    public function getDescription():String {
+        description;
+    }    
 }

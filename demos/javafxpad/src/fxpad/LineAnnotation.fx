@@ -4,7 +4,9 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -23,10 +25,9 @@
 
 package fxpad;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import fxpad.gui.*;
+import javafx.ext.swing.*;
 import javax.swing.event.ChangeListener;
-import java.lang.System;
 
 /**
  * @author jclarke
@@ -34,10 +35,10 @@ import java.lang.System;
 
 public class LineAnnotation {
     private attribute changeListeners: ChangeListener[];
-    private attribute an: com.sun.javafx.api.ui.fxkit.FXTextArea.LineAnnotation;
-    function getAn():com.sun.javafx.api.ui.fxkit.FXTextArea.LineAnnotation {
+    private attribute an: FXTextArea.LineAnnotation;
+    function getAn(): FXTextArea.LineAnnotation {
         if (an == null) {
-            an = com.sun.javafx.api.ui.fxkit.FXTextArea.LineAnnotation {
+            an = FXTextArea.LineAnnotation {
                 function getLine():Integer {
                     return line;
                 }
@@ -57,7 +58,7 @@ public class LineAnnotation {
                     currentHeight = h;
                 }
                 function getComponent():java.awt.Component {
-                     return content.getComponent();
+                     return content.getJComponent() as java.awt.Component;
                 }
                 function addChangeListener(l:ChangeListener):Void {
                     insert l into changeListeners;
@@ -87,7 +88,7 @@ public class LineAnnotation {
     public attribute currentY: Number;
     public attribute currentWidth: Number;
     public attribute currentHeight: Number;
-    public attribute content: Widget on replace {
+    public attribute content: Component on replace {
         fireChange();
     };
     public attribute toolTipText: String;

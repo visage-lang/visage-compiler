@@ -25,30 +25,24 @@
 
 package fxpad;
 
-import javafx.ext.swing.*;
+import javax.swing.*;
+import javax.swing.text.*;
+import javax.swing.event.*;
+import java.util.*;
 
-/**
- * @author jclarke
- */
+public class FXTextEditorKit extends DefaultEditorKit {
 
-public class LineNumberPanel extends Component {
-    private attribute panel: LineNumberPanelImpl on replace {
-        if(panel != null)
-            panel.setOpaque(false);
-    }
-    public attribute lineCount:Integer on replace {
-         getLineNumberPanel().setLineCount(lineCount);
-    };
-    
-    public function getCellBounds(line:Integer):java.awt.Rectangle {
-        return getLineNumberPanel().getCellBounds(line);
-    }
-    
-    public function getLineNumberPanel(): LineNumberPanelImpl {
-        return getJComponent() as LineNumberPanelImpl;
-    }
-    public function createJComponent() : javax.swing.JComponent {
-        panel = new LineNumberPanelImpl();
+    @Override
+    public String getContentType() {
+	return "text/plain";
     }
 
+    @Override
+    public final ViewFactory getViewFactory() {
+        return new ViewFactory() {
+                public View create(Element elem) {
+                    return new PlainView(elem);
+                }
+            };
+    }
 }

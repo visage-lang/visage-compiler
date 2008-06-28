@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,32 +23,30 @@
  * have any questions.
  */ 
 
-package fxpad;
+package fxpad.gui;
 
-import javafx.ext.swing.*;
 
-/**
- * @author jclarke
- */
-
-public class LineNumberPanel extends Component {
-    private attribute panel: LineNumberPanelImpl on replace {
-        if(panel != null)
-            panel.setOpaque(false);
-    }
-    public attribute lineCount:Integer on replace {
-         getLineNumberPanel().setLineCount(lineCount);
+public class MessageType {
+    public attribute id: Number;
+    
+    public static attribute INFORMATION = MessageType {
+        id: javax.swing.JOptionPane.INFORMATION_MESSAGE
     };
-    
-    public function getCellBounds(line:Integer):java.awt.Rectangle {
-        return getLineNumberPanel().getCellBounds(line);
-    }
-    
-    public function getLineNumberPanel(): LineNumberPanelImpl {
-        return getJComponent() as LineNumberPanelImpl;
-    }
-    public function createJComponent() : javax.swing.JComponent {
-        panel = new LineNumberPanelImpl();
-    }
 
+    public static attribute ERROR = MessageType {
+        id: javax.swing.JOptionPane.ERROR_MESSAGE
+    };
+
+    public static attribute WARNING = MessageType {
+        id: javax.swing.JOptionPane.WARNING_MESSAGE
+    };
+
+    public static attribute QUESTION = MessageType {
+        id: javax.swing.JOptionPane.QUESTION_MESSAGE
+    };
+
+    public static attribute PLAIN = MessageType {
+        id: javax.swing.JOptionPane.PLAIN_MESSAGE
+    };
+               
 }

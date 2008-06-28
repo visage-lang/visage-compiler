@@ -1,34 +1,62 @@
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.filter.*;
+package fxpad;
+
+import javafx.scene.*;
+import javafx.scene.effect.*;
+import javafx.scene.effect.light.*;
+import javafx.scene.transform.*;
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+import javafx.scene.text.*;
 import javafx.animation.*; 
+import javafx.input.*;
+
+var lighting =
+    Lighting {
+        light: PointLight {
+            x: 43
+            y: 0
+            z: 183
+        }
+        surfaceScale: 6.7
+        diffuseConstant: .85
+        specularConstant: 1.3
+    };
+    
+    
 
 Group {
 
     var x = 0;
     var y = 0;
+    var lx = 0;
+    var ly = 0;
     var alpha = 1.0;
-    
-    transform: bind Transform.translate(x, y)
-    opacity: bind alpha
     var fadeIn = Timeline {
         keyFrames: [
-        KeyFrame { time: 0s  values: alpha => 0.0 }, 
-            KeyFrame { time: 500ms  values: alpha => 0.5  tween Interpolator.LINEAR },
+        KeyFrame { time: 0s  values: alpha => 0.0 },
             KeyFrame { time: 1s  values: alpha => 1.0 tween Interpolator.EASEBOTH }
         ]
     };
 
+    transform: bind Transform.translate(x, y)
+    opacity: bind alpha
 
-    onMouseDragged: function(e:CanvasMouseEvent):Void {
+    onMousePressed: function(e:MouseEvent):Void {
+        lx = e.getScreenX().intValue();
+        ly = e.getScreenY().intValue();
+    }
+    onMouseDragged: function(e:MouseEvent):Void {
         // updating x and y will move the group
         // since a translation transform is bound to them
-        
-        x += e.localDragTranslation.x.intValue();
-        y += e.localDragTranslation.y.intValue();
+        var deltaX:Integer = e.getScreenX().intValue()- lx;
+        var deltaY:Integer = e.getScreenY().intValue() - ly;
+        x = x + deltaX;
+        y = y + deltaY;
+        lx = e.getScreenX().intValue();
+        ly = e.getScreenY().intValue();
     }
 
-    onMouseClicked: function(e:CanvasMouseEvent):Void {
+    onMouseClicked: function(e):Void {
         // updating alpha will fade the group
         // since the opacity of the group is bound to it
         if (alpha == 1) {
@@ -36,61 +64,45 @@ Group {
         }
     }
 
-    toolTipText: "Click to fade, or drag to move rectangle"
-    var rect:Rect; 
 
     content:
-    [rect = Rect {
+    [Rectangle {
         cursor: Cursor.HAND
-        selectable: true
+        //selectable: true
         x: 10
         y: 10
         width: 385
         height: 220
-        fill: Color.WHITE
+        fill: LinearGradient {
+            stops:
+            [Stop {offset: 0, color: Color.GRAY},
+            Stop {offset: .5, color: Color.color(.8, .8, .8, 1)},
+            Stop {offset: 1, color: Color.GRAY}]
+        }
+        stroke: Color.BLACK
+        strokeWidth: 1
     },
     Group {
-        
-        function filt(color:Color, bump:Number, intensity:Number, burstFactor:Number):Filter[] {
-           [//ShapeBurst {factor: burstFactor},
-            Lighting {
-                 lightAzimuth:  90.0
-                 lightElevation: 28.8
-                 lightColor: color
-            }];
-        }
-        
         content: [
         Group {
-            content: [
-            Rect {
+            effect: DropShadow { offsetX: 7 offsetY: 6 radius: 5 color: Color.color(0, 0, 0, 0.7) }
 
-        fill: LinearGradient {
-                    startX: bind rect.x
-                    startY: bind rect.y
-                    endX: bind rect.width/2
-                    endY: bind rect.height
-                    stops:
-                        [Stop {offset: 0, color: Color.GRAY},
-                        Stop {offset: .5, color: Color.color(.8, .8, .8, 1)},
-                        Stop {offset: 1, color: Color.GRAY}]
-                    }
-                height: 150, width: 210, transform: Transform.scale(2, 2)},
+            content: [
             Path {
-                d: [
+                elements: [
                 MoveTo {
                     x: 50.0
                     y: 90.0
                     absolute: true
                 },
                 CurveTo {
-                    x1: 0.0
-                    y1: 90.0
-                    x2: 0.0
-                    y2: 30.0
-                    x3: 50.0
-                    y3: 30.0
-                    smooth: false
+                    controlX1: 0.0
+                    controlY1: 90.0
+                    controlX2: 0.0
+                    controlY2: 30.0
+                    x: 50.0
+                    y: 30.0
+                    //smooth: false
                     absolute: true
                 },
                 LineTo {
@@ -99,41 +111,38 @@ Group {
                     absolute: true
                 },
                 CurveTo {
-                    x1: 200.0
-                    y1: 30.0
-                    x2: 200.0
-                    y2: 90.0
-                    x3: 150.0
-                    y3: 90.0
-                    smooth: false
+                    controlX1: 200.0
+                    controlY1: 30.0
+                    controlX2: 200.0
+                    controlY2: 90.0
+                    x: 150.0
+                    y: 90.0
+                    //smooth: false
                     absolute: true
                 },
                 ClosePath {},
                 ]
-                stroke: Color.rgba(0xD9, 0x00, 0x00, 0xff)as Paint
+                stroke: Color.RED
                 strokeWidth: 10.0
-                transform: Transform.scale(2, 2)
-
-                filter: Blend {
-                    topInput: DropShadow{offsetX: 3, offsetY: 3 color:Color.BLACK}
-                    bottomInput: Glow {}
-                }
+                scaleX: 2
+                scaleY: 2
+                effect: lighting
             },
             Path {
-                d: [
+                elements: [
                 MoveTo {
                     x: 60.0
                     y: 80.0
                     absolute: true
                 },
                 CurveTo {
-                    x1: 30.0
-                    y1: 80.0
-                    x2: 30.0
-                    y2: 40.0
-                    x3: 60.0
-                    y3: 40.0
-                    smooth: false
+                    controlX1: 30.0
+                    controlY1: 80.0
+                    controlX2: 30.0
+                    controlY2: 40.0
+                    x: 60.0
+                    y: 40.0
+                    //smooth: false
                     absolute: true
                 },
                 LineTo {
@@ -142,42 +151,37 @@ Group {
                     absolute: true
                 },
                 CurveTo {
-                    x1: 170.0
-                    y1: 40.0
-                    x2: 170.0
-                    y2: 80.0
-                    x3: 140.0
-                    y3: 80.0
-                    smooth: false
+                    controlX1: 170.0
+                    controlY1: 40.0
+                    controlX2: 170.0
+                    controlY2: 80.0
+                    x: 140.0
+                    y: 80.0
+                    //smooth: false
                     absolute: true
                 },
                 ClosePath {},
                 ]
-                fill: Color.rgba(0xD9, 0x00, 0x00, 0xff) as Paint
-                transform: Transform.scale(2, 2)
-                filter:  Blend {
-                    topInput: DropShadow{offsetX: 3, offsetY: 3 color:Color.BLACK}
-                    bottomInput: Lighting {
-                        lightAzimuth:  45
-                        lightElevation: 20
-                        lightColor: Color.BLUE
-                    }
-                }
+                fill: Color.RED
+                scaleX: 2
+                scaleY: 2
+                effect: lighting
             },
             Group {
                 content: [
                 Text {
-                    verticalAlignment: Alignment.BASELINE
-                    content: 'JavaFX'
-                    font: Font {faceName: 'Verdana', style: [FontStyle.BOLD], size: 25.0}
-                    fill: Color.WHITE as Paint
+                    //verticalAlignment: BASELINE
+                    content: "JavaFX"
+                    font: Font {name: "Verdana", style: FontStyle.BOLD, size: 25}
+                    fill: Color.WHITE
                     x: 50.0
                     y: 69.0
-                    transform: Transform.scale(2, 2)
-                    filter: DropShadow {offsetX: 3, offsetY: 3, radius: 3, color:Color.color(0,0,0,0.8)}
-                    
+                    scaleX: 2
+                    scaleY: 2
+                    effect: DropShadow { offsetX: 2 offsetY: 2 radius: 4 color: Color.color(0, 0, 0, 0.8) }
                 }]
             }]
         }]
     }]
 }
+

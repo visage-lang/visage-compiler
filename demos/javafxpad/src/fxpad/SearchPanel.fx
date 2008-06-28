@@ -4,7 +4,9 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -22,52 +24,62 @@
  */ 
 
 package fxpad;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+
 import java.lang.System;
+import javafx.scene.*;
+import javafx.scene.paint.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.scene.image.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.*;
+import javafx.ext.swing.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyAdapter;
 
 /**
  * @author jclarke
  */
 
-class CloseButton extends CompositeNode {
+class CloseButton extends CustomNode {
     private attribute pressed: Boolean;
     public attribute action: function():Void;
     attribute group:Group;
-    attribute pressHover: Boolean = bind pressed and group.hover;
-    attribute gfill:Paint = bind if(group.hover) then Color.GRAY else Color.color(.7, .7, .7, 1.0);
+    attribute pressHover: Boolean = bind pressed and group.isMouseOver();
+    attribute gfill:Paint = bind if(group.isMouseOver()) then Color.GRAY else Color.color(.7, .7, .7, 1.0);
     attribute gstroke:Paint = bind if (pressHover) then Color.color(.8, .8, .8, 1) else Color.WHITE;
-    public function composeNode(): Node {
+    public function create(): Node {
         group = Group {
             var r = 6;
             content: [
                 Circle {
                     onMousePressed: function(e) {pressed = true;}
                     onMouseReleased: function(e) {
-                            if (group.hover and action != null) {
+                            if (group.isMouseOver() and action != null) {
                                 action();
                             } 
                             pressed = false;
                     }
-                    selectable: true
-                    cx: r
-                    cy: r
+                    //TODO selectable: true
+                    //blocksMouse: true
+                    centerX: r
+                    centerY: r
                     radius: r
                     fill: bind gfill
                     stroke: bind gfill
                 },
                 Line {
-                    x1: r/2
-                    y1: r/2
-                    x2: r + r/2
-                    y2: r + r/2
+                    startX: r/2
+                    startY: r/2
+                    endX: r + r/2
+                    endY: r + r/2
                     stroke: bind gstroke
                 },
                 Line {
-                    x1: r/2
-                    y1: r + r/2
-                    x2: r + r/2
-                    y2: r/2
+                    startX: r/2
+                    startY: r + r/2
+                    endX: r + r/2
+                    endY: r/2
                     stroke: bind gstroke
                 }            
             ]
@@ -75,67 +87,84 @@ class CloseButton extends CompositeNode {
     }    
 }
 
-class SearchField  extends CompositeNode {
+class SearchField  extends CustomNode {
     attribute columns: Integer = 13;
     public attribute fSearchValue: String;
     attribute action: function():Void;
     attribute cancel: function():Void;
     attribute textField: TextField;
     attribute baseline: Number;
-    attribute view:View;
+    attribute view:ComponentView;
+    attribute dodgerBlue80:Color = Color {
+            red: Color.DODGERBLUE.red 
+            green: Color.DODGERBLUE.green
+            blue: Color.DODGERBLUE.blue
+            opacity: 0.8 };
     
-    public function composeNode(): Node {
+    public function create(): Node {
        var self = this;
-        Group {
+       var group =  Group {
             content:
-            [Rect {
-                height: bind view.currentHeight + 4
-                width: bind view.currentWidth + 20
+            [Rectangle {
+                height: bind view.getHeight() + 4
+                width: bind view.getWidth() + 20
                 arcHeight: 20
                 arcWidth: 20
-                stroke: bind if (textField.focused) then Color.transparent(Color.DODGERBLUE, 0.8) else Color.GRAY
+                stroke: bind if (textField.getJTextField().hasFocus()) then dodgerBlue80 else Color.GRAY
                 strokeWidth: 2
                 fill: Color.WHITE
             },
             Group {
                 transform: Transform.translate(10, 2)
-                content: view = View {
-                    content: textField = TextField {
-                            font: Font.Font("VERDANA", ["PLAIN"], 12)
-                            focused: true
+                content: view = ComponentView {
+                    component: textField = TextField {
+                            font: Font.font("VERDANA", FontStyle.PLAIN, 12)
+                            //TODO focused: true
                             columns: bind self.columns
-                            border: EmptyBorder{}
+                            //TODO border: EmptyBorder{}
                             background: Color.color(0, 0, 0, 0)
                             action: bind self.action
                             text: bind fSearchValue with inverse
+                            //TODO - done in Swing below
+                            /*****************
                             onKeyDown: function(e:KeyEvent):Void {
                                 if (e.keyStroke == KeyStroke.ESCAPE) {
-                                    if(cancel != null) 
+                                    if(cancel <> null) 
                                         cancel();
                                 }
                             }
+                            ***********/
                         }
-                    baseline: self.baseline
+                    //TODO baseline: self.baseline
                 };
             }]
          };
+         // WorkAround for onKeyDown function
+         var tf = textField.getJTextField();
+         tf.addKeyListener(KeyAdapter {
+             public function keyPressed(e:KeyEvent):Void {
+                   if (e.getKeyCode() == KeyEvent.VK_ESCAPE ) {
+                        if(cancel != null) 
+                            cancel();
+                    }
+             }
+         });
+         // END WorkAround for onKeyDown function
+         group;
       }
 }
     
-class SearchButton extends CompositeNode {
+class SearchButton extends CustomNode {
     attribute icon: Image;
     attribute text: String;
     attribute height: Number;
     attribute baseline: Number;
-    attribute font: Font =  Font.Font("VERDANA", ["BOLD"], 11);
+    attribute font: Font =  Font.font("VERDANA", FontStyle.BOLD, 11);
     attribute action: function():Void;
     private attribute pressed: Boolean;   
-    attribute r:Rect;
+    attribute r:Rectangle;
     attribute grad = LinearGradient {
-                    startX: bind r.currentX
-                    startY:  bind r.currentY
-                    endX: bind r.currentX
-                    endY: bind r.currentY + r.height
+                    endX: 0
                     stops:
                     [Stop {
                         offset: 0
@@ -147,7 +176,7 @@ class SearchButton extends CompositeNode {
                     }]
                 };    
     
-    public function composeNode(): Node {
+    public function create(): Node {
         var self = this;
         Group {
             var content = HBox {
@@ -155,35 +184,36 @@ class SearchButton extends CompositeNode {
                 [ImageView {
                     image: bind icon
                     transform: bind Transform.translate(0, height/2)
-                    valign: VerticalAlignment.MIDDLE
+                    verticalAlignment: VerticalAlignment.CENTER
                 },
                 Text {
                     font: bind font
                     //valign: VerticalAlignment.MIDDLE
-                    verticalAlignment: Alignment.BASELINE
-                    transform: bind Transform.translate(5, baseline)
+                    verticalAlignment: VerticalAlignment.CENTER
+                    transform: bind Transform.translate(12, baseline+5)
                     content: bind text
-                    fill: bind if (hover) then Color.WHITE else Color.BLACK
-                    x: bind r.currentX
+                    fill: bind if (mouseOver) then Color.WHITE else Color.BLACK
+                    x: bind r.getX()
                 }]
             }
             content:
-            [r = Rect {
+            [r = Rectangle {
                 onMousePressed: function(e) {pressed = true;}
                 onMouseReleased: function(e) {
-                    if (hover and action != null) {
+                    if (mouseOver and action != null) {
                         action();
                     }
                     pressed = false;
                 }
 
                 height: bind self.height
-                width: bind content.currentWidth + 20
+                width: bind content.getWidth() + 20
                 arcHeight: 20
                 arcWidth: 20
-                selectable: true
-                fill: bind if (hover) then grad as Paint else Color.color(0, 0, 0, 0) as Paint
-                stroke: bind if (pressed) then Color.GRAY else Color.color(0, 0, 0, 0)
+                //TODO selectable: true
+                //blocksMouse: true
+                fill: bind if (mouseOver) then grad as Paint else Color.TRANSPARENT as Paint
+                stroke: bind if (pressed) then Color.GRAY else Color.TRANSPARENT
             },
             Group {
                 transform: Transform.translate(5, 15)
@@ -193,7 +223,7 @@ class SearchButton extends CompositeNode {
     }    
 }
 
-public class SearchPanel extends CompositeNode {
+public class SearchPanel extends CustomNode {
     attribute closeAction: function();
     attribute searchNextAction: function();
     attribute searchPrevAction: function();
@@ -202,17 +232,16 @@ public class SearchPanel extends CompositeNode {
     public attribute matchCase: Boolean on replace {
         bmatchCase = matchCase;
     };
-    // bridges the binds from JavaFXPad to the Checkbox.
     public attribute bmatchCase: Boolean on replace {
         matchCase = bmatchCase;
     }
     public attribute searchField:SearchField;
     attribute open: Boolean on replace {
-        if(open and searchField!= null) {
+        if(open and searchField != null) {
             searchField.requestFocus();
         }
     }
-    public function composeNode(): Node {
+    public function create(): Node {
        
         var self = this;
         searchField = SearchField {
@@ -224,14 +253,14 @@ public class SearchPanel extends CompositeNode {
 
             content:
             [CloseButton {
-                transform: Transform.translate(5, 24/2)
+                transform: Transform.translate(5, 24)
                 action: bind closeAction
-                valign: VerticalAlignment.MIDDLE
+                verticalAlignment: VerticalAlignment.CENTER
             },
             Text {
-                transform: bind Transform.translate(10, 18-(4+searchField.baseline))
-                verticalAlignment: Alignment.BASELINE
-                font: Font.Font("VERDANA", ["BOLD"], 11)
+                transform: bind Transform.translate(10, 20-searchField.baseline)
+                verticalAlignment: VerticalAlignment.CENTER
+                font: Font.font("VERDANA", FontStyle.BOLD, 11)
                 content: "Find:"
             },
             searchField,
@@ -256,20 +285,20 @@ public class SearchPanel extends CompositeNode {
                 text: "Highlight all"
                 action: bind highlightAllAction
             },
-            View {
+            ComponentView {
                 transform: Transform.translate(0, -1)
-                content: CheckBox {
+                component: CheckBox {
                     text: "Match Case",
-                    font: Font.Font("VERDANA", ["BOLD"], 11),
-                    focusable: false
+                    font: Font.font("VERDANA", FontStyle.BOLD, 11),
+                    //TODO focusable: false
                     selected: bind bmatchCase with inverse
                 }
             },
             Text {
                 visible: false
                 transform: bind Transform.translate(0, 2+searchField.baseline)
-                verticalAlignment: Alignment.BASELINE
-                font: Font.Font("VERDANA", ["BOLD"], 11)
+                verticalAlignment: VerticalAlignment.CENTER
+                font: Font.font("VERDANA", FontStyle.BOLD, 11)
                 content: "Match case"
             },
             SearchButton {

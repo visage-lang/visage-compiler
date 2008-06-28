@@ -4,7 +4,9 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -23,8 +25,15 @@
 
 package fxpad;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import fxpad.gui.*;
+import javafx.ext.swing.*;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.scene.paint.*;
+import javafx.scene.image.*;
+import javafx.scene.text.*;
+
 import java.awt.Dimension;
 import java.lang.Math;
 import java.lang.System;
@@ -38,16 +47,24 @@ import java.lang.StringBuffer;
 import java.io.*;
 import java.net.URL;
 import java.net.MalformedURLException;
+import javax.script.ScriptContext;
+import javax.swing.JComponent;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseEvent;
 import java.util.Locale;
+
 
 /**
  * @author jclarke
  */
 
-public class JavaFXPad extends CompositeWidget {
+public class JavaFXPad extends Component {
     // this has to be created before ScriptEngineManager to catch stderr.
-    attribute stdoutPane =  StdoutPane {    };
-    attribute engine:JavaFXScriptEngine = ToolProvider.getJavaFXScriptEngine();
+    attribute stdoutPane:StdoutPane;
+    
+    attribute manager:ScriptEngineManager = new ScriptEngineManager();
+    attribute scrEng:ScriptEngine = manager.getEngineByExtension("javafx");
+    attribute engine:JavaFXScriptEngine = scrEng as JavaFXScriptEngine;
     attribute scriptContext:ScriptContext = engine.getContext();
     
     private function loadBootScript():String {
@@ -58,11 +75,16 @@ public class JavaFXPad extends CompositeWidget {
     attribute url:String;
     attribute sourcePath: URL[];
     attribute classPath: URL[];
+    //TODO work around until BorderPanel has visible attribute.
+    attribute searchPanel:BorderPanel;
+    
     attribute searchActive: Boolean on replace {
         if(not searchActive) {
             searchValue = "";
             editor.requestFocus();
         }
+        //TODO work around until BorderPanel has visible attribute.
+        searchPanel.getJComponent().setVisible(searchActive);
     }
     attribute searchValue: String on replace oldValue {
       
@@ -116,21 +138,15 @@ public class JavaFXPad extends CompositeWidget {
     attribute zoomValue: Number =  bind zoomOptions[zoomSelection];
     attribute mouseX: Number;
     attribute mouseY: Number;    
-    attribute moveMouse: function(e:MouseEvent):Void = 
-                function(e:MouseEvent):Void {
-                    mouseX = 1/(zoomValue/100)*e.x;
-                    mouseY = 1/(zoomValue/100)*e.y;
-                };  
-    attribute inCompletion:Boolean;
     attribute compiledContent: Node[];  
     attribute errMessages: Diagnostic[];
     attribute canvas:Canvas = Canvas {
-                    onMouseMoved: moveMouse
-                    onMouseDragged: moveMouse
+                    //TODO - SEE BELOW - onMouseMoved: moveMouse
+                    //TODO - SEE BELOW - onMouseDragged: moveMouse
                     content: [
-                       //Rect { width: bind canvas.width 
-                       //        height: bind canvas.height
-                       //        fill: Color.WHITE }, 
+                        //Rectangle { width: bind canvas.width 
+                        //       height: bind canvas.height
+                        //       fill: Color.WHITE }, 
                         Group {
                             transform: bind Transform.scale(zoomValue/100, zoomValue/100)
                             content: [
@@ -141,7 +157,21 @@ public class JavaFXPad extends CompositeWidget {
                         }
                     ]
                 };
-
+    attribute errImage:Image = Image {url: "{__DIR__}images/error_obj.gif" };
+    
+    postinit {
+        var comp = canvas.getJComponent();
+        comp.addMouseMotionListener(MouseMotionListener {
+            public function mouseDragged(e: MouseEvent) : Void {
+                mouseX = 1/(zoomValue/100)*e.getX();
+                mouseY = 1/(zoomValue/100)*e.getY();   
+            }
+            public function mouseMoved(e: MouseEvent) : Void {
+                mouseX = 1/(zoomValue/100)*e.getX();
+                mouseY = 1/(zoomValue/100)*e.getY();
+            }            
+        });
+    }
     function isValid():Boolean {
         return sizeof errMessages == 0;
     }
@@ -151,10 +181,12 @@ public class JavaFXPad extends CompositeWidget {
         compile();
     }
     
+
     function clearConsole() {
         stdoutPane.clear();
     }
-   
+    
+    
     private function getResourceAsString(urlStr:String):String {
         try {
             var url  = new URL(urlStr);
@@ -210,15 +242,15 @@ public class JavaFXPad extends CompositeWidget {
                     var h = f.height;
                     var component = f.content;
                     if (w == 0) {
-                        w = component.getComponent().getPreferredSize().width;
+                        w = component.getJComponent().getPreferredSize().width;
                     }
                     if (h == 0) {
-                        h = component.getComponent().getPreferredSize().height;
+                        h = component.getJComponent().getPreferredSize().height;
                     }
                     component = RootPane {
-                        menubar: f.menubar
+                        menus: f.menus
                         content: BorderPanel {
-                            opaque: true
+                            //TODO opaque: true
                             center: component
                         }
                     };
@@ -226,23 +258,19 @@ public class JavaFXPad extends CompositeWidget {
                     f.visible = false;
                     result = Group {
                         transform: Transform.translate(30, 30)
-                        content: [Rect {
+                        content: [Rectangle {
                                 width: w
                                 height: h
                                 stroke: Color.BLACK
                             },
-                            View {
-                                content: component
+                            ComponentView {
+                                component: component
                             }
                             ]
                     };
-                    
-                }
-                else if (result instanceof Widget) {
-                    result = View {
-                        content: result as Widget
-                        //sizeToFitCanvas: true
-                    }
+
+                }else if(result instanceof Component) {
+                    result = ComponentView { component: result as Component};
                 }else if(not (result instanceof Node)) {
                     var obj = result;
                     var str:String = "{result}";
@@ -261,14 +289,15 @@ public class JavaFXPad extends CompositeWidget {
                         public function getMessage(locale:Locale):String {
                             "Incompatible type: expected Node, found {result.getClass().getName()}";
                         }
-                    };                        
-                    result = View {
-                        content: TextArea {
+                    };
+                    result = ComponentView {
+                        component: TextArea {
                             text: str
                         }
-                    };  
+                    }; 
                     insert d into errMessages;
                 }
+
                 compiledContent = [result as Node];
             }
         }catch(e:ScriptException) {
@@ -281,7 +310,9 @@ public class JavaFXPad extends CompositeWidget {
         } 
     }
     
-    public function composeWidget(): Widget {
+
+    
+    public function createJComponent(): JComponent {
         if(url != null) {
                 javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
                           public function run():Void {
@@ -289,47 +320,58 @@ public class JavaFXPad extends CompositeWidget {
                           }
                 });
         }
+        var canvas1:Canvas;
         var splitPane: SplitPane;
-        var theCanvas: Canvas;
-        theCanvas = Canvas {
-             cursor: Cursor.DEFAULT
-             border: LineBorder {lineColor: Color.BLACK }
-             content: [
-                View {
-                    antialias: true
-                    antialiasText: true
-                    sizeToFitCanvas: true
-                    content: splitPane = SplitPane {
-                        border: LineBorder {lineColor: Color.BLACK }
+        canvas1 = Canvas {
+             //TODO border: LineBorder {lineColor: Color.BLACK }
+             content: Group {
+                 content: [
+                Rectangle {
+                    stroke: Color.BLACK 
+                    cursor: Cursor.DEFAULT
+                    //visible: bind inCompletion
+                    fill: Color.TRANSPARENT
+                    width: bind canvas1.width -1
+                    height: bind canvas1.height -1
+                    onMousePressed: function(e) {
+                        // TODO - code completion
+                    }
+
+                },                 
+                ComponentView {
+                    component: splitPane = SplitPane {
+                        //TODO border: LineBorder {lineColor: Color.BLACK }
                         orientation: Orientation.VERTICAL
-                        content:  [  // was bound, but your don't want bind here
+                        content: [
                             SplitView { // display area
                                 weight: 0.35
-                                content: BorderPanel {
-                                    border: LineBorder {lineColor: Color.BLACK }
-                                    preferredSize: new Dimension(100, 500)
-                                    center: ScrollPane {
-                                        cursor: Cursor.DEFAULT
-                                        var font =  Font.Font("Tahoma", ["PLAIN"], 8);
-                                        columnHeader: Canvas { // top ruler  // was bound, but your don't want bind here
+                                component: BorderPanel {
+                                    //TODO border: LineBorder {lineColor: Color.BLACK }
+                                    center: PadScrollPane {
+                                        var font =  Font.font("Tahoma", FontStyle.PLAIN, 8);
+                                        columnHeader: Canvas { // top ruler
                                             content: Group {
                                                 transform: bind Transform.scale(zoomValue/100, zoomValue/100)
                                                 content: Group {
                                                     content: [
                                                         Group {
-                                                            var rulerWidth = bind (Math.max(canvas.width, canvas.viewport.currentWidth) *100/zoomValue/ 5).intValue();
-                                                            var lastTic = bind rulerWidth*5+100;
+                                                            // NO Viewport in Reprise
+                                                            //var rulerWidth = bind(Math.max(canvas.width, canvas.viewport.currentWidth) *100/zoomValue/ 5).intValue();
+                                                            var rulerWidth = bind(canvas.width *100/zoomValue/ 5).intValue();
+                                                            var lastTic = bind rulerWidth*5+100;                                                        
                                                             content: bind for (x in [0..lastTic step 5]) {
-                                                                    [
+                                                                Group { // TODO inserted this GROUP because of JXFC-876
+                                                                    content: [
                                                                         Line {
                                                                             stroke: Color.BLACK
-                                                                            x1: x
-                                                                            y1: if(x %100 == 0) then 0 else if(x %10 == 0) then 9 else 12
-                                                                            x2: x
-                                                                            y2: 15
-                                                                        } as Node,
-                                                                        if(x %100 == 0) Text{content:"{x}", x: x+2, font:font} as Node else null
+                                                                            startX: x
+                                                                            startY: if(x mod 100 == 0) then 0 else if(x mod 10 == 0) then 9 else 12
+                                                                            endX: x
+                                                                            endY: 15
+                                                                        },
+                                                                        if(x mod 100 == 0) Text{content:"{x}", x: x+2, font:font} else null
                                                                     ]
+                                                                }
                                                             }
                                                         },
                                                         Polygon {
@@ -350,26 +392,30 @@ public class JavaFXPad extends CompositeWidget {
                                             content: Group {
                                                 content: [
                                                     Group {
-                                                        var rulerHeight = bind (Math.max(canvas.height, canvas.viewport.currentHeight) *100/zoomValue/ 5).intValue();
+                                                         // NO ViewPort in Reprise
+                                                        //var rulerHeight = bind (Math.max(canvas.height, canvas.viewport.currentHeight) *100/zoomValue/ 5).intValue();
+                                                        var rulerHeight = bind (canvas.height *100/zoomValue/ 5).intValue();
                                                         var lastTic = bind rulerHeight*5+100;
+                                                    
                                                         content: bind for (y in [0..lastTic step 5]) {
-                                                                [
+                                                            Group { // TODO inserted this GROUP because of JXFC-876
+                                                                content: [
                                                                     Line {
                                                                         stroke: Color.BLACK
-                                                                        x1: if(y %100 == 0) then 0 else if(y %10 == 0) then 9 else 12
-                                                                        y1: y
-                                                                        x2: 15
-                                                                        y2: y
-                                                                    } as Node,
-                                                                    if(y %100 == 0) Text {
+                                                                        startX: if(y mod 100 == 0) then 0 else if(y mod 10 == 0) then 9 else 12
+                                                                        startY: y
+                                                                        endX: 15
+                                                                        endY: y
+                                                                    },
+                                                                    if(y mod 100 == 0) Text {
                                                                             content:"{y}"
                                                                             font:font
                                                                             x: 6
                                                                             y: y-10
-                                                                            //transform: Transform.translate(6, y-10)
-                                                                            halign:HorizontalAlignment.TRAILING
-                                                                        } as Node else null
+                                                                            horizontalAlignment:HorizontalAlignment.TRAILING
+                                                                        } else null
                                                                 ]
+                                                            }
                                                         }
                                                     },
                                                     Polygon {
@@ -386,132 +432,115 @@ public class JavaFXPad extends CompositeWidget {
                                         };
                                         rowHeader: Canvas { // left margin ruler
                                             content: Group {
-                                                transform: bind Transform.translate(-contentGroup.currentX, 0)
+                                                transform: bind Transform.translate(-contentGroup.getX(), 0)
                                                 content: contentGroup
                                             }
                                         }
-                                        view: canvas // the main display for the script
+                                        view: bind canvas // the main display for the script
                                     }
                                 }
                             },
+                           
                             SplitView { // Editor
+                                var ebp:BorderPanel;
                                 weight: 0.35
-                                content: BorderPanel {
-                                    border: LineBorder {lineColor: Color.BLACK }
-                                    cursor: Cursor.DEFAULT
-                                    preferredSize: new Dimension(100, 500)
-                                    var editorCanvas:Canvas;
-                                    center: (editorCanvas = Canvas {
-                                        border: LineBorder {lineColor: Color.BLACK }
-                                        content: [
-                                            View {
-                                                size: bind new Dimension(editorCanvas.width, editorCanvas.height)
-                                                //sizeToFitCanvas: true
-                                                content: BorderPanel {
-                                                    bottom: BorderPanel {
-                                                        visible: bind searchActive
-                                                        border: EmptyBorder {top: 2, left: 4, bottom: 2, right: 4}
-                                                        center: Canvas {
-                                                            border: null
-                                                            focusable: false
-                                                            content: SearchPanel {
-                                                                closeAction: function() {searchActive = false;}
-                                                                pSearchValue: bind searchValue with inverse
-                                                                matchCase: bind matchCase
-                                                                open: bind searchActive
-                                                                highlightAllAction: function() {
-                                                                    highlightAll();
-                                                                }
-                                                                searchNextAction: function() {searchNext();}
-                                                                searchPrevAction: function() {searchPrev();}
-                                                            }
-                                                        }
-                                                        
-                                                    }
-                                                    center:  (editor = SourceEditor {
-                                                        
-                                                        editorKit: new com.sun.javafx.api.ui.fxkit.FXEditorKit()
-                                                        opaque: true
-                                                        selectedTextColor: Color.WHITE
-                                                        foreground: Color.BLACK
-                                                        selectionColor: Color.rgb(184, 207, 229);
-                                                        tabSize: 4
-                                                        lineWrap: false
-                                                        border: EmptyBorder {left: 4, right: 4}
-                                                        font: bind Font.Font("Monospaced", ["PLAIN"], fontSize)
-                                                        text: bind userCode with inverse
-                                                        annotations: bind for (err in errMessages) {
-                                                            var lineNumber = err.getLineNumber();
-                                                            var columnNumber = err.getColumnNumber();
-                                                            var startPosition = err.getStartPosition();
-                                                            var endPosition = err.getEndPosition();
-                                                            var length = if (endPosition.intValue() > startPosition.intValue()) endPosition.intValue() - startPosition.intValue() else 1;
-                                                            var la:LineAnnotation;
-                                                            la = LineAnnotation {
-                                                                line: lineNumber.intValue()
-                                                                column: columnNumber.intValue();
-                                                                length: length.intValue();
-                                                                toolTipText: "<html><div 'width=300'>{err.getMessage(null)}</div></html>"
-                                                                content: Canvas {
-                                                                    content: Polyline {
-                                                                        stroke: Color.RED
-                                                                        strokeLineJoin: StrokeLineJoin.BEVEL
-                                                                        strokeWidth: 0.5
-                                                                        transform: bind Transform.translate(0, la.currentHeight-1)
-                                                                        points: bind for (i in [0.0..la.currentWidth step 2.0]) {
-                                                                            var x = i + la.currentWidth % 2;
-                                                                            [x, if(indexof i %2 ==0) then 1.5 else -1.5]
-                                                                        }
-                                                                    }
-                                                                }
+                                component: ebp = BorderPanel {
+                                    //TODO border: LineBorder {lineColor: Color.BLACK }
+                                    preferredSize: bind [canvas1.width,canvas1.height/3]
 
-                                                            }
+                                    center:  editor = SourceEditor {
+                                        
+                                        editorKit: new FXEditorKit()
+                                        selectedTextColor: Color.WHITE
+                                        foreground: Color.BLACK
+                                        selectionColor: Color.rgb(184, 207, 229);
+                                        tabSize: 4
+                                        lineWrap: false
+                                        //TODO border: EmptyBorder {left: 4, right: 4}
+                                        font: bind Font.font("Monospaced", FontStyle.PLAIN, fontSize)
+                                        text: bind userCode with inverse
+                                        annotations: bind for (err in errMessages) {
+                                            var lineNumber = err.getLineNumber();
+                                            var columnNumber = err.getColumnNumber();
+                                            var startPosition = err.getStartPosition();
+                                            var endPosition = err.getEndPosition();
+                                            var length = if (endPosition.intValue() > startPosition.intValue()) endPosition.intValue() - startPosition.intValue() else 1;
+                                            var la:LineAnnotation;
+                                            la = LineAnnotation {
+                                                line: lineNumber.intValue()
+                                                column: columnNumber.intValue();
+                                                length: length.intValue();
+                                                toolTipText: "<html><div 'width=300'>{err.getMessage(null)}</div></html>"
+                                                content: Canvas {
+                                                    content: Polyline {
+                                                        stroke: Color.RED
+                                                        strokeLineJoin: StrokeLineJoin.BEVEL
+                                                        strokeWidth: 0.5
+                                                        transform: bind Transform.translate(0, la.currentHeight-1)
+                                                        points: bind for (i in [0.0..la.currentWidth step 2.0]) {
+                                                            var x = i + la.currentWidth mod 2;
+                                                            [x, if(indexof i mod 2 ==0) then 1.5 else -1.5]
                                                         }
-                                                        rowHeader : Canvas {
-                                                            cursor: Cursor.DEFAULT
-                                                            background: Color.rgba(220, 220, 220, 255)
-                                                            content: [
-                                                                View {
-                                                                    content: (lineNumbers = LineNumberPanel {
-                                                                        lineCount: bind editor.lineCount.intValue()
-                                                                        font: bind editor.font
-                                                                        border: EmptyBorder {right:4}
-                                                                    } )as Widget
-                                                                },
-                                                                Group {
-                                                                    content: bind for (err in errMessages) {
-									var lineNumber = err.getLineNumber();
-                                                                        var r = bind lineNumbers.getCellBounds(0);
-                                                                        var errImage = Image {url: "{__DIR__}images/error_obj.gif" };
-                                                                        View {
-                                                                            toolTipText: "<html><div 'width=300'>{err.getMessage(null)}</div></html>"
-                                                                            transform: bind Transform.translate(2, (lineNumber.intValue() -1)*r.height)
-                                                                            content: SimpleLabel {icon: errImage}
-                                                                            
-                                                                        }
-                                                                    }
-                                                                }
-                                                            ]
-                                                        }
-                                                        
-                                                    }) as Widget
+                                                    }
                                                 }
-                                            },
-                                            View {
+                                                
                                             }
-                                        ]
-                                    }) as Widget
-                                }                                
-                            },    
+                                        }
+                                        rowHeader : Canvas {
+                                            background: Color.rgb(220, 220, 220, 1.0)
+                                            content: [
+                                                ComponentView {
+                                                    component: (lineNumbers = LineNumberPanel {
+                                                        lineCount: bind editor.lineCount.intValue()
+                                                        font: bind editor.font
+                                                        //TODO border: EmptyBorder {right:4}
+                                                    }) as Component
+                                                },
+                                                Group {
+                                                    var r = bind lineNumbers.getCellBounds(0);
+
+                                                    content: bind for (err in errMessages) {
+                                                        var lineNumber = err.getLineNumber();
+                                                        ComponentView {
+                                                            //TODO toolTipText: "<html><div 'width=300'>{err.getMessage(null)}</div></html>"
+                                                            transform: bind Transform.translate(2, (lineNumber.intValue() -1)*r.height)
+                                                            component: Label {icon: Icon{image:errImage}}
+
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                    bottom: searchPanel = BorderPanel {
+                                        //TODO visible: bind searchActive
+                                        //TODO border: EmptyBorder {top: 2, left: 4, bottom: 2, right: 4}
+                                        center: Canvas {
+                                            //TODO border: null
+                                            content: SearchPanel {
+                                                closeAction: function() {searchActive = false;}
+                                                pSearchValue: bind searchValue with inverse
+                                                matchCase: bind matchCase with inverse
+                                                open: bind searchActive
+                                                highlightAllAction: function() {
+                                                    highlightAll();
+                                                }
+                                                searchNextAction: function() {searchNext();}
+                                                searchPrevAction: function() {searchPrev();}
+                                            }
+                                        }
+                                        
+                                    }                                    
+                                }
+                            },
                             SplitView { //Error messages
                                 weight: 0.10
-                                content: BorderPanel {
-                                    var listBox:ListBox;
-                                    border: LineBorder {lineColor: Color.BLACK }
-                                    center: (listBox = ListBox {
-                                        action: function() {
-                                            if(listBox.selection >= 0 and listBox.selection < sizeof errMessages) {
-                                                var err = errMessages[listBox.selection];
+                                component: BorderPanel {
+                                    //TODO border: LineBorder {lineColor: Color.BLACK }
+                                    center: List {
+                                        override attribute selectedIndex = -1 on replace {
+                                            if(selectedIndex >= 0 and selectedIndex < sizeof errMessages) {
+                                                var err = errMessages[selectedIndex];
                                                 var lineNumber = err.getLineNumber();
                                                 var columnNumber = err.getColumnNumber();
                                                 var startPosition = err.getStartPosition();
@@ -524,49 +553,40 @@ public class JavaFXPad extends CompositeWidget {
                                                     columnNumber.intValue() + length);
                                             }
                                         }
-                                        cells: bind for(err in errMessages) {
+                                        items: bind for(err in errMessages) {
                                             var image:String = if(err.getKind() == Diagnostic.Kind.ERROR) then
                                                      "{__DIR__}images/error_obj.gif"
                                                 else "{__DIR__}images/warningS_obj.gif";
                                                 
-                                            ListCell {
+                                            ListItem {
                                                 text: "<html><table cellspacing='0' cellpadding='0'><tr><td><img src='{image}'></img></td><td>&nbsp;{err.getMessage(null).trim()}</td></tr><table>"
-                                                toolTipText: "<html><div>{err.getMessage(null)}</div></html>"
+                                                //TODO toolTipText: "<html><div>{err.getMessage(null)}</div></html>"
                                             }
                                         }
-                                    }) as Widget
+                                    }
                                 }                                
-                            } ,
+                            },
                             SplitView { //Stdout
                                 weight: 0.20
-                                content: BorderPanel {
-                                    border: TitledBorder {title: "Console"}
-                                    center: stdoutPane
-                                }                                
-                            }                               
+                                component: BorderPanel {
+                                    //TODO border: TitledBorder {title: "Console"}
+                                      center: stdoutPane =  StdoutPane{rows:4 columns:80}
+                                }
+                            }
                         ]
                     }
                 },
-                Rect {
-                    stroke: Color.BLACK 
-                    selectable: true
-                    sizeToFitCanvas: true
-                    cursor: Cursor.DEFAULT
-                    visible: bind inCompletion
-                    fill: Color.color(0, 0, 0, 0) as Paint
-                    onMousePressed: function(e) {
-                        // TODO code completion
-                    }
-
+/***********
+                ComponentView {
                 },
-                View {// TODO code completion
-                },
-                View {// TODO code completion
+                ComponentView {
                 }
+*****************/
              ]
+             }
          };
-         //(splitPane.getComponent() as com.sun.javafx.api.ui.MultiSplitPane).getMultiSplitLayout().setFloatingDividers(false);
-         theCanvas;
+         
+         canvas1.getJComponent();
     }
 
     function doSearch():Void  {
@@ -652,7 +672,7 @@ public class JavaFXPad extends CompositeWidget {
             sb.append(File.pathSeparator).append(urls[i].toString());
         }
         return sb.toString();
-    }  
+    }
    
 
 }

@@ -4,7 +4,9 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -23,7 +25,8 @@
 
 package fxpad;
 
-import javafx.ui.*;
+import fxpad.gui.*;
+import javafx.ext.swing.*;
 import java.io.File;
 import java.awt.Dimension;
 
@@ -35,62 +38,64 @@ public class SourcePathDialog {
     attribute sourcePath: File[];
     attribute selectedSourcePath:Integer = -1;
     attribute action: function(sourcePath: File[]):Void;
-    function show(parent:UIElement):Void {
+    function show(parent:Window):Void {
         var self = this;
         var oldSourcePath = sourcePath;
         var dlg:Dialog;
         dlg = Dialog {
             owner: parent
-            visible: true
+            //TODO see Work Arround below - visible: true
             
             title: "Source Path"
             height: 300
             width : 500
-            modal: true
+            //TODO modal: true
             content: BorderPanel {
                 top: Label {text: "Source Path"}
-                center: ListBox {
-                    action: function():Void {self.edit(dlg.content);}
-                    selection: bind self.selectedSourcePath with inverse
-                    cells: bind
-                    for (f in self.sourcePath) ListCell {text: f.getCanonicalPath()}
+                center: List {
+                    override attribute selectedIndex = bind self.selectedSourcePath with inverse on replace {
+                        self.edit(dlg.content);
+                    }
+                    items: bind
+                    for (f in self.sourcePath) ListItem {text: f.getCanonicalPath()}
                 }
                 bottom: FlowPanel {
-                    border: EmptyBorder {
+                    /*** TODO border: EmptyBorder {
                         top: 5
                         left: 2
                         right: 5
                         bottom: 2
-                    }
-                    alignment: Alignment.LEADING
+                    } ***/
+                    //TODO alignment: Alignment.LEADING
                     content:
                     [Button {
-                        preferredSize: new Dimension(80,0)
+                        preferredSize: [ 80, 0]
                         text: "Add"
-                        mnemonic: KeyStroke.A
+                        //TODO mnemonic: KeyCode.VK_A
                         action: function() {self.add(dlg.content);}
                     },
                     Button {
-                        preferredSize: new Dimension(80,0)
+                        preferredSize: [ 80, 0]
                         text: "Edit"
                         action: function() {self.edit(dlg.content);}
                         enabled: bind self.selectedSourcePath >= 0
                     },
                     Button {
-                        preferredSize: new Dimension(80,0)
+                        preferredSize: [ 80, 0]
                         text: "Remove"
                         action: function() {self.remove();}
                         enabled: bind self.selectedSourcePath >= 0
                     }]
                 }
             }
+            /******* TODO 
             buttons:
             [Button {
                 text: "OK"
                 action: function():Void {
-                    if(self.action != null) 
+                    if(self.action <> null) 
                         self.action(self.sourcePath);
-                    dlg.hide();
+                    dlg.visible = false;
                 }
             },
             Button {
@@ -98,14 +103,42 @@ public class SourcePathDialog {
                 defaultCancelButton: true
                 action: function():Void {
                     self.sourcePath = oldSourcePath;
-                    dlg.hide();
+                    dlg.visible = false;
                 }
             }]
+             * ***********/
         };
+        
+        
+        // BEGIN SWING WORK AROUND
+        dlg.getJDialog().setModal(true);
+        
+        
+        var b = Button {
+                text: "OK"
+                action: function():Void {
+                    if(self.action != null) 
+                        self.action(self.sourcePath);
+                    dlg.visible=false;
+                }  
+        };
+        dlg.getJDialog().add(b.getJComponent());
+        b = Button {
+            text: "Cancel"
+            // TODO defaultCancelButton: true
+            action: function():Void {
+                self.sourcePath = oldSourcePath;
+                dlg.visible=false;
+            }
+        };
+        dlg.getJDialog().add(b.getJComponent());
+        dlg.visible = true;
+        // END SWING WORK AROUND
+        dlg;        
     }
                 
   
-    function add(w:Widget):Void {
+    function add(w:Component):Void {
         var fc:FileChooser;
         fc = FileChooser {
             title: "Source Path"
@@ -139,7 +172,7 @@ public class SourcePathDialog {
                 }
             }
         };
-        fc.showOpenDialog(w as UIElement);
+        fc.showOpenDialog(w);
   
     }
     function remove():Void {
@@ -152,7 +185,7 @@ public class SourcePathDialog {
             selectedSourcePath = i;
         }
     }
-    function edit(w:Widget):Void {
+    function edit(w:Component):Void {
         var fc:FileChooser;
         fc = FileChooser {
             title: "Source Path"
@@ -176,7 +209,7 @@ public class SourcePathDialog {
             }
             cwd: sourcePath[selectedSourcePath]
         };
-        fc.showOpenDialog(w as UIElement);
+        fc.showOpenDialog(w);
     }
     
 

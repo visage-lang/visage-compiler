@@ -4,7 +4,9 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -21,66 +23,79 @@
  * have any questions.
  */ 
 
-package javafxpad;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+package fxpad;
+
+import javafx.scene.*;
+import javafx.scene.transform.*;
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+import javafx.scene.text.*;
+import javafx.ext.swing.*;
+import javafx.input.*;
 import java.awt.Dimension;
 
-class ViewOutline extends CompositeNode {
+class ViewOutline extends CustomNode {
     attribute outline: Node; 
     attribute viewTransform: Translate = Translate {x: 0, y: 0};
-    attribute sizing: Rect on replace {
+    
+    //TODO sizing setBounds
+    attribute sizing: Rectangle on replace {
+        //var bounds =viewHolder.getBounds();
          if (sizing == null) {
-            viewTransform.x = outline.currentX + 4;
-            viewTransform.y = outline.currentY + 4;
-            viewHolder.size = new Dimension(rectWidth, rectHeight);
-         } 
+            viewTransform.x = outline.getX() + 4;
+            viewTransform.y = outline.getY() + 4;
+            //bounds.setRect(bounds.getX(), bounds.getY(), rectWidth, rectHeight);
+         } else {
+             //bounds.setRect(sizing.x, sizing.y, sizing.width, sizing.height);
+         }
     };
     public attribute selected: Boolean;
     public attribute rectHeight: Number on replace {
         if (sizing == null) {
-            viewHolder.size = new Dimension(rectWidth, rectHeight);
+            //var bounds = viewHolder.getBounds();
+            //bounds.setRect(bounds.getX(), bounds.getY(), rectWidth, rectHeight);            
         }  
     };
     public attribute rectWidth: Number on replace {
         if (sizing == null) {
-            viewHolder.size = new Dimension(rectWidth, rectHeight);
+            //var bounds =viewHolder.getBounds();
+            //bounds.setRect(bounds.getX(), bounds.getY(), rectWidth, rectHeight);             
         }  
     };
-    attribute northWest: Rect;
-    attribute north: Rect;
-    attribute northEast: Rect;
-    attribute east: Rect;
-    attribute southEast: Rect;
-    attribute south: Rect;
-    attribute southWest: Rect;
-    attribute west: Rect;
+    attribute northWest: Rectangle;
+    attribute north: Rectangle;
+    attribute northEast: Rectangle;
+    attribute east: Rectangle;
+    attribute southEast: Rectangle;
+    attribute south: Rectangle;
+    attribute southWest: Rectangle;
+    attribute west: Rectangle;
     attribute outlineWidth: Number = 1.5;
-    attribute view: Widget;
-    attribute viewHolder: View;
+    attribute view: Component;
+    attribute viewHolder: ComponentView;
     
-    public function composeNode(): Node {
-        var transparentFill = Color.color(0, 0, 0, 0);
+    public function create(): Node {
+        var transparentFill = Color.TRANSPARENT;
         var strokeColor = Color.color(0.0, 0.0, 1.0, 0.5);
         var outlineDash:Number[] = [];
         var handleSize = 8;
         var arcStroke = Color.color(1.0, 0.0, 0.0, 0.5);
-        var r1:Rect;
+        var r1:Rectangle;
         return Group {
             content:
-            [viewHolder = View {
+            [viewHolder = ComponentView {
                 transform: bind viewTransform
-                //filter: Identity
-                size: new Dimension(rectWidth, rectHeight)
-                content: bind view
+                //effect: Identity
+                //TODO - done elsewhere size: new Dimension(rectWidth, rectHeight)
+                component: bind view
             },
             outline = Group {
             var tx = Translate {x: 0, y: 0}
             transform: tx
             content:
-            [r1 = Rect {
-                var thisRect = bind r1;
-                selectable: true
+            [r1 = Rectangle {
+                //TODO selectable: true
+                blocksMouse: true
                 width: bind rectWidth
                 height: bind rectHeight
                 stroke: bind if (sizing != null) then strokeColor else transparentFill
@@ -89,33 +104,36 @@ class ViewOutline extends CompositeNode {
                 fill: bind if (sizing != null) then Color.color(1, 1, 1, 0.5) else null
                 var mouseX:Number = 0
                 var mouseY:Number = 0
-                onMousePressed: function(e:CanvasMouseEvent):Void {
-                    mouseX = e.x;
-                    mouseY = e.y;
-                    thisRect.cursor = Cursor.MOVE;
+                var saveCursor:Cursor = null;
+                onMousePressed: function(e:MouseEvent):Void {
+                    mouseX = e.getX();
+                    mouseY = e.getY();
+                    saveCursor = r1.cursor;
+                    r1.cursor = Cursor.MOVE;
                 }
-                onMouseDragged: function(e:CanvasMouseEvent):Void {
-                    var dx = e.x - mouseX;
-                    var dy = e.y - mouseY;
-                    mouseX = e.x;
-                    mouseY = e.y;
+                onMouseDragged: function(e:MouseEvent):Void {
+                    var dx = e.getX() - mouseX;
+                    var dy = e.getY() - mouseY;
+                    mouseX = e.getX();
+                    mouseY = e.getY();
                     tx.x += dx;
                     tx.y += dy;
                 }
-                onMouseClicked: function(e:CanvasMouseEvent):Void {
-                     if (e.clickCount == 2) {
+                onMouseClicked: function(e:MouseEvent):Void {
+                     if (e.getClickCount() == 2) {
                          selected = not selected;
                      }
                 }
-                onMouseReleased: function(e:CanvasMouseEvent):Void {
-                     thisRect.cursor = thisRect.getCanvas().cursor;
+                onMouseReleased: function(e:MouseEvent):Void {
+                     r1.cursor = saveCursor;
                 }
             },
             Group {
                 visible: bind selected
                 content:
-                [northWest = Rect {
-                    selectable: true
+                [northWest = Rectangle {
+                    //TODO ?? selectable: true
+                    blocksMouse: true
                     cursor: Cursor.NW_RESIZE
                     height: handleSize
                     width: handleSize
@@ -123,20 +141,20 @@ class ViewOutline extends CompositeNode {
                     fill: transparentFill
                     strokeWidth: bind outlineWidth
                     strokeDashArray: outlineDash
-                    valign: VerticalAlignment.CENTER
-                    halign: HorizontalAlignment.CENTER
+                    verticalAlignment: VerticalAlignment.CENTER
+                    horizontalAlignment: HorizontalAlignment.CENTER
                     var mouseX:Number = 0
                     var mouseY:Number = 0
-                    onMousePressed: function(e:CanvasMouseEvent):Void {
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMousePressed: function(e:MouseEvent):Void {
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         sizing = northWest;
                     }
-                    onMouseDragged: function(e:CanvasMouseEvent):Void  {
-                        var dx = e.x - mouseX;
-                        var dy = e.y - mouseY;
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMouseDragged: function(e:MouseEvent):Void  {
+                        var dx = e.getX() - mouseX;
+                        var dy = e.getY() - mouseY;
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         var w = rectWidth - dx;
                         if (w < 0) {
                             w = 0;
@@ -154,8 +172,9 @@ class ViewOutline extends CompositeNode {
                         sizing = null;
                     }
                 },
-                north = Rect {
-                    selectable: true
+                north = Rectangle {
+                    //TODO ?? selectable: true
+                    blocksMouse: true
                     cursor: Cursor.N_RESIZE
                     height: handleSize
                     width: handleSize
@@ -164,20 +183,20 @@ class ViewOutline extends CompositeNode {
                     strokeDashArray: outlineDash
                     fill: transparentFill
                     transform: bind Transform.translate(rectWidth/2, 0)
-                    valign: VerticalAlignment.CENTER
-                    halign: HorizontalAlignment.CENTER
+                    verticalAlignment: VerticalAlignment.CENTER
+                    horizontalAlignment: HorizontalAlignment.CENTER
                     var mouseX:Number = 0
                     var mouseY:Number = 0
-                    onMousePressed: function(e:CanvasMouseEvent):Void {
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMousePressed: function(e:MouseEvent):Void {
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         sizing = north;
                     }
-                    onMouseDragged: function(e:CanvasMouseEvent):Void {
-                        var dx = e.x - mouseX;
-                        var dy = e.y - mouseY;
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMouseDragged: function(e:MouseEvent):Void {
+                        var dx = e.getX() - mouseX;
+                        var dy = e.getY() - mouseY;
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         rectHeight -= dy;
                         tx.y += dy;
                     }
@@ -185,8 +204,9 @@ class ViewOutline extends CompositeNode {
                         sizing = null;
                     }
                 },
-                northEast = Rect {
-                    selectable: true
+                northEast = Rectangle {
+                    //TODO ?? selectable: true
+                    blocksMouse: true
                     cursor: Cursor.NE_RESIZE
                     height: handleSize
                     width: handleSize
@@ -195,20 +215,20 @@ class ViewOutline extends CompositeNode {
                     strokeWidth: bind outlineWidth
                     strokeDashArray: outlineDash
                     transform: bind Transform.translate(rectWidth, 0)
-                    valign: VerticalAlignment.CENTER
-                    halign: HorizontalAlignment.CENTER
+                    verticalAlignment: VerticalAlignment.CENTER
+                    horizontalAlignment: HorizontalAlignment.CENTER
                     var mouseX:Number = 0
                     var mouseY:Number = 0
-                    onMousePressed: function(e:CanvasMouseEvent):Void {
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMousePressed: function(e:MouseEvent):Void {
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         sizing = northEast;
                     }
-                    onMouseDragged: function(e:CanvasMouseEvent):Void {
-                        var dx = e.x - mouseX;
-                        var dy = e.y - mouseY;
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMouseDragged: function(e:MouseEvent):Void {
+                        var dx = e.getX() - mouseX;
+                        var dy = e.getY() - mouseY;
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         var w = rectWidth + dx;
                         if (w < 0) {
                             w = 0;
@@ -225,8 +245,9 @@ class ViewOutline extends CompositeNode {
                         sizing = null;
                     }
                 },
-                east = Rect {
-                    selectable: true
+                east = Rectangle {
+                    //TODO ?? selectable: true
+                    blocksMouse: true
                     cursor: Cursor.E_RESIZE
                     height: handleSize
                     width: handleSize
@@ -235,20 +256,20 @@ class ViewOutline extends CompositeNode {
                     strokeDashArray: outlineDash
                     fill: transparentFill
                     transform: bind Transform.translate(rectWidth, rectHeight/2)
-                    valign: VerticalAlignment.CENTER
-                    halign: HorizontalAlignment.CENTER
+                    verticalAlignment: VerticalAlignment.CENTER
+                    horizontalAlignment: HorizontalAlignment.CENTER
                     var mouseX:Number = 0
                     var mouseY:Number = 0
-                    onMousePressed: function(e:CanvasMouseEvent):Void {
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMousePressed: function(e:MouseEvent):Void {
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         sizing = east;
                     }
-                    onMouseDragged: function(e:CanvasMouseEvent):Void {
-                        var dx = e.x - mouseX;
-                        var dy = e.y - mouseY;
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMouseDragged: function(e:MouseEvent):Void {
+                        var dx = e.getX() - mouseX;
+                        var dy = e.getY() - mouseY;
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         var w = rectWidth + dx;
                         if (w < 0) {
                             w = 0;
@@ -259,8 +280,9 @@ class ViewOutline extends CompositeNode {
                         sizing = null;
                     }
                 },
-                southEast = Rect {
-                    selectable: true
+                southEast = Rectangle {
+                    //TODO ?? selectable: true
+                    blocksMouse: true
                     cursor: Cursor.SE_RESIZE
                     height: handleSize
                     width: handleSize
@@ -269,20 +291,20 @@ class ViewOutline extends CompositeNode {
                     strokeDashArray: outlineDash
                     fill: transparentFill
                     transform: bind Transform.translate(rectWidth, rectHeight)
-                    valign: VerticalAlignment.CENTER
-                    halign: HorizontalAlignment.CENTER
+                    verticalAlignment: VerticalAlignment.CENTER
+                    horizontalAlignment: HorizontalAlignment.CENTER
                     var mouseX:Number = 0
                     var mouseY:Number = 0
-                    onMousePressed: function(e:CanvasMouseEvent):Void {
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMousePressed: function(e:MouseEvent):Void {
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         sizing = southEast;
                     }
-                    onMouseDragged: function(e:CanvasMouseEvent):Void {
-                        var dx = e.x - mouseX;
-                        var dy = e.y - mouseY;
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMouseDragged: function(e:MouseEvent):Void {
+                        var dx = e.getX() - mouseX;
+                        var dy = e.getY() - mouseY;
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         var w = rectWidth + dx;
                         var h = rectHeight + dy;
                         if (w < 0) {
@@ -298,8 +320,9 @@ class ViewOutline extends CompositeNode {
                         sizing = null;
                     }
                 },
-                south = Rect {
-                    selectable: true
+                south = Rectangle {
+                    //TODO ?? selectable: true
+                    blocksMouse: true
                     cursor: Cursor.S_RESIZE
                     height: handleSize
                     width: handleSize
@@ -308,22 +331,22 @@ class ViewOutline extends CompositeNode {
                     strokeDashArray: outlineDash
                     fill: transparentFill
                     transform: bind Transform.translate(rectWidth/2, rectHeight)
-                    valign: VerticalAlignment.CENTER
-                    halign: HorizontalAlignment.CENTER
+                    verticalAlignment: VerticalAlignment.CENTER
+                    horizontalAlignment: HorizontalAlignment.CENTER
                     var mouseX:Number = 0
                     var mouseY:Number = 0
                     var oldValue = 0
-                    onMousePressed: function(e:CanvasMouseEvent):Void {
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMousePressed: function(e:MouseEvent):Void {
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         sizing = south;
                     }
-                    onMouseDragged: function(e:CanvasMouseEvent):Void {
-                        if (e.button == 1) {
-                            var dx = e.x - mouseX;
-                            var dy = e.y - mouseY;
-                            mouseX = e.x;
-                            mouseY = e.y;
+                    onMouseDragged: function(e:MouseEvent):Void {
+                        if (e.getButton() == 1) {
+                            var dx = e.getX() - mouseX;
+                            var dy = e.getY() - mouseY;
+                            mouseX = e.getX();
+                            mouseY = e.getY();
                             var h = rectHeight + dy;
                             if (h < 0) {
                                 h = 0;
@@ -335,8 +358,9 @@ class ViewOutline extends CompositeNode {
                         sizing = null;
                     }
                 },
-                southWest = Rect {
-                    selectable: true
+                southWest = Rectangle {
+                    //TODO ?? selectable: true
+                    blocksMouse: true
                     cursor: Cursor.SW_RESIZE
                     height: handleSize
                     width: handleSize
@@ -345,20 +369,20 @@ class ViewOutline extends CompositeNode {
                     strokeDashArray: outlineDash
                     fill: transparentFill
                     transform: bind Transform.translate(0, rectHeight)
-                    valign: VerticalAlignment.CENTER
-                    halign: HorizontalAlignment.CENTER
+                    verticalAlignment: VerticalAlignment.CENTER
+                    horizontalAlignment: HorizontalAlignment.CENTER
                     var mouseX:Number = 0
                     var mouseY :Number= 0
-                    onMousePressed: function(e:CanvasMouseEvent):Void {
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMousePressed: function(e:MouseEvent):Void {
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         sizing = southWest;
                     }
-                    onMouseDragged: function(e:CanvasMouseEvent):Void {
-                        var dx = e.x - mouseX;
-                        var dy = e.y - mouseY;
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMouseDragged: function(e:MouseEvent):Void {
+                        var dx = e.getX() - mouseX;
+                        var dy = e.getY() - mouseY;
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         var w = rectWidth - dx;
                         var h = rectHeight + dy;
                         if (w < 0) {
@@ -375,8 +399,9 @@ class ViewOutline extends CompositeNode {
                         sizing = null;
                     }
                 },
-                west = Rect {
-                    selectable: true
+                west = Rectangle {
+                    //TODO ?? selectable: true
+                    blocksMouse: true
                     cursor: Cursor.W_RESIZE
                     height: handleSize
                     width: handleSize
@@ -385,20 +410,20 @@ class ViewOutline extends CompositeNode {
                     strokeDashArray: outlineDash
                     fill: transparentFill
                     transform: bind Transform.translate(0, rectHeight/2)
-                    valign: VerticalAlignment.CENTER
-                    halign: HorizontalAlignment.CENTER
+                    verticalAlignment: VerticalAlignment.CENTER
+                    horizontalAlignment: HorizontalAlignment.CENTER
                     var mouseX:Number = 0
                     var mouseY:Number = 0
-                    onMousePressed: function(e:CanvasMouseEvent):Void {
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMousePressed: function(e:MouseEvent):Void {
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         sizing = west;
                     }
-                    onMouseDragged: function(e:CanvasMouseEvent):Void {
-                        var dx = e.x - mouseX;
-                        var dy = e.y - mouseY;
-                        mouseX = e.x;
-                        mouseY = e.y;
+                    onMouseDragged: function(e:MouseEvent):Void {
+                        var dx = e.getX() - mouseX;
+                        var dy = e.getY() - mouseY;
+                        mouseX = e.getX();
+                        mouseY = e.getY();
                         var w = rectWidth - dx;
                         if (w < 0) {
                             w = 0;
@@ -413,7 +438,7 @@ class ViewOutline extends CompositeNode {
                 Text {
                     visible: bind sizing != null
                     content: bind "{rectWidth} X {rectHeight}"
-                    transform: bind Transform.translate(sizing.currentX + sizing.currentWidth + 5, sizing.currentY + sizing.currentHeight + 5)   
+                    transform: bind Transform.translate(sizing.x + sizing.width + 5, sizing.y + sizing.height + 5)   
                 }]
            }]
          }]

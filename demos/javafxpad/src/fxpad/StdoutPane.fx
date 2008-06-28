@@ -4,7 +4,9 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -24,8 +26,7 @@
 package fxpad;
 
 import java.lang.System;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.ext.swing.*;
 import javax.swing.JTextArea;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -45,37 +46,23 @@ class StdoutStream extends ByteArrayOutputStream {
     }
 }
 
-public class StdoutPane extends ScrollableWidget {
+public class StdoutPane extends ScrollableComponent {
    
-    private attribute jtextarea: JTextArea = new JTextArea() on replace {
-        jtextarea.setOpaque(false);
-        jtextarea.setEditable(false);
-        jtextarea.setLineWrap(true);
-        jtextarea.getCaret().setVisible( true );
+    public function getJTextArea() : JTextArea {
+        getJComponent() as JTextArea;
     }
-    private attribute menu:PopupMenu = PopupMenu {
-        owner: this
-        items: MenuItem {
-            text: "Clear"
-            action: function():Void {
-                clear();
-                menu.visible = false;
-            }
-        }
-        
-    };     
-    public attribute rows: Number = jtextarea.getRows() on replace {
-        jtextarea.setRows(rows);
+    public attribute rows: Number = getJTextArea().getRows() on replace {
+        getJTextArea().setRows(rows);
     };
-    public attribute columns: Number = jtextarea.getColumns() on replace {
-        jtextarea.setColumns(columns);
+    public attribute columns: Number = getJTextArea().getColumns() on replace {
+        getJTextArea().setColumns(columns);
     };
     public function clear(): Void {
-        jtextarea.setText("");
+        getJTextArea().setText("");
         
     }
     public function append(atext:String) : Void {
-        jtextarea.append(atext);
+        getJTextArea().append(atext);
     }
     
     postinit {
@@ -85,8 +72,13 @@ public class StdoutPane extends ScrollableWidget {
         System.setOut(out)        
     }
     
-    public function createView(): javax.swing.JComponent {
-        jtextarea;
+    public function createJComponent(): javax.swing.JComponent {
+        var ta = new JTextArea();
+        ta.setOpaque(false);
+        ta.setEditable(false);
+        ta.setLineWrap(true);
+        ta.getCaret().setVisible( true );        
+        ta;
     }
     
 }

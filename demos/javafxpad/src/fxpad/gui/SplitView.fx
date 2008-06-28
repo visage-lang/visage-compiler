@@ -23,32 +23,48 @@
  * have any questions.
  */ 
 
-package fxpad;
+package fxpad.gui;
 
+import java.lang.System;
+import org.jdesktop.swingx.MultiSplitLayout;
+import java.awt.Dimension;
+import javax.swing.JComponent;
 import javafx.ext.swing.*;
 
 /**
  * @author jclarke
  */
 
-public class LineNumberPanel extends Component {
-    private attribute panel: LineNumberPanelImpl on replace {
-        if(panel != null)
-            panel.setOpaque(false);
-    }
-    public attribute lineCount:Integer on replace {
-         getLineNumberPanel().setLineCount(lineCount);
+public class SplitView  {
+    // TODO MARK AS FINAL
+    protected attribute id: String = "{System.identityHashCode(this)}";
+
+    // TODO MARK AS FINAL
+    protected attribute splitpane: SplitPane;
+
+    // TODO MARK AS FINAL
+    protected attribute splitnode: MultiSplitLayout.Leaf
+        = new MultiSplitLayout.Leaf(id);
+
+    public attribute weight: Number on replace {
+        if (splitnode != null) {
+            splitnode.setWeight(weight);
+        }
     };
     
-    public function getCellBounds(line:Integer):java.awt.Rectangle {
-        return getLineNumberPanel().getCellBounds(line);
-    }
+    public attribute component: Component on replace old {
+        component.getJComponent().setMinimumSize(new Dimension(0, 0));
+        if (splitpane != null) {
+            if (old != null) {
+                splitpane.getJPanel().remove(old.getJComponent());
+            }
+            if (component != null) {
+                splitpane.getJPanel().add(component.getJComponent(), id);
+            }
+        }
+    };
     
-    public function getLineNumberPanel(): LineNumberPanelImpl {
-        return getJComponent() as LineNumberPanelImpl;
+    protected function getSplitNode(): MultiSplitLayout.Node{
+       return splitnode;
     }
-    public function createJComponent() : javax.swing.JComponent {
-        panel = new LineNumberPanelImpl();
-    }
-
 }

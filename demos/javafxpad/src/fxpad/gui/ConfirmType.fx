@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,32 +23,21 @@
  * have any questions.
  */ 
 
-package fxpad;
+package fxpad.gui;
 
+import javax.swing.JOptionPane;
 import javafx.ext.swing.*;
 
-/**
- * @author jclarke
- */
 
-public class LineNumberPanel extends Component {
-    private attribute panel: LineNumberPanelImpl on replace {
-        if(panel != null)
-            panel.setOpaque(false);
-    }
-    public attribute lineCount:Integer on replace {
-         getLineNumberPanel().setLineCount(lineCount);
-    };
+public class ConfirmType {
+    public attribute id: Number;
     
-    public function getCellBounds(line:Integer):java.awt.Rectangle {
-        return getLineNumberPanel().getCellBounds(line);
-    }
-    
-    public function getLineNumberPanel(): LineNumberPanelImpl {
-        return getJComponent() as LineNumberPanelImpl;
-    }
-    public function createJComponent() : javax.swing.JComponent {
-        panel = new LineNumberPanelImpl();
-    }
-
+    public static attribute DEFAULT = 
+        ConfirmType{id: JOptionPane.DEFAULT_OPTION};
+    public static attribute YES_NO = 
+        ConfirmType{id: JOptionPane.YES_NO_OPTION};
+    public static attribute YES_NO_CANCEL = 
+        ConfirmType{id: JOptionPane.YES_NO_CANCEL_OPTION};
+    public static attribute OK_CANCEL = 
+        ConfirmType{id: JOptionPane.OK_CANCEL_OPTION};
 }

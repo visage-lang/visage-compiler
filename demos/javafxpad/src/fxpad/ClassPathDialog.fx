@@ -4,7 +4,9 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -23,74 +25,76 @@
 
 package fxpad;
 
-import javafx.ui.*;
+import fxpad.gui.*;
+import javafx.ext.swing.*;
 import java.io.File;
 import java.awt.Dimension;
 
 /**
  * @author jclarke
  */
-
 public class ClassPathDialog {
     attribute classPath: File[];
     attribute selectedClassPath:Integer = -1;
     attribute action: function(classPath: File[]):Void;
-    function show(parent:UIElement):Void {
+    function show(parent:Window):Void {
         var self = this;
         var oldClassPath = classPath;
         var dlg:Dialog;
         dlg = Dialog {
             owner: parent
-            visible: true
+            //TODO - see below visible: true
             
             title: "Class Path"
             height: 300
             width : 500
-            modal: true
+            //TODO - see below modal: true
             content: BorderPanel {
                 top: Label {text: "Class Path"}
-                center: ListBox {
-                    action: function():Void {self.edit(dlg.content);}
-                    selection: bind self.selectedClassPath with inverse
-                    cells: bind
-                    for (f in self.classPath) ListCell {text: f.getCanonicalPath()}
+                center: List {
+                    override attribute selectedIndex = bind self.selectedClassPath with inverse on replace {
+                        self.edit(dlg.content);
+                    }
+                    items: bind
+                    for (f in self.classPath) ListItem {text: f.getCanonicalPath()}
                 }
                 bottom: FlowPanel {
-                    border: EmptyBorder {
+                    /* TODO border: EmptyBorder {
                         top: 5
                         left: 2
                         right: 5
                         bottom: 2
-                    }
-                    alignment: Alignment.LEADING
+                    }*/
+                    //TODO alignment: Alignment.LEADING
                     content:
                     [Button {
-                        preferredSize: new Dimension(80,0)
+                        preferredSize:  [80, 0]
                         text: "Add"
-                        mnemonic: KeyStroke.A
+                        //TODO mnemonic: KeyCode.VK_A
                         action: function() {self.add(dlg.content);}
                     },
                     Button {
-                        preferredSize: new Dimension(80,0)
+                        preferredSize:  [80, 0]
                         text: "Edit"
                         action: function() {self.edit(dlg.content);}
                         enabled: bind self.selectedClassPath >= 0
                     },
                     Button {
-                        preferredSize: new Dimension(80,0)
+                        preferredSize:  [80, 0]
                         text: "Remove"
                         action: function() {self.remove();}
                         enabled: bind self.selectedClassPath >= 0
                     }]
                 }
             }
+            /** TODO  - see below
             buttons:
             [Button {
                 text: "OK"
                 action: function():Void {
-                    if(self.action != null) 
+                    if(self.action <> null) 
                         self.action(self.classPath);
-                    dlg.hide();
+                    dlg.visible=false;
                 }
             },
             Button {
@@ -98,14 +102,41 @@ public class ClassPathDialog {
                 defaultCancelButton: true
                 action: function():Void {
                     self.classPath = oldClassPath;
-                    dlg.hide();
+                    dlg.visible=false;
                 }
             }]
+            ******************************/
         };
+        
+        // BEGIN SWING WORK AROUND
+        dlg.getJDialog().setModal(true);
+        
+        
+        var b = Button {
+                text: "OK"
+                action: function():Void {
+                    if(self.action != null) 
+                        self.action(self.classPath);
+                    dlg.visible=false;
+                }  
+        };
+        dlg.getJDialog().add(b.getJComponent());
+        b = Button {
+            text: "Cancel"
+            // TODO defaultCancelButton: true
+            action: function():Void {
+                self.classPath = oldClassPath;
+                dlg.visible=false;
+            }
+        };
+        dlg.getJDialog().add(b.getJComponent());
+        dlg.visible = true;
+        // END SWING WORK AROUND
+        dlg;
     }
                 
   
-    function add(w:Widget):Void {
+    function add(c:Component):Void {
         var fc:FileChooser;
         fc = FileChooser {
             title: "Class Path"
@@ -139,7 +170,7 @@ public class ClassPathDialog {
                 }
             }
         };
-        fc.showOpenDialog(w as UIElement);
+        fc.showOpenDialog(c);
   
     }
     function remove():Void {
@@ -152,7 +183,7 @@ public class ClassPathDialog {
             selectedClassPath = i;
         }
     }
-    function edit(w:Widget):Void {
+    function edit(c:Component):Void {
         var fc:FileChooser;
         fc = FileChooser {
             title: "Class Path"
@@ -176,8 +207,6 @@ public class ClassPathDialog {
             }
             cwd: classPath[selectedClassPath]
         };
-        fc.showOpenDialog(w as UIElement);
+        fc.showOpenDialog(c);
     }
-    
-
 }
