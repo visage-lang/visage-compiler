@@ -139,10 +139,6 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
         return null;
     }
 
-    public R visitBlock(BlockTree node, P p) {
-        return scan(node.getStatements(), p);
-    }
-
     public R visitWhileLoop(WhileLoopTree node, P p) {
         R r = scan(node.getCondition(), p);
         r = scanAndReduce(node.getStatement(), p, r);

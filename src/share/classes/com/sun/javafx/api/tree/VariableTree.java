@@ -41,7 +41,7 @@ import com.sun.tools.javafx.tree.JFXType;
  * @author Jonathan Gibbons
  * @since 1.6
  */
-public interface VariableTree extends StatementTree {
+public interface VariableTree extends ExpressionTree {
     ModifiersTree getModifiers();
     Name getName();
     Tree getType();

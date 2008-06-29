@@ -40,6 +40,6 @@ import javax.lang.model.element.Name;
  * @author Jonathan Gibbons
  * @since 1.6
  */
-public interface ContinueTree extends StatementTree {
+public interface ContinueTree extends ExpressionTree {
     Name getLabel();
 }

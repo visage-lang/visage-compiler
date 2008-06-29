@@ -30,7 +30,7 @@ import com.sun.tools.javac.code.Type;
 /**
  * Statements.
  */
-public abstract class JFXStatement extends JFXTree implements StatementTree {
+public abstract class JFXStatement extends JFXTree implements ExpressionTree {
     
     /** Initialize tree with given tag.
      */

@@ -38,7 +38,7 @@ import javax.lang.model.element.Name;
  *
  * @author Tom Ball
  */
-public interface ObjectLiteralPartTree extends StatementTree {
+public interface ObjectLiteralPartTree extends ExpressionTree {
     Name getName();
     ExpressionTree getExpression();
     JavafxBindStatus getBindStatus();

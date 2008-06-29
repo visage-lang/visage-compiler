@@ -36,7 +36,7 @@ import java.util.List;
  * 
  * @author tball
  */
-public interface InterpolateTree extends StatementTree {
+public interface InterpolateTree extends ExpressionTree {
     
     /**
      * Returns the variable to be interpolated.

@@ -37,6 +37,6 @@ package com.sun.javafx.api.tree;
  * @author Jonathan Gibbons
  * @since 1.6
  */
-public interface ThrowTree extends StatementTree {
+public interface ThrowTree extends ExpressionTree {
     ExpressionTree getExpression();
 }

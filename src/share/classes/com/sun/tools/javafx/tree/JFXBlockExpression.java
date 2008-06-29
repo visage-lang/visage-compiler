@@ -48,8 +48,8 @@ public class JFXBlockExpression extends JFXExpression implements BlockExpression
         this.value = value;
     }
 
-    public java.util.List<StatementTree> getStatements() {
-        return convertList(StatementTree.class, stats);
+    public java.util.List<ExpressionTree> getStatements() {
+        return convertList(ExpressionTree.class, stats);
     }
 
     public List<JFXStatement> getStmts() {

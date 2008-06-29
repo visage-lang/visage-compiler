@@ -52,7 +52,6 @@ public interface JavaFXTreeVisitor<R,P> {
     R visitAssignment(AssignmentTree node, P p);
     R visitCompoundAssignment(CompoundAssignmentTree node, P p);
     R visitBinary(BinaryTree node, P p);
-    R visitBlock(BlockTree node, P p);
     R visitBreak(BreakTree node, P p);
     R visitCatch(CatchTree node, P p);
     R visitClass(ClassTree node, P p);

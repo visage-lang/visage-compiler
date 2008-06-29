@@ -37,4 +37,4 @@ package com.sun.javafx.api.tree;
  * @author Jonathan Gibbons
  * @since 1.6
  */
-public interface EmptyStatementTree extends StatementTree {}
+public interface EmptyStatementTree extends ExpressionTree {}

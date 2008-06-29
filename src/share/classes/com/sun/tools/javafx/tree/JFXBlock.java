@@ -35,7 +35,7 @@ import com.sun.tools.javac.code.Flags;
  * @param stats statements
  * @param flags flags
  */
-public class JFXBlock extends JFXStatement implements BlockTree {
+public class JFXBlock extends JFXStatement implements BlockExpressionTree {
 
     public long flags;
     public List<JFXStatement> stats;
@@ -54,15 +54,19 @@ public class JFXBlock extends JFXStatement implements BlockTree {
 
     @Override
     public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.BLOCK;
+        return JavaFXKind.BLOCK_EXPRESSION;
     }
 
-    public java.util.List<StatementTree> getStatements() {
-        return convertList(StatementTree.class, stats);
+    public java.util.List<ExpressionTree> getStatements() {
+        return convertList(ExpressionTree.class, stats);
     }
 
     public List<JFXStatement> getStmts() {
         return stats;
+    }
+
+   public JFXExpression getValue() {
+        return null;
     }
 
     public boolean isStatic() {
@@ -71,7 +75,7 @@ public class JFXBlock extends JFXStatement implements BlockTree {
 
     @Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
-        return v.visitBlock(this, d);
+        return v.visitBlockExpression(this, d);
     }
 
     @Override

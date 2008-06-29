@@ -36,11 +36,11 @@ package com.sun.javafx.api.tree;
  * @author Tom Ball
  */
 
-public interface OnReplaceTree extends StatementTree {
+public interface OnReplaceTree extends ExpressionTree {
     VariableTree getFirstIndex();
     VariableTree getLastIndex();
     VariableTree getOldValue();
     VariableTree getNewElements();
-    BlockTree getBody();    
+    BlockExpressionTree getBody();    
     int getEndKind();
 }

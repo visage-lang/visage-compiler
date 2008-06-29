@@ -40,5 +40,5 @@ package com.sun.javafx.api.tree;
  */
 public interface CatchTree extends Tree {
     VariableTree getParameter();
-    BlockTree getBlock();
+    BlockExpressionTree getBlock();
 }

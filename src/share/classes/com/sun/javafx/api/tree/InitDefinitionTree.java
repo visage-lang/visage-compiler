@@ -36,5 +36,5 @@ package com.sun.javafx.api.tree;
  * @author Tom Ball
  */
 public interface InitDefinitionTree extends Tree {
-    BlockTree getBody();
+    BlockExpressionTree getBody();
 }

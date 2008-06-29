@@ -35,7 +35,7 @@ package com.sun.javafx.api.tree;
  *
  * @author Tom Ball
  */
-public interface SequenceDeleteTree extends StatementTree {
+public interface SequenceDeleteTree extends ExpressionTree {
     ExpressionTree getSequence();
     ExpressionTree getElement();
 }

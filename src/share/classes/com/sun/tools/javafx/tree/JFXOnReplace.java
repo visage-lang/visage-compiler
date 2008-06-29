@@ -33,7 +33,7 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-public class JFXOnReplace extends JFXStatement implements OnReplaceTree {
+public class JFXOnReplace extends JFXTree implements OnReplaceTree {
     
     private final JFXVar firstIndex;
     private final JFXVar oldValue;

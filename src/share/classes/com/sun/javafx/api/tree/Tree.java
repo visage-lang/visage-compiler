@@ -57,11 +57,6 @@ public interface Tree {
         ASSIGNMENT(AssignmentTree.class),
 
         /**
-         * Used for instances of {@link BlockTree}.
-         */
-        BLOCK(BlockTree.class),
-
-        /**
          * Used for instances of {@link BreakTree}.
          */
         BREAK(BreakTree.class),

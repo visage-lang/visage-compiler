@@ -47,7 +47,7 @@ import javax.lang.model.element.Name;
  * @author Jonathan Gibbons
  * @since 1.6
  */
-public interface ClassTree extends StatementTree {
+public interface ClassTree extends ExpressionTree {
     ModifiersTree getModifiers();
     Name getSimpleName();
     Tree getExtendsClause();

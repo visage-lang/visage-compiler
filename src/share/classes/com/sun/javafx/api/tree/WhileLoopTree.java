@@ -39,7 +39,7 @@ package com.sun.javafx.api.tree;
  * @author Jonathan Gibbons
  * @since 1.6
  */
-public interface WhileLoopTree extends StatementTree {
+public interface WhileLoopTree extends ExpressionTree {
     ExpressionTree getCondition();
-    StatementTree getStatement();
+    ExpressionTree getStatement();
 }

@@ -39,6 +39,6 @@ import java.util.List;
  */
 public interface BlockExpressionTree extends ExpressionTree {
     boolean isStatic();
-    List<? extends StatementTree> getStatements();
+    List<? extends ExpressionTree> getStatements();
     ExpressionTree getValue();
 }

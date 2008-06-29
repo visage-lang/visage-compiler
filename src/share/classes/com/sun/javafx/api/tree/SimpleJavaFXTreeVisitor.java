@@ -76,10 +76,6 @@ public class SimpleJavaFXTreeVisitor <R,P> implements JavaFXTreeVisitor<R,P> {
         return defaultAction(node, p);
     }
 
-    public R visitBlock(BlockTree node, P p) {
-        return defaultAction(node, p);
-    }
-
     public R visitWhileLoop(WhileLoopTree node, P p) {
         return defaultAction(node, p);
     }

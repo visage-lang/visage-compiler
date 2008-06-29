@@ -38,6 +38,6 @@ package com.sun.javafx.api.tree;
  * @author Jonathan Gibbons
  * @since 1.6
  */
-public interface ReturnTree extends StatementTree {
+public interface ReturnTree extends ExpressionTree {
     ExpressionTree getExpression();
 }

@@ -43,8 +43,8 @@ import java.util.List;
  * @author Jonathan Gibbons
  * @since 1.6
  */
-public interface TryTree extends StatementTree {
-    BlockTree getBlock();
+public interface TryTree extends ExpressionTree {
+    BlockExpressionTree getBlock();
     List<? extends CatchTree> getCatches();
-    BlockTree getFinallyBlock();
+    BlockExpressionTree getFinallyBlock();
 }

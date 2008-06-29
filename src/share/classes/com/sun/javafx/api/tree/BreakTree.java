@@ -41,6 +41,6 @@ import javax.lang.model.element.Name;
  * @author Jonathan Gibbons
  * @since 1.6
  */
-public interface BreakTree extends StatementTree {
+public interface BreakTree extends ExpressionTree {
     Name getLabel();
 }
