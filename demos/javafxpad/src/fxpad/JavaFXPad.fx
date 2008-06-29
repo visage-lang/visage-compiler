@@ -497,13 +497,13 @@ public class JavaFXPad extends Component {
                                                     }) as Component
                                                 },
                                                 Group {
-                                                    var r = bind lineNumbers.getCellBounds(0);
 
                                                     content: bind for (err in errMessages) {
-                                                        var lineNumber = err.getLineNumber();
+                                                        var lineNumber:Number = err.getLineNumber();
+                                                        var r = bind lineNumbers.getCellBounds(lineNumber.intValue() - 1);
                                                         ComponentView {
                                                             //TODO toolTipText: "<html><div 'width=300'>{err.getMessage(null)}</div></html>"
-                                                            transform: bind Transform.translate(2, (lineNumber.intValue() -1)*r.height)
+                                                            transform: bind Transform.translate(2, r.y + r.height/2 - errImage.height/2)
                                                             component: Label {icon: Icon{image:errImage}}
 
                                                         }
