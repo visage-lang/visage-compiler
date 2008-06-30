@@ -1,10 +1,15 @@
 package studiomoto;
-import javafx.ui.UIElement;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.animation.*;
-import com.sun.javafx.runtime.PointerFactory;
-import com.sun.javafx.runtime.Pointer;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.layout.*;
+import javafx.scene.image.*;
+import javafx.scene.transform.*;
+import javafx.scene.paint.*;
+import javafx.scene.text.*;
+
+import javafx.ext.swing.*;
+import javafx.animation.*;
+import java.lang.System;
 
 public class Product {
     public attribute title: String;
@@ -42,34 +47,23 @@ public class MotoProducts extends MotoPanel {
     function getImage(n:Integer): Image {
         Image {url: "{__DIR__}products/Image/{n}.png"};
     }
-    function makeDropStoryBoard(target:Pointer, start:Number, end:Number, bounce:Boolean): Timeline {
+    function makeDropStoryBoard(target:Number, start:Number, end:Number, bounce:Boolean): Timeline {
         Timeline {
              keyFrames: [
                     KeyFrame {
-                        keyTime: 0s
-                        keyValues:  NumberValue {
-                            target: target;
-                            value: start
-                        }
+                        time: 0s
+                        values: target => start
                     },
                     //TODO What is different about bounce?
                     if(bounce) {
                         KeyFrame {
-                            keyTime: 1s
-                            keyValues:  NumberValue {
-                                target: target;
-                                value: end
-                                interpolate: NumberValue.EASEBOTH
-                            }
+                            time: 1s
+                            values: target => end tween Interpolator.EASEBOTH
                         };
                     }else {
                         KeyFrame {
-                            keyTime: 1s
-                            keyValues:  NumberValue {
-                                target: target;
-                                value: end
-                                interpolate: NumberValue.EASEBOTH
-                            }
+                            time: 1s
+                            values: target => end tween Interpolator.EASEBOTH
                         };
                     }
                 ]
@@ -77,89 +71,114 @@ public class MotoProducts extends MotoPanel {
     }
     
     
-    private attribute __consoleShadowY = bind pf.make(consoleShadowY);
-    private attribute _consoleShadowY = __consoleShadowY.unwrap();
-    private attribute __consoleY = bind pf.make(consoleY);
-    private attribute _consoleY = __consoleY.unwrap();
-    private attribute __phoneShadowY = bind pf.make(phoneShadowY);
-    private attribute _phoneShadowY = __phoneShadowY.unwrap();
-    private attribute __phoneY = bind pf.make(phoneY);
-    private attribute _phoneY = __phoneY.unwrap();
-    private attribute __headphonesShadowY = bind pf.make(headphonesShadowY);
-    private attribute _headphonesShadowY = __headphonesShadowY.unwrap();
-    private attribute __headphonesY = bind pf.make(headphonesY);
-    private attribute _headphonesY = __headphonesY.unwrap();
-    private attribute __pdaShadowY = bind pf.make(pdaShadowY);
-    private attribute _pdaShadowY = __pdaShadowY.unwrap();
-    private attribute __pdaY = bind pf.make(pdaY);
-    private attribute _pdaY = __pdaY.unwrap();
-    private attribute __flipPhoneShadowY = bind pf.make(flipPhoneShadowY);
-    private attribute _flipPhoneShadowY = __flipPhoneShadowY.unwrap();
-    private attribute __flipPhoneY = bind pf.make(flipPhoneY);
-    private attribute _flipPhoneY = __flipPhoneY.unwrap();
                   
-                  
-                  
-    attribute introAnim: Timeline = Timeline {
+    attribute introAnim: Timeline = bind Timeline {
          keyFrames:
               [KeyFrame {
-                  keyTime: 0s
-                  timelines: makeDropStoryBoard(_consoleShadowY, -200, 85, false);
+                  time: 0s
+                  values: [
+                      consoleShadowY => -200,
+                      consoleY => -200,
+                      phoneShadowY => -200,
+                      phoneY => -200,
+                      headphonesShadowY => -200,
+                      headphonesY => -200,
+                      pdaShadowY => -200,
+                      pdaY => -200,
+                      flipPhoneShadowY => -200,
+                      flipPhoneY => -200,
+                  ]
               },
               KeyFrame {
-                  keyTime: 100ms
-                  timelines: makeDropStoryBoard(_consoleY, -200, 65, true);
+                  time: 100ms
+                  values: [
+                      consoleShadowY => -200,
+                  ]
               },
               KeyFrame {
-                  keyTime: 500ms
-                  timelines: makeDropStoryBoard(_phoneShadowY, -200,  120, false);
+                  time: 200ms
+                  values: [
+                      consoleY => -200,
+                  ]
+              },  
+              KeyFrame {
+                  time: 300ms
+                  values: [
+                      phoneShadowY => -200,
+                      
+                  ]
+              },   
+              KeyFrame {
+                  time: 500ms
+                  values: [
+                      phoneY => -200,
+                      headphonesShadowY => -200,
+                  ]
+              },  
+              KeyFrame {
+                  time: 700ms
+                  values: [
+                      pdaShadowY => -200,
+                  ]
+              },               
+              KeyFrame {
+                  time: 800ms
+                  values: [
+                      headphonesY => -200,
+                  ]
+              },  
+              KeyFrame {
+                  time: 900ms
+                  values: [
+                      pdaY => -200,
+                      flipPhoneShadowY => -200,
+                      consoleShadowY => 85 tween Interpolator.EASEBOTH
+                  ]
+              },               
+              KeyFrame {
+                  time: 1000ms
+                  values: [
+                      consoleY => 65 tween Interpolator.EASEBOTH
+                  ]
               },
               KeyFrame {
-                  keyTime: 100ms
-                  relative: true
-                  timelines: makeDropStoryBoard(_phoneY, -200, 53, true);
+                  time: 1100ms
+                  values: [
+                      phoneShadowY => 120 tween Interpolator.EASEBOTH
+                  ]
+              },   
+              KeyFrame {
+                  time: 1300ms
+                  values: [
+                      phoneY => 53 tween Interpolator.EASEBOTH,
+                      headphonesShadowY => 70 tween Interpolator.EASEBOTH,
+                  ]
+              },   
+              KeyFrame {
+                  time: 1500ms
+                  values: [
+                      pdaShadowY => 70 tween Interpolator.EASEBOTH,
+                  ]
+              },              
+              KeyFrame {
+                  time: 1600ms
+                  values: [
+                      headphonesY => 18 tween Interpolator.EASEBOTH,
+                  ]
+              },  
+              KeyFrame {
+                  time: 1700ms
+                  values: [
+                      pdaY => -5 tween Interpolator.EASEBOTH,
+                      flipPhoneShadowY => 117 tween Interpolator.EASEBOTH
+                  ]
               },
               KeyFrame {
-                  keyTime: 100ms
-                  relative: true
-                  timelines: makeDropStoryBoard(_headphonesShadowY, -200, 70, false);
-              },
-              KeyFrame {
-                  keyTime: 100ms
-                  relative: true
-                  timelines: makeDropStoryBoard(_headphonesY, -200, 18, true);
-              },
-              KeyFrame {
-                  keyTime: 100ms
-                  relative: true
-                  timelines: makeDropStoryBoard(_pdaShadowY, -200, 70, false);
-              },
-              KeyFrame {
-                  keyTime: 100ms
-                  relative: true
-                  timelines: makeDropStoryBoard(_pdaY, -200, -5, true);
-              },
-              KeyFrame {
-                  keyTime: 100ms
-                  relative: true
-                  timelines: makeDropStoryBoard(_flipPhoneShadowY, -200, 117, false);
-              },
-              KeyFrame {
-                  keyTime: 100ms
-                  relative: true
-                  timelines: makeDropStoryBoard(_flipPhoneY, -200, 50, true);
-              },
-              KeyFrame {
-                  keyTime: 100ms
-                  relative: true
-                  action: function() {
-                      productVisible = true;
-                  }
-              },
-              KeyFrame {
-                  keyTime: 5s
-                  relative: true 
-              }
+                  time: 1900ms
+                  values: [
+                      flipPhoneY => 50 tween Interpolator.EASEBOTH
+                  ]
+              },              
               ]
     };
 
@@ -178,6 +197,7 @@ public class MotoProducts extends MotoPanel {
         headphonesShadowY = -200;
         phoneShadowY = -200;
         super.doIntro();
+        productVisible = true;
         introAnim.start();
     }
     
@@ -186,30 +206,30 @@ public class MotoProducts extends MotoPanel {
     // but they don't work that way in the interpreter, bug??
     private attribute open:Boolean = false;
     private attribute margin:Integer = 3;
-    private attribute transparentFill = Color.color(0, 0, 0, 0);
+    private attribute transparentFill = Color.TRANSPARENT;
     private attribute group:Group;
-    private attribute lhover:Boolean = bind group.hover on replace { 
+    private attribute lhover:Boolean = bind group.isMouseOver() on replace { 
         if(not lhover) {
             open = false;
         }
     };
     
     // From MotoPanel
-     override attribute title = View {
-        content: Label {
+     override attribute title = ComponentView {
+        component: Label {
             text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>Moto</span><span style='color:yellow;'>Products</span></div></html>"
         }
     };
         
       override attribute content = Group {
-        
         content: HBox {
             transform: Transform.translate(0, 10)
             content:
             [VBox {
                 content:
                 [Text {
-                    font: Font{face: FontFace.ARIAL, size: 11}
+                    textOrigin: TextOrigin.TOP
+                    font: Font{name: "ARIAL", size: 11}
                     content: "Get information on the latest Motorola products here."
                     fill: Color.WHITE
                 },
@@ -229,14 +249,14 @@ public class MotoProducts extends MotoPanel {
                             content:
                             [ImageView {              
                                 cursor: Cursor.DEFAULT
+                                onMouseClicked: function(e) {open = false;}
                                 image: Image{url: "{__DIR__}Image/99.png"}
                             },
                             Group {
                                 transform: Transform.translate(11, -7.5)
 
                                 content:
-                                [Rect {
-                                    selectable: true
+                                [Rectangle {
                                     height: 300
                                     width: 225
                                     fill: Color.color(0, 0, 0, .8)
@@ -248,17 +268,17 @@ public class MotoProducts extends MotoPanel {
                                         row = Group {
                                             transform: Transform.translate(0, margin)
                                             content:
-                                            [Rect {
+                                            [Rectangle {
                                                 cursor: Cursor.HAND
-                                                selectable: true
                                                 height: 12//bind titleText.currentHeight
                                                 width: 200
                                                 fill: transparentFill
                                             },
                                             Text {
+                                                textOrigin: TextOrigin.TOP
                                                 content: bind p.title
-                                                font: Font {face: FontFace.ARIAL, size: 11}
-                                                fill: bind if (row.hover) then Color.YELLOW else Color.color(.8, .8, .8, 1)
+                                                font: Font {name: "ARIAL", size: 11}
+                                                fill: bind if (row.isMouseOver()) then Color.YELLOW else Color.color(.8, .8, .8, 1)
                                             }]
                                         };
                                     }
@@ -266,11 +286,12 @@ public class MotoProducts extends MotoPanel {
                             }]
                         },
                         Text {
+                            textOrigin: TextOrigin.TOP
                             content: "CHOOSE A PRODUCT"
                             transform: Transform.translate(20, 37/2)
-                            valign: VerticalAlignment.MIDDLE
+                            verticalAlignment: VerticalAlignment.CENTER
                             fill: bind if (open) then Color.BLACK else Color.WHITE
-                            font: Font{face: FontFace.VERDANA, size: 11, style: FontStyle.BOLD}
+                            font: Font{name: "VERDANA", size: 11, style: FontStyle.BOLD}
                         }]
                     }]
                 }]

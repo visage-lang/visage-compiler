@@ -1,11 +1,16 @@
 package studiomoto;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.transform.*;
+import javafx.scene.paint.*;
+import javafx.scene.geometry.*;
+import javafx.scene.image.*;
+import javafx.scene.layout.*;
+import javafx.ext.swing.*;
 
-public class MusicPanel1 extends CompositeNode {
-    function composeNode():Node {
-        Clip {
-            shape: Rect {height: 160, width: 220}
+public class MusicPanel1 extends CustomNode {
+    function create():Node {
+        Group {
+            clip: Rectangle {height: 160, width: 220}
             content:
             Group {
                 transform: Transform.translate(-50, 0)
@@ -14,7 +19,8 @@ public class MusicPanel1 extends CompositeNode {
                 },
                 ImageView {
                     transform: Transform.translate(230, 145)
-                    valign: VerticalAlignment.BOTTOM, halign: HorizontalAlignment.TRAILING
+                    verticalAlignment: VerticalAlignment.BOTTOM, 
+                    horizontalAlignment: HorizontalAlignment.TRAILING
                     image: Image{url: "{__DIR__}Image/83.png"}
                 },
                 ImageView {
@@ -24,8 +30,8 @@ public class MusicPanel1 extends CompositeNode {
                 VBox {
                     transform: Transform.translate(150, 0)
                     content:
-                    [View {
-                        content:
+                    [ComponentView {
+                        component:
                         Label {
                             text: "<html><div style='color:yellow;font-size:9pt;width:120;font-face:arial;'>Welcome to the world of songwriter Geoff Byrd</div></html>"
                         }

@@ -1,13 +1,16 @@
 package studiomoto;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.layout.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.scene.paint.*;
+import javafx.scene.image.*;
+import javafx.scene.text.*;
 import java.lang.Math;
-import javafx.ui.animation.*;
-import com.sun.javafx.runtime.PointerFactory;
-import com.sun.javafx.runtime.Pointer;
+import javafx.animation.*;
 
 
-class StudioMotoSplash extends CompositeNode {
+class StudioMotoSplash extends CustomNode {
     attribute motoX: Number = -40;
     attribute studioX: Number = 50;
     attribute phoneY: Number = -120;
@@ -20,193 +23,96 @@ class StudioMotoSplash extends CompositeNode {
     }
     attribute onDone: function();
     
-    private attribute pf: PointerFactory = PointerFactory{};
-    private attribute _alpha = bind pf.make(alpha).unwrap();
-    private attribute _backgroundAlpha = bind pf.make(backgroundAlpha).unwrap();
-    private attribute _phoneY = bind pf.make(phoneY).unwrap();
-    private attribute _motoX = bind pf.make(motoX).unwrap();
-    private attribute _studioX = bind pf.make(studioX).unwrap();   
     attribute anim: Timeline= Timeline {
  
 	  keyFrames:
 	  [ KeyFrame {
-                keyTime: 0s
-                keyValues:  [
-                    NumberValue {
-                        target: _alpha
-                        value: 0  
-                    },
-                   NumberValue {
-                        target: _backgroundAlpha
-                        value: 1  
-                    },
-                   NumberValue {
-                        target: _phoneY
-                        value: -120 
-                    },
-                   NumberValue {
-                        target: _studioX
-                        value: 50 
-                    },
-                   NumberValue {
-                        target: _motoX
-                        value: -40 
-                    }
+                time: 0s
+                values: [
+                    alpha => 0,
+                    backgroundAlpha => 1,
+                    phoneY => -120,
+                    studioX => 50,
+                    motoX => -40
                 ]
 	  },
 	  KeyFrame {
-              keyTime: 1s
-              relative: true
-              keyValues:  [
-                    NumberValue {
-                        target: _alpha
-                        value: 1  
-                        interpolate: NumberValue.LINEAR
-                    },
-                   NumberValue {
-                        target: _phoneY
-                        value: -120  
-                    }
-              ]
+              time: 1s
+              values: [
+                    alpha => 1 tween Interpolator.LINEAR,
+                    phoneY => -120,
+              ]              
 	  },
 	  KeyFrame {
-              keyTime: 500ms
-              relative: true
-              keyValues:  [
-                    NumberValue {
-                        target: _phoneY
-                        value: 200  
-                        interpolate: NumberValue.EASEBOTH
-                    },
-                   NumberValue {
-                        target: _studioX
-                        value: 50 
-                    },
-                   NumberValue {
-                        target: _motoX
-                        value: -40 
-                    }                    
+              time: 1500ms
+              values: [
+                    phoneY => 200 tween Interpolator.EASEBOTH,
+                    studioX => 50,
+                    motoX => -40
               ]              
           },
 	  KeyFrame {
-              keyTime: 250ms
-              relative: true
-              keyValues:  [
-                    NumberValue {
-                        target: _studioX
-                        value: -20
-                        interpolate: NumberValue.EASEBOTH
-                    },
-                   NumberValue {
-                        target: _motoX
-                        value: 20
-                        interpolate: NumberValue.EASEBOTH
-                    }                   
+              time: 1750ms
+              values: [
+                    studioX => -20 tween Interpolator.EASEBOTH,
+                    motoX => -20 tween Interpolator.EASEBOTH,
               ]               
 	  },
 	  KeyFrame {
-              keyTime: 250ms
-              relative: true
-              keyValues:  [
-                    NumberValue {
-                        target: _studioX
-                        value: 0
-                        interpolate: NumberValue.EASEBOTH
-                    },
-                   NumberValue {
-                        target: _motoX
-                        value: 0
-                        interpolate: NumberValue.EASEBOTH
-                    }                   
-              ]                 
+              time: 2000ms
+              values: [
+                    studioX => 0 tween Interpolator.EASEBOTH,
+                    motoX => 0 tween Interpolator.EASEBOTH,
+              ]              
 	  },
-	  KeyFrame {
-              keyTime: 1400ms
-              relative: true
-              keyValues:  [
-                    NumberValue {
-                        target: _studioX
-                        value: 0
-                    },
-                   NumberValue {
-                        target: _motoX
-                        value: 0
-                    }                   
-              ]               
+	  KeyFrame { // TODO check this one
+              time: 3400ms
+              values: [
+                    studioX => 0 tween Interpolator.EASEBOTH,
+                    motoX => 0 tween Interpolator.EASEBOTH,
+              ]                  
 	  },
  	  KeyFrame {
-              keyTime: 250ms
-              relative: true
-              keyValues:  [
-                    NumberValue {
-                        target: _studioX
-                        value: -20
-                        interpolate: NumberValue.LINEAR
-                    },
-                   NumberValue {
-                        target: _motoX
-                        value: 20
-                        interpolate: NumberValue.LINEAR
-                    }                   
+              time: 3650ms
+              values: [
+                    studioX => -20 tween Interpolator.EASEBOTH,
+                    motoX => 20 tween Interpolator.EASEBOTH,
               ]               
 	  },
 	  KeyFrame {
-              keyTime: 250ms
-              relative: true
-              keyValues:  [
-                    NumberValue {
-                        target: _studioX
-                        value: 50
-                        interpolate: NumberValue.LINEAR
-                    },
-                   NumberValue {
-                        target: _motoX
-                        value: -40
-                        interpolate: NumberValue.LINEAR
-                    },    
-                   NumberValue {
-                        target: _alpha
-                        value: -1
-                    },
-                   NumberValue {
-                        target: _backgroundAlpha
-                        value: 1
-                    }                    
+              time: 3900ms
+              values: [
+                    studioX => 50 tween Interpolator.LINEAR,
+                    motoX => -40 tween Interpolator.LINEAR,
+                    alpha => 1 ,
+                    backgroundAlpha => 1 ,
               ]               
 	  },
 	  KeyFrame {
-              keyTime: 500ms
-              relative: true
-              keyValues:  [
-                    NumberValue {
-                        target: _alpha
-                        value: 0
-                        interpolate: NumberValue.EASEBOTH
-                    },
-                   NumberValue {
-                        target: _backgroundAlpha
-                        value: 0
-                        interpolate: NumberValue.EASEBOTH
-                    }                   
-              ]               
+              time: 4400ms
+              values: [
+                    alpha => 0 tween Interpolator.EASEBOTH,
+                    backgroundAlpha => 0 tween Interpolator.EASEBOTH,
+              ]                
 	  }]
       };
 
     
-    function composeNode():Node {
+    function create():Node {
         Group {
             content:
-            [Rect {
+            [Rectangle {
                 onMouseClicked: function(e) {doSplash();}
                 opacity: bind backgroundAlpha
                 width: 1100
                 height: 800
                 fill: Color.BLACK
             },
-            Clip {
+            Group {
                 transform: Transform.translate(1100/2, 800/2)
-                valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.CENTER
-                shape: Rect {width: 636, height: 651}
+                verticalAlignment: VerticalAlignment.CENTER, 
+                horizontalAlignment: HorizontalAlignment.CENTER
+                clip: Rectangle {width: 636, height: 651}
                 opacity: bind alpha
                 content:
                 [Group {
@@ -217,30 +123,32 @@ class StudioMotoSplash extends CompositeNode {
                     ImageView {
                         transform: bind Transform.translate(636/2, phoneY)
                         image: Image{url: "{__DIR__}Image/3.png"}
-                        halign: HorizontalAlignment.CENTER
+                        horizontalAlignment: HorizontalAlignment.CENTER
                     }]
                 },
                 Group {
                     transform: Transform.translate(536/2, 631/2+5)
                     opacity: bind alpha
-                    var font = Font.Font("ARIAL", ["BOLD"], 16)
+                    var font = Font.font("ARIAL", FontStyle.BOLD, 16)
                     content:
                     [HBox {
                         content:
-                        [Clip {
-                            shape: Rect {x: -50, width: 100, height: 15}
+                        [Group {
+                            clip: Rectangle {x: -50, width: 100, height: 15}
                             content:
                             Text {
+                                textOrigin: TextOrigin.TOP
                                 transform: bind Transform.translate(studioX, 0)
                                 font: font
                                 content: "studio"
                                 fill: Color.YELLOW
                             }
                         },
-                        Clip {
-                            shape: Rect {width: 100, height: 15}
+                        Group {
+                            clip: Rectangle {width: 100, height: 15}
                             content:
                             Text {
+                                textOrigin: TextOrigin.TOP
                                 transform: bind Transform.translate(motoX, 0)
                                 font: font
                                 content: "moto"

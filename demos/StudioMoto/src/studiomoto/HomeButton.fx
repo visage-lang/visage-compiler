@@ -1,11 +1,10 @@
 package studiomoto;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import java.lang.Math;
+import javafx.scene.*;
+import javafx.scene.image.*;
 
-public class HomeButton extends CompositeNode {
+public class HomeButton extends CustomNode {
     public attribute action: function();
-    function composeNode() : Node {
+    function create() : Node {
         Group {
         cursor: Cursor.HAND
         content: ImageView {

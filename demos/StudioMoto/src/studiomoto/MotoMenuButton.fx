@@ -1,62 +1,51 @@
 package studiomoto;
 import java.lang.System;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
 import java.lang.Math;
-import javafx.ui.animation.*;
-import com.sun.javafx.runtime.PointerFactory;
-import com.sun.javafx.runtime.Pointer;
+import javafx.scene.*;
+import javafx.scene.transform.*;
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.*;
+import javafx.scene.image.*;
+import javafx.animation.*;
 
-public class MotoMenuButton extends CompositeNode {
+public class MotoMenuButton extends CustomNode {
     public attribute anim: MotoMenuAnimation;
     public attribute label1: String;
     public attribute label2: String;
     public attribute action: function();
-    attribute mouseOver: Boolean = bind rect.hover on replace {
+    attribute hover: Boolean = bind rect.isMouseOver() on replace {
         a.start();
-        if (mouseOver) {
+        if (hover) {
             anim.start();
         } else {
             anim.stop();
         }        
     };
-    private attribute pf: PointerFactory = PointerFactory{};
-    private attribute _y = bind pf.make(y).unwrap();
     attribute a: Timeline = Timeline {
-        
         toggle: true
         keyFrames: [
             KeyFrame {
-                keyTime: 0s
-                keyValues:  NumberValue {
-                    target: _y;
-                    value: 0
-                }
+                time: 0s
+                values: y => 0
             },
             KeyFrame {
-                keyTime: 200ms
-                keyValues:  NumberValue {
-                    target: _y;
-                    value: -12
-                    interpolate: NumberValue.EASEBOTH
-                } 
+                time: 200ms
+                values: y => -12 tween Interpolator.EASEBOTH
             },
             KeyFrame {
-                keyTime: 400ms
-                keyValues:  NumberValue {
-                    target: _y;
-                    value: -10
-                    interpolate: NumberValue.EASEBOTH
-                }
+                time: 400ms
+                values: y => -10 tween Interpolator.EASEBOTH
             }
         ]
     };
 
     attribute y: Number;
     private attribute group:Group;
-    private attribute rect:Rect;
+    private attribute rect:Rectangle;
     
-    function composeNode():Node {
+    function create():Node {
         Group {
             content:
             [group = Group {
@@ -65,8 +54,7 @@ public class MotoMenuButton extends CompositeNode {
                 var h = 60
                 transform: bind Transform.translate(0, y)
                 content: /** bind **/
-                [rect = Rect {
-                    selectable: true
+                [rect = Rectangle {
                     width: w
                     height: h
                     fill: Color.BLACK
@@ -74,12 +62,12 @@ public class MotoMenuButton extends CompositeNode {
                     arcWidth: 20
                     onMouseClicked: function(e) {if(action != null) action();}
                 },
-                Rect {
-                    clip: Clip{shape: Rect {height: h*.25, width: w}}
+                Rectangle {
+                    clip: Rectangle {height: h*.25, width: w}
                     width: w
                     height: h*.8
                     fill: LinearGradient {
-                        endX: 0, endY: h*.8
+                        endX: 0, endY: 1
                         stops:
                         [Stop {
                             offset: 0
@@ -98,21 +86,23 @@ public class MotoMenuButton extends CompositeNode {
                     arcWidth: 20
                 },
                 Group {
-                    visible: bind not mouseOver    
+                    visible: bind not hover    
                     transform: Transform.translate(30, h*.3)
-                    valign: VerticalAlignment.MIDDLE
+                    verticalAlignment: VerticalAlignment.CENTER
                     content:
                     VBox {
                         var textColor = Color.ORANGERED
-                        var font1 = Font {face: FontFace.ARIAL, style: [FontStyle.PLAIN] size: 12}
-                        var font = Font {face: FontFace.ARIAL, style: [FontStyle.BOLD] size: 12}
+                        var font1 = Font {name: "ARIAL", style: FontStyle.PLAIN size: 12}
+                        var font = Font {name: "ARIAL", style: FontStyle.BOLD size: 12}
                         content:
                         [Text {
+                            textOrigin: TextOrigin.TOP
                             font: font1
                             fill: Color.ORANGE
                             content: bind label1
                         },
                         Text {
+                            textOrigin: TextOrigin.TOP
                             transform: Transform.translate(0, 3)
                             fill: Color.WHITE
                             font: font
@@ -126,22 +116,24 @@ public class MotoMenuButton extends CompositeNode {
                     content: bind 
                     [Group {
                         transform: Transform.translate(w -5, h*.4)
-                        valign: VerticalAlignment.MIDDLE, 
-                        halign: HorizontalAlignment.TRAILING
-                        content: bind if (mouseOver) then [anim as Node] else empty
+                        verticalAlignment: VerticalAlignment.CENTER, 
+                        horizontalAlignment: HorizontalAlignment.TRAILING
+                        content: bind if (hover) then [anim] else empty
                     },
                     HBox {
                         transform: Transform.translate(w-5, h*.7)
-                        valign: VerticalAlignment.CENTER, halign: HorizontalAlignment.TRAILING
+                        verticalAlignment: VerticalAlignment.CENTER, horizontalAlignment: HorizontalAlignment.TRAILING
                         var textColor = Color.ORANGERED
-                        var font = Font {face: FontFace.ARIAL, style: [FontStyle.BOLD] size: 8}
+                        var font = Font {name: "ARIAL", style: FontStyle.BOLD size: 8}
                         content:
                         [Text {
+                            textOrigin: TextOrigin.TOP
                             font: font
                             fill: Color.ORANGE
                             content: bind label1.toUpperCase()
                         },
                         Text {
+                            textOrigin: TextOrigin.TOP
                             transform: Transform.translate(2, 0)
                             fill: Color.WHITE
                             font: font
@@ -157,7 +149,7 @@ public class MotoMenuButton extends CompositeNode {
                         image: Image {url: "{__DIR__}Image/7.png"}
                     },
                     ImageView {
-                        opacity: bind if (mouseOver) then 0.5 else 0
+                        opacity: bind if (hover) then 0.5 else 0
                         transform: Transform.translate(-3, -3)
                         image: Image {url: bind "{__DIR__}Image/8.png"}
                     }]

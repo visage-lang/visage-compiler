@@ -1,12 +1,15 @@
 package studiomoto;
-import javafx.ui.*;
-import javafx.ui.canvas.*; 
-import javafx.ui.filter.*;
+import javafx.scene.*;
+import javafx.scene.paint.*;
+import javafx.scene.layout.*;
+import javafx.scene.image.*;
+import javafx.scene.transform.*;
+import javafx.scene.geometry.*;
+import javafx.scene.text.*;
+import javafx.ext.swing.*; 
 import java.lang.System;
 import studiomoto.MotoMenuButton;
-import javafx.ui.animation.*;
-import com.sun.javafx.runtime.PointerFactory;
-import com.sun.javafx.runtime.Pointer;
+import javafx.animation.*;
 import javafx.lang.Duration;
 
 
@@ -16,41 +19,33 @@ var canvas:Canvas;
 // Workaround for lack of local var trigger
 class HomeModel {
 
-    attribute pf: PointerFactory = PointerFactory{};
-
     attribute ys = [[0..-18 step -1],[-18..-12]];
     attribute homeY:Number = 0;
-    attribute __homeY = bind pf.make(homeY);
-    attribute _homeY = __homeY.unwrap();
     attribute interval = 300/sizeof ys;
     attribute homeSequence: Timeline = Timeline {
+        var t = 0;
         keyFrames: for(s in reverse ys) {
+            t += interval;
             KeyFrame {
-                keyTime: Duration {millis: interval}
-                relative: true
-                keyValues: NumberValue {
-                    target: _homeY
-                    value: s
-                }
+                time: Duration {millis: t}
+                values: homeY => s
             }
         }
      };
     attribute homeSequenceR:Timeline = Timeline {
+        var t = 0;
         keyFrames: for(s in  ys) {
+            t+= interval;
             KeyFrame {
-                keyTime: Duration {millis: interval}
-                relative: true
-                keyValues: NumberValue {
-                    target: _homeY
-                    value: s
-                }
+                time: Duration {millis: t}
+                values: homeY => s
             }
         }
     };
     attribute homeButton: HomeButton;
     attribute selection: Integer on replace {
         if (selection > 0) {
-            if(homeButton.hover) {
+            if(homeButton.isMouseOver()) {
                 homeSequence.start();
             } else {
                 homeSequenceR.start();
@@ -78,8 +73,7 @@ var homeModel = HomeModel {
 
     var homeModel = HomeModel {}
 
-    centerOnScreen: true
-    onClose: function() {System.exit(0);}
+    // TODO centerOnScreen: true
     title: "JavaFX - Motorola Music"
     height: 700
     width: 1100
@@ -87,9 +81,12 @@ var homeModel = HomeModel {
     var splash = StudioMotoSplash {
         onDone: function() {homeModel.selection = 0;}
     }    
-    private attribute tshowing = bind showing on replace {
-            homeModel.selection = 0;
+    override attribute visible on replace {
+        if(visible) {
+            homeModel.selection = -1;
             splash.doSplash();
+            homeModel.selection = 0;
+        }
     };
     
 
@@ -113,14 +110,14 @@ var homeModel = HomeModel {
                 onMouseClicked: function(e) {splash.doSplash();}
             },
             Group {
-                isSelectionRoot: true
+                blocksMouse: true
                 transform: Transform.translate(60, 70)
                 content:
                 [ImageView {
                     //982x527
                     //transform: Transform.translate(527/2, 40)
                     
-                    //halign: HorizontalAlignment.CENTER
+                    //horizontalAlignment: HorizontalAlignment.CENTER
                     image: Image{url: "{__DIR__}Image/4.png"}
                 },
                 Group {
@@ -129,38 +126,62 @@ var homeModel = HomeModel {
                     [Title1 {
                         height: 50
                         width: 150
-                        label1: "<html><span style='font-size:12;color:#dddddd'>welcome to</span></html>"
-                        label2: "<html><div style='font-size:28;'><span style='color:white'>studio</span><span style='color:yellow;font-weight:bold;'>moto</span></div></html>"
-                        label3: "<html><span style='font-size:12;color:white'>welcome to</span></html>"
-                    } as Node],
+                        label1: Text {
+                            textOrigin: TextOrigin.TOP
+                            font: Font.font("Arial", FontStyle.BOLD, 12)
+                            fill: Color.web("#DDDDDD", 1.0);
+                            content: "welcome to"
+                        }
+                        label2: HBox {
+                            content: [ Text {
+                                    textOrigin: TextOrigin.TOP
+                                    font: Font.font("Arial", FontStyle.PLAIN, 28)
+                                    fill: Color.WHITE
+                                    content: "studio"
+                                },
+                                Text {
+                                    textOrigin: TextOrigin.TOP
+                                    font: Font.font("Arial", FontStyle.BOLD, 28)
+                                    fill: Color.YELLOW
+                                    content: "moto"
+                                }
+                            ]
+                        }
+                        label3: Text {
+                            textOrigin: TextOrigin.TOP
+                            font: Font.font("Arial", FontStyle.BOLD, 12)
+                            fill: Color.WHITE
+                            content: "welcome to"
+                        }
+                    }],
                 },
                 Group {
                     //transform: bind Transform.translate(canvas.width/2, h/2)
                     transform: Transform.translate(17, 50)
-                    //halign: HorizontalAlignment.CENTER
-                    //valign: MIDDLE, halign: HorizontalAlignment.CENTER
+                    //horizontalAlignment: HorizontalAlignment.CENTER
+                    //verticalAlignment: MIDDLE, horizontalAlignment: HorizontalAlignment.CENTER
                     content: //if true then null else
                     [Group {
                         //transform: Transform.translate(700, 0) // original 
                         transform: Transform.translate(410, 0) 
-                        halign: HorizontalAlignment.CENTER
+                        horizontalAlignment: HorizontalAlignment.CENTER
                         content: HBox {
-                            clip: Clip{shape: Rect {y: -50, height: 100, width: w}}
+                            clip: Rectangle {y: -50, height: 100, width: w}
                             var labels1 = ["about", "inside", "music", "moto", "site"]
                             var labels2 = ["studiomoto", "music", "playtime", "products", "support"]
                             var a = MotoMenuAnimation{}
-                            var dummy = a.getNode()
+                            //var dummy = a.getNode()
                             content: 
                             [Group {
-                                isSelectionRoot: true
+                                blocksMouse: true
                                 content: 
-                                [Rect {height: 30+68, width: 139, selectable: true, fill: Color.color(0, 0, 1, 0), visible: bind homeModel.selection > 0},
+                                [Rectangle {height: 30+68, width: 139, fill: Color.color(0, 0, 1, 0), visible: bind homeModel.selection > 0},
                                 (homeModel.homeButton = HomeButton {
                                     // TODO moved var tmp up to Frame at the top. See note there.
 
                                     transform: bind Transform.translate(-5, -10  + (if (homeModel.selection == 0) 30 else homeModel.homeY))
                                     action: function() {homeModel.selection = 0;}
-                                }) as Node ]
+                                }) ]
                             },
                             
                             for (i in [0..<sizeof labels1]) 
@@ -170,7 +191,7 @@ var homeModel = HomeModel {
                                 label1: labels1[i]
                                 label2: labels2[i]
                                 transform: Transform.translate(5, 0)
-                            } as Node]
+                            }]
                         }
                     },            
                     Group {
@@ -187,10 +208,10 @@ var homeModel = HomeModel {
                             },
                             MotoCenterPanel {
                                 transform: Transform.translate(957/2+15, 20)
-                                halign: HorizontalAlignment.CENTER
+                                horizontalAlignment: HorizontalAlignment.CENTER
                                 height: 220
                                 width: 400
-                            } as Node]
+                            }]
                         }]                    
                     }]
                 }]
@@ -201,9 +222,24 @@ var homeModel = HomeModel {
                 [Title1 {
                     height: 50
                     width: 130
-                    label1: "<html>powered by</html>"
-                    label2: "<html>Motorola</html>"
-                    label3: "<html>power</html>"
+                    label1: Text {
+                        textOrigin: TextOrigin.TOP
+                        font: Font.font("Arial", FontStyle.BOLD, 10)
+                        fill: Color.color(1, 1, 1, .5)
+                        content: "powered by"
+                    }
+                    label2: Text {
+                        textOrigin: TextOrigin.TOP
+                        font: Font.font("Arial", FontStyle.BOLD, 18)
+                        fill: Color.WHITE
+                        content: "Motorola"
+                    }
+                    label3: Text {
+                        textOrigin: TextOrigin.TOP
+                        font: Font.font("Arial", FontStyle.BOLD, 10)
+                        fill: Color.YELLOW
+                        content: "power"
+                    }                    
                 } ,
                 ImageView {
                     transform: Transform.translate(80, 0)

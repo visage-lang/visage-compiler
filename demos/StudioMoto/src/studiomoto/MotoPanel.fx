@@ -1,10 +1,14 @@
 package studiomoto;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.filter.*;
-import javafx.ui.animation.*;
-import com.sun.javafx.runtime.PointerFactory;
-import com.sun.javafx.runtime.Pointer;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.effect.*;
+import javafx.scene.paint.*;
+import javafx.scene.image.*;
+import javafx.scene.transform.*;
+import javafx.scene.text.*;
+import javafx.animation.*;
+import javafx.ext.swing.*;
+
 import java.lang.System;
 
 public class MotoPanel extends Intro {
@@ -16,60 +20,24 @@ public class MotoPanel extends Intro {
     attribute content: Node;
     attribute alpha1: Number;
     
-    protected attribute pf: PointerFactory = PointerFactory{};
-    private attribute _titleXp = bind pf.make(titleX);
-    private attribute _titleX = _titleXp.unwrap();
-    private attribute _contentYp = bind pf.make(contentY);
-    private attribute _contentY = _contentYp.unwrap();
-    private attribute _alpha1p = bind pf.make(alpha1);    
-    private attribute _alpha1 = _alpha1p.unwrap();    
     
     attribute intro: Timeline = Timeline {
 
         keyFrames:
            [ KeyFrame {
-                keyTime: 0s
-                keyValues:  [
-                    NumberValue {
-                        target: _titleX
-                        value: width
-                    },
-                    NumberValue {
-                        target: _contentY
-                        value: height
-                    },
-                    NumberValue {
-                        target: _alpha1
-                        value: 0
-                    }
-                ]
+                time: 0s
+                values: [ titleX => width, contentY => height, alpha1 => 0 ]
             },
             KeyFrame {
-                keyTime: 250ms
-                keyValues:  NumberValue {
-                        target: _alpha1
-                        value: 1
-                        interpolate: NumberValue.LINEAR
-                    }
+                time: 250ms
+                values: [ alpha1 => 1 tween Interpolator.LINEAR ]
             },
             KeyFrame {
-                keyTime: 1s
-                keyValues:  [
-                    NumberValue {
-                        target: _titleX
-                        value: 0
-                        interpolate: NumberValue.EASEBOTH
-                    },
-                    NumberValue {
-                        target: _contentY
-                        value: 0
-                        interpolate: NumberValue.EASEBOTH
-                    },
-                    NumberValue {
-                        target: _alpha1
-                        value: 0
-                        interpolate: NumberValue.LINEAR
-                    }
+                time: 1s
+                values: [ 
+                    titleX => 0 tween Interpolator.EASEBOTH, 
+                    contentY => 0 tween Interpolator.EASEBOTH, 
+                    alpha1 => 0 tween Interpolator.LINEAR 
                 ]
             }
          ]
@@ -79,52 +47,37 @@ public class MotoPanel extends Intro {
     }
     attribute level:Number;
     attribute glow:Glow = Glow{level:bind level};
-    private attribute __level = bind pf.make(level);
-    private attribute _level = __level.unwrap();
     attribute glowAnimation = Timeline {
         keyFrames:
         [KeyFrame {
-            keyTime: 0s
-            /********
-            keyValues: NumberValue {
-                target: _level;
-                value: .8
-            } 
-             * ****/
+            time: 0s
             action: function() {
                 glow = Glow{};
             }            
         },
         KeyFrame {
-            keyTime: 300ms
-            /******
-            keyValues: NumberValue {
-                target: _level;
-                value: 0
-            } 
-             * ****/
+            time: 300ms
             action: function() {
                 glow = null;
             }              
         }]
     }; 
     
-    override attribute hover on replace {
+    attribute hover = bind isMouseOver() on replace {
         if(hover) {
             glowAnimation.start();
         } else {
-          System.out.println("stopping glow animation {this}");
             glowAnimation.stop();
             glow = null;
         }
     }
 
-    function composeNode():Node {
-        Clip {
-            shape: Rect {height: bind height, width: bind width}
+    function create():Node {
+        Group {
+            clip: Rectangle {height: bind height, width: bind width}
             onMouseClicked: function(e) {doIntro();}
             content: Group {
-            filter: bind glow
+            effect: bind glow
             content:
             [ImageView {
                 transform: Transform.translate(0, 2)
@@ -132,14 +85,14 @@ public class MotoPanel extends Intro {
             },
             Circle {
                 opacity: bind alpha1
-                cx: 10.5
-                cy: 12.5
+                centerX: 10.5
+                centerY: 12.5
                                                                                                 radius: 10
-                fill: Color.WHITE
+                //fill: Color.WHITE
                 fill:RadialGradient {
-                    cx: 10
-                    cy: 10
-                    radius: 12
+                    centerX: 10
+                    centerY: 10
+                    radius: 1
                     stops:
                     [Stop {
                         offset: 0
@@ -151,15 +104,15 @@ public class MotoPanel extends Intro {
                     }]
                 }
             },
-            Clip {
-                shape: Rect {height: bind title.currentHeight, width: bind width}
+            Group {
+                clip: Rectangle {height: bind title.getHeight(), width: bind width}
                 transform: bind Transform.translate(25+titleX, 18)
-                                                                                                content: bind title
-                valign: VerticalAlignment.BOTTOM
+                content: bind title
+                verticalAlignment: VerticalAlignment.BOTTOM
             },
-            Clip {
+            Group {
                 transform: Transform.translate(20, 20)
-                shape: Rect {x: -50, height: bind height-20, width: bind width+50}
+                clip: Rectangle {x: -50, height: bind height-20, width: bind width+50}
                 content:
                 Group {
                     transform: bind Transform.translate(0, contentY)
@@ -168,7 +121,7 @@ public class MotoPanel extends Intro {
 
                         content:
                         ImageView {
-                            clip: bind Clip{shape: Rect {height: 5, width: bind width}}
+                            clip: bind Rectangle {height: 5, width: width}
                             image: Image {url: "{__DIR__}Image/95.png"}
                         }
                     },
@@ -189,8 +142,17 @@ Canvas {
     MotoPanel {
         width: 200
         height: 200
-        title: Text {content: "Promotions", fill: Color.WHITE, font: Font{face: FontFace.ARIAL, size: 14}}
-        content: Text {content: "Promotions", fill: Color.WHITE, font: Font{face: FontFace.ARIAL, size: 14}}
+        title: Text {
+            content: "Promotions", 
+            textOrigin: TextOrigin.TOP
+            fill: Color.WHITE, 
+            font: Font{name: "ARIAL", size: 14}
+        }
+        content: Text {
+            content: "Promotions", 
+            fill: Color.WHITE, 
+            font: Font{name: "ARIAL", size: 14}
+        }
         
     }
 }

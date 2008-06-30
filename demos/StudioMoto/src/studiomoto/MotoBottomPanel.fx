@@ -1,11 +1,13 @@
 package studiomoto;
 import java.lang.System;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.filter.*;
-import javafx.ui.animation.*;
-import com.sun.javafx.runtime.PointerFactory;
-import com.sun.javafx.runtime.Pointer;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.layout.*;
+import javafx.scene.transform.*;
+import javafx.scene.paint.*;
+import javafx.scene.text.*;
+import javafx.ext.swing.*;
+import javafx.animation.*;
 
 public class MotoBottomPanel extends Intro {
     attribute panelWidth: Number;
@@ -16,29 +18,19 @@ public class MotoBottomPanel extends Intro {
     attribute musicStuff: Intro;
     attribute insideMusic: Intro;
     attribute guitarPicks: Intro;
-    attribute pf: PointerFactory = PointerFactory{};
     private attribute introAnim: Timeline;
     function createTimeline():Void {
-        System.out.println("creating timeline: {sizeof panels}");
         introAnim  = Timeline {
         keyFrames: for (p in panels)
             [KeyFrame {
-                keyTime: 0s
-                keyValues: 
-                    NumberValue {
-                        target: bind pf.make(p.opacity).unwrap();
-                        value: 0
-                    }
+                time: 0s
+                values: p.opacity => 0
             },
             KeyFrame {
-                keyTime: 400ms * indexof p
-                keyValues:
-                    NumberValue {
-                        target: bind pf.make(p.opacity).unwrap()
-                        value: 1
-                    }
+                time: 400ms * indexof p
+                values: p.opacity => 1
                 action: function() {
-                     p.doIntro(); System.out.println("doing intro...");
+                     p.doIntro(); 
                 }
             }]
         
@@ -49,7 +41,7 @@ public class MotoBottomPanel extends Intro {
        introAnim.start();
     }  
     
-    function composeNode():Node {  
+    function create():Node {  
         var group = Group {
             content:
             HBox {
@@ -57,7 +49,12 @@ public class MotoBottomPanel extends Intro {
                 [promotions = MotoPanel {
                     height: bind panelHeight
                     width: bind panelWidth
-                    title: Text {content: "Promotions", fill: Color.WHITE, font: Font.Font("VERDANA", ["PLAIN"], 14)}
+                    title: Text {
+                        content: "Promotions", 
+                        textOrigin: TextOrigin.TOP
+                        fill: Color.WHITE, 
+                        font: Font.font("VERDANA", FontStyle.PLAIN, 14)
+                    }
                     content: PromotionsPanel{} as Node
                 },
                 Group {
@@ -68,8 +65,8 @@ public class MotoBottomPanel extends Intro {
                         transform: bind Transform.translate(panelMargin, 0)
                         height: bind panelHeight
                         width: bind panelWidth
-                        title: View {
-                            content: Label {
+                        title: ComponentView {
+                            component: Label {
                                 text: "<html><div style='font-size:14pt;'><span style='color:white;'>Music</span><span style='color:yellow;'>Stuff</span></div></html>"
                             }
                         }  
@@ -82,7 +79,7 @@ public class MotoBottomPanel extends Intro {
                         transform: Transform.translate(220, 6)
                         // Major hack to work around IndexOutOfBoundsExceptions from sequence implementation
                         var nums:Group[] = []
-                        var hovers:Boolean[] = bind [for (i in nums) i.hover, false, false, false]
+                        var hovers:Boolean[] = bind [for (i in nums) i.isMouseOver(), false, false, false]
                         content: nums = for (i in [1, 2, 3])
                         Group {
                             onMouseClicked: function(e) {selection = indexof i;}
@@ -90,9 +87,14 @@ public class MotoBottomPanel extends Intro {
                             transform: Transform.translate(5, 0)
                             var fillColor:Color = bind if (selection == indexof i) Color.WHITE else Color.YELLOW
                             content:
-                            [Rect {height: 15, width: 12, fill: Color.color(0, 0, 0, 0), selectable: true},
-                            Text {content: "{i}", fill: bind fillColor, font: Font.Font("ARIAL", ["BOLD"], 11)},
-                            Line {x1: -2, x2: 7, y1: 12, y2: 12, stroke: bind fillColor, visible: bind hovers[i-1]}]
+                            [Rectangle {height: 15, width: 12, fill: Color.TRANSPARENT},
+                            Text {
+                                content: "{i}", 
+                                textOrigin: TextOrigin.TOP
+                                fill: bind fillColor, 
+                                font: Font.font("ARIAL", FontStyle.BOLD, 11)
+                            },
+                            Line {startX: -2, endX: 7, startY: 12, endY: 12, stroke: bind fillColor, visible: bind hovers[i-1]}]
                         }
                     }]
                 },
@@ -114,7 +116,7 @@ Canvas {
     background: Color.BLACK
     
     var p = MotoBottomPanel {panelHeight: 200, panelWidth: 250, panelMargin: 15}
-    content: [Rect {height: 300, width: 900, selectable:true fill: Color.BLACK, onMouseClicked: function(e) {p.doIntro();}}, p]
+    content: [Rectangle {height: 300, width: 900,  fill: Color.BLACK, onMouseClicked: function(e) {p.doIntro();}}, p]
     
 }
 

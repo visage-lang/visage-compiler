@@ -1,12 +1,17 @@
 package studiomoto;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.transform.*;
+import javafx.scene.paint.*;
+import javafx.scene.geometry.*;
+import javafx.scene.image.*;
+import javafx.scene.layout.*;
+import javafx.ext.swing.*;
 
 
-public class MusicPanel3 extends CompositeNode {
-    function composeNode():Node {
-        Clip {
-            shape: Rect {height: 160, width: 220}
+public class MusicPanel3 extends CustomNode {
+    function create():Node {
+        Group {
+            clip: Rectangle {height: 160, width: 220}
             content:
             Group {
                 transform: Transform.translate(-60, 0)
@@ -15,7 +20,8 @@ public class MusicPanel3 extends CompositeNode {
                 },
                 ImageView {visible: false
                     transform: Transform.translate(230, 145)
-                    valign: VerticalAlignment.BOTTOM, halign: HorizontalAlignment.TRAILING
+                    verticalAlignment: VerticalAlignment.BOTTOM, 
+                    horizontalAlignment: HorizontalAlignment.TRAILING
                     image: Image{url: "{__DIR__}Image/83.png"}
                 },
                 ImageView {
@@ -25,8 +31,8 @@ public class MusicPanel3 extends CompositeNode {
                 VBox {
                     transform: Transform.translate(150, 5)
                     content:
-                    [View {
-                        content:
+                    [ComponentView {
+                        component:
                         Label {
                             text: "<html><div style='color:yellow;font-size:9pt;width:135;font-face:arial;'>Motorola brought the SLVR to the House of Blues Chicago with the Fray</div></html>"
                         }

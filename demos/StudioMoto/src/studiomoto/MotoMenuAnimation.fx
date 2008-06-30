@@ -1,9 +1,13 @@
 package studiomoto;
 import java.lang.System;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
 import java.lang.Math;
-import javafx.ui.animation.*;
+import javafx.scene.*;
+import javafx.scene.paint.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.scene.text.*;
+import javafx.scene.layout.*;
+import javafx.animation.*;
 
 // workarounds for lack of working local variable trigger
 class Helper1 {
@@ -18,7 +22,7 @@ class Helper2 {
     attribute i: Integer;
     attribute j: Integer;
     attribute rand: Integer on replace {
-        if (j % 2 == rand % 2) {
+        if (j mod 2 == rand mod 2) {
             if (rand <= i) {
                 alpha = 1;
             } else {
@@ -30,7 +34,7 @@ class Helper2 {
     attribute alpha: Number;
 }
 
-public class MotoMenuAnimation extends CompositeNode {
+public class MotoMenuAnimation extends CustomNode {
     attribute active: Boolean
             on replace { if (active) anim.start() else anim.stop(); };
     function stop() { active = false }
@@ -39,7 +43,7 @@ public class MotoMenuAnimation extends CompositeNode {
     attribute anim: Timeline = Timeline {
         repeatCount: java.lang.Integer.MAX_VALUE
 	keyFrames: KeyFrame {
-            keyTime: 1s/16
+            time: 1s/16
             action: function() {
                 t++;
             }
@@ -48,7 +52,7 @@ public class MotoMenuAnimation extends CompositeNode {
 
     private attribute n:Number = 10;
 
-    function composeNode():Node {
+    function create():Node {
         Group {
             content: 
             [HBox {
@@ -62,7 +66,7 @@ public class MotoMenuAnimation extends CompositeNode {
                             var m:Number = (indexof i).doubleValue();
                             var r = (1.0 - (m/n))*.5;
                             var green = .5 + r;
-                            Rect {
+                            Rectangle {
                                 transform: Transform.translate(0, .5)
                                 height: 1.5
                                 width: 4

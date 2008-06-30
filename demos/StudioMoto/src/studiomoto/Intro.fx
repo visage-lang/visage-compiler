@@ -1,6 +1,6 @@
 package studiomoto;
-import javafx.ui.canvas.CompositeNode;
+import javafx.scene.CustomNode;
 
-public abstract class Intro extends CompositeNode {
+public abstract class Intro extends CustomNode {
     public abstract function doIntro():Void;
 }

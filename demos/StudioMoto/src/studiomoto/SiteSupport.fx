@@ -1,6 +1,10 @@
 package studiomoto;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.geometry.*;
+import javafx.scene.transform.*;
+import javafx.scene.paint.*;
+import javafx.scene.layout.*;
+import javafx.ext.swing.*;
 
 public class SiteSupport extends MotoPanel {
     private function arrow() {
@@ -12,25 +16,25 @@ public class SiteSupport extends MotoPanel {
         }
     }    
     private function label(text:String) {
-        View {
+        ComponentView {
             transform: Transform.translate(10, 0)
-            content: Label {
-                cursor: Cursor.HAND
+            component: Label {
+                //TODO cursor: Cursor.HAND
                 text: "<html><div style='font-face:Arial;font-size:26pt;'><span style='color:white;'>moto</span><span style='color:yellow;font-weight:bold;font-style:italic;'>{text}</span></div></html>"
             }
         }
     }    
     
-     override attribute title = View {
-            content: Label {
+     override attribute title = ComponentView {
+            component: Label {
                 text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>Site</span><span style='color:yellow;'>Support</span></div></html>"
             }
         };
     
      override attribute content = VBox {
      content:
-    [View {
-        content: Label {
+    [ComponentView {
+        component: Label {
             text:
             "<html><div style='width:200;color:white;font-size:10pt;font-face:arial;'>Questions? We all need a little support sometimes. Get answers to questions you have about the STUDIOMOTO site and its features, right here. Select an application below
 </div>

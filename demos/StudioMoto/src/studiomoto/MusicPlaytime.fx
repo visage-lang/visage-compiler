@@ -1,16 +1,18 @@
 package studiomoto;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.paint.*;
+import javafx.ext.swing.*;
+
 
 public class MusicPlaytime extends MotoPanel {
-    override attribute title = View {
-        content: Label {
+    override attribute title = ComponentView {
+        component: Label {
             text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>Music</span><span style='color:yellow;'>Playtime</span></div></html>"
         }
     };
 
-    override attribute content = View {
-        content: Label {
+    override attribute content = ComponentView {
+        component: Label {
             text:
             "<html><div style='width:600;color:white;font-size:10pt;font-face:arial;'>Make your own music come to life, on your mobile phone. Create original animations, videos, ringtones and more with these interactive tools.
     <p>

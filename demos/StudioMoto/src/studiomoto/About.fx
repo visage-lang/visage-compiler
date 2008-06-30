@@ -1,18 +1,19 @@
 package studiomoto;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.ext.swing.*;
+import javafx.scene.paint.*;
 
 public class About extends MotoPanel {
 
     
-   override attribute title = View {
-            content: Label {
+   override attribute title = ComponentView {
+            component: Label {
                 text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>About</span><span style='color:yellow;'>StudioMoto</span></div></html>"
             }
         };
         
-   override attribute content = View {
-            content: Label {
+   override attribute content = ComponentView {
+            component: Label {
                 text:
             "<html><div style='width:600;color:white;font-size:10pt;font-face:arial;'>STUDIOMOTO connects you to some of today and tommorrow's biggest music artists - through their music, Motorola technology and your own imagination. Read that back again. Sounds like a big promise, but here's how it delivers.
     <p>

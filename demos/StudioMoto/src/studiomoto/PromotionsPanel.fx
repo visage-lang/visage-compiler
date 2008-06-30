@@ -1,22 +1,28 @@
 package studiomoto;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.transform.*;
+import javafx.scene.text.*;
+import javafx.scene.image.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.*;
+import javafx.ext.swing.*;
 
-public class PromotionsPanel extends CompositeNode {
-    function composeNode():Node {
+public class PromotionsPanel extends CustomNode {
+    function create():Node {
         Group {
             content:
             [VBox {
                 content:
                 [Text {
-                    font: Font.Font("ARIAL", ["BOLD"], 11)
+                    textOrigin: TextOrigin.TOP
+                    font: Font.font("ARIAL", FontStyle.BOLD, 11)
                     content: "Motorola Talk and Tunes HT820Bundle"
-                    fill: bind if (hover) then Color.YELLOW else Color.WHITE
+                    fill: bind if (isMouseOver()) then Color.YELLOW else Color.WHITE
                 },
                 Text {
-                    font: Font.Font("ARIAL", ["PLAIN"], 11)
-
-                    fill: bind if (hover) then Color.WHITE else Color.YELLOW
+                    textOrigin: TextOrigin.TOP
+                    font: Font.font("ARIAL", FontStyle.PLAIN, 11)
+                    fill: bind if (isMouseOver()) then Color.WHITE else Color.YELLOW
                     transform: Transform.translate(0, 5)
                     content: "Listen to music wherever you go"
                 },
@@ -34,16 +40,18 @@ public class PromotionsPanel extends CompositeNode {
 
                     },
                     ImageView {
-                        visible: bind hover
+                        visible: bind isMouseOver()
                         image: Image {url: "{__DIR__}Image/81.png"}
 
                     },
                     Text {
-                        font: Font.Font("ARIAL", ["BOLD"], 11)
+                        textOrigin: TextOrigin.TOP
+                        font: Font.font("ARIAL", FontStyle.BOLD, 11)
                         content: "MORE INFO"
                         transform: Transform.translate(115/2, 37/2)
-                        valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.CENTER
-                        fill: bind if (hover) Color.BLACK else Color.WHITE
+                        verticalAlignment: VerticalAlignment.CENTER, 
+                        horizontalAlignment: HorizontalAlignment.CENTER
+                        fill: bind if (isMouseOver()) Color.BLACK else Color.WHITE
                     }
                     ]
                 }

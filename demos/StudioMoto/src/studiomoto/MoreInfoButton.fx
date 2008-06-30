@@ -1,11 +1,15 @@
 package studiomoto;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.scene.*;
+import javafx.scene.text.*;
+import javafx.scene.transform.*;
+import javafx.scene.paint.*;
+import javafx.scene.image.*;
+import javafx.ext.swing.*;
 
-public class MoreInfoButton extends CompositeNode {
+public class MoreInfoButton extends CustomNode {
     attribute action: function();
 
-    function composeNode():Node {
+    function create():Node {
         Group {
             cursor: Cursor.HAND
             onMouseClicked: function(e) {if(action != null) action();}
@@ -16,17 +20,18 @@ public class MoreInfoButton extends CompositeNode {
                 
             },
             ImageView {
-                visible: bind hover
+                visible: bind isMouseOver()
                 image: Image {url: "{__DIR__}Image/81.png"}
                 
             },
             Text {
-                font: Font.Font("ARIAL", ["BOLD"], 11)
+                textOrigin: TextOrigin.TOP
+                font: Font.font("ARIAL", FontStyle.BOLD, 11)
                 content: "MORE INFO"
                 transform: Transform.translate(115/2, 37/2)
-                valign: VerticalAlignment.MIDDLE
-                halign:  HorizontalAlignment.CENTER
-                fill: bind if (hover) Color.BLACK else Color.WHITE
+                verticalAlignment: VerticalAlignment.CENTER
+                horizontalAlignment:  HorizontalAlignment.CENTER
+                fill: bind if (isMouseOver()) Color.BLACK else Color.WHITE
         }]}
     }
 }

@@ -1,10 +1,11 @@
 package studiomoto;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.filter.*;
-import javafx.ui.animation.*;
-import com.sun.javafx.runtime.PointerFactory;
-import com.sun.javafx.runtime.Pointer;
+import javafx.scene.*;
+import javafx.ext.swing.*;
+import javafx.scene.transform.*;
+import javafx.scene.image.*;
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+import javafx.animation.*;
 
 
 public class GuitarPicks extends Intro {
@@ -23,7 +24,7 @@ public class GuitarPicks extends Intro {
     private attribute y2: Number;
     
     private attribute pick1: Node = Group {
-        isSelectionRoot: true
+        blocksMouse: true
         cursor: Cursor.HAND 
         
         transform: bind [Transform.translate(0, y1), Transform.rotate(rot, 30, 80)]
@@ -34,18 +35,19 @@ public class GuitarPicks extends Intro {
         [ImageView {
             image: Image {url: "{__DIR__}Image/90.png"}
         },
-        View {
-            valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.CENTER
+        ComponentView {
+            verticalAlignment: VerticalAlignment.CENTER, 
+            horizontalAlignment: HorizontalAlignment.CENTER
             transform: Transform.translate(52, 50)
-            content: SimpleLabel {
-                cursor: Cursor.HAND
+            component: Label {
+                //TODO cursor: Cursor.HAND
                 text: bind label1
             }
         }]
     };
     private attribute pick2: Node =
         Group {
-            isSelectionRoot: true
+            blocksMouse: true
             cursor: Cursor.HAND
             onMouseClicked: function(e) { if(action2 != null) action2();}
             
@@ -55,12 +57,13 @@ public class GuitarPicks extends Intro {
             [ImageView {
                 image: Image {url: "{__DIR__}Image/91.png"}
             },
-            View {
-                valign: VerticalAlignment.MIDDLE, halign: HorizontalAlignment.CENTER
+            ComponentView {
+                verticalAlignment: VerticalAlignment.CENTER, 
+                horizontalAlignment: HorizontalAlignment.CENTER
                 transform: Transform.translate(52, 50)
-                content: SimpleLabel {
-                    focusable: false
-                    cursor: Cursor.HAND
+                component: Label {
+                    //TODO focusable: false
+                    //TODO cursor: Cursor.HAND
                     text: bind label2
                 }
             }]
@@ -68,99 +71,53 @@ public class GuitarPicks extends Intro {
     
     //private function doHover(pick:Node);
     
-    private attribute pick1Hover: Boolean = bind pick1.hover
+    private attribute pick1Hover: Boolean = bind pick1.isMouseOver()
     on replace {
         if (pick1Hover)
             hoverAnim.start();
     };
-    private attribute pick2Hover: Boolean = bind pick2.hover
+    private attribute pick2Hover: Boolean = bind pick2.isMouseOver()
     on replace {
         if (pick2Hover)
             hoverAnim.start();
     };
     
-    private attribute pf: PointerFactory = PointerFactory{};
-    private attribute __y1 = bind pf.make(y1);
-    private attribute _y1 = __y1.unwrap();
-    private attribute __y2 = bind pf.make(y2);
-    private attribute _y2 = __y2.unwrap();    
     attribute hoverAnim: Timeline = Timeline {
         keyFrames: [
              KeyFrame {
-                keyTime: 0s
-                keyValues:  [
-                    NumberValue {
-                        target: _y1
-                        value: 0
-                    },
-                    NumberValue {
-                        target: _y2
-                        value: 0
-                    }
-                ]
+                time: 0s
+                values: [ y1 => 0, y2 => 0 ]
              },
              KeyFrame {
-                keyTime: 250ms
-                keyValues:  [
-                    NumberValue {
-                        target: _y1
-                        value: -12
-                        interpolate: NumberValue.LINEAR
-                    },
-                    NumberValue {
-                        target: _y2
-                        value: 12
-                        interpolate: NumberValue.LINEAR
-                    }
-                ]
+                time: 250ms
+                values: [y1 => -12 tween Interpolator.LINEAR, y2 => 12 tween Interpolator.LINEAR]
                 action: function() {
-                    if (pick1.hover) pick1.toFront()else if (pick2.hover) pick2.toFront();
+                    //TODO this does not seem to work right, both picks end up behind the 
+                    // background image.
+                    //if (pick1Hover) pick1.toFront() else if (pick2Hover) pick2.toFront();
+                    if (pick1Hover) pick1.toBack() else if (pick2Hover) pick2.toBack();
                 }
              },
              KeyFrame {
-                keyTime: 500ms
-               keyValues:  [
-                    NumberValue {
-                        target: _y1
-                        value: 0
-                        interpolate: NumberValue.LINEAR
-                    },
-                    NumberValue {
-                        target: _y2
-                        value: 0
-                        interpolate: NumberValue.LINEAR
-                    }
-                ]
+                time: 500ms
+                values: [y1 => 0 tween Interpolator.LINEAR, y2 => 0 tween Interpolator.LINEAR]
              }             
         ]
     };
-    private attribute __rot = bind pf.make(rot);
-    private attribute _rot = __rot.unwrap();
     attribute introAnim: Timeline = Timeline {
         keyFrames: [
              KeyFrame {
-                keyTime: 0s
-                keyValues:  [
-                    NumberValue {
-                        target: _rot
-                        value: 90
-                    }
-                ]
+                time: 0s
+                values:  rot => 90
              },
              KeyFrame {
-               keyTime: 500ms
-               keyValues:  [
-                    NumberValue {
-                        target: _rot
-                        value: 0
-                        interpolate: NumberValue.EASEBOTH
-                    }
-                ]
+               time: 500ms
+               values:  rot => 0 tween Interpolator.EASEBOTH
              }             
         ]
     };
 
-    function composeNode() : Node {
+    function create() : Node {
         Group {
             content:  
             [ImageView {
@@ -190,7 +147,7 @@ function picks():GuitarPicks {
 
 
 function pickPattern(){
-    Rect {
+    Rectangle {
         arcHeight: 30
         arcWidth: 30
         stroke: Color.BLACK
@@ -206,8 +163,8 @@ function pickPattern(){
 
 
 function pickIcon() {
-    View {
-        content: Button {
+    ComponentView {
+        component: Button {
             icon: CanvasIcon {
                 content: picks()
             }

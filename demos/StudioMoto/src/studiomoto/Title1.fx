@@ -1,97 +1,95 @@
 package studiomoto;
 
 import java.lang.System;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.animation.*;
-import com.sun.javafx.runtime.PointerFactory;
-import com.sun.javafx.runtime.Pointer;
+import javafx.scene.*;
+import javafx.scene.transform.*;
+import javafx.scene.layout.*;
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+import javafx.scene.text.*;
+import javafx.ext.swing.*;
+import javafx.animation.*;
 
-public class Title1 extends CompositeNode {
-    attribute label1: String;
-    attribute label2: String;
-    attribute label3: String;
-    attribute logoGroup: Node;
-    attribute height: Number = bind currentHeight on replace {
-        if(rect != null)
-            rect.height = height;
-    };
-    attribute width: Number = bind currentWidth on replace {
-        if(rect != null)
-            rect.width = width;      
+class LabelWrapper extends CustomNode {
+    public attribute label:Node;
+    public function create():Node {
+        label;
     }
+}
+public class Title1 extends CustomNode {
+    attribute label1: Node;
+    attribute label2: Node;
+    attribute label3: Node;
+    attribute logoGroup: Node;
+    public attribute height:Integer;
+    public attribute width:Integer;
     attribute power: Node;
     attribute motorolaY: Number;
     attribute poweredByY: Number;
     attribute powerY: Number;    
-    private attribute pf: PointerFactory = PointerFactory{};
-    private attribute _poweredByYp = bind pf.make(poweredByY);
-    private attribute _poweredByY = _poweredByYp.unwrap();
-    private attribute _motorolaYp = bind pf.make(motorolaY);
-    private attribute _motorolaY = _motorolaYp.unwrap();
-    private attribute _powerYp = bind pf.make(powerY);
-    private attribute _powerY = _powerYp.unwrap();
-    attribute a: Timeline = Timeline {
-
+    attribute poweredHeight =  bind power.getHeight();
+    attribute poweredHeight2 = bind -(power.getHeight()/2);    
+    attribute timelineEnter: Timeline = bind Timeline {
         toggle: false // true
         keyFrames:
         [ KeyFrame {
-            keyTime: 0s
-            keyValues:  [
-                NumberValue {
-                    target: _poweredByY
-                    value: bind if(mouseOver) 0 else power.currentHeight
-                },
-               NumberValue {
-                    target: _motorolaY
-                    value: bind if(mouseOver) 0 else -(power.currentHeight/2)
-                },
-               NumberValue {
-                    target: _powerY
-                    value: bind if(mouseOver) 0 else power.currentHeight
-                }
+            time: 0s
+            values: [
+                poweredByY => 0,
+                motorolaY =>  0,
+                powerY => 0
             ]
         },
         KeyFrame {
-            keyTime: 400ms
-            keyValues:  [
-                NumberValue {
-                    target: _poweredByY
-                    value: bind if(mouseOver)  power.currentHeight else 0
-                    interpolate: NumberValue.EASEBOTH
-                },
-               NumberValue {
-                    target: _motorolaY
-                    value: bind if(mouseOver)  -(power.currentHeight/2) else 0
-                    interpolate: NumberValue.EASEBOTH
-                },
-               NumberValue {
-                    target: _powerY
-                    value: bind if(mouseOver)  power.currentHeight else 0
-                    interpolate: NumberValue.EASEBOTH
-                }
-            ]
+            time: 400ms
+            values: [
+                poweredByY => poweredHeight tween Interpolator.EASEBOTH,
+                motorolaY =>  poweredHeight2 tween Interpolator.EASEBOTH,
+                powerY => poweredHeight tween Interpolator.EASEBOTH
+            ]            
         }]
     };
+    attribute timelineExit: Timeline = bind Timeline {
+        toggle: false // true
+        keyFrames:
+        [ KeyFrame {
+            time: 0s
+            values: [
+                poweredByY => poweredHeight,
+                motorolaY =>  poweredHeight2,
+                powerY => poweredHeight,         
 
-    private attribute rect:Rect;
-    private attribute mouseOver:Boolean = bind rect.hover on replace {
-        a.start();
+            ]
+        },
+        KeyFrame {
+            time: 400ms
+            values: [
+                poweredByY => 0 tween Interpolator.EASEBOTH,
+                motorolaY =>  0 tween Interpolator.EASEBOTH,
+                powerY => 0 tween Interpolator.EASEBOTH
+            ]            
+        }]
+    };    
+
+    private attribute group:Group;
+    private attribute hover:Boolean = bind group.isMouseOver() on replace {
+        if(hover) {
+            timelineEnter.start();
+        }else {
+            timelineExit.start();
+        }
     };
-    attribute title = this;
-    function composeNode():Node {
-        power = View {
-            content: Label {
-                focusable: true
-                font: Font.Font("Arial", ["BOLD"], 10)
-                text: bind label3 //"power"
-                foreground: Color.YELLOW
-            }
-            transform: bind Transform.translate(1, -power.currentHeight + powerY)
-        }; 
 
-        var group:Group;
+    attribute title = this;
+    function create():Node {
+        power = LabelWrapper { 
+            label:label3
+            transform: bind Transform.translate(1, -power.getHeight() + powerY)
+        }
+
+        
         group = Group {
+            blocksMouse: true
             cursor: Cursor.HAND
             var mainGroup = this
             content:
@@ -101,65 +99,49 @@ public class Title1 extends CompositeNode {
                     content: [HBox {
                         content: 
                         [Group {
-                            var poweredBy = View {
-                                content: Label {
-                                    focusable: true
-                                    font: Font.Font("Arial", ["BOLD"], 10)
-                                    text: bind label1 //"powered by", 
-                                    foreground: Color.color(1, 1, 1, .5)
-                                }
-                                
+                            var poweredBy = LabelWrapper {
+                                label: label1
                                 transform: bind Transform.translate(1, poweredByY)
-                            },
-
-                            var motorola = View {
-                                content: Label {
-                                    focusable: true
-                                    font: Font.Font("Arial", ["PLAIN"], 18)
-                                    text: bind label2 //"Motorola", 
-                                    foreground: Color.WHITE 
-                                }
-                                transform: bind Transform.translate(1, motorolaY)
-
                             };
 
+                            var motorola = LabelWrapper {
+                                label: label2;
+                                transform: bind Transform.translate(1, motorolaY)
+                            };
 
                             content: 
                             [
-                            Clip {
+                            Group {
                                 content: poweredBy
-                                shape: Rect {height: bind poweredBy.currentHeight+2, width: bind poweredBy.currentWidth+2}
-                                halign: HorizontalAlignment.CENTER
+                                clip: Rectangle {height: bind poweredBy.getHeight()+2, width: bind poweredBy.getWidth()+2}
+                                horizontalAlignment: HorizontalAlignment.CENTER
                             }, 
-                            Clip {
-                                transform: bind Transform.translate(0, poweredBy.currentHeight + 2 + motorola.currentHeight/2 + 2)
-                                shape: Rect {height: bind power.currentHeight+2, width: bind power.currentWidth+2}
+                            Group {
+                                transform: bind Transform.translate(0, poweredBy.getHeight() + 2 + motorola.getHeight()/2 + 2)
+                                clip: Rectangle {height: bind power.getHeight()+2, width: bind power.getWidth()+2}
                                 content: power
-                                halign: HorizontalAlignment.CENTER
+                                horizontalAlignment: HorizontalAlignment.CENTER
                             },
-                            Clip {
-                                transform: bind Transform.translate(0, poweredBy.currentHeight + 2)
-                                halign: HorizontalAlignment.CENTER
+                            Group {
+                                transform: bind Transform.translate(0, poweredBy.getHeight() + 2)
+                                horizontalAlignment: HorizontalAlignment.CENTER
                                 content: 
                                 [motorola]
-                            //shape: Rect {height: bind motorola.currentHeight+2, width: bind motorola.currentWidth+2}
+                            //shape: Rectangle {height: bind motorola.getHeight()+2, width: bind motorola.getWidth()+2}
                             }]
                         }]
 
                     }]
                 }
-                transform: bind Transform.translate(logoGroup.currentWidth/2, 0)
+                transform: bind Transform.translate(logoGroup.getWidth()/2, 0)
             },
-            rect = Rect {
-                isSelectionRoot: true
+            Rectangle {
                 cursor: Cursor.HAND
                 height: bind title.height
                 width:  bind title.width
-                fill: Color.color(0, 0, 0,  0)
-                selectable: true
+                fill: Color.TRANSPARENT
             }]
         };
-        group;
 
     }       
     

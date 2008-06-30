@@ -1,8 +1,6 @@
 package studiomoto;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.filter.*;
-import javafx.ui.animation.*;
+import javafx.scene.*;
+import javafx.animation.*;
 import java.lang.System;
 
 public class MotoBottomPane extends Intro {
@@ -17,7 +15,7 @@ public class MotoBottomPane extends Intro {
     attribute introAnim: Timeline = Timeline {
         keyFrames:
             KeyFrame {
-                keyTime: 500ms
+                time: 500ms
                 action: function() {
                     doIntro();
                 }
@@ -25,11 +23,11 @@ public class MotoBottomPane extends Intro {
     };
     function doIntro() {
         selectedPanel.opacity = 1;
-        System.out.println("CALL INTRO { selection }");
+        //System.out.println("CALL INTRO { selection }");
         selectedPanel.doIntro();
     }
 
-    function composeNode():Node {
+    function create():Node {
         Group {
             content: bind selectedPanel
         };
