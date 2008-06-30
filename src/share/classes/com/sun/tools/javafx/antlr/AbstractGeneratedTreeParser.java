@@ -33,6 +33,7 @@ import com.sun.tools.javac.util.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.tree.JFXInterpolateValue;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
+import com.sun.tools.javafx.tree.JavafxTreeInfo;
 import com.sun.tools.javafx.util.MsgSym;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.CommonTree;
@@ -72,6 +73,8 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
     /** the token id for white space */
     protected int whiteSpaceToken;
 
+    private JavafxTreeInfo treeInfo;
+
     /* ---------- error recovery -------------- */
 
     protected JFXErroneous errorTree;
@@ -86,6 +89,7 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
         this.genEndPos = options.get("-Xjcov") != null ||
                          context.get(DiagnosticListener.class) != null ||
                          Boolean.getBoolean("JavafxModuleBuilder.debugBadPositions");
+        this.treeInfo = (JavafxTreeInfo) JavafxTreeInfo.instance(context);
     }
 
     protected AbstractGeneratedTreeParser(TreeNodeStream input) {
@@ -142,6 +146,10 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
                 docComments = new HashMap<JCTree,String>();
             docComments.put(tree, comment.getText());
         }
+    }
+
+    int getStartPos(JCTree tree) {
+        return treeInfo.getStartPos((JFXTree)tree);
     }
 
     void endPos(JCTree tree, CommonTree node) {
