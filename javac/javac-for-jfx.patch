@@ -775,6 +775,526 @@ Index: com/sun/tools/javac/comp/Resolve.java
                      List<Type> argtypes, List<Type> typeargtypes) {
              AmbiguityError pair = this;
              while (true) {
+Index: com/sun/tools/javac/jvm/ClassReader.java
+--- com/sun/tools/javac/jvm/ClassReader.java Base (BASE)
++++ com/sun/tools/javac/jvm/ClassReader.java Locally Modified (Based On LOCAL)
+@@ -68,7 +68,7 @@
+     protected static final Context.Key<ClassReader> classReaderKey =
+         new Context.Key<ClassReader>();
+ 
+-    Annotate annotate;
++    protected Annotate annotate;
+ 
+     /** Switch: verbose output.
+      */
+@@ -113,15 +113,15 @@
+ 
+     /** The log to use for verbose output
+      */
+-    final Log log;
++    public final Log log;
+ 
+     /** The symbol table. */
+-    Symtab syms;
++    public Symtab syms;
+ 
+-    Types types;
++    public Types types;
+ 
+     /** The name table. */
+-    final Name.Table names;
++    protected final Name.Table names;
+ 
+     /** Force a completion failure on this name
+      */
+@@ -140,7 +140,7 @@
+     /** A hashtable containing the encountered top-level and member classes,
+      *  indexed by flat names. The table does not contain local classes.
+      */
+-    private Map<Name,ClassSymbol> classes;
++    protected Map<Name,ClassSymbol> classes;
+ 
+     /** A hashtable containing the encountered packages.
+      */
+@@ -152,7 +152,7 @@
+ 
+     /** The path name of the class file currently being read.
+      */
+-    protected JavaFileObject currentClassFile = null;
++    public JavaFileObject currentClassFile = null;
+ 
+     /** The class or method currently being read.
+      */
+@@ -281,7 +281,7 @@
+ 
+     /** Read a character.
+      */
+-    char nextChar() {
++    protected char nextChar() {
+         return (char)(((buf[bp++] & 0xFF) << 8) + (buf[bp++] & 0xFF));
+     }
+ 
+@@ -455,7 +455,7 @@
+ 
+     /** Read signature and convert to type.
+      */
+-    Type readType(int i) {
++    protected Type readType(int i) {
+         int index = poolIdx[i];
+         return sigToType(buf, index + 3, getChar(index + 1));
+     }
+@@ -491,7 +491,7 @@
+ 
+     /** Read name.
+      */
+-    Name readName(int i) {
++    protected Name readName(int i) {
+         return (Name) (readPool(i));
+     }
+ 
+@@ -502,8 +502,8 @@
+     /** The unread portion of the currently read type is
+      *  signature[sigp..siglimit-1].
+      */
+-    byte[] signature;
+-    int sigp;
++    protected byte[] signature;
++    protected int sigp;
+     int siglimit;
+     boolean sigEnterPhase = false;
+ 
+@@ -620,11 +620,11 @@
+         }
+     }
+ 
+-    byte[] signatureBuffer = new byte[0];
+-    int sbp = 0;
++    protected byte[] signatureBuffer = new byte[0];
++    protected int sbp = 0;
+     /** Convert class signature to type, where signature is implicit.
+      */
+-    Type classSigToType() {
++    protected Type classSigToType() {
+         if (signature[sigp] != 'L')
+             throw badClassFile("bad.class.signature",
+                                Convert.utf2string(signature, sigp, 10));
+@@ -723,7 +723,7 @@
+     /** Convert (implicit) signature to list of types
+      *  until `terminator' is encountered.
+      */
+-    List<Type> sigToTypes(char terminator) {
++    protected List<Type> sigToTypes(char terminator) {
+         List<Type> head = List.of(null);
+         List<Type> tail = head;
+         while (signature[sigp] != terminator)
+@@ -836,7 +836,7 @@
+ 
+     /** Read member attribute.
+      */
+-    void readMemberAttr(Symbol sym, Name attrName, int attrLen) {
++    protected void readMemberAttr(Symbol sym, Name attrName, int attrLen) {
+         //- System.err.println(" z " + sym + ", " + attrName + ", " + attrLen);
+         if (attrName == names.ConstantValue) {
+             Object v = readPool(nextChar());
+@@ -1033,7 +1033,7 @@
+ 
+     /** Read member attributes.
+      */
+-    void readMemberAttrs(Symbol sym) {
++    protected void readMemberAttrs(Symbol sym) {
+         char ac = nextChar();
+         for (int i = 0; i < ac; i++) {
+             Name attrName = readName(nextChar());
+@@ -1101,7 +1101,7 @@
+ 
+     /** Attach annotations.
+      */
+-    void attachAnnotations(final Symbol sym) {
++    protected void attachAnnotations(final Symbol sym) {
+         int numAttributes = nextChar();
+         if (numAttributes != 0) {
+             ListBuffer<CompoundAnnotationProxy> proxies =
+@@ -1113,7 +1113,7 @@
+                 else
+                     proxies.append(proxy);
+             }
+-            annotate.later(new AnnotationCompleter(sym, proxies.toList()));
++            annotate.later(new AnnotationCompleter(sym, proxies.toList(), this));
+         }
+     }
+ 
+@@ -1139,7 +1139,7 @@
+     void attachAnnotationDefault(final Symbol sym) {
+         final MethodSymbol meth = (MethodSymbol)sym; // only on methods
+         final Attribute value = readAttributeValue();
+-        annotate.later(new AnnotationDefaultCompleter(meth, value));
++        annotate.later(new AnnotationDefaultCompleter(meth, value, this));
+     }
+ 
+     Type readTypeOrClassSymbol(int i) {
+@@ -1157,7 +1157,7 @@
+         return readType(i);
+     }
+ 
+-    CompoundAnnotationProxy readCompoundAnnotation() {
++    protected CompoundAnnotationProxy readCompoundAnnotation() {
+         Type t = readTypeOrClassSymbol(nextChar());
+         int numFields = nextChar();
+         ListBuffer<Pair<Name,Attribute>> pairs =
+@@ -1243,7 +1243,7 @@
+ 
+     /** A temporary proxy representing a compound attribute.
+      */
+-    static class CompoundAnnotationProxy extends Attribute {
++    public static class CompoundAnnotationProxy extends Attribute {
+         final List<Pair<Name,Attribute>> values;
+         public CompoundAnnotationProxy(Type type,
+                                       List<Pair<Name,Attribute>> values) {
+@@ -1271,11 +1271,17 @@
+         }
+     }
+ 
+-    class AnnotationDeproxy implements ProxyVisitor {
+-        private ClassSymbol requestingOwner = currentOwner.kind == MTH
+-            ? currentOwner.enclClass() : (ClassSymbol)currentOwner;
++    static public class AnnotationDeproxy implements ProxyVisitor {
++        protected ClassReader classReader;
++        protected ClassSymbol requestingOwner;
+ 
+-        List<Attribute.Compound> deproxyCompoundList(List<CompoundAnnotationProxy> pl) {
++        public AnnotationDeproxy(ClassReader classReader) {
++            this.classReader = classReader;
++            requestingOwner = classReader.currentOwner.kind == MTH
++                ? classReader.currentOwner.enclClass() : (ClassSymbol)classReader.currentOwner;
++        }
++
++        protected List<Attribute.Compound> deproxyCompoundList(List<CompoundAnnotationProxy> pl) {
+             // also must fill in types!!!!
+             ListBuffer<Attribute.Compound> buf =
+                 new ListBuffer<Attribute.Compound>();
+@@ -1285,7 +1291,7 @@
+             return buf.toList();
+         }
+ 
+-        Attribute.Compound deproxyCompound(CompoundAnnotationProxy a) {
++        protected Attribute.Compound deproxyCompound(CompoundAnnotationProxy a) {
+             ListBuffer<Pair<Symbol.MethodSymbol,Attribute>> buf =
+                 new ListBuffer<Pair<Symbol.MethodSymbol,Attribute>>();
+             for (List<Pair<Name,Attribute>> l = a.values;
+@@ -1312,29 +1318,29 @@
+                 failure = ex;
+             }
+             // The method wasn't found: emit a warning and recover
+-            JavaFileObject prevSource = log.useSource(requestingOwner.classfile);
++            JavaFileObject prevSource = classReader.log.useSource(requestingOwner.classfile);
+             try {
+                 if (failure == null) {
+-                    log.warning("annotation.method.not.found",
++                    classReader.log.warning("annotation.method.not.found",
+                                 container,
+                                 name);
+                 } else {
+-                    log.warning("annotation.method.not.found.reason",
++                    classReader.log.warning("annotation.method.not.found.reason",
+                                 container,
+                                 name,
+                                 failure.getMessage());
+                 }
+             } finally {
+-                log.useSource(prevSource);
++                classReader.log.useSource(prevSource);
+             }
+             // Construct a new method type and symbol.  Use bottom
+             // type (typeof null) as return type because this type is
+             // a subtype of all reference types and can be converted
+             // to primitive types by unboxing.
+             MethodType mt = new MethodType(List.<Type>nil(),
+-                                           syms.botType,
++                                           classReader.syms.botType,
+                                            List.<Type>nil(),
+-                                           syms.methodClass);
++                                           classReader.syms.methodClass);
+             return new MethodSymbol(PUBLIC | ABSTRACT, name, mt, container.tsym);
+         }
+ 
+@@ -1391,8 +1397,8 @@
+                 }
+             }
+             if (enumerator == null) {
+-                log.error("unknown.enum.constant",
+-                          currentClassFile, enumTypeSym, proxy.enumerator);
++                classReader.log.error("unknown.enum.constant",
++                          classReader.currentClassFile, enumTypeSym, proxy.enumerator);
+                 result = new Attribute.Error(enumTypeSym.type);
+             } else {
+                 result = new Attribute.Enum(enumTypeSym.type, enumerator);
+@@ -1402,7 +1408,7 @@
+         public void visitArrayAttributeProxy(ArrayAttributeProxy proxy) {
+             int length = proxy.values.length();
+             Attribute[] ats = new Attribute[length];
+-            Type elemtype = types.elemtype(type);
++            Type elemtype = classReader.types.elemtype(type);
+             int i = 0;
+             for (List<Attribute> p = proxy.values; p.nonEmpty(); p = p.tail) {
+                 ats[i++] = deproxy(elemtype, p.head);
+@@ -1415,52 +1421,62 @@
+         }
+     }
+ 
+-    class AnnotationDefaultCompleter extends AnnotationDeproxy implements Annotate.Annotator {
++    static public class AnnotationDefaultCompleter extends AnnotationDeproxy implements Annotate.Annotator {
+         final MethodSymbol sym;
+         final Attribute value;
+-        final JavaFileObject classFile = currentClassFile;
++        final JavaFileObject classFile;
++        protected ClassReader classReader;
+         public String toString() {
+             return " ClassReader store default for " + sym.owner + "." + sym + " is " + value;
+         }
+-        AnnotationDefaultCompleter(MethodSymbol sym, Attribute value) {
++        AnnotationDefaultCompleter(MethodSymbol sym, Attribute value, ClassReader classReader) {
++            super(classReader);
++            this.classReader = classReader;
+             this.sym = sym;
+             this.value = value;
++            classFile = classReader.currentClassFile;
+         }
+         // implement Annotate.Annotator.enterAnnotation()
+         public void enterAnnotation() {
+-            JavaFileObject previousClassFile = currentClassFile;
++            JavaFileObject previousClassFile = classReader.currentClassFile;
+             try {
+-                currentClassFile = classFile;
++                classReader.currentClassFile = classFile;
+                 sym.defaultValue = deproxy(sym.type.getReturnType(), value);
+             } finally {
+-                currentClassFile = previousClassFile;
++                classReader.currentClassFile = previousClassFile;
+             }
+         }
+     }
+ 
+-    class AnnotationCompleter extends AnnotationDeproxy implements Annotate.Annotator {
+-        final Symbol sym;
+-        final List<CompoundAnnotationProxy> l;
+-        final JavaFileObject classFile;
++    static public class AnnotationCompleter extends AnnotationDeproxy implements Annotate.Annotator {
++        protected final Symbol sym;
++        protected final List<CompoundAnnotationProxy> l;
++        protected final JavaFileObject classFile;
++        protected ClassReader classReader;
++
+         public String toString() {
+             return " ClassReader annotate " + sym.owner + "." + sym + " with " + l;
+         }
+-        AnnotationCompleter(Symbol sym, List<CompoundAnnotationProxy> l) {
++
++        public AnnotationCompleter(Symbol sym, List<CompoundAnnotationProxy> l, ClassReader classReader) {
++            super(classReader);
+             this.sym = sym;
+             this.l = l;
+-            this.classFile = currentClassFile;
++            this.classReader = classReader;
++            this.classFile = classReader.currentClassFile;
++            
+         }
+         // implement Annotate.Annotator.enterAnnotation()
+         public void enterAnnotation() {
+-            JavaFileObject previousClassFile = currentClassFile;
++            JavaFileObject previousClassFile = classReader.currentClassFile;
+             try {
+-                currentClassFile = classFile;
++                classReader.currentClassFile = classFile;
+                 List<Attribute.Compound> newList = deproxyCompoundList(l);
+                 sym.attributes_field = ((sym.attributes_field == null)
+                                         ? newList
+                                         : newList.prependList(sym.attributes_field));
+             } finally {
+-                currentClassFile = previousClassFile;
++                classReader.currentClassFile = previousClassFile;
+             }
+         }
+     }
+@@ -1483,7 +1499,7 @@
+ 
+     /** Read a method.
+      */
+-    MethodSymbol readMethod() {
++    protected MethodSymbol readMethod() {
+         long flags = adjustMethodFlags(nextChar());
+         Name name = readName(nextChar());
+         Type type = readType(nextChar());
+@@ -1679,7 +1695,7 @@
+     long adjustFieldFlags(long flags) {
+         return flags;
+     }
+-    long adjustMethodFlags(long flags) {
++    protected long adjustMethodFlags(long flags) {
+         if ((flags & ACC_BRIDGE) != 0) {
+             flags &= ~ACC_BRIDGE;
+             flags |= BRIDGE;
+Index: com/sun/tools/javac/jvm/Code.java
+--- com/sun/tools/javac/jvm/Code.java Base (BASE)
++++ com/sun/tools/javac/jvm/Code.java Locally Modified (Based On LOCAL)
+@@ -153,7 +153,7 @@
+      *  We need this to emit line numbers lazily, which we need to do
+      *  because of jump-to-jump optimization.
+      */
+-    int pendingStatPos = Position.NOPOS;
++    public int pendingStatPos = Position.NOPOS;
+ 
+     /** Set true when a stackMap is needed at the current PC. */
+     boolean pendingStackMap = false;
+Index: com/sun/tools/javac/jvm/Gen.java
+--- com/sun/tools/javac/jvm/Gen.java Base (BASE)
++++ com/sun/tools/javac/jvm/Gen.java Locally Modified (Based On LOCAL)
+@@ -172,7 +172,7 @@
+ 
+     /** Code buffer, set by genMethod.
+      */
+-    private Code code;
++    protected Code code;
+ 
+     /** Items structure, set by genMethod.
+      */
+@@ -657,7 +657,7 @@
+ 
+     /** Visitor argument: The current environment.
+      */
+-    Env<GenContext> env;
++    protected Env<GenContext> env;
+ 
+     /** Visitor argument: The expected type (prototype).
+      */
+@@ -665,7 +665,7 @@
+ 
+     /** Visitor result: The item representing the computed value.
+      */
+-    Item result;
++    protected Item result;
+ 
+     /** Visitor method: generate code for a definition, catching and reporting
+      *  any completion failures.
+@@ -2261,7 +2261,7 @@
+     /** code generation contexts,
+      *  to be used as type parameter for environments.
+      */
+-    static class GenContext {
++    public static class GenContext {
+ 
+         /** A chain for all unresolved jumps that exit the current environment.
+          */
+Index: com/sun/tools/javac/jvm/Items.java
+--- com/sun/tools/javac/jvm/Items.java Base (BASE)
++++ com/sun/tools/javac/jvm/Items.java Locally Modified (Based On LOCAL)
+@@ -185,7 +185,7 @@
+ 
+     /** The base class of all items, which implements default behavior.
+      */
+-    abstract class Item {
++    public abstract class Item {
+ 
+         /** The type code of values represented by this item.
+          */
+@@ -197,7 +197,7 @@
+ 
+         /** Generate code to load this item onto stack.
+          */
+-        Item load() {
++        public Item load() {
+             throw new AssertionError();
+         }
+ 
+@@ -281,7 +281,7 @@
+             super(typecode);
+         }
+ 
+-        Item load() {
++        public Item load() {
+             return this;
+         }
+ 
+@@ -315,7 +315,7 @@
+             super(Code.typecode(type));
+         }
+ 
+-        Item load() {
++        public Item load() {
+             code.emitop0(iaload + typecode);
+             return stackItem[typecode];
+         }
+@@ -358,7 +358,7 @@
+             this.isSuper = isSuper;
+         }
+ 
+-        Item load() {
++        public Item load() {
+             code.emitop0(aload_0);
+             return stackItem[typecode];
+         }
+@@ -370,7 +370,7 @@
+ 
+     /** An item representing a local variable.
+      */
+-    class LocalItem extends Item {
++    public class LocalItem extends Item {
+ 
+         /** The variable's register.
+          */
+@@ -387,7 +387,7 @@
+             this.reg = reg;
+         }
+ 
+-        Item load() {
++        public Item load() {
+             if (reg <= 3)
+                 code.emitop0(iload_0 + Code.truncate(typecode) * 4 + reg);
+             else
+@@ -438,7 +438,7 @@
+             this.member = member;
+         }
+ 
+-        Item load() {
++        public Item load() {
+             code.emitop2(getstatic, pool.put(member));
+             return stackItem[typecode];
+         }
+@@ -479,7 +479,7 @@
+             this.nonvirtual = nonvirtual;
+         }
+ 
+-        Item load() {
++        public Item load() {
+             code.emitop2(getfield, pool.put(member));
+             return stackItem[typecode];
+         }
+@@ -546,7 +546,7 @@
+             }
+         }
+ 
+-        Item load() {
++        public Item load() {
+             switch (typecode) {
+             case INTcode: case BYTEcode: case SHORTcode: case CHARcode:
+                 int ival = ((Number)value).intValue();
+@@ -666,7 +666,7 @@
+             this.lhs = lhs;
+         }
+ 
+-        Item load() {
++        public Item load() {
+             lhs.stash(typecode);
+             lhs.store();
+             return stackItem[typecode];
+@@ -724,7 +724,7 @@
+             this.falseJumps = falsejumps;
+         }
+ 
+-        Item load() {
++        public Item load() {
+             Chain trueChain = null;
+             Chain falseChain = jumpFalse();
+             if (!isFalse()) {
 Index: com/sun/tools/javac/tree/Pretty.java
 --- com/sun/tools/javac/tree/Pretty.java Base (BASE)
 +++ com/sun/tools/javac/tree/Pretty.java Locally Modified (Based On LOCAL)
