@@ -25,6 +25,11 @@
 
 package com.sun.tools.xslhtml;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,6 +38,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -45,6 +52,10 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -277,6 +288,8 @@ public class XHTMLProcessingUtils {
         class_elem.appendChild(first_line);
         
         copyClassDoc(clazz,class_elem);
+        
+        processInlineExamples(clazz, class_elem, packageDir);
 
         File xhtmlFile = new File(packageDir, qualifiedName + ".html");
         Result xhtmlResult = new StreamResult(xhtmlFile);
@@ -429,5 +442,86 @@ public class XHTMLProcessingUtils {
         public void fatalError(TransformerException exception) throws TransformerException {
             p(SEVERE, "fatal error: " + exception.getMessageAndLocation(), exception);
         }
+    }
+    
+    
+    private static void processInlineExamples(Element clazz, Element class_elem, File packageDir) {
+        NodeList examples = clazz.getElementsByTagName("example");
+        if(examples != null & examples.getLength() > 0) {
+            for(int i=0; i<examples.getLength(); i++) {
+                Element example = (Element) examples.item(i);
+                p("processing example code: " + example.getTextContent());
+                try {
+                    //String script = "import javafx.gui.*; CubicCurve { x1: 0  y1: 50  ctrlX1: 25  ctrlY1: 0 ctrlX2: 75  ctrlY2: 100   x2: 100  y2: 50 fill:Color.RED }";
+                    String script = example.getTextContent();
+                    File imgFile = new File(packageDir,clazz.getAttribute("name")+i);
+                    renderScriptToImage(imgFile, script);
+                    StringBuffer out = new StringBuffer();
+                    out.append("<p>the code:</p>");
+                    out.append("<pre class='example-code'><code>");
+                    String styledScript = highlight(script);
+                    out.append(styledScript);
+                    out.append("</code></pre>");
+                    out.append("<p>produces:</p>");
+                    out.append("<p>");
+                    out.append("<img class='example-screenshot' src='"+imgFile.getName()+"'/>");
+                    out.append("</p>");
+                    example.setTextContent(out.toString());
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+    }
+    
+    private static String highlight(String text) {
+        String pattern = "(/\\*)";
+        String replace = "<span class='comment'>/*";
+        //comments
+        text = text.replaceAll("/\\*", "<i class='comment'>/*");
+        text = text.replaceAll("\\*/","*/</i>");
+        //imports
+        text = text.replaceAll("(import|package)","<b>$1</b>");
+        //keywords
+        text = text.replaceAll("(var)","<b class='keyword'>$1</b>");
+        //attribte names
+        text = text.replaceAll("(\\w\\w*):","<b>$1</b>:");
+        //attribute values
+        text = text.replaceAll("(\\d+)","<span class='number-literal'>$1</span>");
+        text = text.replaceAll("(\".*\")","<span class='string-literal'>$1</span>");
+        //put inside of precode
+        //text = "<pre><code>"+text+"</code></pre>";
+        //text = "<html><head><link rel='stylesheet' href='test.css'/></head><body>"+
+        //        text +"</body></html>";
+        return text;
+    }
+    
+    private static void renderScriptToImage(File imgFile, String script) throws ScriptException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
+        ScriptEngineManager manager = new ScriptEngineManager();
+        ScriptEngine scrEng = manager.getEngineByExtension("javafx");
+        p("processing script: " + script);
+        Object ret = scrEng.eval(script);
+        Class fxclass = ret.getClass();
+        Method method = fxclass.getMethod("getSGNode", null);
+        Object node = method.invoke(ret, null);
+        Method getBounds = node.getClass().getMethod("getBounds",null);
+        Method render = node.getClass().getMethod("render", Graphics2D.class);
+
+        Rectangle2D bounds = (Rectangle2D) getBounds.invoke(node, null);
+
+        BufferedImage img = new BufferedImage(
+                (int)bounds.getWidth(), 
+                (int)bounds.getHeight(), 
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = img.createGraphics();
+        //let the scenegraph decide if AA should be on or not
+        //g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
+        //        RenderingHints.VALUE_ANTIALIAS_ON
+        //        );
+        g2.setPaint(Color.WHITE);
+        g2.fillRect(0, 0, img.getWidth(), img.getHeight());
+        render.invoke(node, g2);
+        g2.dispose();
+        ImageIO.write(img, "png", imgFile);
     }
 }

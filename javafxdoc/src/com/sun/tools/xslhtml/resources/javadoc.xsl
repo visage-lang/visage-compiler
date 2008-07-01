@@ -224,6 +224,7 @@
                     <a id="overview"><h3>Overview</h3></a>
                     <div class="overview">
                         <xsl:apply-templates select="docComment/inlineTags"/>
+                        <xsl:apply-templates select="docComment/tags/example"/>
                         <xsl:apply-templates select="docComment/seeTags"/>
                         <xsl:apply-templates select="docComment/tags/profile"/>
                         <xsl:apply-templates select="docComment/tags/needsreview"/>
@@ -258,6 +259,9 @@
     </xsl:template>
     <xsl:template match="inlineTags">
         <xsl:apply-templates/>
+    </xsl:template>
+    <xsl:template match="tags/example">
+        <xsl:value-of select="." disable-output-escaping="yes"/>
     </xsl:template>
     <xsl:template match="docComment/tags/param">
         <xsl:apply-templates/>

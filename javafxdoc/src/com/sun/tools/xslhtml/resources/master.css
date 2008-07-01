@@ -133,3 +133,26 @@ tr.needsreview td {
   background-color: #ccccff;
   padding: 0.5em;
 }
+
+/* for inline examples */
+pre.example-code {
+    padding: .5em;
+    margin: 1em;
+    background-color: #e7e7e7;
+    border-color: #b5b5b5;
+    border-style: solid;
+    border-width: 1px;
+}
+
+img.example-screenshot {
+    margin: .5em;
+    padding: 5px;
+    border-color: #4a4a4a;
+    border-width: 1px;
+    border-style: solid;
+}
+
+pre code b { color: blue; }
+pre code i.comment { color: #aa0000; }
+pre code span.string-literal { color: green; }
+pre code span.number-literal { color: #ff00ff; }
