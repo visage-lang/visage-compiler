@@ -124,8 +124,26 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         }
         for (int i = startPos; i <= endPos; i++)
             infos[i].removeListener();
-        infos = Util.replaceSlice(infos, startPos, endPos, newInfos);
+        infos = replaceSlice(infos, startPos, endPos, newInfos);
         updateSlice(affectedStart, affectedEnd, newSlice);
+    }
+
+    private Info<T>[] replaceSlice(Info<T>[] array, int startPos, int endPos, Info<T>[] newElements) {
+        int insertedCount = newElements.length;
+        int deletedCount = endPos - startPos + 1;
+        int netAdded = insertedCount - deletedCount;
+        if (netAdded == 0) {
+            System.arraycopy(newElements, 0, array, startPos, insertedCount);
+            return array;
+        }
+        else {
+            @SuppressWarnings("unchecked")
+            Info<T>[] temp = (Info<T>[]) new Info[array.length + netAdded];
+            System.arraycopy(array, 0, temp, 0, startPos);
+            System.arraycopy(newElements, 0, temp, startPos, insertedCount);
+            System.arraycopy(array, endPos + 1, temp, startPos + insertedCount, array.length - (endPos + 1));
+            return temp;
+        }
     }
 
     public void validate() {

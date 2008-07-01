@@ -41,7 +41,7 @@ class CompositeSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     public CompositeSequence(Class<T> clazz, Sequence<? extends T>... sequences) {
         // @@@ TODO: Deal with nulls in sequences
         super(clazz);
-        this.sequences = sequences.clone();
+        this.sequences = sequences.clone(); // @@@ TODO: eliminate clone 
         this.startPositions = new int[sequences.length];
         int size = 0;
         int depth = 0;

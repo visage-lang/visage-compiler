@@ -195,10 +195,11 @@ public final class Sequences {
     }
 
     /** Convert a Collection<T> to a Sequence<T> */
+    @SuppressWarnings("unchecked")
     public static<T> Sequence<T> fromCollection(Class<T> clazz, Collection<T> values) {
         if (values == null)
             return Sequences.emptySequence(clazz);
-        return new ArraySequence<T>(clazz, values.toArray(Util.<T>newArray(clazz, values.size())));
+        return new ArraySequence<T>(clazz, (T[]) values.toArray());
     }
 
 

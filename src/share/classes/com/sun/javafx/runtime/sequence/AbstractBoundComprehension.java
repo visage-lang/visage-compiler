@@ -80,7 +80,7 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
     private Sequence<V> computeValue() {
         Sequence<T> sequence = sequenceLocation.getAsSequence();
         state = new DumbMutableSequence<State<T, L, V>>(sequence.size());
-        SequenceLocation<V>[] locationsArray = Util.<SequenceLocation<V>>newArray(SequenceLocation.class, sequence.size());
+        SequenceLocation<V>[] locationsArray = Util.newSequenceLocationArray(sequence.size());
         State<T, L, V>[] newStates = State.newArray(sequence.size());
         fillInNewValues(sequence, newStates, locationsArray, 0);
         state.replaceSlice(0, -1, newStates);
@@ -125,7 +125,7 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
                         state.get(i).element.set(newElements.get(i - startPos));
                 }
                 else {
-                    SequenceLocation<V>[] locationsArray = Util.<SequenceLocation<V>>newArray(SequenceLocation.class, newElements.size());
+                    SequenceLocation<V>[] locationsArray = Util.newSequenceLocationArray(newElements.size());
                     State<T, L, V>[] newStates = State.newArray(newElements.size());
                     fillInNewValues(newElements, newStates, locationsArray, startPos);
                     underlying.replaceSlice(startPos, endPos, locationsArray);
