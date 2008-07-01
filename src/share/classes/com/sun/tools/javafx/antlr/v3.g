@@ -173,7 +173,7 @@ tokens {
    TYPE_ARG;
    TYPED_ARG_LIST;
    DOC_COMMENT;
-   ATTR_INTERPOLATE;
+   KEY_FRAME_PART;
 }
 
 @lexer::header {
@@ -669,30 +669,8 @@ expression
        	| forExpression   	
        	| newExpression 	
 	| assignmentExpression	
-        | keyValueLiteralExpression
       	;
-keyValueLiteralExpression
-        : qualname SUCHTHAT 
-                ( interpolatedExpression                       
-                                                                -> ^(SUCHTHAT qualname interpolatedExpression)
-                | LBRACE attributedInterpolatedExpression       
-                         (COMMA attributedInterpolatedExpression)*                           
-                  RBRACE                                        -> ^(SUCHTHAT qualname attributedInterpolatedExpression+) 
-                )
-        ;
-interpolatedExpression
-        : andExpression tweenExpression?      -> ^(TWEEN andExpression tweenExpression?)
-        ;
 
-attributedInterpolatedExpression
-        : qualname COLON 
-                        (interpolatedExpression                     -> ^(ATTR_INTERPOLATE qualname interpolatedExpression)
- //                       | LBRACE keyValueLiteralExpression RBRACE   -> ^(ATTR_INTERPOLATE qualname keyValueLiteralExpression)
-                        )
-        ;
-tweenExpression
-        : TWEEN andExpression                                   -> andExpression
-        ;
 forExpression
 	: FOR LPAREN inClause (COMMA inClause)* RPAREN expression
 								-> ^(FOR inClause* expression)
@@ -722,9 +700,8 @@ assignmentOpExpression
 	   |   STAREQ   e2=expression				-> ^(STAREQ $e1 $e2) 
 	   |   SLASHEQ   e2=expression				-> ^(SLASHEQ $e1 $e2) 
 	   |   PERCENTEQ   e2=expression	{ log.warning(pos($PERCENTEQ), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The operator \%= will not be supported in the JavaFX 1.0 release" );}			
-                                                                -> ^(PERCENTEQ $e1 $e2) 
-/*	   | SUCHTHAT expr=andExpression (TWEEN interpolate=andExpression)?
-                                                               -> ^(SUCHTHAT $e1 $expr $interpolate?)*/
+                                                                -> ^(PERCENTEQ $e1 $e2)
+           |   SUCHTHAT v=andExpression (TWEEN i=andExpression)?  -> ^(SUCHTHAT $e1 $v $i?)
 	   |							-> $e1
 	   )
 	;
@@ -819,10 +796,10 @@ primaryExpression
        	| literal 						-> literal
       	| functionExpression					-> functionExpression
        	| LPAREN expression RPAREN				-> expression
-        | AT LPAREN TIME_LITERAL RPAREN LBRACE keyFrameLiteralPart* RBRACE    -> ^(AT TIME_LITERAL keyFrameLiteralPart*)
-       	;        
+        | AT LPAREN TIME_LITERAL RPAREN LBRACE keyFrameLiteralPart RBRACE    -> ^(AT TIME_LITERAL keyFrameLiteralPart)
+       	;  
 keyFrameLiteralPart
-        : keyValueLiteralExpression (SEMI)?                     -> keyValueLiteralExpression
+        : (expression SEMI)+                                    -> ^(KEY_FRAME_PART expression+)
         ;
 functionExpression  
 	: FUNCTION formalParameters typeReference blockExpression

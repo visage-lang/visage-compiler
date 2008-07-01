@@ -29,25 +29,25 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.javac.util.List;
 
 public class JFXKeyFrameLiteral extends JFXExpression implements KeyFrameLiteralTree {
-    public JFXTimeLiteral start;
-    public List<JFXInterpolate> exprs;
-    public JFXBlockExpression trigger;
+    public JFXExpression start;
+    public List<JFXExpression> values;
+    public JFXExpression trigger;
     
-    public JFXKeyFrameLiteral(JFXTimeLiteral start, List<JFXInterpolate> exprs, JFXBlockExpression trigger) {
+    public JFXKeyFrameLiteral(JFXExpression start, List<JFXExpression> values, JFXExpression trigger) {
         this.start = start;
-        this.exprs = exprs;
+        this.values = values;
         this.trigger = trigger;
     }
 
-    public TimeLiteralTree getStartDuration() {
+    public JFXExpression getStartDuration() {
         return start;
     }
 
-    public List<InterpolateTree> getInterpolationExpression() {
-        return List.convert(InterpolateTree.class, exprs);
+    public List<JFXExpression> getInterpolationValues() {
+        return values;
     }
 
-    public BlockExpressionTree getTriggerExpression() {
+    public JFXExpression getTrigger() {
         return trigger;
     }
 

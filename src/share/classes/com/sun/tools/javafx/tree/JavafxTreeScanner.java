@@ -374,7 +374,9 @@ public class JavafxTreeScanner implements JavafxVisitor {
     
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral that) {
         scan(that.start);
-        scan(that.exprs);
-        scan(that.trigger);
+        for (JFXExpression value: that.values)
+            scan(value);
+        if (that.trigger != null)
+            scan(that.trigger);
     }
 }

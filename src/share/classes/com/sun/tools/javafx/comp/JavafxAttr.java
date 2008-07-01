@@ -3678,7 +3678,11 @@ public
     */
     
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        attribExpr(tree.start, env);
+        for (JFXExpression e:tree.values) {
+            attribExpr(e, env);
+        }
+        result = check(tree, syms.javafx_KeyFrameType, VAL, pkind, pt, pSequenceness);
     }
 
     private JFXTree breakTree = null;

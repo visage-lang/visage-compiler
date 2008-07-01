@@ -388,8 +388,6 @@ expression  returns [JFXExpression expr]
 	| pipeExpression				{ $expr = $pipeExpression.expr; }
 	| blockExpression				{ $expr = $blockExpression.expr; }
        	| stringExpression				{ $expr = $stringExpression.expr; }
-  //      | interpolateExpression                         { $expr = $interpolateExpression.expr; }
-  //      | frame=keyFrameLiteral                         { $expr = $frame.expr; }
 	| explicitSequenceExpression			{ $expr = $explicitSequenceExpression.expr; }
 	| ^(DOTDOT from=expression to=expression step=expression? LT?)
 							{ $expr = F.at(pos($DOTDOT)).RangeSequence($from.expr, $to.expr, $step.expr, $LT!=null); 
@@ -419,84 +417,19 @@ expression  returns [JFXExpression expr]
                                                           endPos($expr, $t); }
 	| t=NULL 					{ $expr = F.at(pos($t)).Literal(TypeTags.BOT, null); 
                                                           endPos($expr, $t); } 
-        | ^(SUCHTHAT target=qualident 
-                     (ie=interpolatedExpression 
-                                                        { int target_pos = $target.expr.pos;
-                                                          $expr = createKeyValueLiteral(target_pos, $target.expr, $ie.value, $ie.interpolate);
-                                                         
-                                                          endPos($expr, $SUCHTHAT); 
-                                                        }
-                     | aie=attributedInterpolatedExpressionList[$target.expr] 
-                                                        { $expr = F.at($target.expr.pos).ExplicitSequence($aie.list.toList());
+        | ^(SUCHTHAT target=expression value=expression (interpolate=expression)?)
+                                                        { $expr = F.at(pos($SUCHTHAT)).InterpolateValue($target.expr, $value.expr, $interpolate.expr);
                                                           endPos($expr, $SUCHTHAT);
-                                                        }                                                                                         
-                     )                                                                                           
-        )                    
-        | ^(AT duration=expression keyFrameLiteral) { JFXExpression class_name = F.at($AT.pos).Identifier("javafx.animation.KeyFrame");
-                                                          
-                                                          ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb();
-                                                          // time attribute
-                                                          JFXTree time = F.at($duration.expr.pos).ObjectLiteralPart(Name.fromString(names,"time"), $duration.expr, UNBOUND); 
-                                                          parts.append(time);
-                                                          
-                                                          // values attribute
-                                                          // 
-                                                          int pos = -1;
-                                                          java.util.Iterator<JFXExpression> iterator = $keyFrameLiteral.parts.iterator();
-                                                          ListBuffer<JFXExpression> key_values = new ListBuffer<JFXExpression>();
-                                                          while (iterator.hasNext()){
-                                                              JFXExpression e = iterator.next();
-                                                              // is it a KeyValue literal
-                                                              if (e instanceof JFXInstanciate) {
-                                                                  key_values.append(e);
-                                                                  if (pos == -1) {
-                                                                    pos = e.pos;
-                                                                  }
-                                                              }
-                                                              if (e instanceof JFXSequenceExplicit) {
-                                                                  if (pos == -1) {
-                                                                    pos = e.pos;
-                                                                  }     
-                                                                  com.sun.tools.javac.util.List<JFXExpression> items = ((JFXSequenceExplicit)e).getItems();
-                                                                  key_values.appendList(items);
-                                                              }
-                                                          } 
-                                                          if (!key_values.isEmpty()) {
-                                                        
-                                                              JFXExpression value_seq = F.at(pos).ExplicitSequence(key_values.toList());
-                                                              JFXTree values = F.at(pos).ObjectLiteralPart(Name.fromString(names, "values"), value_seq, UNBOUND);
-                                                              parts.append(values);
-                                                          }	
-                                                          
-                                                          $expr = F.at($AT.pos).Instanciate(class_name, null, parts.toList()); 
+                                                        } 
+        | ^(AT d=expression k=keyFrameLiteralPart)  
+                                                        { $expr = F.at(pos($AT)).KeyFrameLiteral($d.expr, $k.exprs.toList(), null);
                                                           endPos($expr, $AT);
                                                         }
-	;
-interpolatedExpression returns [JFXTree value, JFXTree interpolate]
-        : ^(TWEEN  e1=expression                     {  $value = F.at($e1.expr.pos).ObjectLiteralPart(Name.fromString(names,"value"), $e1.expr, UNBOUND); }
-                                (e2=expression       {  $interpolate = F.at($e2.expr.pos).ObjectLiteralPart(Name.fromString(names, "interpolate"), $e2.expr, UNBOUND); } 
-                                )?
-           )                                                 
-        ;   
-attributedInterpolatedExpressionList[JFXExpression target] returns [ListBuffer<JFXExpression> list = ListBuffer.<JFXExpression>lb()]
-        : (aie = attributedInterpolatedExpression  { int target_pos = $target.pos;
-                                                     JFXExpression full_target = F.at(target_pos).Select($target, ((JFXIdent)$aie.name).getName());
-                                                     list.append(createKeyValueLiteral(target_pos, full_target, $aie.value, $aie.interpolate));                                              
-                                                   }
-          )+
-        ;
-attributedInterpolatedExpression returns [JFXExpression name, JFXTree value, JFXTree interpolate]
-        : ^(ATTR_INTERPOLATE qualname=expression interpolatedExpression)   { $name = $qualname.expr;          
-                                                                  $value = $interpolatedExpression.value;
-                                                                  $interpolate = $interpolatedExpression.interpolate;
-                                                                }
-        ;
-keyFrameLiteral  returns [ListBuffer<JFXExpression> parts = ListBuffer.<JFXExpression>lb()]
-        : ( keyFrameLiteralPart              { $parts.append($keyFrameLiteralPart.expr); }
-          )*
-        ;
-keyFrameLiteralPart returns [JFXExpression expr]
-        : expression                          { $expr = $expression.expr; }
+        ;       
+keyFrameLiteralPart returns [ListBuffer<JFXExpression> exprs = new ListBuffer<JFXExpression>(); ]
+        : ^(KEY_FRAME_PART ( expression                 { exprs.append($expression.expr); }
+                           )+
+           )
         ;
 inClauses  returns [ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb()]
 	: ( inClause					{ clauses.append($inClause.value); } )*	
@@ -555,23 +488,6 @@ stringFormat  returns [JFXExpression expr]
 	: fs=FORMAT_STRING_LITERAL			{ $expr = F.at(pos($fs)).Literal(TypeTags.CLASS, $fs.text); }
 	| EMPTY_FORMAT_STRING				{ $expr = F.             Literal(TypeTags.CLASS, ""); }
 	;
-/*
-interpolateExpression  returns [JFXExpression expr]
-        : ^(SUCHTHAT attr=expression target=expression interp=expression?)
-                                                        { $expr = F.at($attr.expr.pos).InterpolateValue($attr.expr, $target.expr, $interp.expr);   
-keyFrameLiteral returns [JFXKeyFrameLiteral expr]
-@init { ListBuffer<JFXInterpolate> exprs = new ListBuffer<JFXInterpolate>(); }
-        : ^(AT time=expression 
-             ( interpolateExpression                    { exprs.append((JFXInterpolate)$interpolateExpression.expr); } )* 
-             keyFrameTriggerClause? 
-           )                                            { $expr = F.at(pos($AT)).KeyFrameLiteral((JFXTimeLiteral)$time.expr, exprs.toList(), $keyFrameTriggerClause.expr);
-                                                          endPos($expr, $AT); }
-        ;
-keyFrameTriggerClause  returns [JFXBlockExpression expr]
-	: ^(TRIGGER blockExpression)			{ $expr = $blockExpression.expr; 
-                                                          endPos($expr, $TRIGGER); }
-	;
-*/
 explicitSequenceExpression   returns [JFXSequenceExplicit expr]
 @init { ListBuffer<JFXExpression> exps = new ListBuffer<JFXExpression>(); }
 	: ^(SEQ_EXPLICIT   

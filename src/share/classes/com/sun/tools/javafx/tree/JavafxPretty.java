@@ -739,7 +739,7 @@ public class JavafxPretty implements JavafxVisitor {
         try {
             if (tree.getAttribute() != null) {
                 print(tree.getAttribute());
-                print(':');
+                print("=>");
             }
             print(tree.getValue());
             printTween(tree);
@@ -1328,14 +1328,18 @@ public class JavafxPretty implements JavafxVisitor {
             print(tree.getStartDuration());
             print(") {");
             println();
+            
             indent();
-            printStats(List.convert(JFXTree.class, tree.getInterpolationExpression()));
-            if (tree.getTriggerExpression() != null) {
+            printStats(List.convert(JFXTree.class, tree.getInterpolationValues()));
+            
+            if (tree.getTrigger() != null) {
                 align();
                 print("trigger ");
-                visitBlockExpression(this, (JFXBlockExpression)tree.getTriggerExpression());
+                visitBlockExpression(this, (JFXBlockExpression)tree.getTrigger());
             }
+            
             undent();
+            
             println();
             align();
             print("}");

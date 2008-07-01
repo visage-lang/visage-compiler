@@ -110,6 +110,8 @@ public class JavafxDefs {
     final Name computeElementName;
     final Name initDefName;
     final Name postInitDefName;
+    final Name timeName;
+    final Name valuesName;
     final Name valueName;
     final Name targetName;
     final Name interpolateName;
@@ -185,6 +187,8 @@ public class JavafxDefs {
         computeElementName = names.fromString("computeElement$");
         initDefName = names.fromString("$init$def$name");
         postInitDefName = names.fromString("$postinit$def$name");
+        timeName = names.fromString("time");
+        valuesName = names.fromString("values");
         targetName = names.fromString("target");
         valueName = names.fromString("value");
         interpolateName = names.fromString("interpolate");

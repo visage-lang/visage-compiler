@@ -9,10 +9,10 @@
 import java.lang.System;
 import javafx.animation.*;
 
-var x = 0;
-var y = 0;
-var sx = 0;
-var sy = 0;
+var x:Number = 0;
+var y:Number = 0;
+var sx:Number = 0;
+var sy:Number = 0;
  
 var ax = Timeline {
         // x
@@ -73,11 +73,6 @@ var txy = Timeline {
             sx => 1;
             sy => 1;
         }
-}
-
-var zxy = Timeline {
-	keyFrames: at ( 4.15s) {
-	}
 }
 System.out.println(ax.keyFrames[0].values[0].value);
 System.out.println(ay.keyFrames[1].values[0].value);

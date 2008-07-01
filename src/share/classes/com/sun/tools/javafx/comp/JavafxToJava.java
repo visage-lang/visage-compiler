@@ -3257,7 +3257,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name attrName) {
                 if (targetSymbol==vsym) {
                     JCExpression target = translate(init, Wrapped.InLocation);
-                    target = callExpression(diagPos, make.Type(syms.javafx_PointerType), "make", target);
+ //                   target = callExpression(diagPos, make.Type(syms.javafx_PointerType), "make", target);
+                    target = callExpression(diagPos, makeExpression(syms.javafx_PointerType), "make", target);
                     VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
                     JCExpression localAttr;
 
@@ -3285,6 +3286,35 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     }
 
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        DiagnosticPosition diagPos = tree.pos();
+        JFXExpression clsname = fxmake.at(diagPos).Type(syms.javafx_KeyFrameType);
+        ((JFXSelect) clsname).sym = syms.javafx_KeyFrameType.tsym;
+        
+        final Symbol timeSymbol = syms.javafx_KeyFrameType.tsym.members().lookup(defs.timeName).sym;
+        JFXObjectLiteralPart timeLiteral = fxmake.at(diagPos).ObjectLiteralPart(defs.timeName, tree.start);
+        timeLiteral.sym = timeSymbol;
+        
+        JFXSequenceExplicit values = fxmake.at(diagPos).ExplicitSequence(tree.values);
+        values.type = types.sequenceType( fxmake.at(diagPos).Type(syms.javafx_KeyValueType).type);
+        
+        JFXObjectLiteralPart valuesLiteral =
+                fxmake.at(diagPos).ObjectLiteralPart(defs.valuesName, values);
+        valuesLiteral.sym = syms.javafx_KeyFrameType.tsym.members().lookup(defs.valuesName).sym;
+        
+        List<JFXTree> parts = List.<JFXTree>of(timeLiteral, valuesLiteral);
+        
+        JFXInstanciate inst = fxmake.at(diagPos).Instanciate(clsname, null, parts);
+        
+        inst.type = clsname.type;
+        
+        result = new InstanciateTranslator(inst, this) {
+            protected void processLocalVar(JFXVar var) {
+            }
+
+            protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name attrName) {
+                return toJava.translateDefinitionalAssignmentToSet(diagPos, init, bindStatus,
+                        vsym, attrName, FROM_LITERAL_MILIEU);
+            }
+        }.doit();
     }
 }

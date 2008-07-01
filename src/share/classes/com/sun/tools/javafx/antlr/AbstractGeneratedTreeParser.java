@@ -180,7 +180,7 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
             endPositions.put(tree, end);
     }
 
-
+/*
     JFXExpression createKeyValueLiteral(int target_pos, JFXExpression target, JFXTree value, JFXTree interpolate ) {
 
         JFXExpression class_name = F.at(target_pos).Identifier("javafx.animation.KeyValue");
@@ -208,4 +208,5 @@ public abstract class AbstractGeneratedTreeParser extends TreeParser {
             parts.append(interpolate);
         return (F.at(target_pos).Instanciate(class_name, null, parts.toList()));
     }
+ */
 }

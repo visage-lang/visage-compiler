@@ -358,6 +358,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
                 tp = outer.tag == CLASS && t.tsym.owner.kind == TYP
                         ? Select(Type(outer), t.tsym)
                         : QualIdent(t.tsym);
+                String tp_name = tp.toString();
                 break;
             default:
                 throw new AssertionError("unexpected type: " + t);
@@ -801,7 +802,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
-    
+     
     public JFXIndexof Indexof (Name name) {
         JFXIndexof tree = new JFXIndexof(name);
         tree.pos = pos;
@@ -838,8 +839,8 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXKeyFrameLiteral KeyFrameLiteral(JFXTimeLiteral start, List<JFXInterpolate> exprs, JFXBlockExpression trigger) {
-        JFXKeyFrameLiteral tree = new JFXKeyFrameLiteral(start, exprs, trigger);
+    public JFXKeyFrameLiteral KeyFrameLiteral(JFXExpression start, List<JFXExpression> values, JFXExpression trigger) {
+        JFXKeyFrameLiteral tree = new JFXKeyFrameLiteral(start, values, trigger);
         tree.pos = pos;
         return tree;
     }

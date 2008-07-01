@@ -30,22 +30,22 @@ import java.util.List;
  * A tree node for a JavaFX Script keyframe literal.
  * @author tball
  */
-public interface KeyFrameLiteralTree extends Tree {
+public interface KeyFrameLiteralTree extends ExpressionTree {
     
     /**
      * @return the elapsed time to wait before start running the keyframe.
      */
-    TimeLiteralTree getStartDuration();
+    ExpressionTree getStartDuration();
     
     /**
      * @return the interpolation expression, which is the set of actions this
      * keyframe makes during its execution.
      */
-    List<InterpolateTree> getInterpolationExpression();
+    List<? extends ExpressionTree> getInterpolationValues();
     
     /**
      * @return the expression to be executed when the keyframe finishes, or
      *         null if no trigger expression is specified.
      */
-    BlockExpressionTree getTriggerExpression();
+    ExpressionTree getTrigger();
 }

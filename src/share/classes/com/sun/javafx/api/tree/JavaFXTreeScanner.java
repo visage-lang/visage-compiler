@@ -309,8 +309,8 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
 
     public R visitKeyFrameLiteral(KeyFrameLiteralTree node, P p) {
         R r = scan(node.getStartDuration(), p);
-        r = scanAndReduce(node.getInterpolationExpression(), p, r);
-        return scanAndReduce(node.getTriggerExpression(), p, r);
+        r = scanAndReduce(node.getInterpolationValues(), p, r);
+        return scanAndReduce(node.getTrigger(), p, r);
     }
     public R visitObjectLiteralPart(ObjectLiteralPartTree node, P p) {
         return scan(node.getExpression(), p);
