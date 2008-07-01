@@ -134,8 +134,8 @@ public class JavaFxAntTask extends Javac {
     @Override
     protected void checkParameters() throws BuildException {
         super.checkParameters();
-            if (compilerClassPath == null) {
-                throw new BuildException("javafxc: compilerclasspath must be set", getLocation());
+            if (super.getExecutable() == null && compilerClassPath == null) {
+                throw new BuildException("javafxc: executable or compilerclasspath must be set", getLocation());
             }
     }
     
@@ -193,19 +193,27 @@ public class JavaFxAntTask extends Javac {
 
         public boolean forkeExecute() throws Exception {
             Commandline cmd = new Commandline();
-            cmd.setExecutable(JavaEnvUtils.getJdkExecutable("java"));
-            if (memoryInitialSize != null) {
-                cmd.createArgument().setValue("-Xms" + memoryInitialSize);
-                memoryInitialSize = null; // don't include it in setupJavacCommandlineSwitches()
+            String executable = getJavac().getExecutable();
+            if (executable != null) {
+                cmd.setExecutable(executable);
+                if (((JavaFxAntTask) getJavac()).compilerClassPath != null) {
+                    getJavac().log("Ignoring attribute compilerclasspath, because executable is set.", Project.MSG_WARN);
+                }
+            } else {
+                cmd.setExecutable(JavaEnvUtils.getJdkExecutable("java"));
+                if (memoryInitialSize != null) {
+                    cmd.createArgument().setValue("-Xms" + memoryInitialSize);
+                    memoryInitialSize = null; // don't include it in setupJavacCommandlineSwitches()
+                }
+                if (memoryMaximumSize != null) {
+                    cmd.createArgument().setValue("-Xmx" + memoryMaximumSize);
+                    memoryMaximumSize = null; // don't include it in setupJavacCommandlineSwitches()
+                }
+                String cp = "-Xbootclasspath/p:" +
+                        ((JavaFxAntTask) getJavac()).compilerClassPath.toString();
+                cmd.createArgument().setValue(cp);
+                cmd.createArgument().setValue(FX_ENTRY_POINT);
             }
-            if (memoryMaximumSize != null) {
-                cmd.createArgument().setValue("-Xmx" + memoryMaximumSize);
-                memoryMaximumSize = null; // don't include it in setupJavacCommandlineSwitches()
-            }
-            String cp = "-Xbootclasspath/p:" +
-                    ((JavaFxAntTask) getJavac()).compilerClassPath.toString();
-            cmd.createArgument().setValue(cp);
-            cmd.createArgument().setValue(FX_ENTRY_POINT);
             setupJavacCommandlineSwitches(cmd, true);
             int firstFileName = cmd.size();
             logAndAddFilesToCompile(cmd);
