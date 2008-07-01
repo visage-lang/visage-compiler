@@ -596,4 +596,25 @@ public abstract class AbstractGeneratedParser extends Parser {
             return super.getMissingSymbol(input, e, expectedTokenType, follow);
         }
     }
+    
+    protected Object getMissingSymbol(IntStream input,
+                                      RecognitionException e, 
+                                      int expectedTokenType,
+                                      BitSet follow) {
+        
+        if (expectedTokenType == Token.EOF) {
+            String tokenText = "<missing EOF>";
+            CommonToken t = new CommonToken(expectedTokenType, tokenText);
+            Token current = ((TokenStream)input).LT(1);
+            if ( current.getType() == Token.EOF ) {
+                current = ((TokenStream)input).LT(-1);
+            }
+            t.setLine(current.getLine());
+            t.setCharPositionInLine(current.getCharPositionInLine());
+            t.setChannel(DEFAULT_TOKEN_CHANNEL);
+            return t;
+        } else {
+            return super.getMissingSymbol(input, e, expectedTokenType, follow);
+        }
+    }
 }
