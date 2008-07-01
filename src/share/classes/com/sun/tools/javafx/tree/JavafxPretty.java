@@ -97,10 +97,6 @@ public class JavafxPretty implements JavafxVisitor {
         sourceContent = null;
     }
 
-    /** The enclosing class name.
-     */
-    Name enclClassName;
-
     /** Align code to be indented to left margin.
      */
     public void align() throws IOException {
@@ -156,7 +152,7 @@ public class JavafxPretty implements JavafxVisitor {
      *************************************************************************/
 
     /** Exception to propogate IOException through visitXXX methods */
-    protected static class UncheckedIOException extends Error {
+    protected static class UncheckedIOException extends RuntimeException {
         static final long serialVersionUID = -4032692679158424751L;
         public UncheckedIOException(IOException e) {
             super(e.getMessage(), e);

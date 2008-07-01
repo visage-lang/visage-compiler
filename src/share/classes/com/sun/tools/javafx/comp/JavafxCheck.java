@@ -114,7 +114,7 @@ public class JavafxCheck {
         treeinfo = (JavafxTreeInfo)JavafxTreeInfo.instance(context);
 
 	allowGenerics = source.allowGenerics();
-	allowAnnotations = source.allowAnnotations();
+	//allowAnnotations = source.allowAnnotations();
 	complexInference = options.get("-complexinference") != null;
 
 	boolean verboseDeprecated = lint.isEnabled(LintCategory.DEPRECATION);
@@ -132,7 +132,7 @@ public class JavafxCheck {
 
     /** Switch: annotations enabled?
      */
-    boolean allowAnnotations;
+    //boolean allowAnnotations;
 
     /** Switch: -complexinference option set?
      */

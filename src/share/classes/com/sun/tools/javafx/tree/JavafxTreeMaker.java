@@ -352,7 +352,6 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
                 tp = outer.tag == CLASS && t.tsym.owner.kind == TYP
                         ? Select(Type(outer), t.tsym)
                         : QualIdent(t.tsym);
-                String tp_name = tp.toString();
                 break;
             default:
                 throw new AssertionError("unexpected type: " + t);
