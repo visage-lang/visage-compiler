@@ -33,14 +33,14 @@ import com.sun.tools.javac.code.Symbol.MethodSymbol;
  * @author Robert Field
  */
 public class JFXInitDefinition extends JFXTree implements InitDefinitionTree{
-    public JFXBlock body;
+    public JFXBlockExpression body;
     public MethodSymbol sym;
 
-    protected JFXInitDefinition(JFXBlock body) {
+    protected JFXInitDefinition(JFXBlockExpression body) {
         this.body = body;
     }
     
-    public JFXBlock getBody() {
+    public JFXBlockExpression getBody() {
         return body;
     }
 

@@ -29,7 +29,7 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
 /**
  * A no-op statement ";".
  */
-public class JFXSkip extends JFXStatement implements EmptyStatementTree {
+public class JFXSkip extends JFXExpression implements EmptyStatementTree {
 
     protected JFXSkip() {
     }

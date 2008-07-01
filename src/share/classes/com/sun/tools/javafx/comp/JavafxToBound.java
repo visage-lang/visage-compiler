@@ -482,7 +482,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         JFXExpression value = tree.value;
         ListBuffer<JCStatement> translatedVars = ListBuffer.lb();
 
-        for (JFXStatement stmt : tree.getStmts()) {
+        for (JFXExpression stmt : tree.getStmts()) {
             switch (stmt.getFXTag()) {
                 case RETURN:
                     assert value == null;
@@ -1452,11 +1452,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     public void visitBindExpression(JFXBindExpression tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    @Override
-    public void visitBlock(JFXBlock tree) {
         assert false : "should not be processed as part of a binding";
     }
 

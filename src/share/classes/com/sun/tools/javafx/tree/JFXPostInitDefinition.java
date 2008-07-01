@@ -35,14 +35,14 @@ import com.sun.tools.javac.code.Symbol;
  * @author Brian Goetz
  */
 public class JFXPostInitDefinition extends JFXTree implements InitDefinitionTree {
-    public JFXBlock body;
+    public JFXBlockExpression body;
     public Symbol.MethodSymbol sym;
 
-    protected JFXPostInitDefinition(JFXBlock body) {
+    protected JFXPostInitDefinition(JFXBlockExpression body) {
         this.body = body;
     }
 
-    public JFXBlock getBody() {
+    public JFXBlockExpression getBody() {
         return body;
     }
 

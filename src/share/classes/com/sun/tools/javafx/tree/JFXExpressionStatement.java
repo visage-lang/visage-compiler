@@ -30,7 +30,7 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
  * an expression statement
  * @param expr expression structure
  */
-public class JFXExpressionStatement extends JFXStatement implements ExpressionStatementTree {
+public class JFXExpressionStatement extends JFXExpression implements ExpressionStatementTree {
 
     public JFXExpression expr;
 

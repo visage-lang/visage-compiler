@@ -81,10 +81,6 @@ public class JavafxTreeScanner implements JavafxVisitor {
     public void visitSkip(JFXSkip tree) {
     }
 
-    public void visitBlock(JFXBlock tree) {
-        scan(tree.stats);
-    }
-
     public void visitWhileLoop(JFXWhileLoop tree) {
         scan(tree.cond);
         scan(tree.body);
@@ -206,11 +202,11 @@ public class JavafxTreeScanner implements JavafxVisitor {
 
     @Override
     public void visitInitDefinition(JFXInitDefinition that) {
-        scan((JFXBlock)that.getBody());
+        scan((JFXBlockExpression)that.getBody());
     }
 
     public void visitPostInitDefinition(JFXPostInitDefinition that) {
-        scan((JFXBlock)that.getBody());
+        scan((JFXBlockExpression)that.getBody());
     }
 
     @Override

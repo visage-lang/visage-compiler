@@ -31,13 +31,13 @@ import com.sun.tools.javac.util.List;
 /**
  * A "try { } catch ( ) { } finally { }" block.
  */
-public class JFXTry extends JFXStatement implements TryTree {
+public class JFXTry extends JFXExpression implements TryTree {
 
-    public JFXBlock body;
+    public JFXBlockExpression body;
     public List<JFXCatch> catchers;
-    public JFXBlock finalizer;
+    public JFXBlockExpression finalizer;
 
-    protected JFXTry(JFXBlock body, List<JFXCatch> catchers, JFXBlock finalizer) {
+    protected JFXTry(JFXBlockExpression body, List<JFXCatch> catchers, JFXBlockExpression finalizer) {
         this.body = body;
         this.catchers = catchers;
         this.finalizer = finalizer;
@@ -52,7 +52,7 @@ public class JFXTry extends JFXStatement implements TryTree {
         return JavaFXKind.TRY;
     }
 
-    public JFXBlock getBlock() {
+    public JFXBlockExpression getBlock() {
         return body;
     }
 
@@ -60,7 +60,7 @@ public class JFXTry extends JFXStatement implements TryTree {
         return convertList(CatchTree.class, catchers);
     }
 
-    public JFXBlock getFinallyBlock() {
+    public JFXBlockExpression getFinallyBlock() {
         return finalizer;
     }
 

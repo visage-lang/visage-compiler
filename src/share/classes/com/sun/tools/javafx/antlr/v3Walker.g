@@ -178,11 +178,11 @@ formalParameterOpt returns [JFXVar var]
 	: formalParameter				{ $var = $formalParameter.var; } 
 	|						{ $var = null; } 
 	;
-block  returns [JFXBlock value]
-@init { ListBuffer<JFXStatement> stats = ListBuffer.<JFXStatement>lb(); }
+block  returns [JFXBlockExpression value]
+@init { ListBuffer<JFXExpression> stats = ListBuffer.<JFXExpression>lb(); }
 	: ^(BLOCK
 		(	^(STATEMENT statement)		{ stats.append($statement.value); }	
-		| 	^(EXPRESSION expression)	{ JFXStatement stat = F.at($expression.expr.pos).Exec($expression.expr);
+		| 	^(EXPRESSION expression)	{ JFXExpression stat = F.at($expression.expr.pos).Exec($expression.expr);
                                                           endPos(stat, $EXPRESSION);
                                                           stats.append(stat); }
 		)*
@@ -190,10 +190,10 @@ block  returns [JFXBlock value]
                                                           endPos($value, $BLOCK); }
 	;
 blockExpression  returns [JFXBlockExpression expr]
-@init { ListBuffer<JFXStatement> stats = new ListBuffer<JFXStatement>(); JFXExpression val = null; CommonTree tval = null;}
+@init { ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>(); JFXExpression val = null; CommonTree tval = null;}
 	: ^(LBRACE 
 		(	^(STATEMENT statement)		{ if (val != null) {
-                                                              JFXStatement stat = F.at(val.pos).Exec(val);
+                                                              JFXExpression stat = F.at(val.pos).Exec(val);
                                                               endPos(stat, tval);
                                                               stats.append(stat); 
                                                               val = null; 
@@ -201,7 +201,7 @@ blockExpression  returns [JFXBlockExpression expr]
                                                           }
 	     					  	  stats.append($statement.value); }
 		| 	^(EXPRESSION expression)	{ if (val != null) {
-                                                              JFXStatement stat = F.at(val.pos).Exec(val);
+                                                              JFXExpression stat = F.at(val.pos).Exec(val);
                                                               endPos(stat, tval);
                                                               stats.append(stat); 
                                                           }
@@ -211,7 +211,7 @@ blockExpression  returns [JFXBlockExpression expr]
 	    )						{ $expr = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), val); 
                                                           endPos($expr, $LBRACE); }
 	;
-variableDeclaration    returns [JFXStatement value]
+variableDeclaration    returns [JFXExpression value]
 	: ^(VAR variableLabel modifiers name type boundExpressionOpt onReplaceClause? DOC_COMMENT?)
 	    						{ $value = F.at($variableLabel.pos).Var($name.value, 
 	    							$type.type, 
@@ -239,7 +239,7 @@ variableLabel    returns [boolean local, long modifiers, int pos]
 	| LET						{ $local = true; $modifiers = Flags.FINAL; $pos = pos($LET); }
 	| ATTRIBUTE					{ $local = false; $modifiers = 0L; $pos = pos($ATTRIBUTE); }
 	;
-statement returns [JFXStatement value]
+statement returns [JFXExpression value]
 	: variableDeclaration				{ $value = $variableDeclaration.value; }
 //	| functionDefinition 				{ $value = $functionDefinition.value; }
 	| BREAK    					{ $value = F.at(pos($BREAK)).Break(null); 
@@ -274,7 +274,7 @@ catchClause  returns [JFXCatch value]
 	: ^(CATCH formalParameter block)		{ $value = F.at(pos($CATCH)).Catch($formalParameter.var, $block.value); 
                                                           endPos($value, $CATCH); } 
 	;
-finallyClause  returns [JFXBlock value]
+finallyClause  returns [JFXBlockExpression value]
 	: ^(FINALLY block)				{ $value = $block.value; }
 	;
 boundExpression   returns [JavafxBindStatus status, JFXExpression expr]

@@ -29,7 +29,7 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
 /**
  * A throw statement.
  */
-public class JFXThrow extends JFXStatement implements ThrowTree {
+public class JFXThrow extends JFXExpression implements ThrowTree {
 
     public JFXExpression expr;
 

@@ -35,7 +35,7 @@ import com.sun.tools.javac.code.Scope;
 /**
  * A class declaration
  */
-public class JFXClassDeclaration extends JFXStatement implements ClassDeclarationTree {
+public class JFXClassDeclaration extends JFXExpression implements ClassDeclarationTree {
     public JFXModifiers mods;
     private final Name name;
     private List<JFXExpression> extending = null;

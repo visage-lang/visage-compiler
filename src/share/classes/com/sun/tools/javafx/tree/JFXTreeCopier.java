@@ -56,27 +56,22 @@ public class JFXTreeCopier implements JavafxVisitor {
         result = maker.at(tree.pos).Skip();
     }
 
-    public void visitBlock(JFXBlock tree) {
-        List<JFXStatement> stats = copy(tree.stats);
-        result = maker.at(tree.pos).Block(tree.flags, stats);
-    }
-
     public void visitWhileLoop(JFXWhileLoop tree) {
         JFXExpression cond = copy(tree.cond);
-        JFXStatement body = copy(tree.body);
+        JFXExpression body = copy(tree.body);
         result = maker.at(tree.pos).WhileLoop(cond, body);
     }
 
     public void visitTry(JFXTry tree) {
-        JFXBlock body = copy(tree.body);
+        JFXBlockExpression body = copy(tree.body);
         List<JFXCatch> catchers = copy(tree.catchers);
-        JFXBlock finalizer = copy(tree.finalizer);
+        JFXBlockExpression finalizer = copy(tree.finalizer);
         result = maker.at(tree.pos).Try(body, catchers, finalizer);
     }
 
     public void visitCatch(JFXCatch tree) {
         JFXVar param = copy(tree.param);
-        JFXBlock body = copy(tree.body);
+        JFXBlockExpression body = copy(tree.body);
         result = maker.at(tree.pos).Catch(param, body);
     }
 
@@ -205,12 +200,12 @@ public class JFXTreeCopier implements JavafxVisitor {
     }
 
     public void visitInitDefinition(JFXInitDefinition tree) {
-        JFXBlock body = tree.body;
+        JFXBlockExpression body = tree.body;
         result = maker.at(tree.pos).InitDefinition(body);
     }
 
     public void visitPostInitDefinition(JFXPostInitDefinition tree) {
-        JFXBlock body = tree.body;
+        JFXBlockExpression body = tree.body;
         result = maker.at(tree.pos).PostInitDefinition(body);
     }
 
@@ -267,12 +262,12 @@ public class JFXTreeCopier implements JavafxVisitor {
         JFXVar firstIndex = copy(tree.getFirstIndex());
         JFXVar lastIndex = copy(tree.getLastIndex());
         JFXVar newElements = copy(tree.getNewElements());
-        JFXBlock body = copy(tree.getBody());
+        JFXBlockExpression body = copy(tree.getBody());
         result = maker.at(tree.pos).OnReplace(oldValue, firstIndex, lastIndex, tree.getEndKind(), newElements, body);
     }
 
     public void visitBlockExpression(JFXBlockExpression tree) {
-        List<JFXStatement> stats = copy(tree.stats);
+        List<JFXExpression> stats = copy(tree.stats);
         JFXExpression value = copy(tree.value);
         result = maker.at(tree.pos).BlockExpression(tree.flags, stats, value);
     }

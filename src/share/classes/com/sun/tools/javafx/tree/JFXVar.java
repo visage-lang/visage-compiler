@@ -37,7 +37,7 @@ import java.util.Map;
  * @author Robert Field
  * @author Zhiqun Chen
  */
-public class JFXVar extends JFXStatement implements VariableTree {
+public class JFXVar extends JFXExpression implements VariableTree {
     public JFXModifiers mods;
     public Name name;
     public JFXExpression vartype;

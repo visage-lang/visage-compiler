@@ -29,12 +29,12 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
 /**
  * A while loop
  */
-public class JFXWhileLoop extends JFXStatement implements WhileLoopTree {
+public class JFXWhileLoop extends JFXExpression implements WhileLoopTree {
 
     public JFXExpression cond;
-    public JFXStatement body;
+    public JFXExpression body;
 
-    protected JFXWhileLoop(JFXExpression cond, JFXStatement body) {
+    protected JFXWhileLoop(JFXExpression cond, JFXExpression body) {
         this.cond = cond;
         this.body = body;
     }
@@ -52,7 +52,7 @@ public class JFXWhileLoop extends JFXStatement implements WhileLoopTree {
         return cond;
     }
 
-    public JFXStatement getStatement() {
+    public JFXExpression getStatement() {
         return body;
     }
 

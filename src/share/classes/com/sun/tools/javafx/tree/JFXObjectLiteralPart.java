@@ -33,7 +33,7 @@ import com.sun.javafx.api.JavafxBindStatus;
 /**
  * In object literal  "Identifier ':' [ 'bind' 'lazy'?] expression"
  */
-public class JFXObjectLiteralPart extends JFXStatement implements ObjectLiteralPartTree {
+public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteralPartTree {
     private JFXExpression expr;
     public Name name; // Make this an Ident. Tools might need position information.
     private JFXExpression translationInit = null;

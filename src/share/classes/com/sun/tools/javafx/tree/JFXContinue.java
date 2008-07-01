@@ -31,7 +31,7 @@ import com.sun.tools.javac.util.Name;
 /**
  * A continue of a loop.
  */
-public class JFXContinue extends JFXStatement implements ContinueTree {
+public class JFXContinue extends JFXExpression implements ContinueTree {
 
     public Name label;
     public JFXTree target;

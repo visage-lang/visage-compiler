@@ -317,10 +317,12 @@ public class JavafxPretty implements JavafxVisitor {
     // where
     boolean isUsed(final Symbol t, JFXTree cdef) {
         class UsedVisitor extends JavafxTreeScanner {
+            @Override
             public void scan(JFXTree tree) {
                 if (tree!=null && !result) tree.accept(this);
             }
             boolean result = false;
+            @Override
             public void visitIdent(JFXIdent tree) {
                 if (tree.sym == t) result = true;
             }
@@ -357,15 +359,6 @@ public class JavafxPretty implements JavafxVisitor {
     public void visitSkip(JFXSkip tree) {
         try {
             print(";");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void visitBlock(JFXBlock tree) {
-        try {
-            printFlags(tree.flags);
-            printBlock(tree.stats);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -557,7 +550,9 @@ public class JavafxPretty implements JavafxVisitor {
             case MUL_ASG:    return "*=";
             case DIV_ASG:    return "/=";
             case MOD_ASG:    return "%=";
-
+            case REVERSE:    return "reverse";
+            case INDEXOF:    return "indexof";
+            case SIZEOF:     return "sizeof";
             default: throw new Error();
         }
     }

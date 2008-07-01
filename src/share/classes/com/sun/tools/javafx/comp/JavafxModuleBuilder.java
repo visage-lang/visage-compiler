@@ -89,7 +89,7 @@ public class JavafxModuleBuilder {
         }
 
         ListBuffer<JFXTree> moduleClassDefs = new ListBuffer<JFXTree>();
-        ListBuffer<JFXStatement> stats = new ListBuffer<JFXStatement>();
+        ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>();
 
         // check for references to pseudo variables and if found, declare them
         final boolean[] usesFile = new boolean[1];
@@ -123,7 +123,7 @@ public class JavafxModuleBuilder {
         JFXExpression value = null;
         for (JFXTree tree : module.defs) {
             if (value != null) {
-                stats.append( fxmake.at(value).Exec(value) );
+                stats.append(value);
                 value = null;
             }
             switch (tree.getFXTag()) {
@@ -152,20 +152,14 @@ public class JavafxModuleBuilder {
                 //stats.append(decl);
                 break;
             }
-            case VAR_DEF: {
+            case VAR_DEF: { //TODO: deal with var value
                 JFXVar decl = (JFXVar) tree;
-                
-                
                 checkName(tree.pos, decl.getName());
                 stats.append(decl);
                 break;
             }
             default:
-                if (tree instanceof JFXExpression) {
-                    value = (JFXExpression)tree;
-                } else {
-                    stats.append((JFXStatement)tree);
-                }
+                value = (JFXExpression) tree;
                 break;
             }
         }
@@ -219,7 +213,7 @@ public class JavafxModuleBuilder {
             JFXExpression loaderCall = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), forName, args);
             args = List.<JFXExpression>of(loaderCall);
             JFXExpression getFileURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getFile, args);
-            JFXStatement fileVar =
+            JFXExpression fileVar =
                 fxmake.at(diagPos).Var(pseudoFile, getURLType(diagPos), 
                          fxmake.at(diagPos).Modifiers(Flags.FINAL|Flags.STATIC), 
                          false, getFileURL, JavafxBindStatus.UNBOUND, null);
@@ -244,14 +238,14 @@ public class JavafxModuleBuilder {
         return fxmake.at(diagPos).TypeClass(urlFQN, TypeTree.Cardinality.SINGLETON);
     }
 
-    private JFXFunctionDefinition makeRunFunction(Name name, List<JFXStatement> stats, JFXExpression value, Type returnType) {
+    private JFXFunctionDefinition makeRunFunction(Name name, List<JFXExpression> stats, JFXExpression value, Type returnType) {
         JFXVar mainArgs = fxmake.Param(commandLineArgs, 
                 fxmake.TypeClass(fxmake.Ident(Name.fromString(names, "String")), TypeTree.Cardinality.ANY));
         List<JFXVar> argsVarList = List.<JFXVar>of(mainArgs);
         return makeMethod(name, stats, value, returnType, argsVarList);
     }
     
-    private JFXFunctionDefinition makeMethod(Name name, List<JFXStatement> stats, JFXExpression value, Type returnType, List<JFXVar> param) {
+    private JFXFunctionDefinition makeMethod(Name name, List<JFXExpression> stats, JFXExpression value, Type returnType, List<JFXVar> param) {
         JFXBlockExpression body = fxmake.BlockExpression(0, stats, value);
         JFXExpression rettree = fxmake.Type(returnType);
 

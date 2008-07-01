@@ -29,7 +29,6 @@ public interface JavafxVisitor {
     public void visitUnit(JFXUnit tree);
     public void visitImport(JFXImport tree);
     public void visitSkip(JFXSkip tree);
-    public void visitBlock(JFXBlock tree);
     public void visitWhileLoop(JFXWhileLoop tree);
     public void visitTry(JFXTry tree);
     public void visitCatch(JFXCatch tree);

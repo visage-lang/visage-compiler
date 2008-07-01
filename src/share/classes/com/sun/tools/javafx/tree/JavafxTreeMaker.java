@@ -4,7 +4,7 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -123,25 +123,25 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXBlock Block(long flags, List<JFXStatement> stats) {
-        JFXBlock tree = new JFXBlock(flags, stats);
+    public JFXBlockExpression Block(long flags, List<JFXExpression> stats) {
+        JFXBlockExpression tree = new JFXBlockExpression(flags, stats, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXWhileLoop WhileLoop(JFXExpression cond, JFXStatement body) {
+    public JFXWhileLoop WhileLoop(JFXExpression cond, JFXExpression body) {
         JFXWhileLoop tree = new JFXWhileLoop(cond, body);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXTry Try(JFXBlock body, List<JFXCatch> catchers, JFXBlock finalizer) {
+    public JFXTry Try(JFXBlockExpression body, List<JFXCatch> catchers, JFXBlockExpression finalizer) {
         JFXTry tree = new JFXTry(body, catchers, finalizer);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXCatch Catch(JFXVar param, JFXBlock body) {
+    public JFXCatch Catch(JFXVar param, JFXBlockExpression body) {
         JFXCatch tree = new JFXCatch(param, body);
         tree.pos = pos;
         return tree;
@@ -415,13 +415,13 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     /** Wrap a method invocation in an expression statement or return statement,
      *  depending on whether the method invocation expression's type is void.
      */
-    public JFXStatement Call(JFXExpression apply) {
+    public JFXExpression Call(JFXExpression apply) {
         return apply.type.tag == VOID ? Exec(apply) : Return(apply);
     }
 
     /** Construct an assignment from a variable symbol and a right hand side.
      */
-    public JFXStatement Assignment(Symbol v, JFXExpression rhs) {
+    public JFXExpression Assignment(Symbol v, JFXExpression rhs) {
         return Exec(Assign(Ident(v), rhs).setType(v.type));
     }
 
@@ -483,7 +483,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXBindExpression BindExpression(JFXExpression expr, JavafxBindStatus bindStatus) {
         if (bindStatus == null)
             bindStatus = JavafxBindStatus.UNBOUND;
@@ -500,17 +500,17 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXBlockExpression BlockExpression(long flags, List<JFXStatement> stats, JFXExpression value) {
+    public JFXBlockExpression BlockExpression(long flags, List<JFXExpression> stats, JFXExpression value) {
         JFXBlockExpression tree = new JFXBlockExpression(flags, stats, value);
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXFunctionDefinition FunctionDefinition(
             JFXModifiers modifiers,
             Name name,
             JFXType restype,
-            List<JFXVar> params, 
+            List<JFXVar> params,
             JFXBlockExpression bodyExpression) {
         JFXFunctionDefinition tree = new JFXFunctionDefinition(
                 modifiers,
@@ -525,7 +525,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     public JFXFunctionValue FunctionValue(
             JFXType restype,
-             List<JFXVar> params, 
+             List<JFXVar> params,
             JFXBlockExpression bodyExpression) {
         JFXFunctionValue tree = new JFXFunctionValue(
                 restype,
@@ -536,14 +536,14 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     }
 
     public JFXInitDefinition InitDefinition(
-            JFXBlock body) {
+            JFXBlockExpression body) {
         JFXInitDefinition tree = new JFXInitDefinition(
                 body);
         tree.pos = pos;
         return tree;
     }
-    
-    public JFXPostInitDefinition PostInitDefinition(JFXBlock body) {
+
+    public JFXPostInitDefinition PostInitDefinition(JFXBlockExpression body) {
         JFXPostInitDefinition tree = new JFXPostInitDefinition(body);
         tree.pos = pos;
         return tree;
@@ -566,7 +566,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXSequenceIndexed SequenceIndexed(JFXExpression sequence, JFXExpression index) {
         JFXSequenceIndexed tree = new JFXSequenceIndexed(sequence, index);
         tree.pos = pos;
@@ -604,13 +604,13 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXInstanciate Instanciate(JFXExpression clazz, JFXClassDeclaration def, List<JFXExpression> args, List<JFXObjectLiteralPart> parts, List<JFXVar> localVars) {
         JFXInstanciate tree = new JFXInstanciate(clazz, def, args, parts, localVars, null);
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXInstanciate Instanciate(JFXExpression ident,
             List<JFXExpression> args,
             List<JFXTree> defs) {
@@ -636,17 +636,17 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             long innerClassFlags = Flags.SYNTHETIC | Flags.FINAL; // to enable, change to Flags.FINAL
             klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<JFXExpression>of(ident), defsBuffer.toList());
         }
-        
-        JFXInstanciate tree = new JFXInstanciate(ident, 
-                klass, 
-                args==null? List.<JFXExpression>nil() : args, 
-                partsBuffer.toList(), 
-                varsBuffer.toList(), 
+
+        JFXInstanciate tree = new JFXInstanciate(ident,
+                klass,
+                args==null? List.<JFXExpression>nil() : args,
+                partsBuffer.toList(),
+                varsBuffer.toList(),
                 null);
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXObjectLiteralPart ObjectLiteralPart(
             Name attrName,
             JFXExpression expr,
@@ -668,19 +668,19 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXType  TypeUnknown() {
         JFXType tree = new JFXTypeUnknown();
         tree.pos = Position.NOPOS;
         return tree;
     }
-    
+
     public JFXType  TypeClass(JFXExpression className,Cardinality cardinality) {
         JFXType tree = new JFXTypeClass(className, cardinality, null);
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXType TypeFunctional(List<JFXType> params,
             JFXType restype,
             Cardinality cardinality) {
@@ -690,35 +690,35 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
-    
-    
+
+
     public JFXOverrideAttribute TriggerWrapper(JFXIdent expr, JFXOnReplace onr) {
         JFXOverrideAttribute tree = new JFXOverrideAttribute(expr, null, null, onr, null);
         tree.pos = pos;
         return tree;
     }
-    
-    public JFXOnReplace OnReplace(JFXVar oldValue, JFXBlock body) {
+
+    public JFXOnReplace OnReplace(JFXVar oldValue, JFXBlockExpression body) {
         JFXOnReplace tree = new JFXOnReplace(oldValue, body);
         tree.pos = pos;
         return tree;
     }
-    
+
      public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
-             JFXVar lastIndex, JFXVar newElements, JFXBlock body) {
+             JFXVar lastIndex, JFXVar newElements, JFXBlockExpression body) {
          return OnReplace(oldValue, firstIndex, lastIndex,
                  JFXSequenceSlice.END_INCLUSIVE, newElements, body);
     }
 
      public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
-             JFXVar lastIndex, int endKind, JFXVar newElements, JFXBlock body) {
+             JFXVar lastIndex, int endKind, JFXVar newElements, JFXBlockExpression body) {
          JFXOnReplace tree = new JFXOnReplace(oldValue, firstIndex, lastIndex,
                  endKind, newElements, body);
         tree.pos = pos;
         return tree;
     }
-   
-   
+
+
     public JFXVar Var(Name name,
             JFXType type,
             JFXModifiers mods,
@@ -726,46 +726,46 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             JFXExpression initializer,
             JavafxBindStatus bindStatus,
             JFXOnReplace onReplace) {
-            JFXVar tree = new JFXVar(name, type, 
+            JFXVar tree = new JFXVar(name, type,
                mods, isLocal, initializer, bindStatus, onReplace, null);
         tree.pos = pos;
         return tree;
-    }   
-    public JFXOverrideAttribute OverrideAttribute(JFXIdent expr, 
+    }
+    public JFXOverrideAttribute OverrideAttribute(JFXIdent expr,
             JFXExpression initializer,
             JavafxBindStatus bindStatus,
             JFXOnReplace onr) {
-        JFXOverrideAttribute tree = new JFXOverrideAttribute(expr, initializer, 
+        JFXOverrideAttribute tree = new JFXOverrideAttribute(expr, initializer,
                 bindStatus, onr, null);
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXVar Param(Name name,
             JFXType type) {
-        JFXVar tree = new JFXVar(name, type, 
+        JFXVar tree = new JFXVar(name, type,
                 Modifiers(Flags.PARAMETER), true, null, JavafxBindStatus.UNBOUND, null, null);
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXForExpression ForExpression(
             List<JFXForExpressionInClause> inClauses,
             JFXExpression bodyExpr) {
-        JFXForExpression tree = new JFXForExpression(inClauses, bodyExpr);       
+        JFXForExpression tree = new JFXForExpression(inClauses, bodyExpr);
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXForExpressionInClause InClause(
-            JFXVar var, 
+            JFXVar var,
             JFXExpression seqExpr,
             JFXExpression whereExpr) {
-        JFXForExpressionInClause tree = new JFXForExpressionInClause(var, seqExpr, whereExpr);       
+        JFXForExpressionInClause tree = new JFXForExpressionInClause(var, seqExpr, whereExpr);
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXExpression Identifier(Name name) {
         String str = name.toString();
         if (str.indexOf('.') < 0 && str.indexOf('<') < 0) {
@@ -773,7 +773,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         }
         return Identifier(str);
     }
-    
+
     public JFXExpression Identifier(String str) {
         assert str.indexOf('<') < 0 : "attempt to parse a type with 'Identifier'.  Use TypeTree";
         JFXExpression tree = null;
@@ -789,20 +789,20 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             }
             String part = str.substring(lastInx, endInx);
             Name partName = Name.fromString(names, part);
-            tree = tree == null? 
-                Ident(partName) : 
+            tree = tree == null?
+                Ident(partName) :
                 Select(tree, partName);
             lastInx = endInx + 1;
         } while (inx >= 0);
         return tree;
     }
-    
+
     public JFXInterpolate Interpolate(JFXExpression var, List<JFXInterpolateValue> values) {
         JFXInterpolate tree = new JFXInterpolate(var, values);
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXInterpolateValue InterpolateValue(JFXExpression attr, JFXExpression v, JFXExpression interp) {
         JFXInterpolateValue tree = new JFXInterpolateValue(attr, v, interp);
         tree.pos = pos;
@@ -814,7 +814,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXTimeLiteral TimeLiteral(String str) {
         int i = 0;
         char[] buf = str.toCharArray();
@@ -822,7 +822,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             i++;
         assert i > 0 && buf.length - i > 0; // lexer should only pass valid time strings
         String dur = str.substring(i);
-        Duration duration = 
+        Duration duration =
                 dur.equals("ms") ? Duration.MILLIS :
                 dur.equals("s") ? Duration.SECONDS :
                 dur.equals("m") ? Duration.MINUTES :
@@ -833,7 +833,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             String s = str.substring(0, i);
             if (s.indexOf('.') >= 0)
                 value = Double.valueOf(s) * duration.getMultiplier();
-            else 
+            else
                 value = Integer.valueOf(s) * duration.getMultiplier();
         } catch (NumberFormatException ex) {
             // error already reported in scanner
@@ -844,13 +844,13 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXTimeLiteral TimeLiteral(JFXLiteral literal, Duration duration) {
         JFXTimeLiteral tree = new JFXTimeLiteral(literal, duration);
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXKeyFrameLiteral KeyFrameLiteral(JFXExpression start, List<JFXExpression> values, JFXExpression trigger) {
         JFXKeyFrameLiteral tree = new JFXKeyFrameLiteral(start, values, trigger);
         tree.pos = pos;
@@ -862,13 +862,13 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
-   
+
     private int syntheticClassNumber = 0;
-    
+
     Name syntheticClassName(Name superclass) {
         return Name.fromString(names, superclass.toString() + "$anon" + ++syntheticClassNumber);
     }
-    
+
     /**
      * Clone of javac's JavafxTreeMaker.TopLevel, minus the assertion check of defs types.
      */
@@ -879,7 +879,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
-    
+
     public JFXExpression QualIdent(Symbol sym) {
         if (sym.kind ==Kinds.PCK && sym.owner == syms.rootPackage)
             return Ident(sym);

@@ -119,6 +119,9 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     @Override
     public void visitBlock(JCBlock that) {
         super.visitBlock(that);
+        for(JCStatement stmt : that.stats) {
+            if ( stmt == null ) throw new AssertionError( "Null statement in block" );
+        }
         assertUnique(that);
         that.type = null;
     }
@@ -392,7 +395,7 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     
     @Override
     public void visitTypeBoundKind(TypeBoundKind that) {
-         super.visitTypeBoundKind(that);
+        super.visitTypeBoundKind(that);
         assertUnique(that);
         that.type = null;
     }
@@ -427,7 +430,11 @@ public class JavafxPrepForBackEnd extends TreeScanner {
 
     public void visitBlockExpression(BlockExprJCBlockExpression that) {
         assertUnique(that);
-        scan(that.stats);
+        for(JCStatement stmt : that.stats) {
+            if ( stmt == null ) throw new AssertionError( "Null statement in block-expression" );
+            scan(stmt);
+        }
+        if ( that.value == null ) throw new AssertionError( "Null value in block-expression" );
         scan(that.value);
         that.type = null;
     }

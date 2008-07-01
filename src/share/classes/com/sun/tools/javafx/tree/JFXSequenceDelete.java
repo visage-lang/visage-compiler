@@ -30,7 +30,7 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
  *
  * @author Robert Field
  */
-public class JFXSequenceDelete extends JFXStatement implements SequenceDeleteTree {
+public class JFXSequenceDelete extends JFXExpression implements SequenceDeleteTree {
     private JFXExpression sequence;
     private final JFXExpression element;
 

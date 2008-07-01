@@ -29,7 +29,7 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
 /**
  * A return statement.
  */
-public class JFXReturn extends JFXStatement implements ReturnTree {
+public class JFXReturn extends JFXExpression implements ReturnTree {
 
     public JFXExpression expr;
 

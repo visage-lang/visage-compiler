@@ -243,13 +243,16 @@ public class JavafxTreeInfo {
 	case NEG:
 	case NOT:
 	case PREINC:
-	case PREDEC: 
+	case PREDEC:
+	case REVERSE:
+	case INDEXOF:
+	case SIZEOF:
             return prefixPrec;
 	case POSTINC:
 	case POSTDEC:
 	case NULLCHK: 
             return postfixPrec;
-	default: throw new AssertionError();
+            default: throw new AssertionError("Unexpected operator precidence request: " + op);
 	}
     }
 
@@ -467,8 +470,8 @@ public class JavafxTreeInfo {
      *  defined endpos.
      */
     public static int endPos(JFXTree tree) {
-        if (tree.getFXTag() == JavafxTag.BLOCK && ((JFXBlock) tree).endpos != Position.NOPOS)
-            return ((JFXBlock) tree).endpos;
+        if (tree.getFXTag() == JavafxTag.BLOCK && ((JFXBlockExpression) tree).endpos != Position.NOPOS)
+            return ((JFXBlockExpression) tree).endpos;
         else if (tree.getFXTag() == JavafxTag.TRY) {
             JFXTry t = (JFXTry) tree;
             return endPos((t.finalizer != null)

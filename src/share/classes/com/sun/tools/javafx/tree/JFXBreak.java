@@ -30,7 +30,7 @@ import com.sun.tools.javac.util.Name;
 /**
  * A break from a loop or switch.
  */
-public class JFXBreak extends JFXStatement implements BreakTree {
+public class JFXBreak extends JFXExpression implements BreakTree {
 
     public Name label;
     public JFXTree target;

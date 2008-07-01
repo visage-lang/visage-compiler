@@ -30,7 +30,7 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
  *
  * @author Robert Field
  */
-public class JFXSequenceInsert extends JFXStatement implements SequenceInsertTree {
+public class JFXSequenceInsert extends JFXExpression implements SequenceInsertTree {
     private final JFXExpression element;
     private final JFXExpression sequence;
     private final JFXExpression position;

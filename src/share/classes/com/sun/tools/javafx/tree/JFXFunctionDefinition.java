@@ -34,7 +34,7 @@ import com.sun.tools.javafx.code.JavafxFlags;
 /**
  * A function definition.
  */
-public class JFXFunctionDefinition extends JFXStatement implements FunctionDefinitionTree {
+public class JFXFunctionDefinition extends JFXExpression implements FunctionDefinitionTree {
 
     public final JFXModifiers mods;
     public final Name name;
