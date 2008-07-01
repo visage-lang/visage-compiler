@@ -54,6 +54,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -73,7 +74,7 @@ import static java.util.logging.Level.*;
 
 /**
  *
- * @author joshy
+ * @author joshua.marinacci@sun.com
  */
 public class XHTMLProcessingUtils {
 
@@ -161,7 +162,24 @@ public class XHTMLProcessingUtils {
         //File xsltFile = new File("javadoc.xsl");
         //p("reading xslt exists in: " + xsltFile.exists());
         Source xslt = new StreamSource(xsltStream);
-        Transformer trans = TransformerFactory.newInstance().newTransformer(xslt);
+        TransformerFactory transFact = TransformerFactory.newInstance();
+        transFact.setURIResolver(new URIResolver() {
+            public Source resolve(String href, String base) throws TransformerException {
+                p(INFO, "Trying to resolve: " + href + " " + base);
+                if("javadoc.xsl".equals(href)) {
+                    URL url = XHTMLProcessingUtils.class.getResource("resources/javadoc.xsl");
+                    p(INFO, "Resolved " + href + ":" + base + " to " + url);
+                    try {
+                        return new StreamSource(url.openStream());
+                    } catch (IOException ex) {
+                        Logger.getLogger(XHTMLProcessingUtils.class.getName()).log(Level.SEVERE, null, ex);
+                        return null;
+                    }
+                }
+                return null;
+            }
+        });
+        Transformer trans = transFact.newTransformer(xslt);
         for(String key : parameters.keySet()) {
             System.out.println("using key: " + key + " " + parameters.get(key));
             trans.setParameter(key, parameters.get(key));

@@ -224,6 +224,7 @@
                     <a id="overview"><h3>Overview</h3></a>
                     <div class="overview">
                         <xsl:apply-templates select="docComment/inlineTags"/>
+                        <xsl:apply-templates select="docComment/seeTags"/>
                         <xsl:apply-templates select="docComment/tags/profile"/>
                         <xsl:apply-templates select="docComment/tags/needsreview"/>
                     </div>
@@ -270,18 +271,6 @@
     <xsl:template match="docComment/tags/profile">
         <p class="profile">Profile: <b><xsl:value-of select="."/></b></p>
     </xsl:template>
-    <xsl:template match="docComment/tags/setonce">
-        <p class="setonce">Note: this attribute can only be set once. Any changes after
-        the constructor is called will be ignored.</p>
-    </xsl:template>
-    
-    <xsl:template match="docComment/tags/defaultvalue">
-        <p class="defaultvalue">
-            <span>Default value:</span> 
-            <xsl:text> </xsl:text>
-            <b><xsl:value-of select="."/></b>
-        </p>
-    </xsl:template>
     
     <xsl:template match="docComment/tags/needsreview">
         <p class="needsreview">This comment needs review.</p>
@@ -289,10 +278,25 @@
 
     
     <xsl:template match="Text"><xsl:value-of select="." disable-output-escaping="yes"/></xsl:template>
-    <xsl:template match="see"><a>
+    <xsl:template match="seeTags">
+        <p><b>See Also:</b><br/>
+            <xsl:apply-templates select="see"/>
+        </p>
+    </xsl:template>
+    
+    <xsl:template match="seeTags/see">
+        <a>
             <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
-            <xsl:text><xsl:value-of select="@label"/></xsl:text>
-        </a></xsl:template>
+            <xsl:choose>
+                <xsl:when test="@label">
+                    <xsl:text><xsl:value-of select="@label"/></xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text><xsl:value-of select="text()"/></xsl:text>
+                </xsl:otherwise>
+            </xsl:choose>
+        </a>,
+    </xsl:template>
     
     <xsl:template match="code"><code><xsl:value-of select="." disable-output-escaping="yes"/></code></xsl:template>
     
@@ -619,6 +623,8 @@
                         <xsl:value-of select="text()"/>
                         <xsl:text> </xsl:text>
                     </xsl:for-each>
+                    <xsl:call-template name="extra-attribute"/>
+                    <xsl:call-template name="extra-attribute-toc"/>
                 </xsl:attribute>
                 <td>
                     <a>
@@ -638,6 +644,10 @@
             </tr>
         </xsl:if>
     </xsl:template>
+    
+    <xsl:template name="extra-attribute"></xsl:template>
+    <xsl:template name="extra-attribute-full"></xsl:template>
+    <xsl:template name="extra-attribute-toc"></xsl:template>
     
     <xsl:template match="attribute/type | parameter/type" mode="href">
         <!--<xsl:variable name="atype" select="@qualifiedTypeName"/>-->
@@ -689,6 +699,8 @@
                     <xsl:value-of select="text()"/>
                     <xsl:text> </xsl:text>
                 </xsl:for-each>
+                <xsl:call-template name="extra-attribute"/>
+                <xsl:call-template name="extra-attribute-full"/>
             </xsl:attribute>
             <a>
                 <h4>
@@ -705,8 +717,11 @@
             </a>
             <xsl:apply-templates select="docComment/tags/profile"/>
             <xsl:apply-templates select="docComment/inlineTags"/>
+            <xsl:apply-templates select="docComment/seeTags"/>
             <xsl:apply-templates select="docComment/tags/defaultvalue"/>
             <xsl:apply-templates select="docComment/tags/setonce"/>
+            <xsl:apply-templates select="docComment/tags/readonly"/>
+            <xsl:apply-templates select="docComment/tags/treatasprivate"/>
             <xsl:apply-templates select="docComment/tags/needsreview"/>
         </div>
         </xsl:if>
@@ -725,15 +740,25 @@
     <xsl:template name="method-like-toc">
         <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
         <dt>
-            <xsl:if test="docComment/tags/advanced">
-                <xsl:attribute name="class">advanced</xsl:attribute>
-            </xsl:if>
+            <xsl:attribute name="class">
+                <xsl:text>method </xsl:text>
+                <xsl:if test="docComment/tags/advanced">
+                    <xsl:text>advanced</xsl:text>
+                </xsl:if>
+                <xsl:call-template name="extra-method"/>
+                <xsl:call-template name="extra-method-toc"/>
+            </xsl:attribute>
              <xsl:apply-templates select="." mode="toc-signature"/>
         </dt>
         <dd>
-            <xsl:if test="docComment/tags/advanced">
-                <xsl:attribute name="class">advanced</xsl:attribute>
-            </xsl:if>
+            <xsl:attribute name="class">
+                <xsl:text>method </xsl:text>
+                <xsl:if test="docComment/tags/advanced">
+                    <xsl:text>advanced</xsl:text>
+                </xsl:if>
+                <xsl:call-template name="extra-method"/>
+                <xsl:call-template name="extra-method-toc"/>
+            </xsl:attribute>
             <xsl:apply-templates select="docComment/firstSentenceTags"/>
         </dd>
         </xsl:if>
@@ -750,6 +775,8 @@
                     <xsl:value-of select="text()"/>
                     <xsl:text> </xsl:text>
                 </xsl:for-each>
+                <xsl:call-template name="extra-method"/>
+                <xsl:call-template name="extra-method-full"/>
             </xsl:attribute>
             <a>
                 <xsl:attribute name="id"><xsl:apply-templates select="." mode="anchor-signature"/></xsl:attribute>
@@ -778,12 +805,16 @@
             </xsl:if>
             
             <xsl:apply-templates select="docComment/inlineTags"/>
+            <xsl:apply-templates select="docComment/seeTags"/>
             <xsl:apply-templates select="docComment/tags/needsreview"/>
             
         </div>  
         </xsl:if>
     </xsl:template>
     
+    <xsl:template name="extra-method"></xsl:template>
+    <xsl:template name="extra-method-full"></xsl:template>
+    <xsl:template name="extra-method-toc"></xsl:template>
     
     
     <!-- =================== -->
