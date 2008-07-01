@@ -605,6 +605,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
+    public JFXInstanciate Instanciate(JFXExpression clazz, JFXClassDeclaration def, List<JFXExpression> args, List<JFXObjectLiteralPart> parts, List<JFXVar> localVars) {
+        JFXInstanciate tree = new JFXInstanciate(clazz, def, args, parts, localVars, null);
+        tree.pos = pos;
+        return tree;
+    }
+    
     public JFXInstanciate Instanciate(JFXExpression ident,
             List<JFXExpression> args,
             List<JFXTree> defs) {
@@ -834,6 +840,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             value = Double.NaN;
         }
         JFXLiteral literal = Literal(value);
+        JFXTimeLiteral tree = new JFXTimeLiteral(literal, duration);
+        tree.pos = pos;
+        return tree;
+    }
+    
+    public JFXTimeLiteral TimeLiteral(JFXLiteral literal, Duration duration) {
         JFXTimeLiteral tree = new JFXTimeLiteral(literal, duration);
         tree.pos = pos;
         return tree;

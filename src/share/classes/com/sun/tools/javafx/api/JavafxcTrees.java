@@ -222,9 +222,7 @@ public class JavafxcTrees {
                 throw new Error("unexpected error while entering symbols: " + e);
             }
         }
-     throw new Error("JavafxTreeCopier not implemented");
 
-    /*** TODO: unpunt tree copy
         JFXUnit unit = (JFXUnit) path.getCompilationUnit();
         Copier copier = new Copier(fxmake.forToplevel(unit));
 
@@ -267,7 +265,6 @@ public class JavafxcTrees {
             }
         }
         return field != null ? memberEnter.getInitEnv(field, env) : env;
-     * ****/
     }
 
     private JavafxEnv<JavafxAttrContext> attribStatToTree(JFXTree stat, JavafxEnv<JavafxAttrContext>env, JFXTree tree) {
@@ -322,21 +319,25 @@ public class JavafxcTrees {
     /**
      * Makes a copy of a tree, noting the value resulting from copying a particular leaf.
      **/
-    /*** TODO: unpunt tree copy
-    static class Copier extends TreeCopier<JFXTree> {
+    static class Copier extends JFXTreeCopier {
+        JFXTree leaf;
         JFXTree leafCopy = null;
 
-        Copier(TreeMaker M) {
+        Copier(JavafxTreeMaker M) {
             super(M);
         }
 
-        @Override
         public <T extends JFXTree> T copy(T t, JFXTree leaf) {
-            T t2 = super.copy(t, leaf);
+            this.leaf = leaf;
+            return copy(t);
+        }
+        
+        @Override
+        public <T extends JFXTree> T copy(T t) {
+            T t2 = super.copy(t);
             if (t == leaf)
                 leafCopy = t2;
             return t2;
         }
     }
-     * ****/
 }
