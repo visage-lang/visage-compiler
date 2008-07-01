@@ -290,9 +290,7 @@
             <fileset dir="doc/images"/>
         </copy>
         <copy todir="dist/doc">
-            <fileset dir="build/doc/man">
-                <exclude name="**/*.1"/>
-            </fileset>
+            <fileset dir="build/doc/man" includes="*.html,*.css"/>
         </copy>       
     </target>
 
