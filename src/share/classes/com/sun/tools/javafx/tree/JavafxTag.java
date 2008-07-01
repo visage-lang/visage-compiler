@@ -40,10 +40,6 @@ public enum JavafxTag {
      */
     SKIP,
 
-    /** Blocks, of type Block.
-     */
-    BLOCK,
-
     /** While-loops, of type WhileLoop.
      */
     WHILELOOP,
@@ -59,10 +55,6 @@ public enum JavafxTag {
     /** Conditional expressions, of type Conditional.
      */
     CONDEXPR,
-
-    /** Expression statements, of type Exec.
-     */
-    EXEC,
 
     /** Break statements, of type Break.
      */

@@ -448,8 +448,6 @@ public class JavafxTreeInfo {
         case MINUS: case MUL: case DIV:
         case MOD:
             return getStartPos(((JFXBinary) tree).lhs);
-         case EXEC:
-            return getStartPos(((JFXExpressionStatement) tree).expr);
         case SELECT:
             return getStartPos(((JFXSelect) tree).selected);
         case TYPETEST:
@@ -470,7 +468,7 @@ public class JavafxTreeInfo {
      *  defined endpos.
      */
     public static int endPos(JFXTree tree) {
-        if (tree.getFXTag() == JavafxTag.BLOCK && ((JFXBlockExpression) tree).endpos != Position.NOPOS)
+        if (tree.getFXTag() == JavafxTag.BLOCK_EXPRESSION && ((JFXBlockExpression) tree).endpos != Position.NOPOS)
             return ((JFXBlockExpression) tree).endpos;
         else if (tree.getFXTag() == JavafxTag.TRY) {
             JFXTry t = (JFXTry) tree;

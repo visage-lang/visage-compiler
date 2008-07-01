@@ -182,9 +182,7 @@ block  returns [JFXBlockExpression value]
 @init { ListBuffer<JFXExpression> stats = ListBuffer.<JFXExpression>lb(); }
 	: ^(BLOCK
 		(	^(STATEMENT statement)		{ stats.append($statement.value); }	
-		| 	^(EXPRESSION expression)	{ JFXExpression stat = F.at($expression.expr.pos).Exec($expression.expr);
-                                                          endPos(stat, $EXPRESSION);
-                                                          stats.append(stat); }
+		| 	^(EXPRESSION expression)	{ stats.append($expression.expr); }
 		)*
 	    )						{ $value = F.at(pos($BLOCK)).Block(0L, stats.toList()); 
                                                           endPos($value, $BLOCK); }
@@ -193,17 +191,13 @@ blockExpression  returns [JFXBlockExpression expr]
 @init { ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>(); JFXExpression val = null; CommonTree tval = null;}
 	: ^(LBRACE 
 		(	^(STATEMENT statement)		{ if (val != null) {
-                                                              JFXExpression stat = F.at(val.pos).Exec(val);
-                                                              endPos(stat, tval);
-                                                              stats.append(stat); 
+                                                              stats.append(val);
                                                               val = null; 
                                                               tval = null;
                                                           }
 	     					  	  stats.append($statement.value); }
 		| 	^(EXPRESSION expression)	{ if (val != null) {
-                                                              JFXExpression stat = F.at(val.pos).Exec(val);
-                                                              endPos(stat, tval);
-                                                              stats.append(stat); 
+                                                              stats.append(val);
                                                           }
 	     					  	  val = $expression.expr;
 							  tval = $EXPRESSION; }

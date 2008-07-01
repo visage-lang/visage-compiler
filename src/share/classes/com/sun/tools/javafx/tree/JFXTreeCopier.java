@@ -82,11 +82,6 @@ public class JFXTreeCopier implements JavafxVisitor {
         result = maker.at(tree.pos).Conditional(cond, truepart, falsepart);
     }
 
-    public void visitExec(JFXExpressionStatement tree) {
-        JFXExpression expr = copy(tree.expr);
-        result = maker.at(tree.pos).Exec(expr);
-    }
-
     public void visitBreak(JFXBreak tree) {
         result = maker.at(tree.pos).Break(tree.label);
     }

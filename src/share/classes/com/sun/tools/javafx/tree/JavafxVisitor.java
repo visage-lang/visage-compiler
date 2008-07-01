@@ -33,7 +33,6 @@ public interface JavafxVisitor {
     public void visitTry(JFXTry tree);
     public void visitCatch(JFXCatch tree);
     public void visitIfExpression(JFXIfExpression tree);
-    public void visitExec(JFXExpressionStatement tree);
     public void visitBreak(JFXBreak tree);
     public void visitContinue(JFXContinue tree);
     public void visitReturn(JFXReturn tree);

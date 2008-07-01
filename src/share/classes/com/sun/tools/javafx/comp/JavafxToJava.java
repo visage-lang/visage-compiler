@@ -494,7 +494,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                             init = fxmake.BindExpression(init, bindStatus);
                         JFXIdent lhs = fxmake.Ident(name);
                         lhs.sym = decl.sym;
-                        stats.append(fxmake.Exec(fxmake.Assign(lhs, init)));
+                        stats.append(fxmake.Assign(lhs, init));
                         decl.init = doNotInitializeMarker;
                     }
                    module.setMembers(module.getMembers().prepend(decl));
@@ -2544,11 +2544,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         } else {
             result = translateExpression(exp, tree.type);
         }
-    }
-
-    @Override
-    public void visitExec(JFXExpressionStatement tree) {
-        result = translateExpressionToStatement(tree.getExpression());
     }
 
     @Override

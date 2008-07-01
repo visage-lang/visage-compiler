@@ -92,10 +92,6 @@ public class SimpleJavaFXTreeVisitor <R,P> implements JavaFXTreeVisitor<R,P> {
         return defaultAction(node, p);
     }
 
-    public R visitExpressionStatement(ExpressionStatementTree node, P p) {
-        return defaultAction(node, p);
-    }
-
     public R visitBreak(BreakTree node, P p) {
         return defaultAction(node, p);
     }

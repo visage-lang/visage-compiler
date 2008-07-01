@@ -156,12 +156,6 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXExpressionStatement Exec(JFXExpression expr) {
-        JFXExpressionStatement tree = new JFXExpressionStatement(expr);
-        tree.pos = pos;
-        return tree;
-    }
-
     public JFXBreak Break(Name label) {
         JFXBreak tree = new JFXBreak(label, null);
         tree.pos = pos;
@@ -410,19 +404,6 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             throw new AssertionError(value);
         }
         return result;
-    }
-
-    /** Wrap a method invocation in an expression statement or return statement,
-     *  depending on whether the method invocation expression's type is void.
-     */
-    public JFXExpression Call(JFXExpression apply) {
-        return apply.type.tag == VOID ? Exec(apply) : Return(apply);
-    }
-
-    /** Construct an assignment from a variable symbol and a right hand side.
-     */
-    public JFXExpression Assignment(Symbol v, JFXExpression rhs) {
-        return Exec(Assign(Ident(v), rhs).setType(v.type));
     }
 
     /** Make an attributed type cast expression.

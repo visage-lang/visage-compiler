@@ -423,15 +423,6 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitExec(JFXExpressionStatement tree) {
-        try {
-            printExpr(tree.expr);
-            if (prec == JavafxTreeInfo.notExpression) print(";");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     public void visitBreak(JFXBreak tree) {
         try {
             print("break");

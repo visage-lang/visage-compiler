@@ -82,11 +82,6 @@ public interface Tree {
         CONTINUE(ContinueTree.class),
 
         /**
-         * Used for instances of {@link ExpressionStatementTree}.
-         */
-        EXPRESSION_STATEMENT(ExpressionStatementTree.class),
-
-        /**
          * Used for instances of {@link MemberSelectTree}.
          */
         MEMBER_SELECT(MemberSelectTree.class),

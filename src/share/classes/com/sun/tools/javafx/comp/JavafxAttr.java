@@ -1938,14 +1938,6 @@ public class JavafxAttr implements JavafxVisitor {
         }
 
     @Override
-    public void visitExec(JFXExpressionStatement tree) {
-        Type owntype = attribExpr(tree.expr, env);
-        //result = check(tree, owntype, pkind, pkind, pt, pSequenceness);
-        result = owntype;
-        tree.type = owntype;
-    }
-
-    @Override
     public void visitBreak(JFXBreak tree) {
         tree.target = findJumpTarget(tree.pos(), tree.getFXTag(), tree.label, env);
         result = syms.unreachableType;

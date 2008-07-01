@@ -58,7 +58,6 @@ public interface JavaFXTreeVisitor<R,P> {
     R visitConditionalExpression(ConditionalExpressionTree node, P p);
     R visitContinue(ContinueTree node, P p);
     R visitErroneous(ErroneousTree node, P p);
-    R visitExpressionStatement(ExpressionStatementTree node, P p);
     R visitIdentifier(IdentifierTree node, P p);
     R visitImport(ImportTree node, P p);
     R visitLiteral(LiteralTree node, P p);

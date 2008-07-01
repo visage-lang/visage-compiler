@@ -103,10 +103,6 @@ public class JavafxTreeScanner implements JavafxVisitor {
         scan(tree.falsepart);
     }
 
-    public void visitExec(JFXExpressionStatement tree) {
-        scan(tree.expr);
-    }
-
     public void visitBreak(JFXBreak tree) {
     }
 

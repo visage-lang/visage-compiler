@@ -165,10 +165,6 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
         return r;
     }
 
-    public R visitExpressionStatement(ExpressionStatementTree node, P p) {
-        return scan(node.getExpression(), p);
-    }
-
     public R visitBreak(BreakTree node, P p) {
         return null;
     }
