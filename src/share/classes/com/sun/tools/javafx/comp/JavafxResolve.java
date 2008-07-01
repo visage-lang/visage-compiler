@@ -516,7 +516,7 @@ public class JavafxResolve {
             else
                 envClass = null;
             if (envClass != null) {
-                sym = findMethod(env1, envClass, name,
+                sym = findMember(env1, envClass, name,
                         expected,
                         true, false, false);
 
@@ -788,7 +788,7 @@ public class JavafxResolve {
                       boolean allowBoxing,
                       boolean useVarargs,
                       boolean operator) {
-        return findMethod(env,
+        return findMember(env,
                           site,
                           name,
                           newMethTemplate(argtypes, typeargtypes),
@@ -799,14 +799,14 @@ public class JavafxResolve {
                           operator);
     }
 
-    Symbol findMethod(JavafxEnv<JavafxAttrContext> env,
+    Symbol findMember(JavafxEnv<JavafxAttrContext> env,
                       Type site,
                       Name name,
                       Type expected,
                       boolean allowBoxing,
                       boolean useVarargs,
                       boolean operator) {
-        return findMethod(env,
+        return findMember(env,
                           site,
                           name,
                           expected,
@@ -817,7 +817,7 @@ public class JavafxResolve {
                           operator);
     }
     // where
-             private Symbol findMethod(JavafxEnv<JavafxAttrContext> env,
+             private Symbol findMember(JavafxEnv<JavafxAttrContext> env,
                               Type site,
                               Name name,
                               Type expected,
@@ -880,7 +880,7 @@ public class JavafxResolve {
             for (List<Type> l = types.interfaces(c.type);
                  l.nonEmpty();
                  l = l.tail) {
-                bestSoFar = findMethod(env, site, name, expected,
+                bestSoFar = findMember(env, site, name, expected,
                                        l.head, bestSoFar,
                                        allowBoxing, useVarargs, operator);
             }
@@ -1332,13 +1332,13 @@ public class JavafxResolve {
      */
     Symbol resolveQualifiedMethod(DiagnosticPosition pos, JavafxEnv<JavafxAttrContext> env,
                                   Type site, Name name, Type expected) {
-        Symbol sym = findMethod(env, site, name, expected, false,
+        Symbol sym = findMember(env, site, name, expected, false,
                                 env.info.varArgs=false, false);
         if (varargsEnabled && sym.kind >= WRONG_MTHS) {
-            sym = findMethod(env, site, name, expected, true,
+            sym = findMember(env, site, name, expected, true,
                              false, false);
             if (sym.kind >= WRONG_MTHS)
-                sym = findMethod(env, site, name, expected, true,
+                sym = findMember(env, site, name, expected, true,
                                  env.info.varArgs=true, false);
         }
         if (sym.kind >= AMBIGUOUS) {
