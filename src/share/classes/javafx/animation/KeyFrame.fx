@@ -28,12 +28,50 @@ import java.lang.Object;
 import javafx.lang.Duration;
 
 public class KeyFrame extends Comparable {
+    /**
+     * Defines the reference elapsed time offset within a single cycle
+     * of a Timeline at which the associated values will be set and at
+     * which the {@code action()} function will be called.
+     */
     public attribute time: Duration;
+
+    /**
+     * The list of target variables and the desired values they should
+     * interpolate at the specified time of this {@code KeyFrame}.
+     */
     public attribute values: KeyValue[];
+
+    /**
+     * A list of sub-timelines that will be started when the time cursor passes
+     * the specified time of this {@code KeyFrame}.
+     */
     public attribute timelines: Timeline[];
+
+    /**
+     * A function that is called when the elapsed time on a cycle passes
+     * the specified time of this {@code KeyFrame}.
+     * The {@code action()} function will be called if the elapsed
+     * time passes the indicated value, even if it never equaled the
+     * time value exactly.
+     */
     public attribute action: function();
+
+    /**
+     * Defines whether or not the {@code action()} function
+     * can be skipped if the master timer gets behind and
+     * more than one {@link Timeline} cycles are skipped
+     * between time pulses.
+     * If {@code true}, only one call to the {@code action()}
+     * function will occur for each time pulse, regardless of
+     * how many cycles have occured since the last time pulse
+     * was processed.
+     */
     public attribute canSkip: Boolean = false;
 
+    /**
+     * A comparison function used to sort KeyFrames by their
+     * specified reference time.
+     */
     public function compareTo(o:Object):Integer {
         var kf = o as KeyFrame;
         return time.compareTo(kf.time);
