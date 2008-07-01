@@ -31,7 +31,7 @@ import com.sun.javafx.runtime.sequence.Sequence;
  *
  * @author Brian Goetz
  */
-public class PointerFactory implements PointerFactory$Intf, FXObject {
+public class PointerFactory implements FXObject {
     
     public PointerFactory() {
         this(false);
