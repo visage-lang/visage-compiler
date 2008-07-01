@@ -103,7 +103,7 @@ void Configuration::init() {
     
     // set default classpath-libraries for javafxc
     if (javafxc_classpath_libs.empty()) {
-        javafxc_classpath_libs = "Scenario.jar;jmc.jar";
+        javafxc_classpath_libs = "javafxgui.jar;javafx-swing.jar;Scenario.jar;jmc.jar";
     }
     
     // set default bootclass-libraries for javafxdoc
