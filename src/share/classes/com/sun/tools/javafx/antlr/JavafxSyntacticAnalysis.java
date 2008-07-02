@@ -68,7 +68,11 @@ public class JavafxSyntacticAnalysis {
                 // Invoke the module rule in get return value
                 v3Parser.module_return comReturn = parser.module();
                 CommonTree comTree = (CommonTree) comReturn.getTree();
-                if (errorCount() == 0) {
+                
+ //               System.out.println(comTree.toStringTree());
+                if ( (System.getenv("NETBEAN_EDITOR") != null) ||
+                     (errorCount() == 0) )          {
+              
                     // Walk resulting tree; create treenode stream first
                     CommonTreeNodeStream nodes = new CommonTreeNodeStream(comTree);
                     // AST nodes have payloads that point into token stream

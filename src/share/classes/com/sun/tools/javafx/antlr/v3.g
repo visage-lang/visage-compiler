@@ -141,7 +141,7 @@ tokens {
 
    // these are imaginary tokens
    MODULE;
-   EMPTY_MODULE_ITEM;
+   MODULE_ITEMS;
    MODIFIER;
    CLASS_MEMBERS;
    PARAM;
@@ -460,7 +460,7 @@ packageDecl
        	: PACKAGE qualname SEMI         	-> ^(PACKAGE qualname)
 	;
 moduleItems    
-	: moduleItem (SEMI moduleItem )*	-> moduleItem+
+	: moduleItem (SEMI moduleItem )*	-> ^(MODULE_ITEMS moduleItem*)
 	;
 moduleItem 
 	: importDecl 				-> importDecl
@@ -468,8 +468,16 @@ moduleItem
         | functionDefinition                    -> functionDefinition
 	| statement				-> statement
 	| expression				-> expression
-	|					-> EMPTY_MODULE_ITEM
+	|					
 	;
+catch [RecognitionException re] {
+    reportError(re);
+    if (input.LA(1) != Token.EOF) {
+        input.consume();
+        moduleItem_return r = moduleItem();
+        retval.tree = r.tree;
+    }
+}
 importDecl
  	: IMPORT importId			-> ^(IMPORT importId)
 	;
@@ -490,9 +498,9 @@ supers
 	|                                       -> ^(EXTENDS)
 	;	  					
 classMembers 
-	: classMember ?
+	: classMember 
 	  (SEMI
-	     classMember ?
+	     classMember 
 	  ) *					-> ^(CLASS_MEMBERS classMember*)
 	;
 classMember
@@ -502,7 +510,19 @@ classMember
 	| overrideDeclaration 
 	| functionDefinition 
 //	| triggerDefinition
+        |
 	;
+catch [RecognitionException re] {
+  
+    reportError(re);
+
+    if (input.LA(1) != Token.EOF) {
+        input.consume();
+        classMember_return r = classMember();
+        retval.tree = r.tree;
+    }
+}
+
 functionDefinition
 @after { Tree docComment = getDocComment($functionDefinition.start);
          $functionDefinition.tree.addChild(docComment); }
@@ -568,26 +588,46 @@ classModifier
 	:  ABSTRACT        			
 	;
 formalParameters
-	: LPAREN ( formalParameter (COMMA formalParameter)* )?  RPAREN
+	: LPAREN formalParameter (COMMA formalParameter)*  RPAREN
 						-> ^(LPAREN formalParameter*)
 	;
 formalParameter
 	: name typeReference			-> ^(PARAM name typeReference)
+        |
 	;
+
+catch [RecognitionException re] {
+    reportError(re);
+    if (input.LA(1) != Token.EOF) {
+        input.consume();
+        formalParameter_return r = formalParameter();
+        retval.tree = r.tree;
+    }
+}
 block
-	: LBRACE blockComponent?
-	   (SEMI blockComponent?) *
+	: LBRACE blockComponent
+	   (SEMI blockComponent) *
 	  RBRACE				-> ^(BLOCK[$LBRACE] blockComponent*)
 	;
 blockExpression 
-	: LBRACE blockComponent?
-	   (SEMI blockComponent?) *
+	: LBRACE blockComponent
+	   (SEMI blockComponent) *
 	  RBRACE				-> ^(LBRACE blockComponent*)
 	;
 blockComponent
 	: statement				-> ^(STATEMENT statement)
 	| expression				-> ^(EXPRESSION expression)
+        |
 	;
+catch [RecognitionException re] {
+    reportError(re);
+    if (input.LA(1) != Token.EOF) {
+        input.consume();
+        blockComponent_return r = blockComponent();
+        retval.tree = r.tree;
+    }
+}
+
 statement 
 	: variableDeclaration	
 //	| functionDefinition 
@@ -799,8 +839,20 @@ primaryExpression
         | AT LPAREN TIME_LITERAL RPAREN LBRACE keyFrameLiteralPart RBRACE    -> ^(AT TIME_LITERAL keyFrameLiteralPart)
        	;  
 keyFrameLiteralPart
-        : (expression SEMI)+                                    -> ^(KEY_FRAME_PART expression+)
+        : keyValuePart (SEMI keyValuePart)*                     -> ^(KEY_FRAME_PART keyValuePart*)
         ;
+keyValuePart
+        : expression                                            -> expression
+        |
+        ;
+catch [RecognitionException re] {
+    reportError(re);
+    if (input.LA(1) != Token.EOF) {
+        input.consume();
+        keyValuePart_return r = keyValuePart();
+        retval.tree = r.tree;
+    }
+}
 functionExpression  
 	: FUNCTION formalParameters typeReference blockExpression
 								-> ^(FUNC_EXPR[$FUNCTION] formalParameters typeReference blockExpression)
@@ -864,10 +916,23 @@ bracketExpression
 	    )
 	  RBRACKET 
 	;
+
 expressionList
-	: (expression (COMMA expression)*)?
-						-> ^(EXPR_LIST expression*)
+	: expressionItem (COMMA expressionItem)*	-> ^(EXPR_LIST expressionItem*)
 	;
+
+expressionItem
+        : expression                            -> expression
+        |
+        ;
+catch [RecognitionException re] {
+    reportError(re);
+    if (input.LA(1) != Token.EOF) {
+        input.consume();
+        expressionItem_return r = expressionItem();
+        retval.tree = r.tree;
+    }
+}
 expressionListOpt  
 	: LPAREN expressionList RPAREN		-> expressionList
 	|					-> ^(EXPR_LIST)
@@ -882,11 +947,20 @@ type
  	;
 typeArgList
  	: typeArg (COMMA typeArg)*		-> ^(TYPED_ARG_LIST typeArg*)
- 	| /* emprty list */			-> ^(TYPED_ARG_LIST)
+// 	| /* emprty list */			-> ^(TYPED_ARG_LIST)
 	;
 typeArg 
  	: (name? COLON)? type			-> ^(COLON name? type)
+        |
  	;
+catch [RecognitionException re] {
+    reportError(re);
+    if (input.LA(1) != Token.EOF) {
+        input.consume();
+        typeArg_return r = typeArg();
+        retval.tree = r.tree;
+    }
+}
 typeReference 
  	: COLON type				-> type
  	| /*nada*/				-> ^(TYPE_UNKNOWN)

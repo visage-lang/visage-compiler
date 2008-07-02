@@ -73,8 +73,8 @@ packageDecl  returns [JFXExpression value]
        	: ^(PACKAGE qualident)        			{ $value = $qualident.expr; }
 	;
 moduleItems  returns [ListBuffer<JFXTree> items = new ListBuffer<JFXTree>()]  
-	: ( moduleItem					{  if ($moduleItem.value != null) $items.append($moduleItem.value); }
-	  )+
+	: ^(MODULE_ITEMS ( moduleItem                   { $items.append($moduleItem.value); })*
+           )
 	;
 moduleItem  returns [JFXTree value]
 	: importDecl 					{ $value = $importDecl.value; }
@@ -82,7 +82,7 @@ moduleItem  returns [JFXTree value]
         | functionDefinition                            { $value = $functionDefinition.value; }
 	| statement      				{ $value = $statement.value; } 
 	| expression 					{ $value = $expression.expr; } 
-        | EMPTY_MODULE_ITEM                             { $value = null; }
+//        | EMPTY_MODULE_ITEM                             { $value = null; }
 	;
 importDecl  returns [JFXTree value]
  	: ^(IMPORT importId)				{ $value = F.at(pos($IMPORT)).Import($importId.pid, false); 
