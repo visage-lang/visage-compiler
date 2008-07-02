@@ -1,0 +1,35 @@
+Reflecting class ReflectionTest.TypeInference3
+Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference, class ReflectionTest.TypeInference2, class ReflectionTest.TypeInference3]
+ Type of anotherAttr is inferred as class java.lang.String
+ Type of attr1 is inferred as class java.lang.Object
+ Type of booleanAttr1 is inferred as class com.sun.javafx.runtime.location.BooleanVariable
+ Type of fnAttr1 is inferred as function(java.lang.Integer,java.lang.Integer):java.lang.Integer
+ Type of fnAttr2 is inferred as function(Number,java.lang.String):java.lang.Void
+ Type of fnAttr3 is inferred as function(Number,java.lang.String):Integer
+ Type of fnAttr4 is inferred as function():function():java.lang.Void
+ Type of intAttr1 is inferred as Integer
+ Type of intAttr2 is inferred as Integer
+ Type of intAttr3 is inferred as Integer
+ Type of intSeq1 is inferred as java.lang.Integer[]
+ Type of myAttr is inferred as class java.lang.String
+ Type of newAttr is inferred as java.lang.Integer[]
+ Type of numberAttr1 is inferred as Number
+ Type of numberAttr2 is inferred as Number
+ Type of objAttr1 is inferred as class java.lang.Object
+ Type of objAttr2 is inferred as class java.lang.Object
+ Type of seq2 is inferred as ReflectionTest.TypeInference[]
+ Type of seq3 is inferred as java.lang.String[]
+ Type of seq4 is inferred as java.lang.Double[]
+ Type of stringAttr3 is inferred as class java.lang.String
+ Type of stringrAttr1 is inferred as class java.lang.String
+ Type of stringrAttr2 is inferred as class java.lang.String
+ Type of type1Attr1 is inferred as class ReflectionTest.TypeInference
+ Return Type of method func0$$bound$int inferred as class com.sun.javafx.runtime.location.IntLocation
+ Return Type of method func1 inferred as class java.lang.String
+ Return Type of method func2 inferred as class java.lang.String
+ Return Type of method func3 inferred as Integer[]
+ Return Type of method func4 inferred as class ReflectionTest.TypeInference
+ Return Type of method func5 inferred as Integer[]
+ Return Type of method func6 inferred as function(java.lang.Integer):java.lang.Integer
+ Return Type of method func7 inferred as class javafx.lang.Duration
+ Return Type of method func8 inferred as class java.lang.String
