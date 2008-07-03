@@ -53,6 +53,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -499,16 +500,17 @@ public class XHTMLProcessingUtils {
     private static void renderScriptToImage(File imgFile, String script) throws ScriptException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine scrEng = manager.getEngineByExtension("javafx");
+        scrEng.getContext().setErrorWriter(new PrintWriter(System.out));
         p("processing script: " + script);
         Object ret = scrEng.eval(script);
         Class fxclass = ret.getClass();
-        Method method = fxclass.getMethod("getSGNode", null);
+        Method method = fxclass.getMethod("impl_getSGNode", null);
         Object node = method.invoke(ret, null);
         Method getBounds = node.getClass().getMethod("getBounds",null);
         Method render = node.getClass().getMethod("render", Graphics2D.class);
 
         Rectangle2D bounds = (Rectangle2D) getBounds.invoke(node, null);
-
+        
         BufferedImage img = new BufferedImage(
                 (int)bounds.getWidth(), 
                 (int)bounds.getHeight(), 
@@ -520,6 +522,7 @@ public class XHTMLProcessingUtils {
         //        );
         g2.setPaint(Color.WHITE);
         g2.fillRect(0, 0, img.getWidth(), img.getHeight());
+        g2.translate(-bounds.getX(), -bounds.getY());
         render.invoke(node, g2);
         g2.dispose();
         ImageIO.write(img, "png", imgFile);
