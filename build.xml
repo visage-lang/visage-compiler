@@ -253,7 +253,7 @@
             <arg value="${clsjars}"/>
             <arg line="-extracss draft.css"/>
             <!-- Uncomment the following line when the preview branch is merged into the compiler ws. JFXC-1420 -->
-            <!--<arg line="-xsltfile ${basedir}/javadoc-files/custom.xsl"/>-->
+            <arg line="-xsltfile ${basedir}/javadoc-files/custom.xsl"/>
             <classpath>
                 <path path="${build.classes.dir}:${javac.test.classpath}:dist/lib/javafxgui.jar"/>
             </classpath>
