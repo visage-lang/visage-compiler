@@ -29,15 +29,19 @@ import java.awt.geom.GeneralPath;
 /**
  * <p>Creates a line path element by drawing a straight line 
  * from the current coordinateS to the new coordinates.</p>
- * <pre><code>Path {
-    stroke:Color.RED
+
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+Path {
+    stroke:Color.BLACK
     elements: [
-        MoveTo { x: 0   y: 0 },
+        MoveTo { x: 0 y: 50 },
         LineTo { x: 100 y: 100},
     ]
-}</code></pre>
- * <p><img src="doc-files/LineTo01.png"/></p>
- *
+}
+@endexample
+
  * @profile common
  * @needsreview josh
  */ 

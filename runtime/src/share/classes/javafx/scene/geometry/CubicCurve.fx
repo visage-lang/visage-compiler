@@ -32,16 +32,18 @@ import com.sun.scenario.scenegraph.SGCubicCurve;
  * <p>The {@code CubiCurve} class defines a cubic parametric curve segment 
  * in (x,y) coordinate space. Example:</p>
  * 
- *<pre><code>CubicCurve {
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+
+CubicCurve {
        startX:   0     startY:  50
     controlX1:  25  controlY1:   0
     controlX2:  75  controlY2: 100
          endX: 100       endY:  50
-         fill: Color.RED
-}</code></pre>
+         fill: Color.BLACK
+}
 
-* <p><img src="doc-files/CubicCurve01.png"/></p>
- * 
  * @profile common
  * @needsreview josh
  */  

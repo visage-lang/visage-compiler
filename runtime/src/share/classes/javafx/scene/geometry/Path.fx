@@ -32,14 +32,19 @@ import java.awt.geom.GeneralPath;
  * <p>The {@code Path} class represents a simple shape 
  * and provides facilities required for basic construction 
  * and management of a geometric path.  Example:</p>
- * <pre><code>Path {
-    stroke:Color.RED
+
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+Path {
+    stroke:Color.BLACK
     elements: [
-        MoveTo { x: 0   y: 0 },
-        LineTo { x: 100 y: 100},
+        MoveTo { x: 0 y: 50 },
+        HLineTo { x: 100 },
     ]
-}</code></pre>
- *<p><img src="doc-files/LineTo01.png"/></p>
+}
+@endexample
+
  *
  * @profile common
  * @needsreview josh

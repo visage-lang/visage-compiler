@@ -29,7 +29,23 @@ import com.sun.scenario.scenegraph.SGShape;
 
 // PENDING_DOC_REVIEW
 /**
- * Creates a polyline, defined by the array of the segment points.
+ * Creates a polyline, defined by the array of the segment points. The Polyline
+ * class is similar to the Polygon class, except that it is not automatically
+ * closed.
+
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+Polyline { 
+    stroke:Color.BLACK
+    points: [
+        0.0,0.0, 
+        20.0,10.0,
+        10.0,20.0
+    ]
+}
+@endexample
+
  *
  * @profile common
  */

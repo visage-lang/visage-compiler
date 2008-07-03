@@ -29,15 +29,18 @@ import java.awt.geom.GeneralPath;
 /**
  * <p>Creates an addition to the path by moving to the specified 
  * coordinates specified in double precision. Example:</p>
- * <pre><code>Path {
-    stroke:Color.RED
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+Path {
+    stroke:Color.BLACK
     elements: [
         MoveTo { x: 0   y: 0 },
         LineTo { x: 100 y: 100},
     ]
-}</code></pre>
- *<p><img src="doc-files/LineTo01.png"/></p>
- *
+}
+@endexample
+
  * @profile common
  * @needsreview josh
  */     

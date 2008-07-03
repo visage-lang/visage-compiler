@@ -35,15 +35,18 @@ import com.sun.scenario.scenegraph.SGCircle;
  * Example usage. The following code creates a circle with radius 50px centered
  * at (100,100)px.
  * 
- * <pre><code>Circle { 
- *  centerX: 100
- *  centerY: 100
- *  radius: 50
- *  fill:Color.RED
- *  }</code></pre>
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+
+Circle { 
+  centerX: 100
+  centerY: 100
+  radius: 50
+  fill:Color.BLACK
+  }
  
- * <p><img src="doc-files/Circle01.png"/></p>
- *
+
  * @profile common 
  * @needsreview
  */ 

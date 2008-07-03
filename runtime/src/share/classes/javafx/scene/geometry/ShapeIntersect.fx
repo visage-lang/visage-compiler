@@ -30,6 +30,16 @@ import com.sun.scenario.scenegraph.SGShape;
 /**
  * A Shape that is the result of the union of all shapes in sequence <code>a</code> 
  * intersected with each of the shapes in sequence <code>b</code>.
+
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+
+ShapeIntersect {
+    fill: Color.BLACK
+    a: Rectangle { width: 100 height: 50 }
+    b: Ellipse { centerX: 100 centerY: 25 radiusX: 50 radiusY: 25}
+}
  */
 public class ShapeIntersect extends Shape {
 

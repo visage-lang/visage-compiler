@@ -33,8 +33,11 @@ import java.awt.geom.GeneralPath;
  * using the specified points {@code (controlX1,controlY1)} and {@code (controlX2,controlY2)} 
  * as B&eacute;zier control points. All coordinates are specified in double precision. 
  *
- * <pre><code>Path {
-    fill:Color.RED
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+Path {
+    fill:Color.BLACK
     elements: [
         MoveTo { x: 0 y: 50 },
         CurveTo {
@@ -43,9 +46,9 @@ import java.awt.geom.GeneralPath;
                     x: 100            y:  50
         }
     ]
-}</code></pre>
-* <p><img src="doc-files/CurveTo01.png"/></p>
- *
+}
+@endexample
+
  * @profile common
  * @needsreview
  */  

@@ -31,6 +31,21 @@ import com.sun.scenario.scenegraph.SGQuadCurve;
 /**
  * The {@code Quadcurve} class defines a quadratic parametric curve segment 
  * in (x,y) coordinate space.
+
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+QuadCurve {
+    startX: 0.0
+    startY: 50.0
+    endX: 50.0
+    endY: 50.0
+    controlX: 25.0
+    controlY: 0.0
+    stroke: Color.BLACK
+}
+@endexample
+
  *
  * @profile common
  */

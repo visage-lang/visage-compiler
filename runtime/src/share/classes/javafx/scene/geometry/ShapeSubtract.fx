@@ -32,17 +32,18 @@ import com.sun.scenario.scenegraph.SGShape;
  * all shapes in <code>b</code> subtracted from it. This class implements
  * the Constructive Area Geometry (CAG) <b>Subtract</b> operation.</p>
  *
- * <p>example:</p>
- *
- * <pre><code>ShapeSubtract {
- *    fill: Color.RED
- *    a: Rectangle { width: 100 height: 50 }
- *    b: Ellipse { centerX: 50 centerY: 25 radiusX: 50 radiusY: 25}
- * }</code></pre>
- * 
- * <p>looks like this</p>
- *
- * <p><img src="doc-files/ShapeSubtract01.png"/></p>
+ * <p>Example:</p>
+
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+
+ShapeSubtract {
+    fill: Color.BLACK
+    a: Rectangle { width: 100 height: 50 }
+    b: Ellipse { centerX: 100 centerY: 25 radiusX: 50 radiusY: 25}
+}
+ 
  */
 public class ShapeSubtract extends Shape {
 

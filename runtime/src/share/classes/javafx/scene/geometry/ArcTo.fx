@@ -31,16 +31,18 @@ import java.awt.geom.Arc2D.Double;
 /**
 * <p>A path element that forms an arc from the previous coordinates
 * to the specified x and y coordinates using the specified radius. Example:</p>
-* <pre><code>Path {
-*   fill: Color.RED
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+Path {
+   fill: Color.BLACK
     elements: [
         MoveTo { x: 0 y: 0 },
         ArcTo { x: 50 y: 50 radiusX: 50 radiusY: 50},
     ]
-}</code></pre>
-*
-* <p>produces an arc like this<br/><img src="doc-files/ArcTo01.png"/></p>
-* 
+}
+@endexample
+
 * <p>For more information on path elements see the {@code Path} and {@code PathElement} classes.
 *
 * @needsreview

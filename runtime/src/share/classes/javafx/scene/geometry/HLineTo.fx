@@ -28,15 +28,19 @@ import java.awt.geom.GeneralPath;
 // PENDING_DOC_REVIEW
 /**
  * <p>Creates a horizontal line from the current point to x. Example:</p>
- * <pre><code>Path {
-    stroke:Color.RED
+
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+Path {
+    stroke:Color.BLACK
     elements: [
         MoveTo { x: 0 y: 50 },
         HLineTo { x: 100 },
     ]
-}</code></pre>
- *<p><img src="doc-files/HLineTo01.png"/></p>
- *
+}
+@endexample
+
  * 
  * @profile common
  * @needsreview

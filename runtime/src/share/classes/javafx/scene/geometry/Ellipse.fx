@@ -31,7 +31,18 @@ import com.sun.scenario.scenegraph.SGEllipse;
 /**
  * The {@code Ellipse} class creates a new ellipse 
  * with the specified size and location in pixels
- *
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+Ellipse {
+    centerX: 50
+    centerY: 50
+    radiusX: 50
+    radiusY: 25
+    fill: Color.BLACK
+}
+@endexample
+
  * @profile common 
  * @needsreview
  */      

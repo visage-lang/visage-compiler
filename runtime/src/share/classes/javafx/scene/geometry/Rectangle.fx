@@ -34,19 +34,23 @@ import com.sun.scenario.scenegraph.SGRectangle;
  * has sharp corners. Rounded corners can be specified using
  * the arcWidth and arcHeight attributes.</p>
  
- * <p>Example code: the following code creates a rectangle with width and height
- * of 200x100 with the upper left hand corner at 50,50 and with rounded corners
- * of radius 10px.</p>
+ * <p>Example code: the following code creates a rectangle with 20 pixel
+ * rounded corners.</p>
  
- * <pre><code>Rectangle {
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+Rectangle {
     x: 50
     y: 50
     width: 200
     height: 100
-    arcWidth: 10
-    arcHeight: 10
-    fill: Color.RED
-}</code></pre>
+    arcWidth: 20
+    arcHeight: 20
+    fill: Color.BLACK
+}
+@endexample
+
  *
  * @profile common
  * @needsreview

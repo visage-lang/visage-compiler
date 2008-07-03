@@ -33,6 +33,24 @@ import java.awt.geom.GeneralPath;
  * using the specified point {@code (controlX, controlY)}
  * as a quadratic parametric control point. 
  * All coordinates are specified in double precision.
+
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+Path {
+    stroke:Color.BLACK
+    elements: [
+        MoveTo { x: 0 y: 50 },
+        QuadTo { 
+            controlX: 25.0
+            controlY: 0.0
+            x: 50.0
+            y: 50.0
+        }
+    ]
+}        
+@endexample
+
  * 
  * @profile common
  */

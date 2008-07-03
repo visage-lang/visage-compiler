@@ -31,7 +31,11 @@ import com.sun.scenario.scenegraph.SGGroup;
  * <p>The {@code Group} class represents a list of {@link Node}s objects.
  * Example:</p>
  *
- * <pre><code>Group {
+@example
+import javafx.scene.*;
+import javafx.scene.paint.*;
+import javafx.scene.geometry.*;
+Group {
     content: for(x in [0..4]) {
         Rectangle {
             y: indexof x * 20
@@ -40,8 +44,7 @@ import com.sun.scenario.scenegraph.SGGroup;
             fill:Color.RED
         }
     }
-}</code></pre>
-* <p><img src="doc-files/Group01.png"/></p>
+}
  *
  * @profile common
  * @needsreview

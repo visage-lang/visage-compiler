@@ -31,12 +31,18 @@ import com.sun.scenario.scenegraph.SGLine;
 /**
  * <p>This Line represents a line segment in {@code (x,y)}
  * coordinate space. Example:</p>
- * <pre><code>Line {
+
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+
+Line {
     startX:   0  startY:   0
       endX: 100    endY: 100
-    stroke:Color.RED
-}</code></pre>
- <p><img src="doc-files/Line01.png"/></p>
+    stroke: Color.BLACK
+}
+@endexample
+
  * @profile common
  * @needsreview josh
  */

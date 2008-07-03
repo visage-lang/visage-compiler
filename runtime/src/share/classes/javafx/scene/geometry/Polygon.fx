@@ -29,8 +29,23 @@ import com.sun.scenario.scenegraph.SGShape;
 
 // PENDING_DOC_REVIEW
 /**
- * Creates a polygon, defined by an array of x,y coordinates.
- *
+ * Creates a polygon, defined by an array of x,y coordinates. The Polygon
+ * class is similar to the Polyline class, except that the Polyline class
+ * is not automatically closed.
+
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+Polygon {
+    stroke:Color.BLACK
+    points: [
+        0.0,0.0, 
+        20.0,10.0,
+        10.0,20.0
+    ]
+}
+@endexample
+
  * @profile common
  */
 public class Polygon extends Shape {

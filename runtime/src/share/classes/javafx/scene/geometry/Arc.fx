@@ -38,18 +38,19 @@ import com.sun.scenario.scenegraph.SGArc;
  * 50,50, has a radius of 25 and extends from the angle 45 to the angle 315
  * (270 degrees long), and is round.
  *
- * <pre><code>Arc { 
- *  centerX: 50
- *  centerY: 50
- *  radiusX: 25,
- *  radiusY: 25,
- *  startAngle: 45
- *  length: 270
- *  type: ArcType.ROUND
- *  fill: Color.RED
- *  }</code></pre>
- *
- * <p><img src="doc-files/Arc01.png"/></p>
+ * @example
+ * import javafx.scene.paint.*;
+ * import javafx.scene.geometry.*;
+ * Arc { 
+ *      centerX: 50
+ *      centerY: 50
+ *      radiusX: 25,
+ *      radiusY: 25,
+ *      startAngle: 45
+ *      length: 270
+ *      type: ArcType.ROUND
+ *      fill: Color.BLACK
+ *  }
  *
  * @profile common
  * @needsreview

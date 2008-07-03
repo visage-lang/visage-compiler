@@ -30,10 +30,19 @@ import java.awt.geom.GeneralPath;
  * Creates a vertical line from the current point to y.
  *
  * <p>example:</p>
- *
- * <pre><code>
- * </pre></code>
- * 
+
+@example
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+Path {
+    stroke:Color.BLACK
+    elements: [
+        MoveTo { x: 50 y: 0 },
+        VLineTo { y: 50 },
+    ]
+}
+@endexample
+
  * @profile common
  * @needsreview josh
  */ 
