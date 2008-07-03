@@ -789,7 +789,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
      
-    public JFXIndexof Indexof (Name name) {
+    public JFXIndexof Indexof (JFXIdent name) {
         JFXIndexof tree = new JFXIndexof(name);
         tree.pos = pos;
         return tree;

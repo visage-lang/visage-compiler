@@ -548,6 +548,11 @@ public interface Tree {
          * Used for reverse unary operator.
          */
         REVERSE(UnaryTree.class),
+        
+        /**
+         * Used for indexof operator.
+         */
+        INDEXOF(IndexofTree.class),
 
         /**
          * Used for instances of {@link TypeUnknownTree}.

@@ -23,13 +23,11 @@
 
 package com.sun.javafx.api.tree;
 
-import javax.lang.model.element.Name;
-
 /**
  *
  * @author Per Bothner
  */
 public interface IndexofTree extends ExpressionTree {
     /** The name of the corresponding for/where variable. */
-    Name getForVarName();
+    IdentifierTree getForVarIdentifier();
 }

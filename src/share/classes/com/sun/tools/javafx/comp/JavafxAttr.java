@@ -1239,11 +1239,11 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitIndexof(JFXIndexof tree) {
         for (int n = forClauses == null ? 0 : forClauses.size(); ; ) {
             if (--n < 0) {
-                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_INDEXOF_NOT_FOUND, tree.fname);
+                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_INDEXOF_NOT_FOUND, tree.fname.name);
                  break;
             }
             JFXForExpressionInClause clause = forClauses.get(n);
-            if (clause.getVar().getName() == tree.fname) {
+            if (clause.getVar().getName() == tree.fname.name) {
                 tree.clause = clause;
                 clause.setIndexUsed(true);
                 break;

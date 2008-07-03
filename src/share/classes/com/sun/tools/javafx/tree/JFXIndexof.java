@@ -26,8 +26,6 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.util.Name;
-
 /**
  * Indexof expression
  *
@@ -36,15 +34,11 @@ import com.sun.tools.javac.util.Name;
 public class JFXIndexof extends JFXExpression implements IndexofTree {
 
     /** Name of corresponding 'for'/'where' variable. */
-    public Name fname;
+    public JFXIdent fname;
     public JFXForExpressionInClause clause;
 
-    protected JFXIndexof(Name fname) {
+    protected JFXIndexof(JFXIdent fname) {
         this.fname = fname;
-    }
-
-    public Name getForVarName() {
-        return fname;
     }
 
     @Override
@@ -59,11 +53,15 @@ public class JFXIndexof extends JFXExpression implements IndexofTree {
 
     @Override
     public JavaFXKind getJavaFXKind() {
-        throw new UnsupportedOperationException(getClass().getSimpleName() + " support not implemented");
+        return JavaFXKind.INDEXOF;
     }
 
     @Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
         return visitor.visitIndexof(this, data);
+    }
+
+    public JFXIdent getForVarIdentifier() {
+        return fname;
     }
 }

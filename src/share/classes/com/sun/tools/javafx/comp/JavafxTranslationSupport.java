@@ -522,8 +522,13 @@ public abstract class JavafxTranslationSupport {
     }
 
     public Name indexVarName(JFXForExpressionInClause clause) {
-        Name forVar = clause.getVar().getName();
-        return names.fromString("$indexof$" + forVar.toString());
+        return indexVarName(clause.getVar().getName());
+    }
+    public Name indexVarName(JFXIdent var) {
+        return indexVarName(var.getName());
+    }
+    private Name indexVarName(Name name) {
+        return names.fromString("$indexof$" + name.toString());
     }
 
     /**

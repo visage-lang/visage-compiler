@@ -274,7 +274,7 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
     }
     
     public R visitIndexof(IndexofTree node, P p) {
-       return null;
+        return scan(node.getForVarIdentifier(), p);
     }
 
     public R visitInitDefinition(InitDefinitionTree node, P p) {

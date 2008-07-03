@@ -377,7 +377,7 @@ expression  returns [JFXExpression expr]
                                                           endPos($expr, $FUNC_EXPR); }
 	| ^(NEW typeName expressionList)		{ $expr = F.at(pos($NEW)).Instanciate($typeName.expr, $expressionList.args.toList(), null); 
                                                           endPos($expr, $NEW); }
-       	| ^(INDEXOF name)                      		{ $expr = F.at(pos($INDEXOF)).Indexof($name.value); 
+       	| ^(INDEXOF identifier)                		{ $expr = F.at(pos($INDEXOF)).Indexof($identifier.expr); 
                                                           endPos($expr, $INDEXOF); }
 	| pipeExpression				{ $expr = $pipeExpression.expr; }
 	| blockExpression				{ $expr = $blockExpression.expr; }
