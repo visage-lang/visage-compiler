@@ -263,7 +263,7 @@ public class JavafxModuleBuilder {
 
         FileObject fo = tree.getSourceFile();
         URI uri = fo.toUri();
-        String path = uri.getPath();
+        String path = uri.toString();
         int i = path.lastIndexOf('/') + 1;
         fileObjName = path.substring(i);
         int lastDotIdx = fileObjName.lastIndexOf('.');
