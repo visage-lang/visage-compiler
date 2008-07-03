@@ -238,7 +238,13 @@
                 <path path="${javac.classpath}"/>
             </classpath>
         </javadoc>
+        <!--
+        switch to alternate launching method so we can add gui jars to classpath
         <java jar="dist/lib/javafxdoc.jar" fork="true" failonerror="true">
+        -->
+        <java  fork="true" failonerror="true" classname="com.sun.tools.javafxdoc.Main">
+            <classpath location="dist/lib/javafxdoc.jar"/>
+            <classpath refid="clspath"/>
             <arg value="-d"/>
             <arg value="${dist.javafxdoc.dir}"/>
             <arg value="-sourcepath"/>
@@ -249,7 +255,7 @@
             <!-- Uncomment the following line when the preview branch is merged into the compiler ws. JFXC-1420 -->
             <!--<arg line="-xsltfile ${basedir}/javadoc-files/custom.xsl"/>-->
             <classpath>
-                <path path="${build.classes.dir}:${javac.test.classpath}"/>
+                <path path="${build.classes.dir}:${javac.test.classpath}:dist/lib/javafxgui.jar"/>
             </classpath>
             <jvmarg line="-Xbootclasspath/p:${bootjars}"/>
             <jvmarg value="-Xmx256m"/>
