@@ -390,7 +390,10 @@ public class JavafxClassReader extends ClassReader {
         return s;
     }
 
+    @Override
     public void complete(Symbol sym) throws CompletionFailure {
+        if (jreader.sourceCompleter == null)
+           jreader.sourceCompleter = JavafxCompiler.instance(ctx);
         if (sym instanceof PackageSymbol) {
             PackageSymbol psym = (PackageSymbol) sym;
             PackageSymbol jpackage;
@@ -416,15 +419,7 @@ public class JavafxClassReader extends ClassReader {
             sym.owner.complete();
             JavafxClassSymbol csym = (JavafxClassSymbol) sym;
             ClassSymbol jsymbol = csym.jsymbol;
-            if (jsymbol != null && jsymbol.classfile != null && 
-                jsymbol.classfile.getKind() == JavaFileObject.Kind.SOURCE &&
-                jsymbol.classfile.getName().endsWith(".fx")) {
-                SourceCompleter fxSourceCompleter = JavafxCompiler.instance(ctx);
-                fxSourceCompleter.complete(csym);
-                return;
-            } else { 
-                csym.jsymbol = jsymbol = jreader.loadClass(csym.flatname);
-            }
+            csym.jsymbol = jsymbol = jreader.loadClass(csym.flatname);
             fixupFullname(csym, jsymbol);
             typeMap.put(jsymbol, csym);
             jsymbol.classfile = ((ClassSymbol) sym).classfile;
