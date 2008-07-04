@@ -27,7 +27,6 @@ package com.sun.tools.xslhtml;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -53,7 +52,6 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -107,9 +105,12 @@ public class XHTMLProcessingUtils {
      * @param xsltStream the XSLT to implement the transformation, as an input stream.
      * @throws java.lang.Exception
      */
-     public static void process(String xmlInputPath, InputStream xsltStream, File docsdir,
+     public static void process(List<String> xmlInputs, InputStream xsltStream, File docsdir,
             Map<String,String> parameters
             ) throws Exception {
+        if (xmlInputs == null || xmlInputs.size() == 0)
+            throw new IllegalArgumentException("no XML input file(s)");
+        
         System.out.println(getString("transforming.to.html"));
         // TODO code application logic here
         
@@ -122,9 +123,6 @@ public class XHTMLProcessingUtils {
         if (xsltStream == null)
             xsltStream = XHTMLProcessingUtils.class.getResourceAsStream("resources/javadoc.xsl");
         
-        File file = new File(xmlInputPath);
-        p(INFO, MessageFormat.format(getString("reading.doc"), file.getAbsolutePath()));
-        p(FINE, "exists: " + file.exists());
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         builder.setErrorHandler(new ErrorHandler() {
@@ -146,10 +144,6 @@ public class XHTMLProcessingUtils {
                         exception.getColumnNumber() + " " + exception.getLocalizedMessage());
             }
         });
-        Document doc = builder.parse(file);
-
-
-
 
         //File docsdir = new File("fxdocs");
         if (!docsdir.exists()) {
@@ -198,30 +192,35 @@ public class XHTMLProcessingUtils {
         }
         trans.setErrorListener(new MainErrorListener());
 
-        XPath xpath = XPathFactory.newInstance().newXPath();
-
-        // print out packages list
-        NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET); 
-        p(INFO, MessageFormat.format(getString("creating.packages"), packages.getLength()));
-        
-        
         //build xml doc for the packages
         Document packages_doc = builder.newDocument();
         Element package_list_elem = packages_doc.createElement("packageList");
         packages_doc.appendChild(package_list_elem);
 
-        //for each package, generate the package itself and append to package list doc
-        for (int i = 0; i < packages.getLength(); i++) {
-            Element pkg = ((Element) packages.item(i));
-            String name = pkg.getAttribute("name");
-            Element package_elem = packages_doc.createElement("package");
-            package_elem.setAttribute("name", name);
-            package_list_elem.appendChild(package_elem);
-            copyDocComment(pkg,package_elem);
-            Element first_line = packages_doc.createElement("first-line-comment");
-            first_line.appendChild(packages_doc.createTextNode("first line comment"));
-            package_elem.appendChild(first_line);
-            processPackage(name, pkg, xpath, docsdir, trans);
+        for (String xmlInputPath : xmlInputs) {
+            File file = new File(xmlInputPath);
+            p(INFO, MessageFormat.format(getString("reading.doc"), file.getAbsolutePath()));
+            p(FINE, "exists: " + file.exists());
+            Document doc = builder.parse(file);
+            XPath xpath = XPathFactory.newInstance().newXPath();
+
+            // print out packages list
+            NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET); 
+            p(INFO, MessageFormat.format(getString("creating.packages"), packages.getLength()));
+
+            //for each package, generate the package itself and append to package list doc
+            for (int i = 0; i < packages.getLength(); i++) {
+                Element pkg = ((Element) packages.item(i));
+                String name = pkg.getAttribute("name");
+                Element package_elem = packages_doc.createElement("package");
+                package_elem.setAttribute("name", name);
+                package_list_elem.appendChild(package_elem);
+                copyDocComment(pkg,package_elem);
+                Element first_line = packages_doc.createElement("first-line-comment");
+                first_line.appendChild(packages_doc.createTextNode("first line comment"));
+                package_elem.appendChild(first_line);
+                processPackage(name, pkg, xpath, docsdir, trans);
+            }
         }
 
         //transform the package list doc
@@ -416,7 +415,9 @@ public class XHTMLProcessingUtils {
      * Command-line/debugging entry
      */
     public static void main(String[] args) throws Exception {
-        process("javadoc.xml", null, new File("fxdocs_test"), new HashMap<String, String>());
+        List<String> inputs = new ArrayList<String>();
+        inputs.add("javadoc.xml");
+        process(inputs, null, new File("fxdocs_test"), new HashMap<String, String>());
     }
 
     private static class MainErrorListener implements ErrorListener {
@@ -504,12 +505,12 @@ public class XHTMLProcessingUtils {
         p("processing script: " + script);
         Object ret = scrEng.eval(script);
         Class fxclass = ret.getClass();
-        Method method = fxclass.getMethod("impl_getSGNode", null);
-        Object node = method.invoke(ret, null);
-        Method getBounds = node.getClass().getMethod("getBounds",null);
+        Method method = fxclass.getMethod("impl_getSGNode");
+        Object node = method.invoke(ret);
+        Method getBounds = node.getClass().getMethod("getBounds");
         Method render = node.getClass().getMethod("render", Graphics2D.class);
 
-        Rectangle2D bounds = (Rectangle2D) getBounds.invoke(node, null);
+        Rectangle2D bounds = (Rectangle2D) getBounds.invoke(node);
         
         BufferedImage img = new BufferedImage(
                 (int)bounds.getWidth(), 

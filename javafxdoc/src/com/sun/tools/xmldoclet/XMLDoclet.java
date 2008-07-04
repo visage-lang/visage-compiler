@@ -62,6 +62,7 @@ public class XMLDoclet {
     
     // option values
     private static String outFileName = null;
+    private static List<String> xmlFiles = new ArrayList<String>();
     private static File outDocsDir = new File("fxdocs");
     private static boolean includeAuthorTags = false;
     private static boolean includeDeprecatedTags = true;
@@ -88,7 +89,8 @@ public class XMLDoclet {
         new Option("-extrajs", getString("out.file.option"), getString("xsltfile.description")),
         new Option("-extrajs2", getString("out.file.option"), getString("xsltfile.description")),
         new Option("-xsl:", getString("xslproperty.description"), "name=value"),
-        new Option("-d", getString("out.dir.option"), getString("out.dir.description"))
+        new Option("-d", getString("out.dir.option"), getString("out.dir.description")),
+        new Option("-i", getString("in.file.option"), getString("in.file.description"))
     };
 
     /**
@@ -106,7 +108,7 @@ public class XMLDoclet {
                 FileInputStream xsltStream = xsltFileName != null ? 
                     new FileInputStream(xsltFileName) : null;
                 
-                XHTMLProcessingUtils.process(outFileName, xsltStream, outDocsDir, params);
+                XHTMLProcessingUtils.process(xmlFiles, xsltStream, outDocsDir, params);
             }
             
             return true;
@@ -159,9 +161,12 @@ public class XMLDoclet {
                 }
             }
         }
+        List<String> otherInputs = new ArrayList<String>();
         for (String[] option : options) {
             if (option[0].equals("-o"))
                 outFileName = option[1];
+            else if (option[0].equals("-i"))
+                otherInputs.add(option[1]);
             else if (option[0].equals("-version"))
                 includeVersionTags = true;
             else if (option[0].equals("-author"))
@@ -204,6 +209,8 @@ public class XMLDoclet {
                 return false;
             }
         }
+        xmlFiles.add(outFileName);
+        xmlFiles.addAll(otherInputs);
         return true;
     }
 
@@ -337,6 +344,8 @@ public class XMLDoclet {
     }
 
     private void generatePackage(PackageDoc pkg) throws SAXException {
+        if (pkg.allClasses().length == 0)
+            return;
         attrs.clear();
         attrs.addAttribute("", "", "name", "CDATA", pkg.name());
         hd.startElement("", "", "package", attrs);
