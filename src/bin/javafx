@@ -50,12 +50,11 @@ if [ -z "$CLASSPATH" ] ; then
 else
   USER_CP="$CLASSPATH"
 fi 
-classpath="$USER_CP"
 
 # Jars with classes already defined in the JDK's tools.jar file need to be put
 # on the bootclasspath, along with any classes they reference, due to those
 # classes being on the bootclasspath with Mac OS X Java distributions.
-bootclasspath="$JFX_HOME/javafxrt.jar:$JFX_HOME/javafxgui.jar:$JFX_HOME/javafx-swing.jar:$JFX_HOME/@SCENEGRAPH_JAR@:$JFX_HOME/Decora-HW.jar:$JFX_HOME/Decora-D3D.jar:$JFX_HOME/jmc.jar"
+classpath="$JFX_HOME/javafxrt.jar:$JFX_HOME/javafxgui.jar:$JFX_HOME/javafx-swing.jar:$JFX_HOME/@SCENEGRAPH_JAR@:$JFX_HOME/Decora-HW.jar:$JFX_HOME/Decora-D3D.jar:$JFX_HOME/jmc.jar:$USER_CP"
 nativelibpath="$JFX_HOME"
 
 args=""
@@ -76,9 +75,8 @@ parse_args "$@" # process arguments on the command line
 # Under Cygwin, convert certain environment variables back to Windows format
 if $cygwin ; then
   classpath=`cygpath --path --windows "$classpath"`
-  bootclasspath=`cygpath --path --windows "$bootclasspath"`
   nativelibpath=`cygpath --path --windows "$nativelibpath"`
   JAVA_CMD=`cygpath --unix "$JAVA_CMD"`
 fi
 
-"$JAVA_CMD" -Djava.library.path="$nativelibpath" $jargs -Xbootclasspath/p:"$bootclasspath" -classpath "$classpath" $args
+"$JAVA_CMD" -Djava.library.path="$nativelibpath" $jargs -classpath "$classpath" $args
