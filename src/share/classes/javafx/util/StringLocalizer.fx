@@ -72,7 +72,11 @@ public class StringLocalizer {
      * 'key' is returned.
      */
     public bound function localizedString() : String {
-        localizedStr;
+        if (defaultString != null) {
+            StringLocalization.getLocalizedString(propertiesName, key, defaultString, locale);
+        } else {
+            StringLocalization.getLocalizedString(propertiesName, key, key, locale);
+        }
     }
 
     /**
@@ -137,14 +141,6 @@ public class StringLocalizer {
                 packageName + "/" + scriptFileName.replaceAll("\\.[fF][xX]$", "");
             };
         StringLocalization.dissociate(source);
-    }
-
-    private attribute localizedStr : String = bind {
-        if (defaultString != null) {
-            StringLocalization.getLocalizedString(propertiesName, key, defaultString, locale);
-        } else {
-            StringLocalization.getLocalizedString(propertiesName, key, key, locale);
-        }
     }
 
     private function getDefaultPropertiesName() : String {
