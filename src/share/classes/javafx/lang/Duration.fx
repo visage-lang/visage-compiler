@@ -90,7 +90,7 @@ public class Duration extends Comparable {
         }
     }
 
-    /** Subtract this instance from another Duration instance to return a new Duration instance.
+    /** Subtract other Duration instance from this instance to return a new Duration instance.
      *  This function does not change the value of called Duration instance. */
     public function sub(other:Duration):Duration {
         return Duration {
