@@ -244,7 +244,7 @@ public class XHTMLProcessingUtils {
                     "*[name() = 'class' or name() = 'abstractClass' or name() = 'interface']",
                     pkg, XPathConstants.NODESET);
         List<Element> classes = sort(classesNodeList);
-        p(INFO, MessageFormat.format(getString("creating.classes"), classes.size()));
+        p(INFO, MessageFormat.format(getString("creating.classes"), classes.size(), packageName));
         
         Document classes_doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element class_list = classes_doc.createElement("classList");
@@ -452,7 +452,8 @@ public class XHTMLProcessingUtils {
         if(examples != null & examples.getLength() > 0) {
             for(int i=0; i<examples.getLength(); i++) {
                 Element example = (Element) examples.item(i);
-                p("processing example code: " + example.getTextContent());
+                p(INFO, MessageFormat.format(getString("processing.example"), clazz.getAttribute("name")));
+                p(INFO, example.getTextContent());
                 try {
                     //String script = "import javafx.gui.*; CubicCurve { x1: 0  y1: 50  ctrlX1: 25  ctrlY1: 0 ctrlX2: 75  ctrlY2: 100   x2: 100  y2: 50 fill:Color.RED }";
                     String script = example.getTextContent();
@@ -502,7 +503,7 @@ public class XHTMLProcessingUtils {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine scrEng = manager.getEngineByExtension("javafx");
         scrEng.getContext().setErrorWriter(new PrintWriter(System.out));
-        p("processing script: " + script);
+        p(INFO, getString("processing.example") + '\n' + script);
         Object ret = scrEng.eval(script);
         Class fxclass = ret.getClass();
         Method method = fxclass.getMethod("impl_getSGNode");
