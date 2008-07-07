@@ -69,8 +69,13 @@ public class Applet extends JApplet {
             throw new Error("{errorPrefix}: no ApplicationClass applet param specified");
         }
         if (app != null) {
-            setContentPane(app.content.getJComponent());
-            if (app.onStart != null) app.onStart();
+            if (app.getClass().getName() == "javafx.ext.swing.SwingApplication") {
+                var sapp = app as javafx.ext.swing.SwingApplication;
+                setContentPane(sapp.content.getJComponent());
+                if (sapp.onStart != null) sapp.onStart();
+            } else {
+                // extract and use stage here
+            }
         }
     }
 

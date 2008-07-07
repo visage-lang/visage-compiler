@@ -23,22 +23,18 @@
 
 package javafx.application;
 
-import javafx.ext.swing.Component;
-
 /**
- * Base JavaFX application class. Provides application lifecycle support methods
- * and attributes. 
+ * The JavaFX {@code Application} class provides application lifecycle
+ * support methods and attributes. The content of the application is
+ * specified on its {@code stage} attribute.
  * 
  * @profile common
  */
-public class Application  {
+public class Application {
     
     /**
      * Called when Application is being started and before it
-     * is displayed. It is possible to set the scene attribute 
-     * at this moment. 
-     * 
-     * @profile common
+     * is displayed.
      */ 
     public attribute onStart:function():Void;
     
@@ -47,8 +43,6 @@ public class Application  {
      * Typically when the application window is made active or when the document
      * containing the Application is made active in the browser or in the case of 
      * a mobile device when the user switches to the application.
-     * 
-     * @profile common
      */ 
     public attribute onResume:function():Void;
     
@@ -58,8 +52,6 @@ public class Application  {
      * looses focus, or the document containing the Application is no longer the active
      * document in the browser or the application is running on background in the 
      * mobile device. 
-     * 
-     * @profile common
      */ 
     public attribute onSuspend:function():Void;
     
@@ -67,25 +59,18 @@ public class Application  {
     /**
      * Called when the application is about to exit. The UI components of
      * the application might no longer be visible. 
-     * 
-     * @profile common
      */
     public attribute onExit:function():Void;
     
     /**
      * Specifies if the Application is in suspended or running 
      * state. 
-     * 
-     * @return true of the application is in suspended
-     * @profile common
      */ 
     public attribute /*read-only*/ suspended:Boolean;       
     
     /**
      * Requests the application to exit. The onExit callback is called after this
      * method is executed.
-     * 
-     * @profile common
      */ 
     public function exit() {};
     
@@ -93,8 +78,6 @@ public class Application  {
      * Requests the application to go to the suspend() mode. On desktop it
      * would typically mean minimize. In the case application is in suspended
      * mode, the function has no effect. 
-     * 
-     * @profile common
      */
     public function suspend() {};
     
@@ -102,19 +85,12 @@ public class Application  {
      * Requests the application to go to back from the suspend mode to normal 
      * (resumed) operation. In the case the application is already running (i.e. 
      * it is no longer suspended), the function has no effect. 
-     * 
-     * @profile common
      */
     public function resume() {};
-    
-    
+
     /**
-     * The UI part of the application - a component to be shown when the 
-     * application is running. On the applications using the common profile
-     * this would be typically Canvas.
-     * 
-     *  @profile common
+     * The stage for the application content.
      */
-    public attribute content: Component;
+    public attribute stage: java.lang.Object;
 
 }
