@@ -561,6 +561,8 @@
         <pack200 src="${dist.jar}" gzipoutput="true" destfile='${dist.jar}.pack.gz'/>
         <pack200 src="${dist.javafxrt.jar}" gzipoutput="true" destfile='${dist.javafxrt.jar}.pack.gz'/>
         <pack200 src="${dist.dir}/lib/Scenario.jar" gzipoutput="true" destfile='${dist.dir}/lib/Scenario.jar.pack.gz'/>
+        <pack200 src="${dist.dir}/lib/javafxgui.jar" gzipoutput="true" destfile='${dist.dir}/lib/javafxgui.jar.pack.gz'/>
+        <pack200 src="${dist.dir}/lib/javafx-swing.jar" gzipoutput="true" destfile='${dist.dir}/lib/javafx-swing.jar.pack.gz'/>
         <pack200 src="${dist.dir}/lib/jmc.jar" gzipoutput="true" destfile='${dist.dir}/lib/jmc.jar.pack.gz'/>
     </target>
     
