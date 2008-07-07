@@ -52,7 +52,7 @@ public class Dialog extends Window {
 
     function setLocation(){
         if (not window.isLocationByPlatform() and (window.getX() == 0) and (window.getY() == 0)) {
-                window.setLocationRelativeTo(if (owner <> null) owner.window else null);
+                window.setLocationRelativeTo(if (owner != null) owner.window else null);
         }
     }
 

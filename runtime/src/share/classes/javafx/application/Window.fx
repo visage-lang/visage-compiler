@@ -208,16 +208,16 @@ public abstract class Window {
         var transparent:Boolean = fill == null;
         if (fill instanceof Color) {
             var color:Color = fill as Color;
-            transparent = color.opacity <> 1;
+            transparent = color.opacity != 1;
         } else if (fill instanceof LinearGradient) {
             var g:LinearGradient = fill as LinearGradient;
             for (stop in g.stops){
-                transparent = transparent or stop.color.opacity <> 1;
+                transparent = transparent or stop.color.opacity != 1;
             }
         } else if (fill instanceof RadialGradient) {
             var g:RadialGradient = fill as RadialGradient;
             for (stop in g.stops){
-                transparent = transparent or stop.color.opacity <> 1;
+                transparent = transparent or stop.color.opacity != 1;
             }
         }
         WindowImpl.setWindowTransparency(window,transparent);
@@ -270,11 +270,11 @@ public abstract class Window {
             public function componentMoved(e:ComponentEvent): Void {
                 var p = window.getLocation();
 
-                if (x <> p.x) {
+                if (x != p.x) {
                     x = p.x;
                 }
 
-                if (y <> p.y) {
+                if (y != p.y) {
                     y = p.y;
                 }
             }
@@ -282,11 +282,11 @@ public abstract class Window {
             public function componentResized(e:ComponentEvent): Void {
                 var d = window.getSize();
 
-                if (width <> d.width) {
+                if (width != d.width) {
                     width = d.width;
                 }
 
-                if (height <> d.height) {
+                if (height != d.height) {
                     height = d.height;
                 }
             }
@@ -393,7 +393,7 @@ public abstract class Window {
         }
         if (root instanceof Group) {
             var group:Group = root as Group;
-            if (group.layout <> null) {
+            if (group.layout != null) {
                 group.layout(group);
             }
             for (child in group.content) {
