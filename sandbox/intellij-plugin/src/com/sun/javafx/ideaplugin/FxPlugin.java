@@ -68,7 +68,7 @@ public class FxPlugin implements ApplicationComponent {
                         compilerManager.addCompilableFileType(FX_FILE_TYPE);
 
                         DebuggerManager.getInstance (project).registerPositionManagerFactory (new Function<DebugProcess, PositionManager>() {
-                            public PositionManager fun (final DebugProcess debugProcess) {
+                            public PositionManager fun (DebugProcess debugProcess) {
                                 return new FxPositionManager (debugProcess);
                             }
                         });

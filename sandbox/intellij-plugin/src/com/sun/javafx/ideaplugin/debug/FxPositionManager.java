@@ -27,7 +27,6 @@ import com.intellij.debugger.NoDataException;
 import com.intellij.debugger.PositionManager;
 import com.intellij.debugger.SourcePosition;
 import com.intellij.debugger.engine.DebugProcess;
-import com.intellij.debugger.engine.DebugProcessImpl;
 import com.intellij.debugger.requests.ClassPrepareRequestor;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
@@ -78,7 +77,7 @@ public class FxPositionManager implements PositionManager {
             int line = position.getLine() + 1;
             List<Location> locations;
             if (debugProcess.getVirtualMachineProxy ().versionHigher ("1.4"))
-                locations = type.locationsOfLine (DebugProcessImpl.JAVA_STRATUM, null, line);
+                locations = type.locationsOfLine (DebugProcess.JAVA_STRATUM, null, line);
             else
                 locations = type.locationsOfLine (line);
             if (locations == null  ||  locations.isEmpty())

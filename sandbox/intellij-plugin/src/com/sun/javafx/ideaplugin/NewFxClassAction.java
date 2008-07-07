@@ -49,7 +49,7 @@ public class NewFxClassAction extends CreateElementActionBase {
     }
 
     @NotNull
-    protected final PsiElement[] invokeDialog(final Project project, final PsiDirectory directory) {
+    protected final PsiElement[] invokeDialog(Project project, PsiDirectory directory) {
         Module module = ModuleUtil.findModuleForFile(directory.getVirtualFile(), project);
         if (module == null)
             return PsiElement.EMPTY_ARRAY;
@@ -65,7 +65,7 @@ public class NewFxClassAction extends CreateElementActionBase {
     protected PsiElement[] create(String newName, PsiDirectory directory) throws Exception {
         // Eventually, get this from a template
         final PsiManager psiManager = PsiManager.getInstance(directory.getProject());
-        final PsiFile file = psiManager.getElementFactory().createFileFromText(newName + "." + FxPlugin.FX_FILE_EXTENSION, "");
+        final PsiFile file = psiManager.getElementFactory().createFileFromText(newName + '.' + FxPlugin.FX_FILE_EXTENSION, "");
         CodeStyleManager.getInstance(psiManager).reformat(file);
         return new PsiElement[]{(PsiFile) directory.add(file)};
     }

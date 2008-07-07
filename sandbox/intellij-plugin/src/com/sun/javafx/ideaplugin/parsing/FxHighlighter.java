@@ -40,7 +40,7 @@ import java.util.Map;
  * @author Brian Goetz
  */
 public class FxHighlighter extends SyntaxHighlighterBase {
-    private static Map<IElementType, TextAttributesKey> keys;
+    private static final Map<IElementType, TextAttributesKey> keys;
 
     private static final TextAttributesKey FX_KEYWORD
             = TextAttributesKey.createTextAttributesKey("FX.KEYWORD", HighlighterColors.JAVA_KEYWORD.getDefaultAttributes());

@@ -41,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class FxLanguage extends Language {
 
-    private FxParserDefinition definition = new FxParserDefinition();
+    private final FxParserDefinition definition = new FxParserDefinition();
     private PairedBraceMatcher braceMatcher;
 
     public FxLanguage() {
@@ -49,7 +49,7 @@ public class FxLanguage extends Language {
     }
 
     @NotNull
-    public SyntaxHighlighter getSyntaxHighlighter(Project project, final VirtualFile virtualFile) {
+    public SyntaxHighlighter getSyntaxHighlighter(Project project, VirtualFile virtualFile) {
         return new FxHighlighter();
     }
 

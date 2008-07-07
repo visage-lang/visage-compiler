@@ -44,7 +44,6 @@ import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -112,29 +111,23 @@ public class FxCompiler implements TranslatingCompiler {
             }
 
             Object javafxTool;
-            Class<?> javafxToolClass;
-            Method getStandardFileManagerMethod;
-            Class<?> javafxFileManagerClass;
-            Method getFileForInputMethod;
+			Method getStandardFileManagerMethod;
+			Method getFileForInputMethod;
             Method getTaskMethod;
-            Class<?> javafxTaskClass;
-            Method callMethod;
-            Method parseMethod;
-            Method analyzeMethod;
-            Method generateMethod;
-            try {
-                javafxToolClass = Class.forName ("com.sun.tools.javafx.api.JavafxcTool", true, loader);
-                javafxTool = javafxToolClass.getMethod ("create").invoke (null);
+			Method callMethod;
+			try {
+				Class<?> javafxToolClass = Class.forName("com.sun.tools.javafx.api.JavafxcTool", true, loader);
+				javafxTool = javafxToolClass.getMethod ("create").invoke (null);
                 getStandardFileManagerMethod = javafxToolClass.getMethod ("getStandardFileManager", DiagnosticListener.class, Locale.class, Charset.class);
-                javafxFileManagerClass = Class.forName ("com.sun.tools.javafx.util.JavafxFileManager", true, loader);
-                getFileForInputMethod = javafxFileManagerClass.getMethod ("getFileForInput", String.class);
+				Class<?> javafxFileManagerClass = Class.forName("com.sun.tools.javafx.util.JavafxFileManager", true, loader);
+				getFileForInputMethod = javafxFileManagerClass.getMethod ("getFileForInput", String.class);
                 getTaskMethod = javafxToolClass.getMethod ("getTask", Writer.class, JavaFileManager.class, DiagnosticListener.class, Iterable.class, Iterable.class);
-                javafxTaskClass = Class.forName ("com.sun.javafx.api.JavafxcTask", true, loader);
-                callMethod = javafxTaskClass.getMethod ("call");
-                parseMethod = javafxTaskClass.getMethod ("parse");
-                analyzeMethod = javafxTaskClass.getMethod ("analyze");
-                generateMethod = javafxTaskClass.getMethod ("generate");
-            } catch (RuntimeException e) {
+				Class<?> javafxTaskClass = Class.forName("com.sun.javafx.api.JavafxcTask", true, loader);
+				callMethod = javafxTaskClass.getMethod ("call");
+				Method parseMethod = javafxTaskClass.getMethod("parse");
+				Method analyzeMethod = javafxTaskClass.getMethod("analyze");
+				Method generateMethod = javafxTaskClass.getMethod("generate");
+			} catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
                 compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
@@ -183,7 +176,7 @@ public class FxCompiler implements TranslatingCompiler {
 
             try {
                 Object state = callMethod.invoke (compilerTask);
-                if (state == Boolean.FALSE  &&  ! errorWhileCompiling.get ()) {
+                if (state.equals(Boolean.FALSE) &&  ! errorWhileCompiling.get ()) {
                     compileContext.addMessage (CompilerMessageCategory.ERROR, "Compilation error in module: " + module.getName (), null, 0, 0);
                     errorWhileCompiling.set (true);
                 }

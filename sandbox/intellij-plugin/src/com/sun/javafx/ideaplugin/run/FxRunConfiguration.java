@@ -35,7 +35,7 @@ import com.intellij.execution.process.ProcessTerminatedListener;
 import com.intellij.execution.runners.RunnerInfo;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.module.JavaModuleType;
+import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.options.SettingsEditor;
@@ -88,7 +88,7 @@ public class FxRunConfiguration extends ModuleBasedConfiguration {
     }
 
     public void setExtensionSettings (Class<? extends RunConfigurationExtension> extensionClass, Object value) {
-        extensionSettings.put (extensionClass, extensionSettings);
+        extensionSettings.put (extensionClass, value);
     }
 
     public RunProfileState getState (DataContext context, RunnerInfo runnerInfo, final RunnerSettings runnerSettings, final ConfigurationPerRunnerSettings configurationSettings) throws ExecutionException {
@@ -159,7 +159,7 @@ public class FxRunConfiguration extends ModuleBasedConfiguration {
             params.setWorkingDirectory (getProject ().getBaseDir ().getPath ());
         if (vmParameters != null) {
             if (customVMparameters != null)
-                customVMparameters += " " + vmParameters;
+                customVMparameters += ' ' + vmParameters;
             else
                 customVMparameters = vmParameters;
         }
@@ -184,7 +184,7 @@ public class FxRunConfiguration extends ModuleBasedConfiguration {
     public Collection<Module> getValidModules () {
         ArrayList<Module> list = new ArrayList<Module>();
         for (Module module : getModules ())
-            if (module.getModuleType() instanceof JavaModuleType)
+            if (module.getModuleType() instanceof ModuleType)
                 list.add(module);
         return list;
     }

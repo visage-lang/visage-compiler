@@ -73,7 +73,7 @@ public class FxParser implements PsiParser {
             System.out.printf("finished parsing %d:%d%n", ((CommonTree) antlrParseTree.getTree()).getTokenStartIndex(), ((CommonTree) antlrParseTree.getTree()).getTokenStopIndex());
             BeginMark beginMark = new BeginMark(0);
             actions.add(beginMark);
-            if (errors.size() == 0) {
+            if (errors.isEmpty()) {
                 // @@@ Do the same with v3Walker, so we can get real structural information
                 traverse((CommonTree) antlrParseTree.getTree(), actions);
             } else {
@@ -165,11 +165,11 @@ public class FxParser implements PsiParser {
         }
     }
 
-    private static abstract class StreamAction implements Comparable<StreamAction> {
+    private abstract static class StreamAction implements Comparable<StreamAction> {
         protected final int position;
 
-        protected StreamAction(int position) {
-            this.position = position;
+        protected StreamAction(int pos) {
+            position = pos;
         }
 
         public abstract void action(PsiBuilder builder);
@@ -182,12 +182,22 @@ public class FxParser implements PsiParser {
             else
                 return 0;
         }
-    }
+
+		public int hashCode()
+		{
+			return position;
+		}
+
+		public boolean equals(Object obj)
+		{
+			return (obj instanceof StreamAction) && ((StreamAction)obj).position == position;
+		}
+	}
 
     private static class BeginMark extends StreamAction {
         public PsiBuilder.Marker marker;
 
-        public BeginMark(int position) {
+        BeginMark(int position) {
             super(position);
         }
 
@@ -200,7 +210,7 @@ public class FxParser implements PsiParser {
         private final BeginMark marker;
         private final IElementType elementType;
 
-        public EndMark(int position, BeginMark marker, IElementType elementType) {
+        EndMark(int position, BeginMark marker, IElementType elementType) {
             super(position);
             this.marker = marker;
             this.elementType = elementType;
@@ -215,7 +225,7 @@ public class FxParser implements PsiParser {
         private final BeginMark marker;
         private final String errorString;
 
-        public ErrorMark(int position, BeginMark marker, String errorString) {
+        ErrorMark(int position, BeginMark marker, String errorString) {
             super(position);
             this.marker = marker;
             this.errorString = errorString;

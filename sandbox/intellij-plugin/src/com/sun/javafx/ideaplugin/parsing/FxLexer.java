@@ -40,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class FxLexer extends LexerBase {
 
-    private boolean ignoreSyntheticSemi;
+    private final boolean ignoreSyntheticSemi;
     private int bufferStart, bufferEnd;
     private Token nextToken;
     private int nextState;
@@ -60,7 +60,7 @@ public class FxLexer extends LexerBase {
         start(new CharArrayCharSequence(buffer), startOffset, endOffset, initialState);
     }
 
-    public void start(final CharSequence buffer, int startOffset, int endOffset, final int initialState) {
+    public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
         this.buffer = buffer;
         bufferStart = startOffset;
         bufferEnd = endOffset;

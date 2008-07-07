@@ -38,13 +38,13 @@ class WrappedAntlrLexer extends v3Lexer {
     public final int syntheticSemi;
     public final boolean signalOnError;
 
-    public WrappedAntlrLexer(ANTLRStringStream stringStream, boolean useSyntheticSemi, boolean signalOnError) {
+    WrappedAntlrLexer(ANTLRStringStream stringStream, boolean useSyntheticSemi, boolean signalOnError) {
         super(new Context(), stringStream);
-        syntheticSemi = useSyntheticSemi ? SYNTHETIC_SEMI : v3Lexer.SEMI;
+        syntheticSemi = useSyntheticSemi ? SYNTHETIC_SEMI : SEMI;
         this.signalOnError = signalOnError;
     }
 
-    public WrappedAntlrLexer(ANTLRStringStream stringStream, boolean useSyntheticSemi) {
+    WrappedAntlrLexer(ANTLRStringStream stringStream, boolean useSyntheticSemi) {
         this(stringStream, useSyntheticSemi, true);
     }
 

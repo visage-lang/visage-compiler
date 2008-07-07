@@ -50,7 +50,7 @@ public final class FxRunSettingsPanel {
             public void actionPerformed (ActionEvent e) {
                 FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
                 descriptor.setTitle("Choose working directory");
-                VirtualFile avirtualfile[] = FileChooser.chooseFiles(workingDirectoryBrowseButton, descriptor);
+                VirtualFile[] avirtualfile = FileChooser.chooseFiles(workingDirectoryBrowseButton, descriptor);
                 if (avirtualfile.length != 0)
                     workingDirectoryText.setText (avirtualfile[0].getPath());
             }

@@ -44,7 +44,7 @@ public class FxRunSettingsEditor extends SettingsEditor<FxRunConfiguration> {
         panel = new FxRunSettingsPanel ();
         panel.moduleCombo.setModel (moduleModel = new DefaultComboBoxModel ());
         panel.moduleCombo.setRenderer (new DefaultListCellRenderer() {
-            public Component getListCellRendererComponent (JList list, final Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent (JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent (list, value, index, isSelected, cellHasFocus);
                 final Module module = (Module) value;
                 if (module != null) {
