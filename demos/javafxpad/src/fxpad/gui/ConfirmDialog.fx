@@ -33,7 +33,7 @@ import javafx.ext.swing.*;
  */
 
 public class ConfirmDialog  {
-    public attribute owner: Window;
+    public attribute owner: SwingWindow;
     public attribute confirmType: ConfirmType = ConfirmType.DEFAULT;
     public attribute messageType: MessageType = MessageType.PLAIN;
     public attribute icon: Icon;

@@ -37,11 +37,11 @@ public class ClassPathDialog {
     attribute classPath: File[];
     attribute selectedClassPath:Integer = -1;
     attribute action: function(classPath: File[]):Void;
-    function show(parent:Window):Void {
+    function show(parent:SwingWindow):Void {
         var self = this;
         var oldClassPath = classPath;
-        var dlg:Dialog;
-        dlg = Dialog {
+        var dlg:SwingDialog;
+        dlg = SwingDialog {
             owner: parent
             //TODO - see below visible: true
             
