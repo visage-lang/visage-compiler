@@ -67,7 +67,7 @@ Module {
         className: "assortis.sources.language.javafx.api.gui.FXBorderPanel"
     },
     Sample{
-        name: "Frame"
+        name: "SwingFrame"
         className: "assortis.sources.language.javafx.api.gui.FXFrame"
     },
     ]

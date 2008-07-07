@@ -11,13 +11,13 @@ package assortis.core;
  */
 
 
-import javafx.application.Application;
+import javafx.ext.swing.SwingApplication;
 import java.lang.System;
 
 
 //ProjectManager.setLookAndFeel();
 
-Application{
+SwingApplication{
     content: AssortisProject{ 
         editable: false
         rootModule: "assortis.Configuration"

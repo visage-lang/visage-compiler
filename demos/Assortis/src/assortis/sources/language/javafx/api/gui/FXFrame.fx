@@ -5,6 +5,6 @@ import javafx.ext.swing.*;
 SwingFrame{
     width: 300
     height: 200
-    title: "JavaFX Frame"
-    content: Label{ text: "Frame Example" }
+    title: "JavaFX Swing Frame"
+    content: Label{ text: "Swing Frame Example" }
 }

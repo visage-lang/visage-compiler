@@ -34,7 +34,7 @@ var timeline = Timeline {
 
 timeline.start();
 
-Frame{
+SwingFrame{
     title: "Pendulum"
     
     width: 220

@@ -71,7 +71,7 @@ public class AssortisApplet extends JApplet {
             throw new Error("{errorPrefix}: no ApplicationClass applet param specified");
         }
         if (app != null) {
-            setContentPane(app.content.getJComponent());
+            //setContentPane(app.content.getJComponent());
         }
     }
 
