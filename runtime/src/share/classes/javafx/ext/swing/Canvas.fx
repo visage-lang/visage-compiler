@@ -34,7 +34,6 @@ import java.beans.PropertyChangeEvent;
 import javafx.scene.Node;
 import javafx.scene.Group;
 import javafx.scene.CustomNode;
-import com.sun.javafx.scene.BackgroundSupport;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Color;
 

@@ -29,7 +29,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Color;
-import com.sun.javafx.scene.BackgroundSupport;
 
 // PENDING_DOC_REVIEW_2
 /**

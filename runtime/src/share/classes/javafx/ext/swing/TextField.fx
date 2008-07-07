@@ -39,7 +39,6 @@ import javax.swing.event.DocumentEvent;
 import javafx.scene.HorizontalAlignment;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import com.sun.javafx.scene.BackgroundSupport;
 import com.sun.javafx.scene.Util;
 
 // PENDING_DOC_REVIEW

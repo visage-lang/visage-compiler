@@ -27,7 +27,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.beans.*;
 import com.sun.scenario.scenegraph.JSGPanel;
-import com.sun.javafx.scene.BackgroundSupport;
 
 // PENDING(shannonh) - this is public only to work around a compiler bug.
 // Remove public modifier when resolved.
