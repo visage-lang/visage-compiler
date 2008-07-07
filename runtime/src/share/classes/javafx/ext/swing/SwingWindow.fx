@@ -41,7 +41,7 @@ import javafx.scene.image.Image;
  * A window may have either a frame, dialog, or another window defined as its
  * owner when it's constructed. 
  */
-public class Window extends Container {
+public class SwingWindow extends Container {
 
     private attribute initialized: Boolean = false;
 
@@ -54,7 +54,7 @@ public class Window extends Container {
      * This attribute must be defined before createWindow() is called, so
      * that the window can be created with the owner.
      */
-    public /* set-once */ attribute owner : Window = null;
+    public /* set-once */ attribute owner : SwingWindow = null;
 
     /* constant */ attribute window : java.awt.Window = createWindow();
 

@@ -34,7 +34,7 @@ import java.awt.event.WindowEvent;
  * A {@code Dialog} is a top-level window with a title and a border
  * that is typically used to take some form of input from the user.
  */
-public class Dialog extends Window {
+public class SwingDialog extends SwingWindow {
 
     // PENDING_DOC_REVIEW
     /**

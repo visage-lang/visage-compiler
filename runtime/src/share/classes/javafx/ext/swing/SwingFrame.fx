@@ -42,7 +42,7 @@ import javafx.lang.FX;
  * which can contain a list of {@link Menu}s to provide 
  * better interaction with the user.  
  */
-public class Frame extends Window {
+public class SwingFrame extends SwingWindow {
 
     // PENDING_DOC_REVIEW
     /**
@@ -161,7 +161,7 @@ public class Frame extends Window {
      * {@inheritDoc}
      */
     protected function remove(component: Component): Void {
-        Window.remove(component);
+        SwingWindow.remove(component);
         // PENDING(shannonh) - what I really want here is a deleteByIdentity operator
         // http://openjfx.java.sun.com/jira/browse/JFXC-1005
         var menuIndices = for (menu in menus where FX.isSameObject(menu, component)) indexof menu;
