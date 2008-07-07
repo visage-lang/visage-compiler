@@ -547,7 +547,8 @@ public class JavafxAttr implements JavafxVisitor {
             if (fun != null)
                 log.note(fun, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_FUN_DECL, sym.name);
             log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, sym.name);
-            ((MethodType)pt).restype = new ErrorType();
+            if (pt instanceof MethodType)
+                ((MethodType)pt).restype = new ErrorType();
             sym.type = syms.objectType;
         }
     }

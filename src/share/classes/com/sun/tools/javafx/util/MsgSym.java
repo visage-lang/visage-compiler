@@ -30,6 +30,7 @@ public class MsgSym {
 
     public static final String MESSAGEPREFIX_COMPILER_ERR = "compiler.err."; 
     public static final String MESSAGEPREFIX_COMPILER_WARN = "compiler.warn."; 
+    public static final String MESSAGEPREFIX_COMPILER_NOTE = "compiler.note."; 
     public static final String MESSAGEPREFIX_COMPILER_MISC = "compiler.misc."; 
     public static final String MESSAGEPREFIX_JAVAC = "javac."; 
     public static final String MESSAGEPREFIX_VERBOSE = "verbose."; 

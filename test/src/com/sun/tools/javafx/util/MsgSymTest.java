@@ -57,6 +57,8 @@ public class MsgSymTest {
                 else
                 if (key.startsWith(MsgSym.MESSAGEPREFIX_COMPILER_WARN))
                     map.put(key.substring(MsgSym.MESSAGEPREFIX_COMPILER_WARN.length()), bundle.getString(key));
+                if (key.startsWith(MsgSym.MESSAGEPREFIX_COMPILER_NOTE))
+                    map.put(key.substring(MsgSym.MESSAGEPREFIX_COMPILER_NOTE.length()), bundle.getString(key));
                 else
                 if (key.startsWith(MsgSym.MESSAGEPREFIX_JAVAC))
                     map.put(key.substring(MsgSym.MESSAGEPREFIX_JAVAC.length()), bundle.getString(key));
@@ -132,6 +134,9 @@ public class MsgSymTest {
                 found = keys.contains(cur.substring(MsgSym.MESSAGEPREFIX_COMPILER_ERR.length()));
             else
             if (cur.startsWith(MsgSym.MESSAGEPREFIX_COMPILER_WARN))
+                found = keys.contains(cur.substring(MsgSym.MESSAGEPREFIX_COMPILER_WARN.length()));
+            else
+            if (cur.startsWith(MsgSym.MESSAGEPREFIX_COMPILER_NOTE))
                 found = keys.contains(cur.substring(MsgSym.MESSAGEPREFIX_COMPILER_WARN.length()));
             else
             if (cur.startsWith(MsgSym.MESSAGEPREFIX_JAVAC))
