@@ -79,7 +79,6 @@ public enum FxTokens {
     WHILE(v3Lexer.WHILE),
 
     // Subsidiary keywords
-
     AFTER(v3Lexer.AFTER),
     AND(v3Lexer.AND),
     AS(v3Lexer.AS),
@@ -107,7 +106,6 @@ public enum FxTokens {
     WHERE(v3Lexer.WHERE),
 
     // Punctuation
-
     POUND(v3Lexer.POUND),
     LPAREN(v3Lexer.LPAREN),
     LBRACKET(v3Lexer.LBRACKET),
@@ -145,23 +143,23 @@ public enum FxTokens {
     SUCHTHAT(v3Lexer.SUCHTHAT),
 
     // Literal types
-
     DECIMAL_LITERAL(v3Lexer.DECIMAL_LITERAL),
     FLOATING_POINT_LITERAL(v3Lexer.FLOATING_POINT_LITERAL),
-    STRING_LITERAL(v3Lexer.STRING_LITERAL),
+	HEX_LITERAL(v3Lexer.HEX_LITERAL),
+	OCTAL_LITERAL(v3Lexer.OCTAL_LITERAL),
+	STRING_LITERAL(v3Lexer.STRING_LITERAL),
     RBRACE_QUOTE_STRING_LITERAL(v3Lexer.RBRACE_QUOTE_STRING_LITERAL),
     RBRACE_LBRACE_STRING_LITERAL(v3Lexer.RBRACE_LBRACE_STRING_LITERAL),
     QUOTE_LBRACE_STRING_LITERAL(v3Lexer.QUOTE_LBRACE_STRING_LITERAL),
     TIME_LITERAL(v3Lexer.TIME_LITERAL),
 
     // Other
-
     WS(v3Lexer.WS),
     IDENTIFIER(v3Lexer.IDENTIFIER),
     LINE_COMMENT(v3Lexer.LINE_COMMENT),
     COMMENT(v3Lexer.COMMENT);
 
-    public static TokenSet KEYWORDS = createTokenSet(ABSTRACT, ASSERT, AT, ATTRIBUTE, BIND, BOUND, BREAK,
+    public static final TokenSet KEYWORDS = createTokenSet(ABSTRACT, ASSERT, AT, ATTRIBUTE, BIND, BOUND, BREAK,
             CLASS, CONTINUE, DELETE, FALSE, FOR, FUNCTION, IF, IMPORT, INDEXOF, INIT, INSERT, LET,
             NEW, NOT, NULL, OVERRIDE, PACKAGE, POSTINIT, PRIVATE, PROTECTED, PUBLIC, READONLY, RETURN,
             REVERSE, SUPER, SIZEOF, STATIC, THIS, THROW, TRY, TRUE, TYPEOF, VAR, WHILE);
@@ -174,11 +172,11 @@ public enum FxTokens {
             DOTDOT, RPAREN, RBRACKET, RBRACE, SEMI, COMMA, DOT, EQEQ, EQ, GT, LT, LTGT, LTEQ, GTEQ, PLUS, SUB,
             STAR, SLASH, PERCENT, PLUSEQ, SUBEQ, STAREQ, SLASHEQ, PERCENTEQ, COLON, QUES, TWEEN, SUCHTHAT);
 
-    public static TokenSet STRING_LITERALS = createTokenSet(STRING_LITERAL, RBRACE_LBRACE_STRING_LITERAL, RBRACE_QUOTE_STRING_LITERAL, QUOTE_LBRACE_STRING_LITERAL);
-    public static TokenSet NUMERIC_LITERALS = createTokenSet(DECIMAL_LITERAL, FLOATING_POINT_LITERAL, TIME_LITERAL);
+    public static final TokenSet STRING_LITERALS = createTokenSet(STRING_LITERAL, RBRACE_LBRACE_STRING_LITERAL, RBRACE_QUOTE_STRING_LITERAL, QUOTE_LBRACE_STRING_LITERAL);
+    public static final TokenSet NUMERIC_LITERALS = createTokenSet(DECIMAL_LITERAL, HEX_LITERAL, OCTAL_LITERAL, FLOATING_POINT_LITERAL, TIME_LITERAL);
 
-    public static TokenSet COMMENTS = createTokenSet(COMMENT, LINE_COMMENT);
-    public static TokenSet WHITESPACE = createTokenSet(WS);
+    public static final TokenSet COMMENTS = createTokenSet(COMMENT, LINE_COMMENT);
+    public static final TokenSet WHITESPACE = createTokenSet(WS);
 
     public final int tokenValue;
     public final FxElementType elementType;
@@ -194,9 +192,9 @@ public enum FxTokens {
             tokenArray[t.tokenValue] = t.elementType;
     }
 
-    FxTokens(int tokenValue) {
-        this.tokenValue = tokenValue;
-        this.elementType = new FxElementType(name(), FxPlugin.FX_LANGUAGE, tokenValue);
+    FxTokens(int value) {
+        tokenValue = value;
+        elementType = new FxElementType(name(), FxPlugin.FX_LANGUAGE, value);
     }
 
     public IElementType asElementType() {
