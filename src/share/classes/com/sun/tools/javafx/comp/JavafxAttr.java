@@ -862,10 +862,14 @@ public class JavafxAttr implements JavafxVisitor {
         else {
             hasLhsType = true;
         }
-
-        Symbol lhsSym = JavafxTreeInfo.symbol(tree.lhs);
         Type capturedType = capture(owntype);
 
+        Symbol lhsSym = JavafxTreeInfo.symbol(tree.lhs);
+        if (lhsSym == null) {
+            log.error(tree, MsgSym.MESSAGE_JAVAFX_INVALID_ASSIGNMENT);
+            return;
+        }
+        
         if (hasLhsType) {
             attribExpr(tree.rhs, dupEnv, owntype);
         }

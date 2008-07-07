@@ -329,6 +329,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_MUST_BE_AN_ATTRIBUTE = "javafx.must.be.an.attribute"; 
     public static final String MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE = "javafx.lexer.literal.range";
     public static final String MESSAGE_JAVAFX_BOUND_FUNCTION_MUST_NOT_BE_VOID = "javafx.bound.function.must.not.be.void";
+    public static final String MESSAGE_JAVAFX_INVALID_ASSIGNMENT = "javafx.invalid.assignment";
 
     public static final String MESSAGE_PLUGIN_CANNOT_FIND_PLUGIN = "plugin.cannot.find.plugin"; 
     public static final String MESSAGE_PLUGIN_CANNOT_LOAD_PLUGIN = "plugin.cannot.load.plugin"; 
