@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.RootPaneContainer;
 import javafx.lang.FX;
 import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
 
 // PENDING_DOC_REVIEW
 /**
@@ -73,6 +74,15 @@ public class Window extends Container {
      */
     public /* final */ bound function getName(): String {
         name;
+    }
+
+    // PENDING(shannonh) - synching FROM Swing
+    public attribute icons: Image[] = null on replace {
+        var iconList:java.util.ArrayList = new java.util.ArrayList();
+        for (icon in icons){
+            iconList.add(icon.getBufferedImage());
+        }
+        window.setIconImages(iconList);
     }
 
     /**

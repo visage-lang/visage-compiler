@@ -66,11 +66,6 @@ public class Frame extends Window {
         });
     }
 
-    // PENDING(shannonh) - synching FROM Swing
-    public attribute icon: Icon = null on replace {
-        getJFrame().setIconImage(icon.getImage());
-    }
-
     // PENDING(shannonh) - make bindable
     public attribute iconified: Boolean = false on replace {
         var oldState = BigInteger.valueOf(getJFrame().getExtendedState());
