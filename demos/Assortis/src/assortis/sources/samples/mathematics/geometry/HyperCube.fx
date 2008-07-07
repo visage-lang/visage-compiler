@@ -22,7 +22,7 @@ var timeline = Timeline {
 
 timeline.start();
 
-Frame{
+SwingFrame{
     width:  300
     height: 300
     closeAction: function  () { System.exit(0); } 

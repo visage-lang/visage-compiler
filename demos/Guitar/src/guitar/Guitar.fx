@@ -134,7 +134,7 @@ public class Guitar extends CustomNode {
 
 
 
-Frame {
+SwingFrame {
     title: "Guitar Tuner"
     height: 500
     width: 600

@@ -70,7 +70,7 @@ var timeline = Timeline {
 timeline.start();
 
 
-Frame{
+SwingFrame{
     width: w 
     height: h 
     title: "Planetary System"

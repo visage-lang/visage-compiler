@@ -340,7 +340,7 @@ var timeline = Timeline {
 timeline.start();
 
 
-Frame{
+SwingFrame{
     title: "Simple Electro Simulator"
     width: 300
     height: 200

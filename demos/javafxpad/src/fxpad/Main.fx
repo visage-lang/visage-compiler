@@ -61,9 +61,9 @@ var fileChooser = FileChooser {
        }
 };
 
-var frame:Frame;
+var frame:SwingFrame;
 
-frame = Frame {
+frame = SwingFrame {
     visible: true
     closeAction: function() { System.exit(0); }
     title: "JavaFXPad"

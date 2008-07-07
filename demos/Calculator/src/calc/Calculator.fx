@@ -194,7 +194,7 @@ var canvas = Canvas {
     }]
 }
 
-Frame {
+SwingFrame {
   title: 'JavaFX Calculator'
   background: Color.WHITE
   content: canvas

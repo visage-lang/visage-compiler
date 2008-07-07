@@ -36,7 +36,7 @@ var origCY = 0.0;
 var circle1:Circle;
 var circle2:Circle;
 
-Frame {
+SwingFrame {
     height: 600, width: 500;
     visible: true
     content:

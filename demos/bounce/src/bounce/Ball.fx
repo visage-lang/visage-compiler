@@ -28,7 +28,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.transform.Transform;
-import javafx.ext.swing.Frame;
+import javafx.ext.swing.SwingFrame;
 import javafx.ext.swing.Canvas;
 import javafx.ext.swing.Slider;
 import javafx.ext.swing.Label;
@@ -38,7 +38,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Interpolator;
 import java.lang.System;
 
-Frame {
+SwingFrame {
     closeAction: function() {System.exit(0);}
     title: "Ball";
     visible: true

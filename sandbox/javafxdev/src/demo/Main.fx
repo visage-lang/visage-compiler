@@ -14,7 +14,7 @@ var code = "import javafx.ext.swing.*;\nLabel\{ text: \"Hello World!\"\}\n";
 var error: ErrorMessage;
 var errors: ErrorMessage[];
 
-Frame{
+SwingFrame{
     width: 300
     height: 300
     title: "Preview Example"

@@ -96,7 +96,7 @@ class Tesla extends CustomNode {
     }
 }
         
-Frame {
+SwingFrame {
     //centerOnScreen: true
     visible: true
     height: 800

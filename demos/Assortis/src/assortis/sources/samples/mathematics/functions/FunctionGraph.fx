@@ -104,7 +104,7 @@ var dx = 0.1;
 var scale = 20;
 
 
-Frame{
+SwingFrame{
     width:  300
     height: 300
     title: "Function Graph"

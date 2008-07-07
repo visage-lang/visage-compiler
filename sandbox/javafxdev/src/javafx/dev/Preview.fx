@@ -109,10 +109,10 @@ public class FXUnit {
             unit.content = obj as Component;
         }else if(obj instanceof Node){
             unit.content = Canvas{ content: obj as Node };
-        }else if(obj instanceof Frame){
+        }else if(obj instanceof SwingFrame){
         
             unit.isWindow = true;
-            var frame = obj as Frame;
+            var frame = obj as SwingFrame;
             
             frame.visible = false;
             var title =  frame.title;

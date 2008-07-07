@@ -20,7 +20,7 @@ import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.transform.Transform;
 import javafx.ext.swing.ToggleGroup;
-import javafx.ext.swing.Frame;
+import javafx.ext.swing.SwingFrame;
 import javafx.ext.swing.Menu;
 import javafx.ext.swing.MenuItem;
 import javafx.ext.swing.RadioButtonMenuItem;
@@ -273,7 +273,7 @@ StringLocalizer.associate("javafxballs.resources.JavaFXBalls", "javafxballs");
 var test = new BallsTest();
 
 /*
-var win = Frame {
+var win = SwingFrame {
         title: ##"JavaFX Balls"
         width: 510
         height: 366
@@ -332,7 +332,7 @@ var win = Frame {
 var tg = ToggleGroup {}
 var tg2 = ToggleGroup {}
 
-var win = Frame {
+var win = SwingFrame {
             closeAction: function() {System.exit(0);}
             title: ##"JavaFX Balls"
           visible: true

@@ -26,7 +26,7 @@ var timeline = Timeline {
 
 timeline.start();
 
-Frame {
+SwingFrame {
     title: "Spiral"
     width: 200
     height: 200

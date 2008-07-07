@@ -62,10 +62,10 @@ public class FXUnit {
             //unit.content = CustomWidget{  comp: canvas.getJComponent() };
             unit.content = Canvas{ content: node };
             
-        }else if(obj instanceof javafx.ext.swing.Frame){
+        }else if(obj instanceof javafx.ext.swing.SwingFrame){
         
             unit.isWindow = true;
-            var frame = obj as javafx.ext.swing.Frame;
+            var frame = obj as javafx.ext.swing.SwingFrame;
             
             //java.lang.System.out.println("[visible] set: {false}" );
             frame.visible = false;

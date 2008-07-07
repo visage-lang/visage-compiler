@@ -13,7 +13,7 @@ import javafx.animation.*;
 import javafx.lang.Duration;
 
 
-var frame:Frame;
+var frame:SwingFrame;
 var canvas:Canvas;
 
 // Workaround for lack of local var trigger
@@ -55,7 +55,7 @@ class HomeModel {
 };
 
 
-frame = Frame {
+frame = SwingFrame {
 
     /** various bugs encounted with this attempt - which is itself a workaround for lack of local variable trigger: having these varibles at the top level gets undefined symbol $receiver
 var homeY:Number = 0;

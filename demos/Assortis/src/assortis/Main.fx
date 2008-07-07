@@ -1,6 +1,6 @@
 package assortis;
 
-import javafx.ext.swing.Frame;
+import javafx.ext.swing.SwingFrame;
 import assortis.core.*;
 
 import java.lang.System;
@@ -12,7 +12,7 @@ import java.lang.System;
 
 assortis.core.ProjectManager.setLookAndFeel();
 
-Frame{
+SwingFrame{
     title: "JavaFX Assortis"
     width:  800
     height: 600

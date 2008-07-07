@@ -9,7 +9,7 @@ public class RootPane extends Component, Container {
 
     // PENDING_DOC_REVIEW
     /**
-     * Defines the array of {@link Menu}s to be used by this {@Frame}.
+     * Defines the array of {@link Menu}s to be used by this {@SwingFrame}.
      */
     public attribute menus: Menu[] on replace oldMenus[a..b] = newSlice {
         var pane = getJRootPane();

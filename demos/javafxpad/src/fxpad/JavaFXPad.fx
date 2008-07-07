@@ -236,8 +236,8 @@ public class JavaFXPad extends Component {
                 var script = engine.compile(sourceCode, diags);
             } else{
                 var result = engine.eval(sourceCode, diags);
-                if(result instanceof Frame) {
-                    var f = result as Frame;
+                if(result instanceof SwingFrame) {
+                    var f = result as SwingFrame;
                     var w = f.width;
                     var h = f.height;
                     var component = f.content;

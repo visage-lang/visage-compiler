@@ -2,7 +2,7 @@ package assortis.sources.language.javafx.api.gui;
 
 import javafx.ext.swing.*;
 
-Frame{
+SwingFrame{
     width: 300
     height: 200
     title: "JavaFX Frame"

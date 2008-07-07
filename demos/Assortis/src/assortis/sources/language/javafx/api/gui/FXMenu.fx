@@ -5,7 +5,7 @@ import java.lang.System;
 
 function menuAction(text: String): function() { function() {System.out.println(text);} }
 
-Frame{
+SwingFrame{
     menus: [
         Menu{
             text: "File"
