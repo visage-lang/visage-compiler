@@ -356,7 +356,7 @@
 
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
-    <target name="-post-clean" depends="runtime-clean,javafxdoc-clean,spec-clean,launcher-clean,demos-clean">
+    <target name="-post-clean" depends="runtime-clean,javafxdoc-clean,spec-clean,launcher-clean">
         <!-- Delete ANTLR-generated files -->
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v3*.*" excludes="**/v3.g **/v3Walker.g"/>
         <delete dir="${syntax.diagrams.dir}" />
@@ -494,7 +494,7 @@
         <antcall target="clean"/>
         <ant antfile="bootstrap.xml" target="clean"/>
     </target>
-
+    
     <available property="mail.jar" value="${ant.home}/lib/mail.jar" file="${ant.home}/lib/mail.jar"/>
     
     <target name="weekly-build-check">
