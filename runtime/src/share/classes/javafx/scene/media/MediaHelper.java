@@ -42,7 +42,7 @@ class MediaHelper {
         return vc;
     }
     
-    public static String getStringMetadata(Media mediaInfo, String key) {
+    public static String getStringMetadata(com.sun.media.jmc.Media mediaInfo, String key) {
         return mediaInfo.getMetadata(key, String.class);
     }
 
