@@ -27,7 +27,7 @@ import javafx.application.Application;
 import java.lang.RuntimeException;
 
 /**
- * The Swing {@code Application} subclass uses a singe {@code Component} content
+ * The Swing {@code Application} subclass uses a single {@code Component} content
  * attribute instead of the {@code stage} attribute.
  */
 public class SwingApplication extends Application {
@@ -39,7 +39,7 @@ public class SwingApplication extends Application {
      */
     override attribute stage on replace {
         if (stage != null) {
-            throw new RuntimeException("Use content attribute, not stage, with SwingApplication");
+            throw new RuntimeException("Use content attribute with SwingApplication. To use stage see javafx.application.Application.");
         }
     }
     
