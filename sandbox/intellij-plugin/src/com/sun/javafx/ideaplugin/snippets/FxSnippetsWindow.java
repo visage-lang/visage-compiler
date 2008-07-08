@@ -29,6 +29,8 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.peer.PeerFactory;
+import com.intellij.ui.content.Content;
 import com.sun.javafx.ideaplugin.FxPlugin;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -56,8 +58,8 @@ public class FxSnippetsWindow implements ProjectComponent {
     private final Project project;
     private final JTree tree;
 
-    public FxSnippetsWindow (Project project) {
-        this.project = project;
+    public FxSnippetsWindow (Project proj) {
+        project = proj;
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode ();
         
@@ -126,14 +128,14 @@ public class FxSnippetsWindow implements ProjectComponent {
         tree.expandPath (new TreePath (new Object[] {root, timeline }));
 
         tree.setCellRenderer (new DefaultTreeCellRenderer() {
-            public Component getTreeCellRendererComponent (JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            public Component getTreeCellRendererComponent (JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean focus) {
                 Object pass = value;
                 if (value instanceof CategoryNode) {
                     pass = "<html><b>" + ((CategoryNode) value).getName ();
                 } else if (value instanceof SnippetsNode) {
                     pass = ((SnippetsNode) value).getName ();
                 }
-                Component component = super.getTreeCellRendererComponent (tree, pass, selected, expanded, leaf, row, hasFocus);
+                Component component = super.getTreeCellRendererComponent (tree, pass, sel, expanded, leaf, row, focus);
 
                 if (component instanceof JLabel) {
                     if (value instanceof CategoryNode) {
@@ -172,12 +174,14 @@ public class FxSnippetsWindow implements ProjectComponent {
     }
 
     public void projectOpened () {
-        tree.setPreferredSize (new Dimension (100, 100));
-        ToolWindow window = ToolWindowManager.getInstance (project).registerToolWindow ("FxSnippets", tree, ToolWindowAnchor.RIGHT);
-        window.setIcon (FxPlugin.FX_ICON);
-        window.setTitle ("JavaFX Snippets");
-//        window.show (null);
-//        window.setAvailable (true, null);
+        tree.setPreferredSize(new Dimension (100, 100));
+        ToolWindowManager windowmgr = ToolWindowManager.getInstance (project);
+		ToolWindow window = windowmgr.registerToolWindow("FXSnippets", true, ToolWindowAnchor.RIGHT);
+		PeerFactory pf = PeerFactory.getInstance();
+		Content content = pf.getContentFactory().createContent(tree, "", false);
+		window.getContentManager().addContent(content);
+		window.setIcon(FxPlugin.FX_ICON);
+        window.setTitle("JavaFX Snippets");
     }
 
     public void projectClosed () {
@@ -185,13 +189,13 @@ public class FxSnippetsWindow implements ProjectComponent {
         ToolWindowManager.getInstance (project).unregisterToolWindow ("FxSnippets");
     }
 
-    private static class CategoryNode extends DefaultMutableTreeNode {
+    private static final class CategoryNode extends DefaultMutableTreeNode {
 
         private final String name;
 
-        private CategoryNode (String name) {
-            super (null, true);
-            this.name = name;
+        private CategoryNode (String n) {
+            super(null, true);
+            name = n;
         }
 
         public String getName () {
@@ -200,15 +204,15 @@ public class FxSnippetsWindow implements ProjectComponent {
 
     }
 
-    private static class SnippetsNode extends DefaultMutableTreeNode {
+    private static final class SnippetsNode extends DefaultMutableTreeNode {
 
         private final String name;
         private final String code;
 
-        private SnippetsNode (String name, String code) {
+        private SnippetsNode (String n, String c) {
             super (null, false);
-            this.name = name;
-            this.code = code;
+            name = n;
+            code = c;
         }
 
         public String getName () {
