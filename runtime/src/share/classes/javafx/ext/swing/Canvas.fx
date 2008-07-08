@@ -41,8 +41,6 @@ import javafx.scene.paint.Color;
 // PENDING_DOC_REVIEW
 /**
  * A graphical container for the {@link Node} objects. 
- *  
- * @profile common
  */
 public class Canvas extends Component {
 
@@ -119,8 +117,6 @@ public class Canvas extends Component {
     // PENDING_DOC_REVIEW
     /**
      * The array of {@link Node}s to be rendered on this {@code Canvas}.
-     * 
-     * @profile common
      */    
     public attribute content: Node[] on replace oldNodes[a..b] = newNodes {
         for (node in oldNodes[a..b]) {
