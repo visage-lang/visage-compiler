@@ -46,8 +46,6 @@ import javafx.scene.image.Image;
 // PENDING_DOC_REVIEW
 /**
  * A {@code Frame} object is a top-level window.
- *
- * @profile desktop
  */
 public class Frame extends Window{
 

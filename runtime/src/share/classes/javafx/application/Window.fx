@@ -47,8 +47,6 @@ import javafx.scene.image.Image;
 /**
  * This is a abstract base class for all top-level windows. A window is a toplevel canvas for displaying scene nodes on
  * desktop platforms.
- *
- * @profile desktop
  */
 public abstract class Window {
 

@@ -31,8 +31,6 @@ import javafx.lang.FX;
  * A {@code Dialog} object is a top-level window.
  * <p/>
  * A dialog may have window defined as its owner when it's constructed.
- *
- * @profile desktop
  */
 public class Dialog extends Window {
 
