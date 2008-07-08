@@ -436,23 +436,25 @@ public class JavafxClassReader extends ClassReader {
             ct.supertype_field = translateType(jt.supertype_field);
             ListBuffer<Type> interfaces = new ListBuffer<Type>();
             Type iface = null;
-            for (List<Type> it = jt.interfaces_field;
-                 it.tail != null;
-                 it = it.tail) {
-                Type itype = it.head;
-                if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName)
-                    csym.flags_field |= JavafxFlags.FX_CLASS;
-                else if (itype.tsym.name.endsWith(defs.interfaceSuffixName)) {
-                    iface = itype;
-                    iface.tsym.complete();
-                    assert (csym.fullname.len + defs.interfaceSuffixName.len ==
-                            ((ClassSymbol) itype.tsym).fullname.len) &&
-                           ((ClassSymbol) itype.tsym).fullname.startsWith(csym.fullname);
-                    csym.flags_field |= JavafxFlags.COMPOUND_CLASS;
-                }
-                else {
-                    itype = translateType(itype);
-                    interfaces.append(itype);
+            if (jt.interfaces_field != null) { // true for ErrorType
+                for (List<Type> it = jt.interfaces_field;
+                     it.tail != null;
+                     it = it.tail) {
+                    Type itype = it.head;
+                    if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName)
+                        csym.flags_field |= JavafxFlags.FX_CLASS;
+                    else if (itype.tsym.name.endsWith(defs.interfaceSuffixName)) {
+                        iface = itype;
+                        iface.tsym.complete();
+                        assert (csym.fullname.len + defs.interfaceSuffixName.len ==
+                                ((ClassSymbol) itype.tsym).fullname.len) &&
+                               ((ClassSymbol) itype.tsym).fullname.startsWith(csym.fullname);
+                        csym.flags_field |= JavafxFlags.COMPOUND_CLASS;
+                    }
+                    else {
+                        itype = translateType(itype);
+                        interfaces.append(itype);
+                    }
                 }
             }
            
