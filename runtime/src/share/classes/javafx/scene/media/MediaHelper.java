@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.scene;
+package javafx.scene.media;
 
 import com.sun.media.jmc.*;
 import com.sun.media.jmc.control.VideoControl;
@@ -29,7 +29,7 @@ import com.sun.media.jmc.control.VideoControl;
 /**
  * 
  */
-public class MediaHelper {
+class MediaHelper {
     
     // FX doesn't seem to like our generics, esp. w/
     // classes or unitialized objects obj.getClass()

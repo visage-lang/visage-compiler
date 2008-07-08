@@ -26,7 +26,6 @@ package javafx.scene.media;
 import javafx.lang.Duration;
 //import com.sun.media.jmc.Media;
 import java.net.URI;
-import com.sun.javafx.scene.MediaHelper;
 import java.lang.System;
 import java.lang.Exception;
 

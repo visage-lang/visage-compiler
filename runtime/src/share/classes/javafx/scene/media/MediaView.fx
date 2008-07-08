@@ -32,7 +32,6 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.lang.System;
-import com.sun.javafx.scene.MediaHelper;
 import javafx.scene.Node;
 
 /**
