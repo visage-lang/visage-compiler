@@ -469,7 +469,7 @@
   <component name="libraryTable">
     <library name="fxlibs">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/lib/javafxc.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../../dist/lib/javafxc.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />
