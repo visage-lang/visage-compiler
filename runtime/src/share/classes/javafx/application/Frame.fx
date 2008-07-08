@@ -24,6 +24,11 @@
 package javafx.application;
 
 import java.math.BigInteger;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowStateListener;
 import java.awt.event.ComponentListener;
 import java.awt.event.ComponentEvent;
 import java.awt.LayoutManager;
@@ -82,4 +87,29 @@ public class Frame extends Window{
         WindowImpl.createJFrame();
     }
 
+    postinit {
+        var jFrame =  (window as JFrame);
+
+        jFrame.addPropertyChangeListener(PropertyChangeListener {
+            public function propertyChange(e: PropertyChangeEvent): Void {
+                if (ignoreWindowChange) {
+                    return;
+                }
+
+                var propName = e.getPropertyName();
+                if ("title".equals(propName)) {
+                    title = jFrame.getTitle();
+                } else if ("resizable".equals(propName)) {
+                    resizable = jFrame.isResizable();
+                }
+            }
+        });
+
+        jFrame.addWindowStateListener(WindowStateListener {
+            public function windowStateChanged(e: WindowEvent): Void {
+                var state = BigInteger.valueOf(e.getNewState());
+                iconified = state.testBit(0); // Frame.ICONIFIED = 1
+            }
+        });
+    }
 }

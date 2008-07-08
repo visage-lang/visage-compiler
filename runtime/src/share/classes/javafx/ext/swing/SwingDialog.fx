@@ -52,8 +52,6 @@ public class SwingDialog extends SwingWindow {
         });
     }
 
-    public attribute closeAction: function(): Void = close;
-
     // PENDING_DOC_REVIEW
     /**
      * Defines whether this dialog is resizable by the user.
@@ -79,14 +77,6 @@ public class SwingDialog extends SwingWindow {
                 } else if ("resizable".equals(propName)) {
                     resizable = e.getNewValue() as Boolean;
                 } 
-            }
-        });
-
-        jDialog.addWindowListener(WindowAdapter {
-            public function windowClosing(e: WindowEvent): Void {
-                if (closeAction != null) {
-                    closeAction();
-                }
             }
         });
     }

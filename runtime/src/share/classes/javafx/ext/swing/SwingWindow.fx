@@ -23,6 +23,8 @@
 
 package javafx.ext.swing;
 
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.ComponentListener;
 import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeListener;
@@ -81,6 +83,8 @@ public class SwingWindow extends Container {
     public /* final */ bound function getName(): String {
         name;
     }
+
+    public attribute closeAction: function(): Void = close;
 
     // PENDING(shannonh) - synching FROM Swing
     public attribute icons: Image[] = null on replace {
@@ -261,6 +265,14 @@ public class SwingWindow extends Container {
             }
         });
 
+        w.addWindowListener(WindowAdapter {
+            public function windowClosing(e: WindowEvent): Void {
+                if (closeAction != null) {
+                    closeAction();
+                }
+            }
+        });
+
         initialized = true;
     }
 
@@ -286,12 +298,14 @@ public class SwingWindow extends Container {
         window.toBack();
     }
 
-
-    // PENDING(shannonh) - JavaDoc. Something like:
-    // Close this window and indicate that there's no intention to use it again.
-    // If this is an application (vs. Applet), VM will exit after all windows
-    // are closed. Window *can* be shown again with setVisible(true)
+    // PENDING_DOC_REVIEW
+    /**
+     * Close this window and indicate that there's no intention to use it again. If this is an application (vs. Applet),
+     * VM will exit after all windows are closed provided all Timelines are stoped as well. Window *can* be shown again
+     * with {@code visible = true}.
+     */
     public function close(): Void {
+        visible = false;
         window.dispose();
     }
 

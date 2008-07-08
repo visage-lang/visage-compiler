@@ -109,6 +109,6 @@ public class Application {
      * 
      * @profile common
      */
-    public attribute stage: java.lang.Object;
+    public attribute stage: Stage;
 
 }

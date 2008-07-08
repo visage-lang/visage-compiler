@@ -24,6 +24,10 @@
 package javafx.application;
 
 import java.math.BigInteger;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.ComponentListener;
 import java.awt.event.ComponentEvent;
 import java.awt.LayoutManager;
@@ -68,16 +72,6 @@ public abstract class Window {
         });
     }
 
-    /**
-     * Returns this {@code Window's} name,
-     * or {@code null} if it doesn't have a name.
-     * 
-     * @return this {@code Window's} name or {@code null}
-     */
-    public /* final */ bound function getName(): String {
-        name;
-    }
-
     public attribute closeAction: function(): Void = close;
     
     // PENDING_DOC_REVIEW
@@ -98,34 +92,17 @@ public abstract class Window {
 
     abstract function setWindowResizable(resizable:Boolean): Void;
 
-    // PENDING(shannonh) - synching FROM Swing
+    // PENDING_DOC_REVIEW
+    /**
+     * Defines the icon images to be used in the window decorations and when minimized. The images should be different
+     * sizes of the same thing and the best size will be chosen, eg. 16x16, 32,32.
+     */
     public attribute icons: Image[] = null on replace {
         var iconList:java.util.ArrayList = new java.util.ArrayList();
         for (icon in icons){
             iconList.add(icon.getBufferedImage());
         }
         window.setIconImages(iconList);
-    }
-
-    private function getRoot(): SGGroup {
-        canvas.getScene() as SGGroup;
-    }
-
-    // PENDING_DOC_REVIEW
-    /**
-     * The array of {@link Node}s to be rendered on this {@code Window}.
-     *
-     * @profile common
-     */
-    public attribute content: Node[] on replace oldNodes[a..b] = newNodes {
-        for (node in oldNodes[a..b]) {
-            getRoot().remove(node.impl_getFXNode());
-        }
-        var index = a;
-        for (node in newNodes) {
-            getRoot().add(index, node.impl_getFXNode());
-            index = index + 1;
-        }
     }
 
     // PENDING(shannonh) - binding support for x, y, width, height, visible
@@ -148,6 +125,10 @@ public abstract class Window {
             dim.width = width;
             window.setSize(dim);
         }
+        // update stage size
+        if (stage != null){
+            stage.height = height;
+        }
     }
 
     public attribute height: Integer = UNINITIALIZED on replace {
@@ -155,6 +136,11 @@ public abstract class Window {
             var dim = window.getSize();
             dim.height = height;
             window.setSize(dim);
+        }
+        // update stage size
+        if (stage != null){
+            // PENDING(jasper) need to subtract menubar height from here
+            stage.height = height;
         }
     }
 
@@ -164,66 +150,16 @@ public abstract class Window {
         }
     }
 
-    private function setWindowVisibility(visible: Boolean): Void {
-        if (visible) {
-            if (width == UNINITIALIZED or height == UNINITIALIZED) {
-                window.pack();
-                if (width == UNINITIALIZED) {
-                    width = window.getSize().width;
-                }
-                if (height == UNINITIALIZED) {
-                    height = window.getSize().height;
-                }
-            }
-
-            window.setSize(width, height);
-
-            setLocation();
-        }
-
-        window.setVisible(visible);
-    }
-
-    function setLocation(){
-        if (not window.isLocationByPlatform() and (window.getX() == 0) and (window.getY() == 0)) {
-            window.setLocationRelativeTo(null);
-        }
-    }
-
-    // PENDING_DOC_REVIEW
-    /*
-     * Defines the background fill of this {@code Window}. If {@code null} the window will paint no background or
-     * decorations(like title bar) and the opacity of the contents will depend on the alpha at which they a drawn. Often
-     * this is referred to as "per-pixel transparency". Pixels that are 100% transparent (ie. no content has been drawn
-     * there) do not accept mouse events. The mouse events pass directly to the window behind as if this window did not
-     * exist for that pixel. This differs from {@code opacity} as it only makes the window background and decorations
-     * 100% transparent not effecting the transparency of any content drawn in the window. This only has effect if the
-     * platform supports it. Currently Sun Java 6u10 or newer and Apple Java support this.
+    /**
+     * This is the stage that the window presents on screen for showing content.
      */
-    public attribute fill: Paint = Color.fromAWTColor(window.getBackground()) on replace {
-        // detect if Paint contains transparency, if it does then make window per-pixel transparent
-        // Note: Any new Paint subclasses need to be added here
-        var transparent:Boolean = fill == null;
-        if (fill instanceof Color) {
-            var color:Color = fill as Color;
-            transparent = color.opacity != 1;
-        } else if (fill instanceof LinearGradient) {
-            var g:LinearGradient = fill as LinearGradient;
-            for (stop in g.stops){
-                transparent = transparent or stop.color.opacity != 1;
-            }
-        } else if (fill instanceof RadialGradient) {
-            var g:RadialGradient = fill as RadialGradient;
-            for (stop in g.stops){
-                transparent = transparent or stop.color.opacity != 1;
-            }
+    public attribute stage: Stage on replace{
+        if (stage != null){
+            stage.width = width;
+            // PENDING(jasper) need to subtract menubar height from here
+            stage.height = height;
         }
-        WindowImpl.setWindowTransparency(window,transparent);
-        var rootPaneContainer:RootPaneContainer = window as RootPaneContainer;
-        var rootPane:WindowImpl.RootPaneImpl = rootPaneContainer.getRootPane() as WindowImpl.RootPaneImpl;
-        //rootPane.setBackgroundPaint(fill.getAWTPaint());
-        canvas.setBackgroundPaint(fill.getAWTPaint());
-    }
+    };
 
     // PENDING_DOC_REVIEW
     /**
@@ -236,18 +172,6 @@ public abstract class Window {
      */
     public attribute opacity:Number = 1.0 on replace {
         WindowImpl.setWindowOpacity(window,opacity);
-    }
-
-
-    private attribute isWindowInitialized: Boolean = false;
-
-    protected function doAndIgnoreWindowChange(func: function(): Void) {
-        try {
-            ignoreWindowChange = true;
-            func();
-        } finally {
-            ignoreWindowChange = false;
-        }
     }
 
     postinit {
@@ -307,11 +231,15 @@ public abstract class Window {
             }
         });
 
-        initialized = true;
-    }
+        w.addWindowListener(WindowAdapter {
+            public function windowClosing(e: WindowEvent): Void {
+                if (closeAction != null) {
+                    closeAction();
+                }
+            }
+        });
 
-    private function getRootPaneContainer(): RootPaneContainer {
-        window as RootPaneContainer;
+        initialized = true;
     }
 
     // PENDING_DOC_REVIEW
@@ -332,12 +260,14 @@ public abstract class Window {
         window.toBack();
     }
 
-
-    // PENDING(shannonh) - JavaDoc. Something like:
-    // Close this window and indicate that there's no intention to use it again.
-    // If this is an application (vs. Applet), VM will exit after all windows
-    // are closed. Window *can* be shown again with setVisible(true)
+    // PENDING_DOC_REVIEW
+    /**
+     * Close this window and indicate that there's no intention to use it again. If this is an application (vs. Applet),
+     * VM will exit after all windows are closed provided all Timelines are stoped as well. Window *can* be shown again
+     * with {@code visible = true}.
+     */
     public function close(): Void {
+        visible = false;
         window.dispose();
     }
 
@@ -350,8 +280,100 @@ public abstract class Window {
         panel.setOpaque(true); // panel is non-opaque as background is painted for us by root pane
         panel.setLayout(createLayoutManager());
         panel.setScene(new SGGroup());
-//        panel.setBackground(new java.awt.Color(255,128,128,128));
         return panel;
+    }
+
+    function setLocation(){
+        if (not window.isLocationByPlatform() and (window.getX() == 0) and (window.getY() == 0)) {
+            window.setLocationRelativeTo(null);
+        }
+    }
+
+    function doAndIgnoreWindowChange(func: function(): Void) {
+        try {
+            ignoreWindowChange = true;
+            func();
+        } finally {
+            ignoreWindowChange = false;
+        }
+    }
+
+    private attribute isWindowInitialized: Boolean = false;
+
+    /** bound to stage.content so we can react to changes */
+    private attribute stageContent: Node[] = bind stage.content on replace oldNodes[a..b] = newNodes {
+        for (node in oldNodes[a..b]) {
+            getRoot().remove(node.impl_getFXNode());
+        }
+        var index = a;
+        for (node in newNodes) {
+            getRoot().add(index, node.impl_getFXNode());
+            index = index + 1;
+        }
+    }
+
+    /**
+     * Bound to stage.fill so we can react to changes.
+     * <p/>
+     * If {@code null} the window will paint no background or decorations(like title bar) and the opacity of the
+     * contents will depend on the alpha at which they a drawn. Often this is referred to as "per-pixel transparency".
+     * Pixels that are 100% transparent (ie. no content has been drawn there) do not accept mouse events. The mouse
+     * events pass directly to the window behind as if this window did not exist for that pixel. This differs from
+     * {@code opacity} as it only makes the window background and decorations 100% transparent not effecting the
+     * transparency of any content drawn in the window. This only has effect if the platform supports it. Currently
+     * Sun Java 6u10 or newer and Apple Java support this.
+     */
+    private attribute stageFill: Paint = bind stage.fill on replace {
+        // detect if Paint contains transparency, if it does then make window per-pixel transparent
+        // Note: Any new Paint subclasses need to be added here
+        var transparent:Boolean = stageFill == null;
+        if (stageFill instanceof Color) {
+            var color:Color = stageFill as Color;
+            transparent = color.opacity != 1;
+        } else if (stageFill instanceof LinearGradient) {
+            var g:LinearGradient = stageFill as LinearGradient;
+            for (stop in g.stops){
+                transparent = transparent or stop.color.opacity != 1;
+            }
+        } else if (stageFill instanceof RadialGradient) {
+            var g:RadialGradient = stageFill as RadialGradient;
+            for (stop in g.stops){
+                transparent = transparent or stop.color.opacity != 1;
+            }
+        }
+        WindowImpl.setWindowTransparency(window,transparent);
+        var rootPaneContainer:RootPaneContainer = window as RootPaneContainer;
+        var rootPane:WindowImpl.RootPaneImpl = rootPaneContainer.getRootPane() as WindowImpl.RootPaneImpl;
+        //rootPane.setBackgroundPaint(stageFill.getAWTPaint());
+        canvas.setBackgroundPaint(stageFill.getAWTPaint());
+    }
+
+    private function getRoot(): SGGroup {
+        canvas.getScene() as SGGroup;
+    }
+
+    private function getRootPaneContainer(): RootPaneContainer {
+        window as RootPaneContainer;
+    }
+
+    private function setWindowVisibility(visible: Boolean): Void {
+        if (visible) {
+            if (width == UNINITIALIZED or height == UNINITIALIZED) {
+                window.pack();
+                if (width == UNINITIALIZED) {
+                    width = window.getSize().width;
+                }
+                if (height == UNINITIALIZED) {
+                    height = window.getSize().height;
+                }
+            }
+
+            window.setSize(width, height);
+
+            setLocation();
+        }
+
+        window.setVisible(visible);
     }
 
     /**
@@ -360,7 +382,7 @@ public abstract class Window {
     private function createLayoutManager() {
         LayoutManager {
             public function layoutContainer(p:Container):Void {
-                for (node in content) {
+                for (node in stage.content) {
                     doLayout(node);
                     updateCachedBounds(node);
                 }

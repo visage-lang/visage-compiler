@@ -25,9 +25,8 @@ package javafx.ext.swing;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-import java.awt.event.WindowStateListener;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowAdapter;
+import java.awt.event.WindowStateListener;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -59,8 +58,6 @@ public class SwingFrame extends SwingWindow {
             getJFrame().setTitle(title);
         });
     }
-
-    public attribute closeAction: function(): Void = close;
 
     // PENDING_DOC_REVIEW
     /**
@@ -151,14 +148,6 @@ public class SwingFrame extends SwingWindow {
             public function windowStateChanged(e: WindowEvent): Void {
                 var state = BigInteger.valueOf(e.getNewState());
                 iconified = state.testBit(0); // Frame.ICONIFIED = 1
-            }
-        });
-        
-        jFrame.addWindowListener(WindowAdapter {
-            public function windowClosing(e: WindowEvent): Void {
-                if (closeAction != null) {
-                    closeAction();
-                }
             }
         });
     }

@@ -23,6 +23,8 @@
 
 package javafx.application;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 import javax.swing.JDialog;
 import javafx.lang.FX;
 
@@ -67,6 +69,25 @@ public class Dialog extends Window {
     function setWindowResizable(resizable:Boolean): Void {
         doAndIgnoreWindowChange(function() {
             (window as JDialog).setResizable(resizable);
+        });
+    }
+
+    postinit {
+        var jDialog = window as JDialog;
+
+        jDialog.addPropertyChangeListener(PropertyChangeListener {
+            public function propertyChange(e: PropertyChangeEvent): Void {
+                if (ignoreWindowChange) {
+                    return;
+                }
+
+                var propName = e.getPropertyName();
+                if ("title".equals(propName)) {
+                    title = e.getNewValue() as String;
+                } else if ("resizable".equals(propName)) {
+                    resizable = e.getNewValue() as Boolean;
+                }
+            }
         });
     }
 }
