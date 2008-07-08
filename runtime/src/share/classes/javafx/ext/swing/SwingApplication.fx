@@ -39,7 +39,7 @@ public class SwingApplication extends Application {
      */
     override attribute stage on replace {
         if (stage != null) {
-            throw new RuntimeException("Use content attribute with SwingApplication. To use stage see javafx.application.Application.");
+            throw new RuntimeException("Use content attribute with SwingApplication. Use stage with javafx.application.Application directly.");
         }
     }
     
