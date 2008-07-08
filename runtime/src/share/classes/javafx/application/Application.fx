@@ -35,6 +35,8 @@ public class Application {
     /**
      * Called when Application is being started and before it
      * is displayed.
+     * 
+     * @profile common
      */ 
     public attribute onStart:function():Void;
     
@@ -43,6 +45,8 @@ public class Application {
      * Typically when the application window is made active or when the document
      * containing the Application is made active in the browser or in the case of 
      * a mobile device when the user switches to the application.
+     * 
+     * @profile common
      */ 
     public attribute onResume:function():Void;
     
@@ -51,45 +55,59 @@ public class Application {
      * Called when the Application is being put into - i.e. when the window with the application
      * looses focus, or the document containing the Application is no longer the active
      * document in the browser or the application is running on background in the 
-     * mobile device. 
+     * mobile device.
+     * 
+     * @profile common
      */ 
     public attribute onSuspend:function():Void;
     
 
     /**
      * Called when the application is about to exit. The UI components of
-     * the application might no longer be visible. 
+     * the application might no longer be visible.
+     * 
+     * @profile common
      */
     public attribute onExit:function():Void;
     
     /**
      * Specifies if the Application is in suspended or running 
-     * state. 
+     * state.
+     * 
+     * @profile common
      */ 
     public attribute /*read-only*/ suspended:Boolean;       
     
     /**
      * Requests the application to exit. The onExit callback is called after this
      * method is executed.
+     * 
+     * @profile common
      */ 
     public function exit() {};
     
     /**
      * Requests the application to go to the suspend() mode. On desktop it
      * would typically mean minimize. In the case application is in suspended
-     * mode, the function has no effect. 
+     * mode, the function has no effect.
+     * 
+     * @profile common
      */
     public function suspend() {};
     
     /**
      * Requests the application to go to back from the suspend mode to normal 
      * (resumed) operation. In the case the application is already running (i.e. 
-     * it is no longer suspended), the function has no effect. 
+     * it is no longer suspended), the function has no effect.
+     * 
+     * @profile common
      */
     public function resume() {};
 
     /**
      * The stage for the application content.
+     * 
+     * @profile common
      */
     public attribute stage: java.lang.Object;
 
