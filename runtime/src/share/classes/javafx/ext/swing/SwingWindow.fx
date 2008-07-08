@@ -39,7 +39,13 @@ import javafx.scene.image.Image;
  * A {@code Window} object is a top-level window.
  * <p/>
  * A window may have either a frame, dialog, or another window defined as its
- * owner when it's constructed. 
+ * owner when it's constructed.
+ * <p>
+ * This class exists temporarily to allow for building applications based on
+ * hierarchies of Swing based {@code Components}. In the future, the intention
+ * is to turn {@code Component} into a {@code Node} and move layout into the
+ * {@code Node} world. At that time, this class will dissapear, and only
+ * {@link javafx.application.Window} will remain.
  */
 public class SwingWindow extends Container {
 

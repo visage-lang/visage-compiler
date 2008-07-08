@@ -41,6 +41,12 @@ import javafx.lang.FX;
  * A {@code Frame} is a top-level window with a title and a border
  * which can contain a list of {@link Menu}s to provide 
  * better interaction with the user.  
+ * <p>
+ * This class exists temporarily to allow for building applications based on
+ * hierarchies of Swing based {@code Components}. In the future, the intention
+ * is to turn {@code Component} into a {@code Node} and move layout into the
+ * {@code Node} world. At that time, this class will dissapear, and only
+ * {@link javafx.application.Frame} will remain.
  */
 public class SwingFrame extends SwingWindow {
 

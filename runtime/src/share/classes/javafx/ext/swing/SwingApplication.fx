@@ -29,6 +29,12 @@ import java.lang.RuntimeException;
 /**
  * The Swing {@code Application} subclass uses a single {@code Component} content
  * attribute instead of the {@code stage} attribute.
+ * <p>
+ * This class exists temporarily to allow for building applications based on
+ * hierarchies of Swing based {@code Components}. In the future, the intention
+ * is to turn {@code Component} into a {@code Node} and move layout into the
+ * {@code Node} world. At that time, this class will dissapear, and only
+ * {@link javafx.application.Application} will remain.
  */
 public class SwingApplication extends Application {
 

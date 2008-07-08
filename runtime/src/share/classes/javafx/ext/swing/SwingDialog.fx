@@ -33,6 +33,12 @@ import java.awt.event.WindowEvent;
 /**
  * A {@code Dialog} is a top-level window with a title and a border
  * that is typically used to take some form of input from the user.
+ * <p>
+ * This class exists temporarily to allow for building applications based on
+ * hierarchies of Swing based {@code Components}. In the future, the intention
+ * is to turn {@code Component} into a {@code Node} and move layout into the
+ * {@code Node} world. At that time, this class will dissapear, and only
+ * {@link javafx.application.Dialog} will remain.
  */
 public class SwingDialog extends SwingWindow {
 
