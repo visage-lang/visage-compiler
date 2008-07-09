@@ -307,7 +307,7 @@ public class JavafxClassReader extends ClassReader {
                     if (tsym.type == type)
                         ntype = (ClassType) sym.type;
                     else
-                        ntype = new ClassType(null, null, sym) {
+                        ntype = new ClassType(Type.noType, List.<Type>nil(), sym) {
                             boolean completed = false;
                             @Override
                             public Type getEnclosingType() {

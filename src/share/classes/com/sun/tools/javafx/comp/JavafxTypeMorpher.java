@@ -307,7 +307,7 @@ public class JavafxTypeMorpher {
                     String str = t.tsym.name.toString().replace("$", ".");
                     ClassSymbol csym = new JavafxClassSymbol(0, names.fromString(str), t.tsym.owner);
                     csym.flags_field |= JavafxFlags.COMPOUND_CLASS;
-                    Type tp = new ClassType(null, null, csym);
+                    Type tp = new ClassType(Type.noType, List.<Type>nil(), csym);
                     newActuals = newActuals.append(tp);
                     break;
                 }
