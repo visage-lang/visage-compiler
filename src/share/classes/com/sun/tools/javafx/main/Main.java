@@ -406,7 +406,7 @@ public class Main {
         for (File jar : jars) {
             try {
                 plugin  = null;
-                urls[0] = jar.toURL();
+                urls[0] = jar.toURI().toURL();
                 URLClassLoader loader = new URLClassLoader(urls);
                 InputStream    stream = loader.getResourceAsStream(
                     "META-INF/services/" + PlatformPlugin.SERVICE);
@@ -589,6 +589,11 @@ public class Main {
             }
 
             context.put(Log.outKey, out);
+            
+            if (options.get("-no-java-check") == null && !checkJavaVersion()) {
+                Log.printLines(out, getJavafxLocalizedString(MsgSym.MESSAGE_JAVAFX_ERR_WRONG_JAVA_VERSION));
+                return EXIT_SYSERR;
+            }
 
             fileManager = context.get(JavaFileManager.class);
 
@@ -645,6 +650,12 @@ public class Main {
             options = null;
         }
         return EXIT_OK;
+    }
+    
+    /** Check java-version (currently only JDK 1.6 supported).
+     */
+    private static boolean checkJavaVersion() {
+        return System.getProperty("java.version").startsWith("1.6");
     }
 
     /** Print a message reporting an internal error.

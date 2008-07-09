@@ -166,6 +166,7 @@ public class RecognizedOptions {
         XD,
         DUMPJAVA,
         DUMPFX,
+        NO_JAVA_CHECK,
         SOURCEFILE);
 
     static Set<OptionName> javacFileManagerOptions = EnumSet.of(
@@ -583,6 +584,9 @@ public class RecognizedOptions {
         // Javafxc-specific options
         new HiddenOption(DUMPJAVA),
         new HiddenOption(DUMPFX),
+        
+    // Skip check of java-version
+    new HiddenOption(NO_JAVA_CHECK),
 
         /*
 	 * TODO: With apt, the matches method accepts anything if

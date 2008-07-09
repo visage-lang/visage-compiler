@@ -90,7 +90,8 @@ public enum OptionName {
     XD("-XD"),
     SOURCEFILE("sourcefile"),
     DUMPJAVA("-dumpjava"),
-    DUMPFX("-dumpfx");
+    DUMPFX("-dumpfx"),
+    NO_JAVA_CHECK("-no-java-check");
 
     public final String optionName;
 

@@ -63,6 +63,10 @@
         <available property="has-jdk-1.5" classname="java.lang.Appendable"/>
     </target>
 
+    <target name="check-jdk-1.6">
+        <available property="has-jdk-1.6" classname="java.awt.LinearGradientPaint"/>
+    </target>
+
     <target name="check-bootstrap">
         <condition property="has-bootstrap-dirs">
             <and>
@@ -101,8 +105,8 @@
         <property name="test-sys-prop.test.fx.includes" value="${test.fx.includes}"/>
     </target>
 
-    <target name="-pre-init" depends="check-ant,check-jdk-1.5,do-bootstrap,tool-paths,single-fx-test-check">
-        <fail unless="has-jdk-1.5">You need JDK 1.5 or higher to build JavaFX.</fail>
+    <target name="-pre-init" depends="check-ant,check-jdk-1.6,do-bootstrap,tool-paths,single-fx-test-check">
+        <fail unless="has-jdk-1.6">You need JDK 1.6 or higher to build JavaFX.</fail>
         <echo message="JDK version ${java.version}"/>
         <echo message="Ant version ${ant.version}"/>
     </target>
