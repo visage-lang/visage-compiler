@@ -30,7 +30,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import javafx.scene.*;
 import javafx.scene.paint.*;
-import com.sun.javafx.application.JSGPanelImpl;
+import com.sun.javafx.scene.JSGPanelImpl;
 
 /**
  * CanvasStageImpl provides a JSGPanel based implementation of Stage.

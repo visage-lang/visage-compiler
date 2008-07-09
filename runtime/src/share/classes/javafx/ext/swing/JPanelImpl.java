@@ -25,7 +25,7 @@ package javafx.ext.swing;
 
 import javax.swing.JPanel;
 import java.awt.Graphics;
-import com.sun.javafx.application.BackgroundSupport;
+import com.sun.javafx.scene.BackgroundSupport;
 
 // PENDING(shannonh) - this is public only to work around a compiler bug.
 // Remove public modifier when resolved.

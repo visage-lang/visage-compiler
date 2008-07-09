@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.application;
+package com.sun.javafx.scene;
 
 import java.beans.*;
 import java.awt.Graphics;

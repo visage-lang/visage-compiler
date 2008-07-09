@@ -36,8 +36,8 @@ import javafx.scene.Group;
 import javafx.scene.CustomNode;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Color;
-import com.sun.javafx.application.BackgroundSupport;
-import com.sun.javafx.application.JSGPanelImpl;
+import com.sun.javafx.scene.BackgroundSupport;
+import com.sun.javafx.scene.JSGPanelImpl;
 
 
 // PENDING_DOC_REVIEW

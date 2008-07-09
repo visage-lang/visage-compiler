@@ -40,7 +40,7 @@ import javafx.scene.HorizontalAlignment;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import com.sun.javafx.scene.Util;
-import com.sun.javafx.application.BackgroundSupport;
+import com.sun.javafx.scene.BackgroundSupport;
 
 // PENDING_DOC_REVIEW
 /**

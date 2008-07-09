@@ -26,7 +26,7 @@ package javafx.ext.swing;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import java.awt.Graphics;
-import com.sun.javafx.application.BackgroundSupport;
+import com.sun.javafx.scene.BackgroundSupport;
 
 // PENDING(shannonh) - this is public only to work around a compiler bug.
 // Remove public modifier when resolved.
