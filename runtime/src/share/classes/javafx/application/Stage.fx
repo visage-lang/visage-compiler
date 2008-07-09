@@ -34,8 +34,8 @@ import javafx.scene.paint.*;
 public class Stage {
 
     // PENDING_DOC_REVIEW
-    /*
-     * The width of the area for which content is displayed on this {@code Stage}
+    /**
+     * The width of this {@code Stage}
      *
      * @profile common
      * @readonly
@@ -43,8 +43,8 @@ public class Stage {
     public attribute /*read-only*/  width:Integer;
 
     // PENDING_DOC_REVIEW
-    /*
-     * The height of the area for which content is displayed on this {@code Stage}
+    /**
+     * The height of this {@code Stage}
      *
      * @profile common
      * @readonly
@@ -52,9 +52,9 @@ public class Stage {
     public attribute /*read-only*/  height:Integer;
 
     // PENDING_DOC_REVIEW
-    /*
+    /**
      * Defines the background fill of this {@code Stage}. Both a {@code null} value meaning paint no background and a
-     * Paint with transparency are supported but what is painted behind it will depend on the platform.
+     * Paint with transparency are supported, but what is painted behind it will depend on the platform.
      *
      * @profile common
      */

@@ -87,6 +87,10 @@ public class SwingWindow extends Container {
     public attribute closeAction: function(): Void = close;
 
     // PENDING(shannonh) - synching FROM Swing
+    /**
+     * Defines the icon images to be used in the window decorations and when minimized. The images should be different
+     * sizes of the same thing and the best size will be chosen, eg. 16x16, 32,32.
+     */
     public attribute icons: Image[] = null on replace {
         var iconList:java.util.ArrayList = new java.util.ArrayList();
         for (icon in icons){

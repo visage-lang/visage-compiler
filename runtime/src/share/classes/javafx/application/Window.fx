@@ -24,8 +24,6 @@
 package javafx.application;
 
 import java.math.BigInteger;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.ComponentListener;
@@ -122,7 +120,7 @@ public abstract class Window {
         }
         // update stage size
         if (stage != null){
-            stage.height = height;
+            stage.width = width;
         }
     }
 
