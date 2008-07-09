@@ -489,6 +489,7 @@ public class JavafxClassReader extends ClassReader {
                 long flags = l.head.flags_field;
                 if ((flags & PRIVATE) != 0)
                     continue;
+                boolean accessExplicit = false;
                 for (Attribute.Compound a : l.head.getAnnotationMirrors()) {
                     JavafxSymtab javafxSyms = (JavafxSymtab) this.syms;
                     if (a.type.tsym.flatName() == javafxSyms.javafx_staticAnnotationType.tsym.flatName()) {
@@ -497,20 +498,25 @@ public class JavafxClassReader extends ClassReader {
                     if (a.type.tsym.flatName() == javafxSyms.javafx_privateAnnotationType.tsym.flatName()) {
                         flags &= ~(Flags.PROTECTED | Flags.PUBLIC);
                         flags |=  Flags.PRIVATE;
+                        accessExplicit = true;
                     }
                     else if (a.type.tsym.flatName() == javafxSyms.javafx_protectedAnnotationType.tsym.flatName()) {
                         flags &= ~(Flags.PRIVATE | Flags.PUBLIC);
                         flags |=  Flags.PROTECTED;
+                        accessExplicit = true;
                     }
                     else if (a.type.tsym.flatName() == javafxSyms.javafx_publicAnnotationType.tsym.flatName()) {
                         flags &= ~(Flags.PROTECTED | Flags.PRIVATE);
                         flags |=  Flags.PUBLIC;
+                        accessExplicit = true;
                     }
                     else if (a.type.tsym.flatName() == javafxSyms.javafx_inheritedAnnotationType.tsym.flatName()) {
                         continue handleSyms;
                     }
                 }
-
+                if (! accessExplicit && iface != null) {
+                    flags &= ~(Flags.PRIVATE | Flags.PROTECTED | Flags.PUBLIC);
+                }
                 if (l.head instanceof MethodSymbol) {
                     if (name == defs.runMethodName || name == defs.initializeName ||
                             name == defs.postInitName || name == defs.userInitName ||
@@ -528,7 +534,7 @@ public class JavafxClassReader extends ClassReader {
                     if (boundStringIndex != -1) {
                         // this is a bound function
                         // remove the bound suffix, and mark as bound
-                        name = names.fromString(nameString.substring(0, boundStringIndex));
+                         name = names.fromString(nameString.substring(0, boundStringIndex));
                         flags |= JavafxFlags.BOUND;
                     }
                     MethodSymbol m = new MethodSymbol(flags, name, type, csym);

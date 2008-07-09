@@ -1288,7 +1288,7 @@ public
 	    Type st = types.supertype(origin.type);
 	    if (st.tag != CLASS)
 		return true;
-	    MethodSymbol stimpl = m.implementation((ClassSymbol)st.tsym, types, false);
+	    MethodSymbol stimpl = types.implementation(m, (ClassSymbol)st.tsym, false);
 
 	    if (mc != null && ((mc.flags() & INTERFACE) != 0)) {
 		List<Type> intfs = types.interfaces(origin.type);
@@ -1321,8 +1321,7 @@ public
 		if (s1.kind != MTH ||
 		    (s1.flags() & (STATIC|SYNTHETIC|BRIDGE)) != 0 ||
 		    !s1.isInheritedIn(site.tsym, types) ||
-		    ((MethodSymbol)s1).implementation(site.tsym,
-						      types,
+		    types.implementation((MethodSymbol)s1, site.tsym,
 						      true) != s1)
 		    continue;
 		Type st1 = types.memberType(t1, s1);
@@ -1341,8 +1340,7 @@ public
 			    (s2.flags() & (STATIC|SYNTHETIC|BRIDGE)) != 0 ||
 			    s2.type.getParameterTypes().length() != s1ArgsLength ||
 			    !s2.isInheritedIn(site.tsym, types) ||
-			    ((MethodSymbol)s2).implementation(site.tsym,
-							      types,
+			    types.implementation((MethodSymbol)s2, site.tsym,
 							      true) != s2)
 			    continue;
 			Type st2 = types.memberType(t2, s2);
@@ -1666,7 +1664,7 @@ public
 			if (e.sym.kind == MTH &&
 			    (e.sym.flags() & (STATIC|ABSTRACT)) == ABSTRACT) {
 			    MethodSymbol absmeth = (MethodSymbol)e.sym;
-			    MethodSymbol implmeth = absmeth.implementation(origin, types, false);
+			    MethodSymbol implmeth = types.implementation(absmeth, origin, false);
 			    if (implmeth != null && implmeth != absmeth &&
 				(implmeth.owner.flags() & INTERFACE) ==
 				(origin.flags() & INTERFACE)) {

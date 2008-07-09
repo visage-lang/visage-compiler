@@ -26,6 +26,7 @@ package com.sun.tools.javafx.code;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.util.List;
@@ -33,6 +34,8 @@ import com.sun.tools.javac.util.Name;
 import com.sun.tools.javafx.comp.JavafxClassReader;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
+import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.javac.code.TypeTags.*;
 
 /**
  * Marker wrapper on class: this is a JavaFX var
@@ -57,5 +60,18 @@ public class JavafxClassSymbol extends ClassSymbol {
     
     public List<Type> getSuperTypes() {
         return supertypes;
+    }
+
+    public boolean isSubClass(Symbol base, Types types) {
+        if (! ((JavafxTypes) types).isCompoundClass(this))
+            return super.isSubClass(base, types);
+        if (this == base)
+            return true;
+        complete();
+        List<Type> supers = getSuperTypes();
+        for (List<Type> l = supers; l.nonEmpty(); l = l.tail) {
+             if (l.head.tsym.isSubClass(base, types)) return true;
+        }
+        return false;
     }
 }

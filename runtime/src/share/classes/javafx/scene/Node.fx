@@ -239,7 +239,7 @@ public abstract class Node {
      * attribute as well.  We short-circuit when we find a node
      * who's impl_needsLayout bit is already set.
      */
-    function requestLayout():Void {
+    protected function requestLayout():Void {
         var n:Node = this;
         while (n != null) {
             if ((n instanceof Group) or (n instanceof CustomNode)) { 

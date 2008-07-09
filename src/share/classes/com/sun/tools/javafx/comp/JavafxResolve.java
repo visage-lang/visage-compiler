@@ -236,7 +236,7 @@ public class JavafxResolve {
                 // (because, if it is overridden, `sym' is not strictly
                 // speaking a member of `site'.)
                 (sym.kind != MTH || sym.isConstructor() ||
-                 ((MethodSymbol)sym).implementation(site.tsym, types, true) == sym);
+                 types.implementation((MethodSymbol)sym, site.tsym, true) == sym);
         default: // this case includes erroneous combinations as well
             return isAccessible(env, site);
         }
@@ -896,33 +896,8 @@ public class JavafxResolve {
         if (bestSoFar.kind > AMBIGUOUS && intype.tsym instanceof JavafxClassSymbol) {
             List<Type> supertypes = ((JavafxClassSymbol)intype.tsym).getSuperTypes();
             for (Type tp : supertypes) {
-                for (Type ct = tp; ct.tag == CLASS; ct = types.supertype(ct)) {
-                    ClassSymbol c = (ClassSymbol)ct.tsym;
-                    for (Scope.Entry e = c.members().lookup(name);
-                         e.scope != null;
-                         e = e.next()) {
-                        if ((e.sym.kind & (VAR|MTH)) == 0 ||
-                                (e.sym.flags_field & SYNTHETIC) != 0)
-                            continue;
-                        if (! checkArgs) {
-                            // No argument list to disambiguate.
-                            if (bestSoFar.kind == ABSENT_VAR || bestSoFar.kind == ABSENT_MTH)
-                                bestSoFar = e.sym;
-                            else
-                                bestSoFar = new AmbiguityError(bestSoFar, e.sym);
-                        }
-                        else if (e.sym.kind == MTH) {
-                            return e.sym;
-                        }
-                        else if ((e.sym.kind & (VAR|MTH)) != 0 && bestSoFar == methodNotFound)
-                            return e.sym;
-                    }
-                    if (! checkArgs &&
-                        bestSoFar.kind != ABSENT_VAR && bestSoFar.kind != ABSENT_MTH) {
-                        return bestSoFar;
-                    }
-                }
-                
+                bestSoFar = findMember(env, site, name, expected, tp,
+                        bestSoFar, allowBoxing, useVarargs, operator);                
                 if (bestSoFar.kind < AMBIGUOUS) {
                     break;
                 }
