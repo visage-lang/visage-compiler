@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package javafx.ext.swing;
+package com.sun.javafx.application;
 
 import javax.swing.*;
 import java.awt.*;

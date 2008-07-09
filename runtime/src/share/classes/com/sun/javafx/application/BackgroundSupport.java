@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package javafx.ext.swing;
+package com.sun.javafx.application;
 
 import java.beans.*;
 import java.awt.Graphics;
@@ -31,7 +31,7 @@ import java.awt.Graphics2D;
  * Support class for implementing {@code Paint}, translucent and
  * transparent (null) backgrounds on components.
  */
-class BackgroundSupport implements PropertyChangeListener {
+public class BackgroundSupport implements PropertyChangeListener {
 
     public static final String BACKGROUND_PAINT_PROPERTY = "backgroundPaint";
 
