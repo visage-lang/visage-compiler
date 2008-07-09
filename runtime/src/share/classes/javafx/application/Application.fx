@@ -75,6 +75,7 @@ public class Application {
      * state.
      * 
      * @profile common
+     * @readonly
      */ 
     public attribute /*read-only*/ suspended:Boolean;       
     

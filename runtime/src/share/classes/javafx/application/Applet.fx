@@ -73,7 +73,11 @@ public class Applet extends JApplet {
                 var sapp = app as javafx.ext.swing.SwingApplication;
                 setContentPane(sapp.content.getJComponent());
             } else {
+                // default to white background for applet
+                setBackground(java.awt.Color.WHITE);
                 // extract and use stage here
+                var canvasStage:CanvasStageImpl = CanvasStageImpl{ stage: bind app.stage };
+                setContentPane(canvasStage.jsgPanel);
             }
 
             if (app.onStart != null) app.onStart();

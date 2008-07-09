@@ -30,13 +30,8 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.ComponentListener;
 import java.awt.event.ComponentEvent;
-import java.awt.LayoutManager;
-import java.awt.Container;
-import java.awt.Dimension;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-import com.sun.scenario.scenegraph.JSGPanel;
-import com.sun.scenario.scenegraph.SGGroup;
 import javax.swing.JWindow;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -61,8 +56,8 @@ public abstract class Window {
     // http://openjfx.java.sun.com/jira/browse/JFXC-1061
     private static /* final */ attribute UNINITIALIZED: Integer = java.lang.Integer.MIN_VALUE;
 
+    /* constant */ protected attribute canvasStage:CanvasStageImpl = CanvasStageImpl{ stage: bind stage };
     /* constant */ protected attribute window : java.awt.Window = createWindow();
-    /* constant */ attribute canvas : JSGPanelImpl = createCanvas();
 
     attribute ignoreWindowChange: Boolean = false;
 
@@ -176,7 +171,7 @@ public abstract class Window {
 
     postinit {
         var rootPaneContainer:RootPaneContainer = window as RootPaneContainer;
-        rootPaneContainer.setContentPane(canvas);
+        rootPaneContainer.setContentPane(canvasStage.jsgPanel);
 
         if (visible) {
             setWindowVisibility(true);
@@ -271,17 +266,6 @@ public abstract class Window {
         window.dispose();
     }
 
-    // PENDING_DOC_REVIEW
-    /**
-     * Creates the windows content.
-     */
-    function createCanvas(): JSGPanelImpl {
-        var panel = new JSGPanelImpl();
-        panel.setOpaque(true); // panel is non-opaque as background is painted for us by root pane
-        panel.setLayout(createLayoutManager());
-        panel.setScene(new SGGroup());
-        return panel;
-    }
 
     function setLocation(){
         if (not window.isLocationByPlatform() and (window.getX() == 0) and (window.getY() == 0)) {
@@ -300,17 +284,6 @@ public abstract class Window {
 
     private attribute isWindowInitialized: Boolean = false;
 
-    /** bound to stage.content so we can react to changes */
-    private attribute stageContent: Node[] = bind stage.content on replace oldNodes[a..b] = newNodes {
-        for (node in oldNodes[a..b]) {
-            getRoot().remove(node.impl_getFXNode());
-        }
-        var index = a;
-        for (node in newNodes) {
-            getRoot().add(index, node.impl_getFXNode());
-            index = index + 1;
-        }
-    }
 
     /**
      * Bound to stage.fill so we can react to changes.
@@ -342,15 +315,8 @@ public abstract class Window {
             }
         }
         WindowImpl.setWindowTransparency(window,transparent);
-        var rootPaneContainer:RootPaneContainer = window as RootPaneContainer;
-        var rootPane:WindowImpl.RootPaneImpl = rootPaneContainer.getRootPane() as WindowImpl.RootPaneImpl;
-        //rootPane.setBackgroundPaint(stageFill.getAWTPaint());
-        canvas.setBackgroundPaint(stageFill.getAWTPaint());
     }
 
-    private function getRoot(): SGGroup {
-        canvas.getScene() as SGGroup;
-    }
 
     private function getRootPaneContainer(): RootPaneContainer {
         window as RootPaneContainer;
@@ -374,58 +340,6 @@ public abstract class Window {
         }
 
         window.setVisible(visible);
-    }
-
-    /**
-     * Create layout manager for the JSGPanel
-     */
-    private function createLayoutManager() {
-        LayoutManager {
-            public function layoutContainer(p:Container):Void {
-                for (node in stage.content) {
-                    doLayout(node);
-                    updateCachedBounds(node);
-                }
-            }
-            public function minimumLayoutSize(p:Container):Dimension {
-                return preferredLayoutSize(p);
-            }
-            public function preferredLayoutSize(p:Container):Dimension {
-                // JSGPanel overrides getPreferredSize(), doesn't delegate to
-                // its LayoutManager
-                return new Dimension();
-            }
-            public function addLayoutComponent(s:String, c:java.awt.Component):Void { }
-            public function removeLayoutComponent(c:java.awt.Component):Void { }
-        }
-    }
-
-    private function doLayout(root:Node):Void {
-        if (root.impl_needsLayout) {
-            if (root instanceof Group) {
-                for (child in (root as Group).content) {
-                    doLayout(child);
-                }
-            }
-            else if (root instanceof CustomNode) {
-                doLayout((root as CustomNode).impl_content);
-            }
-        }
-        if (root instanceof Group) {
-            var group:Group = root as Group;
-            if (group.layout != null) {
-                group.layout(group);
-            }
-            for (child in group.content) {
-                updateCachedBounds(child);
-            }
-        }
-        root.impl_needsLayout = false;
-    }
-
-    private function updateCachedBounds(node:Node):Void {
-        node.impl_cachedBounds = node.impl_getFXNode().getBounds();
-        node.impl_cachedXYWH = node.impl_getSGNode().getBounds();
     }
 
     // PENDING_DOC_REVIEW
