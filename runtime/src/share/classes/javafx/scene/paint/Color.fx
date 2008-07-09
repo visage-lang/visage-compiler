@@ -478,7 +478,7 @@ public /* final */ class Color extends Paint, Interpolatable {
     public static /* constant */ attribute DARKTURQUOISE        = rgb(0x00, 0xCE, 0xD1);
     public static /* constant */ attribute DARKVIOLET           = rgb(0x94, 0x00, 0xD3);
     public static /* constant */ attribute DEEPPINK             = rgb(0xFF, 0x14, 0x93);
-    public static /* constant */ attribute DEEPSKYPBLUE         = rgb(0x00, 0xBF, 0xFF);
+    public static /* constant */ attribute DEEPSKYBLUE          = rgb(0x00, 0xBF, 0xFF);
     public static /* constant */ attribute DIMGRAY              = rgb(0x69, 0x69, 0x69);
     public static /* constant */ attribute DIMGREY              = DIMGRAY;
     public static /* constant */ attribute DODGERBLUE           = rgb(0x1E, 0x90, 0xFF);
@@ -628,7 +628,7 @@ public /* final */ class Color extends Paint, Interpolatable {
         colors.put("darkturquoise",        DARKTURQUOISE);
         colors.put("darkviolet",           DARKVIOLET);
         colors.put("deeppink",             DEEPPINK);
-        colors.put("deepskypblue",         DEEPSKYPBLUE);
+        colors.put("deepskyblue",          DEEPSKYBLUE);
         colors.put("dimgray",              DIMGRAY);
         colors.put("dimgrey",              DIMGREY);
         colors.put("dodgerblue",           DODGERBLUE);
