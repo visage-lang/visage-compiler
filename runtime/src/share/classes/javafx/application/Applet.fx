@@ -72,10 +72,11 @@ public class Applet extends JApplet {
             if (app.getClass().getName() == "javafx.ext.swing.SwingApplication") {
                 var sapp = app as javafx.ext.swing.SwingApplication;
                 setContentPane(sapp.content.getJComponent());
-                if (sapp.onStart != null) sapp.onStart();
             } else {
                 // extract and use stage here
             }
+
+            if (sapp.onStart != null) sapp.onStart();
         }
     }
 
