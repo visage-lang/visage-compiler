@@ -32,6 +32,9 @@ import java.awt.Graphics;
 import java.lang.reflect.Method;
 import java.util.WeakHashMap;
 
+// PENDING(shannonh) - this is public only to work around a compiler bug.
+// Remove public modifier when resolved.
+// http://openjfx.java.sun.com/jira/browse/JFXC-1050
 /**
  * TransparentWindowImpl - This is a internal implementation class for Transparent and shaped window support in
  * Window.fx and Frame.fx. It should not be public or be ever used other than in those classes.
