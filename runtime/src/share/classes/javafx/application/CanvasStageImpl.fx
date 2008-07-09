@@ -25,6 +25,8 @@ package javafx.application;
 
 import com.sun.scenario.scenegraph.JSGPanel;
 import com.sun.scenario.scenegraph.SGGroup;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.LayoutManager;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -39,7 +41,12 @@ class CanvasStageImpl {
 
     public /* constant */ attribute jsgPanel : JSGPanelImpl = createJsgPanel();
 
-    public attribute stage: Stage;
+    public attribute stage: Stage on replace{
+        if (stage != null){
+            stage.width = jsgPanel.getWidth();
+            stage.height = jsgPanel.getHeight();
+        }
+    };
 
     // =================================================================================================================
     // private
@@ -128,4 +135,19 @@ class CanvasStageImpl {
         node.impl_cachedBounds = node.impl_getFXNode().getBounds();
         node.impl_cachedXYWH = node.impl_getSGNode().getBounds();
     }
+
+    postinit {
+        jsgPanel.addComponentListener(ComponentAdapter {
+            public function componentResized(e:ComponentEvent): Void {
+                var d = jsgPanel.getSize();
+                if (stage.width != d.width) {
+                    stage.width = d.width;
+                }
+                if (stage.height != d.height) {
+                    stage.height = d.height;
+                }
+            }
+        });
+    }
+
 }

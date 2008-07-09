@@ -118,10 +118,6 @@ public abstract class Window {
             dim.width = width;
             window.setSize(dim);
         }
-        // update stage size
-        if (stage != null){
-            stage.width = width;
-        }
     }
 
     public attribute height: Integer = UNINITIALIZED on replace {
@@ -129,11 +125,6 @@ public abstract class Window {
             var dim = window.getSize();
             dim.height = height;
             window.setSize(dim);
-        }
-        // update stage size
-        if (stage != null){
-            // PENDING(jasper) need to subtract menubar height from here
-            stage.height = height;
         }
     }
 
@@ -146,13 +137,7 @@ public abstract class Window {
     /**
      * This is the stage that the window presents on screen for showing content.
      */
-    public attribute stage: Stage on replace{
-        if (stage != null){
-            stage.width = width;
-            // PENDING(jasper) need to subtract menubar height from here
-            stage.height = height;
-        }
-    };
+    public attribute stage: Stage;
 
     // PENDING_DOC_REVIEW
     /**
