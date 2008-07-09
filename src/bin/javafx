@@ -62,9 +62,9 @@ jargs=""
 parse_args() {
 while [ $# -gt 0 ] ; do
     case "$1" in
-        -J*) jopt=`expr "X-$1" : 'X--J\(.*\)'`; jargs="$jargs $jopt";;
+        -J*) jopt=`expr "X-$1" : 'X--J\(.*\)'`; jargs="$jargs \"$jopt\"";;
         -cp | -classpath) shift; classpath="$classpath:$1";;
-        *) args="$args $1";;
+        *) args="$args \"$1\"";;
     esac
     shift
 done
@@ -79,4 +79,4 @@ if $cygwin ; then
   JAVA_CMD=`cygpath --unix "$JAVA_CMD"`
 fi
 
-"$JAVA_CMD" -Djava.library.path="$nativelibpath" $jargs -classpath "$classpath" $args
+eval '"$JAVA_CMD"' '"-Djava.library.path=$nativelibpath"' "$jargs" -classpath '"$classpath"' "$args"
