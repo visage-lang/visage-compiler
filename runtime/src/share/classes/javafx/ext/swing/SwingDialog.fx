@@ -85,7 +85,7 @@ public class SwingDialog extends SwingWindow {
     /**
      * Returns the {@link JDialog} delegate for this dialog.
      */
-    /* final */ function getJDialog(): JDialog {
+    /* final */ public function getJDialog(): JDialog {
         window as JDialog;
     }
 
