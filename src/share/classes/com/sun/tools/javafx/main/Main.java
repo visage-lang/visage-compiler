@@ -655,7 +655,12 @@ public class Main {
     /** Check java-version (currently only JDK 1.6 supported).
      */
     private static boolean checkJavaVersion() {
-        return System.getProperty("java.version").startsWith("1.6");
+        try {
+            Class.forName("java.awt.LinearGradientPaint");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     /** Print a message reporting an internal error.
