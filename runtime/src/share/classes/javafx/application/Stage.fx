@@ -35,19 +35,21 @@ public class Stage {
 
     // PENDING_DOC_REVIEW
     /*
-     * The height of the area for which content is displayed on this {@code Stage}
-
+     * The width of the area for which content is displayed on this {@code Stage}
+     *
      * @profile common
+     * @readonly
      */
-    public attribute width:Integer;
+    public attribute /*read-only*/  width:Integer;
 
     // PENDING_DOC_REVIEW
     /*
-     * The width of the area for which content is displayed on this {@code Stage}
-
+     * The height of the area for which content is displayed on this {@code Stage}
+     *
      * @profile common
+     * @readonly
      */
-    public attribute height:Integer;
+    public attribute /*read-only*/  height:Integer;
 
     // PENDING_DOC_REVIEW
     /*
