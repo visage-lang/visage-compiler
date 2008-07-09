@@ -1317,11 +1317,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
     @Override
     public void visitTimeLiteral(JFXTimeLiteral tree) {
-        // convert this time literal to a javafx.lang.Duration object literal
-        JFXInstanciate duration = timeLiteralToDuration(tree); // sets result
- 
-        // now convert that object literal to Java
-        visitInstanciate(duration); // sets result
+        // convert this time literal to a javafx.lang.Duration.valueOf() invocation
+        JFXFunctionInvocation duration = timeLiteralToDuration(tree);
+
+        // now convert that FX invocation to Java
+        visitFunctionInvocation(duration); // sets result
     }
 
     /**

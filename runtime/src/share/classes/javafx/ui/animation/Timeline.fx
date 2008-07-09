@@ -134,7 +134,7 @@ public class Timeline {
         if (sbList.size() > 0) {
             animator.setStoryBoards(sbList);
         }
-        duration = Duration { millis: animator.getDuration() };
+        duration = Duration.valueOf(animator.getDuration());
     }
 
 }

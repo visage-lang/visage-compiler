@@ -22,7 +22,6 @@
  */
 package com.sun.tools.javafx.comp;
 
-import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol;
@@ -622,15 +621,16 @@ public abstract class JavafxTranslationSupport {
     }
     
     // convert time literal to a javafx.lang.Duration object literal
-    protected JFXInstanciate timeLiteralToDuration(JFXTimeLiteral tree) {
+    protected JFXFunctionInvocation timeLiteralToDuration(JFXTimeLiteral tree) {
         JFXSelect clsname = (JFXSelect) fxmake.at(tree.pos()).Type(syms.javafx_DurationType);
         clsname.sym = syms.javafx_DurationType.tsym;
-        Name attribute = names.fromString("millis");
-        Symbol symMillis = syms.javafx_DurationType.tsym.members().lookup(attribute).sym;
-        JFXObjectLiteralPart objLiteral = fxmake.at(tree.pos()).ObjectLiteralPart(attribute, tree.value, JavafxBindStatus.UNBOUND);
-        objLiteral.sym = symMillis;
-        JFXInstanciate inst = fxmake.at(tree.pos).Instanciate(clsname, null, List.<JFXTree>of(objLiteral));
-        inst.type = clsname.type;
-        return inst;
+        Name valueOf = names.fromString("valueOf");
+        JFXSelect meth = fxmake.at(tree.pos).Select(clsname, valueOf);
+        meth.sym = syms.javafx_DurationType.tsym.members().lookup(valueOf).sym;
+        meth.type = meth.sym.type;
+        List<JFXExpression> args = List.<JFXExpression>of(tree.value);
+        JFXFunctionInvocation apply = fxmake.at(tree.pos).Apply(List.<JFXExpression>nil(), meth, args);
+        apply.type = clsname.type;
+        return apply;
     }
 }

@@ -37,29 +37,10 @@ import java.lang.Math;
     Duration t = 2.5m;
     Duration t = 2500ms;</pre></code>
  */
-public class Duration extends Comparable {
-
-    /** The duration of time, as expressed in milliseconds. */
-    public readonly attribute millis: Number = 0;
-
-    public function equals(obj:Object):Boolean {
-        if (obj instanceof Duration) {
-            var t = obj as Duration;
-            return t.millis == millis;
-        }
-        return false;
-    }
-
-    public function compareTo(obj:Object):Integer {
-        var t = obj as Duration;
-        var m1 = millis;
-        var m2 = t.millis;
-        var cmp = m1 - m2;
-        return if (cmp < 0) -1 else if (cmp > 0) 1 else 0;
-    }
-
-    public function hashCode():Integer {
-        return Long.valueOf(millis.longValue()).hashCode();
+public class Duration extends com.sun.javafx.runtime.Duration {
+    
+    public static function valueOf(ms: Number): Duration {
+        return com.sun.javafx.runtime.Duration.make(ms) as Duration;
     }
 
     /** Returns the number of milliseconds in this period. */
@@ -85,40 +66,30 @@ public class Duration extends Comparable {
     /** Add this instance and another Duration instance to return a new Duration instance.
      *  This function does not change the value of called Duration instance. */
     public function add(other:Duration):Duration {
-        return Duration {
-            millis: millis + other.millis;
-        }
+        return valueOf(millis + other.millis);
     }
 
     /** Subtract other Duration instance from this instance to return a new Duration instance.
      *  This function does not change the value of called Duration instance. */
     public function sub(other:Duration):Duration {
-        return Duration {
-            millis: millis - other.millis;
-        }
+        return valueOf(millis - other.millis);
     }
 
     /** Multiply this instance with a number to return a new Duration instance.
      *  This function does not change the value of called Duration instance. */
     public function mul(n:Number):Duration {
-        return Duration {
-            millis: millis * n;
-        }
+        return valueOf(millis * n);
     }
 
 
     /** Divide this instance by a number to return a new Duration instance.
      *  This function does not change the value of called Duration instance. */
     public function div(n:Number):Duration {
-        return Duration {
-            millis: millis / n;
-        }
+        return valueOf(millis / n);
     }
 
     public function negate():Duration {
-        return Duration {
-            millis: -millis;
-        }
+        return valueOf(-millis);
     }
 
     public function toString(): String {

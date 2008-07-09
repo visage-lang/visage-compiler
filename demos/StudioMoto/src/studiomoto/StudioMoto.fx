@@ -27,7 +27,7 @@ class HomeModel {
         keyFrames: for(s in reverse ys) {
             t += interval;
             KeyFrame {
-                time: Duration {millis: t}
+                time: Duration.valueOf(t)
                 values: homeY => s
             }
         }
@@ -37,7 +37,7 @@ class HomeModel {
         keyFrames: for(s in  ys) {
             t+= interval;
             KeyFrame {
-                time: Duration {millis: t}
+                time: Duration.valueOf(t)
                 values: homeY => s
             }
         }

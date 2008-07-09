@@ -59,9 +59,9 @@ public class MediaPlayer {
             
         }
         view.setComponent();
-        startTime = Duration { millis: mediaProvider.getStartTime()/1000.0 };
+        startTime = Duration.valueOf(mediaProvider.getStartTime()/1000.0);
         
-        stopTime = Duration { millis: mediaProvider.getStopTime()/1000.0 };
+        stopTime = Duration.valueOf(mediaProvider.getStopTime()/1000.0);
         if (autoPlay) {
             play();
         }        

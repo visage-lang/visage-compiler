@@ -21,7 +21,7 @@ var cls = CLS {};
 
 private function makeKF(n:Number):KeyFrame {
     KeyFrame {
-        time: Duration { millis: n }
+        time: Duration.valueOf(n)
         values: cls.a => n
         action: function() {
             System.out.println("timeline tick {n}ms - {cls.a}");

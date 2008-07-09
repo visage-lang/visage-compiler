@@ -8,7 +8,7 @@
 import java.lang.System;
 import javafx.lang.Duration;
 
-var t = Duration {millis: 50};
+var t = Duration.valueOf(50.0);
 System.out.println("Duration object literal, millis=50 = {t.toString()}");
 t = 500ms;
 System.out.println("500ms = {t}");

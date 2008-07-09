@@ -74,7 +74,7 @@ public class MusicPanel2 extends CustomNode {
                 var t = 0;
                 keyFrames: for(s in reverse ys) {
                     var k = KeyFrame {
-                        time: Duration {millis: t}
+                        time: Duration.valueOf(t)
                         values: softY => s tween Interpolator.EASEBOTH
                     };
                     t += interval;
@@ -88,7 +88,7 @@ public class MusicPanel2 extends CustomNode {
                 var t = 0;
                 keyFrames: for(s in ys) {
                     var k = KeyFrame {
-                        time: Duration {millis: t}
+                        time: Duration.valueOf(t)
                         values: softY => s tween Interpolator.EASEBOTH
                     };
                     t += interval;  
