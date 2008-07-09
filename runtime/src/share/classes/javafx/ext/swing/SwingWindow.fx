@@ -64,7 +64,7 @@ public class SwingWindow extends Container {
      */
     public /* set-once */ attribute owner : SwingWindow = null;
 
-    /* constant */ attribute window : java.awt.Window = createWindow();
+    public /* FIXME - should be non-public - temorary hack for fxpad */ /* constant */ attribute window : java.awt.Window = createWindow();
 
     attribute ignoreJWindowChange: Boolean = false;
 
