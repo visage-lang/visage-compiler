@@ -76,7 +76,7 @@ public class Applet extends JApplet {
                 // extract and use stage here
             }
 
-            if (sapp.onStart != null) sapp.onStart();
+            if (app.onStart != null) app.onStart();
         }
     }
 
