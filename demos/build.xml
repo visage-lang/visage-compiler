@@ -7,7 +7,7 @@
 
     <target name="all">
 	<subant target="default">
-            <fileset dir="." includes="*/build.xml" excludes="javafxpad/**"/>
+            <fileset dir="." includes="*/build.xml" />
 	</subant>
     </target>
 
