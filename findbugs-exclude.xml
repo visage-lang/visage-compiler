@@ -49,7 +49,8 @@
 	    <!-- valid test for whether assertions are enabled -->
 	    <Class name="com.sun.tools.javafx.comp.JavafxAttr"/>
         <Method name="attribClassBody"/>
-        <Bug pattern="DLS_DEAD_STORE_OF_CLASS_LITERAL"/>
+        <Local name="assertsEnabled"/>
+        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
     </Match>
     <Match>
         <!-- Error in findbugs, confuses two scan-methods in superclass -->
