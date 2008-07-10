@@ -61,7 +61,8 @@ public class Duration implements Comparable {
 
     @Override
     public int hashCode() {
-        return Long.valueOf(new Double(millis).longValue()).hashCode();
+        long value = (long)millis;            // from java.lang.Double.longValue()
+        return (int)(value ^ (value >>> 32)); // from java.lang.Long.hashCode()
     }
 
     @Override
