@@ -252,23 +252,246 @@ The JavaFX Script programming language provides standard operators similar to
     </tr>
 	
 	
-	<tr style="border-top:thin solid black;">
+<!-- ***************** New table below *************** -->	
+<!-- ************************************************* -->
+<!-- ************************************************* -->
+	
+	
+		<tr>
+	<td rowspan="4" valign="top">1</td>
+	<td class="style1 ">function()</td>
+	<td>JavaFX function </td>
+	<td>function()</td>
+	<td>Class</td>
+	</tr>
+	
+	<tr>
+	<td class="style1">() </td>
+	<td>An expression in brackets </td>
+	<td>&nbsp;</td>
+	<td>n/a</td>
+	</tr>
 
-      <td valign="top">1</td>
-      <td><code class="style1">=</code></td>
-      <td>assign operator</td>
-      <td>=</td>
-      <td rowspan="7" valign="top" >Right to Left </td>
+			<tr>
+	<td class="style1">new </td>
+	<td>instantiate a new object </td>
+	<td>&nbsp;</td>
+	<td>Class</td>
+	</tr>
+	
+				<tr>
+	<td class="style1"> {Object literal} </td>
+	<td>Instantiate and initialize a new object </td>
+	<td>&nbsp;</td>
+	<td>Class</td>
+	</tr>
+	
+    <tr style="border-top: thin solid black;">
+      <td rowspan="2" valign="top">2</td>
+      <td><code class="style1">++ (suffixed)</code></td>
+      <td>post-increment assign</td>
+      <td><code class="style1">++</code></td>
+      <td rowspan="2" valign="top">Right to Left </td>
+    </tr>
+    <tr>
+      <td><code class="style1">-- (suffixed)</code></td>
+      <td>post-decrement assign</td>
+      <td><code class="style1">--</code></td>
     </tr>
 	
+	  <tr style="border-top:thin solid black;">
+      <td rowspan="6" valign="top">3</td>
+      <td><code class="style1">++ (prefixed)</code></td>
+      <td>pre-increment assign</td>
+      <td><code class="style1">++</code></td>
+      <td rowspan="2" valign="top">Right to Left </td>
+    </tr>	
+	
+	<tr >
+      
+      <td><code class="style1">-- (prefixed)</code></td>
+      <td>pre-decrement assign</td>
+      <td><code class="style1">--</code></td>
+	      </tr>
+	
+	
+	<tr><td class="style1">not</td>
+    <td>logical negation </td>
+    <td>&lt;&gt;</td>
+    <td>Boolean</td>
+	</tr>	
+	
+	<tr><td class="style1">sizeof</td>
+    <td>Size of a sequence </td><td>&nbsp;</td>
+    <td rowspan="3" valign="top">Sequence</td>
+	</tr>	
+	
+	<tr><td class="style1">reverse</td>
+    <td>Reverse of a sequence </td><td>&nbsp;</td></tr>	
+		<tr><td class="style1">indexof</td>
+	    <td>index of a sequence element </td><td>&nbsp;</td></tr>	
+		
+			<tr><td></td><td class="style1">--></td>
+    <td>tween</td>
+    <td>&nbsp;</td>
+	<td>&nbsp;</td>
+			</tr>	
+		
+		
+		
+		
+	<tr style="border-top:thin solid black;">
+      <td rowspan="3" valign="top">4</td>
+      <td><code class="style1">*</code></td>
+      <td>multiplication</td>
+      <td><code class="style1">*</code></td>
+      <td rowspan="3" valign="top">Left to Right  </td>
+    </tr>
+	
+	
+		<tr>
+      
+      <td><code class="style1">/</code></td>
+      <td>division</td>
+      <td><code class="style1">/</code></td>
+    </tr>
+		<tr>
+      
+      <td><code class="style1">mod</code></td>
+      <td>remainder</td>
+      <td><code class="style1">%</code></td>
+    </tr>		
+		
+		
+		
+<!-- *** 5 **** -->	
+<!-- ********** -->		
+
+		<tr style="border-top:thin solid black;">
+      <td rowspan="2" valign="top">5</td>
+      <td><code class="style1">+</code></td>
+      <td>addition</td>
+      <td><code class="style1">+</code></td>
+      <td rowspan="2" valign="top">Left to Right  </td>
+    </tr>
+	
+	
+<tr>
+      
+      <td><code class="style1">-</code></td>
+      <td>subtraction </td>
+      <td><code class="style1">-</code></td>
+    </tr>
+	
+<!-- *** 6 **** -->
+<!-- ********** -->
+		
+<tr style="border-top:thin solid black;">
+      <td rowspan="6" valign="top">6</td>
+      <td><code class="style1">==</code></td>
+      <td>equality</td>
+      <td><code class="style1">== </code></td>
+      <td rowspan="5" valign="top">Left to Right </td>
+    </tr>
+	
+	
+						<tr>
+     
+      <td><code class="style1">!= </code></td>
+      <td>inequality</td>
+      <td><code class="style1">!=</code></td>
+    </tr>
+	
+	
+	
+	<tr>
+      
+      <td><code class="style1"> &lt;</code></td>
+      <td>less than  </td>
+      <td><code class="style1">&lt;</code></td>
+    </tr>
+	
+						<tr>
+      
+      <td><code class="style1"> &lt;=</code></td>
+      <td>less than or equal </td>
+      <td><code class="style1">&lt;=</code></td>
+    </tr>
+	
+	
+	
+						<tr>
+      
+      <td><code class="style1">&gt;</code></td>
+      <td>greater than</td>
+      <td><code class="style1">&gt;</code></td>
+    </tr>
+	
+	
+	
+						<tr>
+      
+      <td><code class="style1">=&gt;</code></td>
+      <td>greater than  or equal to</td>
+      <td><code class="style1">=&gt; </code></td>
+    </tr>
+	
+<!-- *** 7 **** -->
+<!-- ********** -->
+							
+							
+							<tr style="border-top:thin solid black;">
+      <td rowspan="2" valign="top">7</td>
+      
+      <td><code class="style1">instanceof</code></td>
+      <td>Type checking  </td>
+      <td><code class="style1">instanceof </code></td>
+	  <td colspan="2">Class </td>
+    </tr>		
+		
+		
+	<tr><td>as</td>	
+	<td>Cast</td>
+	<td>&nbsp;</td> 
+	<td>Class</td>
+	</tr>
+		
+	
+		
+<!-- *** 8 **** -->
+<!-- ********** -->
+
+
+	<tr style="border-top:thin solid black;">
+<td valign="top">8</td>
+<td><code class="style1">or</code></td>
+      <td>logical OR </td>
+      <td><code class="style1">||</code></td>
+      <td valign="top">Right to Left </td>
+    </tr>
+
+<!-- *** 9 **** -->
+<!-- ********** -->
+
+
+		<tr style="border-top:thin solid black;">
+<td valign="top">9</td>
+<td><code class="style1">and</code></td>
+      <td>logical AND </td>
+      <td><code class="style1">&amp;&amp;</code></td>
+      <td valign="top">Right to Left </td>
+    </tr>
+		
+
+<!-- *** 10 **** -->
+<!-- ********** -->		
+
 	<tr style="border-top:thin solid black;">
 
-      <td rowspan="6" valign="top">2</td>
+      <td rowspan="5" valign="top">10</td>
       <td><code class="style1">+=</code></td>
       <td>add and assign </td>
       <td>+=</td>
-	  
-	  
     </tr>
 	
 	<tr>
@@ -299,216 +522,27 @@ The JavaFX Script programming language provides standard operators similar to
       <td><code class="style1">%=</code></td>
     </tr>
 	
-	
-	<tr>
 
-      <td><code class="style1">/=</code></td>
-      <td>divide and assign </td>
-      <td><code class="style1">/=</code></td>
-    </tr>
-	
-	
-	
-		<tr style="border-top:thin solid black;">
-<td valign="top">3</td>
-<td><code class="style1">and</code></td>
-      <td>logical and </td>
-      <td><code class="style1">&amp;&amp;</code></td>
-      <td valign="top">Right to Left </td>
-    </tr>
-	
-	
+
+
 	<tr style="border-top:thin solid black;">
-<td valign="top">4</td>
-<td><code class="style1">or</code></td>
-      <td>logical or </td>
-      <td><code class="style1">||</code></td>
-      <td valign="top">Right to Left </td>
+<td valign="top">11</td>
+<td><code class="style1">=</code></td>
+      <td>assignment </td>
+      <td><code class="style1">=</code></td>
+      <td valign="top">(all) </td>
     </tr>
-	
-	<tr style="border-top:thin solid black;">
-      <td rowspan="7" valign="top">5</td>
-      <td><code class="style1">instanceof</code></td>
-      <td>inheritance operator </td>
-      <td><code class="style1">instanceof</code></td>
-      <td rowspan="7" valign="top">Right to Left </td>
-    </tr>
-	
-	
-    <tr>
-      
-      <td><code class="style1">as</code></td>
-      <td>cast operator </td>
-      <td><code class="style1">n/a</code></td>
-    </tr>
-    <tr>
-	<td><code class="style1">sizeof</code></td>
-	<td>array length </td>
-	<td><code class="style1">n/a</code></td>
-  </tr>
-	<tr>
-	<td><code class="style1">indexof</code></td>
-	<td>ordinal position </td>
-	 <td><code class="style1">n/a</code></td>
-  </tr>
-	<tr>
-	<td><code class="style1">new</code></td>
-        <td>instantiation</td>
-					  <td><code class="style1">new</code></td>
-  </tr>
-					<tr>
-					  <td><code class="style1">op()</code></td>
-					  <td>function call </td>
-					  <td><code class="style1">n/a</code></td>
-  </tr>
-					<tr>
-					  <td><code class="style1">x.op()</code></td>
-					  <td>member function  call </td>
-					  <td><code class="style1"></code></td>
-  </tr>
-	
-	
-	
-	
-<tr style="border-top:thin solid black;">
-      <td rowspan="5" valign="top">6</td>
-      <td><code class="style1">==</code></td>
-      <td>equality</td>
-      <td><code class="style1">== </code></td>
-      <td rowspan="5" valign="top">Left to Right </td>
-    </tr>
-	
-	
-						<tr>
-     
-      <td><code class="style1">&lt; &gt; </code></td>
-      <td>inequality</td>
-      <td><code class="style1">!=</code></td>
-    </tr>
-	
-	
-						<tr>
-      
-      <td><code class="style1"> &lt;=</code></td>
-      <td>less than or equal </td>
-      <td><code class="style1">&lt;=</code></td>
-    </tr>
-	
-	
-	
-						<tr>
-      
-      <td><code class="style1">&lt;-</code></td>
-      <td>&nbsp;</td>
-      <td><code class="style1"></code></td>
-    </tr>
-	
-	
-	
-						<tr>
-      
-      <td><code class="style1">&lt; &gt;</code></td>
-      <td>less than / greater than </td>
-      <td><code class="style1">&lt; &gt; </code></td>
-    </tr>
-	
-	
-	
-	
-						<tr style="border-top:thin solid black;">
-      <td rowspan="2" valign="top">7</td>
-      <td><code class="style1">+</code></td>
-      <td>addition</td>
-      <td><code class="style1">+</code></td>
-      <td rowspan="2" valign="top">Right to Left </td>
-    </tr>
-	
-	
-<tr>
-      
-      <td><code class="style1">-</code></td>
-      <td>subtraction; uniary negation </td>
-      <td><code class="style1">-</code></td>
-    </tr>
-	
 
 
-
-	
-	<tr style="border-top:thin solid black;">
-      <td rowspan="3" valign="top">8</td>
-      <td><code class="style1">*</code></td>
-      <td>multiplication</td>
-      <td><code class="style1">*</code></td>
-      <td rowspan="3" valign="top">Right to Left </td>
-    </tr>
-	
-	
-		<tr>
-      
-      <td><code class="style1">/</code></td>
-      <td>division</td>
-      <td><code class="style1">/</code></td>
-    </tr>
-		<tr>
-      
-      <td><code class="style1">%</code></td>
-      <td>remainder</td>
-      <td><code class="style1"></code></td>
-    </tr>
-    
-    
-    <tr>
-      
-      <td><code class="style1">=></code></td>
-      <td>animation </td>
-      <td><code class="style1"></code></td>
-    </tr>
-    
-    
-    
-	
-	
-  <tr style="border-top:thin solid black;">
-      <td rowspan="2" valign="top">9</td>
-      <td><code class="style1">++ (prefixed)</code></td>
-      <td>assign</td>
-      <td><code class="style1">++</code></td>
-      <td rowspan="2" valign="top">Right to Left </td>
-    </tr>	
-	
-	<tr >
-      
-      <td><code class="style1">-- (prefixed)</code></td>
-      <td>assign</td>
-      <td><code class="style1">--</code></td>
-	  
-	      </tr>
-	
-	
-	
-			<tr style="border-top: thin solid black;">
-			
-      <td rowspan="2" valign="top">10</td>
-      <td><code class="style1">++ (suffixed)</code></td>
-      <td>assign</td>
-      <td><code class="style1">++</code></td>
-      <td rowspan="2" valign="top">Right to Left </td>
-    </tr>	
-	
-	<tr>
-      
-      <td><code class="style1">-- (suffixed)</code></td>
-      <td>assign</td>
-      <td><code class="style1">--</code></td>
-    </tr>
+<!-- ************************************************* -->
+<!-- ************************************************* -->
 	
 	
 	</tbody>
 	</table>
    
                
-	
+	                            
 <!-- *********** operator table ************************* -->
 
 
