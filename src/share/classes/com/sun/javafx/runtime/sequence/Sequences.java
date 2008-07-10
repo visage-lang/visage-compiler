@@ -23,7 +23,6 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 import com.sun.javafx.runtime.Util;
@@ -78,6 +77,7 @@ public final class Sequences {
     }
 
     /** Concatenate two sequences into a new sequence.  */
+    @SuppressWarnings("unchecked")
     public static<T> Sequence<T> concatenate(Class<T> clazz, Sequence<? extends T> first, Sequence<? extends T> second) {
         int size1 = Sequences.size(first);
         int size2 = Sequences.size(second);
@@ -450,11 +450,10 @@ public final class Sequences {
      *         key. Note that this guarantees that the return value will be >= 0
      *         if and only if the key is found.
      */
-    @SuppressWarnings("unchecked")
     public static <T extends Comparable> int binarySearch (Sequence<? extends T> seq, T key) {
         if (seq.isEmpty())
             return -1;
-        T[] array = (T[])Array.newInstance(seq.getElementType(), seq.size());
+        T[] array = Util.newComparableArray(seq.size());
         seq.toArray(array, 0);
         return Arrays.binarySearch(array, key);
     }
@@ -482,11 +481,10 @@ public final class Sequences {
      *         key. Note that this guarantees that the return value will be >= 0
      *         if and only if the key is found.
      */
-    @SuppressWarnings("unchecked")
     public static <T> int binarySearch(Sequence<? extends T> seq,  T key,  Comparator<? super T> c) {
         if (seq.isEmpty())
             return -1;
-        T[] array = (T[])Array.newInstance(seq.getElementType(), seq.size());
+        T[] array = Util.<T>newObjectArray(seq.size());
         seq.toArray(array, 0);
         return Arrays.binarySearch(array, (T)key, c);
     }
@@ -543,6 +541,7 @@ public final class Sequences {
      * @param seq The sequence to be searched.
      * @return The element with the maximum value.
      */
+    @SuppressWarnings("unchecked")
     public static <T extends Comparable> T max (Sequence<T> seq) {
         if (seq == null || seq.isEmpty())
             throw new IllegalArgumentException("empty sequence passed to Sequences.max");
@@ -573,6 +572,7 @@ public final class Sequences {
      *          should be used.
      * @return The element with the maximum value.
      */
+    @SuppressWarnings("unchecked")
     public static <T> T max (Sequence<T> seq, Comparator<? super T> c) {
         if (seq == null || seq.isEmpty())
             throw new IllegalArgumentException("empty sequence passed to Sequences.max");
@@ -603,6 +603,7 @@ public final class Sequences {
      * @param seq The sequence to be searched.
      * @return The element with the maximum value.
      */
+    @SuppressWarnings("unchecked")
     public static <T extends Comparable> T min (Sequence<T> seq) {
         if (seq == null || seq.isEmpty())
             throw new IllegalArgumentException("empty sequence passed to Sequences.min");
@@ -633,6 +634,7 @@ public final class Sequences {
      *          should be used.
      * @return The element with the minimum value.
      */
+    @SuppressWarnings("unchecked")
     public static <T> T min (Sequence<T> seq, Comparator<? super T> c) {
         if (seq == null || seq.isEmpty())
             throw new IllegalArgumentException("empty sequence passed to Sequences.min");
@@ -732,11 +734,10 @@ public final class Sequences {
      * @param seq The sequence to be sorted.
      * @return The sorted sequence.
      */
-    @SuppressWarnings("unchecked")
     public static <T extends Comparable> Sequence<T> sort (Sequence<T> seq) {
         if (seq.isEmpty())
             return Sequences.emptySequence(seq.getElementType());
-        T[] array = (T[])Array.newInstance(seq.getElementType(), seq.size());
+        T[] array = Util.newComparableArray(seq.size());
         seq.toArray(array, 0);
         Arrays.sort(array);
         return Sequences.make(seq.getElementType(), array);
@@ -766,11 +767,10 @@ public final class Sequences {
      *          should be used.
      * @return The sorted sequence.
      */
-    @SuppressWarnings("unchecked")
     public static <T> Sequence<T> sort (Sequence<T> seq, Comparator<? super T> c) {
         if (seq.isEmpty())
             return Sequences.emptySequence(seq.getElementType());
-        T[] array = (T[])Array.newInstance(seq.getElementType(), seq.size());
+        T[] array = Util.<T>newObjectArray(seq.size());
         seq.toArray(array, 0);
         Arrays.sort(array, c);
         return Sequences.make(seq.getElementType(), array);

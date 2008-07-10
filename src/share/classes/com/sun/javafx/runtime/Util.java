@@ -42,6 +42,11 @@ public class Util {
     }
 
     @SuppressWarnings("unchecked")
+    public static<T extends Comparable> T[] newComparableArray(int size) {
+        return (T[]) new Comparable[size];
+    }
+
+    @SuppressWarnings("unchecked")
     public static<T> Sequence<T>[] newSequenceArray(int size) {
         return (Sequence<T>[]) new Sequence[size];
     }
