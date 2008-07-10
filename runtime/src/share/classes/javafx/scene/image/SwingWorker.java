@@ -45,7 +45,7 @@ abstract class AccumulativeRunnable<T> implements Runnable {
      * Equivalent to {@code Runnable.run} method with the
      * accumulated arguments to process.
      *
-     * @param args accumulated argumets to process.
+     * @param args accumulated arguments to process.
      */
     protected abstract void run(List<T> args);
     
@@ -53,7 +53,7 @@ abstract class AccumulativeRunnable<T> implements Runnable {
      * {@inheritDoc}
      *
      * <p>
-     * This implementation calls {@code run(List<T> args)} mehtod
+     * This implementation calls {@code run(List<T> args)} method
      * with the list of accumulated arguments.
      */
     public final void run() {
@@ -349,7 +349,7 @@ abstract class SwingWorker<T, V> implements Runnable /* implements RunnableFutur
      * invocation argument only.
      * 
      * <p>
-     * For example, the following invokations:
+     * For example, the following invocations:
      * 
      * <pre>
      * setProgress(1);
