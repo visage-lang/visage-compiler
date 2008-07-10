@@ -26,9 +26,9 @@ The JavaFX Script programming language:
     <listitem>  Is statically typed, having most of the same code structuring, reuse, and encapsulation features that make it possible to create and maintain very large programs in the Java programming language.</listitem>
     
 
-    
+<!--    
     <listitem>  Works with all major IDEs, including the NetBeans IDE, the reference implementation IDE for software development with the Java programming language.</listitem>
-    
+    -->
 
     
     <listitem>  Is capable of supporting GUIs of any size or complexity.</listitem>

@@ -94,9 +94,10 @@ Access modifiers on classes behave the same as in Java programming language. Cla
 current class, respectively. 
 </para>
 
+<!--
 <para><emphasis role="bold">Note</emphasis>: The JavaFX Script programming language does not support constructors. To mimic the 
 behavior of a constructor, define a <code>static</code> function that returns a new object,
- and invoke that function instead.</para>
+ and invoke that function instead.</para> -->
 
  </sect2>
  
