@@ -64,7 +64,7 @@ public class SwingWindow extends Container {
      */
     public /* set-once */ attribute owner : SwingWindow = null;
 
-    public /* FIXME - should be non-public - temorary hack for fxpad */ /* constant */ attribute window : java.awt.Window = createWindow();
+    /* constant */ attribute window : java.awt.Window = createWindow();
 
     attribute ignoreJWindowChange: Boolean = false;
 
@@ -311,6 +311,14 @@ public class SwingWindow extends Container {
     public function close(): Void {
         visible = false;
         window.dispose();
+    }
+
+    // PENDING_DOC_REVIEW
+    /**
+     * Returns the {@link java.awt.Window} delegate for this window.
+     */
+    public /* final */ function getAWTWindow(): java.awt.Window {
+        window as java.awt.Window;
     }
 
     // PENDING_DOC_REVIEW
