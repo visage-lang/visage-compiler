@@ -44,8 +44,7 @@ public class ConfirmDialog  {
             //TODO DO LATER
             // do later {
                 var result = JOptionPane.showConfirmDialog(
-                    //TODO window is not public in class Window
-                      owner.window,
+                      owner.getAWTWindow(),
                       message,
                       title,
                       confirmType.id.intValue(),
