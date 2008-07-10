@@ -46,6 +46,12 @@
         <Bug pattern="SF_SWITCH_FALLTHROUGH"/>
     </Match>
     <Match>
+	    <!-- valid test for whether assertions are enabled -->
+	    <Class name="com.sun.tools.javafx.comp.JavafxAttr"/>
+        <Method name="attribClassBody"/>
+        <Bug pattern="DLS_DEAD_STORE_OF_CLASS_LITERAL"/>
+    </Match>
+    <Match>
         <!-- Error in findbugs, confuses two scan-methods in superclass -->
         <Class name="com.sun.tools.javafx.comp.JavafxEnter"/>
         <Method name="scan"/>

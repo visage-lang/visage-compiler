@@ -63,7 +63,7 @@ public class JavafxClassSymbol extends ClassSymbol {
     }
 
     public boolean isSubClass(Symbol base, Types types) {
-        if (! ((JavafxTypes) types).isCompoundClass(this))
+        if (! (types instanceof JavafxTypes) || ! ((JavafxTypes) types).isCompoundClass(this))
             return super.isSubClass(base, types);
         if (this == base)
             return true;
