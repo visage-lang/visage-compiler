@@ -169,7 +169,7 @@ public class SwingFrame extends SwingWindow {
     /**
      * Returns the {@link JFrame} delegate for this frame.
      */
-    /* final */ function getJFrame(): JFrame {
+    public /* final */ function getJFrame(): JFrame {
         window as JFrame;
     }
 
