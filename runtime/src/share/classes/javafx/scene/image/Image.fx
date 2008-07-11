@@ -133,7 +133,7 @@ public class Image {
     /**
      * Determines if the {@link placeholder} image is used
      * while the URL is loaded in the background.
-     * The default value is {@code null}
+     * The default value is {@code false}
      *  
      * @profile common
      */              
