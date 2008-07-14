@@ -36,8 +36,9 @@ import java.util.WeakHashMap;
 // Remove public modifier when resolved.
 // http://openjfx.java.sun.com/jira/browse/JFXC-1050
 /**
- * TransparentWindowImpl - This is a internal implementation class for Transparent and shaped window support in
- * Window.fx and Frame.fx. It should not be public or be ever used other than in those classes.
+ * TransparentWindowImpl - This is an internal implementation class for
+ * Transparent and shaped window support in Window.fx and Frame.fx. It should
+ * not be public or be ever used other than in those classes.
  *
  * @author Created by Jasper Potts (Jun 18, 2008)
  */
