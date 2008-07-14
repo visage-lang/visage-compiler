@@ -500,7 +500,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (ai.needsCloning()) {
                 long flags = ai.getFlags();
                 DiagnosticPosition diagPos = ai.pos();
-                Name attribName = ai.getName();
+                Name attribName = attributeFieldName(ai.getSymbol());
                 Name methodName = attributeName(ai.getSymbol(), attributeGetMethodNamePrefix);
 
                 // Add the return statement for the attribute
@@ -654,7 +654,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCExpression> attrs = ListBuffer.lb();
         for (AttributeInfo ai : attrInfos) {
             if (ai.needsCloning()) {
-                attrs.append(make.at(diagPos).Ident(ai.getName()));
+                attrs.append(make.at(diagPos).Ident(attributeFieldName(ai.getSymbol())));
             }
         }                
 
@@ -687,7 +687,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 List<JCExpression> arg = List.<JCExpression>of(make.at(diagPos).Ident(names._this));
                 JCStatement applyDefaultsCall = callStatement(diagPos, null, methodName, arg);
                 JCExpression needsDefaultCond = callExpression(diagPos,
-                        make.at(diagPos).Ident(ai.getName()),
+                        make.at(diagPos).Ident(attributeFieldName(ai.getSymbol())),
                         defs.needDefaultsMethodName);
                 JCStatement protectedCall = make.If(needsDefaultCond, applyDefaultsCall, null);
                 stmts.append( protectedCall );
@@ -775,7 +775,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     mods = addInheritedAnnotationModifiers(diagPos, sym.flags(), mods);
                 JCVariableDecl var = make.at(diagPos).VarDef(
                         mods,
-                        ai.getName(),
+                        attributeFieldName(ai.getSymbol()),
                         makeTypeTree( diagPos,ai.getVariableType()),
                         makeLocationAttributeVariable(ai.getVMI(), diagPos));
                 fields.append(var);

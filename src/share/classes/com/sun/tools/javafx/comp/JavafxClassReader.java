@@ -542,6 +542,17 @@ public class JavafxClassReader extends ClassReader {
                 }
                 else if (l.head instanceof VarSymbol) {
                     Type type = translateType(l.head.type);
+                    if ((flags & (PRIVATE|STATIC)) == PRIVATE &&
+                            (csym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
+                        // Undo the "mangling" done in JavafxTranslationSuport's
+                        // attributeNameString method.
+                        // (Using a "SourceName" attribute might be cleaner.)
+                        String nameString = name.toString();
+                        String prefix = csym.toString().replace('.', '$') + '$';
+                        if (prefix.startsWith(prefix)) {
+                            name = names.fromString(nameString.substring(prefix.length()));
+                        }
+                    }
                     VarSymbol v = new VarSymbol(flags, name, type, csym);
                     csym.members_field.enter(v);
                 }

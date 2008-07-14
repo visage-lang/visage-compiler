@@ -48,7 +48,7 @@ import com.sun.tools.javac.util.Position;
 import java.io.OutputStreamWriter;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
-
+import static com.sun.tools.javac.code.Flags.*;
 
 /**
  * Common support routines needed for translation
@@ -458,12 +458,22 @@ public abstract class JavafxTranslationSupport {
     }
     
     
+    Name attributeFieldName(Symbol sym) {
+        return names.fromString(attributeNameString(sym, ""));
+    }
+
     Name attributeName(Symbol sym, String prefix) {
         return names.fromString(attributeNameString(sym, prefix));
     }
 
     String attributeNameString(Symbol sym, String prefix) {
-        return prefix + sym.name;
+        String sname = sym.name.toString();
+        Symbol owner = sym.owner;
+        if ((sym.flags() & (PRIVATE|STATIC)) == PRIVATE
+                && types.isCompoundClass(owner)) {
+             sname = owner.toString().replace('.', '$') + '$' + sname;
+        }
+        return prefix + sname;
     }
 
     private String getParameterTypeSuffix(MethodSymbol sym) {

@@ -24,6 +24,7 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
 
+import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 
 import java.util.HashMap;
@@ -321,7 +322,7 @@ class JavafxAnalyzeClass {
 
     private AttributeInfo addAttribute(Name attrName, Symbol sym, boolean needsCloning) {
         AttributeInfo attrInfo = translatedAttributes.get(attrName);
-        if (attrInfo == null) {
+        if (attrInfo == null || attrInfo.getSymbol() != sym) {
             attrInfo = new AttributeInfo(diagPos, 
                     attrName,
                     sym, typeMorpher.varMorphInfo(sym), null, sym.owner == currentClassSym);
@@ -354,7 +355,9 @@ class JavafxAnalyzeClass {
             if (visitedAttributes.containsKey(attrName)) {
                 log.error(MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEFAULT_INITIALIZER, attrName, cSym.name, visitedAttributes.get(attrName));
             } else {
-                visitedAttributes.put(attrName, addAttribute(attrName, var, cloneVisible) );
+                AttributeInfo ai = addAttribute(attrName, var, cloneVisible);
+                if ((var.flags() & PRIVATE) == 0)
+                    visitedAttributes.put(attrName, ai);
             }
         }
     }
