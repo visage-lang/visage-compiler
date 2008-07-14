@@ -25,6 +25,9 @@ package javafx.animation;
 
 import java.lang.Object;
 
+/**
+ * @profile common
+ */
 public class KeyValue {
     public attribute target: KeyValueTarget;
     public attribute value: Object;

@@ -27,6 +27,9 @@ import java.lang.Comparable;
 import java.lang.Object;
 import javafx.lang.Duration;
 
+/**
+ * @profile common
+ */
 public class KeyFrame extends Comparable {
     /**
      * Defines the reference elapsed time offset within a single cycle

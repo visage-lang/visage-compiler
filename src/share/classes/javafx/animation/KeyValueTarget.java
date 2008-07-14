@@ -29,6 +29,9 @@ package javafx.animation;
  * 
  * @author Tom Ball
  */
+/**
+ * @profile common
+ */
 public interface KeyValueTarget {
 
     /**

@@ -25,6 +25,11 @@ package javafx.animation;
 
 import java.lang.Object;
 
+/**
+ * A value that can be interpolated.
+ *
+ * @profile common
+ */
 public abstract class Interpolatable {
     public abstract function ofTheWay(endVal:Object, t:Number) : Object;
 }

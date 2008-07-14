@@ -27,6 +27,9 @@ import java.lang.Float;
 import java.lang.Object;
 import com.sun.scenario.animation.Interpolators;
 
+/**
+ * @profile common
+ */
 public abstract class Interpolator {
     public abstract function interpolate(startValue:Object, endValue:Object, fraction:Number):Object;
 

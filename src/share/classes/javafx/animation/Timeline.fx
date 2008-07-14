@@ -36,6 +36,8 @@ import java.lang.System;
 
 /**
  * Represents an animation, defined by one or more {@code KeyFrame}s.
+ *
+ * @profile common
  */
 public class Timeline {
 

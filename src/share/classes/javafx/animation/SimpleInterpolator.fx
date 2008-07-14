@@ -24,11 +24,13 @@
 package javafx.animation;
 import java.lang.Object;
 
-/** A SimpleIterator is defined in terms of a "curve".
-  * It can be used for any value type that either implements Interpolatable
-  * or that extends java.lang.Number.
-  */
-
+/** 
+ * A SimpleIterator is defined in terms of a "curve".
+ * It can be used for any value type that either implements Interpolatable
+ * or that extends java.lang.Number.
+ *
+ * @profile common
+ */
 public abstract class SimpleInterpolator extends Interpolator {
 
     /** Mapping from [0.0..1.0] to itself.
