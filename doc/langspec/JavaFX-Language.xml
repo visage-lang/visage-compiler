@@ -39,6 +39,8 @@
 
 <xi:include href="ch9.xml"  parse="xml"/>
 
+<xi:include href="animation.xml"  parse="xml"/>
+
 <xi:include href="appendixa.xml"  parse="xml"/>
 
 

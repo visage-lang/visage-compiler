@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter>
+  <title>Animation</title>
+
+  <sect2 id="anim">
+    <title>Animation Overview</title>
+
+    <para>The JavaFX Script programming language supports <emphasis>key frame
+    animation</emphasis>, a declarative model in which the programmer
+    describes the animated state transitions of each "scene" by declaring
+    "snapshots" (key frames) of state at certain points in time. The JavaFX
+    Script programming language supports two basic varieties of key frame
+    animation: <emphasis>discreet</emphasis> and
+    <emphasis>interpolated</emphasis>. The difference is that for the latter,
+    special interpolation functions calculate that states that occur between
+    each animation frame. In either case, the system will automatically
+    perform the animation, stop it, pause it, resume it, reverse it, or repeat
+    it as requested.</para>
+
+    <para>At a high level, key frame animation can be described as
+    follows:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Animations occur along a timeline, represented by a
+        <code>javafx.animation.Timeline</code> object.</para>
+      </listitem>
+
+      <listitem>
+        <para>Each timeline contains two or more key frames, represented by
+        <code>javafx.animation.KeyFrame</code> objects.</para>
+      </listitem>
+
+      <listitem>
+        <para>Each timeline also provides certain attributes that describe it
+        (<code>autoReverse</code>, <code>repeatCount</code>,
+        <code>toggle</code>, etc.) plus a number of functions that control its
+        playback (<code>start()</code>, <code>stop()</code>,
+        <code>pause()</code>, and <code>resume()).</code></para>
+      </listitem>
+
+      <listitem>
+        <para>Each key frame is associated with a time instant relative to its
+        containing timeline and itself contain 3 things: a list of key values,
+        a list of sub-timelines, and a "trigger". Each contained sub-timeline
+        is evaluated with its starting point relative to the key frame's key
+        time. Timelines can therefore be constructed hierarchically and
+        contain sub-timelines which may themselves repeat. The "trigger", if
+        present, is a block of procedural code which is executed at the time
+        instant specified by the key frame.</para>
+      </listitem>
+
+      <listitem>
+        <para>A <code>javafx.animation.KeyValue</code> object describes an
+        end-state of a property at the time of the key frame together with a
+        function which is used to calculate the "in-between" values relative
+        to the previous key frame for that property.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>Note: Timeline objects can be used for general-purpose time-based
+    operations that are independent of graphic animation.</para>
+  </sect2>
+
+  <sect2 id="discrete">
+    <title>Discrete Animation</title>
+
+    <para>In a discrete animation, the value of a given property
+    instantaneously transitions to the value given in the key frame at the
+    time instant of the key frame. For example, consider the classic "tumbling
+    duke" animation, where the illusion of motion comes from simply flipping
+    through a series of images. The animation is "discrete" because there is
+    nothing to calculate "between" each animation frame.</para>
+
+    <para>
+      <programlisting>import javafx.application.Frame;
+import javafx.application.Stage;
+import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+
+// Load image data
+var images = for (i in [1..17]) {
+     Image { url: "file:images/T{i}.gif"};
+}
+
+// Set first image
+var currDuke = images[0];
+
+
+// Create timeline to cycle images
+var timeline = Timeline {
+     toggle: true
+     keyFrames: for (image in images) {
+          KeyFrame {
+               time: 100ms* indexof image // each frame is 100ms apart
+               action: function(){currDuke=image;}
+          }
+     }
+}
+
+Frame {
+
+     title: "Click on Duke!"
+     width: 250
+     height: 150
+     visible: true
+     stage: Stage {
+          content: ImageView {
+               image: bind currDuke;
+               onMouseClicked: function(e) {timeline.start();}
+          }
+     }
+}
+</programlisting>
+    </para>
+
+    <para>First, this program loads the images into memory and creates a
+    variable (<code>currDuke</code>) to represent the current image. Next, it
+    creates a timeline and populates it with a number of key frames (one per
+    image.) Each key frame is placed 100ms apart and assigns its image to
+    <code>currDuke</code>. Finally, the GUI binds the image that it displays
+    to <code>currDuke</code>, ensuring that the correct image will be
+    displayed on screen as the application cycles through its animation
+    frames.</para>
+  </sect2>
+
+  <sect2 id="interpolated">
+    <title>Interpolated Animation</title>
+
+    <para>Some animations, however, have states that must be dynamically
+    calculated. The next example spins a 2D rectangle as it changes size and
+    cycles through a range of colors. This animation is considered
+    <emphasis>interpolated</emphasis> because instead of creating key frames
+    for every possible position along the animation path, the programmer
+    simply declares a few key frames (start, mid, end) and lets the system
+    calculate everything in between.</para>
+
+    <para>
+      <programlisting>import javafx.application.Frame;
+import javafx.application.Stage;
+import javafx.scene.geometry.Rectangle;
+import javafx.scene.paint.Color;
+import javafx.scene.transform.Transform;
+import javafx.scene.Cursor;
+import javafx.animation.Timeline;
+import javafx.animation.Interpolator;
+
+Frame {
+     title: "Animation Demo";
+     width: 500
+     height: 400
+     visible: true
+     stage: Stage {
+                 content: Rectangle {
+
+                          // Declare variables
+                          var rotation = 0.0;
+                          var size = 1.0;
+                          var color = Color.GREEN;
+
+                         // Initialize attributes
+                         cursor: Cursor.HAND
+                         height: 50
+                         width: 50
+                         fill: bind color
+                         transform: bind [Transform.translate(100,100),
+                                          Transform.scale(size,size),
+
+Transform.rotate(rotation,25,25)]
+
+                         // Create animation timeline
+                         var myTimeline = Timeline {
+
+                                              toggle: true
+
+                                              // Key Frames
+                                              var begin = at (0s) {
+                                                   size =&gt; 1.0;
+                                                   color =&gt; Color.GREEN;
+                                                   rotation =&gt; 0.0;
+                                              }
+
+                                              var mid = at (0.5s) {
+                                                   color =&gt; Color.PURPLE tween Interpolator.EASEBOTH;
+                                              }
+
+                                              var end = at (1s) {
+                                                   size =&gt; 3.0 tween Interpolator.LINEAR;
+                                                   color =&gt; Color.RED tween Interpolator.EASEBOTH;
+                                                   rotation =&gt; 360.0 tween Interpolator.EASEBOTH;
+                                              }
+
+                                              keyFrames: [begin,mid,end]
+                       }
+
+                       onMouseClicked: function(e) {
+                       myTimeline.start();
+               }
+          }
+     }
+}  </programlisting>
+    </para>
+
+    <para>Note that although key frame animations are created from normal
+    objects, special syntax is provided to make the task easier, namely the
+    <code>=&gt;</code>, <code>tween, </code>and <code>at </code>operators. In
+    this example, we have created the key frames using the "<code>at</code>"
+    operator, which is a literal constructor for <code>KeyFrame</code>
+    objects.</para>
+
+    <para>Question for eng reviewers: what else do we want to say about =&gt;
+    tween and at? Also, we mentioned KeyValue at the top of the page but I'm
+    not sure what needs to be said about it. Is KeyValue somehow being used in
+    these examples, even though we don't see it mentioned in the code?</para>
+  </sect2>
+</chapter>
