@@ -60,14 +60,12 @@ public class Polyline extends Shape {
 
     private attribute gPath = new java.awt.geom.GeneralPath;
 
-    // XX suffix due to http://openjfx.java.sun.com/jira/browse/JFXC-728
+    private attribute initializing:Boolean = true;
 
-    private attribute initializingXX:Boolean = true;
-
-    init { initializingXX = false; u(); }
+    init { initializing = false; u(); }
 
     private function u():Void { // update polyline
-        if (initializingXX) { return; }
+        if (initializing) { return; }
         if (sizeof points == 0 or sizeof points mod 2 != 0) { return; }
         gPath.reset();
         gPath.moveTo(points[0], points[1]);
