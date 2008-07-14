@@ -75,7 +75,7 @@ public class TestUtils  {
 		else if (sizeof s1<sizeof s2) { 	retval = false; }
 		else {
 			for(i in [ 0..sizeof s1]) {
-				if(s1[i] <> s2[i])	retval = false;
+				if(s1[i] != s2[i])	retval = false;
 			}
 		}
 		return retval;
@@ -87,7 +87,7 @@ public class TestUtils  {
 		else if (sizeof i1<sizeof i2) { 	retval = false; }
 		else {
 			for(i in [ 0..sizeof i1]) {
-				if(i1[i] <> i2[i])	retval = false;
+				if(i1[i] != i2[i])	retval = false;
 			}
 		}
 		return retval;

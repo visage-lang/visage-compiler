@@ -52,7 +52,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 8 	         * 				multiplication 			* 						Right to Left
  	         / 				division 	/
- 	         % 				remainder 	
+         mod 				remainder 	
  	         => 			animation
 _______________________________________________________________________________
 9 	         ++ (prefixed) 	assign 					++ 					Right to Left
@@ -116,29 +116,29 @@ function test2() {
    var N=2.25; var n1 = 5.0; var n2=2.0; var n3=3.0;
    debugOut("N={N} n1={n1}   n2={n2}  n3={n3}");
 	var expr = "test2:  N *= n3 = n1 %= n2;  ";
-	N *= n3 = n1 %= n2;
+	N *= n3 = n1 = n1 mod n2;   //replace A%=B with A = A mod B (typ.)
 	TA.checkN(N,2.25,expr);
 	TA.checkN(n3,1.0,expr);
 
    var i1 = 2; var i2 = 4; var i3 = 9; var i5 = 5;
 	expr = "test2:  i1 *=  i2  /= i9 %= i5";
-	var prod = i1 *=  i2  /= i3 %= i5;
+	var prod = i1 *=  i2  /= i3 = i3 mod i5;
 	TA.checkI(prod,2,expr);
 
    i1 = 2; i2 = 4; i3 = 9; i5 = 5;
 	expr = "test2:  i5 *=  i3  /= i2 %= i1"; 
-	try { 	prod = i5 *=  i3  /= i2 %= i1; }
+	try { 	prod = i5 *=  i3  /= i2 = i2 mod i1; }
 	catch( e:java.lang.ArithmeticException) { TA.checkI(i2,0,expr); }
 
    i1 = 2; i2 = 4; i3 = 3; i5 = 5;
 	expr = "test2:  i1 *=  i2  /= i9 %= i5";
-	prod = i1 *=  i2  /= i5 %= i3;
+	prod = i1 *=  i2  /= i5 = i5 mod i3;
 	TA.checkI(prod,4,expr);
 
    i1 = 81; i2 = 4; i3 = 3; i5 = 15;
 	expr = "test2:  i1 %=  i2  *= i9 /= i5";
-	prod = i1 %=  i2  *= i5 /= i3;
-	TA.checkI(prod,1,expr);
+	i1 = i1 mod (i2  *= i5 /= i3); //no %=, add ()'s to force right to left order.
+	TA.checkI(i1,1,expr);
 
 }
 
@@ -172,7 +172,7 @@ function test3() {
 function test4() {
    var i1 = 1; var i2=2;
 	var expr = "Test4: var b2 = {i1} += {i2} + {TWO} * 5 % 7;  ";
-	var b2 = i1 += i2 + 2 * 5 % 7 ;
+	var b2 = i1 += i2 + 2 * 5 mod 7 ;
 	TA.checkI(b2,6,expr);
 }
 
@@ -249,9 +249,9 @@ function test6() {
  */
 function test8() {
 	var expr1 = "3*8%5";
-	var d1 = 3*8%5;
+	var d1 = 3 * 8 mod 5;
 	var expr2 = "8%5*3";
-	var d2 = 8%5*3;
+	var d2 = 8 mod 5 * 3;
 	var expr3 = "3*15/2";
 	var d3 = 3*15.0/2;
 	var expr4 = "15/2*3";
