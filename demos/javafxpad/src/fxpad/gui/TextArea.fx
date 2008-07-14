@@ -27,13 +27,15 @@ import javafx.scene.paint.*;
  */
 public class TextArea extends Component {
 
+    attribute ignoreJComponentChangeXX: Boolean = false;
+
     // PENDING_DOC_REVIEW
     /**
      * Represents the text contained in this {@code TextArea}.
      */
     public attribute text: String on replace {
         if (not getJTextArea().getText().equals(text)) {
-            doAndIgnoreJComponentChange(function() {
+            doAndIgnoreJComponentChangeXX(function() {
                 getJTextArea().setText(text);
             });
         }
@@ -44,7 +46,7 @@ public class TextArea extends Component {
      * Represents the number of columns in this {@code TextArea}.
      */
     public attribute columns: Integer = getJTextArea().getColumns() on replace {
-        doAndIgnoreJComponentChange(function() {
+        doAndIgnoreJComponentChangeXX(function() {
             getJTextArea().setColumns(columns);
         });
     }
@@ -53,23 +55,23 @@ public class TextArea extends Component {
      * Represents the number of rows in this {@code TextArea}.
      */
     public attribute rows: Integer = getJTextArea().getRows() on replace {
-        doAndIgnoreJComponentChange(function() {
+        doAndIgnoreJComponentChangeXX(function() {
             getJTextArea().setRows(rows);
         });
     }    
     
     public attribute lineWrap: Boolean = getJTextArea().getLineWrap() on replace {
-        doAndIgnoreJComponentChange(function() {
+        doAndIgnoreJComponentChangeXX(function() {
             getJTextArea().setLineWrap(lineWrap);
         });
     };
     public attribute tabSize: Number = getJTextArea().getTabSize()  on replace {
-        doAndIgnoreJComponentChange(function() {
+        doAndIgnoreJComponentChangeXX(function() {
             getJTextArea().setTabSize(tabSize.intValue());
         });
     };
     public attribute wrapStyleWord: Boolean = getJTextArea().getWrapStyleWord()  on replace {
-        doAndIgnoreJComponentChange(function() {
+        doAndIgnoreJComponentChangeXX(function() {
             getJTextArea().setWrapStyleWord(wrapStyleWord);
         });
     }    
@@ -80,7 +82,7 @@ public class TextArea extends Component {
      * is editable or not.
      */
     public attribute editable: Boolean = getJTextArea().isEditable() on replace {
-        doAndIgnoreJComponentChange(function() {
+        doAndIgnoreJComponentChangeXX(function() {
             getJTextArea().setEditable(editable);
         });
     }
@@ -177,7 +179,7 @@ public class TextArea extends Component {
 
         jTextArea.addPropertyChangeListener(PropertyChangeListener {
             public function propertyChange(e: PropertyChangeEvent): Void {
-                if (ignoreJComponentChange) {
+                if (ignoreJComponentChangeXX) {
                     return;
                 }
 
@@ -208,7 +210,7 @@ public class TextArea extends Component {
 
         jTextArea.getDocument().addDocumentListener(DocumentListener {
             private function ut(): Void {
-                if (ignoreJComponentChange) {
+                if (ignoreJComponentChangeXX) {
                     return;
                 }
 
@@ -264,6 +266,15 @@ public class TextArea extends Component {
      */
     protected /* final */ function createJComponent(): JComponent {
         new JTextAreaImpl();
+    }
+
+    function doAndIgnoreJComponentChangeXX(func: function(): Void) {
+        try {
+            ignoreJComponentChangeXX = true;
+            func();
+        } finally {
+            ignoreJComponentChangeXX = false;
+        }
     }
 
 }

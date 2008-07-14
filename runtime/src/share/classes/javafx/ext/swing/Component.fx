@@ -240,7 +240,7 @@ public abstract class Component extends ClusterElement {
 
     public attribute visbaseline: Boolean = false;
 
-    protected function doAndIgnoreJComponentChange(func: function(): Void) {
+    function doAndIgnoreJComponentChange(func: function(): Void) {
         try {
             ignoreJComponentChange = true;
             func();
