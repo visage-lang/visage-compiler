@@ -864,9 +864,9 @@ public class JavafxPretty implements JavafxVisitor {
             if (tree.value != null) {
                 pretty.align();
                 pretty.printExpr(tree.value);
+                pretty.println();
             }
             pretty.undent();
-            pretty.println();
             pretty.align();
             pretty.print("}");
         } catch (IOException e) {
@@ -1191,6 +1191,9 @@ public class JavafxPretty implements JavafxVisitor {
                 printExpr(tree.getNewElements());
             }
             print(" ");
+            if (tree.getBody() != null) {
+                printExpr(tree.getBody());
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }      
