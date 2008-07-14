@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
-<chapter id="expressions"><title>Expressions, Statements, and Operators</title>
+<chapter id="expressions"><title>Expressions and Operators</title>
 
 <sect2 id="expr"><title>Expressions</title>
 <para>
@@ -66,7 +66,7 @@ System.out.println(s);
 </programlisting>
 
 
-<para>The Java programming language contains both an <code>if</code> statement, 
+<para>The Java programming language contains both an <code>if</code> expression  
 and a conditional expression: <code>a &lt; b ? a : b</code>.</para>
 
 <para>Thanks to block expressions, the JavaFX Script programming language <code>if</code> expression takes the place of both.</para>
@@ -151,16 +151,36 @@ if (condition1) {
 The <code>for</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** --> <emphasis role="red">Copy to come </emphasis>
 </para>
 <para>
-The <code>while</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** --><emphasis role="red">Copy to come</emphasis>
-</para>
+
+<sect4 id="while"><title>The <code>while</code> Expression</title> 
+
+<para>The while expression is the same as in the Java programming language, but curly braces
+are always required around the body.</para>
+
+<para><emphasis role="bold">Example:</emphasis></para>
+
+<programlisting>import java.lang.System;
+
+var i = 0;
+while (i &lt; 10) {
+    if (i &gt; 5) {
+         break;
+    }
+    System.out.println("i = {i}");
+    i += 1;
+} </programlisting>
+
+</sect4></para>
+
+
 
 </sect3></sect2>
 
-<sect2 id="state"><title>Statements</title>
+<sect2 id="state"><title>Other Expressionss</title>
 
 
 <para>
-The <code>return</code> statement
+The <code>return</code> Expression
 is the same as found in the Java programming language:
 </para>
 
@@ -172,7 +192,7 @@ function add(x, y) {
 
 
 <para>
-The <code>throw</code> statement is similar to that of 
+The <code>throw</code> expression is similar to that of 
 the Java Programming language, but 
  only objects extending 
 <code>java.lang.Throwable</code> may be thrown and caught:</para>
@@ -190,7 +210,7 @@ function bar() {
 </programlisting>
 
 <para>
-The <code>try</code> and <code>catch</code> statements
+The <code>try</code> and <code>catch</code> expressions
  are similar to those of the Java programming language, but 
  use JavaFX Script programming language variable declaration syntax:
 </para>
@@ -211,18 +231,39 @@ try {
 
 
 <para>
-The <code>break</code> and <code>continue</code> statements are 
- similar to those of the Java Programming language; however labels are 
-not supported. The <code>break</code> and <code>continue</code> statements must appear inside the body of a <code>while</code> or <code>for</code> loop:</para>
-<!--
-&nbsp;                                    
-- **** <FONT COLOR="RED"> code EXAMPLE TBD </FONT>
--->
-<programlisting>
-<emphasis>      Code example to come </emphasis>
-</programlisting> 
+The <code>break</code> and <code>continue</code> expressions are 
+ similar to those of the Java Programming language; but labels are 
+not supported. </para>
 
+<para><emphasis role="bold">Examples:</emphasis></para>
 
+<programlisting>import java.lang.System;
+
+function foo() {
+    for (i in [0..10]) {
+         if (i > 5) {
+              break;
+         }
+         if (i mod 2 == 0) {
+              continue;
+         }
+         System.out.println(i);
+    }
+}
+
+function bar() {
+    var i = 0;
+    while (i &lt; 10) {
+         if (i &gt; 5) {
+              break;
+         }
+         if (i mod 2 == 0) {
+              continue;
+         }
+         System.out.println(i);
+         i += 1;
+    }
+} </programlisting>
 
 </sect2>
 <sect2 id="oper"><title>Operators</title>
