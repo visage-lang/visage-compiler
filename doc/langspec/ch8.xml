@@ -81,7 +81,7 @@ bind { var a = expr; var b = expr; var c = expr; expr }
 
 
 <para>
-Because any changes to the bound expression cause an update, and because that update is minimal, it is easy to see that the variables are effectively bound. Note also that <code>while</code>, <code>insert</code> and <code>delete</code> are statements and therefore can not occur within a <code>bind</code>.
+Because any changes to the bound expression cause an update, and because that update is minimal, it is easy to see that the variables are effectively bound. Note also that <code>while</code>, <code>insert</code> and <code>delete</code> are expressions and therefore can not occur within a <code>bind</code>.
 </para>
 
 </sect2>
@@ -96,7 +96,7 @@ let x = bind if (condExpr) expr1 else expr2;
 
 
 <para>
-A change to <code>condExpr</code>  changes which branch of the <code>if</code> statement will be evaluated. A change to <code>expr1</code> or <code>expr2</code> does not cause either of the other expressions to be recalculated.
+A change to <code>condExpr</code>  changes which branch of the <code>if</code> expression will be evaluated. A change to <code>expr1</code> or <code>expr2</code> does not cause either of the other expressions to be recalculated.
 </para>
 
 </sect2>

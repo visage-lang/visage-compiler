@@ -156,14 +156,14 @@ Objects are covered in detail in
 </sect3>
 
  <sect3 id="expressions"><title>
-Expressions, Statements, and Operators</title>
+Expressions and Operators</title>
 
 
 <!-- <FONT COLOR="RED"> -->
 
 
 
-<para>Like other programming languages, the JavaFX Script programming language supports  expressions, statements, and 
+<para>Like other programming languages, the JavaFX Script programming language supports  expressions and 
 operators. <!--  However, unlike the Java programming language, the JavaFX Script
 programming language is an expression language, which means that all
 executable statements - including conditionals, loops, and even
@@ -182,7 +182,7 @@ blocks -  are expressions. --> </para>
 <ulink
     url="expressions.html"><emphasis>Chapter 5</emphasis></ulink>
     
-discusses the expressions, statements, and operators available in the JavaFX Script programming language. 
+discusses the expressions and operators available in the JavaFX Script programming language. 
 </para>
 
 </sect3>
