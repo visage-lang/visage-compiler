@@ -1,4 +1,0 @@
-start : t.running = true
-pause : t.running = true
-pass - pause
-pass - stop
