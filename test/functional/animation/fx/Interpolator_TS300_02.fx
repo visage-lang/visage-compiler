@@ -126,15 +126,15 @@ function check() {
 		throw new AssertionError("test failed: count");
 	}
 
-	if(avgBegin > 1.5 or avgBegin < 0.7) {
+	if(avgBegin > 1.5 or avgBegin < 0.3) {
 		throw new AssertionError("test failed: avgBegin");
 	}
 
-	if(avgMiddle > 1.5 or avgMiddle < 0.7) {
+	if(avgMiddle > 1.5 or avgMiddle < 0.5) {
 		throw new AssertionError("test failed: avgMiddle");
 	}
 
-	if(avgEnd > 1.5 or avgEnd < 0.7) {
+	if(avgEnd > 1.5 or avgEnd < 0.5) {
 		throw new AssertionError("test failed: avgEnd");
 	}
 }
