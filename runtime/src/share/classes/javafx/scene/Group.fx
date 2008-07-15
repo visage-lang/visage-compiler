@@ -77,7 +77,10 @@ public class Group extends Node {
         }
         impl_requestLayout();
     }
-       
+
+    /**
+     * @treatasprivate implementation detail
+     */
     public attribute impl_layout: function(g:Group):Void = null;
 
 }
