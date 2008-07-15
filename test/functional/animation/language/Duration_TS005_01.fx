@@ -19,7 +19,7 @@ import java.awt.event.*;
 
 
 var t1: Duration = 1m;
-var t2: Duration = Duration.valueOf(1000);
+var t2: Duration = 10000ms; //Duration{ millis: 10000 };
 
 if(t1.add(t2).sub(t2).div(2) != 30s) {
 	throw new AssertionError("duration test failed");
