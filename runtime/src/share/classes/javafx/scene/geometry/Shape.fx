@@ -200,6 +200,10 @@ public abstract class Shape extends Node, Interpolatable {
     }
 
     private attribute morphEvaluator:ShapeEvaluator;
+
+    /**
+     * @treatasprivate implementation detail
+     */
     public function ofTheWay(endVal:Object, t:Number): Object {
         if (morphEvaluator == null) {
             morphEvaluator = ShapeEvaluator {};

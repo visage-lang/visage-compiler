@@ -174,10 +174,8 @@ public /* final */ class Color extends Paint, Interpolatable {
         getAWTColor0();
     }
 
-    /* //PENDING_DOC_REVIEW
-     * Support for interpolation?
-     * <p class="editor">This method should not be public. It is an implementation detail.</p>
-     * @needsreview
+    /**
+     * @treatasprivate implementation detail
      */
     public function ofTheWay(endVal:Object, t:Number): Object {
         var v2 = endVal as Color;
