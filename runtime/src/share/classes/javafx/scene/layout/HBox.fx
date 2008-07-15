@@ -33,11 +33,11 @@ import javafx.scene.Group;
 public class HBox extends Group {
 
     public attribute spacing:Number on replace {
-        requestLayout();
+        impl_requestLayout();
     }
 
     init {
-        layout = doHBoxLayout;
+        impl_layout = doHBoxLayout;
     }
 
     // PENDING(shannonh) - should be private. Fix after http://openjfx.java.sun.com/jira/browse/JFXC-1421

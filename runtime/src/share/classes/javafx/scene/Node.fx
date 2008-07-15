@@ -84,7 +84,7 @@ public abstract class Node {
             public function boundsChanged(e:SGNodeEvent):Void {
                 impl_cachedBounds = null;
                 impl_cachedXYWH = null;
-                requestLayout();
+                impl_requestLayout();
             }
         }
     }
@@ -238,8 +238,10 @@ public abstract class Node {
      * If this Node is a Group/CustomNode then set its impl_needsLayout
      * attribute as well.  We short-circuit when we find a node
      * who's impl_needsLayout bit is already set.
+     *
+     * @treatasprivate implementation detail
      */
-    protected function requestLayout():Void {
+    protected function impl_requestLayout():Void {
         var n:Node = this;
         while (n != null) {
             if ((n instanceof Group) or (n instanceof CustomNode)) { 

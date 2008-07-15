@@ -82,7 +82,7 @@ public abstract class CustomNode extends Node {
         impl_content = create();
         impl_content.parent = this;
         getSGGroup().add(impl_content.impl_getFXNode());
-        impl_content.requestLayout();
+        impl_content.impl_requestLayout();
     }
 
     function getSGGroup(): SGGroup { impl_getSGNode() as SGGroup }

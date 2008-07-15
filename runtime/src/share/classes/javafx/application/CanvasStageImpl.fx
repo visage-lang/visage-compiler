@@ -121,8 +121,8 @@ class CanvasStageImpl {
         }
         if (root instanceof Group) {
             var group:Group = root as Group;
-            if (group.layout != null) {
-                group.layout(group);
+            if (group.impl_layout != null) {
+                group.impl_layout(group);
             }
             for (child in group.content) {
                 updateCachedBounds(child);

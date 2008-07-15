@@ -75,9 +75,9 @@ public class Group extends Node {
             index = index + 1;
             node.parent = this;
         }
-        requestLayout();
+        impl_requestLayout();
     }
        
-    public attribute layout: function(g:Group):Void = null;
+    public attribute impl_layout: function(g:Group):Void = null;
 
 }
