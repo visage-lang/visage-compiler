@@ -41,6 +41,7 @@ import com.sun.tools.javafx.comp.JavafxAnalyzeClass.AttributeInfo;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedAttributeInfo;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideAttributeInfo;
 import com.sun.tools.javafx.tree.*;
+import static com.sun.tools.javac.code.Flags.PRIVATE;
 
 /**
  * Build the representation(s) of a JavaFX class.  Includes class initialization, attribute and function proxies.
@@ -528,18 +529,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return getters.toList();
     }
         
-    private boolean isAttributeOriginClass(Symbol sym, Name attrName, Name getterName) {
-        if (types.isJFXClass(sym)) {
-            ClassSymbol supertypeSym = (ClassSymbol) sym;
-            for (Entry e = supertypeSym.members().elems; e != null && e.sym != null; e = e.sibling) { 
-                if ((e.sym.kind == Kinds.MTH && e.sym.name == getterName) ||
-                        (e.sym.kind == Kinds.VAR && e.sym.name == attrName)) {
+    private boolean isAttributeOriginClass(Symbol csym, Symbol attr) {
+        if (types.isJFXClass(csym)) {
+            ClassSymbol supertypeSym = (ClassSymbol) csym;
+            for (Entry e = supertypeSym.members().elems; e != null && e.sym != null; e = e.sibling) {
+                if (attr.owner == csym)
+                    return true;
+                if ((attr.flags() & PRIVATE) != 0)
+                    return false;
+                if ((e.sym.kind == Kinds.VAR && e.sym.name == attr.name)) {
+                    // Needed to handle override.
                     return true;
                 }
             }
             // not directly in this class, try in the superclass
             for (Type supertype : supertypeSym.getInterfaces()) {
-                if (isAttributeOriginClass(supertype.tsym, attrName, getterName) ) {
+                if (isAttributeOriginClass(supertype.tsym, attr) ) {
                     return true;
                 }
             }
@@ -565,10 +570,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 } else {
                     // no default, look for the supertype which defines it, and defer to it
                     ClassSymbol attrParent = null;
-                    Name getterName = attributeName(ai.getSymbol(), attributeGetMethodNamePrefix);
+                    //Name getterName = attributeName(ai.getSymbol(), attributeGetMethodNamePrefix);
                     for (JFXExpression supertype : cDecl.getSupertypes()) {
                         Symbol sym = supertype.type.tsym;
-                        if (isAttributeOriginClass(sym, ai.getName(), getterName) ) {
+                        if (isAttributeOriginClass(sym, ai.getSymbol()) ) {
                             attrParent = (ClassSymbol) sym;
                             break;
                         }
