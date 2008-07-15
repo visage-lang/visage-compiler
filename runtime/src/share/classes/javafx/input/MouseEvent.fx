@@ -44,8 +44,8 @@ public function createMouseEvent(node: Node,
 /**
  * The mouse (pointer's) location is available relative to several
  * coordinate systems: getX(),getY() - relative to the origin of the
- * MouseEvent's node, getCanvasX(),getCanvasY() - relative to to the
- * origin of the Canvas that contains the node,
+ * MouseEvent's node, getStageX(),getStageY() - relative to to the
+ * origin of the {@code Stage} that contains the node,
  * getScreenX(),getScreenY() - relative to origin of the screen that
  * contains the mouse pointer, getDragX(), getDragY() - if the
  * MouseEvent is part of a press-drag-release gesture, then relative
@@ -147,20 +147,20 @@ public class MouseEvent {
     // PENDING_DOC_REVIEW
     /**
      * Returns the horizontal x position of the event relative to the 
-     * origin of the Canvas that contains the MouseEvent's node.
+     * origin of the {@code Stage} that contains the MouseEvent's node.
      *
      * @profile common conditional mouse
      */         
-    public function getCanvasX():Number { awtMouseEvent.getX() }
+    public function getStageX():Number { awtMouseEvent.getX() }
     
     // PENDING_DOC_REVIEW
     /**
      * Returns the vertical y position of the event relative to the 
-     * origin of the Canvas that contains the MouseEvent's node.
+     * origin of the {@code Stage} that contains the MouseEvent's node.
      *
      * @profile common conditional mouse
      */         
-    public function getCanvasY():Number { awtMouseEvent.getY() }
+    public function getStageY():Number { awtMouseEvent.getY() }
     
     // PENDING_DOC_REVIEW
     /**
