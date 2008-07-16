@@ -77,7 +77,13 @@ public class Frame extends Window{
             (window as JFrame).setResizable(resizable);
         });
     }
-    
+
+    function setUndecorated(undecorated:Boolean): Void{
+        doAndIgnoreWindowChange(function() {
+            (window as JFrame).setUndecorated(undecorated);
+        });
+    }
+
     // PENDING_DOC_REVIEW
     /**
      * Creates the {@link java.awt.Window} delegate for this component. Must implement RootPaneContainer, ie be a

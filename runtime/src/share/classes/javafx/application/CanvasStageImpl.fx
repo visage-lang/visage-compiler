@@ -64,7 +64,7 @@ class CanvasStageImpl {
     }
 
     /** bound to stage.fill so we can react to changes */
-    private attribute stageFill: Paint = bind stage.fill on replace {
+    private attribute stageFill: Paint = bind if (stage == null) then Color.WHITE else stage.fill on replace {
         jsgPanel.setBackgroundPaint(stageFill.getAWTPaint());
     }
 

@@ -72,6 +72,12 @@ public class Dialog extends Window {
         });
     }
 
+    function setUndecorated(undecorated:Boolean): Void{
+        doAndIgnoreWindowChange(function() {
+            (window as JDialog).setUndecorated(undecorated);
+        });
+    }
+
     postinit {
         var jDialog = window as JDialog;
 

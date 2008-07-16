@@ -69,7 +69,7 @@ public abstract class Window {
     
     // PENDING_DOC_REVIEW
     /**
-     * Defines the title of the {@code Frame}.
+     * Defines the title of the {@code Window}.
      */
     public attribute title: String on replace { setWindowTitle(title); }
 
@@ -77,13 +77,33 @@ public abstract class Window {
 
     // PENDING_DOC_REVIEW
     /**
-     * Defines whether this frame is resizable by the user.
+     * Defines whether this {@code Window} is resizable by the user.
      */
     public attribute resizable: Boolean = isWindowResizable() on replace { setWindowResizable(resizable); }
 
     abstract function isWindowResizable(): Boolean;
 
     abstract function setWindowResizable(resizable:Boolean): Void;
+
+    // PENDING_DOC_REVIEW
+    /**
+     * Defines the possible styles for a {@code Window} which are: {@code  WindowStyle.DECORATED},
+     * {@code WindowStyle.UNDECORATED}, or {@code  WindowStyle.TRANSPARENT}.
+     *
+     * @setonce
+     */
+    public  /* set-once */ attribute windowStyle:WindowStyle = WindowStyle.DECORATED on replace {
+        if (windowStyle == WindowStyle.DECORATED) {
+            // do nothing as the is the default
+        } else if (windowStyle == WindowStyle.UNDECORATED) {
+            setUndecorated(true);
+        } else if (windowStyle == WindowStyle.TRANSPARENT) {
+            setUndecorated(true);
+            WindowImpl.setWindowTransparency(window,true);
+        }
+    }
+
+    abstract function setUndecorated(undecorated:Boolean): Void;
 
     // PENDING_DOC_REVIEW
     /**
@@ -266,40 +286,6 @@ public abstract class Window {
     }
 
     private attribute isWindowInitialized: Boolean = false;
-
-
-    /**
-     * Bound to stage.fill so we can react to changes.
-     * <p/>
-     * If {@code null} the window will paint no background or decorations(like title bar) and the opacity of the
-     * contents will depend on the alpha at which they a drawn. Often this is referred to as "per-pixel transparency".
-     * Pixels that are 100% transparent (ie. no content has been drawn there) do not accept mouse events. The mouse
-     * events pass directly to the window behind as if this window did not exist for that pixel. This differs from
-     * {@code opacity} as it only makes the window background and decorations 100% transparent not effecting the
-     * transparency of any content drawn in the window. This only has effect if the platform supports it. Currently
-     * Sun Java 6u10 or newer and Apple Java support this.
-     */
-    private attribute stageFill: Paint = bind stage.fill on replace {
-        // detect if Paint contains transparency, if it does then make window per-pixel transparent
-        // Note: Any new Paint subclasses need to be added here
-        var transparent:Boolean = stageFill == null;
-        if (stageFill instanceof Color) {
-            var color:Color = stageFill as Color;
-            transparent = color.opacity != 1;
-        } else if (stageFill instanceof LinearGradient) {
-            var g:LinearGradient = stageFill as LinearGradient;
-            for (stop in g.stops){
-                transparent = transparent or stop.color.opacity != 1;
-            }
-        } else if (stageFill instanceof RadialGradient) {
-            var g:RadialGradient = stageFill as RadialGradient;
-            for (stop in g.stops){
-                transparent = transparent or stop.color.opacity != 1;
-            }
-        }
-        WindowImpl.setWindowTransparency(window,transparent);
-    }
-
 
     private function getRootPaneContainer(): RootPaneContainer {
         window as RootPaneContainer;
