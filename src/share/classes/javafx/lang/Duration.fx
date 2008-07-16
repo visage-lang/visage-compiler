@@ -36,13 +36,20 @@ import java.lang.Math;
  * <code><pre>    Duration t = 2m + 30s;
     Duration t = 2.5m;
     Duration t = 2500ms;</pre></code>
+ * Duration instances are immutable, and are therefore replaced rather than modified.
+ * To create a new Duration instance, either use a time literal, or use the
+ * <code>Duration.valueOf(milliseconds)</code> factory method.
  *
  * @profile common
  */
 public class Duration extends com.sun.javafx.runtime.Duration {
     
     /**
+     * Factory method that returns a Duration instance for a specified
+     * number of milliseconds.
      *
+     * @param ms the number of milliseconds
+     * @return a Duration instance of the specified number of milliseconds
      * @profile common
      */
     public static function valueOf(ms: Number): Duration {
@@ -118,59 +125,65 @@ public class Duration extends com.sun.javafx.runtime.Duration {
         return valueOf(millis / n);
     }
 
-    /**
+    /** 
+     * Return a new Duration instance which has a negative number of milliseconds
+     * from this instance.  For example, <code>(50ms).negate()</code> returns
+     * a Duration of -50 milliseconds.  This function does not change the value 
+     * of called Duration instance. 
      *
      * @profile common
-     */    
+     */
     public function negate():Duration {
         return valueOf(-millis);
     }
 
     /**
-     *
      * @profile common
      */        
     public function toString(): String {
         return "{millis}ms";
     }
 
-    /**
+    /** 
+     * Returns true if the specified duration is less than (<) this instance. 
      *
      * @profile common
-     */        
+     */
     public function lt(other: Duration):Boolean {
         return compareTo(other) < 0;
     }
 
-    /**
+    /** 
+     * Returns true if the specified duration is less than or equal to (<=) this instance. 
      *
      * @profile common
-     */        
+     */
     public function le(other: Duration):Boolean {
         return compareTo(other) <= 0;
     }
 
-    
-    /**
+    /** 
+     * Returns true if the specified duration is greater than (>) this instance. 
      *
      * @profile common
-     */        
+     */
     public function gt(other: Duration):Boolean {
         return compareTo(other) > 0;
     }
 
     /**
+     * Returns true if the specified duration is greater than or equal to (>=) this instance. 
      *
      * @profile common
-     */        
+     */
     public function ge(other: Duration):Boolean {
         return compareTo(other) >= 0;
     }
 
-    /**
-     *
-     * @profile common
-     */        
+    /** 
+     * Returns a Date instance initialized to the length of this instance.  
+     * It is equivalent to <code>new java.util.Data(this.toMillis())</code>.
+     */
     public function toDate():java.util.Date {
         return new java.util.Date(millis.longValue());
     }
