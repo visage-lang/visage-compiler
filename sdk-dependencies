@@ -1,9 +1,5 @@
 # This file tells the integrated SDK build
-# what versions of Scenario and jmc to use
-
-# Scenario (Scenario.jar)
-# http://ceres.sfbay.sun.com/hudson/job/JavaFXScenegraph/
-scenario=244
+# what version of jmc to use
 
 # Media (jmc.jar and jmc.dll)
 # http://ceres.sfbay.sun.com/hudson/job/JavaFXMedia/
