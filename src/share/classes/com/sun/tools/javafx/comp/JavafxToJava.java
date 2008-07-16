@@ -102,7 +102,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     //TODO: all these should, probably, go into a translation wrap class
     Yield yield = Yield.ToExpression;
 
-    private JavafxEnv<JavafxAttrContext> attrEnv;
+    protected JavafxEnv<JavafxAttrContext> attrEnv;
     private Target target;
 
     abstract static class Translator {

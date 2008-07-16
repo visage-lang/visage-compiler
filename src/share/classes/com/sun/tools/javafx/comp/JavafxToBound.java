@@ -66,8 +66,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     private final Name param1Name;
     private final Name computeElementsName;
 
-
-    private JavafxEnv<JavafxAttrContext> attrEnv;
     private TypeMorphInfo tmiTarget = null;
 
     /*
@@ -1175,28 +1173,18 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             public JCExpression transMeth() {
                 JCExpression transMeth;
                 if (renameToSuper) {
-                    transMeth = make.at(selector).Select(make.Select(makeTypeTree( selector,attrEnv.enclClass.sym.type, false), names._super), msym);
+                    transMeth = m().Select(m().Select(makeTypeTree(selector, toJava.attrEnv.enclClass.sym.type, false), names._super), msym);
                 } else {
                     transMeth = toJava.translate(meth);
-                }
-
-                // translate the method name -- e.g., foo  to foo$bound or foo$impl
-                //TODO: this is a paranoid cloning of the below -- integrate this
-                if (superToStatic) {
-                    Name name = functionName(msym, superToStatic, callBound);
-                    if (transMeth.getTag() == JCTree.IDENT) {
-                        transMeth = m().Ident(name);
-                    } else if (transMeth.getTag() == JCTree.SELECT) {
-                        transMeth = m().Select(makeTypeTree(diagPos, msym.owner.type, false), name);
-                    }
-                } else 
-                if (callBound && ! renameToSuper) {
-                    Name name = functionName(msym, superToStatic, callBound);
-                    if (transMeth.getTag() == JCTree.IDENT) {
-                        transMeth = m().Ident(name);
-                    } else if (transMeth.getTag() == JCTree.SELECT) {
-                        JCFieldAccess faccess = (JCFieldAccess) transMeth;
-                        transMeth = m().Select(faccess.getExpression(), name);
+                    if (superToStatic || callBound) {
+                        // translate the method name -- e.g., foo  to foo$bound or foo$impl
+                        Name name = functionName(msym, superToStatic, callBound);
+                        if (transMeth.getTag() == JCTree.IDENT) {
+                            transMeth = m().Ident(name);
+                        } else if (transMeth.getTag() == JCTree.SELECT) {
+                            JCExpression expr = superToStatic ? makeTypeTree(diagPos, msym.owner.type, false) : ((JCFieldAccess) transMeth).getExpression();
+                            transMeth = m().Select(expr, name);
+                        }
                     }
                 }
                 if (useInvoke) {
