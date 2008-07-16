@@ -2161,11 +2161,13 @@ public class JavafxAttr implements JavafxVisitor {
             owntype, operand);
 
         if (operator.kind == MTH) {
-            chk.checkOperator(tree.pos(),
-                              (OperatorSymbol)operator,
-                              tree.getFXTag(),
-                              owntype,
-                              operand);
+            if (operator instanceof OperatorSymbol) {
+                chk.checkOperator(tree.pos(),
+                                  (OperatorSymbol)operator,
+                                  tree.getFXTag(),
+                                  owntype,
+                                  operand);
+            }
             if (types.isSameType(operator.type.getReturnType(), syms.stringType)) {
                 // String assignment; make sure the lhs is a string
                 chk.checkType(tree.lhs.pos(),
