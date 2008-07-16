@@ -296,19 +296,12 @@ public abstract class JavafxTranslationSupport {
             tmi.getRealType() == syms.javafx_StringType ? 
                 make.Literal("") : 
             tmi.getRealType() == syms.javafx_DurationType ?
-                makeTimeDefaultValue() :
+                makeTimeDefaultValue(diagPos) :
                 makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
     }
 
-    JCExpression makeTimeDefaultValue() {
-        JFXTimeLiteral lit = fxmake.TimeLiteral("0ms");
-        visitTimeLiteral(lit);
-        return (JCExpression)result;
-    }
-
-    // overridden by translating subclasses
-    public void visitTimeLiteral(JFXTimeLiteral tree) {
-        result = tree; // no translation by default
+    JCExpression makeTimeDefaultValue(DiagnosticPosition diagPos) {
+        return makeDurationLiteral(diagPos, makeLit(diagPos, syms.javafx_NumberType, 0));
     }
 
     /** Make an attributed tree representing a literal. This will be
@@ -336,18 +329,18 @@ public abstract class JavafxTranslationSupport {
                                   DiagnosticPosition diagPos,
                                   List<JCExpression> makeArgs,
                                   Name makeMethod) {
-        if (tmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
-            makeArgs = makeArgs.prepend( makeElementClassObject(diagPos, tmi.getElementType()) );
-        }
         Name locName = typeMorpher.variableNCT[tmi.getTypeKind()].name;
         JCExpression locationTypeExp = makeIdentifier(diagPos, locName);
         JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, makeMethod);
         List<JCExpression> typeArgs = null;
-        if (tmi.getTypeKind() == TYPE_KIND_OBJECT) {
-            typeArgs = List.of(makeTypeTree( diagPos,tmi.getRealType(), true));
-        }
-        else if (tmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
-            typeArgs = List.of(makeTypeTree( diagPos,tmi.getElementType(), true));
+        switch (tmi.getTypeKind()) {
+            case TYPE_KIND_OBJECT:
+                typeArgs = List.of(makeTypeTree(diagPos, tmi.getRealType(), true));
+                break;
+            case TYPE_KIND_SEQUENCE:
+                typeArgs = List.of(makeTypeTree(diagPos, tmi.getElementType(), true));
+                makeArgs = makeArgs.prepend(makeElementClassObject(diagPos, tmi.getElementType()));
+                break;
         }
         return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
     }
@@ -358,6 +351,7 @@ public abstract class JavafxTranslationSupport {
         JCExpression locationTypeExp = makeTypeTree( diagPos,tmi.getConstantLocationType(), true);
         JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, defs.makeMethodName);
         List<JCExpression> typeArgs = null;
+        //TODO: hmmm, compare this to makeLocationVariable, seems for Object it should be tmi.getRealType()
         if (tmi.getTypeKind() == TYPE_KIND_OBJECT || tmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
             typeArgs = List.of(makeTypeTree( diagPos,tmi.getElementType(), true));
         }
@@ -629,8 +623,9 @@ public abstract class JavafxTranslationSupport {
             System.err.println("Pretty print got: " + ex);
         }
     }
-    
+
     // convert time literal to a javafx.lang.Duration object literal
+    //TODO: should be eliminated in favor of makeDurationLiteral -- see visitTimeLiteral
     protected JFXFunctionInvocation timeLiteralToDuration(JFXTimeLiteral tree) {
         JFXSelect clsname = (JFXSelect) fxmake.at(tree.pos()).Type(syms.javafx_DurationType);
         clsname.sym = syms.javafx_DurationType.tsym;
@@ -641,6 +636,15 @@ public abstract class JavafxTranslationSupport {
         List<JFXExpression> args = List.<JFXExpression>of(tree.value);
         JFXFunctionInvocation apply = fxmake.at(tree.pos).Apply(List.<JFXExpression>nil(), meth, args);
         apply.type = clsname.type;
+        return apply;
+    }
+
+    protected JCExpression makeDurationLiteral(DiagnosticPosition diagPos, JCExpression value) {
+        JCExpression clsname = makeTypeTree(diagPos, syms.javafx_DurationType);
+        Name valueOf = names.fromString("valueOf");
+        JCExpression meth = make.at(diagPos).Select(clsname, valueOf);
+        List<JCExpression> args = List.of(value);
+        JCExpression apply = make.at(diagPos).Apply(List.<JCExpression>nil(), meth, args);
         return apply;
     }
 }

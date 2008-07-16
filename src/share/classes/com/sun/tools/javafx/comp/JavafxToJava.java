@@ -3229,6 +3229,11 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     @Override
     public void visitTimeLiteral(JFXTimeLiteral tree) {
+        //TODO: code should be something like the below, but this requires a similar change to visitInterpolateValue
+        /***
+           result = makeDurationLiteral(tree.pos(), translate(tree.value));
+         */
+
         // convert this time literal to a javafx.lang.Duration.valueOf() invocation
         JFXFunctionInvocation duration = timeLiteralToDuration(tree); // sets result
 

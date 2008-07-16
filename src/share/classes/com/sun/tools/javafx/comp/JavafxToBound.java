@@ -1055,7 +1055,13 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
         @Override
         protected JCExpression doit() {
-            return makeLocationLocalVariable(tmiResult, diagPos, List.of(makeLaziness(diagPos), buildClosure()));
+            ListBuffer<JCExpression> args = ListBuffer.lb();
+            if (tmiResult.getTypeKind() == TYPE_KIND_OBJECT) {
+                args.append(makeDefaultValue(diagPos, tmiResult));
+            }
+            args.append(makeLaziness(diagPos));
+            args.append(buildClosure());
+            return makeLocationLocalVariable(tmiResult, diagPos, args.toList());
         }
     }
 
@@ -1305,6 +1311,13 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
     @Override
     public void visitTimeLiteral(JFXTimeLiteral tree) {
+        //TODO: code should be something like the below, but this requires a similar change to visitInterpolateValue
+        /***
+           DiagnosticPosition diagPos = tree.pos();
+           JCExpression unbound = toJava.translate(tree, Wrapped.InNothing);
+           result = makeConstantLocation(diagPos, targetType(tree.type), unbound);
+         */
+
         // convert this time literal to a javafx.lang.Duration.valueOf() invocation
         JFXFunctionInvocation duration = timeLiteralToDuration(tree);
 

@@ -34,7 +34,8 @@ public class IndirectLocationHelper<T extends Location> extends ObjectVariable<T
     private final IndirectLocation<T> helped;
 
     public IndirectLocationHelper(final IndirectLocation<T> helped, Location... dependencies) {
-        super(true, new ObjectBindingExpression<T>() {
+        //TODO: assuming here that null should work as default since assuming exception won't be thrown in indirection
+        super(null, true, new ObjectBindingExpression<T>() {
             public T computeValue() {
                 helped.clearDynamicDependencies();
                 T location = helped.computeLocationInternal();

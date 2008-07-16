@@ -40,6 +40,7 @@ public class ObjectVariable<T>
         implements ObjectLocation<T> {
 
     protected T $value;
+    protected T $default;
     private List<ObjectChangeListener<T>> replaceListeners;
 
     public static<T> ObjectVariable<T> make() {
@@ -51,11 +52,19 @@ public class ObjectVariable<T>
     }
 
     public static<T> ObjectVariable<T> make(boolean lazy, ObjectBindingExpression<T> binding, Location... dependencies) {
-        return new ObjectVariable<T>(lazy, binding, dependencies);
+        return new ObjectVariable<T>(null, lazy, binding, dependencies);
     }
 
     public static<T> ObjectVariable<T> make(ObjectBindingExpression<T> binding, Location... dependencies) {
-        return new ObjectVariable<T>(false, binding, dependencies);
+        return new ObjectVariable<T>(null, false, binding, dependencies);
+    }
+
+    public static<T> ObjectVariable<T> make(T dflt, boolean lazy, ObjectBindingExpression<T> binding, Location... dependencies) {
+        return new ObjectVariable<T>(dflt, lazy, binding, dependencies);
+    }
+
+    public static<T> ObjectVariable<T> make(T dflt, ObjectBindingExpression<T> binding, Location... dependencies) {
+        return new ObjectVariable<T>(dflt, false, binding, dependencies);
     }
 
     /** Create a bijectively bound variable */
@@ -73,8 +82,9 @@ public class ObjectVariable<T>
         setValid();
     }
 
-    protected ObjectVariable(boolean lazy, ObjectBindingExpression<T> binding, Location... dependencies) {
+    protected ObjectVariable(T dflt, boolean lazy, ObjectBindingExpression<T> binding, Location... dependencies) {
         this();
+        $default = dflt;
         bind(lazy, binding);
         addDependencies(dependencies);
     }
@@ -113,7 +123,7 @@ public class ObjectVariable<T>
     }
 
     public void setDefault() {
-        set(null);
+        set($default);
     }
 
     @Override
@@ -125,7 +135,7 @@ public class ObjectVariable<T>
         catch (RuntimeException e) {
             ErrorHandler.bindException(e);
             if (isInitialized())
-                replaceValue(null);
+                replaceValue($default);
         }
     }
 
