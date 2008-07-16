@@ -19,19 +19,10 @@ public final class JavafxTaskEvent
 {
     private TaskEvent javacEvent;
     private UnitTree unit;
-
-    public JavafxTaskEvent(Kind kind) {
-        this.javacEvent = new TaskEvent(kind);
-        this.unit = null;
-    }
+    private TypeElement clazz;
 
     public JavafxTaskEvent(Kind kind, JavaFileObject sourceFile) {
         this.javacEvent = new TaskEvent(kind, sourceFile);
-        this.unit = null;
-    }
-
-    public JavafxTaskEvent(Kind kind, CompilationUnitTree javaUnit) {
-        this.javacEvent = new TaskEvent(kind, javaUnit);
         this.unit = null;
     }
 
@@ -41,13 +32,13 @@ public final class JavafxTaskEvent
     }
 
     public JavafxTaskEvent(Kind kind, UnitTree unit) {
-        this.javacEvent = new TaskEvent(kind);
-        this.unit = unit;
+        this(kind, unit, null);
     }
 
     public JavafxTaskEvent(Kind kind, UnitTree unit, TypeElement clazz) {
-        this.javacEvent = new TaskEvent(kind, null, clazz);
+        this.javacEvent = new TaskEvent(kind);
         this.unit = unit;
+        this.clazz = clazz;
     }
 
     public Kind getKind() {
@@ -55,7 +46,7 @@ public final class JavafxTaskEvent
     }
 
     public JavaFileObject getSourceFile() {
-        return javacEvent.getSourceFile();
+        return unit != null ? unit.getSourceFile() : javacEvent.getSourceFile();
     }
 
     public UnitTree getUnit() {
@@ -67,14 +58,20 @@ public final class JavafxTaskEvent
     }
 
     public TypeElement getTypeElement() {
-        return javacEvent.getTypeElement();
+        return clazz != null ? clazz : javacEvent.getTypeElement();
     }
 
     public String toString() {
-        return "JavafxTaskEvent["
-            + getKind() + ","
-            + getSourceFile() + ","
-            // the compilation unit is identified by the file
-            + "]";
+        StringBuilder sb = new StringBuilder("JavafxTaskEvent[");
+        sb.append(getKind());
+        sb.append(',');
+        sb.append(getSourceFile());
+        TypeElement type = getTypeElement();
+        if (type != null) {
+            sb.append(',');
+            sb.append(type);
+        }
+        sb.append(']');
+        return sb.toString();
     }
 }

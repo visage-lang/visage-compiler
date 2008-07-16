@@ -918,6 +918,11 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             log.useSource(prev);
         }
 
+        if (taskListener != null) {
+            JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
+            taskListener.finished(e);
+        }
+
         return env;
     }
 
