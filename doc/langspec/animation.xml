@@ -12,7 +12,7 @@
     describes the animated state transitions of each "scene" by declaring
     "snapshots" (key frames) of state at certain points in time. The JavaFX
     Script programming language supports two basic varieties of key frame
-    animation: <emphasis>discreet</emphasis> and
+    animation: <emphasis>discrete</emphasis> and
     <emphasis>interpolated</emphasis>. The difference is that for the latter,
     special interpolation functions calculate that states that occur between
     each animation frame. In either case, the system will automatically
