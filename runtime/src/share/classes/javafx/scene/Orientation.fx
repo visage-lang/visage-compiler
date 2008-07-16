@@ -27,7 +27,6 @@ package javafx.scene;
 /**
  * The {@code Orientation} class represents the orientation. It can be
  * vertical or horizontal.
- * @profile common
  */
 public class Orientation {
 
@@ -35,7 +34,6 @@ public class Orientation {
    /**
     * Represents the name of the current orientation.
     *
-    * @profile common
     */
     private attribute name: String;
 
@@ -43,7 +41,6 @@ public class Orientation {
    /**
     * Represents the vertical orientation.
     *
-    * @profile common
     */
     public static attribute VERTICAL = Orientation { name: "VERTICAL" }
 
@@ -51,7 +48,6 @@ public class Orientation {
    /**
     * Represents the horizontal orientation.
     *
-    * @profile common
     */
     public static attribute HORIZONTAL = Orientation { name: "HORIZONTAL" }
 

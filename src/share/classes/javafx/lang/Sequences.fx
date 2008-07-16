@@ -37,10 +37,14 @@ import java.lang.UnsupportedOperationException;
  * change the input-parameters, but create new instances for output.
  * 
  * @author Michael Heinrichs
+ * @profile common
  */
-
 public class Sequences {
     
+     /**
+     *
+     * @profile common
+     */    
     public static function isEqualByContentIdentity(seq1: Object[], seq2: Object[]): Boolean {
         return com.sun.javafx.runtime.sequence.Sequences.isEqualByContentIdentity(seq1, seq2);
     }
@@ -64,6 +68,8 @@ public class Sequences {
      *         a.length if all elements in the array are less than the specified
      *         key. Note that this guarantees that the return value will be >= 0
      *         if and only if the key is found.
+     *
+     * @profile common 
      */
     public static function binarySearch(seq: Comparable[], key: Comparable): Integer {
         return com.sun.javafx.runtime.sequence.Sequences.binarySearch(seq, key);
@@ -91,6 +97,8 @@ public class Sequences {
      *         a.length if all elements in the array are less than the specified
      *         key. Note that this guarantees that the return value will be >= 0
      *         if and only if the key is found.
+     *
+     * @profile common 
      */
     public static function binarySearch(seq: Object[], key: Object, c: Comparator): Integer {
         return com.sun.javafx.runtime.sequence.Sequences.binarySearch(seq, key, c);
@@ -109,6 +117,8 @@ public class Sequences {
      * @param key The value to be searched for.
      * @return Index of the search key, if it is contained in the array; 
      *         otherwise -1.
+     *
+     * @profile common 
      */
    public static function indexByIdentity(seq: Object[], key: Object): Integer {
         return com.sun.javafx.runtime.sequence.Sequences.indexByIdentity(seq, key);
@@ -129,6 +139,8 @@ public class Sequences {
      * @param key The value to be searched for.
      * @return Index of the search key, if it is contained in the array; 
      *         otherwise -1.
+     *
+     * @profile common 
      */
     public static function indexOf(seq: Object[], key: Object): Integer {
         return com.sun.javafx.runtime.sequence.Sequences.indexOf(seq, key);
@@ -147,6 +159,8 @@ public class Sequences {
      * 
      * @param seq The sequence to be searched.
      * @return The element with the maximum value.
+     *
+     * @profile common 
      */
     public static function max(seq: Comparable[]): Comparable {
         return com.sun.javafx.runtime.sequence.Sequences.max(seq);
@@ -167,6 +181,8 @@ public class Sequences {
      *          A null value indicates that the elements' natural ordering 
      *          should be used.
      * @return The element with the maximum value.
+     *
+     * @profile common 
      */
     public static function max(seq: Object[], c: Comparator): Object {
         return com.sun.javafx.runtime.sequence.Sequences.max(seq, c);
@@ -185,6 +201,8 @@ public class Sequences {
      * 
      * @param seq The sequence to be searched.
      * @return The element with the maximum value.
+     *
+     * @profile common 
      */
     public static function min(seq: Comparable[]): Comparable {
         return com.sun.javafx.runtime.sequence.Sequences.min(seq);
@@ -205,6 +223,8 @@ public class Sequences {
      *          A null value indicates that the elements' natural ordering 
      *          should be used.
      * @return The element with the minimum value.
+     *
+     * @profile common 
      */
    public static function min(seq: Object[], c: Comparator): Object {
         return com.sun.javafx.runtime.sequence.Sequences.min(seq, c);
@@ -224,6 +244,8 @@ public class Sequences {
      *            negative or 0 the whole sequence will be searched.
      * @return Index of the search key, if it is contained in the array; 
      *         otherwise -1.
+     *
+     * @profile common 
      */
     public static function nextIndexByIdentity(seq: Object[], key: Object, pos: Integer): Integer {
         return com.sun.javafx.runtime.sequence.Sequences.nextIndexByIdentity(seq, key, pos);
@@ -242,11 +264,17 @@ public class Sequences {
      *            negative or 0 the whole sequence will be searched.
      * @return Index of the search key, if it is contained in the array; 
      *         otherwise -1.
+     *
+     * @profile common 
      */
     public static function nextIndexOf(seq: Object[], key: Object, pos: Integer): Integer {
         return com.sun.javafx.runtime.sequence.Sequences.nextIndexOf(seq, key, pos);
     }
     
+    /**
+     *
+     * @profile common
+     */
     public static function <<reverse>> (seq:Object[]): Object[] {
         return com.sun.javafx.runtime.sequence.Sequences.<<reverse>>(seq);
     }
@@ -272,6 +300,8 @@ public class Sequences {
      * 
      * @param seq The sequence to be sorted.
      * @return The sorted sequence.
+     *
+     * @profile common 
      */
     public static function sort(seq: Comparable[]): Comparable[] {
         return com.sun.javafx.runtime.sequence.Sequences.sort(seq);
@@ -300,12 +330,17 @@ public class Sequences {
      *          A null value indicates that the elements' natural ordering 
      *          should be used.
      * @return The sorted sequence.
+     *
+     * @profile common 
      */
     public static function sort(seq: Object[], c: Comparator): Object[] {
         return com.sun.javafx.runtime.sequence.Sequences.sort(seq, c);
     }
 
-    
+    /**
+     *
+     * @profile common
+     */
     public static function shuffle(seq: Object[]):Object[] {
         return com.sun.javafx.runtime.sequence.Sequences.shuffle(seq);
     }

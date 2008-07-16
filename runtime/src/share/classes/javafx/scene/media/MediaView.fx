@@ -36,8 +36,9 @@ import javafx.scene.Node;
 
 /**
  * A {@code Node} that provides a view of {@code Media} being played
- * @profile core
-*/ 
+ *
+ * @profile common
+ */ 
 public class MediaView extends Node {
     private attribute mediaProvider:MediaProvider;
     private attribute sgc:SGComponent;
@@ -47,6 +48,8 @@ public class MediaView extends Node {
      * If the {@code mediaPlayer} is already being viewed by another 
      * {@code MediaView}, this operation may fail and {@code onError} will be
      * called with a {@code MediaError}, {@code OPERATION_UNSUPPORTED}
+     *
+     * @profile common 
      */
     public attribute mediaPlayer:MediaPlayer on replace {
         // get Media player's component and make it ours
@@ -61,7 +64,8 @@ public class MediaView extends Node {
     /**
      * The function specified by the {@code onError} attribute is invoked whenever
      * an error occurs on this {@code MediaView}
-     * @profile core
+     *
+     * @profile common
      * @see MediaError
      */
     public attribute onError:function(me:MediaError);
@@ -69,7 +73,8 @@ public class MediaView extends Node {
     /**
      * If {@code fullScreen} is {@code true}, the {@code mediaView} will extend to use
      * the full screen, otherwise it will be limited to fit within its node.
-     * @profile core
+     *
+     * @profile common
      */
     public attribute fullScreen:Boolean;
 
@@ -78,7 +83,8 @@ public class MediaView extends Node {
      * transformed with such operations setting its {@code Transform}, 
      * {@code ShearX}, or {@code ShearY} attributes. 
      * Otherwise, setting these attributes may have no effect.     
-     * @profile core
+     *
+     * @profile common
      * @see node.transform
      */
     public attribute transformable:Boolean=true; 
@@ -87,13 +93,16 @@ public class MediaView extends Node {
      * If {@code compositable} is {@code true}, the {@code MediaView} may
      * support compositing effects such as translucency. Otherwise, the 
      * {@code MediaView} is constrained to being an opaque node
+     *
+     * @profile common 
      */
     public attribute compositable:Boolean=true;
 
     /**
      * If {@code rotatable} is {@code true}, the {@code mediaView} may be 
      * rotated by setting its {@code rotate} attribute
-     * @profile core
+     *
+     * @profile common
      * @see Node#rotate
      */
     public attribute rotatable:Boolean=true; 
@@ -103,6 +112,8 @@ public class MediaView extends Node {
      * fit the node, but its aspect is preserved. Otherwise, the media is
      * scaled, but will be stretched or sheared in both dimension to fit its
      * node's dimensions
+     *
+     * @profile common 
      */
     public attribute preserveAspectRatio:Boolean= true;
 

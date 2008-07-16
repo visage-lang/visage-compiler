@@ -44,6 +44,8 @@ public class Timeline {
     /**
      * Used to specify an animation that repeats indefinitely (until
      * the {@code stop()} method is called).
+     *
+     * @profile common
      */
     public static attribute INDEFINITE = -1;
 
@@ -52,6 +54,8 @@ public class Timeline {
      * The {@code repeatCount} may be {@code INDEFINITE}
      * for animations that repeat indefinitely, but must otherwise be >= 0.
      * The default value is 1.
+     *
+     * @profile common
      */
     public attribute repeatCount: Number = 1.0;
 
@@ -63,6 +67,8 @@ public class Timeline {
      * The default value is {@code false}, indicating that the
      * animation will loop such that each cycle proceeds
      * forward from the initial {@code KeyFrame}.
+     *
+     * @profile common
      */
     public attribute autoReverse: Boolean = false;
 
@@ -74,6 +80,8 @@ public class Timeline {
      * The default value is {@code false}, indicating that the
      * animation will restart from the initial {@code KeyFrame}
      * each time {@code start()} is called.
+     *
+     * @profile common
      */
     public attribute toggle: Boolean = false on replace {
         isReverse = true;
@@ -84,6 +92,8 @@ public class Timeline {
      * If a {@code KeyFrame} is not provided for the {@code time==0s}
      * instant, one will be synthesized using the target values
      * that are current at the time {@code start()} is called.
+     *
+     * @profile common
      */
     public attribute keyFrames: KeyFrame[] on replace {
         invalidate();
@@ -100,6 +110,8 @@ public class Timeline {
      * <p>
      * Note that {@code running} will remain {@code true} even when
      * {@code paused==true}.
+     *
+     * @profile common
      */
     public /*controlled*/ attribute running: Boolean = false;
 
@@ -114,6 +126,8 @@ public class Timeline {
      * <p>
      * Note that {@code running} will remain {@code true} even when
      * {@code paused==true}.
+     *
+     * @profile common
      */
     public /*controlled*/ attribute paused: Boolean = false;
 
@@ -149,6 +163,8 @@ public class Timeline {
      * continue on in that new direction.  When the animation finishes
      * in one direction, calling {@code start()} again will restart the
      * animation in the opposite direction.
+     *
+     * @profile common
      */
     public function start() {
         if (toggle) {
@@ -172,6 +188,8 @@ public class Timeline {
     /**
      * Stops the animation.  If the animation is not currently running,
      * this method has no effect.
+     *
+     * @profile common
      */
     public function stop() {
         clip.stop();
@@ -189,6 +207,8 @@ public class Timeline {
      * Resumes the animation from a paused state.  If the animation is
      * not currently running or not currently paused, this method has
      * no effect.
+     *
+     * @profile common
      */
     public function resume() {
         clip.resume();

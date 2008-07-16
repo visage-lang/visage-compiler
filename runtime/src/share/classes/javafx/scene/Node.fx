@@ -297,6 +297,7 @@ public abstract class Node {
 
     /**
      * @profile common conditional groupOpacity
+     *
      * In the common profile opacity is supported unconditionally on all nodes 
      * except Group, where on some platforms the implementation might try 
      * to deliver the result with best effort.  The application should check 
@@ -310,6 +311,8 @@ public abstract class Node {
      *               graphics nodes might be visualized differently</li>
      *    </ul>
      * 
+     * On some platforms ImageView might not support opacity attribute. 
+     *  
      * @defaultvalue: 1.0
      */         
     public attribute opacity:Number = 1.0 on replace {
@@ -498,7 +501,9 @@ public abstract class Node {
         impl_getFXNode().setEffect(AccessHelper.getEffectImpl(effect));
     }
 
-    /** Moves this node to the front of it's sibiling nodes */
+    /** Moves this node to the front of it's sibiling nodes 
+     * @profile common
+     */
     public function toFront(): Void {
         var group:Group = if (parent instanceof Group) parent as Group else null;
         if ((group != null) and (group.content[0] != this)) {
@@ -506,7 +511,9 @@ public abstract class Node {
         }
     }
 
-    /** Moves this node to the back of it's sibiling nodes */
+    /** Moves this node to the back of it's sibiling nodes 
+     * @profile common
+     */
     public function toBack(): Void {
         var group:Group = if (parent instanceof Group) parent as Group else null;
         if ((group != null) and (group.content[sizeof group.content -1] != this)) {
@@ -609,6 +616,8 @@ public abstract class Node {
     /**
      * Defines a function to be notified when a mouse button has been clicked 
      * (pressed and released) on this {@code Node}.
+     *
+     * @profile common conditional mouse 
      */
     public attribute onMouseClicked: function(e:MouseEvent):Void on replace { iml(); }
     
@@ -616,18 +625,24 @@ public abstract class Node {
     /**
      * Defines a function to be notified when a mouse button is pressed 
      * on this {@code Node} and then dragged.
+     *
+     * @profile common conditional mouse 
      */
     public attribute onMouseDragged: function(e:MouseEvent):Void on replace { iml(); }
     
     // PENDING_DOC_REVIEW
     /**
      * Defines a function to be notified when the mouse enters this {@code Node}. 
+     *
+     * @profile common conditional mouse 
      */
     public attribute onMouseEntered: function(e:MouseEvent):Void on replace { iml(); }
 
     // PENDING_DOC_REVIEW
     /**
      * Defines a function to be notified when the mouse exits this {@code Node}. 
+     *
+     * @profile common conditional mouse 
      */
     public attribute onMouseExited: function(e:MouseEvent):Void on replace { iml(); }
 
@@ -635,6 +650,8 @@ public abstract class Node {
     /**
      * Defines a function to be notified when mouse cursor has been moved onto 
      * this {@code Node} but no buttons have been pushed. 
+     *
+     * @profile common conditional mouse 
      */
     public attribute onMouseMoved: function(e:MouseEvent):Void on replace { iml(); }
     
@@ -642,6 +659,8 @@ public abstract class Node {
     /**
      * Defines a function to be notified when a mouse button 
      * has been pressed on this {@code Node}.
+     *
+     * @profile common conditional mouse 
      */
     public attribute onMousePressed: function(e:MouseEvent):Void on replace { iml(); }
 
@@ -649,11 +668,15 @@ public abstract class Node {
     /**
      * Defines a function to be notified when a mouse button 
      * has been released on this {@code Node}.
+     *
+     * @profile common conditional mouse 
      */
     public attribute onMouseReleased: function(e:MouseEvent):Void on replace { iml(); }
 
     /**
      * Defines a function to be notified when the mouse scroll wheel has moved.
+     *
+     * @profile common conditional mouse 
      */
     public attribute onMouseWheelMoved: function(e:MouseEvent):Void on replace { iml(); }
 
@@ -662,6 +685,8 @@ public abstract class Node {
     /**
      * Requests that this {@code Node} get the input focus, and that this
      * {@code Node}'s top-level ancestor become the focused Window.
+     *
+     * @profile common
      */
     public function requestFocus():Void {
         impl_getSGNode().requestFocus();
@@ -672,6 +697,8 @@ public abstract class Node {
     // PENDING_DOC_REVIEW
     /**
      * Returns {@code true} if this {@code Node} is the focus owner.
+     *
+     * @profile common
      */
     public bound function hasFocus():Boolean { focused }
 

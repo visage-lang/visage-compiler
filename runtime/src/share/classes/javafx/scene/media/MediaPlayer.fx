@@ -84,6 +84,8 @@ public class MediaPlayer {
      
    /**
     * Starts or resumes playing
+    *
+    * @profile common
     */
     public
     function play() {
@@ -93,6 +95,8 @@ public class MediaPlayer {
     
    /**
     * Pauses playing
+    *
+    * @profile common
     */
    public
    function pause() {
@@ -103,6 +107,8 @@ public class MediaPlayer {
    /**
     * Indicated if the player has been paused, either programatically,
     * by the user, or because the media has finished playing
+    *
+    * @profile common
     */
    public attribute paused:Boolean;
 
@@ -110,6 +116,8 @@ public class MediaPlayer {
     * Defines the rate at which the media is being played.
     * Rate {@code 1.0} is normal play, {@code 2.0} is 2 time normal,
     * {@code -1.0} is backwards, etc...
+    *
+    * @profile common
     */
    public attribute rate:Number on replace {
        mediaProvider.setRate(rate);
@@ -118,6 +126,8 @@ public class MediaPlayer {
    /**
     * Defines the volume at which the media is being played.
     * {@code 1.0} is full volume, which is the default.
+    *
+    * @profile common
     */
    public attribute volume:Number = 1.0 on replace {
        var ac : AudioControl;
@@ -129,6 +139,8 @@ public class MediaPlayer {
     * Defines the balance, or left right setting,  of the audio output.
     * Value ranges continuously from {@code -1.0} being left,
     * {@code 0} being center, and {@code 1.0} being right.
+    *
+    * @profile common
     */
    public attribute balance:Number=0 on replace {
        ;
@@ -139,6 +151,8 @@ public class MediaPlayer {
     * on 4+ channel output.
     * value ranges continuously from {@code -1.0} being rear,
     * {@code 0} being center, and {@code 1.0} being forward.
+    *
+    * @profile common
     */
    public attribute fader:Number on replace {
         ;
@@ -149,6 +163,8 @@ public class MediaPlayer {
    /**
     * Defines the time offset where media should start playing,
     * or restart from when repeating
+    *
+    * @profile common
     */
    public attribute startTime:Duration on replace {
        mediaProvider.setStartTime(1000.0*(startTime.toMillis()));
@@ -156,6 +172,8 @@ public class MediaPlayer {
    /**
     * Defines the time offset where media should stop playing
     * or restart when repeating
+    *
+    * @profile common
     */
    public attribute stopTime:Duration = DURATION_UNKNOWN on replace {
        if (stopTime == DURATION_UNKNOWN) {
@@ -168,6 +186,8 @@ public class MediaPlayer {
    
    /**
     * Defines the current media time
+    *
+    * @profile common
     */
    public attribute currentTime:Duration on replace {
        mediaProvider.setMediaTime(1000 * currentTime.toMillis());
@@ -175,6 +195,8 @@ public class MediaPlayer {
    
     /**
     * Defines the media timers for this player
+    *
+    * @profile common
     */
    public attribute timers:MediaTimer[];
    
@@ -183,7 +205,7 @@ public class MediaPlayer {
     * if repeatCount is 1 the media will play once.
     * if it is REPEAT_FOREVER, it will repeat indefinitely
     * In this implementation, these are the only values currently supported
-    * @profile core
+    * @profile common
     */
    public attribute repeatCount: Number = 1 on replace {
        if (repeatCount == REPEAT_FOREVER) {
@@ -196,26 +218,26 @@ public class MediaPlayer {
 
    /**
     * Defines the current number of time the media has repeated
-    * @profile core
+    * @profile common
     */
   public attribute currentCount:Number=0; // How many times have we repeated
 
 
   /**
    * Value of {@code repeatCount} for no repeating (play once)
-   * @profile core
+   * @profile common
    */
    public static attribute REPEAT_NONE:Number = 1;
 
     /**
      * Value of {@code repeatCount} to repeat forever
-     * @profile core
+     * @profile common
      */
     public static attribute REPEAT_FOREVER:Integer = -1;//infinity;// where is Number.infinity;
    
    /**
     * Equals {@code true} if the player's audio is muted, false otherwise.
-    * @profile core
+    * @profile common
     * @see volume
     */
    public attribute mute: Boolean on replace {
@@ -227,26 +249,30 @@ public class MediaPlayer {
 
     /**
      * Current status of player
-     * @profile core
+     *
+     * @profile common
      */
     public static attribute status:Integer;
 
     /**
      * Status value when player is paused
-     * @profile core
+     *
+     * @profile common
      */
     public static attribute PAUSED:Integer=0;
 
     /**
      * status value when player is playing
-     * @profile core
+     *
+     * @profile common
      */
     public static attribute PLAYING:Integer=2;
 
     /**
      * Status value when player is buffering.
      * Buffering may occur when player is paused or playing
-     * @profile core
+     *
+     * @profile common
      */
     public static attribute BUFFERING: Integer=3;
 
@@ -255,13 +281,15 @@ public class MediaPlayer {
      * {@code STALLED} occurs when media is being played, but
      * data is not being delivered fast enough to continue playing
      * @see onStalled
-     * @profile core
+     *
+     * @profile common
      */
     public static  attribute STALLED: Integer=4; // occurs during play
    
     /**
      * The {@code onError} function is called when a {@code mediaError} occurs
      * on this player.
+     *
      * @profile common
      * @see MediaError
      */
@@ -270,12 +298,14 @@ public class MediaPlayer {
 
    /**
      * Invoked when the player reaches the end of media
+     *
      * @profile common
      */
     public attribute onEndOfMedia: function():Void; // Media has reached its end.
 
    /**
      * Invoked when the player reaches the end of media.
+     *
      * @profile common
      * @see repeatCount
      */
@@ -285,6 +315,7 @@ public class MediaPlayer {
      * Invoked when the player is buffering data.
      * {@code timeRemaining} is an estimate of how much time it will take before
      * the {@code mediaPlayer} can play the media
+     *
      * @profile common
      */
     public attribute onBuffering:function(timeRemaining: Duration):Void;
@@ -294,6 +325,7 @@ public class MediaPlayer {
      * because it was not receiving data fast enough to continue playing.
      * {@code timeRemaining} is an estimate of how much time it will take before
      * the {@code mediaPlayer} can continue playing.
+     *
      * @profile common
      */
     public attribute onStalled:function(timeRemaining: Duration):Void;
@@ -302,7 +334,8 @@ public class MediaPlayer {
     * Indicates if this player can have multiple views
     * associated with it.
     * @see MediaView
-    * @profile common
+     *
+     * @profile common
     */
     public attribute supportsMultiViews:Boolean;
    

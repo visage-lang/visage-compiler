@@ -35,18 +35,24 @@ public class KeyFrame extends Comparable {
      * Defines the reference elapsed time offset within a single cycle
      * of a Timeline at which the associated values will be set and at
      * which the {@code action()} function will be called.
+     * 
+     * @profile common
      */
     public attribute time: Duration;
 
     /**
      * The list of target variables and the desired values they should
      * interpolate at the specified time of this {@code KeyFrame}.
+     * 
+     * @profile common
      */
     public attribute values: KeyValue[];
 
     /**
      * A list of sub-timelines that will be started when the time cursor passes
      * the specified time of this {@code KeyFrame}.
+     * 
+     * @profile common
      */
     public attribute timelines: Timeline[];
 
@@ -56,6 +62,8 @@ public class KeyFrame extends Comparable {
      * The {@code action()} function will be called if the elapsed
      * time passes the indicated value, even if it never equaled the
      * time value exactly.
+     * 
+     * @profile common
      */
     public attribute action: function();
 
@@ -68,12 +76,16 @@ public class KeyFrame extends Comparable {
      * function will occur for each time pulse, regardless of
      * how many cycles have occured since the last time pulse
      * was processed.
+     * 
+     * @profile common
      */
     public attribute canSkip: Boolean = false;
 
     /**
      * A comparison function used to sort KeyFrames by their
      * specified reference time.
+     * 
+     * @profile common
      */
     public function compareTo(o:Object):Integer {
         var kf = o as KeyFrame;

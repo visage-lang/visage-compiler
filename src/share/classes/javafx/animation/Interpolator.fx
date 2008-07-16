@@ -31,18 +31,45 @@ import com.sun.scenario.animation.Interpolators;
  * @profile common
  */
 public abstract class Interpolator {
+    
+    /**
+     * @profile common
+     */    
     public abstract function interpolate(startValue:Object, endValue:Object, fraction:Number):Object;
 
+    /**
+     * @profile common
+     */    
     public static /* readonly */ attribute DISCRETE:Interpolator =
         CoreInterpolator { i: Interpolators.getDiscreteInstance(); };
+        
+    /**
+     * @profile common
+     */        
     public static /* readonly */ attribute LINEAR:Interpolator =
         CoreInterpolator { i: Interpolators.getLinearInstance(); };
+        
+    /**
+     * @profile common
+     */        
     public static /* readonly */ attribute EASEBOTH:Interpolator =
         CoreInterpolator { i: Interpolators.getEasingInstance(); };
+        
+    /**
+     * @profile common
+     */        
     public static /* readonly */ attribute EASEIN:Interpolator =
         CoreInterpolator { i: Interpolators.getEasingInstance(new Float(0.2), new Float(0.0)); };
+        
+    /**
+     * @profile common
+     */        
     public static /* readonly */ attribute EASEOUT:Interpolator =
         CoreInterpolator { i: Interpolators.getEasingInstance(new Float(0.0), new Float(0.2)); };
+        
+    /**
+     * @profile common
+     */        
     public static function SPLINE(x1: Number, y1: Number, x2: Number, y2: Number):Interpolator {
         CoreInterpolator { i: Interpolators.getSplineInstance(x1.floatValue(), y1.floatValue(),
                                                               x2.floatValue(), y2.floatValue()); }

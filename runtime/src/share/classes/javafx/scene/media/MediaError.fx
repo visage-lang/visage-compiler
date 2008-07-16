@@ -34,58 +34,58 @@ import com.sun.media.jmc.OperationUnsupportedException;
    * Contains error information
    * 
    * @see MediaPlayer.onError
-   * @platform core
+   * @profile common
    */
 public class MediaError {
     /**
      * Indicates an error has occurred for an unknown reason
-     * @profile core
+     * @profile common
      */
     public static attribute UNKNOWN:Integer=0;
     /**
      * Indicates an error has occurred: although the media
      * may exist, it is not accessible
-     * @profile core
+     * @profile common
      */
     public static attribute MEDIA_INACCESSIBLE:Integer=1;
     /**
      * Indicates an error has occurred: the media
      * does not exist or is otherwise unavailable
-     * @profile core
+     * @profile common
      */
     public static attribute MEDIA_UNAVAILABLE:Integer=2;
     /**
      * Indicates an error has occurred: the media appears to be
      * invalid or corrupted
-     * @profile core
+     * @profile common
      */
     public static attribute MEDIA_CORRUPTED:Integer=3;
     /**
      * Indicates that this media is not supported by this platform
-     * @profile core
+     * @profile common
      */
     public static attribute MEDIA_UNSUPPORTED:Integer=4;
     /**
      * Indicates that an operation performed on the media is not
      * supported by this platform
-     * @profile core
+     * @profile common
      */
     public static attribute OPERATION_UNSUPPORTED:Integer=5;
     /**
      * Indicates that the media has not been specified
-     * @profile core
+     * @profile common
      */
     public static attribute MEDIA_UNSPECIFIED=6;
     
    /**
      * reason this error
-     * @profile core
+     * @profile common
      */
     public attribute cause:Integer;
     /**
      * Contains more information about this error
-     * @profile core
-    */
+     * @profile common
+     */
     public attribute message:String;
 
     /**

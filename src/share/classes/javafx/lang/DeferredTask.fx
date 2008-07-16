@@ -28,13 +28,20 @@ import com.sun.javafx.runtime.Entry;
   * A DeferredTask represents an action that should be executed at a later time of the system's choosing.  In systems
   * based on event dispatch, such as Swing, execution of a DeferredTask generally means putting it on the event queue
   * for later processing.
+  *
+  * @profile common
   */
-
 public class DeferredTask {
-    /** A function to be called when the deferred task is executed.  Must be provided. */
+    /** A function to be called when the deferred task is executed.  Must be provided.
+     *
+     * @profile common
+     */
     /* required final */ public attribute action: function() : Void;
 
-    /** A boolean value indicating whether the deferred task has actually been run, which can be bound to.  Read-only.  */
+    /** A boolean value indicating whether the deferred task has actually been run, which can be bound to.  Read-only. 
+     *
+     * @profile common
+     */
     /* controlled */ public attribute done : Boolean;
 
     postinit {

@@ -29,7 +29,19 @@ import java.lang.Object;
  * @profile common
  */
 public class KeyValue {
+    
+    /**
+     * @profile common
+     */      
     public attribute target: KeyValueTarget;
+    
+    /**
+     * @profile common
+     */      
     public attribute value: Object;
+    
+    /**
+     * @profile common
+     */      
     public attribute interpolate: Interpolator = Interpolator.DISCRETE;
 }

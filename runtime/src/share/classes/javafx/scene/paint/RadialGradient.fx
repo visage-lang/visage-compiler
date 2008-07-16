@@ -156,7 +156,7 @@ public class RadialGradient extends Paint {
      * to the {@code LinearGradient}: {@code CycleMethod.NO}, 
      * {@code CycleMethod.REFLECT}, or {@code CycleMethod.REPEAT}.
      *
-     * @profile common
+     * @profile common conditional multigradient
      */
     public attribute cycleMethod:CycleMethod;
 

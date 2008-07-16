@@ -38,9 +38,14 @@ public abstract class SimpleInterpolator extends Interpolator {
       * where 0.0 is the start of the current interval (KeyFrame),
       * while 1.0 is the end of the current interval (KeyFrame).
       * Usually a function that increases monotonically.
+      * 
+      * @profile common
       */
     public abstract function curve(t: Number) : Number;
 
+    /**
+     * @profile common
+     */      
     public function interpolate(startValue:Object, endValue:Object, fraction:Number):Object {
         if (startValue instanceof java.lang.Number and
 	    endValue instanceof java.lang.Number) {
@@ -61,10 +66,16 @@ public abstract class SimpleInterpolator extends Interpolator {
         }
     }
 
+    /**
+     * @profile common
+     */      
     public function interpolate(startValue:Number, endValue:Number, fraction:Number):Number {
         return startValue + (endValue-startValue)*curve(fraction);
     }
 
+    /**
+     * @profile common
+     */      
     public function interpolate(startValue:Integer, endValue:Integer, fraction:Number):Integer {
         return (startValue + (endValue-startValue)*curve(fraction) + 0.5).intValue();
     }

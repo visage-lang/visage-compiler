@@ -41,7 +41,7 @@ public class CycleMethod {
     /**
      * Defines the cycle method that uses the terminal colors to fill the remaining area. 
      *
-     * @profile common
+     * @profile common conditional multigradient
      */      
     public static attribute  NO_CYCLE = CycleMethod { }
 

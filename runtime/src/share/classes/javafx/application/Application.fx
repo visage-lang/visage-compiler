@@ -88,9 +88,12 @@ public class Application {
     public function exit() {};
     
     /**
-     * Requests the application to go to the suspend() mode. On desktop it
-     * would typically mean minimize. In the case application is in suspended
-     * mode, the function has no effect.
+     * Requests the application to go to the suspend() mode. In the case 
+     * application is in suspended mode, the function has no effect.
+     * 
+     * The behavior of this funciton is platform specific. On desktop it
+     * would typically mean minimize. On other platforms this function might 
+     * have no effect.
      * 
      * @profile common
      */
@@ -100,6 +103,10 @@ public class Application {
      * Requests the application to go to back from the suspend mode to normal 
      * (resumed) operation. In the case the application is already running (i.e. 
      * it is no longer suspended), the function has no effect.
+     * 
+     * The behavior of this funciton is platform specific. On desktop it
+     * would typically mean restore from the minimized state. On other platforms
+     * this function might  have no effect.
      * 
      * @profile common
      */

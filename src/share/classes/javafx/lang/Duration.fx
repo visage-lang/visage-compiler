@@ -36,82 +36,141 @@ import java.lang.Math;
  * <code><pre>    Duration t = 2m + 30s;
     Duration t = 2.5m;
     Duration t = 2500ms;</pre></code>
+ *
+ * @profile common
  */
 public class Duration extends com.sun.javafx.runtime.Duration {
     
+    /**
+     *
+     * @profile common
+     */
     public static function valueOf(ms: Number): Duration {
         return com.sun.javafx.runtime.Duration.make(ms) as Duration;
     }
 
-    /** Returns the number of milliseconds in this period. */
+    /** Returns the number of milliseconds in this period. 
+     *
+     * @profile common
+     */
     public function toMillis():Number {
         return millis;
     }
     
-    /** Returns the number of whole seconds in this period. */
+    /** Returns the number of whole seconds in this period. 
+     *
+     * @profile common
+     */
     public function toSeconds():Number {
         return Math.floor(millis / 1000);
     }
     
-    /** Returns the number of whole minutes in this period. */
+    /** Returns the number of whole minutes in this period. 
+     *
+     * @profile common
+     */
     public function toMinutes(): Number {
         return Math.floor(millis / 60 / 1000);
     }
     
-    /** Returns the number of whole hours in this period. */
+    /** Returns the number of whole hours in this period. 
+     *
+     * @profile common
+     */
     public function toHours(): Number {
         return Math.floor(millis / 60 / 60 / 1000);
     }
 
     /** Add this instance and another Duration instance to return a new Duration instance.
-     *  This function does not change the value of called Duration instance. */
+     *  This function does not change the value of called Duration instance. 
+     *
+     * @profile common
+     */
     public function add(other:Duration):Duration {
         return valueOf(millis + other.millis);
     }
 
     /** Subtract other Duration instance from this instance to return a new Duration instance.
-     *  This function does not change the value of called Duration instance. */
+     *  This function does not change the value of called Duration instance. 
+     *
+     * @profile common
+     */
     public function sub(other:Duration):Duration {
         return valueOf(millis - other.millis);
     }
 
     /** Multiply this instance with a number to return a new Duration instance.
-     *  This function does not change the value of called Duration instance. */
+     *  This function does not change the value of called Duration instance. 
+     *
+     * @profile common
+     */ 
     public function mul(n:Number):Duration {
         return valueOf(millis * n);
     }
 
 
     /** Divide this instance by a number to return a new Duration instance.
-     *  This function does not change the value of called Duration instance. */
+     *  This function does not change the value of called Duration instance. 
+     *
+     * @profile common
+     */     
     public function div(n:Number):Duration {
         return valueOf(millis / n);
     }
 
+    /**
+     *
+     * @profile common
+     */    
     public function negate():Duration {
         return valueOf(-millis);
     }
 
+    /**
+     *
+     * @profile common
+     */        
     public function toString(): String {
         return "{millis}ms";
     }
 
+    /**
+     *
+     * @profile common
+     */        
     public function lt(other: Duration):Boolean {
         return compareTo(other) < 0;
     }
 
+    /**
+     *
+     * @profile common
+     */        
     public function le(other: Duration):Boolean {
         return compareTo(other) <= 0;
     }
 
+    
+    /**
+     *
+     * @profile common
+     */        
     public function gt(other: Duration):Boolean {
         return compareTo(other) > 0;
     }
 
+    /**
+     *
+     * @profile common
+     */        
     public function ge(other: Duration):Boolean {
         return compareTo(other) >= 0;
     }
 
+    /**
+     *
+     * @profile common
+     */        
     public function toDate():java.util.Date {
         return new java.util.Date(millis.longValue());
     }

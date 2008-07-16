@@ -12,6 +12,7 @@ import java.lang.System;
 /*
  * Shape/Path which is constructed by parsing SVG path data from a String.
  * 
+ * @profile common
  */
 public class SVGPath extends Shape {
 
@@ -33,6 +34,8 @@ public class SVGPath extends Shape {
     /**
      * Path defining SVG Path encoded string as specigied at 
      * {@link http://www.w3.org/TR/SVG/paths.html}
+     *
+     * @profile common
      */
     public attribute content: String on replace {
         updateSVGPath();
