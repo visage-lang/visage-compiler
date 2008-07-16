@@ -71,7 +71,6 @@
         <condition property="has-bootstrap-dirs">
             <and>
                 <available file="${ant.dir}"/>
-                <!-- <available file="${scenegraph.dir}"/> -->
                 <available file="${junit.dir}"/>
                 <available file="${docbook.dir}"/>
                 <available file="${antlr.dir}"/>
@@ -98,6 +97,10 @@
     <target name="do-bootstrap" depends="check-bootstrap" unless="has-bootstrap-dirs">
         <ant antfile="bootstrap.xml" target="all"/>
     </target>
+    
+    <target name="update-scenegraph" depends="do-bootstrap">
+        <ant antfile="bootstrap.xml" target="scenegraph"/>        
+    </target>
 
     <target name="single-fx-test-check" if="test.fx.includes">
         <property name="test.includes" value="**/FXCompilerTest.java"/>
@@ -105,7 +108,7 @@
         <property name="test-sys-prop.test.fx.includes" value="${test.fx.includes}"/>
     </target>
 
-    <target name="-pre-init" depends="check-ant,check-jdk-1.6,do-bootstrap,tool-paths,single-fx-test-check">
+    <target name="-pre-init" depends="check-ant,check-jdk-1.6,do-bootstrap,update-scenegraph,tool-paths,single-fx-test-check">
         <fail unless="has-jdk-1.6">You need JDK 1.6 or higher to build JavaFX.</fail>
         <echo message="JDK version ${java.version}"/>
         <echo message="Ant version ${ant.version}"/>
@@ -383,7 +386,7 @@
         <findbugs output="xml" outputFile="${build.dir}/findbugs.xml" home="${findbugs.dir}" jvmargs="-Xmx512m"
                   projectName="OpenJFX compiler ${full.version}" excludeFilter="findbugs-exclude.xml">
             <class location="${build.classes.dir}"/>
-            <auxclasspath path="${javac.classpath}"/>
+            <auxclasspath path="${javac.classpath}:${junit.class.path}"/>
             <sourcepath path="${src.classes.dir}"/>
         </findbugs>
         <exec executable="sh">
@@ -497,6 +500,10 @@
         <ant antfile="bootstrap.xml" target="prepare"/>
         <antcall target="clean"/>
         <ant antfile="bootstrap.xml" target="clean"/>
+        <antcall target="javafxdoc-clean"/>
+        <antcall target="spec-clean"/>
+        <antcall target="launcher-clean"/>
+        <antcall target="demos-clean"/>
     </target>
     
     <available property="mail.jar" value="${ant.home}/lib/mail.jar" file="${ant.home}/lib/mail.jar"/>

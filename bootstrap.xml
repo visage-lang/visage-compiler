@@ -6,16 +6,27 @@
     <property name="tools.dir" value="${basedir}/tools"/>
     <property name="lib.dir" value="${base.dir}/lib"/>
     <property name="bootstrap.dir" value="${base.dir}/bootstrap"/>
+    
+    <condition property="scenegraph.platform" value="windows-i586">
+        <os family="windows"/>
+    </condition>
+    <condition property="scenegraph.platform" value="linux-i586">
+        <os name="Linux"/>
+    </condition>
+    <condition property="scenegraph.platform" value="solaris-sparc">
+        <not>
+            <isset property="scenegraph.platform"/>
+        </not>
+    </condition>
+    <echo message="scenegraph.platform = ${scenegraph.platform}"/>
 
     <import file="tools-defs.xml" />
 
     <property name="ant.url" value="http://archive.apache.org/dist/ant/binaries/apache-ant-${ant.ver}-bin.zip"/>
     <property name="ant.zipfile" value="${bootstrap.dir}/ant.zip"/>
 
-    <!-- Scenario is in openjfx-compiler repository until its development slows
-    <property name="scenegraph.url" value="http://openjfx.java.sun.com/ea/Scenario-0.6/Scenario-0.6.jar"/>
-    <property name="scenegraph.file" value="${scenegraph.dir}/${scenegraph.ver}.jar"/>
-      -->
+    <property name="scenegraph.url" value="http://openjfx.java.sun.com/hudson/job/jfx-scenegraph/label=${scenegraph.platform}/lastSuccessfulBuild/artifact/scenegraph/dist/*zip*/dist.zip"/>
+    <property name="scenegraph.file" value="${bootstrap.dir}/Scenario-dist.zip"/>
 
     <property name="junit.url" value="http://downloads.sourceforge.net/junit/junit-${junit.ver}.jar"/>
     <property name="junit.jarfile" value="${bootstrap.dir}/junit.jar"/>
@@ -57,7 +68,7 @@
         <mkdir dir="${bootstrap.dir}"/>
         <mkdir dir="${tools.dir}"/>
         <mkdir dir="${ant.dir}"/>
-        <!-- <mkdir dir="${scenegraph.dir}"/> -->
+        <mkdir dir="${scenegraph.dir}"/>
         <mkdir dir="${findbugs.dir}"/>
         <mkdir dir="${junit.dir}"/>
         <mkdir dir="${docbook.dir}"/>
@@ -73,7 +84,7 @@
     <target name="clean">
         <delete dir="${bootstrap.dir}"/>
         <delete dir="${ant.dir}"/>
-        <!-- <delete dir="${scenegraph.dir}"/> -->
+        <delete dir="${scenegraph.dir}"/>
         <delete dir="${findbugs.dir}"/>
         <delete dir="${junit.dir}"/>
         <delete dir="${docbook.dir}"/>
@@ -103,11 +114,29 @@
         <get src="${junit.url}" dest="${junit.file}"/>
     </target>
 
-    <target name="scenegraph" depends="prepare">
-        <!-- Scenario is in openjfx-compiler repository until its development slows
-        <mkdir dir="${scenegraph.dir}"/>
-        <get src="${scenegraph.url}" dest="${scenegraph.file}"/>
-          -->
+    <target name="scenegraph" depends="fetch-scenegraph" unless="scenegraph-uptodate">
+        <unzip src="${scenegraph.file}" dest="${tools.dir}/Scenario/" overwrite="true"/>
+        <touch file="${tools.dir}/Scenario/tstamp"/>
+    </target>
+    
+    <target name="-check-scenegraph-timestamps">
+        <delete file="${bootstrap.dir}/scenegraph.rss" failonerror="false"/>
+        <get src="http://openjfx.java.sun.com/hudson/job/jfx-scenegraph/rssAll" dest="${bootstrap.dir}/scenegraph.rss" ignoreerrors="true"/>
+        <xmlproperty file="${bootstrap.dir}/scenegraph.rss"/>
+        <loadfile property="scenegraph.last.updated" srcfile="${bootstrap.dir}/scenegraph.last.update" failonerror="false"/>
+        <condition property="scenegraph-zip-uptodate">
+            <equals arg1="${feed.entry.updated}" arg2="${scenegraph.last.updated}"/>
+        </condition>
+    </target>
+    
+    <target name="-fetch-scenegraph-zip" depends="prepare,-check-scenegraph-timestamps" unless="scenegraph-zip-uptodate">
+        <get src="${scenegraph.url}" dest="${scenegraph.file}" usetimestamp="true" ignoreerrors="true"/>
+        <!-- save RSS update list -->
+        <echo file="${bootstrap.dir}/scenegraph.last.update" message="${feed.entry.updated}"/>
+    </target>
+    
+    <target name="fetch-scenegraph" depends="prepare,-fetch-scenegraph-zip">
+        <uptodate property="scenegraph-uptodate" srcfile="${scenegraph.file}" targetfile="${tools.dir}/Scenario/tstamp"/>
     </target>
 
     <target name="docbook" depends="prepare">

@@ -7,13 +7,8 @@
     <property name="ant.ver" value="1.7.0"/>
     <property name="ant.dir" value="${tools.dir}/ant-${ant.ver}"/>
     
-    <!-- Scenario is in openjfx-compiler repository until its development slows
-    <property name="scenegraph.ver" value="Scenario-0.6"/>
-    <property name="scenegraph.jar" value="${scenegraph.ver}.jar"/>
-    <property name="scenegraph.dir" value="${tools.dir}/${scenegraph.ver}"/> -->
-    <property name="scenegraph.ver" value="Scenario"/>
-    <property name="scenegraph.jar" value="${scenegraph.ver}.jar"/>
-    <property name="scenegraph.dir" value="${basedir}/lib"/>
+    <property name="scenegraph.dir" value="${tools.dir}/Scenario/dist"/>
+    <property name="scenegraph.jar" value="${scenegraph.dir}/Scenario.jar"/>
 
     <property name="junit.ver" value="4.4"/>
     <property name="junit.dir" value="${tools.dir}/junit-${junit.ver}"/>
@@ -51,8 +46,7 @@
     </path>
 
     <path id="scenegraph.class.path">
-        <!-- <fileset dir="${scenegraph.dir}" includes="**/*.jar" /> -->
-        <fileset file="${scenegraph.dir}/${scenegraph.jar}"/>
+        <fileset file="${scenegraph.jar}"/>
     </path>
 
     <path id="junit.class.path">
