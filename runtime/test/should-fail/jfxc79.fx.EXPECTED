@@ -1,4 +1,0 @@
-jfxc79.fx:12: Java generic type declarations are not currently supported.
-    protected attribute keyMap:java.util.Map<java.lang.Number, javafx.ui.KeyStroke>; 
-                                            ^
-1 error
