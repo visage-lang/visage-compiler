@@ -70,9 +70,35 @@ public class BoundOperators extends GeneratedBoundOperators {
                 Sequence<T> aVal = a.getAsSequence();
                 Sequence<V> bVal = b.getAsSequence();
                 if (aVal == null)
-                    return bVal == null;
+                    return bVal == null || bVal.isEmpty();
                 else
                     return aVal.equals(bVal);
+            }
+        }, a, b);
+    }
+
+    public static <T, V> BooleanLocation eq_so(final SequenceLocation<T> a, final ObjectLocation<V> b) {
+        return BooleanVariable.make(new BooleanBindingExpression() {
+            public boolean computeValue() {
+                Sequence<T> aVal = a.getAsSequence();
+                V bVal = b.get();
+                if (bVal == null)
+                    return aVal == null || aVal.isEmpty();
+                else
+                    return aVal.size()==1 && aVal.get(0).equals(bVal);
+            }
+        }, a, b);
+    }
+
+    public static <T, V> BooleanLocation eq_os(final ObjectLocation<T> a, final SequenceLocation<V> b) {
+        return BooleanVariable.make(new BooleanBindingExpression() {
+            public boolean computeValue() {
+                T aVal = a.get();
+                Sequence<V> bVal = b.getAsSequence();
+                if (aVal == null)
+                    return bVal == null || bVal.isEmpty();
+                else
+                    return bVal.size()==1 && bVal.get(0).equals(aVal);
             }
         }, a, b);
     }
@@ -83,9 +109,35 @@ public class BoundOperators extends GeneratedBoundOperators {
                 Sequence<T> aVal = a.getAsSequence();
                 Sequence<V> bVal = b.getAsSequence();
                 if (aVal == null)
-                    return bVal != null;
+                    return bVal != null || !bVal.isEmpty();
                 else
                     return !aVal.equals(bVal);
+            }
+        }, a, b);
+    }
+
+    public static <T, V> BooleanLocation ne_so(final SequenceLocation<T> a, final ObjectLocation<V> b) {
+        return BooleanVariable.make(new BooleanBindingExpression() {
+            public boolean computeValue() {
+                Sequence<T> aVal = a.getAsSequence();
+                V bVal = b.get();
+                if (bVal == null)
+                    return aVal != null || !aVal.isEmpty();
+                else
+                   return aVal.size()!=1 || !aVal.get(0).equals(bVal);
+            }
+        }, a, b);
+    }
+
+    public static <T, V> BooleanLocation ne_os(final ObjectLocation<T> a, final SequenceLocation<V> b) {
+        return BooleanVariable.make(new BooleanBindingExpression() {
+            public boolean computeValue() {
+                T aVal = a.get();
+                Sequence<V> bVal = b.getAsSequence();
+                if (aVal == null)
+                    return bVal != null || !bVal.isEmpty();
+                else
+                    return bVal.size()!=1 || !bVal.get(0).equals(aVal);
             }
         }, a, b);
     }
