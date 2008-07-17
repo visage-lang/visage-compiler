@@ -9,10 +9,7 @@
 
 <sect2 id="attribute"><title>Attributes</title>
 
-<para>Attributes define the state of an object. They are declared using the <code>attribute</code> keyword followed by the attribute's name, a colon, the attribute's type terminated with a semicolon. </para>
-
-<!--  
-Attributes define the state of an object. They are declared using the <code>attribute</code> keyword followed by the attribute's name, a colon, the attribute's type, optionally a cardinality specification (<code>[]</code> meaning zero or more, terminated with a semicolon:--> 
+<para>Attributes define the state of an object. They are declared using the <code>attribute</code> keyword followed by the attribute's name, a colon (optional), the attribute's type (optional) terminated with a semicolon. </para>
 
 
 <programlisting>
@@ -82,7 +79,6 @@ Functions define the behavior of an object. A function takes the form: </para>
 
 
 <programlisting>
-
 function <emphasis>name</emphasis> (<emphasis>parameterName</emphasis> : <emphasis>parameterType</emphasis>, ...): <emphasis>returnType body</emphasis>
 </programlisting>
 
@@ -101,8 +97,7 @@ Chapter one presented a simple example, defining a <code>grow</code> function
 ...
 
 function grow(): Void {
-          width++;
-          height++;
+     grow(1);
 }
 
 ...
@@ -129,21 +124,16 @@ component:
 
 <programlisting>
 
-import java.lang.System;
-import javafx.gui.*;
+// in GUI 
 
-Frame {
-     visible: true
-     content: FlowPanel {
-          content: Button {
-               text: "Click Me!"
-               action: function() {
-                    System.out.println("Click!");
-               }
-          }
-     }
-     
+...
+
+action: function() {
+     System.out.println("Click!");
 }
+
+...
+
 </programlisting>
 
 </sect2> </chapter>

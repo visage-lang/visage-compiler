@@ -16,7 +16,6 @@ As discussed in Chapter 1, the <code>var</code> keyword is used to introduce a n
 <para>A variable declaration takes the form:</para>
 
 <programlisting>
-
 var <emphasis>variableName : type = initializer;</emphasis>
 </programlisting>
 
@@ -24,7 +23,6 @@ var <emphasis>variableName : type = initializer;</emphasis>
 
 
 <programlisting>
-
 var num = 1; // inferred type 
 var num : Number = 2;
 var firstName = "John"; // inferred type
@@ -72,20 +70,8 @@ The lifetime of a variable is at least the lifetime of the containing block. </p
 
 <para>The five basic data types map to the Java programming language as follows:</para>
 
-<!--
 
-<programlisting>
-Number     java.lang.Number
-Integer    byte,short,int,long,BigInteger
-Boolean    java.lang.Boolean
-String     java.lang.String
-Duration   N/A
-
-</programlisting> 
-
--->
-
-<!-- ************** new types table **************** -->
+<!-- ************** BEGIN DATA TYPES TABLE **************** -->
     
     <table class="data" border="0">
 		 
@@ -151,7 +137,7 @@ Duration   N/A
   </table>
     
     
-<!-- ************************************************* -->
+<!-- ****************** END DATA TYPES TABLE ******************************* -->
 
 
 
@@ -193,14 +179,9 @@ var s2 = "Hello";
  expressions within curly brackets (<code>{}</code>):</para>
 
 <programlisting>
-
 var name = 'Joe';
 var s = "Hello {name}"; // s = 'Hello Joe'
 </programlisting>
-
-<para>
-When using curly brackets, the compiler infers a type for the embedded expression that it can coerce to a <code>String</code>.
-</para>
 
 <para>The embedded expression can itself contain quoted strings, which, in turn, may contain further embedded expressions:</para>
 
@@ -210,7 +191,7 @@ var s = "The answer is {if (answer) "Yes" else "No"}"; // s = 'The answer is Yes
 </programlisting>
 
 <para>
-Unlike the Java programming language, a JavaFX Script programming language double-quoted String literal can contain newlines:
+Unlike the Java programming language, a JavaFX Script programming language double-quoted String literal can contain newlines.
 </para>
 
 <para>It is also possible to control how numbers and dates are converted to character 
@@ -220,7 +201,6 @@ prefix follows the specification of <code>java.util.Formatter</code>:</para>
 
 
 <programlisting>
-
 import java.util.Date;
 
 var hexStr = "hex of 13 is 0x{%02X 13}"; // hexStr = "hex of 13 is 0x0D"        
