@@ -98,7 +98,7 @@
         <ant antfile="bootstrap.xml" target="all"/>
     </target>
     
-    <target name="update-scenegraph" depends="do-bootstrap">
+    <target name="update-scenegraph" depends="do-bootstrap" unless="has-scenegraph-dir">
         <ant antfile="bootstrap.xml" target="scenegraph"/>        
     </target>
 
@@ -497,13 +497,16 @@
     <target name="real-clean">
         <!-- suppress automatic bootstrapping -->
         <property name="has-bootstrap-dirs" value="true"/>
+        <property name="has-scenegraph-dir" value="true"/>
         <ant antfile="bootstrap.xml" target="prepare"/>
         <antcall target="clean"/>
         <ant antfile="bootstrap.xml" target="clean"/>
         <antcall target="javafxdoc-clean"/>
         <antcall target="spec-clean"/>
         <antcall target="launcher-clean"/>
+        <mkdir dir="dist/lib"/>
         <antcall target="demos-clean"/>
+        <delete dir="dist/lib"/>
     </target>
     
     <available property="mail.jar" value="${ant.home}/lib/mail.jar" file="${ant.home}/lib/mail.jar"/>
