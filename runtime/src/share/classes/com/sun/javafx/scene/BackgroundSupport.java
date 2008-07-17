@@ -80,6 +80,9 @@ public class BackgroundSupport implements PropertyChangeListener {
         } else {
             comp.setBackground(NOCOLOR);
             comp.setOpaque(false);
+        }
+
+        if ((old == null) ? (backgroundPaint != null) : !old.equals(backgroundPaint)) {
             comp.repaint();
         }
 
