@@ -88,7 +88,6 @@ class WindowImpl {
     static void setWindowTransparency(java.awt.Window window, boolean transparent) {
         // check if were are already in the required state
         if (isMac && window instanceof RootPaneContainer) {
-        System.out.println("setWindowTransparency isMac="+isMac+ " transparent="+transparent);
             RootPaneContainer rootPaneContainer = (RootPaneContainer) window;
             window.setBackground(new java.awt.Color(0, 0, 0, 0));
             // remove window shadows as they need to be updated
