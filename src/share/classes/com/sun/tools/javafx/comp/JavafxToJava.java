@@ -1859,7 +1859,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {
         DiagnosticPosition diagPos = tree.pos();
-        JCExpression seq = translate(tree.getSequence(), Wrapped.InLocation);
+        JCExpression seq = translate(tree.getSequence(), Wrapped.InNothing);
         JCExpression index = translate(tree.getIndex());
         JCFieldAccess select = make.at(diagPos).Select(seq, defs.getMethodName);
         List<JCExpression> args = List.of(index);
