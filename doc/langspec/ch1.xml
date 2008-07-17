@@ -20,7 +20,6 @@
   distinctions:</para>
 
   <itemizedlist>
-
     <listitem>Uses a declarative syntax for specifying Graphical User
     Interface (GUI) components, enabling a developer's code to closely match
     the actual layout of the GUI.</listitem>
@@ -42,7 +41,6 @@
     complexity.</listitem>
 
     <listitem>Makes it easier to use Swing.</listitem>
-
   </itemizedlist>
 
   <para>The following sections present a quick tour of the JavaFX Script
@@ -50,6 +48,24 @@
   core syntax and capabilities, comparing and contrasting to the Java
   programming language where appropriate. Each topic is then covered in
   greater detail in subsequent chapters.</para>
+
+  <sect3 id="scripts">
+    <title>Scripts</title>
+
+    <para>In the JavaFX Script programming language, a "script" is one or more
+    declarations or expressions. Evaluating the script evaluates the
+    declarations or expressions, in order:</para>
+
+    <programlisting>var ten : Integer = 10;
+java.lang.System.out.println("Twice {ten} is {2 * ten}.");   </programlisting>
+
+    <para>This prints out:</para>
+
+    <programlisting>Twice 10 is 20.</programlisting>
+
+    <para>Unlike an application written in the Java programming language, a
+    script need not contain any class definitions or functions.</para>
+  </sect3>
 
   <sect3 id="classes">
     <title>Classes</title>
@@ -67,8 +83,7 @@
      attribute height: Integer;
 
      function grow(): Void {
-          width++;
-          height++;
+          grow(1);
      }
 
      function grow(amount: Integer): Void {
@@ -79,9 +94,7 @@
 }
 </programlisting>
 
-    <para>Unlike the Java programming language, class definitions are not
-    required for scripts that use only existing libraries. Additionally, the
-    JavaFX Script programming language supports <emphasis>multiple
+    <para>The JavaFX Script programming language supports <emphasis>multiple
     inheritance</emphasis>, making it possible to inherit from more than one
     class.</para>
 
@@ -114,8 +127,7 @@
     <para>To store a reference to this object, use the <code>var</code>
     keyword:</para>
 
-    <programlisting>
-var myRect = Rectangle {
+    <programlisting>var myRect = Rectangle {
      
      width: 100
      height: 100
@@ -128,21 +140,16 @@ var myRect = Rectangle {
     <para>Variables and basic data types are covered in detail in <ulink
         url="types.html">
         <emphasis>Chapter 4</emphasis>
-      </ulink>
-</para>
+      </ulink></para>
   </sect3>
 
   <sect3 id="expressions">
     <title>Expressions and Operators</title>
 
-
     <para>Like other programming languages, the JavaFX Script programming
-    language supports expressions and operators.
-</para>
+    language supports expressions and operators.</para>
 
-
-    <para>
-<ulink url="expressions.html">
+    <para><ulink url="expressions.html">
         <emphasis>Chapter 5</emphasis>
       </ulink> discusses the expressions and operators available in the JavaFX
     Script programming language.</para>
@@ -155,8 +162,7 @@ var myRect = Rectangle {
     This is roughly analogous to Java programming language arrays. Both hold
     multiple values and are accessed by index starting at 0.</para>
 
-    <programlisting>
-var week = ["Monday","Tuesday","Wednesday","Thursday",
+    <programlisting>var week = ["Monday","Tuesday","Wednesday","Thursday",
                   "Friday","Saturday","Sunday"];
 var mon = week[0];
 var wed = week[2];
@@ -165,9 +171,7 @@ var fri = week[4];
 
     <para>Sequence <emphasis>slices</emphasis> are also supported:</para>
 
-    <programlisting>
-
-var week = ["Monday","Tuesday","Wednesday","Thursday",
+    <programlisting>var week = ["Monday","Tuesday","Wednesday","Thursday",
                   "Friday","Saturday","Sunday"];
 var weekdays = week[0..4]; // first slice
 var weekend = week[5..6]; // second slice
@@ -175,11 +179,10 @@ var weekend = week[5..6]; // second slice
 
     <para><ulink url="sequences.html">
         <emphasis>Chapter 6</emphasis>
-      </ulink>  covers the basics of
-    declaring sequences, while <ulink url="comprehensions.html">
+      </ulink> covers the basics of declaring sequences, while <ulink
+        url="comprehensions.html">
         <emphasis>Chapter 7</emphasis>
-      </ulink> focuses on 
-    <emphasis>sequence comprehensions</emphasis>.</para>
+      </ulink> focuses on <emphasis>using</emphasis> sequences. </para>
   </sect3>
 
   <sect3 id="databinding">
@@ -192,21 +195,21 @@ var weekend = week[5..6]; // second slice
     of data binding is to keep GUI components synchronized with their
     underlying data.</para>
 
-    <programlisting>
-import javafx.gui.Frame;
-import javafx.gui.Button;
+    <programlisting>import javafx.application.Frame;
+import javafx.application.Stage;
+import javafx.scene.text.Text;
 
-var myString = "Click Me";
+var myString = "Hello World!";
 
 Frame {
      width: 50
      height: 50
      visible: true
-     content:
-          Button {
-               text: bind myString
+     stage: Stage {
+          content: Text {
+               content: bind myString
           }
-
+     }
 }
 
 // If some other part of code changes myString
@@ -216,8 +219,7 @@ Frame {
 
     <para>Data Binding is covered in detail in <ulink url="binding.html">
         <emphasis>Chapter 8</emphasis>
-      </ulink>.
-</para>
+      </ulink>.</para>
   </sect3>
 
   <sect3 id="triggers">
@@ -248,7 +250,6 @@ class ReplaceDemo {
 
     <para>Triggers are covered in detail in <ulink url="triggers.html">
         <emphasis>Chapter 9</emphasis>
-      </ulink>.
-</para>
+      </ulink>.</para>
   </sect3>
 </chapter>
