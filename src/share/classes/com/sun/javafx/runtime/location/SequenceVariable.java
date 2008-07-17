@@ -70,11 +70,13 @@ public class SequenceVariable<T>
         return new SequenceVariable<T>(clazz, false, binding, dependencies);
     }
 
+    /**
     public static<T> SequenceVariable<T> make(Class clazz, SequenceLocation<T> otherLocation) {
         SequenceVariable<T> me = make(clazz);
         me.bind(otherLocation);
         return me;
     }
+     * ***/
 
     /** Create a bijectively bound variable */
     public static<T> SequenceVariable<T> makeBijective(Class clazz, SequenceVariable<T> other) {
