@@ -33,7 +33,7 @@ System.out.println(x.b); // prints -1.0
 
 
 <para>
-In the absence of explicit initialization, each attribute will be assigned  a reasonable default:</para>
+In the absence of explicit initialization, each attribute is assigned a reasonable default:</para>
 
 <programlisting>
 import java.lang.System;
@@ -54,7 +54,7 @@ System.out.println("Default Value: " + demo.d);
 
 
 <para>
-The above prints the following default values to the screen (note: the last line prints an empty string):
+The above prints the following default values to the screen. (Note: The last line prints an empty string.)
 </para>
 <programlisting>
 Default Value: 0.0
@@ -75,7 +75,7 @@ Default Value:
 <sect2 id="function"><title>Functions</title>
 
 <para>
-Functions define the behavior of an object. A function takes the form: </para>
+Functions define the behavior of an object. A function takes the following form: </para>
 
 
 <programlisting>
@@ -103,7 +103,7 @@ function grow(): Void {
 ...
 </programlisting>
 
-<para>The demo also provided an overloaded version allowing the user to specify a particular size: </para>
+<para>The demo also provided an overloaded version that allowed the user to specify a particular size: </para>
 
 <programlisting>
 

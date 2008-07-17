@@ -9,21 +9,22 @@
 <sect2 id="importing"><title> Importing Classes</title> 
 
 <para>
-Import statements behave the same as in the Java programming language.
+Import statements behave the same as in the <trademark>Java</trademark> programming language.
 The syntax is: </para>
 
 <programlisting>
 import <emphasis>PackageName</emphasis>.<emphasis>ClassName</emphasis>;</programlisting>
 
-or 
+and 
 
 <programlisting>import <emphasis>PackageName</emphasis>.*;
 </programlisting>
 
 <para>
- If import statements are present, they must appear before 
-any other application code. The JavaFX Script programming language defines its own namespace 
-for its built-in library classes (packages <code>javafx.*</code>), but it is also possible to import standard Java programming language classes as well: 
+If import statements are present, they must appear before 
+any other application code. The <trademark>JavaFX</trademark> Script programming language defines its own namespace 
+for its built-in library classes (packages <code>javafx.*</code>), but standard Java programming language classes 
+can also be imported: 
 </para>
 
 <programlisting>
@@ -47,7 +48,7 @@ The syntax for specifying a class is the <code>class</code> keyword followed by 
 separated list of the names of base classes, an open curly brace, a list of attributes and functions that each end in a semicolon, and a closing curly brace.</para>
 
 <para>The JavaFX Script programming language supports 
-multiple inheritance, and as such, defines some new terminology and rules: </para>
+multiple inheritance, and therefore, defines some new terminology and rules: </para>
 
 <itemizedlist>
 <listitem>A <emphasis>plain class</emphasis> is any class that directly or indirectly extends a class written in the Java programming language.</listitem>
@@ -56,8 +57,8 @@ multiple inheritance, and as such, defines some new terminology and rules: </par
 
 <listitem>By default, classes written in the JavaFX Script programming language are compound classses.</listitem>
 
-<listitem>Classes can extend, at most, one plain class; if it does, it becomes 
-a plain class. It may also extend any number of compound classes, or Java programming language interfaces. </listitem>
+<listitem>Classes can extend, at most, one plain class. If it does extend a plain class, it becomes 
+a plain class. A class can also extend any number of compound classes, or Java programming language interfaces. </listitem>
 </itemizedlist>
 
 <para><emphasis role="bold">Note:</emphasis> A plain class is currently translated into a Java class, while a compound class is translated to a Java class and a Java interface.</para>
@@ -80,10 +81,7 @@ behavior of a constructor, define a <code>static</code> function that returns a 
 
 <para>As described in the previous chapter, the 
 preferred way to instantiate a class is with an <emphasis>object literal</emphasis>.
-This form of object allocation uses a declarative syntax consisting of the name of the class followed by a curly brace delimited list of attribute initializers. Each initializer consists of the attribute name followed by a colon, followed by an expression which defines its value.</para>
-
-<para>
-It is possible to use the <code>new</code> keyword when creating an object: 
+This form of object allocation uses a declarative syntax consisting of the name of the class followed by a curly brace delimited list of attribute initializers. Each initializer consists of the attribute name followed by a colon, followed by an expression that defines its value. However, it is also possible to use the <code>new</code> keyword when creating an object: 
 </para>
 
 <programlisting>
@@ -93,7 +91,6 @@ var tmpPath = "/home/users/docs/tmp.txt"
 var myFile = new File("tmp.txt");
 </programlisting>
 
-<para>However, object literals should be used whenever possible.</para>
 </sect2> </chapter>
 
 
