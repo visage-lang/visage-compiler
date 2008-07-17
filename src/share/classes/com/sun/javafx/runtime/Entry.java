@@ -30,6 +30,8 @@ import java.util.Iterator;
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * First code that is run to start a JavaFX Script application.
@@ -92,15 +94,25 @@ public class Entry {
             loadMethodName = "load";
             usingServiceLoader = true;
         } catch (ClassNotFoundException cnfe) {
-            try {
                 // Lookup Java 5 Sun-private API
-                loaderClass = Class.forName("sun.misc.Service");
+                final Class<?>[] cls = new Class<?>[1];
+                AccessController.doPrivileged(
+                    new PrivilegedAction<Void>() {
+                        public Void run() {
+                            try {
+                                cls[0] = Class.forName("sun.misc.Service");
+                            } catch (ClassNotFoundException cnfe2) {
+                                cls[0] = null;
+                            }
+                            return null;
+                        }
+                    });
+                loaderClass = cls[0];
                 loadMethodName = "providers";
                 usingServiceLoader = false;
-            } catch (ClassNotFoundException cnfe2) {
-                throw new AssertionError("Failed discovering ServiceLoader");
-            }
         }
+        if (loaderClass == null)
+            throw new AssertionError("Failed discovering ServiceLoader");
 
         try {
             // java.util.ServiceLoader.load or sun.misc.Service.providers
