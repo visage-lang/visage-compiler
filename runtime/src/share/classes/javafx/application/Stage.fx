@@ -55,7 +55,7 @@ public class Stage {
     /**
      * Defines the background fill of this {@code Stage}. Both a {@code null} value meaning paint no background and a
      * Paint with transparency are supported, but what is painted behind it will depend on the platform.
-     * The default value is white.
+     * The default value is the color white.
      *
      * @profile common
      */
