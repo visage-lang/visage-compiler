@@ -1,64 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter id="overview">
+  <title>Language Overview</title>
 
+  <para>This chapter provides an overview of the <trademark>JavaFX</trademark>
+  Script programming language. At a high level, this chapter describes the
+  programming language's main features, saving detailed coverage of specific
+  constructs for subsequent chapters. This book is intended for designers and
+  developers of rich Internet client applications and elements, that run in
+  web pages, as <trademark>Java</trademark> Web Start software, or as
+  traditional desktop applications. Its content assumes the reader is familiar
+  with either the JavaScript or <trademark>Java</trademark> programming
+  language, or both. While this document does not define a formal language
+  specification, it can be considered a complete reference for all currently
+  supported language features.<!--  --></para>
 
+  <para>The JavaFX Script programming language has the following
+  distinctions:</para>
 
-<chapter id="overview"><title>Language Overview</title>
+  <itemizedlist>
+    <listitem>Uses a declarative syntax for specifying Graphical User
+    Interface (GUI) components, enabling a developer's code to closely match
+    the actual layout of the GUI.</listitem>
 
+    <listitem>Uses declarative data binding and incremental evaluation,
+    enabling easy creation and configuration of individual components.
+    Application data and GUI components are automatically
+    synchronized.</listitem>
 
+    <listitem>Is statically typed, having most of the same code structuring,
+    reuse, and encapsulation features that enable creating and maintaining
+    very large programs in the Java programming language.</listitem>
 
-<para>This chapter provides an overview of the <trademark>JavaFX</trademark> Script programming language. It describes -- at a high level -- its main features, saving detailed coverage of specific constructs for subsequent chapters. This book is intended for designers and developers of rich Internet client applications and elements, which run in web pages, as <trademark>Java</trademark> Web Start software, or as traditional desktop applications. It assumes the reader to be familiar with JavaScript and/or the <trademark>Java</trademark> programming language. <!-- While this book does not define a formal language specification, it can be considered a complete reference for all currently supported language features.  --> </para>
+    <listitem>Works with all major IDEs, including the NetBeans IDE, the
+    reference implementation IDE for software development with the Java
+    programming language.</listitem>
 
-<para>
-The JavaFX Script programming language:
-</para>
+    <listitem>Is capable of supporting GUIs of any size or
+    complexity.</listitem>
 
-   <itemizedlist>
+    <listitem>Makes it easier to use Swing.</listitem>
 
-     <listitem> Uses a declarative syntax for specifying Graphical User Interface (GUI) components, allowing a developer's code to closely match the actual layout of the GUI.</listitem>
+    <!---->
+  </itemizedlist>
 
-    
-    <listitem>  Uses declarative data binding and incremental evaluation, making it possible to easily create and configure individual components. Application data and GUI components are automatically synchronized.</listitem>
-    
+  <para>The following sections present a quick tour of the JavaFX Script
+  programming language. These sections provide a general introduction to its
+  core syntax and capabilities, comparing and contrasting to the Java
+  programming language where appropriate. Each topic is then covered in
+  greater detail in subsequent chapters.</para>
 
-    
-    <listitem>  Is statically typed, having most of the same code structuring, reuse, and encapsulation features that make it possible to create and maintain very large programs in the Java programming language.</listitem>
-    
+  <sect3 id="classes">
+    <title>Classes</title>
 
-<!--    
-    <listitem>  Works with all major IDEs, including the NetBeans IDE, the reference implementation IDE for software development with the Java programming language.</listitem>
-    -->
+    <para>Class definitions share many similarities with the Java programming
+    language, but some differences are notable. State, for example, is
+    information stored in <emphasis>attributes</emphasis>, not fields.
+    Behavior is exposed through <emphasis>functions</emphasis>, not methods.
+    The following example defines a simple <code>Rectangle</code> class that
+    demonstrates the basic syntax of each.</para>
 
-    
-    <listitem>  Is capable of supporting GUIs of any size or complexity.</listitem>
-    
-    
-
-    <listitem>  Makes it easier to use Swing.</listitem>
-
-</itemizedlist>
-
-
-<para>
-
-The following sections present a whirlwind tour of the JavaFX Script programming language.
-They provide a general introduction to its core syntax and capabilities, comparing and contrasting to the Java 
-programming language where appropriate. Each topic is then covered in 
- greater  detail in subsequent chapters.</para>
-
- 
- 
-
- <sect3 id="classes"><title>
-Classes</title>
-
-<para>Class definitions share many similarities with the Java programming language, but there are differences as well. 
-State, for example, is information stored in <emphasis>attributes</emphasis>, not fields. Behavior is exposed through <emphasis>functions</emphasis>, not methods. The following 
-example defines a simple <code>Rectangle</code> class that demonstrates the basic syntax of each. </para>
-
-
-<programlisting>class Rectangle {
+    <programlisting>class Rectangle {
 
      attribute width: Integer;
      attribute height: Integer;
@@ -76,126 +79,90 @@ example defines a simple <code>Rectangle</code> class that demonstrates the basi
 }
 </programlisting>
 
+    <para>Unlike the Java programming language, class definitions are not
+    required for scripts that use only existing libraries. Additionally, the
+    JavaFX Script programming language supports <emphasis>multiple
+    inheritance</emphasis>, making it possible to inherit from more than one
+    class.</para>
 
-<para>
-Unlike the Java programming language, class definitions are not required for scripts that 
-simply use existing libraries. Additionally, the JavaFX Script programming language supports <emphasis>multiple inheritance</emphasis>, making it possible to inherit from 
-more than one class if desired.</para>
+    <para>Classes are covered in detail in <ulink url="classintro.html">
+        <emphasis>Chapter 2</emphasis>
+      </ulink><!-- <A HREF="ch2.html"> Chapter 2 </A>.--></para>
 
+    <para>Attributes and Functions are covered in detail in <ulink
+        url="functions.html">
+        <emphasis>Chapter 3</emphasis>
+      </ulink><!-- <A HREF="ch3.html">Chapter 3</A>. --></para>
+  </sect3>
 
-<para>
-Classes are covered in detail in 
+  <sect3 id="objects">
+    <title>Objects</title>
 
-<ulink
-    url="classintro.html"><emphasis>Chapter 2</emphasis></ulink>
+    <para><emphasis>Object literals</emphasis> provide a simple syntax for
+    class instantiation. The following code creates a single instance of the
+    <code>Rectangle</code> class defined previously, initializing its
+    <code>width</code> and <code>height</code> attributes to <code>100</code>.
+    (Note that <code>new</code> is not needed.)</para>
 
-<!-- <A HREF="ch2.html"> Chapter 2 </A>.-->
-</para>
-
-
-<para>
-Attributes and Functions are covered in detail in 
-
-<ulink
-    url="functions.html"><emphasis>Chapter 3</emphasis></ulink>
-
-<!-- <A HREF="ch3.html">Chapter 3</A>. -->
-</para>
-
-
-</sect3>
- <sect3 id="objects"><title>
-Objects</title>
-
-
-<para><emphasis>Object literals</emphasis> provide a simple syntax for class instantiation.
-The following code creates a single instance of the <code>Rectangle</code> class defined above, initializing its 
-<code>width</code> and <code>height</code> attributes to <code>100</code> 
-(note that <code>new</code> is not needed.) </para>
-
-
-
-<programlisting>Rectangle {
+    <programlisting>Rectangle {
 
      width: 100
      height: 100
 
 }</programlisting>
 
-<para>
-To store a reference to this object, use the <code>var</code> keyword:
-</para>
+    <para>To store a reference to this object, use the <code>var</code>
+    keyword:</para>
 
-<programlisting>
+    <programlisting>
 var myRect = Rectangle {
      
      width: 100
      height: 100
 }</programlisting>
 
+    <para>Objects are covered in detail in <ulink url="classintro.html">
+        <emphasis>Chapter 2</emphasis>
+      </ulink>.<!-- <A HREF="ch2.html">Chapter 2</A>. --></para>
 
-<para>
-Objects are covered in detail in 
-
-<ulink
-    url="classintro.html"><emphasis>Chapter 2</emphasis></ulink>.
-
-<!-- <A HREF="ch2.html">Chapter 2</A>. -->
-</para>
-
-<para>Variables and basic data types are covered in detail in 
-
-<ulink
-    url="types.html"><emphasis>Chapter 4</emphasis></ulink>
-
-<!--
+    <para>Variables and basic data types are covered in detail in <ulink
+        url="types.html">
+        <emphasis>Chapter 4</emphasis>
+      </ulink><!--
 <A HREF="ch4.html">Chapter 4</A>.
--->
-</para>
+--></para>
+  </sect3>
 
-</sect3>
+  <sect3 id="expressions">
+    <title>Expressions and Operators</title>
 
- <sect3 id="expressions"><title>
-Expressions and Operators</title>
+    <!-- <FONT COLOR="RED"> -->
 
-
-<!-- <FONT COLOR="RED"> -->
-
-
-
-<para>Like other programming languages, the JavaFX Script programming language supports  expressions and 
-operators. <!--  However, unlike the Java programming language, the JavaFX Script
+    <para>Like other programming languages, the JavaFX Script programming
+    language supports expressions and operators.<!--  However, unlike the Java programming language, the JavaFX Script
 programming language is an expression language, which means that all
 executable statements - including conditionals, loops, and even
-blocks -  are expressions. --> </para>
+blocks -  are expressions. --></para>
 
-<!--  </FONT> -->
+    <!--  </FONT> -->
 
-
-
-<para>
-<!-- 
+    <para><!-- 
 <A HREF="ch5.html">Chapter 5</A> 
 
--->
+--><ulink url="expressions.html">
+        <emphasis>Chapter 5</emphasis>
+      </ulink> discusses the expressions and operators available in the JavaFX
+    Script programming language.</para>
+  </sect3>
 
-<ulink
-    url="expressions.html"><emphasis>Chapter 5</emphasis></ulink>
-    
-discusses the expressions and operators available in the JavaFX Script programming language. 
-</para>
+  <sect3 id="sequences">
+    <title>Sequences</title>
 
-</sect3>
- <sect3 id="sequences"><title>
-Sequences</title>
+    <para>A <emphasis>sequence</emphasis> holds an ordered list of objects.
+    This is roughly analogous to Java programming language arrays. Both hold
+    multiple values and are accessed by index starting at 0.</para>
 
-<para>
-
-A <emphasis>sequence</emphasis> holds an ordered list of objects. 
-This is roughly analogous to Java programming language arrays; 
- both hold multiple values and are accessed by index starting at 0.</para>
-
-<programlisting>
+    <programlisting>
 var week = ["Monday","Tuesday","Wednesday","Thursday",
                   "Friday","Saturday","Sunday"];
 var mon = week[0];
@@ -203,11 +170,9 @@ var wed = week[2];
 var fri = week[4];
 </programlisting>
 
-<para>
-Sequence <emphasis>slices</emphasis> are also supported:
-</para>
+    <para>Sequence <emphasis>slices</emphasis> are also supported:</para>
 
-<programlisting>
+    <programlisting>
 
 var week = ["Monday","Tuesday","Wednesday","Thursday",
                   "Friday","Saturday","Sunday"];
@@ -215,39 +180,26 @@ var weekdays = week[0..4]; // first slice
 var weekend = week[5..6]; // second slice
 </programlisting>
 
-<para>
+    <para><ulink url="sequences.html">
+        <emphasis>Chapter 6</emphasis>
+      </ulink> <!-- <A HREF="ch6.html">Chapter 6</A> --> covers the basics of
+    declaring sequences, while <ulink url="comprehensions.html">
+        <emphasis>Chapter 7</emphasis>
+      </ulink> <!-- <A HREF="ch7.html">Chapter 7</A>--> focuses on <!-- <FONT COLOR="RED"> -->
+    <emphasis>sequence comprehensions</emphasis> <!-- </FONT> -->.</para>
+  </sect3>
 
-<ulink
-    url="sequences.html"><emphasis>Chapter 6</emphasis></ulink>
+  <sect3 id="databinding">
+    <title>Data Binding</title>
 
-<!-- <A HREF="ch6.html">Chapter 6</A> -->
-covers the basics of declaring sequences, while 
+    <para><emphasis>Data binding</emphasis> provides a simple syntax for
+    synchronizing the state of multiple objects. When two objects are
+    <emphasis>bound</emphasis> to each other, the second object's value
+    automatically changes whenever the first object is updated. A common use
+    of data binding is to keep GUI components synchronized with their
+    underlying data.</para>
 
-<ulink
-    url="comprehensions.html"><emphasis>Chapter 7</emphasis></ulink>
-
-<!-- <A HREF="ch7.html">Chapter 7</A>--> 
-
-focuses on 
-
-<!-- <FONT COLOR="RED"> -->
-
-<emphasis>sequence comprehensions</emphasis> <!-- </FONT> -->. 
-</para>
-
-
-</sect3>
- <sect3 id="databinding"><title>
-Data Binding</title>
-
-
-<para><emphasis>Data binding</emphasis> 
-  provides a simple syntax for synchronizing the state of multiple objects. 
-When two objects are <emphasis>bound</emphasis> to one another, the second object's value automatically changes whenever the 
-first object is updated. A common use of data binding is to keep GUI components synchronized with 
-their underlying data. </para>
-
-<programlisting>
+    <programlisting>
 import javafx.gui.Frame;
 import javafx.gui.Button;
 
@@ -269,31 +221,21 @@ Frame {
 // as well.
 </programlisting>
 
+    <para>Data Binding is covered in detail in <ulink url="binding.html">
+        <emphasis>Chapter 8</emphasis>
+      </ulink>.<!--
+<A HREF="ch8.html">Chapter 8 </A>.--></para>
+  </sect3>
 
-<para>
-Data Binding is covered in detail in 
+  <sect3 id="triggers">
+    <title>Triggers</title>
 
-<ulink
-    url="binding.html"><emphasis>Chapter 8</emphasis></ulink>.
+    <para><emphasis>Triggers</emphasis> are blocks of code that run when
+    certain conditions are true. For example, you may want to be alerted if an
+    attribute's value has been set to something that is inappropriate. The
+    following example shows the basic trigger syntax:</para>
 
-<!--
-<A HREF="ch8.html">Chapter 8 </A>.-->
-
-</para>
-
- </sect3>
- 
- <sect3 id="triggers"><title>
-Triggers</title>
-
-
-<para><emphasis>Triggers</emphasis> are blocks of code that run when certain conditions are true. 
-For example, you may want to take action 
- to guard against an attribute's value being set to something that is inappropriate.
-The following example shows the basic trigger syntax:
-</para>
-
-<programlisting>import java.lang.System;
+    <programlisting>import java.lang.System;
 
 ReplaceDemo {
      
@@ -311,24 +253,9 @@ class ReplaceDemo {
 }
 </programlisting>
 
-<para>
-Triggers are covered in detail in 
-
-<ulink
-    url="triggers.html"><emphasis>Chapter 9</emphasis></ulink>.
-
-<!-- <A HREF="ch9.html">Chapter 9</A>.
--->
-</para>
-
-
-</sect3>
-
-
-
-    
-
-
+    <para>Triggers are covered in detail in <ulink url="triggers.html">
+        <emphasis>Chapter 9</emphasis>
+      </ulink>.<!-- <A HREF="ch9.html">Chapter 9</A>.
+--></para>
+  </sect3>
 </chapter>
-
-
