@@ -182,7 +182,7 @@ var weekend = week[5..6]; // second slice
       </ulink> covers the basics of declaring sequences, while <ulink
         url="comprehensions.html">
         <emphasis>Chapter 7</emphasis>
-      </ulink> focuses on <emphasis>using</emphasis> sequences. </para>
+      </ulink> focuses on <emphasis>using</emphasis> sequences.</para>
   </sect3>
 
   <sect3 id="databinding">
@@ -213,7 +213,7 @@ Frame {
 }
 
 // If some other part of code changes myString
-// then the Button's text will automatically change
+// then the GUI's text will automatically change
 // as well.
 </programlisting>
 
