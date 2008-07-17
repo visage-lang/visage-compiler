@@ -3011,7 +3011,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             // block has a value, return it
             block = asBlock(translateExpressionToReturn(bexpr));
             final Type valueType = value.type;
-            if (valueType.isPrimitive()) {
+            if (valueType != null && valueType.isPrimitive()) {
                 // box up any primitives returns so they return Object -- the return type of the run method
                 new TreeTranslator() {
                     @Override
