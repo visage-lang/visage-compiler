@@ -63,25 +63,15 @@ public class Frame extends Window{
     }
 
     function setWindowTitle(title:String): Void {
-        doAndIgnoreWindowChange(function() {
-            (window as JFrame).setTitle(title);
-        });
-    }
-
-    function isWindowResizable(): Boolean {
-        (window as JFrame).isResizable();
+        (window as JFrame).setTitle(title);
     }
 
     function setWindowResizable(resizable:Boolean): Void {
-        doAndIgnoreWindowChange(function() {
-            (window as JFrame).setResizable(resizable);
-        });
+        (window as JFrame).setResizable(resizable);
     }
 
     function setUndecorated(undecorated:Boolean): Void{
-        doAndIgnoreWindowChange(function() {
-            (window as JFrame).setUndecorated(undecorated);
-        });
+        (window as JFrame).setUndecorated(undecorated);
     }
 
     // PENDING_DOC_REVIEW
@@ -96,21 +86,6 @@ public class Frame extends Window{
     postinit {
         var jFrame =  (window as JFrame);
 
-        jFrame.addPropertyChangeListener(PropertyChangeListener {
-            public function propertyChange(e: PropertyChangeEvent): Void {
-                if (ignoreWindowChange) {
-                    return;
-                }
-
-                var propName = e.getPropertyName();
-                if ("title".equals(propName)) {
-                    title = jFrame.getTitle();
-                } else if ("resizable".equals(propName)) {
-                    resizable = jFrame.isResizable();
-                }
-            }
-        });
-
         jFrame.addWindowStateListener(WindowStateListener {
             public function windowStateChanged(e: WindowEvent): Void {
                 var state = BigInteger.valueOf(e.getNewState());
@@ -118,4 +93,5 @@ public class Frame extends Window{
             }
         });
     }
+
 }

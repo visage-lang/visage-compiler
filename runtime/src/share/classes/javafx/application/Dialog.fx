@@ -43,8 +43,8 @@ public class Dialog extends Window {
 
     // PENDING_DOC_REVIEW
     /**
-     * Creates the {@link java.awt.Window} delegate for this component. Must implement RootPaneContainer, ie be a
-     * JWindow,JDialog or JFrame.
+     * Creates the {@link java.awt.Window} delegate for this component. Must implement RootPaneContainer.
+     * ie. be a JWindow, JDialog or JFrame.
      */
     function createWindow(): java.awt.Window {
         WindowImpl.createJDialog(owner.window);
@@ -52,48 +52,20 @@ public class Dialog extends Window {
 
     function setLocation(){
         if (not window.isLocationByPlatform() and (window.getX() == 0) and (window.getY() == 0)) {
-                window.setLocationRelativeTo(if (owner != null) owner.window else null);
+            window.setLocationRelativeTo(if (owner != null) owner.window else null);
         }
     }
 
     function setWindowTitle(title:String): Void {
-        doAndIgnoreWindowChange(function() {
-            (window as JDialog).setTitle(title);
-        });
-    }
-
-    function isWindowResizable(): Boolean {
-        (window as JDialog).isResizable();
+        (window as JDialog).setTitle(title);
     }
 
     function setWindowResizable(resizable:Boolean): Void {
-        doAndIgnoreWindowChange(function() {
-            (window as JDialog).setResizable(resizable);
-        });
+        (window as JDialog).setResizable(resizable);
     }
 
     function setUndecorated(undecorated:Boolean): Void{
-        doAndIgnoreWindowChange(function() {
-            (window as JDialog).setUndecorated(undecorated);
-        });
+        (window as JDialog).setUndecorated(undecorated);
     }
 
-    postinit {
-        var jDialog = window as JDialog;
-
-        jDialog.addPropertyChangeListener(PropertyChangeListener {
-            public function propertyChange(e: PropertyChangeEvent): Void {
-                if (ignoreWindowChange) {
-                    return;
-                }
-
-                var propName = e.getPropertyName();
-                if ("title".equals(propName)) {
-                    title = e.getNewValue() as String;
-                } else if ("resizable".equals(propName)) {
-                    resizable = e.getNewValue() as Boolean;
-                }
-            }
-        });
-    }
 }

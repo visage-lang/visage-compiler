@@ -57,12 +57,8 @@ public abstract class Window {
     /* constant */ protected attribute canvasStage:CanvasStageImpl = CanvasStageImpl{ stage: bind stage };
     /* constant */ protected attribute window : java.awt.Window = createWindow();
 
-    attribute ignoreWindowChange: Boolean = false;
-
     public attribute name: String on replace {
-        doAndIgnoreWindowChange(function() {
-            window.setName(name);
-        });
+        window.setName(name);
     }
 
     public attribute closeAction: function(): Void = close;
@@ -79,9 +75,7 @@ public abstract class Window {
     /**
      * Defines whether this {@code Window} is resizable by the user.
      */
-    public attribute resizable: Boolean = isWindowResizable() on replace { setWindowResizable(resizable); }
-
-    abstract function isWindowResizable(): Boolean;
+    public attribute resizable: Boolean = true on replace { setWindowResizable(resizable); }
 
     abstract function setWindowResizable(resizable:Boolean): Void;
 
@@ -216,19 +210,6 @@ public abstract class Window {
             }
         });
 
-        w.addPropertyChangeListener(PropertyChangeListener {
-            public function propertyChange(e: PropertyChangeEvent): Void {
-                if (ignoreWindowChange) {
-                    return;
-                }
-
-                var propName = e.getPropertyName();
-                if ("name".equals(propName)) {
-                    name = window.getName();
-                }
-            }
-        });
-
         w.addWindowListener(WindowAdapter {
             public function windowClosing(e: WindowEvent): Void {
                 if (closeAction != null) {
@@ -276,15 +257,6 @@ public abstract class Window {
         }
     }
 
-    function doAndIgnoreWindowChange(func: function(): Void) {
-        try {
-            ignoreWindowChange = true;
-            func();
-        } finally {
-            ignoreWindowChange = false;
-        }
-    }
-
     private attribute isWindowInitialized: Boolean = false;
 
     private function getRootPaneContainer(): RootPaneContainer {
@@ -317,4 +289,5 @@ public abstract class Window {
      * JWindow,JDialog or JFrame.
      */
     abstract function createWindow(): java.awt.Window;
+
 }
