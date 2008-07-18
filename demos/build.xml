@@ -12,6 +12,9 @@
     </target>
 
     <target name="clean">
+        <!-- hack, because invoking clean here doesn't work unless the ../dist/lib
+             directory exists, and you can get Hudson stuck without this succeeding -->
+        <mkdir dir="../dist/lib" />
 	<subant target="clean">
             <fileset dir="." includes="*/build.xml" />
 	</subant>
