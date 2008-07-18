@@ -36,7 +36,7 @@
     <target name="hudson-all"
             description="Build and test all project artifacts">
 
-        <property name="has-bootstrap-dirs" value="false"/>
+        <ant antfile="bootstrap.xml" target="all"/>
         <antcall target="-hudson-all" />
     </target>
 
