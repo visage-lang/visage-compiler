@@ -5,7 +5,7 @@
 
 
 
-<chapter id="sequences"><title>Sequences</title>
+<chapter id="sequences"><title>Declaring Sequences</title>
 
 
 <para>In addition to the five basic types previously described, the JavaFX Script programming language also provides  data structures known as <emphasis>sequences</emphasis>. Sequences are similar to Java programming language arrays, but there are differences as well. 

@@ -5,7 +5,7 @@
 
 <sect2 id="expr"><title>Expressions</title>
 <para>
-Unlike the Java programming language, the JavaFX Script programming language is an expression language. All executable statements are expressions which consist of zero or more inputs followed by zero or one outputs. This includes conditionals, loops, and even blocks. </para>
+Unlike the <trademark>Java</trademark> programming language, the <trademark>JavaFX</trademark> Script programming language is an expression language. All executable statements are expressions that consist of zero or more inputs followed by zero or one output. This includes conditionals, loops, and even blocks. </para>
 
 <para>The following demo provides an example:
 </para>
@@ -25,12 +25,12 @@ if (rand % 2 == 0) {
 System.out.println(s);
 </programlisting>
 
-<para>In the above example the <code>if</code> and <code>else</code> clauses of the conditional "if" are expressions in their own right, namely <emphasis>block expressions</emphasis>.</para>
+<para>In the previous example the <code>if</code> and <code>else</code> clauses of the conditional "if" are expressions in their own right, namely <emphasis>block expressions</emphasis>.</para>
 
 
 <sect3 id="blockexpr"><title>Block Expressions</title>
 
-<para>A block expression consists of a list of statements (which can be declarations or expressions) surrounded by curly braces and separated by semicolons. If the last statement is an expression, then the value of a block expression is the value of the last expression; otherwise the block expression has <code>Void</code>
+<para>A block expression consists of a list of statements (which can be declarations or expressions) surrounded by curly braces and separated by semicolons. If the last statement is an expression, the value of a block expression is the value of the last expression; otherwise the block expression has <code>Void</code>
  type.</para>
 
 <para>
@@ -68,7 +68,7 @@ System.out.println(s);
 
 <para>The Java programming language contains both an <code>if</code> expression  
 and a conditional expression: <code>a &lt; b ? a : b</code>.
- Thanks to block expressions, the JavaFX Script programming language <code>if</code> expression takes the place of both.</para>
+ The JavaFX Script programming language <code>if</code> expression takes the place of both.</para>
 
 
 </sect3><sect3 id="range"><title>Range Expressions</title>
@@ -76,7 +76,7 @@ and a conditional expression: <code>a &lt; b ? a : b</code>.
 <para>
 
 <emphasis>Range expressions</emphasis> 
- define a sequence of values forming an arithmetic series using the following 
+ define a sequence of values that form an arithmetic series using the following 
 syntax: </para>
 
 
@@ -86,11 +86,11 @@ syntax: </para>
 
 
 <para>
-Such an expression defines a sequence whose elements consist of the integers from <code>number1</code> to <code>number2</code> (inclusive).
+Such an expression defines a sequence that contains elements consisting of the integers from <code>number1</code> to <code>number2</code> (inclusive).
 </para>
 
 <para>
-A simple example of a range expression could be: 
+A simple example of a range expression could be the following: 
 </para>
 
 <programlisting>
@@ -102,7 +102,7 @@ System.out.println(nums == [0,1,2,3]); // prints true
 
 
 
-<para>By default the interval between the values is 1 but it is also possible to specify a different interval. For example, the following expression defines an sequence consisting of the odd numbers between 1 and 10:
+<para>By default the interval between the values is 1 but you also can specify a different interval. For example, the following expression defines a sequence consisting of the odd numbers between 1 and 10:
 </para>
 
 <programlisting>
@@ -177,7 +177,7 @@ while (i &lt; 10) {
 
 </sect3></sect2>
 
-<sect2 id="state"><title>Other Expressionss</title>
+<sect2 id="state"><title>Other Expressions</title>
 
 
 <para>
@@ -233,7 +233,7 @@ try {
 
 <para>
 The <code>break</code> and <code>continue</code> expressions are 
- similar to those of the Java Programming language; but labels are 
+ similar to those of the Java Programming language, but labels are 
 not supported. </para>
 
 <para><emphasis role="bold">Examples:</emphasis></para>
@@ -316,7 +316,7 @@ The JavaFX Script programming language provides standard operators similar to
 
 			<tr>
 	<td class="style1">new </td>
-	<td>instantiate a new object </td>
+	<td>Instantiate a new object </td>
 	<td>&nbsp;</td>
 	<td>Class</td>
 	</tr>
@@ -331,20 +331,20 @@ The JavaFX Script programming language provides standard operators similar to
     <tr style="border-top: thin solid black;">
       <td rowspan="2" valign="top">2</td>
       <td><code class="style1">++ (suffixed)</code></td>
-      <td>post-increment assign</td>
+      <td>Post-increment assign</td>
       <td><code class="style1">++</code></td>
       <td rowspan="2" valign="top">Right to Left </td>
     </tr>
     <tr>
       <td><code class="style1">-- (suffixed)</code></td>
-      <td>post-decrement assign</td>
+      <td>Post-decrement assign</td>
       <td><code class="style1">--</code></td>
     </tr>
 	
 	  <tr style="border-top:thin solid black;">
       <td rowspan="6" valign="top">3</td>
       <td><code class="style1">++ (prefixed)</code></td>
-      <td>pre-increment assign</td>
+      <td>Pre-increment assign</td>
       <td><code class="style1">++</code></td>
       <td rowspan="2" valign="top">Right to Left </td>
     </tr>	
@@ -352,13 +352,13 @@ The JavaFX Script programming language provides standard operators similar to
 	<tr >
       
       <td><code class="style1">-- (prefixed)</code></td>
-      <td>pre-decrement assign</td>
+      <td>Pre-decrement assign</td>
       <td><code class="style1">--</code></td>
 	      </tr>
 	
 	
 	<tr><td class="style1">not</td>
-    <td>logical negation </td>
+    <td>Logical negation </td>
     <td>&lt;&gt;</td>
     <td>Boolean</td>
 	</tr>	
@@ -371,7 +371,7 @@ The JavaFX Script programming language provides standard operators similar to
 	<tr><td class="style1">reverse</td>
     <td>Reverse of a sequence </td><td>&nbsp;</td></tr>	
 		<tr><td class="style1">indexof</td>
-	    <td>index of a sequence element </td><td>&nbsp;</td></tr>	
+	    <td>Index of a sequence element </td><td>&nbsp;</td></tr>	
 		
 			<tr><td></td><td class="style1">--></td>
     <td>tween</td>
@@ -385,7 +385,7 @@ The JavaFX Script programming language provides standard operators similar to
 	<tr style="border-top:thin solid black;">
       <td rowspan="3" valign="top">4</td>
       <td><code class="style1">*</code></td>
-      <td>multiplication</td>
+      <td>Multiplication</td>
       <td><code class="style1">*</code></td>
       <td rowspan="3" valign="top">Left to Right  </td>
     </tr>
@@ -394,13 +394,13 @@ The JavaFX Script programming language provides standard operators similar to
 		<tr>
       
       <td><code class="style1">/</code></td>
-      <td>division</td>
+      <td>Division</td>
       <td><code class="style1">/</code></td>
     </tr>
 		<tr>
       
       <td><code class="style1">mod</code></td>
-      <td>remainder</td>
+      <td>Remainder</td>
       <td><code class="style1">%</code></td>
     </tr>		
 		
@@ -412,7 +412,7 @@ The JavaFX Script programming language provides standard operators similar to
 		<tr style="border-top:thin solid black;">
       <td rowspan="2" valign="top">5</td>
       <td><code class="style1">+</code></td>
-      <td>addition</td>
+      <td>Addition</td>
       <td><code class="style1">+</code></td>
       <td rowspan="2" valign="top">Left to Right  </td>
     </tr>
@@ -421,7 +421,7 @@ The JavaFX Script programming language provides standard operators similar to
 <tr>
       
       <td><code class="style1">-</code></td>
-      <td>subtraction </td>
+      <td>Subtraction </td>
       <td><code class="style1">-</code></td>
     </tr>
 	
@@ -431,7 +431,7 @@ The JavaFX Script programming language provides standard operators similar to
 <tr style="border-top:thin solid black;">
       <td rowspan="6" valign="top">6</td>
       <td><code class="style1">==</code></td>
-      <td>equality</td>
+      <td>Equality</td>
       <td><code class="style1">== </code></td>
       <td rowspan="5" valign="top">Left to Right </td>
     </tr>
@@ -440,7 +440,7 @@ The JavaFX Script programming language provides standard operators similar to
 						<tr>
      
       <td><code class="style1">!= </code></td>
-      <td>inequality</td>
+      <td>Inequality</td>
       <td><code class="style1">!=</code></td>
     </tr>
 	
@@ -449,14 +449,14 @@ The JavaFX Script programming language provides standard operators similar to
 	<tr>
       
       <td><code class="style1"> &lt;</code></td>
-      <td>less than  </td>
+      <td>Less than  </td>
       <td><code class="style1">&lt;</code></td>
     </tr>
 	
 						<tr>
       
       <td><code class="style1"> &lt;=</code></td>
-      <td>less than or equal </td>
+      <td>Less than or equal </td>
       <td><code class="style1">&lt;=</code></td>
     </tr>
 	
@@ -465,7 +465,7 @@ The JavaFX Script programming language provides standard operators similar to
 						<tr>
       
       <td><code class="style1">&gt;</code></td>
-      <td>greater than</td>
+      <td>Greater than</td>
       <td><code class="style1">&gt;</code></td>
     </tr>
 	
@@ -474,7 +474,7 @@ The JavaFX Script programming language provides standard operators similar to
 						<tr>
       
       <td><code class="style1">=&gt;</code></td>
-      <td>greater than  or equal to</td>
+      <td>Greater than  or equal to</td>
       <td><code class="style1">=&gt; </code></td>
     </tr>
 	
@@ -507,7 +507,7 @@ The JavaFX Script programming language provides standard operators similar to
 	<tr style="border-top:thin solid black;">
 <td valign="top">8</td>
 <td><code class="style1">or</code></td>
-      <td>logical OR </td>
+      <td>Logical OR </td>
       <td><code class="style1">||</code></td>
       <td valign="top">Right to Left </td>
     </tr>
@@ -519,7 +519,7 @@ The JavaFX Script programming language provides standard operators similar to
 		<tr style="border-top:thin solid black;">
 <td valign="top">9</td>
 <td><code class="style1">and</code></td>
-      <td>logical AND </td>
+      <td>Logical AND </td>
       <td><code class="style1">&amp;&amp;</code></td>
       <td valign="top">Right to Left </td>
     </tr>
@@ -532,35 +532,35 @@ The JavaFX Script programming language provides standard operators similar to
 
       <td rowspan="5" valign="top">10</td>
       <td><code class="style1">+=</code></td>
-      <td>add and assign </td>
+      <td>Add and assign </td>
       <td>+=</td>
     </tr>
 	
 	<tr>
 
       <td><code class="style1">-=</code></td>
-      <td>subtract and assign </td>
+      <td>Subtract and assign </td>
       <td><code class="style1">-+</code></td>
     </tr>
 	
 	<tr>
 
       <td><code class="style1">*=</code></td>
-      <td>multiply and assign </td>
+      <td>Multiply and assign </td>
       <td><code class="style1">*=</code></td>
     </tr>
 	
 	<tr>
 
       <td><code class="style1">/=</code></td>
-      <td>divide and assign </td>
+      <td>Divide and assign </td>
       <td><code class="style1">/=</code></td>
     </tr>
 	
 		<tr>
 
       <td><code class="style1">%=</code></td>
-      <td>remainder and assign </td>
+      <td>Remainder and assign </td>
       <td><code class="style1">%=</code></td>
     </tr>
 	
@@ -570,7 +570,7 @@ The JavaFX Script programming language provides standard operators similar to
 	<tr style="border-top:thin solid black;">
 <td valign="top">11</td>
 <td><code class="style1">=</code></td>
-      <td>assignment </td>
+      <td>Assignment </td>
       <td><code class="style1">=</code></td>
       <td valign="top">(all) </td>
     </tr>
