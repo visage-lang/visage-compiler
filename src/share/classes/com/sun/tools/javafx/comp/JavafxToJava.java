@@ -1255,7 +1255,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 // location types: XXXVariable.make()
                 init = makeLocationAttributeVariable(vmi, diagPos);
             }
-            prependToStatements.append(make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init));
+            prependToStatements.append(make.at(Position.NOPOS).VarDef(tmods, tree.name, typeExpression, init));
 
             // create change Listener and append it to the beginning of the block after the blank variable declaration
             JFXOnReplace onReplace = tree.getOnReplace();
@@ -1423,7 +1423,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 body = asBlock(make.at(diagPos).Return(expr));
             } else if (syms.isRunMethod(tree.sym)) {
                 // it is a module level run method, do special translation
-                body = runMethodBody(bexpr);
+                body = makeRunMethodBody(bexpr);
                 isImplMethod = false;
             } else {
                 // the "normal" case
@@ -3009,7 +3009,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
      *
      */
 
-    private JCBlock runMethodBody(JFXBlockExpression bexpr) {
+    private JCBlock makeRunMethodBody(JFXBlockExpression bexpr) {
         DiagnosticPosition diagPos = bexpr.pos();
         final JFXExpression value = bexpr.value;
         JCBlock block;
