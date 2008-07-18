@@ -33,8 +33,14 @@
         <mkdir dir="${bundle.dir}"/>
     </target>
     
-    <target name="hudson-all" depends="coverage, all, findbugs, coverage-report, hudson-post-build"
-            description="Build and test all project artifacts"/>
+    <target name="hudson-all"
+            description="Build and test all project artifacts">
+
+        <property name="has-bootstrap-dirs" value="false"/>
+        <antcall target="-hudson-all" />
+    </target>
+
+    <target name="-hudson-all" depends="coverage, all, findbugs, coverage-report, hudson-post-build" />
 
     <target name="all-with-coverage" depends="coverage, all, findbugs, coverage-report"
             description="Build and test all project artifacts with coverage"/>
