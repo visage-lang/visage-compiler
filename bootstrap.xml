@@ -65,7 +65,6 @@
 
 
     <target name="prepare">
-        <echo message="Preparing bootstrap: bootstrap.dir=${bootstrap.dir}, tools.dir=${tools.dir}" />
         <mkdir dir="${bootstrap.dir}"/>
         <mkdir dir="${tools.dir}"/>
         <mkdir dir="${ant.dir}"/>

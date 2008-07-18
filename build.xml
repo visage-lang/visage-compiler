@@ -2,7 +2,7 @@
 <project name="JavaFX Compiler" default="default" basedir=".">
     <description>Builds, tests, and runs the openjfx-compiler project.</description>
 
-    <property name="tools.dir" value="${basedir}/tools"/>
+    <property name="tools.dir" value="${basedir}/flubber/tools"/>
     <property name="runtime.dir" value="${basedir}/runtime"/>
     <property name="javafxdoc.dir" value="${basedir}/javafxdoc"/>
     <property name="launcher.dir" value="${basedir}/launcher"/>
@@ -33,14 +33,8 @@
         <mkdir dir="${bundle.dir}"/>
     </target>
     
-    <target name="hudson-all"
-            description="Build and test all project artifacts">
-
-        <ant antfile="bootstrap.xml" target="all"/>
-        <antcall target="-hudson-all" />
-    </target>
-
-    <target name="-hudson-all" depends="coverage, all, findbugs, coverage-report, hudson-post-build" />
+    <target name="hudson-all" depends="coverage, all, findbugs, coverage-report, hudson-post-build"
+            description="Build and test all project artifacts"/>
 
     <target name="all-with-coverage" depends="coverage, all, findbugs, coverage-report"
             description="Build and test all project artifacts with coverage"/>
