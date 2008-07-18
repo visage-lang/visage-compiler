@@ -555,17 +555,8 @@
         </copy>
     </target>
     
-    <target name="runtime-no-ui" depends="jar">
-        <ant dir="${runtime.dir}" antfile="build.xml" target="jar" inheritall="false">
-            <property name="tools.dir" value="${tools.dir}"/>
-            <propertyset>
-                <propertyref regex="^.*\.class\.path$$"/>
-            </propertyset>
-            <property name="excludes" value="META-INF/services/**,javafx/ui/**,com/sun/javafx/api/ui/**,com/sun/tools/javafx/ui/**"/>
-            <property name="jar.excludes" value="META-INF/services/**,javafx/ui/**,com/sun/javafx/api/ui/**,com/sun/tools/javafx/ui/**"/>
-            <property name="swing-layout.excludes" value="org/**"/>
-        </ant>
-    </target>
+    <!-- Can be deleted as soon as the hudson server is switched to use runtime target -->
+    <target name="runtime-no-ui" depends="runtime"/>
     
     <target name="pack-jars" depends="runtime">
         <taskdef name="pack200" classpath="${file.reference.pack200task.jar}"
