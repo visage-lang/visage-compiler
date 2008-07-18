@@ -5,7 +5,7 @@
 
 <sect2 id="expr"><title>Expressions</title>
 <para>
-Unlike the Java programming language, the JavaFX Script programming language is an expression language. All executable statements are expressions which consist of zero or more inputs followed by a single output. This includes conditionals, loops, and even blocks. </para>
+Unlike the Java programming language, the JavaFX Script programming language is an expression language. All executable statements are expressions which consist of zero or more inputs followed by zero or one outputs. This includes conditionals, loops, and even blocks. </para>
 
 <para>The following demo provides an example:
 </para>
@@ -25,12 +25,12 @@ if (rand % 2 == 0) {
 System.out.println(s);
 </programlisting>
 
-<para>In the above example the <code>then</code> and <code>else</code> clauses of the conditional "if" are expressions in their own right, namely <emphasis>block expressions</emphasis></para>
+<para>In the above example the <code>if</code> and <code>else</code> clauses of the conditional "if" are expressions in their own right, namely <emphasis>block expressions</emphasis>.</para>
 
 
 <sect3 id="blockexpr"><title>Block Expressions</title>
 
-<para>A block expression consists of a list of statements (which can be declarations or expressions) surrounded by curly braces and separated by semicolons. If the last statement is an expression, then the value of a block expression is the value of the last expression; otherwise the block expression has <code>void</code>
+<para>A block expression consists of a list of statements (which can be declarations or expressions) surrounded by curly braces and separated by semicolons. If the last statement is an expression, then the value of a block expression is the value of the last expression; otherwise the block expression has <code>Void</code>
  type.</para>
 
 <para>
@@ -67,9 +67,8 @@ System.out.println(s);
 
 
 <para>The Java programming language contains both an <code>if</code> expression  
-and a conditional expression: <code>a &lt; b ? a : b</code>.</para>
-
-<para>Thanks to block expressions, the JavaFX Script programming language <code>if</code> expression takes the place of both.</para>
+and a conditional expression: <code>a &lt; b ? a : b</code>.
+ Thanks to block expressions, the JavaFX Script programming language <code>if</code> expression takes the place of both.</para>
 
 
 </sect3><sect3 id="range"><title>Range Expressions</title>
@@ -132,7 +131,7 @@ var nums2 = [3..0 step 1];
 
 </sect3><sect3 id="conditional"><title>Conditional Expressions</title>
 
-<para>The <code>if</code> expression is like the expression in the <trademark>Java</trademark> programming language, except that curly braces are always required around the <code>then</code> and <code>else</code> clauses, unless the the <code>else</code> clause is another <code>if</code> expression.</para>
+<para>The <code>if</code> expression is similar to <code>if</code> in the <trademark>Java</trademark> programming language:</para>
 
 
 <programlisting>
@@ -148,8 +147,10 @@ if (condition1) {
 
 </sect3><sect3 id="loop"><title>Looping Expressions</title>
 <para>
-The <code>for</code> Expression <!-- **** <FONT COLOR="RED">TBD</FONT> *** --> <emphasis role="red">Copy to come </emphasis>
-</para>
+<sect4 id="for"><title>The <code>for</code> Expression</title> 
+
+This expression is discussed in <ulink url="comprehensions.html"><emphasis>Chapter 7</emphasis>.</ulink></sect4></para>
+
 <para>
 
 <sect4 id="while"><title>The <code>while</code> Expression</title> 
@@ -588,7 +589,7 @@ The JavaFX Script programming language provides standard operators similar to
 
 
 <para>
-Because these operators provide standard functionality, a simple example of their use should be all that is required:
+Examples:
 </para>   
 
 <programlisting>
