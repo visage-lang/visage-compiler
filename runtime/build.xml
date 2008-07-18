@@ -27,6 +27,9 @@
         <fail message="Ant version 1.7.0 or later is required to build JavaFX.">
             <condition><not><antversion atleast="1.7.0"/></not></condition>
         </fail>
+    </target>
+
+    <target name="-define-javafxc">
         <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
@@ -61,7 +64,7 @@
         of the netbeans plugin (and thus the netbeans generated build scripts)
         will handle this automatically in the future
     -->
-    <target name="-post-compile" if="have.sources" depends="init,deps-jar,-pre-pre-compile,-pre-compile">
+    <target name="-post-compile" if="have.sources" depends="init,deps-jar,-pre-pre-compile,-pre-compile,-define-javafxc">
         <javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"
                  destdir="${build.classes.dir}" fork="true" memoryMaximumSize="384m"
                  encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"
@@ -81,7 +84,7 @@
         project uses. Rather, we can simply use JUnit. And there was much
         rejoicing.
     -->
-    <target name="-post-compile-test" if="have.sources" depends="init,compile,-pre-pre-compile-test,-pre-compile-test,-do-compile-test">
+    <target name="-post-compile-test" if="have.sources" depends="init,compile,-pre-pre-compile-test,-pre-compile-test,-do-compile-test,-define-javafxc">
         <javafxc debug="${javac.debug}" deprecation="${javac.deprecation}"
                  destdir="${build.test.classes.dir}" fork="true" memoryMaximumSize="256m"
                  encoding="${source.encoding}" excludes="${excludes}" includeantruntime="false"
