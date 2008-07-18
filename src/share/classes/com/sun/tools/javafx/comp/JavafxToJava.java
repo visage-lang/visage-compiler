@@ -2470,8 +2470,18 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         return stmt;
     }
 
-    public void visitIndexof(JFXIndexof that) {
-        result = make.at(that.pos()).Ident(indexVarName(that.clause));
+    public void visitIndexof(JFXIndexof tree) {
+        final DiagnosticPosition diagPos = tree.pos();
+        assert tree.clause.getIndexUsed() : "assert that index used is set correctly";
+        JCExpression transIndex = make.at(diagPos).Ident(indexVarName(tree.fname));
+        VarSymbol vsym = (VarSymbol)tree.clause.getVar().sym;
+        if (shouldMorph(vsym)) {
+            // from inside the bind, its a Location, convert to value
+            result = getLocationValue(diagPos, transIndex, TYPE_KIND_INT);
+        } else {
+            // it came from outside of the bind, not a Location
+            result = transIndex;
+        }
     }
 
     @Override
@@ -3053,6 +3063,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         return (onr == null)?  null : translateBlockExpressionToBlock(onr.getBody());
     }
 
+    // expr.get()
+    JCExpression getLocationValue(DiagnosticPosition diagPos, JCExpression expr, int typeKind) {
+        JCFieldAccess getSelect = make.at(diagPos).Select(expr, defs.locationGetMethodName[typeKind]);
+        List<JCExpression> getArgs = List.nil();
+        return make.at(diagPos).Apply(null, getSelect, getArgs);
+    }
+
     JCExpression convertVariableReference(DiagnosticPosition diagPos,
                                                  JCExpression varRef, Symbol sym,
                                                  boolean wantLocation) {
@@ -3078,9 +3095,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     // already in correct form-- leave it
                 } else {
                     // non-bind context -- want v1.get()
-                    JCFieldAccess getSelect = make.Select(expr, defs.locationGetMethodName[vmi.getTypeKind()]);
-                    List<JCExpression> getArgs = List.nil();
-                    expr = make.at(diagPos).Apply(null, getSelect, getArgs);
+                    expr = getLocationValue(diagPos, expr, vmi.getTypeKind());
                 }
             } else {
                 // not morphed

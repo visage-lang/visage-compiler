@@ -901,12 +901,12 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         assert tree.clause.getIndexUsed() : "assert that index used is set correctly";
         JCExpression transIndex = make.at(tree.pos()).Ident(indexVarName(tree.fname));
         VarSymbol vsym = (VarSymbol)tree.clause.getVar().sym;
-        if (!toJava.shouldMorph(vsym)) {
-            // it came from outside of the bind, make it into a Location
-            result = makeConstantLocation(tree.pos(), targetType(tree.type), transIndex);
-        } else {
+        if (toJava.shouldMorph(vsym)) {
             // from inside the bind, already a Location
             result = convert(tree.type, transIndex);
+        } else {
+            // it came from outside of the bind, make it into a Location
+            result = makeConstantLocation(tree.pos(), targetType(tree.type), transIndex);
         }
     }
 
