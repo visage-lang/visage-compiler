@@ -2019,13 +2019,13 @@ public class JavafxAttr implements JavafxVisitor {
                 }
         }
 
-        result = syms.unreachableType;
+        result = tree.type = syms.unreachableType;
     }
 
     @Override
     public void visitThrow(JFXThrow tree) {
         attribExpr(tree.expr, env, syms.throwableType);
-        result = syms.unreachableType;
+        result = tree.type = syms.unreachableType;
     }
 
     void searchParameterTypes (JFXExpression meth, Type[] paramTypes) {

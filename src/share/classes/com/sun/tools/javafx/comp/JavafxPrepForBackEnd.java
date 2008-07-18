@@ -434,8 +434,8 @@ public class JavafxPrepForBackEnd extends TreeScanner {
             if ( stmt == null ) throw new AssertionError( "Null statement in block-expression" );
             scan(stmt);
         }
-        if ( that.value == null ) throw new AssertionError( "Null value in block-expression" );
-        scan(that.value);
+        if (that.value != null)
+            scan(that.value);
         that.type = null;
     }
 }

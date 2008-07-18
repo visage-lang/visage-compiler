@@ -290,7 +290,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         if (sourceType == syms.javafx_IntegerType ||
                 type == syms.javafx_IntegerType) {
-            if (sourceType != type && type.isPrimitive()) {
+            if (sourceType != type && sourceType != syms.unreachableType && type.isPrimitive()) {
                 translated = make.at(diagPos).TypeCast(type, translated);
             }
         }
