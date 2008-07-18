@@ -4,13 +4,16 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/j2se-project/3">
             <name>JavaFX Runtime</name>
-            <minimum-ant-version>1.6.5</minimum-ant-version>
+            <minimum-ant-version>1.7.0</minimum-ant-version>
             <source-roots>
                 <root id="src.classes.dir" name="Source Packages"/>
             </source-roots>
             <test-roots>
-                <root id="test.src.dir" name="test/src"/>
+                <root id="test.unit.dir" name="Unit Tests"/>
+                <root id="test.regress.dir" name="Regression Tests"/>
+                <root id="test.visual.dir" name="Visual Tests"/>
             </test-roots>
         </data>
+        <references xmlns="http://www.netbeans.org/ns/ant-project-references/1"/>
     </configuration>
 </project>
