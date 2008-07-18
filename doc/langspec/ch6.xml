@@ -8,7 +8,8 @@
 <chapter id="sequences"><title>Declaring Sequences</title>
 
 
-<para>In addition to the five basic types previously described, the JavaFX Script programming language also provides  data structures known as <emphasis>sequences</emphasis>. Sequences are similar to Java programming language arrays, but there are differences as well. 
+<para>In addition to the five basic types previously described, the 
+<trademark>JavaFX</trademark> Script programming language also provides  data structures known as <emphasis>sequences</emphasis>. Sequences are similar to Java programming language arrays, but some differences are notable. 
 
 </para>
 
@@ -22,7 +23,7 @@ var weekDays = ["Mon","Tue","Wed","Thur","Fri"];
 var days = [weekDays, ["Sat","Sun"]];
 </programlisting>
 
-<para>Sequences represent ordered lists of objects. Sequences are not themselves objects, however, and do not nest. Sequences are compared for equality by value; if their lengths are equal and their elements are equal, then they are equal. Expressions that produce nested sequences (as in the initialization of <code>days</code> above) are automatically flattened.
+<para>Sequences represent ordered lists of objects. Sequences are not themselves objects, however, and do not nest. Sequences are compared for equality by value. If their lengths are equal and their elements are equal, they are equal. Expressions that produce nested sequences (like the previous initialization of <code>days</code>) are automatically flattened.
 </para>
 
 <programlisting>
@@ -49,7 +50,7 @@ var strs:String[]; // sequence of String
 </programlisting>
 
 <para>
-The elements of a sequence must have a common type, which may be <code>Object</code>. Sequences may be indexed like Java programming language arrays:
+The elements of a sequence must have a common type, which might be <code>Object</code>. Sequences can be indexed like Java programming language arrays:
 </para>
 
 
@@ -60,7 +61,7 @@ var wednesday = days[2];
 
 
 <para>
-There is also a shorthand notation using ".." for sequences whose elements form an arithmetic series, as in:
+Also a shorthand notation uses ".." for sequences that contain elements forming an arithmetic series, for example:
 </para>
 
 
@@ -70,11 +71,11 @@ var nums = [1..100];
 
 
 <para>
-This shorthand eliminates the need to manually type out each element.
+This shorthand eliminates the need to type out each element manually.
 </para>
 
 <para>The <code>[]</code> operator also expresses selection in the 
-form of predicates. Predicates take the form:</para>
+form of predicates. Predicates take the following form:</para>
 
 
 <programlisting>
@@ -90,7 +91,7 @@ var numsGreaterThanTwo = nums[n|n > 2];
 </programlisting>
 
 <para>
-Such an expression returns a new sequence consisting of those elements of the original sequence that satisfy the predicate.
+This type of expression returns a new sequence consisting of those elements of the original sequence that satisfy the predicate.
 </para>
 
 <para>Finally, sequence <emphasis>slices</emphasis> provide access to portions of a sequence:</para>
@@ -102,7 +103,7 @@ seq[a..]  // same as seq[a..&lt;sizeof seq]
 seq[a..&lt;] // for consistancy.  This is the same as seq[a..&lt;sizeof seq-1] 
 </programlisting>
 
-<para>There are many different ways to access and/or modify a sequence or sequence slice. The
+<para>You can access and/or modify a sequence or sequence slice in many different ways. The
  following chapter explores JavaFX Script programming language's <emphasis>list comprehension</emphasis> features.</para>
 
 </chapter>
