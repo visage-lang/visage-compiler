@@ -1226,6 +1226,8 @@ public class JavafxAttr implements JavafxVisitor {
         attribExpr(tree.getBodyExpression(), forExprEnv);
 
         Type bodyType = tree.getBodyExpression().type;
+        if (bodyType == syms.unreachableType)
+            log.error(tree.getBodyExpression(), MsgSym.MESSAGE_UNREACHABLE_STMT);
         Type owntype = (bodyType == null || bodyType == syms.voidType)?
             syms.voidType :
             types.isSequence(bodyType) ?
