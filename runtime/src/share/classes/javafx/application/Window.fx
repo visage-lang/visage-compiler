@@ -88,7 +88,7 @@ public abstract class Window {
      */
     public  /* set-once */ attribute windowStyle:WindowStyle = WindowStyle.DECORATED on replace {
         if (windowStyle == WindowStyle.DECORATED) {
-            // do nothing as the is the default
+            // do nothing as this is the default
         } else if (windowStyle == WindowStyle.UNDECORATED) {
             setUndecorated(true);
         } else if (windowStyle == WindowStyle.TRANSPARENT) {
