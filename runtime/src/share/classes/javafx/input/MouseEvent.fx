@@ -57,7 +57,7 @@ public class MouseEvent {
 
     /**
      * @profile common conditional mouse
-     */    
+     */
     public attribute node: Node;
 
     private attribute localXY: Point2D = null;
