@@ -68,10 +68,6 @@
         </javafxc>
     </target>
     
-    <!-- properties that control what gets included in the jar, set from outside -->
-    <property name="jar.excludes" value=""/>
-    <property name="swing-layout.excludes" value=""/>
-    
     <target name="jar" description="Build JARs" depends="init,compile,-pre-pre-jar">
         <jar compress="${jar.compress}" destfile="${dist.jar}">
             <fileset dir="${build.classes.dir}" includes="${javafxrt.includes}"/>
@@ -80,7 +76,6 @@
         </jar>
         <jar compress="${jar.compress}" destfile="${dist.gui.jar}">
             <fileset dir="${build.classes.dir}" includes="${javafxgui.includes}"/>
-            <zipfileset src="${file.reference.swing-layout.jar}" excludes="META-INF/**/,${swing-layout.excludes}"/>
         </jar>
         <jar compress="${jar.compress}" destfile="${dist.ext.jar}">
             <fileset dir="${build.classes.dir}" includes="javafx/ext/**"/>
