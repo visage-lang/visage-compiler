@@ -26,6 +26,7 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TimeLiteralTree.Duration;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
@@ -585,13 +586,29 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXInstanciate Instanciate(JFXExpression clazz, JFXClassDeclaration def, List<JFXExpression> args, List<JFXObjectLiteralPart> parts, List<JFXVar> localVars) {
-        JFXInstanciate tree = new JFXInstanciate(clazz, def, args, parts, localVars, null);
+    public JFXInstanciate Instanciate(JavaFXKind kind, JFXExpression clazz, JFXClassDeclaration def, List<JFXExpression> args, List<JFXObjectLiteralPart> parts, List<JFXVar> localVars) {
+        JFXInstanciate tree = new JFXInstanciate(kind, clazz, def, args, parts, localVars, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXInstanciate Instanciate(JFXExpression ident,
+    public JFXInstanciate ObjectLiteral(JFXExpression ident,
+            List<JFXTree> defs) {
+        return Instanciate(JavaFXKind.INSTANTIATE_OBJECT_LITERAL,
+                ident,
+                List.<JFXExpression>nil(),
+                defs);
+    }
+
+    public JFXInstanciate InstanciateNew(JFXExpression ident,
+            List<JFXExpression> args) {
+        return Instanciate(JavaFXKind.INSTANTIATE_NEW,
+                ident,
+                args,
+                List.<JFXTree>nil());
+    }
+
+    public JFXInstanciate Instanciate(JavaFXKind kind, JFXExpression ident,
             List<JFXExpression> args,
             List<JFXTree> defs) {
         ListBuffer<JFXObjectLiteralPart> partsBuffer = ListBuffer.lb();
@@ -617,7 +634,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<JFXExpression>of(ident), defsBuffer.toList());
         }
 
-        JFXInstanciate tree = new JFXInstanciate(ident,
+        JFXInstanciate tree = new JFXInstanciate(kind, ident,
                 klass,
                 args==null? List.<JFXExpression>nil() : args,
                 partsBuffer.toList(),
@@ -732,7 +749,15 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     public JFXForExpression ForExpression(
             List<JFXForExpressionInClause> inClauses,
             JFXExpression bodyExpr) {
-        JFXForExpression tree = new JFXForExpression(inClauses, bodyExpr);
+        JFXForExpression tree = new JFXForExpression(JavaFXKind.FOR_EXPRESSION_FOR, inClauses, bodyExpr);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXForExpression Predicate(
+            List<JFXForExpressionInClause> inClauses,
+            JFXExpression bodyExpr) {
+        JFXForExpression tree = new JFXForExpression(JavaFXKind.FOR_EXPRESSION_PREDICATE, inClauses, bodyExpr);
         tree.pos = pos;
         return tree;
     }

@@ -33,12 +33,15 @@ import com.sun.tools.javac.util.List;
  */
 public class JFXForExpression extends JFXExpression implements ForExpressionTree {
 
+    private final JavaFXKind fxKind;
     public final List<JFXForExpressionInClause> inClauses;
     public final JFXExpression bodyExpr;
 
     protected JFXForExpression(
+            JavaFXKind fxKind,
             List<JFXForExpressionInClause> inClauses,
             JFXExpression bodyExpr) {
+        this.fxKind = fxKind;
         this.inClauses = inClauses;
         this.bodyExpr = bodyExpr;
     }
@@ -65,7 +68,7 @@ public class JFXForExpression extends JFXExpression implements ForExpressionTree
     }
 
     public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.FOR_EXPRESSION;
+        return fxKind;
     }
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {

@@ -215,7 +215,7 @@ public class JFXTreeCopier implements JavafxVisitor {
         List<JFXExpression> args = copy(tree.getArgs());
         List<JFXObjectLiteralPart> parts = copy(tree.getParts());
         List<JFXVar> localVars = copy(tree.getLocalvars());
-        result = maker.at(tree.pos).Instanciate(clazz, def, args, parts, localVars);
+        result = maker.at(tree.pos).Instanciate(tree.getJavaFXKind(), clazz, def, args, parts, localVars);
     }
 
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {

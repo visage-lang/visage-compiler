@@ -369,13 +369,13 @@ expression  returns [JFXExpression expr]
 	                                                { $expr = F.at(pos($SEQ_SLICE_EXCLUSIVE)).SequenceSlice($seq.expr, $first.expr, $last.expr,  
 	                                                                                                        SequenceSliceTree.END_EXCLUSIVE); 
                                                           endPos($expr, $SEQ_SLICE_EXCLUSIVE); }
-	| ^(OBJECT_LIT i=qualident objectLiteral)	{ $expr = F.at(getStartPos($i.expr)).Instanciate($qualident.expr, null, $objectLiteral.parts.toList()); 
+	| ^(OBJECT_LIT i=qualident objectLiteral)	{ $expr = F.at(getStartPos($i.expr)).ObjectLiteral($qualident.expr, $objectLiteral.parts.toList());
                                                           endPos($expr, $OBJECT_LIT); }
        	| ^(FUNC_EXPR formalParameters type blockExpression)
        							{ $expr = F.at(pos($FUNC_EXPR)).FunctionValue($type.type, $formalParameters.params.toList(),
                                                								$blockExpression.expr); 
                                                           endPos($expr, $FUNC_EXPR); }
-	| ^(NEW typeName expressionList)		{ $expr = F.at(pos($NEW)).Instanciate($typeName.expr, $expressionList.args.toList(), null); 
+	| ^(NEW typeName expressionList)		{ $expr = F.at(pos($NEW)).InstanciateNew($typeName.expr, $expressionList.args.toList());
                                                           endPos($expr, $NEW); }
        	| ^(INDEXOF identifier)                		{ $expr = F.at(pos($INDEXOF)).Indexof($identifier.expr); 
                                                           endPos($expr, $INDEXOF); }
@@ -437,7 +437,7 @@ pipeExpression  returns [JFXExpression expr] //TODO: this is a hack
 	: ^(PIPE seq=expression name cond=expression)	{ ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb(); 
                   					  JFXVar var = F.at($name.pos).Param($name.value, F.TypeUnknown());
 	          					  clauses.append(F.at(pos($PIPE)).InClause(var, $seq.expr, $cond.expr));
-                  					  $expr = F.at(pos($PIPE)).ForExpression(clauses.toList(), F.at($name.pos).Ident($name.value)); 
+                  					  $expr = F.at(pos($PIPE)).Predicate(clauses.toList(), F.at($name.pos).Ident($name.value));
                                                           endPos($expr, $PIPE);
 							}
 	;

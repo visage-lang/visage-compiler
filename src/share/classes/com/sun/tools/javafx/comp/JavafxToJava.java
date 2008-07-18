@@ -52,6 +52,7 @@ import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideAttributeI
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
 /**
  * Translate JavaFX ASTs into Java ASTs
@@ -3280,7 +3281,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             parts = List.<JFXTree>of(targetLiteral, valueLiteral, interpolateLiteral);
         }
 
-        JFXInstanciate inst = fxmake.at(diagPos).Instanciate(clsname, null, parts);
+        JFXInstanciate inst = fxmake.at(diagPos).Instanciate(JavaFXKind.INSTANTIATE_OBJECT_LITERAL, clsname, null, parts);
         inst.type = clsname.type;
         result = new InstanciateTranslator(inst, this) {
             protected void processLocalVar(JFXVar var) {
@@ -3335,7 +3336,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         List<JFXTree> parts = List.<JFXTree>of(timeLiteral, valuesLiteral);
 
-        JFXInstanciate inst = fxmake.at(diagPos).Instanciate(clsname, null, parts);
+        JFXInstanciate inst = fxmake.at(diagPos).Instanciate(JavaFXKind.INSTANTIATE_OBJECT_LITERAL, clsname, null, parts);
 
         inst.type = clsname.type;
 

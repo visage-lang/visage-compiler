@@ -35,6 +35,7 @@ import com.sun.tools.javac.util.List;
  */
 public class JFXInstanciate extends JFXExpression implements InstantiateTree {
 
+    private final JavaFXKind fxKind;
     private final JFXExpression clazz;
     private final JFXClassDeclaration def;
     private final List<JFXExpression> args;
@@ -43,7 +44,9 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
     public ClassSymbol sym;
     public Symbol constructor;
 
-    protected JFXInstanciate(JFXExpression clazz, JFXClassDeclaration def, List<JFXExpression> args, List<JFXObjectLiteralPart> parts, List<JFXVar> localVars, ClassSymbol sym) {
+    protected JFXInstanciate(JavaFXKind fxKind, JFXExpression clazz, JFXClassDeclaration def, List<JFXExpression> args,
+            List<JFXObjectLiteralPart> parts, List<JFXVar> localVars, ClassSymbol sym) {
+        this.fxKind = fxKind;
         this.clazz = clazz;
         this.def = def;
         this.args = args;
@@ -105,7 +108,7 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
     }
 
     public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.INSTANTIATE;
+        return fxKind;
     }
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {

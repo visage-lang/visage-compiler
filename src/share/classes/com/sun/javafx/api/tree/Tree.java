@@ -414,8 +414,15 @@ public interface Tree {
 
         /**
          * Used for instances of {@link ForExpressionTree}.
+         * In for (...) ...
          */
-        FOR_EXPRESSION(ForExpressionTree.class),
+        FOR_EXPRESSION_FOR(ForExpressionTree.class),
+
+        /**
+         * Used for instances of {@link ForExpressionTree}.
+         * In  seq[ x | cond ]
+         */
+        FOR_EXPRESSION_PREDICATE(ForExpressionTree.class),
 
         /**
          * Used for instances of {@link ForExpressionInClauseTree}.
@@ -449,8 +456,15 @@ public interface Tree {
 
         /**
          * Used for instances of {@link InstantiateTree}.
+         * In object literal
          */
-        INSTANTIATE(InstantiateTree.class),
+        INSTANTIATE_OBJECT_LITERAL(InstantiateTree.class),
+
+        /**
+         * Used for instances of {@link InstantiateTree}.
+         * In a new class
+         */
+        INSTANTIATE_NEW(InstantiateTree.class),
 
         /**
          * Used for instances of {@link ObjectLiteralPartTree}.
