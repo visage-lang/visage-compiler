@@ -562,7 +562,6 @@
                 <propertyref regex="^.*\.class\.path$$"/>
             </propertyset>
             <property name="excludes" value="META-INF/services/**,javafx/ui/**,com/sun/javafx/api/ui/**,com/sun/tools/javafx/ui/**"/>
-            <property name="javafxc.excludes" value="com/sun/javafx/runtime/awt/**"/>
             <property name="jar.excludes" value="META-INF/services/**,javafx/ui/**,com/sun/javafx/api/ui/**,com/sun/tools/javafx/ui/**"/>
             <property name="swing-layout.excludes" value="org/**"/>
         </ant>

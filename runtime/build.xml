@@ -69,7 +69,6 @@
     </target>
     
     <!-- properties that control what gets included in the jar, set from outside -->
-    <property name="javafxc.excludes" value=""/>
     <property name="jar.excludes" value=""/>
     <property name="swing-layout.excludes" value=""/>
     
@@ -77,7 +76,7 @@
         <jar compress="${jar.compress}" destfile="${dist.jar}">
             <fileset dir="${build.classes.dir}" includes="${javafxrt.includes}"/>
             <zipfileset src="${file.reference.javafxc.jar}" includes="com/sun/javafx/**,javafx/**" 
-                        excludes="com/sun/javafx/api/**,${javafxc.excludes}"/>
+                        excludes="com/sun/javafx/api/**"/>
         </jar>
         <jar compress="${jar.compress}" destfile="${dist.gui.jar}">
             <fileset dir="${build.classes.dir}" includes="${javafxgui.includes}"/>
