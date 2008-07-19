@@ -24,44 +24,44 @@
 
     <itemizedlist>
       <listitem>
-        <para>Animations occur along a timeline, represented by a
-        <code>javafx.animation.Timeline</code> object.</para>
+        Animations occur along a timeline, represented by a
+        <code>javafx.animation.Timeline</code> object.
       </listitem>
 
       <listitem>
-        <para>Each timeline contains two or more key frames, represented by
-        <code>javafx.animation.KeyFrame</code> objects.</para>
+        Each timeline contains two or more key frames, represented by
+        <code>javafx.animation.KeyFrame</code> objects.
       </listitem>
 
       <listitem>
-        <para>Each timeline also provides certain attributes that describe it
+        Each timeline also provides certain attributes that describe it
         (<code>autoReverse</code>, <code>repeatCount</code>,
         <code>toggle</code>, etc.) plus a number of functions that control its
         playback (<code>start()</code>, <code>stop()</code>,
-        <code>pause()</code>, and <code>resume()).</code></para>
+        <code>pause()</code>, and <code>resume()).</code>
       </listitem>
 
       <listitem>
-        <para>Each key frame is associated with a time instant relative to its
+        Each key frame is associated with a time instant relative to its
         containing timeline and itself contain 3 things: a list of key values,
         a list of sub-timelines, and a "trigger". Each contained sub-timeline
         is evaluated with its starting point relative to the key frame's key
         time. Timelines can therefore be constructed hierarchically and
         contain sub-timelines which may themselves repeat. The "trigger", if
         present, is a block of procedural code which is executed at the time
-        instant specified by the key frame.</para>
+        instant specified by the key frame.
       </listitem>
 
       <listitem>
-        <para>A <code>javafx.animation.KeyValue</code> object describes an
+        A <code>javafx.animation.KeyValue</code> object describes an
         end-state of a property at the time of the key frame together with a
         function which is used to calculate the "in-between" values relative
-        to the previous key frame for that property.</para>
+        to the previous key frame for that property.
       </listitem>
     </itemizedlist>
 
-    <para>Note: Timeline objects can be used for general-purpose time-based
-    operations that are independent of graphic animation.</para>
+    <para>Note: Timeline objects can also be used for general-purpose time-based
+    operations that are independent of graphics animation.</para>
   </sect2>
 
   <sect2 id="discrete">
@@ -85,7 +85,11 @@ import javafx.animation.Timeline;
 
 // Load image data
 var images = for (i in [1..17]) {
-     Image { url: "file:images/T{i}.gif"};
+     Image { url: "file:images/T{i}.gif"}; // assumes images are stored locally
+
+  // To load images from the web, use this line instead:
+  // Image { url: "http://java.sun.com/applets/other/TumblingDuke/images/T{i}.gif"}; 
+
 }
 
 // Set first image
@@ -118,6 +122,7 @@ Frame {
 }
 </programlisting>
     </para>
+
 
     <para>First, this program loads the images into memory and creates a
     variable (<code>currDuke</code>) to represent the current image. Next, it
