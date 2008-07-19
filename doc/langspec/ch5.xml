@@ -5,7 +5,7 @@
 
 <sect2 id="expr"><title>Expressions</title>
 <para>
-Unlike the <trademark>Java</trademark> programming language, the <trademark>JavaFX</trademark> Script programming language is an expression language. All executable statements are expressions that consist of zero or more inputs followed by zero or one output. This includes conditionals, loops, and even blocks. </para>
+Unlike the <trademark>Java</trademark> programming language, the <trademark>JavaFX</trademark> Script programming language is an expression language. All executable statements are expressions that consist of zero or more inputs followed by  zero (or one) outputs. This includes conditionals, loops, and even blocks. </para>
 
 <para>The following demo provides an example:
 </para>
@@ -25,8 +25,6 @@ if (rand % 2 == 0) {
 System.out.println(s);
 </programlisting>
 
-<para>In the previous example the <code>if</code> and <code>else</code> clauses of the conditional "if" are expressions in their own right, namely <emphasis>block expressions</emphasis>.</para>
-
 
 <sect3 id="blockexpr"><title>Block Expressions</title>
 
@@ -34,41 +32,23 @@ System.out.println(s);
  type.</para>
 
 <para>
-Therefore, the previous example could also be written as: 
+The following block expression adds a few numbers and stores 
+the result in a variable named <code>total</code>:
 </para>
 
 <programlisting>
-import java.lang.Math;
 import java.lang.System;
 
-var rand = (Math.random() * 100).intValue();
-var s:String =
-if (rand % 2 == 0) {
-     "rand is even";
-} else {
-     "rand is odd";
-};
+var nums = [5, 7, 3, 9];
+var total = {
+     var sum = 0;
+     for (a in nums) { sum += a };
+     sum;
+}
 
-System.out.println(s);
+System.out.println("Total is {total} ");
 </programlisting>
 
-
-<para>Alternately the braces can be omitted:</para>
-
-<programlisting>
-import java.lang.Math;
-import java.lang.System; 
-
-var rand = (Math.random() * 100).intValue();
-var s:String = if (rand % 2 == 0) "rand is even" else "rand is odd";
-
-System.out.println(s);
-</programlisting>
-
-
-<para>The Java programming language contains both an <code>if</code> expression  
-and a conditional expression: <code>a &lt; b ? a : b</code>.
- The JavaFX Script programming language <code>if</code> expression takes the place of both.</para>
 
 
 </sect3><sect3 id="range"><title>Range Expressions</title>
@@ -145,11 +125,19 @@ if (condition1) {
 </programlisting>
 
 
+<para>The Java programming language contains both an <code>if</code> expression  
+and a conditional expression: <code>a &lt; b ? a : b</code>.
+ The JavaFX Script programming language <code>if</code> expression takes the place of both.</para>
+
+
+
+
 </sect3><sect3 id="loop"><title>Looping Expressions</title>
 <para>
 <sect4 id="for"><title>The <code>for</code> Expression</title> 
 
-This expression is discussed in <ulink url="comprehensions.html"><emphasis>Chapter 7</emphasis>.</ulink></sect4></para>
+The <code>for</code> expression is 
+ used with sequences, and is therefore discussed in <ulink url="comprehensions.html"><emphasis>Chapter 7</emphasis>.</ulink></sect4></para>
 
 <para>
 
@@ -622,41 +610,4 @@ System.out.println(Math.max(x, y)); // prints 4
 System.out.println("abc".toUpperCase()); // prints ABC 
 System.out.println(x); // prints 2
 </programlisting>
-
-
-<!-- 
-<para>
-The demo above produces the following output:
-</para>
-
-<programlisting>
-
-false
-true
-true
-false
-false
-true
-6
--2
-8
-0
-2
-false
-true
-false
-2
-[ 2 ]
-2
-[ 2 ]
-4
-ABC
-2
-</programlisting>
-
--->
-
-
 </sect2> </chapter>
-
-
