@@ -2,7 +2,7 @@
 <project name="JavaFX Compiler" default="default" basedir=".">
     <description>Builds, tests, and runs the openjfx-compiler project.</description>
 
-    <property name="tools.dir" value="${basedir}/flubber/tools"/>
+    <property name="tools.dir" value="${basedir}/tools"/>
     <property name="runtime.dir" value="${basedir}/runtime"/>
     <property name="javafxdoc.dir" value="${basedir}/javafxdoc"/>
     <property name="launcher.dir" value="${basedir}/launcher"/>
