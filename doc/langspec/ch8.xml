@@ -75,7 +75,6 @@ Within a <code>bind</code>, the only statements that can occur in a block expres
 </para>
 
 <programlisting>
-
 bind { var a = expr; var b = expr; var c = expr; expr }
 </programlisting>
 
@@ -153,7 +152,6 @@ In this case the following recalculations are performed:
 <para>Object literals behave like operators and nonbound functions. If one of the arguments to the object literal changes, it is re-executed (a new instance is created.)</para>
 
 <programlisting>
-
 let pt = bind Point { x: myX  y: myY  }
 </programlisting>
 
@@ -175,14 +173,12 @@ For this example, you would probably want to bind <code>y</code> as well:</para>
 
 
 <programlisting>
-
 let pt = bind Point { x: bind myX  y: bind myY  }
 </programlisting>
 <para>
 where <code>pt</code> would always remain the same <code>Point</code> instance. It would be the same without the initial bind:</para>
 
 <programlisting>
-
 let pt = Point { x: bind myX  y: bind myY  }
 </programlisting>
 
@@ -195,7 +191,6 @@ let pt = Point { x: bind myX  y: bind myY  }
 
 
 <programlisting>
-
 import java.lang.System;
 
 class Point {
@@ -228,7 +223,6 @@ Output:
 
 
 <programlisting>
-
 3.0
 10.0
 10.0
@@ -243,7 +237,6 @@ Changing the argument <code>myX</code> causes <code>makePoint</code> to be calle
 
 
 <programlisting>
-
 bound function makePoint(x0 : Number, y0 : Number) : Point {
 </programlisting>
 
