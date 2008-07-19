@@ -3,19 +3,14 @@
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <?xml-stylesheet href="docbook.css" type="text/css"?>
 <appendix id="apxa">
-  <title>Key Words and Reserved Words </title>
-<!-- 
-  <sect1 id="reserved">
-    <title>Key Words and Reserved Words</title>
-    
-    -->
+  <title>Keywords and Reserved Words </title>
 
     <para><emphasis>This Appendix reports words reserved in the  <trademark>JavaFX</trademark> Script programming language. </emphasis></para>
     
 
         <table class="data" cellpadding="3" cellspacing="3" >
 	
-	<caption>Key Words and Reserved Words</caption>
+	<caption>Keywords and Reserved Words</caption>
           <tbody>
 	  
 	  <tr> <th colspan="5">Implemented Keywords </th>
