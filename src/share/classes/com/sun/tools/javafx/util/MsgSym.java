@@ -306,7 +306,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_RANGE_END_INT_OR_NUMBER = "javafx.range.end.int.or.number"; 
     public static final String MESSAGE_JAVAFX_RANGE_STEP_INT_OR_NUMBER = "javafx.range.step.int.or.number"; 
     public static final String MESSAGE_JAVAFX_RANGE_LITERAL_EMPTY = "javafx.range.literal.empty"; 
-    public static final String MESSAGE_JAVAFX_DUPLICATE_MODULE_MEMBER = "javafx.duplicate.module.member"; 
+    public static final String MESSAGE_JAVAFX_RESERVED_TOP_LEVEL_SCRIPT_MEMBER = "javafx.reserved.top.level.script.member";
     public static final String MESSAGE_JAVAFX_INDEXOF_NOT_FOUND = "javafx.indexof.not.found"; 
     public static final String MESSAGE_JAVAFX_CANNOT_INFER_RETURN_TYPE = "javafx.cannot.infer.return.type"; 
     public static final String MESSAGE_JAVAFX_CANNOT_IMPORT_INTEGER_PRIMITIVE_TYPE = "javafx.can.not.import.integer.primitive.type"; 
