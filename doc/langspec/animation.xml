@@ -212,10 +212,5 @@ Transform.rotate(rotation,25,25)]
     this example, we have created the key frames using the "<code>at</code>"
     operator, which is a literal constructor for <code>KeyFrame</code>
     objects.</para>
-
-    <para>Question for eng reviewers: what else do we want to say about =&gt;
-    tween and at? Also, we mentioned KeyValue at the top of the page but I'm
-    not sure what needs to be said about it. Is KeyValue somehow being used in
-    these examples, even though we don't see it mentioned in the code?</para>
   </sect2>
 </chapter>
