@@ -4,6 +4,8 @@
  * @run
  */
 
+var KEYBOARD = Keyboard{} 
+
 public class KeyStroke { 
     attribute description: String; 
     attribute id: Number 
@@ -13,13 +15,11 @@ public class KeyStroke {
          
     }; 
     attribute keyChar: String; 
-    public static attribute KEYBOARD = Keyboard{} 
 } 
 
 public class Keyboard { 
      
     protected attribute keyMap:java.util.Map = new java.util.HashMap(); 
-
 
     public function getKeyStroke(id:Number): KeyStroke { 
         return keyMap.get(id) as KeyStroke; 
