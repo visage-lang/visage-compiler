@@ -56,7 +56,7 @@ public class JavafxModuleBuilder {
     private JavafxTreeMaker fxmake;
     private Log log;
     private JavafxSymtab syms;
-    private Set<Name> topLevelNamesSet;
+    private Set<Name> reservedTopLevelNamesSet;
     private Name pseudoFile;
     private Name pseudoDir;
     private Name commandLineArgs;
@@ -184,7 +184,7 @@ public class JavafxModuleBuilder {
         
         module.defs = topLevelDefs.toList();
 
-        topLevelNamesSet = null;
+        reservedTopLevelNamesSet = null;
     }
     
     private void debugPositions(final JFXUnit module) {
@@ -275,20 +275,18 @@ public class JavafxModuleBuilder {
     }
 
     private void checkName(int pos, Name name) {
-        if (topLevelNamesSet == null) {
-            topLevelNamesSet = new HashSet<Name>();
+        if (reservedTopLevelNamesSet == null) {
+            reservedTopLevelNamesSet = new HashSet<Name>();
             
             // make sure no one tries to declare these reserved names
-            topLevelNamesSet.add(pseudoFile);
-            topLevelNamesSet.add(pseudoDir);
-            topLevelNamesSet.add(commandLineArgs);
+            reservedTopLevelNamesSet.add(pseudoFile);
+            reservedTopLevelNamesSet.add(pseudoDir);
+            reservedTopLevelNamesSet.add(commandLineArgs);
         }
         
-        if (topLevelNamesSet.contains(name)) {
-            log.error(pos, MsgSym.MESSAGE_JAVAFX_DUPLICATE_MODULE_MEMBER, name.toString());
+        if (reservedTopLevelNamesSet.contains(name)) {
+            log.error(pos, MsgSym.MESSAGE_JAVAFX_RESERVED_TOP_LEVEL_SCRIPT_MEMBER, name.toString());
         }
-        
-        topLevelNamesSet.add(name);
     }
     
     private void checkForBadPositions(JFXUnit testTree) {
