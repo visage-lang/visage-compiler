@@ -20,7 +20,7 @@ The syntax for a <emphasis>replace trigger</emphasis> is as follows:</para>
 <para>
 A replace trigger is invoked after every modification of the variable to which it is attached. The syntactic nonterminals <code>oldValue</code>, 
 <code>lowIndex</code>, <code>highIndex</code>, and <code>newElements</code>  
-are effectively formal parameters to a function with a body that consists of the block.</para>
+are effectively formal parameters to a function with a body that consists of the block:</para>
 
 <itemizedlist>
    <listitem> <code>oldValue</code> is the previous value of the variable, and has the same type as the variable.</listitem>
