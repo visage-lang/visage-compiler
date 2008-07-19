@@ -4,16 +4,7 @@
 <chapter id="triggers"><title>Triggers</title>
 
 
-
-<!-- **** <FONT COLOR="RED">TBD: INTRO paraGRAPH: DEPENDS ON HOW MANY 
-DIFFERENT TRIGGERS WE ARE COVERING IN THIS CHAPTER. SO FAR WE ONLY HAVE 
-WRITEUPS FOR REPLACE TRIGGERS</FONT> *** -->
-
-
-
 <sect2 id="replace"><title>Replace Triggers</title>
-
-
 
 <para>
 The syntax for a <emphasis>replace trigger</emphasis> is as follows:</para>
@@ -27,9 +18,9 @@ The syntax for a <emphasis>replace trigger</emphasis> is as follows:</para>
 
 
 <para>
-A replace trigger is invoked after every modification of the variable it is attached to. The syntactic non-terminals <code>oldValue</code>, 
+A replace trigger is invoked after every modification of the variable to which it is attached. The syntactic nonterminals <code>oldValue</code>, 
 <code>lowIndex</code>, <code>highIndex</code>, and <code>newElements</code>  
-are effectively formal parameters to a function whose body is the block:</para>
+are effectively formal parameters to a function with a body that consists of the block.</para>
 
 <itemizedlist>
    <listitem> <code>oldValue</code> is the previous value of the variable, and has the same type as the variable.</listitem>
@@ -39,15 +30,15 @@ are effectively formal parameters to a function whose body is the block:</para>
     <listitem> <code>newElements</code> is the sequence of values that replaces the slice <code>oldValue[lowIndex..highIndex]</code>. Its type is the same as the variable.</listitem>
 </itemizedlist>
 
-<para>The <code>[lowIndex..highIndex]=newElements</code>  parameters are only allowed if the attached variable has sequence type.</para>
+<para>The <code>[lowIndex..highIndex]=newElements</code>  parameters are allowed only if the attached variable has sequence type.</para>
 
 <para>
-Notice that there is an asymmetry between <code>oldValue</code> and <code>newElements</code>: <code>oldValue</code> is the previous value of the attached variable, while <code>newElements</code> is a slice of the new value of the variable, containing only the modified elements.
+Notice the asymmetry between <code>oldValue</code> and <code>newElements</code>. <code>oldValue</code> is the previous value of the attached variable, while <code>newElements</code> is a slice of the new value of the variable, containing only the modified elements.
 </para>
 
 
 <para>
-The syntax of the replace trigger is meant to be evocative of a slice assignment. Given:</para>
+The syntax of the replace trigger is meant to be evocative of a slice assignment. For example:</para>
 
 <programlisting>
 attribute x
@@ -58,11 +49,11 @@ attribute x
 
 
 <para>
-Then <code>exp</code> will be evaluated, with <code>oldVal</code> bound to <code>save</code>,  <code>lo</code> bound to <code>i</code>, <code>hi</code> bound to <code>j</code>,  and <code>newVals</code> bound to <code>y</code>.</para>
+Then <code>exp</code> is evaluated, with <code>oldVal</code> bound to <code>save</code>,  <code>lo</code> bound to <code>i</code>, <code>hi</code> bound to <code>j</code>,  and <code>newVals</code> bound to <code>y</code>.</para>
 
 
 <para>
-Unified replace triggers work great with slice assignments. For example, we can define a bind, as in:</para>
+Unified replace triggers work well with slice assignments. For example, you can define a bind, as in the following:</para>
 
 <programlisting>
 attribute x;
@@ -89,7 +80,7 @@ attribute y = bind for (xi in x) f(xi);
 </programlisting>
 
 <para>
-that is equivalent to:</para>
+that is equivalent to the following:</para>
 
 <programlisting>
   attribute x =
@@ -98,7 +89,7 @@ that is equivalent to:</para>
   attribute y = [];
 </programlisting>
 
-<para>Deleting or replacing a range of elements in a sequence, or inserting a sequence into a single location all result in a single trigger invocation. Some other operations, such as deleting all elements that satisfy a predicate, may be decomposed to multiple trigger call. In that case the state as seen by each trigger invocation is consistent in the sense that the programmer-visible state is <emphasis>as if</emphasis> the predicate-delete (for example) were implemented as a set of independent slice-delete operations.</para>
+<para>Deleting or replacing a range of elements in a sequence, or inserting a sequence into a single location all result in a single trigger invocation. Some other operations, such as deleting all elements that satisfy a predicate, might be decomposed to multiple trigger call. In that case the state that is seen by each trigger invocation is consistent. Specifically, the programmer-visible state is <emphasis>as if</emphasis> the predicate-delete (for example) were implemented as a set of independent slice-delete operations.</para>
 
 </sect2>
 

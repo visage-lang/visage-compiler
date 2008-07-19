@@ -3,26 +3,15 @@
 "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <chapter id="comprehensions"><title>Using Sequences</title>
 
-<sect2 id="iterate"><title>Sequence Iteration with <code>for</code></title>
+<sect2 id="iterate"><title>Sequence Iteration With <code>for</code></title>
 
 
 
-<para>The JavaFX Script programming language supports sequence comprehensions with the <code>for</code> operator. A sequence comprehension consists of one or more input sequences, an optional filter, and an expression. Each input sequence is associated with a variable. The result of the sequence comprehension is a new sequence which is the
+<para>The <trademark>JavaFX</trademark> Script programming language supports sequence comprehensions with the <code>for</code> operator. A sequence comprehension consists of one or more input sequences, an optional filter, and an expression. Each input sequence is associated with a variable. The result of the sequence comprehension is a new sequence which is the
 result of applying the expression to the combination of the source
 sequences' elements that satisfy the filter.
 </para>
 
-<!-- 
-<programlisting><emphasis role="red">TO-DO: INSERT SYNTAX DIAGRAM HERE</emphasis></programlisting>
--->
-
-<!--
-<programlisting >
-&nbsp;
- **** <FONT COLOR="RED">ENGINEERING TO PROVIDE FORMAL SYNTAX DIAGRAM HERE
-</FONT> *** 
-</programlisting>
--->
 <para>
 The following program demonstrates this syntax,  using the <code>for</code> operator to identify the title tracks in a list of albums:</para>
 
@@ -98,7 +87,7 @@ Track = Macho City
 
 
 <para>
-Here is another example that uses a filter; it defines a function that takes a number and returns a list of all its factors:
+Here is another example that uses a filter. This example defines a function that takes a number and returns a list of all its factors:
 </para>
 
 
@@ -185,7 +174,8 @@ reverse seq
 </programlisting>
 -->
 
-<para>The following code provides examples of each:</para>
+<para>The following code provides examples of both inserting and deleting
+ elements:</para>
 
 <programlisting>
 // INSERT EXAMPLES
@@ -230,7 +220,7 @@ reverse nums; // returns 5,4,3,2,1
 </programlisting>
 
 <para>
-It is also possible to reverse elements of a sequence:
+Elements of a sequence also can be reversed:
 </para>
 
 <programlisting>

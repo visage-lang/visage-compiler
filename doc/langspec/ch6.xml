@@ -103,8 +103,8 @@ seq[a..]  // same as seq[a..&lt;sizeof seq]
 seq[a..&lt;] // for consistancy.  This is the same as seq[a..&lt;sizeof seq-1] 
 </programlisting>
 
-<para>You can access and/or modify a sequence or sequence slice in many different ways. The
- following chapter explores JavaFX Script programming language's <emphasis>list comprehension</emphasis> features.</para>
+<para>You can access and/or modify a sequence or sequence slice in many different ways, as described in the next chapter.</para>
+ 
 
 </chapter>
 
