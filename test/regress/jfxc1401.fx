@@ -1,0 +1,12 @@
+/*
+ * Regression test JFXC-1401 : Inconsistent function name uniqueness rules
+ *
+ * @test
+ */
+
+function fn() {}
+function fn(a:String) {} // This line caused a compilation error.
+
+class X {
+    function fn(a:Integer) {}
+ }
