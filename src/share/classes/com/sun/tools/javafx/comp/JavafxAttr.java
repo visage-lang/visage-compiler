@@ -1331,6 +1331,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
         if (! canReturn)
             owntype = syms.unreachableType;
+        owntype = owntype.baseType();
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
         if (env.info.scope.owner.kind != TYP)
             localEnv.info.scope.leave();

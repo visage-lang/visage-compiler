@@ -81,6 +81,7 @@ public class BlockExprAttr extends Attr  {
             result = check(tree, syms.voidType, VAL, pkind, pt);
         } else {
             Type valtype = attribExpr(tree.value, localEnv);
+            valtype = valtype.baseType();
             result = check(tree, valtype, VAL, pkind, pt);
         }
         localEnv.info.scope.leave();
