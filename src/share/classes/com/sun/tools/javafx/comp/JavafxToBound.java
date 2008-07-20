@@ -38,7 +38,6 @@ import com.sun.tools.javafx.comp.JavafxToJava.Translator;
 import com.sun.tools.javafx.comp.JavafxToJava.FunctionCallTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.InstanciateTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.StringExpressionTranslator;
-import com.sun.tools.javafx.comp.JavafxToJava.TypeCastTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.Wrapped;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
@@ -692,9 +691,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
     @Override
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {   //done
-        result = convert(tree.type, runtime(tree.pos(), cBoundSequences, "element",
+        DiagnosticPosition diagPos = tree.pos();
+        result = convert(tree.type, runtime(diagPos, cBoundSequences, "element",
                 List.of(translate(tree.getSequence()),
-                translate(tree.getIndex()))));
+                translate(tree.getIndex(), syms.intType))));
     }
 
     @Override
@@ -993,12 +993,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
 
            protected JCExpression resultValue() {
-                return new TypeCastTranslator(tree, toJava) {
-
-                    protected JCExpression translatedExpr() {
-                        return buildArgField(translate(tree.expr), tree.expr.type, "toBeCast");
-                    }
-                }.doit();
+                return makeTypeCast(tree.pos(), tree.clazz.type, tree.expr.type,
+                         buildArgField(translate(tree.expr), tree.expr.type, "toBeCast"));
             }
         }.doit();
     }

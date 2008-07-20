@@ -1858,10 +1858,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     }
 
     @Override
-    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
+    public void visitSequenceIndexed(final JFXSequenceIndexed tree) {
         DiagnosticPosition diagPos = tree.pos();
         JCExpression seq = translate(tree.getSequence(), Wrapped.InNothing);
-        JCExpression index = translate(tree.getIndex());
+        JCExpression index = makeTypeCast(diagPos, syms.intType, tree.getIndex().type, translate(tree.getIndex()));
         JCFieldAccess select = make.at(diagPos).Select(seq, defs.getMethodName);
         List<JCExpression> args = List.of(index);
         result = make.at(diagPos).Apply(null, select, args);
@@ -2589,34 +2589,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         result = make.at(tree.pos).TypeTest(expr, clazz);
     }
 
-    abstract static class TypeCastTranslator extends Translator {
-
-        protected final JFXTypeCast tree;
-
-        TypeCastTranslator(final JFXTypeCast tree, JavafxToJava toJava) {
-            super(tree.pos(), toJava);
-            this.tree = tree;
-        }
-
-        abstract protected JCExpression translatedExpr();
-
-        protected JCExpression doit() {
-            Type clazztype = tree.clazz.type;
-            if (clazztype.isPrimitive() && !tree.expr.type.isPrimitive()) {
-                clazztype = types.boxedClass(clazztype).type;
-            }
-            JCTree clazz = makeExpression(clazztype);
-            return m().TypeCast(clazz, translatedExpr());
-        }
-    }
-
     @Override
     public void visitTypeCast(final JFXTypeCast tree) {
-        result = new TypeCastTranslator(tree, this) {
-            protected JCExpression translatedExpr() {
-                return translate(tree.expr);
-            }
-        }.doit();
+        result = makeTypeCast(tree.pos(), tree.clazz.type, tree.expr.type, translate(tree.expr));
     }
 
     @Override

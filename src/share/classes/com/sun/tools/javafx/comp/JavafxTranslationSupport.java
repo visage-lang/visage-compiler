@@ -277,6 +277,19 @@ public abstract class JavafxTranslationSupport {
         }
         return makeTypeTree(diagPos, returnType);
     }
+
+    JCExpression makeTypeCast(DiagnosticPosition diagPos, Type clazztype, Type exprtype, JCExpression translatedExpr) {
+        if (types.isSameType(clazztype, exprtype)) {
+            return translatedExpr;
+        } else {
+            Type castType = clazztype;
+            if (castType.isPrimitive() && !exprtype.isPrimitive()) {
+                castType = types.boxedClass(castType).type;
+            }
+            JCTree clazz = makeTypeTree(diagPos, castType, true);
+            return make.at(diagPos).TypeCast(clazz, translatedExpr);
+        }
+    }
  
    /**
     * Make a receiver parameter. 
