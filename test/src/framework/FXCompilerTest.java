@@ -102,7 +102,7 @@ public class FXCompilerTest extends TestSuite {
                 findTests(f, tests, orphanFiles);
             else {
                 assert name.lastIndexOf(".fx") > 0 : "not a JavaFX script: " + name;
-                boolean isTest = false, isNotTest = false, isFxUnit = false, shouldRun = false, compileFailure = false, runFailure = false, checkCompilerMsg = false;
+                boolean isTest = false, isNotTest = false, isFxUnit = false, shouldRun = false, compileFailure = false, runFailure = false, checkCompilerMsg = false, noCompare = false;
 
                 Scanner scanner = null;
                 List<String> auxFiles = new ArrayList<String>();
@@ -135,6 +135,10 @@ public class FXCompilerTest extends TestSuite {
                         else if (token.equals("@test/warning")) {
                             isTest = true;
                             checkCompilerMsg = true;
+                        }
+						else if (token.equals("@test/nocompare")) {
+                            isTest = true;
+                            noCompare = true;
                         }
                         else if (token.equals("@test/fxunit")) {
                             isTest = true;
@@ -174,6 +178,8 @@ public class FXCompilerTest extends TestSuite {
                 if (isTest) {
                     if (isFxUnit)
                         tests.add(FXUnitTestWrapper.makeSuite(f, name));
+					if(noCompare)
+						tests.add(new FXRunWrapper(f, name, compileFailure, shouldRun, runFailure, auxFiles, separateFiles, param));
                     else
                         tests.add(new FXRunAndCompareWrapper(f, name, compileFailure, shouldRun, runFailure, checkCompilerMsg, auxFiles, separateFiles, param));
                 }
