@@ -1,7 +1,7 @@
 /**
  * regression test: JFXC-1320 AIOOBE thrown when sequence-index iou--bouns
  * @test
- * @run/fail
+ * @run
  */
 
 import javafx.lang.Duration;

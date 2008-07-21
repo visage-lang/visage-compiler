@@ -78,8 +78,13 @@ public class Util {
             return (T) Boolean.FALSE;
         else if (clazz == String.class)
             return (T) "";
-        else
-            return null;
+        try {
+            if (clazz == Class.forName("javafx.lang.Duration"))
+                return (T) Duration.make(0);
+        } catch (Exception ex) {
+            // ignore
+        }
+        return null;
     }
 
 //    @SuppressWarnings("unchecked")
