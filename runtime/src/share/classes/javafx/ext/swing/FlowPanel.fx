@@ -36,6 +36,39 @@ import com.sun.javafx.scene.Util;
  * {@code FlowPanel} is typically used to arrange buttons in a panel.
  * It arranges buttons horizontally until no more buttons fit on the same line.
  * The line alignment is determined by the {@code HorizontalAlignment} attribute.
+ * <p>Example:</p>
+
+@example
+import javafx.ext.swing.*;
+import javafx.scene.geometry.*;
+import javafx.scene.paint.*;
+import javafx.scene.text.*;
+import javafx.scene.transform.*;
+
+FlowPanel {
+    hgap: 20
+    vgap: 20
+    content: [Canvas {
+            content: Rectangle {
+                x: 0
+                y: 0
+                width: 200
+                height: 100
+                arcWidth: 20
+                arcHeight: 20
+                fill: Color.RED
+            }
+        },
+        Canvas {
+            content: Text {
+            content: "The text besides the rectangle"
+            translateX: 0
+            translateY: 15
+            }
+        }
+    ]
+}
+@endexample
  */
 public class FlowPanel extends Panel {
 
