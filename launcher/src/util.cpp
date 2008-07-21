@@ -64,11 +64,13 @@ int Util::createProcess(std::string& cmd) {
     } else {
         // Wait until child process exits.
         WaitForSingleObject( pi.hProcess, INFINITE );
+        unsigned long exitCode;
+        GetExitCodeProcess(pi.hProcess, &exitCode);
 
         // Close process and thread handles. 
         CloseHandle( pi.hProcess );
         CloseHandle( pi.hThread );        
-        exit(0);
+        return exitCode;
     }
     
 }

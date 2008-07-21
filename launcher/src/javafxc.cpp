@@ -50,9 +50,7 @@ int main(int argc, char** argv) {
     cmd += "\" ";
     cmd += config.fxargs;
     
-    util.createProcess (cmd);
-
-    return EXIT_SUCCESS;
+    return util.createProcess (cmd);
 }
 
 #endif  /* PROJECT_JAVAFXC */
