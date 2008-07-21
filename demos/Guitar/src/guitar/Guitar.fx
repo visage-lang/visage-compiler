@@ -34,6 +34,8 @@ import java.lang.System;
 
 
 public class Guitar extends CustomNode {
+    private attribute startX = 0.0;
+    private attribute startY = 0.0;
     attribute loadingSound: Number;
     function play(string:GuitarString){
         string.audioClip.stop();
@@ -42,11 +44,14 @@ public class Guitar extends CustomNode {
     public function create(): Node {
         var self = this;
         Group {
-            var tx = Translate {x: 0, y: 0}
-            transform: [tx]
             onMouseDragged: function(e:MouseEvent):Void {
-                tx.x += e.getDragX();
-                tx.y += e.getDragY();
+                translateX = e.getDragX() - startX;
+                translateY = e.getDragY() - startY;
+            }
+            onMousePressed: function(e:MouseEvent):Void {
+                startX = e.getDragX() - translateX;
+                startY = e.getDragY() - translateY;
+              
             }
             content:
                 [ImageView { 
