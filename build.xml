@@ -454,7 +454,7 @@
         <copy todir="dist/bin">
             <fileset dir="src/bin"/>
             <filterset>
-                <filter token="SCENEGRAPH_JAR" value="${scenegraph.jar}"/>
+                <filter token="SCENEGRAPH_JAR" value="${scenegraph.jar.file}"/>
             </filterset>
         </copy>
         <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>

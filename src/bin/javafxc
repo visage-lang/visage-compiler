@@ -17,7 +17,7 @@ while [ -h "$PRG" ]; do
     fi
 done
 
-HOME=`dirname "$PRG"`/../lib
+JFX_HOME=`dirname "$PRG"`/../lib
 
 # detect Darwin and Cygwin environments
 darwin=false;
@@ -48,7 +48,7 @@ fi
 # Jars with classes already defined in the JDK's tools.jar file need to be put
 # on the bootclasspath, along with any classes they reference, due to those
 # classes being on the bootclasspath with Mac OS X Java distributions.
-bootclasspath=$HOME/javafxc.jar:$HOME/javafxrt.jar 
+bootclasspath=$JFX_HOME/javafxc.jar:$JFX_HOME/javafxrt.jar 
 
 noopts=false;
 if [ $# -eq 0 ] ; then
@@ -60,7 +60,7 @@ if [ -z "$CLASSPATH" ] ; then
 else
   USER_CP="$CLASSPATH"
 fi 
-classpath="$HOME/javafxgui.jar:$HOME/javafx-swing.jar:$HOME/@SCENEGRAPH_JAR@:$HOME/jmc.jar:$USER_CP"
+classpath="$JFX_HOME/javafxgui.jar:$JFX_HOME/javafx-swing.jar:$JFX_HOME/@SCENEGRAPH_JAR@:$JFX_HOME/jmc.jar:$USER_CP"
 
 args=""
 jargs=""

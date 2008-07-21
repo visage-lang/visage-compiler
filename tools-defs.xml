@@ -8,7 +8,8 @@
     <property name="ant.dir" value="${tools.dir}/ant-${ant.ver}"/>
     
     <property name="scenegraph.dir" value="${tools.dir}/Scenario/dist"/>
-    <property name="scenegraph.jar" value="${scenegraph.dir}/Scenario.jar"/>
+    <property name="scenegraph.jar.file" value="Scenario.jar"/>
+    <property name="scenegraph.jar" value="${scenegraph.dir}/${scenegraph.jar.file}"/>
 
     <property name="junit.ver" value="4.4"/>
     <property name="junit.dir" value="${tools.dir}/junit-${junit.ver}"/>
