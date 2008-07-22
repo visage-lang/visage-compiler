@@ -419,7 +419,7 @@ public class JavafxTreeInfo {
             return ((JFXUnit) node).packge;
 
         default:
-            return JavafxTreeInfo.symbolFor(node);
+            return null;
         }
     }
 
