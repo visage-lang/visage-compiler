@@ -1,4 +1,4 @@
-jfxc1122b.fx:12: incompatible types
+test/should-fail/jfxc1122b.fx:12: incompatible types
 found   : java.lang.Number
 required: Number
 var x:Number = fmt.parse("5.234");

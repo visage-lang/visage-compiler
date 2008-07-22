@@ -1,4 +1,4 @@
-jfxc115.fx:29: incompatible types
+test/should-fail/jfxc115.fx:29: incompatible types
 found   : String
 required: Number
 var x:Number = new String("ss");

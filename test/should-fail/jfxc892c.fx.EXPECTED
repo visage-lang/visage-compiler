@@ -1,4 +1,4 @@
-jfxc892c.fx:11: unexpected type
+test/should-fail/jfxc892c.fx:11: unexpected type
 found   : Integer
 required: class or array
 System.out.println(x instanceof Integer);

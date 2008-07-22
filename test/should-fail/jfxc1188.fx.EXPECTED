@@ -1,4 +1,4 @@
-jfxc1188.fx:5: Sequence of Void not allowed.
+test/should-fail/jfxc1188.fx:5: Sequence of Void not allowed.
 function fn():Void[]{
               ^
 1 error

@@ -1,4 +1,4 @@
-jfxc683a.fx:38: incompatible types
+test/should-fail/jfxc683a.fx:38: incompatible types
 found   : jfxc683a.Node[]
 required: jfxc683a.Node
     content: [Node {}]

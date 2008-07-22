@@ -1,4 +1,4 @@
-jfxc1177.fx:5: cyclic inheritance involving jfxc1177
+test/should-fail/jfxc1177.fx:5: cyclic inheritance involving jfxc1177
 class jfxc1177 extends jfxc1177.A{}
 ^
 1 error

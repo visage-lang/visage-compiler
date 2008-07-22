@@ -1,4 +1,4 @@
-jfxc846.fx:38: cannot find symbol
+test/should-fail/jfxc846.fx:38: cannot find symbol
 symbol: class foo
 import foo
        ^

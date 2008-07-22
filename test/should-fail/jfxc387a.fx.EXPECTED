@@ -1,4 +1,4 @@
-jfxc387a.fx:29: incompatible types
+test/should-fail/jfxc387a.fx:29: incompatible types
 found   : Boolean
 required: Number
 var foo : Number = true;

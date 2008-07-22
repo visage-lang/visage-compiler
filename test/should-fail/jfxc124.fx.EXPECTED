@@ -1,4 +1,4 @@
-jfxc124.fx:8: unexpected type
+test/should-fail/jfxc124.fx:8: unexpected type
 found   : Integer
 required: Object[]
 System.out.println("i = {i[i]}"); 

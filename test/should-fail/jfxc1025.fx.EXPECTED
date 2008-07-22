@@ -1,7 +1,7 @@
-jfxc1025.fx:6: f() in jfxc1025 cannot be applied to (Integer)
+test/should-fail/jfxc1025.fx:6: f() in jfxc1025 cannot be applied to (Integer)
 f(4);
 ^
-jfxc1025.fx:9: m(i:Integer) in jfxc1025 cannot be applied to (Boolean)
+test/should-fail/jfxc1025.fx:9: m(i:Integer) in jfxc1025 cannot be applied to (Boolean)
 m(true);
 ^
 2 errors

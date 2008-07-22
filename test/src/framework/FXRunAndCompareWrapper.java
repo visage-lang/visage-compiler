@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 import junit.framework.TestCase;
 import org.apache.tools.ant.Project;
@@ -219,19 +220,27 @@ public class FXRunAndCompareWrapper extends TestCase {
                 else
                     break;
             }
+            else if (es.equals(as))
+                continue;
             else if (expectRunFailure && ((es == null) || as == null || !es.equals(as)))
                 break;
             else if (es == null)
                 fail("Expected output for " + testFile + " ends prematurely at line " + lineCount);
             else if (as == null)
                 fail("Program output for " + testFile + " ends prematurely at line " + lineCount);
-            else if (!es.equals(as)
-                    && !(compareCompilerMsg 
-                            && as.startsWith("test" + File.separator + "should-fail" + File.separator)
-                            && as.substring("test/should-fail/".length()).equals(es)))
+            else if (compareCompilerMsg && equalsCompilerMsgs(es, as))
+                continue;
+            else
                 fail("Program output for " + testFile + " at line "+ lineCount
                      + " (" + escape(as) +") differs from expected ("+escape(es)+")");
         }
+    }
+    
+    static boolean equalsCompilerMsgs (String es, String as) {
+        int split = es.indexOf(':');
+        // Replace both types of separators ('/' and '\') with the one from current environment
+        String correctedString = es.substring(0, split).replaceAll("[/\\\\]", Matcher.quoteReplacement(File.separator)) + es.substring(split);
+        return correctedString.equals(as);
     }
 
   static void escape (String value, StringBuilder out) {

@@ -1,4 +1,4 @@
-jfxc549c.fx:8: Sorry, I was trying to understand the members of a class declaration but I got confused when I saw '+=' which is an operator.
+test/should-fail/jfxc549c.fx:8: Sorry, I was trying to understand the members of a class declaration but I got confused when I saw '+=' which is an operator.
     +=
     ^
 1 error

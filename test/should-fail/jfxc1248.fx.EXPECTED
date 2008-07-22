@@ -1,10 +1,10 @@
-jfxc1248.fx:5: unreachable statement
+test/should-fail/jfxc1248.fx:5: unreachable statement
 for(i in [1..100],j in {continue;[2..100];}){
                                    ^
-jfxc1248.fx:5: 'void' type not allowed here
+test/should-fail/jfxc1248.fx:5: 'void' type not allowed here
 for(i in [1..100],j in {continue;[2..100];}){
                     ^
-jfxc1248.fx:5: warning: iterating over a non-sequence
+test/should-fail/jfxc1248.fx:5: warning: iterating over a non-sequence
 for(i in [1..100],j in {continue;[2..100];}){
                        ^
 2 errors

@@ -1,4 +1,4 @@
-jfxc1195.fx:17: doIt in jfxc1195.A cannot be applied to (String[])
+test/should-fail/jfxc1195.fx:17: doIt in jfxc1195.A cannot be applied to (String[])
 obj.doIt(["Fx","Rocks"]);
    ^
 1 error

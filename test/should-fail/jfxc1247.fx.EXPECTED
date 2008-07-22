@@ -1,4 +1,4 @@
-jfxc1247.fx:4: cannot apply a function which expects (int) to (int,int)
+test/should-fail/jfxc1247.fx:4: cannot apply a function which expects (int) to (int,int)
 var sq=(function (x:Integer):Integer{x*x})(2,3); 
                                           ^
 1 error

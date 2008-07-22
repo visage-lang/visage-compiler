@@ -1,14 +1,14 @@
-jfxc268.fx:9: warning: incompatible types
+test/should-fail/jfxc268.fx:9: warning: incompatible types
 found   : Number
 required: Integer
 var ab:Integer = function(a:Number, b:Number):Integer { a + b; }
                                                       ^
-jfxc268.fx:9: incompatible types
+test/should-fail/jfxc268.fx:9: incompatible types
 found   : function(:Number,:Number):Integer
 required: Integer
 var ab:Integer = function(a:Number, b:Number):Integer { a + b; }
 ^
-jfxc268.fx:11: ab in jfxc268 cannot be applied to (Integer,Integer)
+test/should-fail/jfxc268.fx:11: ab in jfxc268 cannot be applied to (Integer,Integer)
 System.out.println(ab(23,43));
                    ^
 2 errors

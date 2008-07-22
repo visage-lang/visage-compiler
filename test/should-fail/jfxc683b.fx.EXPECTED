@@ -1,4 +1,4 @@
-jfxc683b.fx:32: incompatible types
+test/should-fail/jfxc683b.fx:32: incompatible types
 found   : String
 required: jfxc683b.Node
 var n:Node = "";

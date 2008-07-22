@@ -1,4 +1,4 @@
-jfxc1240.fx:6: warning: iterating over a non-sequence
+test/should-fail/jfxc1240.fx:6: warning: iterating over a non-sequence
 for (x in y) { } 
           ^
 1 warning

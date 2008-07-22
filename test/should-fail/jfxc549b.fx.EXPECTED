@@ -1,4 +1,4 @@
-jfxc549b.fx:10: Sorry, I was trying to understand the members of a class declaration but I got confused when I saw 'whatever' which is an identifier.
+test/should-fail/jfxc549b.fx:10: Sorry, I was trying to understand the members of a class declaration but I got confused when I saw 'whatever' which is an identifier.
     whatever: Number;
     ^
 1 error

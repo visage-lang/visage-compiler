@@ -1,4 +1,4 @@
-jfxc683c.fx:32: incompatible types
+test/should-fail/jfxc683c.fx:32: incompatible types
 found   : Integer
 required: jfxc683c.Node
 var n:Node = 1;
