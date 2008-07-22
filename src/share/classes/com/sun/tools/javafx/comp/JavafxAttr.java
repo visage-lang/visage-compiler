@@ -923,6 +923,7 @@ public class JavafxAttr implements JavafxVisitor {
 
         try {
             Type declType = attribType(tree.getJFXType(), env);
+            declType = chk.checkNonVoid(tree.getJFXType(), declType);
             if (declType != syms.javafx_UnspecifiedType) {
                 result = tree.type = v.type = declType;
             }
@@ -1059,7 +1060,8 @@ public class JavafxAttr implements JavafxVisitor {
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
 
         try {
-            if (tree.getInitializer() != null) {
+            JFXExpression init = tree.getInitializer();
+            if (init != null) {
                 // Attribute initializer in a new environment/
                 // Check that initializer conforms to variable's declared type.
                 Scope initScope = new Scope(new MethodSymbol(BLOCK, v.name, null, env.enclClass.sym));
@@ -1073,7 +1075,7 @@ public class JavafxAttr implements JavafxVisitor {
                 // marking the variable as undefined.
                 v.pos = Position.MAXPOS;
 
-                attribExpr(tree.getInitializer(), initEnv, declType);
+                chk.checkNonVoid(init, attribExpr(init, initEnv, declType));
             }
         } finally {
             chk.setLint(prevLint);
@@ -1650,7 +1652,7 @@ public class JavafxAttr implements JavafxVisitor {
                     }
                 }
                 pvar.type = type;
-                type = attribVar(pvar, localEnv);
+                type = chk.checkNonVoid(pvar, attribVar(pvar, localEnv));
                 argbuf.append(type);
                 paramNum++;
             }
