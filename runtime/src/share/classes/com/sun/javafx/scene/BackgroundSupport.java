@@ -30,6 +30,8 @@ import java.awt.Graphics2D;
 /**
  * Support class for implementing {@code Paint}, translucent and
  * transparent (null) backgrounds on components.
+ *
+ * Not part of the public API.
  */
 public class BackgroundSupport implements PropertyChangeListener {
 
