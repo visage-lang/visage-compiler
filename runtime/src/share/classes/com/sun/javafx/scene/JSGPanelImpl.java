@@ -28,9 +28,9 @@ import java.awt.*;
 import java.beans.*;
 import com.sun.scenario.scenegraph.JSGPanel;
 
-// PENDING(shannonh) - this is public only to work around a compiler bug.
-// Remove public modifier when resolved.
-// http://openjfx.java.sun.com/jira/browse/JFXC-1050
+/**
+ * Not part of the public API.
+ */
 public class JSGPanelImpl extends JSGPanel implements BackgroundSupport.BackgroundSupportable {
 
     private BackgroundSupport bgs;
