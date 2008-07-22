@@ -42,7 +42,7 @@ import com.sun.tools.javafx.comp.JavafxEnv;
  *
  * @author Jonathan Gibbons;
  */
-public class JavafxcScope implements com.sun.source.tree.Scope {
+public class JavafxcScope implements com.sun.javafx.api.tree.Scope {
     protected final JavafxEnv<JavafxAttrContext> env;
     private final Symtab syms;
     private final Context ctx;
