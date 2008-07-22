@@ -275,6 +275,14 @@ public class JavafxTypes extends Types {
         return result;
     }
     
+    private boolean isJavaLong(Type type) {
+        boolean result = false;
+        if (type.tag == LONG) {
+            result = true;
+        }
+        return result;
+    }
+    
     private boolean isJavaFXInteger(Type type) {
         boolean result = false;
         if (type.tag == BYTE) {
@@ -282,8 +290,6 @@ public class JavafxTypes extends Types {
         } else if (type.tag == SHORT) {
             result = true;
         } else if (type.tag == INT) {
-            result = true;
-        } else if (type.tag == LONG) {
             result = true;
         }
         return result;
@@ -365,6 +371,8 @@ public class JavafxTypes extends Types {
     private void toJavaFXString(Type type, Appendable buffer) throws java.io.IOException {
         if (isJavaFXBoolean(type)) {
             buffer.append("Boolean");
+        } else if (isJavaLong(type)) {
+            buffer.append("java.lang.Long");
         } else if (isJavaFXInteger(type)) {
             buffer.append("Integer");
         } else if (isJavaFXNumber(type)) {

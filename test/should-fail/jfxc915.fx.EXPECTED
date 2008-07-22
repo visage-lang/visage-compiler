@@ -1,0 +1,6 @@
+test\should-fail\jfxc915.fx:11: possible loss of precision
+found   : java.lang.Long
+required: Integer
+var i: Integer = Long.parseLong("100000001", 16);
+                               ^
+1 error
