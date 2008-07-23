@@ -68,13 +68,21 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_publicAnnotationType;
     public final Type javafx_staticAnnotationType;
     public final Type javafx_inheritedAnnotationType;
+    public final Type javafx_sourceNameAnnotationType;
     
     public final Name numberTypeName;
     public final Name integerTypeName;
     public final Name booleanTypeName;
     public final Name stringTypeName;
-    public final Name voidTypeName;  
-    
+    public final Name voidTypeName;
+
+    public static final String privateAnnotationStr = "com.sun.javafx.runtime.Private";
+    public static final String protectedAnnotationStr = "com.sun.javafx.runtime.Protected";
+    public static final String publicAnnotationStr = "com.sun.javafx.runtime.Public";
+    public static final String staticAnnotationStr = "com.sun.javafx.runtime.Static";
+    public static final String inheritedAnnotationStr = "com.sun.javafx.runtime.Inherited";
+    public static final String sourceNameAnnotationStr = "com.sun.javafx.runtime.SourceName";
+
     public final Name runMethodName;
     
     /** The type of expressions that never returns a value to its parent.
@@ -123,11 +131,12 @@ public class JavafxSymtab extends Symtab {
         javafx_KeyFrameType = enterClass("javafx.animation.KeyFrame");
         javafx_PointerType = enterClass("com.sun.javafx.runtime.Pointer");
         javafx_LocationType = enterClass("com.sun.javafx.runtime.location.Location");
-        javafx_privateAnnotationType = enterClass("com.sun.javafx.runtime.Private");
-        javafx_protectedAnnotationType = enterClass("com.sun.javafx.runtime.Protected");
-        javafx_publicAnnotationType = enterClass("com.sun.javafx.runtime.Public");
-        javafx_staticAnnotationType = enterClass("com.sun.javafx.runtime.Static");
-        javafx_inheritedAnnotationType = enterClass("com.sun.javafx.runtime.Inherited");
+        javafx_privateAnnotationType = enterClass(privateAnnotationStr);
+        javafx_protectedAnnotationType = enterClass(protectedAnnotationStr);
+        javafx_publicAnnotationType = enterClass(publicAnnotationStr);
+        javafx_staticAnnotationType = enterClass(staticAnnotationStr);
+        javafx_inheritedAnnotationType = enterClass(inheritedAnnotationStr);
+        javafx_sourceNameAnnotationType = enterClass(sourceNameAnnotationStr);
         for (int i = MAX_FIXED_PARAM_LENGTH; i >= 0;  i--) {
             javafx_FunctionTypes[i] = enterClass(functionClassPrefix+i);
         }

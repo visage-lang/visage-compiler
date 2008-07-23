@@ -66,12 +66,6 @@ public abstract class JavafxTranslationSupport {
     protected final JavafxTypes types;
     protected final JavafxTypeMorpher typeMorpher;
     
-    private static final String privateAnnotationStr = "com.sun.javafx.runtime.Private";
-    private static final String protectedAnnotationStr = "com.sun.javafx.runtime.Protected";
-    private static final String publicAnnotationStr = "com.sun.javafx.runtime.Public";
-    private static final String staticAnnotationStr = "com.sun.javafx.runtime.Static";
-    protected static final String inheritedAnnotationStr = "com.sun.javafx.runtime.Inherited";
-
     protected static final String sequencesEmptyString = "com.sun.javafx.runtime.sequence.Sequences.emptySequence";
     
     /*
@@ -580,17 +574,17 @@ public abstract class JavafxTranslationSupport {
         JCModifiers ret = mods;
         ListBuffer<JCAnnotation> annotations = ListBuffer.lb();
         if ((flags & Flags.PUBLIC) != 0) {
-            annotations.append(make.Annotation(makeIdentifier(diagPos, publicAnnotationStr), List.<JCExpression>nil()));
+            annotations.append(make.Annotation(makeIdentifier(diagPos, syms.publicAnnotationStr), List.<JCExpression>nil()));
         }
         else if ((flags & Flags.PRIVATE) != 0) {
-            annotations.append(make.Annotation(makeIdentifier(diagPos, privateAnnotationStr), List.<JCExpression>nil()));
+            annotations.append(make.Annotation(makeIdentifier(diagPos, syms.privateAnnotationStr), List.<JCExpression>nil()));
         }
         else if ((flags & Flags.PROTECTED) != 0) {        
-            annotations.append(make.Annotation(makeIdentifier(diagPos, protectedAnnotationStr), List.<JCExpression>nil()));
+            annotations.append(make.Annotation(makeIdentifier(diagPos, syms.protectedAnnotationStr), List.<JCExpression>nil()));
         }                
 
         if ((flags & Flags.STATIC) != 0) {
-            annotations.append(make.Annotation(makeIdentifier(diagPos, staticAnnotationStr), List.<JCExpression>nil()));
+            annotations.append(make.Annotation(makeIdentifier(diagPos, syms.staticAnnotationStr), List.<JCExpression>nil()));
         }
 
         if (annotations.nonEmpty()) {
@@ -600,7 +594,7 @@ public abstract class JavafxTranslationSupport {
     }
     
     protected JCModifiers addInheritedAnnotationModifiers(DiagnosticPosition diagPos, long flags, JCModifiers mods) {
-        return make.Modifiers(mods.flags, List.of(make.Annotation(makeIdentifier(diagPos, inheritedAnnotationStr), List.<JCExpression>nil())));
+        return make.Modifiers(mods.flags, List.of(make.Annotation(makeIdentifier(diagPos, syms.inheritedAnnotationStr), List.<JCExpression>nil())));
     }
 
     protected void pretty(JCTree tree) {
