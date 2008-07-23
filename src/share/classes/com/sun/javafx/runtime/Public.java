@@ -32,7 +32,7 @@ import static java.lang.annotation.ElementType.*;
  *
  * @author Brian Goetz
  */
-@Retention(CLASS)
+@Retention(RUNTIME)
 @Documented
 @Target({METHOD, FIELD, TYPE})
 public @interface Public {

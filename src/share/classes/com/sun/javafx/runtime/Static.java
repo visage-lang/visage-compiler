@@ -26,13 +26,13 @@ package com.sun.javafx.runtime;
 import java.lang.annotation.Documented;
 import static java.lang.annotation.ElementType.*;
 import java.lang.annotation.Retention;
-import static java.lang.annotation.RetentionPolicy.CLASS;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Target;
 
 /**
  * Static
  */
-@Retention(CLASS)
+@Retention(RUNTIME)
 @Documented
 @Target({METHOD, FIELD, TYPE})
 public @interface Static {
