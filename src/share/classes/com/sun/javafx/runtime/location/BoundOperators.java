@@ -109,7 +109,7 @@ public class BoundOperators extends GeneratedBoundOperators {
                 Sequence<T> aVal = a.getAsSequence();
                 Sequence<V> bVal = b.getAsSequence();
                 if (aVal == null)
-                    return bVal != null || !bVal.isEmpty();
+                    return bVal != null && !bVal.isEmpty();
                 else
                     return !aVal.equals(bVal);
             }
@@ -122,7 +122,7 @@ public class BoundOperators extends GeneratedBoundOperators {
                 Sequence<T> aVal = a.getAsSequence();
                 V bVal = b.get();
                 if (bVal == null)
-                    return aVal != null || !aVal.isEmpty();
+                    return aVal != null && !aVal.isEmpty();
                 else
                    return aVal.size()!=1 || !aVal.get(0).equals(bVal);
             }
@@ -135,7 +135,7 @@ public class BoundOperators extends GeneratedBoundOperators {
                 T aVal = a.get();
                 Sequence<V> bVal = b.getAsSequence();
                 if (aVal == null)
-                    return bVal != null || !bVal.isEmpty();
+                    return bVal != null && !bVal.isEmpty();
                 else
                     return bVal.size()!=1 || !bVal.get(0).equals(aVal);
             }
