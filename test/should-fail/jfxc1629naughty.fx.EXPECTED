@@ -1,0 +1,7 @@
+jfxc1629naughty.fx:17: Cannot assign to readable variable twub
+var uno = One { twub: 222 };  // should fail
+                ^
+jfxc1629naughty.fx:18: Cannot assign to readable variable twub
+uno.twub = 666; // should fail
+   ^
+2 errors

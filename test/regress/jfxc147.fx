@@ -30,13 +30,13 @@ public class Frame {
     attribute componentListener:ComponentListener = ComponentListener {
 
 	public function componentMoved(e:ComponentEvent): Void {
-		let location = jframe.getLocation();
+		def location = jframe.getLocation();
 		screenX = location.x;
 		screenY = location.y
    	}
 
     	public function componentResized(e:ComponentEvent): Void {
-		let d = jframe.getSize();
+		def d = jframe.getSize();
 		width = d.width;
 		height = d.height
 	}
@@ -57,5 +57,5 @@ public class Frame {
     }
 }
 
-let f = Frame {height: 500, width: 400, visible: true}
+def f = Frame {height: 500, width: 400, visible: true}
 

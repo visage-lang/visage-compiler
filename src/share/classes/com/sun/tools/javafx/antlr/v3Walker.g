@@ -78,7 +78,6 @@ moduleItems  returns [ListBuffer<JFXTree> items = new ListBuffer<JFXTree>()]
 	;
 moduleItem  returns [JFXTree value]
 	: importDecl 					{ $value = $importDecl.value; }
-	| classDefinition 				{ $value = $classDefinition.value; }
         | functionDefinition                            { $value = $functionDefinition.value; }
 	| statement      				{ $value = $statement.value; } 
 	| expression 					{ $value = $expression.expr; } 
@@ -119,6 +118,7 @@ classMember  returns [JFXTree member]
 	| variableDeclaration 				{ $member = $variableDeclaration.value; } 
 	| functionDefinition 				{ $member = $functionDefinition.value; } 
 	| overrideDeclaration 				{ $member = $overrideDeclaration.value; } 
+	| classDefinition 				{ $member = $classDefinition.value; } 
 	;
 functionDefinition  returns [JFXFunctionDefinition value]
 	: ^(FUNCTION name modifiers formalParameters type blockExpression? DOC_COMMENT?)
@@ -163,8 +163,8 @@ modifierFlag   returns [long flag, int pos]
 	|  PUBLIC          				{ $flag = Flags.PUBLIC;      $pos = pos($PUBLIC); }
 	|  PRIVATE         				{ $flag = Flags.PRIVATE;     $pos = pos($PRIVATE); }
 	|  PROTECTED       				{ $flag = Flags.PROTECTED;   $pos = pos($PROTECTED); } 
+	|  READABLE       				{ $flag = JavafxFlags.READABLE;   $pos = pos($READABLE); } 
 	|  ABSTRACT        				{ $flag = Flags.ABSTRACT;    $pos = pos($ABSTRACT); }
-	|  READONLY        				{ $flag = Flags.FINAL;       $pos = pos($READONLY); } 
 	|  STATIC        				{ $flag = Flags.STATIC;      $pos = pos($STATIC); } 
 	;
 formalParameters  returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]
@@ -207,10 +207,12 @@ blockExpression  returns [JFXBlockExpression expr]
 	;
 variableDeclaration    returns [JFXExpression value]
 	: ^(VAR variableLabel modifiers name type boundExpressionOpt onReplaceClause? DOC_COMMENT?)
-	    						{ $value = F.at($variableLabel.pos).Var($name.value, 
+	    						{ JFXModifiers mods = $modifiers.mods;
+	    						  mods.flags |= $variableLabel.modifiers;
+	    						  $value = F.at($variableLabel.pos).Var($name.value, 
 	    							$type.type, 
-	    							$modifiers.mods,
-	    							$variableLabel.local,
+	    							mods,
+	    							false,
 	    							$boundExpressionOpt.expr, 
 	    							$boundExpressionOpt.status, 
 	    							$onReplaceClause.value); 
@@ -228,13 +230,14 @@ paramNameOpt returns [JFXVar var]
 	: name						{ $var = F.at($name.pos).Param($name.value, F.TypeUnknown()); }
 	| MISSING_NAME					{ $var = null; }
 	;
-variableLabel    returns [boolean local, long modifiers, int pos]
-	: VAR						{ $local = true; $modifiers = 0L; $pos = pos($VAR); }
-	| LET						{ $local = true; $modifiers = Flags.FINAL; $pos = pos($LET); }
-	| ATTRIBUTE					{ $local = false; $modifiers = 0L; $pos = pos($ATTRIBUTE); }
+variableLabel    returns [long modifiers, int pos]
+	: VAR						{ $modifiers = 0L; $pos = pos($VAR); }
+	| DEF						{ $modifiers = JavafxFlags.IS_DEF; $pos = pos($DEF); }
+	| ATTRIBUTE					{ $modifiers = 0L; $pos = pos($ATTRIBUTE); }
 	;
 statement returns [JFXExpression value]
 	: variableDeclaration				{ $value = $variableDeclaration.value; }
+	| classDefinition 				{ $value = $classDefinition.value; }
 //	| functionDefinition 				{ $value = $functionDefinition.value; }
 	| BREAK    					{ $value = F.at(pos($BREAK)).Break(null); 
                                                           endPos($value, $BREAK); }

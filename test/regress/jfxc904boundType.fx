@@ -13,12 +13,12 @@ class A {}
 class B extends A { attribute b = "box" }
 class C extends B { attribute c = "see" }
 
-let x : A = new A;
-let isA = bind x instanceof A;
-let isB = bind x instanceof B;
-let isC = bind x instanceof C;
-let asB = bind if (x instanceof B) x as B else []; // also test []
-let asC = bind if (x instanceof C) x as C else null; // also test null
+var x : A = new A;
+def isA = bind x instanceof A;
+def isB = bind x instanceof B;
+def isC = bind x instanceof C;
+def asB = bind if (x instanceof B) x as B else []; // also test []
+def asC = bind if (x instanceof C) x as C else null; // also test null
 
 if (x instanceof A) {
    System.out.println("Yep, an A")
@@ -62,6 +62,6 @@ if (x instanceof C) {
 
 // test bound sequence construction
 //TODO pending the fix to JFXC-925
-//let fs = bind for (k in [1..5]) if (k < 3) [k, k] else [];
+//def fs = bind for (k in [1..5]) if (k < 3) [k, k] else [];
 //System.out.println(fs)
 

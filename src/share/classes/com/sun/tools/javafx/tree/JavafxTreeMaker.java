@@ -618,7 +618,8 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             for (JFXTree def : defs) {
                 if (def instanceof JFXObjectLiteralPart) {
                     partsBuffer.append((JFXObjectLiteralPart) def);
-                } else if (def instanceof JFXVar && ((JFXVar)def).isLocal()) {
+                } else if (def instanceof JFXVar /* && ((JFXVar)def).isLocal()*/) {
+                    // for now, at least, assume any var declaration inside an object literal is local
                     varsBuffer.append((JFXVar) def);
                 } else {
                     defsBuffer.append(def);

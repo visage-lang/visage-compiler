@@ -931,6 +931,9 @@ public class JavafxAttr implements JavafxVisitor {
             //        chk.validate(tree.vartype);
 
             Type initType;
+            if (tree.init == null && (tree.getModifiers().flags & JavafxFlags.IS_DEF) != 0) {
+                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_DEF_MUST_HAVE_INIT, v);
+            }
             if (tree.init != null) {
                 // Attribute initializer in a new environment.
                 // Check that initializer conforms to variable's declared type.
@@ -999,6 +1002,7 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitVar(JFXVar tree) {
         Symbol sym = tree.sym;
         sym.complete();
+        boolean isClassVar = env.info.scope.owner.kind == TYP;
 
         JFXOnReplace onReplace = tree.getOnReplace();
         if (onReplace != null) {
@@ -1012,7 +1016,7 @@ public class JavafxAttr implements JavafxVisitor {
                 newElements.type = tree.type;
 
 
-            if (env.info.scope.owner.kind == TYP) {
+            if (isClassVar) {
                     // var is a static;
                     // let the owner of the environment be a freshly
                     // created BLOCK-method.
@@ -1118,22 +1122,6 @@ public class JavafxAttr implements JavafxVisitor {
             finishOverrideAttribute(tree, env);
         }
     }
-
-    /*
-    public void visitAbstractOnChange(JFXAbstractOnChange tree) {
-	if (tree.getIndex() != null) {
-            tree.getIndex().mods.flags |= Flags.FINAL;
-            attribVar(tree.getIndex(), env);
-            tree.getIndex().sym.type = syms.intType;
-        }
-        JFXVar oldValue = tree.getOldValue();
-	if (oldValue != null) {
-            oldValue.mods.flags |= Flags.FINAL;
-            attribVar(oldValue, env);
-        }
-        attribDecl(tree.getBody(), env);
-    }
-    */
 
     @Override
     public void visitOnReplace(JFXOnReplace tree) {
@@ -1499,6 +1487,11 @@ public class JavafxAttr implements JavafxVisitor {
             attribExpr(part.getExpression(), localEnv, memberSym.type);
             part.type = memberSym.type;
             part.sym = memberSym;
+
+            if (memberSym instanceof VarSymbol) {
+                VarSymbol v = (VarSymbol)memberSym;
+                checkAssignable(part.pos(), v, part, localEnv);
+            }
         }
 
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
@@ -2217,17 +2210,32 @@ public class JavafxAttr implements JavafxVisitor {
                 return;
             }
         }
+        boolean isIncDec = tree.getFXTag().isIncDec();
+
         // Attribute arguments.
-        Type argtype = tree.getFXTag().isIncDec()
+        Type argtype = isIncDec
             ? attribTree(tree.arg, env, VAR, Type.noType)
             : chk.checkNonVoid(tree.arg.pos(), attribExpr(tree.arg, env));
+
+        if (isIncDec) {
+            Symbol argSym = JavafxTreeInfo.symbol(tree.arg);
+            if (argSym == null) {
+                log.error(tree, MsgSym.MESSAGE_JAVAFX_INVALID_ASSIGNMENT);
+                return;
+            }
+            if ((argSym.flags() & JavafxFlags.IS_DEF) != 0L) {
+                log.error(tree, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_DEF, argSym);
+                return;
+            }
+        }
+
         Symbol sym =  rs.resolveUnaryOperator(tree.pos(), tree.getFXTag(), env, argtype);
         Type owntype = syms.errType;
         if (sym instanceof OperatorSymbol) {
             // Find operator.
             Symbol operator = tree.operator = sym;
             if (operator.kind == MTH) {
-                owntype = tree.getFXTag().isIncDec()
+                owntype = isIncDec
                     ? tree.arg.type
                     : operator.type.getReturnType();
 
@@ -3178,6 +3186,7 @@ public class JavafxAttr implements JavafxVisitor {
      */
     void checkAssignable(DiagnosticPosition pos, VarSymbol v, JFXTree base, JavafxEnv<JavafxAttrContext> env) {
         //TODO: for attributes they are always final -- this should really be checked in JavafxClassReader
+        //TODO: rebutal, actual we should just use a different final
         if ((v.flags() & FINAL) != 0 && !types.isJFXClass(v.owner) &&
             ((v.flags() & HASINIT) != 0
              ||
@@ -3185,6 +3194,21 @@ public class JavafxAttr implements JavafxVisitor {
                (base.getFXTag() == JavafxTag.IDENT && JavafxTreeInfo.name(base) == names._this)) &&
                isAssignableAsBlankFinal(v, env)))) {
             log.error(pos, MsgSym.MESSAGE_CANNOT_ASSIGN_VAL_TO_FINAL_VAR, v);
+        } else if ((v.flags() & JavafxFlags.IS_DEF) != 0L) {
+            log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_DEF, v);
+        } else if ((v.flags() & JavafxFlags.READABLE) != 0L) {
+            JavafxEnv<JavafxAttrContext> env1 = env;
+            if (v.owner != null && v.owner != env1.enclClass.sym) {
+                // If the found symbol is inaccessible, then it is
+                // accessed through an enclosing instance.  Locate this
+                // enclosing instance:
+                while (env1.outer != null && !rs.isAccessible(env, env1.enclClass.sym.type, v)) {
+                    env1 = env1.outer;
+                }
+            }
+            if (!rs.isAccessibleForWrite(env, env1.enclClass.sym.type, v)) {
+                log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_READABLE, v);
+            }
         }
     }
 

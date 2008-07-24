@@ -37,6 +37,7 @@ import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Name.Table;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.tree.JavafxTag.*;
 import com.sun.tools.javafx.util.MsgSym;
@@ -88,7 +89,7 @@ public class JavafxModuleBuilder {
             checkForBadPositions(module);
         }
 
-        ListBuffer<JFXTree> moduleClassDefs = new ListBuffer<JFXTree>();
+        ListBuffer<JFXTree> scriptClassDefs = new ListBuffer<JFXTree>();
         ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>();
 
         // check for references to pseudo variables and if found, declare them
@@ -115,7 +116,7 @@ public class JavafxModuleBuilder {
             }
         }.scan(module.defs);
         //debugPositions(module);
-        addPseudoVariables(diagPos[0], moduleClassName, module, moduleClassDefs, usesFile[0], usesDir[0]);
+        addPseudoVariables(diagPos[0], moduleClassName, module, scriptClassDefs, usesFile[0], usesDir[0]);
 
         // Divide module defs between run method body, Java compilation unit, and module class
         ListBuffer<JFXTree> topLevelDefs = new ListBuffer<JFXTree>();
@@ -138,7 +139,7 @@ public class JavafxModuleBuilder {
                     moduleClass = decl;
                 } else {
                     decl.mods.flags |= STATIC;
-                    moduleClassDefs.append(tree);
+                    scriptClassDefs.append(tree);
                 }
                 break;
             }
@@ -148,14 +149,23 @@ public class JavafxModuleBuilder {
                 decl.mods.flags |= STATIC;
                 Name name = decl.name;
                 checkName(tree.pos, name);
-                moduleClassDefs.append(tree);
+                scriptClassDefs.append(tree);
                 //stats.append(decl);
                 break;
             }
             case VAR_DEF: { //TODO: deal with var value
                 JFXVar decl = (JFXVar) tree;
                 checkName(tree.pos, decl.getName());
-                stats.append(decl);
+                if ((decl.getModifiers().flags & (Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.READABLE)) != 0L) {
+                    // externally visible, so needs to be a static on the script class
+                    // we can't handle this in the lazy conversion since attribution will barf on a var with these flags
+                    // note that protected is an error, but we will let attribution handle that
+                    decl.mods.flags |= STATIC;
+                    scriptClassDefs.append(tree);
+                } else {
+                    // otherwise lazily see is it can be local to the run method
+                    stats.append(decl);
+                }
                 break;
             }
             default:
@@ -166,16 +176,16 @@ public class JavafxModuleBuilder {
                 
         // Add run() method... If the class can be a module class.
         JFXFunctionDefinition runMethod = makeRunFunction(defs.runMethodName, stats.toList(), value, syms.objectType);
-        moduleClassDefs.prepend(runMethod);        
+        scriptClassDefs.prepend(runMethod);
 
         if (moduleClass == null) {
             moduleClass =  fxmake.ClassDeclaration(
                 fxmake.Modifiers(PUBLIC),   //public access needed for applet initialization 
                 moduleClassName, 
                 List.<JFXExpression>nil(),             // no supertypes
-                moduleClassDefs.toList());
+                scriptClassDefs.toList());
         } else {
-            moduleClass.setMembers(moduleClassDefs.appendList(moduleClass.getMembers()).toList());
+            moduleClass.setMembers(scriptClassDefs.appendList(moduleClass.getMembers()).toList());
         }
         moduleClass.isModuleClass = true;
         moduleClass.runMethod = runMethod;

@@ -7,10 +7,10 @@ import java.lang.System;
 
 var enableBindingOverhaul;
 
-let fs = for (k in [1..5]) if (k < 3) [k, k] else [];
+def fs = for (k in [1..5]) if (k < 3) [k, k] else [];
 System.out.println("fx: {for (f in fs) " {f}"}.");
 
-let fsb = bind for (k in [1..5]) if (k < 3) [k, k] else []; 
+def fsb = bind for (k in [1..5]) if (k < 3) [k, k] else []; 
 
 class Foo {};
 var v : Foo = bind null;

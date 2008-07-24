@@ -127,14 +127,12 @@ System.out.println("------- C-Anon\{\}");
 var xd = C {
    override attribute ci = 'ovCAnon-ci'
        on replace { System.out.println('trig: override CAnon ci {ci}') }
-   attribute di = 'Anoni';
-   static attribute ds = 'Anons';
    function dfi() : String { 'Anonfi' }
    static function dfs() : String { 'Anonfs' }
    function cshow() : Void {
 	show();
-	System.out.println( di );
-	System.out.println( ds );
+	System.out.println( 'Anoni' ); // can be removed
+	System.out.println( 'Anons' ); // can be removed
 	System.out.println( dfi() );
 	System.out.println( dfs() );
    }

@@ -947,11 +947,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 newClassArgs = newClassArgs.append(m().Literal(TypeTags.BOOLEAN, 1));
             }
             if (tree.getClassBody() != null &&
-                    tree.getClassBody().sym != null && toJava.hasOuters.contains(tree.getClassBody().sym)) {
+                    tree.getClassBody().sym != null && toJava.hasOuters.contains(tree.getClassBody().sym) ||
+                 sym != null && toJava.hasOuters.contains(sym)) {
                 JCIdent thisIdent = m().Ident(defs.receiverName);
-                thisIdent.sym = tree.getClassBody().sym.owner; //TODO: these are assumed cruft - remove
-                thisIdent.type = tree.getClassBody().sym.owner.type;
-
                 newClassArgs = newClassArgs.prepend(thisIdent);
             }
 

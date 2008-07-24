@@ -7,7 +7,7 @@
 import java.lang.System; 
 
     public class Bar { 
-        readonly attribute a = 3; 
+        readable attribute a = 3;
         private attribute b = bind a * 10; 
         function f1(x, y, z) { x - y } 
         public function f2(a, b, c) { a + b != 6; } 

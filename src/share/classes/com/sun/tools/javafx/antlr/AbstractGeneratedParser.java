@@ -388,7 +388,7 @@ public abstract class AbstractGeneratedParser extends Parser {
         tokenClassMap[v3Parser.IMPORT]              = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.INIT]                = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.INSERT]              = TokenClassification.KEYWORD;
-        tokenClassMap[v3Parser.LET]                 = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.DEF]                 = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.NEW]                 = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.NOT]                 = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.NULL]                = TokenClassification.KEYWORD;
@@ -398,7 +398,7 @@ public abstract class AbstractGeneratedParser extends Parser {
         tokenClassMap[v3Parser.PRIVATE]             = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.PROTECTED]           = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.PUBLIC]              = TokenClassification.KEYWORD;
-        tokenClassMap[v3Parser.READONLY]            = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.READABLE]          = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.RETURN]              = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.SUPER]               = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.SIZEOF]              = TokenClassification.KEYWORD;

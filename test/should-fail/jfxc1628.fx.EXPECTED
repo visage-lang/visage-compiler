@@ -1,0 +1,16 @@
+jfxc1628.fx:8: cannot find symbol
+symbol  : variable nono
+location: class jfxc1628b
+var x = jfxc1628b {nono: 7};
+                   ^
+jfxc1628.fx:9: cannot find symbol
+symbol  : variable nono
+location: class jfxc1628b
+x.nono = 4;
+ ^
+jfxc1628.fx:10: cannot find symbol
+symbol  : variable sonono
+location: class jfxc1628
+jfxc1628.sonono = 5;
+        ^
+3 errors

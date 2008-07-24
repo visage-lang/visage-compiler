@@ -198,7 +198,23 @@ public class JavafxResolve {
      */
     public boolean isAccessible(JavafxEnv<JavafxAttrContext> env, Type site, Symbol sym) {
         if (sym.name == names.init && sym.owner != site.tsym) return false;
-        ClassSymbol sub;
+        if ((sym.flags() & JavafxFlags.READABLE) != 0) {
+            // assignment access handled elsewhere -- treat like
+            return isAccessible(env, site);
+        }
+
+        // if the READABLE flag isn't set, then access for read is the same as for write
+        return isAccessibleForWrite(env, site, sym);
+    }
+
+    /** Is symbol accessible for write as a member of given type in given evironment?
+     *  @param env    The current environment.
+     *  @param site   The type of which the tested symbol is regarded
+     *                as a member.
+     *  @param sym    The symbol.
+     */
+    public boolean isAccessibleForWrite(JavafxEnv<JavafxAttrContext> env, Type site, Symbol sym) {
+        if (sym.name == names.init && sym.owner != site.tsym) return false;
         switch ((short)(sym.flags() & AccessFlags)) {
         case PRIVATE:
             return

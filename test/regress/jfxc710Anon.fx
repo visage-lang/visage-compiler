@@ -31,13 +31,11 @@ abstract class C extends B {
 }
 
 var x = C {
-   attribute di = 1;
-   static attribute ds = 2;
    function dfi() : Integer { 3 }
    static function dfs() : Integer { 4 }
    function show() : Void {
-	System.out.println( di );
-	System.out.println( ds );
+	System.out.println( 1 ); // can be removed
+	System.out.println( 2 ); // can be removed
 	System.out.println( dfi() );
 	System.out.println( dfs() );
    }

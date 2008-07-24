@@ -4,7 +4,7 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -45,6 +45,7 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javac.util.Context;
 
 import com.sun.tools.javac.util.Position;
+import com.sun.tools.javafx.code.JavafxFlags;
 import java.io.OutputStreamWriter;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
@@ -52,7 +53,7 @@ import static com.sun.tools.javac.code.Flags.*;
 
 /**
  * Common support routines needed for translation
- * 
+ *
  * @author Robert Field
  */
 public abstract class JavafxTranslationSupport {
@@ -65,9 +66,9 @@ public abstract class JavafxTranslationSupport {
     protected final JavafxSymtab syms;
     protected final JavafxTypes types;
     protected final JavafxTypeMorpher typeMorpher;
-    
+
     protected static final String sequencesEmptyString = "com.sun.javafx.runtime.sequence.Sequences.emptySequence";
-    
+
     /*
      * other instance information
      */
@@ -88,7 +89,7 @@ public abstract class JavafxTranslationSupport {
         typeMorpher = JavafxTypeMorpher.instance(context);
         rs = JavafxResolve.instance(context);
         defs = JavafxDefs.instance(context);
-        
+
         syntheticNameCounter = 0;
     }
 
@@ -111,7 +112,7 @@ public abstract class JavafxTranslationSupport {
             elemType = ((WildcardType) elemType).type;
         return elemType;
     }
-    
+
     /**
      * Return the generated interface name corresponding to the class
      * */
@@ -129,7 +130,7 @@ public abstract class JavafxTranslationSupport {
         }
         return makeIdentifier(diagPos, str);
     }
-    
+
     protected JCExpression makeIdentifier(DiagnosticPosition diagPos, String str) {
         assert str.indexOf('<') < 0 : "attempt to parse a type with 'Identifier'.  Use TypeTree";
         JCExpression tree = null;
@@ -145,14 +146,14 @@ public abstract class JavafxTranslationSupport {
             }
             String part = str.substring(lastInx, endInx);
             Name partName = Name.fromString(names, part);
-            tree = tree == null? 
-                make.at(diagPos).Ident(partName) : 
+            tree = tree == null?
+                make.at(diagPos).Ident(partName) :
                 make.at(diagPos).Select(tree, partName);
             lastInx = endInx + 1;
         } while (inx >= 0);
         return tree;
     }
-    
+
     /**
      *
      * @param diagPos
@@ -184,14 +185,14 @@ public abstract class JavafxTranslationSupport {
             }
             String part = str.substring(lastInx, endInx);
             Name partName = Name.fromString(names, part);
-            tree = tree == null? 
-                make.at(diagPos).Ident(partName) : 
+            tree = tree == null?
+                make.at(diagPos).Ident(partName) :
                 make.at(diagPos).Select(tree, partName);
             lastInx = endInx + 1;
         } while (inx >= 0);
         return tree;
     }
-    
+
     /**
      * Build a Java AST representing the specified type.
      * Convert JavaFX class references to interface references.
@@ -199,7 +200,7 @@ public abstract class JavafxTranslationSupport {
     protected JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t) {
         return makeTypeTree(diagPos, t, true);
     }
-    
+
     /**
      * Build a Java AST representing the specified type.
      * If "makeIntf" is set, convert JavaFX class references to interface references.
@@ -221,7 +222,7 @@ public abstract class JavafxTranslationSupport {
         switch (t.tag) {
             case TypeTags.CLASS: {
                 JCExpression texp = null;
-                
+
                 if (makeIntf && types.isCompoundClass(t.tsym)) {
                     texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString() + interfaceSuffix);
                 } else {
@@ -284,24 +285,24 @@ public abstract class JavafxTranslationSupport {
             return make.at(diagPos).TypeCast(clazz, translatedExpr);
         }
     }
- 
+
    /**
-    * Make a receiver parameter. 
+    * Make a receiver parameter.
     * Its type is that of the corresponding interface and it is a final parameter.
     * */
     JCVariableDecl makeReceiverParam(JFXClassDeclaration cDecl) {
         return make.VarDef(
-                make.Modifiers(Flags.FINAL | Flags.PARAMETER), 
-                defs.receiverName, 
-                make.Ident(interfaceName(cDecl)), 
+                make.Modifiers(Flags.FINAL | Flags.PARAMETER),
+                defs.receiverName,
+                make.Ident(interfaceName(cDecl)),
                 null);
     }
-    
+
     JCExpression makeDefaultValue(DiagnosticPosition diagPos, TypeMorphInfo tmi) {
-        return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ? 
-                makeEmptySequenceCreator(diagPos, tmi.getElementType()) : 
-            tmi.getRealType() == syms.javafx_StringType ? 
-                make.Literal("") : 
+        return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ?
+                makeEmptySequenceCreator(diagPos, tmi.getElementType()) :
+            tmi.getRealType() == syms.javafx_StringType ?
+                make.Literal("") :
             tmi.getRealType() == syms.javafx_DurationType ?
                 makeTimeDefaultValue(diagPos) :
                 makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
@@ -321,18 +322,18 @@ public abstract class JavafxTranslationSupport {
         return make.at(diagPos).Literal(tag, value).setType(type.constType(value));
     }
 
-    JCExpression makeLocationLocalVariable(TypeMorphInfo tmi, 
+    JCExpression makeLocationLocalVariable(TypeMorphInfo tmi,
                                   DiagnosticPosition diagPos,
                                   List<JCExpression> makeArgs) {
         return makeLocationVariable(tmi, diagPos, makeArgs, defs.makeMethodName);
     }
 
-    JCExpression makeLocationAttributeVariable(TypeMorphInfo tmi, 
+    JCExpression makeLocationAttributeVariable(TypeMorphInfo tmi,
                                   DiagnosticPosition diagPos) {
         return makeLocationVariable(tmi, diagPos, List.<JCExpression>nil(), defs.makeMethodName);
     }
 
-    JCExpression makeLocationVariable(TypeMorphInfo tmi, 
+    JCExpression makeLocationVariable(TypeMorphInfo tmi,
                                   DiagnosticPosition diagPos,
                                   List<JCExpression> makeArgs,
                                   Name makeMethod) {
@@ -457,8 +458,8 @@ public abstract class JavafxTranslationSupport {
         }
         return functionName(sym, sym.name.toString(), markAsImpl, isBound);
     }
-    
-    
+
+
     Name attributeFieldName(Symbol sym) {
         return names.fromString(attributeNameString(sym, ""));
     }
@@ -526,7 +527,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     protected abstract String getSyntheticPrefix();
-    
+
     Name getSyntheticName(String kind) {
         return Name.fromString(names, getSyntheticPrefix() + syntheticNameCounter++ + kind);
     }
@@ -574,17 +575,25 @@ public abstract class JavafxTranslationSupport {
         JCModifiers ret = mods;
         ListBuffer<JCAnnotation> annotations = ListBuffer.lb();
         if ((flags & Flags.PUBLIC) != 0) {
-            annotations.append(make.Annotation(makeIdentifier(diagPos, syms.publicAnnotationStr), List.<JCExpression>nil()));
+            annotations.append(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.publicAnnotationClassName), List.<JCExpression>nil()));
         }
         else if ((flags & Flags.PRIVATE) != 0) {
-            annotations.append(make.Annotation(makeIdentifier(diagPos, syms.privateAnnotationStr), List.<JCExpression>nil()));
+            annotations.append(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.privateAnnotationClassName), List.<JCExpression>nil()));
         }
-        else if ((flags & Flags.PROTECTED) != 0) {        
-            annotations.append(make.Annotation(makeIdentifier(diagPos, syms.protectedAnnotationStr), List.<JCExpression>nil()));
-        }                
+        else if ((flags & Flags.PROTECTED) != 0) {
+            annotations.append(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.protectedAnnotationClassName), List.<JCExpression>nil()));
+        }
+
+        if ((flags & JavafxFlags.READABLE) != 0) {
+            annotations.append(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.readableAnnotationClassName), List.<JCExpression>nil()));
+        }
+
+        if ((flags & JavafxFlags.IS_DEF) != 0) {
+            annotations.append(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.defAnnotationClassName), List.<JCExpression>nil()));
+        }
 
         if ((flags & Flags.STATIC) != 0) {
-            annotations.append(make.Annotation(makeIdentifier(diagPos, syms.staticAnnotationStr), List.<JCExpression>nil()));
+            annotations.append(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.staticAnnotationClassName), List.<JCExpression>nil()));
         }
 
         if (annotations.nonEmpty()) {
@@ -592,9 +601,9 @@ public abstract class JavafxTranslationSupport {
         }
         return ret;
     }
-    
+
     protected JCModifiers addInheritedAnnotationModifiers(DiagnosticPosition diagPos, long flags, JCModifiers mods) {
-        return make.Modifiers(mods.flags, List.of(make.Annotation(makeIdentifier(diagPos, syms.inheritedAnnotationStr), List.<JCExpression>nil())));
+        return make.Modifiers(mods.flags, List.of(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.inheritedAnnotationClassName), List.<JCExpression>nil())));
     }
 
     protected void pretty(JCTree tree) {

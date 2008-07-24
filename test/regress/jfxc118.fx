@@ -19,8 +19,7 @@ var x = X {
     var q = 100
     a: q
     b: q + 10
-    attribute c = q * q;
-    public function givemec() : Integer { c }
+    public function givemec() : Integer { q * q }
     public function f(x : Number) { x * q }
     public function increment() : Void { ++q };
 }

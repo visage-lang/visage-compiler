@@ -495,6 +495,12 @@ public class JavafxClassReader extends ClassReader {
                     if (a.type.tsym.flatName() == javafxSyms.javafx_staticAnnotationType.tsym.flatName()) {
                         flags |=  Flags.STATIC;
                     }
+                    if (a.type.tsym.flatName() == javafxSyms.javafx_defAnnotationType.tsym.flatName()) {
+                        flags |=  JavafxFlags.IS_DEF;
+                    }
+                    if (a.type.tsym.flatName() == javafxSyms.javafx_readableAnnotationType.tsym.flatName()) {
+                        flags |=  JavafxFlags.READABLE;
+                    }
                     if (a.type.tsym.flatName() == javafxSyms.javafx_privateAnnotationType.tsym.flatName()) {
                         flags &= ~(Flags.PROTECTED | Flags.PUBLIC);
                         flags |=  Flags.PRIVATE;

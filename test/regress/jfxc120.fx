@@ -13,8 +13,7 @@ public abstract class X {
 
 
 var xx = X {
-   attribute whistle = 77;
-   function blah() { whistle * 2 }
+   function blah() { 77 * 2 }
 };
 
 System.out.println("blah: {xx.blah()}");

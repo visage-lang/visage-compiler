@@ -18,9 +18,9 @@ class C {
   attribute z =7;
 }
 
-let a = new A;
-let b = new B;
-let c = new C;
+def a = new A;
+def b = new B;
+def c = new C;
 
 System.out.println(if (a instanceof A) then "a instanceof A" else "FAIL: a instanceof A");
 System.out.println(if (b instanceof A) then "b instanceof A" else "FAIL: b instanceof A");

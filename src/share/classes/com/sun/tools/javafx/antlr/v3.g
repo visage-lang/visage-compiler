@@ -41,6 +41,7 @@ tokens {
    BREAK='break';
    CLASS='class';
    CONTINUE='continue';
+   DEF='def';
    DELETE='delete';
    FALSE='false';
    FOR='for';
@@ -50,7 +51,6 @@ tokens {
    INDEXOF='indexof';
    INIT='init';
    INSERT='insert';
-   LET='let';
    NEW='new';
    NOT='not';
    NULL='null';
@@ -60,7 +60,7 @@ tokens {
    PRIVATE='private';
    PROTECTED='protected';
    PUBLIC='public';
-   READONLY='readonly';
+   READABLE='readable';
    RETURN='return';
    REVERSE='reverse';
    SUPER='super';
@@ -534,11 +534,11 @@ functionDefinition
 attributeDeclaration   
 @after { Tree docComment = getDocComment($attributeDeclaration.start);
          $attributeDeclaration.tree.addChild(docComment); }
-	: varModifierFlags ATTRIBUTE  name  typeReference (EQ boundExpression)? onReplaceClause?
-	    					-> ^(VAR ATTRIBUTE varModifierFlags name typeReference boundExpression? onReplaceClause?)
+	: varModifierFlags attributeLabel  name  typeReference (EQ boundExpression)? onReplaceClause?
+	    					-> ^(VAR attributeLabel varModifierFlags name typeReference boundExpression? onReplaceClause?)
 	;
 overrideDeclaration
-	: OVERRIDE ATTRIBUTE  name (EQ boundExpression)? onReplaceClause?
+	: OVERRIDE attributeLabel  name (EQ boundExpression)? onReplaceClause?
 	    					-> ^(OVERRIDE name boundExpression? onReplaceClause?)
 ;
 initDefinition
@@ -574,14 +574,14 @@ classModifierFlags
 accessModifier 
 	:  PUBLIC          			
 	|  PRIVATE         			
-	|  PROTECTED       			
+	|  PROTECTED       	
 	;
 functionModifier 
 	:  ABSTRACT        			
 	|  STATIC        			
 	;
 varModifier 
-	:  READONLY        			
+	:  READABLE        			
 	|  STATIC        			
 	;
 classModifier 
@@ -662,7 +662,12 @@ paramNameOpt
         ;
 variableLabel 
 	: VAR	
-	| LET	
+	| DEF	
+	;
+attributeLabel 
+	: VAR	
+	| DEF	
+	| ATTRIBUTE
 	;
 throwStatement
 	: THROW expression 			-> ^(THROW expression)
@@ -863,7 +868,6 @@ newExpression
 objectLiteralPart  
 	: name COLON  boundExpression (COMMA | SEMI)?		-> ^(OBJECT_LIT_PART[$COLON] name boundExpression)
        	| variableDeclaration	(COMMA | SEMI)?			-> variableDeclaration
-       	| attributeDeclaration	(COMMA | SEMI)?			-> attributeDeclaration
 	| overrideDeclaration	(COMMA | SEMI)?			-> overrideDeclaration
        	| functionDefinition 	(COMMA | SEMI)?			-> functionDefinition
        	;

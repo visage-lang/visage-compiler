@@ -2,7 +2,7 @@ import java.lang.System;
 import java.lang.Exception;
 
 /*
- * abstract class, function, bind used with readonly
+ * abstract class, function, bind used with readable
  * @test
  * @compilefirst ../TestUtils.fx
  * @run
@@ -16,8 +16,8 @@ abstract class foo {
 
 public class foo2 extends foo {
 	private attribute data:Integer = 10;
-	public readonly attribute roI = bind data;
-	public readonly attribute roS = "readonly";
+	public readable attribute roI = bind data;
+	public readable attribute roS = "readable";
 
 	bound function RequiredAbstractFunction():Integer { return data; }
 	function setData( newd : Integer) { data = newd;}
@@ -26,10 +26,10 @@ public class foo2 extends foo {
  }
 var v = 10;
 var f2 = new foo2;
-TU.checkI(f2.roi(),10,"check bound readonly attribute");
+TU.checkI(f2.roi(),10,"check bound readable attribute");
 
 //fb2 is bound to foo2.data + v
-let fb2 = bind f2.RequiredAbstractFunction() + v;
+def fb2 = bind f2.RequiredAbstractFunction() + v;
 TU.checkI(fb2, 20,"var bound to function in expression");
 f2.roi();
 
@@ -46,7 +46,7 @@ function checkfoo( i:Integer, i2:Integer):Integer {
 for(i in [10,20]) {
 	v = i;
 	f2.setData(i);
-	TU.checkI(f2.roi(),i,"check bound readonly attribute");
+	TU.checkI(f2.roi(),i,"check bound readable attribute");
 	try {
 		checkfoo(fb2,i+v); //i+v since setData uses i and fb2 is bound to v :)
 	} catch(e:Exception) {
@@ -65,26 +65,27 @@ try {
 	TU.checkB(be instanceof com.sun.javafx.runtime.BindingException,
 		"check BindingExecption2: " + be);
 }
-if( f2.ros().compareTo("readonly")!=0){
-	throw new Exception("failed on check of initial value of readonly string"); 
+if( f2.ros().compareTo("readable")!=0){
+	throw new Exception("failed on check of initial value of readable string");
 }
 f2.roS = "Hello, World!";
-TU.checkS(f2.ros(),"Hello, World!","check value of readonly string after reasssignment!");
+TU.checkS(f2.ros(),"Hello, World!","check value of readable string after reasssignment!");
 
 /*
- * JFXC-36 Cannot assign to a readonly attribute from within same class
- * readonly keyword semanctics not implemented.
+ * JFXC-36 Cannot assign to a readable attribute from within same class
+ * readable keyword semanctics not implemented.
  */
 class ro {
-	readonly attribute ROA = 10;
+//readable is now enforced, commented out until it is handled some other way
+	/*readable*/ attribute ROA = 10;
 	function roa():Integer { return ROA; }
 }
 var r = new ro;
 if(r.roa()!=10){ 
 	throw new Exception("initial value of ROA is incorrect!");
 }
-r.ROA=100;  //<--should not be allowed???
+r.ROA=100;  //<--should not be allowed??? -- and now it isn't, this is why readable is commented out
 TU.checkI(r.roa(),100,
-	"Why can this readonly variable be set? If you're reading this, it has been fixed!");
+	"Why can this readable variable be set? If you're reading this, it has been fixed!");
 
 TU.report();

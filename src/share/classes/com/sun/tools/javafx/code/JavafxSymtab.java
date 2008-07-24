@@ -4,7 +4,7 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -40,7 +40,16 @@ import com.sun.tools.javafx.comp.JavafxDefs;
  * @author Robert Field
  */
 public class JavafxSymtab extends Symtab {
-    
+
+
+    public static final String privateAnnotationClassName = "com.sun.javafx.runtime.Private";
+    public static final String protectedAnnotationClassName = "com.sun.javafx.runtime.Protected";
+    public static final String publicAnnotationClassName = "com.sun.javafx.runtime.Public";
+    public static final String readableAnnotationClassName = "com.sun.javafx.runtime.Readable";
+    public static final String defAnnotationClassName = "com.sun.javafx.runtime.Def";
+    public static final String staticAnnotationClassName = "com.sun.javafx.runtime.Static";
+    public static final String inheritedAnnotationClassName = "com.sun.javafx.runtime.Inherited";
+    public static final String sourceNameAnnotationClassName = "com.sun.javafx.runtime.SourceName";
 
     // Javafx types
     public final Type javafx_IntegerType;
@@ -62,29 +71,24 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_KeyFrameType;
     public final Type javafx_PointerType;
     public final Type javafx_LocationType;
-    
+
     public final Type javafx_privateAnnotationType;
     public final Type javafx_protectedAnnotationType;
     public final Type javafx_publicAnnotationType;
+    public final Type javafx_readableAnnotationType;
+    public final Type javafx_defAnnotationType;
     public final Type javafx_staticAnnotationType;
     public final Type javafx_inheritedAnnotationType;
     public final Type javafx_sourceNameAnnotationType;
-    
+
     public final Name numberTypeName;
     public final Name integerTypeName;
     public final Name booleanTypeName;
     public final Name stringTypeName;
     public final Name voidTypeName;
 
-    public static final String privateAnnotationStr = "com.sun.javafx.runtime.Private";
-    public static final String protectedAnnotationStr = "com.sun.javafx.runtime.Protected";
-    public static final String publicAnnotationStr = "com.sun.javafx.runtime.Public";
-    public static final String staticAnnotationStr = "com.sun.javafx.runtime.Static";
-    public static final String inheritedAnnotationStr = "com.sun.javafx.runtime.Inherited";
-    public static final String sourceNameAnnotationStr = "com.sun.javafx.runtime.SourceName";
-
     public final Name runMethodName;
-    
+
     /** The type of expressions that never returns a value to its parent.
      * E.g. an expression that always throws an Exception.
      * Likewise, a "return expression" returns from the outer function,
@@ -104,7 +108,7 @@ public class JavafxSymtab extends Symtab {
             }
         });
     }
-    
+
     /** Creates a new instance of JavafxSymtab */
     JavafxSymtab(Context context) {
         super(context);
@@ -112,7 +116,7 @@ public class JavafxSymtab extends Symtab {
         // FIXME It would be better to make 'names' in super-class be protected.
         Name.Table names = Name.Table.instance(context);
         types = Types.instance(context);
-        
+
         javafx_IntegerType = intType;
         javafx_NumberType = doubleType;
         javafx_AnyType = objectType;
@@ -131,16 +135,18 @@ public class JavafxSymtab extends Symtab {
         javafx_KeyFrameType = enterClass("javafx.animation.KeyFrame");
         javafx_PointerType = enterClass("com.sun.javafx.runtime.Pointer");
         javafx_LocationType = enterClass("com.sun.javafx.runtime.location.Location");
-        javafx_privateAnnotationType = enterClass(privateAnnotationStr);
-        javafx_protectedAnnotationType = enterClass(protectedAnnotationStr);
-        javafx_publicAnnotationType = enterClass(publicAnnotationStr);
-        javafx_staticAnnotationType = enterClass(staticAnnotationStr);
-        javafx_inheritedAnnotationType = enterClass(inheritedAnnotationStr);
-        javafx_sourceNameAnnotationType = enterClass(sourceNameAnnotationStr);
+        javafx_privateAnnotationType = enterClass(privateAnnotationClassName);
+        javafx_protectedAnnotationType = enterClass(protectedAnnotationClassName);
+        javafx_publicAnnotationType = enterClass(publicAnnotationClassName);
+        javafx_readableAnnotationType = enterClass(readableAnnotationClassName);
+        javafx_defAnnotationType = enterClass(defAnnotationClassName);
+        javafx_staticAnnotationType = enterClass(staticAnnotationClassName);
+        javafx_inheritedAnnotationType = enterClass(inheritedAnnotationClassName);
+        javafx_sourceNameAnnotationType = enterClass(sourceNameAnnotationClassName);
         for (int i = MAX_FIXED_PARAM_LENGTH; i >= 0;  i--) {
             javafx_FunctionTypes[i] = enterClass(functionClassPrefix+i);
         }
-        
+
         numberTypeName  = names.fromString("Number");
         integerTypeName = names.fromString("Integer");
         booleanTypeName = names.fromString("Boolean");
@@ -148,14 +154,14 @@ public class JavafxSymtab extends Symtab {
         voidTypeName = names.fromString("Void");
 
         runMethodName = names.fromString(JavafxDefs.runMethodString);
-        
+
         javafx_FXObjectType = enterClass("com.sun.javafx.runtime.FXObject");
         enterOperators();
     }
-    
+
     public void enterOperators() {
         super.enterOperators();
-        
+
         enterBinop("<>", objectType, objectType, booleanType, if_acmpne);
         enterBinop("<>", booleanType, booleanType, booleanType, if_icmpne);
         enterBinop("<>", doubleType, doubleType, booleanType, dcmpl, ifne);
@@ -165,10 +171,10 @@ public class JavafxSymtab extends Symtab {
 
         enterBinop("and", booleanType, booleanType, booleanType, bool_and);
         enterBinop("or", booleanType, booleanType, booleanType, bool_or);
-        
+
         // Enter JavaFX operators.
         enterUnop("sizeof", javafx_SequenceType, javafx_IntegerType, 0);
-        
+
         enterUnop("lazy", doubleType, doubleType, 0);
         enterUnop("lazy", intType, intType, 0);
         enterUnop("lazy", booleanType, booleanType, 0);
@@ -190,7 +196,7 @@ public class JavafxSymtab extends Symtab {
         else
             return elemType;
     }
-    
+
     public FunctionType makeFunctionType(List<Type> typarams) {
         ListBuffer<Type> argtypes = new ListBuffer<Type>();
         Type restype = null;
