@@ -127,14 +127,6 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
         return scan(node.getQualifiedIdentifier(), p);
     }
 
-    public R visitClass(ClassTree node, P p) {
-        R r = scan(node.getModifiers(), p);
-        r = scanAndReduce(node.getExtendsClause(), p, r);
-        r = scanAndReduce(node.getImplementsClause(), p, r);
-        r = scanAndReduce(node.getMembers(), p, r);
-        return r;
-    }
-
     public R visitEmptyStatement(EmptyStatementTree node, P p) {
         return null;
     }

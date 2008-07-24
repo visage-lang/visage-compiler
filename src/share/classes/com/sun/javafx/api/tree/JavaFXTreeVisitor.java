@@ -54,7 +54,6 @@ public interface JavaFXTreeVisitor<R,P> {
     R visitBinary(BinaryTree node, P p);
     R visitBreak(BreakTree node, P p);
     R visitCatch(CatchTree node, P p);
-    R visitClass(ClassTree node, P p);
     R visitConditionalExpression(ConditionalExpressionTree node, P p);
     R visitContinue(ContinueTree node, P p);
     R visitErroneous(ErroneousTree node, P p);

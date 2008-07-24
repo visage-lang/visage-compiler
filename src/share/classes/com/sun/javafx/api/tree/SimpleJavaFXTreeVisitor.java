@@ -64,10 +64,6 @@ public class SimpleJavaFXTreeVisitor <R,P> implements JavaFXTreeVisitor<R,P> {
         return defaultAction(node, p);
     }
 
-    public R visitClass(ClassTree node, P p) {
-        return defaultAction(node, p);
-    }
-
     public R visitVariable(VariableTree node, P p) {
         return defaultAction(node, p);
     }
