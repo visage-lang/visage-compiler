@@ -34,6 +34,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
@@ -774,13 +775,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 DiagnosticPosition diagPos = ai.pos();
                 JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.FINAL | (ai.getFlags() & Flags.STATIC));
                 Symbol sym = ai.getSymbol();
-                if (sym.owner == csym)
-                    mods = addAccessAnnotationModifiers(diagPos, sym.flags(), mods);
+                Name fieldName = attributeFieldName(ai.getSymbol());
+                if (sym.owner == csym) {
+                    List<JCAnnotation> annotations;
+                    if (fieldName != sym.name) {
+                        annotations = List.<JCAnnotation>of(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.sourceNameAnnotationClassName), List.<JCExpression>of(make.Literal(sym.name.toString()))));
+                    }
+                    else
+                        annotations = List.<JCAnnotation>nil();
+                    mods = addAccessAnnotationModifiers(diagPos, sym.flags(), mods, annotations);
+                }
                 else
                     mods = addInheritedAnnotationModifiers(diagPos, sym.flags(), mods);
                 JCVariableDecl var = make.at(diagPos).VarDef(
                         mods,
-                        attributeFieldName(ai.getSymbol()),
+                        fieldName,
                         makeTypeTree( diagPos,ai.getVariableType()),
                         makeLocationAttributeVariable(ai.getVMI(), diagPos));
                 fields.append(var);

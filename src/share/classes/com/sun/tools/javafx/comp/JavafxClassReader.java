@@ -490,6 +490,7 @@ public class JavafxClassReader extends ClassReader {
                 if ((flags & PRIVATE) != 0)
                     continue;
                 boolean accessExplicit = false;
+                boolean sawSourceNameAnnotation = false;
                 for (Attribute.Compound a : l.head.getAnnotationMirrors()) {
                     JavafxSymtab javafxSyms = (JavafxSymtab) this.syms;
                     if (a.type.tsym.flatName() == javafxSyms.javafx_staticAnnotationType.tsym.flatName()) {
@@ -519,18 +520,27 @@ public class JavafxClassReader extends ClassReader {
                     else if (a.type.tsym.flatName() == javafxSyms.javafx_inheritedAnnotationType.tsym.flatName()) {
                         continue handleSyms;
                     }
+                    else if (a.type.tsym.flatName() == javafxSyms.javafx_sourceNameAnnotationType.tsym.flatName()) {
+                        Attribute aa = a.member(name.table.value);
+                        Object sourceName = a.member(name.table.value).getValue();
+                        if (sourceName instanceof String) {
+                            name = names.fromString((String) sourceName);
+                            sawSourceNameAnnotation = true;
+                        }
+                    }
                 }
                 if (! accessExplicit && iface != null) {
                     flags &= ~(Flags.PRIVATE | Flags.PROTECTED | Flags.PUBLIC);
                 }
                 if (l.head instanceof MethodSymbol) {
-                    if (name == defs.runMethodName || name == defs.initializeName ||
+                    if (! sawSourceNameAnnotation &&
+                            (name == defs.runMethodName || name == defs.initializeName ||
                             name == defs.postInitName || name == defs.userInitName ||
                             name == defs.addTriggersName ||
                             name == names.clinit ||
                             name.startsWith(defs.attributeGetPrefixName) ||
                             name.startsWith(defs.applyDefaultsPrefixName) ||
-                            name.endsWith(defs.implFunctionSuffixName))
+                            name.endsWith(defs.implFunctionSuffixName)))
                         continue;
                     // This should be merged with translateSymbol.
                     // But that doesn't work for some unknown reason.  FIXME
@@ -548,17 +558,6 @@ public class JavafxClassReader extends ClassReader {
                 }
                 else if (l.head instanceof VarSymbol) {
                     Type type = translateType(l.head.type);
-                    if ((flags & (PRIVATE|STATIC)) == PRIVATE &&
-                            (csym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
-                        // Undo the "mangling" done in JavafxTranslationSuport's
-                        // attributeNameString method.
-                        // (Using a "SourceName" attribute might be cleaner.)
-                        String nameString = name.toString();
-                        String prefix = csym.toString().replace('.', '$') + '$';
-                        if (prefix.startsWith(prefix)) {
-                            name = names.fromString(nameString.substring(prefix.length()));
-                        }
-                    }
                     VarSymbol v = new VarSymbol(flags, name, type, csym);
                     csym.members_field.enter(v);
                 }

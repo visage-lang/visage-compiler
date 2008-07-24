@@ -570,36 +570,39 @@ public abstract class JavafxTranslationSupport {
         return makeTmpVar(diagPos, "tmp", type, value);
     }
 
-    protected JCModifiers addAccessAnnotationModifiers(DiagnosticPosition diagPos, long flags, JCModifiers mods) {
+    protected JCModifiers addAccessAnnotationModifiers(DiagnosticPosition diagPos, long flags, JCModifiers mods, List<JCAnnotation> annotations) {
         make.at(diagPos);
         JCModifiers ret = mods;
-        ListBuffer<JCAnnotation> annotations = ListBuffer.lb();
         if ((flags & Flags.PUBLIC) != 0) {
-            annotations.append(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.publicAnnotationClassName), List.<JCExpression>nil()));
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.publicAnnotationClassName), List.<JCExpression>nil()));
         }
         else if ((flags & Flags.PRIVATE) != 0) {
-            annotations.append(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.privateAnnotationClassName), List.<JCExpression>nil()));
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.privateAnnotationClassName), List.<JCExpression>nil()));
         }
-        else if ((flags & Flags.PROTECTED) != 0) {
-            annotations.append(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.protectedAnnotationClassName), List.<JCExpression>nil()));
+        else if ((flags & Flags.PROTECTED) != 0) {        
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.protectedAnnotationClassName), List.<JCExpression>nil()));
         }
 
         if ((flags & JavafxFlags.READABLE) != 0) {
-            annotations.append(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.readableAnnotationClassName), List.<JCExpression>nil()));
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.readableAnnotationClassName), List.<JCExpression>nil()));
         }
 
         if ((flags & JavafxFlags.IS_DEF) != 0) {
-            annotations.append(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.defAnnotationClassName), List.<JCExpression>nil()));
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.defAnnotationClassName), List.<JCExpression>nil()));
         }
 
         if ((flags & Flags.STATIC) != 0) {
-            annotations.append(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.staticAnnotationClassName), List.<JCExpression>nil()));
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.staticAnnotationClassName), List.<JCExpression>nil()));
         }
 
         if (annotations.nonEmpty()) {
-            ret = make.Modifiers(mods.flags, annotations.toList());
+            ret = make.Modifiers(mods.flags, annotations);
         }
         return ret;
+    }
+
+    protected JCModifiers addAccessAnnotationModifiers(DiagnosticPosition diagPos, long flags, JCModifiers mods) {
+        return addAccessAnnotationModifiers(diagPos, flags, mods, List.<JCAnnotation>nil());
     }
 
     protected JCModifiers addInheritedAnnotationModifiers(DiagnosticPosition diagPos, long flags, JCModifiers mods) {
