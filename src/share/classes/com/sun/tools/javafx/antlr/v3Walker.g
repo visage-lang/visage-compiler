@@ -183,23 +183,21 @@ block  returns [JFXBlockExpression value]
 		(	^(STATEMENT statement)		{ stats.append($statement.value); }	
 		| 	^(EXPRESSION expression)	{ stats.append($expression.expr); }
 		)*
-	    )						{ $value = F.at(pos($BLOCK)).Block(0L, stats.toList()); 
+	    )						{ $value = F.at(pos($BLOCK)).BlockExpression(0L, stats.toList(), null); 
                                                           endPos($value, $BLOCK); }
 	;
 blockExpression  returns [JFXBlockExpression expr]
-@init { ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>(); JFXExpression val = null; CommonTree tval = null;}
+@init { ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>(); JFXExpression val = null;}
 	: ^(LBRACE 
 		(	^(STATEMENT statement)		{ if (val != null) {
                                                               stats.append(val);
                                                               val = null; 
-                                                              tval = null;
                                                           }
 	     					  	  stats.append($statement.value); }
 		| 	^(EXPRESSION expression)	{ if (val != null) {
                                                               stats.append(val);
                                                           }
-	     					  	  val = $expression.expr;
-							  tval = $EXPRESSION; }
+	     					  	  val = $expression.expr; }
 		)*
 	    )						{ $expr = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), val); 
                                                           endPos($expr, $LBRACE); }

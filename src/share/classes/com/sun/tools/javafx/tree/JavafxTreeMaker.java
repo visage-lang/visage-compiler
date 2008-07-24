@@ -124,12 +124,6 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXBlockExpression Block(long flags, List<JFXExpression> stats) {
-        JFXBlockExpression tree = new JFXBlockExpression(flags, stats, null);
-        tree.pos = pos;
-        return tree;
-    }
-
     public JFXWhileLoop WhileLoop(JFXExpression cond, JFXExpression body) {
         JFXWhileLoop tree = new JFXWhileLoop(cond, body);
         tree.pos = pos;
