@@ -270,13 +270,6 @@
             <arg line="${javafxdoc.packages}"/>
         </java>
 
-       <mkdir  dir="${dist.javafxdoc.dir}/javafx.scene.geometry/doc-files"/>
-       <copy todir="${dist.javafxdoc.dir}/javafx.scene.geometry/doc-files">
-           <fileset dir="runtime/src/share/classes/javafx/scene/geometry/doc-files">
-               <include name="*.png"/>
-           </fileset>
-       </copy>
-
        <mkdir  dir="${dist.javafxdoc.dir}/javafx.scene/doc-files"/>
        <copy todir="${dist.javafxdoc.dir}/javafx.scene/doc-files">
            <fileset dir="runtime/src/share/classes/javafx/scene/doc-files">
