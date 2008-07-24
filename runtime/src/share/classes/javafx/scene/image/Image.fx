@@ -183,10 +183,10 @@ public class Image {
     
     private function createLoadImageTask():Task {
         loadImageTask =  Task {
-            attribute reader:ImageReader = null;
-            attribute w:Number = width;
-            attribute h:Number = height;
-            attribute s:Number = size;
+            var reader:ImageReader = null;
+            var w:Number = width;
+            var h:Number = height;
+            var s:Number = size;
             public function doInBackground():java.lang.Object {
                 reader = findImageReader(new URL(url));
                 if (reader != null) {
