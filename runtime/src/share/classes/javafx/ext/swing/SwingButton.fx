@@ -29,7 +29,7 @@ import javax.swing.JButton;
 /**
  * An implementation of a "push" button.
  */
-public class Button extends AbstractButton {
+public class SwingButton extends AbstractButton {
 
     // PENDING_DOC_REVIEW
     /**
