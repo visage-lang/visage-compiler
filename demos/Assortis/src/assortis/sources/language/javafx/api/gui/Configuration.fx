@@ -23,7 +23,7 @@ Module {
         className: "assortis.sources.language.javafx.api.gui.FXTextField"
     },
     Sample{
-        name: "Button"
+        name: "SwingButton"
         className: "assortis.sources.language.javafx.api.gui.FXButton"
     },
     Sample{

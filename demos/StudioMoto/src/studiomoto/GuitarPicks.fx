@@ -164,7 +164,7 @@ function pickPattern(){
 
 function pickIcon() {
     ComponentView {
-        component: Button {
+        component: SwingButton {
             icon: CanvasIcon {
                 content: picks()
             }

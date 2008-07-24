@@ -235,7 +235,7 @@ frame = SwingFrame {
                 javafxPad.go();
             }
         };
-        var goButton = Button {
+        var goButton = SwingButton {
             text: "Go"
             vmax: Layout.PREFERRED_SIZE
             action: function() {

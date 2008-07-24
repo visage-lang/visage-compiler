@@ -64,29 +64,29 @@ SwingFrame {
                 rows: 0
                 columns: 3        
                 content:
-                [Button {
+                [SwingButton {
                     text: "EaseIn";
                     action: function():Void { interpolate = Interpolator.EASEIN; t.start(); }
                 },
-                Button {
+                SwingButton {
                     text: "EaseOut";
                     action: function():Void { interpolate = Interpolator.EASEOUT; t.start(); }
                 },
-                Button {
+                SwingButton {
                     text: "EaseBoth";
                     action: function():Void { interpolate = Interpolator.EASEOUT; t.start(); }
                 },
-                Button {
+                SwingButton {
                     text: "LINEAR";
                     action: function():Void { interpolate = Interpolator.LINEAR; t.start(); }
 
                 },
-                Button {
+                SwingButton {
                     text: "DISCRETE";
                     action: function():Void { interpolate = Interpolator.DISCRETE; t.start(); }
 
                 },
-                Button {
+                SwingButton {
                     text: "SPLINE";
                     action: function():Void { 
                         interpolate = Interpolator.SPLINE(x1, y1, x2, y2); 

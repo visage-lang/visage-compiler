@@ -68,19 +68,19 @@ public class SourcePathDialog {
                     } ***/
                     //TODO alignment: Alignment.LEADING
                     content:
-                    [Button {
+                    [SwingButton {
                         preferredSize: [ 80, 0]
                         text: "Add"
                         //TODO mnemonic: KeyCode.VK_A
                         action: function() {self.add(dlg.content);}
                     },
-                    Button {
+                    SwingButton {
                         preferredSize: [ 80, 0]
                         text: "Edit"
                         action: function() {self.edit(dlg.content);}
                         enabled: bind self.selectedSourcePath >= 0
                     },
-                    Button {
+                    SwingButton {
                         preferredSize: [ 80, 0]
                         text: "Remove"
                         action: function() {self.remove();}
@@ -90,7 +90,7 @@ public class SourcePathDialog {
             }
             /******* TODO 
             buttons:
-            [Button {
+            [SwingButton {
                 text: "OK"
                 action: function():Void {
                     if(self.action <> null) 
@@ -98,7 +98,7 @@ public class SourcePathDialog {
                     dlg.visible = false;
                 }
             },
-            Button {
+            SwingButton {
                 text: "Cancel"
                 defaultCancelButton: true
                 action: function():Void {
@@ -114,7 +114,7 @@ public class SourcePathDialog {
         dlg.getJDialog().setModal(true);
         
         
-        var b = Button {
+        var b = SwingButton {
                 text: "OK"
                 action: function():Void {
                     if(self.action != null) 
@@ -123,7 +123,7 @@ public class SourcePathDialog {
                 }  
         };
         dlg.getJDialog().add(b.getJComponent());
-        b = Button {
+        b = SwingButton {
             text: "Cancel"
             // TODO defaultCancelButton: true
             action: function():Void {

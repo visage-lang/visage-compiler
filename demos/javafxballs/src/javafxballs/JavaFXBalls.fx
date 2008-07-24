@@ -26,7 +26,7 @@ import javafx.ext.swing.MenuItem;
 import javafx.ext.swing.RadioButtonMenuItem;
 import javafx.ext.swing.Canvas;
 import javafx.ext.swing.BorderPanel;
-import javafx.ext.swing.Button;
+import javafx.ext.swing.SwingButton;
 import javafx.ext.swing.FlowPanel;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextOrigin;
@@ -301,7 +301,7 @@ var win = SwingFrame {
             bottom: FlowPanel{
                 alignment: Alignment.LEADING
                 content: [
-                    Button{
+                    SwingButton{
                         text: bind if (not test._is_running) then ##"Start" else ##"Stop"
                         action: function() {
                             test._is_running = not test._is_running;
@@ -376,7 +376,7 @@ var win = SwingFrame {
                     fill: Color {red: 0.5 green: 0.5 blue: 0.5}
                     font: Font {name: ##"Arial", style: FontStyle.BOLD size: 14}
                 }]}
-              bottom: FlowPanel {content: Button{
+              bottom: FlowPanel {content: SwingButton{
                         text: bind if (not test._is_running) then ##"Start" else ##"Stop"
                         action: function() {
                             test._is_running = not test._is_running;
