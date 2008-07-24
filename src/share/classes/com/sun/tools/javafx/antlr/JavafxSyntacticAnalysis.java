@@ -65,8 +65,8 @@ public class JavafxSyntacticAnalysis {
                 v3Parser parser = new v3Parser(tokens);
                 // Set the context
                 parser.initialize(context);
-                // Invoke the module rule in get return value
-                v3Parser.module_return comReturn = parser.module();
+                // Invoke the script rule in get return value
+                v3Parser.script_return comReturn = parser.script();
                 CommonTree comTree = (CommonTree) comReturn.getTree();
                 
  //               System.out.println(comTree.toStringTree());
@@ -81,8 +81,8 @@ public class JavafxSyntacticAnalysis {
                     v3Walker walker = new v3Walker(nodes);
                     // Set the context
                     walker.initialize(context);
-                    // Invoke the start symbol, rule module
-                    unit = walker.module();                   
+                    // Invoke the start symbol, rule script
+                    unit = walker.script();
                 }
                 String treeChoice = options.get("tree");
                 if (treeChoice != null) {

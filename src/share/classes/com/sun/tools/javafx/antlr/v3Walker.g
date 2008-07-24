@@ -58,30 +58,29 @@ import org.antlr.runtime.tree.*;
     }
 }
 	
-module returns [JFXUnit result]
+script returns [JFXUnit result]
 @init   { docComments = null;
           endPositions = genEndPos ? new HashMap<JCTree,Integer>() : null; }
 @after  { $result.docComments = docComments; 
           $result.endPositions = endPositions; }
-	: ^(MODULE packageDecl? moduleItems DOC_COMMENT?)		
-                                                        { $result = F.TopLevel($packageDecl.value, $moduleItems.items.toList()); 
+	: ^(SCRIPT packageDecl? scriptItems DOC_COMMENT?)		
+                                                        { $result = F.TopLevel($packageDecl.value, $scriptItems.items.toList()); 
                                                           setDocComment($result, $DOC_COMMENT); 
                                                           $result.pos = $result.pid != null ? $result.pid.pos : $result.defs.head.pos;
-                                                          endPos($result, $MODULE); }
+                                                          endPos($result, $SCRIPT); }
        	;
 packageDecl  returns [JFXExpression value]
        	: ^(PACKAGE qualident)        			{ $value = $qualident.expr; }
 	;
-moduleItems  returns [ListBuffer<JFXTree> items = new ListBuffer<JFXTree>()]  
-	: ^(MODULE_ITEMS ( moduleItem                   { $items.append($moduleItem.value); })*
+scriptItems  returns [ListBuffer<JFXTree> items = new ListBuffer<JFXTree>()]  
+	: ^(SCRIPT_ITEMS ( scriptItem                   { $items.append($scriptItem.value); })*
            )
 	;
-moduleItem  returns [JFXTree value]
+scriptItem  returns [JFXTree value]
 	: importDecl 					{ $value = $importDecl.value; }
         | functionDefinition                            { $value = $functionDefinition.value; }
 	| statement      				{ $value = $statement.value; } 
 	| expression 					{ $value = $expression.expr; } 
-//        | EMPTY_MODULE_ITEM                             { $value = null; }
 	;
 importDecl  returns [JFXTree value]
  	: ^(IMPORT importId)				{ $value = F.at(pos($IMPORT)).Import($importId.pid, false); 

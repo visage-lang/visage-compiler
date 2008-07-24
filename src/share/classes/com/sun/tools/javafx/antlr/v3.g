@@ -140,8 +140,8 @@ tokens {
    SUCHTHAT='=>';
 
    // these are imaginary tokens
-   MODULE;
-   MODULE_ITEMS;
+   SCRIPT;
+   SCRIPT_ITEMS;
    MODIFIER;
    CLASS_MEMBERS;
    PARAM;
@@ -451,30 +451,31 @@ LAST_TOKEN
  * PARSER RULES
  *------------------------------------------------------------------*/
 
-module
-@after { Tree docComment = getDocComment($module.start);
-         $module.tree.addChild(docComment); }
-	: packageDecl? moduleItems EOF 		-> ^(MODULE packageDecl? moduleItems)
+script
+@after { Tree docComment = getDocComment($script.start);
+         $script.tree.addChild(docComment); }
+	: packageDecl? scriptItems EOF 		-> ^(SCRIPT packageDecl? scriptItems)
        	;
 packageDecl 
        	: PACKAGE qualname SEMI         	-> ^(PACKAGE qualname)
 	;
-moduleItems    
-	: moduleItem (SEMI moduleItem )*	-> ^(MODULE_ITEMS moduleItem*)
+scriptItems
+	: scriptItem (SEMI scriptItem )*	-> ^(SCRIPT_ITEMS scriptItem*)
 	;
-moduleItem 
-	: importDecl 				-> importDecl
-	| classDefinition 			-> classDefinition
-        | functionDefinition                    -> functionDefinition
-	| statement				-> statement
-	| expression				-> expression
+scriptItem
+	: importDecl 	
+	| classDefinition 	
+        | functionDefinition    
+        | scriptVariableDeclaration
+	| statement	
+	| expression	
 	|					
 	;
 catch [RecognitionException re] {
     reportError(re);
     if (input.LA(1) != Token.EOF) {
         input.consume();
-        moduleItem_return r = moduleItem();
+        scriptItem_return r = scriptItem();
         retval.tree = r.tree;
     }
 }
@@ -506,10 +507,9 @@ classMembers
 classMember
 	: initDefinition	
 	| postInitDefinition
-	| attributeDeclaration 
+	| classVariableDeclaration 
 	| overrideDeclaration 
 	| functionDefinition 
-//	| triggerDefinition
         |
 	;
 catch [RecognitionException re] {
@@ -531,14 +531,8 @@ functionDefinition
 	    						formalParameters typeReference 
 	    						blockExpression?)
 	;
-attributeDeclaration   
-@after { Tree docComment = getDocComment($attributeDeclaration.start);
-         $attributeDeclaration.tree.addChild(docComment); }
-	: varModifierFlags attributeLabel  name  typeReference (EQ boundExpression)? onReplaceClause?
-	    					-> ^(VAR attributeLabel varModifierFlags name typeReference boundExpression? onReplaceClause?)
-	;
 overrideDeclaration
-	: OVERRIDE attributeLabel  name (EQ boundExpression)? onReplaceClause?
+	: OVERRIDE classVarLabel  name (EQ boundExpression)? onReplaceClause?
 	    					-> ^(OVERRIDE name boundExpression? onReplaceClause?)
 ;
 initDefinition
@@ -560,6 +554,24 @@ functionModifierFlags
 	| functionModifier BOUND accessModifier?	-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
 	| functionModifier (accessModifier BOUND? )?	-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
 	| 						-> ^(MODIFIER)
+	;
+scriptVariableDeclaration
+@after { Tree docComment = getDocComment($scriptVariableDeclaration.start);
+         $scriptVariableDeclaration.tree.addChild(docComment); }
+	: varModifierFlags variableLabel  name  typeReference (EQ boundExpression)? onReplaceClause?
+	    					-> ^(VAR variableLabel varModifierFlags name typeReference boundExpression? onReplaceClause?)
+	;
+classVariableDeclaration   
+@after { Tree docComment = getDocComment($classVariableDeclaration.start);
+         $classVariableDeclaration.tree.addChild(docComment); }
+	: varModifierFlags classVarLabel  name  typeReference (EQ boundExpression)? onReplaceClause?
+	    					-> ^(VAR classVarLabel varModifierFlags name typeReference boundExpression? onReplaceClause?)
+	;
+localVariableDeclaration
+@after { Tree docComment = getDocComment($localVariableDeclaration.start);
+         $localVariableDeclaration.tree.addChild(docComment); }
+	: variableLabel  name  typeReference (EQ boundExpression)? onReplaceClause?
+	    					-> ^(VAR variableLabel ^(MODIFIER) name typeReference boundExpression? onReplaceClause?)
 	;
 varModifierFlags
 	: accessModifier varModifier?		-> ^(MODIFIER accessModifier  varModifier?)
@@ -617,7 +629,8 @@ blockExpression
 blockComponent
 	: statement				-> ^(STATEMENT statement)
 	| expression				-> ^(EXPRESSION expression)
-        |
+        | localVariableDeclaration		-> ^(STATEMENT localVariableDeclaration)
+	|
 	;
 catch [RecognitionException re] {
     reportError(re);
@@ -629,9 +642,7 @@ catch [RecognitionException re] {
 }
 
 statement 
-	: variableDeclaration	
-//	| functionDefinition 
-	| insertStatement 	
+	: insertStatement 	
 	| deleteStatement 
  	| whileStatement
 	| BREAK    		
@@ -640,12 +651,6 @@ statement
        	| returnStatement 		
        	| tryStatement	
        	;
-variableDeclaration   
-@after { Tree docComment = getDocComment($variableDeclaration.start);
-         $variableDeclaration.tree.addChild(docComment); }
-	: varModifierFlags variableLabel  name  typeReference (EQ boundExpression)? onReplaceClause?
-	    					-> ^(VAR variableLabel varModifierFlags name typeReference boundExpression? onReplaceClause?)
-	;
 onReplaceClause
 	: ON REPLACE oldval=paramNameOpt clause=sliceClause? block
 						-> ^(ON_REPLACE_SLICE[$ON] $oldval $clause? block)
@@ -664,7 +669,7 @@ variableLabel
 	: VAR	
 	| DEF	
 	;
-attributeLabel 
+classVarLabel 
 	: VAR	
 	| DEF	
 	| ATTRIBUTE
@@ -867,7 +872,7 @@ newExpression
 	;
 objectLiteralPart  
 	: name COLON  boundExpression (COMMA | SEMI)?		-> ^(OBJECT_LIT_PART[$COLON] name boundExpression)
-       	| variableDeclaration	(COMMA | SEMI)?			-> variableDeclaration
+       	| localVariableDeclaration    (COMMA | SEMI)?		-> localVariableDeclaration
 	| overrideDeclaration	(COMMA | SEMI)?			-> overrideDeclaration
        	| functionDefinition 	(COMMA | SEMI)?			-> functionDefinition
        	;
