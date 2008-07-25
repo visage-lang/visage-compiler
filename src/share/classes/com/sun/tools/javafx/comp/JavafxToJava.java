@@ -1559,7 +1559,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             result = make.at(diagPos).Apply(null, setSelect, setArgs);
         } else {
             // We are setting a "normal" non-Location, use normal assign
-            JCExpression rhs = translate(tree.rhs);  //TODO: use  type converted translate?
+            VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+            JCExpression rhs = translate(tree.rhs, vmi.getSymbol().type);
             JCExpression lhs = translate(tree.lhs);
             result = make.at(diagPos).Assign(lhs, rhs); // make a new one so we are non-destructive
         }

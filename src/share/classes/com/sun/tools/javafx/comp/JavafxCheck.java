@@ -435,7 +435,7 @@ public class JavafxCheck {
                 // FUTURE/FIXME: return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
                 String foundAsJavaFXType = types.toJavaFXString(found);
                 String requiredAsJavaFXType = types.toJavaFXString(req);
-	        log.warning(pos, MsgSym.MESSAGE_PROB_FOUND_REQ, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES),
+	        log.warning(pos, MsgSym.MESSAGE_PROB_FOUND_REQ, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION),
                         foundAsJavaFXType, requiredAsJavaFXType);
             }
 	    return realFound;
@@ -454,8 +454,14 @@ public class JavafxCheck {
                 return realFound;
         }
 
-	if (found.tag <= DOUBLE && req.tag <= DOUBLE)
-	    return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION), found, req);
+	if (found.tag <= DOUBLE && req.tag <= DOUBLE) {
+//	    return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION), found, req);
+            String foundAsJavaFXType = types.toJavaFXString(found);
+            String requiredAsJavaFXType = types.toJavaFXString(req);
+            log.warning(pos.getStartPosition(), MsgSym.MESSAGE_PROB_FOUND_REQ, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION),
+                    foundAsJavaFXType, requiredAsJavaFXType);
+            return realFound;
+        }
 	if (found.isSuperBound()) {
 	    log.error(pos, MsgSym.MESSAGE_ASSIGNMENT_FROM_SUPER_BOUND, found);
 	    return syms.errType;

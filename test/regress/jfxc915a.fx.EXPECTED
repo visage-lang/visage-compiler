@@ -1,0 +1,21 @@
+test/regress/jfxc915a.fx:11: warning: possible loss of precision
+found   : java.lang.Long
+required: Integer
+var i1: Integer = Long.parseLong("100000001", 16);
+                  ^
+test/regress/jfxc915a.fx:14: warning: possible loss of precision
+found   : java.lang.Long
+required: Integer
+i1 = Long.parseLong("100000002", 16);
+     ^
+test/regress/jfxc915a.fx:17: warning: possible loss of precision
+found   : Number
+required: Integer
+var i2: Integer = 3.5;
+                  ^
+test/regress/jfxc915a.fx:20: warning: possible loss of precision
+found   : Number
+required: Integer
+i2 = -3.6;
+     ^
+4 warnings

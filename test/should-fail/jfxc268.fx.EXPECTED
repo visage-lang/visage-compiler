@@ -1,4 +1,4 @@
-test/should-fail/jfxc268.fx:9: warning: incompatible types
+test/should-fail/jfxc268.fx:9: warning: possible loss of precision
 found   : Number
 required: Integer
 var ab:Integer = function(a:Number, b:Number):Integer { a + b; }

@@ -954,7 +954,7 @@ public class JavafxAttr implements JavafxVisitor {
                 initType = attribExpr(tree.init, initEnv, declType);
                 v.flags_field &= ~JavafxFlags.IN_INITIALIZER;
                 initType = chk.checkNonVoid(tree.pos(), initType);
-                if (declType.tag <= LONG && initType.tag >= FLOAT && initType.tag <= DOUBLE) {
+                if (declType.tag <= LONG && initType.tag >= LONG && initType.tag <= DOUBLE) {
                     // Temporary kludge to supress duplicate warnings.
                     // (The kludge won't be needed if we make Number->Integer and error.)
                 }
