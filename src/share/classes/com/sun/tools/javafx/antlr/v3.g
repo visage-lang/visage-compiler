@@ -463,9 +463,8 @@ scriptItem
 	: importDecl 	
 	| classDefinition 	
         | functionDefinition    
-        | scriptVariableDeclaration
+        | (accessModifier|varModifier)=>scriptVariableDeclaration
 	| statement	
-	| expression	
 	|					
 	;
 catch [RecognitionException re] {
@@ -567,7 +566,7 @@ classVariableDeclaration
 localVariableDeclaration
 @after { Tree docComment = getDocComment($localVariableDeclaration.start);
          $localVariableDeclaration.tree.addChild(docComment); }
-	: variableLabel  name  typeReference (EQ boundExpression)? onReplaceClause?
+	: variableLabel  name  typeReference ((EQ)=>EQ boundExpression)? ((ON)=>onReplaceClause)?
 	    					-> ^(VAR variableLabel ^(MODIFIER) name typeReference boundExpression? onReplaceClause?)
 	;
 varModifierFlags
@@ -620,8 +619,6 @@ blockExpression
 	;
 blockComponent
 	: statement		
-	| expression			
-        | localVariableDeclaration	
 	|
 	;
 catch [RecognitionException re] {
@@ -642,6 +639,7 @@ statement
        	| throwStatement	   	
        	| returnStatement 		
        	| tryStatement	
+       	| expression
        	;
 onReplaceClause
 	: ON REPLACE oldval=paramNameOpt clause=sliceClause? blockExpression
@@ -681,7 +679,7 @@ insertStatement
 	;
 deleteStatement  
 	: DELETE  e1=expression  
-	   ( FROM e2=expression 		-> ^(FROM $e1 $e2)
+	   ( (FROM)=>FROM e2=expression 	-> ^(FROM $e1 $e2)
 	   | /* indexed and whole cases */	-> ^(DELETE $e1)
 	   )
 	;
@@ -702,7 +700,7 @@ catchClause
 						-> ^(CATCH formalParameter blockExpression)
 	;
 boundExpression 
-	: BIND expression (WITH INVERSE)?
+	: BIND expression ((WITH)=>WITH INVERSE)?
 						-> ^(BIND INVERSE? expression)
 	| expression
 	;
@@ -711,11 +709,12 @@ expression
        	| forExpression   	
        	| newExpression 	
 	| assignmentExpression	
+        | localVariableDeclaration
       	;
 
 forExpression
-	: FOR LPAREN inClause (COMMA inClause)* RPAREN expression
-								-> ^(FOR inClause* expression)
+	: FOR LPAREN inClause (COMMA inClause)* RPAREN statement
+								-> ^(FOR inClause* statement)
 	;
 inClause
 	: formalParameter IN in=expression (WHERE wh=expression)?
@@ -723,10 +722,10 @@ inClause
 	;
 ifExpression 
 	: IF LPAREN econd=expression  RPAREN 
-		THEN?  ethen=expression  elseClause 		-> ^(IF $econd $ethen elseClause?)
+		THEN?  ethen=statement  elseClause 		-> ^(IF $econd $ethen elseClause?)
 	;
 elseClause
-	: (ELSE)=>  ELSE  expression				-> expression
+	: (ELSE)=>  ELSE  statement				-> statement
 	| /*nada*/ 						->
 	;
 assignmentExpression  
@@ -827,7 +826,8 @@ postfixExpression
 	;
 primaryExpression  
 	: qualname					
-		( LBRACE  objectLiteralPart* RBRACE 		-> ^(OBJECT_LIT[$LBRACE] qualname objectLiteralPart*)
+		( LBRACE  objectLiteralPrefix*  objectLiteralPart* RBRACE
+						 		-> ^(OBJECT_LIT[$LBRACE] qualname objectLiteralPrefix* objectLiteralPart*)
 		|						-> qualname
 		)
        	| THIS							-> THIS
@@ -862,11 +862,13 @@ functionExpression
 newExpression 
 	: NEW typeName expressionListOpt			-> ^(NEW typeName expressionListOpt)
 	;
+objectLiteralPrefix  
+	: localVariableDeclaration    SEMI			-> localVariableDeclaration
+	| overrideDeclaration	      SEMI			-> overrideDeclaration
+       	| functionDefinition 	      SEMI			-> functionDefinition
+       	;
 objectLiteralPart  
 	: name COLON  boundExpression (COMMA | SEMI)?		-> ^(OBJECT_LIT_PART[$COLON] name boundExpression)
-       	| localVariableDeclaration    (COMMA | SEMI)?		-> localVariableDeclaration
-	| overrideDeclaration	(COMMA | SEMI)?			-> overrideDeclaration
-       	| functionDefinition 	(COMMA | SEMI)?			-> functionDefinition
        	;
 stringExpression  
 	: TRANSLATION_KEY

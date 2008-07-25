@@ -12,6 +12,6 @@ jfxc741Base { }
 jfxc741Base { frame: "hi" }
 jfxc741Base { title: "label" }
 jfxc741Base { frame: "last" title: "final" }
-jfxc741Base { title: "anon";
-              function foo() {}
+jfxc741Base { function foo() {}
+              title: "anon";         
             }

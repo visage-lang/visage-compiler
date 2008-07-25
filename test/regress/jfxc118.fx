@@ -16,12 +16,12 @@ public abstract class X {
 }
 
 var x = X {
-    var q = 100
-    a: q
-    b: q + 10
+    var q = 100;
     public function givemec() : Integer { q * q }
     public function f(x : Number) { x * q }
-    public function increment() : Void { ++q };
+    public function increment() : Void { ++q }
+    a: q
+    b: q + 10
 }
 
 System.out.println(x.a);

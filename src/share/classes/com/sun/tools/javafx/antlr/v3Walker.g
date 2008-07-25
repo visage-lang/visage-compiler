@@ -218,8 +218,7 @@ variableLabel    returns [long modifiers, int pos]
 	| ATTRIBUTE					{ $modifiers = 0L; $pos = pos($ATTRIBUTE); }
 	;
 statement returns [JFXExpression value]
-	: variableDeclaration				{ $value = $variableDeclaration.value; }
-	| classDefinition 				{ $value = $classDefinition.value; }
+	: classDefinition 				{ $value = $classDefinition.value; }
 	| BREAK    					{ $value = F.at(pos($BREAK)).Break(null);
                                                           endPos($value, $BREAK); }
 	| CONTINUE  	 	 			{ $value = F.at(pos($CONTINUE)).Continue(null);
@@ -272,9 +271,10 @@ boundExpressionOpt   returns [JavafxBindStatus status, JFXExpression value]
 	| 						{ $value = null; $status = UNBOUND; }
 	;
 expression  returns [JFXExpression value]
-       	: ^(FOR inClauses e0=expression)		{ $value = F.at(pos($FOR)).ForExpression($inClauses.clauses.toList(), $e0.value);
+       	: variableDeclaration				{ $value = $variableDeclaration.value; }
+	| ^(FOR inClauses e0=statement)			{ $value = F.at(pos($FOR)).ForExpression($inClauses.clauses.toList(), $e0.value);
                                                           endPos($value, $FOR); }
-	| ^(IF econd=expression ethen=expression eelse=expression?)
+	| ^(IF econd=expression ethen=statement eelse=statement?)
 							{ $value = F.at(pos($IF)).Conditional($econd.value, $ethen.value, $eelse.value);
                                                           endPos($value, $IF); }
 	| ^(EQ lhs=expression rhs=expression)		{ $value = F.at(pos($EQ)).Assign($lhs.value, $rhs.value);

@@ -68,8 +68,9 @@ public class JavafxSyntacticAnalysis {
                 // Invoke the script rule in get return value
                 v3Parser.script_return comReturn = parser.script();
                 CommonTree comTree = (CommonTree) comReturn.getTree();
+
+                //System.out.println(comTree.toStringTree());
                 
- //               System.out.println(comTree.toStringTree());
                 if ( (System.getenv("NETBEAN_EDITOR") != null) ||
                      (errorCount() == 0) )          {
               
