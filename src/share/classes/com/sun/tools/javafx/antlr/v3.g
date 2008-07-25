@@ -146,9 +146,6 @@ tokens {
    CLASS_MEMBERS;
    PARAM;
    FUNC_EXPR;
-   STATEMENT;
-   EXPRESSION;
-   BLOCK;
    MISSING_NAME;
    SLICE_CLAUSE;
    ON_REPLACE_SLICE;
@@ -622,9 +619,9 @@ blockExpression
 	  RBRACE				-> ^(LBRACE blockComponent*)
 	;
 blockComponent
-	: statement				-> ^(STATEMENT statement)
-	| expression				-> ^(EXPRESSION expression)
-        | localVariableDeclaration		-> ^(STATEMENT localVariableDeclaration)
+	: statement		
+	| expression			
+        | localVariableDeclaration	
 	|
 	;
 catch [RecognitionException re] {
@@ -707,7 +704,7 @@ catchClause
 boundExpression 
 	: BIND expression (WITH INVERSE)?
 						-> ^(BIND INVERSE? expression)
-	| expression				-> ^(EXPRESSION expression)
+	| expression
 	;
 expression 
        	: ifExpression   		
