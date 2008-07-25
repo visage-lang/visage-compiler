@@ -84,12 +84,12 @@ public class GuitarString extends CustomNode {
             
             content: [
             ImageView { 
+                var playing = false;
                 cursor: Cursor.HAND
                 transform: bind [Translate {x: x, y: 0}]
                 image: Image {
                     url: bind imageUrl
                 }
-                var playing = false
                 onMouseMoved: function(e:MouseEvent):Void {
                     if (playing) {return;}
 
