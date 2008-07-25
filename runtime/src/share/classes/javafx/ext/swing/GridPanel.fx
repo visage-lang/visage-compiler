@@ -33,7 +33,7 @@ import java.awt.GridLayout;
  * The panel is divided into equal-sized rectangles, 
  * and one component is placed in each rectangle.
  */
-public class GridPanel extends Panel {
+public class GridPanel extends SwingPanel {
 
     // columns needs to appear before (and therefore be initialized before) rows.
     // The GridLayout is created with rows=1, cols=0. GridLayout does not support

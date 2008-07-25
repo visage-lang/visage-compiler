@@ -32,7 +32,7 @@ import javafx.lang.FX;
  * A {@code Component Container} that lays out its children absolutely,
  * based on their {@code x, y, width, height} attributes.
  */
-public class Panel extends AbstractPanel {
+public class SwingPanel extends AbstractPanel {
 
     /**
      * The {@code Components} contained in this {@code Panel}.

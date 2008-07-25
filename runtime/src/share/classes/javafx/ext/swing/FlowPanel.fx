@@ -70,7 +70,7 @@ FlowPanel {
 }
 @endexample
  */
-public class FlowPanel extends Panel {
+public class FlowPanel extends SwingPanel {
 
     // PENDING_DOC_REVIEW
     /**
