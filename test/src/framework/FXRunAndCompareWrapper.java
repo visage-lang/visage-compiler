@@ -239,8 +239,7 @@ public class FXRunAndCompareWrapper extends TestCase {
     static boolean equalsCompilerMsgs (String es, String as) {
         int split = es.indexOf(':');
         // Replace both types of separators ('/' and '\') with the one from current environment
-        String correctedString = es.substring(0, split).replaceAll("[/\\\\]", Matcher.quoteReplacement(File.separator)) + es.substring(split);
-        return correctedString.equals(as);
+        return (split < 0)? false : as.equals(es.substring(0, split).replaceAll("[/\\\\]", Matcher.quoteReplacement(File.separator)) + es.substring(split));
     }
 
   static void escape (String value, StringBuilder out) {
