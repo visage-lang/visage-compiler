@@ -480,20 +480,14 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         ListBuffer<JCStatement> translatedVars = ListBuffer.lb();
 
         for (JFXExpression stmt : tree.getStmts()) {
-            switch (stmt.getFXTag()) {
-                case RETURN:
-                    assert value == null;
-                    value = ((JFXReturn) stmt).getExpression();
-                    break;
-                case VAR_DEF:
-                    translatedVars.append(translateVar((JFXVar) stmt));
-                    break;
-                default:
-                    log.error(diagPos, MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, stmt.toString());
-                    break;
+            if (stmt.getFXTag() == JavafxTag.VAR_DEF) {
+                translatedVars.append(translateVar((JFXVar) stmt));
+            } else {
+                log.error(diagPos, MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, stmt.toString());
             }
         }
-        result = makeBlockExpression(diagPos,  //TODO tree.flags lost
+        assert value.getFXTag() != JavafxTag.RETURN;
+        result = makeBlockExpression(diagPos, //TODO tree.flags lost
                 translatedVars.toList(),
                 translate(value, tmiTarget) );
     }

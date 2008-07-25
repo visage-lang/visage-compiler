@@ -1481,23 +1481,22 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         prependToStatements = ListBuffer.lb();
 
         JFXExpression value = tree.value;
-        boolean valueFromReturn = (value == null) && (yield == Yield.ToReturnStatement);
         ListBuffer<JCStatement> translatedStmts = ListBuffer.lb();
         for(JFXExpression expr : tree.getStmts()) {
-            if (valueFromReturn && expr.getFXTag() == JavafxTag.RETURN) {
-                value = ((JFXReturn)expr).getExpression();
-            } else {
                 JCStatement stmt = translateExpressionToStatement(expr);
                 if (stmt != null) {
                     translatedStmts.append(stmt);
                 }
-            }
         }
         List<JCStatement> localDefs = translatedStmts.toList();
 
         if (yield == Yield.ToExpression) {
             // make into block expression
             assert (tree.type != syms.voidType) : "void block expressions should be handled below";
+            //TODO: this may be unneeded, or even wrong
+            if (value.getFXTag() == JavafxTag.RETURN) {
+                value = ((JFXReturn) value).getExpression();
+            }
             JCExpression tvalue = translate(value); // must be before prepend
             localDefs = prependToStatements.appendList(localDefs).toList();
             result = makeBlockExpression(tree.pos(), localDefs, tvalue);  //TODO: tree.flags lost

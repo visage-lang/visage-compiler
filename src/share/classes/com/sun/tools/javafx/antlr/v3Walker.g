@@ -191,9 +191,8 @@ blockExpression  returns [JFXBlockExpression expr]
 	: ^(LBRACE 
 		(	^(STATEMENT statement)		{ if (val != null) {
                                                               stats.append(val);
-                                                              val = null; 
                                                           }
-	     					  	  stats.append($statement.value); }
+	     					  	  val = $statement.value; }
 		| 	^(EXPRESSION expression)	{ if (val != null) {
                                                               stats.append(val);
                                                           }

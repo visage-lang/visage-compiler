@@ -870,7 +870,7 @@ public class JavafxAttr implements JavafxVisitor {
             log.error(tree, MsgSym.MESSAGE_JAVAFX_INVALID_ASSIGNMENT);
             return;
         }
-        
+
         if (hasLhsType) {
             attribExpr(tree.rhs, dupEnv, owntype);
         }
@@ -1287,7 +1287,10 @@ public class JavafxAttr implements JavafxVisitor {
                 localEnv.info.scope.owner = new MethodSymbol(BLOCK, names.empty, null, env.enclClass.sym);
             }
         }
-        memberEnter.memberEnter(tree.stats, localEnv);
+        memberEnter.memberEnter(tree.getStmts(), localEnv);
+        if (tree.getValue() != null) {
+            memberEnter.memberEnter(tree.getValue(), localEnv);
+        }
         boolean canReturn = true;
         boolean unreachableReported = false;
         for (List<JFXExpression> l = tree.stats; l.nonEmpty(); l = l.tail) {
@@ -1301,32 +1304,26 @@ public class JavafxAttr implements JavafxVisitor {
         }
         Type owntype = null;
         if (tree.value != null) {
-            if (! canReturn && ! unreachableReported)
+            if (!canReturn && !unreachableReported) {
                 log.error(tree.value.pos(), MsgSym.MESSAGE_UNREACHABLE_STMT);
+            }
             owntype = attribExpr(tree.value, localEnv);
         }
         if (owntype == null) {
-            JFXExpression lastStat = tree.stats.last();
-            if (lastStat != null) {
-                if (lastStat.getFXTag() == JavafxTag.RETURN &&
-                        ((JFXReturn)lastStat).expr != null) {
-                    owntype = ((JFXReturn)lastStat).expr.type;
-                }
-
-            }
-
-            if (owntype == null) {
-                owntype = syms.voidType;
-            }
+            owntype = syms.voidType;
         }
-        if (! canReturn)
+        if (!canReturn) {
             owntype = syms.unreachableType;
+        }
         owntype = owntype.baseType();
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
         if (env.info.scope.owner.kind != TYP)
             localEnv.info.scope.leave();
     }
 
+    /**
+     * @param tree
+     */
     @Override
     public void visitWhileLoop(JFXWhileLoop tree) {
         attribExpr(tree.cond, env, syms.booleanType);
@@ -1520,7 +1517,7 @@ public class JavafxAttr implements JavafxVisitor {
         MethodSymbol m = new MethodSymbol(SYNTHETIC, def.name, null, env.enclClass.sym);
         // m.flags_field = chk.checkFlags(def.pos(), def.mods.flags, m, def);
         def.sym = m;
-        finishOperationDefinition(def, env);
+        finishFunctionDefinition(def, env);
         result = tree.type = syms.makeFunctionType((MethodType) def.type);
     }
 
@@ -1592,7 +1589,7 @@ public class JavafxAttr implements JavafxVisitor {
         return found;
     }
 
-    public void finishOperationDefinition(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
+    public void finishFunctionDefinition(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
         MethodSymbol m = tree.sym;
         JFXFunctionValue opVal = tree.operation;
         JavafxEnv<JavafxAttrContext> localEnv = memberEnter.methodEnv(tree, env);
@@ -1694,19 +1691,8 @@ public class JavafxAttr implements JavafxVisitor {
                 log.error(tree.pos(), MsgSym.MESSAGE_NATIVE_METH_CANNOT_HAVE_BODY);
             } else {
                 JFXBlockExpression body = opVal.getBodyExpression();
-                if (body.value == null && returnType == syms.unknownType) {
-                    JFXExpression last = body.stats.last();
-                    if (last instanceof JFXReturn) {
-                        ListBuffer<JFXExpression> rstats =
-                                new ListBuffer<JFXExpression>();
-                        for (List<JFXExpression> l = body.stats;
-                             l.tail.tail != null;
-                             l = l.tail) {
-                            rstats.append(l.head);
-                        }
-                        body.stats = rstats.toList();
-                        body.value = ((JFXReturn) last).expr;
-                    }
+                if (body.value instanceof JFXReturn) {
+                    body.value = ((JFXReturn) body.value).expr;
                 }
                 // Attribute method bodyExpression
                 Type typeToCheck = returnType;

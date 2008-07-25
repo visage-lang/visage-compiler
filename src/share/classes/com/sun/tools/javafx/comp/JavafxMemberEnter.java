@@ -589,7 +589,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 attr.attribExpr(tree, env);
             }
             else
-                attr.finishOperationDefinition((JFXFunctionDefinition) tree, env);  
+                attr.finishFunctionDefinition((JFXFunctionDefinition) tree, env);
         }
     }
 
