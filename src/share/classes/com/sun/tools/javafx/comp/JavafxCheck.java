@@ -455,7 +455,6 @@ public class JavafxCheck {
         }
 
 	if (found.tag <= DOUBLE && req.tag <= DOUBLE) {
-//	    return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION), found, req);
             String foundAsJavaFXType = types.toJavaFXString(found);
             String requiredAsJavaFXType = types.toJavaFXString(req);
             log.warning(pos.getStartPosition(), MsgSym.MESSAGE_PROB_FOUND_REQ, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION),
