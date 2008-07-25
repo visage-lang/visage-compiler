@@ -26,7 +26,7 @@
 package fxpad;
 
 import java.lang.System;
-import javafx.ext.swing.ScrollPane;
+import javafx.ext.swing.SwingScrollPane;
 import javafx.ext.swing.Component;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
@@ -35,7 +35,7 @@ import javax.swing.JViewport;
  * @author jclarke
  */
 
-public class PadScrollPane extends ScrollPane {
+public class PadScrollPane extends SwingScrollPane {
     
     /**
      * Adds a child that will appear as a row at the top or bottom

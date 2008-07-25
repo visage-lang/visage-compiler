@@ -172,7 +172,7 @@ public class AssortisProject  extends MyCompositeComponent{
                             );
                     } 
                 }
-                two: ScrollPane{ 
+                two: SwingScrollPane{ 
                     scrollable: false 
                     view: BorderPanel{
                         top: Label { text: "String Literal Translations:"}

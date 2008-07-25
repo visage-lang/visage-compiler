@@ -25,7 +25,7 @@ package javafx.ext.swing;
 
 import javax.swing.JComponent;
 
-public class ScrollPane extends ScrollableComponent {
+public class SwingScrollPane extends ScrollableComponent {
 
     public attribute view: Component on replace {
         getJScrollPane().setViewportView(view.getJComponent());
