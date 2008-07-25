@@ -32,7 +32,7 @@ public class MDUniverse extends CustomNode, MDGroup{
         Group{
             content: [ 
                 for(point in getPoints()) Circle{
-                var point2D = projection.transform(point)
+                var point2D = projection.transform(point);
                 centerX: point2D.getElem(0)
                 centerY: point2D.getElem(1)
                 radius: 2
@@ -40,9 +40,9 @@ public class MDUniverse extends CustomNode, MDGroup{
             },
             for(segment in  getSegments()) 
                 Line{
-                    var totalTransform = bind MDTransform.composite(transforms, dimension) 
-                    var point1 = bind projection.transform(totalTransform.transform(segment.point1))
-                    var point2 = bind projection.transform(totalTransform.transform(segment.point2))
+                    var totalTransform = bind MDTransform.composite(transforms, dimension);
+                    var point1 = bind projection.transform(totalTransform.transform(segment.point1));
+                    var point2 = bind projection.transform(totalTransform.transform(segment.point2));
                     startX: bind point1.getElem(0)
                     startY: bind point1.getElem(1)
                     endX: bind point2.getElem(0)
