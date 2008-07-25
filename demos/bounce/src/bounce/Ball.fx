@@ -54,8 +54,8 @@ SwingFrame {
             var sx = 1.0;
             var sy = 1.0;
             var r = 50.0;
-            var color1 = Color.SILVER
-            var color2 = Color.MAROON
+            var color1 = Color.SILVER;
+            var color2 = Color.MAROON;
             
             content:
             [Rectangle {height: 460, width: 800, fill: Color.BLACK},
