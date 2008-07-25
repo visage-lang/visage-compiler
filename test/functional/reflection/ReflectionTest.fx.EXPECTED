@@ -25,6 +25,7 @@ Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference,
  Type of stringrAttr2 is inferred as class java.lang.String
  Type of type1Attr1 is inferred as class ReflectionTest.TypeInference
  Return Type of method func0$$bound$int inferred as class com.sun.javafx.runtime.location.IntLocation
+ Return Type of method func0$impl$$bound$int inferred as class com.sun.javafx.runtime.location.IntLocation
  Return Type of method func1 inferred as class java.lang.String
  Return Type of method func2 inferred as class java.lang.String
  Return Type of method func3 inferred as Integer[]
@@ -32,4 +33,5 @@ Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference,
  Return Type of method func5 inferred as Integer[]
  Return Type of method func6 inferred as function(java.lang.Integer):java.lang.Integer
  Return Type of method func7 inferred as class javafx.lang.Duration
+ Return Type of method func8 inferred as class java.lang.String
  Return Type of method func8 inferred as class java.lang.String

@@ -17,9 +17,7 @@ String .super (inherited also):
   class java.lang.Object
   class java.lang.String
 Square methods (inherited also):
-  function Main.Square.corners():java.awt.geom.Point2D[]
   function Main.MyRect.corners():java.awt.geom.Point2D[]
-  function Main.Square.transformed():Main.MyShape
   function Main.MyShape.transformed():Main.MyShape
   function Main.MyRect.transformed():Main.MyShape
 MyRect.methods: 
@@ -33,3 +31,10 @@ MyRect attributes (inherited also):
   shapeIntAttr : Integer
   shapeNumAttr : Number
   shapeStrAttr : class java.lang.String
+Square attributes (only): 
+  atBlank : class java.lang.String
+  atPriv : class java.lang.String
+  atProt : class java.lang.String
+  atPub : class java.lang.String
+Simple attributes (only): 
+  at1 : class java.lang.Object

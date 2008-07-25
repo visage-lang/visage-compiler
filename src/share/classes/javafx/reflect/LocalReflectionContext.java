@@ -24,6 +24,8 @@
 package javafx.reflect;
 import java.util.*;
 import java.lang.reflect.*;
+import java.lang.annotation.*;
+import com.sun.javafx.runtime.SourceName;
 
 /** Implementation of {@link ReflectionContext} using Java reflection.
  * Can only access objects and types in the current JVM.
@@ -297,6 +299,8 @@ class LocalClassRef extends ClassRef {
             Method m = methods[i];
             if (m.isSynthetic())
                 continue;
+            if (m.getAnnotation(com.sun.javafx.runtime.Inherited.class) != null)
+                continue;
             String mname = m.getName();
             if ("userInit$".equals(mname) || "postInit$".equals(mname) ||
                     "addTriggers$".equals(mname) || "initialize$".equals(mname))
@@ -327,26 +331,23 @@ class LocalClassRef extends ClassRef {
     
    protected void getAttributes(MemberFilter filter, SortedMemberArray<? super AttributeRef> result) {
         LocalReflectionContext context = getReflectionContect();
-        if (isCompoundClass()) {
-            Class cls = refInterface;
-            Method[] methods = cls.getDeclaredMethods();
-            for (int i = 0;  i < methods.length;  i++) {
-                Method m = methods[i];
-                if (m.isSynthetic())
-                    continue;
-                String name = m.getName();
-                if (! name.startsWith("get$"))
-                    continue;
-                Type gret = m.getGenericReturnType();
-                TypeRef tr = context.makeTypeRef(gret);
-                name = name.substring(4);
-                LocalAttributeRef ref = new LocalAttributeRef(name, this, tr, m);
-                if (filter != null && filter.accept(ref))
-                    result.insert(ref);
-            }
-        }
-        else {
-            throw new UnsupportedOperationException("getAttributes not implemented for non-compound class");
+        Class cls = refClass;
+        Field[] fields = cls.getDeclaredFields();
+        for (int i = 0;  i < fields.length;  i++) {
+            Field fld = fields[i];
+            if (fld.isSynthetic())
+                continue;
+            if (fld.getAnnotation(com.sun.javafx.runtime.Inherited.class) != null)
+                continue;
+            String name = fld.getName();
+            SourceName sourceName = fld.getAnnotation(SourceName.class);
+            if (sourceName != null)
+                name = sourceName.value();
+            Type gtype = fld.getGenericType();
+            TypeRef tr = context.makeTypeRef(gtype);
+            LocalAttributeRef ref = new LocalAttributeRef(name, this, tr, null);
+            if (filter != null && filter.accept(ref))
+                result.insert(ref);
         }
     }
 

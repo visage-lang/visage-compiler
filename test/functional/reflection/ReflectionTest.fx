@@ -45,16 +45,16 @@ class TypeInference  {
    }	
 };
 
-abstract class  TypeInference2 extends ReflectionTest.TypeInference{
-attribute myAttr=func8(); //Type inferred to String
-abstract function func8():String;
+abstract class  TypeInference2 extends ReflectionTest.TypeInference {
+    attribute myAttr=func8(); //Type inferred to String
+    abstract function func8():String;
 }
-class TypeInference3 extends TypeInference,TypeInference2{
-function func8(){ myAttr};
-override attribute intAttr1 = 20;
-override attribute myAttr = "t3";
-attribute newAttr = func3([2]);
-attribute anotherAttr = func8 ();
+class TypeInference3 extends TypeInference,TypeInference2 {
+    function func8(){ myAttr};
+    override attribute intAttr1 = 20;
+    override attribute myAttr = "t3";
+    attribute newAttr = func3([2]);
+    attribute anotherAttr = func8 ();
 }
 var context : LocalReflectionContext = LocalReflectionContext.getInstance();
 var classRef = context.findClass("ReflectionTest.TypeInference3");
@@ -63,9 +63,7 @@ System.out.println("Inherited SuperClasses of TypeInference3 => {classRef.getSup
 for (attr in classRef.getAttributes(true)) {
   System.out.println(" Type of {attr.getName()} is inferred as {attr.getType()}") ;
 }
-var itr : java.util.Iterator = classRef.getMethods(false).iterator();
-while(itr.hasNext()){
-    var mr:MethodRef =(itr.next() as MethodRef);
+for (mr in classRef.getMethods(true)) {
     System.out.println(" Return Type of method {mr.getName()} inferred as {mr.getType().getReturnType()}");
 }
 
