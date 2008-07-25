@@ -225,7 +225,7 @@ frame = SwingFrame {
     ]
     content: ClusterPanel {
         var locLabel = Label { text: "Location:" }
-        var urlTextField = TextField {
+        var urlTextField = SwingTextField {
             columns: 60
             background: Color.WHITE
             hmax: Layout.UNLIMITED_SIZE

@@ -47,7 +47,7 @@ import com.sun.javafx.scene.BackgroundSupport;
  * {@code TextField} is a component that allows the editing 
  * of a single line of text.
  */
-public class TextField extends Component {
+public class SwingTextField extends Component {
 
     // PENDING_DOC_REVIEW
     /**

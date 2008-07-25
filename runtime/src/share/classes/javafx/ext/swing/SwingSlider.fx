@@ -37,7 +37,7 @@ import com.sun.javafx.scene.Util;
  * A component that lets the user graphically select a value by sliding
  * a knob within a bounded interval.
  */
-public class Slider extends Component {
+public class SwingSlider extends Component {
 
     // PENDING_DOC_REVIEW
     /**

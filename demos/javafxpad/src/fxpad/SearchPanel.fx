@@ -92,7 +92,7 @@ class SearchField  extends CustomNode {
     public attribute fSearchValue: String;
     attribute action: function():Void;
     attribute cancel: function():Void;
-    attribute textField: TextField;
+    attribute textField: SwingTextField;
     attribute baseline: Number;
     attribute view:ComponentView;
     attribute dodgerBlue80:Color = Color {
@@ -117,7 +117,7 @@ class SearchField  extends CustomNode {
             Group {
                 transform: Transform.translate(10, 2)
                 content: view = ComponentView {
-                    component: textField = TextField {
+                    component: textField = SwingTextField {
                             font: Font.font("VERDANA", FontStyle.PLAIN, 12)
                             //TODO focused: true
                             columns: bind self.columns

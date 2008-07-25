@@ -2,6 +2,6 @@ package assortis.sources.language.javafx.api.gui;
 
 import javafx.ext.swing.*;
 
-TextField{
+SwingTextField{
     text: "Text"
 }

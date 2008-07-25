@@ -19,7 +19,7 @@ Module {
         className: "assortis.sources.language.javafx.api.gui.FXLabel"
     },
     Sample{
-        name: "TextField"
+        name: "SwingTextField"
         className: "assortis.sources.language.javafx.api.gui.FXTextField"
     },
     Sample{
@@ -47,7 +47,7 @@ Module {
         className: "assortis.sources.language.javafx.api.gui.FXMenu"
     },
     Sample{
-        name: "Slider"
+        name: "SwingSlider"
         className: "assortis.sources.language.javafx.api.gui.FXSlider"
     },
 //    Sample{

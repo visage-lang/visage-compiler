@@ -6,7 +6,7 @@ var value = 20;
 
 BorderPanel{
     top: Label{ text: bind "Slider value: {value}"},
-    center: Slider{
+    center: SwingSlider{
         minimum: -50
         maximum: 50
         value: bind value with inverse
