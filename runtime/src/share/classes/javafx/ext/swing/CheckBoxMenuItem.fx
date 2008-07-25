@@ -38,21 +38,6 @@ public class CheckBoxMenuItem extends MenuItem, SelectableButton {
 
     // PENDING_DOC_REVIEW
     /**
-     * Represents the toggle group of the {@code CheckBoxMenuItem}.
-     * A check box menu item can belong only to a single {@code SwingToggleGroup}.
-     */
-    public attribute toggleGroup: SwingToggleGroup on replace oldValue {
-        if (oldValue != null) {
-            oldValue.remove(this);
-        }
-        
-        if (toggleGroup != null) {
-            toggleGroup.add(this);
-        }
-    }
-
-    // PENDING_DOC_REVIEW
-    /**
      * Returns the {@code JCheckBoxMenuItem} delegate for this component.
      */
     public /* final */ function getJCheckBoxMenuItem(): JCheckBoxMenuItem {

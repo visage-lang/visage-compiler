@@ -41,21 +41,6 @@ public class RadioButtonMenuItem extends MenuItem, SelectableButton {
 
     // PENDING_DOC_REVIEW
     /**
-     * Represents the toggle group of the {@code RadioButtonMenuItem}.
-     * A radio button menu item can belong only to a single {@code SwingToggleGroup}.
-     */
-    public attribute toggleGroup: SwingToggleGroup on replace oldValue {
-        if (oldValue != null) {
-            oldValue.remove(this);
-        }
-        
-        if (toggleGroup != null) {
-            toggleGroup.add(this);
-        }
-    }
-
-    // PENDING_DOC_REVIEW
-    /**
      * Returns the {@code JRadioButtonMenuItem} delegate for this component.
      */
     public /* final */ function getJRadioButtonMenuItem(): JRadioButtonMenuItem {

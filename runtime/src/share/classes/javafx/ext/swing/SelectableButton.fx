@@ -45,6 +45,21 @@ public abstract class SelectableButton extends AbstractButton {
         }
     }
 
+    // PENDING_DOC_REVIEW
+    /**
+     * Represents the toggle group of the {@code SelectableButton}.
+     * A button can belong only to a single {@code SwingToggleGroup}.
+     */
+    public attribute toggleGroup: SwingToggleGroup on replace oldValue {
+        if (oldValue != null) {
+            oldValue.remove(this);
+        }
+        
+        if (toggleGroup != null) {
+            toggleGroup.add(this);
+        }
+    }
+
     postinit {
         var ab = getAbstractButton();
 
