@@ -30,7 +30,7 @@ import javafx.scene.paint.Stop;
 import javafx.scene.transform.Transform;
 import javafx.ext.swing.SwingFrame;
 import javafx.ext.swing.Canvas;
-import javafx.ext.swing.Slider;
+import javafx.ext.swing.SwingSlider;
 import javafx.ext.swing.Label;
 import javafx.scene.geometry.Rectangle;
 import javafx.animation.Timeline;
