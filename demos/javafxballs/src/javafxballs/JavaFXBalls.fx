@@ -19,7 +19,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.transform.Transform;
-import javafx.ext.swing.ToggleGroup;
+import javafx.ext.swing.SwingToggleGroup;
 import javafx.ext.swing.SwingFrame;
 import javafx.ext.swing.Menu;
 import javafx.ext.swing.MenuItem;
@@ -329,8 +329,8 @@ var win = SwingFrame {
 
 */
 
-var tg = ToggleGroup {}
-var tg2 = ToggleGroup {}
+var tg = SwingToggleGroup {}
+var tg2 = SwingToggleGroup {}
 
 var win = SwingFrame {
             closeAction: function() {System.exit(0);}

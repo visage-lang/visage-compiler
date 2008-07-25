@@ -35,16 +35,16 @@ import javax.swing.JRadioButtonMenuItem;
  * selected state. Selecting it causes any other selected item to
  * switch to the unselected state.
  * To control the selected state of a group of radio button menu items,
- * use a {@code ToggleGroup} object.
+ * use a {@code SwingToggleGroup} object.
  */
 public class RadioButtonMenuItem extends MenuItem, SelectableButton {
 
     // PENDING_DOC_REVIEW
     /**
      * Represents the toggle group of the {@code RadioButtonMenuItem}.
-     * A radio button menu item can belong only to a single {@code ToggleGroup}.
+     * A radio button menu item can belong only to a single {@code SwingToggleGroup}.
      */
-    public attribute toggleGroup: ToggleGroup on replace oldValue {
+    public attribute toggleGroup: SwingToggleGroup on replace oldValue {
         if (oldValue != null) {
             oldValue.remove(this);
         }

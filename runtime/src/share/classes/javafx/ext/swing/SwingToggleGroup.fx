@@ -27,11 +27,11 @@ package javafx.ext.swing;
 /**
  * This class is used to create a multiple-exclusion scope for
  * a set of buttons. Creating a set of buttons with the
- * same <code>ToggleGroup</code> object means that
+ * same <code>SwingToggleGroup</code> object means that
  * turning "on" one of those buttons
  * turns off all other buttons in the group.
  */
-public class ToggleGroup {
+public class SwingToggleGroup {
 
     private attribute buttons: SelectableButton[];
     
@@ -41,7 +41,7 @@ public class ToggleGroup {
     // PENDING_DOC_REVIEW
     /**
      * Clears the selection such that none of the buttons
-     * in the <code>ToggleGroup</code> are selected.
+     * in the <code>SwingToggleGroup</code> are selected.
      */
     public function clearSelection(): Void {
         swingButtonGroup.clearSelection();

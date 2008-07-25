@@ -32,7 +32,7 @@ import javax.swing.JToggleButton;
  * deselected, and which displays its state to the user.
  * By convention, any number of check boxes in a group can be selected.
  */
-public class SwingCheckBox extends ToggleButton {
+public class SwingCheckBox extends SwingToggleButton {
 
     // PENDING_DOC_REVIEW
     /**

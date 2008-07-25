@@ -30,11 +30,11 @@ import javax.swing.JToggleButton;
 /**
  * An implementation of a radio button -- an item that can be selected or
  * deselected, and which displays its state to the user.
- * Create a {@code ToggleGroup} and use the button's
- * <code>toggleGroup</code> attribute to include the RadioButton objects
+ * Create a {@code SwingToggleGroup} and use the button's
+ * <code>toggleGroup</code> attribute to include the SwingRadioButton objects
  * in the group.
  */
-public class SwingRadioButton extends ToggleButton {
+public class SwingRadioButton extends SwingToggleButton {
 
     // PENDING_DOC_REVIEW
     /**

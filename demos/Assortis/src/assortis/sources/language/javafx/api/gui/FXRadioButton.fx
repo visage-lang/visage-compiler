@@ -2,7 +2,7 @@ package assortis.sources.language.javafx.api.gui;
 
 import javafx.ext.swing.*;
 
-var toggleGroup = ToggleGroup{};
+var toggleGroup = SwingToggleGroup{};
 
 var animals = ["Bird","Cat","Dog","Rabbit","Pig"];
 

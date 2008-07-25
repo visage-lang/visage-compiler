@@ -29,7 +29,7 @@ import javax.swing.event.ChangeEvent;
 // PENDING_DOC_REVIEW
 /**
  * An implementation of a selectable button.
- * The {@link ToggleButton} is a subclass of {@code SelectableButton}.
+ * The {@link SwingToggleButton} is a subclass of {@code SelectableButton}.
  */
 public abstract class SelectableButton extends AbstractButton {
 

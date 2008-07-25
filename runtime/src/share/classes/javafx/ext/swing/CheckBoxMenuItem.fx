@@ -39,9 +39,9 @@ public class CheckBoxMenuItem extends MenuItem, SelectableButton {
     // PENDING_DOC_REVIEW
     /**
      * Represents the toggle group of the {@code CheckBoxMenuItem}.
-     * A check box menu item can belong only to a single {@code ToggleGroup}.
+     * A check box menu item can belong only to a single {@code SwingToggleGroup}.
      */
-    public attribute toggleGroup: ToggleGroup on replace oldValue {
+    public attribute toggleGroup: SwingToggleGroup on replace oldValue {
         if (oldValue != null) {
             oldValue.remove(this);
         }

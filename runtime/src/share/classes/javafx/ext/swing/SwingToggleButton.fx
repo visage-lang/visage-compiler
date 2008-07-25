@@ -37,10 +37,10 @@ public class SwingToggleButton extends SelectableButton {
 
     // PENDING_DOC_REVIEW
     /**
-     * Represents the toggle group of the {@code ToggleButton}.
-     * A button can belong only to a single {@code ToggleGroup}.
+     * Represents the toggle group of the {@code SwingToggleButton}.
+     * A button can belong only to a single {@code SwingToggleGroup}.
      */
-    public attribute toggleGroup: ToggleGroup on replace oldValue {
+    public attribute toggleGroup: SwingToggleGroup on replace oldValue {
         if (oldValue != null) {
             oldValue.remove(this);
         }
