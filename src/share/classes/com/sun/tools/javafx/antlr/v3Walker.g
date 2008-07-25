@@ -70,7 +70,7 @@ script returns [JFXUnit result]
                                                           endPos($result, $SCRIPT); }
        	;
 packageDecl  returns [JFXExpression value]
-       	: ^(PACKAGE qualident)        			{ $value = $qualident.expr; }
+       	: ^(PACKAGE qualident)        			{ $value = $qualident.value; }
 	;
 scriptItems  returns [ListBuffer<JFXTree> items = new ListBuffer<JFXTree>()]  
 	: ^(SCRIPT_ITEMS ( scriptItem                   { $items.append($scriptItem.value); })*
@@ -80,14 +80,14 @@ scriptItem  returns [JFXTree value]
 	: importDecl 					{ $value = $importDecl.value; }
         | functionDefinition                            { $value = $functionDefinition.value; }
 	| statement      				{ $value = $statement.value; } 
-	| expression 					{ $value = $expression.expr; } 
+	| expression 					{ $value = $expression.value; } 
 	;
 importDecl  returns [JFXTree value]
  	: ^(IMPORT importId)				{ $value = F.at(pos($IMPORT)).Import($importId.pid, false); 
                                                           endPos($value, $IMPORT); }
 	;
 importId  returns [JFXExpression pid]
- 	: identifier					{ $pid = $identifier.expr; }
+ 	: identifier					{ $pid = $identifier.value; }
         | ^(DOT in=importId	( name 			{ $pid = F.at($name.pos).Select($in.pid, $name.value); 
                                                           endPos($pid, $DOT); }
         			| STAR			{ $pid = F.at(pos($STAR)).Select($in.pid, names.asterisk); 
@@ -106,7 +106,7 @@ classDefinition  returns [JFXClassDeclaration value]
                                                           endPos($value, $CLASS); }
 	;
 supers  returns [ListBuffer<JFXExpression> ids = new ListBuffer<JFXExpression>()]
-	: ^(EXTENDS (typeName           		{ $ids.append($typeName.expr); } )* )
+	: ^(EXTENDS (typeName           		{ $ids.append($typeName.value); } )* )
 	;	  					
 classMembers  returns [ListBuffer<JFXTree> mems = new ListBuffer<JFXTree>()]
 	: ^(CLASS_MEMBERS ( classMember			{ $mems.append($classMember.member); } )* )
@@ -124,7 +124,7 @@ functionDefinition  returns [JFXFunctionDefinition value]
 	    						{ $value = F.at(pos($FUNCTION)).FunctionDefinition(
 	    						  $modifiers.mods,
 	    						  $name.value, $type.type, 
-	    						  $formalParameters.params.toList(), $blockExpression.expr); 
+	    						  $formalParameters.params.toList(), $blockExpression.value); 
                                                           setDocComment($value, $DOC_COMMENT); 
                                                           endPos($value, $FUNCTION); }
 	;
@@ -138,11 +138,11 @@ postInitDefinition  returns [JFXPostInitDefinition value]
 	;
 overrideDeclaration returns [JFXOverrideAttribute value]
 	: ^(OVERRIDE identifier boundExpression? onReplaceClause?)
-							{ $value = F.at(pos($OVERRIDE)).OverrideAttribute($identifier.expr, 
-									$boundExpression.expr, $boundExpression.status,
+							{ $value = F.at(pos($OVERRIDE)).OverrideAttribute($identifier.value, 
+									$boundExpression.value, $boundExpression.status,
 									$onReplaceClause.value);  
                                                           endPos($value, $OVERRIDE);}
-	| ^(WITH identifier onReplaceClause)		{ $value = F.at(pos($WITH)).TriggerWrapper($identifier.expr, $onReplaceClause.value); 
+	| ^(WITH identifier onReplaceClause)		{ $value = F.at(pos($WITH)).TriggerWrapper($identifier.value, $onReplaceClause.value); 
                                                           endPos($value, $WITH); }
 	;
 modifiers  returns [JFXModifiers mods]
@@ -178,15 +178,21 @@ formalParameterOpt returns [JFXVar var]
 	|						{ $var = null; } 
 	;
 block  returns [JFXBlockExpression value]
-@init { ListBuffer<JFXExpression> stats = ListBuffer.<JFXExpression>lb(); }
+@init { ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>(); JFXExpression val = null;}
 	: ^(BLOCK
-		(	^(STATEMENT statement)		{ stats.append($statement.value); }	
-		| 	^(EXPRESSION expression)	{ stats.append($expression.expr); }
+		(	^(STATEMENT statement)		{ if (val != null) {
+                                                              stats.append(val);
+                                                          }
+	     					  	  val = $statement.value; }
+		| 	^(EXPRESSION expression)	{ if (val != null) {
+                                                              stats.append(val);
+                                                          }
+	     					  	  val = $expression.value; }
 		)*
-	    )						{ $value = F.at(pos($BLOCK)).BlockExpression(0L, stats.toList(), null); 
+	    )						{ $value = F.at(pos($BLOCK)).BlockExpression(0L, stats.toList(), val);
                                                           endPos($value, $BLOCK); }
 	;
-blockExpression  returns [JFXBlockExpression expr]
+blockExpression  returns [JFXBlockExpression value]
 @init { ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>(); JFXExpression val = null;}
 	: ^(LBRACE 
 		(	^(STATEMENT statement)		{ if (val != null) {
@@ -196,10 +202,10 @@ blockExpression  returns [JFXBlockExpression expr]
 		| 	^(EXPRESSION expression)	{ if (val != null) {
                                                               stats.append(val);
                                                           }
-	     					  	  val = $expression.expr; }
+	     					  	  val = $expression.value; }
 		)*
-	    )						{ $expr = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), val); 
-                                                          endPos($expr, $LBRACE); }
+	    )						{ $value = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), val); 
+                                                          endPos($value, $LBRACE); }
 	;
 variableDeclaration    returns [JFXExpression value]
 	: ^(VAR variableLabel modifiers name type boundExpressionOpt onReplaceClause? DOC_COMMENT?)
@@ -209,7 +215,7 @@ variableDeclaration    returns [JFXExpression value]
 	    							$type.type, 
 	    							mods,
 	    							false,
-	    							$boundExpressionOpt.expr, 
+	    							$boundExpressionOpt.value, 
 	    							$boundExpressionOpt.status, 
 	    							$onReplaceClause.value); 
                                                           setDocComment($value, $DOC_COMMENT); 
@@ -239,23 +245,23 @@ statement returns [JFXExpression value]
                                                           endPos($value, $BREAK); }
 	| CONTINUE  	 	 			{ $value = F.at(pos($CONTINUE)).Continue(null); 
                                                           endPos($value, $CONTINUE); }
-       	| ^(THROW expression)	   			{ $value = F.at(pos($THROW)).Throw($expression.expr); 
+       	| ^(THROW expression)	   			{ $value = F.at(pos($THROW)).Throw($expression.value); 
                                                           endPos($value, $THROW); } 
-	| ^(WHILE expression block)			{ $value = F.at(pos($WHILE)).WhileLoop($expression.expr, $block.value); 
+	| ^(WHILE expression block)			{ $value = F.at(pos($WHILE)).WhileLoop($expression.value, $block.value); 
                                                           endPos($value, $WHILE); }
-	| ^(INTO elem=expression eseq=expression)	{ $value = F.at(pos($INTO)).SequenceInsert($eseq.expr, $elem.expr, null, false); 
+	| ^(INTO elem=expression eseq=expression)	{ $value = F.at(pos($INTO)).SequenceInsert($eseq.value, $elem.value, null, false); 
                                                           endPos($value, $INTO); } 
 	| ^(BEFORE elem=expression ^(SEQ_INDEX eseq=expression idx=expression rb=RBRACKET))
-							{ $value = F.at(pos($BEFORE)).SequenceInsert($eseq.expr, $elem.expr, $idx.expr, false); 
+							{ $value = F.at(pos($BEFORE)).SequenceInsert($eseq.value, $elem.value, $idx.value, false); 
                                                           endPos($value, $rb); } 
 	| ^(AFTER elem=expression ^(SEQ_INDEX eseq=expression idx=expression rb=RBRACKET))
-							{ $value = F.at(pos($AFTER)).SequenceInsert($eseq.expr, $elem.expr, $idx.expr, true); 
+							{ $value = F.at(pos($AFTER)).SequenceInsert($eseq.value, $elem.value, $idx.value, true); 
                                                           endPos($value, $rb); } 
-	| ^(FROM e1=expression e2=expression)		{ $value = F.at(pos($FROM)).SequenceDelete($e2.expr,$e1.expr); 
+	| ^(FROM e1=expression e2=expression)		{ $value = F.at(pos($FROM)).SequenceDelete($e2.value,$e1.value); 
                                                           endPos($value, $FROM); } 
-	| ^(DELETE expression)				{ $value = F.at(pos($DELETE)).SequenceDelete($expression.expr); 
+	| ^(DELETE expression)				{ $value = F.at(pos($DELETE)).SequenceDelete($expression.value); 
                                                           endPos($value, $DELETE); } 
-	| ^(RETURN expression?)				{ $value = F.at(pos($RETURN)).Return($expression.expr); 
+	| ^(RETURN expression?)				{ $value = F.at(pos($RETURN)).Return($expression.value); 
                                                           endPos($value, $RETURN); } 
 	| ^(TRY block catchClauses finallyClause?)	{ $value = F.at(pos($TRY)).Try($block.value, $catchClauses.caught.toList(), $finallyClause.value); 
                                                           endPos($value, $TRY); }
@@ -270,157 +276,157 @@ catchClause  returns [JFXCatch value]
 finallyClause  returns [JFXBlockExpression value]
 	: ^(FINALLY block)				{ $value = $block.value; }
 	;
-boundExpression   returns [JavafxBindStatus status, JFXExpression expr]
+boundExpression   returns [JavafxBindStatus status, JFXExpression value]
 @init { boolean isLazy = false; boolean isBidirectional = false; }
 	: ^(BIND 				
 	      (LAZY					{ isLazy = true; } )?
 	      (INVERSE					{ isBidirectional = true; } )?
-	      expression				{ $expr = $expression.expr; }
+	      expression				{ $value = $expression.value; }
 	      						{ $status = isBidirectional? isLazy? LAZY_BIDIBIND : BIDIBIND
 	  									   : isLazy? LAZY_UNIDIBIND :  UNIDIBIND; }
 	   )
-	| ^(EXPRESSION expression)			{ $expr = $expression.expr; $status = UNBOUND; }
+	| ^(EXPRESSION expression)			{ $value = $expression.value; $status = UNBOUND; }
 	;
-boundExpressionOpt   returns [JavafxBindStatus status, JFXExpression expr]
-	: boundExpression				{ $expr = $boundExpression.expr; $status = $boundExpression.status; }
-	| 						{ $expr = null; $status = UNBOUND; }
+boundExpressionOpt   returns [JavafxBindStatus status, JFXExpression value]
+	: boundExpression				{ $value = $boundExpression.value; $status = $boundExpression.status; }
+	| 						{ $value = null; $status = UNBOUND; }
 	;
-expression  returns [JFXExpression expr]
-       	: ^(FOR inClauses e0=expression)		{ $expr = F.at(pos($FOR)).ForExpression($inClauses.clauses.toList(), $e0.expr); 
-                                                          endPos($expr, $FOR); }
+expression  returns [JFXExpression value]
+       	: ^(FOR inClauses e0=expression)		{ $value = F.at(pos($FOR)).ForExpression($inClauses.clauses.toList(), $e0.value); 
+                                                          endPos($value, $FOR); }
 	| ^(IF econd=expression ethen=expression eelse=expression?)
-							{ $expr = F.at(pos($IF)).Conditional($econd.expr, $ethen.expr, $eelse.expr); 
-                                                          endPos($expr, $IF); }
-	| ^(EQ lhs=expression rhs=expression)		{ $expr = F.at(pos($EQ)).Assign($lhs.expr, $rhs.expr); 
-                                                          endPos($expr, $EQ); } 
-	| ^(PLUSEQ lhs=expression rhs=expression) 	{ $expr = F.at(pos($PLUSEQ)).Assignop(JavafxTag.PLUS_ASG, $lhs.expr, $rhs.expr); 
-                                                          endPos($expr, $PLUSEQ); }
-	| ^(SUBEQ lhs=expression rhs=expression) 	{ $expr = F.at(pos($SUBEQ)).Assignop(JavafxTag.MINUS_ASG, $lhs.expr, $rhs.expr); 
-                                                          endPos($expr, $SUBEQ); }
-	| ^(STAREQ lhs=expression rhs=expression) 	{ $expr = F.at(pos($STAREQ)).Assignop(JavafxTag.MUL_ASG, $lhs.expr, $rhs.expr); 
-                                                          endPos($expr, $STAREQ); }
-	| ^(SLASHEQ lhs=expression rhs=expression) 	{ $expr = F.at(pos($SLASHEQ)).Assignop(JavafxTag.DIV_ASG, $lhs.expr, $rhs.expr); 
-                                                          endPos($expr, $SLASHEQ); }
-	| ^(PERCENTEQ lhs=expression rhs=expression) 	{ $expr = F.at(pos($PERCENTEQ)).Assignop(JavafxTag.MOD_ASG, $lhs.expr, $rhs.expr); 
-                                                          endPos($expr, $PERCENTEQ); }
-	| ^(AND e1=expression e2=expression) 		{ $expr = F.at(pos($AND)).Binary(JavafxTag.AND, $e1.expr, $e2.expr); 
-                                                          endPos($expr, $AND); }
-	| ^(OR e1=expression e2=expression) 		{ $expr = F.at(pos($OR)).Binary(JavafxTag.OR, $e1.expr, $e2.expr); 
-                                                          endPos($expr, $OR); } 
-	| ^(INSTANCEOF e0=expression type)		{ $expr = F.at(pos($INSTANCEOF)).TypeTest($e0.expr, $type.type); 
-                                                          endPos($expr, $INSTANCEOF); }
-	| ^(AS e0=expression type)			{ $expr = F.at(pos($AS)).TypeCast($type.type, $e0.expr); 
-                                                          endPos($expr, $AS); }   
-	| ^(LTGT e1=expression e2=expression)		{ $expr = F.at(pos($LTGT)).Binary(JavafxTag.NE, $e1.expr, $e2.expr); 
-                                                          endPos($expr, $LTGT); }
-        | ^(NOTEQ e1=expression e2=expression)		{ $expr = F.at(pos($NOTEQ)).Binary(JavafxTag.NE, $e1.expr, $e2.expr); 
-                                                          endPos($expr, $NOTEQ); }                                                 
-	| ^(EQEQ e1=expression e2=expression)		{ $expr = F.at(pos($EQEQ)).Binary(JavafxTag.EQ, $e1.expr, $e2.expr); 
-                                                          endPos($expr, $EQEQ); }
-	| ^(LTEQ e1=expression e2=expression)		{ $expr = F.at(pos($LTEQ)).Binary(JavafxTag.LE, $e1.expr, $e2.expr); 
-                                                          endPos($expr, $LTEQ); }
-	| ^(GTEQ e1=expression e2=expression)		{ $expr = F.at(pos($GTEQ)).Binary(JavafxTag.GE, $e1.expr, $e2.expr); 
-                                                          endPos($expr, $GTEQ); }
-	| ^(LT   e1=expression e2=expression)		{ $expr = F.at(pos($LT))  .Binary(JavafxTag.LT, $e1.expr, $e2.expr); 
-                                                          endPos($expr, $LT); }
-	| ^(GT   e1=expression e2=expression)		{ $expr = F.at(pos($GT))  .Binary(JavafxTag.GT, $e1.expr, $e2.expr); 
-                                                          endPos($expr, $GT); }
-	| ^(PLUS e1=expression e2=expression)		{ $expr = F.at(pos($PLUS)).Binary(JavafxTag.PLUS , $e1.expr, $e2.expr); 
-                                                          endPos($expr, $PLUS); }
-	| ^(SUB  e1=expression e2=expression)		{ $expr = F.at(pos($SUB)) .Binary(JavafxTag.MINUS, $e1.expr, $e2.expr); 
-                                                          endPos($expr, $SUB); }
-	| ^(STAR    e1=expression e2=expression)	{ $expr = F.at(pos($STAR))   .Binary(JavafxTag.MUL  , $e1.expr, $e2.expr); 
-                                                          endPos($expr, $STAR); }
-	| ^(SLASH   e1=expression e2=expression)	{ $expr = F.at(pos($SLASH))  .Binary(JavafxTag.DIV  , $e1.expr, $e2.expr); 
-                                                          endPos($expr, $SLASH); }
-	| ^(PERCENT e1=expression e2=expression)	{ $expr = F.at(pos($PERCENT)).Binary(JavafxTag.MOD  , $e1.expr, $e2.expr); 
-                                                          endPos($expr, $PERCENT); } 
-        | ^(MOD e1=expression e2=expression)            { $expr = F.at(pos($MOD)).Binary(JavafxTag.MOD  , $e1.expr, $e2.expr); 
-                                                          endPos($expr, $MOD); } 
-	| ^(NEGATIVE e0=expression)			{ $expr = F.at(pos($NEGATIVE)).Unary(JavafxTag.NEG, $e0.expr); 
-                                                          endPos($expr, $NEGATIVE); }
-	| ^(NOT e0=expression)				{ $expr = F.at(pos($NOT)).Unary(JavafxTag.NOT, $e0.expr); 
-                                                          endPos($expr, $NOT); }	
-	| ^(SIZEOF e0=expression)			{ $expr = F.at(pos($SIZEOF)).Unary(JavafxTag.SIZEOF, $e0.expr); 
-                                                          endPos($expr, $SIZEOF); }
-	| ^(PLUSPLUS e0=expression)   			{ $expr = F.at(pos($PLUSPLUS)).Unary(JavafxTag.PREINC, $e0.expr); 
-                                                          endPos($expr, $PLUSPLUS); }
-	| ^(SUBSUB e0=expression) 			{ $expr = F.at(pos($SUBSUB)).Unary(JavafxTag.PREDEC, $e0.expr); 
-                                                          endPos($expr, $SUBSUB); }
-	| ^(REVERSE e0=expression) 			{ $expr = F.at(pos($REVERSE)).Unary(JavafxTag.REVERSE, $e0.expr); 
-                                                          endPos($expr, $REVERSE); }
-	| ^(POSTINCR e0=expression)			{ $expr = F.at($e0.expr.pos).Unary(JavafxTag.POSTINC, $e0.expr); 
-                                                          endPos($expr, $POSTINCR); }
-	| ^(POSTDECR e0=expression)			{ $expr = F.at($e0.expr.pos).Unary(JavafxTag.POSTDEC, $e0.expr); 
-                                                          endPos($expr, $POSTDECR); }
-	| ^(DOT e0=expression name)			{ $expr = F.at(pos($DOT)).Select($e0.expr, $name.value); 
-                                                          endPos($expr, $name.start); } // start is the CommonTree for the node
-	| ^(FUNC_APPLY e0=expression expressionList)	{ $expr = F.at(pos($FUNC_APPLY)).Apply(null, $e0.expr, $expressionList.args.toList()); 
-                                                          endPos($expr, $FUNC_APPLY); } 
+							{ $value = F.at(pos($IF)).Conditional($econd.value, $ethen.value, $eelse.value); 
+                                                          endPos($value, $IF); }
+	| ^(EQ lhs=expression rhs=expression)		{ $value = F.at(pos($EQ)).Assign($lhs.value, $rhs.value); 
+                                                          endPos($value, $EQ); } 
+	| ^(PLUSEQ lhs=expression rhs=expression) 	{ $value = F.at(pos($PLUSEQ)).Assignop(JavafxTag.PLUS_ASG, $lhs.value, $rhs.value); 
+                                                          endPos($value, $PLUSEQ); }
+	| ^(SUBEQ lhs=expression rhs=expression) 	{ $value = F.at(pos($SUBEQ)).Assignop(JavafxTag.MINUS_ASG, $lhs.value, $rhs.value); 
+                                                          endPos($value, $SUBEQ); }
+	| ^(STAREQ lhs=expression rhs=expression) 	{ $value = F.at(pos($STAREQ)).Assignop(JavafxTag.MUL_ASG, $lhs.value, $rhs.value); 
+                                                          endPos($value, $STAREQ); }
+	| ^(SLASHEQ lhs=expression rhs=expression) 	{ $value = F.at(pos($SLASHEQ)).Assignop(JavafxTag.DIV_ASG, $lhs.value, $rhs.value); 
+                                                          endPos($value, $SLASHEQ); }
+	| ^(PERCENTEQ lhs=expression rhs=expression) 	{ $value = F.at(pos($PERCENTEQ)).Assignop(JavafxTag.MOD_ASG, $lhs.value, $rhs.value); 
+                                                          endPos($value, $PERCENTEQ); }
+	| ^(AND e1=expression e2=expression) 		{ $value = F.at(pos($AND)).Binary(JavafxTag.AND, $e1.value, $e2.value); 
+                                                          endPos($value, $AND); }
+	| ^(OR e1=expression e2=expression) 		{ $value = F.at(pos($OR)).Binary(JavafxTag.OR, $e1.value, $e2.value); 
+                                                          endPos($value, $OR); } 
+	| ^(INSTANCEOF e0=expression type)		{ $value = F.at(pos($INSTANCEOF)).TypeTest($e0.value, $type.type); 
+                                                          endPos($value, $INSTANCEOF); }
+	| ^(AS e0=expression type)			{ $value = F.at(pos($AS)).TypeCast($type.type, $e0.value); 
+                                                          endPos($value, $AS); }   
+	| ^(LTGT e1=expression e2=expression)		{ $value = F.at(pos($LTGT)).Binary(JavafxTag.NE, $e1.value, $e2.value); 
+                                                          endPos($value, $LTGT); }
+        | ^(NOTEQ e1=expression e2=expression)		{ $value = F.at(pos($NOTEQ)).Binary(JavafxTag.NE, $e1.value, $e2.value); 
+                                                          endPos($value, $NOTEQ); }                                                 
+	| ^(EQEQ e1=expression e2=expression)		{ $value = F.at(pos($EQEQ)).Binary(JavafxTag.EQ, $e1.value, $e2.value); 
+                                                          endPos($value, $EQEQ); }
+	| ^(LTEQ e1=expression e2=expression)		{ $value = F.at(pos($LTEQ)).Binary(JavafxTag.LE, $e1.value, $e2.value); 
+                                                          endPos($value, $LTEQ); }
+	| ^(GTEQ e1=expression e2=expression)		{ $value = F.at(pos($GTEQ)).Binary(JavafxTag.GE, $e1.value, $e2.value); 
+                                                          endPos($value, $GTEQ); }
+	| ^(LT   e1=expression e2=expression)		{ $value = F.at(pos($LT))  .Binary(JavafxTag.LT, $e1.value, $e2.value); 
+                                                          endPos($value, $LT); }
+	| ^(GT   e1=expression e2=expression)		{ $value = F.at(pos($GT))  .Binary(JavafxTag.GT, $e1.value, $e2.value); 
+                                                          endPos($value, $GT); }
+	| ^(PLUS e1=expression e2=expression)		{ $value = F.at(pos($PLUS)).Binary(JavafxTag.PLUS , $e1.value, $e2.value); 
+                                                          endPos($value, $PLUS); }
+	| ^(SUB  e1=expression e2=expression)		{ $value = F.at(pos($SUB)) .Binary(JavafxTag.MINUS, $e1.value, $e2.value); 
+                                                          endPos($value, $SUB); }
+	| ^(STAR    e1=expression e2=expression)	{ $value = F.at(pos($STAR))   .Binary(JavafxTag.MUL  , $e1.value, $e2.value); 
+                                                          endPos($value, $STAR); }
+	| ^(SLASH   e1=expression e2=expression)	{ $value = F.at(pos($SLASH))  .Binary(JavafxTag.DIV  , $e1.value, $e2.value); 
+                                                          endPos($value, $SLASH); }
+	| ^(PERCENT e1=expression e2=expression)	{ $value = F.at(pos($PERCENT)).Binary(JavafxTag.MOD  , $e1.value, $e2.value); 
+                                                          endPos($value, $PERCENT); } 
+        | ^(MOD e1=expression e2=expression)            { $value = F.at(pos($MOD)).Binary(JavafxTag.MOD  , $e1.value, $e2.value); 
+                                                          endPos($value, $MOD); } 
+	| ^(NEGATIVE e0=expression)			{ $value = F.at(pos($NEGATIVE)).Unary(JavafxTag.NEG, $e0.value); 
+                                                          endPos($value, $NEGATIVE); }
+	| ^(NOT e0=expression)				{ $value = F.at(pos($NOT)).Unary(JavafxTag.NOT, $e0.value); 
+                                                          endPos($value, $NOT); }	
+	| ^(SIZEOF e0=expression)			{ $value = F.at(pos($SIZEOF)).Unary(JavafxTag.SIZEOF, $e0.value); 
+                                                          endPos($value, $SIZEOF); }
+	| ^(PLUSPLUS e0=expression)   			{ $value = F.at(pos($PLUSPLUS)).Unary(JavafxTag.PREINC, $e0.value); 
+                                                          endPos($value, $PLUSPLUS); }
+	| ^(SUBSUB e0=expression) 			{ $value = F.at(pos($SUBSUB)).Unary(JavafxTag.PREDEC, $e0.value); 
+                                                          endPos($value, $SUBSUB); }
+	| ^(REVERSE e0=expression) 			{ $value = F.at(pos($REVERSE)).Unary(JavafxTag.REVERSE, $e0.value); 
+                                                          endPos($value, $REVERSE); }
+	| ^(POSTINCR e0=expression)			{ $value = F.at($e0.value.pos).Unary(JavafxTag.POSTINC, $e0.value); 
+                                                          endPos($value, $POSTINCR); }
+	| ^(POSTDECR e0=expression)			{ $value = F.at($e0.value.pos).Unary(JavafxTag.POSTDEC, $e0.value); 
+                                                          endPos($value, $POSTDECR); }
+	| ^(DOT e0=expression name)			{ $value = F.at(pos($DOT)).Select($e0.value, $name.value);
+                                                          endPos($value, $name.start); } // start is the CommonTree for the node
+	| ^(FUNC_APPLY e0=expression expressionList)	{ $value = F.at(pos($FUNC_APPLY)).Apply(null, $e0.value, $expressionList.args.toList()); 
+                                                          endPos($value, $FUNC_APPLY); } 
 	| ^(SEQ_INDEX seq=expression idx=expression rb=RBRACKET?)	
-                                                        { $expr = F.at($seq.expr.pos).SequenceIndexed($seq.expr, $idx.expr); 
-                                                          endPos($expr, $rb); }
+                                                        { $value = F.at($seq.value.pos).SequenceIndexed($seq.value, $idx.value); 
+                                                          endPos($value, $rb); }
 	| ^(SEQ_SLICE seq=expression first=expression last=expression?)
-	                                                { $expr = F.at(pos($SEQ_SLICE)).SequenceSlice($seq.expr, $first.expr, $last.expr, 
+	                                                { $value = F.at(pos($SEQ_SLICE)).SequenceSlice($seq.value, $first.value, $last.value, 
 	                                                                                              SequenceSliceTree.END_INCLUSIVE); 
-                                                          endPos($expr, $SEQ_SLICE); }
+                                                          endPos($value, $SEQ_SLICE); }
 	| ^(SEQ_SLICE_EXCLUSIVE seq=expression first=expression last=expression?)
-	                                                { $expr = F.at(pos($SEQ_SLICE_EXCLUSIVE)).SequenceSlice($seq.expr, $first.expr, $last.expr,  
+	                                                { $value = F.at(pos($SEQ_SLICE_EXCLUSIVE)).SequenceSlice($seq.value, $first.value, $last.value,  
 	                                                                                                        SequenceSliceTree.END_EXCLUSIVE); 
-                                                          endPos($expr, $SEQ_SLICE_EXCLUSIVE); }
-	| ^(OBJECT_LIT i=qualident objectLiteral)	{ $expr = F.at(getStartPos($i.expr)).ObjectLiteral($qualident.expr, $objectLiteral.parts.toList());
-                                                          endPos($expr, $OBJECT_LIT); }
+                                                          endPos($value, $SEQ_SLICE_EXCLUSIVE); }
+	| ^(OBJECT_LIT i=qualident objectLiteral)	{ $value = F.at(getStartPos($i.value)).ObjectLiteral($qualident.value, $objectLiteral.parts.toList());
+                                                          endPos($value, $OBJECT_LIT); }
        	| ^(FUNC_EXPR formalParameters type blockExpression)
-       							{ $expr = F.at(pos($FUNC_EXPR)).FunctionValue($type.type, $formalParameters.params.toList(),
-                                               								$blockExpression.expr); 
-                                                          endPos($expr, $FUNC_EXPR); }
-	| ^(NEW typeName expressionList)		{ $expr = F.at(pos($NEW)).InstanciateNew($typeName.expr, $expressionList.args.toList());
-                                                          endPos($expr, $NEW); }
-       	| ^(INDEXOF identifier)                		{ $expr = F.at(pos($INDEXOF)).Indexof($identifier.expr); 
-                                                          endPos($expr, $INDEXOF); }
-	| pipeExpression				{ $expr = $pipeExpression.expr; }
-	| blockExpression				{ $expr = $blockExpression.expr; }
-       	| stringExpression				{ $expr = $stringExpression.expr; }
-	| explicitSequenceExpression			{ $expr = $explicitSequenceExpression.expr; }
+       							{ $value = F.at(pos($FUNC_EXPR)).FunctionValue($type.type, $formalParameters.params.toList(),
+                                               								$blockExpression.value); 
+                                                          endPos($value, $FUNC_EXPR); }
+	| ^(NEW typeName expressionList)		{ $value = F.at(pos($NEW)).InstanciateNew($typeName.value, $expressionList.args.toList());
+                                                          endPos($value, $NEW); }
+       	| ^(INDEXOF identifier)                		{ $value = F.at(pos($INDEXOF)).Indexof($identifier.value); 
+                                                          endPos($value, $INDEXOF); }
+	| pipeExpression				{ $value = $pipeExpression.value; }
+	| blockExpression				{ $value = $blockExpression.value; }
+       	| stringExpression				{ $value = $stringExpression.value; }
+	| explicitSequenceExpression			{ $value = $explicitSequenceExpression.value; }
 	| ^(DOTDOT from=expression to=expression step=expression? LT?)
-							{ $expr = F.at(pos($DOTDOT)).RangeSequence($from.expr, $to.expr, $step.expr, $LT!=null); 
-                                                          endPos($expr, $DOTDOT); }
-	| SEQ_EMPTY					{ $expr = F.at(pos($SEQ_EMPTY)).EmptySequence(); 
-                                                          endPos($expr, $SEQ_EMPTY); }
-       	| THIS						{ $expr = F.at(pos($THIS)).Ident(names._this); 
-                                                          endPos($expr, $THIS); }
-       	| SUPER						{ $expr = F.at(pos($SUPER)).Ident(names._super); 
-                                                          endPos($expr, $SUPER); }
-       	| identifier					{ $expr = $identifier.expr; }
-	| t=STRING_LITERAL				{ $expr = F.at(pos($t)).Literal(TypeTags.CLASS, $t.text); 
-                                                          endPos($expr, $t); }
-	| t=DECIMAL_LITERAL				{ $expr = F.at(pos($t)).Literal(TypeTags.INT, (int)Convert.string2long($t.text, 10)); 
-                                                          endPos($expr, $t); }
-	| t=OCTAL_LITERAL				{ $expr = F.at(pos($t)).Literal(TypeTags.INT, (int)Convert.string2long($t.text, 8)); 
-                                                          endPos($expr, $t); }
-	| t=HEX_LITERAL					{ $expr = F.at(pos($t)).Literal(TypeTags.INT, (int)Convert.string2long($t.text, 16)); 
-                                                          endPos($expr, $t); }
-	| t=FLOATING_POINT_LITERAL 			{ $expr = F.at(pos($t)).Literal(TypeTags.DOUBLE, Double.valueOf($t.text)); 
-                                                          endPos($expr, $t); }
-	| t=TIME_LITERAL         			{ $expr = F.at(pos($t)).TimeLiteral($t.text); 
-                                                          endPos($expr, $t); }
-	| t=TRUE   					{ $expr = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 1); 
-                                                          endPos($expr, $t); }
-	| t=FALSE   					{ $expr = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 0); 
-                                                          endPos($expr, $t); }
-	| t=NULL 					{ $expr = F.at(pos($t)).Literal(TypeTags.BOT, null); 
-                                                          endPos($expr, $t); } 
-        | ^(SUCHTHAT target=expression value=expression (interpolate=expression)?)
-                                                        { $expr = F.at(pos($SUCHTHAT)).InterpolateValue($target.expr, $value.expr, $interpolate.expr);
-                                                          endPos($expr, $SUCHTHAT);
+							{ $value = F.at(pos($DOTDOT)).RangeSequence($from.value, $to.value, $step.value, $LT!=null); 
+                                                          endPos($value, $DOTDOT); }
+	| SEQ_EMPTY					{ $value = F.at(pos($SEQ_EMPTY)).EmptySequence(); 
+                                                          endPos($value, $SEQ_EMPTY); }
+       	| THIS						{ $value = F.at(pos($THIS)).Ident(names._this); 
+                                                          endPos($value, $THIS); }
+       	| SUPER						{ $value = F.at(pos($SUPER)).Ident(names._super); 
+                                                          endPos($value, $SUPER); }
+       	| identifier					{ $value = $identifier.value; }
+	| t=STRING_LITERAL				{ $value = F.at(pos($t)).Literal(TypeTags.CLASS, $t.text); 
+                                                          endPos($value, $t); }
+	| t=DECIMAL_LITERAL				{ $value = F.at(pos($t)).Literal(TypeTags.INT, (int)Convert.string2long($t.text, 10)); 
+                                                          endPos($value, $t); }
+	| t=OCTAL_LITERAL				{ $value = F.at(pos($t)).Literal(TypeTags.INT, (int)Convert.string2long($t.text, 8)); 
+                                                          endPos($value, $t); }
+	| t=HEX_LITERAL					{ $value = F.at(pos($t)).Literal(TypeTags.INT, (int)Convert.string2long($t.text, 16)); 
+                                                          endPos($value, $t); }
+	| t=FLOATING_POINT_LITERAL 			{ $value = F.at(pos($t)).Literal(TypeTags.DOUBLE, Double.valueOf($t.text)); 
+                                                          endPos($value, $t); }
+	| t=TIME_LITERAL         			{ $value = F.at(pos($t)).TimeLiteral($t.text); 
+                                                          endPos($value, $t); }
+	| t=TRUE   					{ $value = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 1); 
+                                                          endPos($value, $t); }
+	| t=FALSE   					{ $value = F.at(pos($t)).Literal(TypeTags.BOOLEAN, 0); 
+                                                          endPos($value, $t); }
+	| t=NULL 					{ $value = F.at(pos($t)).Literal(TypeTags.BOT, null); 
+                                                          endPos($value, $t); } 
+        | ^(SUCHTHAT target=expression such=expression (interpolate=expression)?)
+                                                        { $value = F.at(pos($SUCHTHAT)).InterpolateValue($target.value, $such.value, $interpolate.value);
+                                                          endPos($value, $SUCHTHAT);
                                                         } 
         | ^(AT d=expression k=keyFrameLiteralPart)  
-                                                        { $expr = F.at(pos($AT)).KeyFrameLiteral($d.expr, $k.exprs.toList(), null);
-                                                          endPos($expr, $AT);
+                                                        { $value = F.at(pos($AT)).KeyFrameLiteral($d.value, $k.exprs.toList(), null);
+                                                          endPos($value, $AT);
                                                         }
         ;       
 keyFrameLiteralPart returns [ListBuffer<JFXExpression> exprs = new ListBuffer<JFXExpression>(); ]
-        : ^(KEY_FRAME_PART ( expression                 { exprs.append($expression.expr); }
+        : ^(KEY_FRAME_PART ( expression                 { exprs.append($expression.value); }
                            )+
            )
         ;
@@ -429,81 +435,81 @@ inClauses  returns [ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb
 	;
 inClause  returns [JFXForExpressionInClause value] 
 	: ^(IN formalParameter se=expression we=expression?)
-							{ $value = F.at(pos($IN)).InClause($formalParameter.var, $se.expr, $we.expr); 
+							{ $value = F.at(pos($IN)).InClause($formalParameter.var, $se.value, $we.value); 
                                                           endPos($value, $IN); }
 	;
-pipeExpression  returns [JFXExpression expr] //TODO: this is a hack
+pipeExpression  returns [JFXExpression value] //TODO: this is a hack
 	: ^(PIPE seq=expression name cond=expression)	{ ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb(); 
                   					  JFXVar var = F.at($name.pos).Param($name.value, F.TypeUnknown());
-	          					  clauses.append(F.at(pos($PIPE)).InClause(var, $seq.expr, $cond.expr));
-                  					  $expr = F.at(pos($PIPE)).Predicate(clauses.toList(), F.at($name.pos).Ident($name.value));
-                                                          endPos($expr, $PIPE);
+	          					  clauses.append(F.at(pos($PIPE)).InClause(var, $seq.value, $cond.value));
+                  					  $value = F.at(pos($PIPE)).Predicate(clauses.toList(), F.at($name.pos).Ident($name.value));
+                                                          endPos($value, $PIPE);
 							}
 	;
-stringExpression  returns [JFXExpression expr] 
+stringExpression  returns [JFXExpression value] 
 @init { ListBuffer<JFXExpression> strexp = new ListBuffer<JFXExpression>(); 
         String translationKey = null; }
 	: ^(tk=TRANSLATION_KEY                          { translationKey = $tk.text; }
             STRING_LITERAL                              { strexp.append(F.at(pos($STRING_LITERAL)).Literal(TypeTags.CLASS, $STRING_LITERAL.text)); 
-                                                          endPos($expr, $STRING_LITERAL); }
-		  					{ $expr = F.at(pos($STRING_LITERAL)).StringExpression(strexp.toList(), translationKey); 
-                                                          endPos($expr, $STRING_LITERAL); }
+                                                          endPos($value, $STRING_LITERAL); }
+		  					{ $value = F.at(pos($STRING_LITERAL)).StringExpression(strexp.toList(), translationKey); 
+                                                          endPos($value, $STRING_LITERAL); }
            )
 	| ^(QUOTE_LBRACE_STRING_LITERAL			{ strexp.append(F.at(pos($QUOTE_LBRACE_STRING_LITERAL)).Literal(TypeTags.CLASS,
 												 $QUOTE_LBRACE_STRING_LITERAL.text)); 
-                                                          endPos($expr, $QUOTE_LBRACE_STRING_LITERAL); }
-		  f1=stringFormat			{ strexp.append($f1.expr); }
-		  e1=expression 			{ strexp.append($e1.expr); }
+                                                          endPos($value, $QUOTE_LBRACE_STRING_LITERAL); }
+		  f1=stringFormat			{ strexp.append($f1.value); }
+		  e1=expression 			{ strexp.append($e1.value); }
 		  (  rl=RBRACE_LBRACE_STRING_LITERAL	{ strexp.append(F.at(pos($rl)).Literal(TypeTags.CLASS, $rl.text)); }
-		     fn=stringFormat			{ strexp.append($fn.expr); }
-		     en=expression 			{ strexp.append($en.expr); }
+		     fn=stringFormat			{ strexp.append($fn.value); }
+		     en=expression 			{ strexp.append($en.value); }
 		  )*   
 		  rq=RBRACE_QUOTE_STRING_LITERAL	{ strexp.append(F.at(pos($rq)).Literal(TypeTags.CLASS, $rq.text)); }
-		  					{ $expr = F.at(pos($QUOTE_LBRACE_STRING_LITERAL)).StringExpression(strexp.toList(), translationKey); 
-                                                          endPos($expr, $QUOTE_LBRACE_STRING_LITERAL); }
+		  					{ $value = F.at(pos($QUOTE_LBRACE_STRING_LITERAL)).StringExpression(strexp.toList(), translationKey); 
+                                                          endPos($value, $QUOTE_LBRACE_STRING_LITERAL); }
 	    )
 	| ^(tk=TRANSLATION_KEY                          { translationKey = $tk.text; }
             QUOTE_LBRACE_STRING_LITERAL			{ strexp.append(F.at(pos($QUOTE_LBRACE_STRING_LITERAL)).Literal(TypeTags.CLASS,
 												 $QUOTE_LBRACE_STRING_LITERAL.text)); 
-                                                          endPos($expr, $QUOTE_LBRACE_STRING_LITERAL); }
-		  f1=stringFormat			{ strexp.append($f1.expr); }
-		  e1=expression 			{ strexp.append($e1.expr); }
+                                                          endPos($value, $QUOTE_LBRACE_STRING_LITERAL); }
+		  f1=stringFormat			{ strexp.append($f1.value); }
+		  e1=expression 			{ strexp.append($e1.value); }
 		  (  rl=RBRACE_LBRACE_STRING_LITERAL	{ strexp.append(F.at(pos($rl)).Literal(TypeTags.CLASS, $rl.text)); }
-		     fn=stringFormat			{ strexp.append($fn.expr); }
-		     en=expression 			{ strexp.append($en.expr); }
+		     fn=stringFormat			{ strexp.append($fn.value); }
+		     en=expression 			{ strexp.append($en.value); }
 		  )*   
 		  rq=RBRACE_QUOTE_STRING_LITERAL	{ strexp.append(F.at(pos($rq)).Literal(TypeTags.CLASS, $rq.text)); }
-		  					{ $expr = F.at(pos($QUOTE_LBRACE_STRING_LITERAL)).StringExpression(strexp.toList(), translationKey); 
-                                                          endPos($expr, $QUOTE_LBRACE_STRING_LITERAL); }
+		  					{ $value = F.at(pos($QUOTE_LBRACE_STRING_LITERAL)).StringExpression(strexp.toList(), translationKey); 
+                                                          endPos($value, $QUOTE_LBRACE_STRING_LITERAL); }
 	    )
 	;
-stringFormat  returns [JFXExpression expr] 
-	: fs=FORMAT_STRING_LITERAL			{ $expr = F.at(pos($fs)).Literal(TypeTags.CLASS, $fs.text); }
-	| EMPTY_FORMAT_STRING				{ $expr = F.             Literal(TypeTags.CLASS, ""); }
+stringFormat  returns [JFXExpression value] 
+	: fs=FORMAT_STRING_LITERAL			{ $value = F.at(pos($fs)).Literal(TypeTags.CLASS, $fs.text); }
+	| EMPTY_FORMAT_STRING				{ $value = F.             Literal(TypeTags.CLASS, ""); }
 	;
-explicitSequenceExpression   returns [JFXSequenceExplicit expr]
+explicitSequenceExpression   returns [JFXSequenceExplicit value]
 @init { ListBuffer<JFXExpression> exps = new ListBuffer<JFXExpression>(); }
 	: ^(SEQ_EXPLICIT   
-	    ( expression 				{ exps.append($expression.expr); } )*
-	   )						{ $expr = F.at(pos($SEQ_EXPLICIT)).ExplicitSequence(exps.toList()); 
-                                                          endPos($expr, $SEQ_EXPLICIT); }
+	    ( expression 				{ exps.append($expression.value); } )*
+	   )						{ $value = F.at(pos($SEQ_EXPLICIT)).ExplicitSequence(exps.toList()); 
+                                                          endPos($value, $SEQ_EXPLICIT); }
 	;
 objectLiteral  returns [ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb()]
 	: ( objectLiteralPart  				{ $parts.append($objectLiteralPart.value); } ) * 
 	;
 objectLiteralPart  returns [JFXTree value]
 	: ^(OBJECT_LIT_PART n=name boundExpression)	{ $value = F.at($n.pos).ObjectLiteralPart($name.value,
-								 $boundExpression.expr, $boundExpression.status); 
+								 $boundExpression.value, $boundExpression.status); 
                                                           endPos($value, $OBJECT_LIT_PART); }
        	| variableDeclaration				{ $value = $variableDeclaration.value; }
        	| overrideDeclaration				{ $value = $overrideDeclaration.value; }
        	| functionDefinition				{ $value = $functionDefinition.value; }
        	;
 expressionList  returns [ListBuffer<JFXExpression> args = new ListBuffer<JFXExpression>()] 
-	: ^(EXPR_LIST (expression			{ $args.append($expression.expr); }  )* )
+	: ^(EXPR_LIST (expression			{ $args.append($expression.value); }  )* )
 	;
 type  returns [JFXType type]
-	: ^(TYPE_NAMED typeName cardinality)		{ $type = F.at($typeName.expr.pos).TypeClass($typeName.expr, $cardinality.ary); 
+	: ^(TYPE_NAMED typeName cardinality)		{ $type = F.at($typeName.value.pos).TypeClass($typeName.value, $cardinality.ary); 
                                                           endPos($type, $TYPE_NAMED); }
  	| ^(TYPE_FUNCTION typeArgList ret=type cardinality)
  							{ $type = F.at(pos($TYPE_FUNCTION)).TypeFunctional($typeArgList.ptypes.toList(), $ret.type, $cardinality.ary); 
@@ -522,36 +528,36 @@ cardinality returns [TypeTree.Cardinality ary]
 	: RBRACKET					{ ary = TypeTree.Cardinality.ANY; }
 	|                         			{ ary = TypeTree.Cardinality.SINGLETON; } 
 	;	
-typeName  returns [JFXExpression expr]
+typeName  returns [JFXExpression value]
 	: ^(TYPE_ARG qualident genericArguments)	{ log.error(pos($TYPE_ARG), "javafx.generalerror", "Java generic type declarations are not currently supported"); }
-                                                        //TODO: remove or implement -- { $expr = F.at(pos($TYPE_ARG)).TypeApply($qualident.expr, $genericArguments.exprbuff.toList());
-                                                        { $expr = $qualident.expr; // so that things don't fall over
-                                                          endPos($expr, $TYPE_ARG); }
-	| qualident					{ $expr = $qualident.expr; }
+                                                        //TODO: remove or implement -- { $value = F.at(pos($TYPE_ARG)).TypeApply($qualident.value, $genericArguments.exprbuff.toList());
+                                                        { $value = $qualident.value; // so that things don't fall over
+                                                          endPos($value, $TYPE_ARG); }
+	| qualident					{ $value = $qualident.value; }
 	;
 genericArguments  returns [ListBuffer<JFXExpression> exprbuff = ListBuffer.<JFXExpression>lb()]
-	: ( genericArgument				{ $exprbuff.append($genericArgument.expr); } )* 
+	: ( genericArgument				{ $exprbuff.append($genericArgument.value); } )* 
 	;	
-genericArgument  returns [JFXExpression expr]
+genericArgument  returns [JFXExpression value]
 @init { BoundKind bk = BoundKind.UNBOUND; JFXExpression texpr = null; }
-	: typeName					{ $expr = $typeName.expr; }
+	: typeName					{ $value = $typeName.value; }
 	| ^(QUES (  ( EXTENDS 				{ bk = BoundKind.EXTENDS; }
 		    | SUPER				{ bk = BoundKind.SUPER; }
 		    ) 
-		 typeName				{ texpr = $typeName.expr; }
-	         )?					{ //TODO: remove or implement -- $expr = F.at(pos($QUES)).Wildcard(F.TypeBoundKind(bk), texpr); 
-                                                          endPos($expr, $QUES); }
+		 typeName				{ texpr = $typeName.value; }
+	         )?					{ //TODO: remove or implement -- $value = F.at(pos($QUES)).Wildcard(F.TypeBoundKind(bk), texpr); 
+                                                          endPos($value, $QUES); }
 	    )
 	;
-qualident  returns [JFXExpression expr]
-	: name 				          	{ $expr = F.at($name.pos).Ident($name.value); 
-                                                          endPos($expr, $name.pos + $name.value.length()); } 
-	| ^(DOT id=qualident name)			{ $expr = F.at(pos($DOT)).Select($id.expr, $name.value); 
-                                                          endPos($expr, $DOT); } 
+qualident  returns [JFXExpression value]
+	: name 				          	{ $value = F.at($name.pos).Ident($name.value); 
+                                                          endPos($value, $name.pos + $name.value.length()); } 
+	| ^(DOT id=qualident name)			{ $value = F.at(pos($DOT)).Select($id.value, $name.value); 
+                                                          endPos($value, $DOT); } 
 	;
-identifier  returns [JFXIdent expr]
-	: name 				          	{ $expr = F.at($name.pos).Ident($name.value); 
-                                                          endPos($expr, $name.pos + $name.value.length()); } 
+identifier  returns [JFXIdent value]
+	: name 				          	{ $value = F.at($name.pos).Ident($name.value); 
+                                                          endPos($value, $name.pos + $name.value.length()); } 
 	;
 name returns [Name value, int pos]
 	: IDENTIFIER					{ $value = Name.fromString(names, $IDENTIFIER.text); $pos = pos($IDENTIFIER); }
