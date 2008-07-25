@@ -33,7 +33,7 @@ import javax.swing.event.ChangeEvent;
  * The {@link SwingRadioButton} and {@link SwingCheckBox} classes
  * are subclasses of this class.
  */
-public class ToggleButton extends SelectableButton {
+public class SwingToggleButton extends SelectableButton {
 
     // PENDING_DOC_REVIEW
     /**
