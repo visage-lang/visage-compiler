@@ -536,10 +536,10 @@ overrideDeclaration
 	    					-> ^(OVERRIDE name boundExpression? onReplaceClause?)
 ;
 initDefinition
-	: INIT block 				-> ^(INIT block)
+	: INIT blockExpression 				-> ^(INIT blockExpression)
 	;
 postInitDefinition
-	: POSTINIT block 			-> ^(POSTINIT block)
+	: POSTINIT blockExpression 			-> ^(POSTINIT blockExpression)
 	;
 //triggerDefinition
 //	: WITH name onReplaceClause		-> ^(WITH name onReplaceClause)
@@ -616,11 +616,6 @@ catch [RecognitionException re] {
         retval.tree = r.tree;
     }
 }
-block
-	: LBRACE blockComponent
-	   (SEMI blockComponent) *
-	  RBRACE				-> ^(BLOCK[$LBRACE] blockComponent*)
-	;
 blockExpression 
 	: LBRACE blockComponent
 	   (SEMI blockComponent) *
@@ -652,8 +647,8 @@ statement
        	| tryStatement	
        	;
 onReplaceClause
-	: ON REPLACE oldval=paramNameOpt clause=sliceClause? block
-						-> ^(ON_REPLACE_SLICE[$ON] $oldval $clause? block)
+	: ON REPLACE oldval=paramNameOpt clause=sliceClause? blockExpression
+						-> ^(ON_REPLACE_SLICE[$ON] $oldval $clause? blockExpression)
 	;
 sliceClause
 	: LBRACKET first=name DOTDOT last=name RBRACKET EQ newElements=name
@@ -678,7 +673,7 @@ throwStatement
 	: THROW expression 			-> ^(THROW expression)
 	;
 whileStatement
-	: WHILE LPAREN expression RPAREN block	-> ^(WHILE expression block)
+	: WHILE LPAREN expression RPAREN blockExpression	-> ^(WHILE expression blockExpression)
 	;
 insertStatement  
 	: INSERT elem=expression
@@ -697,17 +692,17 @@ returnStatement
 	: RETURN expression?			-> ^(RETURN expression?)
 	;
 tryStatement
-	: TRY block 			
+	: TRY blockExpression 			
 	   ( finallyClause
 	   | catchClause+ finallyClause?   
-	   ) 					-> ^(TRY block catchClause* finallyClause?)
+	   ) 					-> ^(TRY blockExpression catchClause* finallyClause?)
 	;
 finallyClause
-	: FINALLY block				-> ^(FINALLY block)
+	: FINALLY blockExpression				-> ^(FINALLY blockExpression)
 	;
 catchClause
-	: CATCH LPAREN formalParameter RPAREN block
-						-> ^(CATCH formalParameter block)
+	: CATCH LPAREN formalParameter RPAREN blockExpression
+						-> ^(CATCH formalParameter blockExpression)
 	;
 boundExpression 
 	: BIND expression (WITH INVERSE)?

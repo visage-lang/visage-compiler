@@ -129,11 +129,11 @@ functionDefinition  returns [JFXFunctionDefinition value]
                                                           endPos($value, $FUNCTION); }
 	;
 initDefinition  returns [JFXInitDefinition value]
-	: ^(INIT block)					{ $value = F.at(pos($INIT)).InitDefinition($block.value); 
+	: ^(INIT blockExpression)					{ $value = F.at(pos($INIT)).InitDefinition($blockExpression.value); 
                                                           endPos($value, $INIT); }
 	;
 postInitDefinition  returns [JFXPostInitDefinition value]
-	: ^(POSTINIT block)	 			{ $value = F.at(pos($POSTINIT)).PostInitDefinition($block.value); 
+	: ^(POSTINIT blockExpression)	 			{ $value = F.at(pos($POSTINIT)).PostInitDefinition($blockExpression.value); 
                                                           endPos($value, $POSTINIT); }
 	;
 overrideDeclaration returns [JFXOverrideAttribute value]
@@ -177,21 +177,6 @@ formalParameterOpt returns [JFXVar var]
 	: formalParameter				{ $var = $formalParameter.var; } 
 	|						{ $var = null; } 
 	;
-block  returns [JFXBlockExpression value]
-@init { ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>(); JFXExpression val = null;}
-	: ^(BLOCK
-		(	^(STATEMENT statement)		{ if (val != null) {
-                                                              stats.append(val);
-                                                          }
-	     					  	  val = $statement.value; }
-		| 	^(EXPRESSION expression)	{ if (val != null) {
-                                                              stats.append(val);
-                                                          }
-	     					  	  val = $expression.value; }
-		)*
-	    )						{ $value = F.at(pos($BLOCK)).BlockExpression(0L, stats.toList(), val);
-                                                          endPos($value, $BLOCK); }
-	;
 blockExpression  returns [JFXBlockExpression value]
 @init { ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>(); JFXExpression val = null;}
 	: ^(LBRACE 
@@ -224,8 +209,8 @@ variableDeclaration    returns [JFXExpression value]
 onReplaceClause     returns [JFXOnReplace value]
 	: ^(ON_REPLACE_SLICE oldv=paramNameOpt
 	       (^(SLICE_CLAUSE first=paramNameOpt last=paramNameOpt newElements=paramNameOpt))?
-	    block)
-							{ $value = F.at(pos($ON_REPLACE_SLICE)).OnReplace($oldv.var, $first.var, $last.var, $newElements.var, $block.value); 
+	    blockExpression)
+							{ $value = F.at(pos($ON_REPLACE_SLICE)).OnReplace($oldv.var, $first.var, $last.var, $newElements.var, $blockExpression.value); 
                                                           endPos($value, $ON_REPLACE_SLICE); }
 	;
 paramNameOpt returns [JFXVar var]
@@ -247,7 +232,7 @@ statement returns [JFXExpression value]
                                                           endPos($value, $CONTINUE); }
        	| ^(THROW expression)	   			{ $value = F.at(pos($THROW)).Throw($expression.value); 
                                                           endPos($value, $THROW); } 
-	| ^(WHILE expression block)			{ $value = F.at(pos($WHILE)).WhileLoop($expression.value, $block.value); 
+	| ^(WHILE expression blockExpression)			{ $value = F.at(pos($WHILE)).WhileLoop($expression.value, $blockExpression.value); 
                                                           endPos($value, $WHILE); }
 	| ^(INTO elem=expression eseq=expression)	{ $value = F.at(pos($INTO)).SequenceInsert($eseq.value, $elem.value, null, false); 
                                                           endPos($value, $INTO); } 
@@ -263,18 +248,18 @@ statement returns [JFXExpression value]
                                                           endPos($value, $DELETE); } 
 	| ^(RETURN expression?)				{ $value = F.at(pos($RETURN)).Return($expression.value); 
                                                           endPos($value, $RETURN); } 
-	| ^(TRY block catchClauses finallyClause?)	{ $value = F.at(pos($TRY)).Try($block.value, $catchClauses.caught.toList(), $finallyClause.value); 
+	| ^(TRY blockExpression catchClauses finallyClause?)	{ $value = F.at(pos($TRY)).Try($blockExpression.value, $catchClauses.caught.toList(), $finallyClause.value); 
                                                           endPos($value, $TRY); }
        	;
 catchClauses  returns [ListBuffer<JFXCatch> caught = ListBuffer.lb()]
 	: ( catchClause					{ $caught.append($catchClause.value); } )*
 	;
 catchClause  returns [JFXCatch value]
-	: ^(CATCH formalParameter block)		{ $value = F.at(pos($CATCH)).Catch($formalParameter.var, $block.value); 
+	: ^(CATCH formalParameter blockExpression)		{ $value = F.at(pos($CATCH)).Catch($formalParameter.var, $blockExpression.value); 
                                                           endPos($value, $CATCH); } 
 	;
 finallyClause  returns [JFXBlockExpression value]
-	: ^(FINALLY block)				{ $value = $block.value; }
+	: ^(FINALLY blockExpression)				{ $value = $blockExpression.value; }
 	;
 boundExpression   returns [JavafxBindStatus status, JFXExpression value]
 @init { boolean isLazy = false; boolean isBidirectional = false; }
