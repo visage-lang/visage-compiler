@@ -34,7 +34,7 @@ import javax.swing.JToggleButton;
  * <code>toggleGroup</code> attribute to include the RadioButton objects
  * in the group.
  */
-public class RadioButton extends ToggleButton {
+public class SwingRadioButton extends ToggleButton {
 
     // PENDING_DOC_REVIEW
     /**

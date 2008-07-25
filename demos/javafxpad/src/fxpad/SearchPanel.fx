@@ -287,7 +287,7 @@ public class SearchPanel extends CustomNode {
             },
             ComponentView {
                 transform: Transform.translate(0, -1)
-                component: CheckBox {
+                component: SwingCheckBox {
                     text: "Match Case",
                     font: Font.font("VERDANA", FontStyle.BOLD, 11),
                     //TODO focusable: false

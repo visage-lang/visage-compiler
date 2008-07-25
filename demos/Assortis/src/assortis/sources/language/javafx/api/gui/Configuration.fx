@@ -27,11 +27,11 @@ Module {
         className: "assortis.sources.language.javafx.api.gui.FXButton"
     },
     Sample{
-        name: "CheckBox"
+        name: "SwingCheckBox"
         className: "assortis.sources.language.javafx.api.gui.FXCheckBox"
     },
     Sample{
-        name: "RadioButton"
+        name: "SwingRadioButton"
         className: "assortis.sources.language.javafx.api.gui.FXRadioButton"
     },
     Sample{

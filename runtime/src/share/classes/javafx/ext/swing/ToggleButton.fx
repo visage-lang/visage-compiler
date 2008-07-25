@@ -30,7 +30,7 @@ import javax.swing.event.ChangeEvent;
 // PENDING_DOC_REVIEW
 /**
  * An implementation of a two-state button.
- * The {@link RadioButton} and {@link CheckBox} classes
+ * The {@link SwingRadioButton} and {@link SwingCheckBox} classes
  * are subclasses of this class.
  */
 public class ToggleButton extends SelectableButton {

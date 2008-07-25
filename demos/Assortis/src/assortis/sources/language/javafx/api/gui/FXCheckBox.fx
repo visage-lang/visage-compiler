@@ -6,7 +6,7 @@ var animals = ["Bird","Cat","Dog","Rabbit","Pig"];
 
 FlowPanel{
     content: for (animal  in animals )[
-        CheckBox { text: animal } 
+        SwingCheckBox { text: animal } 
     ]
 }
 
