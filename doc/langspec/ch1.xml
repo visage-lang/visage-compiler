@@ -33,10 +33,6 @@
     reuse, and encapsulation features that enable creating and maintaining
     very large programs in the Java programming language.</listitem>
 
-    <listitem>Works with all major IDEs, including the NetBeans IDE, the
-    reference implementation IDE for software development with the Java
-    programming language.</listitem>
-
     <listitem>Is capable of supporting GUIs of any size or
     complexity.</listitem>
 
