@@ -28,6 +28,16 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javafx.lang.FX;
 
+private def TOP = BorderLayout.NORTH;
+private def BOTTOM = BorderLayout.SOUTH;
+private def LEFT = BorderLayout.WEST;
+private def RIGHT = BorderLayout.EAST;
+private def PAGE_START = BorderLayout.PAGE_START;
+private def PAGE_END = BorderLayout.PAGE_END;
+private def LINE_START = BorderLayout.LINE_START;
+private def LINE_END = BorderLayout.LINE_END;
+private def CENTER = BorderLayout.CENTER;
+
 // PENDING_DOC_REVIEW
 /**
  * Creates a panel with the applied border layout.
@@ -51,74 +61,6 @@ import javafx.lang.FX;
  * and vertically to fill any space left over. 
  */
 public class BorderPanel extends AbstractPanel {
-
-   
-   // PENDING_DOC_REVIEW
-   /**
-    * A constant to specify components location to be the
-    * top portion of the border layout. 
-    */
-    private static /* final */ attribute TOP = BorderLayout.NORTH;
-   
-   // PENDING_DOC_REVIEW
-   /**
-    * A constant to specify components location to be the
-    * bottom portion of the border layout.
-    */
-    private static /* final */ attribute BOTTOM = BorderLayout.SOUTH;
-    
-   // PENDING_DOC_REVIEW 
-   /**
-    * A constant to specify components location to be the
-    * left portion of the border layout. 
-    */
-    private static /* final */ attribute LEFT = BorderLayout.WEST;
-    
-   // PENDING_DOC_REVIEW
-   /**
-    * A constant to specify components location to be the
-    * right portion of the border layout. 
-    */
-    private static /* final */ attribute RIGHT = BorderLayout.EAST;
-    
-   // PENDING_DOC_REVIEW
-   /**
-    * A constant to specify the component comes after the last line of the
-    * layout's content. For Western, left-to-right and top-to-bottom orientations,
-    * this is equivalent to {@code TOP}. 
-    */
-    private static /* final */ attribute PAGE_START = BorderLayout.PAGE_START;
-   
-   // PENDING_DOC_REVIEW
-   /**
-    * A constant to specify the component comes after the last line of the
-    * layout's content. For Western, left-to-right and top-to-bottom orientations,
-    * this is equivalent to {@code BOTTOM}. 
-    */
-    private static /* final */ attribute PAGE_END = BorderLayout.PAGE_END;
-
-   // PENDING_DOC_REVIEW 
-   /**
-    * A constant to specify the component goes at the beginning of the line
-    * direction for the layout. For Western, left-to-right and top-to-bottom
-    * orientations, this is equivalent to {@code LEFT}. 
-    */
-    private static /* final */ attribute LINE_START = BorderLayout.LINE_START;
-    
-   // PENDING_DOC_REVIEW
-   /**
-    * A constant to specify the component goes at the end of the line
-    * direction for the layout. For Western, left-to-right and top-to-bottom
-    * orientations, this is equivalent to {@code RIGHT}. 
-    */     
-    private static /* final */ attribute LINE_END = BorderLayout.LINE_END;
-    
-   // PENDING_DOC_REVIEW
-   /**
-    * A constant to specify components location to be the
-    * center portion of the border layout.  
-    */
-    private static /* final */ attribute CENTER = BorderLayout.CENTER;
 
    // PENDING_DOC_REVIEW
    /**
