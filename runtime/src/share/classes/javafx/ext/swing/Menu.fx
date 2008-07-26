@@ -29,6 +29,11 @@ import javax.swing.JComponent;
 import javafx.lang.Sequences;
 import javafx.lang.FX;
 
+private function indexOfJMenuItemInJMenu(item: JMenuItem, menu: JMenu): Integer {
+    var children = menu.getMenuComponents();
+    return Sequences.indexByIdentity(children, item);
+}
+
 // PENDING_DOC_REVIEW
 /**
  * An implementation of a menu -- a popup window containing {@link MenuItem}s. 
@@ -74,11 +79,6 @@ public class Menu extends MenuItem, Container {
         for (i in [sizeof itemIndices - 1..0 step -1]) {
             delete items[itemIndices[i]];
         }
-    }
-
-    private static function indexOfJMenuItemInJMenu(item: JMenuItem, menu: JMenu): Integer {
-        var children = menu.getMenuComponents();
-        return Sequences.indexByIdentity(children, item);
     }
 
     private function resetMenusFromJMenu(): Void {
