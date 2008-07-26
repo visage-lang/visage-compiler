@@ -103,7 +103,7 @@ SwingFrame {
     width: 1000
     title: "Tesla"
     //onClose: function() {System.exit(0);}
-    content: ScrollPane {
+    content: SwingScrollPane {
         //background: Color.BLACK
         view: Canvas {
             background: Color.BLACK
