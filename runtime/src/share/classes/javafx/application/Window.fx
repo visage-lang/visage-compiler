@@ -40,6 +40,11 @@ import javafx.scene.*;
 import javafx.scene.paint.*;
 import javafx.scene.image.Image;
 
+// PENDING(shannonh) - replace use of this def with isInitialized() or
+// similar when the following is resolved:
+// http://openjfx.java.sun.com/jira/browse/JFXC-1061
+private def UNINITIALIZED: Integer = java.lang.Integer.MIN_VALUE;
+
 // PENDING_DOC_REVIEW
 /**
  * This is a abstract base class for all top-level windows. A window is a toplevel canvas for displaying scene nodes on
@@ -48,11 +53,6 @@ import javafx.scene.image.Image;
 public abstract class Window {
 
     private attribute initialized: Boolean = false;
-
-    // PENDING(shannonh) - replace use of this attribute with isInitialized() or
-    // similar when the following is resolved:
-    // http://openjfx.java.sun.com/jira/browse/JFXC-1061
-    private static /* final */ attribute UNINITIALIZED: Integer = java.lang.Integer.MIN_VALUE;
 
     /* constant */ protected attribute canvasStage:CanvasStageImpl = CanvasStageImpl{ stage: bind stage };
     /* constant */ protected attribute window : java.awt.Window = createWindow();

@@ -36,6 +36,11 @@ import javafx.lang.FX;
 import javafx.scene.paint.Color;
 import javafx.scene.image.Image;
 
+// PENDING(shannonh) - replace use of this def with isInitialized() or
+// similar when the following is resolved:
+// http://openjfx.java.sun.com/jira/browse/JFXC-1061
+private def UNINITIALIZED: Integer = java.lang.Integer.MIN_VALUE;
+
 // PENDING_DOC_REVIEW
 /**
  * A {@code Window} object is a top-level window.
@@ -52,11 +57,6 @@ import javafx.scene.image.Image;
 public class SwingWindow extends Container {
 
     private attribute initialized: Boolean = false;
-
-    // PENDING(shannonh) - replace use of this attribute with isInitialized() or
-    // similar when the following is resolved:
-    // http://openjfx.java.sun.com/jira/browse/JFXC-1061
-    private static /* final */ attribute UNINITIALIZED: Integer = java.lang.Integer.MIN_VALUE;
 
     /*
      * This attribute must be defined before createWindow() is called, so
