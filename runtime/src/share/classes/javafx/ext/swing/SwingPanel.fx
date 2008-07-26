@@ -28,6 +28,11 @@ import javax.swing.JPanel;
 import javafx.lang.Sequences;
 import javafx.lang.FX;
 
+private function indexOfJComponentInJPanel(component: JComponent, panel: JPanel): Integer {
+    var children = panel.getComponents();
+    return Sequences.indexByIdentity(children, component);
+}
+
 /**
  * A {@code Component Container} that lays out its children absolutely,
  * based on their {@code x, y, width, height} attributes.
@@ -60,11 +65,6 @@ public class SwingPanel extends AbstractPanel {
         jPanel.revalidate();
         jPanel.repaint();
         resetContentFromJPanel();
-    }
-
-    private static function indexOfJComponentInJPanel(component: JComponent, panel: JPanel): Integer {
-        var children = panel.getComponents();
-        return Sequences.indexByIdentity(children, component);
     }
 
     private function resetContentFromJPanel(): Void {
