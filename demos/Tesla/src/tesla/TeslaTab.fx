@@ -36,7 +36,7 @@ public class TeslaTab extends CustomNode {
                 image: Image {url: "http://teslamotors.com/images/nav/2ndnav_r1_c2.gif"}
             },
             tabBackground = Group {
-                var textWidth = bind text.getWidth()+2 
+                var textWidth = bind text.getWidth()+2;
                 visible: bind selected
                 transform: Transform.translate(18, 0)
                 content: bind [

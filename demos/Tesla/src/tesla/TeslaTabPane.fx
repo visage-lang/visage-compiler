@@ -80,9 +80,9 @@ public class TeslaTabPane extends CustomNode {
                 }
             },
             Group {
+                var red = Color.color(0.7, 0, 0, 1);
                 visible: bind drawBorder
                 transform: Transform.translate(0, 44)
-                var red = Color.color(0.7, 0, 0, 1)
                 content:
                 [Line {endX: bind width, stroke: Color.RED, strokeWidth: 0.5},
                 Line {startY: 2 endY: 2, endX: bind width, stroke: Color.RED, strokeWidth: 0.5}]

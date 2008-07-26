@@ -119,8 +119,8 @@ PEM have been designed as a tightly integrated system that delivers up to
                 }
             },
             Group {
-                var blue = Color.color(.2, .2, .2, 1)
-                var darkBlue = Color.color(.1, .1, .1, 1)
+                var blue = Color.color(.2, .2, .2, 1);
+                var darkBlue = Color.color(.1, .1, .1, 1);
                 transform: Translate.translate(210, 0)
                 content:
                 [Rectangle {

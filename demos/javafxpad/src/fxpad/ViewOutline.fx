@@ -101,9 +101,9 @@ class ViewOutline extends CustomNode {
                 stroke: bind if (sizing != null) then strokeColor else transparentFill
                 strokeWidth: 1
                      //strokeDashArray: outlineDash
-                fill: bind if (sizing != null) then Color.color(1, 1, 1, 0.5) else null
-                var mouseX:Number = 0
-                var mouseY:Number = 0
+                fill: bind if (sizing != null) then Color.color(1, 1, 1, 0.5) else null;
+                var mouseX:Number = 0;
+                var mouseY:Number = 0;
                 var saveCursor:Cursor = null;
                 onMousePressed: function(e:MouseEvent):Void {
                     mouseX = e.getX();
@@ -142,9 +142,9 @@ class ViewOutline extends CustomNode {
                     strokeWidth: bind outlineWidth
                     strokeDashArray: outlineDash
                     verticalAlignment: VerticalAlignment.CENTER
-                    horizontalAlignment: HorizontalAlignment.CENTER
-                    var mouseX:Number = 0
-                    var mouseY:Number = 0
+                    horizontalAlignment: HorizontalAlignment.CENTER;
+                    var mouseX:Number = 0;
+                    var mouseY:Number = 0;
                     onMousePressed: function(e:MouseEvent):Void {
                         mouseX = e.getX();
                         mouseY = e.getY();
@@ -184,9 +184,9 @@ class ViewOutline extends CustomNode {
                     fill: transparentFill
                     transform: bind Transform.translate(rectWidth/2, 0)
                     verticalAlignment: VerticalAlignment.CENTER
-                    horizontalAlignment: HorizontalAlignment.CENTER
-                    var mouseX:Number = 0
-                    var mouseY:Number = 0
+                    horizontalAlignment: HorizontalAlignment.CENTER;
+                    var mouseX:Number = 0;
+                    var mouseY:Number = 0;
                     onMousePressed: function(e:MouseEvent):Void {
                         mouseX = e.getX();
                         mouseY = e.getY();
@@ -216,9 +216,9 @@ class ViewOutline extends CustomNode {
                     strokeDashArray: outlineDash
                     transform: bind Transform.translate(rectWidth, 0)
                     verticalAlignment: VerticalAlignment.CENTER
-                    horizontalAlignment: HorizontalAlignment.CENTER
-                    var mouseX:Number = 0
-                    var mouseY:Number = 0
+                    horizontalAlignment: HorizontalAlignment.CENTER;
+                    var mouseX:Number = 0;
+                    var mouseY:Number = 0;
                     onMousePressed: function(e:MouseEvent):Void {
                         mouseX = e.getX();
                         mouseY = e.getY();
@@ -227,9 +227,9 @@ class ViewOutline extends CustomNode {
                     onMouseDragged: function(e:MouseEvent):Void {
                         var dx = e.getX() - mouseX;
                         var dy = e.getY() - mouseY;
+                        var w = rectWidth + dx;
                         mouseX = e.getX();
                         mouseY = e.getY();
-                        var w = rectWidth + dx;
                         if (w < 0) {
                             w = 0;
                         }
@@ -257,9 +257,9 @@ class ViewOutline extends CustomNode {
                     fill: transparentFill
                     transform: bind Transform.translate(rectWidth, rectHeight/2)
                     verticalAlignment: VerticalAlignment.CENTER
-                    horizontalAlignment: HorizontalAlignment.CENTER
-                    var mouseX:Number = 0
-                    var mouseY:Number = 0
+                    horizontalAlignment: HorizontalAlignment.CENTER;
+                    var mouseX:Number = 0;
+                    var mouseY:Number = 0;
                     onMousePressed: function(e:MouseEvent):Void {
                         mouseX = e.getX();
                         mouseY = e.getY();
@@ -292,9 +292,9 @@ class ViewOutline extends CustomNode {
                     fill: transparentFill
                     transform: bind Transform.translate(rectWidth, rectHeight)
                     verticalAlignment: VerticalAlignment.CENTER
-                    horizontalAlignment: HorizontalAlignment.CENTER
-                    var mouseX:Number = 0
-                    var mouseY:Number = 0
+                    horizontalAlignment: HorizontalAlignment.CENTER;
+                    var mouseX:Number = 0;
+                    var mouseY:Number = 0;
                     onMousePressed: function(e:MouseEvent):Void {
                         mouseX = e.getX();
                         mouseY = e.getY();
@@ -332,10 +332,10 @@ class ViewOutline extends CustomNode {
                     fill: transparentFill
                     transform: bind Transform.translate(rectWidth/2, rectHeight)
                     verticalAlignment: VerticalAlignment.CENTER
-                    horizontalAlignment: HorizontalAlignment.CENTER
-                    var mouseX:Number = 0
-                    var mouseY:Number = 0
-                    var oldValue = 0
+                    horizontalAlignment: HorizontalAlignment.CENTER;
+                    var mouseX:Number = 0;
+                    var mouseY:Number = 0;
+                    var oldValue = 0;
                     onMousePressed: function(e:MouseEvent):Void {
                         mouseX = e.getX();
                         mouseY = e.getY();
@@ -370,9 +370,9 @@ class ViewOutline extends CustomNode {
                     fill: transparentFill
                     transform: bind Transform.translate(0, rectHeight)
                     verticalAlignment: VerticalAlignment.CENTER
-                    horizontalAlignment: HorizontalAlignment.CENTER
-                    var mouseX:Number = 0
-                    var mouseY :Number= 0
+                    horizontalAlignment: HorizontalAlignment.CENTER;
+                    var mouseX:Number = 0;
+                    var mouseY :Number= 0;
                     onMousePressed: function(e:MouseEvent):Void {
                         mouseX = e.getX();
                         mouseY = e.getY();
@@ -411,9 +411,9 @@ class ViewOutline extends CustomNode {
                     fill: transparentFill
                     transform: bind Transform.translate(0, rectHeight/2)
                     verticalAlignment: VerticalAlignment.CENTER
-                    horizontalAlignment: HorizontalAlignment.CENTER
-                    var mouseX:Number = 0
-                    var mouseY:Number = 0
+                    horizontalAlignment: HorizontalAlignment.CENTER;
+                    var mouseX:Number = 0;
+                    var mouseY:Number = 0;
                     onMousePressed: function(e:MouseEvent):Void {
                         mouseX = e.getX();
                         mouseY = e.getY();

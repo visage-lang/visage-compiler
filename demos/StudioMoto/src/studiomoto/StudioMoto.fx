@@ -77,10 +77,10 @@ var homeModel = HomeModel {
     title: "JavaFX - Motorola Music"
     height: 700
     width: 1100
-    visible: true 
+    visible: true;
     var splash = StudioMotoSplash {
         onDone: function() {homeModel.selection = 0;}
-    }    
+    }
     override attribute visible on replace {
         if(visible) {
             homeModel.selection = -1;
@@ -88,14 +88,14 @@ var homeModel = HomeModel {
             homeModel.selection = 0;
         }
     };
-    
+
 
     background: Color.BLACK
     content:
     canvas = Canvas {
+        var w = 1300;
+        var h = 700;
         background: Color.BLACK
-        var w = 1300
-        var h = 700
         content:
         [Group {
             content:
@@ -166,11 +166,11 @@ var homeModel = HomeModel {
                         transform: Transform.translate(410, 0) 
                         horizontalAlignment: HorizontalAlignment.CENTER
                         content: HBox {
+                            var labels1 = ["about", "inside", "music", "moto", "site"];
+                            var labels2 = ["studiomoto", "music", "playtime", "products", "support"];
+                            var a = MotoMenuAnimation{};
+                            //var dummy = a.getNode();
                             clip: Rectangle {y: -50, height: 100, width: w}
-                            var labels1 = ["about", "inside", "music", "moto", "site"]
-                            var labels2 = ["studiomoto", "music", "playtime", "products", "support"]
-                            var a = MotoMenuAnimation{}
-                            //var dummy = a.getNode()
                             content: 
                             [Group {
                                 blocksMouse: true

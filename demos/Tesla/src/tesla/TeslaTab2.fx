@@ -35,11 +35,11 @@ public class TeslaTab2 extends TeslaTab {
                 transform: Transform.translate(5, 7.5)
                 content:
                 text = Text {
+                    var grayColor = Color.color(0.7, 0.7, 0.7, 1);
+                    var cond = bind not selected and rect.isMouseOver();
                     textOrigin: TextOrigin.TOP
                     font: Font.font("Arial", FontStyle.BOLD, 12)
                     content: bind title
-                    var grayColor = Color.color(0.7, 0.7, 0.7, 1)
-                    var cond = bind not selected and rect.isMouseOver()
                     fill: bind (if (cond) then grayColor else Color.WHITE)
                 }
             }]

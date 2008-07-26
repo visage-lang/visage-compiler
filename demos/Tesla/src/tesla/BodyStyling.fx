@@ -154,7 +154,7 @@ function create():Node {
                                     content:
                                     bind if (selectedImage == col*6 + row)
                                     then [Group {
-                                            var fillColor = Color.color(.7, .7, .7, 1.0)
+                                            var fillColor = Color.color(.7, .7, .7, 1.0);
                                             transform: Transform.translate(1.5, 1.5)
                                             content:
                                             [Rectangle {
@@ -231,13 +231,13 @@ Group {
     }]
 },
 Group {
-    transform: [Transform.translate(54*3+15, 0), Transform.scale(0.67, 0.67)]
-    opacity: bind selectedImageOpacity
     var makeImage = function(imageBaseUrl:String, selectedImage:Integer): Image {
         Image {
             url:  "{imageBaseUrl}/{images[selectedImage]}.jpg"
         }
-}
+    };
+    transform: [Transform.translate(54*3+15, 0), Transform.scale(0.67, 0.67)]
+    opacity: bind selectedImageOpacity
 content:
 [ImageView {
         image: bind makeImage(imageBaseUrl, selectedImage)

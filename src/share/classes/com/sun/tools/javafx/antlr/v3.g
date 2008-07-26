@@ -826,8 +826,8 @@ postfixExpression
 	;
 primaryExpression  
 	: qualname					
-		( LBRACE  objectLiteralPrefix*  objectLiteralPart* RBRACE
-						 		-> ^(OBJECT_LIT[$LBRACE] qualname objectLiteralPrefix* objectLiteralPart*)
+		( LBRACE  objectLiteralPart
+	              (SEMI objectLiteralPart) *   RBRACE	-> ^(OBJECT_LIT[$LBRACE] qualname objectLiteralPart*)
 		|						-> qualname
 		)
        	| THIS							-> THIS
@@ -862,14 +862,19 @@ functionExpression
 newExpression 
 	: NEW typeName expressionListOpt			-> ^(NEW typeName expressionListOpt)
 	;
-objectLiteralPrefix  
-	: localVariableDeclaration    SEMI			-> localVariableDeclaration
-	| overrideDeclaration	      SEMI			-> overrideDeclaration
-       	| functionDefinition 	      SEMI			-> functionDefinition
-       	;
+objectLiteralParts
+	: objectLiteralPart
+	   (SEMI objectLiteralPart) *				-> objectLiteralPart*
+	;
 objectLiteralPart  
-	: name COLON  boundExpression (COMMA | SEMI)?		-> ^(OBJECT_LIT_PART[$COLON] name boundExpression)
+	: localVariableDeclaration    
+	| overrideDeclaration	      
+       	| functionDefinition 	      		
+       	| objectLiteralInit*
        	;
+objectLiteralInit
+	: name COLON  boundExpression COMMA?			-> ^(OBJECT_LIT_PART[$COLON] name boundExpression)
+	;
 stringExpression  
 	: TRANSLATION_KEY
 	  STRING_LITERAL			-> ^(TRANSLATION_KEY

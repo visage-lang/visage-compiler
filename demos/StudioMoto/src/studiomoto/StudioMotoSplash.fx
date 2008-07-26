@@ -127,9 +127,9 @@ class StudioMotoSplash extends CustomNode {
                     }]
                 },
                 Group {
+                    var font = Font.font("ARIAL", FontStyle.BOLD, 16);
                     transform: Transform.translate(536/2, 631/2+5)
                     opacity: bind alpha
-                    var font = Font.font("ARIAL", FontStyle.BOLD, 16)
                     content:
                     [HBox {
                         content:

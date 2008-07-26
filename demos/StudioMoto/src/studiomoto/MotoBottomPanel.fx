@@ -58,7 +58,7 @@ public class MotoBottomPanel extends Intro {
                     content: PromotionsPanel{} as Node
                 },
                 Group {
-                    var selection = /*bind*/ 0
+                    var selection = /*bind*/ 0;
                     content: 
 
                     [musicStuff = MotoPanel {
@@ -75,17 +75,17 @@ public class MotoBottomPanel extends Intro {
                         } as Node
                     },
                     HBox {
+                        var nums:Group[] = [];
+                        var hovers:Boolean[] = bind [for (i in nums) i.isMouseOver(), false, false, false];
                         opacity: bind musicStuff.opacity
                         transform: Transform.translate(220, 6)
                         // Major hack to work around IndexOutOfBoundsExceptions from sequence implementation
-                        var nums:Group[] = []
-                        var hovers:Boolean[] = bind [for (i in nums) i.isMouseOver(), false, false, false]
                         content: nums = for (i in [1, 2, 3])
                         Group {
+                            var fillColor:Color = bind if (selection == indexof i) Color.WHITE else Color.YELLOW;
                             onMouseClicked: function(e) {selection = indexof i;}
                             cursor: Cursor.HAND
                             transform: Transform.translate(5, 0)
-                            var fillColor:Color = bind if (selection == indexof i) Color.WHITE else Color.YELLOW
                             content:
                             [Rectangle {height: 15, width: 12, fill: Color.TRANSPARENT},
                             Text {
@@ -113,10 +113,10 @@ public class MotoBottomPanel extends Intro {
 
 
 Canvas {
-    background: Color.BLACK
-    
-    var p = MotoBottomPanel {panelHeight: 200, panelWidth: 250, panelMargin: 15}
+    background: Color.BLACK;
+
+    var p = MotoBottomPanel {panelHeight: 200, panelWidth: 250, panelMargin: 15};
     content: [Rectangle {height: 300, width: 900,  fill: Color.BLACK, onMouseClicked: function(e) {p.doIntro();}}, p]
-    
+
 }
 

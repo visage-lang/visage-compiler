@@ -162,10 +162,10 @@ public class MotoCenterPanel extends CustomNode {
                         },
                         rect = Rectangle {visible: false
                             height: 135,
-                            width: 156
+                            width: 156;
                             var fill1 = RadialGradient {radius: 50, centerX: 156/2, centerY: 135/2, 
                                 stops: [Stop{offset: 0.3, color: Color.color(1, 1, 1, .6)}, Stop{offset: .7, color: Color.color(1, 1, 1, 0)}]
-                            }
+                            };
                             opacity: bind alpha
                             fill: fill1
                             arcHeight: 20

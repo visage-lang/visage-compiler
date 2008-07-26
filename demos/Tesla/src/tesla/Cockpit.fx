@@ -72,16 +72,16 @@ class Hotspot extends CustomNode {
     
     function create():Node {
         return Group {
-            var x = bind (scaleValue-0.4) * -15
-            var y = bind (scaleValue-0.4) * -15
+            var x = bind (scaleValue-0.4) * -15;
+            var y = bind (scaleValue-0.4) * -15;
             var txt:Text;
+            var blue = Color.color(.5, .5, .8, 1);
             onMouseClicked: function(e) {
                 /*
                 do later {hover = false;}
                 (this.action)();*/
             }
             cursor: Cursor.HAND
-            var blue = Color.color(.5, .5, .8, 1)
             content: [g = Group {
                 //                attribute: g
                 //transform: bind [Transform.translate(x, y), Transform.scale(scaleValue, scaleValue)]

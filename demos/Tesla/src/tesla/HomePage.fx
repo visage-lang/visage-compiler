@@ -50,8 +50,8 @@ class HomePage extends TeslaPage {
         override attribute content = Group {
             content:
             [Group {
+                var red = Color.color(0.7, 0, 0, 1);
                 transform: Transform.translate(0, 20)
-                var red = Color.color(0.7, 0, 0, 1)
                 content:
                 [Line {endX: 750 stroke: Color.RED, strokeWidth: 0.5},
                 Line {startY: 2 endY: 2, endX: 750, stroke: Color.RED, strokeWidth: 0.5}]
@@ -70,8 +70,8 @@ class HomePage extends TeslaPage {
                 }
             },
             Group {
+                var gray = Color.color(0.7, 0.7, 0.7, 1);
                 transform: Transform.translate(0, 336)
-                var gray = Color.color(0.7, 0.7, 0.7, 1)
                 content:
                 [Line {endX: 750 stroke: Color.GRAY, strokeWidth: 0.5},
                 Line {startY: 2 endY: 2, endX: 750, stroke: Color.GRAY, strokeWidth: 0.5}]

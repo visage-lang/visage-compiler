@@ -60,7 +60,7 @@ class Tesla extends CustomNode {
     
     function create():Node {
         return Group {
-            var gray = Color.color(0.4, 0.4, 0.4, 1)
+            var gray = Color.color(0.4, 0.4, 0.4, 1);
             content: 
             [ImageView {
                 image: Image {

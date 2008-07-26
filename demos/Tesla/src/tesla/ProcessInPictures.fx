@@ -141,8 +141,8 @@ with painted film, rear wheels, mirrors, wiper, windscreen, and headlights."
                 }
             },
             Group {
-                var blue = Color.color(.2, .2, .2, 1)
-                var darkBlue = Color.color(.1, .1, .1, .8)
+                var blue = Color.color(.2, .2, .2, 1);
+                var darkBlue = Color.color(.1, .1, .1, .8);
                 transform: Transform.translate(210, 0)
                 content:
                 [Rectangle {
@@ -156,10 +156,10 @@ with painted film, rear wheels, mirrors, wiper, windscreen, and headlights."
                     transform: Transform.translate(35, 25)
                     content: 
                     [ImageView {
-                        opacity: bind opacityValue
                         var f = function(url:String) {
                              Image {url: url};
-                        }
+                        };
+                        opacity: bind opacityValue
                         image: bind Image{ url: selectedPicture.imageUrl}
                     },
                     //ImageView {

@@ -49,9 +49,9 @@ public class MotoMenuButton extends CustomNode {
         Group {
             content:
             [group = Group {
+                var w = 110;
+                var h = 60;
                 cursor: Cursor.HAND
-                var w = 110
-                var h = 60
                 transform: bind Transform.translate(0, y)
                 content: /** bind **/
                 [rect = Rectangle {
@@ -91,9 +91,9 @@ public class MotoMenuButton extends CustomNode {
                     verticalAlignment: VerticalAlignment.CENTER
                     content:
                     VBox {
-                        var textColor = Color.ORANGERED
-                        var font1 = Font {name: "ARIAL", style: FontStyle.PLAIN size: 12}
-                        var font = Font {name: "ARIAL", style: FontStyle.BOLD size: 12}
+                        var textColor = Color.ORANGERED;
+                        var font1 = Font {name: "ARIAL", style: FontStyle.PLAIN size: 12};
+                        var font = Font {name: "ARIAL", style: FontStyle.BOLD size: 12};
                         content:
                         [Text {
                             textOrigin: TextOrigin.TOP
@@ -121,10 +121,10 @@ public class MotoMenuButton extends CustomNode {
                         content: bind if (hover) then [anim] else empty
                     },
                     HBox {
+                        var textColor = Color.ORANGERED;
+                        var font = Font {name: "ARIAL", style: FontStyle.BOLD size: 8};
                         transform: Transform.translate(w-5, h*.7)
                         verticalAlignment: VerticalAlignment.CENTER, horizontalAlignment: HorizontalAlignment.TRAILING
-                        var textColor = Color.ORANGERED
-                        var font = Font {name: "ARIAL", style: FontStyle.BOLD size: 8}
                         content:
                         [Text {
                             textOrigin: TextOrigin.TOP

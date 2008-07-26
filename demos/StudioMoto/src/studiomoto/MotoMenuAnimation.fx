@@ -69,7 +69,7 @@ public class MotoMenuAnimation extends CustomNode {
                             Rectangle {
                                 transform: Transform.translate(0, .5)
                                 height: 1.5
-                                width: 4
+                                width: 4;
                                 var helper2 = Helper2 {
                                     i: indexof i
                                     j: indexof j

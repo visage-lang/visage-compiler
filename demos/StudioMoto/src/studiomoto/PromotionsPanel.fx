@@ -30,9 +30,9 @@ public class PromotionsPanel extends CustomNode {
                     image: Image {url: "{__DIR__}Image/78.png"}
                 },
                 Group {
+                    var button = this;
                     transform: Transform.translate(0, -20)
                     cursor: Cursor.HAND
-                    var button = this
                     content:
                     [ImageView {
                         // 115x37

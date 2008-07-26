@@ -73,14 +73,14 @@ SwingFrame {
                     width: 100
                     height: 100
                     fill: RadialGradient {
-                        var d = 2*r
+                        var d = 2*r;
                         proportional: false
                         centerX: r
                         centerY: r
                         focusX: 0.75*d
                         focusY: 0.25*d
                         radius: r
-                        
+
                         stops:
                         [Stop {
                             offset: 0
@@ -94,9 +94,9 @@ SwingFrame {
                             offset: 1
                             color: color2
                         }]
-                        
-                    }
-                    
+
+                    };
+
                     var ax = Timeline {
                         // x
                         repeatCount: Timeline.INDEFINITE
@@ -110,7 +110,7 @@ SwingFrame {
                             time: 10s
                             values: x => 700.0 tween Interpolator.LINEAR
                         }]
-                    }
+                    };
                     
                     var ay = Timeline {
                         // y
@@ -132,7 +132,7 @@ SwingFrame {
                             time: 4.5s
                             values: y => 0.0 tween (Interpolator.SPLINE(0, 0, 0, 0.5))
                         }]
-                    }
+                    };
                     
                     var sxy =  Timeline {
                         // scale x y
@@ -166,7 +166,7 @@ SwingFrame {
                                 sy => 1.0
                             ]
                         }]
-                    }
+                    };
                     
                     var t = Timeline {
                         repeatCount: Timeline.INDEFINITE

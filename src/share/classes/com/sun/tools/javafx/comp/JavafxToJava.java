@@ -1271,6 +1271,20 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
 
             result = translateDefinitionalAssignmentToSet(diagPos, tree.init, tree.getBindStatus(), tree.sym, null, 0);
+ /****
+            JCExpression setExpr = translateDefinitionalAssignmentToSetExpression(diagPos, tree.init, tree.getBindStatus(), tree.sym, null, 0);
+            switch (yield) {
+                case ToExecStatement:
+                    result = make.at(diagPos).Exec(setExpr);
+                    break;
+                case ToReturnStatement:
+                    result = make.at(diagPos).Return(setExpr);
+                    break;
+                case ToExpression:
+                    result = setExpr;
+                    break;
+            }
+  ****/
         }
     }
 

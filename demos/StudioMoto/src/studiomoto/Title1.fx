@@ -89,9 +89,9 @@ public class Title1 extends CustomNode {
 
         
         group = Group {
+            var mainGroup = this;
             blocksMouse: true
             cursor: Cursor.HAND
-            var mainGroup = this
             content:
             [Group {
                 

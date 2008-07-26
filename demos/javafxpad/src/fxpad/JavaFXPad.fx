@@ -349,44 +349,6 @@ public class JavaFXPad extends Component {
                                     //TODO border: LineBorder {lineColor: Color.BLACK }
                                     center: PadScrollPane {
                                         var font =  Font.font("Tahoma", FontStyle.PLAIN, 8);
-                                        columnHeader: Canvas { // top ruler
-                                            content: Group {
-                                                transform: bind Transform.scale(zoomValue/100, zoomValue/100)
-                                                content: Group {
-                                                    content: [
-                                                        Group {
-                                                            // NO Viewport in Reprise
-                                                            //var rulerWidth = bind(Math.max(canvas.width, canvas.viewport.currentWidth) *100/zoomValue/ 5).intValue();
-                                                            var rulerWidth = bind(canvas.width *100/zoomValue/ 5).intValue();
-                                                            var lastTic = bind rulerWidth*5+100;                                                        
-                                                            content: bind for (x in [0..lastTic step 5]) {
-                                                                Group { // TODO inserted this GROUP because of JXFC-876
-                                                                    content: [
-                                                                        Line {
-                                                                            stroke: Color.BLACK
-                                                                            startX: x
-                                                                            startY: if(x mod 100 == 0) then 0 else if(x mod 10 == 0) then 9 else 12
-                                                                            endX: x
-                                                                            endY: 15
-                                                                        },
-                                                                        if(x mod 100 == 0) Text{content:"{x}", x: x+2, font:font} else null
-                                                                    ]
-                                                                }
-                                                            }
-                                                        },
-                                                        Polygon {
-                                                            transform: bind if(mouseX >= 0) {
-                                                                    Transform.translate(mouseX-3.5,5);
-                                                                } else {
-                                                                    Transform.translate(-3.5, 5);
-                                                                }
-                                                            fill: Color.BLACK
-                                                            points: [0.0, 0.0, 7.0, 0.0, 3.5, 5.0]  
-                                                        }
-                                                    ]
-                                                }
-                                            }
-                                        }
                                         var contentGroup = Group {
                                             transform: bind Transform.scale(zoomValue/100, zoomValue/100)
                                             content: Group {
@@ -430,6 +392,44 @@ public class JavaFXPad extends Component {
                                                 ]
                                             }                                            
                                         };
+                                        columnHeader: Canvas { // top ruler
+                                            content: Group {
+                                                transform: bind Transform.scale(zoomValue/100, zoomValue/100)
+                                                content: Group {
+                                                    content: [
+                                                        Group {
+                                                            // NO Viewport in Reprise
+                                                            //var rulerWidth = bind(Math.max(canvas.width, canvas.viewport.currentWidth) *100/zoomValue/ 5).intValue();
+                                                            var rulerWidth = bind(canvas.width *100/zoomValue/ 5).intValue();
+                                                            var lastTic = bind rulerWidth*5+100;                                                        
+                                                            content: bind for (x in [0..lastTic step 5]) {
+                                                                Group { // TODO inserted this GROUP because of JXFC-876
+                                                                    content: [
+                                                                        Line {
+                                                                            stroke: Color.BLACK
+                                                                            startX: x
+                                                                            startY: if(x mod 100 == 0) then 0 else if(x mod 10 == 0) then 9 else 12
+                                                                            endX: x
+                                                                            endY: 15
+                                                                        },
+                                                                        if(x mod 100 == 0) Text{content:"{x}", x: x+2, font:font} else null
+                                                                    ]
+                                                                }
+                                                            }
+                                                        },
+                                                        Polygon {
+                                                            transform: bind if(mouseX >= 0) {
+                                                                    Transform.translate(mouseX-3.5,5);
+                                                                } else {
+                                                                    Transform.translate(-3.5, 5);
+                                                                }
+                                                            fill: Color.BLACK
+                                                            points: [0.0, 0.0, 7.0, 0.0, 3.5, 5.0]  
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
                                         rowHeader: Canvas { // left margin ruler
                                             content: Group {
                                                 transform: bind Transform.translate(-contentGroup.getX(), 0)

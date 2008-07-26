@@ -70,8 +70,8 @@ class TeslaPage extends CustomNode {
                 transform: Transform.translate(180, 0)
                 height: 40
                 width: 380
-                fill: Color.TRANSPARENT
-                var offsets = reverse [0, 60, 155, 250, 310, 365]
+                fill: Color.TRANSPARENT;
+                var offsets = reverse [0, 60, 155, 250, 310, 365];
                 onMouseReleased: function(e:MouseEvent) {
                     var x = e.getX();
                     for (i in offsets) {
