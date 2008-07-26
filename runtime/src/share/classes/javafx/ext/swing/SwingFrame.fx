@@ -35,6 +35,11 @@ import java.math.BigInteger;
 import javafx.lang.Sequences;
 import javafx.lang.FX;
 
+private function indexOfJMenuInJMenuBar(item: JMenu, menubar: JMenuBar): Integer {
+    var children = menubar.getComponents();
+    return Sequences.indexByIdentity(children, item);
+}
+
 // PENDING_DOC_REVIEW
 /**
  * A {@code Frame} is a top-level window with a title and a border
@@ -181,11 +186,6 @@ public class SwingFrame extends SwingWindow {
         var f = new JFrame();
         f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         return f;
-    }
-
-    private static function indexOfJMenuInJMenuBar(item: JMenu, menubar: JMenuBar): Integer {
-        var children = menubar.getComponents();
-        return Sequences.indexByIdentity(children, item);
     }
 
     private function resetMenusFromJMenuBar(): Void {
