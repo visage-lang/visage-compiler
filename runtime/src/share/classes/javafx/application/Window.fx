@@ -177,11 +177,11 @@ public abstract class Window {
         var w = window;
 
         w.addComponentListener(ComponentListener {
-            public function componentHidden(e:ComponentEvent): Void {
+            public override function componentHidden(e:ComponentEvent): Void {
                 visible = false;
             }
 
-            public function componentMoved(e:ComponentEvent): Void {
+            public override function componentMoved(e:ComponentEvent): Void {
                 var p = window.getLocation();
 
                 if (x != p.x) {
@@ -193,7 +193,7 @@ public abstract class Window {
                 }
             }
 
-            public function componentResized(e:ComponentEvent): Void {
+            public override function componentResized(e:ComponentEvent): Void {
                 var d = window.getSize();
 
                 if (width != d.width) {
@@ -205,13 +205,13 @@ public abstract class Window {
                 }
             }
 
-            public function componentShown(e:ComponentEvent): Void {
+            public override function componentShown(e:ComponentEvent): Void {
                 visible = true;
             }
         });
 
         w.addWindowListener(WindowAdapter {
-            public function windowClosing(e: WindowEvent): Void {
+            public override function windowClosing(e: WindowEvent): Void {
                 if (closeAction != null) {
                     closeAction();
                 }

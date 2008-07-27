@@ -138,7 +138,7 @@ public abstract class AbstractButton extends Component {
             var ab = getAbstractButton();
 
 	    ab.addPropertyChangeListener(PropertyChangeListener {
-                public function propertyChange(e: PropertyChangeEvent): Void {
+                public override function propertyChange(e: PropertyChangeEvent): Void {
                     if (ignoreJComponentChange) {
                         return;
                     }
@@ -163,7 +163,7 @@ public abstract class AbstractButton extends Component {
             });
 
             ab.addActionListener(ActionListener {
-                public function actionPerformed(e: ActionEvent): Void {
+                public override function actionPerformed(e: ActionEvent): Void {
                     if (action != null) {
                         action();
                     }
@@ -184,7 +184,7 @@ public abstract class AbstractButton extends Component {
     /**
      * Creates the {@code JComponent} delegate for this component.
      */
-    protected /* final */ function createJComponent(): JComponent {
+    protected /* final */ override function createJComponent(): JComponent {
         createAbstractButton();
     }
 

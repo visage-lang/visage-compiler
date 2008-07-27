@@ -55,11 +55,11 @@ public class ClusterPanel extends AbstractPanel {
         getGroupLayout().linkSize(axis, for (component in components) component.getRootJComponent());
     }
 
-    protected /* final */ function remove(component: Component): Void {
+    protected /* final */ override function remove(component: Component): Void {
         // PENDING(shannonh) - implement this
     }
 
-    protected /* final */ function configureJPanel(jPanel: JPanel): Void {
+    protected /* final */ override function configureJPanel(jPanel: JPanel): Void {
         jPanel.setLayout(new GroupLayout(jPanel));
     }
 

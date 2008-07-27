@@ -89,22 +89,22 @@ class CanvasStageImpl {
      */
     private function createLayoutManager() {
         LayoutManager {
-            public function layoutContainer(p:Container):Void {
+            public override function layoutContainer(p:Container):Void {
                 for (node in stage.content) {
                     doLayout(node);
                     updateCachedBounds(node);
                 }
             }
-            public function minimumLayoutSize(p:Container):Dimension {
+            public override function minimumLayoutSize(p:Container):Dimension {
                 return preferredLayoutSize(p);
             }
-            public function preferredLayoutSize(p:Container):Dimension {
+            public override function preferredLayoutSize(p:Container):Dimension {
                 // JSGPanel overrides getPreferredSize(), doesn't delegate to
                 // its LayoutManager
                 return new Dimension();
             }
-            public function addLayoutComponent(s:String, c:java.awt.Component):Void { }
-            public function removeLayoutComponent(c:java.awt.Component):Void { }
+            public override function addLayoutComponent(s:String, c:java.awt.Component):Void { }
+            public override function removeLayoutComponent(c:java.awt.Component):Void { }
         }
     }
 
@@ -138,7 +138,7 @@ class CanvasStageImpl {
 
     postinit {
         jsgPanel.addComponentListener(ComponentAdapter {
-            public function componentResized(e:ComponentEvent): Void {
+            public override function componentResized(e:ComponentEvent): Void {
                 var d = jsgPanel.getSize();
                 if (stage.width != d.width) {
                     stage.width = d.width;

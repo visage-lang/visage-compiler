@@ -44,7 +44,7 @@ public class CheckBoxMenuItem extends MenuItem, SelectableButton {
         getJMenuItem() as JCheckBoxMenuItem;
     }
 
-    function createJMenuItem(): JMenuItem {
+    override function createJMenuItem(): JMenuItem {
         new JCheckBoxMenuItem();
     }
 

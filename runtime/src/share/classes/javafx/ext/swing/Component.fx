@@ -255,7 +255,7 @@ public abstract class Component extends ClusterElement {
         getRootJComponent().putClientProperty(FX_COMPONENT_KEY, this);
 
         getRootJComponent().addComponentListener(ComponentListener {
-            public function componentHidden(e: ComponentEvent): Void {
+            public override function componentHidden(e: ComponentEvent): Void {
                 if (ignoreJComponentChange) {
                     return;
                 }
@@ -263,7 +263,7 @@ public abstract class Component extends ClusterElement {
                 visible = false;
             }
 
-            public function componentMoved(e: ComponentEvent): Void {
+            public override function componentMoved(e: ComponentEvent): Void {
                 if (ignoreJComponentChange) {
                     return;
                 }
@@ -279,7 +279,7 @@ public abstract class Component extends ClusterElement {
                 }
             }
 
-            public function componentResized(e: ComponentEvent): Void {
+            public override function componentResized(e: ComponentEvent): Void {
                 if (ignoreJComponentChange) {
                     return;
                 }
@@ -295,7 +295,7 @@ public abstract class Component extends ClusterElement {
                 }
             }
 
-            public function componentShown(e: ComponentEvent): Void {
+            public override function componentShown(e: ComponentEvent): Void {
                 if (ignoreJComponentChange) {
                     return;
                 }
@@ -305,7 +305,7 @@ public abstract class Component extends ClusterElement {
         });
 
         jComponent.addPropertyChangeListener(PropertyChangeListener {
-            public function propertyChange(e: PropertyChangeEvent): Void {
+            public override function propertyChange(e: PropertyChangeEvent): Void {
                 if (ignoreJComponentChange) {
                     return;
                 }
@@ -395,7 +395,7 @@ public abstract class Component extends ClusterElement {
 // class can create an anonumous class inline. See issue:
 // http://openjfx.java.sun.com/jira/browse/JFXC-641
 private class JComponentWrapper extends Component {
-    protected function createJComponent(): JComponent {
+    protected override function createJComponent(): JComponent {
         null;
     }
 }

@@ -81,7 +81,7 @@ public abstract class Node {
 
     private function createNodeListener():SGNodeListener {
         SGNodeListener {
-            public function boundsChanged(e:SGNodeEvent):Void {
+            public override function boundsChanged(e:SGNodeEvent):Void {
                 impl_cachedBounds = null;
                 impl_cachedXYWH = null;
                 impl_requestLayout();

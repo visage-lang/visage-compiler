@@ -46,25 +46,25 @@ public class Dialog extends Window {
      * Creates the {@link java.awt.Window} delegate for this component. Must implement RootPaneContainer.
      * ie. be a JWindow, JDialog or JFrame.
      */
-    function createWindow(): java.awt.Window {
+    override function createWindow(): java.awt.Window {
         WindowImpl.createJDialog(owner.window);
     }
 
-    function setLocation(){
+    override function setLocation(){
         if (not window.isLocationByPlatform() and (window.getX() == 0) and (window.getY() == 0)) {
             window.setLocationRelativeTo(if (owner != null) owner.window else null);
         }
     }
 
-    function setWindowTitle(title:String): Void {
+    override function setWindowTitle(title:String): Void {
         (window as JDialog).setTitle(title);
     }
 
-    function setWindowResizable(resizable:Boolean): Void {
+    override function setWindowResizable(resizable:Boolean): Void {
         (window as JDialog).setResizable(resizable);
     }
 
-    function setUndecorated(undecorated:Boolean): Void{
+    override function setUndecorated(undecorated:Boolean): Void{
         (window as JDialog).setUndecorated(undecorated);
     }
 

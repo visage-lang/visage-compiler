@@ -84,17 +84,17 @@ public class Applet extends JApplet {
         }
     }
 
-    public function <<init>>() {
+    public override function <<init>>() {
         DeferredTask {
             action: launchApplication
         }
     }
 
-    public function start():Void {
+    public override function start():Void {
         if (app.resume != null) app.resume();
     }
     
-    public function stop():Void {
+    public override function stop():Void {
         if (app.suspend != null) app.suspend();
     }
 }

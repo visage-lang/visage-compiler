@@ -62,15 +62,15 @@ public class Frame extends Window{
         frame.setExtendedState(newState.intValue());
     }
 
-    function setWindowTitle(title:String): Void {
+    override function setWindowTitle(title:String): Void {
         (window as JFrame).setTitle(title);
     }
 
-    function setWindowResizable(resizable:Boolean): Void {
+    override function setWindowResizable(resizable:Boolean): Void {
         (window as JFrame).setResizable(resizable);
     }
 
-    function setUndecorated(undecorated:Boolean): Void{
+    override function setUndecorated(undecorated:Boolean): Void{
         (window as JFrame).setUndecorated(undecorated);
     }
 
@@ -79,7 +79,7 @@ public class Frame extends Window{
      * Creates the {@link java.awt.Window} delegate for this component. Must implement RootPaneContainer, ie be a
      * JWindow,JDialog or JFrame.
      */
-    function createWindow(): java.awt.Window {
+    override function createWindow(): java.awt.Window {
         WindowImpl.createJFrame();
     }
 
@@ -87,7 +87,7 @@ public class Frame extends Window{
         var jFrame =  (window as JFrame);
 
         jFrame.addWindowStateListener(WindowStateListener {
-            public function windowStateChanged(e: WindowEvent): Void {
+            public override function windowStateChanged(e: WindowEvent): Void {
                 var state = BigInteger.valueOf(e.getNewState());
                 iconified = state.testBit(0); // Frame.ICONIFIED = 1
             }

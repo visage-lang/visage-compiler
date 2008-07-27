@@ -190,7 +190,7 @@ public class BorderPanel extends AbstractPanel {
     /**
      * {@inheritDoc}
      */
-    protected /* final */ function remove(component: Component): Void {
+    protected /* final */ override function remove(component: Component): Void {
         if (FX.isSameObject(component, top)) {
             top = null;
         } else if (FX.isSameObject(component, bottom)) {
@@ -212,7 +212,7 @@ public class BorderPanel extends AbstractPanel {
         }
     }
 
-    protected /* final */ function configureJPanel(jPanel: JPanel): Void {
+    protected /* final */ override function configureJPanel(jPanel: JPanel): Void {
         jPanel.setLayout(new BorderLayout());
     }
 

@@ -45,7 +45,7 @@ public class MenuItem extends AbstractButton {
     /**
      * Creates the specific {@link javax.swing.AbstractButton} delegate for this component.
      */
-    protected /* final */ function createAbstractButton(): javax.swing.AbstractButton {
+    protected /* final */ override function createAbstractButton(): javax.swing.AbstractButton {
         createJMenuItem();
     }
 

@@ -70,7 +70,7 @@ public class ComboBoxItem {
    /**
     * Returns a string representing this {@code ComboBoxItem}.
     */ 
-    public function toString(): String {
+    public override function toString(): String {
         text;
     }
 

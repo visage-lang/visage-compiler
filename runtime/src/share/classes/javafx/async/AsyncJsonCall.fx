@@ -12,15 +12,15 @@ public class AsyncJsonCall extends AbstractAsyncOperation {
     public attribute outboundContent: String;
     public attribute contentType: String;
 
-    public function cancel() : Void {
+    public override function cancel() : Void {
         if (peer != null) then peer.cancel();
     }
 
-    protected function onCompletion(value : Object) : Void {
+    protected override function onCompletion(value : Object) : Void {
         document = JSONObject { text: value as String};
     }
 
-    protected function start() : Void {
+    protected override function start() : Void {
         // TODO: ensure that resulting document has type text/javascript -- must be done in peer, so subclass RTD
         peer = new com.sun.javafx.runtime.async.RemoteTextDocument(listener, url, method, outboundContent);
         peer.setHeader("Referer", referer);

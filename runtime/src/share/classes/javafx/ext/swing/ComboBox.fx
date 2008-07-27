@@ -266,11 +266,11 @@ public class ComboBox extends Component {
                 listeners.remove(l);
             }
 
-            public function setSelectedItem(anItem: Object) {
+            public override function setSelectedItem(anItem: Object) {
                 setModelSelection(anItem);
             }
 
-            public function getSelectedItem(): Object {
+            public override function getSelectedItem(): Object {
                 return modelSelected;
             }
         };
@@ -329,7 +329,7 @@ public class ComboBox extends Component {
         getJComponent() as JComboBox;
     }
 
-    protected /* final */ function createJComponent(): JComponent {
+    protected /* final */ override function createJComponent(): JComponent {
         JComboBoxImpl{};
     }
 
@@ -337,27 +337,27 @@ public class ComboBox extends Component {
 
 class JComboBoxImpl extends JComboBox {
 
-    public function setModel(aModel: ComboBoxModel): Void {
+    public override function setModel(aModel: ComboBoxModel): Void {
         var oldModel = dataModel;
         dataModel = aModel;
         firePropertyChange("model", oldModel, dataModel);
     }
 
-    public function setSelectedItem(anObject: Object): Void {
+    public override function setSelectedItem(anObject: Object): Void {
         dataModel.setSelectedItem(anObject);
     }
 
-    public function getSelectedIndex(): Integer {
+    public override function getSelectedIndex(): Integer {
         var selectedItem = getSelectedItem();
         return if (selectedItem instanceof ComboBoxItem) (selectedItem as ComboBoxItem).comboIndex else -1;
     }
 
     // overridden to make accessible from this module
-    protected function fireItemStateChanged(e: ItemEvent): Void {
+    protected override function fireItemStateChanged(e: ItemEvent): Void {
         JComboBox.fireItemStateChanged(e);
     }
 
-    public function configureEditor(anEditor: ComboBoxEditor, anItem: Object): Void {
+    public override function configureEditor(anEditor: ComboBoxEditor, anItem: Object): Void {
         if (anItem == null) {
             anEditor.setItem("");
         } else {

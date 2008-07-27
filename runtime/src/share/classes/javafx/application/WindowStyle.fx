@@ -50,6 +50,6 @@ public class WindowStyle {
      */
     public static attribute TRANSPARENT = WindowStyle { name: "TRANSPARENT" }
 
-    public function toString(): String { name }
+    public override function toString(): String { name }
 
 }

@@ -59,26 +59,26 @@ public class Canvas extends Component {
 
     private function createLayoutManager() {
         LayoutManager {
-            public function layoutContainer(p:Container):Void { 
+            public override function layoutContainer(p:Container):Void {
                 for (node in content) {
                     doLayout(node); 
                     updateCachedBounds(node);
                 }
             }
-            public function minimumLayoutSize(p:Container):Dimension { 
+            public override function minimumLayoutSize(p:Container):Dimension {
                 return preferredLayoutSize(p);
             }
-            public function preferredLayoutSize(p:Container):Dimension { 
+            public override function preferredLayoutSize(p:Container):Dimension {
                 // JSGPanel overrides getPreferredSize(), doesn't delegate to 
                 // its LayoutManager
                 return new Dimension();
             }
-            public function addLayoutComponent(s:String, c:java.awt.Component):Void { }
-            public function removeLayoutComponent(c:java.awt.Component):Void { }
+            public override function addLayoutComponent(s:String, c:java.awt.Component):Void { }
+            public override function removeLayoutComponent(c:java.awt.Component):Void { }
         }
     }
 
-    protected /* final */ function createJComponent(): JComponent {
+    protected /* final */ override function createJComponent(): JComponent {
         var panel = new JSGPanelImpl();
         panel.setLayout(createLayoutManager());
         panel.setScene(new SGGroup());
@@ -136,7 +136,7 @@ public class Canvas extends Component {
 
         jSGPanel.addPropertyChangeListener(BackgroundSupport.BACKGROUND_PAINT_PROPERTY,
                                            PropertyChangeListener {
-            public function propertyChange(e: PropertyChangeEvent): Void {
+            public override function propertyChange(e: PropertyChangeEvent): Void {
                 if (ignoreJComponentChange) {
                     return;
                 }

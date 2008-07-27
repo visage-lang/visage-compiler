@@ -64,7 +64,7 @@ public abstract class SelectableButton extends AbstractButton {
         var ab = getAbstractButton();
 
         ab.addChangeListener(ChangeListener {
-            public function stateChanged(e: ChangeEvent): Void {
+            public override function stateChanged(e: ChangeEvent): Void {
                 if (ignoreJComponentChange) {
                     return;
                 }

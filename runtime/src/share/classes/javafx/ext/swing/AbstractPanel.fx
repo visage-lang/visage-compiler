@@ -68,7 +68,7 @@ public abstract class AbstractPanel extends Component, Container {
     * Creates the specific {@link JComponent} delegate for this component.
     * @see javax.swing.JComponent 
     */
-    protected /* final */ function createJComponent(): JComponent {
+    protected /* final */ override function createJComponent(): JComponent {
         var jPanel = new JPanelImpl();
         configureJPanel(jPanel);
         return jPanel;
@@ -81,7 +81,7 @@ public abstract class AbstractPanel extends Component, Container {
 
         jPanel.addPropertyChangeListener(BackgroundSupport.BACKGROUND_PAINT_PROPERTY,
                                          PropertyChangeListener {
-            public function propertyChange(e: PropertyChangeEvent): Void {
+            public override function propertyChange(e: PropertyChangeEvent): Void {
                 if (ignoreJComponentChange) {
                     return;
                 }
