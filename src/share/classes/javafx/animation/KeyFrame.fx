@@ -87,7 +87,7 @@ public class KeyFrame extends Comparable {
      * 
      * @profile common
      */
-    public function compareTo(o:Object):Integer {
+    public override function compareTo(o:Object):Integer {
         var kf = o as KeyFrame;
         return time.compareTo(kf.time);
     }

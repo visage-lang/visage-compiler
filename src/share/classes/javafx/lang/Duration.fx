@@ -140,7 +140,7 @@ public class Duration extends com.sun.javafx.runtime.Duration {
     /**
      * @profile common
      */        
-    public function toString(): String {
+    public override function toString(): String {
         return "{millis}ms";
     }
 

@@ -1474,6 +1474,7 @@ public
 // JavaFX change
     void checkOverride(JFXTree tree, MethodSymbol m) {
 	ClassSymbol origin = (ClassSymbol)m.owner;
+        boolean doesOverride = false;
 	if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name))
 	    if (m.overrides(syms.enumFinalFinalize, origin, types, false)) {
 		log.error(tree.pos(), MsgSym.MESSAGE_ENUM_NO_FINALIZE);
@@ -1489,12 +1490,25 @@ public
                 Scope.Entry e = c.members().lookup(m.name);
                 while (e.scope != null) {
                     e.sym.complete();
-                    if (m.overrides(e.sym, origin, types, false))
+                    if (m.overrides(e.sym, origin, types, false)) {
                         checkOverride(tree, m, (MethodSymbol)e.sym, origin);
+                        doesOverride = true;
+                    }
                     e = e.next();
                 }
             }
 	}
+        boolean declaredOverride = (m.flags() & JavafxFlags.OVERRIDE) != 0;
+        if (doesOverride) {
+            if (!declaredOverride) {
+//TODO: no warning quite yet
+//                log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_SHOULD_BE_DECLARED_OVERRIDE, m);
+            }
+        } else {
+            if (declaredOverride) {
+                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT, m);
+            }
+        }
     }
 
     /** Check that all abstract members of given class have definitions.

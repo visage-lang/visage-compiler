@@ -1731,6 +1731,10 @@ public class JavafxAttr implements JavafxVisitor {
                 // Fix primitive/number types so overridden Java methods will have the correct types.
                 fixOverride(tree, m);
                 chk.checkOverride(tree, m);
+            } else {
+                if ((m.flags() & JavafxFlags.OVERRIDE) != 0) {
+                    log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT, m);
+                }
             }
         }
         finally {

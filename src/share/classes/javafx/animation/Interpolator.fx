@@ -79,7 +79,7 @@ public abstract class Interpolator {
 class CoreInterpolator extends SimpleInterpolator {
     attribute i:com.sun.scenario.animation.Interpolator;
 
-    public function curve(t: Number) : Number {
+    public override function curve(t: Number) : Number {
         i.interpolate(t.floatValue())
     }
 }

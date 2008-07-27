@@ -46,7 +46,7 @@ public abstract class SimpleInterpolator extends Interpolator {
     /**
      * @profile common
      */      
-    public function interpolate(startValue:Object, endValue:Object, fraction:Number):Object {
+    public override function interpolate(startValue:Object, endValue:Object, fraction:Number):Object {
         if (startValue instanceof java.lang.Number and
 	    endValue instanceof java.lang.Number) {
 	    var start : Number = (startValue as java.lang.Number).doubleValue();

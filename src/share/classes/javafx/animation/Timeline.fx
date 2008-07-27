@@ -553,15 +553,15 @@ public class Timeline {
                 process(totalElapsed as Number);
             }
 
-            public function pause() : Void {
+            public override function pause() : Void {
                 paused = true;
             }
 
-            public function resume() : Void {
+            public override function resume() : Void {
                 paused = false;
             }
 
-            public function end() : Void {
+            public override function end() : Void {
                 running = false;
                 paused = false;
             }

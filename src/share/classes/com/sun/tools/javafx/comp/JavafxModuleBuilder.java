@@ -175,7 +175,7 @@ public class JavafxModuleBuilder {
         }
                 
         // Add run() method... If the class can be a module class.
-        JFXFunctionDefinition runMethod = makeRunFunction(defs.runMethodName, stats.toList(), value, syms.objectType);
+        JFXFunctionDefinition runMethod = makeRunFunction(stats.toList(), value);
         scriptClassDefs.prepend(runMethod);
 
         if (moduleClass == null) {
@@ -248,23 +248,18 @@ public class JavafxModuleBuilder {
         return fxmake.at(diagPos).TypeClass(urlFQN, TypeTree.Cardinality.SINGLETON);
     }
 
-    private JFXFunctionDefinition makeRunFunction(Name name, List<JFXExpression> stats, JFXExpression value, Type returnType) {
+    private JFXFunctionDefinition makeRunFunction(List<JFXExpression> stats, JFXExpression value) {
         JFXVar mainArgs = fxmake.Param(commandLineArgs, 
                 fxmake.TypeClass(fxmake.Ident(Name.fromString(names, "String")), TypeTree.Cardinality.ANY));
         List<JFXVar> argsVarList = List.<JFXVar>of(mainArgs);
-        return makeMethod(name, stats, value, returnType, argsVarList);
-    }
-    
-    private JFXFunctionDefinition makeMethod(Name name, List<JFXExpression> stats, JFXExpression value, Type returnType, List<JFXVar> param) {
         JFXBlockExpression body = fxmake.BlockExpression(0, stats, value);
-        JFXExpression rettree = fxmake.Type(returnType);
-
-        rettree.type = returnType;
+        JFXExpression rettree = fxmake.Type(syms.objectType);
+        rettree.type = syms.objectType;
         return fxmake.FunctionDefinition(
-                fxmake.Modifiers(PUBLIC | STATIC | SYNTHETIC), 
-                name, 
+                fxmake.Modifiers(PUBLIC | STATIC | SYNTHETIC),
+                defs.runMethodName,
                 fxmake.TypeClass(rettree, JFXType.Cardinality.SINGLETON),
-                param, 
+                argsVarList,
                 body);        
     }
     
