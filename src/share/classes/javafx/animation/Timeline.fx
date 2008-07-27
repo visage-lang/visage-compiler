@@ -533,7 +533,7 @@ public class Timeline {
 
     private function createAdapter():TimingTarget {
         TimingTargetAdapter {
-            public function begin() : Void {
+            public override function begin() : Void {
                 running = true;
                 paused = false;
 
@@ -549,7 +549,7 @@ public class Timeline {
                 offsetValid = false;
             }
             
-            public function timingEvent(fraction, totalElapsed) : Void {
+            public override function timingEvent(fraction, totalElapsed) : Void {
                 process(totalElapsed as Number);
             }
 

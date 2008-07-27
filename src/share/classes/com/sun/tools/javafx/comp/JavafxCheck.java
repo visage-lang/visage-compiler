@@ -1500,7 +1500,8 @@ public
 	}
         boolean declaredOverride = (m.flags() & JavafxFlags.OVERRIDE) != 0;
         if (doesOverride) {
-            if (!declaredOverride) {
+            boolean isSynthetic = (m.flags() & Flags.SYNTHETIC) != 0;
+            if (!declaredOverride && !isSynthetic) {
 //TODO: no warning quite yet
 //                log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_SHOULD_BE_DECLARED_OVERRIDE, m);
             }
