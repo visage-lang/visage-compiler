@@ -162,6 +162,7 @@ modifierFlag   returns [long flag, int pos]
 	|  PRIVATE         				{ $flag = Flags.PRIVATE;     $pos = pos($PRIVATE); }
 	|  PROTECTED       				{ $flag = Flags.PROTECTED;   $pos = pos($PROTECTED); }
 	|  READABLE       				{ $flag = JavafxFlags.READABLE;   $pos = pos($READABLE); }
+	|  OVERRIDE       				{ $flag = JavafxFlags.OVERRIDE;   $pos = pos($OVERRIDE); }
 	|  ABSTRACT        				{ $flag = Flags.ABSTRACT;    $pos = pos($ABSTRACT); }
 	|  STATIC        				{ $flag = Flags.STATIC;      $pos = pos($STATIC); }
 	;

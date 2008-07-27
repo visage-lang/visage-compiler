@@ -586,7 +586,8 @@ accessModifier
 	;
 functionModifier 
 	:  ABSTRACT        			
-	|  STATIC        			
+	|  STATIC    
+	|  OVERRIDE    			
 	;
 varModifier 
 	:  READABLE        			
@@ -861,10 +862,6 @@ functionExpression
 	;
 newExpression 
 	: NEW typeName expressionListOpt			-> ^(NEW typeName expressionListOpt)
-	;
-objectLiteralParts
-	: objectLiteralPart
-	   (SEMI objectLiteralPart) *				-> objectLiteralPart*
 	;
 objectLiteralPart  
 	: localVariableDeclaration    
