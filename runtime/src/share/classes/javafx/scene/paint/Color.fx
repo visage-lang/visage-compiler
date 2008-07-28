@@ -23,6 +23,7 @@
 
 package javafx.scene.paint;
 
+import javafx.lang.FX;
 import java.lang.Object;
 import javafx.animation.Interpolatable;
 import javax.swing.plaf.UIResource;
@@ -726,9 +727,14 @@ public /* final */ class Color extends Paint, Interpolatable {
      * @inheritDoc
      */
     public function equals(obj: Object) : Boolean {
-        var color = obj as Color;
-        if (color == null) return false;
-        getAWTColor().equals(color.getAWTColor());
+        if (FX.isSameObject(obj, this)) then return true;
+        if (obj instanceof Color) {
+            var other = obj as Color;
+            return red == other.red 
+                and blue == other.blue
+                and green == other.green
+                and opacity == other.opacity;
+        } else false;
     }
     
     // PENDING_DOC_REVIEW
