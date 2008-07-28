@@ -56,19 +56,19 @@ private def UNINITIALIZED: Integer = java.lang.Integer.MIN_VALUE;
  */
 public class SwingWindow extends Container {
 
-    private attribute initialized: Boolean = false;
+    private var initialized: Boolean = false;
 
     /*
      * This attribute must be defined before createWindow() is called, so
      * that the window can be created with the owner.
      */
-    public /* set-once */ attribute owner : SwingWindow = null;
+    public /* set-once */ var owner : SwingWindow = null;
 
-    /* constant */ attribute window : java.awt.Window = createWindow();
+    /* constant */ def window : java.awt.Window = createWindow();
 
-    attribute ignoreJWindowChange: Boolean = false;
+    var ignoreJWindowChange: Boolean = false;
 
-    public attribute name: String on replace {
+    public var name: String on replace {
         doAndIgnoreJWindowChange(function() {
             window.setName(name);
         });
@@ -91,7 +91,7 @@ public class SwingWindow extends Container {
      * Defines the icon images to be used in the window decorations and when minimized. The images should be different
      * sizes of the same thing and the best size will be chosen, eg. 16x16, 32,32.
      */
-    public attribute icons: Image[] = null on replace {
+    public var icons: Image[] = null on replace {
         var iconList:java.util.ArrayList = new java.util.ArrayList();
         for (icon in icons){
             iconList.add(icon.getBufferedImage());
@@ -102,7 +102,7 @@ public class SwingWindow extends Container {
     /**
      * This {@code Window's} content.
      */
-    public attribute content: Component = null on replace oldContent {
+    public var content: Component = null on replace oldContent {
         if (oldContent != null) {
             unparentFromThisContainer(oldContent);
         }
@@ -119,7 +119,7 @@ public class SwingWindow extends Container {
     /**
      * {@inheritDoc}
      */
-    protected function remove(component: Component): Void {
+    override function remove(component: Component): Void {
         if (FX.isSameObject(content, component)) {
             content = null;
         }
@@ -130,7 +130,7 @@ public class SwingWindow extends Container {
      * 
      * @return {@code null}
      */
-    public /* final */ bound function getParent(): Container {
+    /* final */ override bound function getParent(): Container {
         null;
     }
 
@@ -221,11 +221,11 @@ public class SwingWindow extends Container {
         var w = window;
 
         w.addComponentListener(ComponentListener {
-            public function componentHidden(e:ComponentEvent): Void {
+            override function componentHidden(e:ComponentEvent): Void {
                 visible = false;
             }
 
-            public function componentMoved(e:ComponentEvent): Void {
+            override function componentMoved(e:ComponentEvent): Void {
                 var p = window.getLocation();
 
                 if (x != p.x) {
@@ -237,7 +237,7 @@ public class SwingWindow extends Container {
                 }
             }
 
-            public function componentResized(e:ComponentEvent): Void {
+            override function componentResized(e:ComponentEvent): Void {
                 var d = window.getSize();
 
                 if (width != d.width) {
@@ -249,13 +249,13 @@ public class SwingWindow extends Container {
                 }
             }
 
-            public function componentShown(e:ComponentEvent): Void {
+            override function componentShown(e:ComponentEvent): Void {
                 visible = true;
             }
         });
 
         w.addPropertyChangeListener(PropertyChangeListener {
-            public function propertyChange(e: PropertyChangeEvent): Void {
+            override function propertyChange(e: PropertyChangeEvent): Void {
                 if (ignoreJWindowChange) {
                     return;
                 }
@@ -270,7 +270,7 @@ public class SwingWindow extends Container {
         });
 
         w.addWindowListener(WindowAdapter {
-            public function windowClosing(e: WindowEvent): Void {
+            override function windowClosing(e: WindowEvent): Void {
                 if (closeAction != null) {
                     closeAction();
                 }

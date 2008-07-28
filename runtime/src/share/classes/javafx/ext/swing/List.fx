@@ -185,7 +185,7 @@ public class List extends ScrollableComponent {
         var jList = getJList();
         jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         jList.getSelectionModel().addListSelectionListener(ListSelectionListener {
-            public function valueChanged(lse: ListSelectionEvent): Void {
+            override function valueChanged(lse: ListSelectionEvent): Void {
                 if (ignoreSelectionChanges) {
                     return;
                 }
@@ -202,19 +202,19 @@ public class List extends ScrollableComponent {
     
     private function installModel(): Void {
         var listModel = ListModel {
-            public function getSize(): Integer {
+            override function getSize(): Integer {
                 sizeof items;
             }
 
-            public function getElementAt(i: Integer): Object {
+            override function getElementAt(i: Integer): Object {
                 items[i];
             }
 
-            public function addListDataListener(l: ListDataListener): Void {
+            override function addListDataListener(l: ListDataListener): Void {
                 listeners.add(l);
             }
 
-            public function removeListDataListener(l: ListDataListener): Void {
+            override function removeListDataListener(l: ListDataListener): Void {
                 listeners.remove(l);
             }
         };
@@ -271,7 +271,7 @@ public class List extends ScrollableComponent {
     /**
      * Creates the specific {@link JComponent} delegate for this component.
      */
-    protected /* final */ function createJComponent(): JComponent {
+    /* final */ override function createJComponent(): JComponent {
         new JList();
     }
 

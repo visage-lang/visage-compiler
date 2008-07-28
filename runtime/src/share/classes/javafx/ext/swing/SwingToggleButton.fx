@@ -47,7 +47,7 @@ public class SwingToggleButton extends SelectableButton {
     /**
      * Creates the {@code AbstractButton} delegate for this component.
      */
-    protected /* final */ function createAbstractButton(): javax.swing.AbstractButton {
+    /* final */ override function createAbstractButton(): javax.swing.AbstractButton {
         createJToggleButton();
     }
 

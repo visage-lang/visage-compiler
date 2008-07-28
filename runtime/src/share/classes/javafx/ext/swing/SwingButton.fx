@@ -39,7 +39,7 @@ public class SwingButton extends AbstractButton {
         getAbstractButton() as JButton;
     }
 
-    function createAbstractButton(): javax.swing.AbstractButton {
+    override function createAbstractButton(): javax.swing.AbstractButton {
         new JButton();
     }
 

@@ -105,7 +105,7 @@ public class FlowPanel extends SwingPanel {
             getJPanel().repaint();
         }
 
-    protected /* final */ function configureJPanel(jPanel: JPanel): Void {
+    /* final */ override function configureJPanel(jPanel: JPanel): Void {
         jPanel.setLayout(new FlowLayout());
     }
 

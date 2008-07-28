@@ -30,7 +30,7 @@ package javafx.scene.effect;
 public class Bloom extends Effect {
     private attribute bloom = new com.sun.scenario.effect.Bloom();
 
-    function getImpl():com.sun.scenario.effect.Effect {
+    override function getImpl():com.sun.scenario.effect.Effect {
         bloom
     };
 

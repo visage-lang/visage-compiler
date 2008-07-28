@@ -37,7 +37,7 @@ public class ListItem {
      * Defines the single line of text this {@code ListItem} will display.  
      * If the value of text is null or empty string, nothing is displayed.
      */
-    public attribute text: String on replace {
+    public var text: String on replace {
         if (list != null) {
             list.fireContentsChanged(this);
         }
@@ -47,7 +47,7 @@ public class ListItem {
     /**
      * Defines whether this {@code ListItem} is selected.
      */
-    public attribute selected: Boolean on replace {
+    public var selected: Boolean on replace {
         if (list != null) {
             if (selected) {
                 list.selectedItem = this;
@@ -57,13 +57,13 @@ public class ListItem {
         }
     }
 
-    public attribute value: Object;
+    public var value: Object;
 
-    attribute list: List;
+    var list: List;
 
-    attribute listIndex: Integer;
+    var listIndex: Integer;
 
-    public function toString(): String {
+    override function toString(): String {
         text;
     }
 }

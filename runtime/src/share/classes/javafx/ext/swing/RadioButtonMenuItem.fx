@@ -47,7 +47,7 @@ public class RadioButtonMenuItem extends MenuItem, SelectableButton {
         getJMenuItem() as JRadioButtonMenuItem;
     }
 
-    function createJMenuItem(): JMenuItem {
+    override function createJMenuItem(): JMenuItem {
         new JRadioButtonMenuItem();
     }
 

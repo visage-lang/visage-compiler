@@ -33,7 +33,7 @@ public class ComponentView extends Node {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_createSGNode():SGNode { new SGComponent() }
+    override function impl_createSGNode():SGNode { new SGComponent() }
 
     function getSGComponent():SGComponent { impl_getSGNode() as SGComponent }
 

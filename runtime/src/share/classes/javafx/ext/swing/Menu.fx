@@ -45,7 +45,7 @@ public class Menu extends MenuItem, Container {
      * Defines the array of {@link MenuItem}s objects
      * to be displayed by this {@code Menu}.  
      */
-    public attribute items: MenuItem[] on replace oldMenuItems[a..b] = newSlice {
+    public var items: MenuItem[] on replace oldMenuItems[a..b] = newSlice {
         var jMenu = getJMenu();
 
         for (menuItem in oldMenuItems[a..b]) {
@@ -72,7 +72,7 @@ public class Menu extends MenuItem, Container {
     /**
      * {@inheritDoc}
      */
-    protected function remove(component: Component): Void {
+    override function remove(component: Component): Void {
         // PENDING(shannonh) - what I really want here is a deleteByIdentity operator
         // http://openjfx.java.sun.com/jira/browse/JFXC-1005
         var itemIndices = for (item in items where FX.isSameObject(item, component)) indexof item;
@@ -102,7 +102,7 @@ public class Menu extends MenuItem, Container {
         getJMenuItem() as JMenu;
     }
 
-    function createJMenuItem(): JMenuItem {
+    override function createJMenuItem(): JMenuItem {
         new JMenu();
     }
 

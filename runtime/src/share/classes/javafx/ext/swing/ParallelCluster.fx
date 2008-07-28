@@ -27,13 +27,13 @@ import javax.swing.GroupLayout;
 
 public class ParallelCluster extends Cluster {
 
-    public attribute resizable: Boolean = true;
+    public var resizable: Boolean = true;
 
-    public attribute childAlignment: Layout.Alignment = Layout.BASELINE;
+    public var childAlignment: Layout.Alignment = Layout.BASELINE;
 
-    public attribute anchorBaselineToTop: Boolean = false;
+    public var anchorBaselineToTop: Boolean = false;
 
-    function createGLGroupImpl(horizontal: Boolean, gl: GroupLayout): GroupLayout.Group {
+    override function createGLGroupImpl(horizontal: Boolean, gl: GroupLayout): GroupLayout.Group {
         var ca = childAlignment.getToolkitValue();
 
         if (ca == Layout.BASELINE.getToolkitValue()) {
@@ -47,7 +47,7 @@ public class ParallelCluster extends Cluster {
         return gl.createParallelGroup(ca, resizable);
     }
 
-    function addClusterElement(gl: GroupLayout, group: GroupLayout.Group, horizontal: Boolean, ce: ClusterElement): Void {
+    override function addClusterElement(gl: GroupLayout, group: GroupLayout.Group, horizontal: Boolean, ce: ClusterElement): Void {
         var pGroup = group as GroupLayout.ParallelGroup;
 
         if (ce instanceof Component) {

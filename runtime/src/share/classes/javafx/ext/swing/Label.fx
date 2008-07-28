@@ -123,7 +123,7 @@ public class Label extends Component {
         var lbl = getJLabel();
 
 	lbl.addPropertyChangeListener(PropertyChangeListener {
-            public function propertyChange(e: PropertyChangeEvent): Void {
+            override function propertyChange(e: PropertyChangeEvent): Void {
                 if (ignoreJComponentChange) {
                     return;
                 }
@@ -161,7 +161,7 @@ public class Label extends Component {
     /**
      * Creates the specific {@link JComponent} delegate for this component.
      */
-    protected /* final */ function createJComponent(): JComponent {
+    /* final */ override function createJComponent(): JComponent {
         new JLabel();
     }
 

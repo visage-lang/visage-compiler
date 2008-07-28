@@ -28,7 +28,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 
 public class SequentialCluster extends Cluster {
 
-    function createGLGroupImpl(horizontal: Boolean, gl: GroupLayout): GroupLayout.Group {
+    override function createGLGroupImpl(horizontal: Boolean, gl: GroupLayout): GroupLayout.Group {
         return gl.createSequentialGroup();
     }
 

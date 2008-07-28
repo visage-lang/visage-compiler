@@ -42,7 +42,7 @@ public class SwingCheckBox extends SwingToggleButton {
         getJToggleButton() as JCheckBox;
     }
 
-    function createJToggleButton(): JToggleButton {
+    override function createJToggleButton(): JToggleButton {
         new JCheckBox();
     }
 

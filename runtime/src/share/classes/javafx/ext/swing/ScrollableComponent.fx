@@ -82,7 +82,7 @@ public abstract class ScrollableComponent extends Component {
      * <p>
      * This implementation is overridden to delegate to {@link #getJScrollPane()}.
      */
-    public function getRootJComponent(): JComponent {
+    override function getRootJComponent(): JComponent {
         getJScrollPane();
     }
 

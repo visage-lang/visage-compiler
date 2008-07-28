@@ -81,7 +81,7 @@ public abstract class Node {
 
     private function createNodeListener():SGNodeListener {
         SGNodeListener {
-            public override function boundsChanged(e:SGNodeEvent):Void {
+            override function boundsChanged(e:SGNodeEvent):Void {
                 impl_cachedBounds = null;
                 impl_cachedXYWH = null;
                 impl_requestLayout();
@@ -565,39 +565,39 @@ public abstract class Node {
                 if (f != null) f(createMouseEvent(e));
             }
 
-            public function mouseClicked(e:java.awt.event.MouseEvent, node:SGNode):Void {
+            override function mouseClicked(e:java.awt.event.MouseEvent, node:SGNode):Void {
                 call(onMouseClicked, e);
             }
 
-            public function mouseEntered(e:java.awt.event.MouseEvent, node:SGNode):Void {
+            override function mouseEntered(e:java.awt.event.MouseEvent, node:SGNode):Void {
                 mouseOver = true;
                 call(onMouseEntered, e);
             }
 
-            public function mouseExited(e:java.awt.event.MouseEvent, node:SGNode):Void {
+            override function mouseExited(e:java.awt.event.MouseEvent, node:SGNode):Void {
                 mouseOver = false;
                 call(onMouseExited, e);
             }
 
-            public function mousePressed(e:java.awt.event.MouseEvent, node:SGNode):Void {
+            override function mousePressed(e:java.awt.event.MouseEvent, node:SGNode):Void {
                 dragAnchorXY = e.getPoint();
                 call(onMousePressed, e);
             }
 
-            public function mouseReleased(e:java.awt.event.MouseEvent, node:SGNode):Void {
+            override function mouseReleased(e:java.awt.event.MouseEvent, node:SGNode):Void {
                 call(onMouseReleased, e);
                 dragAnchorXY = null;
             }
 
-            public function mouseDragged(e:java.awt.event.MouseEvent, node:SGNode):Void {
+            override function mouseDragged(e:java.awt.event.MouseEvent, node:SGNode):Void {
                 call(onMouseDragged, e);
             }
 
-            public function mouseMoved(e:java.awt.event.MouseEvent, node:SGNode):Void {
+            override function mouseMoved(e:java.awt.event.MouseEvent, node:SGNode):Void {
                 call(onMouseMoved, e);
             }
 
-            public function mouseWheelMoved(e:MouseWheelEvent, node:SGNode):Void {
+            override function mouseWheelMoved(e:MouseWheelEvent, node:SGNode):Void {
                 call(onMouseWheelMoved, e);
             }
         }
