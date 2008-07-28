@@ -31,6 +31,16 @@ import java.util.Map;
 import java.util.HashMap;
 import java.lang.NumberFormatException;
 
+private var namedColors: Map;
+
+private function getNamedColor(name: String): Color {
+    if (namedColors == null) {
+        createNamedColors();
+    }
+
+    namedColors.get(name) as Color;
+}
+
 // PENDING_DOC_REVIEW_2
 /**
  * <p class="editor">
@@ -50,7 +60,7 @@ import java.lang.NumberFormatException;
  * </p>
  * 
  * <p>{@code Color}s can be created with the constructor or with one of several
- * static utility methods.  The following lines of code all create the same
+ * utility methods.  The following lines of code all create the same
  * blue color:</p>
  *
  * <pre><code>
@@ -133,8 +143,6 @@ public /* final */ class Color extends Paint, Interpolatable {
 
     private attribute awtColor: java.awt.Color;
 
-    private static attribute namedColors: Map;
-
     private function getAWTColor0() {
         if (awtColor == null) {
             awtColor = new java.awt.Color(red.floatValue(),
@@ -144,14 +152,6 @@ public /* final */ class Color extends Paint, Interpolatable {
         }
 
         awtColor;
-    }
-
-    private static function getNamedColor(name: String): Color {
-        if (namedColors == null) {
-            createNamedColors();
-        }
-
-        namedColors.get(name) as Color;
     }
 
     // PENDING_DOC_REVIEW
