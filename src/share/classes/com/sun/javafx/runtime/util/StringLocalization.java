@@ -96,9 +96,9 @@ public class StringLocalization {
 
     /**
      * Get the properties file name for the given key, which consists of
-     * 'packageName(+scriptFileName)'. E.g., 'Example.fx' in 'foo.bar' package would have
-     * a key as 'foo.bar+Example', while 'foo.bar' can represent the package itself.
-     * A script file in the unnamed package can be denoted as '+Example'.
+     * 'packageName(/scriptFileName)'. E.g., 'Example.fx' in 'foo.bar' package would have
+     * a key as 'foo.bar/Example', while 'foo.bar' can represent the package itself.
+     * A script file in the unnamed package can be denoted as '/Example'.
      */
     public static String getPropertiesName(String key) {
         String propertiesName = key.replaceAll("^/", "").replaceAll("/", ".");

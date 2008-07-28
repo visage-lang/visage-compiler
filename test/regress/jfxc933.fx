@@ -12,36 +12,35 @@ import javafx.util.StringLocalizer;
 // save the default locale for testing
 var curLoc = Locale.getDefault();
 
-// set the default locale to Japan
-Locale.setDefault(Locale.JAPAN);
+try {
+    // set the default locale to Japan
+    Locale.setDefault(Locale.JAPAN);
 
-// Japan locale tests
-var ja = new StringLocalizer();
-System.out.println(ja.localizedString());
-ja = StringLocalizer{ };
-System.out.println(ja.localizedString());
-ja = StringLocalizer{ defaultString: "defaultString" };
-System.out.println(ja.localizedString());
-ja = StringLocalizer{ key: "EXISTENT" defaultString: "defaultString" };
-System.out.println(ja.localizedString());
-ja = StringLocalizer{ key: "NON_EXISTENT" defaultString: "defaultString" };
-System.out.println(ja.localizedString());
-
-
-// English locale tests
-var en = new StringLocalizer();
-en.locale = Locale.ENGLISH;
-System.out.println(en.localizedString());
-en = StringLocalizer{ locale: Locale.ENGLISH };
-System.out.println(en.localizedString());
-en = StringLocalizer{ locale: Locale.ENGLISH 
-                      defaultString: "defaultString" };
-System.out.println(en.localizedString());
-en = StringLocalizer{ locale: Locale.ENGLISH
-                      key: "NON_EXISTENT" 
-                      defaultString: "defaultString" };
-System.out.println(en.localizedString());
+    // Japan locale tests
+    var ja = new StringLocalizer();
+    System.out.println(ja.localizedString);
+    ja = StringLocalizer{ };
+    System.out.println(ja.localizedString);
+    ja = StringLocalizer{ defaultString: "defaultString" };
+    System.out.println(ja.localizedString);
+    ja = StringLocalizer{ key: "EXISTENT" defaultString: "defaultString" };
+    System.out.println(ja.localizedString);
+    ja = StringLocalizer{ key: "NON_EXISTENT" defaultString: "defaultString" };
+    System.out.println(ja.localizedString);
 
 
-// restore the default locale
-Locale.setDefault(curLoc);
+    // English locale tests
+    Locale.setDefault(Locale.ENGLISH);
+    var en = new StringLocalizer();
+    System.out.println(en.localizedString);
+    en = StringLocalizer{ defaultString: "defaultString" };
+    System.out.println(en.localizedString);
+    en = StringLocalizer{ key: "NON_EXISTENT" 
+                          defaultString: "defaultString" };
+    System.out.println(en.localizedString);
+
+
+} finally {
+    // restore the default locale
+    Locale.setDefault(curLoc);
+}

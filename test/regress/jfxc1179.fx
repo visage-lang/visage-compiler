@@ -7,5 +7,10 @@
 import java.util.Locale;
 import javafx.util.StringLocalizer;
 
-Locale.setDefault(Locale.US);
-var a = StringLocalizer { key: "NOTFOUND" };
+var locale = Locale.getDefault();
+try {
+    Locale.setDefault(Locale.US);
+    var a = StringLocalizer { key: "NOTFOUND" };
+} finally {
+    Locale.setDefault(locale);
+}
