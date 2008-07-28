@@ -34,12 +34,41 @@ import java.lang.StringBuffer;
 import javafx.scene.Font;
 import javafx.scene.paint.Color;
 
+private def FX_COMPONENT_KEY = new StringBuffer("FX_COMPONENT_KEY");
+
+// PENDING_DOC_REVIEW
+/**
+ * Determines if this component or one of its immediate subcomponents is an
+ * object of the property with the specified key, and if so, returns the
+ * containing component.
+ */ 
+public function getComponentFor(jComponent: JComponent): Component {
+    if (jComponent == null) null else jComponent.getClientProperty(FX_COMPONENT_KEY) as Component;
+}
+
+// PENDING_DOC_REVIEW
+/**
+ * Get the size and location values from the component.
+ */ 
+public function fromJComponent(jComponent: JComponent): Component {
+    if (jComponent == null) {
+        return null;
+    }
+
+    var comp = getComponentFor(jComponent);
+    if (comp != null) {
+        return comp;
+    }
+
+    return JComponentWrapper {
+        jComponent: jComponent;
+    }
+}
+
 /**
  * A common component ancestor. 
  */
 public abstract class Component extends ClusterElement {
-
-    private static /* constant */ attribute FX_COMPONENT_KEY = new StringBuffer("FX_COMPONENT_KEY");
 
     attribute ignoreJComponentChange: Boolean = false;
 
@@ -358,35 +387,6 @@ public abstract class Component extends ClusterElement {
      * Creates the {@link JComponent} delegate for this component.
      */ 
     protected abstract function createJComponent(): JComponent;
-
-    // PENDING_DOC_REVIEW
-    /**
-     * Determines if this component or one of its immediate subcomponents is an
-     * object of the property with the specified key, and if so, returns the
-     * containing component.
-     */ 
-    public static /* final */ function getComponentFor(jComponent: JComponent): Component {
-        if (jComponent == null) null else jComponent.getClientProperty(FX_COMPONENT_KEY) as Component;
-    }
-
-    // PENDING_DOC_REVIEW
-    /**
-     * Get the size and location values from the component.
-     */ 
-    public static /* final */ function fromJComponent(jComponent: JComponent): Component {
-        if (jComponent == null) {
-            return null;
-        }
-
-        var comp = getComponentFor(jComponent);
-        if (comp != null) {
-            return comp;
-        }
-
-        return JComponentWrapper {
-            jComponent: jComponent;
-        }
-    }
 
 }
 
