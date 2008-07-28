@@ -31,6 +31,207 @@ import java.util.Map;
 import java.util.HashMap;
 import java.lang.NumberFormatException;
 
+// PENDING_DOC_REVIEW_2
+/**
+ * Creates an sRGB color with the specified red, green, blue,
+ * and opacity values in the range (0.0 - 1.0). 
+ * The actual color used in rendering depends on finding the best match 
+ * given the color space available for a particular output device.
+ *
+ * @param red the red component, 0->1.0
+ * @param green the green component, 0 -> 1.0
+ * @param blue  the blue component, 0 -> 1.0
+ * @param opacity the opacity component, 0 -> 1.0
+ *
+ * @profile common
+ * @needsreview
+ */        
+public function color(red: Number, green: Number, blue: Number, opacity: Number): Color {
+    Color {red: red, green: green, blue: blue, opacity: opacity}
+}
+
+// PENDING_DOC_REVIEW_2
+/**
+ * Creates an opaque sRGB color with the specified red, green, 
+ * and blue values in the range (0.0 - 1.0). Opacity is defaulted to {@code 1.0}. 
+ * The actual color used in rendering depends on finding the best match 
+ * given the color space available for a particular output device.
+ *
+ * @param red the red component, 0->1.0
+ * @param green the green component, 0 -> 1.0
+ * @param blue  the blue component, 0 -> 1.0
+ *
+ * @profile common
+ * @needsreview
+ */        
+public function color(red: Number, green: Number, blue: Number): Color {
+    Color {red: red, green: green, blue: blue};
+}
+
+// PENDING_DOC_REVIEW_2
+/**
+ * Creates an sRGB color with the specified red, green, blue 
+ * values in the range (0 - 255) and opacity value in the range (0.0 - 1.0).
+ *
+ * @param red the red component, 0->255
+ * @param green the green component, 0->255
+ * @param blue the blue component, 0->255
+ * @param opacity the opacity component, 0->1.0
+ *
+ * @profile common
+ * @cssclass needsreview
+ */        
+public function rgb(red: Integer, green: Integer, blue: Integer, opacity: Number): Color {
+    Color {red: red / 255.0, green: green / 255.0, blue: blue / 255.0, opacity: opacity};
+}
+
+// PENDING_DOC_REVIEW_2
+/**
+ * Creates an opaque sRGB color with the specified red, green, 
+ * and blue values in the range (0 - 255). 
+ * The actual color used in rendering depends on finding the best match 
+ * given the color space available for a given output device. 
+ * Opacity is defaulted to 255.
+ *
+ * @param red the red component, 0->255
+ * @param green the green component, 0->255
+ * @param blue the blue component, 0->255
+ *
+ * @profile common
+ * @needsreview
+ */        
+public function rgb(red: Integer, green: Integer, blue: Integer): Color {
+    Color {red: red / 255.0, green: green / 255.0, blue: blue / 255.0};
+}
+
+// PENDING_DOC_REVIEW_2
+/**
+ * <p class="editor">
+ * NOTE, the description of the H component is confusing. Why can't
+ * the hue simply be from 0->360 (with wrapping. The devleoper shouldn't have to understand
+ * how it is calculated.</p>
+ * 
+ * <p>Creates a {@code Color} object based on the specified values for 
+ * the HSB color model. The {@code saturation}, {@code brightness}, 
+ * and {@code opacity}  components should be floating-point values 
+ * between zero and one (numbers in the range {@code 0.0 - 1.0)}. 
+ * The {@code hue} component can be any floating-point number. 
+ * The floor of this number is subtracted from it to create a fraction 
+ * between 0 and 1. This fractional number is then multiplied by 360 
+ * to produce the hue angle in the HSB color model.</p>
+ * 
+ * @param hue the hue component, 0->1.0 (wraps)
+ * @param saturation the saturation of the color, 0->1.0
+ * @param brightness the brightness of the color, 0->1.0
+ * @param opacity the opacity component, 0->1.0
+ *
+ * @profile common
+ * @needsreview
+ */        
+public function hsb(hue: Number, saturation: Number, brightness: Number, opacity: Number) {
+    var base = java.awt.Color.getHSBColor(hue.floatValue(), saturation.floatValue(), brightness.floatValue());
+    var rgb = base.getRGBColorComponents(null);
+    Color {red: rgb[0], green: rgb[1], blue: rgb[2], opacity: opacity};
+}
+
+// PENDING_DOC_REVIEW_2
+/**
+ * Creates a {@code Color} object based on the specified values 
+ * for the HSB color model. The {@code saturation} and {@code brightness} 
+ * components should be floating-point values between zero and one 
+ * (numbers in the range 0.0-1.0). The {@code hue} component can be 
+ * any floating-point number. The floor of this number is subtracted 
+ * from it to create a fraction between 0 and 1. 
+ * This fractional number is then multiplied by 360 to produce the hue angle 
+ * in the HSB color model. 
+ *
+ * @param hue the hue component, 0->1.0 (wraps)
+ * @param saturation the saturation of the color, 0->1.0
+ * @param brightness the brightness of the color, 0->1.0
+ * 
+ * @profile common
+ * @needsreview
+ */        
+public function hsb(hue: Number, saturation: Number, brightness: Number) {
+    var base = java.awt.Color.getHSBColor(hue.floatValue(), saturation.floatValue(), brightness.floatValue());
+    var rgb = base.getRGBComponents(null);
+    Color {red: rgb[0], green: rgb[1], blue: rgb[2]};
+}
+
+// PENDING_DOC_REVIEW_2
+/**
+ * Creates an RGB color specified with the hexadecimal notation. 
+ * Opacity is in the range 0.0-1.0. ex:
+ * 
+ * <pre><code>
+ * var c = Color.web("0xff6688",1.0);
+ * var c = Color.web("#ff6688",1.0);
+ * var c = Color.web("ff6688",1.0);
+ * </code></pre>
+ *
+ * @param color the hexadecimal string to identify the RGB color
+ * @param opacity the opacity component
+ *
+ * @profile common
+ * @needsreview
+ */        
+public function web(color: String, opacity: Number): Color {
+    color = color.toLowerCase();
+    if (color.startsWith("#") or color.startsWith("0x")) {
+        color = if (color.startsWith("#")) color.substring(1) else color.substring(2);
+
+        var len = color.length();
+
+        try {
+            var r;
+            var g;
+            var b;
+
+            if (len == 3) {
+                r = java.lang.Integer.parseInt(color.substring(0, 1), 16);
+                g = java.lang.Integer.parseInt(color.substring(1, 2), 16);
+                b = java.lang.Integer.parseInt(color.substring(2, 3), 16);
+                return Color.color(r / 15.0, g / 15.0, b / 15.0, opacity);
+            } else if (len == 6) {
+                r = java.lang.Integer.parseInt(color.substring(0, 2), 16);
+                g = java.lang.Integer.parseInt(color.substring(2, 4), 16);
+                b = java.lang.Integer.parseInt(color.substring(4, 6), 16);
+                return Color.rgb(r, g, b, opacity);
+            }
+        } catch (nfe: NumberFormatException) {}
+        
+        return Color{opacity: opacity};
+    } else {
+        var col = getNamedColor(color);
+        return if (col == null) {
+                   Color{opacity: opacity};
+               } else if (opacity == 1.0) {
+                   col;
+               } else {
+                   Color.color(col.red, col.green, col.blue, opacity);
+               }
+    }
+}
+
+// PENDING_DOC_REVIEW_2
+/**
+ * Creates an RGB color specified with the hexadecimal notation. 
+ * Opacity is set to {@code 1.0}. ex:
+ * <pre><code>
+ * var c = Color.web("0xff6688");
+ * var c = Color.web("#ff6688");
+ * var c = Color.web("ff6688");
+ * </code></pre>
+ *
+ * @param color the hexadecimal string to identify the RGB color
+ *
+ * @profile common
+ * @needsreview
+ */        
+public function web(color: String): Color {
+    web(color, 1.0);
+}
+
 // PENDING_DOC_REVIEW
 /**
  * Predefined {@code Color} constants. 
@@ -519,207 +720,6 @@ public /* final */ class Color extends Paint, Interpolatable {
             blue:    blue    + (v2.blue    - blue)    * t;
             opacity: opacity + (v2.opacity - opacity) * t;
         }
-    }
-
-    // PENDING_DOC_REVIEW_2
-    /**
-     * Creates an sRGB color with the specified red, green, blue,
-     * and opacity values in the range (0.0 - 1.0). 
-     * The actual color used in rendering depends on finding the best match 
-     * given the color space available for a particular output device.
-     *
-     * @param red the red component, 0->1.0
-     * @param green the green component, 0 -> 1.0
-     * @param blue  the blue component, 0 -> 1.0
-     * @param opacity the opacity component, 0 -> 1.0
-     *
-     * @profile common
-     * @needsreview
-     */        
-    public static function color(red: Number, green: Number, blue: Number, opacity: Number): Color {
-        Color {red: red, green: green, blue: blue, opacity: opacity}
-    }
-
-    // PENDING_DOC_REVIEW_2
-    /**
-     * Creates an opaque sRGB color with the specified red, green, 
-     * and blue values in the range (0.0 - 1.0). Opacity is defaulted to {@code 1.0}. 
-     * The actual color used in rendering depends on finding the best match 
-     * given the color space available for a particular output device.
-     *
-     * @param red the red component, 0->1.0
-     * @param green the green component, 0 -> 1.0
-     * @param blue  the blue component, 0 -> 1.0
-     *
-     * @profile common
-     * @needsreview
-     */        
-    public static function color(red: Number, green: Number, blue: Number): Color {
-        Color {red: red, green: green, blue: blue};
-    }
-
-    // PENDING_DOC_REVIEW_2
-    /**
-     * Creates an sRGB color with the specified red, green, blue 
-     * values in the range (0 - 255) and opacity value in the range (0.0 - 1.0).
-     *
-     * @param red the red component, 0->255
-     * @param green the green component, 0->255
-     * @param blue the blue component, 0->255
-     * @param opacity the opacity component, 0->1.0
-     *
-     * @profile common
-     * @cssclass needsreview
-     */        
-    public static function rgb(red: Integer, green: Integer, blue: Integer, opacity: Number): Color {
-        Color {red: red / 255.0, green: green / 255.0, blue: blue / 255.0, opacity: opacity};
-    }
-
-    // PENDING_DOC_REVIEW_2
-    /**
-     * Creates an opaque sRGB color with the specified red, green, 
-     * and blue values in the range (0 - 255). 
-     * The actual color used in rendering depends on finding the best match 
-     * given the color space available for a given output device. 
-     * Opacity is defaulted to 255.
-     *
-     * @param red the red component, 0->255
-     * @param green the green component, 0->255
-     * @param blue the blue component, 0->255
-     *
-     * @profile common
-     * @needsreview
-     */        
-    public static function rgb(red: Integer, green: Integer, blue: Integer): Color {
-        Color {red: red / 255.0, green: green / 255.0, blue: blue / 255.0};
-    }
-
-    // PENDING_DOC_REVIEW_2
-    /**
-     * <p class="editor">
-     * NOTE, the description of the H component is confusing. Why can't
-     * the hue simply be from 0->360 (with wrapping. The devleoper shouldn't have to understand
-     * how it is calculated.</p>
-     * 
-     * <p>Creates a {@code Color} object based on the specified values for 
-     * the HSB color model. The {@code saturation}, {@code brightness}, 
-     * and {@code opacity}  components should be floating-point values 
-     * between zero and one (numbers in the range {@code 0.0 - 1.0)}. 
-     * The {@code hue} component can be any floating-point number. 
-     * The floor of this number is subtracted from it to create a fraction 
-     * between 0 and 1. This fractional number is then multiplied by 360 
-     * to produce the hue angle in the HSB color model.</p>
-     * 
-     * @param hue the hue component, 0->1.0 (wraps)
-     * @param saturation the saturation of the color, 0->1.0
-     * @param brightness the brightness of the color, 0->1.0
-     * @param opacity the opacity component, 0->1.0
-     *
-     * @profile common
-     * @needsreview
-     */        
-    public static function hsb(hue: Number, saturation: Number, brightness: Number, opacity: Number) {
-        var base = java.awt.Color.getHSBColor(hue.floatValue(), saturation.floatValue(), brightness.floatValue());
-        var rgb = base.getRGBColorComponents(null);
-        Color {red: rgb[0], green: rgb[1], blue: rgb[2], opacity: opacity};
-    }
-
-    // PENDING_DOC_REVIEW_2
-    /**
-     * Creates a {@code Color} object based on the specified values 
-     * for the HSB color model. The {@code saturation} and {@code brightness} 
-     * components should be floating-point values between zero and one 
-     * (numbers in the range 0.0-1.0). The {@code hue} component can be 
-     * any floating-point number. The floor of this number is subtracted 
-     * from it to create a fraction between 0 and 1. 
-     * This fractional number is then multiplied by 360 to produce the hue angle 
-     * in the HSB color model. 
-     *
-     * @param hue the hue component, 0->1.0 (wraps)
-     * @param saturation the saturation of the color, 0->1.0
-     * @param brightness the brightness of the color, 0->1.0
-     * 
-     * @profile common
-     * @needsreview
-     */        
-    public static function hsb(hue: Number, saturation: Number, brightness: Number) {
-        var base = java.awt.Color.getHSBColor(hue.floatValue(), saturation.floatValue(), brightness.floatValue());
-        var rgb = base.getRGBComponents(null);
-        Color {red: rgb[0], green: rgb[1], blue: rgb[2]};
-    }
-
-    // PENDING_DOC_REVIEW_2
-    /**
-     * Creates an RGB color specified with the hexadecimal notation. 
-     * Opacity is in the range 0.0-1.0. ex:
-     * 
-     * <pre><code>
-     * var c = Color.web("0xff6688",1.0);
-     * var c = Color.web("#ff6688",1.0);
-     * var c = Color.web("ff6688",1.0);
-     * </code></pre>
-     *
-     * @param color the hexadecimal string to identify the RGB color
-     * @param opacity the opacity component
-     *
-     * @profile common
-     * @needsreview
-     */        
-    public static function web(color: String, opacity: Number): Color {
-        color = color.toLowerCase();
-        if (color.startsWith("#") or color.startsWith("0x")) {
-            color = if (color.startsWith("#")) color.substring(1) else color.substring(2);
-
-            var len = color.length();
-
-            try {
-                var r;
-                var g;
-                var b;
-
-                if (len == 3) {
-                    r = java.lang.Integer.parseInt(color.substring(0, 1), 16);
-                    g = java.lang.Integer.parseInt(color.substring(1, 2), 16);
-                    b = java.lang.Integer.parseInt(color.substring(2, 3), 16);
-                    return Color.color(r / 15.0, g / 15.0, b / 15.0, opacity);
-                } else if (len == 6) {
-                    r = java.lang.Integer.parseInt(color.substring(0, 2), 16);
-                    g = java.lang.Integer.parseInt(color.substring(2, 4), 16);
-                    b = java.lang.Integer.parseInt(color.substring(4, 6), 16);
-                    return Color.rgb(r, g, b, opacity);
-                }
-            } catch (nfe: NumberFormatException) {}
-            
-            return Color{opacity: opacity};
-        } else {
-            var col = getNamedColor(color);
-            return if (col == null) {
-                       Color{opacity: opacity};
-                   } else if (opacity == 1.0) {
-                       col;
-                   } else {
-                       Color.color(col.red, col.green, col.blue, opacity);
-                   }
-        }
-    }
-
-    // PENDING_DOC_REVIEW_2
-    /**
-     * Creates an RGB color specified with the hexadecimal notation. 
-     * Opacity is set to {@code 1.0}. ex:
-     * <pre><code>
-     * var c = Color.web("0xff6688");
-     * var c = Color.web("#ff6688");
-     * var c = Color.web("ff6688");
-     * </code></pre>
-     *
-     * @param color the hexadecimal string to identify the RGB color
-     *
-     * @profile common
-     * @needsreview
-     */        
-    public static function web(color: String): Color {
-        web(color, 1.0);
     }
 
     // PENDING_DOC_REVIEW
