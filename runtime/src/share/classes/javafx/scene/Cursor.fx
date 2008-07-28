@@ -176,6 +176,15 @@ private def cursors:Cursor[] = [
     HAND,
     MOVE];
 
+function fromAWTCursor(c:java.awt.Cursor):Cursor {
+    var i:Integer = c.getType();
+    if (i >= 0 and i < sizeof cursors) {
+        cursors[i]
+    } else {
+        Cursor { awtType:i awtCursor:c }
+    }
+}
+
 // PENDING_DOC_REVIEW
 /**
  * A class to encapsulate the bitmap representation of the mouse cursor.
@@ -193,28 +202,6 @@ public class Cursor {
             awtCursor = java.awt.Cursor.getPredefinedCursor(awtType);
         }
         awtCursor;
-    }
-
-    private function createBlankAWTCursor():java.awt.Cursor {
-        var toolkit:Toolkit = Toolkit.getDefaultToolkit();
-        var d:Dimension = toolkit.getBestCursorSize(1, 1);
-        if (d.width != 0 and d.height != 0) {
-            var image:java.awt.Image = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_ARGB);
-            return toolkit.createCustomCursor(image, new Point(0, 0), "NONE");
-        }
-        else {
-            return null;
-        }
-    }
-
-    function fromAWTCursor(c:java.awt.Cursor):Cursor {
-        var i:Integer = c.getType();
-        if (i >= 0 and i < sizeof cursors) {
-            cursors[i]
-        }
-        else {
-            Cursor { awtType:i awtCursor:c }
-        }
     }
 
 }
