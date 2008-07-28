@@ -349,6 +349,32 @@ private function createNamedColors(): Void {
     namedColors = colors;
 }
 
+// PENDING_DOC_REVIEW
+/**
+ * Creates a Color instance derived from the provided {@code java.awt.Color}. 
+ * @needsreview
+ */
+public function fromAWTColor(c: java.awt.Color): Color {
+    if (c == null) {
+        return null;
+    }
+
+    var rgbo = c.getRGBComponents(null);
+    var r = rgbo[0];
+    var g = rgbo[1];
+    var b = rgbo[2];
+    var o = rgbo[3];
+
+    // PENDING(shannonh) - the commented code below is good, but it requires
+    // us to fix the sync pattern of colors/fonts/etc, which requires
+    // compiler support.
+    // if (c instanceof UIResource) {
+    //     color(r, g, b, o);
+    // } else {
+        Color {red: r, green: g, blue: b, opacity: o, awtColor: c};
+    // }
+}
+
 // PENDING_DOC_REVIEW_2
 /**
  * <p class="editor">
@@ -493,32 +519,6 @@ public /* final */ class Color extends Paint, Interpolatable {
             blue:    blue    + (v2.blue    - blue)    * t;
             opacity: opacity + (v2.opacity - opacity) * t;
         }
-    }
-
-    // PENDING_DOC_REVIEW
-    /**
-     * Creates a Color instance derived from the provided {@code java.awt.Color}. 
-     * @needsreview
-     */
-    public static function fromAWTColor(c: java.awt.Color): Color {
-        if (c == null) {
-            return null;
-        }
-
-        var rgbo = c.getRGBComponents(null);
-        var r = rgbo[0];
-        var g = rgbo[1];
-        var b = rgbo[2];
-        var o = rgbo[3];
-
-        // PENDING(shannonh) - the commented code below is good, but it requires
-        // us to fix the sync pattern of colors/fonts/etc, which requires
-        // compiler support.
-        // if (c instanceof UIResource) {
-        //     color(r, g, b, o);
-        // } else {
-            Color {red: r, green: g, blue: b, opacity: o, awtColor: c};
-        // }
     }
 
     // PENDING_DOC_REVIEW_2
