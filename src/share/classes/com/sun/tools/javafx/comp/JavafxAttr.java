@@ -3559,10 +3559,7 @@ public class JavafxAttr implements JavafxVisitor {
 	}
     }
 
-// Javafx modification
-public
-// Javafx modification
-    boolean fixOverride(JFXFunctionDefinition tree,
+    public boolean fixOverride(JFXFunctionDefinition tree,
 		       MethodSymbol m,
 		       MethodSymbol other,
 		       ClassSymbol origin) {
@@ -3588,26 +3585,20 @@ public
 	    }
             else {
                 Type setReturnType = null;
-                int typeTag = -1;
                 if (mtres == syms.javafx_NumberType && otres == syms.floatType) {
                     setReturnType = syms.floatType;
-                    typeTag = TypeTags.FLOAT;
                 }
                 else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_NumberType) && otres == syms.byteType) {
                     setReturnType = syms.byteType;
-                    typeTag = TypeTags.BYTE;
                 }
                 else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_NumberType) && otres == syms.charType) {
                     setReturnType = syms.charType;
-                    typeTag = TypeTags.CHAR;
                 }
                 else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_NumberType) && otres == syms.shortType) {
                     setReturnType = syms.shortType;
-                    typeTag = TypeTags.SHORT;
                 }
                 else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_NumberType) && otres == syms.longType) {
                     setReturnType = syms.longType;
-                    typeTag = TypeTags.LONG;
                 }
 
                 if (setReturnType != null) {
@@ -3624,6 +3615,20 @@ public
             }
 	}
 
+        // now fix up the access modifiers
+        long origFlags = m.flags();
+        long flags = origFlags;
+        final long ACCESS_FLAGS = Flags.PUBLIC | Flags.PROTECTED | Flags.PRIVATE;
+        if ((flags & ACCESS_FLAGS) == 0) {
+            flags |= other.flags() & ACCESS_FLAGS;
+        }
+        if ((flags & JavafxFlags.READABLE) == 0) {
+            flags |= other.flags() & JavafxFlags.READABLE;
+        }
+        if (flags != origFlags) {
+            m.flags_field = flags;
+            tree.getModifiers().flags = flags;
+        }
         return true;
     }
 
