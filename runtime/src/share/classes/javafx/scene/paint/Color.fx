@@ -722,6 +722,15 @@ public /* final */ class Color extends Paint, Interpolatable {
         }
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function equals(obj: Object) : Boolean {
+        var color = obj as Color;
+        if (color == null) return false;
+        getAWTColor().equals(color.getAWTColor());
+    }
+    
     // PENDING_DOC_REVIEW
     /**
      * Returns a string representation of this {@code Color}. 
