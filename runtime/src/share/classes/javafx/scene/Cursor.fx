@@ -27,6 +27,7 @@ import java.awt.image.BufferedImage;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
+import javafx.lang.FX;
 
 /**
  * The default cursor type (gets set if no cursor is defined).
@@ -180,6 +181,8 @@ function fromAWTCursor(c:java.awt.Cursor):Cursor {
     var i:Integer = c.getType();
     if (i >= 0 and i < sizeof cursors) {
         cursors[i]
+    } else if (FX.isSameObject(c, NONE.awtCursor)) {
+        NONE
     } else {
         Cursor { awtType:i awtCursor:c }
     }
