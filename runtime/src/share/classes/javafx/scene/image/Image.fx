@@ -45,6 +45,135 @@ import javax.imageio.stream.ImageInputStream;
    sizeXsize.
  */
 
+/* If any of the width/height/size attributes were set, scale
+ * the image to match.
+ */
+private function maybeScaleImage(image:BufferedImage, width:Number, height:Number, size:Number):BufferedImage {
+    var w:Number = image.getWidth();
+    var h:Number = image.getHeight();
+    if ((width == 0.0) and (height == 0.0) and (size == 0.0)) {
+        width = w;
+        height = h;
+        size = Math.max(w, h);
+        return image;
+    }
+    else {
+        if (size != 0.0) {
+            var scale = size / Math.max(w, h);
+            width = w * scale;
+            height = h * scale;
+        }
+        else if (height == 0.0) {
+            height = width/w * h;
+        }
+        else if (width == 0.0) {
+            width = height/h * w;
+        }
+        return if (w != width or h != height) scale(image, width, height) else image;
+    }
+}
+
+private function createCompatibleImage(w:Integer, h:Integer, transparency:Integer):BufferedImage {
+    // we don't know in advance to which screen this image will be
+    // rendered, so just assume the default screen (on most modern
+    // hardware with multiple screens, all screens will use the same
+    // pixel layout anyway, so this isn't a bad guess)
+    var gc = GraphicsEnvironment.getLocalGraphicsEnvironment().
+        getDefaultScreenDevice().getDefaultConfiguration();
+    return gc.createCompatibleImage(w, h, transparency);
+}
+
+private function asCompatibleImage(image:BufferedImage):BufferedImage {
+    var gc = GraphicsEnvironment.getLocalGraphicsEnvironment().
+        getDefaultScreenDevice().getDefaultConfiguration();
+    if (not gc.getColorModel(image.getTransparency()).equals(image.getColorModel())) {
+        var newimg =
+            createCompatibleImage(image.getWidth(), image.getHeight(),
+                                  image.getTransparency());
+        var g2d:Graphics2D = newimg.createGraphics();
+        g2d.drawImage(image, 0, 0, null);
+        g2d.dispose();
+        image = newimg;
+    }
+    return image;
+}
+
+/* Scale the image to match the width/height attributes
+ * 
+ * This function is essentially the same as the getScaledInstance() 
+ * example from Chris Campbell's "The Perils of Image.getScaledInstance()" 
+ * article:
+ * http://today.java.net/pub/a/today/2008/04/03/perils-of-image-getscaledinstance.html
+ */
+private function scale(image:BufferedImage, width:Number, height:Number):BufferedImage {
+    var w:Number = image.getWidth();
+    var h:Number = image.getHeight(); 
+    var transparency = image.getTransparency();
+    var interpolationHint = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
+    while (true) {
+        w = if (w > width) Math.max(w/2.0, width) else width;
+        h = if (h > height) Math.max(h/2.0, height) else height;
+        var tmp = createCompatibleImage(w, h, transparency);
+        var g2d:Graphics2D = tmp.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, interpolationHint);
+        g2d.drawImage(image, 0, 0, w, h, null);
+        g2d.dispose();
+        image = tmp;
+        if (w == width and h == height) {
+            break;
+        }
+    }
+    return image;
+}
+
+private function findImageReader(url:URL):ImageReader {
+    var input:ImageInputStream = null; 
+    try {
+        input = ImageIO.createImageInputStream(url.openStream());
+    }
+    catch(ignored:IOException) { 
+        return null;
+    }
+    var reader:ImageReader = null;
+    var readers:Iterator = ImageIO.getImageReaders(input);
+    while((reader == null) and (readers != null) and readers.hasNext()) {
+        reader = readers.next() as ImageReader;
+    }
+    if (reader != null) {
+        reader.setInput(input);
+    }
+    else {
+        if (input != null) {
+            try { input.close(); } catch (e:IOException) { }
+        }
+    }
+    return reader;
+}
+
+private function readImage(reader:ImageReader):BufferedImage {
+    var image:BufferedImage = null;
+    try {
+        image = asCompatibleImage(reader.read(reader.getMinIndex()));
+    }
+    catch (ignored:IOException) { }
+    finally {
+        var input:ImageInputStream = reader.getInput() as ImageInputStream;
+        if (input != null) {
+            try { input.close(); } catch (e:IOException) { }
+        }
+        if (reader != null) {
+            reader.removeAllIIOReadProgressListeners();
+            reader.dispose();
+        }
+    }
+    return image;
+}
+
+
+public function fromBufferedImage(image:BufferedImage) {
+    Image { bufferedImage:image }
+}
+
 // PENDING_DOC_REVIEW
 /**
  * The {@code Image} class represents graphical images. 
@@ -244,130 +373,6 @@ public class Image {
         }
     }
 
-    /* If any of the width/height/size attributes were set, scale
-     * the image to match.
-     */
-    private static function maybeScaleImage(image:BufferedImage, width:Number, height:Number, size:Number):BufferedImage {
-        var w:Number = image.getWidth();
-        var h:Number = image.getHeight();
-        if ((width == 0.0) and (height == 0.0) and (size == 0.0)) {
-            width = w;
-            height = h;
-            size = Math.max(w, h);
-            return image;
-        }
-        else {
-            if (size != 0.0) {
-                var scale = size / Math.max(w, h);
-                width = w * scale;
-                height = h * scale;
-            }
-            else if (height == 0.0) {
-                height = width/w * h;
-            }
-            else if (width == 0.0) {
-                width = height/h * w;
-            }
-            return if (w != width or h != height) scale(image, width, height) else image;
-        }
-    }
-
-    private static function createCompatibleImage(w:Integer, h:Integer, transparency:Integer):BufferedImage {
-        // we don't know in advance to which screen this image will be
-        // rendered, so just assume the default screen (on most modern
-        // hardware with multiple screens, all screens will use the same
-        // pixel layout anyway, so this isn't a bad guess)
-        var gc = GraphicsEnvironment.getLocalGraphicsEnvironment().
-            getDefaultScreenDevice().getDefaultConfiguration();
-        return gc.createCompatibleImage(w, h, transparency);
-    }
-
-    private static function asCompatibleImage(image:BufferedImage):BufferedImage {
-        var gc = GraphicsEnvironment.getLocalGraphicsEnvironment().
-            getDefaultScreenDevice().getDefaultConfiguration();
-        if (not gc.getColorModel(image.getTransparency()).equals(image.getColorModel())) {
-            var newimg =
-                createCompatibleImage(image.getWidth(), image.getHeight(),
-                                      image.getTransparency());
-            var g2d:Graphics2D = newimg.createGraphics();
-            g2d.drawImage(image, 0, 0, null);
-            g2d.dispose();
-            image = newimg;
-        }
-        return image;
-    }
-
-    /* Scale the image to match the width/height attributes
-     * 
-     * This function is essentially the same as the getScaledInstance() 
-     * example from Chris Campbell's "The Perils of Image.getScaledInstance()" 
-     * article:
-     * http://today.java.net/pub/a/today/2008/04/03/perils-of-image-getscaledinstance.html
-     */
-    private static function scale(image:BufferedImage, width:Number, height:Number):BufferedImage {
-        var w:Number = image.getWidth();
-        var h:Number = image.getHeight(); 
-        var transparency = image.getTransparency();
-        var interpolationHint = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
-        while (true) {
-            w = if (w > width) Math.max(w/2.0, width) else width;
-            h = if (h > height) Math.max(h/2.0, height) else height;
-            var tmp = createCompatibleImage(w, h, transparency);
-            var g2d:Graphics2D = tmp.createGraphics();
-            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, interpolationHint);
-            g2d.drawImage(image, 0, 0, w, h, null);
-            g2d.dispose();
-            image = tmp;
-            if (w == width and h == height) {
-                break;
-            }
-        }
-        return image;
-    }
-
-    private static function findImageReader(url:URL):ImageReader {
-	var input:ImageInputStream = null; 
-	try {
-	    input = ImageIO.createImageInputStream(url.openStream());
-	}
-	catch(ignored:IOException) { 
-            return null;
-        }
-	var reader:ImageReader = null;
-        var readers:Iterator = ImageIO.getImageReaders(input);
-        while((reader == null) and (readers != null) and readers.hasNext()) {
-            reader = readers.next() as ImageReader;
-        }
-        if (reader != null) {
-            reader.setInput(input);
-        }
-        else {
-	    if (input != null) {
-		try { input.close(); } catch (e:IOException) { }
-	    }
-        }
-        return reader;
-    }
-
-    private static function readImage(reader:ImageReader):BufferedImage {
-	var image:BufferedImage = null;
-	try {
-            image = asCompatibleImage(reader.read(reader.getMinIndex()));
-	}
-	catch (ignored:IOException) { }
-	finally {
-	    var input:ImageInputStream = reader.getInput() as ImageInputStream;
-	    if (input != null) {
-		try { input.close(); } catch (e:IOException) { }
-	    }
-	    if (reader != null) {
-		reader.removeAllIIOReadProgressListeners();
-		reader.dispose();
-	    }
-	}
-        return image;
-    }
-
     public function cancel():Void {
         if (loadImageTask != null) {
             loadImageTask.cancel(true);
@@ -385,10 +390,6 @@ public class Image {
                 }
             }
         }
-    }
-
-    public static function fromBufferedImage(image:BufferedImage) {
-        Image { bufferedImage:image }
     }
 
 }
