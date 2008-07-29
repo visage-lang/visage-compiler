@@ -567,14 +567,7 @@ public function fromAWTColor(c: java.awt.Color): Color {
     var b = rgbo[2];
     var o = rgbo[3];
 
-    // PENDING(shannonh) - the commented code below is good, but it requires
-    // us to fix the sync pattern of colors/fonts/etc, which requires
-    // compiler support.
-    // if (c instanceof UIResource) {
-    //     color(r, g, b, o);
-    // } else {
-        Color {red: r, green: g, blue: b, opacity: o, awtColor: c};
-    // }
+    Color {red: r, green: g, blue: b, opacity: o, awtColor: c};
 }
 
 // PENDING_DOC_REVIEW_2
@@ -677,7 +670,7 @@ public /* final */ class Color extends Paint, Interpolatable {
      */        
     public /* set-once */ attribute opacity: Number = 1.0;
 
-    private attribute awtColor: java.awt.Color;
+    attribute awtColor: java.awt.Color;
 
     private function getAWTColor0() {
         if (awtColor == null) {
