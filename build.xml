@@ -550,9 +550,6 @@
         </copy>
     </target>
     
-    <!-- Can be deleted as soon as the hudson server is switched to use runtime target -->
-    <target name="runtime-no-ui" depends="runtime"/>
-    
     <target name="pack-jars" depends="runtime">
         <taskdef name="pack200" classpath="${file.reference.pack200task.jar}"
                  classname="com.sun.tools.apache.ant.pack200.Pack200Task"/>
