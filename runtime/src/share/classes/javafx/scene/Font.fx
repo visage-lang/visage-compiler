@@ -35,7 +35,7 @@ public function fromAWTFont(f: java.awt.Font): Font {
     var style = FontStyle.fromToolkitValue(f.getStyle());
     var size = f.getSize();
 
-    Font {name: name, style: style, size: size, awtFont: f};
+    Font {name: name, style: style, size: size};
 }
 
 // PENDING_DOC_REVIEW
@@ -165,8 +165,8 @@ public /* final */ class Font {
      */          
     public /* set-once */ attribute size: Integer = 12;
 
-    /* set-once */ attribute awtFont: java.awt.Font
-                         = new java.awt.Font(name, style.getToolkitValue(), size);
+    private /* set-once */ attribute awtFont: java.awt.Font
+                                 = new java.awt.Font(name, style.getToolkitValue(), size);
 
     public function getAWTFont() : java.awt.Font {
         awtFont;
