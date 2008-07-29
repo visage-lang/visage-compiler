@@ -239,6 +239,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     public JCExpression translate(JFXExpression tree, Type type) {
         if (tree == null)
             return null;
+        if (tree instanceof JFXBlockExpression && yield == Yield.ToExpression) {
+            visitBlockExpression((JFXBlockExpression) tree, type);
+            return (JCExpression) result;
+        }
         return convertTranslated(translate(tree), tree.pos(), tree.type, type);
     }
 
@@ -1490,6 +1494,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     }
 
     public void visitBlockExpression(JFXBlockExpression tree) {
+        visitBlockExpression(tree, tree.type);
+    }
+
+    public void visitBlockExpression(JFXBlockExpression tree, Type pt) {
         DiagnosticPosition diagPos = tree.pos();
         ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
         prependToStatements = ListBuffer.lb();
@@ -1511,7 +1519,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             if (value.getFXTag() == JavafxTag.RETURN) {
                 value = ((JFXReturn) value).getExpression();
             }
-            JCExpression tvalue = translate(value); // must be before prepend
+            JCExpression tvalue = translate(value, pt); // must be before prepend
             localDefs = prependToStatements.appendList(localDefs).toList();
             result = makeBlockExpression(tree.pos(), localDefs, tvalue);  //TODO: tree.flags lost
         } else {
