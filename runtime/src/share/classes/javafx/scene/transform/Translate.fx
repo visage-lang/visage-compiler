@@ -29,7 +29,7 @@ import java.awt.geom.AffineTransform;
 /**
  * <p>This class represents an {@code Affine} object that translates coordinates 
  * by the specified factors. Normally application developers will use the
- * static {@code Transform.translate} method instead of accessing this class
+ * {@code Transform.translate} function instead of accessing this class
  * directly.</p>
  
  * <p>The matrix representing the translating transformation 
