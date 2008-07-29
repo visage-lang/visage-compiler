@@ -26,6 +26,91 @@ package javafx.scene;
 import java.net.URL;
 import java.io.InputStream;
 
+/**
+ * Creates a new {@code Font} from a corresponding AWT Font.
+ * @needsreview
+ */
+public function fromAWTFont(f: java.awt.Font): Font {
+    var name = f.getName();
+    var style = FontStyle.fromToolkitValue(f.getStyle());
+    var size = f.getSize();
+
+    Font {name: name, style: style, size: size, awtFont: f};
+}
+
+// PENDING_DOC_REVIEW
+/**
+ * Creates a new {@code Font} with the specified parameters.
+ *
+ * @param name the logical name for the new {@code Font}.
+ * @param style the style for the new {@code Font}
+ * @param size the size for the new {@code Font}
+ *
+ * @profile common
+ */          
+public function font(name: String, style: FontStyle, size: Integer): Font {
+    Font {name: name, style: style, size: size};
+}
+
+// PENDING_DOC_REVIEW
+/**
+ * Creates new {@code Font} with the specified parameters. In the case a font
+ * cannot be loaded from given URL, the function returns a font derived
+ * from a font existing in the system based on name,style and size parameters.
+ *
+ * @param name the logical name for the new {@code Font}. Can be null
+ * @param style the style for the new {@code Font}. Can be null, in this
+ * case default style will be used for creating the font. 
+ * @param size the size for the new {@code Font}
+ * @param url url string from where the font is loaded
+ */
+public function font(name: String, style: FontStyle, size: Integer, url:String): Font {
+    var font:Font = null;        
+    if (url != null) {
+        var awtFont:java.awt.Font = Font.loadAWTFont( new URL(url));            
+        if ( awtFont != null) {
+            if (style != null) {
+                awtFont = awtFont.deriveFont( style.getToolkitValue(), size.floatValue());
+            } else {
+                awtFont = awtFont.deriveFont( size.floatValue());
+            }
+            font = Font.fromAWTFont(awtFont);
+        } else {
+            // default to something useful
+            // but should let the user know the font is not available
+        }
+    }         
+    if ( font == null) {
+        font = Font.font( name, style, size);
+    }
+    
+    return font;
+}
+
+// PENDING_DOC_REVIEW
+/**
+ * Loads AWT font from given URL. If font cannot be found, returns null.
+ * 
+ */
+private function loadAWTFont(url:URL):java.awt.Font {
+    var font:java.awt.Font = null;
+    var input:InputStream  = null;
+
+    try {
+        try {
+            input = url.openStream();
+            font = java.awt.Font.createFont( java.awt.Font.TRUETYPE_FONT, input);
+        } finally {
+            if (input != null) {
+                input.close();
+            }
+        }
+    } catch (e:java.lang.Exception) {
+    }
+
+    return font;
+}
+
 // PENDING_DOC_REVIEW_2
 /**
  * <p>The {@code Font} class represents fonts, which are used to
@@ -80,98 +165,13 @@ public /* final */ class Font {
      */          
     public /* set-once */ attribute size: Integer = 12;
 
-    private /* set-once */ attribute awtFont: java.awt.Font
-                                 = new java.awt.Font(name, style.getToolkitValue(), size);
+    /* set-once */ attribute awtFont: java.awt.Font
+                         = new java.awt.Font(name, style.getToolkitValue(), size);
 
     public function getAWTFont() : java.awt.Font {
         awtFont;
     }
 
-    /**
-     * Creates a new {@code Font} from a corresponding AWT Font.
-     * @needsreview
-     */
-    public static function fromAWTFont(f: java.awt.Font): Font {
-        var name = f.getName();
-        var style = FontStyle.fromToolkitValue(f.getStyle());
-        var size = f.getSize();
-
-        Font {name: name, style: style, size: size, awtFont: f};
-    }
-
-    // PENDING_DOC_REVIEW
-    /**
-     * Creates a new {@code Font} with the specified parameters.
-     *
-     * @param name the logical name for the new {@code Font}.
-     * @param style the style for the new {@code Font}
-     * @param size the size for the new {@code Font}
-     *
-     * @profile common
-     */          
-    public static function font(name: String, style: FontStyle, size: Integer): Font {
-        Font {name: name, style: style, size: size};
-    }
-
-    // PENDING_DOC_REVIEW
-    /**
-     * Creates new {@code Font} with the specified parameters. In the case a font
-     * cannot be loaded from given URL, the function returns a font derived
-     * from a font existing in the system based on name,style and size parameters.
-     *
-     * @param name the logical name for the new {@code Font}. Can be null
-     * @param style the style for the new {@code Font}. Can be null, in this
-     * case default style will be used for creating the font. 
-     * @param size the size for the new {@code Font}
-     * @param url url string from where the font is loaded
-     */
-    public static function font(name: String, style: FontStyle, size: Integer, url:String): Font {
-        var font:Font = null;        
-        if (url != null) {
-            var awtFont:java.awt.Font = Font.loadAWTFont( new URL(url));            
-            if ( awtFont != null) {
-                if (style != null) {
-                    awtFont = awtFont.deriveFont( style.getToolkitValue(), size.floatValue());
-                } else {
-                    awtFont = awtFont.deriveFont( size.floatValue());
-                }
-                font = Font.fromAWTFont(awtFont);
-            } else {
-                // default to something useful
-                // but should let the user know the font is not available
-            }
-        }         
-        if ( font == null) {
-            font = Font.font( name, style, size);
-        }
-        
-        return font;
-    }
-
-    // PENDING_DOC_REVIEW
-    /**
-     * Loads AWT font from given URL. If font cannot be found, returns null.
-     * 
-     */
-    private static function loadAWTFont(url:URL):java.awt.Font {
-	var font:java.awt.Font = null;
-	var input:InputStream  = null;
-  
-        try {
-            try {
-                input = url.openStream();
-                font = java.awt.Font.createFont( java.awt.Font.TRUETYPE_FONT, input);
-            } finally {
-                if (input != null) {
-                    input.close();
-                }
-            }
-	} catch (e:java.lang.Exception) {
-        }
-
-        return font;
-    }     
-    
     // PENDING_DOC_REVIEW
     /**
      * Converts this {@code Font} object to a {@code String} representation.
