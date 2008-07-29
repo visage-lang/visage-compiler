@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package javafx.scene;
+package javafx.scene.text;
 
 // PENDING_DOC_REVIEW
 /**

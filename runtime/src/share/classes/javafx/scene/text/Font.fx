@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package javafx.scene;
+package javafx.scene.text;
 
 import java.net.URL;
 import java.io.InputStream;
