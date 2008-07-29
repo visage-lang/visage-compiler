@@ -34,7 +34,7 @@ import java.lang.StringBuffer;
 import javafx.scene.Font;
 import javafx.scene.paint.Color;
 
-private def FX_COMPONENT_KEY = new StringBuffer("FX_COMPONENT_KEY");
+private /* const */ def FX_COMPONENT_KEY = new StringBuffer("FX_COMPONENT_KEY");
 
 // PENDING_DOC_REVIEW
 /**

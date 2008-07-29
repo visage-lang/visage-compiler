@@ -28,15 +28,15 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javafx.lang.FX;
 
-private def TOP = BorderLayout.NORTH;
-private def BOTTOM = BorderLayout.SOUTH;
-private def LEFT = BorderLayout.WEST;
-private def RIGHT = BorderLayout.EAST;
-private def PAGE_START = BorderLayout.PAGE_START;
-private def PAGE_END = BorderLayout.PAGE_END;
-private def LINE_START = BorderLayout.LINE_START;
-private def LINE_END = BorderLayout.LINE_END;
-private def CENTER = BorderLayout.CENTER;
+private /* const */ def TOP = BorderLayout.NORTH;
+private /* const */ def BOTTOM = BorderLayout.SOUTH;
+private /* const */ def LEFT = BorderLayout.WEST;
+private /* const */ def RIGHT = BorderLayout.EAST;
+private /* const */ def PAGE_START = BorderLayout.PAGE_START;
+private /* const */ def PAGE_END = BorderLayout.PAGE_END;
+private /* const */ def LINE_START = BorderLayout.LINE_START;
+private /* const */ def LINE_END = BorderLayout.LINE_END;
+private /* const */ def CENTER = BorderLayout.CENTER;
 
 // PENDING_DOC_REVIEW
 /**

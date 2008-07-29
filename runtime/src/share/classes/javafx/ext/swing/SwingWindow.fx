@@ -36,10 +36,10 @@ import javafx.lang.FX;
 import javafx.scene.paint.Color;
 import javafx.scene.image.Image;
 
-// PENDING(shannonh) - replace use of this def with isInitialized() or
+// PENDING(shannonh) - replace use of this constant with isInitialized() or
 // similar when the following is resolved:
 // http://openjfx.java.sun.com/jira/browse/JFXC-1061
-private def UNINITIALIZED: Integer = java.lang.Integer.MIN_VALUE;
+private /* const */ def UNINITIALIZED: Integer = java.lang.Integer.MIN_VALUE;
 
 // PENDING_DOC_REVIEW
 /**
@@ -64,7 +64,7 @@ public class SwingWindow extends Container {
      */
     public /* set-once */ var owner : SwingWindow = null;
 
-    /* constant */ def window : java.awt.Window = createWindow();
+    /* const */ def window : java.awt.Window = createWindow();
 
     var ignoreJWindowChange: Boolean = false;
 
