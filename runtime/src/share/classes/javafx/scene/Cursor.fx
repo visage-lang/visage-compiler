@@ -142,24 +142,12 @@ public /* const */ def H_RESIZE = W_RESIZE;
 public /* const */ def V_RESIZE = N_RESIZE;
 
 /**
- * The none cursor type.
+ * The none cursor type. On platforms that don't support
+ * custom cursors, this will be the same as {@code DEFAULT}.
  *
  * @profile common conditional cursor
  */       
-public /* const */ def NONE = Cursor { 
-      awtType: java.awt.Cursor.CUSTOM_CURSOR 
-    awtCursor: {
-        var toolkit:Toolkit = Toolkit.getDefaultToolkit();
-        var d:Dimension = toolkit.getBestCursorSize(1, 1);
-        if (d.width != 0 and d.height != 0) {
-            var image:java.awt.Image = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_ARGB);
-            toolkit.createCustomCursor(image, new Point(0, 0), "NONE");
-        }
-        else {
-            null;
-        }
-    }
-};
+public /* const */ def NONE = createCursorNONE();
 
 private /* const */ def cursors:Cursor[] = [
     DEFAULT,
@@ -177,12 +165,25 @@ private /* const */ def cursors:Cursor[] = [
     HAND,
     MOVE];
 
+private function createCursorNONE(): Cursor {
+    var toolkit = Toolkit.getDefaultToolkit();
+    var d = toolkit.getBestCursorSize(1, 1);
+    if (d.width != 0 and d.height != 0) {
+        var image = new BufferedImage(d.width, d.height, BufferedImage.TYPE_INT_ARGB);
+        var awtCursor = toolkit.createCustomCursor(image, new Point(0, 0), "NONE");
+        Cursor {
+            awtType: java.awt.Cursor.CUSTOM_CURSOR
+            awtCursor: awtCursor
+        }
+    } else {
+        DEFAULT
+    }
+}
+
 function fromAWTCursor(c:java.awt.Cursor):Cursor {
     var i:Integer = c.getType();
     if (i >= 0 and i < sizeof cursors) {
         cursors[i]
-    } else if (FX.isSameObject(c, NONE.awtCursor)) {
-        NONE
     } else {
         Cursor { awtType:i awtCursor:c }
     }
