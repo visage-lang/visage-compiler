@@ -25,7 +25,6 @@ package javafx.scene.text;
 
 import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGText;
-import javafx.scene.Font;
 import javafx.scene.paint.Color;
 import javafx.scene.geometry.Shape;
 

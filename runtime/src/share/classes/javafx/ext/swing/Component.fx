@@ -31,7 +31,7 @@ import javax.swing.RepaintManager;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.lang.StringBuffer;
-import javafx.scene.Font;
+import javafx.scene.text.Font;
 import javafx.scene.paint.Color;
 
 private /* const */ def FX_COMPONENT_KEY = new StringBuffer("FX_COMPONENT_KEY");
