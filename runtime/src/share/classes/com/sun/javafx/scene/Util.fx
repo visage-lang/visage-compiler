@@ -27,7 +27,6 @@ import javax.swing.SwingConstants;
 import java.awt.FlowLayout;
 import javafx.scene.HorizontalAlignment;
 import javafx.scene.VerticalAlignment;
-import javafx.scene.Orientation;
 
 // PENDING(shannonh) - don't want these public
 
@@ -73,14 +72,4 @@ public function SwingConstant_To_VA(value: Integer): VerticalAlignment {
     if (value == SwingConstants.TOP) VerticalAlignment.TOP
     else if (value == SwingConstants.BOTTOM) VerticalAlignment.BOTTOM
     else VerticalAlignment.CENTER;
-}
-
-public function Orientation_To_SwingConstant(value: Orientation): Integer {
-    if (value == Orientation.HORIZONTAL) SwingConstants.HORIZONTAL
-    else SwingConstants.VERTICAL;
-}
-
-public function SwingConstant_To_Orientation(value: Integer): Orientation {
-    if (value == SwingConstants.HORIZONTAL) Orientation.HORIZONTAL
-    else Orientation.VERTICAL
 }

@@ -30,8 +30,6 @@ import javax.swing.JSlider;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
-import javafx.scene.Orientation;
-import com.sun.javafx.scene.Util;
 
 // PENDING_DOC_REVIEW
 /**
@@ -97,18 +95,6 @@ public class SwingSlider extends Component {
             });
         }
 
-    // PENDING_DOC_REVIEW
-    /**
-     * Represents the slider's orientation.
-     */
-    public attribute orientation: Orientation =
-        Util.SwingConstant_To_Orientation(getJSlider().getOrientation())
-        on replace {
-            doAndIgnoreJComponentChange(function() {
-                getJSlider().setOrientation(Util.Orientation_To_SwingConstant(orientation));
-            });
-        }
-
     postinit {
         var jSlider = getJSlider();
 
@@ -137,7 +123,6 @@ public class SwingSlider extends Component {
                     maximum = jSlider.getMaximum();
                 } else if ("orientation".equals(propName)) {
                     vertical = (getJSlider().getOrientation() == SwingConstants.VERTICAL);
-                    orientation = Util.SwingConstant_To_Orientation(jSlider.getOrientation());
                 }
             }
         });
