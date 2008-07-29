@@ -13,7 +13,7 @@ package javafxballs;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.text.Font;
-import javafx.scene.FontStyle;
+import javafx.scene.text.FontStyle;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
