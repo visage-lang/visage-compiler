@@ -197,9 +197,9 @@ function fromAWTCursor(c:java.awt.Cursor):Cursor {
  */      
 public class Cursor {
 
-    private attribute awtType:Integer = java.awt.Cursor.DEFAULT_CURSOR;
+    attribute awtType: Integer = java.awt.Cursor.DEFAULT_CURSOR;
 
-    private attribute awtCursor:java.awt.Cursor = null;
+    attribute awtCursor: java.awt.Cursor = null;
 
     function getAWTCursor():java.awt.Cursor {
         if (awtCursor == null) {
