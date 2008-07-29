@@ -4,7 +4,7 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -77,14 +77,14 @@ public class SwingWindow extends Container {
     /**
      * Returns this {@code Window's} name,
      * or {@code null} if it doesn't have a name.
-     * 
+     *
      * @return this {@code Window's} name or {@code null}
      */
-    public /* final */ bound function getName(): String {
+    /* final */ override bound function getName(): String {
         name;
     }
 
-    public attribute closeAction: function(): Void = close;
+    public var closeAction: function(): Void = close;
 
     // PENDING(shannonh) - synching FROM Swing
     /**
@@ -127,7 +127,7 @@ public class SwingWindow extends Container {
 
     /**
      * Returns {@code null}. {@code Windows} don't have parents.
-     * 
+     *
      * @return {@code null}
      */
     /* final */ override bound function getParent(): Container {

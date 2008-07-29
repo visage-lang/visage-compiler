@@ -32,7 +32,7 @@ public class SequentialCluster extends Cluster {
         return gl.createSequentialGroup();
     }
 
-    function addClusterElement(gl: GroupLayout, group: GroupLayout.Group, horizontal: Boolean, ce: ClusterElement): Void {
+    override function addClusterElement(gl: GroupLayout, group: GroupLayout.Group, horizontal: Boolean, ce: ClusterElement): Void {
         var sGroup = group as GroupLayout.SequentialGroup;
 
         if (ce instanceof Component) {

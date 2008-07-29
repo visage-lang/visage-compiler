@@ -135,7 +135,7 @@ public class SwingFrame extends SwingWindow {
         var jFrame = getJFrame();
 
         jFrame.addPropertyChangeListener(PropertyChangeListener {
-            public function propertyChange(e: PropertyChangeEvent): Void {
+            override function propertyChange(e: PropertyChangeEvent): Void {
                 if (ignoreJWindowChange) {
                     return;
                 }
@@ -150,7 +150,7 @@ public class SwingFrame extends SwingWindow {
         });
 
         jFrame.addWindowStateListener(WindowStateListener {
-            public function windowStateChanged(e: WindowEvent): Void {
+            override function windowStateChanged(e: WindowEvent): Void {
                 var state = BigInteger.valueOf(e.getNewState());
                 iconified = state.testBit(0); // Frame.ICONIFIED = 1
             }
@@ -160,7 +160,7 @@ public class SwingFrame extends SwingWindow {
     /**
      * {@inheritDoc}
      */
-    protected function remove(component: Component): Void {
+    override function remove(component: Component): Void {
         SwingWindow.remove(component);
         // PENDING(shannonh) - what I really want here is a deleteByIdentity operator
         // http://openjfx.java.sun.com/jira/browse/JFXC-1005
@@ -182,7 +182,7 @@ public class SwingFrame extends SwingWindow {
     /**
      * Creates the specific {@link java.awt.Window} delegate for this frame.
      */
-    /* final */ function createWindow(): java.awt.Window {
+    /* final */ override function createWindow(): java.awt.Window {
         var f = new JFrame();
         f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         return f;

@@ -711,13 +711,13 @@ public abstract class Node {
             private function call(f:function(e:KeyEvent):Void, e:java.awt.event.KeyEvent) {
                 if (f != null) f(createKeyEvent(e));
             }
-            public function keyTyped(e:java.awt.event.KeyEvent, node:SGNode):Void { 
+            override function keyTyped(e:java.awt.event.KeyEvent, node:SGNode):Void {
                 call(onKeyTyped, e);
             }
-            public function keyPressed(e:java.awt.event.KeyEvent, node:SGNode):Void { 
+            override function keyPressed(e:java.awt.event.KeyEvent, node:SGNode):Void {
                 call(onKeyPressed, e);
             }
-            public function keyReleased(e:java.awt.event.KeyEvent, node:SGNode):Void { 
+            override function keyReleased(e:java.awt.event.KeyEvent, node:SGNode):Void {
                 call(onKeyReleased, e);
             }
         }
@@ -725,8 +725,8 @@ public abstract class Node {
 
     private function createFocusListener():SGFocusListener {
         SGFocusListener {
-            public function focusGained(e:FocusEvent, node:SGNode):Void { }
-            public function focusLost(e:FocusEvent, node:SGNode):Void { }
+            override function focusGained(e:FocusEvent, node:SGNode):Void { }
+            override function focusLost(e:FocusEvent, node:SGNode):Void { }
         }
     }
 

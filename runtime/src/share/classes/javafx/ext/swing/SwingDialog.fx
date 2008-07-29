@@ -66,7 +66,7 @@ public class SwingDialog extends SwingWindow {
         var jDialog = getJDialog();
 
         jDialog.addPropertyChangeListener(PropertyChangeListener {
-            public function propertyChange(e: PropertyChangeEvent): Void {
+            override function propertyChange(e: PropertyChangeEvent): Void {
                 if (ignoreJWindowChange) {
                     return;
                 }
@@ -93,7 +93,7 @@ public class SwingDialog extends SwingWindow {
     /**
      * Creates the specific {@link java.awt.Window} delegate for this dialog.
      */
-    /* final */ function createWindow(): java.awt.Window {
+    /* final */ override function createWindow(): java.awt.Window {
         var d = if (owner != null) new JDialog(owner.window) else new JDialog();
         d.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         return d;

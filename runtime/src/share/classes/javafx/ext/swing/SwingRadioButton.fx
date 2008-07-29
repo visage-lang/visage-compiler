@@ -44,7 +44,7 @@ public class SwingRadioButton extends SwingToggleButton {
         getJToggleButton() as JRadioButton;
     }
 
-    function createJToggleButton(): JToggleButton {
+    override function createJToggleButton(): JToggleButton {
         new JRadioButton();
     }
 

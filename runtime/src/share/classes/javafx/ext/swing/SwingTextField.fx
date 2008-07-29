@@ -169,7 +169,7 @@ public class SwingTextField extends Component {
         var jTextField = getJTextField();
 
         jTextField.addPropertyChangeListener(PropertyChangeListener {
-            public function propertyChange(e: PropertyChangeEvent): Void {
+            override function propertyChange(e: PropertyChangeEvent): Void {
                 if (ignoreJComponentChange) {
                     return;
                 }
@@ -200,21 +200,21 @@ public class SwingTextField extends Component {
                 text = jTextField.getText();
             }
 
-            public function insertUpdate(e: DocumentEvent): Void { ut(); }
-            public function removeUpdate(e: DocumentEvent): Void { ut(); }
-            public function changedUpdate(e: DocumentEvent): Void { ut(); }
+            override function insertUpdate(e: DocumentEvent): Void { ut(); }
+            override function removeUpdate(e: DocumentEvent): Void { ut(); }
+            override function changedUpdate(e: DocumentEvent): Void { ut(); }
         });
 
         jTextField.addCaretListener(CaretListener {
-            public function caretUpdate(e: CaretEvent): Void {
+            override function caretUpdate(e: CaretEvent): Void {
                 selectionStart = jTextField.getSelectionStart();
                 selectionEnd = jTextField.getSelectionEnd();
             }
         });
 
         jTextField.addFocusListener(FocusListener {
-            public function focusLost(e: FocusEvent): Void {}
-            public function focusGained(e: FocusEvent): Void {
+            override function focusLost(e: FocusEvent): Void {}
+            override function focusGained(e: FocusEvent): Void {
                  if (selectOnFocus) {
                      selectAll();
                  }
@@ -222,7 +222,7 @@ public class SwingTextField extends Component {
         });
 
         jTextField.addActionListener(ActionListener {
-            public function actionPerformed(e: ActionEvent): Void {
+            override function actionPerformed(e: ActionEvent): Void {
                 if (action != null) {
                     action();
                 }
@@ -233,7 +233,7 @@ public class SwingTextField extends Component {
         // InputVerifier.verify method name
         var v = bind verify;
         jTextField.setInputVerifier(InputVerifier {
-            public function verify(c: JComponent): Boolean {
+            override function verify(c: JComponent): Boolean {
                 if (v != null) v(text) else true;
             }
         });
@@ -255,7 +255,7 @@ public class SwingTextField extends Component {
     /**
      * Creates the {@code JComponent} delegate for this component.
      */
-    protected /* final */ function createJComponent(): JComponent {
+    /* final */ override function createJComponent(): JComponent {
         new JTextFieldImpl();
     }
 

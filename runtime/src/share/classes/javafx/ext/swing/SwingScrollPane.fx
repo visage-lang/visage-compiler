@@ -31,11 +31,11 @@ public class SwingScrollPane extends ScrollableComponent {
         getJScrollPane().setViewportView(view.getJComponent());
     }
 
-    function getViewComponent(): Component {
+    override function getViewComponent(): Component {
         view;
     }
 
-    protected /* final */ function createJComponent(): JComponent {
+    /* final */ override function createJComponent(): JComponent {
         getJScrollPane();
     }
 

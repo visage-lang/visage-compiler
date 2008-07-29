@@ -112,7 +112,7 @@ public class SwingSlider extends Component {
         });
 
         jSlider.addPropertyChangeListener(PropertyChangeListener {
-            public function propertyChange(e:PropertyChangeEvent): Void {
+            override function propertyChange(e:PropertyChangeEvent): Void {
                 if (ignoreJComponentChange) {
                     return;
                 }
@@ -141,7 +141,7 @@ public class SwingSlider extends Component {
     /**
      * Creates the {@code JComponent} delegate for this component.
      */
-    protected /* final */ function createJComponent(): JComponent {
+    /* final */ override function createJComponent(): JComponent {
         new JSlider();
     }
 
