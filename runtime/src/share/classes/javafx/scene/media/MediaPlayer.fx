@@ -45,6 +45,38 @@ public /* const */ def REPEAT_NONE:Number = 1;
 public /* const */ def REPEAT_FOREVER:Integer = -1;//infinity;// where is Number.infinity;
 
 /**
+ * Status value when player is paused
+ *
+ * @profile common
+ */
+public /* const */ def PAUSED:Integer=0;
+
+/**
+ * status value when player is playing
+ *
+ * @profile common
+ */
+public /* const */ def PLAYING:Integer=2;
+
+/**
+ * Status value when player is buffering.
+ * Buffering may occur when player is paused or playing
+ *
+ * @profile common
+ */
+public /* const */ def BUFFERING: Integer=3;
+
+/**
+ * Status value when player is stalled.
+ * {@code STALLED} occurs when media is being played, but
+ * data is not being delivered fast enough to continue playing
+ * @see onStalled
+ *
+ * @profile common
+ */
+public /* const */ def STALLED: Integer=4; // occurs during play
+
+/**
  * The {@code MediaPlayer} class provides the controls for playing media.
  * It is used in combination with the {@code Media} and {@code MediaViewer}
  * classes to display and control media playing.
@@ -169,80 +201,80 @@ public class MediaPlayer {
         ;
     }
 
-   /**
-    * Defines the time offset where media should start playing,
-    * or restart from when repeating
-    *
-    * @profile common
-    */
-   public attribute startTime:Duration on replace {
-       mediaProvider.setStartTime(1000.0*(startTime.toMillis()));
-   }
-   /**
-    * Defines the time offset where media should stop playing
-    * or restart when repeating
-    *
-    * @profile common
-    */
-   public attribute stopTime:Duration = DURATION_UNKNOWN on replace {
-       if (stopTime == DURATION_UNKNOWN) {
+    /**
+     * Defines the time offset where media should start playing,
+     * or restart from when repeating
+     *
+     * @profile common
+     */
+    public attribute startTime:Duration on replace {
+        mediaProvider.setStartTime(1000.0*(startTime.toMillis()));
+    }
+
+    /**
+     * Defines the time offset where media should stop playing
+     * or restart when repeating
+     *
+     * @profile common
+     */
+    public attribute stopTime:Duration = DURATION_UNKNOWN on replace {
+        if (stopTime == DURATION_UNKNOWN) {
             // do nothing for now, 
             // mediaProvider.setStopTime(java.lang.Double.POSITIVE_INFINITY);
         } else {
             mediaProvider.setStopTime(1000*stopTime.toMillis());
         }
-   }
-   
-   /**
-    * Defines the current media time
-    *
-    * @profile common
-    */
-   public attribute currentTime:Duration on replace {
-       mediaProvider.setMediaTime(1000 * currentTime.toMillis());
-   }
+    }
+
+    /**
+     * Defines the current media time
+     *
+     * @profile common
+     */
+    public attribute currentTime:Duration on replace {
+        mediaProvider.setMediaTime(1000 * currentTime.toMillis());
+    }
    
     /**
-    * Defines the media timers for this player
-    *
-    * @profile common
-    */
-   public attribute timers:MediaTimer[];
+     * Defines the media timers for this player
+     *
+     * @profile common
+     */
+    public attribute timers:MediaTimer[];
    
-   /**
-    * Defines the number of times the media should repeat.
-    * if repeatCount is 1 the media will play once.
-    * if it is REPEAT_FOREVER, it will repeat indefinitely
-    * In this implementation, these are the only values currently supported
-    * @profile common
-    */
-   public attribute repeatCount: Number = 1 on replace {
-       if (repeatCount == REPEAT_FOREVER) {
-           mediaProvider.setRepeating(true);
-       } else {
-           mediaProvider.setRepeating(false);
-       }
-   }
-  
+    /**
+     * Defines the number of times the media should repeat.
+     * if repeatCount is 1 the media will play once.
+     * if it is REPEAT_FOREVER, it will repeat indefinitely
+     * In this implementation, these are the only values currently supported
+     * @profile common
+     */
+    public attribute repeatCount: Number = 1 on replace {
+        if (repeatCount == REPEAT_FOREVER) {
+            mediaProvider.setRepeating(true);
+        } else {
+            mediaProvider.setRepeating(false);
+        }
+    }
 
-   /**
-    * Defines the current number of time the media has repeated
-    * @profile common
-    */
-  public attribute currentCount:Number=0; // How many times have we repeated
+    /**
+     * Defines the current number of time the media has repeated
+     * @profile common
+     */
+    public attribute currentCount:Number=0; // How many times have we repeated
 
    
-   /**
-    * Equals {@code true} if the player's audio is muted, false otherwise.
-    * @profile common
-    * @see volume
-    */
-   public attribute mute: Boolean on replace {
-       var ac : AudioControl;
-       if ((ac = mediaProvider.getControl(ac.getClass())) != null) {
-           ac.setMute(mute);
-       }
-   }
+    /**
+     * Equals {@code true} if the player's audio is muted, false otherwise.
+     * @profile common
+     * @see volume
+     */
+    public attribute mute: Boolean on replace {
+        var ac : AudioControl;
+        if ((ac = mediaProvider.getControl(ac.getClass())) != null) {
+            ac.setMute(mute);
+        }
+    }
 
     /**
      * Current status of player
@@ -251,38 +283,6 @@ public class MediaPlayer {
      */
     public attribute status:Integer;
 
-    /**
-     * Status value when player is paused
-     *
-     * @profile common
-     */
-    public static attribute PAUSED:Integer=0;
-
-    /**
-     * status value when player is playing
-     *
-     * @profile common
-     */
-    public static attribute PLAYING:Integer=2;
-
-    /**
-     * Status value when player is buffering.
-     * Buffering may occur when player is paused or playing
-     *
-     * @profile common
-     */
-    public static attribute BUFFERING: Integer=3;
-
-    /**
-     * Status value when player is stalled.
-     * {@code STALLED} occurs when media is being played, but
-     * data is not being delivered fast enough to continue playing
-     * @see onStalled
-     *
-     * @profile common
-     */
-    public static  attribute STALLED: Integer=4; // occurs during play
-   
     /**
      * The {@code onError} function is called when a {@code mediaError} occurs
      * on this player.
@@ -293,14 +293,14 @@ public class MediaPlayer {
     public attribute onError: function (e: MediaError):Void; // Error in Media
 
 
-   /**
+    /**
      * Invoked when the player reaches the end of media
      *
      * @profile common
      */
     public attribute onEndOfMedia: function():Void; // Media has reached its end.
 
-   /**
+    /**
      * Invoked when the player reaches the end of media.
      *
      * @profile common
@@ -327,26 +327,24 @@ public class MediaPlayer {
      */
     public attribute onStalled:function(timeRemaining: Duration):Void;
     
-   /**
-    * Indicates if this player can have multiple views
-    * associated with it.
-    * @see MediaView
+    /**
+     * Indicates if this player can have multiple views
+     * associated with it.
+     * @see MediaView
      *
      * @profile common
-    */
+     */
     public attribute supportsMultiViews:Boolean;
    
-
-    
-   // this can fail, or effect other views
-   function addView(view:MediaView) {
-       this.view = view;
-   }
-
-   private function handleError(error: MediaError):Void {
-        if (onError != null) {
-                onError(error);
-         }
+    // this can fail, or effect other views
+    function addView(view:MediaView) {
+        this.view = view;
     }
-        
+
+    private function handleError(error: MediaError):Void {
+        if (onError != null) {
+            onError(error);
+        }
+    }
+
 }
