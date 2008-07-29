@@ -26,7 +26,6 @@ package javafx.scene.paint;
 import javafx.lang.FX;
 import java.lang.Object;
 import javafx.animation.Interpolatable;
-import javax.swing.plaf.UIResource;
 import java.awt.geom.Rectangle2D;
 import java.util.Map;
 import java.util.HashMap;

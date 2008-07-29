@@ -23,7 +23,6 @@
 
 package javafx.scene;
 
-import javax.swing.plaf.UIResource;
 import java.net.URL;
 import java.io.InputStream;
 
@@ -96,14 +95,8 @@ public /* final */ class Font {
         var name = f.getName();
         var style = FontStyle.fromToolkitValue(f.getStyle());
         var size = f.getSize();
-        // PENDING(shannonh) - the commented code below is good, but it requires
-        // us to fix the sync pattern of colors/fonts/etc, which requires
-        // compiler support.
-        // if (f instanceof UIResource) {
-        //     font(name, style, size);
-        // } else {
-            Font {name: name, style: style, size: size, awtFont: f};
-        // }
+
+        Font {name: name, style: style, size: size, awtFont: f};
     }
 
     // PENDING_DOC_REVIEW
