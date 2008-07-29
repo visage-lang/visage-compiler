@@ -30,6 +30,20 @@ import java.net.URI;
 import java.lang.System;
 import java.lang.Exception;
 
+private /* const */ def DURATION_UNKNOWN:Duration = -1ms;
+
+/**
+ * Value of {@code repeatCount} for no repeating (play once)
+ * @profile common
+ */
+public /* const */ def REPEAT_NONE:Number = 1;
+
+/**
+ * Value of {@code repeatCount} to repeat forever
+ * @profile common
+ */
+public /* const */ def REPEAT_FOREVER:Integer = -1;//infinity;// where is Number.infinity;
+
 /**
  * The {@code MediaPlayer} class provides the controls for playing media.
  * It is used in combination with the {@code Media} and {@code MediaViewer}
@@ -37,17 +51,16 @@ import java.lang.Exception;
  * @profile common
  * @see Media MediaViewer
  */
- 
 public class MediaPlayer {
     attribute mediaProvider:MediaProvider = new MediaProvider();
     private attribute view:MediaView;
     // FIXME: multiple views
-    
-   /**
-    * Defines the source {@code Media} to be played
-    * @see Media
-    * @profile common
-    */
+
+    /**
+     * Defines the source {@code Media} to be played
+     * @see Media
+     * @profile common
+     */
     public attribute media:Media on replace {
         try {
             mediaProvider.setSource(new URI(media.source));
@@ -65,16 +78,15 @@ public class MediaPlayer {
         if (autoPlay) {
             play();
         }        
-        
-   
+
     }
     
-   /**
-    * If {@code autoPlay} is {@code true}, playing will start as soon
-    * as possible
-    *
-    * @profile commom
-    */
+    /**
+     * If {@code autoPlay} is {@code true}, playing will start as soon
+     * as possible
+     *
+     * @profile commom
+     */
     public attribute autoPlay:Boolean on replace {
         if (autoPlay) {
             play();
@@ -82,83 +94,80 @@ public class MediaPlayer {
     }
 
      
-   /**
-    * Starts or resumes playing
-    *
-    * @profile common
-    */
-    public
-    function play() {
+    /**
+     * Starts or resumes playing
+     *
+     * @profile common
+     */
+    public function play() {
         mediaProvider.play();
         paused = false;
     }
-    
-   /**
-    * Pauses playing
-    *
-    * @profile common
-    */
-   public
-   function pause() {
-       mediaProvider.pause();
-       paused = true;
-   }
 
-   /**
-    * Indicated if the player has been paused, either programatically,
-    * by the user, or because the media has finished playing
-    *
-    * @profile common
-    */
-   public attribute paused:Boolean;
+    /**
+     * Pauses playing
+     *
+     * @profile common
+     */
+    public function pause() {
+        mediaProvider.pause();
+        paused = true;
+    }
 
-   /**
-    * Defines the rate at which the media is being played.
-    * Rate {@code 1.0} is normal play, {@code 2.0} is 2 time normal,
-    * {@code -1.0} is backwards, etc...
-    *
-    * @profile common
-    */
-   public attribute rate:Number on replace {
-       mediaProvider.setRate(rate);
-   }
+    /**
+     * Indicated if the player has been paused, either programatically,
+     * by the user, or because the media has finished playing
+     *
+     * @profile common
+     */
+    public attribute paused:Boolean;
 
-   /**
-    * Defines the volume at which the media is being played.
-    * {@code 1.0} is full volume, which is the default.
-    *
-    * @profile common
-    */
-   public attribute volume:Number = 1.0 on replace {
-       var ac : AudioControl;
-       if ((ac = mediaProvider.getControl(ac.getClass())) != null) {
-           ac.setVolume(volume.floatValue());
-       }
-   }
-   /**
-    * Defines the balance, or left right setting,  of the audio output.
-    * Value ranges continuously from {@code -1.0} being left,
-    * {@code 0} being center, and {@code 1.0} being right.
-    *
-    * @profile common
-    */
-   public attribute balance:Number=0 on replace {
-       ;
-   }
+    /**
+     * Defines the rate at which the media is being played.
+     * Rate {@code 1.0} is normal play, {@code 2.0} is 2 time normal,
+     * {@code -1.0} is backwards, etc...
+     *
+     * @profile common
+     */
+    public attribute rate:Number on replace {
+        mediaProvider.setRate(rate);
+    }
 
-   /**
-    * The fader, or forward and back setting, of audio output
-    * on 4+ channel output.
-    * value ranges continuously from {@code -1.0} being rear,
-    * {@code 0} being center, and {@code 1.0} being forward.
-    *
-    * @profile common
-    */
-   public attribute fader:Number on replace {
+    /**
+     * Defines the volume at which the media is being played.
+     * {@code 1.0} is full volume, which is the default.
+     *
+     * @profile common
+     */
+    public attribute volume:Number = 1.0 on replace {
+        var ac : AudioControl;
+        if ((ac = mediaProvider.getControl(ac.getClass())) != null) {
+            ac.setVolume(volume.floatValue());
+        }
+    }
+
+    /**
+     * Defines the balance, or left right setting,  of the audio output.
+     * Value ranges continuously from {@code -1.0} being left,
+     * {@code 0} being center, and {@code 1.0} being right.
+     *
+     * @profile common
+     */
+    public attribute balance:Number=0 on replace {
         ;
     }
 
-   private static attribute  DURATION_UNKNOWN:Duration = -1ms;
+    /**
+     * The fader, or forward and back setting, of audio output
+     * on 4+ channel output.
+     * value ranges continuously from {@code -1.0} being rear,
+     * {@code 0} being center, and {@code 1.0} being forward.
+     *
+     * @profile common
+     */
+    public attribute fader:Number on replace {
+        ;
+    }
 
    /**
     * Defines the time offset where media should start playing,
@@ -222,18 +231,6 @@ public class MediaPlayer {
     */
   public attribute currentCount:Number=0; // How many times have we repeated
 
-
-  /**
-   * Value of {@code repeatCount} for no repeating (play once)
-   * @profile common
-   */
-   public static attribute REPEAT_NONE:Number = 1;
-
-    /**
-     * Value of {@code repeatCount} to repeat forever
-     * @profile common
-     */
-    public static attribute REPEAT_FOREVER:Integer = -1;//infinity;// where is Number.infinity;
    
    /**
     * Equals {@code true} if the player's audio is muted, false otherwise.
