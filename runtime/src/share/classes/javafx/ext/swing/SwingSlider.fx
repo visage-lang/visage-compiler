@@ -27,6 +27,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import javax.swing.JComponent;
 import javax.swing.JSlider;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import javafx.scene.Orientation;
@@ -86,6 +87,18 @@ public class SwingSlider extends Component {
 
     // PENDING_DOC_REVIEW
     /**
+     * {@code true} for a vertical oriented {@code SwingSlider}.
+     */
+    public attribute vertical =
+        (getJSlider().getOrientation() == SwingConstants.VERTICAL)
+        on replace {
+            doAndIgnoreJComponentChange(function() {
+                getJSlider().setOrientation(if (vertical) SwingConstants.VERTICAL else SwingConstants.HORIZONTAL);
+            });
+        }
+
+    // PENDING_DOC_REVIEW
+    /**
      * Represents the slider's orientation.
      */
     public attribute orientation: Orientation =
@@ -123,6 +136,7 @@ public class SwingSlider extends Component {
                 } else if ("maximum".equals(propName)) {
                     maximum = jSlider.getMaximum();
                 } else if ("orientation".equals(propName)) {
+                    vertical = (getJSlider().getOrientation() == SwingConstants.VERTICAL);
                     orientation = Util.SwingConstant_To_Orientation(jSlider.getOrientation());
                 }
             }
