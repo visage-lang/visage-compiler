@@ -8,6 +8,9 @@ package assortis.core;
 import java.lang.Object;
 
 import javafx.ext.swing.*;
+
+import javafx.application.*;
+
 import javafx.scene.paint.*;
 
 
@@ -22,7 +25,8 @@ public class FXUnit {
     attribute height: Integer = 100;
     
     attribute menus: Menu[];
-    attribute content: Component;
+    //attribute content: Component;
+    attribute stage: Stage;
     
     attribute background: Color;
 
@@ -32,7 +36,11 @@ public class FXUnit {
         var unit = FXUnit{};
         
         if(obj == null){
-            unit.content = Label{ text: "Compiler Error!"};
+            unit.stage = Stage{ 
+                content: ComponentView{ 
+                    component: Label{ text: "Compiler Error!"}
+                    }
+            };
         } else if (obj instanceof DiagnosticCollector ){
             var diagnostics = obj as DiagnosticCollector;
             
@@ -45,7 +53,11 @@ public class FXUnit {
                 errorMessage = "{errorMessage}\n{diagnostic.getMessage(Locale.getDefault())}";
             }
             
-            unit.content = Label{ text: errorMessage };
+            unit.stage =  Stage{ 
+                content: ComponentView{ 
+                    component: Label{ text: errorMessage }
+                    }
+            };
             
         }
         
@@ -55,12 +67,16 @@ public class FXUnit {
             
             var component = obj as javafx.ext.swing.Component;
             //unit.content = CustomWidget{  comp: component.getJComponent() };
-            unit.content = component;
+            //unit.content = component;
+            unit.stage =  Stage{ 
+                content: ComponentView{  component: component }
+            };
+            
         }else if(obj instanceof javafx.scene.Node){
             var node = obj as javafx.scene.Node;
             var canvas = javafx.ext.swing.Canvas { content: node };
             //unit.content = CustomWidget{  comp: canvas.getJComponent() };
-            unit.content = Canvas{ content: node };
+            unit.stage = Stage{ content: node };
             
         }else if(obj instanceof javafx.ext.swing.SwingFrame){
         
@@ -78,9 +94,17 @@ public class FXUnit {
 
             unit.menus = frame.menus; 
             //unit.content = CustomWidget{ comp: frame.content.getJComponent() }
-            unit.content = frame.content;
-            unit.background = getColor(frame.background);
+
+            unit.stage = Stage{ 
+                content: ComponentView{ component: frame.content }
+            };
             
+            unit.background = frame.background;
+            
+          }else if(obj instanceof javafx.application.Frame ){
+            var frame = obj as javafx.application.Frame;
+            
+            unit = createFrame(frame.title,frame.width, frame.height, frame.stage);
             
 //        }else if(obj instanceof Sequence ){
 //            //var sequence = obj as Sequence;
@@ -103,13 +127,20 @@ public class FXUnit {
         return unit;
     }
     
-    static function getColor(color: javafx.scene.paint.Color):Color{
-        return Color{
-            red: color.red
-            green: color.green
-            blue: color.blue
-        };
-        
-    }
     
+}
+
+function createFrame(title: String, width:Integer, height:Integer, stage: Stage): FXUnit {
+    
+    var unit = FXUnit{
+        isWindow: true
+        stage: stage
+    }; 
+    
+    if (title != "") { unit.title = title; }
+
+    if ( 0 < width ){ unit.width = width; }
+    if ( 0 < height ){ unit.height = height; }
+    
+    return unit;
 }

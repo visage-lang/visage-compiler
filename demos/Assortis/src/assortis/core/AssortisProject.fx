@@ -249,7 +249,8 @@ public class AssortisProject  extends MyCompositeComponent{
     
     
         internalFrame.menus = unit.menus;
-        internalFrame.content = unit.content;
+        //internalFrame.content = unit.content;
+        internalFrame.stage = unit.stage;
         internalFrame.getJComponent().applyComponentOrientation( ComponentOrientation.getOrientation(Locale.getDefault()));
         internalFrame.background = unit.background;
         internalFrame.visible = true;

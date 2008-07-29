@@ -1,8 +1,12 @@
 package assortis.core.ui;
 
+import javax.swing.*;
+
+
 import javafx.ext.swing.*;
 import javafx.scene.paint.*;
-import javax.swing.*;
+
+import javafx.application.*;
 
 import java.lang.System;
 
@@ -58,6 +62,21 @@ public class MyInternalFrame extends Component{
             //internalFrame.repaint();
         }
     };
+
+    public attribute stage: Stage on replace{
+        if(stage != null){
+            //internalFrame.setContentPane(content.getJComponent());
+            //internalFrame.repaint();
+            
+            var canvas = Canvas{
+                content: stage.content
+            }
+            internalFrame.setContentPane(canvas.getJComponent());
+            
+            
+        }
+    };
+
     
     public attribute onClose: function();
     

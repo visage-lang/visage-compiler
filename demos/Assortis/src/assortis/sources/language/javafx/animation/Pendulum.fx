@@ -1,13 +1,15 @@
 package assortis.sources.language.javafx.animation;
 
-import javafx.ext.swing.*;
 import javafx.animation.*;
+import javafx.application.*;
+
 import javafx.scene.*;
 import javafx.scene.paint.*;
 import javafx.scene.geometry.*;
 import javafx.scene.transform.*;
+
 import java.lang.Math;
-import java.lang.System;
+//import java.lang.System;
 
 
 var g = 10;
@@ -34,14 +36,13 @@ var timeline = Timeline {
 
 timeline.start();
 
-SwingFrame{
+Frame{
     title: "Pendulum"
     
     width: 220
     height: 220
     
-    content: BorderPanel{
-        center: Canvas{
+    stage: Stage{
             content: Group{
                 transform: Transform.translate(110, 30);
                 content: [
@@ -50,8 +51,7 @@ SwingFrame{
                     Circle{ centerX: bind cx, centerY: bind cy, radius: 15 fill: Color.ORANGE stroke: Color.ORANGE }
 
                 ]
-        }
-        
-      }
+        }        
    }
+   //visible: true
 }

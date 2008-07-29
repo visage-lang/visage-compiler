@@ -1,7 +1,8 @@
 package assortis.sources.language.javafx.animation;
 
-import javafx.ext.swing.*;
 import javafx.animation.*;
+import javafx.application.*;
+
 import javafx.scene.paint.*;
 import javafx.scene.geometry.*;
 import javafx.scene.transform.*;
@@ -26,11 +27,11 @@ var timeline = Timeline {
 
 timeline.start();
 
-SwingFrame {
+Frame {
     title: "Spiral"
     width: 200
     height: 200
-    content: Canvas {
+    stage: Stage{
         content: Path {
             transform: bind [Transform.translate(100,85),Transform.rotate(angle, 0,0)]
             elements: [ MoveTo{x: 0, y: 0} ,
@@ -44,4 +45,5 @@ SwingFrame {
             }
 
     }
+    visible: true
 }
