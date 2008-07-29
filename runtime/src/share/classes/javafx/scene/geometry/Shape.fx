@@ -85,7 +85,7 @@ public abstract class Shape extends Node, Interpolatable {
      * Defines the decoration applied where path segments meet. 
      * The value must have one of the following values:
      * {@code StrokeLineJoin.BEVEL}, {@code StrokeLineJoin.MITER}, 
-     * and {@code StrokeLineJoin.Round}.
+     * and {@code StrokeLineJoin.ROUND}.
      * The default value is {@code StrokeLineJoin.MITER}.
      *
      * @profile common
@@ -98,6 +98,7 @@ public abstract class Shape extends Node, Interpolatable {
      * values that define possible end cap styles: 
      * {@code StrokeLineCap.BUTT}, {@code StrokeLineCap.ROUND}, 
      * and  {@code StrokeLineCap.SQUARE}.
+     * The default value is {@code StrokeLineCap.SQUARE}.
      *
      * @profile common
      */     
