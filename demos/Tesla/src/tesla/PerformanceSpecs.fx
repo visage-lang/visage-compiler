@@ -12,6 +12,7 @@ import javafx.scene.transform.*;
 import javafx.ext.swing.*;
 import javafx.scene.image.*;
 import javafx.scene.paint.*;
+import javafx.scene.text.*;
 
 class PerformanceSpecs extends CustomNode {
     function create():Node {

@@ -13,7 +13,7 @@ import javafx.ext.swing.*;
 import javafx.scene.image.*;
 import javafx.scene.paint.*;
 import javafx.input.MouseEvent;
-import javafx.scene.text.Text;
+import javafx.scene.text.*;
 
 class CockpitDetailView extends CustomNode {
     attribute imageUrl: String;

@@ -12,6 +12,7 @@ import javafx.scene.transform.*;
 import javafx.scene.image.*;
 import javafx.scene.paint.*;
 import javafx.ext.swing.*;
+import javafx.scene.text.*;
 
 
 class EfficiencyAndPerformance extends CustomNode {
