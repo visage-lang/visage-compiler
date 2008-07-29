@@ -28,21 +28,21 @@ import javax.swing.ImageIcon;
 import java.net.URL;
 import javafx.scene.image.Image;
 
+public function fromToolkitIcon(value:javax.swing.Icon):Icon { 
+    Icon { toolkitIcon: value } 
+}
+
 // PENDING_DOC_REVIEW
 /**
  * A small fixed size picture, typically used to decorate components.
  */
 public class Icon {
 
-    private attribute toolkitIcon:javax.swing.Icon;
+    attribute toolkitIcon:javax.swing.Icon;
 
     // PENDING(shannonh) - don't like the tie-in to Swing
 
     public function getToolkitIcon():javax.swing.Icon { toolkitIcon }
-
-    public static function fromToolkitIcon(value:javax.swing.Icon):Icon { 
-        Icon { toolkitIcon: value } 
-    }
 
     // PENDING_DOC_REVIEW
     /**
