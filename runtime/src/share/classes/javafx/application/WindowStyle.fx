@@ -25,30 +25,30 @@ package javafx.application;
 
 // PENDING_DOC_REVIEW
 /**
+ * Defines a normal window style with a solid white background and platform decorations.
+ */
+public /* const */ def  DECORATED = WindowStyle { name: "DECORATED" }
+
+// PENDING_DOC_REVIEW
+/**
+ * Defines a window style with a solid white background and no decorations.
+ */
+public /* const */ def UNDECORATED = WindowStyle { name: "UNDECORATED" }
+
+// PENDING_DOC_REVIEW
+/**
+ * Defines a window style with a transparent background and no decorations.
+ */
+public /* const */ def TRANSPARENT = WindowStyle { name: "TRANSPARENT" }
+
+// PENDING_DOC_REVIEW
+/**
  * This class defines the possible styles for a {@code Window} which are: {@code  WindowStyle.DECORATED},
  * {@code WindowStyle.UNDECORATED}, or {@code  WindowStyle.TRANSPARENT}.
  */
 public class WindowStyle {
 
-    private attribute name:String;
-
-    // PENDING_DOC_REVIEW
-    /**
-     * Defines a normal window style with a solid white background and platform decorations.
-     */
-    public static attribute  DECORATED = WindowStyle { name: "DECORATED" }
-
-    // PENDING_DOC_REVIEW
-    /**
-     * Defines a window style with a solid white background and no decorations.
-     */
-    public static attribute UNDECORATED = WindowStyle { name: "UNDECORATED" }
-
-    // PENDING_DOC_REVIEW
-    /**
-     * Defines a window style with a transparent background and no decorations.
-     */
-    public static attribute TRANSPARENT = WindowStyle { name: "TRANSPARENT" }
+    attribute name: String;
 
     public override function toString(): String { name }
 
