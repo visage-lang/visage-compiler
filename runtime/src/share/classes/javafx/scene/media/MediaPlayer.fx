@@ -252,7 +252,7 @@ public class MediaPlayer {
      *
      * @profile common
      */
-    public static attribute status:Integer;
+    public attribute status:Integer;
 
     /**
      * Status value when player is paused
