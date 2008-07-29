@@ -276,7 +276,6 @@ public class AssortisProject  extends MyCompositeComponent{
         
         center: MySplitPane {
             weight: 0.2
-            orientation: Orientation.HORIZONTAL
             one:  BorderPanel{
                     top: Label { text: "Samples:"}
                     center: MyTree{
@@ -296,7 +295,7 @@ public class AssortisProject  extends MyCompositeComponent{
 
         two: MySplitPane {
                 weight: 0.9
-                orientation: Orientation.VERTICAL
+                vertical: true
                 one: BorderPanel{
                         center: BorderPanel {
                             center: MyDesktopPane{

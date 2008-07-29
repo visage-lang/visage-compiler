@@ -13,7 +13,7 @@ public class MySplitPane extends Component{
     
     protected attribute splitPane: JSplitPane = new JSplitPane();
     
-    public attribute orientation: Orientation;
+    public attribute vertical: Boolean;
     public attribute weight:Number on replace{
         splitPane.setResizeWeight(weight);
     };
@@ -28,7 +28,7 @@ public class MySplitPane extends Component{
 
         //var scrollPane = new JScrollPane(panel);
         
-        if (orientation == Orientation.HORIZONTAL){
+        if (not vertical){
             splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
             splitPane.setLeftComponent(panel);
             //splitPane.setLeftComponent(scrollPane);
@@ -44,7 +44,7 @@ public class MySplitPane extends Component{
         panel.add(two.getJComponent(),BorderLayout.CENTER);
         //var scrollPane = new JScrollPane(panel);
         
-        if (orientation == Orientation.HORIZONTAL){
+        if (not vertical){
             splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
             splitPane.setRightComponent(panel);
             //splitPane.setRightComponent(scrollPane);
