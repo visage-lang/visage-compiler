@@ -341,7 +341,7 @@ public class JavaFXPad extends Component {
                 ComponentView {
                     component: splitPane = SplitPane {
                         //TODO border: LineBorder {lineColor: Color.BLACK }
-                        orientation: Orientation.VERTICAL
+                        vertical: true
                         content: [
                             SplitView { // display area
                                 weight: 0.35

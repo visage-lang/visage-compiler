@@ -60,10 +60,10 @@ public class SplitPane extends Component, Container {
             root.setWeight(1.0);
         }
 
-    public attribute orientation: Orientation = Orientation.HORIZONTAL on replace {
-        root.setRowLayout(orientation == Orientation.HORIZONTAL);
-    };
-        
+    public attribute vertical: Boolean = false on replace {
+        root.setRowLayout(not vertical);
+    }
+
     private function getModel(): java.util.List {
         var n = for (p in content) p.getSplitNode();
         var div = null;
