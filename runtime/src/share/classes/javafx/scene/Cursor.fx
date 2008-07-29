@@ -34,119 +34,119 @@ import javafx.lang.FX;
  *
  * @profile common conditional cursor
  */      
-public def DEFAULT = Cursor{}   
+public /* const */ def DEFAULT = Cursor{}   
 
 /**
  * The crosshair cursor type.
  *
  * @profile common conditional cursor
  */       
-public def CROSSHAIR = Cursor{ awtType:java.awt.Cursor.CROSSHAIR_CURSOR };
+public /* const */ def CROSSHAIR = Cursor{ awtType:java.awt.Cursor.CROSSHAIR_CURSOR };
 
 /**
  * The text cursor type.
  *
  * @profile common conditional cursor
  */       
-public def TEXT = Cursor{ awtType:java.awt.Cursor.TEXT_CURSOR };
+public /* const */ def TEXT = Cursor{ awtType:java.awt.Cursor.TEXT_CURSOR };
 
 /**
  * The wait cursor type.
  *
  * @profile common conditional cursor
  */       
-public def WAIT = Cursor{ awtType:java.awt.Cursor.WAIT_CURSOR };
+public /* const */ def WAIT = Cursor{ awtType:java.awt.Cursor.WAIT_CURSOR };
 
 /**
  * The south-west-resize cursor type. 
  *
  * @profile common conditional cursor
  */       
-public def SW_RESIZE = Cursor{ awtType:java.awt.Cursor.SW_RESIZE_CURSOR };
+public /* const */ def SW_RESIZE = Cursor{ awtType:java.awt.Cursor.SW_RESIZE_CURSOR };
 
 /**
  * The south-east-resize cursor type.
  *
  * @profile common conditional cursor
  */       
-public def SE_RESIZE = Cursor{ awtType:java.awt.Cursor.SE_RESIZE_CURSOR };
+public /* const */ def SE_RESIZE = Cursor{ awtType:java.awt.Cursor.SE_RESIZE_CURSOR };
 
 /**
  * The north-west-resize cursor type.
  *
  * @profile common conditional cursor
  */       
-public def NW_RESIZE = Cursor{ awtType:java.awt.Cursor.NW_RESIZE_CURSOR };
+public /* const */ def NW_RESIZE = Cursor{ awtType:java.awt.Cursor.NW_RESIZE_CURSOR };
 
 /**
  * The north-east-resize cursor type.
  *
  * @profile common conditional cursor
  */       
-public def NE_RESIZE = Cursor{ awtType:java.awt.Cursor.NE_RESIZE_CURSOR };
+public /* const */ def NE_RESIZE = Cursor{ awtType:java.awt.Cursor.NE_RESIZE_CURSOR };
 
 /**
  * The north-resize cursor type.
  *
  * @profile common conditional cursor
  */       
-public def N_RESIZE = Cursor{ awtType:java.awt.Cursor.N_RESIZE_CURSOR };
+public /* const */ def N_RESIZE = Cursor{ awtType:java.awt.Cursor.N_RESIZE_CURSOR };
 
 /**
  * The south-resize cursor type.
  *
  * @profile common conditional cursor
  */       
-public def S_RESIZE = Cursor{ awtType:java.awt.Cursor.S_RESIZE_CURSOR };
+public /* const */ def S_RESIZE = Cursor{ awtType:java.awt.Cursor.S_RESIZE_CURSOR };
 
 /**
  * The west-resize cursor type.
  *
  * @profile common conditional cursor
  */       
-public def W_RESIZE = Cursor{ awtType:java.awt.Cursor.W_RESIZE_CURSOR };
+public /* const */ def W_RESIZE = Cursor{ awtType:java.awt.Cursor.W_RESIZE_CURSOR };
 
 /**
  * The east-resize cursor type.
  *
  * @profile common conditional cursor
  */       
-public def E_RESIZE = Cursor{ awtType:java.awt.Cursor.E_RESIZE_CURSOR };
+public /* const */ def E_RESIZE = Cursor{ awtType:java.awt.Cursor.E_RESIZE_CURSOR };
 
 /**
  * The hand cursor type.
  *
  * @profile common conditional cursor
  */       
-public def HAND = Cursor{ awtType:java.awt.Cursor.HAND_CURSOR };
+public /* const */ def HAND = Cursor{ awtType:java.awt.Cursor.HAND_CURSOR };
 
 /**
  * The move cursor type.
  *
  * @profile common conditional cursor
  */       
-public def MOVE = Cursor{ awtType:java.awt.Cursor.MOVE_CURSOR };
+public /* const */ def MOVE = Cursor{ awtType:java.awt.Cursor.MOVE_CURSOR };
 
 /**
  * The horizontal cursor type.
  *
  * @profile common conditional cursor
  */       
-public def H_RESIZE = W_RESIZE;
+public /* const */ def H_RESIZE = W_RESIZE;
 
 /**
  * The vertical cursor type.
  *
  * @profile common conditional cursor
  */       
-public def V_RESIZE = N_RESIZE;
+public /* const */ def V_RESIZE = N_RESIZE;
 
 /**
  * The none cursor type.
  *
  * @profile common conditional cursor
  */       
-public def NONE = Cursor { 
+public /* const */ def NONE = Cursor { 
       awtType: java.awt.Cursor.CUSTOM_CURSOR 
     awtCursor: {
         var toolkit:Toolkit = Toolkit.getDefaultToolkit();
@@ -161,7 +161,7 @@ public def NONE = Cursor {
     }
 };
 
-private def cursors:Cursor[] = [
+private /* const */ def cursors:Cursor[] = [
     DEFAULT,
     CROSSHAIR,
     TEXT,
