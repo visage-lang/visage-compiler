@@ -29,11 +29,64 @@ import java.lang.StringBuffer;
 import java.util.List;
 
 /**
+ * Convert the JSON array to JSON format.
+ * Output is written to the Writer.
+ * @param array the array items
+ * @param writer the java.io.Writer that will receive the formated JSON stream.
+ * @param curIndent the current indent amount
+ * @param indentAmount the amount to indent from the curIndent for the next indent level
+ */ 
+static function serialize(array:Object[], writer:Writer, curIndent:Integer, indentAmount:Integer):Void {
+    var indentStr = "";
+    if(curIndent > 0) {
+        var sb = new StringBuffer();
+        for(i in [0..<curIndent]) {
+            sb.append(" ");
+        }
+        indentStr = sb.toString();
+    }
+    if(sizeof array == 0) {
+        writer.write("[]");
+    }else if( sizeof array == 1) {
+        writer.write("[");
+        var e = array[0];
+        if(e instanceof JSONBase) {
+            (e as JSONBase).serialize(writer, curIndent, indentAmount);
+        }else if(e instanceof String) {
+            writer.write('"{e.toString()}"');
+        }else {
+            writer.write('{e.toString()}');
+        }
+        writer.write("]");
+    }else {
+        var newIndent = curIndent + indentAmount;
+        writer.write("[");
+
+        var firstElement = true;
+        writer.write("\n");
+        for(e in array) {
+            if(not firstElement) {
+                writer.write(",\n");
+            }
+            writer.write(indentStr);
+            if(e instanceof JSONBase) {
+                (e as JSONBase).serialize(writer, curIndent, indentAmount);
+            }else if(e instanceof String) {
+                writer.write('{indentStr}"{e.toString()}"');
+            }else {
+                writer.write('{indentStr}{e.toString()}');
+            }
+            firstElement = false;
+        }
+        writer.write("\n{indentStr}]");                
+    }
+}
+
+/**
  * Represents a JSON Array
  * 
  * @author jclarke
  */
-
 public class Array extends JSONBase {
      /**
      * Contains the  items in the array
@@ -62,58 +115,5 @@ public class Array extends JSONBase {
         serialize(this.array, writer, curIndent, indentAmount);
         
     }  
-    
-    /**
-     * Convert the JSON array to JSON format.
-     * Output is written to the Writer.
-     * @param array the array items
-     * @param writer the java.io.Writer that will receive the formated JSON stream.
-     * @param curIndent the current indent amount
-     * @param indentAmount the amount to indent from the curIndent for the next indent level
-     */ 
-    static function serialize(array:Object[], writer:Writer, curIndent:Integer, indentAmount:Integer):Void {
-            var indentStr = "";
-            if(curIndent > 0) {
-                var sb = new StringBuffer();
-                for(i in [0..<curIndent]) {
-                    sb.append(" ");
-                }
-                indentStr = sb.toString();
-            }
-            if(sizeof array == 0) {
-                writer.write("[]");
-            }else if( sizeof array == 1) {
-                writer.write("[");
-                var e = array[0];
-                if(e instanceof JSONBase) {
-                    (e as JSONBase).serialize(writer, curIndent, indentAmount);
-                }else if(e instanceof String) {
-                    writer.write('"{e.toString()}"');
-                }else {
-                    writer.write('{e.toString()}');
-                }
-                writer.write("]");
-            }else {
-                var newIndent = curIndent + indentAmount;
-                writer.write("[");
 
-                var firstElement = true;
-                writer.write("\n");
-                for(e in array) {
-                    if(not firstElement) {
-                        writer.write(",\n");
-                    }
-                    writer.write(indentStr);
-                    if(e instanceof JSONBase) {
-                        (e as JSONBase).serialize(writer, curIndent, indentAmount);
-                    }else if(e instanceof String) {
-                        writer.write('{indentStr}"{e.toString()}"');
-                    }else {
-                        writer.write('{indentStr}{e.toString()}');
-                    }
-                    firstElement = false;
-                }
-                writer.write("\n{indentStr}]");                
-            }
-         }
 }
