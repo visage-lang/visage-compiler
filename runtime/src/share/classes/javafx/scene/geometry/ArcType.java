@@ -27,19 +27,11 @@ import java.awt.geom.Arc2D;
 
 // PENDING_DOC_REVIEW
 /**
- * The {@code ArcType} specifies the following closure type for 
- * the {@link Arc} objects.
- * <p>
- * It contains three predefined static values 
- * ({@link #OPEN}, {@link #CHORD} and {@link #ROUND}).
+ * {@code ArcType} specifies the closure type for {@link Arc} objects.
  * 
  * @profile common
  */ 
-public class ArcType {
-
-    private attribute toolkitValue: Integer = Arc2D.OPEN;
-
-    private attribute name: String = "OPEN";
+public enum ArcType {
 
     // PENDING_DOC_REVIEW
     /**
@@ -48,7 +40,7 @@ public class ArcType {
      * 
      * @profile common
      */     
-    public static attribute OPEN = ArcType { }
+    OPEN(Arc2D.OPEN),
 
     // PENDING_DOC_REVIEW
     /**
@@ -57,10 +49,7 @@ public class ArcType {
      * 
      * @profile common
      */     
-    public static attribute CHORD = ArcType { 
-        toolkitValue: Arc2D.CHORD
-        name: "CHORD" 
-    }
+    CHORD(Arc2D.CHORD),
 
     // PENDING_DOC_REVIEW
     /**
@@ -70,19 +59,12 @@ public class ArcType {
      * 
      * @profile common
      */     
-    public static attribute ROUND = ArcType {
-        toolkitValue: Arc2D.PIE
-        name: "PIE" 
-    }
+    ROUND(Arc2D.PIE);
 
-    function getToolkitValue(): Integer { toolkitValue }
+    final int toolkitValue;
     
-    // PENDING_DOC_REVIEW
-    /**
-     * Returns a {@code String} that represents the value of this {@code ArcType}.
-     *
-     * @profile common
-     */     
-    override function toString(): String { name }
+    private ArcType(int toolkitValue) {
+        this.toolkitValue = toolkitValue;
+    }
 
 }

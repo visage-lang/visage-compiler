@@ -134,7 +134,7 @@ public class Arc extends Shape {
      * @profile common
      */     
     public attribute type:ArcType = ArcType.OPEN on replace { 
-        getSGArc().setArcType(type.getToolkitValue());
+        getSGArc().setArcType(type.toolkitValue);
     }
 
 }
