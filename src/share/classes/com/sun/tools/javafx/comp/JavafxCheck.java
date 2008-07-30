@@ -1502,8 +1502,7 @@ public
         if (doesOverride) {
             boolean isSynthetic = (m.flags() & Flags.SYNTHETIC) != 0;
             if (!declaredOverride && !isSynthetic) {
-//TODO: no warning quite yet
-//                log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_SHOULD_BE_DECLARED_OVERRIDE, m);
+                log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_SHOULD_BE_DECLARED_OVERRIDE, m);
             }
         } else {
             if (declaredOverride) {
