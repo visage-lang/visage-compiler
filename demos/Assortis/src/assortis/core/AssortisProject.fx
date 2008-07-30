@@ -164,6 +164,7 @@ public class AssortisProject  extends MyCompositeComponent{
             title: sample.name 
             content: MySplitPane{
                 weight: 0.7
+                vertical: true            
                 one: MyEditorPane{
                     editable: bind editable
                     text: bind sample.code with inverse
@@ -273,7 +274,6 @@ public class AssortisProject  extends MyCompositeComponent{
     
     public function composeComponent(): Component{
         return BorderPanel{
-        
         center: MySplitPane {
             weight: 0.2
             one:  BorderPanel{

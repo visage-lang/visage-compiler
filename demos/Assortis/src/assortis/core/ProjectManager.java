@@ -158,7 +158,12 @@ class CodeManager {
 
     
     public static Object execute(String className, String code, String propName, String props) {
-
+        
+        currentClassLoader.setPackageAssertionStatus("com.sun.tools.javafx", true);
+        currentClassLoader.setClassAssertionStatus("com.sun.tools.javac.code.Symbol", false);
+        currentClassLoader.setClassAssertionStatus("com.sun.tools.javac.jvm.Code", false);
+        
+        
         if (!code.contains("package")) {
             String pack = className.substring(0, className.lastIndexOf('.'));
             code = "package " + pack + ";\n" + code;
