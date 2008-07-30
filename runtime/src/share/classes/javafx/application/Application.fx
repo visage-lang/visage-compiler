@@ -25,8 +25,8 @@ package javafx.application;
 
 /**
  * The JavaFX {@code Application} class provides application lifecycle
- * support methods and attributes. The content of the application is
- * specified on its {@code stage} attribute.
+ * support methods and variables. The content of the application is
+ * specified on its {@code stage} variable.
  * 
  * @profile common
  */
@@ -38,7 +38,7 @@ public class Application {
      * 
      * @profile common
      */ 
-    public attribute onStart:function():Void;
+    public var onStart:function():Void;
     
     /**
      * Called when the Application is resumed - i.e. it goes from suspended state. 
@@ -48,7 +48,7 @@ public class Application {
      * 
      * @profile common
      */ 
-    public attribute onResume:function():Void;
+    public var onResume:function():Void;
     
     /**
      * 
@@ -59,7 +59,7 @@ public class Application {
      * 
      * @profile common
      */ 
-    public attribute onSuspend:function():Void;
+    public var onSuspend:function():Void;
     
 
     /**
@@ -68,7 +68,7 @@ public class Application {
      * 
      * @profile common
      */
-    public attribute onExit:function():Void;
+    public var onExit:function():Void;
     
     /**
      * Specifies if the Application is in suspended or running 
@@ -77,7 +77,7 @@ public class Application {
      * @profile common
      * @readonly
      */ 
-    public attribute /*read-only*/ suspended:Boolean;       
+    public var /*read-only*/ suspended:Boolean;       
     
     /**
      * Requests the application to exit. The onExit callback is called after this
@@ -117,6 +117,6 @@ public class Application {
      * 
      * @profile common
      */
-    public attribute stage: Stage;
+    public var stage: Stage;
 
 }

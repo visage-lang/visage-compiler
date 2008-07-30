@@ -46,7 +46,7 @@ import com.sun.javafx.application.InternalHelper;
  */
 public class Applet extends JApplet {
 
-    private attribute app:Application;
+    private var app:Application;
 
     private function launchApplication() {
         InternalHelper.initDefaultLAF();

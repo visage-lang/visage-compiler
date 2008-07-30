@@ -41,7 +41,7 @@ class CanvasStageImpl {
 
     def jsgPanel : JSGPanelImpl = createJsgPanel();
 
-    public attribute stage: Stage on replace{
+    public var stage: Stage on replace{
         if (stage != null){
             stage.width = jsgPanel.getWidth();
             stage.height = jsgPanel.getHeight();
@@ -52,7 +52,7 @@ class CanvasStageImpl {
     // private
 
     /** bound to stage.content so we can react to changes */
-    private attribute stageContent: Node[] = bind stage.content on replace oldNodes[a..b] = newNodes {
+    private def stageContent: Node[] = bind stage.content on replace oldNodes[a..b] = newNodes {
         for (node in oldNodes[a..b]) {
             getRoot().remove(node.impl_getFXNode());
         }
@@ -64,7 +64,7 @@ class CanvasStageImpl {
     }
 
     /** bound to stage.fill so we can react to changes */
-    private attribute stageFill: Paint = bind stage.fill on replace {
+    private def stageFill: Paint = bind stage.fill on replace {
         jsgPanel.setBackgroundPaint(stageFill.getAWTPaint());
     }
 
