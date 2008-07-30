@@ -25,16 +25,12 @@ package javafx.scene.text;
 
 // PENDING_DOC_REVIEW
 /**
- * The {@code FontStyle} class represents the style (plain, bold or italic) of a {@link Font} object.
+ * The {@code FontStyle} enum represents the style (plain, bold or italic) of a {@link Font} object.
  *
  * @profile common
  * @needsreview
  */      
-public /* final */ class FontStyle {
-
-    private /* set-once */ attribute toolkitValue: Integer = 0;
-
-    private /* set-once */ attribute name: String = "PLAIN";
+public enum FontStyle {
 
     // PENDING_DOC_REVIEW
     /**
@@ -42,7 +38,7 @@ public /* final */ class FontStyle {
      *
      * @profile common
      */      
-    public static /* constant */ attribute PLAIN: FontStyle = FontStyle {};
+    PLAIN(java.awt.Font.PLAIN),
 
     // PENDING_DOC_REVIEW
     /**
@@ -50,7 +46,7 @@ public /* final */ class FontStyle {
      *
      * @profile common
      */      
-    public static /* constant */ attribute BOLD: FontStyle = FontStyle {toolkitValue: 1, name: "BOLD"};
+    BOLD(java.awt.Font.BOLD),
     
     // PENDING_DOC_REVIEW
     /**
@@ -58,7 +54,7 @@ public /* final */ class FontStyle {
      *
      * @profile common
      */      
-    public static /* constant */ attribute ITALIC: FontStyle = FontStyle {toolkitValue: 2, name: "ITALIC"};
+    ITALIC(java.awt.Font.ITALIC),
 
     // PENDING_DOC_REVIEW
     /**
@@ -66,27 +62,24 @@ public /* final */ class FontStyle {
      *
      * @profile common
      */      
-    public static /* constant */ attribute BOLD_ITALIC: FontStyle = FontStyle {toolkitValue: 3, name: "BOLD_ITALIC"};
+    BOLD_ITALIC(java.awt.Font.BOLD + java.awt.Font.ITALIC);
 
-    // PENDING_DOC_REVIEW
-    /**
-     * Converts this {@code FontStyle} object to a {@code String} representation.
-     *
-     * @profile common
-     */      
-    override function toString(): String {
-        name;
+    final int toolkitValue;
+
+    private FontStyle(int toolkitValue) {
+        this.toolkitValue = toolkitValue;
     }
 
-    function getToolkitValue(): Integer {
-        toolkitValue;
-    }
-
-    static function fromToolkitValue(toolkitValue: Integer): FontStyle {
-        if (toolkitValue == PLAIN.toolkitValue) PLAIN
-        else if (toolkitValue == BOLD.toolkitValue) BOLD
-        else if (toolkitValue == ITALIC.toolkitValue) ITALIC
-        else BOLD_ITALIC;
+    static FontStyle fromToolkitValue(int toolkitValue) {
+        if (toolkitValue == PLAIN.toolkitValue) {
+            return PLAIN;
+        } else if (toolkitValue == BOLD.toolkitValue) {
+            return BOLD;
+        } else if (toolkitValue == ITALIC.toolkitValue) {
+            return ITALIC;
+        } else {
+            return BOLD_ITALIC;
+        }
     }
 
 }
