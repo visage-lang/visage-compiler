@@ -227,7 +227,10 @@
                  includes="**/*.fx" source="${javac.source}" sourcepath=""
                  srcdir="${src.classes.dir}" target="${javac.target}"
                  classpath="${build.classes.dir}:${javac.test.classpath}"
-                 compilerclasspath="${build.classes.dir}:${javac.classpath}"/>
+                 compilerclasspath="${build.classes.dir}:${javac.classpath}">
+            <!-- Turn off the Java 6 check in the javafxc compiler -->
+            <compilerarg value="-no-java-check" />
+        </javafxc>
     </target>
 
     <target depends="init,javafxdoc,runtime" name="-javadoc-build">
