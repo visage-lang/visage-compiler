@@ -92,7 +92,7 @@ public class Text extends Shape {
      * @profile common
      */
     public attribute textOrigin: TextOrigin = TextOrigin.BASELINE on replace {
-        getSGText().setVerticalAlignment(textOrigin.getToolkitValue());
+        getSGText().setVerticalAlignment(textOrigin.toolkitValue);
     }
 
 }

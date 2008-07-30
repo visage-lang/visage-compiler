@@ -26,55 +26,40 @@ package javafx.scene.text;
 import com.sun.scenario.scenegraph.SGText.VAlign;
 
 /**
- * The {@code TextOrigin} class represents the text origin. 
+ * The {@code TextOrigin} enum represents the text origin. 
  *
  * @profile common
  */
-public class TextOrigin {
+public enum TextOrigin {
 
-    private attribute toolkitValue: VAlign = VAlign.BASELINE;
+    // PENDING_DOC_REVIEW
+    /**
+     * Represents the baseline text origin.
+     *
+     * @profile common
+     */    
+    BASELINE(VAlign.BASELINE),
 
-    private attribute name: String = "BASELINE";
-    
-   // PENDING_DOC_REVIEW
-   /**
-    * Represents the baseline text origin.
-    *
-    * @profile common
-    */    
-    public static attribute BASELINE = TextOrigin { 
+    // PENDING_DOC_REVIEW
+    /**
+     * Represents the top text origin.
+     *
+     * @profile common
+     */    
+    TOP(VAlign.TOP),
+
+    // PENDING_DOC_REVIEW
+    /**
+     * Represents the bottom text origin.
+     *
+     * @profile common
+     */    
+    BOTTOM(VAlign.BOTTOM);
+
+    final VAlign toolkitValue;
+
+    private TextOrigin(VAlign toolkitValue) {
+        this.toolkitValue = toolkitValue;
     }
-
-   // PENDING_DOC_REVIEW
-   /**
-    * Represents the top text origin.
-    *
-    * @profile common
-    */    
-    public static attribute TOP = TextOrigin {
-        toolkitValue: VAlign.TOP
-        name: "TOP"
-    }
-
-   // PENDING_DOC_REVIEW
-   /**
-    * Represents the bottom text origin.
-    *
-    * @profile common
-    */    
-    public static attribute BOTTOM = TextOrigin {
-        toolkitValue: VAlign.BOTTOM
-        name: "BOTTOM"
-    }
-
-    function getToolkitValue(): VAlign { toolkitValue }
-    
-   // PENDING_DOC_REVIEW
-   /**
-    * Returns a {@code String} that represents this origin.
-    *
-    * @profile common
-    */
-    override function toString(): String { name }
 
 }
