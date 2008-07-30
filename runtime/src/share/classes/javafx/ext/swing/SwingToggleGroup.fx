@@ -35,8 +35,8 @@ public class SwingToggleGroup {
 
     private attribute buttons: SelectableButton[];
     
-    private /* constant */ attribute swingButtonGroup: javax.swing.ButtonGroup
-                                                = new javax.swing.ButtonGroup();
+    private def swingButtonGroup: javax.swing.ButtonGroup
+                                    = new javax.swing.ButtonGroup();
 
     // PENDING_DOC_REVIEW
     /**
