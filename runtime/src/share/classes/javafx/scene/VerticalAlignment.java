@@ -30,11 +30,7 @@ package javafx.scene;
  *
  * @profile common
  */
-public class VerticalAlignment {
-
-    // PENDING(shannonh) - need private constructor to prevent bogus instance
-
-    private attribute name: String;
+public enum VerticalAlignment {
 
     // PENDING_DOC_REVIEW
     /**
@@ -42,7 +38,7 @@ public class VerticalAlignment {
      *
      * @profile common
      */
-    public static attribute CENTER = VerticalAlignment { name: "CENTER" }
+    CENTER,
 
     // PENDING_DOC_REVIEW
     /**
@@ -50,7 +46,7 @@ public class VerticalAlignment {
      *
      * @profile common
      */
-    public static attribute TOP = VerticalAlignment { name: "TOP" }
+    TOP,
 
     // PENDING_DOC_REVIEW
     /**
@@ -58,8 +54,6 @@ public class VerticalAlignment {
      *
      * @profile common
      */
-    public static attribute BOTTOM = VerticalAlignment { name: "BOTTOM" }
-
-    override function toString(): String { name }
+    BOTTOM
 
 }

@@ -30,11 +30,7 @@ package javafx.scene;
  *
  * @profile common
  */
-public class HorizontalAlignment {
-
-    // PENDING(shannonh) - need private constructor to prevent bogus instance
-
-    private attribute name: String;
+public enum HorizontalAlignment {
 
     // PENDING_DOC_REVIEW
     /**
@@ -42,7 +38,7 @@ public class HorizontalAlignment {
      *
      * @profile common
      */
-    public static attribute LEADING = HorizontalAlignment { name: "LEADING" }
+    LEADING,
 
     // PENDING_DOC_REVIEW
     /**
@@ -50,7 +46,7 @@ public class HorizontalAlignment {
      *
      * @profile common
      */
-    public static attribute TRAILING = HorizontalAlignment { name: "TRAILING" }
+    TRAILING,
 
     // PENDING_DOC_REVIEW
     /**
@@ -58,7 +54,7 @@ public class HorizontalAlignment {
      *
      * @profile common
      */
-    public static attribute LEFT = HorizontalAlignment { name: "LEFT" }
+    LEFT,
 
     // PENDING_DOC_REVIEW
     /**
@@ -66,7 +62,7 @@ public class HorizontalAlignment {
      *
      * @profile common
      */
-    public static attribute CENTER = HorizontalAlignment { name: "CENTER" }
+    CENTER,
 
     // PENDING_DOC_REVIEW
     /**
@@ -74,8 +70,6 @@ public class HorizontalAlignment {
      *
      * @profile common
      */
-    public static attribute RIGHT = HorizontalAlignment { name: "RIGHT" }
-
-    override function toString(): String { name }
+    RIGHT
 
 }
