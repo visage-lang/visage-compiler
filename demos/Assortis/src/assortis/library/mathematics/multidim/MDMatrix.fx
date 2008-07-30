@@ -8,8 +8,8 @@ import java.lang.System;
  
 public class MDMatrix extends IMDMatrix{
 
-    public attribute dimN:Integer;
-    public attribute dimM:Integer;
+    public var dimN:Integer;
+    public var dimM:Integer;
     
     public attribute elems:Number[] ;
     

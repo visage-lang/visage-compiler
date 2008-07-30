@@ -11,5 +11,5 @@ package assortis.library.mathematics.multidim;
      override function getDimN ():Integer { getDim() } 
      override function getDimM ():Integer { getDim() } 
      
-     public abstract function transform (vector: IMDVector):IMDVector;
+     override abstract function transform (vector: IMDVector):IMDVector;
 }

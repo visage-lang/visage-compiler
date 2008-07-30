@@ -463,7 +463,7 @@ scriptItem
 	: importDecl 	
 	| classDefinition 	
         | functionDefinition    
-        | (accessModifier|varModifier)=>scriptVariableDeclaration
+        | (varModifier)=>scriptVariableDeclaration
 	| statement	
 	|					
 	;
@@ -543,13 +543,7 @@ postInitDefinition
 
 //TODO: modifier flag testing should be done in JavafxAttr, where it would be cleaner and better errors could be generated
 functionModifierFlags  
-	: BOUND (accessModifier functionModifier? )?	-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
-	| accessModifier BOUND functionModifier		-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
-	| accessModifier functionModifier? BOUND?	-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
-	| BOUND functionModifier accessModifier?	-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
-	| functionModifier BOUND accessModifier?	-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
-	| functionModifier (accessModifier BOUND? )?	-> ^(MODIFIER accessModifier? functionModifier? BOUND?)
-	| 						-> ^(MODIFIER)
+	: functionModifier*				-> ^(MODIFIER functionModifier*)
 	;
 scriptVariableDeclaration
 @after { Tree docComment = getDocComment($scriptVariableDeclaration.start);
@@ -570,14 +564,10 @@ localVariableDeclaration
 	    					-> ^(VAR variableLabel ^(MODIFIER) name typeReference boundExpression? onReplaceClause?)
 	;
 varModifierFlags
-	: accessModifier varModifier?		-> ^(MODIFIER accessModifier  varModifier?)
-	| varModifier accessModifier?		-> ^(MODIFIER accessModifier? varModifier?)
-	| 					-> ^(MODIFIER)
+	: varModifier*				-> ^(MODIFIER varModifier*)
 	;
 classModifierFlags
-	: accessModifier classModifier?		-> ^(MODIFIER accessModifier  classModifier?)
-	| classModifier accessModifier?		-> ^(MODIFIER accessModifier? classModifier?)
-	| 					-> ^(MODIFIER)
+	: classModifier*			-> ^(MODIFIER classModifier*)
 	;
 accessModifier 
 	:  PUBLIC          			
@@ -588,14 +578,18 @@ accessModifier
 functionModifier 
 	:  ABSTRACT        			
 	|  STATIC    
-	|  OVERRIDE    			
+	|  OVERRIDE
+	|  BOUND
+	|  accessModifier	
 	;
 varModifier 
 	:  READABLE        			
 	|  STATIC        			
+	|  accessModifier	
 	;
 classModifier 
 	:  ABSTRACT        			
+	|  accessModifier	
 	;
 formalParameters
 	: LPAREN formalParameter (COMMA formalParameter)*  RPAREN

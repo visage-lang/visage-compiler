@@ -6,8 +6,8 @@ package assortis.library.mathematics.multidim;
 
 public abstract class IMDMatrix extends IMDTransform{
 
-    public abstract function getDimN ():Integer;
-    public abstract function getDimM ():Integer;
+    override abstract function getDimN ():Integer;
+    override abstract function getDimM ():Integer;
 
     public abstract function getElem (n:Integer, m: Integer):Number; 
     
