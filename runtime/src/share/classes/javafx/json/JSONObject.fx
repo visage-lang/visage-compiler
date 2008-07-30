@@ -236,7 +236,7 @@ public class JSONObject extends JSONBase {
      * @param curIndent the current indent amount
      * @param indentAmount the amount to indent from the curIndent for the next indent level
      */    
-    protected function serialize(writer:Writer, curIndent:Integer, indentAmount:Integer):Void {
+    override function serialize(writer:Writer, curIndent:Integer, indentAmount:Integer):Void {
         if(sizeof pairs == 0) {
             writer.write("\{}");
         }else if (sizeof pairs == 1) {

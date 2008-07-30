@@ -50,7 +50,7 @@ public abstract class JSONBase  {
      * Convert the JSON Object to JSON format.
      * @return an JSON formatted string
      */
-    public function toString():String {
+    override function toString():String {
         var writer = new StringWriter();
         serialize(writer);
         return writer.toString();

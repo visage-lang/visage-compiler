@@ -99,7 +99,7 @@ public class SwingSlider extends Component {
         var jSlider = getJSlider();
 
         jSlider.addChangeListener(ChangeListener {
-            public function stateChanged(e:ChangeEvent):Void {
+            override function stateChanged(e:ChangeEvent):Void {
                 if (ignoreJComponentChange) {
                     return;
                 }

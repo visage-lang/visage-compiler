@@ -74,7 +74,7 @@ public class Pair extends JSONBase {
      * @return true if this pair is equal to the other pair
      * @see Object#equals(Object)
      */
-    public function equals(obj:Object) {
+    override function equals(obj:Object) {
         if(obj instanceof Pair) {
             var oth = obj as Pair;
             return this.name.equals(oth.name);
@@ -87,7 +87,7 @@ public class Pair extends JSONBase {
      * @return the hash code
      * @see Object#hashCode()
      */
-    public function hashCode():Integer {
+    override function hashCode():Integer {
         return this.name.hashCode();
     }
     
@@ -136,7 +136,7 @@ public class Pair extends JSONBase {
      * gets the pair as a formatted JSON pair
      * @return the formatted JSON pair
      */    
-    public function toString():String {
+    override function toString():String {
         var writer = new StringWriter();
         serialize(writer, 0, 0);
         return writer.toString();
@@ -147,7 +147,7 @@ public class Pair extends JSONBase {
      * Output is written to the Writer.
      * @param writer the java.io.Writer that will receive the formated JSON stream.
      */    
-    public function serialize(writer:Writer, curIndent:Integer, indentAmount:Integer):Void {
+    override function serialize(writer:Writer, curIndent:Integer, indentAmount:Integer):Void {
         writer.write('"{name}": ');
         if(value instanceof JSONArray) {
             JSONArray.serialize((value as JSONArray).array, writer, curIndent, indentAmount);

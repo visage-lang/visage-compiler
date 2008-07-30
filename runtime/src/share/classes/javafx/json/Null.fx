@@ -35,7 +35,7 @@ public class Null  {
      * return  "null" per JSON specification
      * @return "null"
      */
-    public function toString(): String {
+    override function toString(): String {
         return "null";
     }
     
