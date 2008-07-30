@@ -39,7 +39,7 @@ import com.sun.javafx.scene.JSGPanelImpl;
  */
 class CanvasStageImpl {
 
-    public /* constant */ attribute jsgPanel : JSGPanelImpl = createJsgPanel();
+    public def jsgPanel : JSGPanelImpl = createJsgPanel();
 
     public attribute stage: Stage on replace{
         if (stage != null){
