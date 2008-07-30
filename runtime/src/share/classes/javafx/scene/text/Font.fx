@@ -70,7 +70,7 @@ public function font(name: String, style: FontStyle, size: Integer, url:String):
         var awtFont:java.awt.Font = Font.loadAWTFont( new URL(url));            
         if ( awtFont != null) {
             if (style != null) {
-                awtFont = awtFont.deriveFont( style.getToolkitValue(), size.floatValue());
+                awtFont = awtFont.deriveFont( style.toolkitValue, size.floatValue());
             } else {
                 awtFont = awtFont.deriveFont( size.floatValue());
             }
@@ -166,7 +166,7 @@ public /* final */ class Font {
     public /* set-once */ attribute size: Integer = 12;
 
     private /* set-once */ attribute awtFont: java.awt.Font
-                                 = new java.awt.Font(name, style.getToolkitValue(), size);
+                                 = new java.awt.Font(name, style.toolkitValue, size);
 
     public function getAWTFont() : java.awt.Font {
         awtFont;

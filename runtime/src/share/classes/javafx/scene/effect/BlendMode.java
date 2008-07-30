@@ -390,10 +390,10 @@ public enum BlendMode {
      */
     BLUE(Mode.BLUE);
 
-    Mode toolkitValue = Mode.SRC_OVER;
+    final Mode toolkitValue;
 
-    private BlendMode(Mode mode) {
-        toolkitValue = mode;
+    private BlendMode(Mode toolkitValue) {
+        this.toolkitValue = toolkitValue;
     }
 
 }
