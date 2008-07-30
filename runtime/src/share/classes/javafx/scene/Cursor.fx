@@ -149,7 +149,7 @@ public /* const */ def V_RESIZE = N_RESIZE;
  */       
 public /* const */ def NONE = createCursorNONE();
 
-private /* const */ def cursors:Cursor[] = [
+private /* const */ def CURSORS: Cursor[] = [
     DEFAULT,
     CROSSHAIR,
     TEXT,
@@ -182,8 +182,8 @@ private function createCursorNONE(): Cursor {
 
 function fromAWTCursor(c:java.awt.Cursor):Cursor {
     var i:Integer = c.getType();
-    if (i >= 0 and i < sizeof cursors) {
-        cursors[i]
+    if (i >= 0 and i < sizeof CURSORS) {
+        CURSORS[i]
     } else {
         Cursor { awtType:i awtCursor:c }
     }

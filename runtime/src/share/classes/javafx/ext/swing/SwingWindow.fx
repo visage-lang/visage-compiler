@@ -64,7 +64,7 @@ public class SwingWindow extends Container {
      */
     public /* set-once */ var owner : SwingWindow = null;
 
-    /* const */ def window : java.awt.Window = createWindow();
+    def window : java.awt.Window = createWindow();
 
     var ignoreJWindowChange: Boolean = false;
 

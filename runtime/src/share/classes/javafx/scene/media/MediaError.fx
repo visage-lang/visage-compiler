@@ -76,13 +76,13 @@ public /* const */ def OPERATION_UNSUPPORTED:Integer=5;
  */
 public /* const */ def MEDIA_UNSPECIFIED=6;
 
-private /* const */ def errorString = [ "unknown",
-                                        "media inaccesible",
-                                        "media unavailable",
-                                        "media corrupted" ,
-                                        "media unsupported" ,
-                                        "operation unsupported",
-                                        "media unspecified" ];
+private /* const */ def ERROR_STRINGS = [ "unknown",
+                                          "media inaccesible",
+                                          "media unavailable",
+                                          "media corrupted" ,
+                                          "media unsupported" ,
+                                          "operation unsupported",
+                                          "media unspecified" ];
 
 /**
  * converts Java exceptions into mediaErrors
@@ -127,6 +127,6 @@ public class MediaError {
     public attribute message:String;
 
     override function toString():String {
-        return "MediaError: {errorString[cause]}:{message}";
+        return "MediaError: {ERROR_STRINGS[cause]}:{message}";
     }
 };
