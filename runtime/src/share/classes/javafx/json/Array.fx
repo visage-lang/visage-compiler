@@ -36,7 +36,7 @@ import java.util.List;
  * @param curIndent the current indent amount
  * @param indentAmount the amount to indent from the curIndent for the next indent level
  */ 
-static function serialize(array:Object[], writer:Writer, curIndent:Integer, indentAmount:Integer):Void {
+function serialize(array:Object[], writer:Writer, curIndent:Integer, indentAmount:Integer):Void {
     var indentStr = "";
     if(curIndent > 0) {
         var sb = new StringBuffer();

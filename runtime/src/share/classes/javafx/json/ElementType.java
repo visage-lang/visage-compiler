@@ -24,37 +24,47 @@
 package javafx.json;
 
 /**
- * Contains static definitions of the JSON Element Types that are identified
+ * Contains definitions of the JSON Element Types that are identified
  * during parsing of a JSON stream
  * @author jclarke
  */
+public enum ElementType {
 
-public class ElementType {
+    /** Indicates that a JSONObject has been idenfitied*/
+    OBJECT("JSONObject"),
+
+    /** Indicates that a JSON Array has been idenfitied*/
+    JSONARRAY("JSONArray"),
+
+    /** Indicates that a JSON Pair has been idenfitied*/
+    PAIR("Pair"),
+
+    /** Indicates that a JSON VALUE has been idenfitied*/
+    VALUE("VALUE"),
+
+    /** Indicates that a JSON String has been idenfitied*/
+    STRING("String"),
+
+    /** Indicates that a JSON Number has been idenfitied*/
+    NUMBER("Number"),
+
+    /** Indicates that a JSON Null has been idenfitied*/
+    JSONNULL("JSONNull"),
+
+    /** Indicates that a JSON Boolean has been idenfitied*/
+    BOOLEAN("Boolean"),
+
+    /** Start indicates that parsing has started*/
+    START("Start"),
+
+    /** End indicates that parsing has ended*/
+    END("End");
 
     /** the name of the element type */
-    public attribute name:String;
-    
-    /** Indicates that a JSONObject has been idenfitied*/
-    public static attribute OBJECT:ElementType = ElementType{name:"JSONObject"};
-    /** Indicates that a JSON Array has been idenfitied*/
-    public static attribute JSONARRAY:ElementType = ElementType{name:"JSONArray"};
-    /** Indicates that a JSON Pair has been idenfitied*/
-    public static attribute PAIR:ElementType = ElementType{name:"Pair"};
-    /** Indicates that a JSON VALUE has been idenfitied*/
-    public static attribute VALUE:ElementType = ElementType{name:"VALUE"};
-    /** Indicates that a JSON String has been idenfitied*/
-    public static attribute STRING:ElementType = ElementType{name:"String"};
-    /** Indicates that a JSON Number has been idenfitied*/
-    public static attribute NUMBER:ElementType = ElementType{name:"Number"};
-    /** Indicates that a JSON Null has been idenfitied*/
-    public static attribute JSONNULL:ElementType = ElementType{name:"JSONNull"};
-    /** Indicates that a JSON Boolean has been idenfitied*/
-    public static attribute BOOLEAN:ElementType = ElementType{name:"Boolean"};
-    /** Start indicates that parsing has started*/
-    public static attribute START:ElementType = ElementType{name:"Start"};
-    /** End indicates that parsing has ended*/
-    public static attribute END:ElementType = ElementType{name:"End"};
-    
-   
-    
+    public final String name;
+
+    private ElementType(String name) {
+        this.name = name;
+    }
+
 }
