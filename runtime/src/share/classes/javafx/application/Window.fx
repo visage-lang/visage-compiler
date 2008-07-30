@@ -54,8 +54,9 @@ public abstract class Window {
 
     private attribute initialized: Boolean = false;
 
-    /* constant */ protected attribute canvasStage:CanvasStageImpl = CanvasStageImpl{ stage: bind stage };
-    /* constant */ protected attribute window : java.awt.Window = createWindow();
+    private def canvasStage:CanvasStageImpl = CanvasStageImpl{ stage: bind stage };
+
+    def window : java.awt.Window = createWindow();
 
     public attribute name: String on replace {
         window.setName(name);
