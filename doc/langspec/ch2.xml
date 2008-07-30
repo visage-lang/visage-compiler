@@ -71,7 +71,7 @@ the default.)</para>
 <para>
 The JavaFX Script programming language does not support constructors; you must use 
  object literals instead. To mimic the 
-behavior of a constructor, define a <code>static</code> function that returns a new object,
+behavior of a constructor, define a function that returns a new object,
  and invoke that function.</para>
 
 </sect2> 

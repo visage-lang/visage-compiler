@@ -82,7 +82,7 @@
 
               <td><code>sizeof</code></td>
 
-              <td><code>static</code></td>
+              <td><code><!-- static --></code></td>
 
               <td><code>this</code></td>
 
