@@ -72,7 +72,7 @@ public abstract class Component extends ClusterElement {
 
     attribute ignoreJComponentChange: Boolean = false;
 
-    def jComponent: JComponent = createJComponent();
+    var jComponent: JComponent = createJComponent();
 
     /**
      * The component's name, which may be {@code null}.
