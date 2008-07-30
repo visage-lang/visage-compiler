@@ -37,12 +37,8 @@ import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.namespace.NamespaceContext;
 
-//PENDING(shannonh) - Make tfactory/xfactory "package" visible.
-//                    They're public now due to the compiler currently making
-//                    script level def/var as "script-private" when there's no modifier,
-//                    and there's not yet a "package" modifier.
-public def tfactory:TransformerFactory  = TransformerFactory.newInstance();
-public def xfactory:XPathFactory = XPathFactory.newInstance();
+package def tfactory:TransformerFactory  = TransformerFactory.newInstance();
+package def xfactory:XPathFactory = XPathFactory.newInstance();
 
 /**
  * 
