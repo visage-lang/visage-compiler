@@ -31,12 +31,7 @@ import com.sun.scenario.effect.Blend.Mode;
  * Each {@code Mode} describes a mathematical equation that
  * combines premultiplied inputs to produce some premultiplied result.
  */
-public class BlendMode {
-    attribute toolkitValue: Mode = Mode.SRC_OVER;
-    
-    override function toString() : String {
-        toolkitValue.toString()
-    }
+public enum BlendMode {
 
     /**
      * The top input is blended over the bottom input.
@@ -48,8 +43,7 @@ public class BlendMode {
      *      <em>C<sub>r</sub></em> = <em>C<sub>top</sub></em> + <em>C<sub>bot</sub></em>*(1-<em>A<sub>top</sub></em>)
      * </pre>
      */
-    public static attribute SRC_OVER = BlendMode {
-    }
+    SRC_OVER(Mode.SRC_OVER),
 
     /**
      * The part of the top input lying inside of the bottom input
@@ -62,9 +56,7 @@ public class BlendMode {
      * 	<em>C<sub>r</sub></em> = <em>C<sub>top</sub></em>*<em>A<sub>bot</sub></em>
      * </pre>
      */
-    public static attribute SRC_IN = BlendMode {
-        toolkitValue: Mode.SRC_IN
-    }
+    SRC_IN(Mode.SRC_IN),
     
     /**
      * The part of the top input lying outside of the bottom input
@@ -78,9 +70,7 @@ public class BlendMode {
      *      <em>C<sub>r</sub></em> = <em>C<sub>top</sub></em>*(1-<em>A<sub>bot</sub></em>)
      * </pre>
      */
-    public static attribute SRC_OUT = BlendMode {
-        toolkitValue: Mode.SRC_OUT
-    }
+    SRC_OUT(Mode.SRC_OUT),
 
     /**
      * The part of the top input lying inside of the bottom input
@@ -93,9 +83,7 @@ public class BlendMode {
      *      <em>C<sub>r</sub></em> = <em>C<sub>top</sub></em>*<em>A<sub>bot</sub></em> + <em>C<sub>bot</sub></em>*(1-<em>A<sub>top</sub></em>)
      * </pre>
      */
-    public static attribute SRC_ATOP = BlendMode {
-        toolkitValue: Mode.SRC_ATOP
-    }
+    SRC_ATOP(Mode.SRC_ATOP),
 
     /**
      * The color and alpha components from the top input are
@@ -117,9 +105,7 @@ public class BlendMode {
      * imaging software packages.
      * </ul>
      */
-    public static attribute ADD = BlendMode {
-        toolkitValue: Mode.ADD
-    }
+    ADD(Mode.ADD),
 
     /**
      * The color components from the first input are multiplied with those
@@ -146,9 +132,7 @@ public class BlendMode {
      * equivalent to the bottom input.
      * </ul>
      */
-    public static attribute MULTIPLY = BlendMode {
-        toolkitValue: Mode.MULTIPLY
-    }
+    MULTIPLY(Mode.MULTIPLY),
 
     /**
      * The color components from both of the inputs are
@@ -176,9 +160,7 @@ public class BlendMode {
      * equivalent to the bottom input.
      * </ul>
      */
-    public static attribute SCREEN = BlendMode {
-        toolkitValue: Mode.SCREEN
-    }
+    SCREEN(Mode.SCREEN),
 
     /**
      * The input color components are either multiplied or screened,
@@ -202,9 +184,7 @@ public class BlendMode {
      * while preserving highlights and shadows of the latter.
      * </ul>
      */
-    public static attribute OVERLAY = BlendMode {
-        toolkitValue: Mode.OVERLAY
-    }
+    OVERLAY(Mode.OVERLAY),
 
     /**
      * The darker of the color components from the two inputs are
@@ -226,9 +206,7 @@ public class BlendMode {
      * the {@link #LIGHTEN} mode.
      * </ul>
      */
-    public static attribute DARKEN = BlendMode {
-        toolkitValue: Mode.DARKEN
-    }
+    DARKEN(Mode.DARKEN),
 
     /**
      * The lighter of the color components from the two inputs are
@@ -250,9 +228,7 @@ public class BlendMode {
      * the {@link #DARKEN} mode.
      * </ul>
      */
-    public static attribute LIGHTEN = BlendMode {
-        toolkitValue: Mode.LIGHTEN
-    }
+    LIGHTEN(Mode.LIGHTEN),
 
     /**
      * The bottom input color components are divided by the inverse
@@ -266,9 +242,7 @@ public class BlendMode {
      * 	<em>C<sub>r</sub></em> = <em>C<sub>bot</sub></em> / (1-<em>C<sub>top</sub></em>)
      * </pre>
      */
-    public static attribute COLOR_DODGE = BlendMode {
-        toolkitValue: Mode.COLOR_DODGE
-    }
+    COLOR_DODGE(Mode.COLOR_DODGE),
 
     /**
      * The inverse of the bottom input color components are divided by
@@ -283,9 +257,7 @@ public class BlendMode {
      * 	<em>C<sub>r</sub></em> = 1-((1-<em>C<sub>bot</sub></em>) / <em>C<sub>top</sub></em>)
      * </pre>
      */
-    public static attribute COLOR_BURN = BlendMode {
-        toolkitValue: Mode.COLOR_BURN
-    }
+    COLOR_BURN(Mode.COLOR_BURN),
 
     /**
      * The input color components are either multiplied or screened,
@@ -307,16 +279,12 @@ public class BlendMode {
      * the {@link #OVERLAY} mode.
      * </ul>
      */
-    public static attribute HARD_LIGHT = BlendMode {
-        toolkitValue: Mode.HARD_LIGHT
-    }
+    HARD_LIGHT(Mode.HARD_LIGHT),
 
     /**
      * TODO: this is a complicated formula, TBD...
      */
-    public static attribute SOFT_LIGHT = BlendMode {
-        toolkitValue: Mode.SOFT_LIGHT
-    }
+    SOFT_LIGHT(Mode.SOFT_LIGHT),
 
     /**
      * The darker of the color components from the two inputs are
@@ -342,9 +310,7 @@ public class BlendMode {
      * a result equivalent to the bottom input.
      * </ul>
      */
-    public static attribute DIFFERENCE = BlendMode {
-        toolkitValue: Mode.DIFFERENCE
-    }
+    DIFFERENCE(Mode.DIFFERENCE),
 
     /**
      * The color components from the two inputs are multiplied and
@@ -371,9 +337,7 @@ public class BlendMode {
      * a result equivalent to the bottom input.
      * </ul>
      */
-    public static attribute EXCLUSION = BlendMode {
-        toolkitValue: Mode.EXCLUSION
-    }
+    EXCLUSION(Mode.EXCLUSION),
 
     /**
      * The red component of the bottom input is replaced with the
@@ -390,9 +354,7 @@ public class BlendMode {
      * 	<em>B<sub>r</sub></em> = <em>B<sub>bot</sub></em>
      * </pre>
      */
-    public static attribute RED = BlendMode {
-        toolkitValue: Mode.RED
-    }
+    RED(Mode.RED),
 
     /**
      * The green component of the bottom input is replaced with the
@@ -409,9 +371,7 @@ public class BlendMode {
      * 	<em>B<sub>r</sub></em> = <em>B<sub>bot</sub></em>
      * </pre>
      */
-    public static attribute GREEN = BlendMode {
-        toolkitValue: Mode.GREEN
-    }
+    GREEN(Mode.GREEN),
 
     /**
      * The blue component of the bottom input is replaced with the
@@ -428,7 +388,12 @@ public class BlendMode {
      * 	<em>B<sub>r</sub></em> = <em>B<sub>top</sub></em>
      * </pre>
      */
-    public static attribute BLUE = BlendMode {
-        toolkitValue: Mode.BLUE
+    BLUE(Mode.BLUE);
+
+    Mode toolkitValue = Mode.SRC_OVER;
+
+    private BlendMode(Mode mode) {
+        toolkitValue = mode;
     }
+
 }
