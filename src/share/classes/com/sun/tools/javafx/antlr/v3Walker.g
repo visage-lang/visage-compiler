@@ -160,6 +160,7 @@ modifierFlag   returns [long flag, int pos]
 	:  BOUND          				{ $flag = JavafxFlags.BOUND; $pos = pos($BOUND); }
 	|  PUBLIC          				{ $flag = Flags.PUBLIC;      $pos = pos($PUBLIC); }
 	|  PRIVATE         				{ $flag = Flags.PRIVATE;     $pos = pos($PRIVATE); }
+	|  PACKAGE         				{ $flag = Flags.PUBLIC/*TODO:JavafxFlags.PACKAGE*/;     $pos = pos($PACKAGE); }
 	|  PROTECTED       				{ $flag = Flags.PROTECTED;   $pos = pos($PROTECTED); }
 	|  READABLE       				{ $flag = JavafxFlags.READABLE;   $pos = pos($READABLE); }
 	|  OVERRIDE       				{ $flag = JavafxFlags.OVERRIDE;   $pos = pos($OVERRIDE); }

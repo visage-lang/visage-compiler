@@ -583,6 +583,7 @@ accessModifier
 	:  PUBLIC          			
 	|  PRIVATE         			
 	|  PROTECTED       	
+	|  PACKAGE       	
 	;
 functionModifier 
 	:  ABSTRACT        			
