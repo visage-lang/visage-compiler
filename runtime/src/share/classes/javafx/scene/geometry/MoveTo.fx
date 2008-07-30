@@ -66,7 +66,7 @@ public class MoveTo extends PathElement {
      */     
     public attribute y:Number on replace { u(); }
 
-    function addTo(path2D:GeneralPath):Void {
+    override function addTo(path2D:GeneralPath):Void {
         if (absolute) {
             path2D.moveTo(x.floatValue(), y.floatValue());
         }

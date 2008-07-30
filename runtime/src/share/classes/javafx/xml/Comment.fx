@@ -45,7 +45,7 @@ public class Comment extends Node {
      * @see indent
      * @see doIndent
      */ 
-    public function serialize(writer:Writer,  depth:Integer):Void {
+    override function serialize(writer:Writer,  depth:Integer):Void {
         writer.write("{getIndent(depth)}<!--{value}-->\n");
         writer.flush();
     } 

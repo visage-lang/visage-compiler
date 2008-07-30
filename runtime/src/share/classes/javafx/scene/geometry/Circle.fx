@@ -55,7 +55,7 @@ public class Circle extends Shape {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_createSGNode():SGNode { new SGCircle() }
+    override function impl_createSGNode():SGNode { new SGCircle() }
 
     function getSGCircle():SGCircle { impl_getSGNode() as SGCircle }
 

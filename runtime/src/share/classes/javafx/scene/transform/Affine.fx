@@ -61,7 +61,7 @@ public class Affine extends Transform {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_getAffineTransform():AffineTransform {
+    override function impl_getAffineTransform():AffineTransform {
         new AffineTransform(m00, m01, m02, m10, m11, m12)
     }
 

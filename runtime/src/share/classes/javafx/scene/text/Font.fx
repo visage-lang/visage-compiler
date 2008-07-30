@@ -178,7 +178,7 @@ public /* final */ class Font {
      *
      * @profile common
      */          
-    public function toString(): String {
+    override function toString(): String {
         "{getClass().getName()}[name={name},style={style},size={size}]";
     }
 

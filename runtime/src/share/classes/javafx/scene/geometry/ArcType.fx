@@ -83,6 +83,6 @@ public class ArcType {
      *
      * @profile common
      */     
-    public function toString(): String { name }
+    override function toString(): String { name }
 
 }

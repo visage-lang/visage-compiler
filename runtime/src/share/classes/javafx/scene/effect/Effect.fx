@@ -60,7 +60,7 @@ class EffectAccessorImpl extends EffectAccessor {
         return accessor;
     }
 
-    public function getImpl(fxEffect:Object):com.sun.scenario.effect.Effect {
+    override function getImpl(fxEffect:Object):com.sun.scenario.effect.Effect {
         return (fxEffect as Effect).getImpl();
     }
 }

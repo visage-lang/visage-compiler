@@ -35,7 +35,7 @@ public class Source extends Effect {
         update();
     }
     
-    function getImpl():com.sun.scenario.effect.Effect {
+    override function getImpl():com.sun.scenario.effect.Effect {
         source
     };
     

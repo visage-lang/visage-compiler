@@ -112,7 +112,7 @@ public class CurveTo extends PathElement {
      *
      * @profile common
      */      
-    function addTo(path2D:GeneralPath):Void {
+    override function addTo(path2D:GeneralPath):Void {
         if (absolute) {
             path2D.curveTo(controlX1.floatValue(), controlY1.floatValue(), controlX2.floatValue(), 
             controlY2.floatValue(), x.floatValue(), y.floatValue());

@@ -43,7 +43,7 @@ public class Scale extends Transform {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_getAffineTransform():AffineTransform {
+    override function impl_getAffineTransform():AffineTransform {
         AffineTransform.getScaleInstance(x, y)
     }
 

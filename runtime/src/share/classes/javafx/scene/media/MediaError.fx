@@ -126,7 +126,7 @@ public class MediaError {
      */
     public attribute message:String;
 
-    function toString():String {
+    override function toString():String {
         return "MediaError: {errorString[cause]}:{message}";
     }
 };

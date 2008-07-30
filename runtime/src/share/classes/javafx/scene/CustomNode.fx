@@ -73,7 +73,7 @@ public abstract class CustomNode extends Node {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_createSGNode(): SGNode { 
+    override function impl_createSGNode(): SGNode { 
         var group:SGGroup = new SGGroup();
         return group;
     }

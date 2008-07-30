@@ -28,7 +28,7 @@ import javafx.scene.paint.Color;
 public class Shadow extends Effect {
     private attribute shadow = new com.sun.scenario.effect.Shadow();
 
-    function getImpl():com.sun.scenario.effect.Effect {
+    override function getImpl():com.sun.scenario.effect.Effect {
         shadow
     };
 

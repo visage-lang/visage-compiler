@@ -51,7 +51,7 @@ public class Ellipse extends Shape {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_createSGNode():SGNode { new SGEllipse() }
+    override function impl_createSGNode():SGNode { new SGEllipse() }
 
     //non-public
     function getSGEllipse():SGEllipse { impl_getSGNode() as SGEllipse }

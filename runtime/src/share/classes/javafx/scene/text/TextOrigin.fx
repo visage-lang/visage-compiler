@@ -75,6 +75,6 @@ public class TextOrigin {
     *
     * @profile common
     */
-    public function toString(): String { name }
+    override function toString(): String { name }
 
 }

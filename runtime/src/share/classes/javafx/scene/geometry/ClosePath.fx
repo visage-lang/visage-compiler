@@ -40,7 +40,7 @@ public class ClosePath extends PathElement {
      *
      * @profile common
      */        
-    function addTo(path2D:GeneralPath):Void {
+    override function addTo(path2D:GeneralPath):Void {
         path2D.closePath();
     }
 

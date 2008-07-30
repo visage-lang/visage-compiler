@@ -33,7 +33,7 @@ public class Blend extends Effect {
         new com.sun.scenario.effect.Source(true),
         new com.sun.scenario.effect.Source(true));
         
-    function getImpl():com.sun.scenario.effect.Effect {
+    override function getImpl():com.sun.scenario.effect.Effect {
         blend
     };
 

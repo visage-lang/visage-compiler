@@ -30,7 +30,7 @@ package javafx.scene.effect;
 public class ColorAdjust extends Effect {
     private attribute adjust = new com.sun.scenario.effect.ColorAdjust();
 
-    function getImpl():com.sun.scenario.effect.Effect {
+    override function getImpl():com.sun.scenario.effect.Effect {
         adjust
     };
 

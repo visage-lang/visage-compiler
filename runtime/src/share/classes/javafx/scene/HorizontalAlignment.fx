@@ -76,6 +76,6 @@ public class HorizontalAlignment {
      */
     public static attribute RIGHT = HorizontalAlignment { name: "RIGHT" }
 
-    public function toString(): String { name }
+    override function toString(): String { name }
 
 }

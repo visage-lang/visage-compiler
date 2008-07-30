@@ -60,6 +60,6 @@ public class VerticalAlignment {
      */
     public static attribute BOTTOM = VerticalAlignment { name: "BOTTOM" }
 
-    public function toString(): String { name }
+    override function toString(): String { name }
 
 }

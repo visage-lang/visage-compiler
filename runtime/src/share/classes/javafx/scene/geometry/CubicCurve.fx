@@ -52,7 +52,7 @@ public class CubicCurve extends Shape {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_createSGNode():SGNode { new SGCubicCurve() }
+    override function impl_createSGNode():SGNode { new SGCubicCurve() }
 
     function getSGCubicCurve():SGCubicCurve { impl_getSGNode() as SGCubicCurve }
 

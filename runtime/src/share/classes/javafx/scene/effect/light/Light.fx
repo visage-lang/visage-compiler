@@ -62,7 +62,7 @@ class LightAccessorImpl extends LightAccessor {
         return accessor;
     }
 
-    public function getImpl(fxLight:Object):com.sun.scenario.effect.light.Light {
+    override function getImpl(fxLight:Object):com.sun.scenario.effect.light.Light {
         return (fxLight as Light).getImpl();
     }
 }

@@ -51,7 +51,7 @@ public class Line extends Shape {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_createSGNode():SGNode { new SGLine() }
+    override function impl_createSGNode():SGNode { new SGLine() }
 
     function getSGLine():SGLine { impl_getSGNode() as SGLine }
     

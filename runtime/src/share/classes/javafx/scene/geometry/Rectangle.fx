@@ -60,7 +60,7 @@ public class Rectangle extends Shape {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_createSGNode():SGNode { new SGRectangle() }
+    override function impl_createSGNode():SGNode { new SGRectangle() }
 
     function getSGRectangle():SGRectangle { impl_getSGNode() as SGRectangle }
 

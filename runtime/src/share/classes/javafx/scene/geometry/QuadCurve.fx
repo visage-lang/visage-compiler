@@ -54,7 +54,7 @@ public class QuadCurve extends Shape {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_createSGNode():SGNode { new SGQuadCurve() }
+    override function impl_createSGNode():SGNode { new SGQuadCurve() }
 
     function getSGQuadCurve():SGQuadCurve { impl_getSGNode() as SGQuadCurve }
 

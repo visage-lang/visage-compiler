@@ -698,14 +698,14 @@ public /* final */ class Color extends Paint, Interpolatable {
      * <p class="editor">This method should not be public. It is an implementation detail.</p>
      * @needsreview
      */
-    public function getAWTPaint(): java.awt.Paint {
+    override function getAWTPaint(): java.awt.Paint {
         getAWTColor0();
     }
 
     /**
      * @treatasprivate implementation detail
      */
-    public function ofTheWay(endVal:Object, t:Number): Object {
+    override function ofTheWay(endVal:Object, t:Number): Object {
         var v2 = endVal as Color;
         Color {
             red:     red     + (v2.red     - red)     * t;
@@ -718,7 +718,7 @@ public /* final */ class Color extends Paint, Interpolatable {
     /**
      * @inheritDoc
      */
-    public function equals(obj: Object) : Boolean {
+    override function equals(obj: Object) : Boolean {
         if (FX.isSameObject(obj, this)) then return true;
         if (obj instanceof Color) {
             var other = obj as Color;
@@ -738,7 +738,7 @@ public /* final */ class Color extends Paint, Interpolatable {
      *
      * @profile common
      */        
-    public function toString(): String {
+    override function toString(): String {
         "{getClass().getName()}[red={red},green={green},blue={blue},opacity={opacity}]";
     }
 

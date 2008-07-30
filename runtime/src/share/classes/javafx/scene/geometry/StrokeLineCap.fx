@@ -73,6 +73,6 @@ public class StrokeLineCap {
 
     function getToolkitValue(): Integer { toolkitValue }
 
-    public function toString(): String { name }
+    override function toString(): String { name }
 
 }

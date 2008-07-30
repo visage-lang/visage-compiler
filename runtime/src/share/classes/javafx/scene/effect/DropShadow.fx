@@ -32,7 +32,7 @@ import javafx.scene.paint.Color;
 public class DropShadow extends Effect {
     private attribute shadow = new com.sun.scenario.effect.DropShadow();
 
-    function getImpl():com.sun.scenario.effect.Effect {
+    override function getImpl():com.sun.scenario.effect.Effect {
         shadow
     };
 

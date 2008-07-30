@@ -61,7 +61,7 @@ public class VLineTo extends PathElement {
      */ 
     public attribute y:Number on replace { u(); }
 
-    function addTo(path2D:GeneralPath):Void {
+    override function addTo(path2D:GeneralPath):Void {
         var cp = path2D.getCurrentPoint();
         if (absolute) {
             path2D.lineTo(cp.getX(), y);

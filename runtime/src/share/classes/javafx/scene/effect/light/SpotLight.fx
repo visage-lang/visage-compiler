@@ -29,7 +29,7 @@ package javafx.scene.effect.light;
  */
 public class SpotLight extends PointLight {
 
-    function createImpl():com.sun.scenario.effect.light.PointLight {
+    override function createImpl():com.sun.scenario.effect.light.PointLight {
         new com.sun.scenario.effect.light.SpotLight();
     }
 

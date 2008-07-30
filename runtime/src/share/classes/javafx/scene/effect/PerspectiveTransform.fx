@@ -44,7 +44,7 @@ public class PerspectiveTransform extends Effect {
                              llx.floatValue(), lly.floatValue());
     }
 
-    function getImpl():com.sun.scenario.effect.Effect {
+    override function getImpl():com.sun.scenario.effect.Effect {
         xform
     };
 

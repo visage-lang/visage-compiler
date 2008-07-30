@@ -36,7 +36,7 @@ public class ImageView extends Node {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_createSGNode():SGNode { new SGImage() }
+    override function impl_createSGNode():SGNode { new SGImage() }
 
     function getSGImage():SGImage { impl_getSGNode() as SGImage }
 

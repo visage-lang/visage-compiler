@@ -48,7 +48,7 @@ public class Translate extends Transform {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_getAffineTransform():AffineTransform {
+    override function impl_getAffineTransform():AffineTransform {
         AffineTransform.getTranslateInstance(x, y)
     }
 

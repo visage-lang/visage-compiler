@@ -398,7 +398,7 @@ public class Document {
      * @see #encoding
      * @see #standalone
      */
-    public function toString():String {
+    override function toString():String {
         var writer = new StringWriter();
         serialize(writer);
         return writer.toString();

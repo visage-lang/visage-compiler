@@ -49,7 +49,7 @@ public class Rotate extends Transform {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_getAffineTransform():AffineTransform {
+    override function impl_getAffineTransform():AffineTransform {
         AffineTransform.getRotateInstance(Math.toRadians(angle), x, y);
     }
 

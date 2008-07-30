@@ -54,7 +54,7 @@ public class Group extends Node {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_createSGNode(): SGNode { new SGGroup() }
+    override function impl_createSGNode(): SGNode { new SGGroup() }
 
     function getSGGroup(): SGGroup { impl_getSGNode() as SGGroup }
 

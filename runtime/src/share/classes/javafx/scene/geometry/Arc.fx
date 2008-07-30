@@ -60,7 +60,7 @@ public class Arc extends Shape {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_createSGNode():SGNode { new SGArc() }
+    override function impl_createSGNode():SGNode { new SGArc() }
 
     function getSGArc():SGArc { impl_getSGNode() as SGArc }
     

@@ -150,7 +150,7 @@ public class MediaView extends Node {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_createSGNode() : SGNode {
+    override function impl_createSGNode() : SGNode {
         sgc = new SGComponent();
         setComponent();
         return sgc;

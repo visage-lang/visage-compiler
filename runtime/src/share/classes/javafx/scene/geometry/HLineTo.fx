@@ -59,7 +59,7 @@ public class HLineTo extends PathElement {
      */ 
     public attribute x:Number on replace { u(); }
 
-    function addTo(path2D:GeneralPath):Void {
+    override function addTo(path2D:GeneralPath):Void {
         var cp = path2D.getCurrentPoint();
         if (absolute) {
             path2D.lineTo(x, cp.getY());

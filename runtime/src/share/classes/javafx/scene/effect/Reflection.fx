@@ -30,7 +30,7 @@ package javafx.scene.effect;
 public class Reflection extends Effect {
     private attribute reflect = new com.sun.scenario.effect.Reflection();
 
-    function getImpl():com.sun.scenario.effect.Effect {
+    override function getImpl():com.sun.scenario.effect.Effect {
         reflect
     };
 

@@ -98,7 +98,7 @@ public class LinearGradient extends Paint {
     /**
      * Returns the {@code java.awt.Paint} delegate for this {@code LinearGradient}.  
      */
-    public function getAWTPaint(): java.awt.Paint { 
+    override function getAWTPaint(): java.awt.Paint { 
         if (sizeof stops > 1) createPaint() else null
     }
 

@@ -30,7 +30,7 @@ package javafx.scene.effect;
 public class Glow extends Effect {
     private attribute glow = new com.sun.scenario.effect.Glow();
 
-    function getImpl():com.sun.scenario.effect.Effect {
+    override function getImpl():com.sun.scenario.effect.Effect {
         glow
     };
 

@@ -46,7 +46,7 @@ public class ShapeIntersect extends Shape {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_createSGNode():SGNode { new SGShape() }
+    override function impl_createSGNode():SGNode { new SGShape() }
 
     function getSGShape():SGShape { impl_getSGNode() as SGShape }
 

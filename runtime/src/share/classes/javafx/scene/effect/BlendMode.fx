@@ -34,7 +34,7 @@ import com.sun.scenario.effect.Blend.Mode;
 public class BlendMode {
     attribute toolkitValue: Mode = Mode.SRC_OVER;
     
-    public function toString() : String {
+    override function toString() : String {
         toolkitValue.toString()
     }
 

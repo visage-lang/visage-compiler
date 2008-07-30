@@ -69,7 +69,7 @@ public class ArcTo extends PathElement {
     // original port of the F3 graphics/UI library: 
     // javafx.ui.canvas.ArcTo#addTo
 
-    function addTo(gp:GeneralPath):Void { 
+    override function addTo(gp:GeneralPath):Void { 
 
         // Determine current start position
         var currentPoint = gp.getCurrentPoint();

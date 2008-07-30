@@ -43,7 +43,7 @@ public class Attribute extends Node {
      * @param writer the java.io.Writer that will receive the formated xml.
      * @param depth the depth of this node in the tree being serialized
      */  
-    public function serialize(writer:Writer, depth:Integer):Void {
+    override function serialize(writer:Writer, depth:Integer):Void {
         writer.write('{name}="{value}"');
         writer.flush();
     } 

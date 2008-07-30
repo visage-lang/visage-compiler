@@ -316,7 +316,7 @@ public class Image {
             var w:Number = width;
             var h:Number = height;
             var s:Number = size;
-            public function doInBackground():java.lang.Object {
+            override function doInBackground():java.lang.Object {
                 reader = findImageReader(new URL(url));
                 if (reader != null) {
                     // reader.addIIOReadProgressListener(createProgressListener());
@@ -327,7 +327,7 @@ public class Image {
                     return null;
                 }
             }
-            protected function succeeded(image:java.lang.Object):Void {
+            override function succeeded(image:java.lang.Object):Void {
                 bufferedImage = image as BufferedImage;
                 syncSizeAttributes();
                 progress = 100;
@@ -337,9 +337,9 @@ public class Image {
                     reader.abort();
                 }
             }
-            protected function interrupted(e:InterruptedException):Void { abort(); }
-            protected function cancelled():Void { abort(); }
-            protected function finished():Void { 
+            override function interrupted(e:InterruptedException):Void { abort(); }
+            override function cancelled():Void { abort(); }
+            override function finished():Void { 
                 reader = null;
                 loadImageTask = null;
             }
@@ -349,17 +349,17 @@ public class Image {
             private function createProgressListener():IIOReadProgressListener {
                 IIOReadProgressListener {
                     // see http://openjfx.java.sun.com/jira/browse/JFXC-644
-                    public function imageProgress(r:ImageReader, percentageDone):Void {
+                    override function imageProgress(r:ImageReader, percentageDone):Void {
                         updateProgress(percentageDone);
                     }
-                    public function imageStarted(r:ImageReader, imageIndex:Integer):Void { }
-                    public function imageComplete(r:ImageReader):Void { }
-                    public function readAborted(r:ImageReader):Void { }
-                    public function sequenceStarted(r:ImageReader, minIndex:Integer):Void { }
-                    public function sequenceComplete(r:ImageReader):Void { }
-                    public function thumbnailStarted(r:ImageReader, imageIndex:Integer, thumbIndex:Integer):Void { }
-                    public function thumbnailProgress(r:ImageReader, percentageDone):Void { }
-                    public function thumbnailComplete(r:ImageReader):Void { }
+                    override function imageStarted(r:ImageReader, imageIndex:Integer):Void { }
+                    override function imageComplete(r:ImageReader):Void { }
+                    override function readAborted(r:ImageReader):Void { }
+                    override function sequenceStarted(r:ImageReader, minIndex:Integer):Void { }
+                    override function sequenceComplete(r:ImageReader):Void { }
+                    override function thumbnailStarted(r:ImageReader, imageIndex:Integer, thumbIndex:Integer):Void { }
+                    override function thumbnailProgress(r:ImageReader, percentageDone):Void { }
+                    override function thumbnailComplete(r:ImageReader):Void { }
                 }
             }
         }

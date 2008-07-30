@@ -205,7 +205,7 @@ public abstract class Shape extends Node, Interpolatable {
     /**
      * @treatasprivate implementation detail
      */
-    public function ofTheWay(endVal:Object, t:Number): Object {
+    override function ofTheWay(endVal:Object, t:Number): Object {
         if (morphEvaluator == null) {
             morphEvaluator = ShapeEvaluator {};
         }

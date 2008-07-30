@@ -71,7 +71,7 @@ public class RadialGradient extends Paint {
     /**
      * Returns the {java.awt.Paint} delegate for this {@code RadialGradient}.  
      */
-    public function getAWTPaint(): java.awt.Paint { 
+    override function getAWTPaint(): java.awt.Paint { 
         if (sizeof stops > 1) createPaint() else null
     }
 

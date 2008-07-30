@@ -53,7 +53,7 @@ public class FXNamespaceContext extends  NamespaceContext {
      * @return the URI
      * @see javax.xml.namespace.NamespaceContext#getNamespaceURI
      */
-    public function getNamespaceURI(prefix:String):String {
+    override function getNamespaceURI(prefix:String):String {
         if(prefix == null) {
             throw new IllegalArgumentException("prefix cannot be null");
         }
@@ -66,7 +66,7 @@ public class FXNamespaceContext extends  NamespaceContext {
      * @return the prefix
      * @see javax.xml.namespace.NamespaceContext#getPrefix(String)
      */
-    public function getPrefix( uri:String ):String  {
+    override function getPrefix( uri:String ):String  {
         if(uri == null) {
             throw new IllegalArgumentException("uri cannot be null");
         }
@@ -79,7 +79,7 @@ public class FXNamespaceContext extends  NamespaceContext {
      * @return an iterator for the prefixes
      * @see javax.xml.namespace.NamespaceContext#getPrefixes(String)
      */
-    public function getPrefixes(uri:String):Iterator {
+    override function getPrefixes(uri:String):Iterator {
         if(uri == null) {
             throw new IllegalArgumentException("uri cannot be null");
         }

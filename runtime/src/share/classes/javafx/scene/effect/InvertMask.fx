@@ -30,7 +30,7 @@ package javafx.scene.effect;
 public class InvertMask extends Effect {
     private attribute invert = new com.sun.scenario.effect.InvertMask();
 
-    function getImpl():com.sun.scenario.effect.Effect {
+    override function getImpl():com.sun.scenario.effect.Effect {
         invert
     };
 

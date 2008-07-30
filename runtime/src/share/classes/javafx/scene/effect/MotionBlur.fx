@@ -30,7 +30,7 @@ package javafx.scene.effect;
 public class MotionBlur extends Effect {
     private attribute blur = new com.sun.scenario.effect.MotionBlur();
 
-    function getImpl():com.sun.scenario.effect.Effect {
+    override function getImpl():com.sun.scenario.effect.Effect {
         blur
     };
 

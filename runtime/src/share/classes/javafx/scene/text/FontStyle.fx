@@ -74,7 +74,7 @@ public /* final */ class FontStyle {
      *
      * @profile common
      */      
-    public function toString(): String {
+    override function toString(): String {
         name;
     }
 

@@ -196,7 +196,7 @@ public class Element extends Node {
      * set the associated properties from the dom Node
      * @param domNode the dom node
      */    
-    protected function setDomNode(domNode:org.w3c.dom.Node):Void {
+    override function setDomNode(domNode:org.w3c.dom.Node):Void {
         //delete attributes;
         super.setDomNode(domNode);
         
@@ -218,7 +218,7 @@ public class Element extends Node {
      * @see indent
      * @see doIndent
      */  
-    public function serialize(writer:Writer, depth:Integer):Void {
+    override function serialize(writer:Writer, depth:Integer):Void {
         var indent:String = getIndent(depth);
         writer.write("{indent}<{name}");
         for(a in attributes) {
@@ -235,7 +235,7 @@ public class Element extends Node {
         writer.write("</{name}>\n");
         writer.flush();
     }
-    protected function initDomNode():Void {
+    override function initDomNode():Void {
         super.initDomNode();
         if(domNode != null) {
             var elem = domNode as org.w3c.dom.Element;

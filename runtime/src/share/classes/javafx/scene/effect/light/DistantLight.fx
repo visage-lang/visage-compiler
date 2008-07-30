@@ -30,7 +30,7 @@ public class DistantLight extends Light {
 
     private attribute distant = new com.sun.scenario.effect.light.DistantLight();
 
-    function getImpl():com.sun.scenario.effect.light.Light {
+    override function getImpl():com.sun.scenario.effect.light.Light {
         distant
     }
 

@@ -39,7 +39,7 @@ public class Text extends Shape {
     /**
      * @treatasprivate implementation detail
      */
-    public function impl_createSGNode():SGNode { new SGText() }
+    override function impl_createSGNode():SGNode { new SGText() }
 
     function getSGText():SGText { impl_getSGNode() as SGText }
 
