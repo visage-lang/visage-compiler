@@ -57,7 +57,7 @@ public class MySplitPane extends Component{
 
 
 
-    protected function createJComponent(): JComponent {
+    override function createJComponent(): JComponent {
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setResizeWeight(0.7);
 

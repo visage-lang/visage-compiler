@@ -61,7 +61,7 @@ public class MyTabbedPane extends Component{
     };
 
 
-    protected function createJComponent(): JComponent {
+    override function createJComponent(): JComponent {
         tabbedPane = new JTabbedPane();
         
         var panel = new JPanel(new BorderLayout());
@@ -69,7 +69,7 @@ public class MyTabbedPane extends Component{
         
 
         var listener = javax.swing.event.ChangeListener{
-            public function stateChanged(e: javax.swing.event.ChangeEvent){
+            override function stateChanged(e: javax.swing.event.ChangeEvent){
                 //System.out.println("\n\n[tabbed pane] <state changed> index: {selectedIndex} -> {tabbedPane.getSelectedIndex()  - 1}");
                 updateComponentField(tabbedPane.getSelectedIndex()); 
             } 

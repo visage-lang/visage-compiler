@@ -16,7 +16,7 @@ import javafx.scene.text.*;
 
 class ChargingAndBatteries extends CustomNode {
     
-    function create():Node {
+    override function create():Node {
         return Group {
             content:
             [ImageView {

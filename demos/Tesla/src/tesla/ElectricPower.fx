@@ -18,7 +18,7 @@ import javafx.scene.text.*;
 class ElectricPower extends CustomNode {
     attribute textContent: Node;
     
-    function create():Node {
+    override function create():Node {
         return Group {
             content:
             [ImageView {

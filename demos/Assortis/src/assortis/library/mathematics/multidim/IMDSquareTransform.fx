@@ -8,8 +8,8 @@ package assortis.library.mathematics.multidim;
 
      public abstract function getDim ():Integer; 
      
-     public function getDimN ():Integer { getDim() } 
-     public function getDimM ():Integer { getDim() } 
+     override function getDimN ():Integer { getDim() } 
+     override function getDimM ():Integer { getDim() } 
      
-     public abstract function transform (vector: IMDVector):IMDVector; 
+     public abstract function transform (vector: IMDVector):IMDVector;
 }

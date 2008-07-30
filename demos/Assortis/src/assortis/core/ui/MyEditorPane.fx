@@ -39,12 +39,12 @@ public class MyEditorPane extends Component{
             updateComponentFlag = false;
     }
 
-    protected function createJComponent(): JComponent {
+    override function createJComponent(): JComponent {
         editorPane = new JEditorPane();
         editorPane.setEditable(editable);
 
         var keyListener = KeyAdapter{
-            public function keyReleased(e: java.awt.event.KeyEvent) {
+            override function keyReleased(e: java.awt.event.KeyEvent) {
                 updateComponentField();
                 if(onKeyUp != null){onKeyUp(KeyEvent{}); }
             }

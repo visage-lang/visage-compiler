@@ -17,7 +17,7 @@ import javafx.input.*;
 
 public class TeslaTab2 extends TeslaTab {
     
-    function create():Node {
+    override function create():Node {
         return Group {
             content:
             [rect = Rectangle {

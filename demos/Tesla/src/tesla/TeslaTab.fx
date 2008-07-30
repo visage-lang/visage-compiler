@@ -28,7 +28,7 @@ public class TeslaTab extends CustomNode {
     
     
     
-    function create():Node {
+    override function create():Node {
         Group  {
             content:
             [ImageView {

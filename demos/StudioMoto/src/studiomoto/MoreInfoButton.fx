@@ -9,7 +9,7 @@ import javafx.ext.swing.*;
 public class MoreInfoButton extends CustomNode {
     attribute action: function();
 
-    function create():Node {
+    override function create():Node {
         Group {
             cursor: Cursor.HAND
             onMouseClicked: function(e) {if(action != null) action();}

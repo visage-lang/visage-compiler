@@ -89,19 +89,19 @@ public class MyInternalFrame extends Component{
 //    }
     
     
-    protected function createJComponent(): JComponent {
+    override function createJComponent(): JComponent {
         internalFrame = new JInternalFrame();
         internalFrame.setResizable(true);
         internalFrame.setClosable(true);
         
         
         var listener = javax.swing.event.InternalFrameAdapter {
-            public function internalFrameActivated(e:javax.swing.event.InternalFrameEvent):Void {
+            override function internalFrameActivated(e:javax.swing.event.InternalFrameEvent):Void {
                 //System.out.println("\n\n[internal frame] frame: {title} - activated()");
                 selected = true;
             }
 
-            public function internalFrameClosing(e: javax.swing.event.InternalFrameEvent):Void {
+            override function internalFrameClosing(e: javax.swing.event.InternalFrameEvent):Void {
                 if(onClose != null) {
                     onClose();
                 }

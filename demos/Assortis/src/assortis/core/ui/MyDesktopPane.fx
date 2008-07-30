@@ -29,7 +29,7 @@ public class MyDesktopPane extends Component {
         
     };
     
-    protected function createJComponent(): JComponent {
+    override function createJComponent(): JComponent {
         desktopPane = new JDesktopPane();
         return desktopPane;
     }

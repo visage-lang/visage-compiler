@@ -182,7 +182,7 @@ public class MotoProducts extends MotoPanel {
               ]
     };
 
-    function doIntro(){
+    override function doIntro(){
         productVisible = false;
 
         consoleY = -200;

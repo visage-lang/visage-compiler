@@ -95,7 +95,7 @@ public class SplitPane extends Component, Container {
     };
     
     
-    protected /* final */ function createJComponent(): JComponent {
+    /* final */override function createJComponent(): JComponent {
     
         var pane = new JXMultiSplitPane();
         pane.setOpaque(false);
@@ -105,7 +105,7 @@ public class SplitPane extends Component, Container {
     /**
      * {@inheritDoc}
      */
-    protected /* final */ function remove(component: Component): Void {
+    /* final */ override function remove(component: Component): Void {
         // PENDING(shannonh) - what I really want here is a deleteByIdentity operator
         // http://openjfx.java.sun.com/jira/browse/JFXC-1005
         var indices = for (c in content where FX.isSameObject(c.component, component)) indexof c;

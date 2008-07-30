@@ -112,7 +112,7 @@ with painted film, rear wheels, mirrors, wiper, windscreen, and headlights."
     }];
     
     
-    function create():Node {
+    override function create():Node {
         return Group {
             content:
             [Group {

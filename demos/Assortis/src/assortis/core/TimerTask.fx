@@ -15,5 +15,5 @@ public class TimerTask {
     attribute time: Number;
     attribute action: function();
     
-    public function toString () {  name } 
+    override function toString () {  name } 
 }

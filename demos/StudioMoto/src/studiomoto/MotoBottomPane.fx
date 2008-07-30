@@ -21,13 +21,13 @@ public class MotoBottomPane extends Intro {
                 }
         }
     };
-    function doIntro() {
+    override function doIntro() {
         selectedPanel.opacity = 1;
         //System.out.println("CALL INTRO { selection }");
         selectedPanel.doIntro();
     }
 
-    function create():Node {
+    override function create():Node {
         Group {
             content: bind selectedPanel
         };

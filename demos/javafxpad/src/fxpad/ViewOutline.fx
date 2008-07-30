@@ -74,7 +74,7 @@ class ViewOutline extends CustomNode {
     attribute view: Component;
     attribute viewHolder: ComponentView;
     
-    public function create(): Node {
+    override function create(): Node {
         var transparentFill = Color.TRANSPARENT;
         var strokeColor = Color.color(0.0, 0.0, 1.0, 0.5);
         var outlineDash:Number[] = [];

@@ -117,7 +117,7 @@ public class GuitarPicks extends Intro {
         ]
     };
 
-    function create() : Node {
+    override function create() : Node {
         Group {
             content:  
             [ImageView {
@@ -128,7 +128,7 @@ public class GuitarPicks extends Intro {
         };
     }
 
-    function doIntro() {
+    override function doIntro() {
         introAnim.start();
     }
 }

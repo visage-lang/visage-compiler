@@ -57,7 +57,7 @@ public class MusicPanels extends CustomNode {
  
     
     
-    function create():Node {
+    override function create():Node {
         Group {
             effect: bind glow
             opacity: bind alpha

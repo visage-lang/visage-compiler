@@ -15,7 +15,7 @@ import javafx.scene.paint.*;
 import javafx.scene.text.*;
 
 class PerformanceSpecs extends CustomNode {
-    function create():Node {
+    override function create():Node {
         return Group {
             content:
             [ImageView {

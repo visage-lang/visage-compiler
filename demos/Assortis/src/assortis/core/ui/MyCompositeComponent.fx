@@ -24,7 +24,7 @@ public abstract class MyCompositeComponent extends Component{
     
     public abstract function composeComponent(): Component;        
     
-    protected function createJComponent(): JComponent {
+    override function createJComponent(): JComponent {
         var panel = new JPanel(new BorderLayout());
         panel.add (composeComponent().getJComponent(), BorderLayout.CENTER);
         return panel;

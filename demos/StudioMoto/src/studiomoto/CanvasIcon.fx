@@ -14,7 +14,7 @@ import com.sun.scenario.scenegraph.JSGPanel;
  */
 
 public class CanvasIcon extends Canvas, Icon {
-    public function getToolkitIcon():javax.swing.Icon { 
+    override function getToolkitIcon():javax.swing.Icon { 
         return getJSGPanel().toIcon(); 
     }
     

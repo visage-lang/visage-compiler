@@ -48,7 +48,7 @@ class CloseButton extends CustomNode {
     attribute pressHover: Boolean = bind pressed and group.isMouseOver();
     attribute gfill:Paint = bind if(group.isMouseOver()) then Color.GRAY else Color.color(.7, .7, .7, 1.0);
     attribute gstroke:Paint = bind if (pressHover) then Color.color(.8, .8, .8, 1) else Color.WHITE;
-    public function create(): Node {
+    override function create(): Node {
         group = Group {
             var r = 6;
             content: [
@@ -101,7 +101,7 @@ class SearchField  extends CustomNode {
             blue: Color.DODGERBLUE.blue
             opacity: 0.8 };
     
-    public function create(): Node {
+    override function create(): Node {
        var self = this;
        var group =  Group {
             content:
@@ -142,7 +142,7 @@ class SearchField  extends CustomNode {
          // WorkAround for onKeyDown function
          var tf = textField.getJTextField();
          tf.addKeyListener(KeyAdapter {
-             public function keyPressed(e:KeyEvent):Void {
+             override function keyPressed(e:KeyEvent):Void {
                    if (e.getKeyCode() == KeyEvent.VK_ESCAPE ) {
                         if(cancel != null) 
                             cancel();
@@ -176,7 +176,7 @@ class SearchButton extends CustomNode {
                     }]
                 };    
     
-    public function create(): Node {
+    override function create(): Node {
         var self = this;
         Group {
             var content = HBox {
@@ -241,7 +241,7 @@ public class SearchPanel extends CustomNode {
             searchField.requestFocus();
         }
     }
-    public function create(): Node {
+    override function create(): Node {
        
         var self = this;
         searchField = SearchField {

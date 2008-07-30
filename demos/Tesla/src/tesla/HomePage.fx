@@ -19,7 +19,7 @@ class HomeSectionView extends CustomNode {
     attribute imageUrl: String;
     attribute text: String;
     
-    function create():Node {
+    override function create():Node {
         return Group {
             content:
             [Rectangle {

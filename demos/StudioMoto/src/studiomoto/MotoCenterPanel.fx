@@ -86,7 +86,7 @@ public class MotoCenterPanel extends CustomNode {
         }
     };  
 
-    function create():Node {
+    override function create():Node {
 
             Group {
                 content:

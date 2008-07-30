@@ -45,7 +45,7 @@ public class Arrow extends CustomNode {
     };
     
     
-    function create():Node {
+    override function create():Node {
         return Group {
             transform: if (left) then Transform.rotate(180, arrowShape.getWidth()/2, arrowShape.getHeight()/2) else null
             content: bind arrowShape

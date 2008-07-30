@@ -20,7 +20,7 @@ import com.sun.scenario.scenegraph.JSGPanel;
 public class Pattern extends Canvas, Paint {
      private attribute texturePaint: TexturePaint;
      
-    public function getAWTPaint(): java.awt.Paint {
+    override function getAWTPaint(): java.awt.Paint {
     	makeTexture();
         if (texturePaint == null) {
             return java.awt.Color.BLACK;

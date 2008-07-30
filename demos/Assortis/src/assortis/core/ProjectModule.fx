@@ -23,6 +23,6 @@ public class ProjectModule {
         }
     }
 
-    public function toString ():String { name } 
+    override function toString ():String { name } 
 
 }

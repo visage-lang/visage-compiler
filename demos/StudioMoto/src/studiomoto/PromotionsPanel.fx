@@ -8,7 +8,7 @@ import javafx.scene.paint.*;
 import javafx.ext.swing.*;
 
 public class PromotionsPanel extends CustomNode {
-    function create():Node {
+    override function create():Node {
         Group {
             content:
             [VBox {

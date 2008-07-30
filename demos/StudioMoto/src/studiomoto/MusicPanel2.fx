@@ -13,7 +13,7 @@ import javafx.lang.Duration;
 
 public class MusicPanel2 extends CustomNode {
     attribute softY: Number;
-    function create():Node {
+    override function create():Node {
         Group {
             clip: Rectangle {height: 160, width: 220}
             content:

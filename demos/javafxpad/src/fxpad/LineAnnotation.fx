@@ -39,31 +39,31 @@ public class LineAnnotation {
     function getAn(): FXTextArea.LineAnnotation {
         if (an == null) {
             an = FXTextArea.LineAnnotation {
-                function getLine():Integer {
+                override function getLine():Integer {
                     return line;
                 }
-                function getColumn():Integer {
+                override function getColumn():Integer {
                     return column;
                 }
-                function getLength():Integer {
+                override function getLength():Integer {
                     return length;
                 }
-                function getToolTipText():String {
+                override function getToolTipText():String {
                     return toolTipText;
                 }
-                function setBounds(x:Integer, y:Integer, w:Integer, h:Integer) {
+                override function setBounds(x:Integer, y:Integer, w:Integer, h:Integer) {
                     currentX = x;
                     currentY = y;
                     currentWidth = w;
                     currentHeight = h;
                 }
-                function getComponent():java.awt.Component {
+                override function getComponent():java.awt.Component {
                      return content.getJComponent() as java.awt.Component;
                 }
-                function addChangeListener(l:ChangeListener):Void {
+                override function addChangeListener(l:ChangeListener):Void {
                     insert l into changeListeners;
                 }
-                function removeChangeListener(l:ChangeListener):Void {
+                override function removeChangeListener(l:ChangeListener):Void {
                     delete l from changeListeners;
                 }
             };

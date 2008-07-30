@@ -78,7 +78,7 @@ public class RootPane extends Component, Container {
      *
      * @param component the {@code Component} to remove
      */
-    protected function remove(component: Component): Void {
+    override function remove(component: Component): Void {
         if (FX.isSameObject(content, component)) {
              content = null;
         }        
@@ -90,7 +90,7 @@ public class RootPane extends Component, Container {
      *
      * @return this {@code Container's} parent or {@code null}
      */
-    public bound function getParent(): Container {
+    override bound function getParent(): Container {
         null;
     }
 
@@ -100,7 +100,7 @@ public class RootPane extends Component, Container {
      * 
      * @return this {@code Container's} name or {@code null}
      */
-    public bound function getName(): String {
+    override bound function getName(): String {
         return null;
     }
     
@@ -122,7 +122,7 @@ public class RootPane extends Component, Container {
         }
     }    
 
-    public function createJComponent():javax.swing.JComponent {
+    override function createJComponent():javax.swing.JComponent {
         new javax.swing.JRootPane();
     }
     

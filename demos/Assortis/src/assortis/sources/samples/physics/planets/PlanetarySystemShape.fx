@@ -10,7 +10,7 @@ public class PlanetarySystemShape extends CustomNode{
     attribute planetarySystem: PlanetarySystem;
     attribute scale: Scale;
 
-function create():Node{
+override function create():Node{
     return Group{
         content: [
          Group{

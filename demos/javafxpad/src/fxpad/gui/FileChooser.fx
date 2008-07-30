@@ -52,7 +52,7 @@ public class FileChooser extends Component {
         getJComponent() as JFileChooser;
     }
 
-    protected /* final */ function createJComponent(): JComponent {
+    /* final */ override function createJComponent(): JComponent {
         createJFileChooser();
     }
 

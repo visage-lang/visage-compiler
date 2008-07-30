@@ -20,7 +20,7 @@ class ColorButton extends CustomNode {
     attribute selector: ColorSelector;
     attribute selected: Boolean = bind selector.selectedColor == color;
     
-    function create():Node {
+    override function create():Node {
         return Group {
             content: [
                 Rectangle {height: 31, width: 33, stroke: Color.TRANSPARENT},
@@ -157,7 +157,7 @@ public class ColorSelector extends CustomNode {
     
     
     
-    function create():Node {
+    override function create():Node {
         return Group {
             content:
             [ComponentView {

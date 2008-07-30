@@ -21,7 +21,7 @@ class CalcButton extends CustomNode {
     attribute action: function():Void;
     override attribute blocksMouse = true;
     
-    public function create(): Node {
+    override function create(): Node {
         ImageView {
             onMousePressed: function(e:MouseEvent):Void  {
                 pressed = true
@@ -129,7 +129,7 @@ public class Calculator extends CustomNode {
         }    
     }
 
-    public function create(): Node {
+    override function create(): Node {
         var bottom = 191;
         var left = 16;
         var sz = 38;

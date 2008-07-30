@@ -47,7 +47,7 @@ public class LineNumberPanel extends Component {
     public function getLineNumberPanel(): LineNumberPanelImpl {
         return getJComponent() as LineNumberPanelImpl;
     }
-    public function createJComponent() : javax.swing.JComponent {
+    override function createJComponent() : javax.swing.JComponent {
         panel = new LineNumberPanelImpl();
     }
 

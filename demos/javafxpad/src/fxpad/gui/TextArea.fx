@@ -178,7 +178,7 @@ public class TextArea extends Component {
         var jTextArea = getJTextArea();
 
         jTextArea.addPropertyChangeListener(PropertyChangeListener {
-            public function propertyChange(e: PropertyChangeEvent): Void {
+            override function propertyChange(e: PropertyChangeEvent): Void {
                 if (ignoreJComponentChangeXX) {
                     return;
                 }
@@ -217,21 +217,21 @@ public class TextArea extends Component {
                 text = jTextArea.getText();
             }
 
-            public function insertUpdate(e: DocumentEvent): Void { ut(); }
-            public function removeUpdate(e: DocumentEvent): Void { ut(); }
-            public function changedUpdate(e: DocumentEvent): Void { ut(); }
+            override function insertUpdate(e: DocumentEvent): Void { ut(); }
+            override function removeUpdate(e: DocumentEvent): Void { ut(); }
+            override function changedUpdate(e: DocumentEvent): Void { ut(); }
         });
 
         jTextArea.addCaretListener(CaretListener {
-            public function caretUpdate(e: CaretEvent): Void {
+            override function caretUpdate(e: CaretEvent): Void {
                 selectionStart = jTextArea.getSelectionStart();
                 selectionEnd = jTextArea.getSelectionEnd();
             }
         });
 
         jTextArea.addFocusListener(FocusListener {
-            public function focusLost(e: FocusEvent): Void {}
-            public function focusGained(e: FocusEvent): Void {
+            override function focusLost(e: FocusEvent): Void {}
+            override function focusGained(e: FocusEvent): Void {
                  if (selectOnFocus) {
                      selectAll();
                  }
@@ -242,7 +242,7 @@ public class TextArea extends Component {
         // InputVerifier.verify method name
         var v = bind verify;
         jTextArea.setInputVerifier(InputVerifier {
-            public function verify(c: JComponent): Boolean {
+            override function verify(c: JComponent): Boolean {
                 if (v != null) v(text) else true;
             }
         });
@@ -264,7 +264,7 @@ public class TextArea extends Component {
     /**
      * Creates the {@code JComponent} delegate for this component.
      */
-    protected /* final */ function createJComponent(): JComponent {
+    /* final */ override function createJComponent(): JComponent {
         new JTextAreaImpl();
     }
 

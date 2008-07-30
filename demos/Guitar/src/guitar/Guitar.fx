@@ -41,7 +41,7 @@ public class Guitar extends CustomNode {
         string.audioClip.stop();
         string.audioClip.play();
     }
-    public function create(): Node {
+    override function create(): Node {
         var self = this;
         Group {
             onMouseDragged: function(e:MouseEvent):Void {

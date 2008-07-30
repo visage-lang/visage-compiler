@@ -98,7 +98,7 @@ class StudioMotoSplash extends CustomNode {
       };
 
     
-    function create():Node {
+    override function create():Node {
         Group {
             content:
             [Rectangle {

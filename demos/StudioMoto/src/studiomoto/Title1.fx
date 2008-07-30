@@ -12,7 +12,7 @@ import javafx.animation.*;
 
 class LabelWrapper extends CustomNode {
     public attribute label:Node;
-    public function create():Node {
+    override function create():Node {
         label;
     }
 }
@@ -81,7 +81,7 @@ public class Title1 extends CustomNode {
     };
 
     attribute title = this;
-    function create():Node {
+    override function create():Node {
         power = LabelWrapper { 
             label:label3
             transform: bind Transform.translate(1, -power.getHeight() + powerY)

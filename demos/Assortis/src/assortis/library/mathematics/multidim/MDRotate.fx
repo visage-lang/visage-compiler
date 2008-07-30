@@ -18,9 +18,9 @@ public class MDRotate extends IMDSquareTransform{
     public attribute axisM:Number ;
     
     
-    public function getDim ():Integer { dim }; 
+    override function getDim ():Integer { dim }; 
     
-    public function transform (vector:IMDVector):IMDVector {
+    override function transform (vector:IMDVector):IMDVector {
         //System.out.println("[rotate] vector: {vector}");
         var res:Number[];
         
@@ -48,6 +48,6 @@ public class MDRotate extends IMDSquareTransform{
         //return vector;
     } 
     
-    public function toString ():String { "MDRotate\{ dim: {dim}, angle: {angle} \}"  } 
+    override function toString ():String { "MDRotate\{ dim: {dim}, angle: {angle} \}"  } 
 
 }

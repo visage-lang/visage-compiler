@@ -13,14 +13,14 @@ public class MDMatrix extends IMDMatrix{
     
     public attribute elems:Number[] ;
     
-    public function getDimN ():Integer{ dimN } 
-    public function getDimM ():Integer{ dimM }
+    override function getDimN ():Integer{ dimN } 
+    override function getDimM ():Integer{ dimM }
 
-    public function getElem (n:Integer, m: Integer):Number {
+    override function getElem (n:Integer, m: Integer):Number {
         return elems[dimM * n + m ];
     } 
 
-    public function mul (vector:IMDVector):IMDVector {
+    override function mul (vector:IMDVector):IMDVector {
         
         var result = MDVector{};
         

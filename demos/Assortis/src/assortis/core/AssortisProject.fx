@@ -272,7 +272,7 @@ public class AssortisProject  extends MyCompositeComponent{
         if(debug){ System.out.println("[assortis] {text}");}
     }
     
-    public function composeComponent(): Component{
+    override function composeComponent(): Component{
         return BorderPanel{
         center: MySplitPane {
             weight: 0.2

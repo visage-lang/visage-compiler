@@ -162,11 +162,11 @@ public class JavaFXPad extends Component {
     postinit {
         var comp = canvas.getJComponent();
         comp.addMouseMotionListener(MouseMotionListener {
-            public function mouseDragged(e: MouseEvent) : Void {
+            override function mouseDragged(e: MouseEvent) : Void {
                 mouseX = 1/(zoomValue/100)*e.getX();
                 mouseY = 1/(zoomValue/100)*e.getY();   
             }
-            public function mouseMoved(e: MouseEvent) : Void {
+            override function mouseMoved(e: MouseEvent) : Void {
                 mouseX = 1/(zoomValue/100)*e.getX();
                 mouseY = 1/(zoomValue/100)*e.getY();
             }            
@@ -276,17 +276,17 @@ public class JavaFXPad extends Component {
                     var str:String = "{result}";
 
                     var d:Diagnostic = Diagnostic {
-                        public function getKind():Diagnostic.Kind {
+                        override function getKind():Diagnostic.Kind {
                             Diagnostic.Kind.ERROR;
                         }
-                        public function getCode():String {"Error";}
-                        public function getSource(): java.lang.Object {null;}
-                        public function getPosition() : Integer {0;}
-                        public function getStartPosition(): Integer {0;}
-                        public function getEndPosition(): Integer {str.length()}
-                        public function getColumnNumber(): Integer {1;}
-                        public function getLineNumber(): Integer {1;}
-                        public function getMessage(locale:Locale):String {
+                        override function getCode():String {"Error";}
+                        override function getSource(): java.lang.Object {null;}
+                        override function getPosition() : Integer {0;}
+                        override function getStartPosition(): Integer {0;}
+                        override function getEndPosition(): Integer {str.length()}
+                        override function getColumnNumber(): Integer {1;}
+                        override function getLineNumber(): Integer {1;}
+                        override function getMessage(locale:Locale):String {
                             "Incompatible type: expected Node, found {result.getClass().getName()}";
                         }
                     };
@@ -312,10 +312,10 @@ public class JavaFXPad extends Component {
     
 
     
-    public function createJComponent(): JComponent {
+    override function createJComponent(): JComponent {
         if(url != null) {
                 javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
-                          public function run():Void {
+                          override function run():Void {
                                go();
                           }
                 });

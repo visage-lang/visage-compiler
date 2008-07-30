@@ -29,7 +29,7 @@ class TeslaTabHolder extends CustomNode {
         }
     }
     
-    function create():Node {return Group {content: bind tab}};
+    override function create():Node {return Group {content: bind tab}};
 }
 
 public class TeslaTabPane extends CustomNode {
@@ -62,7 +62,7 @@ public class TeslaTabPane extends CustomNode {
     attribute drawBorder: Boolean = true;;
     
     
-    function create():Node {
+    override function create():Node {
         return Group {
             content: 
             [Line {

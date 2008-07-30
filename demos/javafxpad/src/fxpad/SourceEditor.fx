@@ -79,7 +79,7 @@ public class SourceEditor extends ExtendedScrollableComponent {
         doHighlight();
     };
     private attribute documentListener:DocumentListener = DocumentListener {
-        public function insertUpdate(e:DocumentEvent):Void {
+        override function insertUpdate(e:DocumentEvent):Void {
             if(not inUpdate) {
                 inUpdate = true;
                 text = getJTextArea().getText();
@@ -87,7 +87,7 @@ public class SourceEditor extends ExtendedScrollableComponent {
                 lineCount = getJTextArea().getLineCount();
             }
         }
-        public function removeUpdate(e:DocumentEvent):Void {
+        override function removeUpdate(e:DocumentEvent):Void {
             if(not inUpdate) {
                 inUpdate = true;
                 text = getJTextArea().getText();
@@ -95,7 +95,7 @@ public class SourceEditor extends ExtendedScrollableComponent {
                 lineCount = getJTextArea().getLineCount();
             }
         }
-        public function changedUpdate(e:DocumentEvent):Void {
+        override function changedUpdate(e:DocumentEvent):Void {
             if(not inUpdate) {
                 inUpdate = true;
                 text = getJTextArea().getText();
@@ -213,14 +213,14 @@ public class SourceEditor extends ExtendedScrollableComponent {
         getJTextArea().getDocument().addDocumentListener(documentListener);
     }
     
-    protected function createJComponent(): JComponent {
+    override function createJComponent(): JComponent {
         var jtextarea = new FXTextArea();
         jtextarea.setOpaque(false);
         jtextarea.setEditable(true);
         jtextarea.getCaret().setVisible( true );
         jtextarea.select(0,0);
         jtextarea.getDocument().addUndoableEditListener(UndoableEditListener {
-            function undoableEditHappened(e:UndoableEditEvent):Void {
+            override function undoableEditHappened(e:UndoableEditEvent):Void {
                 if (edit == null) {
                     edit = e.getEdit();
                 } else if (not edit.addEdit(e.getEdit())) {
@@ -251,7 +251,7 @@ public class SourceEditor extends ExtendedScrollableComponent {
         jtextarea.getInputMap().put(z, "undo");
         jtextarea.getInputMap().put(y, "redo");
         jtextarea.getActionMap().put("undo", javax.swing.AbstractAction {
-                public function isEnabled():Boolean {
+                override function isEnabled():Boolean {
                     return undoManager.canUndo();
                 }
                 function actionPerformed(e):Void {
@@ -259,7 +259,7 @@ public class SourceEditor extends ExtendedScrollableComponent {
                 }
             });
         jtextarea.getActionMap().put("redo", javax.swing.AbstractAction {
-                public function isEnabled():Boolean {
+                override function isEnabled():Boolean {
                     return undoManager.canRedo();
                 }
                 function actionPerformed(e):Void {
@@ -270,7 +270,7 @@ public class SourceEditor extends ExtendedScrollableComponent {
         caretDot = jtextarea.getCaret().getDot();
         caretMark = jtextarea.getCaret().getMark();
         jtextarea.addCaretListener(CaretListener {
-                function caretUpdate(e:CaretEvent):Void {
+                override function caretUpdate(e:CaretEvent):Void {
                     caretDot = e.getDot();
                     caretMark = e.getMark();
                 }

@@ -41,7 +41,7 @@ public class FunctionGraph extends CustomNode{
     
     attribute func: function(a: Number):Number;
 
-    public function create():Node{
+    override function create():Node{
 
       var n = (xMax - xMin) / dx;
     
@@ -67,7 +67,7 @@ public class Coordinats extends CustomNode{
     attribute scale: Number;
     attribute color: Color = Color.GREEN;
 
-    public function create():Node{
+    override function create():Node{
       var min = xMin * scale;
       var max = xMax * scale;
       var h = 7;

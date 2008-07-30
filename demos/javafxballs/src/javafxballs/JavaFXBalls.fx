@@ -214,7 +214,7 @@ class BallsTest {
     attribute _N:Number = 16 on replace { resetBalls() }
 
     attribute timerListener:ActionListener =  ActionListener {
-        public function actionPerformed(evt:ActionEvent): Void {
+        override function actionPerformed(evt:ActionEvent): Void {
             if (_is_running) {
                 update();
             } else {
@@ -225,7 +225,7 @@ class BallsTest {
     attribute timer:Timer = new Timer(5, timerListener);
 
     attribute fpsListener:ActionListener = ActionListener {
-        public function actionPerformed(evt:ActionEvent): Void {
+        override function actionPerformed(evt:ActionEvent): Void {
             if (_is_running) {
                 fps = ##"{Math.round( 1000*_frames/(System.currentTimeMillis() - _startTime) )} fps";
                 _frames = 0;

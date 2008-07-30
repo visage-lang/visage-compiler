@@ -4,7 +4,7 @@ import javafx.scene.image.*;
 
 public class HomeButton extends CustomNode {
     public attribute action: function();
-    function create() : Node {
+    override function create() : Node {
         Group {
         cursor: Cursor.HAND
         content: ImageView {

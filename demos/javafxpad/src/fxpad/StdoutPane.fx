@@ -40,7 +40,7 @@ import java.io.PrintStream;
 class StdoutStream extends ByteArrayOutputStream {
     attribute  stdout : StdoutPane;
     
-    public function flush() : Void {
+    override function flush() : Void {
        var str = new String(toByteArray());
        stdout.append(str);
     }
@@ -72,7 +72,7 @@ public class StdoutPane extends ScrollableComponent {
         System.setOut(out)        
     }
     
-    public function createJComponent(): javax.swing.JComponent {
+    override function createJComponent(): javax.swing.JComponent {
         var ta = new JTextArea();
         ta.setOpaque(false);
         ta.setEditable(false);

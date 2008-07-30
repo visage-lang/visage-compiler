@@ -42,7 +42,7 @@ public class MotoPanel extends Intro {
             }
          ]
     };
-    function doIntro():Void {
+    override function doIntro():Void {
        intro.start();
     }
     attribute level:Number;
@@ -72,7 +72,7 @@ public class MotoPanel extends Intro {
         }
     }
 
-    function create():Node {
+    override function create():Node {
         Group {
             clip: Rectangle {height: bind height, width: bind width}
             onMouseClicked: function(e) {doIntro();}

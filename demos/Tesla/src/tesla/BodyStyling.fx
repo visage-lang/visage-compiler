@@ -86,7 +86,7 @@ attribute panned: Boolean;
 
 attribute selectedImageOpacity: Number = 1.0;
 
-function create():Node {
+override function create():Node {
     var size = sizeof images;
     System.out.println("image size = {size}");
     

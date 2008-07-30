@@ -93,7 +93,7 @@ PEM have been designed as a tightly integrated system that delivers up to
     
     
     
-    function create():Node {
+    override function create():Node {
         return Group {
             content:
             [ComponentView {

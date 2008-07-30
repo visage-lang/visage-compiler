@@ -18,7 +18,7 @@ import javafx.scene.text.*;
 class EfficiencyAndPerformance extends CustomNode {
     attribute textContent: Node;
     
-    function create():Node {
+    override function create():Node {
         Group {
             content:
             [ImageView {

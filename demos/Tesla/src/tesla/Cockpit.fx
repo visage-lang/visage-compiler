@@ -19,7 +19,7 @@ class CockpitDetailView extends CustomNode {
     attribute imageUrl: String;
     attribute text: String;
     
-    function create():Node {
+    override function create():Node {
         return Group {
             // Image: 374x259
             content:
@@ -70,7 +70,7 @@ class Hotspot extends CustomNode {
     attribute g: Group;
     attribute whiteCircle: Circle;
     
-    function create():Node {
+    override function create():Node {
         return Group {
             var x = bind (scaleValue-0.4) * -15;
             var y = bind (scaleValue-0.4) * -15;
@@ -145,7 +145,7 @@ class Cockpit extends CustomNode {
     attribute detailOpacity: Number;
     
     
-    function create():Node {
+    override function create():Node {
         return Group {
             content:
             [ComponentView {

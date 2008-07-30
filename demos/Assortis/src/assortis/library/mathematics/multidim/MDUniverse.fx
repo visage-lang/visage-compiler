@@ -18,7 +18,7 @@ public class MDUniverse extends CustomNode, MDGroup{
     
     private attribute totalTransform: IMDSquareTransform ;
     
-    public function create ():Node {
+    override function create ():Node {
 //        System.out.println("[universe]");
         
 //        for(point in getPoints()){

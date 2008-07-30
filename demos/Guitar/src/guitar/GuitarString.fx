@@ -48,7 +48,7 @@ public class GuitarString extends CustomNode {
         on replace {
            //TODO DO LATER - this is a work around until a more permanent solution is provided
             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
-                      public function run():Void {
+                      override function run():Void {
                             theGuitar.loadingSound++;
                             audioClip = java.applet.Applet.newAudioClip(soundUrl); 
                             theGuitar.loadingSound--;
@@ -57,7 +57,7 @@ public class GuitarString extends CustomNode {
             //System.out.println("soundUrl={soundUrl}");
     }
     attribute imageUrl: String = bind this.getClass().getResource('Resources/{if (wound) then "Wound" else "Plain"}.png').toString();
-    public function create(): Node {
+    override function create(): Node {
         var self = this;
         Group {
             var x = 0.0;

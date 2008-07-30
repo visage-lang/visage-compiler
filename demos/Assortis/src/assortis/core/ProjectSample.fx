@@ -63,6 +63,6 @@ public class ProjectSample {
         }
     }
     
-    public function toString ():String { name } 
+    override function toString ():String { name } 
 
 }

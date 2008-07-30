@@ -11,6 +11,6 @@ public class MyTreeCell {
     public attribute cells: MyTreeCell[];
     public attribute value: Object;
     
-    public function toString ():String { return text;  } 
+    override function toString ():String { return text;  } 
     
 }

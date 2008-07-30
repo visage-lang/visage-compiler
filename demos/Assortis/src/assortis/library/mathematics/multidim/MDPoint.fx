@@ -6,6 +6,6 @@ package assortis.library.mathematics.multidim;
 
 public class MDPoint extends MDVector, MDShape{
     
-    public function getPoints (): MDPoint[] { this }
+    override function getPoints (): MDPoint[] { this }
     
 }

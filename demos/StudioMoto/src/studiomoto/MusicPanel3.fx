@@ -9,7 +9,7 @@ import javafx.ext.swing.*;
 
 
 public class MusicPanel3 extends CustomNode {
-    function create():Node {
+    override function create():Node {
         Group {
             clip: Rectangle {height: 160, width: 220}
             content:

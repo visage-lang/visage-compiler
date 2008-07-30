@@ -45,7 +45,7 @@ public class MotoMenuButton extends CustomNode {
     private attribute group:Group;
     private attribute rect:Rectangle;
     
-    function create():Node {
+    override function create():Node {
         Group {
             content:
             [group = Group {

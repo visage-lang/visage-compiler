@@ -37,11 +37,11 @@ public class MotoBottomPanel extends Intro {
     }
 }
     
-    function doIntro():Void {
+    override function doIntro():Void {
        introAnim.start();
     }  
     
-    function create():Node {  
+    override function create():Node {  
         var group = Group {
             content:
             HBox {

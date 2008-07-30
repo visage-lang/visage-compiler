@@ -34,10 +34,10 @@ import javafx.ext.swing.*;
 public class FileFilter extends javax.swing.filechooser.FileFilter {
     public attribute filter: function(:File):Boolean;
     public attribute description: String;
-    public function accept(f:File):Boolean {
+    override function accept(f:File):Boolean {
         filter(f);
     }
-    public function getDescription():String {
+    override function getDescription():String {
         description;
     }    
 }

@@ -11,9 +11,9 @@ public class MDCustomSquareTransform extends IMDSquareTransform{
     public attribute dim: Integer ;
     public attribute transforms: IMDSquareTransform[];
     
-    public function getDim () { dim };
+    override function getDim () { dim };
     
-    public function transform (vector: IMDVector):IMDVector{
+    override function transform (vector: IMDVector):IMDVector{
         var res = vector;
         for(transform in transforms){
             res = transform.transform(res);

@@ -50,12 +50,12 @@ public class MyTree extends Component{
     
     
 
-    protected function createJComponent(): JComponent {
+    override function createJComponent(): JComponent {
         tree = new JTree();
         model = tree.getModel() as DefaultTreeModel;
 
         var  mouseListener =  java.awt.event.MouseAdapter {
-            public function mousePressed(e: java.awt.event.MouseEvent) {
+            override function mousePressed(e: java.awt.event.MouseEvent) {
                 var selRow = tree.getRowForLocation(e.getX(), e.getY());
                 var selPath = tree.getPathForLocation(e.getX(), e.getY());
                 var lastPath = selPath.getPathComponent(selPath.getPathCount() - 1);

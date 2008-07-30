@@ -33,7 +33,7 @@ class Pin extends CustomNode{
     attribute pos: XY;
     attribute level: Number;
     
-    public function create():Node{
+    override function create():Node{
       return Group{
         content: [ Circle{
             centerX: bind pos.x
@@ -94,7 +94,7 @@ class Wire extends ElectronicComponent{
         pin2 = Pin{};
     }
 
-    public function create():Node{
+    override function create():Node{
       return Group{
         content: [ Line{
             startX: bind pin1.pos.x
@@ -106,7 +106,7 @@ class Wire extends ElectronicComponent{
       };
     }
 
-   function simulate():Void{
+   override function simulate():Void{
       switchLevels();
    }
 
@@ -133,7 +133,7 @@ class Lamp extends ElectronicComponent{
         name = "Lamp";
     }
 
-    function simulate():Void{
+    override function simulate():Void{
       if( Function.abs( pin1.level - pin2.level) > 5 ){
         switchOn = true;
       }else{
@@ -142,7 +142,7 @@ class Lamp extends ElectronicComponent{
      switchLevels();
     }
 
-    public function create(): Node{
+    override function create(): Node{
       var r = Function.min(compWidth, compHeight);
       var h = r / 2.0;      
 
@@ -189,12 +189,12 @@ class Battery extends  ElectronicComponent {
     }
 
 
-    function simulate():Void{
+    override function simulate():Void{
       pin1.level =  3;
       pin2.level = -3;
     }
 
-    public function create():Node{
+    override function create():Node{
       var w = compWidth;
       var h = compHeight;
     
@@ -259,13 +259,13 @@ class Switch extends ElectronicComponent{
         name = "Switch";
     }
 
-    function simulate():Void{
+    override function simulate():Void{
       if(switchOn){
         switchLevels();
       }
     }
 
-    public function create(): Node{
+    override function create(): Node{
       return Group{
         content:  [ Circle{
             centerX: bind pos.x

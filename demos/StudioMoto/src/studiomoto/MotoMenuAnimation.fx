@@ -52,7 +52,7 @@ public class MotoMenuAnimation extends CustomNode {
 
     private attribute n:Number = 10;
 
-    function create():Node {
+    override function create():Node {
         Group {
             content: 
             [HBox {

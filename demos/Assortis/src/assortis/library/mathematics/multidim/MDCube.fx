@@ -13,7 +13,7 @@ public class MDCube extends MDShape{
     public attribute side:Number;
 
     
-    public function getSegments ():MDSegment[] {
+    override function getSegments ():MDSegment[] {
         //System.out.println("[cube]");
         
         
