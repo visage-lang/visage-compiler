@@ -35,19 +35,19 @@ import java.util.ArrayList;
 import java.lang.System;
 
 /**
+ * Used to specify an animation that repeats indefinitely (until
+ * the {@code stop()} method is called).
+ *
+ * @profile common
+ */
+public def INDEFINITE = -1;
+
+/**
  * Represents an animation, defined by one or more {@code KeyFrame}s.
  *
  * @profile common
  */
 public class Timeline {
-
-    /**
-     * Used to specify an animation that repeats indefinitely (until
-     * the {@code stop()} method is called).
-     *
-     * @profile common
-     */
-    public static attribute INDEFINITE = -1;
 
     /**
      * Defines the number of cycles in this animation.
@@ -113,7 +113,7 @@ public class Timeline {
      *
      * @profile common
      */
-    public /*controlled*/ attribute running: Boolean = false;
+    readable var running: Boolean = false;
 
     /**
      * Read-only attribute that indicates whether the animation is
@@ -129,18 +129,18 @@ public class Timeline {
      *
      * @profile common
      */
-    public /*controlled*/ attribute paused: Boolean = false;
+    readable var paused: Boolean = false;
 
     // if false, indicates that the internal (optimized) data structure
     // needs to be rebuilt
-    private attribute valid = false;
+    private var valid = false;
     function invalidate() {
         valid = false;
     }
 
     // duration is inferred from time of last key frame and durations
     // of any sub-timelines in rebuildTargets()
-    private attribute duration: Number = -1;
+    private var duration: Number = -1;
 
     function getTotalDur():Number {
         if (not valid) {
@@ -533,7 +533,7 @@ public class Timeline {
 
     private function createAdapter():TimingTarget {
         TimingTargetAdapter {
-            public override function begin() : Void {
+            override function begin() : Void {
                 running = true;
                 paused = false;
 
@@ -549,19 +549,19 @@ public class Timeline {
                 offsetValid = false;
             }
             
-            public override function timingEvent(fraction, totalElapsed) : Void {
+            override function timingEvent(fraction, totalElapsed) : Void {
                 process(totalElapsed as Number);
             }
 
-            public override function pause() : Void {
+            override function pause() : Void {
                 paused = true;
             }
 
-            public override function resume() : Void {
+            override function resume() : Void {
                 paused = false;
             }
 
-            public override function end() : Void {
+            override function end() : Void {
                 running = false;
                 paused = false;
             }
@@ -575,8 +575,8 @@ class KFPair {
 }
 
 class KFPairList {
-    attribute target:KeyValueTarget;
-    private attribute pairs:ArrayList = new ArrayList();
+    var target:KeyValueTarget;
+    private def pairs:ArrayList = new ArrayList();
 
     function size(): Integer {
         return pairs.size();
@@ -600,6 +600,6 @@ class KFPairList {
 }
 
 class SubTimeline {
-    attribute startTime:Duration;
-    attribute timeline:Timeline;
+    var startTime:Duration;
+    var timeline:Timeline;
 }

@@ -43,18 +43,6 @@ import java.lang.Math;
  * @profile common
  */
 public class Duration extends com.sun.javafx.runtime.Duration {
-    
-    /**
-     * Factory method that returns a Duration instance for a specified
-     * number of milliseconds.
-     *
-     * @param ms the number of milliseconds
-     * @return a Duration instance of the specified number of milliseconds
-     * @profile common
-     */
-    public static function valueOf(ms: Number): Duration {
-        return com.sun.javafx.runtime.Duration.make(ms) as Duration;
-    }
 
     /** Returns the number of milliseconds in this period. 
      *
@@ -140,7 +128,7 @@ public class Duration extends com.sun.javafx.runtime.Duration {
     /**
      * @profile common
      */        
-    public override function toString(): String {
+    override function toString(): String {
         return "{millis}ms";
     }
 
@@ -188,3 +176,18 @@ public class Duration extends com.sun.javafx.runtime.Duration {
         return new java.util.Date(millis.longValue());
     }
 }
+
+// script-level "static" functions below
+
+    /**
+     * Factory method that returns a Duration instance for a specified
+     * number of milliseconds.
+     *
+     * @param ms the number of milliseconds
+     * @return a Duration instance of the specified number of milliseconds
+     * @profile common
+     */
+    public function valueOf(ms: Number): Duration {
+        return com.sun.javafx.runtime.Duration.make(ms) as Duration;
+    }
+

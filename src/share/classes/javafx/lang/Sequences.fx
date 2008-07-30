@@ -40,12 +40,15 @@ import java.lang.UnsupportedOperationException;
  * @profile common
  */
 public class Sequences {
+}
+
+// script-level "static" functions below
     
      /**
      *
      * @profile common
      */    
-    public static function isEqualByContentIdentity(seq1: Object[], seq2: Object[]): Boolean {
+    public function isEqualByContentIdentity(seq1: Object[], seq2: Object[]): Boolean {
         return com.sun.javafx.runtime.sequence.Sequences.isEqualByContentIdentity(seq1, seq2);
     }
     
@@ -71,7 +74,7 @@ public class Sequences {
      *
      * @profile common 
      */
-    public static function binarySearch(seq: Comparable[], key: Comparable): Integer {
+    public function binarySearch(seq: Comparable[], key: Comparable): Integer {
         return com.sun.javafx.runtime.sequence.Sequences.binarySearch(seq, key);
     }
     
@@ -100,7 +103,7 @@ public class Sequences {
      *
      * @profile common 
      */
-    public static function binarySearch(seq: Object[], key: Object, c: Comparator): Integer {
+    public function binarySearch(seq: Object[], key: Object, c: Comparator): Integer {
         return com.sun.javafx.runtime.sequence.Sequences.binarySearch(seq, key, c);
     }
     
@@ -120,7 +123,7 @@ public class Sequences {
      *
      * @profile common 
      */
-   public static function indexByIdentity(seq: Object[], key: Object): Integer {
+   public function indexByIdentity(seq: Object[], key: Object): Integer {
         return com.sun.javafx.runtime.sequence.Sequences.indexByIdentity(seq, key);
     }
 
@@ -142,7 +145,7 @@ public class Sequences {
      *
      * @profile common 
      */
-    public static function indexOf(seq: Object[], key: Object): Integer {
+    public function indexOf(seq: Object[], key: Object): Integer {
         return com.sun.javafx.runtime.sequence.Sequences.indexOf(seq, key);
     }
     
@@ -162,7 +165,7 @@ public class Sequences {
      *
      * @profile common 
      */
-    public static function max(seq: Comparable[]): Comparable {
+    public function max(seq: Comparable[]): Comparable {
         return com.sun.javafx.runtime.sequence.Sequences.max(seq);
     }
     
@@ -184,7 +187,7 @@ public class Sequences {
      *
      * @profile common 
      */
-    public static function max(seq: Object[], c: Comparator): Object {
+    public function max(seq: Object[], c: Comparator): Object {
         return com.sun.javafx.runtime.sequence.Sequences.max(seq, c);
     }
     
@@ -204,7 +207,7 @@ public class Sequences {
      *
      * @profile common 
      */
-    public static function min(seq: Comparable[]): Comparable {
+    public function min(seq: Comparable[]): Comparable {
         return com.sun.javafx.runtime.sequence.Sequences.min(seq);
     }
     
@@ -226,7 +229,7 @@ public class Sequences {
      *
      * @profile common 
      */
-   public static function min(seq: Object[], c: Comparator): Object {
+   public function min(seq: Object[], c: Comparator): Object {
         return com.sun.javafx.runtime.sequence.Sequences.min(seq, c);
     }
     
@@ -247,7 +250,7 @@ public class Sequences {
      *
      * @profile common 
      */
-    public static function nextIndexByIdentity(seq: Object[], key: Object, pos: Integer): Integer {
+    public function nextIndexByIdentity(seq: Object[], key: Object, pos: Integer): Integer {
         return com.sun.javafx.runtime.sequence.Sequences.nextIndexByIdentity(seq, key, pos);
     }
     
@@ -267,7 +270,7 @@ public class Sequences {
      *
      * @profile common 
      */
-    public static function nextIndexOf(seq: Object[], key: Object, pos: Integer): Integer {
+    public function nextIndexOf(seq: Object[], key: Object, pos: Integer): Integer {
         return com.sun.javafx.runtime.sequence.Sequences.nextIndexOf(seq, key, pos);
     }
     
@@ -275,7 +278,7 @@ public class Sequences {
      *
      * @profile common
      */
-    public static function <<reverse>> (seq:Object[]): Object[] {
+    public function <<reverse>> (seq:Object[]): Object[] {
         return com.sun.javafx.runtime.sequence.Sequences.<<reverse>>(seq);
     }
     
@@ -303,7 +306,7 @@ public class Sequences {
      *
      * @profile common 
      */
-    public static function sort(seq: Comparable[]): Comparable[] {
+    public function sort(seq: Comparable[]): Comparable[] {
         return com.sun.javafx.runtime.sequence.Sequences.sort(seq);
     }
     
@@ -333,7 +336,7 @@ public class Sequences {
      *
      * @profile common 
      */
-    public static function sort(seq: Object[], c: Comparator): Object[] {
+    public function sort(seq: Object[], c: Comparator): Object[] {
         return com.sun.javafx.runtime.sequence.Sequences.sort(seq, c);
     }
 
@@ -341,8 +344,7 @@ public class Sequences {
      *
      * @profile common
      */
-    public static function shuffle(seq: Object[]):Object[] {
+    public function shuffle(seq: Object[]):Object[] {
         return com.sun.javafx.runtime.sequence.Sequences.shuffle(seq);
     }
-}
 

@@ -3192,7 +3192,7 @@ public class JavafxAttr implements JavafxVisitor {
                 // If the found symbol is inaccessible, then it is
                 // accessed through an enclosing instance.  Locate this
                 // enclosing instance:
-                while (env1.outer != null && !rs.isAccessible(env, env1.enclClass.sym.type, v)) {
+                while (env1.outer != null && !rs.isAccessibleForWrite(env, env1.enclClass.sym.type, v)) {
                     env1 = env1.outer;
                 }
             }
