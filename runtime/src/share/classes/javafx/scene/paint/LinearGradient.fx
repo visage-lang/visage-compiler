@@ -107,7 +107,7 @@ public class LinearGradient extends Paint {
         var end = new java.awt.geom.Point2D.Double(endX, endY);
         var colors = for(stop in stops) { stop.color.getAWTColor() }
         var fractions = for(stop in stops) { stop.offset.floatValue() }
-        var cmi = cycleMethod.getToolkitValue();
+        var cmi = cycleMethod.toolkitValue;
         var lgp = Gradients.createLinearGradientPaint(start, end, fractions, colors, cmi);
         if (proportional) { new ProportionalPaint(lgp) } else { lgp }
     }

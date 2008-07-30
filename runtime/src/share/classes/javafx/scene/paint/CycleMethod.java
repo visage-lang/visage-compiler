@@ -25,17 +25,13 @@ package javafx.scene.paint;
 
 // PENDING_DOC_REVIEW
 /**
- * This class defines one of the following methods to use when painting 
+ * This enum defines one of the following methods to use when painting 
  * outside the gradient bounds: {@code  CycleMethod.NO_CYCLE}, 
  * {@code CycleMethod.REFLECT}, or {@code  CycleMethod.REPEAT}.
  *
  * @profile common conditional multigradient
  */      
-public class CycleMethod {
-
-    private attribute toolkitValue:Integer =  0; // MultipleGradientPaint.CycleMethod.NO_CYCLE
-
-    private attribute name:String = "NO_CYCLE";
+public enum CycleMethod {
 
     // PENDING_DOC_REVIEW
     /**
@@ -43,7 +39,7 @@ public class CycleMethod {
      *
      * @profile common conditional multigradient
      */      
-    public static attribute  NO_CYCLE = CycleMethod { }
+    NO_CYCLE(0), // MultipleGradientPaint.CycleMethod.NO_CYCLE
 
     // PENDING_DOC_REVIEW
     /**
@@ -52,10 +48,7 @@ public class CycleMethod {
      *
      * @profile common conditional multigradient
      */      
-    public static attribute REFLECT = CycleMethod {
-          toolkitValue: 1 //MultipleGradientPaint.CycleMethod.REFLECT
-          name: "REFLECT"
-    }
+    REFLECT(1), // MultipleGradientPaint.CycleMethod.REFLECT
     
     // PENDING_DOC_REVIEW
     /**
@@ -63,13 +56,12 @@ public class CycleMethod {
      *
      * @profile common conditional multigradient
      */      
-    public static attribute REPEAT = CycleMethod {
-          toolkitValue: 2 //MultipleGradientPaint.CycleMethod.REPEAT
-          name: "REPEAT"
+    REPEAT(2); //MultipleGradientPaint.CycleMethod.REPEAT
+
+    final int toolkitValue;
+    
+    private CycleMethod(int toolkitValue) {
+        this.toolkitValue = toolkitValue;
     }
-
-    function getToolkitValue(): Integer { toolkitValue }       
-
-    override function toString(): String { name }
 
 }

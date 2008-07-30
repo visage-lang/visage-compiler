@@ -82,7 +82,7 @@ public class RadialGradient extends Paint {
         var focus = new java.awt.geom.Point2D.Double(fx, fy);
         var colors = for(stop in stops) { stop.color.getAWTColor() }
         var fractions = for(stop in stops) { stop.offset.floatValue() }
-        var cmi = cycleMethod.getToolkitValue();
+        var cmi = cycleMethod.toolkitValue;
         var rgp = Gradients.createRadialGradientPaint(center, radius.floatValue(), focus, fractions, colors, cmi);
         if (proportional) { new ProportionalPaint(rgp) } else { rgp }
     }
