@@ -43,18 +43,18 @@ import javafx.lang.FX;
  */
 public class List extends ScrollableComponent {
 
-    private attribute initialized: Boolean = false;
+    private var initialized: Boolean = false;
 
-    private attribute ignoreSelectionChanges: Boolean = false;
+    private var ignoreSelectionChanges: Boolean = false;
 
-    private attribute listeners: ArrayList = new ArrayList();
+    private var listeners: ArrayList = new ArrayList();
 
     // PENDING_DOC_REVIEW
     /**
      * Defines the array of {@link ListItem}s objects
      * to be displayed by this {@code List}.  
      */
-    public attribute items: ListItem[] on replace oldItems[a..b] = newSlice {
+    public var items: ListItem[] on replace oldItems[a..b] = newSlice {
         var added = sizeof newSlice;
 
         if (a <= b) {
@@ -103,7 +103,7 @@ public class List extends ScrollableComponent {
      * it is simply the smallest selected index. Returns {@code -1} if there is
      * no selection.
      */
-    public attribute selectedIndex: Integer = -1 on replace {
+    public var selectedIndex: Integer = -1 on replace {
         if (selectedIndex < -1 or selectedIndex >= sizeof items) {
             selectedIndex = -1;
         }
@@ -118,7 +118,7 @@ public class List extends ScrollableComponent {
      * list. When multiple items are selected, it is simply the {@link ListItem} for 
      * the smallest selected index. Returns {@code null} if there is no selection.
      */
-    public attribute selectedItem: ListItem = null on replace oldValue {
+    public var selectedItem: ListItem = null on replace oldValue {
         if (oldValue != null and FX.isSameObject(oldValue.list, this)) {
             oldValue.selected = false;
         }

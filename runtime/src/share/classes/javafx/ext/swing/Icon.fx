@@ -38,7 +38,7 @@ public function fromToolkitIcon(value:javax.swing.Icon):Icon {
  */
 public class Icon {
 
-    attribute toolkitIcon:javax.swing.Icon;
+    var toolkitIcon:javax.swing.Icon;
 
     // PENDING(shannonh) - don't like the tie-in to Swing
 
@@ -48,7 +48,7 @@ public class Icon {
     /**
      * Defines the {@link Image} to be painted by this {@code Icon}. 
      */
-    public attribute image:Image = null on replace {
+    public var image:Image = null on replace {
         toolkitIcon = if (image != null) new ImageIcon(image.getBufferedImage()) else null;
     }
     

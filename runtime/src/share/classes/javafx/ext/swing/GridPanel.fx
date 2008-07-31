@@ -48,7 +48,7 @@ public class GridPanel extends SwingPanel {
     * 'any number' meaning that the number of Columns in that
     * dimension depends on the other dimension. 
     */
-    public attribute columns: Integer = getGridLayout().getColumns() on replace {
+    public var columns: Integer = getGridLayout().getColumns() on replace {
         getGridLayout().setColumns(columns);
         getJPanel().revalidate();
         getJPanel().repaint();
@@ -62,7 +62,7 @@ public class GridPanel extends SwingPanel {
     * 'any number' meaning that the number of Rows in that
     * dimension depends on the other dimension.
     */
-    public attribute rows: Integer = getGridLayout().getRows() on replace {
+    public var rows: Integer = getGridLayout().getRows() on replace {
         getGridLayout().setRows(rows);
         getJPanel().revalidate();
         getJPanel().repaint();
@@ -74,7 +74,7 @@ public class GridPanel extends SwingPanel {
     * between columns.  They can be changed at any time.
     * This value should be a non-negative integer. 
     */
-    public attribute hgap: Integer = getGridLayout().getHgap() on replace {
+    public var hgap: Integer = getGridLayout().getHgap() on replace {
         getGridLayout().setHgap(hgap);
         getJPanel().revalidate();
         getJPanel().repaint();
@@ -86,7 +86,7 @@ public class GridPanel extends SwingPanel {
     * between rows.  They can be changed at any time.
     * This value should be a non negative integer. 
     */
-    public attribute vgap: Integer = getGridLayout().getVgap() on replace {
+    public var vgap: Integer = getGridLayout().getVgap() on replace {
         getGridLayout().setVgap(vgap);
         getJPanel().revalidate();
         getJPanel().repaint();

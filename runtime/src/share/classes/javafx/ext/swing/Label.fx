@@ -42,7 +42,7 @@ public class Label extends Component {
      * Defines the single line of text this component will display.  If
      * the value of text is null or empty string, nothing is displayed.
      */
-    public attribute text: String on replace {
+    public var text: String on replace {
         doAndIgnoreJComponentChange(function() {
             getJLabel().setText(text);
         });
@@ -53,7 +53,7 @@ public class Label extends Component {
      * Defines the icon this component will display.  If
      * the value of icon is null, nothing is displayed.
      */
-    public attribute icon: Icon = Icon.fromToolkitIcon(getJLabel().getIcon()) on replace {
+    public var icon: Icon = Icon.fromToolkitIcon(getJLabel().getIcon()) on replace {
         doAndIgnoreJComponentChange(function() {
             getJLabel().setIcon(icon.getToolkitIcon());
         });
@@ -63,7 +63,7 @@ public class Label extends Component {
     /**
      * Defines the alignment of the label's contents along the X axis.
      */
-    public attribute horizontalAlignment: HorizontalAlignment =
+    public var horizontalAlignment: HorizontalAlignment =
         Util.SwingConstant_To_HA(getJLabel().getHorizontalAlignment())
         on replace {
             doAndIgnoreJComponentChange(function() {
@@ -75,7 +75,7 @@ public class Label extends Component {
     /**
      * Defines the alignment of the label's contents along the Y axis.
      */
-    public attribute verticalAlignment: VerticalAlignment =
+    public var verticalAlignment: VerticalAlignment =
         Util.SwingConstant_To_VA(getJLabel().getVerticalAlignment())
         on replace {
             doAndIgnoreJComponentChange(function() {
@@ -88,7 +88,7 @@ public class Label extends Component {
      * Defines the horizontal position of the label's text,
      * relative to its icon.
      */
-    public attribute horizontalTextPosition: HorizontalAlignment =
+    public var horizontalTextPosition: HorizontalAlignment =
         Util.SwingConstant_To_HA(getJLabel().getHorizontalTextPosition())
         on replace {
             doAndIgnoreJComponentChange(function() {
@@ -101,7 +101,7 @@ public class Label extends Component {
      * Defines the vertical position of the label's text,
      * relative to its icon.
      */
-    public attribute verticalTextPosition: VerticalAlignment =
+    public var verticalTextPosition: VerticalAlignment =
         Util.SwingConstant_To_VA(getJLabel().getVerticalTextPosition())
         on replace {
             doAndIgnoreJComponentChange(function() {
@@ -113,7 +113,7 @@ public class Label extends Component {
      * Defines the component this is labelling. 
      * Can be null if this does not label a Component. 
      */
-    public attribute labelFor: Component = null on replace {
+    public var labelFor: Component = null on replace {
         doAndIgnoreJComponentChange(function() {
             getJLabel().setLabelFor(labelFor.getJComponent());
         });

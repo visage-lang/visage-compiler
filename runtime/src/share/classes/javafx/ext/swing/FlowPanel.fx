@@ -35,7 +35,7 @@ import com.sun.javafx.scene.Util;
  * <p/>
  * {@code FlowPanel} is typically used to arrange buttons in a panel.
  * It arranges buttons horizontally until no more buttons fit on the same line.
- * The line alignment is determined by the {@code HorizontalAlignment} attribute.
+ * The line alignment is determined by the {@code HorizontalAlignment} variable.
  * <p>Example:</p>
 
 @example
@@ -77,7 +77,7 @@ public class FlowPanel extends SwingPanel {
      * Defines the horizontal gap between components and
      * between the components and the borders of the {@code FlowPanel}.
      */
-    public attribute hgap: Integer = getFlowLayout().getHgap() on replace {
+    public var hgap: Integer = getFlowLayout().getHgap() on replace {
         getFlowLayout().setHgap(hgap);
         getJPanel().revalidate();
         getJPanel().repaint();
@@ -88,7 +88,7 @@ public class FlowPanel extends SwingPanel {
      * Defines the vertical gap between components and
      * between the components and the borders of the {@code FlowPanel}.
      */
-    public attribute vgap: Integer = getFlowLayout().getVgap() on replace {
+    public var vgap: Integer = getFlowLayout().getVgap() on replace {
         getFlowLayout().setVgap(vgap);
         getJPanel().revalidate();
         getJPanel().repaint();
@@ -98,7 +98,7 @@ public class FlowPanel extends SwingPanel {
     /**
      * Defines the {@link HorizontalAlignment} for this {@code FlowPanel}.
      */
-    public attribute alignment: HorizontalAlignment = Util.FLConstant_To_HA(getFlowLayout().getAlignment())
+    public var alignment: HorizontalAlignment = Util.FLConstant_To_HA(getFlowLayout().getAlignment())
         on replace {
             getFlowLayout().setAlignment(Util.HA_To_FLConstant(alignment));
             getJPanel().revalidate();

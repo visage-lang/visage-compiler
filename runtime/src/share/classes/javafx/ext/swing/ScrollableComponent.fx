@@ -35,14 +35,14 @@ import javax.swing.border.EmptyBorder;
  */
 public abstract class ScrollableComponent extends Component {
 
-    private attribute jScrollPane: JScrollPane;
+    private var jScrollPane: JScrollPane;
 
     // PENDING_DOC_REVIEW
     /**
      * Determines if the horizontal and vertical scrollbars 
      * appear in the {@code ScrollableComponent}.
      */
-    public attribute scrollable: Boolean = true on replace {
+    public var scrollable: Boolean = true on replace {
         var sp = getJScrollPane();
         if (scrollable) {
             sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
