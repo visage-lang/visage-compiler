@@ -40,7 +40,7 @@ public class Stage {
      * @profile common
      * @readonly
      */
-    public attribute /*read-only*/  width:Integer;
+    readable var width: Integer;
 
     // PENDING_DOC_REVIEW
     /**
@@ -49,7 +49,7 @@ public class Stage {
      * @profile common
      * @readonly
      */
-    public attribute /*read-only*/  height:Integer;
+    readable var height: Integer;
 
     // PENDING_DOC_REVIEW
     /**
@@ -59,7 +59,7 @@ public class Stage {
      *
      * @profile common
      */
-    public attribute fill: Paint = Color.WHITE;
+    public var fill: Paint = Color.WHITE;
 
     // PENDING_DOC_REVIEW
     /**
@@ -67,6 +67,6 @@ public class Stage {
      *
      * @profile common
      */
-    public attribute content: Node[];
+    public var content: Node[];
     
 }

@@ -77,7 +77,7 @@ public class Application {
      * @profile common
      * @readonly
      */ 
-    public var /*read-only*/ suspended:Boolean;       
+    readable var suspended: Boolean;       
     
     /**
      * Requests the application to exit. The onExit callback is called after this

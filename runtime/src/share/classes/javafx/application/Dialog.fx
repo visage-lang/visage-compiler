@@ -37,9 +37,9 @@ import javafx.lang.FX;
 public class Dialog extends Window {
 
     /*
-     * This attribute must be defined before createWindow() is called, so that the window can be created with the owner.
+     * This must be defined before createWindow() is called, so that the window can be created with the owner.
      */
-    public /* set-once */ attribute owner : Window = null;
+    public /* set-once */ var owner : Window = null;
 
     // PENDING_DOC_REVIEW
     /**

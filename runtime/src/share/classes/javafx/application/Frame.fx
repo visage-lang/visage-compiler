@@ -55,7 +55,7 @@ import javafx.scene.image.Image;
 public class Frame extends Window{
 
     // PENDING(shannonh) - make bindable
-    public attribute iconified: Boolean = false on replace {
+    public var iconified: Boolean = false on replace {
         var frame:JFrame = window as JFrame;
         var oldState = BigInteger.valueOf(frame.getExtendedState());
         var newState = if (iconified) oldState.setBit(0) else oldState.clearBit(0);
