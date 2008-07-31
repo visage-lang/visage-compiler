@@ -34,7 +34,10 @@ public class PointLight extends Light {
         new com.sun.scenario.effect.light.PointLight();
     }
 
-    override function getImpl():com.sun.scenario.effect.light.Light {
+    /**
+     * @treatasprivate implementation detail
+     */
+    override function impl_getImpl():com.sun.scenario.effect.light.Light {
         point
     }
 

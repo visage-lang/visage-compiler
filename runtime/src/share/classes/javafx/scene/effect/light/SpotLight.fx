@@ -34,7 +34,7 @@ public class SpotLight extends PointLight {
     }
 
     private function getSpot():com.sun.scenario.effect.light.SpotLight {
-        getImpl() as com.sun.scenario.effect.light.SpotLight;
+        impl_getImpl() as com.sun.scenario.effect.light.SpotLight;
     }
 
     /**

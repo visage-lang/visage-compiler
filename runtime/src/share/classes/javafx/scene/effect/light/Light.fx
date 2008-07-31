@@ -25,17 +25,16 @@ package javafx.scene.effect.light;
 
 import javafx.scene.paint.Color;
 import java.lang.Object;
-import com.sun.javafx.scene.AccessHelper;
-import com.sun.javafx.scene.AccessHelper.LightAccessor;
 
 /**
  * The abstract base class for all light implementations.
  */
 public abstract class Light {
 
-    private static attribute accessor = LightAccessorImpl.create();
-
-    abstract function getImpl():com.sun.scenario.effect.light.Light;
+    /**
+     * @treatasprivate implementation detail
+     */
+    public abstract function impl_getImpl():com.sun.scenario.effect.light.Light;
 
     /**
      * The color of the light source.
@@ -46,23 +45,6 @@ public abstract class Light {
      *  Identity: n/a
      * </pre>
      */
-    public attribute color : Color = Color.WHITE
-        on replace { getImpl().setColor(color.getAWTColor()); }
-}
-
-/**
- * Package-private class that gives javafx.scene.effect.Lighting access to
- * implementation details from this package.
- */
-class LightAccessorImpl extends LightAccessor {
-
-    static function create() : LightAccessor {
-        var accessor:LightAccessor = LightAccessorImpl {};
-        AccessHelper.setLightAccessor(accessor);
-        return accessor;
-    }
-
-    override function getImpl(fxLight:Object):com.sun.scenario.effect.light.Light {
-        return (fxLight as Light).getImpl();
-    }
+    public attribute color: Color = Color.WHITE
+        on replace { impl_getImpl().setColor(color.getAWTColor()); }
 }

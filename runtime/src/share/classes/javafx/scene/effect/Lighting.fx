@@ -27,14 +27,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.effect.light.Light;
 import javafx.scene.effect.light.DistantLight;
 import com.sun.scenario.effect.PhongLighting;
-import com.sun.javafx.scene.AccessHelper;
 
 public class Lighting extends Effect {
     private attribute phong = create();
 
     private function create() : PhongLighting {
         var l = DistantLight {};
-        return new PhongLighting(AccessHelper.getLightImpl(l));
+        return new PhongLighting(l.impl_getImpl());
     }
 
     /**
@@ -48,7 +47,7 @@ public class Lighting extends Effect {
      * The light source for this {@code Lighting} effect.
      */
     public attribute light: Light = DistantLight {}
-        on replace { phong.setLight(AccessHelper.getLightImpl(light)); }
+        on replace { phong.setLight(light.impl_getImpl()); }
 
     /**
      * The optional bump map input.  If not specified, a bump map will
