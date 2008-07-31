@@ -70,14 +70,14 @@ public function fromJComponent(jComponent: JComponent): Component {
  */
 public abstract class Component extends ClusterElement {
 
-    attribute ignoreJComponentChange: Boolean = false;
+    var ignoreJComponentChange: Boolean = false;
 
     var jComponent: JComponent = createJComponent();
 
     /**
      * The component's name, which may be {@code null}.
      */
-    public attribute name: String on replace {
+    public var name: String on replace {
         doAndIgnoreJComponentChange(function() {
             // PENDING(shannonh) - do we want the name on both?
             jComponent.setName(name);
@@ -96,9 +96,7 @@ public abstract class Component extends ClusterElement {
         name;
     }
 
-    /**
-     */
-    attribute parent: Container = null;
+    var parent: Container = null;
 
     /**
      * Returns this {@code Component's} parent {@code Container},
@@ -116,7 +114,7 @@ public abstract class Component extends ClusterElement {
      * <p/>
      * The default value is {@code null}.
      */
-    public attribute x: Integer on replace {
+    public var x: Integer on replace {
         doAndIgnoreJComponentChange(function() {
             var root = getRootJComponent();
             var pt = root.getLocation();
@@ -131,7 +129,7 @@ public abstract class Component extends ClusterElement {
      * <p/>
      * The default value is {@code null}.
      */    
-    public attribute y: Integer on replace {
+    public var y: Integer on replace {
         doAndIgnoreJComponentChange(function() {
             var root = getRootJComponent();
             var pt = root.getLocation();
@@ -146,7 +144,7 @@ public abstract class Component extends ClusterElement {
      * <p/>
      * The default value is {@code null}.
      */    
-    public attribute width: Integer on replace {
+    public var width: Integer on replace {
         doAndIgnoreJComponentChange(function() {
             var root = getRootJComponent();
             var dim = root.getSize();
@@ -164,7 +162,7 @@ public abstract class Component extends ClusterElement {
      * <p/>
      * The default value is {@code null}.
      */    
-    public attribute height: Integer on replace {
+    public var height: Integer on replace {
         doAndIgnoreJComponentChange(function() {
             var root = getRootJComponent();
             var dim = root.getSize();
@@ -183,7 +181,7 @@ public abstract class Component extends ClusterElement {
      * item sequence {@code [n]} is treated the same as {@code [n, 0]}. With
      * sequences larger than two items, only the first two items are used.
      */
-    public attribute preferredSize: Integer[] = null on replace {
+    public var preferredSize: Integer[] = null on replace {
         var s = sizeof preferredSize;
         var d: Dimension = null;
 
@@ -204,7 +202,7 @@ public abstract class Component extends ClusterElement {
     /**
      * Sets the foreground color of this component.
      */    
-    public attribute foreground: Color = Color.fromAWTColor(jComponent.getForeground()) on replace {
+    public var foreground: Color = Color.fromAWTColor(jComponent.getForeground()) on replace {
         doAndIgnoreJComponentChange(function() {
             jComponent.setForeground(foreground.getAWTColor());
         });
@@ -214,7 +212,7 @@ public abstract class Component extends ClusterElement {
     /**
      * Sets the font for this component.
      */    
-    public attribute font: Font = Font.fromAWTFont(jComponent.getFont()) on replace {
+    public var font: Font = Font.fromAWTFont(jComponent.getFont()) on replace {
         doAndIgnoreJComponentChange(function() {
             jComponent.setFont(font.getAWTFont());
         });
@@ -233,7 +231,7 @@ public abstract class Component extends ClusterElement {
      * Note: Disabling a lightweight component does not prevent it from 
      * receiving MouseEvents
      */ 
-    public attribute enabled: Boolean = jComponent.isEnabled() on replace {
+    public var enabled: Boolean = jComponent.isEnabled() on replace {
         doAndIgnoreJComponentChange(function() {
             jComponent.setEnabled(enabled);
         });
@@ -243,31 +241,31 @@ public abstract class Component extends ClusterElement {
     /**
      * Makes the component visible or invisible.
      */ 
-    public attribute visible: Boolean = jComponent.isVisible() on replace {
+    public var visible: Boolean = jComponent.isVisible() on replace {
         doAndIgnoreJComponentChange(function() {
             getRootJComponent().setVisible(visible);
         });
     }
 
-    public attribute hmin: Integer = Layout.DEFAULT_SIZE;
+    public var hmin: Integer = Layout.DEFAULT_SIZE;
 
-    public attribute hpref: Integer = Layout.DEFAULT_SIZE;
+    public var hpref: Integer = Layout.DEFAULT_SIZE;
 
-    public attribute hmax: Integer = Layout.DEFAULT_SIZE;
+    public var hmax: Integer = Layout.DEFAULT_SIZE;
 
-    public attribute vmin: Integer = Layout.DEFAULT_SIZE;
+    public var vmin: Integer = Layout.DEFAULT_SIZE;
 
-    public attribute vpref: Integer = Layout.DEFAULT_SIZE;
+    public var vpref: Integer = Layout.DEFAULT_SIZE;
 
-    public attribute vmax: Integer = Layout.DEFAULT_SIZE;
+    public var vmax: Integer = Layout.DEFAULT_SIZE;
 
-    public attribute halign: Layout.Alignment = null;
+    public var halign: Layout.Alignment = null;
 
-    public attribute valign: Layout.Alignment = null;
+    public var valign: Layout.Alignment = null;
 
-    public attribute hisbaseline: Boolean = false;
+    public var hisbaseline: Boolean = false;
 
-    public attribute visbaseline: Boolean = false;
+    public var visbaseline: Boolean = false;
 
     function doAndIgnoreJComponentChange(func: function(): Void) {
         try {
@@ -370,7 +368,7 @@ public abstract class Component extends ClusterElement {
      * returns the top {@code JComponent} in the hierarchy, the one which is to
      * be used to embed this {@code Component} in an underlying Swing scene
      * graph or hierarchy. This is also the {@code JComponent} on which the
-     * {@code x, y, width, height} attributes operate.
+     * {@code x, y, width, height} variables operate.
      * <p>
      * This method must never return {@code null}, even during initialization.
      * <p>
