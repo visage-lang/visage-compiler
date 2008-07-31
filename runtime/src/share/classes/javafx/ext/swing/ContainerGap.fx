@@ -25,8 +25,8 @@ package javafx.ext.swing;
 
 public class ContainerGap extends ClusterElement {
 
-    public /* set-once */ attribute pref: Integer = Layout.DEFAULT_SIZE;
+    public /* set-once */ var pref: Integer = Cluster.DEFAULT_SIZE;
 
-    public /* set-once */ attribute max: Integer = Layout.DEFAULT_SIZE;
+    public /* set-once */ var max: Integer = Cluster.DEFAULT_SIZE;
 
 }

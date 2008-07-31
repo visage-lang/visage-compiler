@@ -247,17 +247,17 @@ public abstract class Component extends ClusterElement {
         });
     }
 
-    public var hmin: Integer = Layout.DEFAULT_SIZE;
+    public var hmin: Integer = Cluster.DEFAULT_SIZE;
 
-    public var hpref: Integer = Layout.DEFAULT_SIZE;
+    public var hpref: Integer = Cluster.DEFAULT_SIZE;
 
-    public var hmax: Integer = Layout.DEFAULT_SIZE;
+    public var hmax: Integer = Cluster.DEFAULT_SIZE;
 
-    public var vmin: Integer = Layout.DEFAULT_SIZE;
+    public var vmin: Integer = Cluster.DEFAULT_SIZE;
 
-    public var vpref: Integer = Layout.DEFAULT_SIZE;
+    public var vpref: Integer = Cluster.DEFAULT_SIZE;
 
-    public var vmax: Integer = Layout.DEFAULT_SIZE;
+    public var vmax: Integer = Cluster.DEFAULT_SIZE;
 
     public var halign: Layout.Alignment = null;
 

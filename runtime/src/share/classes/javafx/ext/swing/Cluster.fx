@@ -25,6 +25,12 @@ package javafx.ext.swing;
 
 import javax.swing.GroupLayout;
 
+public /* const */ def DEFAULT_SIZE: Integer = GroupLayout.DEFAULT_SIZE;
+
+public /* const */ def PREFERRED_SIZE: Integer = GroupLayout.PREFERRED_SIZE;
+
+public /* const */ def UNLIMITED_SIZE: Integer = java.lang.Short.MAX_VALUE;
+
 public abstract class Cluster extends ClusterElement {
 
     public var content: ClusterElement[];

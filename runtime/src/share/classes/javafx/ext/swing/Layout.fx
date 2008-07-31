@@ -31,12 +31,6 @@ import javax.swing.LayoutStyle.ComponentPlacement;
  */
 public class Layout {
 
-    public static /* constant */ attribute DEFAULT_SIZE: Integer = GroupLayout.DEFAULT_SIZE;
-
-    public static /* constant */ attribute PREFERRED_SIZE: Integer = GroupLayout.PREFERRED_SIZE;
-
-    public static /* constant */ attribute UNLIMITED_SIZE: Integer = java.lang.Short.MAX_VALUE;
-
     public static /* constant */ attribute BASELINE = Alignment.BASELINE;
     
     public static /* constant */ attribute LEADING = Alignment.LEADING;

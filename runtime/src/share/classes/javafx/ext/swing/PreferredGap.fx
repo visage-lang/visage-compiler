@@ -25,10 +25,10 @@ package javafx.ext.swing;
 
 public class PreferredGap extends ClusterElement {
 
-    public /* set-once */ attribute type: Layout.Relationship = Layout.RELATED;
+    public /* set-once */ var type: Layout.Relationship = Layout.RELATED;
 
-    public /* set-once */ attribute pref: Integer = Layout.DEFAULT_SIZE;
+    public /* set-once */ var pref: Integer = Cluster.DEFAULT_SIZE;
 
-    public /* set-once */ attribute max: Integer = Layout.DEFAULT_SIZE;
+    public /* set-once */ var max: Integer = Cluster.DEFAULT_SIZE;
 
 }
