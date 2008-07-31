@@ -37,7 +37,7 @@ public abstract class Cluster extends ClusterElement {
 
     public var useAsBaseline: Boolean = false;
 
-    public var align: Layout.Alignment = null;
+    public var align: ClusterAlignment = null;
 
     function createGLGroup(horizontal: Boolean, gl: GroupLayout): GroupLayout.Group {
         var group = createGLGroupImpl(horizontal, gl);

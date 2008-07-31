@@ -24,34 +24,25 @@
 package javafx.ext.swing;
 
 import javax.swing.GroupLayout;
-import javax.swing.LayoutStyle.ComponentPlacement;
 
+// PENDING_DOC_REVIEW
 /**
- * A place for constants related to layout.
+ * Alignments for {@code ClusterPanel}.
  */
-public class Layout {
+public enum ClusterAlignment {
 
-    public static /* constant */ attribute RELATED = Relationship.RELATED;
+    BASELINE(GroupLayout.Alignment.BASELINE),
 
-    public static /* constant */ attribute UNRELATED = Relationship.UNRELATED;
+    LEADING(GroupLayout.Alignment.LEADING),
 
-    // public static /* constant */ attribute INDENT = Relationship.INDENT;
-    
-}
+    TRAILING(GroupLayout.Alignment.TRAILING),
 
-public class Relationship {
+    CENTER(GroupLayout.Alignment.CENTER);
 
-    private /* set-once */ attribute toolkitValue = ComponentPlacement.RELATED;
-    
-    public static /* constant */ attribute RELATED = Relationship{}; 
+    final GroupLayout.Alignment toolkitValue;
 
-    public static /* constant */ attribute UNRELATED =
-        Relationship{toolkitValue: ComponentPlacement.UNRELATED};
-
-    // public static /* constant */ attribute INDENT = Relationship{toolkitValue: ComponentPlacement.INDENT};
-
-    function getToolkitValue() {
-        toolkitValue;
+    private ClusterAlignment(GroupLayout.Alignment toolkitValue) {
+        this.toolkitValue = toolkitValue;
     }
 
 }

@@ -259,9 +259,9 @@ public abstract class Component extends ClusterElement {
 
     public var vmax: Integer = Cluster.DEFAULT_SIZE;
 
-    public var halign: Layout.Alignment = null;
+    public var halign: ClusterAlignment = null;
 
-    public var valign: Layout.Alignment = null;
+    public var valign: ClusterAlignment = null;
 
     public var hisbaseline: Boolean = false;
 

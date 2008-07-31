@@ -29,22 +29,22 @@ public class ParallelCluster extends Cluster {
 
     public var resizable: Boolean = true;
 
-    public var childAlignment: Layout.Alignment = Layout.BASELINE;
+    public var childAlignment: ClusterAlignment = ClusterAlignment.BASELINE;
 
     public var anchorBaselineToTop: Boolean = false;
 
     override function createGLGroupImpl(horizontal: Boolean, gl: GroupLayout): GroupLayout.Group {
-        var ca = childAlignment.getToolkitValue();
+        var ca = childAlignment;
 
-        if (ca == Layout.BASELINE.getToolkitValue()) {
+        if (ca == ClusterAlignment.BASELINE) {
             if (not horizontal) {
                 return gl.createBaselineGroup(resizable, anchorBaselineToTop);
             }
 
-            ca = Layout.LEADING.getToolkitValue();
+            ca = ClusterAlignment.LEADING;
         }
 
-        return gl.createParallelGroup(ca, resizable);
+        return gl.createParallelGroup(ca.toolkitValue, resizable);
     }
 
     override function addClusterElement(gl: GroupLayout, group: GroupLayout.Group, horizontal: Boolean, ce: ClusterElement): Void {
@@ -55,7 +55,7 @@ public class ParallelCluster extends Cluster {
             var min: Integer;
             var pref: Integer;
             var max: Integer;
-            var align: Layout.Alignment;
+            var align: ClusterAlignment;
 
             if (horizontal) {
                 min = comp.hmin;
@@ -72,7 +72,7 @@ public class ParallelCluster extends Cluster {
             if (align == null) {
                 pGroup.addComponent(comp.getRootJComponent(), min, pref, max);
             } else {
-                pGroup.addComponent(comp.getRootJComponent(), align.getToolkitValue(), min, pref, max);
+                pGroup.addComponent(comp.getRootJComponent(), align.toolkitValue, min, pref, max);
             }
         } else if (ce instanceof Cluster) {
             var cluster = ce as Cluster;
@@ -80,7 +80,7 @@ public class ParallelCluster extends Cluster {
             if (cluster.align == null) {
                 pGroup.addGroup(cluster.createGLGroup(horizontal, gl));
             } else {
-                pGroup.addGroup(cluster.align.getToolkitValue(), cluster.createGLGroup(horizontal, gl));
+                pGroup.addGroup(cluster.align.toolkitValue, cluster.createGLGroup(horizontal, gl));
             }
         } else {
             Cluster.addClusterElement(gl, group, horizontal, ce);
