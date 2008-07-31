@@ -18,8 +18,6 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JComponent;
 
-import javafx.ext.swing.Layout.*;
-
 public abstract class MyCompositeComponent extends Component{
     
     public abstract function composeComponent(): Component;        
