@@ -27,11 +27,11 @@ import javax.swing.GroupLayout;
 
 public abstract class Cluster extends ClusterElement {
 
-    public attribute content: ClusterElement[];
+    public var content: ClusterElement[];
 
-    public attribute useAsBaseline: Boolean = false;
+    public var useAsBaseline: Boolean = false;
 
-    public attribute align: Layout.Alignment = null;
+    public var align: Layout.Alignment = null;
 
     function createGLGroup(horizontal: Boolean, gl: GroupLayout): GroupLayout.Group {
         var group = createGLGroupImpl(horizontal, gl);

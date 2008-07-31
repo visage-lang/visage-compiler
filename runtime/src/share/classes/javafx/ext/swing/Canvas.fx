@@ -46,7 +46,7 @@ import com.sun.javafx.scene.JSGPanelImpl;
  */
 public class Canvas extends Component {
 
-    public attribute background: Paint = Color.fromAWTColor(getJSGPanelImpl().getBackground()) on replace {
+    public var background: Paint = Color.fromAWTColor(getJSGPanelImpl().getBackground()) on replace {
         doAndIgnoreJComponentChange(function() {
             getJSGPanelImpl().setBackgroundPaint(background.getAWTPaint());
         });
@@ -120,7 +120,7 @@ public class Canvas extends Component {
     /**
      * The array of {@link Node}s to be rendered on this {@code Canvas}.
      */    
-    public attribute content: Node[] on replace oldNodes[a..b] = newNodes {
+    public var content: Node[] on replace oldNodes[a..b] = newNodes {
         for (node in oldNodes[a..b]) {
             getRoot().remove(node.impl_getFXNode());
         }

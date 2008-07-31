@@ -66,7 +66,7 @@ public class BorderPanel extends AbstractPanel {
    /**
     * Defines the top layout constraint (top of the panel).
     */
-    public attribute top: Component on replace oldTop {
+    public var top: Component on replace oldTop {
         update(oldTop, top, TOP);
     }
 
@@ -74,7 +74,7 @@ public class BorderPanel extends AbstractPanel {
    /**
     * Defines the bottom layout constraint (top of the panel). 
     */
-    public attribute bottom: Component on replace oldBottom {
+    public var bottom: Component on replace oldBottom {
         update(oldBottom, bottom, BOTTOM);
     }
 
@@ -82,7 +82,7 @@ public class BorderPanel extends AbstractPanel {
    /**
     * Defines the left layout constraint (top of the panel). 
     */
-    public attribute left: Component on replace oldLeft {
+    public var left: Component on replace oldLeft {
         update(oldLeft, left, LEFT);
     }
 
@@ -90,7 +90,7 @@ public class BorderPanel extends AbstractPanel {
    /**
     * Defines the right layout constraint (top of the panel).
     */
-    public attribute right: Component on replace oldRight {
+    public var right: Component on replace oldRight {
         update(oldRight, right, RIGHT);
     }
 
@@ -99,7 +99,7 @@ public class BorderPanel extends AbstractPanel {
     * Defines the component comes before the first line of the layout's 
     * content.
     */
-    public attribute pageStart: Component on replace oldPageStart {
+    public var pageStart: Component on replace oldPageStart {
         update(oldPageStart, pageStart, PAGE_START);
     }
 
@@ -108,7 +108,7 @@ public class BorderPanel extends AbstractPanel {
     * Defines the component comes after the last line of the layout's 
     * content. 
     */
-    public attribute pageEnd: Component on replace oldPageEnd {
+    public var pageEnd: Component on replace oldPageEnd {
         update(oldPageEnd, pageEnd, PAGE_END);
     }
 
@@ -117,7 +117,7 @@ public class BorderPanel extends AbstractPanel {
     * Defines the component goes at the beginning of the line direction for the
     * layout. 
     */
-    public attribute lineStart: Component on replace oldLineStart {
+    public var lineStart: Component on replace oldLineStart {
         update(oldLineStart, lineStart, LINE_START);
     }
 
@@ -126,7 +126,7 @@ public class BorderPanel extends AbstractPanel {
     * Defines the component goes at the end of the line direction for the
     * layout. 
     */
-    public attribute lineEnd: Component on replace oldLineEnd {
+    public var lineEnd: Component on replace oldLineEnd {
         update(oldLineEnd, lineEnd, LINE_END);
     }
 
@@ -134,7 +134,7 @@ public class BorderPanel extends AbstractPanel {
    /**
     * Defines the center layout constraint (center of the panel). 
     */
-    public attribute center: Component on replace oldCenter {
+    public var center: Component on replace oldCenter {
         update(oldCenter, center, CENTER);
     }
 

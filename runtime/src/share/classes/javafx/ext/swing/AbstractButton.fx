@@ -44,7 +44,7 @@ public abstract class AbstractButton extends Component {
    /**
     * Represents the button's text.
     */
-    public attribute text: String on replace {
+    public var text: String on replace {
         doAndIgnoreJComponentChange(function() {
             getAbstractButton().setText(text);
         });
@@ -54,7 +54,7 @@ public abstract class AbstractButton extends Component {
    /**
     * Represents the button's icon.
     */
-    public attribute icon: Icon = Icon.fromToolkitIcon(getAbstractButton().getIcon()) on replace {
+    public var icon: Icon = Icon.fromToolkitIcon(getAbstractButton().getIcon()) on replace {
         doAndIgnoreJComponentChange(function() {
             getAbstractButton().setIcon(icon.getToolkitIcon());
         });
@@ -64,7 +64,7 @@ public abstract class AbstractButton extends Component {
    /**
     * Represents the button's pressed icon.
     */
-    public attribute pressedIcon: Icon = Icon.fromToolkitIcon(getAbstractButton().getPressedIcon()) on replace {
+    public var pressedIcon: Icon = Icon.fromToolkitIcon(getAbstractButton().getPressedIcon()) on replace {
         doAndIgnoreJComponentChange(function() {
             getAbstractButton().setPressedIcon(pressedIcon.getToolkitIcon());
         });
@@ -74,7 +74,7 @@ public abstract class AbstractButton extends Component {
    /**
     * Represents the horizontal alignment of the text and icon.
     */
-    public attribute horizontalAlignment: HorizontalAlignment =
+    public var horizontalAlignment: HorizontalAlignment =
         Util.SwingConstant_To_HA(getAbstractButton().getHorizontalAlignment())
         on replace {
             doAndIgnoreJComponentChange(function() {
@@ -86,7 +86,7 @@ public abstract class AbstractButton extends Component {
    /**
     * Represents the vertical alignment of the text and icon.
     */
-    public attribute verticalAlignment: VerticalAlignment =
+    public var verticalAlignment: VerticalAlignment =
         Util.SwingConstant_To_VA(getAbstractButton().getVerticalAlignment())
         on replace {
             doAndIgnoreJComponentChange(function() {
@@ -98,7 +98,7 @@ public abstract class AbstractButton extends Component {
    /**
     * Represents the horizontal position of the text relative to the icon.
     */
-    public attribute horizontalTextPosition: HorizontalAlignment =
+    public var horizontalTextPosition: HorizontalAlignment =
         Util.SwingConstant_To_HA(getAbstractButton().getHorizontalTextPosition())
         on replace {
             doAndIgnoreJComponentChange(function() {
@@ -110,7 +110,7 @@ public abstract class AbstractButton extends Component {
    /**
     * Represents the vertical position of the text relative to the icon.
     */
-    public attribute verticalTextPosition: VerticalAlignment =
+    public var verticalTextPosition: VerticalAlignment =
         Util.SwingConstant_To_VA(getAbstractButton().getVerticalTextPosition())
         on replace {
             doAndIgnoreJComponentChange(function() {
@@ -122,14 +122,14 @@ public abstract class AbstractButton extends Component {
    /**
     * Represents the button's action.
     */
-    public attribute action: function(): Void;
+    public var action: function(): Void;
 
     // PENDING(shannonh)
     // A hack to prevent against init being called twice when AbstractButton is
     // inherited twice by CheckBoxMenuItem and RadioButtonMenuItem
     // Will be removed when http://openjfx.java.sun.com/jira/browse/JFXC-751 is
     // fixed.
-    private attribute hack_InitCalled = false;
+    private var hack_InitCalled = false;
 
     postinit {
         if (not hack_InitCalled) {

@@ -30,19 +30,19 @@ import java.lang.IllegalArgumentException;
 
 public class ClusterPanel extends AbstractPanel {
 
-    public attribute hcluster: Cluster;
+    public var hcluster: Cluster;
 
-    public attribute vcluster: Cluster;
+    public var vcluster: Cluster;
 
-    public attribute autoCreateGaps: Boolean = true on replace {
+    public var autoCreateGaps: Boolean = true on replace {
         getGroupLayout().setAutoCreateGaps(autoCreateGaps);
     }
 
-    public attribute autoCreateContainerGaps: Boolean = true on replace {
+    public var autoCreateContainerGaps: Boolean = true on replace {
         getGroupLayout().setAutoCreateContainerGaps(autoCreateContainerGaps);
     }
 
-    public attribute honorsVisibility: Boolean = true on replace {
+    public var honorsVisibility: Boolean = true on replace {
         getGroupLayout().setHonorsVisibility(honorsVisibility);
     }
 
