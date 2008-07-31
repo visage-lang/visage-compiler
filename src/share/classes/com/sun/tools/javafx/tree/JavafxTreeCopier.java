@@ -15,12 +15,12 @@ import com.sun.tools.javac.util.Name;
  *
  * @author tball
  */
-public class JFXTreeCopier implements JavafxVisitor {
+public class JavafxTreeCopier implements JavafxVisitor {
     private JavafxTreeMaker maker;
     private JFXTree result;
 
     /** Creates a new instance of TreeCopier */
-    public JFXTreeCopier(JavafxTreeMaker maker) {
+    public JavafxTreeCopier(JavafxTreeMaker maker) {
         this.maker = maker;
     }
 

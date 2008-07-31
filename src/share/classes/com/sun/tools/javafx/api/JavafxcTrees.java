@@ -319,7 +319,7 @@ public class JavafxcTrees {
     /**
      * Makes a copy of a tree, noting the value resulting from copying a particular leaf.
      **/
-    static class Copier extends JFXTreeCopier {
+    static class Copier extends JavafxTreeCopier {
         JFXTree leaf;
         JFXTree leafCopy = null;
 
