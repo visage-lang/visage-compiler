@@ -6,7 +6,10 @@ package assortis.core;
 
 
 import java.util.Locale;
- 
+
+public function createItem(localeItem: LocaleItem){
+    return PropertyItem{ locale: localeItem.locale, text: localeItem.text}
+}
  
 public class PropertyItem {
 
@@ -16,8 +19,5 @@ public class PropertyItem {
     public function getName(){
         return locale.getDisplayName(); 
     } 
-    public static function createItem(localeItem: LocaleItem){
-        return PropertyItem{ locale: localeItem.locale, text: localeItem.text}
-    }
 
 }

@@ -16,6 +16,14 @@ import java.lang.System;
 
 import assortis.core.ui.*;
 
+package function createProjectSample(sample: Sample): ProjectSample{
+    ProjectSample{
+        name: sample.name
+        className: sample.className
+        visible: sample.visible
+    }
+}
+
 public class ProjectSample {
     
     public attribute name: String;
@@ -54,15 +62,7 @@ public class ProjectSample {
     public function getPropertyItem(){
         return propertyItems[propertyIndex];
     }
-    
-    static function createProjectSample(sample: Sample): ProjectSample{
-        ProjectSample{
-            name: sample.name
-            className: sample.className
-            visible: sample.visible
-        }
-    }
-    
+
     override function toString ():String { name } 
 
 }

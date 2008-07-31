@@ -5,6 +5,11 @@ import javafx.lang.Sequences;
 import javafx.lang.FX;
 import javafx.ext.swing.*;
 
+private function indexOfJMenuInJMenuBar(item: JMenu, menubar: JMenuBar): Integer {
+    var children = menubar.getComponents();
+    return Sequences.indexByIdentity(children, item);
+}
+
 public class RootPane extends Component, Container {
 
     // PENDING_DOC_REVIEW
@@ -102,11 +107,6 @@ public class RootPane extends Component, Container {
      */
     override bound function getName(): String {
         return null;
-    }
-    
-    private static function indexOfJMenuInJMenuBar(item: JMenu, menubar: JMenuBar): Integer {
-        var children = menubar.getComponents();
-        return Sequences.indexByIdentity(children, item);
     }
 
     private function resetMenusFromJMenuBar(): Void {

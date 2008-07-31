@@ -10,19 +10,18 @@ package assortis.core;
 * @author Alexandr Scherbatiy
 */
 
+package function createProjectModule(module: Module): ProjectModule{
+    ProjectModule{
+        name: module.name
+        samples: for(sample in module.samples) ProjectSample.createProjectSample(sample)
+    }
+}
 
 public class ProjectModule {
     
     attribute name: String;
     public attribute samples: ProjectSample[];
     
-    static function createProjectModule(module: Module): ProjectModule{
-        ProjectModule{
-            name: module.name
-            samples: for(sample in module.samples) ProjectSample.createProjectSample(sample)
-        }
-    }
-
     override function toString ():String { name } 
 
 }

@@ -9,15 +9,12 @@ import javafx.scene.geometry.*;
 import java.lang.System;
 
 
-class Function{
-    
-  static function abs(x: Number):Number{
+function abs(x: Number):Number{
     return if ( x < 0 ) then -x else x;
-  }
+}
 
-  static function min(x: Number, y: Number):Number{
+function min(x: Number, y: Number):Number{
     return if ( x < y ) then x else y;
-  }
 }
 
 //  ============  XY  ====================//
@@ -134,7 +131,7 @@ class Lamp extends ElectronicComponent{
     }
 
     override function simulate():Void{
-      if( Function.abs( pin1.level - pin2.level) > 5 ){
+      if( abs( pin1.level - pin2.level) > 5 ){
         switchOn = true;
       }else{
         switchOn = false;
@@ -143,7 +140,7 @@ class Lamp extends ElectronicComponent{
     }
 
     override function create(): Node{
-      var r = Function.min(compWidth, compHeight);
+      var r = min(compWidth, compHeight);
       var h = r / 2.0;      
 
       return Group{
@@ -270,7 +267,7 @@ class Switch extends ElectronicComponent{
         content:  [ Circle{
             centerX: bind pos.x
             centerY: bind pos.y
-            radius:  Function.min(compWidth, compHeight) 
+            radius:  min(compWidth, compHeight) 
             fill: Color.ORANGE
             stroke: Color.BROWN
             onMouseClicked: function(e){
