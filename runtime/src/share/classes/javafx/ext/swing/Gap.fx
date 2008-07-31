@@ -25,10 +25,10 @@ package javafx.ext.swing;
 
 public class Gap extends ClusterElement {
 
-    public /* set-once */ attribute min: Integer = Layout.PREFERRED_SIZE;
+    public /* set-once */ var min: Integer = Cluster.PREFERRED_SIZE;
 
-    public /* set-once */ attribute pref: Integer = 0;
+    public /* set-once */ var pref: Integer = 0;
 
-    public /* set-once */ attribute max: Integer = Layout.PREFERRED_SIZE;
+    public /* set-once */ var max: Integer = Cluster.PREFERRED_SIZE;
 
 }

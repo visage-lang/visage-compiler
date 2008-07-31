@@ -228,8 +228,8 @@ frame = SwingFrame {
         var urlTextField = SwingTextField {
             columns: 60
             background: Color.WHITE
-            hmax: Layout.UNLIMITED_SIZE
-            vmax: Layout.PREFERRED_SIZE
+            hmax: Cluster.UNLIMITED_SIZE
+            vmax: Cluster.PREFERRED_SIZE
             text: bind javafxPad.url with inverse
             action: function() {
                 javafxPad.go();
@@ -237,20 +237,20 @@ frame = SwingFrame {
         };
         var goButton = SwingButton {
             text: "Go"
-            vmax: Layout.PREFERRED_SIZE
+            vmax: Cluster.PREFERRED_SIZE
             action: function() {
                 javafxPad.go();
             }
         };
         var zoomComboBox = ComboBox {
-            vmax: Layout.PREFERRED_SIZE
+            vmax: Cluster.PREFERRED_SIZE
             items:  for (i in javafxPad.zoomOptions)
                 ComboBoxItem{ text: "{i}%" } 
                 selectedIndex: bind  javafxPad.zoomSelection with inverse
         }
         var bp = BorderPanel {
-            hmax: Layout.UNLIMITED_SIZE
-            vmax: Layout.UNLIMITED_SIZE
+            hmax: Cluster.UNLIMITED_SIZE
+            vmax: Cluster.UNLIMITED_SIZE
             center: javafxPad
         };
         hcluster: SequentialCluster {
