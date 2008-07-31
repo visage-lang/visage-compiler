@@ -153,12 +153,12 @@ public class RadialGradient extends Paint {
     // PENDING_DOC_REVIEW
     /**
      * Defines which of the follwing cycle method is applied 
-     * to the {@code LinearGradient}: {@code CycleMethod.NO}, 
+     * to the {@code LinearGradient}: {@code CycleMethod.NO_CYCLE}, 
      * {@code CycleMethod.REFLECT}, or {@code CycleMethod.REPEAT}.
      *
      * @profile common conditional multigradient
      */
-    public attribute cycleMethod:CycleMethod;
+    public attribute cycleMethod:CycleMethod= CycleMethod.NO_CYCLE;
 
     // PENDING_DOC_REVIEW
     /**
