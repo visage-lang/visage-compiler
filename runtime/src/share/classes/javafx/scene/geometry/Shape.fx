@@ -60,13 +60,13 @@ public abstract class Shape extends Node, Interpolatable {
         impl_getSGAbstractShape().setDrawStroke(if (sizeof strokeDashArray == 0)
             new BasicStroke(
                 strokeWidth.floatValue(),
-                strokeLineCap.getToolkitValue(),
-                strokeLineJoin.getToolkitValue(),
+                strokeLineCap.toolkitValue,
+                strokeLineJoin.toolkitValue,
                 strokeMiterLimit.floatValue()) 
             else new BasicStroke(
                 strokeWidth.floatValue(),
-                strokeLineCap.getToolkitValue(),
-                strokeLineJoin.getToolkitValue(),
+                strokeLineCap.toolkitValue,
+                strokeLineJoin.toolkitValue,
                 strokeMiterLimit.floatValue(),
                 strokeDashArray,
                 strokeDashOffset.floatValue()));

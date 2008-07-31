@@ -27,16 +27,11 @@ import java.awt.BasicStroke;
 
 // PENDING_DOC_REVIEW
 /**
- * Defines the line join style of the {@code Shape} and {@code AbstractShape} 
- * as one of the static values that define possible line join styles.
+ * Defines the line join style of a {@code Shape}. 
  *
  * @profile common
  */
-public class StrokeLineJoin {
-
-    private attribute toolkitValue: Integer = BasicStroke.JOIN_MITER;
-
-    private attribute name: String = "JOIN_MITER";
+public enum StrokeLineJoin {
 
     // PENDING_DOC_REVIEW
     /**
@@ -44,7 +39,7 @@ public class StrokeLineJoin {
      *
      * @profile common 
      */
-    public static attribute MITER = StrokeLineJoin { }
+    MITER(BasicStroke.JOIN_MITER),
 
     // PENDING_DOC_REVIEW
     /**
@@ -53,10 +48,7 @@ public class StrokeLineJoin {
      *
      * @profile common 
      */
-    public static attribute BEVEL = StrokeLineJoin { 
-            toolkitValue: BasicStroke.JOIN_BEVEL
-            name: "JOIN_BEVEL" 
-    }
+    BEVEL(BasicStroke.JOIN_BEVEL),
 
     // PENDING_DOC_REVIEW
     /**
@@ -65,13 +57,12 @@ public class StrokeLineJoin {
      *
      * @profile common 
      */
-    public static attribute ROUND = StrokeLineJoin {
-        toolkitValue: BasicStroke.JOIN_ROUND
-        name: "JOIN_ROUND" 
+    ROUND(BasicStroke.JOIN_ROUND);
+
+    final int toolkitValue;
+
+    private StrokeLineJoin(int toolkitValue) {
+        this.toolkitValue = toolkitValue;
     }
-
-    function getToolkitValue(): Integer { toolkitValue }
-
-    override function toString(): String { name }
 
 }

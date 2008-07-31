@@ -27,16 +27,11 @@ import java.awt.BasicStroke;
 
 // PENDING_DOC_REVIEW
 /**
- * Defines the end cap style of the {@code Shape} and {@code AbstractShape} 
- * as one of the static values that define possible end cap styles.
+ * Defines the end cap style of a {@code Shape}.
  *
  * @profile common
  */
-public class StrokeLineCap {
-
-    private attribute toolkitValue: Integer = BasicStroke.CAP_SQUARE;
-
-    private attribute name: String = "CAP_SQUARE";
+public enum StrokeLineCap {
 
     // PENDING_DOC_REVIEW
     /**
@@ -46,7 +41,7 @@ public class StrokeLineCap {
      *
      * @profile common
      */
-    public static attribute SQUARE = StrokeLineCap { }
+    SQUARE(BasicStroke.CAP_SQUARE),
 
     // PENDING_DOC_REVIEW
     /**
@@ -54,10 +49,7 @@ public class StrokeLineCap {
      *
      * @profile common
      */
-    public static attribute BUTT = StrokeLineCap { 
-        toolkitValue: BasicStroke.CAP_BUTT
-        name: "CAP_BUTT" 
-    }
+    BUTT(BasicStroke.CAP_BUTT),
 
     // PENDING_DOC_REVIEW
     /**
@@ -66,13 +58,12 @@ public class StrokeLineCap {
      *
      * @profile common
      */
-    public static attribute ROUND = StrokeLineCap {
-        toolkitValue: BasicStroke.CAP_ROUND
-        name: "CAP_ROUND" 
+    ROUND(BasicStroke.CAP_ROUND);
+
+    final int toolkitValue;
+
+    private StrokeLineCap(int toolkitValue) {
+        this.toolkitValue = toolkitValue;
     }
-
-    function getToolkitValue(): Integer { toolkitValue }
-
-    override function toString(): String { name }
 
 }
