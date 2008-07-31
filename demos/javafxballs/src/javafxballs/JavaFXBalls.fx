@@ -271,63 +271,6 @@ StringLocalizer.associate("javafxballs.resources.JavaFXBalls", "javafxballs");
 
 var test = new BallsTest();
 
-/*
-var win = SwingFrame {
-        title: ##"JavaFX Balls"
-        width: 510
-        height: 366
-        content: BorderPanel {
-            center: Canvas {
-                    content: [
-                        Rect {
-                            width: 500
-                            height: 300
-                            fill: Color.WHITE
-                        },
-                        Text {
-                            x: 4
-                            y: 4
-                            content: bind test.fps
-                            font: Font {faceName: ##"Arial", size: 14}
-                        },
-                        Group {
-                            // content: bind for (b in test.balls) (b.img as java.lang.Object) as Node
-                            content: bind for (b in test.balls) { b.view }
-                        }
-                        //bind test._ballImg
-                    ]
-                },
-            bottom: FlowPanel{
-                alignment: Alignment.LEADING
-                content: [
-                    SwingButton{
-                        text: bind if (not test._is_running) then ##"Start" else ##"Stop"
-                        action: function() {
-                            test._is_running = not test._is_running;
-                        }
-                    },
-                    Label {
-                        text: ##"# of balls:"
-                    }, 
-                    Spinner {
-                      min: 2
-                      max: 1024
-                      value: bind test._N with inverse
-                    }
-                ]
-            }
-        }      
-        visible: true
-        resizable: false
-        onClose: function() {
-            test.stop();
-	    delete test;
-            System.exit(0);
-        }
-};
-
-*/
-
 var tg = SwingToggleGroup {}
 var tg2 = SwingToggleGroup {}
 
