@@ -59,7 +59,7 @@ public class Path extends Shape {
     function getSGShape():SGShape { impl_getSGNode() as SGShape }
 
     function updatePath2D() {
-        var path2D = new GeneralPath(fillRule.getToolkitValue(), sizeof elements);
+        var path2D = new GeneralPath(fillRule.toolkitValue, sizeof elements);
         for (elt in elements) {
             elt.addTo(path2D);
         }

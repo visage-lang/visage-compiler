@@ -27,27 +27,20 @@ import java.awt.geom.GeneralPath;
 
 // PENDING_DOC_REVIEW
 /**
- * Sets the filling rule for the path to the following values: 
- * {@code NON_ZERO} or {@code EVEN_ODD}. 
- * The default value is {@code NON_ZERO}.
+ * The fill rule for a path.
  *
  * @profile common
  * @needsreview
  */  
-public class FillRule {
+public enum FillRule {
 
-    private attribute toolkitValue: Integer = GeneralPath.WIND_NON_ZERO;
-
-    private attribute name: String = "NON_ZERO";
-    
     // PENDING_DOC_REVIEW
     /**
      * Defines a non-zero filling rule for determining the interior of a path. 
      *
      * @profile common
      */      
-    public static attribute NON_ZERO = FillRule {
-    }
+    NON_ZERO(GeneralPath.WIND_NON_ZERO),
 
     // PENDING_DOC_REVIEW
     /**
@@ -55,13 +48,12 @@ public class FillRule {
      *
      * @profile common
      */      
-    public static attribute EVEN_ODD = FillRule {
-        toolkitValue: GeneralPath.WIND_EVEN_ODD
-        name: "EVEN_ODD"
+    EVEN_ODD(GeneralPath.WIND_EVEN_ODD);
+
+    final int toolkitValue;
+    
+    private FillRule(int toolkitValue) {
+        this.toolkitValue = toolkitValue;
     }
-
-    function getToolkitValue(): Integer { toolkitValue }
-
-    override function toString(): String { name }
 
 }
