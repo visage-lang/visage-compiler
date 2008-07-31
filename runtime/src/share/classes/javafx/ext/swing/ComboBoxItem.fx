@@ -36,7 +36,7 @@ public class ComboBoxItem {
     /**
      * Defines a string of a {@code ComboBoxItem}.
      */    
-    public attribute text: String on replace {
+    public var text: String on replace {
         if (combo != null) {
             combo.fireContentsChanged(this);
         }
@@ -46,7 +46,7 @@ public class ComboBoxItem {
     /**
      * Defines whether a combobox item is selected or not.
      */ 
-    public attribute selected: Boolean on replace {
+    public var selected: Boolean on replace {
         if (combo != null) {
             if (selected) {
                 combo.selectedItem = this;
@@ -60,11 +60,11 @@ public class ComboBoxItem {
    /**
     * Defines a value of a {@code ComboBoxItem}.
     */ 
-    public attribute value: Object;
+    public var value: Object;
 
-    attribute combo: ComboBox;
+    var combo: ComboBox;
 
-    attribute comboIndex: Integer;
+    var comboIndex: Integer;
 
    // PENDING_DOC_REVIEW  
    /**

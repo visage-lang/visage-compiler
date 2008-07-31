@@ -47,11 +47,11 @@ import javafx.lang.FX;
  */
 public class ComboBox extends Component {
 
-    private attribute initialized: Boolean = false;
+    private var initialized: Boolean = false;
 
-    private attribute listeners: ArrayList = new ArrayList();
+    private def listeners: ArrayList = new ArrayList();
 
-    private attribute modelSelected: Object;
+    private var modelSelected: Object;
 
    // PENDING_DOC_REVIEW
    /**
@@ -59,7 +59,7 @@ public class ComboBox extends Component {
     * <p/>
     * By default, a combo box is not editable.      
     */
-    public attribute editable: Boolean = false on replace {
+    public var editable: Boolean = false on replace {
         getJComboBox().setEditable(editable);
     }
 
@@ -67,7 +67,7 @@ public class ComboBox extends Component {
    /**
     * Defines an array of this {@code ComboBox} elements.
     */
-    public attribute items: ComboBoxItem[] on replace oldItems[a..b] = newSlice {
+    public var items: ComboBoxItem[] on replace oldItems[a..b] = newSlice {
         var added = sizeof newSlice;
 
         if (a <= b) {
@@ -119,7 +119,7 @@ public class ComboBox extends Component {
     * <p/>
     * The default value is {@code -1}.
     */
-    public attribute selectedIndex: Integer = -1 on replace {
+    public var selectedIndex: Integer = -1 on replace {
         if (selectedIndex < -1 or selectedIndex >= sizeof items) {
             selectedIndex = -1;
         }
@@ -133,7 +133,7 @@ public class ComboBox extends Component {
      * <p/>
      * The default value is {@code null}. 
      */
-    public attribute selectedItem: ComboBoxItem = null on replace oldValue {
+    public var selectedItem: ComboBoxItem = null on replace oldValue {
         if (oldValue != null and FX.isSameObject(oldValue.combo, this)) {
             oldValue.selected = false;
         }
@@ -151,7 +151,7 @@ public class ComboBox extends Component {
    /**
     * Defines the text for the selected item in the list. 
     */
-    public attribute text: String on replace {
+    public var text: String on replace {
         updateJComboBoxSelectionFromText();
     }
 

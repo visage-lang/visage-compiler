@@ -43,7 +43,7 @@ public abstract class AbstractPanel extends Component, Container {
    /**
     * Defines a {@code Paint} color pattern to be applied to the background.  
     */
-    public attribute background: Paint = Color.fromAWTColor(getJPanel().getBackground()) on replace {
+    public var background: Paint = Color.fromAWTColor(getJPanel().getBackground()) on replace {
         doAndIgnoreJComponentChange(function() {
             getJPanelImpl().setBackgroundPaint(background.getAWTPaint());
         });

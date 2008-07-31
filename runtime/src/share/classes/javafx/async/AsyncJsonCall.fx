@@ -4,13 +4,13 @@ import java.lang.*;
 import javafx.json.*;
 
 public class AsyncJsonCall extends AbstractAsyncOperation {
-    private attribute peer : com.sun.javafx.runtime.async.RemoteTextDocument;
-    public attribute document : JSONObject;
-    public attribute url : String;
-    public attribute method : String = "GET";
-    public attribute referer: String;
-    public attribute outboundContent: String;
-    public attribute contentType: String;
+    private var peer : com.sun.javafx.runtime.async.RemoteTextDocument;
+    public var document : JSONObject;
+    public var url : String;
+    public var method : String = "GET";
+    public var referer: String;
+    public var outboundContent: String;
+    public var contentType: String;
 
     public override function cancel() : Void {
         if (peer != null) then peer.cancel();

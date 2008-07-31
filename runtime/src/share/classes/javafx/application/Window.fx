@@ -52,23 +52,23 @@ private /* const */ def UNINITIALIZED: Integer = java.lang.Integer.MIN_VALUE;
  */
 public abstract class Window {
 
-    private attribute initialized: Boolean = false;
+    private var initialized: Boolean = false;
 
     private def canvasStage:CanvasStageImpl = CanvasStageImpl{ stage: bind stage };
 
     def window : java.awt.Window = createWindow();
 
-    public attribute name: String on replace {
+    public var name: String on replace {
         window.setName(name);
     }
 
-    public attribute closeAction: function(): Void = close;
+    public var closeAction: function(): Void = close;
     
     // PENDING_DOC_REVIEW
     /**
      * Defines the title of the {@code Window}.
      */
-    public attribute title: String on replace { setWindowTitle(title); }
+    public var title: String on replace { setWindowTitle(title); }
 
     abstract function setWindowTitle(title:String): Void;
 
@@ -76,7 +76,7 @@ public abstract class Window {
     /**
      * Defines whether this {@code Window} is resizable by the user.
      */
-    public attribute resizable: Boolean = true on replace { setWindowResizable(resizable); }
+    public var resizable: Boolean = true on replace { setWindowResizable(resizable); }
 
     abstract function setWindowResizable(resizable:Boolean): Void;
 
@@ -87,7 +87,7 @@ public abstract class Window {
      *
      * @setonce
      */
-    public  /* set-once */ attribute windowStyle:WindowStyle = WindowStyle.DECORATED on replace {
+    public /* set-once */ var windowStyle: WindowStyle = WindowStyle.DECORATED on replace {
         if (windowStyle == WindowStyle.DECORATED) {
             // do nothing as this is the default
         } else if (windowStyle == WindowStyle.UNDECORATED) {
@@ -105,7 +105,7 @@ public abstract class Window {
      * Defines the icon images to be used in the window decorations and when minimized. The images should be different
      * sizes of the same thing and the best size will be chosen, eg. 16x16, 32,32.
      */
-    public attribute icons: Image[] = null on replace {
+    public var icons: Image[] = null on replace {
         var iconList:java.util.ArrayList = new java.util.ArrayList();
         for (icon in icons){
             iconList.add(icon.getBufferedImage());
@@ -115,19 +115,19 @@ public abstract class Window {
 
     // PENDING(shannonh) - binding support for x, y, width, height, visible
 
-    public attribute x: Integer on replace {
+    public var x: Integer on replace {
         var pt = window.getLocation();
         pt.x = x;
         window.setLocation(pt);
     }
 
-    public attribute y: Integer on replace {
+    public var y: Integer on replace {
         var pt = window.getLocation();
         pt.y = y;
         window.setLocation(pt);
     }
 
-    public attribute width: Integer = UNINITIALIZED on replace {
+    public var width: Integer = UNINITIALIZED on replace {
         if (initialized) {
             var dim = window.getSize();
             dim.width = width;
@@ -135,7 +135,7 @@ public abstract class Window {
         }
     }
 
-    public attribute height: Integer = UNINITIALIZED on replace {
+    public var height: Integer = UNINITIALIZED on replace {
         if (initialized) {
             var dim = window.getSize();
             dim.height = height;
@@ -143,7 +143,7 @@ public abstract class Window {
         }
     }
 
-    public attribute visible: Boolean on replace {
+    public var visible: Boolean on replace {
         if (initialized) {
             setWindowVisibility(visible);
         }
@@ -152,7 +152,7 @@ public abstract class Window {
     /**
      * This is the stage that the window presents on screen for showing content.
      */
-    public attribute stage: Stage;
+    public var stage: Stage;
 
     // PENDING_DOC_REVIEW
     /**
@@ -163,7 +163,7 @@ public abstract class Window {
      * 100% opaque. This is a platform-dependent behavior. This only has effect if the platform supports it. Currently
      * Sun Java 6u10 or newer and Apple Java support this.
      */
-    public attribute opacity:Number = 1.0 on replace {
+    public var opacity:Number = 1.0 on replace {
         WindowImpl.setWindowOpacity(window,opacity);
     }
 
@@ -258,7 +258,7 @@ public abstract class Window {
         }
     }
 
-    private attribute isWindowInitialized: Boolean = false;
+    private var isWindowInitialized: Boolean = false;
 
     private function getRootPaneContainer(): RootPaneContainer {
         window as RootPaneContainer;
