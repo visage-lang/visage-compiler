@@ -11,7 +11,7 @@ import com.sun.javafx.runtime.util.StringLocalization;
  * Utility class for localizing strings using JavaFX properties files.
  *
  * An object of this class is used to find the appropriate localized
- * strings for the given attributes.  For example,
+ * strings for the given variables.  For example,
  * <code><pre>
  * // Object creation
  * var localizer = StringLocalizer{ key: "Hello, World!" };
@@ -48,7 +48,7 @@ public class StringLocalizer {
      *
      * @needsreview
      */
-    public attribute key: String;
+    public var key: String;
 
     /**
      * The locale used for determining the JavaFX properties resource
@@ -57,14 +57,14 @@ public class StringLocalizer {
      * Note: Made this private for now, as there is no Locale class in some
      * platforms (e.g., CLDC/MIDP)
      */
-    private attribute locale: Locale = Locale.getDefault();
+    private var locale: Locale = Locale.getDefault();
 
     /**
      * The canonical base name of the JavaFX properties file.  It consists 
      * of the package name and the base bundle name of the JavaFX properties 
      * file.  For example, the canonical base name of 'MyResources_xx.fxproperties', 
      * where 'xx' denotes the locale, in 'foo.bar' package is 
-     * 'foo.bar.MyResources'.  If this attribute is not explicitly specified,
+     * 'foo.bar.MyResources'.  If this variable is not explicitly specified,
      * it is synthesized from the caller's package and script file name, e.g.,
      * a JavaFX Script 'Example.fx' is in 'foo.bar' package, the synthesized
      * canonical base name will be 'foo.bar.Example'.
@@ -72,25 +72,25 @@ public class StringLocalizer {
      * @needsreview
      * @defaultvalue the caller's script file name
      */
-    private attribute propertiesName: String = getDefaultPropertiesName();
+    private var propertiesName: String = getDefaultPropertiesName();
 
     /**
      * The default string for the <code>localizedString</code>.
      *
      * @needsreview
      */
-    public attribute defaultString : String;
+    public var defaultString : String;
    
     /**
-     * The localized string for the given attributes.  If there
+     * The localized string for the given variables.  If there
      * is no appropriate localized string found in JavaFX properties files,
-     * this attribute will have the value in <code>defaultString</code> if 
+     * this variable will have the value in <code>defaultString</code> if 
      * it is specified, otherwise it will have the value in <code>key</code>.
      *
      * @needsreview
      * @readonly
      */
-    public attribute localizedString : String = bind {
+    readable package var localizedString : String = bind {
         if ("".equals(defaultString)) {
             StringLocalization.getLocalizedString(propertiesName, key, key, locale);
         } else {
