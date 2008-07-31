@@ -44,6 +44,12 @@ import java.lang.Math;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.Timer;
+import javafx.animation.Timeline;
+import javafx.animation.KeyFrame;
+import com.sun.scenario.animation.FrameJob;
+import com.sun.scenario.Settings;
+
+Settings.set("com.sun.scenario.animation.pulse", "200");
 
 class Ball extends BallBase {
     attribute view:Node;
@@ -213,17 +219,22 @@ class BallsTest {
     attribute imageBalls:Boolean = true on replace { resetBalls() }
     attribute _N:Number = 16 on replace { resetBalls() }
 
-    attribute timerListener:ActionListener =  ActionListener {
-        override function actionPerformed(evt:ActionEvent): Void {
-            if (_is_running) {
-                update();
-            } else {
-                stop();
+    attribute timeline:Timeline = Timeline {
+        repeatCount: Timeline.INDEFINITE
+        autoReverse:false
+        keyFrames: KeyFrame {
+            time: 5ms
+            action: function() {
+                if (_is_running) {
+                    update();
+                } else {
+                    stop();
+                }            
             }
+            canSkip: true
         }
-    }
-    attribute timer:Timer = new Timer(5, timerListener);
-
+    }  
+    
     attribute fpsListener:ActionListener = ActionListener {
         override function actionPerformed(evt:ActionEvent): Void {
             if (_is_running) {
@@ -253,14 +264,14 @@ class BallsTest {
     attribute fps:String = ##"-- fps";
     
     function start(): Void {
-        timer.start();
+        timeline.start();
         fpsTimer.start();
     }
     
     function stop(): Void {
         if (_is_running) {
             _is_running = false;
-            timer.stop();
+            timeline.stop();
             fpsTimer.stop();
             fps = ##"-- fps";
         }
