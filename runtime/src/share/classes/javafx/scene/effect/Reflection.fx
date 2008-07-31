@@ -30,7 +30,10 @@ package javafx.scene.effect;
 public class Reflection extends Effect {
     private attribute reflect = new com.sun.scenario.effect.Reflection();
 
-    override function getImpl():com.sun.scenario.effect.Effect {
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         reflect
     };
 
@@ -39,7 +42,7 @@ public class Reflection extends Effect {
      * If left unspecified, the source content will be used as the input.
      */
     public attribute input: Effect = Source { }
-        on replace { reflect.setInput(input.getImpl()); }
+        on replace { reflect.setInput(input.impl_getImpl()); }
 
     /**
      * The top offset adjustment, which is the distance between the

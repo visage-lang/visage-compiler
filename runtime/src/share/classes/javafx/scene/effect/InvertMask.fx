@@ -30,7 +30,10 @@ package javafx.scene.effect;
 public class InvertMask extends Effect {
     private attribute invert = new com.sun.scenario.effect.InvertMask();
 
-    override function getImpl():com.sun.scenario.effect.Effect {
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         invert
     };
 
@@ -39,7 +42,7 @@ public class InvertMask extends Effect {
      * If left unspecified, the source content will be used as the input.
      */
     public attribute input: Effect = Source { }
-        on replace { invert.setInput(input.getImpl()); }
+        on replace { invert.setInput(input.impl_getImpl()); }
 
     /**
      * The amount of padding added to each side of the resulting

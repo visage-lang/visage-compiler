@@ -30,7 +30,10 @@ package javafx.scene.effect;
 public class ColorAdjust extends Effect {
     private attribute adjust = new com.sun.scenario.effect.ColorAdjust();
 
-    override function getImpl():com.sun.scenario.effect.Effect {
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         adjust
     };
 
@@ -39,7 +42,7 @@ public class ColorAdjust extends Effect {
      * If left unspecified, the source content will be used as the input.
      */
     public attribute input: Effect = Source { }
-        on replace { adjust.setInput(input.getImpl()); }
+        on replace { adjust.setInput(input.impl_getImpl()); }
 
     /**
      * The hue adjustment value.

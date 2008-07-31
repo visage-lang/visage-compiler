@@ -32,7 +32,10 @@ public class DisplacementMap extends Effect {
         new com.sun.scenario.effect.FloatMap(1, 1),
         new com.sun.scenario.effect.Source(true));
         
-    override function getImpl():com.sun.scenario.effect.Effect {
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         displace
     };
 
@@ -41,7 +44,7 @@ public class DisplacementMap extends Effect {
      * If left unspecified, the source content will be used as the input.
      */
     public attribute input: Effect = Source { }
-        on replace { displace.setContentInput(input.getImpl()); }
+        on replace { displace.setContentInput(input.impl_getImpl()); }
 
     /**
      * The map data for this {@code Effect}.

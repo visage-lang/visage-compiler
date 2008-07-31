@@ -23,8 +23,6 @@
 
 package javafx.scene.effect;
 
-import com.sun.javafx.scene.AccessHelper;
-import com.sun.javafx.scene.AccessHelper.EffectAccessor;
 import java.lang.Object;
 import java.awt.GraphicsConfiguration;
 
@@ -33,9 +31,10 @@ import java.awt.GraphicsConfiguration;
  */
 public abstract class Effect {
 
-    private static attribute accessor = EffectAccessorImpl.create();
-
-    abstract function getImpl():com.sun.scenario.effect.Effect;
+    /**
+     * @treatasprivate implementation detail.
+     */
+    public abstract function impl_getImpl(): com.sun.scenario.effect.Effect;
 
     /**
      * Returns a {@code String} representing the type of hardware
@@ -44,23 +43,6 @@ public abstract class Effect {
      * intended for informational or debugging purposes only.
      */
     public function getAccelType(config:GraphicsConfiguration):String {
-        return getImpl().getAccelType(config).toString();
-    }
-}
-
-/**
- * Package-private class that gives javafx.gui.Node access to implementation
- * details from this package.
- */
-class EffectAccessorImpl extends EffectAccessor {
-
-    static function create() : EffectAccessor {
-        var accessor:EffectAccessor = EffectAccessorImpl {};
-        AccessHelper.setEffectAccessor(accessor);
-        return accessor;
-    }
-
-    override function getImpl(fxEffect:Object):com.sun.scenario.effect.Effect {
-        return (fxEffect as Effect).getImpl();
+        return impl_getImpl().getAccelType(config).toString();
     }
 }

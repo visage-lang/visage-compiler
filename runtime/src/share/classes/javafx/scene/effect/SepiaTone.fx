@@ -29,7 +29,10 @@ package javafx.scene.effect;
 public class SepiaTone extends Effect {
     private attribute sepia = new com.sun.scenario.effect.SepiaTone();
 
-    override function getImpl():com.sun.scenario.effect.Effect {
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         sepia
     };
 
@@ -38,7 +41,7 @@ public class SepiaTone extends Effect {
      * If left unspecified, the source content will be used as the input.
      */
     public attribute input: Effect = Source { }
-        on replace { sepia.setInput(input.getImpl()); }
+        on replace { sepia.setInput(input.impl_getImpl()); }
 
     /**
      * The level value, which controls the intensity of the sepia effect.

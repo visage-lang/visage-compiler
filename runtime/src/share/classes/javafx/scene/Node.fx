@@ -39,7 +39,6 @@ import java.awt.event.MouseWheelEvent;
 import java.lang.Math;
 import java.math.BigInteger;
 import javafx.scene.effect.Effect;
-import com.sun.javafx.scene.AccessHelper;
 import com.sun.javafx.scene.Util;
 import javafx.input.MouseEvent;
 import javafx.input.KeyEvent;
@@ -498,7 +497,7 @@ public abstract class Node {
      * Sets an effect on this node.
      */
     public attribute effect:Effect on replace {
-        impl_getFXNode().setEffect(AccessHelper.getEffectImpl(effect));
+        impl_getFXNode().setEffect(effect.impl_getImpl());
     }
 
     /** Moves this node to the front of it's sibiling nodes 

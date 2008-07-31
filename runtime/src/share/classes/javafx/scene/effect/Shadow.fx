@@ -28,7 +28,10 @@ import javafx.scene.paint.Color;
 public class Shadow extends Effect {
     private attribute shadow = new com.sun.scenario.effect.Shadow();
 
-    override function getImpl():com.sun.scenario.effect.Effect {
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         shadow
     };
 
@@ -37,7 +40,7 @@ public class Shadow extends Effect {
      * If left unspecified, the source content will be used as the input.
      */
     public attribute input: Effect = Source { }
-        on replace { shadow.setInput(input.getImpl()); }
+        on replace { shadow.setInput(input.impl_getImpl()); }
 
     /**
      * The radius of the shadow blur kernel.

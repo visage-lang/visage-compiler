@@ -32,8 +32,11 @@ public class Blend extends Effect {
         BlendMode.SRC_OVER.toolkitValue,
         new com.sun.scenario.effect.Source(true),
         new com.sun.scenario.effect.Source(true));
-        
-    override function getImpl():com.sun.scenario.effect.Effect {
+
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         blend
     };
 
@@ -67,12 +70,12 @@ public class Blend extends Effect {
      * If left unspecified, the source content will be used as the input.
      */
     public attribute bottomInput: Effect = Source { }
-        on replace { blend.setBottomInput(bottomInput.getImpl()); }
+        on replace { blend.setBottomInput(bottomInput.impl_getImpl()); }
 
     /**
      * The top input for this {@code Blend} operation.
      * If left unspecified, the source content will be used as the input.
      */
     public attribute topInput: Effect = Source { }
-        on replace { blend.setTopInput(topInput.getImpl()); }
+        on replace { blend.setTopInput(topInput.impl_getImpl()); }
 }

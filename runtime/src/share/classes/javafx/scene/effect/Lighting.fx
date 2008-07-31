@@ -37,7 +37,10 @@ public class Lighting extends Effect {
         return new PhongLighting(AccessHelper.getLightImpl(l));
     }
 
-    override function getImpl():com.sun.scenario.effect.Effect {
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         phong
     };
 
@@ -52,14 +55,14 @@ public class Lighting extends Effect {
      * be automatically generated from the source content.
      */
     public attribute bumpInput: Effect = Shadow { radius: 10 }
-        on replace { phong.setBumpInput(bumpInput.getImpl()); }
+        on replace { phong.setBumpInput(bumpInput.impl_getImpl()); }
 
     /**
      * The content input for this {@code Effect}.
      * If left unspecified, the source content will be used as the input.
      */
     public attribute contentInput: Effect = Source { }
-        on replace { phong.setContentInput(contentInput.getImpl()); }
+        on replace { phong.setContentInput(contentInput.impl_getImpl()); }
 
     /**
      * The diffuse constant.

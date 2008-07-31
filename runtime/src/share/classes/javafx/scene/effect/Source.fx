@@ -35,7 +35,10 @@ public class Source extends Effect {
         update();
     }
     
-    override function getImpl():com.sun.scenario.effect.Effect {
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         source
     };
     

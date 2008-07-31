@@ -32,7 +32,10 @@ import javafx.scene.image.Image;
 public class Identity extends Effect {
     private attribute identity = new com.sun.scenario.effect.Identity(null);
 
-    override function getImpl():com.sun.scenario.effect.Effect {
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         identity
     };
 

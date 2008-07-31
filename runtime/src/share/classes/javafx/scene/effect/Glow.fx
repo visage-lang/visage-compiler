@@ -30,7 +30,10 @@ package javafx.scene.effect;
 public class Glow extends Effect {
     private attribute glow = new com.sun.scenario.effect.Glow();
 
-    override function getImpl():com.sun.scenario.effect.Effect {
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         glow
     };
 
@@ -39,7 +42,7 @@ public class Glow extends Effect {
      * If left unspecified, the source content will be used as the input.
      */
     public attribute input: Effect = Source { }
-        on replace { glow.setInput(input.getImpl()); }
+        on replace { glow.setInput(input.impl_getImpl()); }
 
     /**
      * The level value, which controls the intensity of the glow effect.

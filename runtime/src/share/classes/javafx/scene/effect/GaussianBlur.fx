@@ -30,7 +30,10 @@ package javafx.scene.effect;
 public class GaussianBlur extends Effect {
     private attribute blur = new com.sun.scenario.effect.GaussianBlur();
 
-    override function getImpl():com.sun.scenario.effect.Effect {
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         blur
     };
 
@@ -39,7 +42,7 @@ public class GaussianBlur extends Effect {
      * If left unspecified, the source content will be used as the input.
      */
     public attribute input: Effect = Source { }
-        on replace { blur.setInput(input.getImpl()); }
+        on replace { blur.setInput(input.impl_getImpl()); }
 
     /**
      * The radius of the blur kernel.

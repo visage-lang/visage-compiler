@@ -44,7 +44,10 @@ public class PerspectiveTransform extends Effect {
                              llx.floatValue(), lly.floatValue());
     }
 
-    override function getImpl():com.sun.scenario.effect.Effect {
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         xform
     };
 
@@ -53,7 +56,7 @@ public class PerspectiveTransform extends Effect {
      * If left unspecified, the source content will be used as the input.
      */
     public attribute input: Effect = Source { }
-        on replace { xform.setInput(input.getImpl()); }
+        on replace { xform.setInput(input.impl_getImpl()); }
 
     public attribute ulx:Number = 0.0 on replace { updateXform(); }
     public attribute uly:Number = 0.0 on replace { updateXform(); }

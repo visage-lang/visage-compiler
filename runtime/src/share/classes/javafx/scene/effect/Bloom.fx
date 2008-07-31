@@ -30,7 +30,10 @@ package javafx.scene.effect;
 public class Bloom extends Effect {
     private attribute bloom = new com.sun.scenario.effect.Bloom();
 
-    override function getImpl():com.sun.scenario.effect.Effect {
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         bloom
     };
 
@@ -39,7 +42,7 @@ public class Bloom extends Effect {
      * If left unspecified, the source content will be used as the input.
      */
     public attribute input: Effect = Source { }
-        on replace { bloom.setInput(input.getImpl()); }
+        on replace { bloom.setInput(input.impl_getImpl()); }
 
     /**
      * The threshold value, which controls the intensity of the glow effect.

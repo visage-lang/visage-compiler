@@ -35,7 +35,10 @@ import javafx.scene.paint.Paint;
 public class Flood extends Effect {
     private attribute flood = new com.sun.scenario.effect.Flood(java.awt.Color.RED);
 
-    override function getImpl():com.sun.scenario.effect.Effect {
+    /**
+     * @treatasprivate implementation detail.
+     */
+    override function impl_getImpl(): com.sun.scenario.effect.Effect {
         flood
     };
 
