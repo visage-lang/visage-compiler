@@ -29,15 +29,19 @@ import javax.swing.JOptionPane;
 import javafx.ext.swing.*;
 
 
-public class ConfirmType {
-    public attribute id: Number;
-    
-    public static attribute DEFAULT = 
-        ConfirmType{id: JOptionPane.DEFAULT_OPTION};
-    public static attribute YES_NO = 
-        ConfirmType{id: JOptionPane.YES_NO_OPTION};
-    public static attribute YES_NO_CANCEL = 
-        ConfirmType{id: JOptionPane.YES_NO_CANCEL_OPTION};
-    public static attribute OK_CANCEL = 
-        ConfirmType{id: JOptionPane.OK_CANCEL_OPTION};
+public enum ConfirmType {
+
+    DEFAULT(JOptionPane.DEFAULT_OPTION),
+
+    YES_NO(JOptionPane.YES_NO_OPTION),
+
+    YES_NO_CANCEL(JOptionPane.YES_NO_CANCEL_OPTION),
+
+    OK_CANCEL(JOptionPane.OK_CANCEL_OPTION);
+
+    public final int id;
+
+    private ConfirmType(int id) {
+        this.id = id;
+    }
 }
