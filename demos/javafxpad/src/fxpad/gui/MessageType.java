@@ -26,27 +26,22 @@
 package fxpad.gui;
 
 
-public class MessageType {
-    public attribute id: Number;
-    
-    public static attribute INFORMATION = MessageType {
-        id: javax.swing.JOptionPane.INFORMATION_MESSAGE
-    };
+public enum MessageType {
 
-    public static attribute ERROR = MessageType {
-        id: javax.swing.JOptionPane.ERROR_MESSAGE
-    };
+    INFORMATION(javax.swing.JOptionPane.INFORMATION_MESSAGE),
 
-    public static attribute WARNING = MessageType {
-        id: javax.swing.JOptionPane.WARNING_MESSAGE
-    };
+    ERROR(javax.swing.JOptionPane.ERROR_MESSAGE),
 
-    public static attribute QUESTION = MessageType {
-        id: javax.swing.JOptionPane.QUESTION_MESSAGE
-    };
+    WARNING(javax.swing.JOptionPane.WARNING_MESSAGE),
 
-    public static attribute PLAIN = MessageType {
-        id: javax.swing.JOptionPane.PLAIN_MESSAGE
-    };
-               
+    QUESTION(javax.swing.JOptionPane.QUESTION_MESSAGE),
+
+    PLAIN(javax.swing.JOptionPane.PLAIN_MESSAGE);
+
+    public final int id;
+
+    private MessageType(int id) {
+        this.id = id;
+    }
+
 }
