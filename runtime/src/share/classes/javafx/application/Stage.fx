@@ -40,7 +40,7 @@ public class Stage {
      * @profile common
      * @readonly
      */
-    readable var width: Integer;
+    package readable var width: Integer;
 
     // PENDING_DOC_REVIEW
     /**
@@ -49,7 +49,7 @@ public class Stage {
      * @profile common
      * @readonly
      */
-    readable var height: Integer;
+    package readable var height: Integer;
 
     // PENDING_DOC_REVIEW
     /**
