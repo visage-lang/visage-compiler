@@ -63,7 +63,7 @@ public class SequentialCluster extends Cluster {
             sGroup.addContainerGap(cg.pref, cg.max);
         } else if (ce instanceof PreferredGap) {
             var pg = ce as PreferredGap;
-            sGroup.addPreferredGap(pg.type.getToolkitValue(), pg.pref, pg.max);
+            sGroup.addPreferredGap(pg.type.toolkitValue, pg.pref, pg.max);
         } else {
             Cluster.addClusterElement(gl, group, horizontal, ce);
         }

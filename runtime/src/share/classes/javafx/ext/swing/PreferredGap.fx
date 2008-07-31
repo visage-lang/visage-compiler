@@ -25,7 +25,7 @@ package javafx.ext.swing;
 
 public class PreferredGap extends ClusterElement {
 
-    public /* set-once */ var type: Layout.Relationship = Layout.RELATED;
+    public /* set-once */ var type: ClusterRelationship = ClusterRelationship.RELATED;
 
     public /* set-once */ var pref: Integer = Cluster.DEFAULT_SIZE;
 
