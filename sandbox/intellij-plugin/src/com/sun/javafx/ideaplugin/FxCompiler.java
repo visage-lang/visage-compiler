@@ -34,6 +34,7 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.vfs.JarFileSystem;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import org.jetbrains.annotations.NotNull;
@@ -46,11 +47,14 @@ import java.io.File;
 import java.io.Writer;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
  * FxCompiler
@@ -61,6 +65,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class FxCompiler implements TranslatingCompiler {
 
     private static final EnumMap<Diagnostic.Kind, CompilerMessageCategory> diagnosticKindMap = new EnumMap<Diagnostic.Kind, CompilerMessageCategory>(Diagnostic.Kind.class);
+    private static final Pattern PATTERN = Pattern.compile ("^([^$]*)(\\$[a-zA-Z0-9_]*)*\\.class$");
 
     static {
         diagnosticKindMap.put(Diagnostic.Kind.ERROR, CompilerMessageCategory.ERROR);
@@ -89,7 +94,7 @@ public class FxCompiler implements TranslatingCompiler {
                 continue;
             Module module = entry.getKey();
             Set<VirtualFile> files = entry.getValue();
-            ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
+            final ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
 
             filesToRecompile.addAll (files);
             List<String> args = createCommandLine (rootManager);
@@ -114,20 +119,21 @@ public class FxCompiler implements TranslatingCompiler {
 			Method getStandardFileManagerMethod;
 			Method getFileForInputMethod;
             Method getTaskMethod;
-			Method callMethod;
-			try {
+            Class<?> javafxTaskClass;
+            Method generateMethod;
+            Method toUriMethod;
+            try {
 				Class<?> javafxToolClass = Class.forName("com.sun.tools.javafx.api.JavafxcTool", true, loader);
 				javafxTool = javafxToolClass.getMethod ("create").invoke (null);
                 getStandardFileManagerMethod = javafxToolClass.getMethod ("getStandardFileManager", DiagnosticListener.class, Locale.class, Charset.class);
 				Class<?> javafxFileManagerClass = Class.forName("com.sun.tools.javafx.util.JavafxFileManager", true, loader);
 				getFileForInputMethod = javafxFileManagerClass.getMethod ("getFileForInput", String.class);
                 getTaskMethod = javafxToolClass.getMethod ("getTask", Writer.class, JavaFileManager.class, DiagnosticListener.class, Iterable.class, Iterable.class);
-				Class<?> javafxTaskClass = Class.forName("com.sun.javafx.api.JavafxcTask", true, loader);
-				callMethod = javafxTaskClass.getMethod ("call");
-				Method parseMethod = javafxTaskClass.getMethod("parse");
-				Method analyzeMethod = javafxTaskClass.getMethod("analyze");
-				Method generateMethod = javafxTaskClass.getMethod("generate");
-			} catch (RuntimeException e) {
+                javafxTaskClass = Class.forName ("com.sun.javafx.api.JavafxcTask", true, loader);
+                generateMethod = javafxTaskClass.getMethod ("generate");
+                Class<?> regularFileObjectClass = Class.forName ("javax.tools.FileObject", true, loader);
+                toUriMethod = regularFileObjectClass.getMethod ("toUri");
+            } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
                 compileContext.addMessage (CompilerMessageCategory.ERROR, "Cannot link with JavaFX Compiler of SDK: " + jdk.getName (), null, 0, 0);
@@ -175,18 +181,32 @@ public class FxCompiler implements TranslatingCompiler {
             }
 
             try {
-                Object state = callMethod.invoke (compilerTask);
-                if (state.equals(Boolean.FALSE) &&  ! errorWhileCompiling.get ()) {
-                    compileContext.addMessage (CompilerMessageCategory.ERROR, "Compilation error in module: " + module.getName (), null, 0, 0);
-                    errorWhileCompiling.set (true);
+                Iterable iterable;
+                iterable = (Iterable) generateMethod.invoke (compilerTask);
+                VirtualFile outputRoot = rootManager.getCompilerOutputPath ();
+                final String outputRootPath = outputRoot.getPath ();
+                outputRoot.refresh (false, true);
+                for (Object o : iterable) {
+                    URI uri = (URI) toUriMethod.invoke (o);
+                    VirtualFile destFile = VfsUtil.findFileByURL (uri.toURL ());
+                    String destRelative = VfsUtil.getRelativePath (destFile, outputRoot, '/');
+                    Matcher matcher = PATTERN.matcher (destRelative);
+                    destRelative = matcher.matches () ? matcher.group (1) : null;
+
+                    final String outputPath = uri.getPath ();
+                    final VirtualFile foundSource = destRelative != null ? findSourceFileFor (files, rootManager, destRelative) : null;
+                    outputItems.add (new OutputItem () {
+                        public String getOutputPath () {
+                            return outputPath;
+                        }
+                        public VirtualFile getSourceFile () {
+                            return foundSource;
+                        }
+                        public String getOutputRootDirectory () {
+                            return outputRootPath;
+                        }
+                    });
                 }
-/*                Object iterable;
-                iterable = parseMethod.invoke (compilerTask);
-                System.out.println ("iterable = " + iterable);
-                iterable = analyzeMethod.invoke (compilerTask);
-                System.out.println ("iterable = " + iterable);
-                iterable = generateMethod.invoke (compilerTask); // TODO - store result
-                System.out.println ("iterable = " + iterable);*/
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
@@ -202,13 +222,38 @@ public class FxCompiler implements TranslatingCompiler {
 
         return new ExitStatus() {
             public OutputItem[] getSuccessfullyCompiled() {
-                return compilationFailed.get () ? new OutputItem[0] : outputItems.toArray (new OutputItem[outputItems.size ()]);
+                return outputItems.toArray (new OutputItem[outputItems.size ()]);
              }
 
             public VirtualFile[] getFilesToRecompile() {
-                return compilationFailed.get() ? filesToRecompile.toArray(new VirtualFile[filesToRecompile.size()]) : new VirtualFile[0];
+                return filesToRecompile.toArray(new VirtualFile[filesToRecompile.size()]);
             }
         };
+    }
+
+    private VirtualFile findSourceFileFor (Set<VirtualFile> sources, ModuleRootManager rootManager, String destRelative) {
+        VirtualFile foundSource = null;
+        for (VirtualFile source : sources) {
+            VirtualFile sourceRoot = findSourceRootFor (rootManager, source);
+            if (sourceRoot == null)
+                continue;
+            String sourceRelative = VfsUtil.getRelativePath (source, sourceRoot, '/');
+            if (! sourceRelative.endsWith (".fx"))
+                continue;
+            sourceRelative = sourceRelative.substring (0, sourceRelative.length () - 3);
+            if (sourceRelative.equals (destRelative)) {
+                foundSource = source;
+                break;
+            }
+        }
+        return foundSource;
+    }
+
+    private VirtualFile findSourceRootFor (ModuleRootManager rootManager, VirtualFile source) {
+        for (VirtualFile root : rootManager.getSourceRoots ())
+            if (VfsUtil.isAncestor (root, source, false))
+                return root;
+        return null;
     }
 
     @NotNull
