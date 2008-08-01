@@ -6,13 +6,12 @@
 
 import java.lang.*;
 
-class Data {
-	static attribute pass =0;
-	static attribute fail =0;
-}
+var pass =0;
+var fail =0;
+
 function equal(x,y) {
-	if(x==y){ Data.pass++;} 
-	else { System.out.println("FAIL: found: {x}\n  expected: {y}"); Data.fail++;};
+	if(x==y){ pass++;} 
+	else { System.out.println("FAIL: found: {x}\n  expected: {y}"); fail++;};
 }
 
 var a = [2..6 step 2];
@@ -49,5 +48,5 @@ equal(e1,a);
 equal(g,[ 2, 2, 4, 4, 6, 6 ]);
 equal(h,[e,e1]);
 
-System.out.println("Pass count: {Data.pass}");
-if(Data.fail > 0){ throw new Exception("Test failed"); }
+System.out.println("Pass count: {pass}");
+if(fail > 0){ throw new Exception("Test failed"); }

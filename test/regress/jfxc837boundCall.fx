@@ -15,7 +15,7 @@ var enableBindingOverhaul;
 var x = bind 1234 .toString();
 System.out.println(x);
 
-// test static call with arguments
+// test call with arguments
 var rex = 'a*b';
 var str = 'aaaab';
 var match = bind Pattern.matches(rex, str);

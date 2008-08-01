@@ -4,9 +4,10 @@
  *
  * @test/fail
  */
-class Foo {
-    attribute value;
+
+var notbug = jfxc903{ value:123 }
+var bug = jfxc903{ value:bar() }
+class jfxc903 {
+    var value;
     function bar() { 123 }
-    static attribute notbug = Foo{ value:123 }
-    static attribute bug = Foo{ value:bar() }
 }

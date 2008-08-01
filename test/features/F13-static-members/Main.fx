@@ -1,32 +1,33 @@
-/* Feature test #13 - static members
- * Demonstrates: static functions and attributes
+/* Feature test #13 - script-level members
+ * Demonstrates: script-level functions and vars
  * @test
  * @run
  */
 
 import java.lang.System;
 
-class Test {
-    static attribute a : Integer = 14;
+private var a : Integer = 14;  //TODO: to work-around JFXC-1721, 'private' has been added
+function doublea() { a + a }
+
+class Main {
     attribute b : Integer = 55;
-    static function doublea() { a + a }
 }
 
-var ah = new Test;
+var ah = new Main;
 
-System.out.println("static: {ah.a},  {ah.b}");
+System.out.println("{ah.a},  {ah.b}");
 
-Test.a = 3;
-System.out.println("static: {ah.a}, twice: {ah.doublea()}, twice: {Test.doublea()}");
+Main.a = 3;
+System.out.println("{ah.a}, twice: {ah.doublea()}, twice: {Main.doublea()}");
 
 ah.b = 99;
-System.out.println("static: {Test.a}, {ah.b}");
+System.out.println("{Main.a}, {ah.b}");
 
 var tr = 77;
 
-ah = Test {
+ah = Main {
     b: 71717
 };
 
-System.out.println("static: {Test.a},  {ah.b}");
+System.out.println("{Main.a},  {ah.b}");
 

@@ -7,21 +7,23 @@
  */
 
 import java.lang.System;
+
+public var TU = new TestUtils;
+
 public class InitTest {
-    attribute tf : Integer =0;
-	 attribute firedtriggers:String[];
+    var tf : Integer =0;
+	 var firedtriggers:String[];
 	 function triggers(msg:String) { System.out.print( "{msg}: triggers fired: {tf}: ");System.out.println({firedtriggers} ); }
-    public static attribute TU = new TestUtils;
-    public attribute foo      : Boolean		 on replace old        {tf++; insert "foo" into firedtriggers; TU.addGFT(1);System.out.println("1. Replace Boolean old = {old}; new = {foo}");    }
-    public attribute ifoo     : Integer		 on replace old        {tf++;  insert "ifoo" into firedtriggers;TU.addGFT(1);System.out.println("2. Replace Integer old = {old}; new = {ifoo}");    }
-    public attribute dfoo     : Number			 on replace old{tf++;  insert "dfoo" into firedtriggers;TU.addGFT(1);System.out.println("3. Replace Number old = {old}; new = {dfoo}");    }
-    public attribute sfoo     : String			 on replace old{tf++;  insert "sfoo" into firedtriggers;TU.addGFT(1);System.out.println("4. Replace String old = {old}; new = {sfoo}");    }
-	 public attribute tobject  : test_object	 on replace old{tf++;  insert "tobject" into firedtriggers;TU.addGFT(1);System.out.println("5. Replace test_object old = {old.name}; new = {tobject.name}");	 }
-    public attribute seqbfoo  : Boolean[]		 on replace old{tf++;  insert "seqbfoo" into firedtriggers;TU.addGFT(1);if(seqbfoo!=null)System.out.println("6. Replace Boolean[] old = {old}; new = {seqbfoo}");    }
-    public attribute seqifoo  : Integer[]		 on replace old{tf++; insert "seqifoo" into firedtriggers;TU.addGFT(1);if(seqifoo!=null)System.out.println("7. Replace Integer [] old = {old}; new = {seqifoo}");    }
-    public attribute seqnfoo  : Number[]		 on replace old{tf++; insert "seqnfoo" into firedtriggers;TU.addGFT(1);if(seqnfoo!=null)System.out.println("8. Replace Number[] old = {old}; new = {seqnfoo}");    }
-    public attribute seqsfoo  : String[]		 on replace old{tf++; insert "seqsfoo" into firedtriggers;TU.addGFT(1);if(seqsfoo!=null)System.out.println("9. Replace String[] old = {old}; new = {seqsfoo}");    }
-    public attribute seqTOfoo : test_object[] on replace old{tf++;insert "seqTOfoo" into firedtriggers;TU.addGFT(1);
+    public var foo      : Boolean		 on replace old        {tf++; insert "foo" into firedtriggers; TU.addGFT(1);System.out.println("1. Replace Boolean old = {old}; new = {foo}");    }
+    public var ifoo     : Integer		 on replace old        {tf++;  insert "ifoo" into firedtriggers;TU.addGFT(1);System.out.println("2. Replace Integer old = {old}; new = {ifoo}");    }
+    public var dfoo     : Number			 on replace old{tf++;  insert "dfoo" into firedtriggers;TU.addGFT(1);System.out.println("3. Replace Number old = {old}; new = {dfoo}");    }
+    public var sfoo     : String			 on replace old{tf++;  insert "sfoo" into firedtriggers;TU.addGFT(1);System.out.println("4. Replace String old = {old}; new = {sfoo}");    }
+    public var tobject  : test_object	 on replace old{tf++;  insert "tobject" into firedtriggers;TU.addGFT(1);System.out.println("5. Replace test_object old = {old.name}; new = {tobject.name}");	 }
+    public var seqbfoo  : Boolean[]		 on replace old{tf++;  insert "seqbfoo" into firedtriggers;TU.addGFT(1);if(seqbfoo!=null)System.out.println("6. Replace Boolean[] old = {old}; new = {seqbfoo}");    }
+    public var seqifoo  : Integer[]		 on replace old{tf++; insert "seqifoo" into firedtriggers;TU.addGFT(1);if(seqifoo!=null)System.out.println("7. Replace Integer [] old = {old}; new = {seqifoo}");    }
+    public var seqnfoo  : Number[]		 on replace old{tf++; insert "seqnfoo" into firedtriggers;TU.addGFT(1);if(seqnfoo!=null)System.out.println("8. Replace Number[] old = {old}; new = {seqnfoo}");    }
+    public var seqsfoo  : String[]		 on replace old{tf++; insert "seqsfoo" into firedtriggers;TU.addGFT(1);if(seqsfoo!=null)System.out.println("9. Replace String[] old = {old}; new = {seqsfoo}");    }
+    public var seqTOfoo : test_object[] on replace old{tf++;insert "seqTOfoo" into firedtriggers;TU.addGFT(1);
 		 if(seqTOfoo!=null) {
 		 System.out.print("10. Replace test_object[] old = ");
 			 for (i in old) {System.out.print(" {i.name}"); }
@@ -120,6 +122,6 @@ System.out.println("9. i3.seqsfoo = {i3.seqsfoo}");
 System.out.print("10. i3.seqTOfoo = ");  for (j in i3.seqTOfoo) {System.out.print(" {j.name}"); }		 System.out.println();
 
 class test_object {
-public attribute name:String = "default-test-object";
+   public var name:String = "default-test-object";
 };
-InitTest.TU.report();
+TU.report();
