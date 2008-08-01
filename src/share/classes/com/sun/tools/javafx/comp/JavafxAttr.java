@@ -51,6 +51,7 @@ import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
+import static com.sun.tools.javafx.code.JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC;
 
 /** This is the main context-dependent analysis phase in GJC. It
  *  encompasses name resolution, type checking and constant folding as
@@ -1034,7 +1035,15 @@ public class JavafxAttr implements JavafxVisitor {
             }
 
         }
+        warnOnStaticUse(tree.pos(), tree.getModifiers(), sym);
         result = tree.type;
+    }
+
+    private void warnOnStaticUse(DiagnosticPosition pos, JFXModifiers mods, Symbol sym) {
+        // temporary warning for the use of 'static'
+        if ((mods.flags & (STATIC | SCRIPT_LEVEL_SYNTH_STATIC)) == STATIC) {
+    //        log.warning(pos, MsgSym.MESSAGE_JAVAFX_STATIC_DEPRECATED, sym);
+        }
     }
 
     /**
@@ -1525,6 +1534,8 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         MethodSymbol m = tree.sym;
         m.complete();
+        warnOnStaticUse(tree.pos(), tree.getModifiers(), m);
+
     }
 
     /** Search super-clases for a parameter type in a matching method.

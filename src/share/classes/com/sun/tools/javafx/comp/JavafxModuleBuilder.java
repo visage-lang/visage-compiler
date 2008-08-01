@@ -26,7 +26,6 @@ package com.sun.tools.javafx.comp;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree;
 import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import static com.sun.tools.javac.code.Flags.*;
 import com.sun.tools.javac.util.Context;
@@ -40,6 +39,7 @@ import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.tree.JavafxTag.*;
+import static com.sun.tools.javafx.code.JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC;
 import com.sun.tools.javafx.util.MsgSym;
 
 import java.net.URI;
@@ -138,7 +138,7 @@ public class JavafxModuleBuilder {
                 if (name == moduleClassName) {
                     moduleClass = decl;
                 } else {
-                    decl.mods.flags |= STATIC;
+                    decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
                     scriptClassDefs.append(tree);
                 }
                 break;
@@ -146,7 +146,7 @@ public class JavafxModuleBuilder {
             case FUNCTION_DEF: {
                 JFXFunctionDefinition decl =
                     (JFXFunctionDefinition)tree;
-                decl.mods.flags |= STATIC;
+                decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
                 Name name = decl.name;
                 checkName(tree.pos, name);
                 scriptClassDefs.append(tree);
@@ -160,7 +160,7 @@ public class JavafxModuleBuilder {
                     // externally visible, so needs to be a static on the script class
                     // we can't handle this in the lazy conversion since attribution will barf on a var with these flags
                     // note that protected is an error, but we will let attribution handle that
-                    decl.mods.flags |= STATIC;
+                    decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
                     scriptClassDefs.append(tree);
                 } else {
                     // otherwise lazily see is it can be local to the run method
@@ -225,7 +225,7 @@ public class JavafxModuleBuilder {
             JFXExpression getFileURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getFile, args);
             JFXExpression fileVar =
                 fxmake.at(diagPos).Var(pseudoFile, getURLType(diagPos), 
-                         fxmake.at(diagPos).Modifiers(Flags.FINAL|Flags.STATIC), 
+                         fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC),
                          false, getFileURL, JavafxBindStatus.UNBOUND, null);
 
             // java.net.URL __DIR__;
@@ -235,7 +235,7 @@ public class JavafxModuleBuilder {
                 JFXExpression getDirURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getDir, args);
                 stats.prepend(
                     fxmake.at(diagPos).Var(pseudoDir, getURLType(diagPos), 
-                             fxmake.at(diagPos).Modifiers(Flags.FINAL|Flags.STATIC), 
+                             fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC),
                              false, getDirURL, JavafxBindStatus.UNBOUND, null));
             }
 
@@ -256,7 +256,7 @@ public class JavafxModuleBuilder {
         JFXExpression rettree = fxmake.Type(syms.objectType);
         rettree.type = syms.objectType;
         return fxmake.FunctionDefinition(
-                fxmake.Modifiers(PUBLIC | STATIC | SYNTHETIC),
+                fxmake.Modifiers(PUBLIC | STATIC | SCRIPT_LEVEL_SYNTH_STATIC | SYNTHETIC),
                 defs.runMethodName,
                 fxmake.TypeClass(rettree, JFXType.Cardinality.SINGLETON),
                 argsVarList,

@@ -42,6 +42,7 @@ public class JavafxFlags {
     public static final long READABLE = LAST_JAVA_FLAG << 5;
     public static final long IS_DEF = LAST_JAVA_FLAG << 6;
     public static final long OVERRIDE = LAST_JAVA_FLAG << 7;
+    public static final long SCRIPT_LEVEL_SYNTH_STATIC = LAST_JAVA_FLAG << 8;
     
     /** If this is a class that gets translated to a class and an inteface.
      * (This is used to implement multiple inheritance.)
