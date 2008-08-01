@@ -36,6 +36,7 @@
             <xsl:text>private</xsl:text>
         </xsl:if>
     </xsl:template>
+    
     <xsl:template name="extra-method">
         <xsl:if test="docComment/tags/treatasprivate">
             <xsl:text>private</xsl:text>

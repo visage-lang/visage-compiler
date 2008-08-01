@@ -1,0 +1,23 @@
+/*
+main colors:  
+	top header bg = #2e292a
+	orange: #f26a27; 
+	light grey bg: #e6e6e6
+	dark grey bg:  #3e3c3f
+	
+main font: arial
+
+ratio of 72dpi on mac to 96dpi on pc is 0.75
+pc font size * 0.75 = mac font size
+pc    mac
+22    16.5
+16    12
+14    10.5
+12    9
+11    8.25
+*/
+
+/* general */
+body {
+	font-family: Arial;
+}

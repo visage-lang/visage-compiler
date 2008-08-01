@@ -27,6 +27,7 @@ package com.sun.tools.xslhtml;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -52,6 +53,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -202,25 +204,25 @@ public class XHTMLProcessingUtils {
             p(INFO, MessageFormat.format(getString("reading.doc"), file.getAbsolutePath()));
             p(FINE, "exists: " + file.exists());
             Document doc = builder.parse(file);
-            XPath xpath = XPathFactory.newInstance().newXPath();
+        XPath xpath = XPathFactory.newInstance().newXPath();
 
-            // print out packages list
-            NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET); 
-            p(INFO, MessageFormat.format(getString("creating.packages"), packages.getLength()));
-
-            //for each package, generate the package itself and append to package list doc
-            for (int i = 0; i < packages.getLength(); i++) {
-                Element pkg = ((Element) packages.item(i));
-                String name = pkg.getAttribute("name");
-                Element package_elem = packages_doc.createElement("package");
-                package_elem.setAttribute("name", name);
-                package_list_elem.appendChild(package_elem);
-                copyDocComment(pkg,package_elem);
-                Element first_line = packages_doc.createElement("first-line-comment");
-                first_line.appendChild(packages_doc.createTextNode("first line comment"));
-                package_elem.appendChild(first_line);
-                processPackage(name, pkg, xpath, docsdir, trans);
-            }
+        // print out packages list
+        NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET); 
+        p(INFO, MessageFormat.format(getString("creating.packages"), packages.getLength()));
+        
+        //for each package, generate the package itself and append to package list doc
+        for (int i = 0; i < packages.getLength(); i++) {
+            Element pkg = ((Element) packages.item(i));
+            String name = pkg.getAttribute("name");
+            Element package_elem = packages_doc.createElement("package");
+            package_elem.setAttribute("name", name);
+            package_list_elem.appendChild(package_elem);
+            copyDocComment(pkg,package_elem);
+            Element first_line = packages_doc.createElement("first-line-comment");
+            first_line.appendChild(packages_doc.createTextNode("first line comment"));
+            package_elem.appendChild(first_line);
+                processPackage(name, pkg, xpath, docsdir, trans, package_elem);
+        }
         }
 
         //transform the package list doc
@@ -235,7 +237,7 @@ public class XHTMLProcessingUtils {
         trans.transform(new DOMSource(packages_doc), new StreamResult(System.out));
     }
 
-    private static void processPackage(String packageName, Element pkg, XPath xpath, File docsdir, Transformer trans) throws TransformerException, XPathExpressionException, IOException, FileNotFoundException, ParserConfigurationException {
+    private static void processPackage(String packageName, Element pkg, XPath xpath, File docsdir, Transformer trans, Element package_elem) throws TransformerException, XPathExpressionException, IOException, FileNotFoundException, ParserConfigurationException {
         File packageDir = new File(docsdir, packageName);
         packageDir.mkdir();
         
@@ -253,6 +255,8 @@ public class XHTMLProcessingUtils {
         
         for(Element clazz : classes) {
             processClass(clazz, class_list,  xpath, trans, packageDir);
+            Element clazz_elem = (Element) package_elem.getOwnerDocument().importNode(clazz, true);
+            package_elem.appendChild(clazz_elem);
         }
         
         class_list.setAttribute("mode", "overview-frame");

@@ -33,12 +33,14 @@
     <xsl:param name="target-class">javafx.ui.ToggleButton</xsl:param>
     <xsl:param name="target-profile">common</xsl:param>
     <xsl:param name="profiles-enabled">false</xsl:param>
+    <xsl:param name="inline-classlist">false</xsl:param>
+    <xsl:param name="inline-descriptions">false</xsl:param>
     
     
 <!-- starter template -->    
     <xsl:template match="/">
         
-        <xsl:if test="not (/classList)">
+        <xsl:if test="not (/classList) and not (/packageList)">
             <xsl:apply-templates select="//class[@qualifiedName=$target-class]"/>
             <!--
             <xsl:apply-templates select="//abstractClass[@qualifiedName=$target-class]"/>
@@ -142,6 +144,7 @@
                                         <xsl:value-of select="text()"/>
                                         <xsl:text> </xsl:text>
                                     </xsl:for-each>
+                                    <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
                                 </xsl:attribute>
                                 <xsl:value-of select="@name"/>
                             </a>
@@ -186,6 +189,36 @@
     </xsl:template>
     
     
+    <xsl:template name="inline-classlist">
+        <ul id="classes-toc">
+            <xsl:for-each select="/javadoc/package">
+                <xsl:sort select="@name"/>
+                <li>
+                    <h4 class='header'><a href="#"><xsl:value-of select="@name"/></a></h4>
+                    <ul class='content'>
+                        <xsl:for-each select="class">
+                            <li>
+                                <xsl:attribute name="class">
+                                    <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
+                                </xsl:attribute>
+                                <a>
+                                <xsl:attribute name="href">
+                                    <xsl:text>../</xsl:text>
+                                    <xsl:value-of select="@packageName"/>
+                                    <xsl:text>/</xsl:text>
+                                    <xsl:value-of select="@qualifiedName"/>
+                                    <xsl:text>.html</xsl:text>
+                                </xsl:attribute>
+                                <xsl:value-of select="@name"/>
+                                </a></li>
+                        </xsl:for-each>
+                    </ul>
+                </li>
+            </xsl:for-each>
+        </ul>
+    </xsl:template>
+    
+    
     
     <xsl:template match="class">
         <xsl:call-template name="classOutput"/>
@@ -217,8 +250,10 @@
                 <xsl:if test="$extra-js"><script src="../{$extra-js}"></script></xsl:if>
                 <xsl:if test="$extra-js2"><script src="../{$extra-js2}"></script></xsl:if>
                 <script src="../navigation.js"></script>
+                <xsl:call-template name="head-post"/>
             </head>
             <body>
+                <xsl:call-template name="header-pre"/>
                 <xsl:call-template name="header"/>
                 <div id="content">
                     <a id="overview"><h3>Overview</h3></a>
@@ -231,7 +266,9 @@
                     </div>
                     <xsl:call-template name="toc"/>
                     <xsl:call-template name="inherited"/>
-                    <xsl:call-template name="members"/>
+                    <xsl:if test="not($inline-descriptions='true')">
+                        <xsl:call-template name="members"/>
+                    </xsl:if>
                 </div>
             </body>
         </html>
@@ -308,13 +345,14 @@
     
     
     
-    
-    
-    
 <!-- ====================== -->    
 <!--    header    -->
 <!-- ====================== -->    
     <xsl:template name="header">
+        <xsl:if test="$inline-classlist='true'">
+            <xsl:call-template name="inline-classlist"/>
+        </xsl:if>
+
         <div id="nav">
             <!-- name of the class -->
             <h1 class="classname">
@@ -348,10 +386,12 @@
             
             
             <!-- view toggles -->
+            <!--
             <ul id="toggles">
                 <li><a class="toggle-advanced" 
                        href="javascript:togglecss('.advanced','display','block','none');togglecss('.toggle-advanced','backgroundColor','transparent','red');">advanced</a></li>
             </ul>
+            -->
             
         </div>
     </xsl:template>
@@ -434,14 +474,14 @@
             
             <xsl:if test="count(attribute) > 0">
                 <a id="fields-summary"><h3>Attribute Summary</h3></a>
-                <table>
-                    <tr><th>name</th><th>type</th><th>description</th></tr>
-                    <tr><th colspan="3">Public</th></tr>
+                <table class="fields-summary fields">
+                    <tr><th class="name">name</th><th class="type">type</th><th class="description">description</th></tr>
+                    <tr><th colspan="3" class="header">Public</th></tr>
                     <xsl:for-each select="attribute[modifiers/public]">
                         <xsl:sort select="@name" order="ascending"/>
                         <xsl:apply-templates select="." mode="toc"/>
                     </xsl:for-each>
-                    <tr><th colspan="3">Protected</th></tr>
+                    <tr><th colspan="3" class="header">Protected</th></tr>
                     <xsl:for-each select="attribute[modifiers/protected]">
                         <xsl:sort select="@name" order="ascending"/>
                         <xsl:apply-templates select="." mode="toc"/>
@@ -451,7 +491,7 @@
             
             <xsl:if test="count(field) > 0">
                 <a id="fields-summary"><h3>Field Summary</h3></a>
-                <table class="fields">
+                <table class="fields-summary">
                     <tr><th>public</th><th>name</th><th>type</th></tr>
                     <xsl:for-each select="field">
                         <xsl:sort select="@name" order="ascending"/>
@@ -493,7 +533,7 @@
             <!-- functions -->
             <xsl:if test="count(function) > 0">
                 <a id="methods-summary"><h3>Function Summary</h3></a>
-                <dl>
+                <dl class="methods-summary">
                     <xsl:for-each select="function">
                         <xsl:sort select="@name" order="ascending"/>
                         <xsl:call-template name="method-like-toc"/>
@@ -505,7 +545,7 @@
             <!-- methods -->
             <xsl:if test="count(method) > 0">
                 <a id="methods-summary"><h3>Method Summary</h3></a>
-                <dl>
+                <dl class="methods-summary">
                     <xsl:for-each select="method">
                         <xsl:sort select="@name" order="ascending"/>
                         <xsl:call-template name="method-like-toc"/>
@@ -586,8 +626,8 @@
     <xsl:template match="class" mode="inherited-field">
         <xsl:if test="count(attribute) > 0">
             <h4><xsl:value-of select="@qualifiedName"/></h4>
-            <table class="inherited-field">
-                <tr><th>public</th><th>name</th><th>type</th></tr>
+            <table class="inherited-field fields">
+                <tr><th class="name">name</th><th class="type">type</th><th class="description">description</th></tr>
                 <xsl:for-each select="attribute">
                     <xsl:sort select="@name" order="ascending"/>
                     <xsl:apply-templates select="." mode="toc"/>
@@ -627,31 +667,37 @@
                         <xsl:value-of select="text()"/>
                         <xsl:text> </xsl:text>
                     </xsl:for-each>
+                    <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
                     <xsl:call-template name="extra-attribute"/>
                     <xsl:call-template name="extra-attribute-toc"/>
                 </xsl:attribute>
-                <td>
+                <td class="name">
                     <a>
                         <xsl:apply-templates select="." mode="href"/>
                         <b class="name"><xsl:value-of select="@name"/></b>
                     </a>
                 </td>
-                <td>
+                <td class="type">
                     <a>
                         <xsl:apply-templates select="type" mode="href"/>
                         <i class="type"><xsl:value-of select="type/@simpleTypeName"/><xsl:value-of select="type/@dimension"/></i>
                     </a>
                 </td>
-                <td>
+                <td class="description">
                     <xsl:apply-templates select="docComment/firstSentenceTags"/>
+                    <xsl:if test="$inline-descriptions='true'">
+                        More: [<a href="#" class="long-desc-open">+</a>]
+                    </xsl:if>
+                    <xsl:if test="$inline-descriptions='true'">
+                        <div class="long-desc">
+                            <xsl:call-template name="attribute-full-description"/>
+                        </div>
+                    </xsl:if>
                 </td>
             </tr>
+                
         </xsl:if>
     </xsl:template>
-    
-    <xsl:template name="extra-attribute"></xsl:template>
-    <xsl:template name="extra-attribute-full"></xsl:template>
-    <xsl:template name="extra-attribute-toc"></xsl:template>
     
     <xsl:template match="attribute/type | parameter/type" mode="href">
         <!--<xsl:variable name="atype" select="@qualifiedTypeName"/>-->
@@ -665,7 +711,7 @@
                 <xsl:value-of select="@qualifiedTypeName"/>
                 <xsl:text>.html</xsl:text>
             </xsl:attribute>
-            </xsl:if>
+        </xsl:if>
     </xsl:template>
     
     <xsl:template match="attribute/type | parameter/type" mode="linkname">
@@ -697,15 +743,20 @@
     <xsl:template match="attribute">
         <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
         <div>
+            
+            <!-- class attribute of div -->
             <xsl:attribute name="class">
                 <xsl:text>attribute member </xsl:text>
                 <xsl:for-each select="docComment/tags/cssclass">
                     <xsl:value-of select="text()"/>
                     <xsl:text> </xsl:text>
                 </xsl:for-each>
+                <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
                 <xsl:call-template name="extra-attribute"/>
                 <xsl:call-template name="extra-attribute-full"/>
             </xsl:attribute>
+            
+            <!-- signature line -->
             <a>
                 <h4>
                     <xsl:attribute name="id"><xsl:value-of select="@name"/></xsl:attribute>
@@ -719,19 +770,25 @@
                     </a>
                 </h4>
             </a>
-            <xsl:apply-templates select="docComment/tags/profile"/>
-            <xsl:apply-templates select="docComment/inlineTags"/>
-            <xsl:apply-templates select="docComment/seeTags"/>
-            <xsl:apply-templates select="docComment/tags/defaultvalue"/>
-            <xsl:apply-templates select="docComment/tags/setonce"/>
-            <xsl:apply-templates select="docComment/tags/readonly"/>
-            <xsl:apply-templates select="docComment/tags/treatasprivate"/>
-            <xsl:apply-templates select="docComment/tags/needsreview"/>
+            
+            <!-- all of the docs -->
+            <xsl:call-template name="attribute-full-description"/>
+            
         </div>
         </xsl:if>
     </xsl:template>
     
-    
+
+    <xsl:template name="attribute-full-description">
+        <xsl:apply-templates select="docComment/inlineTags"/>
+        <xsl:apply-templates select="docComment/tags/defaultvalue"/>
+        <xsl:apply-templates select="docComment/tags/setonce"/>
+        <xsl:apply-templates select="docComment/tags/readonly"/>
+        <xsl:apply-templates select="docComment/seeTags"/>
+        <xsl:apply-templates select="docComment/tags/profile"/>
+        <xsl:apply-templates select="docComment/tags/treatasprivate"/>
+        <xsl:apply-templates select="docComment/tags/needsreview"/>
+    </xsl:template>
     
     
     
@@ -749,6 +806,7 @@
                 <xsl:if test="docComment/tags/advanced">
                     <xsl:text>advanced</xsl:text>
                 </xsl:if>
+                <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
                 <xsl:call-template name="extra-method"/>
                 <xsl:call-template name="extra-method-toc"/>
             </xsl:attribute>
@@ -760,10 +818,21 @@
                 <xsl:if test="docComment/tags/advanced">
                     <xsl:text>advanced</xsl:text>
                 </xsl:if>
+                <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
                 <xsl:call-template name="extra-method"/>
                 <xsl:call-template name="extra-method-toc"/>
             </xsl:attribute>
+            <p>
             <xsl:apply-templates select="docComment/firstSentenceTags"/>
+            <xsl:if test="$inline-descriptions='true'">
+                More: [<a href="#" class="long-desc-open">+</a>]
+            </xsl:if>
+            </p>
+            <xsl:if test="$inline-descriptions='true'">
+                <div class="long-desc">
+                    <xsl:call-template name="method-like-full-description"/>
+                </div>
+            </xsl:if>
         </dd>
         </xsl:if>
     </xsl:template>
@@ -773,22 +842,37 @@
     <xsl:template name="method-like">
         <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
         <div>
+            <!-- div's class attribute -->
             <xsl:attribute name="class">
                 <xsl:text>method member </xsl:text>
                 <xsl:for-each select="docComment/tags/cssclass">
                     <xsl:value-of select="text()"/>
                     <xsl:text> </xsl:text>
                 </xsl:for-each>
+                <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
                 <xsl:call-template name="extra-method"/>
                 <xsl:call-template name="extra-method-full"/>
             </xsl:attribute>
+            <!-- signature -->
             <a>
                 <xsl:attribute name="id"><xsl:apply-templates select="." mode="anchor-signature"/></xsl:attribute>
                 <h4><xsl:apply-templates select="." mode="detail-signature"/></h4>
             </a>
-            <xsl:apply-templates select="docComment/tags/profile"/>
             
+            <xsl:call-template name="method-like-full-description"/>
+        </div>  
+        </xsl:if>
+    </xsl:template>
+    
+    <!-- the full description of a method, minus the signature itself -->
+    <xsl:template name="method-like-full-description">
             
+            <!-- the rest of the docs -->
+            <xsl:apply-templates select="docComment/inlineTags"/>
+            <xsl:apply-templates select="docComment/seeTags"/>
+            <xsl:apply-templates select="docComment/tags/needsreview"/>
+            
+            <!-- full parameters desc -->
             <xsl:if test="parameters/parameter">
                 <dl class="parameters">
                     Parameters
@@ -799,6 +883,7 @@
                 </dl>
             </xsl:if>
             
+            <!-- full returns desc -->
             <xsl:if test="not(returns/@simpleTypeName='void' or returns/@simpleTypeName='Void')">
                 <dl class="returns">
                     Returns
@@ -808,12 +893,10 @@
                 </dl>
             </xsl:if>
             
-            <xsl:apply-templates select="docComment/inlineTags"/>
-            <xsl:apply-templates select="docComment/seeTags"/>
-            <xsl:apply-templates select="docComment/tags/needsreview"/>
             
-        </div>  
-        </xsl:if>
+            <!-- profile comment -->
+            <xsl:apply-templates select="docComment/tags/profile"/>
+            
     </xsl:template>
     
     <xsl:template name="extra-method"></xsl:template>
@@ -851,12 +934,19 @@
                     <a>
                         <xsl:apply-templates select="type" mode="href"/>
                         <i><xsl:apply-templates select="type" mode="linkname"/></i>
-                    </a><xsl:value-of select="type/@dimension"/>,
+                    </a><xsl:value-of select="type/@dimension"/>
                 </xsl:if>
                 <xsl:if test="../../../@language='java'">
                     <i><xsl:value-of select="type/@toString"/></i>
                     <xsl:text> </xsl:text>
-                    <b><xsl:value-of select="@name"/></b>,
+                    <b><xsl:value-of select="@name"/></b>
+                </xsl:if>
+                
+                <!-- calc last comma -->
+                <xsl:variable name="pos" select="position()"/>
+                <xsl:variable name="lst" select="last()"/>
+                <xsl:if test="not($pos=$lst)">
+                    <xsl:text>, </xsl:text>
                 </xsl:if>
             </xsl:for-each>
         </i>
@@ -951,6 +1041,18 @@
             
     </xsl:template>
 
+
+
+
+
+
+    <!-- extension templates for custom XSLTs to override -->
+    <xsl:template name="extra-attribute"></xsl:template>
+    <xsl:template name="extra-attribute-full"></xsl:template>
+    <xsl:template name="extra-attribute-toc"></xsl:template>
+    <xsl:template name="head-post"></xsl:template>
+    <xsl:template name="header-pre"></xsl:template>
+    
     
 </xsl:stylesheet>
                 

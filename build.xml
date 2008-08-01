@@ -242,7 +242,12 @@
         <path id="srcpath" path="src/share/classes:runtime/src/share/classes"/>
         <property name="srcpathprop" refid="srcpath"/>
         <copy todir="${dist.javafxdoc.dir}">
-            <fileset dir="${basedir}/javadoc-files" includes="draft.*"/>
+            <fileset dir="${basedir}/javadoc-files">
+                <include name="draft.*"/>
+                <include name="*.css"/>
+                <include name="*.js"/>
+                <include name="*.png"/>
+            </fileset>
         </copy>
         <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" destdir="${dist.javadoc.dir}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}"
                 packagenames="${javadoc.pkgs}" sourcepath="${src.classes.dir}">
@@ -263,22 +268,24 @@
             <arg value="${srcpathprop}"/>
             <arg value="-classpath"/>
             <arg value="${clsjars}"/>
-            <arg line="-extracss draft.css"/>
-            <arg line="-xsltfile ${basedir}/javadoc-files/custom.xsl"/>
+            
+            <arg line="-mastercss general.css"/>
+            <arg line="-xsl: inline-classlist=true"/>
+            <arg line="-xsl: inline-descriptions=true"/>
+            
+            <arg line="-xsltfile ${basedir}/javadoc-files/custom_javafxdoc.xsl"/>
             <classpath>
                 <path path="${build.classes.dir}:${javac.test.classpath}:dist/lib/javafxgui.jar"/>
             </classpath>
             <jvmarg line="-Xbootclasspath/p:${bootjars}"/>
+            <jvmarg line="-Djava.awt.headless=true"/>
             <jvmarg value="-Xmx256m"/>
             <arg line="${javafxdoc.packages}"/>
         </java>
-
-       <mkdir  dir="${dist.javafxdoc.dir}/javafx.scene/doc-files"/>
-       <copy todir="${dist.javafxdoc.dir}/javafx.scene/doc-files">
-           <fileset dir="runtime/src/share/classes/javafx/scene/doc-files">
-               <include name="*.png"/>
-           </fileset>
-       </copy>
+        
+       <!-- this is a hack to make the index page be something other than the frameset. -->
+       <copy file="${dist.javafxdoc.dir}/overview-summary.html" tofile="${dist.javafxdoc.dir}/index.html"
+            overwrite="true"/>
     </target>
     
     <target name="-def-pcompile">
