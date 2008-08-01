@@ -58,7 +58,11 @@ public final class FxSdkType extends SdkType implements ApplicationComponent {
 
     @Nullable
     public String suggestHomePath () {
-        return "/spc/fxj1/javafx-sdk1.0"; // TODO
+        if (SystemInfo.isWindows)
+            return "c:\\Program Files\\JavaFX\\javafx-sdk1.0pre1\\";
+        if (SystemInfo.isMac)
+            return "/System/Library/Frameworks/JavaFX.framework/Versions/Current/";
+        return null;
     }
 
     public boolean isValidSdkHome (String path) {
