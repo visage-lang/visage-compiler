@@ -176,8 +176,11 @@ var s2 = "Hello";
 </programlisting>
 
 
-<para>The difference is that with the latter, you can embed 
- expressions within curly braces (<code>{}</code>):</para>
+<para> 
+Single and double quotes are symmetrical: you can embed single quotes within double 
+quotes, and double quotes within single quotes. You can also
+embed expressions within either using curly braces "<code>{}</code>":
+</para>
 
 <programlisting>
 var name = 'Joe';
@@ -192,7 +195,7 @@ var s = "The answer is {if (answer) "Yes" else "No"}"; // s = 'The answer is Yes
 </programlisting>
 
 <para>
-Unlike the Java programming language, a JavaFX Script programming language double-quoted String literal can contain newlines.
+Unlike the Java programming language, a JavaFX Script programming language String literal can contain newlines.
 </para>
 
 <para>You also can control how numbers and dates are converted to character 
