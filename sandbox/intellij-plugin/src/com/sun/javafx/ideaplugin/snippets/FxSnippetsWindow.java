@@ -62,70 +62,103 @@ public class FxSnippetsWindow implements ProjectComponent {
         project = proj;
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode ();
+
+        DefaultMutableTreeNode imports = new CategoryNode ("Imports");
+        imports.add (new SnippetsNode ("General Java Imports", "import java.lang.*;\n" + "import java.util.*;\n"));
+        imports.add (new SnippetsNode ("General JavaFX Imports", "import javafx.animation.*;\n" + "import javafx.application.*;\n" + "import javafx.ext.swing.*;\n" + "import javafx.input.*;\n" + "import javafx.lang.*;\n" + "import javafx.scene.*;\n" + "import javafx.scene.effect.*;\n" + "import javafx.scene.geometry.*;\n" + "import javafx.scene.image.*;\n" + "import javafx.scene.layout.*;\n" + "import javafx.scene.media.*;\n" + "import javafx.scene.paint.*;\n" + "import javafx.scene.text.*;\n" + "import javafx.scene.transform.*;\n"));
+        root.add (imports);
         
         DefaultMutableTreeNode apps = new CategoryNode ("Applications");
-        apps.add (new SnippetsNode ("Frame", "Frame {\n" + "    title: \"MyApplication\"\n" + "    width: 200\n" + "    height: 200\n" + "    closeAction: function() { java.lang.System.exit( 0 ); }\n" + "    visible: true\n" + "    \n" + "    content: Canvas {\n" + "        content: []\n" + "    }\n" + "}\n"));
-        apps.add (new SnippetsNode ("Application", "Application {\n}\n"));
-        apps.add (new SnippetsNode ("CustomNode", "public class MyCustomNode extends CustomNode {\n" + "    \n" + "    public function create(): Node {\n" + "        return Group {\n" + "            content: []\n" + "        };\n" + "    }\n" + "}\n"));
+        apps.add (new SnippetsNode ("Frame", "Frame {\n" + "    title: \"MyApplication\"\n" + "    width: 200\n" + "    height: 200\n" + "    closeAction: function() { java.lang.System.exit( 0 ); }\n" + "    visible: true\n" + "    \n" + "    content: Canvas {\n" + "        content: []\n" + "    }\n" + "}\n", "frame"));
+        apps.add (new SnippetsNode ("Application", "Application {\n}\n", "application"));
+        apps.add (new SnippetsNode ("CustomNode", "public class MyCustomNode extends CustomNode {\n" + "    \n" + "    public function create(): Node {\n" + "        return Group {\n" + "            content: []\n" + "        };\n" + "    }\n" + "}\n", "custom_node"));
+        apps.add (new SnippetsNode ("Stage", "Stage {\n" + "    content: [\n" + "    ]\n" + "}", "canvas"));
         root.add (apps);
 
         DefaultMutableTreeNode actions = new CategoryNode ("Actions");
-        actions.add (new SnippetsNode ("onMouseMoved", "onMouseMoved: function (e:MouseEvent) {\n}\n"));
-        actions.add (new SnippetsNode ("onMouseEntered", "onMouseEntered: function (e:MouseEvent) {\n}\n"));
-        actions.add (new SnippetsNode ("onMouseExited", "onMouseExited: function (e:MouseEvent) {\n}\n"));
-        actions.add (new SnippetsNode ("onMouseClicked", "onMouseClicked: function (e:MouseEvent) {\n}\n"));
-        actions.add (new SnippetsNode ("onMousePressed", "onMousePressed: function (e:MouseEvent) {\n}\n"));
-        actions.add (new SnippetsNode ("onMouseReleased", "onMouseReleased: function (e:MouseEvent) {\n}\n"));
-        actions.add (new SnippetsNode ("onMouseDragged", "onMouseDragged: function (e:MouseEvent) {\n}\n"));
-        actions.add (new SnippetsNode ("onMouseWheelMoved", "onMouseWheelMoved: function (e:MouseEvent) {\n}\n"));
-        actions.add (new SnippetsNode ("onKeyPressed", "onKeyPressed: function (e:KeyEvent) {\n}\n"));
-        actions.add (new SnippetsNode ("onKeyReleased", "onKeyReleased: function (e:KeyEvent) {\n}\n"));
-        actions.add (new SnippetsNode ("onKeyTyped", "onKeyTyped: function (e:KeyEvent) {\n}\n"));
+        actions.add (new SnippetsNode ("Action", "action: function() {\n}\n", "action"));
+        actions.add (new SnippetsNode ("onMouseMoved", "onMouseMoved: function (e:MouseEvent) {\n}\n", "on_mouse_moved"));
+        actions.add (new SnippetsNode ("onMouseEntered", "onMouseEntered: function (e:MouseEvent) {\n}\n", "on_mouse_entered"));
+        actions.add (new SnippetsNode ("onMouseExited", "onMouseExited: function (e:MouseEvent) {\n}\n", "on_mouse_exited"));
+        actions.add (new SnippetsNode ("onMouseClicked", "onMouseClicked: function (e:MouseEvent) {\n}\n", "on_mouse_clicked"));
+        actions.add (new SnippetsNode ("onMousePressed", "onMousePressed: function (e:MouseEvent) {\n}\n", "on_mouse_pressed"));
+        actions.add (new SnippetsNode ("onMouseReleased", "onMouseReleased: function (e:MouseEvent) {\n}\n", "on_mouse_released"));
+        actions.add (new SnippetsNode ("onMouseDragged", "onMouseDragged: function (e:MouseEvent) {\n}\n", "on_mouse_dragged"));
+        actions.add (new SnippetsNode ("onMouseWheelMoved", "onMouseWheelMoved: function (e:MouseEvent) {\n}\n", "on_mouse_wheel_moved"));
+        actions.add (new SnippetsNode ("onKeyPressed", "onKeyPressed: function (e:KeyEvent) {\n}\n", "on_key_pressed"));
+        actions.add (new SnippetsNode ("onKeyReleased", "onKeyReleased: function (e:KeyEvent) {\n}\n", "on_key_released"));
+        actions.add (new SnippetsNode ("onKeyTyped", "onKeyTyped: function (e:KeyEvent) {\n}\n", "on_key_typed"));
         root.add (actions);
 
-        DefaultMutableTreeNode colors = new CategoryNode ("Colors");
-        colors.add (new SnippetsNode ("Black", "Color.BLACK"));
-        colors.add (new SnippetsNode ("Blue", "Color.BLUE"));
-        colors.add (new SnippetsNode ("Cyan", "Color.CYAN"));
-        colors.add (new SnippetsNode ("Dark Gray", "Color.DARKGRAY"));
-        colors.add (new SnippetsNode ("Green", "Color.GREEN"));
-        colors.add (new SnippetsNode ("Light Gray", "Color.LIGHTGRAY"));
-        colors.add (new SnippetsNode ("Magenta", "Color.MAGENTA"));
-        colors.add (new SnippetsNode ("Orange", "Color.ORANGE"));
-        colors.add (new SnippetsNode ("Pink", "Color.PINK"));
-        colors.add (new SnippetsNode ("Red", "Color.RED"));
-        colors.add (new SnippetsNode ("White", "Color.WHITE"));
-        colors.add (new SnippetsNode ("Yellow", "Color.YELLOW"));
-        root.add (colors);
-
         DefaultMutableTreeNode shapes = new CategoryNode ("Basic Shapes");
-        shapes.add (new SnippetsNode ("Arc", "Arc {\n" + "    centerX: 100, centerY: 100\n" + "    radiusX: 40, radiusY: 15\n" + "    startAngle: 18, length: 120\n" + "    type: ArcType.OPEN\n" + "    fill: Color.GREEN\n" + "}\n"));
-        shapes.add (new SnippetsNode ("Circle", "Circle {\n" + "    centerX: 10, centerY: 10\n" + "    radius: 5\n" + "}\n"));
-        shapes.add (new SnippetsNode ("Ellipse", "Ellipse {\n" + "    centerX: 100, centerY: 100\n" + "    radiusX: 40, radiusY: 15\n" + "    fill: Color.GREEN\n" + "}\n"));
-        shapes.add (new SnippetsNode ("Image", "ImageView {\n" + "    image: Image {\n" + "        url: \"{__DIR__}/myPicture.png\"\n" + "    }\n" + "}\n"));
-        shapes.add (new SnippetsNode ("Line", "Line {\n" + "    x1: 10, y1: 10\n" + "    x2: 10, y2: 10\n" + "    strokeWidth: 1\n" + "}\n"));
-        shapes.add (new SnippetsNode ("Polygon", "Polygon {\n" + "    points : [ 0,0, 100,0, 100,100 ]\n" + "    fill: Color.YELLOW\n" + "}\n"));
-        shapes.add (new SnippetsNode ("Polyline", "Polyline {\n" + "    points : [ 0,0, 100,0, 100,100 ]\n" + "    strokeWidth: 2.0\n" + "    stroke: Color.RED\n" + "}\n"));
-        shapes.add (new SnippetsNode ("Rectangle", "Rectangle {\n" + "    x: 10, y: 10\n" + "    width: 10, height: 10\n" + "}\n"));
-        shapes.add (new SnippetsNode ("Text", "Text {\n" + "    font: Font { \n" + "        size: 24 \n" + "        style: FontStyle.PLAIN\n" + "    }\n" + "    x: 10, y: 30\n" + "    content: \"HelloWorld\"\n" + "}\n"));
+        shapes.add (new SnippetsNode ("Arc", "Arc {\n" + "    centerX: 100, centerY: 100\n" + "    radiusX: 40, radiusY: 15\n" + "    startAngle: 18, length: 120\n" + "    type: ArcType.OPEN\n" + "    fill: Color.GREEN\n" + "}\n", "arc"));
+        shapes.add (new SnippetsNode ("Circle", "Circle {\n" + "    centerX: 10, centerY: 10\n" + "    radius: 5\n" + "}\n", "circle"));
+        shapes.add (new SnippetsNode ("Ellipse", "Ellipse {\n" + "    centerX: 100, centerY: 100\n" + "    radiusX: 40, radiusY: 15\n" + "    fill: Color.GREEN\n" + "}\n", "ellipse"));
+        shapes.add (new SnippetsNode ("Image", "ImageView {\n" + "    image: Image {\n" + "        url: \"{__DIR__}/myPicture.png\"\n" + "    }\n" + "}\n", "image"));
+        shapes.add (new SnippetsNode ("Line", "Line {\n" + "    x1: 10, y1: 10\n" + "    x2: 10, y2: 10\n" + "    strokeWidth: 1\n" + "}\n", "line"));
+        shapes.add (new SnippetsNode ("Polygon", "Polygon {\n" + "    points : [ 0,0, 100,0, 100,100 ]\n" + "    fill: Color.YELLOW\n" + "}\n", "polygon"));
+        shapes.add (new SnippetsNode ("Polyline", "Polyline {\n" + "    points : [ 0,0, 100,0, 100,100 ]\n" + "    strokeWidth: 2.0\n" + "    stroke: Color.RED\n" + "}\n", "polyline"));
+        shapes.add (new SnippetsNode ("Rectangle", "Rectangle {\n" + "    x: 10, y: 10\n" + "    width: 10, height: 10\n" + "}\n", "rectangle"));
+        shapes.add (new SnippetsNode ("Text", "Text {\n" + "    font: Font { \n" + "        size: 24 \n" + "        style: FontStyle.PLAIN\n" + "    }\n" + "    x: 10, y: 30\n" + "    content: \"HelloWorld\"\n" + "}\n", "text"));
         root.add (shapes);
 
+        DefaultMutableTreeNode transforms = new CategoryNode ("Transformations");
+        transforms.add (new SnippetsNode ("Rotate", "Rotate { x : 0.0, y : 0.0, angle: 0.0 }", "rotate"));
+        transforms.add (new SnippetsNode ("Scale", "Scale { x : 0.0, y : 0.0 }", "scale"));
+        transforms.add (new SnippetsNode ("Translate", "Translate { x : 0.0, y : 0.0 }", "move"));
+        root.add (transforms);
+
+        DefaultMutableTreeNode colors = new CategoryNode ("Colors");
+        colors.add (new SnippetsNode ("Black", "Color.BLACK", "black"));
+        colors.add (new SnippetsNode ("Blue", "Color.BLUE", "blue"));
+        colors.add (new SnippetsNode ("Cyan", "Color.CYAN", "cyan"));
+        colors.add (new SnippetsNode ("Dark Gray", "Color.DARKGRAY", "dark_gray"));
+        colors.add (new SnippetsNode ("Gray", "Color.GRAY", "gray"));
+        colors.add (new SnippetsNode ("Green", "Color.GREEN", "green"));
+        colors.add (new SnippetsNode ("Light Gray", "Color.LIGHTGRAY", "light_gray"));
+        colors.add (new SnippetsNode ("Magenta", "Color.MAGENTA", "magenta"));
+        colors.add (new SnippetsNode ("Orange", "Color.ORANGE", "orange"));
+        colors.add (new SnippetsNode ("Pink", "Color.PINK", "pink"));
+        colors.add (new SnippetsNode ("Red", "Color.RED", "red"));
+        colors.add (new SnippetsNode ("White", "Color.WHITE", "white"));
+        colors.add (new SnippetsNode ("Yellow", "Color.YELLOW", "yellow"));
+        root.add (colors);
+
         DefaultMutableTreeNode timeline = new CategoryNode ("Timeline");
-        timeline.add (new SnippetsNode ("Timeline", "Timeline {\n" + "    repeatCount: Timeline.INDEFINITE\n" + "    keyFrames : [\n" + "        KeyFrame {\n" + "            time : 1s\n" + "            \n" + "        }\n" + "    ]\n" + "}\n"));
-        timeline.add (new SnippetsNode ("KeyFrame", "KeyFrame {\n" + "    time: 1s\n" + "    \n" + "}\n"));
-        timeline.add (new SnippetsNode ("Values", "values : {\n" + "    variable => 0.0\n" + "}\n"));
-        timeline.add (new SnippetsNode ("Action", "action: function() {\n}\n"));
+        timeline.add (new SnippetsNode ("Timeline", "Timeline {\n" + "    repeatCount: Timeline.INDEFINITE\n" + "    keyFrames : [\n" + "        KeyFrame {\n" + "            time : 1s\n" + "            \n" + "        }\n" + "    ]\n" + "}\n", "timeline"));
+        timeline.add (new SnippetsNode ("KeyFrame", "KeyFrame {\n" + "    time: 1s\n" + "    \n" + "}\n", "key_frame"));
+        timeline.add (new SnippetsNode ("Values", "values : {\n" + "    variable => 0.0\n" + "}\n", "values"));
+        timeline.add (new SnippetsNode ("Action", "action: function() {\n}\n", "action"));
+        root.add (timeline);
+
+        DefaultMutableTreeNode swing = new CategoryNode ("Swing Components");
+        swing.add (new SnippetsNode ("ComponentView", "ComponentView {\n" + "    transform: [  ]\n" + "    component: \n" + "}\n", "component_view"));
+        swing.add (new SnippetsNode ("SwingFrame", "SwingFrame {\n" + "    title: \"MyApplication\"\n" + "    width: 200\n" + "    height: 200\n" + "    closeAction: function() { java.lang.System.exit( 0 ); }\n" + "    visible: true\n" + "\n" + "    menus: [  ]\n" + "\n" + "    content: Canvas {\n" + "        content: []\n" + "    }\n" + "}\n", "frame"));
+        swing.add (new SnippetsNode ("Button", "SwingButton {\n" + "    text: \"Button\"\n" + "    action: function() { \n" + "    }\n" + "}\n", "button"));
+        swing.add (new SnippetsNode ("CheckBox", "SwingCheckBox {\n" + "    text: \"CheckBox\"\n" + "}\n", "check_box"));
+        swing.add (new SnippetsNode ("ComboBox", "ComboBox {\n" + "    items: [\n" + "        ComboBoxItem {\n" + "            text: \"File\"\n" + "            selected: true\n" + "        }\n" + "    ]\n" + "}\n", "combobox"));
+        swing.add (new SnippetsNode ("ComboBoxItem", "ComboBoxItem {\n" + "    text: \"Item\"\n" + "}\n", "combobox_item"));
+        swing.add (new SnippetsNode ("Label", "SwingLabel {\n" + "    text: \"Label\"\n" + "}\n", "label"));
+        swing.add (new SnippetsNode ("Menu", "Menu {\n" + "    text: \"File\"\n" + "    items : [\n" + "    ]\n" + "}\n", "menu"));
+        swing.add (new SnippetsNode ("MenuItem", "MenuItem {\n" + "    text: \"File\"\n" + "}\n", "menu_item"));
+        swing.add (new SnippetsNode ("RadioButton", "SwingRadioButton {\n" + "    text: \"RadioButton\"\n" + "}\n", "radio_button"));
+        swing.add (new SnippetsNode ("Slider", "SwingSlider {\n" + "    minimum: 0\n" + "    maximum: 10\n" + "    value: 3\n" + "    vertical: true\n" + "}\n", "slider"));
+        swing.add (new SnippetsNode ("TextField", "SwingTextField {\n" + "    columns: 10\n" + "    text: \"TextField\"\n" + "    editable: true\n" + "}\n", "text_field"));
+        swing.add (new SnippetsNode ("ToggleButton", "SwingToggleButton {\n" + "    text: \"ToggleButton\"\n" + "}\n", "toggle_button"));
         root.add (timeline);
 
         DefaultTreeModel model = new DefaultTreeModel (root, true);
         tree = new JTree (model);
         tree.setRootVisible (false);
 
+        tree.expandPath (new TreePath (new Object[] {root, imports }));
         tree.expandPath (new TreePath (new Object[] {root, apps }));
         tree.expandPath (new TreePath (new Object[] {root, actions }));
-        tree.expandPath (new TreePath (new Object[] {root, colors }));
         tree.expandPath (new TreePath (new Object[] {root, shapes }));
+        tree.expandPath (new TreePath (new Object[] {root, transforms }));
+        tree.expandPath (new TreePath (new Object[] {root, colors }));
         tree.expandPath (new TreePath (new Object[] {root, timeline }));
+        tree.expandPath (new TreePath (new Object[] {root, swing }));
 
         tree.setCellRenderer (new DefaultTreeCellRenderer() {
             public Component getTreeCellRendererComponent (JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean focus) {
@@ -138,10 +171,13 @@ public class FxSnippetsWindow implements ProjectComponent {
                 Component component = super.getTreeCellRendererComponent (tree, pass, sel, expanded, leaf, row, focus);
 
                 if (component instanceof JLabel) {
+                    JLabel label = (JLabel) component;
                     if (value instanceof CategoryNode) {
-                        ((JLabel) component).setIcon (expanded ? ICON_MINUS : ICON_PLUS);
+                        label.setIcon (expanded ? ICON_MINUS : ICON_PLUS);
                     } else if (value instanceof SnippetsNode) {
-                        ((JLabel) component).setIcon (null);
+                        SnippetsNode node = (SnippetsNode) value;
+                        label.setIcon (node.getIcon ());
+                        label.setToolTipText (node.getToolTip ());
                     }
                 }
                 return component;
@@ -164,7 +200,7 @@ public class FxSnippetsWindow implements ProjectComponent {
     }
 
     @NonNls @NotNull public String getComponentName () {
-        return "FxSnippets";
+        return "JavaFX Snippets";
     }
 
     public void initComponent () {
@@ -174,19 +210,19 @@ public class FxSnippetsWindow implements ProjectComponent {
     }
 
     public void projectOpened () {
-        tree.setPreferredSize(new Dimension (100, 100));
+        JScrollPane pane = new JScrollPane (tree);
+        pane.setPreferredSize(new Dimension (100, 100));
         ToolWindowManager windowmgr = ToolWindowManager.getInstance (project);
-		ToolWindow window = windowmgr.registerToolWindow("FXSnippets", true, ToolWindowAnchor.RIGHT);
+		ToolWindow window = windowmgr.registerToolWindow("JavaFX Snippets", true, ToolWindowAnchor.RIGHT);
 		PeerFactory pf = PeerFactory.getInstance();
-		Content content = pf.getContentFactory().createContent(tree, "", false);
+		Content content = pf.getContentFactory().createContent(pane, "JavaFX Snippets", false);
 		window.getContentManager().addContent(content);
 		window.setIcon(FxPlugin.FX_ICON);
-        window.setTitle("JavaFX Snippets");
     }
 
     public void projectClosed () {
 //        window.setAvailable (false, null);
-        ToolWindowManager.getInstance (project).unregisterToolWindow ("FxSnippets");
+        ToolWindowManager.getInstance (project).unregisterToolWindow ("JavaFX Snippets");
     }
 
     private static final class CategoryNode extends DefaultMutableTreeNode {
@@ -208,11 +244,19 @@ public class FxSnippetsWindow implements ProjectComponent {
 
         private final String name;
         private final String code;
+        private final String toolTip;
+        private final Icon icon;
 
-        private SnippetsNode (String n, String c) {
+        private SnippetsNode (String name, String code) {
+            this (name, code, null);
+        }
+
+        private SnippetsNode (String name, String code, String iconName) {
             super (null, false);
-            name = n;
-            code = c;
+            this.name = name;
+            this.code = code;
+            this.toolTip = "<html>" + code.replaceAll ("\n", "<br>");
+            this.icon = iconName != null ? IconLoader.getIcon("/icons/snippets/" + iconName + "_16.png") : null;
         }
 
         public String getName () {
@@ -221,6 +265,14 @@ public class FxSnippetsWindow implements ProjectComponent {
 
         public String getCode () {
             return code;
+        }
+
+        public String getToolTip () {
+            return toolTip;
+        }
+
+        public Icon getIcon () {
+            return icon;
         }
 
     }
