@@ -1,0 +1,4 @@
+test/should-fail/jfxc1659.fx:8: 'def' not currently supported in this location -- move y to the block level.
+x = (def y = 8)
+     ^
+1 error

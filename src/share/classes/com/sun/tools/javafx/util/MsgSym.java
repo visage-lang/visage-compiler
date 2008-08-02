@@ -340,6 +340,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT = "javafx.function.declared.overrride.does.not.override";
     public static final String MESSAGE_JAVAFX_SHOULD_BE_DECLARED_OVERRIDE = "javafx.function.overrides.another.should.be.declared.override";
     public static final String MESSAGE_JAVAFX_STATIC_DEPRECATED = "javafx.static.deprecated";
+    public static final String MESSAGE_JAVAFX_VAR_NOT_SUPPORTED_HERE = "javafx.var.not.supported.here";
 
     public static final String MESSAGE_PLUGIN_CANNOT_FIND_PLUGIN = "plugin.cannot.find.plugin"; 
     public static final String MESSAGE_PLUGIN_CANNOT_LOAD_PLUGIN = "plugin.cannot.load.plugin"; 

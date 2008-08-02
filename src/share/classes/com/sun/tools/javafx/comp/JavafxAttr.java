@@ -1001,7 +1001,12 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitVar(JFXVar tree) {
+        long flags = tree.getModifiers().flags;
         Symbol sym = tree.sym;
+        if (sym == null) {
+            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_VAR_NOT_SUPPORTED_HERE, (flags & JavafxFlags.IS_DEF) == 0 ? "var" : "def", tree.getName());
+            return;
+        }
         sym.complete();
         boolean isClassVar = env.info.scope.owner.kind == TYP;
 
@@ -1021,7 +1026,6 @@ public class JavafxAttr implements JavafxVisitor {
                     // var is a static;
                     // let the owner of the environment be a freshly
                     // created BLOCK-method.
-                    long flags = tree.getModifiers().flags;
                     JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
                     if ((flags & STATIC) != 0) {
                         localEnv.info.staticLevel++;
