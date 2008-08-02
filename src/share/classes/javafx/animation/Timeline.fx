@@ -341,14 +341,15 @@ public class Timeline {
 
         var needsStop = false;
         var totalDur = getTotalDur();
+        var adjustedTotalElapsed = totalElapsed;
 
         if (totalDur >= 0) {
             if (toggle) {
                 if (not offsetValid) {
                     if (isReverse) {
-                        offsetT = totalElapsed + lastElapsed;
+                        offsetT = adjustedTotalElapsed + lastElapsed;
                     } else {
-                        offsetT = totalElapsed - lastElapsed;
+                        offsetT = adjustedTotalElapsed - lastElapsed;
                     }
                     offsetValid = true;
                 }
@@ -360,27 +361,27 @@ public class Timeline {
                 // the range [0,totalDur] so that other calculations below
                 // will work as usual)
                 if (isReverse) {
-                    totalElapsed = offsetT - totalElapsed;
+                    adjustedTotalElapsed = offsetT - adjustedTotalElapsed;
                 } else {
-                    totalElapsed = totalElapsed - offsetT;
+                    adjustedTotalElapsed = adjustedTotalElapsed - offsetT;
                 }
             }
 
             // process one last pulse to ensure targets reach their end values
             if (toggle and isReverse) {
-                if (totalElapsed <= 0) {
-                    totalElapsed = 0;
+                if (adjustedTotalElapsed <= 0) {
+                    adjustedTotalElapsed = 0;
                     needsStop = true;
                 }
             } else {
-                if (totalElapsed >= totalDur) {
-                    totalElapsed = totalDur;
+                if (adjustedTotalElapsed >= totalDur) {
+                    adjustedTotalElapsed = totalDur;
                     needsStop = true;
                 }
             }
 
             // capture last adjusted totalElapsed value (used in toggle case)
-            lastElapsed = totalElapsed;
+            lastElapsed = adjustedTotalElapsed;
         }
 
         var curT:Number;
@@ -389,12 +390,12 @@ public class Timeline {
         if (duration < 0) {
             // indefinite duration (e.g. will occur when a sub-timeline
             // has indefinite repeatCount); always stay on zero cycle
-            curT = totalElapsed;
+            curT = adjustedTotalElapsed;
             cycle = 0;
         } else {
-            curT = totalElapsed mod duration;
-            cycle = totalElapsed / duration as Integer;
-            if (curT == 0 and totalElapsed != 0) {
+            curT = adjustedTotalElapsed mod duration;
+            cycle = adjustedTotalElapsed / duration as Integer;
+            if (curT == 0 and adjustedTotalElapsed != 0) {
                 // we're at the end, or exactly on a cycle boundary;
                 // treat this as the "1.0" case of the previous cycle
                 // instead of the "0.0" case of the current cycle
