@@ -174,10 +174,6 @@ formalParameter returns [JFXVar var]
 	: ^(PARAM name type)				{ $var = F.at($name.pos).Param($name.value, $type.type);
                                                           endPos($var, $PARAM); }
 	;
-formalParameterOpt returns [JFXVar var]
-	: formalParameter				{ $var = $formalParameter.var; }
-	|						{ $var = null; }
-	;
 blockExpression  returns [JFXBlockExpression value]
 @init { ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>(); JFXExpression val = null;}
 	: ^(LBRACE   (
