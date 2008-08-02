@@ -175,8 +175,8 @@ public function hsb(hue: Number, saturation: Number, brightness: Number) {
  * @profile common
  * @needsreview
  */        
-public function web(color: String, opacity: Number): Color {
-    color = color.toLowerCase();
+public function web(colorRawName: String, opacity: Number): Color {
+    var color = colorRawName.toLowerCase();
     if (color.startsWith("#") or color.startsWith("0x")) {
         color = if (color.startsWith("#")) color.substring(1) else color.substring(2);
 

@@ -48,7 +48,10 @@ import javax.imageio.stream.ImageInputStream;
 /* If any of the width/height/size attributes were set, scale
  * the image to match.
  */
-private function maybeScaleImage(image:BufferedImage, width:Number, height:Number, size:Number):BufferedImage {
+private function maybeScaleImage(image:BufferedImage, givenWidth:Number, givenHeight:Number, givenSize:Number):BufferedImage {
+    var width:Number = givenWidth;
+    var height:Number = givenHeight;
+    var size:Number = givenSize;
     var w:Number = image.getWidth();
     var h:Number = image.getHeight();
     if ((width == 0.0) and (height == 0.0) and (size == 0.0)) {
@@ -83,19 +86,18 @@ private function createCompatibleImage(w:Integer, h:Integer, transparency:Intege
     return gc.createCompatibleImage(w, h, transparency);
 }
 
-private function asCompatibleImage(image:BufferedImage):BufferedImage {
+private function asCompatibleImage(origImg:BufferedImage):BufferedImage {
     var gc = GraphicsEnvironment.getLocalGraphicsEnvironment().
         getDefaultScreenDevice().getDefaultConfiguration();
-    if (not gc.getColorModel(image.getTransparency()).equals(image.getColorModel())) {
-        var newimg =
-            createCompatibleImage(image.getWidth(), image.getHeight(),
-                                  image.getTransparency());
-        var g2d:Graphics2D = newimg.createGraphics();
-        g2d.drawImage(image, 0, 0, null);
+    var newImg = origImg;
+    if (not gc.getColorModel(origImg.getTransparency()).equals(origImg.getColorModel())) {
+        newImg = createCompatibleImage(origImg.getWidth(), origImg.getHeight(),
+                                  origImg.getTransparency());
+        var g2d:Graphics2D = newImg.createGraphics();
+        g2d.drawImage(origImg, 0, 0, null);
         g2d.dispose();
-        image = newimg;
     }
-    return image;
+    return newImg;
 }
 
 /* Scale the image to match the width/height attributes
@@ -105,11 +107,12 @@ private function asCompatibleImage(image:BufferedImage):BufferedImage {
  * article:
  * http://today.java.net/pub/a/today/2008/04/03/perils-of-image-getscaledinstance.html
  */
-private function scale(image:BufferedImage, width:Number, height:Number):BufferedImage {
+private function scale(initialImage:BufferedImage, width:Number, height:Number):BufferedImage {
     var w:Number = image.getWidth();
     var h:Number = image.getHeight(); 
     var transparency = image.getTransparency();
     var interpolationHint = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
+    var image = initialImage;
     while (true) {
         w = if (w > width) Math.max(w/2.0, width) else width;
         h = if (h > height) Math.max(h/2.0, height) else height;

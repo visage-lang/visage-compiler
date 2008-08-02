@@ -261,7 +261,7 @@ public class DB {
      * @param statement the statement to use
      * @return true if a result set is available
      */    
-    public function execute(sql:String, statement:Statement): Boolean {
+    public function execute(sql:String, ignored:Statement): Boolean {
          var rc:Boolean;
         try {
             statement = getInternalStatement();

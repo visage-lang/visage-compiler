@@ -290,9 +290,10 @@ public class Parser {
      * @param reader the input stream 
      * @return the Object representing the Litera
      */     
-    private function parseLiteral(reader:Reader, c:Integer):Object {
+    private function parseLiteral(reader:Reader, nextChar:Integer):Object {
         //System.out.println("parseLiteral");
         var sb = new StringBuffer();
+	var c = nextChar;
         while(Character.isWhitespace(c)) {
             c = reader.read();
         }
