@@ -104,9 +104,9 @@ public class MediaPlayer {
             
         }
         view.setComponent();
-        startTime = Duration.valueOf(mediaProvider.getStartTime()/1000.0);
+        startTime = Duration.valueOf(mediaProvider.getStartTime()*1000.0);
         
-        stopTime = Duration.valueOf(mediaProvider.getStopTime()/1000.0);
+        stopTime = Duration.valueOf(mediaProvider.getStopTime()*1000.0);
         if (autoPlay) {
             play();
         }        
@@ -173,7 +173,7 @@ public class MediaPlayer {
      */
     public attribute volume:Number = 1.0 on replace {
         var ac : AudioControl;
-        if ((ac = mediaProvider.getControl(ac.getClass())) != null) {
+        if ((ac = MediaHelper.getAudioControl(mediaProvider)) != null) {
             ac.setVolume(volume.floatValue());
         }
     }
@@ -270,9 +270,12 @@ public class MediaPlayer {
      * @see volume
      */
     public attribute mute: Boolean on replace {
-        var ac : AudioControl;
-        if ((ac = mediaProvider.getControl(ac.getClass())) != null) {
+        var ac : AudioControl = MediaHelper.getAudioControl(mediaProvider);
+        
+        if (ac != null) {
             ac.setMute(mute);
+        } else {
+            System.out.println("No Audio Control!");
         }
     }
 

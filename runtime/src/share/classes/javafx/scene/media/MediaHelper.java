@@ -25,14 +25,14 @@ package javafx.scene.media;
 
 import com.sun.media.jmc.*;
 import com.sun.media.jmc.control.VideoControl;
+import com.sun.media.jmc.control.AudioControl;
 
 /**
  * 
  */
 class MediaHelper {
     
-    // FX doesn't seem to like our generics, esp. w/
-    // classes or unitialized objects obj.getClass()
+    // FX won't let use uses Class.class, so we have this 
     public static VideoControl getVideoControl(MediaProvider mp) {
         if (mp == null) {
             return null;
@@ -46,4 +46,12 @@ class MediaHelper {
         return mediaInfo.getMetadata(key, String.class);
     }
 
+    public static AudioControl getAudioControl(MediaProvider mp) {
+        if (mp == null) {
+            return null;
+        }
+        AudioControl ac;
+        ac = mp.getControl(AudioControl.class);
+        return ac;
+    }
 }

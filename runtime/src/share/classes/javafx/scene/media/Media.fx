@@ -52,6 +52,7 @@ public class Media {
         } else {
             try {
                 jmcMediaInfo = new com.sun.media.jmc.Media(new URI(source));
+                duration = Duration.valueOf(jmcMediaInfo.getDuration() * 1000);
             } catch (e:Exception) {
                 handleException(e);
             }
@@ -75,7 +76,7 @@ public class Media {
      * 
      * @profile common
      */
-    public attribute duration:Duration;
+    public attribute duration:Duration=0s;
     
     /**
      * Returns the metadata stored in the source media for the specified key
