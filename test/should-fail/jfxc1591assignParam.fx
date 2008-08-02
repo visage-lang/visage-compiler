@@ -1,0 +1,10 @@
+/**
+ * Regression test JFXC-1591 : Can function parameters be assigned to? No.
+ *
+ * @test/compile-error
+ */
+
+function foo(x : Integer) : Void {
+   x = 6;
+   ++x
+}

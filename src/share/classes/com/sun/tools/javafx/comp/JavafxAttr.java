@@ -2218,6 +2218,9 @@ public class JavafxAttr implements JavafxVisitor {
             ? attribTree(tree.arg, env, VAR, Type.noType)
             : chk.checkNonVoid(tree.arg.pos(), attribExpr(tree.arg, env));
 
+        //TODO: redundant now, but if we want to deferentiate error for increment/decremenet
+        // from assignment, this code may be useful
+        /***
         if (isIncDec) {
             Symbol argSym = JavafxTreeInfo.symbol(tree.arg);
             if (argSym == null) {
@@ -2228,7 +2231,12 @@ public class JavafxAttr implements JavafxVisitor {
                 log.error(tree, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_DEF, argSym);
                 return;
             }
+            if ((argSym.flags() & Flags.PARAMETER) != 0L) {
+                log.error(tree, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_PARAMETER, argSym);
+                return;
+            }
         }
+        ***/
 
         Symbol sym =  rs.resolveUnaryOperator(tree.pos(), tree.getFXTag(), env, argtype);
         Type owntype = syms.errType;
@@ -3197,6 +3205,8 @@ public class JavafxAttr implements JavafxVisitor {
             log.error(pos, MsgSym.MESSAGE_CANNOT_ASSIGN_VAL_TO_FINAL_VAR, v);
         } else if ((v.flags() & JavafxFlags.IS_DEF) != 0L) {
             log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_DEF, v);
+        } else if ((v.flags() & Flags.PARAMETER) != 0L) {
+            log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_PARAMETER, v);
         } else if ((v.flags() & JavafxFlags.READABLE) != 0L) {
             JavafxEnv<JavafxAttrContext> env1 = env;
             if (v.owner != null && v.owner != env1.enclClass.sym) {

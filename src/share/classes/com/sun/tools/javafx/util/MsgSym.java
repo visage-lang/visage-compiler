@@ -334,6 +334,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_BOUND_FUNCTION_MUST_NOT_BE_VOID = "javafx.bound.function.must.not.be.void";
     public static final String MESSAGE_JAVAFX_INVALID_ASSIGNMENT = "javafx.invalid.assignment";
     public static final String MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_DEF = "javafx.cannot.assign.to.def";
+    public static final String MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_PARAMETER = "javafx.cannot.assign.to.parameter";
     public static final String MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_READABLE = "javafx.cannot.assign.to.readable";
     public static final String MESSAGE_JAVAFX_DEF_MUST_HAVE_INIT = "javafx.def.must.have.init";
     public static final String MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT = "javafx.function.declared.overrride.does.not.override";

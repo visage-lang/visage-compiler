@@ -1,0 +1,4 @@
+test/should-fail/jfxc1106.fx:10: Cannot assign to parameter 'initial'
+        initial = initial - amount;
+        ^
+1 error

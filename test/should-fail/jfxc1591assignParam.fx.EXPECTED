@@ -1,0 +1,7 @@
+test/should-fail/jfxc1591assignParam.fx:8: Cannot assign to parameter 'x'
+   x = 6;
+   ^
+test/should-fail/jfxc1591assignParam.fx:9: Cannot assign to parameter 'x'
+   ++x
+     ^
+2 errors
