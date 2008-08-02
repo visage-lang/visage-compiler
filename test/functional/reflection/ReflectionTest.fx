@@ -11,8 +11,8 @@ class TypeInference  {
    function func1 (input:String) :String {input};
    function func2 (input:String) {func1(func1(input));};
    function func3(input:Integer[]){input [ n | n / 2 ==0]};
-   function func4(par1:Integer,par2:Integer){par1=1+par2;TypeInference{}}
-   function func5(par1:Integer[],par2:Integer) { insert par2 into par1;par1};
+   function func4(par1:Integer,par2:Integer){1+par2;TypeInference{}}
+   function func5(par1:Integer[],par2:Integer) { var seq = par1; insert par2 into seq; seq};
    function func6(){function(i:Integer){return i}}
    function func7(f:function():javafx.lang.Duration) {f()}; // Type of f() expression is javafx.lang.Duration hence result type of func7 is inferred to javafx.lang.Duration
 
@@ -50,7 +50,7 @@ abstract class  TypeInference2 extends ReflectionTest.TypeInference {
     abstract function func8():String;
 }
 class TypeInference3 extends TypeInference,TypeInference2 {
-    function func8(){ myAttr};
+    override function func8(){ myAttr};
     override attribute intAttr1 = 20;
     override attribute myAttr = "t3";
     attribute newAttr = func3([2]);

@@ -22,7 +22,7 @@ import com.sun.javafx.runtime.PointerFactory;
 
 function runLater(ms: Number, f: function(): Void): Void {
 	var timer = new Timer(ms, ActionListener {
-		public function actionPerformed(e: ActionEvent) {
+		override function actionPerformed(e: ActionEvent) {
 			f();
 		}
 	});
@@ -53,8 +53,7 @@ function log(t: Number, dv: Number) {
 			s = t;
 		} else {
 			var dt = TimeUnit.NANOSECONDS.toMillis((t - s).longValue()) as Number;
-			dv = dv * 1000.0;
-			var slope = dv/dt;
+			var slope = (dv * 1000.0)/dt;
 			s = t;
 			
 			if(et < 100) {

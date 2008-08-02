@@ -6,7 +6,6 @@
  */
 class Bar {
     public function setSize(w:Number, h:Number):Void {
-        w = h;
+        h;
     }
-
 }
