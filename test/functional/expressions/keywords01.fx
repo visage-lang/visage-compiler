@@ -19,7 +19,7 @@ public class foo2 extends foo {
 	public readable attribute roI = bind data;
 	public readable attribute roS = "readable";
 
-	bound function RequiredAbstractFunction():Integer { return data; }
+	override bound function RequiredAbstractFunction():Integer { return data; }
 	function setData( newd : Integer) { data = newd;}
 	function roi():Integer {return roI; }
 	function ros():String { return roS; }
@@ -51,7 +51,7 @@ for(i in [10,20]) {
 		checkfoo(fb2,i+v); //i+v since setData uses i and fb2 is bound to v :)
 	} catch(e:Exception) {
 		TU.checkB(e instanceof com.sun.javafx.runtime.BindingException,
-				"check BindingExecption1: " + e);
+				"check BindingExecption1: {e}");
 	} finally {
 	   TU.check(true,"Make sure we got to finally block");
 	}
@@ -63,7 +63,7 @@ try {
 	f2.roI = 20;
 } catch( be: Exception ) {
 	TU.checkB(be instanceof com.sun.javafx.runtime.BindingException,
-		"check BindingExecption2: " + be);
+		"check BindingExecption2: {be}");
 }
 if( f2.ros().compareTo("readable")!=0){
 	throw new Exception("failed on check of initial value of readable string");

@@ -134,7 +134,7 @@ totalCompares += compare_count;
 totalSwaps += swap_count;
 printArray("Sorted");
 	System.out.println("DONE!");
-   System.out.println("Items sorted: " + totalSortedItems  + "  Swaps: " + totalSwaps + "  compares: " + totalCompares) ;
+   System.out.println("Items sorted: {totalSortedItems}  Swaps: {totalSwaps}  compares: {totalCompares}") ;
    System.out.println("PASS QSORT");
 }
 }

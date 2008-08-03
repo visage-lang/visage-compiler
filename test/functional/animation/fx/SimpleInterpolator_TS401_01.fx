@@ -25,15 +25,15 @@ import java.lang.Object;
 public class GoldenData extends Interpolatable {
 	public attribute value: Number = 0;
 
-	public function ofTheWay(endVal: Object, t: Number): Object {
+	override function ofTheWay(endVal: Object, t: Number): Object {
 		var ev = endVal as GoldenData;
 		GoldenData {
 			value: value + (ev.value - value) * t;
 		}
 	}
 
-	public function toString(): String {
-		value+"";
+	override function toString(): String {
+		value.toString();
 	}
 }
 
@@ -41,7 +41,7 @@ public class MyInterpolator extends SimpleInterpolator {
 	public attribute i:com.sun.scenario.animation.Interpolator 
 		= Interpolators.getEasingInstance(new Float(0.25), new Float(0.34));
 	
-	public function curve(t: Number): Number {
+	override function curve(t: Number): Number {
 		i.interpolate(t.floatValue())
 	}
 }

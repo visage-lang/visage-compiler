@@ -51,16 +51,16 @@ System.out.println(s5);
 var s6 = "Hello";
 var s7 = ", ";
 var s8 = "World!";
-var hw = s6 + s7 + s8;
+var hw = "{s6}{s7}{s8}";
 TU.checkS(hw,"Hello, World!","string var can be concatentated with +");
 //TU.checkI(i,5,"strings are java strings");
 
 
-hw = "Hello" + ", " + "World" + "!";
+hw = "Hello, World!";
 TU.checkS(hw,"Hello, World!","string literals can be concatentated with +");
 
 var EXCL = "!";
-hw = s6 + comma + " " + "World{EXCL}";
+hw = "{s6}{comma} World{EXCL}";
 TU.checkS(hw,"Hello, World!","concatenations and coercions can be mixed freely");
 
 /*
@@ -97,7 +97,7 @@ TU.checkS( cat.trim(), "cat","String.trim()");
 function removewhitespace( s:String):String {
   var news = "";
   var seq = s.split(' ');
-  for ( l in seq ){     news = news + l;}
+  for ( l in seq ){     news = "{news}{l}";}
  return news;
 }
 TU.checkS(removewhitespace(poem),"Maryhadalittlelamb", "String.split method returns String array, not a String sequence");

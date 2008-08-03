@@ -24,7 +24,7 @@ function main() {
 		var i1 = forgetIt() / (j1 = 2);
 	} catch (e:Exception) {
 		System.out.println(e);
-		System.out.println("Now j1 = " + j1);
+		System.out.println("Now j1 = {j1}");
 	}
 }
 function forgetIt():Integer {

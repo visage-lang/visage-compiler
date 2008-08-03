@@ -47,7 +47,7 @@ function m4  ( ia: Integer[] ): Integer[] { return ia; }
 function m5  ( s : String) { System.out.println({s}); }
 function m6  ( i : Integer, s : String) : String { return "{s}{i}"; }
 function m7  ( i : Integer, s : String) : String { return " {i.toString()}{s}"; }
-function m8  ( i : Integer, s : String) : String {return s + i.toString(); }
+function m8  ( i : Integer, s : String) : String {return "{s}{i}"; }
 
 /* basic function calls */
 TU.check(false,"method with no parms, no return"); m();
@@ -73,7 +73,7 @@ TU.checkIs(m2([{m1( m3(m11(m1(1))))},{m1( m3(m11(m1(2))))},{m1( m3(m11(m1(3))))}
 //System.out.println( m21(m2([{m1( m3(m11(m1(1))))},{m1( m3(m11(m1(2))))},{m1( m3(m11(m1(3))))}]))); //prints [ 1, 2, 3 ]
 TU.checkSs(m21(m2([{m1( m3(m11(m1(1))))},{m1( m3(m11(m1(2))))},{m1( m3(m11(m1(3))))}])),["1","2","3"],"nested functions returning Integer passed to function which returns them as sequnece of strings.");
 //m5( m6(101,"Hwy ") + m7(99," dead baboons ") + m8(8,"  That's a prime"));
-TU.checkS(m12( m6(101,"Hwy ") + m7(99," dead baboons ") + m8(8,"  That's a prime")),"Hwy 101 99 dead baboons   That's a prime8","concatenated string of methods returning strings pass to method taking a string");
+TU.checkS(m12( "{m6(101,'Hwy ')}{m7(99,' dead baboons ')}{m8(8,"  That's a prime")}"),"Hwy 101 99 dead baboons   That's a prime8","concatenated string of methods returning strings pass to method taking a string");
 System.out.println();
 
 /*Functions are first-class objects (they can, for example,  be assigned to variables, or */
