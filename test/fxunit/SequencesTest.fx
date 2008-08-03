@@ -21,15 +21,15 @@ import java.lang.IllegalArgumentException;
 
 
 public class DummyElement {
-    public attribute id: Integer;
+    public var id: Integer;
 
-    public function equals(o: java.lang.Object): Boolean {
+    override function equals(o: java.lang.Object): Boolean {
         if (o instanceof DummyElement and id == (o as DummyElement).id) {
             return true;
         }
         return false;
     }
-    public function hashCode(): Integer {
+    override function hashCode(): Integer {
         return id;
     }
 }
@@ -37,14 +37,14 @@ public class DummyElement {
 public class DummyComparator extends Comparator {
 
     
-    public function compare(o1:java.lang.Object, o2: java.lang.Object) :Integer {
+    override function compare(o1:java.lang.Object, o2: java.lang.Object) :Integer {
    	return compare(o1 as DummyElement, o2 as DummyElement); 
     }
 
     public function compare(o1: DummyElement, o2: DummyElement): Integer {
         return o1.id - o2.id;
     };
-    public function equals(o: Object): Boolean {
+    override function equals(o: Object): Boolean {
         return o instanceof DummyComparator;
     }
 }
@@ -54,20 +54,20 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
     // TODO: JFXC-833 Simplify singleInteger, singleElement, and assertEquals
     // TODO: JFXC-869 Simplify try-catch blocks below after resolve
 
-    attribute emptyInteger:     Integer[];
-    attribute singleInteger:    Integer[];
-    attribute sortedInteger:    Integer[];
-    attribute unsortedInteger:  Integer[];
-    attribute emptyElements:    DummyElement[];
-    attribute singleElements:   DummyElement[];
-    attribute sortedElements:   DummyElement[];
-    attribute unsortedElements: DummyElement[];
-    attribute longSequence:     DummyElement[];
+    var emptyInteger:     Integer[];
+    var singleInteger:    Integer[];
+    var sortedInteger:    Integer[];
+    var unsortedInteger:  Integer[];
+    var emptyElements:    DummyElement[];
+    var singleElements:   DummyElement[];
+    var sortedElements:   DummyElement[];
+    var unsortedElements: DummyElement[];
+    var longSequence:     DummyElement[];
     
-    attribute element: DummyElement[];
-    attribute comparator: DummyComparator;
+    var element: DummyElement[];
+    var comparator: DummyComparator;
     
-    protected function setUp(): Void {
+    override function setUp(): Void {
         // Integer-sequences
         emptyInteger    = [];
         singleInteger   = [0];
@@ -176,7 +176,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
             assertEquals([element[1], element[2], element[3]], sortedElements);
         }
         catch (ex2: Exception) {
-            fail("Unexpected exception thrown: " + ex2.getMessage());
+            fail("Unexpected exception thrown: {ex2.getMessage()}");
         }
 
         result = Sequences.binarySearch(null, element, null);
@@ -250,7 +250,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         catch (ex3: NullPointerException) {
         }
         catch (ex4: Exception) {
-            fail ("Unexpected exception thrown: " + ex4.getMessage());
+            fail ("Unexpected exception thrown: {ex4.getMessage()}");
         }
     }
     
@@ -313,7 +313,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         catch (ex3: NullPointerException) {
         }
         catch (ex4: Exception) {
-            fail ("Unexpected exception thrown: " + ex4.getMessage());
+            fail ("Unexpected exception thrown: {ex4.getMessage()}");
         }
     }
     
@@ -352,7 +352,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         catch (ex1: IllegalArgumentException) {
         }
         catch (ex2: Exception) {
-            fail ("Unexpected exception thrown: " + ex2.getMessage());
+            fail ("Unexpected exception thrown: {ex2.getMessage()}");
         }
         
         // exception when sequence is empty
@@ -363,7 +363,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         catch (ex3: IllegalArgumentException) {
         }
         catch (ex4: Exception) {
-            fail ("Unexpected exception thrown: " + ex4.getMessage());
+            fail ("Unexpected exception thrown: {ex4.getMessage()}");
         }
         
     }
@@ -408,7 +408,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         catch (ex1: IllegalArgumentException) {
         }
         catch (ex2: Exception) {
-            fail ("Unexpected exception thrown: " + ex2.getMessage());
+            fail ("Unexpected exception thrown: {ex2.getMessage()}");
         }
         
         // exception when sequence is empty
@@ -419,7 +419,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         catch (ex3: IllegalArgumentException) {
         }
         catch (ex4: Exception) {
-            fail ("Unexpected exception thrown: " + ex4.getMessage());
+            fail ("Unexpected exception thrown: {ex4.getMessage()}");
         }
         
     }
@@ -459,7 +459,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         catch (ex1: IllegalArgumentException) {
         }
         catch (ex2: Exception) {
-            fail ("Unexpected exception thrown: " + ex2.getMessage());
+            fail ("Unexpected exception thrown: {ex2.getMessage()}");
         }
         
         // exception when sequence is empty
@@ -470,7 +470,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         catch (ex3: IllegalArgumentException) {
         }
         catch (ex4: Exception) {
-            fail ("Unexpected exception thrown: " + ex4.getMessage());
+            fail ("Unexpected exception thrown: {ex4.getMessage()}");
         }
         
     }
@@ -515,7 +515,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         catch (ex1: IllegalArgumentException) {
         }
         catch (ex2: Exception) {
-            fail ("Unexpected exception thrown: " + ex2.getMessage());
+            fail ("Unexpected exception thrown: {ex2.getMessage()}");
         }
         
         // exception when sequence is empty
@@ -526,7 +526,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         catch (ex3: IllegalArgumentException) {
         }
         catch (ex4: Exception) {
-            fail ("Unexpected exception thrown: " + ex4.getMessage());
+            fail ("Unexpected exception thrown: {ex4.getMessage()}");
         }
         
     }
@@ -704,7 +704,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
             assertEquals([element[3], element[1], element[2]], unsortedElements);
         }
         catch (ex2: Exception) {
-            fail("Unexpected exception thrown: " + ex2.getMessage());
+            fail("Unexpected exception thrown: {ex2.getMessage()}");
         }
 
         Sequences.sort(null, null);

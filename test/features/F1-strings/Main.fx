@@ -15,7 +15,7 @@ var w : String = "world";
 y = y + 1;
 
 System.out.println("Hello world");
-System.out.println(h + w);
+System.out.println("{h}{w}");
 System.out.println(x);
 System.out.println(y);
 System.out.println(x+y);

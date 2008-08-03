@@ -10,19 +10,19 @@ import java.lang.*;
 { 
   var a = 1; 
   ++a;
-  System.out.println("a= " + a);
+  System.out.println("a= {a}");
 
   var x =  y + 1; 
   var y = 16; 
   ++y; 
-  System.out.println("x= " +x); 
-  System.out.println("y= " +y);
+  System.out.println("x= {x}"); 
+  System.out.println("y= {y}");
 
 
   var m = 1;
   var n = bind m;
   m++;
-  System.out.println("m = " + m + " n = " + n);
+  System.out.println("m = {m} n = {n}");
 }
 
 
