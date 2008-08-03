@@ -1,0 +1,5 @@
+test/should-fail/jfxc1700.fx:7: Sorry, I was trying to understand an indexed sequence for insert but I got confused when I saw ';'.
+ Perhaps you are missing a '['.
+insert 10 after 5;
+                 ^
+1 error

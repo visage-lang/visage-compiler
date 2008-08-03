@@ -522,20 +522,20 @@ catch [RecognitionException re] {
 functionDefinition
 @after { Tree docComment = getDocComment($functionDefinition.start);
          $functionDefinition.tree.addChild(docComment); }
-	: functionModifierFlags FUNCTION name formalParameters typeReference blockExpression?
+	: functionModifierFlags FUNCTION name formalParameters typeReference block?
 	    					-> ^(FUNCTION name functionModifierFlags 
 	    						formalParameters typeReference 
-	    						blockExpression?)
+	    						block?)
 	;
 overrideDeclaration
 	: OVERRIDE classVarLabel  name (EQ boundExpression)? onReplaceClause?
 	    					-> ^(OVERRIDE name boundExpression? onReplaceClause?)
 ;
 initDefinition
-	: INIT blockExpression 				-> ^(INIT blockExpression)
+	: INIT block 				-> ^(INIT block)
 	;
 postInitDefinition
-	: POSTINIT blockExpression 			-> ^(POSTINIT blockExpression)
+	: POSTINIT block 			-> ^(POSTINIT block)
 	;
 //triggerDefinition
 //	: WITH name onReplaceClause		-> ^(WITH name onReplaceClause)
@@ -543,7 +543,7 @@ postInitDefinition
 
 //TODO: modifier flag testing should be done in JavafxAttr, where it would be cleaner and better errors could be generated
 functionModifierFlags  
-	: functionModifier*				-> ^(MODIFIER functionModifier*)
+	: functionModifier*			-> ^(MODIFIER functionModifier*)
 	;
 scriptVariableDeclaration
 @after { Tree docComment = getDocComment($scriptVariableDeclaration.start);
@@ -608,7 +608,7 @@ catch [RecognitionException re] {
         retval.tree = r.tree;
     }
 }
-blockExpression 
+block 
 	: LBRACE blockComponent
 	   (SEMI blockComponent) *
 	  RBRACE				-> ^(LBRACE blockComponent*)
@@ -638,8 +638,8 @@ statement
        	| expression
        	;
 onReplaceClause
-	: ON REPLACE oldval=paramNameOpt clause=sliceClause? blockExpression
-						-> ^(ON_REPLACE_SLICE[$ON] $oldval $clause? blockExpression)
+	: ON REPLACE oldval=paramNameOpt clause=sliceClause? block
+						-> ^(ON_REPLACE_SLICE[$ON] $oldval $clause? block)
 	;
 sliceClause
 	: LBRACKET first=name DOTDOT last=name RBRACKET EQ newElements=name
@@ -664,15 +664,19 @@ throwStatement
 	: THROW expression 			-> ^(THROW expression)
 	;
 whileStatement
-	: WHILE LPAREN expression RPAREN blockExpression	-> ^(WHILE expression blockExpression)
+	: WHILE LPAREN expression RPAREN block	-> ^(WHILE expression block)
 	;
 insertStatement  
 	: INSERT elem=expression
-		( INTO eseq=expression 		-> ^(INTO $elem $eseq )
-		| BEFORE where=expression	-> ^(BEFORE $elem $where)
-		| AFTER where=expression	-> ^(AFTER $elem $where)
-		)
+	    ( INTO eseq=expression 		-> ^(INTO $elem $eseq )
+	    | BEFORE indexedSequenceForInsert	-> ^(BEFORE $elem indexedSequenceForInsert)
+	    | AFTER indexedSequenceForInsert	-> ^(AFTER $elem indexedSequenceForInsert)
+	    )
 	;
+indexedSequenceForInsert
+	: primaryExpression 			
+	   LBRACKET expression RBRACKET		-> ^(SEQ_INDEX[$LBRACKET] primaryExpression expression RBRACKET)
+ 	;
 deleteStatement  
 	: DELETE  e1=expression  
 	   ( (FROM)=>FROM e2=expression 	-> ^(FROM $e1 $e2)
@@ -683,17 +687,17 @@ returnStatement
 	: RETURN expression?			-> ^(RETURN expression?)
 	;
 tryStatement
-	: TRY blockExpression 			
+	: TRY block 			
 	   ( finallyClause
 	   | catchClause+ finallyClause?   
-	   ) 					-> ^(TRY blockExpression catchClause* finallyClause?)
+	   ) 					-> ^(TRY block catchClause* finallyClause?)
 	;
 finallyClause
-	: FINALLY blockExpression				-> ^(FINALLY blockExpression)
+	: FINALLY block				-> ^(FINALLY block)
 	;
 catchClause
-	: CATCH LPAREN formalParameter RPAREN blockExpression
-						-> ^(CATCH formalParameter blockExpression)
+	: CATCH LPAREN formalParameter RPAREN block
+						-> ^(CATCH formalParameter block)
 	;
 boundExpression 
 	: BIND expression ((WITH)=>WITH INVERSE)?
@@ -809,14 +813,14 @@ postfixExpression
 	         )   
 	   | LPAREN expressionList RPAREN           		-> ^(FUNC_APPLY[$LPAREN] $postfixExpression expressionList)
 	   | LBRACKET (name PIPE expression RBRACKET		-> ^(PIPE $postfixExpression name expression)
-	     | first=expression
-               (RBRACKET					-> ^(SEQ_INDEX[$LBRACKET] $postfixExpression $first RBRACKET)
-	       | DOTDOT (
-	                  LT last=expression? 			-> ^(SEQ_SLICE_EXCLUSIVE[$LBRACKET] $postfixExpression $first $last?)
-	                | last=expression? 			-> ^(SEQ_SLICE[$LBRACKET] $postfixExpression $first $last?)
-	                )
-	         RBRACKET
-               )
+	              | first=expression
+                            (RBRACKET				-> ^(SEQ_INDEX[$LBRACKET] $postfixExpression $first RBRACKET)
+	                    | DOTDOT (
+	                               LT last=expression? 	-> ^(SEQ_SLICE_EXCLUSIVE[$LBRACKET] $postfixExpression $first $last?)
+	                             | last=expression? 	-> ^(SEQ_SLICE[$LBRACKET] $postfixExpression $first $last?)
+	                             )
+	                      RBRACKET
+                            )
              )
 	   ) * 
 	;
@@ -830,7 +834,7 @@ primaryExpression
        	| SUPER							-> SUPER
        	| stringExpression 					-> stringExpression
        	| bracketExpression 					-> bracketExpression
-        | blockExpression 					-> blockExpression
+        | block 						-> block
        	| literal 						-> literal
       	| functionExpression					-> functionExpression
        	| LPAREN expression RPAREN				-> expression
@@ -852,8 +856,8 @@ catch [RecognitionException re] {
     }
 }
 functionExpression  
-	: FUNCTION formalParameters typeReference blockExpression
-								-> ^(FUNC_EXPR[$FUNCTION] formalParameters typeReference blockExpression)
+	: FUNCTION formalParameters typeReference block
+								-> ^(FUNC_EXPR[$FUNCTION] formalParameters typeReference block)
 	;
 newExpression 
 	: NEW typeName expressionListOpt			-> ^(NEW typeName expressionListOpt)

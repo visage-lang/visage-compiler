@@ -235,9 +235,9 @@ public abstract class AbstractGeneratedParser extends Parser {
     protected String[] fxTokenNames = null;
     
     protected String[][] ruleMap = { 
-            {"module", "the module contents"},
-            {"moduleItems", "the module contents"},
-            {"moduleItem", "the module contents"},
+            {"script", "the script contents"},
+            {"scriptItems", "the script contents"},
+            {"scriptItem", "the script contents"},
             {"packageDecl", "a package declaration"},
             {"importDecl", "an import declaration"},
             {"importId", "an import declaration"},
@@ -257,10 +257,10 @@ public abstract class AbstractGeneratedParser extends Parser {
             {"accessModifier", "an access modifier"},
             {"formalParameters", " the parameters of a function declaration"},
             {"formalParameter", " a formal parameter"},
-            {"blockExpression", "a block expression"},
+            {"block", "a block"},
             {"blockComponent", "a component of a block"},
-            {"variableDeclaration", "an attribute/variable declaration"},
-            {"variableLabel", "an attribute/variable declaration"},
+            {"variableDeclaration", "a variable declaration"},
+            {"variableLabel", "a variable declaration"},
             {"boundExpression", "an expression"},
             {"inClause", "the 'in' clause of a 'for' expression"},
             {"elseClause", "the 'else' clause of an 'if' expression"},
@@ -354,7 +354,7 @@ public abstract class AbstractGeneratedParser extends Parser {
         },  
         UNKNOWN {
             String forHumans() {
-                return "an unknown type of token";
+                return "a token";
             }
         };
         abstract String forHumans();
@@ -501,7 +501,7 @@ public abstract class AbstractGeneratedParser extends Parser {
             mb.append(" but I got confused when I saw ");
             mb.append(getTokenErrorDisplay(e.token));
             TokenClassification tokenClass = classifyToken(e.token);
-            if (tokenClass != TokenClassification.UNKNOWN) {
+            if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
                 mb.append(" which is ");
                 mb.append(tokenClass.forHumans());
             }
@@ -517,7 +517,7 @@ public abstract class AbstractGeneratedParser extends Parser {
             mb.append(" but I got confused when I saw ");
             mb.append(getTokenErrorDisplay(e.token));
             TokenClassification tokenClass = classifyToken(e.token);
-            if (tokenClass != TokenClassification.UNKNOWN) {
+            if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
                 mb.append(" which is ");
                 mb.append(tokenClass.forHumans());
             }
