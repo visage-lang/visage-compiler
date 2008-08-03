@@ -10,13 +10,13 @@ jfxc1442sub.readpriv = 8;
 test/should-fail/jfxc1442fail.fx:12: cannot find symbol
 symbol  : variable readpriv
 location: class jfxc1442fail
-var x = readpriv.read + readpriv.readpriv;
-        ^
+var x = "{readpriv.read}{readpriv.readpriv}";
+          ^
 test/should-fail/jfxc1442fail.fx:12: cannot find symbol
 symbol  : variable readpriv
 location: class jfxc1442fail
-var x = readpriv.read + readpriv.readpriv;
-                        ^
+var x = "{readpriv.read}{readpriv.readpriv}";
+                         ^
 test/should-fail/jfxc1442fail.fx:13: cannot find symbol
 symbol  : variable myvar
 location: class jfxc1442sub

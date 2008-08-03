@@ -9,6 +9,6 @@ jfxc1442sub.pub = 8;
 jfxc1442sub.priv = 8;
 jfxc1442sub.read = 8;
 jfxc1442sub.readpriv = 8;
-var x = readpriv.read + readpriv.readpriv;
+var x = "{readpriv.read}{readpriv.readpriv}";
 jfxc1442sub.myvar = 8;
 
