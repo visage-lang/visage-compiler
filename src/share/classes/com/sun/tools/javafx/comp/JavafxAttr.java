@@ -2426,7 +2426,23 @@ public class JavafxAttr implements JavafxVisitor {
             owntype = sym.type.getReturnType();
         }
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
+        if (tree.getFXTag() == JavafxTag.PLUS && owntype == syms.stringType) {
+            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_STRING_CONCATENATION, expressionToString(tree));
+        }
     }
+    //where
+    private String expressionToString(JFXExpression expr) {
+        if (expr.type == syms.stringType) {
+            if (expr.getFXTag() == JavafxTag.LITERAL) {
+                return (String) (((JFXLiteral) expr).getValue());
+            } else if (expr.getFXTag() == JavafxTag.PLUS) {
+                JFXBinary plus = (JFXBinary) expr;
+                return expressionToString(plus.lhs) + expressionToString(plus.rhs);
+            }
+        }
+        return "{" + expr.toString() + "}";
+    }
+
 
     @Override
     public void visitLiteral(JFXLiteral tree) {
