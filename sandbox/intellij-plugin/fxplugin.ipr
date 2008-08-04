@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project relativePaths="false" version="4">
+<project relativePaths="true" version="4">
   <component name="AntConfiguration">
     <defaultAnt bundledAnt="true" />
   </component>
@@ -376,7 +376,7 @@
       <module fileurl="file://$PROJECT_DIR$/fxplugin.iml" filepath="$PROJECT_DIR$/fxplugin.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA 7757" project-jdk-type="IDEA JDK">
+  <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA 7361" project-jdk-type="IDEA JDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="ResourceManagerContainer">
@@ -466,13 +466,168 @@
   <component name="com.intellij.profile.ui.ErrorOptionsConfigurable" proportions="" version="1">
     <option name="myLastEditedConfigurable" />
   </component>
+  <component name="copyright">
+    <Base>
+      <setting name="state" value="1" />
+    </Base>
+    <LanguageOptions name="HTML">
+      <option name="templateOptions">
+        <value>
+          <option name="block" value="true" />
+          <option name="separateBefore" value="false" />
+          <option name="separateAfter" value="false" />
+          <option name="prefixLines" value="true" />
+          <option name="lenBefore" value="80" />
+          <option name="lenAfter" value="80" />
+          <option name="box" value="false" />
+          <option name="filler" value=" " />
+        </value>
+      </option>
+      <option name="notice" value="Copyright (c) &amp;#36;today.year, Your Corporation. All Rights Reserved." />
+      <option name="keyword" value="Copyright" />
+      <option name="fileTypeOverride" value="2" />
+      <option name="relativeBefore" value="true" />
+      <option name="addBlankAfter" value="true" />
+      <option name="fileLocation" value="1" />
+      <option name="useAlternate" value="false" />
+    </LanguageOptions>
+    <LanguageOptions name="JAVA">
+      <option name="templateOptions">
+        <value>
+          <option name="block" value="true" />
+          <option name="separateBefore" value="false" />
+          <option name="separateAfter" value="false" />
+          <option name="prefixLines" value="true" />
+          <option name="lenBefore" value="80" />
+          <option name="lenAfter" value="80" />
+          <option name="box" value="false" />
+          <option name="filler" value=" " />
+        </value>
+      </option>
+      <option name="notice" value="Copyright (c) &amp;#36;today.year, Your Corporation. All Rights Reserved." />
+      <option name="keyword" value="Copyright" />
+      <option name="fileTypeOverride" value="2" />
+      <option name="relativeBefore" value="true" />
+      <option name="addBlankAfter" value="true" />
+      <option name="fileLocation" value="1" />
+      <option name="useAlternate" value="false" />
+    </LanguageOptions>
+    <LanguageOptions name="JSP">
+      <option name="templateOptions">
+        <value>
+          <option name="block" value="true" />
+          <option name="separateBefore" value="false" />
+          <option name="separateAfter" value="false" />
+          <option name="prefixLines" value="true" />
+          <option name="lenBefore" value="80" />
+          <option name="lenAfter" value="80" />
+          <option name="box" value="false" />
+          <option name="filler" value=" " />
+        </value>
+      </option>
+      <option name="notice" value="Copyright (c) &amp;#36;today.year, Your Corporation. All Rights Reserved." />
+      <option name="keyword" value="Copyright" />
+      <option name="fileTypeOverride" value="2" />
+      <option name="relativeBefore" value="true" />
+      <option name="addBlankAfter" value="true" />
+      <option name="fileLocation" value="1" />
+      <option name="useAlternate" value="false" />
+    </LanguageOptions>
+    <LanguageOptions name="JavaScript">
+      <option name="templateOptions">
+        <value>
+          <option name="block" value="true" />
+          <option name="separateBefore" value="false" />
+          <option name="separateAfter" value="false" />
+          <option name="prefixLines" value="true" />
+          <option name="lenBefore" value="80" />
+          <option name="lenAfter" value="80" />
+          <option name="box" value="false" />
+          <option name="filler" value=" " />
+        </value>
+      </option>
+      <option name="notice" value="Copyright (c) &amp;#36;today.year, Your Corporation. All Rights Reserved." />
+      <option name="keyword" value="Copyright" />
+      <option name="fileTypeOverride" value="2" />
+      <option name="relativeBefore" value="true" />
+      <option name="addBlankAfter" value="true" />
+      <option name="fileLocation" value="1" />
+      <option name="useAlternate" value="false" />
+    </LanguageOptions>
+    <LanguageOptions name="Properties">
+      <option name="templateOptions">
+        <value>
+          <option name="block" value="true" />
+          <option name="separateBefore" value="false" />
+          <option name="separateAfter" value="false" />
+          <option name="prefixLines" value="true" />
+          <option name="lenBefore" value="80" />
+          <option name="lenAfter" value="80" />
+          <option name="box" value="false" />
+          <option name="filler" value=" " />
+        </value>
+      </option>
+      <option name="notice" value="Copyright (c) &amp;#36;today.year, Your Corporation. All Rights Reserved." />
+      <option name="keyword" value="Copyright" />
+      <option name="fileTypeOverride" value="2" />
+      <option name="relativeBefore" value="true" />
+      <option name="addBlankAfter" value="true" />
+      <option name="fileLocation" value="1" />
+      <option name="useAlternate" value="false" />
+    </LanguageOptions>
+    <LanguageOptions name="XML">
+      <option name="templateOptions">
+        <value>
+          <option name="block" value="true" />
+          <option name="separateBefore" value="false" />
+          <option name="separateAfter" value="false" />
+          <option name="prefixLines" value="true" />
+          <option name="lenBefore" value="80" />
+          <option name="lenAfter" value="80" />
+          <option name="box" value="false" />
+          <option name="filler" value=" " />
+        </value>
+      </option>
+      <option name="notice" value="Copyright (c) &amp;#36;today.year, Your Corporation. All Rights Reserved." />
+      <option name="keyword" value="Copyright" />
+      <option name="fileTypeOverride" value="2" />
+      <option name="relativeBefore" value="true" />
+      <option name="addBlankAfter" value="true" />
+      <option name="fileLocation" value="1" />
+      <option name="useAlternate" value="false" />
+    </LanguageOptions>
+    <LanguageOptions name="__TEMPLATE__">
+      <option name="templateOptions">
+        <value>
+          <option name="block" value="true" />
+          <option name="separateBefore" value="false" />
+          <option name="separateAfter" value="false" />
+          <option name="prefixLines" value="true" />
+          <option name="lenBefore" value="80" />
+          <option name="lenAfter" value="80" />
+          <option name="box" value="false" />
+          <option name="filler" value=" " />
+        </value>
+      </option>
+      <option name="notice" value="Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.&#10;DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.&#10;&#10;This code is free software; you can redistribute it and/or modify it&#10;under the terms of the GNU General Public License version 2 only, as&#10;published by the Free Software Foundation.&#10;&#10;This code is distributed in the hope that it will be useful, but WITHOUT&#10;ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or&#10;FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License&#10;version 2 for more details (a copy is included in the LICENSE file that&#10;accompanied this code).&#10;&#10;You should have received a copy of the GNU General Public License version&#10;2 along with this work; if not, write to the Free Software Foundation,&#10;Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.&#10;&#10;Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,&#10;CA 95054 USA or visit www.sun.com if you need additional information or&#10;have any questions." />
+      <option name="keyword" value="Copyright" />
+      <option name="fileTypeOverride" value="4" />
+      <option name="relativeBefore" value="true" />
+      <option name="addBlankAfter" value="true" />
+      <option name="fileLocation" value="1" />
+      <option name="useAlternate" value="false" />
+    </LanguageOptions>
+  </component>
   <component name="libraryTable">
     <library name="fxlibs">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/../../dist/lib/javafxc.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES />
+      <SOURCES>
+        <root url="file://$PROJECT_DIR$/../../src/share/classes" />
+        <root url="intellijad://intellijad" />
+      </SOURCES>
     </library>
   </component>
 </project>

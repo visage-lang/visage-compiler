@@ -7,11 +7,15 @@
       <sourceFolder url="file://$MODULE_DIR$/resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="IDEA 7757" jdkType="IDEA JDK" />
+    <orderEntry type="jdk" jdkName="IDEA 7361" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="fxlibs" level="project" />
-    <orderEntry type="library" name="tools.jar" level="project" />
     <orderEntryProperties />
+  </component>
+  <component name="copyright">
+    <Base>
+      <setting name="state" value="1" />
+    </Base>
   </component>
 </module>
 
