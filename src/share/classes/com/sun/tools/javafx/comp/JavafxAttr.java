@@ -1226,7 +1226,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
 
         forExprEnv.tree = tree; // before, we were not in loop!
-        attribExpr(tree.getBodyExpression(), forExprEnv);
+        attribTree(tree.getBodyExpression(), forExprEnv, VAL, pt.tag != ERROR ? pt : Type.noType, Sequenceness.PERMITTED);
 
         Type bodyType = tree.getBodyExpression().type;
         if (bodyType == syms.unreachableType)
