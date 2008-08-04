@@ -35,6 +35,7 @@
     <xsl:param name="profiles-enabled">false</xsl:param>
     <xsl:param name="inline-classlist">false</xsl:param>
     <xsl:param name="inline-descriptions">false</xsl:param>
+    <xsl:param name="root-path">../</xsl:param>
     
     
 <!-- starter template -->    
@@ -86,12 +87,12 @@
     <xsl:template match="packageList[@mode='overview-summary']">
         <html>
             <head>
-                <link href="{$master-css}" rel="stylesheet"/>
+                <link href="{$root-path}{$master-css}" rel="stylesheet"/>
                 <xsl:if test="$extra-css">
-                    <link href="{$extra-css}" rel="stylesheet"/>
+                    <link href="{$root-path}{$extra-css}" rel="stylesheet"/>
                 </xsl:if>
                 <xsl:if test="$extra-js">
-                    <script src="{$extra-js}"></script>
+                    <script src="{$root-path}{$extra-js}"></script>
                 </xsl:if>
             </head>
             <body>
@@ -122,12 +123,12 @@
     <xsl:template match="classList[@mode='overview-frame']">
         <html>
             <head>
-                <link href="../{$master-css}" rel="stylesheet"/>
+                <link href="${root-path}{$master-css}" rel="stylesheet"/>
                 <xsl:if test="$extra-css">
-                    <link href="../{$extra-css}" rel="stylesheet"/>
+                    <link href="${root-path}{$extra-css}" rel="stylesheet"/>
                 </xsl:if>
                 <xsl:if test="$extra-js">
-                    <script src="../{$extra-js}"></script>
+                    <script src="${root-path}{$extra-js}"></script>
                 </xsl:if>
             </head>
             <body>
@@ -158,12 +159,12 @@
     <xsl:template match="classList[@mode='overview-summary']">
         <html>
             <head>
-                <link href="../{$master-css}" rel="stylesheet"/>
+                <link href="${root-path}{$master-css}" rel="stylesheet"/>
                 <xsl:if test="$extra-css">
-                    <link href="../{$extra-css}" rel="stylesheet"/>
+                    <link href="${root-path}{$extra-css}" rel="stylesheet"/>
                 </xsl:if>
                 <xsl:if test="$extra-js">
-                    <script src="../{$extra-js}"></script>
+                    <script src="${root-path}{$extra-js}"></script>
                 </xsl:if>
             </head>
             <body>

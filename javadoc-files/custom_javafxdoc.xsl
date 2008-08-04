@@ -52,11 +52,11 @@
     </xsl:template>
     
     <xsl:template name="head-post">
-<link href="../general.css" rel="stylesheet"/>
-<link href="../v3.css" rel="stylesheet"/>
-<script type="text/javascript" src="../core.js"/>
-<script type="text/javascript" src="../more.js"/>
-<script type="text/javascript" src="../sessvars.js"/>
+        <link href="{$root-path}general.css" rel="stylesheet"/>
+        <link href="{$root-path}v3.css" rel="stylesheet"/>
+        <script type="text/javascript" src="{$root-path}core.js"/>
+        <script type="text/javascript" src="{$root-path}more.js"/>
+        <script type="text/javascript" src="{$root-path}sessvars.js"/>
 
 <!-- basic setup -->
 <script>
@@ -145,7 +145,7 @@ $$('h4.header').each(function(lnk,index) {
     
     <xsl:template name="header-pre">
         <div id="top-header">
-        <h1><a href="../index.html">Java<b>FX</b>: <i>Bringing Rich Experiences To All the Screens Of Your Life</i></a></h1>
+        <h1><a href="{$root-path}index.html">Java<b>FX</b>: <i>Bringing Rich Experiences To All the Screens Of Your Life</i></a></h1>
         <h3>Profile: <a href="#" id="select-desktop-profile">desktop</a>, <a href="#" id="select-common-profile">common</a></h3>
         </div>
         
@@ -156,26 +156,18 @@ $$('h4.header').each(function(lnk,index) {
     <xsl:template match="/packageList[@mode='overview-summary']">
         <html>
             <head>
-                <link href="{$master-css}" rel="stylesheet"/>
-                <link href="general.css" rel="stylesheet"/>
-                <link href="v3.css" rel="stylesheet"/>
+                <link href="{$root-path}{$master-css}" rel="stylesheet"/>
                 <xsl:if test="$extra-css">
-                    <link href="{$extra-css}" rel="stylesheet"/>
+                    <link href="{$root-path}{$extra-css}" rel="stylesheet"/>
                 </xsl:if>
                 <xsl:if test="$extra-js">
-                    <script src="{$extra-js}"></script>
+                    <script src="{$root-path}{$extra-js}"></script>
                 </xsl:if>
-                <script type="text/javascript" src="core.js"/>
-                <script type="text/javascript" src="more.js"/>
-                <script type="text/javascript" src="sessvars.js"/>
                 <xsl:call-template name="head-post"/>
 
             </head>
             <body>
-                <div id="top-header">
-                <h1><a href="index.html">Java<b>FX</b>: <i>Bringing Rich Experiences To All the Screens Of Your Life</i></a></h1>
-                <h3>Profile: <a href="#" id="select-desktop-profile">desktop</a>, <a href="#" id="select-common-profile">common</a></h3>
-                </div>
+                <xsl:call-template name="header-pre"/>
                 <ul id="classes-toc">
                     <xsl:for-each select="package">
                         <xsl:sort select="@name"/>

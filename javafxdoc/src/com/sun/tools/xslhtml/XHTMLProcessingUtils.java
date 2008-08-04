@@ -227,7 +227,9 @@ public class XHTMLProcessingUtils {
 
         //transform the package list doc
         package_list_elem.setAttribute("mode", "overview-frame");
+        trans.setParameter("root-path", "./");
         trans.transform(new DOMSource(packages_doc), new StreamResult(new File(docsdir,"overview-frame.html")));
+        trans.setParameter("root-path", "./");
         package_list_elem.setAttribute("mode", "overview-summary");
         trans.transform(new DOMSource(packages_doc), new StreamResult(new File(docsdir,"overview-summary.html")));
         p(INFO,getString("finished"));
@@ -260,8 +262,10 @@ public class XHTMLProcessingUtils {
         }
         
         class_list.setAttribute("mode", "overview-frame");
+        trans.setParameter("root-path", "../");
         trans.transform(new DOMSource(classes_doc), new StreamResult(new File(packageDir,"package-frame.html")));
         class_list.setAttribute("mode", "overview-summary");
+        trans.setParameter("root-path", "../");
         trans.transform(new DOMSource(classes_doc), new StreamResult(new File(packageDir,"package-summary.html")));
     }
 
@@ -299,6 +303,7 @@ public class XHTMLProcessingUtils {
         Result xhtmlResult = new StreamResult(xhtmlFile);
         Source xmlSource = new DOMSource(clazz.getOwnerDocument());
         trans.setParameter("target-class", qualifiedName);
+        trans.setParameter("root-path", "../");
         trans.transform(xmlSource, xhtmlResult);
     }
 
