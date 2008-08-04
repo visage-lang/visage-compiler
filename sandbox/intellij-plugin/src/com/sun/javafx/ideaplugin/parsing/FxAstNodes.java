@@ -31,10 +31,10 @@ import com.sun.javafx.ideaplugin.FxPlugin;
  * FxAstNodes
  */
 public enum FxAstNodes {
-    GENERIC_NODE(v3Parser.LAST_TOKEN + 1),
-    ERROR_NODE(v3Parser.LAST_TOKEN + 2),
-    MODULE(v3Parser.MODULE),
-    PACKAGE_DECL(v3Parser.PACKAGE);
+    GENERIC_NODE(v3Parser.LAST_TOKEN + 1);//,
+//    ERROR_NODE(v3Parser.LAST_TOKEN + 2),
+//    MODULE(v3Parser.SCRIPT),
+//    PACKAGE_DECL(v3Parser.PACKAGE);
 
     public final int tokenValue;
     public final FxElementType elementType;

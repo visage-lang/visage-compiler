@@ -68,7 +68,7 @@ public class FxParser implements PsiParser {
             }
         };
         try {
-            v3Parser.module_return antlrParseTree = parser.module();
+            v3Parser.script_return antlrParseTree = parser.script();
             scrubTree((CommonTree) antlrParseTree.getTree());
             System.out.printf("finished parsing %d:%d%n", ((CommonTree) antlrParseTree.getTree()).getTokenStartIndex(), ((CommonTree) antlrParseTree.getTree()).getTokenStopIndex());
             BeginMark beginMark = new BeginMark(0);

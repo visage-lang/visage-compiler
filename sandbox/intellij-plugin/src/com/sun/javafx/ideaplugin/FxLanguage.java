@@ -24,6 +24,9 @@
 package com.sun.javafx.ideaplugin;
 
 import com.intellij.lang.*;
+import com.intellij.lang.folding.FoldingBuilder;
+import com.intellij.lang.folding.FoldingDescriptor;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -84,7 +87,24 @@ public class FxLanguage extends Language {
         return COMMENTER;
     }
 
-    
+    @Nullable
+    public FoldingBuilder getFoldingBuilder () {
+        return new FoldingBuilder () {
+            public FoldingDescriptor[] buildFoldRegions (ASTNode node, Document document) {
+                // TODO
+                printAST (node, 0);
+                return new FoldingDescriptor[0];
+            }
+
+            public String getPlaceholderText (ASTNode node) {
+                return "A Node"; // TODO
+            }
+            public boolean isCollapsedByDefault (ASTNode node) {
+                return true; // TODO
+            }
+        };
+    }
+
     private static final Commenter COMMENTER = new Commenter() {
         public String getLineCommentPrefix() {
             return "//";
@@ -102,5 +122,22 @@ public class FxLanguage extends Language {
             return "*/";
         }
     };
+
+    private static void printAST (ASTNode node, int level) {
+        for (int i = 0; i < level; i ++)
+            System.out.print ("    ");
+        System.out.print (node.getElementType ().getIndex () + ": ");
+        try {
+            System.out.println (node.getText ().substring (0, 20).replaceAll ("\n", "<BR>"));
+        } catch (Exception e) {
+            System.out.println ("ERROR_WHILE_GETTING_NODE_TEXT");
+        }
+        ASTNode child = node.getFirstChildNode ();
+        level ++;
+        while (child != null) {
+            printAST (child, level);
+            child = child.getTreeNext ();
+        }
+    }
 
 }
