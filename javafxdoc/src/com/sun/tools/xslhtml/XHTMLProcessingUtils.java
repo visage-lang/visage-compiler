@@ -26,6 +26,7 @@
 package com.sun.tools.xslhtml;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
@@ -57,6 +58,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import javax.swing.JComponent;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -466,7 +468,7 @@ public class XHTMLProcessingUtils {
                 try {
                     //String script = "import javafx.gui.*; CubicCurve { x1: 0  y1: 50  ctrlX1: 25  ctrlY1: 0 ctrlX2: 75  ctrlY2: 100   x2: 100  y2: 50 fill:Color.RED }";
                     String script = example.getTextContent();
-                    File imgFile = new File(packageDir,clazz.getAttribute("name")+i);
+                    File imgFile = new File(packageDir,clazz.getAttribute("name")+i+".png");
                     renderScriptToImage(imgFile, script);
                     StringBuffer out = new StringBuffer();
                     out.append("<p>the code:</p>");
@@ -508,19 +510,32 @@ public class XHTMLProcessingUtils {
         return text;
     }
     
-    private static void renderScriptToImage(File imgFile, String script) throws ScriptException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
+    private static void renderScriptToImage(File imgFile, String script) throws ScriptException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, ClassNotFoundException {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine scrEng = manager.getEngineByExtension("javafx");
         scrEng.getContext().setErrorWriter(new PrintWriter(System.out));
         p(INFO, getString("processing.example") + '\n' + script);
         Object ret = scrEng.eval(script);
         Class fxclass = ret.getClass();
-        Method method = fxclass.getMethod("impl_getSGNode");
-        Object node = method.invoke(ret);
-        Method getBounds = node.getClass().getMethod("getBounds");
-        Method render = node.getClass().getMethod("render", Graphics2D.class);
+        Rectangle2D bounds = null;
+        Method paintMethod = null;
+        Object drawObject = null;
+        try { 
+            Method component_method = fxclass.getMethod("getJComponent");
+            JComponent component = (JComponent) component_method.invoke(ret);
+            component.validate();
+            component.setSize(component.getPreferredSize());
+            bounds = component.getBounds();
+            drawObject = component;
+            paintMethod = drawObject.getClass().getMethod("paint",Graphics.class);
+        } catch (NoSuchMethodException ex) {
+            Method method = fxclass.getMethod("impl_getSGNode");
+            drawObject = method.invoke(ret);
+            Method getBounds = drawObject.getClass().getMethod("getBounds");
+            bounds = (Rectangle2D) getBounds.invoke(drawObject);
+            paintMethod = drawObject.getClass().getMethod("render", Graphics2D.class);
+        }
 
-        Rectangle2D bounds = (Rectangle2D) getBounds.invoke(node);
         
         BufferedImage img = new BufferedImage(
                 (int)bounds.getWidth(), 
@@ -534,7 +549,7 @@ public class XHTMLProcessingUtils {
         g2.setPaint(Color.WHITE);
         g2.fillRect(0, 0, img.getWidth(), img.getHeight());
         g2.translate(-bounds.getX(), -bounds.getY());
-        render.invoke(node, g2);
+        paintMethod.invoke(drawObject, g2);
         g2.dispose();
         ImageIO.write(img, "png", imgFile);
     }
