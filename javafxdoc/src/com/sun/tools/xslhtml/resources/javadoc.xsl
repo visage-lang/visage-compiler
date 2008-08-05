@@ -255,8 +255,11 @@
             </head>
             <body>
                 <xsl:call-template name="header-pre"/>
-                <xsl:call-template name="header"/>
+                <xsl:if test="$inline-classlist='true'">
+                    <xsl:call-template name="inline-classlist"/>
+                </xsl:if>
                 <div id="content">
+                    <xsl:call-template name="header"/>
                     <a id="overview"><h3>Overview</h3></a>
                     <div class="overview">
                         <xsl:apply-templates select="docComment/inlineTags"/>
@@ -350,9 +353,6 @@
 <!--    header    -->
 <!-- ====================== -->    
     <xsl:template name="header">
-        <xsl:if test="$inline-classlist='true'">
-            <xsl:call-template name="inline-classlist"/>
-        </xsl:if>
 
         <div id="nav">
             <!-- name of the class -->
@@ -367,7 +367,7 @@
             
             
             <!-- inheritance hierarchy -->
-            <h2>
+            <h2><span class="descriptive">Inherits from:</span>
                 <xsl:apply-templates select="." mode="super"/>
                 <xsl:apply-templates select="." mode="interface"/>
             </h2>
@@ -375,24 +375,17 @@
             <!-- navigation header -->
             <xsl:if test="@language='javafx'">
                 <ul id="tabs">
+                    <li>Jump to Section:</li>
                     <li><a href="#overview">overview</a></li><li><a href="#fields-summary">attributes</a></li><li><a href="#methods-summary">functions</a></li>
                 </ul>
             </xsl:if>
             
             <xsl:if test="@language='java'">
                 <ul id="tabs">
+                    <li>Jump to Section:</li>
                     <li><a href="#overview">overview</a></li><li><a href="#fields-summary">fields</a></li><li><a href="#constructors-summary">constructors</a></li><li><a href="#methods-summary">methods</a></li>
                 </ul>
             </xsl:if>
-            
-            
-            <!-- view toggles -->
-            <!--
-            <ul id="toggles">
-                <li><a class="toggle-advanced" 
-                       href="javascript:togglecss('.advanced','display','block','none');togglecss('.toggle-advanced','backgroundColor','transparent','red');">advanced</a></li>
-            </ul>
-            -->
             
         </div>
     </xsl:template>
