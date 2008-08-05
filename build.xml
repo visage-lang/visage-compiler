@@ -712,7 +712,7 @@
                 </javac>
             </sequential>
         </macrodef>
-        <macrodef name="depend">
+        <macrodef name="nbdepend">
             <attribute default="${src.classes.dir}" name="srcdir"/>
             <attribute default="${build.classes.dir}" name="destdir"/>
             <attribute default="${javac.classpath}" name="classpath"/>
@@ -861,7 +861,7 @@
             -->
     <target depends="init" name="deps-jar" unless="no.deps"/>
     <target if="do.depend.true" name="-compile-depend">
-        <depend/>
+        <nbdepend/>
     </target>
     <target depends="init,deps-jar,-pre-pre-compile,-pre-compile,-do-compile,-post-compile" description="Compile project." name="compile"/>
     <target name="-pre-compile-single">
@@ -991,7 +991,7 @@
         <!-- You can override this target in the ../build.xml file. -->
     </target>
     <target if="do.depend.true" name="-compile-test-depend">
-        <depend classpath="${javac.test.classpath}" destdir="${build.test.classes.dir}" srcdir="${test.src.dir}"/>
+        <nbdepend classpath="${javac.test.classpath}" destdir="${build.test.classes.dir}" srcdir="${test.src.dir}"/>
     </target>
     <target depends="init,compile,-pre-pre-compile-test,-pre-compile-test,-compile-test-depend" if="have.tests" name="-do-compile-test">
         <javac classpath="${javac.test.classpath}" debug="true" destdir="${build.test.classes.dir}" srcdir="${test.src.dir}"/>
