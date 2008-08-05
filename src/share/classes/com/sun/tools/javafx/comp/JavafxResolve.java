@@ -1087,11 +1087,13 @@ public class JavafxResolve {
             sym = findGlobalType(env, env.toplevel.namedImportScope, name);
             if (sym.exists()) return sym;
             else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
+        }
 
-            sym = findGlobalType(env, env.toplevel.packge.members(), name);
-            if (sym.exists()) return sym;
-            else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
+        sym = findGlobalType(env, env.toplevel.packge.members(), name);
+        if (sym.exists()) return sym;
+        else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
 
+        if (env.tree.getFXTag() != JavafxTag.IMPORT) {
             sym = findGlobalType(env, env.toplevel.starImportScope, name);
             if (sym.exists()) return sym;
             else if (sym.kind < bestSoFar.kind) bestSoFar = sym;

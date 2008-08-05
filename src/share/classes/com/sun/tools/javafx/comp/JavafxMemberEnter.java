@@ -177,10 +177,20 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 if (tsym == null || !processed.add(tsym))
                     return;
 
-                // also import inherited names
-                importFrom(types.supertype(tsym.type).tsym);
-                for (Type t : types.interfaces(tsym.type))
-                    importFrom(t.tsym);
+                if (tsym instanceof ClassSymbol) {
+                    // also import inherited names
+                    if (tsym instanceof JavafxClassSymbol) {
+                        JavafxClassSymbol jfxTsym = (JavafxClassSymbol) tsym;
+                        for (Type superType : jfxTsym.getSuperTypes()) {
+                            importFrom(superType.tsym);
+                        }
+                    } else {
+                        importFrom(types.supertype(tsym.type).tsym);
+                    }
+                    for (Type t : types.interfaces(tsym.type)) {
+                        importFrom(t.tsym);
+                    }
+                }
 
                 final Scope fromScope = tsym.members();
                 for (Scope.Entry e = fromScope.elems; e != null; e = e.sibling) {
@@ -207,10 +217,20 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 if (tsym == null || !processed.add(tsym))
                     return;
 
-                // also import inherited names
-                importFrom(types.supertype(tsym.type).tsym);
-                for (Type t : types.interfaces(tsym.type))
-                    importFrom(t.tsym);
+                if (tsym instanceof ClassSymbol) {
+                    // also import inherited names
+                    if (tsym instanceof JavafxClassSymbol) {
+                        JavafxClassSymbol jfxTsym = (JavafxClassSymbol) tsym;
+                        for (Type superType : jfxTsym.getSuperTypes()) {
+                            importFrom(superType.tsym);
+                        }
+                    } else {
+                        importFrom(types.supertype(tsym.type).tsym);
+                    }
+                    for (Type t : types.interfaces(tsym.type)) {
+                        importFrom(t.tsym);
+                    }
+                }
 
                 final Scope fromScope = tsym.members();
                 for (Scope.Entry e = fromScope.elems; e != null; e = e.sibling) {
@@ -272,7 +292,14 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                     return;
 
                 // also import inherited names
-                importFrom(types.supertype(tsym.type).tsym);
+                if (tsym instanceof JavafxClassSymbol) {
+                    JavafxClassSymbol jfxTsym = (JavafxClassSymbol) tsym;
+                    for (Type superType : jfxTsym.getSuperTypes()) {
+                        importFrom(superType.tsym);
+                    }
+                } else {
+                    importFrom(types.supertype(tsym.type).tsym);
+                }
                 for (Type t : types.interfaces(tsym.type))
                     importFrom(t.tsym);
 
@@ -304,7 +331,14 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                     return;
 
                 // also import inherited names
-                importFrom(types.supertype(tsym.type).tsym);
+                if (tsym instanceof JavafxClassSymbol) {
+                    JavafxClassSymbol jfxTsym = (JavafxClassSymbol) tsym;
+                    for (Type superType : jfxTsym.getSuperTypes()) {
+                        importFrom(superType.tsym);
+                    }
+                } else {
+                    importFrom(types.supertype(tsym.type).tsym);
+                }
                 for (Type t : types.interfaces(tsym.type))
                     importFrom(t.tsym);
 
@@ -428,9 +462,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
     @Override
     public void visitImport(JFXImport tree) {
-        JFXTree imp = tree.qualid;
+        JFXExpression imp = tree.qualid;
         Name name = JavafxTreeInfo.name(imp);
-        TypeSymbol p;
 
         if (!tree.isStatic()) {
             if (tree.qualid.getFXTag() == JavafxTag.SELECT) {
@@ -454,30 +487,37 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree);
 
         // Attribute qualifying package or class.
-        // The code structure here is rather ugly, but we'll
-        // fix it when we do implicit-static-import.  FIXME.
-        if (imp instanceof JFXSelect) {
-            JFXSelect s = (JFXSelect) imp;
-            p = attr.
-                attribTree(s.selected,
-                       localEnv,
-                       tree.staticImport ? TYP : (TYP | PCK),
-                       Type.noType).tsym;
-            if (name == names.asterisk) {
-                // Import on demand.
-                chk.checkCanonical(s.selected);
-                if (tree.staticImport)
-                    importStaticAll(tree.pos, p, env);
-                else
-                    importAll(tree.pos, p, env);
-                return;
+        boolean all = false;
+        if (imp instanceof JFXSelect && name == names.asterisk) {
+            all = true;
+            imp = ((JFXSelect) imp).getExpression();
+        }
+        if (all) {
+            TypeSymbol p = attr.attribTree(imp,
+                    localEnv,
+                    (imp instanceof JFXIdent) ? TYP : (TYP | PCK),
+                    Type.noType).tsym;
+            // Import on demand.
+            chk.checkCanonical(imp);
+            if (p instanceof ClassSymbol) {
+                tree.staticImport = true;
+                importStaticAll(tree.pos, p, env);
             } else {
-                // Named type import.
-                if (tree.staticImport) {
-                    importNamedStatic(tree.pos(), p, name, localEnv);
-                    chk.checkCanonical(s.selected);
-                    return;
-                }
+                importAll(tree.pos, p, env);
+            }
+            return;
+        } else if (imp instanceof JFXSelect) {
+            JFXSelect s = (JFXSelect) imp;
+            TypeSymbol p = attr.attribTree(s.selected,
+                    localEnv,
+                    (TYP | PCK),
+                    Type.noType).tsym;
+            // Named type import.
+            if (p instanceof ClassSymbol) {
+                chk.checkCanonical(s.selected);
+                tree.staticImport = true;
+                importNamedStatic(tree.pos(), p, name, localEnv);
+                return;
             }
         }
         TypeSymbol c = attribImportType(imp, localEnv).tsym;

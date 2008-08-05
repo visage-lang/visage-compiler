@@ -605,7 +605,12 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         prependToStatements = prependToDefinitions = ListBuffer.lb();
         for (JFXTree def : tree.defs) {
             if (def.getFXTag() == JavafxTag.IMPORT) {
-                imports.append(translate(def));
+                //TODO: determine if any imports are needed in translated code (I don't think so), if not, remove
+                /***************
+                JCTree tdef = translate(def);
+                if (tdef != null) {
+                    imports.append(tdef);
+                }
                 if (!((JFXImport) def).isStatic()) {
                     if (((JFXImport) def).getQualifiedIdentifier().getFXTag() == JavafxTag.SELECT) {
                         JFXSelect select = (JFXSelect) ((JFXImport) def).getQualifiedIdentifier();
@@ -624,6 +629,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         }
                     }
                 }
+                 * *****************/
             } else {
                 // anything but an import
                 translatedDefinitions.append(translate(def));
@@ -2594,8 +2600,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     @Override
     public void visitImport(JFXImport tree) {
-        JCTree qualid = straightConvert(tree.qualid);
-        result = make.at(tree.pos).Import(qualid, tree.staticImport);
+        //JCTree qualid = straightConvert(tree.qualid);
+        //result = make.at(tree.pos).Import(qualid, tree.staticImport);
+        assert false : "should be processed by parent tree";
     }
 
     @Override
