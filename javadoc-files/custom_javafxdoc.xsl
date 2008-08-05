@@ -46,6 +46,23 @@
     </xsl:template>
 
     
+    <xsl:template name="extra-attribute-column-header">
+        <th>Read Only</th>
+        <th>Set Once</th>
+        <th>Default Value</th>
+    </xsl:template>
+    <xsl:template name="extra-attribute-column-data">
+        <td class="readonly">
+            <xsl:if test="docComment/tags/readonly">true</xsl:if>
+        </td>
+        <td class="setonce">
+            <xsl:if test="docComment/tags/setonce">true</xsl:if>
+        </td>
+        <td class="defaultvalue">
+            <xsl:value-of select="docComment/tags/defaultvalue"/>
+        </td>
+    </xsl:template>
+    <xsl:template name="attribute-table-width">6</xsl:template>
 
     <!-- new stuff -->
     <xsl:template match="seeTags">

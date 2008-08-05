@@ -463,8 +463,8 @@ public class XHTMLProcessingUtils {
         if(examples != null & examples.getLength() > 0) {
             for(int i=0; i<examples.getLength(); i++) {
                 Element example = (Element) examples.item(i);
-                p(INFO, MessageFormat.format(getString("processing.example"), clazz.getAttribute("name")));
-                p(INFO, example.getTextContent());
+                //p(INFO, MessageFormat.format(getString("processing.example"), clazz.getAttribute("name")));
+                //p(INFO, example.getTextContent());
                 try {
                     //String script = "import javafx.gui.*; CubicCurve { x1: 0  y1: 50  ctrlX1: 25  ctrlY1: 0 ctrlX2: 75  ctrlY2: 100   x2: 100  y2: 50 fill:Color.RED }";
                     String script = example.getTextContent();
@@ -482,6 +482,7 @@ public class XHTMLProcessingUtils {
                     out.append("</p>");
                     example.setTextContent(out.toString());
                 } catch (Exception ex) {
+                    System.out.println("error processing code: " + clazz.getAttribute("name"));
                     System.out.println("error processing: " + example.getTextContent());
                     ex.printStackTrace();
                 }

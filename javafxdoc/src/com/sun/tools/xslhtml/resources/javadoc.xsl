@@ -469,8 +469,13 @@
             <xsl:if test="count(attribute) > 0">
                 <a id="fields-summary"><h3>Attribute Summary</h3></a>
                 <table class="fields-summary fields">
-                    <tr><th class="name">name</th><th class="type">type</th><th class="description">description</th></tr>
-                    <tr><th colspan="3" class="header">Public</th></tr>
+                    <tr><th class="name">name</th><th class="type">type</th>
+                        <xsl:call-template name="extra-attribute-column-header"/>
+                        <th class="description">description</th></tr>
+                    <tr><th class="header">
+                        <xsl:attribute name="colspan"><xsl:call-template name="attribute-table-width"/></xsl:attribute>
+                        <xsl:text>Public</xsl:text>
+                        </th></tr>
                     <xsl:for-each select="attribute[modifiers/public]">
                         <xsl:sort select="@name" order="ascending"/>
                         <xsl:apply-templates select="." mode="toc"/>
@@ -624,7 +629,9 @@
         <xsl:if test="count(attribute) > 0">
             <h4><xsl:value-of select="@qualifiedName"/></h4>
             <table class="inherited-field fields">
-                <tr><th class="name">name</th><th class="type">type</th><th class="description">description</th></tr>
+                <tr><th class="name">name</th><th class="type">type</th>
+                    <xsl:call-template name="extra-attribute-column-header"/>
+                    <th class="description">description</th></tr>
                 <xsl:for-each select="attribute">
                     <xsl:sort select="@name" order="ascending"/>
                     <xsl:apply-templates select="." mode="toc"/>
@@ -680,6 +687,7 @@
                         <i class="type"><xsl:value-of select="type/@simpleTypeName"/><xsl:value-of select="type/@dimension"/></i>
                     </a>
                 </td>
+                <xsl:call-template name="extra-attribute-column-data"/>
                 <td class="description">
                     <xsl:apply-templates select="docComment/firstSentenceTags"/>
                     <xsl:if test="$inline-descriptions='true'">
@@ -1049,7 +1057,9 @@
     <xsl:template name="extra-attribute-toc"></xsl:template>
     <xsl:template name="head-post"></xsl:template>
     <xsl:template name="header-pre"></xsl:template>
-    
-    
+    <xsl:template name="extra-attribute-column-header"></xsl:template>
+    <xsl:template name="extra-attribute-column-data"></xsl:template>
+    <xsl:template name="attribute-table-width">3</xsl:template>
+
 </xsl:stylesheet>
                 
