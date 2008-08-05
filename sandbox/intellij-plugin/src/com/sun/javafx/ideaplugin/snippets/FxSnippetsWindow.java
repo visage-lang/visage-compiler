@@ -215,7 +215,7 @@ public class FxSnippetsWindow implements ProjectComponent {
         ToolWindowManager windowmgr = ToolWindowManager.getInstance (project);
 		ToolWindow window = windowmgr.registerToolWindow("JavaFX Snippets", true, ToolWindowAnchor.RIGHT);
 		PeerFactory pf = PeerFactory.getInstance();
-		Content content = pf.getContentFactory().createContent(pane, "JavaFX Snippets", false);
+		Content content = pf.getContentFactory().createContent(pane, null, false);
 		window.getContentManager().addContent(content);
 		window.setIcon(FxPlugin.FX_ICON);
     }

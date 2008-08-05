@@ -285,7 +285,7 @@ public class FxCompiler implements TranslatingCompiler {
         return map;
     }
 
-    private static List<String> createCommandLine (ModuleRootManager moduleRootManager) {
+    public static List<String> createCommandLine (ModuleRootManager moduleRootManager) {
         OrderEntry[] entries = moduleRootManager.getOrderEntries();
         List<String> args = new ArrayList<String>();
 

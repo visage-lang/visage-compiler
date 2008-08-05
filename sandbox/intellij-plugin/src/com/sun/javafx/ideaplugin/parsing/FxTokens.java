@@ -23,11 +23,14 @@
 
 package com.sun.javafx.ideaplugin.parsing;
 
+import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
-import com.intellij.psi.TokenType;
-import com.sun.tools.javafx.antlr.v3Lexer;
 import com.sun.javafx.ideaplugin.FxPlugin;
+import com.sun.tools.javafx.antlr.v3Lexer;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 /**
  * FxTokens
@@ -190,6 +193,8 @@ public enum FxTokens {
         tokenArray = new FxElementType[max+1];
         for (FxTokens t : FxTokens.values())
             tokenArray[t.tokenValue] = t.elementType;
+
+        checkForMissingOrInvalidTokens ();
     }
 
     FxTokens(int value) {
@@ -216,4 +221,42 @@ public enum FxTokens {
         else
             return tokenArray[tokenType];
     }
+
+    private static void checkForMissingOrInvalidTokens () {
+        Field[] fields = v3Lexer.class.getDeclaredFields ();
+        for (Field field : fields) {
+            int mod = field.getModifiers ();
+            if (! Modifier.isPublic (mod)  ||  ! Modifier.isStatic (mod)  ||  ! Modifier.isFinal (mod)  ||  ! Integer.TYPE.equals (field.getType ()))
+                continue;
+            int value;
+            try {
+                value = (Integer) field.get (null);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace ();
+                continue;
+            }
+            boolean error = false;
+            String name = field.getName ();
+            if (value < 0  ||  value >= tokenArray.length)
+                error = true;
+            else {
+                FxElementType type = tokenArray[value];
+                if (type == null)
+                    error = true;
+                else
+                    if (type.antlrToken != value)
+                        error = true;
+                FxTokens token = null;
+                try {
+                    token = valueOf (name);
+                } catch (IllegalArgumentException e) {
+                }
+                if (token == null  ||  type != token.elementType)
+                    error = true;
+            }
+            if (error)
+                System.out.println ("ERROR: FxTokens class has to be updated: additional or incompatible token in v3Lexer class: Name/Value: " + name + "/" + value);
+        }
+    }
+
 }

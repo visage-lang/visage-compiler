@@ -24,6 +24,7 @@
 package com.sun.javafx.ideaplugin;
 
 import com.intellij.lang.*;
+import com.intellij.lang.annotation.ExternalAnnotator;
 import com.intellij.lang.folding.FoldingBuilder;
 import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
@@ -31,6 +32,7 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.tree.IElementType;
+import com.sun.javafx.ideaplugin.parsing.FxAnnotator;
 import com.sun.javafx.ideaplugin.parsing.FxHighlighter;
 import com.sun.javafx.ideaplugin.parsing.FxParserDefinition;
 import com.sun.javafx.ideaplugin.parsing.FxTokens;
@@ -59,6 +61,11 @@ public class FxLanguage extends Language {
     @Nullable
     public ParserDefinition getParserDefinition() {
         return definition;
+    }
+
+    @Nullable
+    public ExternalAnnotator getExternalAnnotator () {
+        return new FxAnnotator ();
     }
 
     @Nullable
@@ -126,7 +133,7 @@ public class FxLanguage extends Language {
     private static void printAST (ASTNode node, int level) {
         for (int i = 0; i < level; i ++)
             System.out.print ("    ");
-        System.out.print (node.getElementType ().getIndex () + ": ");
+        System.out.print (node.getElementType () + ": ");
         try {
             System.out.println (node.getText ().substring (0, 20).replaceAll ("\n", "<BR>"));
         } catch (Exception e) {
