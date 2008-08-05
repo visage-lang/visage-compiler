@@ -220,7 +220,7 @@ public class JavafxSymtab extends Symtab {
     public FunctionType makeFunctionType(List<Type> typarams, MethodType mtype) {
         int nargs = typarams.size()-1;
         if (nargs > MAX_FIXED_PARAM_LENGTH)
-            throw new Error("NOT IMPLEMENTED - functions with >"+MAX_FIXED_PARAM_LENGTH+" parameters");
+            throw new RuntimeException("NOT IMPLEMENTED - functions with >"+MAX_FIXED_PARAM_LENGTH+" parameters");
         Type funtype = javafx_FunctionTypes[nargs];
         return new FunctionType(funtype.getEnclosingType(), typarams, funtype.tsym, mtype);
     }

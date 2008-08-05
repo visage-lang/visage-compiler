@@ -3678,7 +3678,7 @@ public class JavafxAttr implements JavafxVisitor {
     }
 
     public void visitInterpolate(JFXInterpolate tree) {
-        throw new Error();
+        throw new RuntimeException("NOT IMPLEMENTED");
         /*
         tree.getVariable().accept(this);
         for (InterpolateValueTree t : tree.getInterpolateValues()) {

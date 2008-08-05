@@ -172,9 +172,9 @@ public class LocalReflectionContext extends ReflectionContext {
 
     public SequenceBuilder makeSequenceBuilder (TypeRef elementType) {
         return new SequenceBuilder() {
-            public void append(ValueRef value) { throw new Error(); }
+            public void append(ValueRef value) { throw new RuntimeException("NOT IMPLEMENTED"); }
 
-            public ValueRef getSequence() { throw new Error(); }
+            public ValueRef getSequence() { throw new RuntimeException("NOT IMPLEMENTED"); }
         };
     }
 
@@ -286,9 +286,9 @@ class LocalClassRef extends ClassRef {
         return result;
     }
 
-    public MemberRef getMember(String name, TypeRef type) { throw new Error(); }
-    public AttributeRef getAttribute(String name) { throw new Error(); }
-    public MethodRef getMethod(String name, TypeRef... argType) { throw new Error(); }
+    public MemberRef getMember(String name, TypeRef type) { throw new RuntimeException("NOT IMPLEMENTED"); }
+    public AttributeRef getAttribute(String name) { throw new RuntimeException("NOT IMPLEMENTED"); }
+    public MethodRef getMethod(String name, TypeRef... argType) { throw new RuntimeException("NOT IMPLEMENTED"); }
     
     protected void getMethods(MemberFilter filter, SortedMemberArray<? super MethodRef> result) {
         boolean isCompound = isCompoundClass();
@@ -351,7 +351,7 @@ class LocalClassRef extends ClassRef {
         }
     }
 
-    public ObjectRef allocate () { throw new Error(); }
+    public ObjectRef allocate () { throw new RuntimeException("NOT IMPLEMENTED"); }
 
     public TypeRef getDeclaringType() {
         return null;
@@ -360,8 +360,8 @@ class LocalClassRef extends ClassRef {
     public boolean isStatic() {
         return true;
     }
-  //public void setAttribute(AttributeRef field, ValueRef value) { throw new Error(); }
-  //public void initAttribute(AttributeRef field, ValueRef value) { throw new Error(); }
+  //public void setAttribute(AttributeRef field, ValueRef value) { throw new RuntimeException("NOT IMPLEMENTED"); }
+  //public void initAttribute(AttributeRef field, ValueRef value) { throw new RuntimeException("NOT IMPLEMENTED"); }
 }
 
 class LocalObjectRef extends ObjectRef {
