@@ -1,10 +1,6 @@
 body {
 	padding: 0px;
 	margin: 0px;
-	background-color: #3e3c3f;
-}
-body a {
-	color: #f26a27;
 }
 
 
@@ -78,7 +74,6 @@ body a {
 
 #classes-toc li h4 { 
 	font-size: 9pt; font-weight: bold;
-	background-color: #3e3c3f;
 	}
 #classes-toc li .content { 
 	font-size: 8.25pt; font-weight: bold; 
@@ -109,9 +104,6 @@ body a {
 }
 
 
-#classes-toc .header {
-	background-color: #3e3c3f;
-}
 
 
 
@@ -135,6 +127,18 @@ body a {
 	margin-right: 0px;
 	margin-top: 0px;
 	padding-left: 30px;
+}
+#nav {
+	background-color: white;
+	font-size: 10pt; /* not sure about this */
+	color: black;
+	border-width: 1px;
+	border-color: white;
+	border-style: solid;
+	margin-left: 0px;
+	margin-bottom: 0px;
+	margin-right: 0px;
+	margin-top: 30px;
 }
 /*
 #content { height: 100%; } 
@@ -174,17 +178,17 @@ disabled because it breaks when the content div is longer than the viewport*/
 #tabs {
 	padding: 0px;
 	font-size: 10.5pt;
+	color: black;
 }
 #tabs li {
-	color: #bdbdbd;
 	display: inline;
 	font-style: normal;
 	font-weight: normal;
 }
 
-#tabs li a {
+/*#tabs li a {
 	color: #a2a2a2;
-}
+}*/
 
 
 
@@ -197,7 +201,6 @@ disabled because it breaks when the content div is longer than the viewport*/
 	vertical-align: top;
 }
 #content .package-docs .name {
-	color: #3e3c3f;
 	font-size: 10.5pt
 }
 #content .package-docs .description {
@@ -205,27 +208,17 @@ disabled because it breaks when the content div is longer than the viewport*/
 	font-size: 10.5pt;
 }
 #content .package-docs code {
-	color: #3e3c3f;
 	font-size: 90%;
 }
 
 
 /* overview */
-.overview pre.example-code {
-	border-color: #b2adb7;
-	border-style: solid;
-	border-width: 1px;
-	background-color: #e6e6e6;
-}
 .overview img {
 	padding: 10px;
 	border-color: #b2adb7;
 	border-style: solid;
 	border-width: 1px;
 	background-color: white;
-}
-.overview pre.example-code b {
-	color: #f26a27;
 }
 
 .overview pre.example-code {
@@ -243,21 +236,22 @@ disabled because it breaks when the content div is longer than the viewport*/
 	font-size: 12pt;
 	font-family: Arial;
 	font-weight: bold;
-	color: #3e3c3f;
 }
 
 /* fields summary */
 
 
 .fields {
-	font-size: 10.5pt
+	font-size: 10.5pt;
+	border-collapse: collapse;
 }
 .fields th {
     text-align: left;
-	color: #3e3c3f;
     font-weight: bold;
+	padding: .5em;
 }
 .fields td {
+	background-color: white;
 	vertical-align: top;	
 	padding-right: .5em;
 	padding-left: .5em;
@@ -268,195 +262,85 @@ disabled because it breaks when the content div is longer than the viewport*/
 	font-weight: normal;
 }
 
-
-
-/*
-
-
-h1.classname * {
-	font-style: normal;
-	font-weight: normal;
+.fields, .fields td {
+	border: 1px solid #7B7A7C;
 }
 
-h1.classname, h1.classname * {
-	font-weight: bold;
-}
 
-h2, h2 a {
-	padding: 0px;
+
+/* methods summary */
+.method {
+	border-color: #979797;
+	border-style: solid;
+	border-width: 1px;
+	padding: .3em;
 	margin: 0px;
-	font-size: 90%;
-	color: #a2a2a2;
+	background-color: #b7b7b7;
 }
 
-#tabs li {
-	font-size: 90%;
-	color: #bdbdbd;
-	display: inline;
-	font-style: normal;
-	font-weight: normal;
-}
-
-#tabs li a {
-	color: #a2a2a2;
-}
-
-#tabs {
-	padding: 0px;
-}
-
-#content h3 {
-	font-size: 150%;
-	font-style: normal;
-	font-weight: normal;
-	color: #ff6a03;
-}
-
-dt.method, dt.method * {
-	background-color: #bdbdbd;
-	color: #363636;
-	font-size: 90%;
-	font-style: normal;
-	font-weight: normal;
+dt.method {
+	margin-top: 8px;
+	background-color: #c4c4c4;
+	font-size: 11pt;
 }
 
 dd.method {
-	font-size: 90%;
-}
-
-body {
-	background-color: black;
-}
-
-#nav, #content {
-	padding: 10px;
-	margin-left: 200px;
-	margin-bottom: 0px;
-	margin-right: 0px;
-	margin-top: 0px;
-	background-color: white;
-	border-left-width: 1px;
-	border-bottom-width: 0px;
-	border-right-width: 0px;
 	border-top-width: 0px;
-	border-color: black;
-	border-style: solid;
+	background-color: white;
 }
 
-#top-header {
-	padding-bottom: 0px;
-	padding-top: 0px;
-	margin: 0px;
-}
-#top-header h3 {
-	padding: 0px;
-	margin: 0px;
-}
-#top-header h2 {
-	display: none;
-}
-#top-header h1 {
-	margin-bottom: 0px;
-	margin-top: 0px;
-}
-#nav {
-}
-#nav h1 {
-	margin-top: 0px;
-}
-#nav h2 {
-	padding: 0px;
-	margin: 0px;
-}
-#nav #tabs {
-	padding: 0px;
-	margin: 0px;
-}
-#content {
-	padding-top: 0px;
-	margin-top: 0px;
-}
-#content h3 {
-	margin: 0px;
-}
-.example-code {
-	margin: 0 auto 1.4em auto;
-	display: table;
-	background-color: #e4e4e4;
-	padding: 1em;
-	border-color: #807e88;
-	border-style: solid;
-	border-width: 1px;
-}
-.example-screenshot {
-	margin: 0 auto 1.4em auto;
-	display: table;
-	background-color: #e3e3e3;
-	padding: 5px;
-	border-color: #888888;
-	border-style: solid;
-	border-width: 1px;
-}
-.example-code b {
-	color: #ff5c13;
-}
-.string-literal, .number-literal {
-	color: black;
-}
-
-
-
-#toc table {
-}
-#toc table {
-	border-collapse: collapse;
-	border-color: #59585b;
-	border-style: solid;
-	border-width: 1px;
-	font-size: 80%;
-}
-#toc table tr {
-	border-color: #6a6a6a;
-	border-style: solid;
-	border-width: 1px;
-}
-#toc table td, #toc table th {
-	border-spacing: 2px 0px;
-	padding-left: .5em;
-	padding-bottom: .3em;
-	padding-right: .5em;
-	padding-top: .3em;
-}
-#toc table th {
-	color: #353535;
-}
-#toc table td {
- vertical-align: top;
-}
-#toc table td p {
-	margin: .2em;
-}
-#content h3 {
-	padding: 1em;
-}
-#toc dl dd {
-	padding: 1em;
-}
 dl.parameters, dl.returns {
-	background-color: #e4e4e4;
-	margin: 1em;
-	float: none;
+	border-color: #ff7929;
 	border-style: solid;
-	border-color: #2eb90e;
 	border-width: 1px;
 }
-dl.parameters dt, dl.returns dt {
+
+dl.parameters dt {
 	font-weight: bold;
-	font-size: 80%;
-}
-div.method h4 {
 }
 
-*/
+
+
+
 
 .private, .profile-private { display: none; }
+
+/* common colors */
+/* dark grey text*/
+h3, #content .package-docs .name, #content .package-docs code, #content #toc h4 , .fields th, #content h3 {
+	color: #3E3C3F;
+	}
+/* dark grey background */
+body, 
+#classes-toc .header,
+.fields th { 
+	background-color: #3E3C3F;
+	}
+/* light grey background w/ slightly darker border*/
+#nav, .overview pre.example-code {
+	background-color: #e6e6e6;
+	border: 1px solid #b2adb7;
+	}
+/* med gray links */
+body a, #tabs a {
+	color: #7B7A7C;
+}
+/* orange */
+#nav h1, 
+#nav h1 a,
+.overview pre.example-code b {
+	color: #f26a27;
+}
+
+/* white text */
+.fields th {
+	color: white;
+}
+/* black text */
+.fields td,
+.fields td a {
+	color: black;
+	}
+
+
+
