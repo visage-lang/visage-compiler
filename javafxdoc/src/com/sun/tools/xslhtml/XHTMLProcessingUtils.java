@@ -482,6 +482,7 @@ public class XHTMLProcessingUtils {
                     out.append("</p>");
                     example.setTextContent(out.toString());
                 } catch (Exception ex) {
+                    System.out.println("error processing: " + example.getTextContent());
                     ex.printStackTrace();
                 }
             }
@@ -514,7 +515,7 @@ public class XHTMLProcessingUtils {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine scrEng = manager.getEngineByExtension("javafx");
         scrEng.getContext().setErrorWriter(new PrintWriter(System.out));
-        p(INFO, getString("processing.example") + '\n' + script);
+        //p(INFO, getString("processing.example") + '\n' + script);
         Object ret = scrEng.eval(script);
         Class fxclass = ret.getClass();
         Rectangle2D bounds = null;

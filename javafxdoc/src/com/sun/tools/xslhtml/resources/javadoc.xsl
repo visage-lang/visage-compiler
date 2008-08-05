@@ -475,11 +475,14 @@
                         <xsl:sort select="@name" order="ascending"/>
                         <xsl:apply-templates select="." mode="toc"/>
                     </xsl:for-each>
-                    <tr><th colspan="3" class="header">Protected</th></tr>
-                    <xsl:for-each select="attribute[modifiers/protected]">
-                        <xsl:sort select="@name" order="ascending"/>
-                        <xsl:apply-templates select="." mode="toc"/>
-                    </xsl:for-each>
+                    <!-- do all protected attributes -->
+                    <xsl:if test="attribute[modifiers/protected]">
+                        <tr><th colspan="3" class="header">Protected</th></tr>
+                        <xsl:for-each select="attribute[modifiers/protected]">
+                            <xsl:sort select="@name" order="ascending"/>
+                            <xsl:apply-templates select="." mode="toc"/>
+                        </xsl:for-each>
+                    </xsl:if>
                 </table>
             </xsl:if>
             
@@ -680,12 +683,12 @@
                 <td class="description">
                     <xsl:apply-templates select="docComment/firstSentenceTags"/>
                     <xsl:if test="$inline-descriptions='true'">
-                        More: [<a href="#" class="long-desc-open">+</a>]
-                    </xsl:if>
-                    <xsl:if test="$inline-descriptions='true'">
-                        <div class="long-desc">
-                            <xsl:call-template name="attribute-full-description"/>
-                        </div>
+                        <xsl:if test="docComment/extraNotes[@multipleSentences='true']">
+                            More: [<a href="#" class="long-desc-open">+</a>]
+                            <div class="long-desc">
+                                <xsl:call-template name="attribute-full-description"/>
+                            </div>
+                        </xsl:if>
                     </xsl:if>
                 </td>
             </tr>

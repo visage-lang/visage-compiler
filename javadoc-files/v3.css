@@ -127,6 +127,7 @@ body {
 	margin-right: 0px;
 	margin-top: 0px;
 	padding-left: 30px;
+	padding-right: 30px;
 }
 #nav {
 	background-color: white;
@@ -233,12 +234,14 @@ disabled because it breaks when the content div is longer than the viewport*/
 
 
 #content #toc h4 {
-	font-size: 12pt;
-	font-family: Arial;
-	font-weight: bold;
+    font-size: 12pt;
+    font-family: Arial;
+    font-weight: bold;
 }
 
-/* fields summary */
+
+
+/* fields / attributesummary */
 
 
 .fields {
@@ -248,27 +251,27 @@ disabled because it breaks when the content div is longer than the viewport*/
 .fields th {
     text-align: left;
     font-weight: bold;
-	padding: .5em;
+    padding: .5em;
 }
 .fields td {
-	background-color: white;
-	vertical-align: top;	
-	padding-right: .5em;
-	padding-left: .5em;
-	padding-top: 1em;
+    background-color: white;
+    vertical-align: top;	
+    padding-right: .5em;
+    padding-left: .5em;
+    padding-top: 1em;
 }
 .fields td.type, .fields td.type i {
-	font-style: normal;
-	font-weight: normal;
+    font-style: normal;
+    font-weight: normal;
 }
 
 .fields, .fields td {
-	border: 1px solid #7B7A7C;
+    border: 1px solid #7B7A7C;
 }
 
 
 
-/* methods summary */
+/* methods / function summary */
 .method {
 	border-color: #979797;
 	border-style: solid;
@@ -306,23 +309,34 @@ dl.parameters dt {
 .private, .profile-private { display: none; }
 
 /* common colors */
+
 /* dark grey text*/
-h3, #content .package-docs .name, #content .package-docs code, #content #toc h4 , .fields th, #content h3 {
+h3, 
+#content .package-docs .name, 
+#content .package-docs code, 
+#content #toc h4 , 
+.fields th, 
+#content h3 {
 	color: #3E3C3F;
 	}
+
 /* dark grey background */
 body, 
 #classes-toc .header,
 .fields th { 
 	background-color: #3E3C3F;
 	}
+
 /* light grey background w/ slightly darker border*/
-#nav, .overview pre.example-code {
-	background-color: #e6e6e6;
-	border: 1px solid #b2adb7;
-	}
+#nav, 
+.overview pre.example-code {
+    background-color: #e6e6e6;
+    border: 1px solid #b2adb7;
+    }
+        
 /* med gray links */
-body a, #tabs a {
+body a, 
+#tabs a {
 	color: #7B7A7C;
 }
 /* orange */
@@ -344,3 +358,7 @@ body a, #tabs a {
 
 
 
+
+#toc .fields tr:nth-child(even) td {
+    background-color: #e6e6e6;
+}

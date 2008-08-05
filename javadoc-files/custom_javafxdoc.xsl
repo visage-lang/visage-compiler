@@ -11,6 +11,8 @@
     <xsl:import href="javadoc.xsl"/>
     
     <!-- duplicates from previous reprise custom.xsl -->
+    <xsl:template match="attribute[docComment/tags/treatasprivate]" mode="toc"></xsl:template>
+    <xsl:template match="attribute[docComment/tags/treatasprivate]" mode="toc"></xsl:template>
     <xsl:template match="docComment/tags/treatasprivate">
         <p class="treatasprivate">This attribute should be treated as private</p>
     </xsl:template>
@@ -21,7 +23,7 @@
     <xsl:template match="docComment/tags/setonce">
         <p class="setonce">Note: this attribute can only be set once. Any changes after
         the constructor is called will be ignored.</p>
-    </xsl:template>
+    </xsl:template> 
     
     <xsl:template match="docComment/tags/defaultvalue">
         <p class="defaultvalue">
@@ -30,6 +32,7 @@
             <b><xsl:value-of select="."/></b>
         </p>
     </xsl:template>
+    
 
     <xsl:template name="extra-attribute">
         <xsl:if test="docComment/tags/treatasprivate">

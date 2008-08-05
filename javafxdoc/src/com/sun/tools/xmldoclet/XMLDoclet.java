@@ -558,9 +558,28 @@ public class XMLDoclet {
             hd.endElement("", "", "commentText");
             
             generateTags(doc.tags(), "tags");
-            generateTags(doc.firstSentenceTags(), "firstSentenceTags");
+            Tag[] firstSentenceTags = doc.firstSentenceTags();
+            generateTags(firstSentenceTags, "firstSentenceTags");
             generateTags(doc.seeTags(), "seeTags");
-            generateTags(getInlineTags(doc), "inlineTags");
+            Tag[] inlineTags = getInlineTags(doc);
+            generateTags(inlineTags, "inlineTags");
+            
+            boolean multipleSentences = false;
+            if(inlineTags.length != firstSentenceTags.length) {
+                multipleSentences = true;
+            } else {
+                for(int i=0; i<firstSentenceTags.length; i++) {
+                    if(!firstSentenceTags[i].text().equals(inlineTags[i].text())) {
+                        multipleSentences = true;
+                    }
+                }
+            }
+            
+            attrs.clear();
+            attrs.addAttribute("", "", "multipleSentences", "CDATA", Boolean.toString(multipleSentences));
+            hd.startElement("", "", "extraNotes", attrs);
+            hd.endElement("", "", "extraNotes");
+
             
             hd.endElement("", "", "docComment");
         }
