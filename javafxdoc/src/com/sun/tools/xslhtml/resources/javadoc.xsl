@@ -968,6 +968,10 @@
            <xsl:value-of select="@dimension"/></i>
         </a>
     </xsl:template>
+    <xsl:template match="returns[@simpleTypeName='void' or @simpleTypeName='Void']" mode="signature">
+        <i><xsl:apply-templates select="." mode="linkname"/>
+        <xsl:value-of select="@dimension"/></i>
+    </xsl:template>
     
     <xsl:template match="returns" mode="href">
         <xsl:variable name="type-package" select="@packageName"/>
