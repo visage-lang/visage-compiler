@@ -344,7 +344,10 @@
     </xsl:template>
     
     <xsl:template match="code"><code><xsl:value-of select="." disable-output-escaping="yes"/></code></xsl:template>
-    
+    <xsl:template match="inheritDoc">
+        <xsl:variable name="override-name" select="../../../overrides/@name"/>
+        <xsl:apply-templates select="//function[@name=$override-name]/docComment"/>
+    </xsl:template>
     
     
     
