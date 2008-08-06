@@ -1046,7 +1046,7 @@ public class JavafxAttr implements JavafxVisitor {
     private void warnOnStaticUse(DiagnosticPosition pos, JFXModifiers mods, Symbol sym) {
         // temporary warning for the use of 'static'
         if ((mods.flags & (STATIC | SCRIPT_LEVEL_SYNTH_STATIC)) == STATIC) {
-    //        log.warning(pos, MsgSym.MESSAGE_JAVAFX_STATIC_DEPRECATED, sym);
+            log.warning(pos, MsgSym.MESSAGE_JAVAFX_STATIC_DEPRECATED, sym);
         }
     }
 
