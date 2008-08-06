@@ -94,7 +94,7 @@ public class FxSnippetsWindow implements ProjectComponent {
         shapes.add (new SnippetsNode ("Arc", "Arc {\n" + "    centerX: 100, centerY: 100\n" + "    radiusX: 40, radiusY: 15\n" + "    startAngle: 18, length: 120\n" + "    type: ArcType.OPEN\n" + "    fill: Color.GREEN\n" + "}\n", "arc"));
         shapes.add (new SnippetsNode ("Circle", "Circle {\n" + "    centerX: 10, centerY: 10\n" + "    radius: 5\n" + "}\n", "circle"));
         shapes.add (new SnippetsNode ("Ellipse", "Ellipse {\n" + "    centerX: 100, centerY: 100\n" + "    radiusX: 40, radiusY: 15\n" + "    fill: Color.GREEN\n" + "}\n", "ellipse"));
-        shapes.add (new SnippetsNode ("Image", "ImageView {\n" + "    image: Image {\n" + "        url: \"{__DIR__}/myPicture.png\"\n" + "    }\n" + "}\n", "image"));
+        shapes.add (new SnippetsNode ("Image", "ImageView {\n" + "    image: Image {\n" + "        url: \"{__DIR__}myPicture.png\"\n" + "    }\n" + "}\n", "image"));
         shapes.add (new SnippetsNode ("Line", "Line {\n" + "    x1: 10, y1: 10\n" + "    x2: 10, y2: 10\n" + "    strokeWidth: 1\n" + "}\n", "line"));
         shapes.add (new SnippetsNode ("Polygon", "Polygon {\n" + "    points : [ 0,0, 100,0, 100,100 ]\n" + "    fill: Color.YELLOW\n" + "}\n", "polygon"));
         shapes.add (new SnippetsNode ("Polyline", "Polyline {\n" + "    points : [ 0,0, 100,0, 100,100 ]\n" + "    strokeWidth: 2.0\n" + "    stroke: Color.RED\n" + "}\n", "polyline"));
