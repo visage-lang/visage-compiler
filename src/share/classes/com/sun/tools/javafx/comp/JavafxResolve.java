@@ -198,7 +198,7 @@ public class JavafxResolve {
      */
     public boolean isAccessible(JavafxEnv<JavafxAttrContext> env, Type site, Symbol sym) {
         if (sym.name == names.init && sym.owner != site.tsym) return false;
-        if ((sym.flags() & JavafxFlags.READABLE) != 0) {
+        if ((sym.flags() & JavafxFlags.PUBLIC_READABLE) != 0) {
             // assignment access handled elsewhere -- treat like
             return isAccessible(env, site);
         }

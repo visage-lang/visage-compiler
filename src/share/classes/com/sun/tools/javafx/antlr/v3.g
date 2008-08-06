@@ -52,6 +52,7 @@ tokens {
    INIT='init';
    INSERT='insert';
    NEW='new';
+   NON_WRITABLE='non-writable';
    NOT='not';
    NULL='null';
    OVERRIDE='override';
@@ -60,6 +61,7 @@ tokens {
    PRIVATE='private';
    PROTECTED='protected';
    PUBLIC='public';
+   PUBLIC_READABLE='public-readable';
    READABLE='readable';
    RETURN='return';
    REVERSE='reverse';
@@ -571,21 +573,29 @@ classModifierFlags
 	;
 accessModifier 
 	:  PUBLIC          			
-	|  PRIVATE         			
 	|  PROTECTED       	
 	|  PACKAGE       	
+	
+	//TODO: deprecated -- remove this at some point
+	|  PRIVATE         			
 	;
 functionModifier 
 	:  ABSTRACT        			
-	|  STATIC    
 	|  OVERRIDE
 	|  BOUND
 	|  accessModifier	
+	
+	//TODO: deprecated -- remove this at some point
+	|  STATIC    
 	;
 varModifier 
-	:  READABLE        			
-	|  STATIC        			
+	:  PUBLIC_READABLE
+	|  NON_WRITABLE		
 	|  accessModifier	
+	
+	//TODO: deprecated -- remove these at some point
+	|  READABLE        	
+	|  STATIC        			
 	;
 classModifier 
 	:  ABSTRACT        			

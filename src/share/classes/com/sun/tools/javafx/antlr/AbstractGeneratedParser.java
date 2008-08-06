@@ -250,8 +250,8 @@ public abstract class AbstractGeneratedParser extends Parser {
             {"postInitDefinition", "a 'postinit' block"},
             {"functionModifierFlags", " the modifiers on a function declaration"},
             {"functionModifier", " the modifiers on a function declaration"},
-            {"varModifierFlags", " the modifiers on an attribute/var declaration"},
-            {"varModifier", " the modifiers on an attribute/var declaration"},
+            {"varModifierFlags", " the modifiers on a variable declaration"},
+            {"varModifier", " the modifiers on a variable declaration"},
             {"classModifierFlags", " the modifiers on a class declaration"},
             {"classModifier", " the modifiers on a class declaration"},
             {"accessModifier", "an access modifier"},
@@ -342,6 +342,11 @@ public abstract class AbstractGeneratedParser extends Parser {
                 return "a keyword";
             }
         },
+        DEPRECATED_KEYWORD {
+            String forHumans() {
+                return "a no longer supported keyword";
+            }
+        },
         OPERATOR {
             String forHumans() {
                 return "an operator";
@@ -390,19 +395,21 @@ public abstract class AbstractGeneratedParser extends Parser {
         tokenClassMap[v3Parser.INSERT]              = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.DEF]                 = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.NEW]                 = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.NON_WRITABLE]        = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.NOT]                 = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.NULL]                = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.OVERRIDE]            = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.PACKAGE]             = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.POSTINIT]            = TokenClassification.KEYWORD;
-        tokenClassMap[v3Parser.PRIVATE]             = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.PRIVATE]             = TokenClassification.DEPRECATED_KEYWORD;
         tokenClassMap[v3Parser.PROTECTED]           = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.PUBLIC]              = TokenClassification.KEYWORD;
-        tokenClassMap[v3Parser.READABLE]          = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.PUBLIC_READABLE]     = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.READABLE]            = TokenClassification.DEPRECATED_KEYWORD;
         tokenClassMap[v3Parser.RETURN]              = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.SUPER]               = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.SIZEOF]              = TokenClassification.KEYWORD;
-        tokenClassMap[v3Parser.STATIC]              = TokenClassification.KEYWORD;
+        tokenClassMap[v3Parser.STATIC]              = TokenClassification.DEPRECATED_KEYWORD;
         tokenClassMap[v3Parser.THIS]                = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.THROW]               = TokenClassification.KEYWORD;
         tokenClassMap[v3Parser.TRY]                 = TokenClassification.KEYWORD;

@@ -1,5 +1,5 @@
 /**
- * Regression test for JFXC-1629 : Enforce readable modifier
+ * Regression test for JFXC-1629 : Enforce public-readable modifier
  *
  * Pass cases, see also should-fail
  *
@@ -11,7 +11,7 @@ import java.lang.System;
 
 class One {
 
-  readable private var twub = 333;
+  public-readable private var twub = 333;
 
   function change() : Void {
      twub = 444;

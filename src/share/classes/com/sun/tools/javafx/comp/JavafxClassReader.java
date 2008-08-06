@@ -500,7 +500,7 @@ public class JavafxClassReader extends ClassReader {
                         flags |=  JavafxFlags.IS_DEF;
                     }
                     if (a.type.tsym.flatName() == javafxSyms.javafx_readableAnnotationType.tsym.flatName()) {
-                        flags |=  JavafxFlags.READABLE;
+                        flags |=  JavafxFlags.PUBLIC_READABLE;
                     }
                     if (a.type.tsym.flatName() == javafxSyms.javafx_privateAnnotationType.tsym.flatName()) {
                         flags &= ~(Flags.PROTECTED | Flags.PUBLIC);

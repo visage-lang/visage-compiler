@@ -1,12 +1,12 @@
 /**
- * Regression test for JFXC-1629 : Enforce readable modifier
+ * Regression test for JFXC-1629 : Enforce public-readable modifier
  *
  * @test/fail
  */
 
 class One {
 
-  readable private var twub = 333;
+  public-readable private var twub = 333;
 
   function make() : One {
      twub = 444; // OK

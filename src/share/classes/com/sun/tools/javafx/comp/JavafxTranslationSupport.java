@@ -583,7 +583,7 @@ public abstract class JavafxTranslationSupport {
             annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.protectedAnnotationClassName), List.<JCExpression>nil()));
         }
 
-        if ((flags & JavafxFlags.READABLE) != 0) {
+        if ((flags & JavafxFlags.PUBLIC_READABLE) != 0) {
             annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.readableAnnotationClassName), List.<JCExpression>nil()));
         }
 

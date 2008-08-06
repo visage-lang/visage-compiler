@@ -156,7 +156,7 @@ public class JavafxModuleBuilder {
             case VAR_DEF: { //TODO: deal with var value
                 JFXVar decl = (JFXVar) tree;
                 checkName(tree.pos, decl.getName());
-                if ((decl.getModifiers().flags & (Flags.PUBLIC | Flags.PRIVATE | JavafxFlags.READABLE)) != 0L) {
+                if ((decl.getModifiers().flags & (Flags.PUBLIC | Flags.PRIVATE | JavafxFlags.PUBLIC_READABLE)) != 0L) {
                     // externally visible, so needs to be a static on the script class
                     // we can't handle this in the lazy conversion since attribution will barf on a var with these flags
                     // note that protected is an error, but we will let attribution handle that

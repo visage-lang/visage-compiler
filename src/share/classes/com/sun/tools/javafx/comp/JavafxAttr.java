@@ -3227,7 +3227,7 @@ public class JavafxAttr implements JavafxVisitor {
             log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_DEF, v);
         } else if ((v.flags() & Flags.PARAMETER) != 0L) {
             log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_PARAMETER, v);
-        } else if ((v.flags() & JavafxFlags.READABLE) != 0L) {
+        } else if ((v.flags() & JavafxFlags.PUBLIC_READABLE) != 0L) {
             JavafxEnv<JavafxAttrContext> env1 = env;
             if (v.owner != null && v.owner != env1.enclClass.sym) {
                 // If the found symbol is inaccessible, then it is
@@ -3663,8 +3663,8 @@ public class JavafxAttr implements JavafxVisitor {
         if ((flags & ACCESS_FLAGS) == 0) {
             flags |= other.flags() & ACCESS_FLAGS;
         }
-        if ((flags & JavafxFlags.READABLE) == 0) {
-            flags |= other.flags() & JavafxFlags.READABLE;
+        if ((flags & JavafxFlags.PUBLIC_READABLE) == 0) {
+            flags |= other.flags() & JavafxFlags.PUBLIC_READABLE;
         }
         if (flags != origFlags) {
             m.flags_field = flags;
