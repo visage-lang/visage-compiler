@@ -832,15 +832,15 @@
             </xsl:attribute>
             <p>
             <xsl:apply-templates select="docComment/firstSentenceTags"/>
-            <xsl:if test="$inline-descriptions='true'">
-                More: [<a href="#" class="long-desc-open">+</a>]
-            </xsl:if>
+                <xsl:if test="$inline-descriptions='true'">
+                    <xsl:if test="docComment/extraNotes[@multipleSentences='true']">
+                        More: [<a href="#" class="long-desc-open">+</a>]
+                        <div class="long-desc">
+                            <xsl:call-template name="method-like-full-description"/>
+                        </div>
+                    </xsl:if>
+                </xsl:if>
             </p>
-            <xsl:if test="$inline-descriptions='true'">
-                <div class="long-desc">
-                    <xsl:call-template name="method-like-full-description"/>
-                </div>
-            </xsl:if>
         </dd>
         </xsl:if>
     </xsl:template>
