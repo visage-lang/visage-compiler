@@ -271,7 +271,7 @@
             <arg line="-xsl: inline-classlist=true"/>
             <arg line="-xsl: inline-descriptions=true"/>
             
-            <arg line="-xsltfile ${basedir}/javadoc-files/custom_javafxdoc.xsl"/>
+            <arg line="-xsltfile ${basedir}/javadoc-files/sdk.xsl"/>
             <classpath>
                 <path path="${build.classes.dir}:${javac.test.classpath}:dist/lib/javafxgui.jar"/>
             </classpath>

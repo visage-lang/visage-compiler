@@ -13,13 +13,13 @@
     <!-- duplicates from previous reprise custom.xsl -->
     <xsl:template match="attribute[docComment/tags/treatasprivate]" mode="toc"></xsl:template>
     <xsl:template match="attribute[docComment/tags/treatasprivate]" mode="toc"></xsl:template>
+    <!--
     <xsl:template match="docComment/tags/treatasprivate">
         <p class="treatasprivate">This attribute should be treated as private</p>
     </xsl:template>
     <xsl:template match="docComment/tags/readonly">
         <p class="needsreview">This attribute is readonly. It's value may change, but developers should not try to set it.</p>
     </xsl:template>
-    
     <xsl:template match="docComment/tags/setonce">
         <p class="setonce">Note: this attribute can only be set once. Any changes after
         the constructor is called will be ignored.</p>
@@ -32,6 +32,7 @@
             <b><xsl:value-of select="."/></b>
         </p>
     </xsl:template>
+    -->
     
 
     <xsl:template name="extra-attribute">
@@ -47,9 +48,11 @@
 
     
     <xsl:template name="extra-attribute-column-header">
-        <th>Read Only</th>
-        <th>Set Once</th>
-        <th>Default Value</th>
+        <th><a class="tooltip" title="Indicates the attribute is read only">Read Only</a></th>
+        <th><a title="Indicates the attribute can only be set in the Object initializer. Any further changes will be ignored."
+         class="tooltip">Set Once</a></th>
+        <th><a title="Indicates the default value of this attribute"
+         class="tooltip">Default Value</a></th>
     </xsl:template>
     <xsl:template name="extra-attribute-column-data">
         <td class="readonly">
@@ -158,6 +161,10 @@ $$('h4.header').each(function(lnk,index) {
 	});
 });
 
+
+var myTips = new Tips('.tooltip', {
+    fixed: true
+});
 
 });</script>
     </xsl:template>

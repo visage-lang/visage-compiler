@@ -362,3 +362,13 @@ body a,
 #toc .fields tr:nth-child(even) td {
     background-color: #e6e6e6;
 }
+
+.tooltip {
+    color: white;
+}
+.tip {
+    background-color: white;
+    border: 2px solid orange;
+    width: 200px;
+    padding: 0.5em;
+}
