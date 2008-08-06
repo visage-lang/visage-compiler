@@ -13,26 +13,6 @@
     <!-- duplicates from previous reprise custom.xsl -->
     <xsl:template match="attribute[docComment/tags/treatasprivate]" mode="toc"></xsl:template>
     <xsl:template match="attribute[docComment/tags/treatasprivate]" mode="toc"></xsl:template>
-    <!--
-    <xsl:template match="docComment/tags/treatasprivate">
-        <p class="treatasprivate">This attribute should be treated as private</p>
-    </xsl:template>
-    <xsl:template match="docComment/tags/readonly">
-        <p class="needsreview">This attribute is readonly. It's value may change, but developers should not try to set it.</p>
-    </xsl:template>
-    <xsl:template match="docComment/tags/setonce">
-        <p class="setonce">Note: this attribute can only be set once. Any changes after
-        the constructor is called will be ignored.</p>
-    </xsl:template> 
-    
-    <xsl:template match="docComment/tags/defaultvalue">
-        <p class="defaultvalue">
-            <span>Default value:</span> 
-            <xsl:text> </xsl:text>
-            <b><xsl:value-of select="."/></b>
-        </p>
-    </xsl:template>
-    -->
     
 
     <xsl:template name="extra-attribute">
@@ -54,6 +34,7 @@
         <th><a title="Indicates the default value of this attribute"
          class="tooltip">Default Value</a></th>
     </xsl:template>
+    
     <xsl:template name="extra-attribute-column-data">
         <td class="readonly">
             <xsl:if test="docComment/tags/readonly">true</xsl:if>
@@ -69,10 +50,36 @@
 
     <!-- new stuff -->
     <xsl:template match="seeTags">
-        <p><b>See again Also:</b><br/>
+        <p><b>See Also:</b><br/>
             <xsl:apply-templates select="see"/>
         </p>
     </xsl:template>
+    
+    <!-- turn off jumpdown links -->
+    <xsl:template match="function | method | constructor" mode="toc-signature">
+        <xsl:apply-templates select="modifiers"/>
+        <xsl:text> </xsl:text>
+        
+        <!-- fx -->
+        <xsl:if test="not(../@language='java')">
+            <b><xsl:value-of select="@name"/></b>
+            <xsl:apply-templates select="parameters" mode="signature"/>
+            :
+            <!-- build return type link, if appropriate -->
+            <xsl:apply-templates select="returns" mode="signature"/>
+            <xsl:value-of select="type/@dimension"/>
+        </xsl:if>
+        
+        <!-- java -->
+        <xsl:if test="../@language='java'">
+            <xsl:apply-templates select="returns" mode="signature"/>
+            <xsl:text> </xsl:text>
+            <b><xsl:value-of select="@name"/></b>
+            <xsl:apply-templates select="parameters" mode="signature"/>
+        </xsl:if>
+            
+    </xsl:template>
+    
     
     <xsl:template name="head-post">
         <link href="{$root-path}general.css" rel="stylesheet"/>
