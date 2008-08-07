@@ -25,24 +25,33 @@ package javafx.lang;
 import com.sun.javafx.runtime.Entry;
 
 /**
-  * A DeferredTask represents an action that should be executed at a later time of the system's choosing.  In systems
-  * based on event dispatch, such as Swing, execution of a DeferredTask generally means putting it on the event queue
+  * A {@code DeferredTask} represents an action that should be executed at a
+  * later time of the system's choosing.
+  * <p />
+  * In systems based on event dispatch, such as Swing, execution of a
+  * {@code DeferredTask} generally means putting it on the event queue
   * for later processing.
   *
   * @profile common
   */
 public class DeferredTask {
-    /** A function to be called when the deferred task is executed.  Must be provided.
+    /** 
+     * A function to be called when the deferred task is executed.
+     * <p />
+     * Must be provided.
      *
      * @profile common
      */
-    /* required final */ public attribute action: function() : Void;
+    public /* required initonly */ var action: function() : Void;
 
-    /** A boolean value indicating whether the deferred task has actually been run, which can be bound to.  Read-only. 
+    /** 
+     * A {@code boolean} value indicating whether the deferred task has actually
+     * been run, which can be bound to.  Read-only. 
      *
      * @profile common
+     * @readonly
      */
-    /* controlled */ public attribute done : Boolean;
+    public /* readable private */ var done : Boolean;
 
     postinit {
         Entry.deferTask(function() : Void { try { action(); } finally { done = true } });

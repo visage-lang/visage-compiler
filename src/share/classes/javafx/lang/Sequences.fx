@@ -44,7 +44,15 @@ public class Sequences {
 
 // script-level "static" functions below
     
-     /**
+    /**
+     * Returns {@code true} if the two specified sequences are equal to one another. 
+     * The two sequences are considered equal if both sequences contain the same
+     * number of elements, and all corresponding pairs of elements in the two 
+     * sequences are identical. In other words, the two sequences are equal if
+     * they contain the same elements in the same order.
+     * 
+     * @param seq1 One sequence to be tested for equality
+     * @param seq2 The other array to be tested for equality 
      *
      * @profile common
      */    
@@ -56,8 +64,8 @@ public class Sequences {
      * Searches the specified sequence for the specified object using the 
      * binary search algorithm. The sequence must be sorted into ascending 
      * order according to the natural ordering of its elements (as by 
-     * the sort(Sequence<T>) method) prior to making this call. 
-     * 
+     * the {@code sort(Sequence<T>)} method) prior to making this call. 
+     * <p />
      * If it is not sorted, the results are undefined. If the array contains 
      * multiple elements equal to the specified object, there is no guarantee 
      * which one will be found.
@@ -68,9 +76,9 @@ public class Sequences {
      *         otherwise, (-(insertion point) - 1). The insertion point is 
      *         defined as the point at which the key would be inserted into the 
      *         array: the index of the first element greater than the key, or
-     *         a.length if all elements in the array are less than the specified
-     *         key. Note that this guarantees that the return value will be >= 0
-     *         if and only if the key is found.
+     *         {@code a.length} if all elements in the array are less than the
+     *         specified key. Note that this guarantees that the return value
+     *         will be >= 0 if and only if the key is found.
      *
      * @profile common 
      */
@@ -82,24 +90,25 @@ public class Sequences {
      * Searches the specified array for the specified object using the 
      * binary search algorithm. The array must be sorted into ascending 
      * order according to the specified comparator (as by the 
-     * sort(Sequence<T>, Comparator<? super T>)  method) prior to making 
-     * this call. 
-     * 
+     * {@code sort(Sequence<T>, Comparator<? super T>)}  method) prior to
+     * making this call. 
+     * <p />
      * If it is not sorted, the results are undefined. If the array contains 
      * multiple elements equal to the specified object, there is no guarantee 
      * which one will be found.
      * 
      * @param seq The sequence to be searched.
      * @param key The value to be searched for.
-     * @param c The comparator by which the array is ordered. A null value 
-     *          indicates that the elements' natural ordering should be used.
+     * @param c The {@code Comparator} by which the array is ordered. 
+     *          A {@code null} value indicates that the elements' natural
+     *          ordering should be used.
      * @return Index of the search key, if it is contained in the array; 
      *         otherwise, (-(insertion point) - 1). The insertion point is 
      *         defined as the point at which the key would be inserted into the 
      *         array: the index of the first element greater than the key, or
-     *         a.length if all elements in the array are less than the specified
-     *         key. Note that this guarantees that the return value will be >= 0
-     *         if and only if the key is found.
+     *         {@code a.length} if all elements in the array are less than the
+     *         specified key. Note that this guarantees that the return value 
+     *         will be >= 0 if and only if the key is found.
      *
      * @profile common 
      */
@@ -109,12 +118,12 @@ public class Sequences {
     
     /**
      * Searches the specified sequence for the specified object.
-     * 
+     * <p />
      * If the sequence contains multiple elements equal to the specified object, 
      * the first occurence in the sequence will be returned.
-     * 
-     * The method nextIndexOf can be used in consecutive calls to iterate
-     * through all occurences of a specified object.
+     * <p />
+     * The method {@code nextIndexByIdentity()} can be used in consecutive  
+     * calls to iterate through all occurences of a specified object.
      * 
      * @param seq The sequence to be searched.
      * @param key The value to be searched for.
@@ -129,14 +138,14 @@ public class Sequences {
 
     /**
      * Searches the specified sequence for an object with the same value. The
-     * objects are compared using the method equals(). If the sequence is sorted, 
-     * binarySearch should be used instead.
-     * 
+     * objects are compared using the method {@code equals()}. If the sequence 
+     * is sorted, binarySearch should be used instead.
+     * <p />
      * If the sequence contains multiple elements equal to the specified object, 
      * the first occurence in the sequence will be returned.
-     * 
-     * The method nextIndexOf can be used in consecutive calls to iterate
-     * through all occurences of a specified object.
+     * <p />
+     * The method {@code nextIndexOf()} can be used in consecutive calls to 
+     * iterate through all occurences of a specified object.
      * 
      * @param seq The sequence to be searched.
      * @param key The value to be searched for.
@@ -152,11 +161,11 @@ public class Sequences {
     /**
      * Returns the element with the maximum value in the specified sequence, 
      * according to the natural ordering  of its elements. All elements in the 
-     * sequence must implement the Comparable interface. Furthermore, all 
-     * elements in the sequence must be mutually comparable (that is, 
-     * e1.compareTo(e2) must not throw a ClassCastException  for any elements 
-     * e1 and e2 in the sequence).
-     * 
+     * sequence must implement the {@code Comparable} interface. Furthermore, 
+     * all elements in the sequence must be mutually comparable (that is, 
+     * {@code e1.compareTo(e2)} must not throw a {@code ClassCastException}
+     * for any elements {@code e1} and {@code e2} in the sequence).
+     * <p />
      * If the sequence contains multiple elements with the maximum value, 
      * there is no guarantee which one will be found.
      * 
@@ -171,18 +180,19 @@ public class Sequences {
     
     /**
      * Returns the element with the maximum value in the specified sequence, 
-     * according to the specified comparator. All elements in the sequence must 
-     * be mutually comparable by the specified comparator (that is, 
-     * c.compare(e1, e2) must not throw a ClassCastException  for any elements
-     * e1 and e2 in the sequence).
-     * 
+     * according to the specified {@code Comparator}. All elements in the 
+     * sequence must be mutually comparable by the specified {@code Comparator} 
+     * (that is, {@code c.compare(e1, e2)} must not throw a 
+     * {@code ClassCastException} for any elements {@code e1} and {@code e2}
+     * in the sequence).
+     * <p />
      * If the sequence contains multiple elements with the maximum value, 
      * there is no guarantee which one will be found.
      * 
      * @param seq The sequence to be searched.
-     * @param c The comparator to determine the order of the sequence. 
-     *          A null value indicates that the elements' natural ordering 
-     *          should be used.
+     * @param c The {@code Comparator} to determine the order of the sequence. 
+     *          A {@code null} value indicates that the elements' natural 
+     *          ordering should be used.
      * @return The element with the maximum value.
      *
      * @profile common 
@@ -194,11 +204,11 @@ public class Sequences {
     /**
      * Returns the element with the minimum value in the specified sequence, 
      * according to the natural ordering  of its elements. All elements in the 
-     * sequence must implement the Comparable interface. Furthermore, all 
-     * elements in the sequence must be mutually comparable (that is, 
-     * e1.compareTo(e2) must not throw a ClassCastException  for any elements 
-     * e1 and e2 in the sequence).
-     * 
+     * sequence must implement the {@code Comparable} interface. Furthermore, 
+     * all elements in the sequence must be mutually comparable (that is, 
+     * {@code e1.compareTo(e2)} must not throw a {@code ClassCastException}
+     * for any elements {@code e1} and {@code e2} in the sequence).
+     * <p />
      * If the sequence contains multiple elements with the minimum value, 
      * there is no guarantee which one will be found.
      * 
@@ -213,18 +223,19 @@ public class Sequences {
     
      /**
      * Returns the element with the minimum value in the specified sequence, 
-     * according to the specified comparator. All elements in the sequence must 
-     * be mutually comparable by the specified comparator (that is, 
-     * c.compare(e1, e2) must not throw a ClassCastException  for any elements
-     * e1 and e2 in the sequence).
-     * 
+     * according to the specified {@code Comparator}. All elements in the 
+     * sequence must be mutually comparable by the specified {@code Comparator}
+     * (that is, {@code c.compare(e1, e2)} must not throw a 
+     * {@code ClassCastException} for any elements {@code e1} and {@code e2}
+     * in the sequence).
+     * <p />
      * If the sequence contains multiple elements with the minimum value, 
      * there is no guarantee which one will be found.
      * 
      * @param seq The sequence to be searched.
-     * @param c The comparator to determine the order of the sequence. 
-     *          A null value indicates that the elements' natural ordering 
-     *          should be used.
+     * @param c The {@code Comparator} to determine the order of the sequence. 
+     *          A {@code null} value indicates that the elements' natural 
+     *          ordering should be used.
      * @return The element with the minimum value.
      *
      * @profile common 
@@ -234,17 +245,17 @@ public class Sequences {
     }
     
     /**
-     * Searches the specified sequence for an object with the same value,
-     * starting the search at the specified position. The objects are compared 
-     * using the method equals().
-     * 
+     * Searches the specified sequence for the specified object, starting the
+     * search at the specified position. 
+     * <p />
      * If the sequence contains multiple elements equal to the specified object, 
      * the first occurence in the subsequence will be returned.
      * 
      * @param seq The sequence to be searched.
      * @param key The value to be searched for.
-     * @param pos The position in the sequence to start the search. If pos is
-     *            negative or 0 the whole sequence will be searched.
+     * @param pos The position in the sequence to start the search.
+     *            If {@code pos} is negative or 0 the whole sequence will be
+     *            searched.
      * @return Index of the search key, if it is contained in the array; 
      *         otherwise -1.
      *
@@ -255,16 +266,18 @@ public class Sequences {
     }
     
     /**
-     * Searches the specified sequence for the specified object, starting the
-     * search at the specified position. 
-     * 
+     * Searches the specified sequence for an object with the same value,
+     * starting the search at the specified position. The objects are compared 
+     * using the method {@code equals()}.
+     * <p />
      * If the sequence contains multiple elements equal to the specified object, 
      * the first occurence in the subsequence will be returned.
      * 
      * @param seq The sequence to be searched.
      * @param key The value to be searched for.
-     * @param pos The position in the sequence to start the search. If pos is
-     *            negative or 0 the whole sequence will be searched.
+     * @param pos The position in the sequence to start the search.
+     *            If {@code pos} is negative or 0 the whole sequence will be
+     *            searched.
      * @return Index of the search key, if it is contained in the array; 
      *         otherwise -1.
      *
@@ -275,6 +288,13 @@ public class Sequences {
     }
     
     /**
+     * Reverses the order of the elements in the specified sequence.
+     * <p />
+     * This method is immutative, the result is returned in a new sequence,
+     * while the original sequence is left untouched.
+     *
+     * @param seq The sequence which elements are to be reversed.
+     * @return The reversed sequence.
      *
      * @profile common
      */
@@ -285,17 +305,17 @@ public class Sequences {
     /**
      * Sorts the specified sequence of objects into ascending order, according 
      * to the natural ordering  of its elements. All elements in the sequence
-     * must implement the Comparable interface. Furthermore, all elements in 
-     * the sequence must be mutually comparable (that is, e1.compareTo(e2) 
-     * must not throw a ClassCastException  for any elements e1 and e2 in the 
-     * sequence).
-     * 
+     * must implement the {@code Comparable} interface. Furthermore, all 
+     * elements in the sequence must be mutually comparable (that is, 
+     * {@code e1.compareTo(e2)} must not throw a {@code ClassCastException}
+     * for any elements {@code e1} and {@code e2} in the sequence).
+     * <p />
      * This method is immutative, the result is returned in a new sequence,
      * while the original sequence is left untouched.
-     * 
+     * <p />
      * This sort is guaranteed to be stable: equal elements will not be 
      * reordered as a result of the sort.
-     * 
+     * <p />
      * The sorting algorithm is a modified mergesort (in which the merge is 
      * omitted if the highest element in the low sublist is less than the 
      * lowest element in the high sublist). This algorithm offers guaranteed 
@@ -312,26 +332,26 @@ public class Sequences {
     
     /**
      * Sorts the specified sequence of objects according to the order induced 
-     * by the specified comparator. All elements in the sequence must be 
-     * mutually comparable by the specified comparator (that is, 
-     * c.compare(e1, e2) must not throw a ClassCastException  for any elements
-     * e1 and e2 in the sequence).
-     * 
+     * by the specified {@code Comparator}. All elements in the sequence must be 
+     * mutually comparable by the specified {@code Comparator} (that is, 
+     * {@code c.compare(e1, e2)} must not throw a {@code ClassCastException}
+     * for any elements {@code e1} and {@code e2} in the sequence).
+     * <p />
      * This method is immutative, the result is returned in a new sequence,
      * while the original sequence is left untouched.
-     *
+     * <p />
      * This sort is guaranteed to be stable: equal elements will not be 
      * reordered as a result of the sort.
-     * 
+     * <p />
      * The sorting algorithm is a modified mergesort (in which the merge is 
      * omitted if the highest element in the low sublist is less than the 
      * lowest element in the high sublist). This algorithm offers guaranteed 
      * n*log(n) performance. 
      * 
      * @param seq The sequence to be sorted.
-     * @param c The comparator to determine the order of the sequence. 
-     *          A null value indicates that the elements' natural ordering 
-     *          should be used.
+     * @param c The {@code Comparator} to determine the order of the sequence. 
+     *          A {@code null} value indicates that the elements' natural
+     *          ordering should be used.
      * @return The sorted sequence.
      *
      * @profile common 
@@ -341,6 +361,19 @@ public class Sequences {
     }
 
     /**
+     * Randomly permutes the specified list using a default source of randomness. 
+     * All permutations occur with approximately equal likelihood.
+     * <p />
+     * The hedge "approximately" is used in the foregoing description because 
+     * default source of randomness is only approximately an unbiased source of 
+     * independently chosen bits. If it were a perfect source of randomly chosen 
+     * bits, then the algorithm would choose permutations with perfect uniformity.
+     * <p />
+     * This method is immutative, the result is returned in a new sequence,
+     * while the original sequence is left untouched.
+     *
+     * @param seq The sequence to be shuffled.
+     * @return The shuffled sequence.
      *
      * @profile common
      */
