@@ -793,16 +793,14 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
     
     private void backEnd(List<JavafxEnv<JavafxAttrContext>> envs, ListBuffer<JavaFileObject> results) throws IOException {
-        ListBuffer<JFXUnit> trees = lb();
         ListBuffer<JCCompilationUnit> javaTrees = lb();
         for (JavafxEnv<JavafxAttrContext> env : envs) {
-            trees.append(env.toplevel);
             javaTrees.append(env.translatedToplevel);
         }
 
         PlatformPlugin plugin = PlatformPlugin.instance(context);
         if (plugin != null) {
-            plugin.process(trees);
+            plugin.process(javaTrees);
             if (Log.instance(context).nerrors > 0)
                 return;
         }
