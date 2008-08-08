@@ -1494,8 +1494,13 @@ public class JavafxAttr implements JavafxVisitor {
             Symbol memberSym = rs.findIdentInType(env, clazz.type, part.name, VAR);
             memberSym = rs.access(memberSym, localPt.pos(), clazz.type, part.name, true);
             memberSym.complete();
-            attribExpr(part.getExpression(), localEnv, memberSym.type);
-            part.type = memberSym.type;
+            Type memberType = memberSym.type;
+            if (memberSym instanceof MethodSymbol) {
+                log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_INVALID_ASSIGNMENT);
+                memberType = Type.noType;
+            }
+            attribExpr(part.getExpression(), localEnv, memberType);
+            part.type = memberType;
             part.sym = memberSym;
 
             if (memberSym instanceof VarSymbol) {

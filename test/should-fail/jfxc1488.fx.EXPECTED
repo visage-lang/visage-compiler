@@ -1,0 +1,4 @@
+test/should-fail/jfxc1488.fx:15: Invalid assignment
+    run: function(){
+    ^
+1 error
