@@ -847,8 +847,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 make.at(diagPos).AnonymousClassDef(make.Modifiers(0L), members.toList()));
 
         JCExpression attrRef;
-        // if it is an attribute
-        if (info.getSymbol().owner.kind == Kinds.TYP) {
+        // if it is a non-static attribute
+        if (info.getSymbol().owner.kind == Kinds.TYP && !info.getSymbol().isStatic()) {
              attrRef = makeAttributeAccess(diagPos, info.getSymbol());
         } else {
              attrRef = makeIdentifier(diagPos, info.getNameString());
