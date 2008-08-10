@@ -55,6 +55,7 @@ import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.comp.JavafxAttr.Sequenceness;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
+import com.sun.javafx.api.JavafxBindStatus;
 
 /** Type checking helper class for the attribution phase.
  *
@@ -621,6 +622,14 @@ public class JavafxCheck {
 	else
 	    return t;
     }
+
+  public void checkBidiBind(DiagnosticPosition pos, JavafxBindStatus bindStatus, JFXExpression init) {
+    if (bindStatus == null || ! bindStatus.isBidiBind())
+      return;
+    if (init instanceof JFXIdent || init instanceof JFXSelect)
+      return;
+    log.error(pos, MsgSym.MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND);
+  }
 
     /**
      * Return element type for a sequence type, and report error otherwise.

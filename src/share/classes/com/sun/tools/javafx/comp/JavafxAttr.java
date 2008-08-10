@@ -983,6 +983,7 @@ public class JavafxAttr implements JavafxVisitor {
                     }
                     initType = types.sequenceType(initType);
                 }
+                chk.checkBidiBind(tree, tree.getBindStatus(), tree.init);
             }
             else if (tree.type != null)
                 initType = tree.type;
@@ -1093,6 +1094,8 @@ public class JavafxAttr implements JavafxVisitor {
                 v.pos = Position.MAXPOS;
 
                 chk.checkNonVoid(init, attribExpr(init, initEnv, declType));
+                chk.checkBidiBind(tree,
+                                  tree.getBindStatus(), tree.getInitializer());
             }
         } finally {
             chk.setLint(prevLint);
@@ -1507,6 +1510,8 @@ public class JavafxAttr implements JavafxVisitor {
                 VarSymbol v = (VarSymbol)memberSym;
                 checkAssignable(part.pos(), v, part, localEnv);
             }
+            chk.checkBidiBind(part.getMaybeBindExpression(),
+                              part.getBindStatus(), part.getExpression());
         }
 
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
