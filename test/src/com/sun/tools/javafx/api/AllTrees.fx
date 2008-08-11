@@ -168,7 +168,7 @@ c * 3;
 c + 3;
 
 // REMAINDER
-// c % 5;
+c mod 5;
 
 // XOR
 //c ^ 3;
