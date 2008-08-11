@@ -50,6 +50,7 @@ import com.sun.scenario.animation.FrameJob;
 import com.sun.scenario.Settings;
 
 Settings.set("com.sun.scenario.animation.pulse", "200");
+var useVector:Boolean = Settings.getBoolean("javafxballs.vector", false);
 
 class Ball extends BallBase {
     attribute view:Node;
@@ -216,7 +217,7 @@ class BallsTest {
         balls = for (i in [1.._N]) { if (imageBalls) createImageBall() else create2DBall() }
     }
 
-    attribute imageBalls:Boolean = true on replace { resetBalls() }
+    attribute imageBalls:Boolean = not useVector on replace { resetBalls() }
     attribute _N:Number = 16 on replace { resetBalls() }
 
     attribute timeline:Timeline = Timeline {
@@ -233,7 +234,7 @@ class BallsTest {
             }
             canSkip: true
         }
-    }  
+    }   
     
     attribute fpsListener:ActionListener = ActionListener {
         override function actionPerformed(evt:ActionEvent): Void {
@@ -303,8 +304,8 @@ var win = SwingFrame {
                                                     RadioButtonMenuItem {text: ##"32 balls" toggleGroup: tg action: function() {test._N = 32;}},
                                                     RadioButtonMenuItem {text: ##"100 balls" toggleGroup: tg action: function() {test._N = 100;}}]},
                              Menu {text: ##"Ball Painting" items: [
-                                                    RadioButtonMenuItem {text: ##"Image Rendering" selected: true toggleGroup: tg2 action: function() {test.imageBalls = true;}},
-                                                    RadioButtonMenuItem {text: ##"2D Rendering" toggleGroup: tg2 action: function() {test.imageBalls = false;}}]}
+                                                    RadioButtonMenuItem {text: ##"Image Rendering" selected: not useVector toggleGroup: tg2 action: function() {test.imageBalls = true;}},
+                                                    RadioButtonMenuItem {text: ##"2D Rendering" selected: useVector toggleGroup: tg2 action: function() {test.imageBalls = false;}}]}
 
                          ]
                  }
