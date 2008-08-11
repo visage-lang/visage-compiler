@@ -2504,17 +2504,6 @@ public class JavafxAttr implements JavafxVisitor {
         // ill-formed class files.
         chk.checkNonCyclic(null, c.type);
 
-        Type st = types.supertype(c.type);
-        if ((c.flags_field & Flags.COMPOUND) == 0) {
-            // First, attribute superclass.
-            if (st.tag == CLASS)
-                attribClass(null, (ClassSymbol)st.tsym);
-
-            // Next attribute owner, if it is a class.
-            if (c.owner.kind == TYP && c.owner.type.tag == CLASS)
-                attribClass(null, (ClassSymbol)c.owner);
-        }
-
         if (tree != null) {
             attribSupertypes(tree, c);
         }
@@ -2544,18 +2533,6 @@ public class JavafxAttr implements JavafxVisitor {
             JavaFileObject prev = log.useSource(c.sourcefile);
 
             try {
-                // java.lang.Enum may not be subclassed by a non-enum
-                if (st.tsym == syms.enumSym &&
-                    ((c.flags_field & (Flags.ENUM|Flags.COMPOUND)) == 0))
-                    log.error(localEnv.tree.pos(), MsgSym.MESSAGE_ENUM_NO_SUBCLASSING);
-
-                // Enums may not be extended by source-level classes
-                if (st.tsym != null &&
-                    ((st.tsym.flags_field & Flags.ENUM) != 0) &&
-                    ((c.flags_field & Flags.ENUM) == 0) &&
-                    !target.compilerBootstrap(c)) {
-                    log.error(localEnv.tree.pos(), MsgSym.MESSAGE_ENUM_TYPES_NOT_EXTENSIBLE);
-                }
                 attribClassBody(localEnv, c);
             } finally {
                 log.useSource(prev);
@@ -2665,6 +2642,18 @@ public class JavafxAttr implements JavafxVisitor {
             }
             else {
                 supType = supSym.type;
+            }
+            // java.lang.Enum may not be subclassed by a non-enum
+            if (supType.tsym == syms.enumSym &&
+                ((c.flags_field & (Flags.ENUM|Flags.COMPOUND)) == 0))
+                log.error(superClass.pos(), MsgSym.MESSAGE_ENUM_NO_SUBCLASSING);
+
+            // Enums may not be extended by source-level classes
+            if (supType.tsym != null &&
+                ((supType.tsym.flags_field & Flags.ENUM) != 0) &&
+                ((c.flags_field & Flags.ENUM) == 0) &&
+                !target.compilerBootstrap(c)) {
+                log.error(superClass.pos(), MsgSym.MESSAGE_ENUM_TYPES_NOT_EXTENSIBLE);
             }
             if (supType != null && !supType.isInterface() &&
                     !types.isJFXClass(supType.tsym) &&
