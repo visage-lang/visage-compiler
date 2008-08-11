@@ -154,8 +154,8 @@ class BallsTest {
 
     function XMLID_6_():RadialGradient {
         RadialGradient {
-            centerX: 156.7178
-            centerY: 129.2988
+            centerX: 118
+            centerY: 90
             // transform: Transform.matrix(1.19, 0.165, 0.165, 1.2813, -82.7876, -94.3076)
             //TODO: gradientUnits: GradientUnits.USER_SPACE_ON_USE
             radius: 53.625
