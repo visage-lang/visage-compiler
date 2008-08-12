@@ -34,8 +34,8 @@ import java.lang.System;
 
 
 public class Guitar extends CustomNode {
-    private attribute startX = 0.0;
-    private attribute startY = 0.0;
+    attribute startX = 0.0;
+    attribute startY = 0.0;
     attribute loadingSound: Number;
     function play(string:GuitarString){
         string.audioClip.stop();

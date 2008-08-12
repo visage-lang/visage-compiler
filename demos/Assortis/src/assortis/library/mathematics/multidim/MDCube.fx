@@ -42,7 +42,7 @@ public class MDCube extends MDShape{
         return segments;
     } 
     
-    private function getSegments(vector: Integer[]):MDSegment[] {
+    function getSegments(vector: Integer[]):MDSegment[] {
         //System.out.println("[cube] dim: {dim}");
         //System.out.println("[cube] zero: {vector}");
 
@@ -59,7 +59,7 @@ public class MDCube extends MDShape{
         }
     } 
     
-    private function getPoint (vector:Integer[]):MDPoint {
+    function getPoint (vector:Integer[]):MDPoint {
         
         MDPoint{
             dim: dim
@@ -68,7 +68,7 @@ public class MDCube extends MDShape{
         }
     } 
 
-    private function inc(vector: Integer[]):Integer[]{
+    function inc(vector: Integer[]):Integer[]{
         var res = vector;
         for(elem in res){
             if ( elem == 0 ){
@@ -84,13 +84,13 @@ public class MDCube extends MDShape{
     }
 
     
-    private function invert(vector: Integer[], i:Integer):Integer[]{
+    function invert(vector: Integer[], i:Integer):Integer[]{
         var res = vector;
         res[i] = 1;
         return  res;
     }
     
-    private function isOne (vector:Integer[]):Boolean {
+    function isOne (vector:Integer[]):Boolean {
         for(elem in vector){
             if (elem == 0) { return false;}
         }

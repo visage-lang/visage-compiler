@@ -67,7 +67,7 @@ public class JavaFXPad extends Component {
     attribute engine:JavaFXScriptEngine = scrEng as JavaFXScriptEngine;
     attribute scriptContext:ScriptContext = engine.getContext();
     
-    private function loadBootScript():String {
+    function loadBootScript():String {
         return getResourceAsString("{__DIR__}BootScript.script");
     }
     attribute bootLoad:Boolean = true;
@@ -187,7 +187,7 @@ public class JavaFXPad extends Component {
     }
     
     
-    private function getResourceAsString(urlStr:String):String {
+    function getResourceAsString(urlStr:String):String {
         try {
             var url  = new URL(urlStr);
             var is = url.openStream();
@@ -213,7 +213,7 @@ public class JavaFXPad extends Component {
         return "";
     }
 
-    private function compile():Void {
+    function compile():Void {
         compileTimeLine.stop();
         if(userCode.length() == 0) {
             compiledContent = null;
@@ -223,12 +223,12 @@ public class JavaFXPad extends Component {
         compileTimeLine.start();
     }
     
-    private function doRealCompile():Void {
+    function doRealCompile():Void {
         var program = userCode;
         evaluate(program, runAutomatically );
     }
     
-    private function evaluate(sourceCode:String, run:Boolean) {
+    function evaluate(sourceCode:String, run:Boolean) {
         var diags = new DiagnosticCollector();
         try {
             delete errMessages;
@@ -665,7 +665,7 @@ public class JavaFXPad extends Component {
         scriptContext.setAttribute("classpath", URLsToString(urls), ScriptContext.ENGINE_SCOPE);
     }  
     
-    private function URLsToString(urls: URL[]):String {
+    function URLsToString(urls: URL[]):String {
         var sb = new StringBuffer();
         sb.append(urls[0].toString());
         for(i in [1..< sizeof urls]) {

@@ -12,7 +12,7 @@ package javafxballs;
 import java.lang.Math;
 import java.awt.Insets;
 
-private class Model {
+class Model {
     attribute walls:Insets = new Insets(0, 0, 300, 500);
     attribute elastity:Number = -.02;
     attribute ballRadius:Number = 26;

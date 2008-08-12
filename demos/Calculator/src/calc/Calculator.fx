@@ -75,7 +75,7 @@ public class Calculator extends CustomNode {
         isFixReg = true;
     }
 
-    private attribute df:DecimalFormat = new DecimalFormat('###,###,###,###.########');
+    attribute df:DecimalFormat = new DecimalFormat('###,###,###,###.########');
     function formatNum(n:Number):String { 
         return df.format(n);
     }

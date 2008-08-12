@@ -42,7 +42,7 @@ import java.awt.event.KeyAdapter;
  */
 
 class CloseButton extends CustomNode {
-    private attribute pressed: Boolean;
+    attribute pressed: Boolean;
     public attribute action: function():Void;
     attribute group:Group;
     attribute pressHover: Boolean = bind pressed and group.isMouseOver();
@@ -161,7 +161,7 @@ class SearchButton extends CustomNode {
     attribute baseline: Number;
     attribute font: Font =  Font.font("VERDANA", FontStyle.BOLD, 11);
     attribute action: function():Void;
-    private attribute pressed: Boolean;   
+    attribute pressed: Boolean;   
     attribute r:Rectangle;
     attribute grad = LinearGradient {
                     endX: 0

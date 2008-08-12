@@ -22,9 +22,9 @@ import java.lang.System;
 
 public class MyTabbedPane extends Component{
     
-    private attribute tabbedPane: JTabbedPane;
+    attribute tabbedPane: JTabbedPane;
     
-    private attribute updateComponentFlag: Boolean = false;
+    attribute updateComponentFlag: Boolean = false;
     
     
     public attribute selectedIndex: Integer = -1 on replace{
@@ -36,7 +36,7 @@ public class MyTabbedPane extends Component{
 };
 
 
-    private function updateComponentField( index: Integer){
+    function updateComponentField( index: Integer){
         updateComponentFlag = true;
         selectedIndex = index;
         updateComponentFlag = false;

@@ -34,7 +34,7 @@ public abstract class ExtendedScrollableComponent extends ScrollableComponent {
         getJScrollPane().setColumnHeaderView(x);
     }   
     
-    private function getNonScrollPaneComponent(c:Component): javax.swing.JComponent{
+    function getNonScrollPaneComponent(c:Component): javax.swing.JComponent{
         var comp = c.getJComponent();
         if (comp instanceof javax.swing.JScrollPane) {
             comp= (comp as javax.swing.JScrollPane).getViewport().getView() as

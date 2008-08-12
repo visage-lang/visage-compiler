@@ -11,8 +11,8 @@ import java.lang.System;
 
 public class MyTree extends Component{
     
-    private attribute tree: JTree;
-    private attribute model: DefaultTreeModel;
+    attribute tree: JTree;
+    attribute model: DefaultTreeModel;
     
     public attribute selectedValue: java.lang.Object;
     
@@ -33,7 +33,7 @@ public class MyTree extends Component{
         }
     };
 
-    private function expandTree( treePath: TreePath, obj: java.lang.Object ):Void{
+    function expandTree( treePath: TreePath, obj: java.lang.Object ):Void{
         //System.out.println("[tree] expand path: {treePath}");
         tree.expandPath(treePath);
         
@@ -86,7 +86,7 @@ public class MyTree extends Component{
 
     }
 
-        private function getCell(cell: MyTreeCell): MutableTreeNode {
+        function getCell(cell: MyTreeCell): MutableTreeNode {
         //var node = new DefaultMutableTreeNode(cell.text);
         //var node = new DefaultMutableTreeNode(cell.value);
 

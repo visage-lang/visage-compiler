@@ -34,8 +34,8 @@ import javax.swing.event.ChangeListener;
  */
 
 public class LineAnnotation {
-    private attribute changeListeners: ChangeListener[];
-    private attribute an: FXTextArea.LineAnnotation;
+    attribute changeListeners: ChangeListener[];
+    attribute an: FXTextArea.LineAnnotation;
     function getAn(): FXTextArea.LineAnnotation {
         if (an == null) {
             an = FXTextArea.LineAnnotation {
@@ -70,7 +70,7 @@ public class LineAnnotation {
         }
         return an;
     }
-    private function fireChange() {
+    function fireChange() {
         for (i in changeListeners) {
             i.stateChanged(null);
         }

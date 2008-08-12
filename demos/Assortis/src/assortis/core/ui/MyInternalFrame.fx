@@ -12,11 +12,11 @@ import java.lang.System;
 
 public class MyInternalFrame extends Component{
     
-    private attribute internalFrame: JInternalFrame;
+    attribute internalFrame: JInternalFrame;
 
     public attribute rootPane: MyDesktopPane;
 
-    //private attribute updateComponentFlag: Boolean = false;
+    //attribute updateComponentFlag: Boolean = false;
     
     
     public attribute menus: Menu[] on replace oldMenus[a..b] = newSlice{
@@ -81,7 +81,7 @@ public class MyInternalFrame extends Component{
     public attribute onClose: function();
     
     
-//    private function updateComponentSelection( selectedFlag: Boolean){
+//    function updateComponentSelection( selectedFlag: Boolean){
 //        updateComponentFlag = true;
 //        System.out.println("    selected: {selected}");
 //        selected = selectedFlag;

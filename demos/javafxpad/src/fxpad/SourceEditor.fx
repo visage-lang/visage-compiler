@@ -56,9 +56,9 @@ public class SourceEditor extends ExtendedScrollableComponent {
          getJTextArea().setEditable(editable);
          getJTextArea().getCaret().setVisible( true );
      };    
-    private attribute inUpdate:Boolean;
-    private attribute edit:UndoableEdit;
-    private attribute undoManager: UndoManager = new UndoManager();
+    attribute inUpdate:Boolean;
+    attribute edit:UndoableEdit;
+    attribute undoManager: UndoManager = new UndoManager();
     public attribute annotations: LineAnnotation[] on replace oldValues [lo..hi] = newValues {
         for( i in [lo..hi] ) {
             getJTextArea().removeAnnotation(lo);
@@ -78,7 +78,7 @@ public class SourceEditor extends ExtendedScrollableComponent {
     public  attribute highlight: Number[] on replace oldValues [lo..hi] = newValues {
         doHighlight();
     };
-    private attribute documentListener:DocumentListener = DocumentListener {
+    attribute documentListener:DocumentListener = DocumentListener {
         override function insertUpdate(e:DocumentEvent):Void {
             if(not inUpdate) {
                 inUpdate = true;
@@ -161,7 +161,7 @@ public class SourceEditor extends ExtendedScrollableComponent {
     }
     
     
-    private function doHighlight() {
+    function doHighlight() {
         var highlighter = getJTextArea().getHighlighter();
         highlighter.removeAllHighlights();
         var painter = new DefaultHighlightPainter(getJTextArea().getSelectionColor());
