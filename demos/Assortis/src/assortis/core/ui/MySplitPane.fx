@@ -11,14 +11,14 @@ import java.lang.System;
 
 public class MySplitPane extends Component{
     
-    protected attribute splitPane: JSplitPane = new JSplitPane();
+    protected var splitPane: JSplitPane = new JSplitPane();
     
-    public attribute vertical: Boolean;
-    public attribute weight:Number on replace{
+    public var vertical: Boolean;
+    public var weight:Number on replace{
         splitPane.setResizeWeight(weight);
     };
     
-    public attribute one: Component on replace{
+    public var one: Component on replace{
         var panel = new JPanel(new BorderLayout());
         
         //var scrollPane = new JScrollPane(one.content.getJComponent());
@@ -39,7 +39,7 @@ public class MySplitPane extends Component{
         }
     };
 
-    public attribute two: Component on replace{
+    public var two: Component on replace{
         var panel = new JPanel(new BorderLayout());
         panel.add(two.getJComponent(),BorderLayout.CENTER);
         //var scrollPane = new JScrollPane(panel);

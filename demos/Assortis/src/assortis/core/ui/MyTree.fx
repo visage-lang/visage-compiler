@@ -11,15 +11,15 @@ import java.lang.System;
 
 public class MyTree extends Component{
     
-    attribute tree: JTree;
-    attribute model: DefaultTreeModel;
+    var tree: JTree;
+    var model: DefaultTreeModel;
     
-    public attribute selectedValue: java.lang.Object;
+    public var selectedValue: java.lang.Object;
     
-    public attribute onMouseClicked: function(e:MyMouseEvent);
+    public var onMouseClicked: function(e:MyMouseEvent);
     
     
-    public attribute root: MyTreeCell on replace{
+    public var root: MyTreeCell on replace{
         //System.out.println("[tree cell] {root}");
         if (root != null){
             //System.out.println("[tree cell] {root.text}");

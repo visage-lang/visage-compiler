@@ -12,7 +12,7 @@ import javax.swing.*;
 
 public class MyTab {
 
-    public attribute title: String;
-    public attribute content: Component;
+    public var title: String;
+    public var content: Component;
 
 }

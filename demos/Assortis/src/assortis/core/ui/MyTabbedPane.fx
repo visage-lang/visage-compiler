@@ -22,12 +22,12 @@ import java.lang.System;
 
 public class MyTabbedPane extends Component{
     
-    attribute tabbedPane: JTabbedPane;
+    var tabbedPane: JTabbedPane;
     
-    attribute updateComponentFlag: Boolean = false;
+    var updateComponentFlag: Boolean = false;
     
     
-    public attribute selectedIndex: Integer = -1 on replace{
+    public var selectedIndex: Integer = -1 on replace{
         if( not updateComponentFlag){
             if((-1 < selectedIndex) and ( selectedIndex  < tabbedPane.getTabCount() )){
                 tabbedPane.setSelectedIndex(selectedIndex);
@@ -43,7 +43,7 @@ public class MyTabbedPane extends Component{
     }
 
 
-    public attribute tabs: MyTab[] on replace oldValue[lo..hi] = newVals{
+    public var tabs: MyTab[] on replace oldValue[lo..hi] = newVals{
 
         //System.out.println("[tabbed pane] set tabs");
 
