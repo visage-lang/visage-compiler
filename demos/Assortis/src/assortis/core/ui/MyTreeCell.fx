@@ -7,9 +7,9 @@ import java.lang.Object;
 
 public class MyTreeCell {
     
-    public attribute text: String;
-    public attribute cells: MyTreeCell[];
-    public attribute value: Object;
+    public var text: String;
+    public var cells: MyTreeCell[];
+    public var value: Object;
     
     override function toString ():String { return text;  } 
     

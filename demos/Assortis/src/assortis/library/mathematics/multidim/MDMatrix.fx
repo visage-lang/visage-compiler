@@ -11,7 +11,7 @@ public class MDMatrix extends IMDMatrix{
     public var dimN:Integer;
     public var dimM:Integer;
     
-    public attribute elems:Number[] ;
+    public var elems:Number[] ;
     
     override function getDimN ():Integer{ dimN } 
     override function getDimM ():Integer{ dimM }

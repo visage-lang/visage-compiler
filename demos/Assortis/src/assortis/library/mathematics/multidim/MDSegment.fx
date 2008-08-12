@@ -6,8 +6,8 @@ package assortis.library.mathematics.multidim;
 
 public class MDSegment extends MDShape{
     
-    public attribute point1: MDPoint;
-    public attribute point2: MDPoint;
+    public var point1: MDPoint;
+    public var point2: MDPoint;
     
     override function getSegments ():MDSegment[] { [this] } 
     

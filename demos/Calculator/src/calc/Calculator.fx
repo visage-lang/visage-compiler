@@ -10,16 +10,16 @@ import java.text.DecimalFormat;
 import java.lang.System;
 
 class CalcButton extends CustomNode {
-    attribute name: String;
-    attribute pressedImage: Image = Image{
+    var name: String;
+    var pressedImage: Image = Image{
         url: "{__DIR__}images/d{name}.png"
     };
-    attribute image: Image = Image{
+    var image: Image = Image{
         url: "{__DIR__}images/{name}.png"
     };
-    attribute pressed: Boolean;
-    attribute action: function():Void;
-    override attribute blocksMouse = true;
+    var pressed: Boolean;
+    var action: function():Void;
+    override var blocksMouse = true;
     
     override function create(): Node {
         ImageView {
@@ -38,20 +38,20 @@ class CalcButton extends CustomNode {
 }
 
 public class Calculator extends CustomNode {
-    attribute register: Number;
-    attribute mem: Number;
-    attribute operator: String;
-    attribute isFixReg = true;
-    attribute text = '0';
+    var register: Number;
+    var mem: Number;
+    var operator: String;
+    var isFixReg = true;
+    var text = '0';
 
-    override attribute onKeyPressed = function(e:KeyEvent):Void {
+    override var onKeyPressed = function(e:KeyEvent):Void {
             if (e.getKeyCode() == KeyCode.VK_ENTER or e.getKeyCode() == 10 /* TODO BUG IN javafx.gui.KeyCode */) {
                 input('=')
             } else if (e.getKeyCode() == KeyCode.VK_BACK_SPACE) {        
                 input('del')
             }
         }
-    override attribute onKeyTyped = function(e:KeyEvent):Void {
+    override var onKeyTyped = function(e:KeyEvent):Void {
             input(e.getKeyChar())
         }      
 
@@ -75,7 +75,7 @@ public class Calculator extends CustomNode {
         isFixReg = true;
     }
 
-    attribute df:DecimalFormat = new DecimalFormat('###,###,###,###.########');
+    var df:DecimalFormat = new DecimalFormat('###,###,###,###.########');
     function formatNum(n:Number):String { 
         return df.format(n);
     }

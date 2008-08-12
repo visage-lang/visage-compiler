@@ -8,7 +8,7 @@ import java.lang.System;
  
 public class MDGroup extends MDShape{
     
-    public attribute shapes: MDShape[] ;
+    public var shapes: MDShape[] ;
 
     override function getPoints():MDPoint[] {
         //System.out.println("[group] getPoints()");

@@ -8,9 +8,9 @@ import java.lang.System;
  
 public class MDCube extends MDShape{
 
-    public attribute dim:Integer;
+    public var dim:Integer;
     
-    public attribute side:Number;
+    public var side:Number;
 
     
     override function getSegments ():MDSegment[] {

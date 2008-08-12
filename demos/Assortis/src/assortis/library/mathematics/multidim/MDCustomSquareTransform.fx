@@ -8,8 +8,8 @@ import java.lang.System;
 
 public class MDCustomSquareTransform extends IMDSquareTransform{
     
-    public attribute dim: Integer ;
-    public attribute transforms: IMDSquareTransform[];
+    public var dim: Integer ;
+    public var transforms: IMDSquareTransform[];
     
     override function getDim () { dim };
     

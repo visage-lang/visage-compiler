@@ -12,11 +12,11 @@ package assortis.library.mathematics.multidim;
  
 public class MDUniverse extends CustomNode, MDGroup{
 
-    public attribute dimension: Number ;
+    public var dimension: Number ;
     
-    public attribute projection: IMDTransform;
+    public var projection: IMDTransform;
     
-    attribute totalTransform: IMDSquareTransform ;
+    var totalTransform: IMDSquareTransform ;
     
     override function create ():Node {
 //        System.out.println("[universe]");

@@ -10,12 +10,12 @@ import java.lang.Math;
  
 public class MDRotate extends IMDSquareTransform{
     
-    public attribute dim:Integer ;
+    public var dim:Integer ;
     
-    public attribute angle:Number;
+    public var angle:Number;
     
-    public attribute axisN:Number ;
-    public attribute axisM:Number ;
+    public var axisN:Number ;
+    public var axisM:Number ;
     
     
     override function getDim ():Integer { dim }; 

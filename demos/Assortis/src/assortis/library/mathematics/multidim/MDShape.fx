@@ -6,9 +6,9 @@ package assortis.library.mathematics.multidim;
 
 public class MDShape {
 
-    //public attribute dim:Integer = 0;
+    //public var dim:Integer = 0;
     
-    public attribute transforms: IMDSquareTransform[];
+    public var transforms: IMDSquareTransform[];
     
     public function getPoints():   MDPoint[]  { [] }    
     public function getSegments(): MDSegment[]{ [] }    

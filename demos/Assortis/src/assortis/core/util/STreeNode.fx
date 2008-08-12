@@ -14,15 +14,15 @@ import java.lang.Object;
 
 public class STreeNode {
     
-    public attribute value: Object;
-    public attribute nodes: STreeNode[];
+    public var value: Object;
+    public var nodes: STreeNode[];
  
-    public attribute handle: function(handler: function(value: Object)) = function(handler: function(value: Object)) {
+    public var handle: function(handler: function(value: Object)) = function(handler: function(value: Object)) {
         handler(value);
         for (node in nodes){
             node.handle(handler);
         }
     }
     
-    //public attribute convert: function(): Object;
+    //public var convert: function(): Object;
 }

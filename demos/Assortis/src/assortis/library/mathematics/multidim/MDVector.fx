@@ -6,8 +6,8 @@ package assortis.library.mathematics.multidim;
 
 public class MDVector extends IMDVector{
 
-    public attribute dim:Integer ;
-    public attribute elems: Number[];
+    public var dim:Integer ;
+    public var elems: Number[];
 
     override function getDim(){
         return dim;

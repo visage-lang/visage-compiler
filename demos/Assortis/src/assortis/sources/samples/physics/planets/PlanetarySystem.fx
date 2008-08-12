@@ -16,10 +16,10 @@ function square(x: Number): Number{
 
 public class PlanetarySystem {
 
-    attribute dimension: Integer = 2;
-    attribute dt: Number = 60* 60 * 24 * 2;
-    attribute G: Number = 6.67e-11;
-    attribute planets:  Planet[];
+    var dimension: Integer = 2;
+    var dt: Number = 60* 60 * 24 * 2;
+    var G: Number = 6.67e-11;
+    var planets:  Planet[];
 
   public function run():Void{
 

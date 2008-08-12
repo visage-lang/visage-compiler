@@ -3,16 +3,16 @@ package assortis.sources.samples.physics.planets;
 import javafx.scene.paint.*;
 
 public class Planet {
-    attribute name: String;
+    var name: String;
     
-    attribute mass : Number;
-    attribute radius: Number;
+    var mass : Number;
+    var radius: Number;
     
-    attribute color: Color;
+    var color: Color;
     
-    attribute coordinate: Number[] = [0.0,0.0];
-    attribute velocity : Number[] = [0.0,0.0];
-    attribute acceleration : Number[] = [0.0,0.0];
+    var coordinate: Number[] = [0.0,0.0];
+    var velocity : Number[] = [0.0,0.0];
+    var acceleration : Number[] = [0.0,0.0];
     
 }
 
