@@ -33,13 +33,13 @@ import javafx.ext.swing.*;
  */
 
 public class ConfirmDialog  {
-    public attribute owner: SwingWindow;
-    public attribute confirmType: ConfirmType = ConfirmType.DEFAULT;
-    public attribute messageType: MessageType = MessageType.PLAIN;
-    public attribute icon: Icon;
-    public attribute title: String;
-    public attribute message: String;
-    public attribute visible: Boolean = false on replace {
+    public var owner: SwingWindow;
+    public var confirmType: ConfirmType = ConfirmType.DEFAULT;
+    public var messageType: MessageType = MessageType.PLAIN;
+    public var icon: Icon;
+    public var title: String;
+    public var message: String;
+    public var visible: Boolean = false on replace {
         if (visible) {
             //TODO DO LATER
             // do later {
@@ -60,7 +60,7 @@ public class ConfirmDialog  {
             //}
         } 
     }
-    public attribute onYes: function():Void;
-    public attribute onNo: function():Void;
-    public attribute onCancel: function():Void;
+    public var onYes: function():Void;
+    public var onNo: function():Void;
+    public var onCancel: function():Void;
 }

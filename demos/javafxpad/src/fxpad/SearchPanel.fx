@@ -42,12 +42,12 @@ import java.awt.event.KeyAdapter;
  */
 
 class CloseButton extends CustomNode {
-    attribute pressed: Boolean;
-    public attribute action: function():Void;
-    attribute group:Group;
-    attribute pressHover: Boolean = bind pressed and group.isMouseOver();
-    attribute gfill:Paint = bind if(group.isMouseOver()) then Color.GRAY else Color.color(.7, .7, .7, 1.0);
-    attribute gstroke:Paint = bind if (pressHover) then Color.color(.8, .8, .8, 1) else Color.WHITE;
+    var pressed: Boolean;
+    public var action: function():Void;
+    var group:Group;
+    var pressHover: Boolean = bind pressed and group.isMouseOver();
+    var gfill:Paint = bind if(group.isMouseOver()) then Color.GRAY else Color.color(.7, .7, .7, 1.0);
+    var gstroke:Paint = bind if (pressHover) then Color.color(.8, .8, .8, 1) else Color.WHITE;
     override function create(): Node {
         group = Group {
             var r = 6;
@@ -88,14 +88,14 @@ class CloseButton extends CustomNode {
 }
 
 class SearchField  extends CustomNode {
-    attribute columns: Integer = 13;
-    public attribute fSearchValue: String;
-    attribute action: function():Void;
-    attribute cancel: function():Void;
-    attribute textField: SwingTextField;
-    attribute baseline: Number;
-    attribute view:ComponentView;
-    attribute dodgerBlue80:Color = Color {
+    var columns: Integer = 13;
+    public var fSearchValue: String;
+    var action: function():Void;
+    var cancel: function():Void;
+    var textField: SwingTextField;
+    var baseline: Number;
+    var view:ComponentView;
+    var dodgerBlue80:Color = Color {
             red: Color.DODGERBLUE.red 
             green: Color.DODGERBLUE.green
             blue: Color.DODGERBLUE.blue
@@ -155,15 +155,15 @@ class SearchField  extends CustomNode {
 }
     
 class SearchButton extends CustomNode {
-    attribute icon: Image;
-    attribute text: String;
-    attribute height: Number;
-    attribute baseline: Number;
-    attribute font: Font =  Font.font("VERDANA", FontStyle.BOLD, 11);
-    attribute action: function():Void;
-    attribute pressed: Boolean;   
-    attribute r:Rectangle;
-    attribute grad = LinearGradient {
+    var icon: Image;
+    var text: String;
+    var height: Number;
+    var baseline: Number;
+    var font: Font =  Font.font("VERDANA", FontStyle.BOLD, 11);
+    var action: function():Void;
+    var pressed: Boolean;   
+    var r:Rectangle;
+    var grad = LinearGradient {
                     endX: 0
                     stops:
                     [Stop {
@@ -224,19 +224,19 @@ class SearchButton extends CustomNode {
 }
 
 public class SearchPanel extends CustomNode {
-    attribute closeAction: function();
-    attribute searchNextAction: function();
-    attribute searchPrevAction: function();
-    attribute highlightAllAction: function();
-    public attribute pSearchValue: String;
-    public attribute matchCase: Boolean on replace {
+    var closeAction: function();
+    var searchNextAction: function();
+    var searchPrevAction: function();
+    var highlightAllAction: function();
+    public var pSearchValue: String;
+    public var matchCase: Boolean on replace {
         bmatchCase = matchCase;
     };
-    public attribute bmatchCase: Boolean on replace {
+    public var bmatchCase: Boolean on replace {
         matchCase = bmatchCase;
     }
-    public attribute searchField:SearchField;
-    attribute open: Boolean on replace {
+    public var searchField:SearchField;
+    var open: Boolean on replace {
         if(open and searchField != null) {
             searchField.requestFocus();
         }

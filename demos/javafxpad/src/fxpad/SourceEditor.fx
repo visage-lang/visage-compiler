@@ -52,14 +52,14 @@ import javax.swing.JComponent;
 
 public class SourceEditor extends ExtendedScrollableComponent {
     
-     public attribute editable: Boolean = true on replace {
+     public var editable: Boolean = true on replace {
          getJTextArea().setEditable(editable);
          getJTextArea().getCaret().setVisible( true );
      };    
-    attribute inUpdate:Boolean;
-    attribute edit:UndoableEdit;
-    attribute undoManager: UndoManager = new UndoManager();
-    public attribute annotations: LineAnnotation[] on replace oldValues [lo..hi] = newValues {
+    var inUpdate:Boolean;
+    var edit:UndoableEdit;
+    var undoManager: UndoManager = new UndoManager();
+    public var annotations: LineAnnotation[] on replace oldValues [lo..hi] = newValues {
         for( i in [lo..hi] ) {
             getJTextArea().removeAnnotation(lo);
         }
@@ -75,10 +75,10 @@ public class SourceEditor extends ExtendedScrollableComponent {
         getJComponent().requestFocusInWindow();
     }
     
-    public  attribute highlight: Number[] on replace oldValues [lo..hi] = newValues {
+    public  var highlight: Number[] on replace oldValues [lo..hi] = newValues {
         doHighlight();
     };
-    attribute documentListener:DocumentListener = DocumentListener {
+    var documentListener:DocumentListener = DocumentListener {
         override function insertUpdate(e:DocumentEvent):Void {
             if(not inUpdate) {
                 inUpdate = true;
@@ -104,47 +104,47 @@ public class SourceEditor extends ExtendedScrollableComponent {
             }
         }
     };
-    public attribute lineCount: Number;
-    public attribute caretDot: Integer;
-    public attribute caretMark: Integer;
+    public var lineCount: Number;
+    public var caretDot: Integer;
+    public var caretMark: Integer;
     
-    public attribute rows: Number = getJTextArea().getRows() on replace {
+    public var rows: Number = getJTextArea().getRows() on replace {
         getJTextArea().setRows(rows);
     };
-    public attribute columns: Number = getJTextArea().getColumns() on replace {
+    public var columns: Number = getJTextArea().getColumns() on replace {
         getJTextArea().setColumns(columns);
     };
 
     
 
     
-    public attribute editorKit: javax.swing.text.EditorKit = getJTextArea().getEditorKit() on replace {
+    public var editorKit: javax.swing.text.EditorKit = getJTextArea().getEditorKit() on replace {
         getJTextArea().setEditorKit(editorKit);
     };
-    public attribute disabledTextColor: Color = Color.fromAWTColor(getJTextArea().getDisabledTextColor()) on replace {
+    public var disabledTextColor: Color = Color.fromAWTColor(getJTextArea().getDisabledTextColor()) on replace {
         getJTextArea().setDisabledTextColor(disabledTextColor.getAWTColor());
     };
-    public attribute selectedTextColor: Color=  Color.fromAWTColor(getJTextArea().getSelectedTextColor()) on replace {
+    public var selectedTextColor: Color=  Color.fromAWTColor(getJTextArea().getSelectedTextColor()) on replace {
         getJTextArea().setSelectedTextColor(selectedTextColor.getAWTColor());
     };
-    public attribute selectionColor: Color =  Color.fromAWTColor(getJTextArea().getSelectionColor()) on replace {
+    public var selectionColor: Color =  Color.fromAWTColor(getJTextArea().getSelectionColor()) on replace {
         if(selectionColor != null) {
             getJTextArea().setSelectionColor(selectionColor.getAWTColor());
         }
     };
-    public attribute caretColor: Color  =  Color.fromAWTColor(getJTextArea().getCaretColor()) on replace {
+    public var caretColor: Color  =  Color.fromAWTColor(getJTextArea().getCaretColor()) on replace {
         getJTextArea().setCaretColor(caretColor.getAWTColor());
     };
-    public attribute tabSize: Number = getJTextArea().getTabSize() on replace {
+    public var tabSize: Number = getJTextArea().getTabSize() on replace {
         getJTextArea().setTabSize(tabSize);
     };
-    public attribute lineWrap: Boolean = getJTextArea().getLineWrap() on replace {
+    public var lineWrap: Boolean = getJTextArea().getLineWrap() on replace {
         getJTextArea().setLineWrap(lineWrap);
     };
-    public attribute wrapStyleWord: Boolean = getJTextArea().getWrapStyleWord() on replace {
+    public var wrapStyleWord: Boolean = getJTextArea().getWrapStyleWord() on replace {
         getJTextArea().setWrapStyleWord(wrapStyleWord);
     };
-    public attribute text:String on replace old {
+    public var text:String on replace old {
         if (not inUpdate) {
             if(text != getJTextArea().getText()) {
                 inUpdate = true;

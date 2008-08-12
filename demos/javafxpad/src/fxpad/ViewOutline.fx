@@ -35,11 +35,11 @@ import javafx.input.*;
 import java.awt.Dimension;
 
 class ViewOutline extends CustomNode {
-    attribute outline: Node; 
-    attribute viewTransform: Translate = Translate {x: 0, y: 0};
+    var outline: Node; 
+    var viewTransform: Translate = Translate {x: 0, y: 0};
     
     //TODO sizing setBounds
-    attribute sizing: Rectangle on replace {
+    var sizing: Rectangle on replace {
         //var bounds =viewHolder.getBounds();
          if (sizing == null) {
             viewTransform.x = outline.getX() + 4;
@@ -49,30 +49,30 @@ class ViewOutline extends CustomNode {
              //bounds.setRect(sizing.x, sizing.y, sizing.width, sizing.height);
          }
     };
-    public attribute selected: Boolean;
-    public attribute rectHeight: Number on replace {
+    public var selected: Boolean;
+    public var rectHeight: Number on replace {
         if (sizing == null) {
             //var bounds = viewHolder.getBounds();
             //bounds.setRect(bounds.getX(), bounds.getY(), rectWidth, rectHeight);            
         }  
     };
-    public attribute rectWidth: Number on replace {
+    public var rectWidth: Number on replace {
         if (sizing == null) {
             //var bounds =viewHolder.getBounds();
             //bounds.setRect(bounds.getX(), bounds.getY(), rectWidth, rectHeight);             
         }  
     };
-    attribute northWest: Rectangle;
-    attribute north: Rectangle;
-    attribute northEast: Rectangle;
-    attribute east: Rectangle;
-    attribute southEast: Rectangle;
-    attribute south: Rectangle;
-    attribute southWest: Rectangle;
-    attribute west: Rectangle;
-    attribute outlineWidth: Number = 1.5;
-    attribute view: Component;
-    attribute viewHolder: ComponentView;
+    var northWest: Rectangle;
+    var north: Rectangle;
+    var northEast: Rectangle;
+    var east: Rectangle;
+    var southEast: Rectangle;
+    var south: Rectangle;
+    var southWest: Rectangle;
+    var west: Rectangle;
+    var outlineWidth: Number = 1.5;
+    var view: Component;
+    var viewHolder: ComponentView;
     
     override function create(): Node {
         var transparentFill = Color.TRANSPARENT;

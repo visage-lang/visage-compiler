@@ -27,13 +27,13 @@ import javafx.scene.paint.*;
  */
 public class TextArea extends Component {
 
-    attribute ignoreJComponentChangeXX: Boolean = false;
+    var ignoreJComponentChangeXX: Boolean = false;
 
     // PENDING_DOC_REVIEW
     /**
      * Represents the text contained in this {@code TextArea}.
      */
-    public attribute text: String on replace {
+    public var text: String on replace {
         if (not getJTextArea().getText().equals(text)) {
             doAndIgnoreJComponentChangeXX(function() {
                 getJTextArea().setText(text);
@@ -45,7 +45,7 @@ public class TextArea extends Component {
     /**
      * Represents the number of columns in this {@code TextArea}.
      */
-    public attribute columns: Integer = getJTextArea().getColumns() on replace {
+    public var columns: Integer = getJTextArea().getColumns() on replace {
         doAndIgnoreJComponentChangeXX(function() {
             getJTextArea().setColumns(columns);
         });
@@ -54,23 +54,23 @@ public class TextArea extends Component {
     /**
      * Represents the number of rows in this {@code TextArea}.
      */
-    public attribute rows: Integer = getJTextArea().getRows() on replace {
+    public var rows: Integer = getJTextArea().getRows() on replace {
         doAndIgnoreJComponentChangeXX(function() {
             getJTextArea().setRows(rows);
         });
     }    
     
-    public attribute lineWrap: Boolean = getJTextArea().getLineWrap() on replace {
+    public var lineWrap: Boolean = getJTextArea().getLineWrap() on replace {
         doAndIgnoreJComponentChangeXX(function() {
             getJTextArea().setLineWrap(lineWrap);
         });
     };
-    public attribute tabSize: Number = getJTextArea().getTabSize()  on replace {
+    public var tabSize: Number = getJTextArea().getTabSize()  on replace {
         doAndIgnoreJComponentChangeXX(function() {
             getJTextArea().setTabSize(tabSize.intValue());
         });
     };
-    public attribute wrapStyleWord: Boolean = getJTextArea().getWrapStyleWord()  on replace {
+    public var wrapStyleWord: Boolean = getJTextArea().getWrapStyleWord()  on replace {
         doAndIgnoreJComponentChangeXX(function() {
             getJTextArea().setWrapStyleWord(wrapStyleWord);
         });
@@ -78,10 +78,10 @@ public class TextArea extends Component {
 
     // PENDING_DOC_REVIEW
     /**
-     * A boolean attribute indicating whether this {@code TextArea}
+     * A boolean variable indicating whether this {@code TextArea}
      * is editable or not.
      */
-    public attribute editable: Boolean = getJTextArea().isEditable() on replace {
+    public var editable: Boolean = getJTextArea().isEditable() on replace {
         doAndIgnoreJComponentChangeXX(function() {
             getJTextArea().setEditable(editable);
         });
@@ -92,32 +92,32 @@ public class TextArea extends Component {
    /**
     * Represents the background of the {@code TextArea}.
     */
-    public attribute background: Paint = Color.fromAWTColor(getJTextArea().getBackground()) on replace {
+    public var background: Paint = Color.fromAWTColor(getJTextArea().getBackground()) on replace {
         getJTextAreaImpl().setBackgroundPaint(background.getAWTPaint());
     }
 
    // PENDING_DOC_REVIEW
    /**
-    * A boolean attribute indicating whether this {@code TextArea}
+    * A boolean variable indicating whether this {@code TextArea}
     * has a border or not.
     */
-    public attribute borderless: Boolean = false on replace {
+    public var borderless: Boolean = false on replace {
         getJTextAreaImpl().setBorderless(borderless);
     }
 
    // PENDING_DOC_REVIEW
    /**
-    * A boolean attribute indicating whether this {@code TextArea}
+    * A boolean variable indicating whether this {@code TextArea}
     * becomes selected when getting the focus or not.
     */
-    public attribute selectOnFocus: Boolean = true;
+    public var selectOnFocus: Boolean = true;
 
 
    // PENDING_DOC_REVIEW
    /**
     * Represents the verify function for the {@code TextArea}.
     */
-    public attribute verify: function(newValue: String): Boolean;
+    public var verify: function(newValue: String): Boolean;
     
     public function modelToView(offset:Integer): java.awt.Rectangle{
         return getJTextArea().modelToView(offset);
@@ -139,8 +139,8 @@ public class TextArea extends Component {
         getJTextArea().setCaretPosition(pos.intValue());
     }
     
-    attribute selectionStart: Integer = getJTextArea().getSelectionStart();
-    attribute selectionEnd: Integer = getJTextArea().getSelectionEnd();
+    var selectionStart: Integer = getJTextArea().getSelectionStart();
+    var selectionEnd: Integer = getJTextArea().getSelectionEnd();
 
    // PENDING_DOC_REVIEW
    /**
