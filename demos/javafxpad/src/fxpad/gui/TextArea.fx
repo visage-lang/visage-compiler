@@ -27,7 +27,7 @@ import javafx.scene.paint.*;
  */
 public class TextArea extends Component {
 
-    private attribute ignoreJComponentChangeXX: Boolean = false;
+    attribute ignoreJComponentChangeXX: Boolean = false;
 
     // PENDING_DOC_REVIEW
     /**
@@ -139,8 +139,8 @@ public class TextArea extends Component {
         getJTextArea().setCaretPosition(pos.intValue());
     }
     
-    private attribute selectionStart: Integer = getJTextArea().getSelectionStart();
-    private attribute selectionEnd: Integer = getJTextArea().getSelectionEnd();
+    attribute selectionStart: Integer = getJTextArea().getSelectionStart();
+    attribute selectionEnd: Integer = getJTextArea().getSelectionEnd();
 
    // PENDING_DOC_REVIEW
    /**
@@ -209,7 +209,7 @@ public class TextArea extends Component {
         });
 
         jTextArea.getDocument().addDocumentListener(DocumentListener {
-            private function ut(): Void {
+            function ut(): Void {
                 if (ignoreJComponentChangeXX) {
                     return;
                 }
@@ -248,7 +248,7 @@ public class TextArea extends Component {
         });
     }
 
-    private /* final */ function getJTextAreaImpl(): JTextAreaImpl {
+    /* final */ function getJTextAreaImpl(): JTextAreaImpl {
         getJTextArea() as JTextAreaImpl;
     }
 
@@ -268,7 +268,7 @@ public class TextArea extends Component {
         new JTextAreaImpl();
     }
 
-    private function doAndIgnoreJComponentChangeXX(func: function(): Void) {
+    function doAndIgnoreJComponentChangeXX(func: function(): Void) {
         try {
             ignoreJComponentChangeXX = true;
             func();

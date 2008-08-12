@@ -18,7 +18,7 @@ public class CanvasIcon extends Canvas, Icon {
         return getJSGPanel().toIcon(); 
     }
     
-    private function getJSGPanel() : JSGPanel {
+    function getJSGPanel() : JSGPanel {
         getJComponent() as JSGPanel;
     }
 }

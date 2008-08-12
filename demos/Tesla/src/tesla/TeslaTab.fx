@@ -17,14 +17,14 @@ import javafx.scene.text.*;
 import javafx.input.*;
 
 public class TeslaTab extends CustomNode {
-    private attribute tabBackground: Group;
+    attribute tabBackground: Group;
     protected attribute text: Text;
     protected attribute rect: Node;
     public attribute font: Font;
     public attribute title: String;
     public attribute selected: Boolean;
     public attribute content: Node[];
-    private attribute tab2ndImage:Image = Image {url: "{__DIR__}Image/2ndnav_tab_bg.gif"};
+    attribute tab2ndImage:Image = Image {url: "{__DIR__}Image/2ndnav_tab_bg.gif"};
     
     
     
