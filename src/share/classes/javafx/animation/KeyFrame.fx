@@ -38,7 +38,7 @@ public class KeyFrame extends Comparable {
      * 
      * @profile common
      */
-    public attribute time: Duration;
+    public var time: Duration;
 
     /**
      * The list of target variables and the desired values they should
@@ -46,7 +46,7 @@ public class KeyFrame extends Comparable {
      * 
      * @profile common
      */
-    public attribute values: KeyValue[];
+    public var values: KeyValue[];
 
     /**
      * A list of sub-timelines that will be started when the time cursor passes
@@ -54,7 +54,7 @@ public class KeyFrame extends Comparable {
      * 
      * @profile common
      */
-    public attribute timelines: Timeline[];
+    public var timelines: Timeline[];
 
     /**
      * A function that is called when the elapsed time on a cycle passes
@@ -65,7 +65,7 @@ public class KeyFrame extends Comparable {
      * 
      * @profile common
      */
-    public attribute action: function();
+    public var action: function();
 
     /**
      * Defines whether or not the {@code action()} function
@@ -79,7 +79,7 @@ public class KeyFrame extends Comparable {
      * 
      * @profile common
      */
-    public attribute canSkip: Boolean = false;
+    public var canSkip: Boolean = false;
 
     /**
      * A comparison function used to sort KeyFrames by their

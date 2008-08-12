@@ -57,7 +57,7 @@ public class Timeline {
      *
      * @profile common
      */
-    public attribute repeatCount: Number = 1.0;
+    public var repeatCount: Number = 1.0;
 
     /**
      * Defines whether this animation reverses direction on alternating
@@ -70,7 +70,7 @@ public class Timeline {
      *
      * @profile common
      */
-    public attribute autoReverse: Boolean = false;
+    public var autoReverse: Boolean = false;
 
     /**
      * Defines whether this animation reverses direction in place
@@ -83,7 +83,7 @@ public class Timeline {
      *
      * @profile common
      */
-    public attribute toggle: Boolean = false on replace {
+    public var toggle: Boolean = false on replace {
         isReverse = true;
     };
 
@@ -95,12 +95,12 @@ public class Timeline {
      *
      * @profile common
      */
-    public attribute keyFrames: KeyFrame[] on replace {
+    public var keyFrames: KeyFrame[] on replace {
         invalidate();
     };
 
     /**
-     * Read-only attribute that indicates whether the animation is
+     * Read-only variable that indicates whether the animation is
      * currently running.
      * <p>
      * This value is initially {@code false}.
@@ -116,7 +116,7 @@ public class Timeline {
     readable var running: Boolean = false;
 
     /**
-     * Read-only attribute that indicates whether the animation is
+     * Read-only variable that indicates whether the animation is
      * currently paused.  
      * <p>
      * This value is initially {@code false}.
@@ -222,19 +222,19 @@ public class Timeline {
         clip.setInterpolator(Interpolators.getLinearInstance());
     }
 
-    attribute clip: Clip;
-    attribute sortedFrames: KeyFrame[];
-    attribute targets: ArrayList = new ArrayList();
-    attribute subtimelines: ArrayList = new ArrayList();
-    attribute adapter: TimingTarget = createAdapter();
+    var clip: Clip;
+    var sortedFrames: KeyFrame[];
+    var targets: ArrayList = new ArrayList();
+    var subtimelines: ArrayList = new ArrayList();
+    var adapter: TimingTarget = createAdapter();
 
-    attribute cycleIndex: Integer = 0;
-    attribute frameIndex: Integer = 0;
+    var cycleIndex: Integer = 0;
+    var frameIndex: Integer = 0;
 
-    attribute isReverse: Boolean = true;
-    attribute offsetT: Number = 0;
-    attribute lastElapsed: Number = 0;
-    attribute offsetValid: Boolean = false;
+    var isReverse: Boolean = true;
+    var offsetT: Number = 0;
+    var lastElapsed: Number = 0;
+    var offsetValid: Boolean = false;
 
     //
     // Need to revalidate everything (call rebuildTargets() again) if
@@ -571,8 +571,8 @@ public class Timeline {
 }
 
 class KFPair {
-    attribute frame:KeyFrame;
-    attribute value:KeyValue;
+    var frame:KeyFrame;
+    var value:KeyValue;
 }
 
 class KFPairList {

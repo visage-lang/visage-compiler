@@ -33,15 +33,15 @@ public class KeyValue {
     /**
      * @profile common
      */      
-    public attribute target: KeyValueTarget;
+    public var target: KeyValueTarget;
     
     /**
      * @profile common
      */      
-    public attribute value: Object;
+    public var value: Object;
     
     /**
      * @profile common
      */      
-    public attribute interpolate: Interpolator = Interpolator.DISCRETE;
+    public var interpolate: Interpolator = Interpolator.DISCRETE;
 }
