@@ -64,7 +64,7 @@ public class SplitPane extends Component, Container {
         root.setRowLayout(not vertical);
     }
 
-    private function getModel(): java.util.List {
+    function getModel(): java.util.List {
         var n = for (p in content) p.getSplitNode();
         var div = null;
         var result = new ArrayList();

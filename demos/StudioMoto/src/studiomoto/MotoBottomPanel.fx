@@ -18,7 +18,7 @@ public class MotoBottomPanel extends Intro {
     attribute musicStuff: Intro;
     attribute insideMusic: Intro;
     attribute guitarPicks: Intro;
-    private attribute introAnim: Timeline;
+    attribute introAnim: Timeline;
     function createTimeline():Void {
         introAnim  = Timeline {
         keyFrames: for (p in panels)

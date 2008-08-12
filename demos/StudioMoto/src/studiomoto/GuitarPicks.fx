@@ -19,11 +19,11 @@ public class GuitarPicks extends Intro {
     /** action when you click the bottom pick */
     public attribute action2: function();
     
-    private attribute rot: Number; 
-    private attribute y1: Number;
-    private attribute y2: Number;
+    attribute rot: Number; 
+    attribute y1: Number;
+    attribute y2: Number;
     
-    private attribute pick1: Node = Group {
+    attribute pick1: Node = Group {
         blocksMouse: true
         cursor: Cursor.HAND 
         
@@ -45,7 +45,7 @@ public class GuitarPicks extends Intro {
             }
         }]
     };
-    private attribute pick2: Node =
+    attribute pick2: Node =
         Group {
             blocksMouse: true
             cursor: Cursor.HAND
@@ -69,14 +69,14 @@ public class GuitarPicks extends Intro {
             }]
     };
     
-    //private function doHover(pick:Node);
+    //function doHover(pick:Node);
     
-    private attribute pick1Hover: Boolean = bind pick1.isMouseOver()
+    attribute pick1Hover: Boolean = bind pick1.isMouseOver()
     on replace {
         if (pick1Hover)
             hoverAnim.start();
     };
-    private attribute pick2Hover: Boolean = bind pick2.isMouseOver()
+    attribute pick2Hover: Boolean = bind pick2.isMouseOver()
     on replace {
         if (pick2Hover)
             hoverAnim.start();

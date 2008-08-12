@@ -22,7 +22,7 @@ class TeslaPage extends CustomNode {
     public attribute menuSelect: function(i:Integer):Void;
     public attribute buySelect: function();
     attribute opacityValue: Number = 1.0;
-    private attribute fadein:Timeline = Timeline {
+    attribute fadein:Timeline = Timeline {
         keyFrames: [
             KeyFrame {
                 time: 0s
@@ -34,7 +34,7 @@ class TeslaPage extends CustomNode {
             }
         ]
     };  
-    private attribute fadeout:Timeline = Timeline {
+    attribute fadeout:Timeline = Timeline {
         keyFrames: [
             KeyFrame {
                 time: 0s

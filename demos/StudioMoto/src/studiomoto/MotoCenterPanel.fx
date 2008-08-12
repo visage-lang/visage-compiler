@@ -50,10 +50,10 @@ public class MotoCenterPanel extends CustomNode {
         }]
     };    
     
-    private attribute rect:Rectangle;
-    private attribute lhover:Boolean = bind rect.isMouseOver() on replace { fade.start(); }
-    private attribute alpha = .5;
-    private attribute fade = Timeline {
+    attribute rect:Rectangle;
+    attribute lhover:Boolean = bind rect.isMouseOver() on replace { fade.start(); }
+    attribute alpha = .5;
+    attribute fade = Timeline {
         toggle: true
         
         keyFrames: [

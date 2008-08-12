@@ -204,11 +204,11 @@ public class MotoProducts extends MotoPanel {
 
     // NOTE: these were all var's in the original code, 
     // but they don't work that way in the interpreter, bug??
-    private attribute open:Boolean = false;
-    private attribute margin:Integer = 3;
-    private attribute transparentFill = Color.TRANSPARENT;
-    private attribute group:Group;
-    private attribute lhover:Boolean = bind group.isMouseOver() on replace { 
+    attribute open:Boolean = false;
+    attribute margin:Integer = 3;
+    attribute transparentFill = Color.TRANSPARENT;
+    attribute group:Group;
+    attribute lhover:Boolean = bind group.isMouseOver() on replace { 
         if(not lhover) {
             open = false;
         }

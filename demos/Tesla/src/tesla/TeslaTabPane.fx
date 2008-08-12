@@ -33,10 +33,10 @@ class TeslaTabHolder extends CustomNode {
 }
 
 public class TeslaTabPane extends CustomNode {
-    private attribute self = this;
+    attribute self = this;
     public attribute width: Number;
     public attribute tabs: TeslaTab[];
-    private attribute fadein:Timeline = Timeline {
+    attribute fadein:Timeline = Timeline {
         keyFrames: [
             KeyFrame {
                 time: 0s
@@ -55,7 +55,7 @@ public class TeslaTabPane extends CustomNode {
         fadein.start();
     }
     
-    private attribute holderGroup: Node;
+    attribute holderGroup: Node;
     attribute selectedContent: Node[] = bind selectedTab.content;
     attribute opacityValue: Number = 1.0;
     attribute lineStroke: Paint  = Color.GRAY;
