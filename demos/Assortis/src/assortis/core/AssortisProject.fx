@@ -54,14 +54,14 @@ public class AssortisProject  extends MyCompositeComponent{
 
     public attribute rootModule:String on replace{ initProject(); };
     
-    private attribute debug: Boolean = true;
+    attribute debug: Boolean = true;
     public attribute editable: Boolean = true;
     
-    private attribute timer: Timer;
-    private attribute defaultLocale:Locale;
+    attribute timer: Timer;
+    attribute defaultLocale:Locale;
 
-    private attribute screenX: Integer;
-    private attribute screenY: Integer;
+    attribute screenX: Integer;
+    attribute screenY: Integer;
     
     protected attribute loadedSamples:ProjectSample[];
 
@@ -83,7 +83,7 @@ public class AssortisProject  extends MyCompositeComponent{
         }
     };
     
-    private function initProject(){
+    function initProject(){
         out("init");
         debug = true;
         defaultLocale = Locale.getDefault();
@@ -259,15 +259,15 @@ public class AssortisProject  extends MyCompositeComponent{
     }
     
     
-    private function out(){
+    function out(){
         if(debug){ System.out.println();}
     }
 
-    private function out(obj: Object){
+    function out(obj: Object){
         out("{obj}");
     }
     
-    private function out(text: String){
+    function out(text: String){
         if(debug){ System.out.println("[assortis] {text}");}
     }
     

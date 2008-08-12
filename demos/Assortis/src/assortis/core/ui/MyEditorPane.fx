@@ -15,8 +15,8 @@ import java.lang.System;
 
 public class MyEditorPane extends Component{
     
-    private attribute editorPane: JEditorPane;
-    private attribute updateComponentFlag: Boolean = false;
+    attribute editorPane: JEditorPane;
+    attribute updateComponentFlag: Boolean = false;
     
     
     public attribute text: String on replace{
@@ -32,7 +32,7 @@ public class MyEditorPane extends Component{
     public attribute onKeyUp: function(keyEvent :KeyEvent);
 
 
-    private function updateComponentField(){
+    function updateComponentField(){
             //System.out.println("[editor pane] updateComponentField!");
             updateComponentFlag = true;
             text = editorPane.getText();

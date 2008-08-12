@@ -71,7 +71,7 @@ public class Timer {
 
     } 
     
-    private function run(){
+    function run(){
         //System.out.println("timer: run");
         var time = System.currentTimeMillis();
         for(keyTimer in tasks){

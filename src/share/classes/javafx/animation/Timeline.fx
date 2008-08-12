@@ -133,14 +133,14 @@ public class Timeline {
 
     // if false, indicates that the internal (optimized) data structure
     // needs to be rebuilt
-    private var valid = false;
+    var valid = false;
     function invalidate() {
         valid = false;
     }
 
     // duration is inferred from time of last key frame and durations
     // of any sub-timelines in rebuildTargets()
-    private var duration: Number = -1;
+    var duration: Number = -1;
 
     function getTotalDur():Number {
         if (not valid) {
@@ -214,7 +214,7 @@ public class Timeline {
         clip.resume();
     }
 
-    private function buildClip() {
+    function buildClip() {
         if (clip != null and clip.isRunning()) {
             clip.stop();
         }
@@ -222,19 +222,19 @@ public class Timeline {
         clip.setInterpolator(Interpolators.getLinearInstance());
     }
 
-    private attribute clip: Clip;
-    private attribute sortedFrames: KeyFrame[];
-    private attribute targets: ArrayList = new ArrayList();
-    private attribute subtimelines: ArrayList = new ArrayList();
-    private attribute adapter: TimingTarget = createAdapter();
+    attribute clip: Clip;
+    attribute sortedFrames: KeyFrame[];
+    attribute targets: ArrayList = new ArrayList();
+    attribute subtimelines: ArrayList = new ArrayList();
+    attribute adapter: TimingTarget = createAdapter();
 
-    private attribute cycleIndex: Integer = 0;
-    private attribute frameIndex: Integer = 0;
+    attribute cycleIndex: Integer = 0;
+    attribute frameIndex: Integer = 0;
 
-    private attribute isReverse: Boolean = true;
-    private attribute offsetT: Number = 0;
-    private attribute lastElapsed: Number = 0;
-    private attribute offsetValid: Boolean = false;
+    attribute isReverse: Boolean = true;
+    attribute offsetT: Number = 0;
+    attribute lastElapsed: Number = 0;
+    attribute offsetValid: Boolean = false;
 
     //
     // Need to revalidate everything (call rebuildTargets() again) if
@@ -250,7 +250,7 @@ public class Timeline {
     //   - KeyValue.value
     //   - KeyValue.interpolate
     //
-    private function rebuildTargets():Void {
+    function rebuildTargets():Void {
         targets.clear();
         subtimelines.clear();
         duration = 0;
@@ -484,7 +484,7 @@ public class Timeline {
         }
     }
 
-    private function visitCycle(cycle:Integer, catchingUp:Boolean) {
+    function visitCycle(cycle:Integer, catchingUp:Boolean) {
         var cycleBackward = false;
         if (autoReverse) {
             if (cycle mod 2 == 1) {
@@ -500,7 +500,7 @@ public class Timeline {
         frameIndex = if (autoReverse) 1 else 0;
     }
 
-    private function visitFrames(curT:Number, backward:Boolean, catchingUp:Boolean) : Void {
+    function visitFrames(curT:Number, backward:Boolean, catchingUp:Boolean) : Void {
         if (backward) {
             var i1 = sortedFrames.size()-1-frameIndex;
             var i2 = 0;
@@ -532,7 +532,7 @@ public class Timeline {
         }
     }
 
-    private function createAdapter():TimingTarget {
+    function createAdapter():TimingTarget {
         TimingTargetAdapter {
             override function begin() : Void {
                 running = true;
@@ -577,7 +577,7 @@ class KFPair {
 
 class KFPairList {
     var target:KeyValueTarget;
-    private def pairs:ArrayList = new ArrayList();
+    def pairs:ArrayList = new ArrayList();
 
     function size(): Integer {
         return pairs.size();

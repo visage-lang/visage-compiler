@@ -54,10 +54,10 @@ public class StringLocalizer {
      * The locale used for determining the JavaFX properties resource
      * bundle.  If it is not explicitly specified, Locale.getDefault()
      * is used.  
-     * Note: Made this private for now, as there is no Locale class in some
+     * Note: Made this script private for now, as there is no Locale class in some
      * platforms (e.g., CLDC/MIDP)
      */
-    private var locale: Locale = Locale.getDefault();
+    var locale: Locale = Locale.getDefault();
 
     /**
      * The canonical base name of the JavaFX properties file.  It consists 
@@ -72,7 +72,7 @@ public class StringLocalizer {
      * @needsreview
      * @defaultvalue the caller's script file name
      */
-    private var propertiesName: String = getDefaultPropertiesName();
+    var propertiesName: String = getDefaultPropertiesName();
 
     /**
      * The default string for the <code>localizedString</code>.
@@ -98,7 +98,7 @@ public class StringLocalizer {
         }
     }
 
-    private function getDefaultPropertiesName() : String {
+    function getDefaultPropertiesName() : String {
         var elements  = Thread.currentThread().getStackTrace();
         var elem: StackTraceElement;
         var className: String;
