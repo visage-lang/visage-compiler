@@ -7,8 +7,8 @@ import javafx.scene.text.*;
 import java.lang.Math;
                                                                                                                                               
 public class PlanetarySystemShape extends CustomNode{
-    attribute planetarySystem: PlanetarySystem;
-    attribute scale: Scale;
+    var planetarySystem: PlanetarySystem;
+    var scale: Scale;
 
 override function create():Node{
     return Group{

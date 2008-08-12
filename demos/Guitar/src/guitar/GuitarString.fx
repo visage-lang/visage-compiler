@@ -40,11 +40,11 @@ import javafx.animation.*;
 
 
 public class GuitarString extends CustomNode {
-    attribute audioClip: AudioClip;
-    attribute theGuitar: Guitar;
-    attribute wound: Boolean = true;
-    attribute note: String;
-    attribute soundUrl: URL = bind if (note == null) then null else this.getClass().getResource("Resources/sound/{note}.au")
+    var audioClip: AudioClip;
+    var theGuitar: Guitar;
+    var wound: Boolean = true;
+    var note: String;
+    var soundUrl: URL = bind if (note == null) then null else this.getClass().getResource("Resources/sound/{note}.au")
         on replace {
            //TODO DO LATER - this is a work around until a more permanent solution is provided
             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
@@ -56,7 +56,7 @@ public class GuitarString extends CustomNode {
             });
             //System.out.println("soundUrl={soundUrl}");
     }
-    attribute imageUrl: String = bind this.getClass().getResource('Resources/{if (wound) then "Wound" else "Plain"}.png').toString();
+    var imageUrl: String = bind this.getClass().getResource('Resources/{if (wound) then "Wound" else "Plain"}.png').toString();
     override function create(): Node {
         var self = this;
         Group {

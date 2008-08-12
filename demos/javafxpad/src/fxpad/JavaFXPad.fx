@@ -60,33 +60,33 @@ import java.util.Locale;
 
 public class JavaFXPad extends Component {
     // this has to be created before ScriptEngineManager to catch stderr.
-    attribute stdoutPane:StdoutPane;
+    var stdoutPane:StdoutPane;
     
-    attribute manager:ScriptEngineManager = new ScriptEngineManager();
-    attribute scrEng:ScriptEngine = manager.getEngineByExtension("javafx");
-    attribute engine:JavaFXScriptEngine = scrEng as JavaFXScriptEngine;
-    attribute scriptContext:ScriptContext = engine.getContext();
+    var manager:ScriptEngineManager = new ScriptEngineManager();
+    var scrEng:ScriptEngine = manager.getEngineByExtension("javafx");
+    var engine:JavaFXScriptEngine = scrEng as JavaFXScriptEngine;
+    var scriptContext:ScriptContext = engine.getContext();
     
     function loadBootScript():String {
         return getResourceAsString("{__DIR__}BootScript.script");
     }
-    attribute bootLoad:Boolean = true;
+    var bootLoad:Boolean = true;
      
-    attribute url:String;
-    attribute sourcePath: URL[];
-    attribute classPath: URL[];
-    //TODO work around until BorderPanel has visible attribute.
-    attribute searchPanel:BorderPanel;
+    var url:String;
+    var sourcePath: URL[];
+    var classPath: URL[];
+    //TODO work around until BorderPanel has visible variable.
+    var searchPanel:BorderPanel;
     
-    attribute searchActive: Boolean on replace {
+    var searchActive: Boolean on replace {
         if(not searchActive) {
             searchValue = "";
             editor.requestFocus();
         }
-        //TODO work around until BorderPanel has visible attribute.
+        //TODO work around until BorderPanel has visible variable.
         searchPanel.getJComponent().setVisible(searchActive);
     }
-    attribute searchValue: String on replace oldValue {
+    var searchValue: String on replace oldValue {
       
         if (searchValue == "") {
             delete editor.highlight;
@@ -108,10 +108,10 @@ public class JavaFXPad extends Component {
         }
         
     };
-    attribute matchCase: Boolean;
+    var matchCase: Boolean;
 
     
-    attribute compileTimeLine:Timeline = Timeline {
+    var compileTimeLine:Timeline = Timeline {
         keyFrames: [
             KeyFrame {
                 time: 1s
@@ -122,25 +122,25 @@ public class JavaFXPad extends Component {
         ]
     };
     
-    attribute editor: SourceEditor;
-    attribute validateAutomatically: Boolean = true;
-    attribute runAutomatically: Boolean = true;
+    var editor: SourceEditor;
+    var validateAutomatically: Boolean = true;
+    var runAutomatically: Boolean = true;
     
-    attribute userCode: String = loadBootScript()  on replace {
+    var userCode: String = loadBootScript()  on replace {
         if(validateAutomatically) {
             compile();
         }
     };
-    attribute lineNumbers: LineNumberPanel;
-    attribute fontSize: Integer = 16;
-    attribute zoomOptions:Number[] = [8.33, 12.5, 25, 50, 100, 125, 150, 200, 400, 800, 1600];
-    attribute zoomSelection:Integer = 4;
-    attribute zoomValue: Number =  bind zoomOptions[zoomSelection];
-    attribute mouseX: Number;
-    attribute mouseY: Number;    
-    attribute compiledContent: Node[];  
-    attribute errMessages: Diagnostic[];
-    attribute canvas:Canvas = Canvas {
+    var lineNumbers: LineNumberPanel;
+    var fontSize: Integer = 16;
+    var zoomOptions:Number[] = [8.33, 12.5, 25, 50, 100, 125, 150, 200, 400, 800, 1600];
+    var zoomSelection:Integer = 4;
+    var zoomValue: Number =  bind zoomOptions[zoomSelection];
+    var mouseX: Number;
+    var mouseY: Number;    
+    var compiledContent: Node[];  
+    var errMessages: Diagnostic[];
+    var canvas:Canvas = Canvas {
                     //TODO - SEE BELOW - onMouseMoved: moveMouse
                     //TODO - SEE BELOW - onMouseDragged: moveMouse
                     content: [
@@ -157,7 +157,7 @@ public class JavaFXPad extends Component {
                         }
                     ]
                 };
-    attribute errImage:Image = Image {url: "{__DIR__}images/error_obj.gif" };
+    var errImage:Image = Image {url: "{__DIR__}images/error_obj.gif" };
     
     postinit {
         var comp = canvas.getJComponent();
@@ -538,7 +538,7 @@ public class JavaFXPad extends Component {
                                 component: BorderPanel {
                                     //TODO border: LineBorder {lineColor: Color.BLACK }
                                     center: List {
-                                        override attribute selectedIndex = -1 on replace {
+                                        override var selectedIndex = -1 on replace {
                                             if(selectedIndex >= 0 and selectedIndex < sizeof errMessages) {
                                                 var err = errMessages[selectedIndex];
                                                 var lineNumber = err.getLineNumber();

@@ -34,9 +34,9 @@ import java.awt.Dimension;
  * @author jclarke
  */
 public class ClassPathDialog {
-    attribute classPath: File[];
-    attribute selectedClassPath:Integer = -1;
-    attribute action: function(classPath: File[]):Void;
+    var classPath: File[];
+    var selectedClassPath:Integer = -1;
+    var action: function(classPath: File[]):Void;
     function show(parent:SwingWindow):Void {
         var self = this;
         var oldClassPath = classPath;
@@ -52,7 +52,7 @@ public class ClassPathDialog {
             content: BorderPanel {
                 top: Label {text: "Class Path"}
                 center: List {
-                    override attribute selectedIndex = bind self.selectedClassPath with inverse on replace {
+                    override var selectedIndex = bind self.selectedClassPath with inverse on replace {
                         self.edit(dlg.content);
                     }
                     items: bind

@@ -20,7 +20,7 @@ public abstract class ExtendedScrollableComponent extends ScrollableComponent {
      * Adds a child that will appear as a column on to the left or right
      * of the main view of the scrollpane depending on the current component orientation.
      */
-    public attribute rowHeader:Component on replace  {
+    public var rowHeader:Component on replace  {
         var x = getNonScrollPaneComponent(rowHeader);
         getJScrollPane().setRowHeaderView(x);
     };
@@ -29,7 +29,7 @@ public abstract class ExtendedScrollableComponent extends ScrollableComponent {
      * Adds a child that will appear as a row at the top or bottom
      * of the main view of the scrollpane depending on the current component orientation.
      */
-    public attribute columnHeader:Component on replace  {
+    public var columnHeader:Component on replace  {
         var x = getNonScrollPaneComponent(columnHeader);
         getJScrollPane().setColumnHeaderView(x);
     }   
