@@ -58,7 +58,7 @@ public class MusicPanel2 extends CustomNode {
         };
 
     }
-    private attribute hoverClip:Timeline;
+    attribute hoverClip:Timeline;
     public attribute lhover: Boolean = bind isMouseOver() on replace {
         if(hoverClip != null) {
             // stop old clip, this assumes if old clip is already stopped

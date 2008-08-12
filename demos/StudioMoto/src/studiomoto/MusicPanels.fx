@@ -42,7 +42,7 @@ public class MusicPanels extends CustomNode {
             glowAnimation.start();
         }
     }
-    private attribute selectionClip:Timeline = Timeline {
+    attribute selectionClip:Timeline = Timeline {
             keyFrames: [
                 KeyFrame {
                     time: 0s

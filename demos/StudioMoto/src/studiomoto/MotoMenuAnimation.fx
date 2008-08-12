@@ -50,7 +50,7 @@ public class MotoMenuAnimation extends CustomNode {
         }
     };
 
-    private attribute n:Number = 10;
+    attribute n:Number = 10;
 
     override function create():Node {
         Group {

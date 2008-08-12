@@ -7,7 +7,7 @@ import javafx.scene.layout.*;
 import javafx.ext.swing.*;
 
 public class SiteSupport extends MotoPanel {
-    private function arrow() {
+    function arrow() {
         Polyline {
             transform: Transform.translate(0, 14)
             points: [0, 0, 4, 4, 0, 8] 
@@ -15,7 +15,7 @@ public class SiteSupport extends MotoPanel {
             strokeWidth: 3
         }
     }    
-    private function label(text:String) {
+    function label(text:String) {
         ComponentView {
             transform: Transform.translate(10, 0)
             component: Label {

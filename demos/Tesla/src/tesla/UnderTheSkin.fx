@@ -71,7 +71,7 @@ PEM have been designed as a tightly integrated system that delivers up to
             }
         }   
     }
-    private attribute fadein:Timeline = Timeline {
+    attribute fadein:Timeline = Timeline {
         keyFrames: [
             KeyFrame {
                 time: 0s

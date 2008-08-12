@@ -71,8 +71,8 @@ public class Title1 extends CustomNode {
         }]
     };    
 
-    private attribute group:Group;
-    private attribute hover:Boolean = bind group.isMouseOver() on replace {
+    attribute group:Group;
+    attribute hover:Boolean = bind group.isMouseOver() on replace {
         if(hover) {
             timelineEnter.start();
         }else {

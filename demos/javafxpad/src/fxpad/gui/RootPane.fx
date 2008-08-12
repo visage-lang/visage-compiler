@@ -5,7 +5,7 @@ import javafx.lang.Sequences;
 import javafx.lang.FX;
 import javafx.ext.swing.*;
 
-private function indexOfJMenuInJMenuBar(item: JMenu, menubar: JMenuBar): Integer {
+function indexOfJMenuInJMenuBar(item: JMenu, menubar: JMenuBar): Integer {
     var children = menubar.getComponents();
     return Sequences.indexByIdentity(children, item);
 }
@@ -109,7 +109,7 @@ public class RootPane extends Component, Container {
         return null;
     }
 
-    private function resetMenusFromJMenuBar(): Void {
+    function resetMenusFromJMenuBar(): Void {
         var mb = getJRootPane().getJMenuBar();
         var fromJMenuBar = for (i in [0..<mb.getComponentCount()],
                                 j in [Component.getComponentFor(mb.getComponent(i) as JComponent)]
