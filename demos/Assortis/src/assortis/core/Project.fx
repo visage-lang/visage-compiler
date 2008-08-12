@@ -5,6 +5,6 @@ package assortis.system;
  */
 
 public class Project{
-  public attribute src:   String = "./src";
-  public attribute build: String = "./build";
+  public var src:   String = "./src";
+  public var build: String = "./build";
 }

@@ -12,7 +12,7 @@ package assortis.core;
 
 
 public class Sample {
-    public attribute name: String;
-    public attribute className: String;
-    public attribute visible: Boolean;
+    public var name: String;
+    public var className: String;
+    public var visible: Boolean;
 }

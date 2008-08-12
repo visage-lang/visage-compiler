@@ -11,9 +11,9 @@ import java.lang.System;
 public class MyDesktopPane extends Component {
     
     
-    attribute desktopPane: JDesktopPane;
+    var desktopPane: JDesktopPane;
         
-    public attribute frames: MyInternalFrame[]  on replace oldValue[lo..hi] = newVals{
+    public var frames: MyInternalFrame[]  on replace oldValue[lo..hi] = newVals{
         //System.out.println("[desktop pane] add internal frame");
         for (frame in oldValue[lo..hi]){
             desktopPane.remove(frame.getJComponent());

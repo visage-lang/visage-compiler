@@ -33,13 +33,13 @@ function f2(x:Number):Number{
 
 public class FunctionGraph extends CustomNode{
     
-    attribute scale:Number = 1;
-    attribute xMin: Number;
-    attribute xMax: Number;
-    attribute dx: Number = 1;
-    attribute color: Color;
+    var scale:Number = 1;
+    var xMin: Number;
+    var xMax: Number;
+    var dx: Number = 1;
+    var color: Color;
     
-    attribute func: function(a: Number):Number;
+    var func: function(a: Number):Number;
 
     override function create():Node{
 
@@ -62,10 +62,10 @@ public class FunctionGraph extends CustomNode{
 
 public class Coordinats extends CustomNode{
 
-    attribute xMin: Number;
-    attribute xMax: Number;
-    attribute scale: Number;
-    attribute color: Color = Color.GREEN;
+    var xMin: Number;
+    var xMax: Number;
+    var scale: Number;
+    var color: Color = Color.GREEN;
 
     override function create():Node{
       var min = xMin * scale;

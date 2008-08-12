@@ -15,21 +15,21 @@ import java.lang.System;
 
 public class MyEditorPane extends Component{
     
-    attribute editorPane: JEditorPane;
-    attribute updateComponentFlag: Boolean = false;
+    var editorPane: JEditorPane;
+    var updateComponentFlag: Boolean = false;
     
     
-    public attribute text: String on replace{
+    public var text: String on replace{
         if(not updateComponentFlag){
             editorPane.setText(text);
         }
     };
 
-    public attribute editable: Boolean = true on replace{
+    public var editable: Boolean = true on replace{
         editorPane.setEditable(editable);
     };
 
-    public attribute onKeyUp: function(keyEvent :KeyEvent);
+    public var onKeyUp: function(keyEvent :KeyEvent);
 
 
     function updateComponentField(){

@@ -26,17 +26,17 @@ package function createProjectSample(sample: Sample): ProjectSample{
 
 public class ProjectSample {
     
-    public attribute name: String;
-    public attribute className: String;
-    public attribute project: AssortisProject;
+    public var name: String;
+    public var className: String;
+    public var project: AssortisProject;
     
-    public attribute code: String;
+    public var code: String;
 
-    public attribute frame: MyInternalFrame;
+    public var frame: MyInternalFrame;
     
-    public attribute visible: Boolean;
+    public var visible: Boolean;
     
-    public attribute selected: Boolean on replace {
+    public var selected: Boolean on replace {
         //System.out.println("[sample] '{name}' selected: {selected}");
         if(selected){ 
             for(tab in project.codeTabs){
@@ -49,14 +49,14 @@ public class ProjectSample {
     };
 
 
-    public attribute propertyIndex: Integer = -1 on replace{
+    public var propertyIndex: Integer = -1 on replace{
         if( -1 < propertyIndex and propertyIndex < sizeof propertyItems){
             Locale.setDefault(getPropertyItem().locale);
             project.reloadSample(this);
         }
     };
 
-    public attribute propertyItems: PropertyItem[];
+    public var propertyItems: PropertyItem[];
     
     
     public function getPropertyItem(){

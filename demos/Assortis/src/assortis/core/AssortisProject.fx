@@ -52,26 +52,26 @@ import java.awt.ComponentOrientation;
 public class AssortisProject  extends MyCompositeComponent{
 
 
-    public attribute rootModule:String on replace{ initProject(); };
+    public var rootModule:String on replace{ initProject(); };
     
-    attribute debug: Boolean = true;
-    public attribute editable: Boolean = true;
+    var debug: Boolean = true;
+    public var editable: Boolean = true;
     
-    attribute timer: Timer;
-    attribute defaultLocale:Locale;
+    var timer: Timer;
+    var defaultLocale:Locale;
 
-    attribute screenX: Integer;
-    attribute screenY: Integer;
+    var screenX: Integer;
+    var screenY: Integer;
     
-    protected attribute loadedSamples:ProjectSample[];
+    protected var loadedSamples:ProjectSample[];
 
     
-    protected attribute rootNode: MyTreeCell;
-    protected attribute codeTabs:MyTab[]; 
-    protected attribute frames: MyInternalFrame[];
+    protected var rootNode: MyTreeCell;
+    protected var codeTabs:MyTab[]; 
+    protected var frames: MyInternalFrame[];
     
 
-    protected attribute selectedCodeIndex: Integer on replace{
+    protected var selectedCodeIndex: Integer on replace{
         if( -1 < selectedCodeIndex and selectedCodeIndex < sizeof codeTabs){
             var title = codeTabs[selectedCodeIndex].title;
             for(sample in loadedSamples){

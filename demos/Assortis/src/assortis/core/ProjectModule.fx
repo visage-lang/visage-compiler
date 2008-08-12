@@ -19,8 +19,8 @@ package function createProjectModule(module: Module): ProjectModule{
 
 public class ProjectModule {
     
-    attribute name: String;
-    public attribute samples: ProjectSample[];
+    var name: String;
+    public var samples: ProjectSample[];
     
     override function toString ():String { name } 
 

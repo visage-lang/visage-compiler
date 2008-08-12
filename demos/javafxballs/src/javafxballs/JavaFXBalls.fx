@@ -53,14 +53,14 @@ Settings.set("com.sun.scenario.animation.pulse", "200");
 var useVector:Boolean = Settings.getBoolean("javafxballs.vector", false);
 
 class Ball extends BallBase {
-    attribute view:Node;
+    var view:Node;
 }
 
 
 class BallsTest {
-    attribute _is_running: Boolean = true;
-    attribute _frames:Number = 0;
-    attribute _startTime:Number = System.currentTimeMillis();
+    var _is_running: Boolean = true;
+    var _frames:Number = 0;
+    var _startTime:Number = System.currentTimeMillis();
 
     function colorRGBA(r:Number, g:Number, b:Number, a:Number):Color {
         Color {red: r/255, green: g/255, blue: b/255, opacity: a/255}
@@ -198,8 +198,8 @@ class BallsTest {
         }
     }
 
-    attribute imageURL = this.getClass().getResource("resources/ball.png").toString();
-    attribute image = Image { url: imageURL };
+    var imageURL = this.getClass().getResource("resources/ball.png").toString();
+    var image = Image { url: imageURL };
 
     function createImageBall():Ball {
         var ball:Ball = Ball{};
@@ -211,16 +211,16 @@ class BallsTest {
         ball;
     }
 
-    attribute balls:Ball[];
+    var balls:Ball[];
 
     function resetBalls():Void {
         balls = for (i in [1.._N]) { if (imageBalls) createImageBall() else create2DBall() }
     }
 
-    attribute imageBalls:Boolean = not useVector on replace { resetBalls() }
-    attribute _N:Number = 16 on replace { resetBalls() }
+    var imageBalls:Boolean = not useVector on replace { resetBalls() }
+    var _N:Number = 16 on replace { resetBalls() }
 
-    attribute timeline:Timeline = Timeline {
+    var timeline:Timeline = Timeline {
         repeatCount: Timeline.INDEFINITE
         autoReverse:false
         keyFrames: KeyFrame {
@@ -236,7 +236,7 @@ class BallsTest {
         }
     }   
     
-    attribute fpsListener:ActionListener = ActionListener {
+    var fpsListener:ActionListener = ActionListener {
         override function actionPerformed(evt:ActionEvent): Void {
             if (_is_running) {
                 fps = ##"{Math.round( 1000*_frames/(System.currentTimeMillis() - _startTime) )} fps";
@@ -248,7 +248,7 @@ class BallsTest {
         }
     }
 
-    attribute fpsTimer:Timer = new Timer(3000, fpsListener);
+    var fpsTimer:Timer = new Timer(3000, fpsListener);
     
     function update() {
         for (i in [0.._N-1]) {
@@ -262,7 +262,7 @@ class BallsTest {
         _frames = _frames + 1;
     };
 
-    attribute fps:String = ##"-- fps";
+    var fps:String = ##"-- fps";
     
     function start(): Void {
         timeline.start();

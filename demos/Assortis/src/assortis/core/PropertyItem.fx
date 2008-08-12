@@ -13,8 +13,8 @@ public function createItem(localeItem: LocaleItem){
  
 public class PropertyItem {
 
-    public attribute locale:Locale;
-    public attribute text:String;
+    public var locale:Locale;
+    public var text:String;
     
     public function getName(){
         return locale.getDisplayName(); 

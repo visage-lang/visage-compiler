@@ -20,17 +20,17 @@ import com.sun.javafx.runtime.sequence.Sequence;
 
 
 public class FXUnit {
-    attribute title: String;
-    attribute width: Integer = 175;
-    attribute height: Integer = 100;
+    var title: String;
+    var width: Integer = 175;
+    var height: Integer = 100;
     
-    attribute menus: Menu[];
-    //attribute content: Component;
-    attribute stage: Stage;
+    var menus: Menu[];
+    //var content: Component;
+    var stage: Stage;
     
-    attribute background: Color;
+    var background: Color;
 
-    attribute isWindow = false;
+    var isWindow = false;
 }
 
 public function createUnit(obj: Object){

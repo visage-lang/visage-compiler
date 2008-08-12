@@ -11,9 +11,9 @@ package assortis.core;
 */
 
 public class TimerTask {
-    attribute name: String;
-    attribute time: Number;
-    attribute action: function();
+    var name: String;
+    var time: Number;
+    var action: function();
     
     override function toString () {  name } 
 }

@@ -13,21 +13,21 @@ import java.lang.Math;
 import java.awt.Insets;
 
 class Model {
-    attribute walls:Insets = new Insets(0, 0, 300, 500);
-    attribute elastity:Number = -.02;
-    attribute ballRadius:Number = 26;
-    attribute maxSpeed: Number = 3.0;
+    var walls:Insets = new Insets(0, 0, 300, 500);
+    var elastity:Number = -.02;
+    var ballRadius:Number = 26;
+    var maxSpeed: Number = 3.0;
 }
 
 public class BallBase {
-    attribute model:Model = new Model();
-    attribute _x:Number = 0;
-    attribute _y:Number = 0;
-    attribute _vx:Number = 0;
-    attribute _vy:Number = 0;
-    attribute _r:Number = 0;
-    attribute _d:Number = 0;
-    attribute _d2:Number = 0;
+    var model:Model = new Model();
+    var _x:Number = 0;
+    var _y:Number = 0;
+    var _vx:Number = 0;
+    var _vy:Number = 0;
+    var _r:Number = 0;
+    var _d:Number = 0;
+    var _d2:Number = 0;
     
     function initialize():Void {
         //default provisioning

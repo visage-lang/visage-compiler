@@ -12,14 +12,14 @@ import java.lang.System;
 
 public class MyInternalFrame extends Component{
     
-    attribute internalFrame: JInternalFrame;
+    var internalFrame: JInternalFrame;
 
-    public attribute rootPane: MyDesktopPane;
+    public var rootPane: MyDesktopPane;
 
-    //attribute updateComponentFlag: Boolean = false;
+    //var updateComponentFlag: Boolean = false;
     
     
-    public attribute menus: Menu[] on replace oldMenus[a..b] = newSlice{
+    public var menus: Menu[] on replace oldMenus[a..b] = newSlice{
         var menubar = internalFrame.getJMenuBar();
         if (menubar == null){
             menubar = new JMenuBar();
@@ -36,11 +36,11 @@ public class MyInternalFrame extends Component{
     }
 
 
-    public attribute title: String on replace{
+    public var title: String on replace{
         internalFrame.setTitle(title);
     };
     
-    public attribute selected: Boolean on replace{
+    public var selected: Boolean on replace{
         //System.out.println("[internal frame] '{title}' selected: {selected}");
             if( not selected){
                 internalFrame.setSelected(false);
@@ -54,16 +54,16 @@ public class MyInternalFrame extends Component{
             }
     };
     
-    public attribute background: Color;
+    public var background: Color;
     
-    public attribute content: Component on replace{
+    public var content: Component on replace{
         if(content != null){
             internalFrame.setContentPane(content.getJComponent());
             //internalFrame.repaint();
         }
     };
 
-    public attribute stage: Stage on replace{
+    public var stage: Stage on replace{
         if(stage != null){
             //internalFrame.setContentPane(content.getJComponent());
             //internalFrame.repaint();
@@ -78,7 +78,7 @@ public class MyInternalFrame extends Component{
     };
 
     
-    public attribute onClose: function();
+    public var onClose: function();
     
     
 //    function updateComponentSelection( selectedFlag: Boolean){

@@ -18,8 +18,8 @@ import javafx.animation.*;
 
 public class Timer {
     
-    public attribute tasks: TimerTask[];
-    public attribute TIMEOUT = 600;
+    public var tasks: TimerTask[];
+    public def TIMEOUT = 600;
 
     public function addTask (name: String, action: function() ) {
         

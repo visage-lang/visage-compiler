@@ -11,7 +11,7 @@ package assortis.core;
  */
 
 public class Module {
-    public attribute name: String;
-    public attribute samples: Sample[];
-    public attribute modules: String[];   
+    public var name: String;
+    public var samples: Sample[];
+    public var modules: String[];   
 }

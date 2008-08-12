@@ -20,15 +20,15 @@ function min(x: Number, y: Number):Number{
 //  ============  XY  ====================//
 
 class XY{
-    attribute x: Number = 0; // on replace{ System.out.println("[xy] x: {x}")};
-    attribute y: Number = 0; // on replace{ System.out.println("[xy] y: {y}")};
+    var x: Number = 0; // on replace{ System.out.println("[xy] x: {x}")};
+    var y: Number = 0; // on replace{ System.out.println("[xy] y: {y}")};
 }
 
 //  ============  Pin  ====================//
 
 class Pin extends CustomNode{
-    attribute pos: XY;
-    attribute level: Number;
+    var pos: XY;
+    var level: Number;
     
     override function create():Node{
       return Group{
@@ -48,7 +48,7 @@ class Pin extends CustomNode{
 
 class ElectroScheme{
 
-    attribute components: ElectronicComponent[];
+    var components: ElectronicComponent[];
 
     public function simulate(){
       for(comp in components){
@@ -62,14 +62,14 @@ class ElectroScheme{
 
 abstract class ElectronicComponent extends CustomNode{
     
-    attribute name: String;
+    var name: String;
         
-    attribute pos: XY;
-    attribute compWidth:  Number = 20.0;
-    attribute compHeight: Number = 15.0;
+    var pos: XY;
+    var compWidth:  Number = 20.0;
+    var compHeight: Number = 15.0;
     
-    attribute pin1: Pin;
-    attribute pin2: Pin;
+    var pin1: Pin;
+    var pin2: Pin;
     
     abstract function simulate():Void;
 
@@ -117,12 +117,12 @@ class Wire extends ElectronicComponent{
 
 class Lamp extends ElectronicComponent{
 
-    attribute switchOn: Boolean = false;
-    override attribute pin1 on replace oldPin=newPin {
+    var switchOn: Boolean = false;
+    override var pin1 on replace oldPin=newPin {
        pin1.pos = XY{x: bind pos.x - compWidth / 2  y: bind pos.y + 2 * compHeight -5};
     }
 
-    override attribute pin2 on replace oldPin=newPin {
+    override var pin2 on replace oldPin=newPin {
       pin2.pos = XY{x: bind pos.x + compWidth / 2  y: bind pos.y + 2 * compHeight - 5};
     }
 
@@ -173,11 +173,11 @@ class Lamp extends ElectronicComponent{
 
 class Battery extends  ElectronicComponent {
 
-    override attribute pin1 on replace oldPin=newPin {
+    override var pin1 on replace oldPin=newPin {
        pin1.pos = XY {x: bind pos.x + compWidth - 5  y: bind pos.y - compHeight};
     }
 
-    override attribute pin2 on replace oldPin=newPin {
+    override var pin2 on replace oldPin=newPin {
       pin2.pos = XY{x: bind pos.x - compWidth + 5  y: bind pos.y - compHeight};
     }
 
@@ -244,11 +244,11 @@ class Battery extends  ElectronicComponent {
 
 
 class Switch extends ElectronicComponent{
-    attribute switchOn: Boolean = false;
-    override attribute pin1 on replace oldPin=newPin {
+    var switchOn: Boolean = false;
+    override var pin1 on replace oldPin=newPin {
         pin1.pos = XY{x: bind pos.x + compWidth   y: bind pos.y };
     }
-    override attribute pin2 on replace oldPin=newPin {
+    override var pin2 on replace oldPin=newPin {
         pin2.pos = XY{x: bind pos.x - compWidth   y: bind pos.y };
     }
 
