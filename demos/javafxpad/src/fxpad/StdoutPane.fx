@@ -38,7 +38,7 @@ import java.io.PrintStream;
  */
 
 class StdoutStream extends ByteArrayOutputStream {
-    attribute  stdout : StdoutPane;
+    var  stdout : StdoutPane;
     
     override function flush() : Void {
        var str = new String(toByteArray());
@@ -51,10 +51,10 @@ public class StdoutPane extends ScrollableComponent {
     public function getJTextArea() : JTextArea {
         getJComponent() as JTextArea;
     }
-    public attribute rows: Number = getJTextArea().getRows() on replace {
+    public var rows: Number = getJTextArea().getRows() on replace {
         getJTextArea().setRows(rows);
     };
-    public attribute columns: Number = getJTextArea().getColumns() on replace {
+    public var columns: Number = getJTextArea().getColumns() on replace {
         getJTextArea().setColumns(columns);
     };
     public function clear(): Void {

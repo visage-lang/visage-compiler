@@ -34,8 +34,8 @@ import javax.swing.event.ChangeListener;
  */
 
 public class LineAnnotation {
-    attribute changeListeners: ChangeListener[];
-    attribute an: FXTextArea.LineAnnotation;
+    var changeListeners: ChangeListener[];
+    var an: FXTextArea.LineAnnotation;
     function getAn(): FXTextArea.LineAnnotation {
         if (an == null) {
             an = FXTextArea.LineAnnotation {
@@ -75,21 +75,21 @@ public class LineAnnotation {
             i.stateChanged(null);
         }
     }
-    public attribute line: Integer on replace {
+    public var line: Integer on replace {
         fireChange();
     };
-    public attribute column: Integer on replace {
+    public var column: Integer on replace {
         fireChange();
     };
-    public attribute length: Integer on replace {
+    public var length: Integer on replace {
         fireChange();
     };
-    public attribute currentX: Number;
-    public attribute currentY: Number;
-    public attribute currentWidth: Number;
-    public attribute currentHeight: Number;
-    public attribute content: Component on replace {
+    public var currentX: Number;
+    public var currentY: Number;
+    public var currentWidth: Number;
+    public var currentHeight: Number;
+    public var content: Component on replace {
         fireChange();
     };
-    public attribute toolTipText: String;
+    public var toolTipText: String;
 }

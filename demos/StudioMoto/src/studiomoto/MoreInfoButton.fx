@@ -7,7 +7,7 @@ import javafx.scene.image.*;
 import javafx.ext.swing.*;
 
 public class MoreInfoButton extends CustomNode {
-    attribute action: function();
+    var action: function();
 
     override function create():Node {
         Group {

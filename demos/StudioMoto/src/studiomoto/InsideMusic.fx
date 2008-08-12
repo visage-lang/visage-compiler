@@ -6,7 +6,7 @@ import javafx.scene.paint.*;
 import javafx.ext.swing.*;
 
 public class InsideMusic extends MotoPanel {
-    override attribute title = Group {
+    override var title = Group {
         content:
             [ComponentView {
                 component: Label {
@@ -21,7 +21,7 @@ public class InsideMusic extends MotoPanel {
             }]
     };
     
-    override  attribute content = Group {
+    override  var content = Group {
         content:
         [ComponentView {
             component: Label {

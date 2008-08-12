@@ -32,11 +32,11 @@ import javafx.ext.swing.*;
  */
 
 public class LineNumberPanel extends Component {
-    attribute panel: LineNumberPanelImpl on replace {
+    var panel: LineNumberPanelImpl on replace {
         if(panel != null)
             panel.setOpaque(false);
     }
-    public attribute lineCount:Integer on replace {
+    public var lineCount:Integer on replace {
          getLineNumberPanel().setLineCount(lineCount);
     };
     

@@ -35,9 +35,9 @@ import java.awt.Dimension;
  */
 
 public class SourcePathDialog {
-    attribute sourcePath: File[];
-    attribute selectedSourcePath:Integer = -1;
-    attribute action: function(sourcePath: File[]):Void;
+    var sourcePath: File[];
+    var selectedSourcePath:Integer = -1;
+    var action: function(sourcePath: File[]):Void;
     function show(parent:SwingWindow):Void {
         var self = this;
         var oldSourcePath = sourcePath;
@@ -53,7 +53,7 @@ public class SourcePathDialog {
             content: BorderPanel {
                 top: Label {text: "Source Path"}
                 center: List {
-                    override attribute selectedIndex = bind self.selectedSourcePath with inverse on replace {
+                    override var selectedIndex = bind self.selectedSourcePath with inverse on replace {
                         self.edit(dlg.content);
                     }
                     items: bind

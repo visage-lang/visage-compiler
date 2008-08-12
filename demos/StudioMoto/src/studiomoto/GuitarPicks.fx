@@ -10,20 +10,20 @@ import javafx.animation.*;
 
 public class GuitarPicks extends Intro {
     /** HTML label for the top pick */
-    public attribute label1: String;
+    public var label1: String;
     /** action when you click the top pick */
-    public attribute action1: function();
+    public var action1: function();
     
     /** HTML label for the bottom pick */
-    public attribute label2: String;
+    public var label2: String;
     /** action when you click the bottom pick */
-    public attribute action2: function();
+    public var action2: function();
     
-    attribute rot: Number; 
-    attribute y1: Number;
-    attribute y2: Number;
+    var rot: Number; 
+    var y1: Number;
+    var y2: Number;
     
-    attribute pick1: Node = Group {
+    var pick1: Node = Group {
         blocksMouse: true
         cursor: Cursor.HAND 
         
@@ -45,7 +45,7 @@ public class GuitarPicks extends Intro {
             }
         }]
     };
-    attribute pick2: Node =
+    var pick2: Node =
         Group {
             blocksMouse: true
             cursor: Cursor.HAND
@@ -71,18 +71,18 @@ public class GuitarPicks extends Intro {
     
     //function doHover(pick:Node);
     
-    attribute pick1Hover: Boolean = bind pick1.isMouseOver()
+    var pick1Hover: Boolean = bind pick1.isMouseOver()
     on replace {
         if (pick1Hover)
             hoverAnim.start();
     };
-    attribute pick2Hover: Boolean = bind pick2.isMouseOver()
+    var pick2Hover: Boolean = bind pick2.isMouseOver()
     on replace {
         if (pick2Hover)
             hoverAnim.start();
     };
     
-    attribute hoverAnim: Timeline = Timeline {
+    var hoverAnim: Timeline = Timeline {
         keyFrames: [
              KeyFrame {
                 time: 0s
@@ -104,7 +104,7 @@ public class GuitarPicks extends Intro {
              }             
         ]
     };
-    attribute introAnim: Timeline = Timeline {
+    var introAnim: Timeline = Timeline {
         keyFrames: [
              KeyFrame {
                 time: 0s

@@ -41,7 +41,7 @@ public class PadScrollPane extends SwingScrollPane {
      * Adds a child that will appear as a row at the top or bottom
      * of the main view of the scrollpane depending on the current component orientation.
      */
-    public attribute rowHeader:Component on replace  {
+    public var rowHeader:Component on replace  {
        
         if(rowHeader != null) {
             var jcomp = rowHeader.getJComponent();
@@ -61,7 +61,7 @@ public class PadScrollPane extends SwingScrollPane {
      * Adds a child that will appear as a column at the left or right
      * of the main view of the scrollpane depending on the current component orientation.
      */
-    public attribute columnHeader:Component on replace  {
+    public var columnHeader:Component on replace  {
         if(columnHeader != null) {
             var jcomp = columnHeader.getJComponent();
             if(jcomp instanceof JScrollPane) {

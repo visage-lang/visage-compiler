@@ -3,7 +3,7 @@ import javafx.scene.*;
 import javafx.scene.image.*;
 
 public class HomeButton extends CustomNode {
-    public attribute action: function();
+    public var action: function();
     override function create() : Node {
         Group {
         cursor: Cursor.HAND
