@@ -6,13 +6,13 @@ import javafx.scene.paint.*;
 public class About extends MotoPanel {
 
     
-   override attribute title = ComponentView {
+   override var title = ComponentView {
             component: Label {
                 text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>About</span><span style='color:yellow;'>StudioMoto</span></div></html>"
             }
         };
         
-   override attribute content = ComponentView {
+   override var content = ComponentView {
             component: Label {
                 text:
             "<html><div style='width:600;color:white;font-size:10pt;font-face:arial;'>STUDIOMOTO connects you to some of today and tommorrow's biggest music artists - through their music, Motorola technology and your own imagination. Read that back again. Sounds like a big promise, but here's how it delivers.

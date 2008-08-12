@@ -11,12 +11,12 @@ import javafx.ext.swing.*;
 import javafx.animation.*;
 
 public class MotoCenterPanel extends CustomNode {
-    attribute height: Number = 300;
-    attribute width: Number = 500;
+    var height: Number = 300;
+    var width: Number = 500;
     
-    attribute level1:Number;
-    attribute glow1:Glow = Glow{level:bind level1};
-    attribute glow1Animation = Timeline {
+    var level1:Number;
+    var glow1:Glow = Glow{level:bind level1};
+    var glow1Animation = Timeline {
         keyFrames:
         [KeyFrame {
             time: 0s
@@ -31,10 +31,10 @@ public class MotoCenterPanel extends CustomNode {
             }            
         }]
     };
-    attribute level2:Number;
-    attribute glow2:Glow = Glow{level:bind level2};
+    var level2:Number;
+    var glow2:Glow = Glow{level:bind level2};
     
-    attribute glow2Animation = Timeline {
+    var glow2Animation = Timeline {
         keyFrames:
         [KeyFrame {
             time: 0s
@@ -50,10 +50,10 @@ public class MotoCenterPanel extends CustomNode {
         }]
     };    
     
-    attribute rect:Rectangle;
-    attribute lhover:Boolean = bind rect.isMouseOver() on replace { fade.start(); }
-    attribute alpha = .5;
-    attribute fade = Timeline {
+    var rect:Rectangle;
+    var lhover:Boolean = bind rect.isMouseOver() on replace { fade.start(); }
+    var alpha = .5;
+    var fade = Timeline {
         toggle: true
         
         keyFrames: [
@@ -67,8 +67,8 @@ public class MotoCenterPanel extends CustomNode {
             }
         ]
     };    
-    attribute go1:Group;
-    attribute go1Hover = bind go1.isMouseOver() on replace  {
+    var go1:Group;
+    var go1Hover = bind go1.isMouseOver() on replace  {
         if(go1Hover) {
             glow1Animation.start();
         }else {
@@ -76,8 +76,8 @@ public class MotoCenterPanel extends CustomNode {
             glow1 = null;
         }
     };
-    attribute go2:Group;
-      attribute go2Hover = bind go2.isMouseOver() on replace  {
+    var go2:Group;
+      var go2Hover = bind go2.isMouseOver() on replace  {
         if(go2Hover) {
             glow2Animation.start();
         }else {

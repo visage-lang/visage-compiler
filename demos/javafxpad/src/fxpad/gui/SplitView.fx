@@ -37,22 +37,22 @@ import javafx.ext.swing.*;
 
 public class SplitView  {
     // TODO MARK AS FINAL
-    protected attribute id: String = "{System.identityHashCode(this)}";
+    protected var id: String = "{System.identityHashCode(this)}";
 
     // TODO MARK AS FINAL
-    protected attribute splitpane: SplitPane;
+    protected var splitpane: SplitPane;
 
     // TODO MARK AS FINAL
-    protected attribute splitnode: MultiSplitLayout.Leaf
+    protected var splitnode: MultiSplitLayout.Leaf
         = new MultiSplitLayout.Leaf(id);
 
-    public attribute weight: Number on replace {
+    public var weight: Number on replace {
         if (splitnode != null) {
             splitnode.setWeight(weight);
         }
     };
     
-    public attribute component: Component on replace old {
+    public var component: Component on replace old {
         component.getJComponent().setMinimumSize(new Dimension(0, 0));
         if (splitpane != null) {
             if (old != null) {

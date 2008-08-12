@@ -10,15 +10,15 @@ import javafx.ext.swing.*;
 import javafx.animation.*;
 
 public class MotoBottomPanel extends Intro {
-    attribute panelWidth: Number;
-    attribute panelHeight: Number;
-    attribute panelMargin: Number;
-    attribute panels: Intro[] on replace { createTimeline(); }
-    attribute promotions: Intro;
-    attribute musicStuff: Intro;
-    attribute insideMusic: Intro;
-    attribute guitarPicks: Intro;
-    attribute introAnim: Timeline;
+    var panelWidth: Number;
+    var panelHeight: Number;
+    var panelMargin: Number;
+    var panels: Intro[] on replace { createTimeline(); }
+    var promotions: Intro;
+    var musicStuff: Intro;
+    var insideMusic: Intro;
+    var guitarPicks: Intro;
+    var introAnim: Timeline;
     function createTimeline():Void {
         introAnim  = Timeline {
         keyFrames: for (p in panels)

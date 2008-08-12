@@ -48,19 +48,19 @@ public class SplitPane extends Component, Container {
     }
     
     
-    public attribute floatingDividers:Boolean = 
+    public var floatingDividers:Boolean = 
         getJXMultiSplitPane().getMultiSplitLayout().getFloatingDividers()
     on replace {
         getJXMultiSplitPane().getMultiSplitLayout().setFloatingDividers(floatingDividers);
     };
     
     // TODO MARK AS FINAL
-    protected attribute root: MultiSplitLayout.Split = MultiSplitLayout.Split{} 
+    protected var root: MultiSplitLayout.Split = MultiSplitLayout.Split{} 
         on replace {
             root.setWeight(1.0);
         }
 
-    public attribute vertical: Boolean = false on replace {
+    public var vertical: Boolean = false on replace {
         root.setRowLayout(not vertical);
     }
 
@@ -78,7 +78,7 @@ public class SplitPane extends Component, Container {
         return result;
     }
     
-    public attribute content: SplitView[] on replace oldValues[lo..hi]=newVals {
+    public var content: SplitView[] on replace oldValues[lo..hi]=newVals {
         var pane = getJXMultiSplitPane();
         for(k in [lo..hi]) {
             pane.remove(lo);

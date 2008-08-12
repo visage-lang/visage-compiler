@@ -8,7 +8,7 @@ import javafx.ext.swing.*;
 
 public class InsideMusicPane extends MotoPanel {
     
-    override attribute title = Group {
+    override var title = Group {
         content:
         [ComponentView {
             component: Label {
@@ -22,7 +22,7 @@ public class InsideMusicPane extends MotoPanel {
             transform: bind Transform.translate(width-30, 8)
         }]
     };
-    override attribute content = Group {
+    override var content = Group {
         content:
         [Group {
         // items

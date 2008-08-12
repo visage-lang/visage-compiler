@@ -16,7 +16,7 @@ public class RootPane extends Component, Container {
     /**
      * Defines the array of {@link Menu}s to be used by this {@SwingFrame}.
      */
-    public attribute menus: Menu[] on replace oldMenus[a..b] = newSlice {
+    public var menus: Menu[] on replace oldMenus[a..b] = newSlice {
         var pane = getJRootPane();
         var menubar = pane.getJMenuBar();
 
@@ -62,7 +62,7 @@ public class RootPane extends Component, Container {
         }
     }
     
-    public attribute content: Component = null on replace oldContent {
+    public var content: Component = null on replace oldContent {
         if (oldContent != null) {
             unparentFromThisContainer(oldContent);
         }

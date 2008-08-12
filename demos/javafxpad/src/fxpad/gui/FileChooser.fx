@@ -38,15 +38,15 @@ import javafx.ext.swing.*;
  */
 
 public class FileChooser extends Component {
-    public attribute cwd: File;
-    public attribute fileFilters: FileFilter[];
-    public attribute title: String;
-    public attribute files: Boolean;
-    public attribute directories:Boolean;
-    public attribute action: function(selectedFile:File);
-    public attribute selectedFile: File;
-    public attribute accessory: Component;
-    public attribute controlButtonsAreShown: Boolean = true;
+    public var cwd: File;
+    public var fileFilters: FileFilter[];
+    public var title: String;
+    public var files: Boolean;
+    public var directories:Boolean;
+    public var action: function(selectedFile:File);
+    public var selectedFile: File;
+    public var accessory: Component;
+    public var controlButtonsAreShown: Boolean = true;
     
     public /* final */ function getJFileChooser(): JFileChooser {
         getJComponent() as JFileChooser;
