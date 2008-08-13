@@ -15,10 +15,20 @@ The syntax is: </para>
 <programlisting>
 import <emphasis>PackageName</emphasis>.<emphasis>ClassName</emphasis>;</programlisting>
 
+<para>
 and 
+</para>
 
 <programlisting>import <emphasis>PackageName</emphasis>.*;
 </programlisting>
+
+<para>
+and 
+</para>
+
+<programlisting>import <emphasis>ClassName</emphasis>.*;
+</programlisting>
+
 
 <para>
 If import statements are present, they must appear before 
@@ -32,10 +42,25 @@ import javafx.application.*;
 import java.lang.System;
 
 ...
-
 </programlisting>
 
+<para>You can also import all script-level variables defined within another script:</para>
 
+<programlisting>
+
+// Inside file Two.fx
+
+public var myName = "John Doe"
+
+
+// Inside file One.fx
+
+import Two.*;
+
+java.lang.System.out.println(myName); // prints "John Doe"
+</programlisting>
+
+<para>This is similar to the &quot;import static&quot; functionality provided by the Java programming language.</para>
 
  </sect2>
  
