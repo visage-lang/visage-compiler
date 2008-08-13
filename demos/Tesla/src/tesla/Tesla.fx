@@ -17,7 +17,7 @@ import java.lang.System;
 
 class Tesla extends CustomNode {
     
-    attribute selectedPage: TeslaPage;
+    var selectedPage: TeslaPage;
     
     function menuSelect(i:Integer):Void  {
         if (i >= 0 and i < sizeof pages) {
@@ -26,9 +26,9 @@ class Tesla extends CustomNode {
         System.out.println("menu select {i} selectedPage = {selectedPage} of {sizeof pages}");
     }
     
-    attribute contentGroup: Group;
+    var contentGroup: Group;
     
-    attribute pages: TeslaPage[] = 
+    var pages: TeslaPage[] = 
     [{ var p:HomePage;
         p = HomePage {
             visible: bind selectedPage == p or selectedPage == null
@@ -88,7 +88,7 @@ class Tesla extends CustomNode {
             },
             contentGroup = Group {
                 transform: Transform.translate(0, 92)
-//                attribute: contentGroup
+//                var: contentGroup
                 content: bind pages
             }]
             

@@ -16,7 +16,7 @@ import javafx.scene.text.*;
 
 
 class EfficiencyAndPerformance extends CustomNode {
-    attribute textContent: Node;
+    var textContent: Node;
     
     override function create():Node {
         Group {
@@ -27,7 +27,7 @@ class EfficiencyAndPerformance extends CustomNode {
                 image: Image {url: "http://teslamotors.com/images/content/fullfromabove.jpg"}
             },
             textContent = ComponentView {
-//                attribute: textContent
+//                var: textContent
                 transform: Transform.translate(165+25,10)
                 component: Label {
                     foreground: Color.WHITE

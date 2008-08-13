@@ -12,9 +12,9 @@ import javafx.scene.transform.*;
 
 
 class PerformancePage extends TeslaPage {
-    override attribute menuImageUrl = 
+    override var menuImageUrl = 
     "http://www.teslamotors.com/images/nav/nav_performance.gif";
-    override attribute content = Group {
+    override var content = Group {
         content:
         [TeslaTabPane {
             transform: Transform.translate(0, 10)

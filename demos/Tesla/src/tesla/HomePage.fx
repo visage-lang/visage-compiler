@@ -16,8 +16,8 @@ import javafx.scene.text.*;
 
 
 class HomeSectionView extends CustomNode {
-    attribute imageUrl: String;
-    attribute text: String;
+    var imageUrl: String;
+    var text: String;
     
     override function create():Node {
         return Group {
@@ -47,8 +47,8 @@ class HomeSectionView extends CustomNode {
 }
 
 class HomePage extends TeslaPage {
-        override attribute menuImageUrl = "http://www.teslamotors.com/images/nav/nav_home.gif";
-        override attribute content = Group {
+        override var menuImageUrl = "http://www.teslamotors.com/images/nav/nav_home.gif";
+        override var content = Group {
             content:
             [Group {
                 var red = Color.color(0.7, 0, 0, 1);

@@ -21,7 +21,7 @@ public class TeslaTab2 extends TeslaTab {
         return Group {
             content:
             [rect = Rectangle {
-//                attribute: rect
+//                var: rect
                 height: bind text.getHeight() + 15
                 width: bind text.getWidth() + 10
                 stroke: bind (if (selected) then Color.WHITE else Color.TRANSPARENT)

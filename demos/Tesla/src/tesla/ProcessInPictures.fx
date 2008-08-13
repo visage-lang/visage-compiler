@@ -18,8 +18,8 @@ import javafx.animation.*;
 import java.lang.System;
 
 class Picture {
-    attribute imageUrl: String;
-    attribute text: String;
+    var imageUrl: String;
+    var text: String;
 }
 
 // 454x275
@@ -27,11 +27,11 @@ class Picture {
 public class ProcessInPictures extends CustomNode {
     
     
-    attribute selectedPictureIndex: Integer
+    var selectedPictureIndex: Integer
     on replace oldValue = newValue {
         fadeIn.start();
     }
-    attribute fadeIn = Timeline {
+    var fadeIn = Timeline {
         keyFrames: [
             KeyFrame {
                 time: 0s
@@ -44,10 +44,10 @@ public class ProcessInPictures extends CustomNode {
         ] 
    };
     
-    attribute selectedPicture: Picture = bind pictures[selectedPictureIndex];
+    var selectedPicture: Picture = bind pictures[selectedPictureIndex];
     
     
-    attribute opacityValue: Number = 1.0;
+    var opacityValue: Number = 1.0;
     function forward() {
         ++selectedPictureIndex;
     }
@@ -56,7 +56,7 @@ public class ProcessInPictures extends CustomNode {
         --selectedPictureIndex;
     }
     
-    attribute pictures: Picture[] = 
+    var pictures: Picture[] = 
     [Picture {
         imageUrl: "{__DIR__}Image/process/1.jpg"
         text: "Initial Rendering of the Tesla Roadster."

@@ -16,7 +16,7 @@ import javafx.scene.text.*;
 
 
 class ElectricPower extends CustomNode {
-    attribute textContent: Node;
+    var textContent: Node;
     
     override function create():Node {
         return Group {
@@ -27,7 +27,7 @@ class ElectricPower extends CustomNode {
                 image: Image{url: "http://teslamotors.com/images/content/rear2.jpg"}
             },
             textContent = ComponentView {
-//                attribute: textContent
+//                var: textContent
                 transform: Transform.translate(165+25,10)
                 component: Label {
                     foreground: Color.WHITE

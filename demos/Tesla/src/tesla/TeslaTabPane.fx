@@ -19,9 +19,9 @@ import javafx.animation.*;
 import java.lang.System;
 
 class TeslaTabHolder extends CustomNode {
-    attribute tabPane: TeslaTabPane;
-    attribute tab: TeslaTab;
-    attribute selected: Boolean = bind tab.selected with inverse on replace {
+    var tabPane: TeslaTabPane;
+    var tab: TeslaTab;
+    var selected: Boolean = bind tab.selected with inverse on replace {
         System.out.println("tab holder selected { selected }");
         if (selected) {
             tabPane.opacityValue = 0.0;
@@ -33,10 +33,10 @@ class TeslaTabHolder extends CustomNode {
 }
 
 public class TeslaTabPane extends CustomNode {
-    attribute self = this;
-    public attribute width: Number;
-    public attribute tabs: TeslaTab[];
-    attribute fadein:Timeline = Timeline {
+    var self = this;
+    public var width: Number;
+    public var tabs: TeslaTab[];
+    var fadein:Timeline = Timeline {
         keyFrames: [
             KeyFrame {
                 time: 0s
@@ -48,18 +48,18 @@ public class TeslaTabPane extends CustomNode {
             }
         ]
     };  
-    attribute selectedTab: TeslaTab on replace oldValue = newValue {
+    var selectedTab: TeslaTab on replace oldValue = newValue {
         if(oldValue != null) {
             oldValue.selected = false;
         }
         fadein.start();
     }
     
-    attribute holderGroup: Node;
-    attribute selectedContent: Node[] = bind selectedTab.content;
-    attribute opacityValue: Number = 1.0;
-    attribute lineStroke: Paint  = Color.GRAY;
-    attribute drawBorder: Boolean = true;;
+    var holderGroup: Node;
+    var selectedContent: Node[] = bind selectedTab.content;
+    var opacityValue: Number = 1.0;
+    var lineStroke: Paint  = Color.GRAY;
+    var drawBorder: Boolean = true;;
     
     
     override function create():Node {

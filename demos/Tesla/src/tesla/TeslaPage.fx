@@ -17,12 +17,12 @@ import javafx.input.*;
 import javafx.animation.*;
 
 class TeslaPage extends CustomNode {
-    public attribute menuImageUrl: String;
-    public attribute content: Node[];
-    public attribute menuSelect: function(i:Integer):Void;
-    public attribute buySelect: function();
-    attribute opacityValue: Number = 1.0;
-    attribute fadein:Timeline = Timeline {
+    public var menuImageUrl: String;
+    public var content: Node[];
+    public var menuSelect: function(i:Integer):Void;
+    public var buySelect: function();
+    var opacityValue: Number = 1.0;
+    var fadein:Timeline = Timeline {
         keyFrames: [
             KeyFrame {
                 time: 0s
@@ -34,7 +34,7 @@ class TeslaPage extends CustomNode {
             }
         ]
     };  
-    attribute fadeout:Timeline = Timeline {
+    var fadeout:Timeline = Timeline {
         keyFrames: [
             KeyFrame {
                 time: 0s
@@ -47,7 +47,7 @@ class TeslaPage extends CustomNode {
         ]
     };     
     
-    override attribute visible on replace  {
+    override var visible on replace  {
         if (visible) {
             fadeout.stop();
             fadein.start();

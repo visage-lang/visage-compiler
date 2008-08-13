@@ -19,13 +19,13 @@ import javafx.input.*;
 import javafx.animation.*;
 
 class UnderTheSkinView {
-    attribute title: String;
-    attribute text: String;
-    attribute imageUrl: String;
+    var title: String;
+    var text: String;
+    var imageUrl: String;
 }
 
 class UnderTheSkin extends CustomNode {
-    attribute views: UnderTheSkinView[] =
+    var views: UnderTheSkinView[] =
     [UnderTheSkinView {
         title: "Overview"
         text: "Our minimalist design philosophy encourages multiple uses for each\ncomponent and fanatical attention to weight, which helps to maximize\n energy use, efficiency, and performance."
@@ -71,7 +71,7 @@ PEM have been designed as a tightly integrated system that delivers up to
             }
         }   
     }
-    attribute fadein:Timeline = Timeline {
+    var fadein:Timeline = Timeline {
         keyFrames: [
             KeyFrame {
                 time: 0s
@@ -84,12 +84,12 @@ PEM have been designed as a tightly integrated system that delivers up to
         ]
     };     
     
-    attribute selectedView: UnderTheSkinView
+    var selectedView: UnderTheSkinView
     on replace {
         fadein.stop();
         fadein.start();
     }
-    attribute opacityValue: Number = 1.0;
+    var opacityValue: Number = 1.0;
     
     
     

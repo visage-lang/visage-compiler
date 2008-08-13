@@ -17,14 +17,14 @@ import javafx.scene.text.*;
 import javafx.input.*;
 
 public class TeslaTab extends CustomNode {
-    attribute tabBackground: Group;
-    protected attribute text: Text;
-    protected attribute rect: Node;
-    public attribute font: Font;
-    public attribute title: String;
-    public attribute selected: Boolean;
-    public attribute content: Node[];
-    attribute tab2ndImage:Image = Image {url: "{__DIR__}Image/2ndnav_tab_bg.gif"};
+    var tabBackground: Group;
+    protected var text: Text;
+    protected var rect: Node;
+    public var font: Font;
+    public var title: String;
+    public var selected: Boolean;
+    public var content: Node[];
+    var tab2ndImage:Image = Image {url: "{__DIR__}Image/2ndnav_tab_bg.gif"};
     
     
     
@@ -73,7 +73,7 @@ public class TeslaTab extends CustomNode {
             },                
             text = Text {
                 transform: Transform.translate(13, 12)
-//                attribute: text
+//                var: text
                 textOrigin: TextOrigin.TOP
                 font: Font.font("Arial", FontStyle.BOLD, 10)
                 content: bind title
@@ -81,7 +81,7 @@ public class TeslaTab extends CustomNode {
             },
 
             rect = Rectangle {
-//                attribute: rect
+//                var: rect
                 transform: Transform.translate(19, 10)
                 cursor: Cursor.HAND
                 height: 25
