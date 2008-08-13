@@ -16,9 +16,9 @@ import javafx.scene.text.*;
 import javafx.ext.swing.*;
 
 class ColorButton extends CustomNode {
-    attribute color: BodyColor;
-    attribute selector: ColorSelector;
-    attribute selected: Boolean = bind selector.selectedColor == color;
+    var color: BodyColor;
+    var selector: ColorSelector;
+    var selected: Boolean = bind selector.selectedColor == color;
     
     override function create():Node {
         return Group {
@@ -50,110 +50,110 @@ class ColorButton extends CustomNode {
 }
 
 class BodyColor {
-    attribute name: String;
-    attribute imageUrl: String;
-    attribute carUrl: String;
-    attribute group: String;
+    var name: String;
+    var imageUrl: String;
+    var carUrl: String;
+    var group: String;
 }
 
 public class ColorSelector extends CustomNode {
-    attribute fusionRed: BodyColor = BodyColor {
+    var fusionRed: BodyColor = BodyColor {
         imageUrl: "{__DIR__}Image/colors/6.jpg"
         carUrl: "{__DIR__}Image/colors/15.jpg"
         name: "Fusion Red"
         group: "solid"
     };
     
-    attribute racingGreen: BodyColor  = BodyColor {
+    var racingGreen: BodyColor  = BodyColor {
         imageUrl: "{__DIR__}Image/colors/4.jpg"
         carUrl: "{__DIR__}Image/colors/18.jpg"
         name: "Racing Green"
         group: "solid"
     };
     
-    attribute brilliantYellow: BodyColor = BodyColor {
+    var brilliantYellow: BodyColor = BodyColor {
         imageUrl: "{__DIR__}Image/colors/11.jpg"
         carUrl: "{__DIR__}Image/colors/24.jpg"
         name: "Brilliant Yellow"
         group: "metallic"
     };
     
-    attribute radiantRed: BodyColor = BodyColor {
+    var radiantRed: BodyColor = BodyColor {
         imageUrl: "{__DIR__}Image/colors/1.jpg"
         carUrl: "{__DIR__}Image/colors/13.jpg"
         name: "Radiant Red"
         group: "metallic"
     };
     
-    attribute sterlingSilver: BodyColor = BodyColor {
+    var sterlingSilver: BodyColor = BodyColor {
         imageUrl: "{__DIR__}Image/colors/5.jpg"
         carUrl: "{__DIR__}Image/colors/21.jpg"
         name: "Sterling Silver"
         group: "metallic"
     };
     
-    attribute glacierBlue: BodyColor = BodyColor {
+    var glacierBlue: BodyColor = BodyColor {
         imageUrl: "{__DIR__}Image/colors/9.jpg"
         carUrl: "{__DIR__}Image/colors/23.jpg"
         name: "Glacier Blue"
         group: "metallic"
     };
     
-    attribute obsidianBlack: BodyColor = BodyColor {
+    var obsidianBlack: BodyColor = BodyColor {
         imageUrl: "{__DIR__}Image/colors/12.jpg"
         carUrl: "{__DIR__}Image/colors/25.jpg"
         name: "Obsidian Black"
         group: "metallic"
     };
     
-    attribute veryOrange: BodyColor = BodyColor {
+    var veryOrange: BodyColor = BodyColor {
         imageUrl: "{__DIR__}Image/colors/7.jpg"
         carUrl: "{__DIR__}Image/colors/20.jpg"
         name: "Very Orange"
         group: "premium"
     };
-    attribute electricBlue: BodyColor = BodyColor {
+    var electricBlue: BodyColor = BodyColor {
         imageUrl: "{__DIR__}Image/colors/10.jpg"
         carUrl: "{__DIR__}Image/colors/22.jpg"
         name: "Electric Blue"
         group: "premium"
     };
-    attribute arcticWhite: BodyColor = BodyColor {
+    var arcticWhite: BodyColor = BodyColor {
         imageUrl: "{__DIR__}Image/colors/2.jpg"
         carUrl: "{__DIR__}Image/colors/16.jpg"
         name: "Arctic White"
         group: "premium"
     };
     
-    attribute thunderGray: BodyColor = BodyColor {
+    var thunderGray: BodyColor = BodyColor {
         imageUrl: "{__DIR__}Image/colors/5.jpg"
         carUrl: "{__DIR__}Image/colors/21.jpg"
         name: "Thunder Gray"
         group: "premium"
     };
     
-    attribute jetBlack: BodyColor = BodyColor {
+    var jetBlack: BodyColor = BodyColor {
         imageUrl: "{__DIR__}Image/colors/3.jpg"
         carUrl: "{__DIR__}Image/colors/17.jpg"
         name: "Jet Black"
         group: "premium"
     };
     
-    attribute solidColors: BodyColor[] = bind [fusionRed, racingGreen] ;
-    attribute metallicColors: BodyColor[] = bind
+    var solidColors: BodyColor[] = bind [fusionRed, racingGreen] ;
+    var metallicColors: BodyColor[] = bind
     [brilliantYellow, radiantRed, sterlingSilver, glacierBlue, obsidianBlack];
-    attribute premiumColors: BodyColor[] = bind
+    var premiumColors: BodyColor[] = bind
     [veryOrange, electricBlue,arcticWhite, thunderGray, jetBlack];
     
-    attribute colors: BodyColor[] = bind 
+    var colors: BodyColor[] = bind 
     [solidColors, metallicColors, premiumColors];
     
-    attribute colorIndex: Number;
-    attribute selectedColor: BodyColor = fusionRed;
+    var colorIndex: Number;
+    var selectedColor: BodyColor = fusionRed;
     
-    attribute solidGroup: Node;
-    attribute metallicGroup: Node;
-    attribute premiumGroup: Node;
+    var solidGroup: Node;
+    var metallicGroup: Node;
+    var premiumGroup: Node;
     
     
     
@@ -222,7 +222,7 @@ The Tesla Roadster is available in metallic and non-metallic colors.
                             [VBox {
                                 content:
                                 [solidGroup = HBox {
-                                    //                                    attribute: solidGroup
+                                    //                                    var: solidGroup
                                     content:
                                     [ColorButton {
                                         selector: this
@@ -252,7 +252,7 @@ The Tesla Roadster is available in metallic and non-metallic colors.
                                 transform: Transform.translate(10, 0)
                                 content:
                                 [metallicGroup = HBox {
-                                    //                                    attribute: metallicGroup
+                                    //                                    var: metallicGroup
                                     content:
                                     [ColorButton {
                                         selector: this
@@ -297,7 +297,7 @@ The Tesla Roadster is available in metallic and non-metallic colors.
                                 transform: Transform.translate(10, 0)
                                 content:
                                 [premiumGroup = HBox {
-                                    //                                    attribute: premiumGroup
+                                    //                                    var: premiumGroup
                                     content:
                                     [ColorButton {
                                         color: veryOrange
