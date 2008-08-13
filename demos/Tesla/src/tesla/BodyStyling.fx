@@ -18,10 +18,10 @@ import java.lang.System;
 
 public class BodyStyling extends CustomNode {
     
-    attribute imageBaseUrl: String = "http://www.teslamotors.com/design/images-body";
-    attribute thumbBaseUrl: String = "http://www.teslamotors.com/design/thumbs-body";
+    var imageBaseUrl: String = "http://www.teslamotors.com/design/images-body";
+    var thumbBaseUrl: String = "http://www.teslamotors.com/design/thumbs-body";
     
-    attribute images: Integer[] = 
+    var images: Integer[] = 
     [10, 
         30,
         40,
@@ -56,7 +56,7 @@ public class BodyStyling extends CustomNode {
         101,
         102];
     
-    attribute panTimeline = Timeline {
+    var panTimeline = Timeline {
         toggle: true
         keyFrames: [
             KeyFrame {
@@ -70,8 +70,8 @@ public class BodyStyling extends CustomNode {
     ]
 };
 
-attribute selectedImage: Integer;
-attribute thumbPaneX: Number;
+var selectedImage: Integer;
+var thumbPaneX: Number;
 function panLeft():Void {
     panned = false;
     panTimeline.start();
@@ -82,9 +82,9 @@ function panRight():Void {
     panTimeline.start();
 }
 
-attribute panned: Boolean;
+var panned: Boolean;
 
-attribute selectedImageOpacity: Number = 1.0;
+var selectedImageOpacity: Number = 1.0;
 
 override function create():Node {
     var size = sizeof images;

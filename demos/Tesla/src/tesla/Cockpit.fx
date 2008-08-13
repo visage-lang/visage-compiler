@@ -16,8 +16,8 @@ import javafx.input.MouseEvent;
 import javafx.scene.text.*;
 
 class CockpitDetailView extends CustomNode {
-    attribute imageUrl: String;
-    attribute text: String;
+    var imageUrl: String;
+    var text: String;
     
     override function create():Node {
         return Group {
@@ -62,13 +62,13 @@ class CockpitDetailView extends CustomNode {
 }
 
 class Hotspot extends CustomNode {
-    attribute text: String;
-    attribute action: function();
-    attribute scaleValue: Number;
-    //attribute Hotspot.scaleValue = bind if text == null then 0.4 else if hover then [0.4,0.6] dur 300 motion EASEBOTH else [0.6, 0.4] dur 300 motion EASEBOTH;
+    var text: String;
+    var action: function();
+    var scaleValue: Number;
+    //var Hotspot.scaleValue = bind if text == null then 0.4 else if hover then [0.4,0.6] dur 300 motion EASEBOTH else [0.6, 0.4] dur 300 motion EASEBOTH;
     
-    attribute g: Group;
-    attribute whiteCircle: Circle;
+    var g: Group;
+    var whiteCircle: Circle;
     
     override function create():Node {
         return Group {
@@ -83,7 +83,7 @@ class Hotspot extends CustomNode {
             }
             cursor: Cursor.HAND
             content: [g = Group {
-                //                attribute: g
+                //                var: g
                 //transform: bind [Transform.translate(x, y), Transform.scale(scaleValue, scaleValue)]
                 transform: [Transform.translate(x, y), Transform.scale(scaleValue, scaleValue)]
                 content:
@@ -114,7 +114,7 @@ class Hotspot extends CustomNode {
                     centerX: 25
                     centerY: 15
                     radius: 5
-                    //attribute: whiteCircle
+                    //var: whiteCircle
                     fill: bind (if (whiteCircle.isMouseOver()) then Color.TRANSPARENT else Color.WHITE) 
                 }]
             },
@@ -134,15 +134,15 @@ class Hotspot extends CustomNode {
 
 class Cockpit extends CustomNode {
     //var __DOCBASE__:String = "";
-    attribute detailImageUrl: String;
-    attribute detailText: String;
-    attribute detailVisible: Boolean
+    var detailImageUrl: String;
+    var detailText: String;
+    var detailVisible: Boolean
     	on replace oldValue {
         	if (oldValue) {
         		//detailOpacity = [0, 100] dur 500 motion EASEBOTH while oldValue == detailVisible;
         	}
     	}
-    attribute detailOpacity: Number;
+    var detailOpacity: Number;
     
     
     override function create():Node {

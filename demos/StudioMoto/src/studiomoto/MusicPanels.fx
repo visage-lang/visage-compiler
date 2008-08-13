@@ -10,18 +10,18 @@ import javafx.scene.effect.Glow;
 import javafx.animation.*;
 
 public class MusicPanels extends CustomNode {
-    attribute selection: Integer on replace {
+    var selection: Integer on replace {
         if(selectionClip != null) {
             selectionClip.stop();
             selectionClip.start();
         }
     };
-    attribute panels: Node[] = [MusicPanel1{}, MusicPanel2{} , MusicPanel3{} ];
-    attribute selectedPanel: Node = bind panels[selection];
+    var panels: Node[] = [MusicPanel1{}, MusicPanel2{} , MusicPanel3{} ];
+    var selectedPanel: Node = bind panels[selection];
     
-    attribute level:Number;
-    attribute glow:Glow = Glow{level:bind level};
-    attribute glowAnimation = Timeline {
+    var level:Number;
+    var glow:Glow = Glow{level:bind level};
+    var glowAnimation = Timeline {
         keyFrames:
         [KeyFrame {
             time: 0s
@@ -37,12 +37,12 @@ public class MusicPanels extends CustomNode {
         }]
     };
     
-    attribute alpha: Number = 1 on replace {
+    var alpha: Number = 1 on replace {
         if(alpha == 1) {
             glowAnimation.start();
         }
     }
-    attribute selectionClip:Timeline = Timeline {
+    var selectionClip:Timeline = Timeline {
             keyFrames: [
                 KeyFrame {
                     time: 0s

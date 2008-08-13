@@ -13,9 +13,9 @@ import javafx.ext.swing.*;
 import javafx.scene.paint.*;
 
 public class Arrow extends CustomNode {
-    public attribute color: Paint = Color.color(.75, .75, .75, 1);
-    public attribute left: Boolean;
-    public attribute arrowShape: Shape = Path {
+    public var color: Paint = Color.color(.75, .75, .75, 1);
+    public var left: Boolean;
+    public var arrowShape: Shape = Path {
             //outline: true
             elements: [
                 MoveTo {

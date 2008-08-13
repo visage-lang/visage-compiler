@@ -25,13 +25,13 @@ public class SiteSupport extends MotoPanel {
         }
     }    
     
-     override attribute title = ComponentView {
+     override var title = ComponentView {
             component: Label {
                 text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>Site</span><span style='color:yellow;'>Support</span></div></html>"
             }
         };
     
-     override attribute content = VBox {
+     override var content = VBox {
      content:
     [ComponentView {
         component: Label {

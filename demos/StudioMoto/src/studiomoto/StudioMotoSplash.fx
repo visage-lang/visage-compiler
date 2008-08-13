@@ -11,19 +11,19 @@ import javafx.animation.*;
 
 
 class StudioMotoSplash extends CustomNode {
-    attribute motoX: Number = -40;
-    attribute studioX: Number = 50;
-    attribute phoneY: Number = -120;
-    attribute alpha: Number on replace {
+    var motoX: Number = -40;
+    var studioX: Number = 50;
+    var phoneY: Number = -120;
+    var alpha: Number on replace {
         if (alpha < 0.01) { if(onDone != null) onDone();}
     }
-    attribute backgroundAlpha: Number = 1;
+    var backgroundAlpha: Number = 1;
     function doSplash() {
          anim.start();
     }
-    attribute onDone: function();
+    var onDone: function();
     
-    attribute anim: Timeline= Timeline {
+    var anim: Timeline= Timeline {
  
 	  keyFrames:
 	  [ KeyFrame {
