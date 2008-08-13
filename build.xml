@@ -101,6 +101,7 @@
     </target>
 
     <target name="single-fx-test-check" if="test.fx.includes">
+        <property name="test.class" value="framework.FXCompilerTest"/>
         <property name="test.includes" value="**/FXCompilerTest.java"/>
         <property name="javac.includes" value="**/FXCompilerTest.java"/>
         <property name="test-sys-prop.test.fx.includes" value="${test.fx.includes}"/>
