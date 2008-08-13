@@ -116,6 +116,7 @@ public abstract class AbstractLocation implements Location {
                 --iterationDepth;
                 if (iterationDepth == 0) {
                     if (deferredDependencies != null && deferredDependencies.size() > 0) {
+                        // @@@ This is where we used to do the overly aggressive purge
                         dependentLocations.addAll(deferredDependencies);
                         deferredDependencies.clear();
                     }
@@ -154,6 +155,7 @@ public abstract class AbstractLocation implements Location {
             deferredDependencies.add(locationRef);
         }
         else {
+            // @@@ This is where we used to do the overly aggressive purge
             dependentLocations.add(locationRef);
         }
     }
