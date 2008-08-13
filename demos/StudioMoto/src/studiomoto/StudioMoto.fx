@@ -19,10 +19,10 @@ var canvas:Canvas;
 // Workaround for lack of local var trigger
 class HomeModel {
 
-    attribute ys = [[0..-18 step -1],[-18..-12]];
-    attribute homeY:Number = 0;
-    attribute interval = 300/sizeof ys;
-    attribute homeSequence: Timeline = Timeline {
+    var ys = [[0..-18 step -1],[-18..-12]];
+    var homeY:Number = 0;
+    var interval = 300/sizeof ys;
+    var homeSequence: Timeline = Timeline {
         var t = 0;
         keyFrames: for(s in reverse ys) {
             t += interval;
@@ -32,7 +32,7 @@ class HomeModel {
             }
         }
      };
-    attribute homeSequenceR:Timeline = Timeline {
+    var homeSequenceR:Timeline = Timeline {
         var t = 0;
         keyFrames: for(s in  ys) {
             t+= interval;
@@ -42,8 +42,8 @@ class HomeModel {
             }
         }
     };
-    attribute homeButton: HomeButton;
-    attribute selection: Integer on replace {
+    var homeButton: HomeButton;
+    var selection: Integer on replace {
         if (selection > 0) {
             if(homeButton.isMouseOver()) {
                 homeSequence.start();
@@ -81,7 +81,7 @@ var homeModel = HomeModel {
     var splash = StudioMotoSplash {
         onDone: function() {homeModel.selection = 0;}
     }
-    override attribute visible on replace {
+    override var visible on replace {
         if(visible) {
             homeModel.selection = -1;
             splash.doSplash();

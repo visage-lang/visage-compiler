@@ -12,7 +12,7 @@ import javafx.animation.*;
 import javafx.lang.Duration;
 
 public class MusicPanel2 extends CustomNode {
-    attribute softY: Number;
+    var softY: Number;
     override function create():Node {
         Group {
             clip: Rectangle {height: 160, width: 220}
@@ -58,8 +58,8 @@ public class MusicPanel2 extends CustomNode {
         };
 
     }
-    attribute hoverClip:Timeline;
-    public attribute lhover: Boolean = bind isMouseOver() on replace {
+    var hoverClip:Timeline;
+    public var lhover: Boolean = bind isMouseOver() on replace {
         if(hoverClip != null) {
             // stop old clip, this assumes if old clip is already stopped
             // then nothing bad will happen.

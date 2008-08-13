@@ -11,17 +11,17 @@ import javafx.animation.*;
 
 // workarounds for lack of working local variable trigger
 class Helper1 {
-    attribute n: Number;
-    attribute rand: Integer;
-    attribute t: Number on replace {
+    var n: Number;
+    var rand: Integer;
+    var t: Number on replace {
         rand = (Math.random()*n + 0.5).intValue();
     }
 }
 
 class Helper2 {
-    attribute i: Integer;
-    attribute j: Integer;
-    attribute rand: Integer on replace {
+    var i: Integer;
+    var j: Integer;
+    var rand: Integer on replace {
         if (j mod 2 == rand mod 2) {
             if (rand <= i) {
                 alpha = 1;
@@ -31,16 +31,16 @@ class Helper2 {
         }
         //System.out.println("j={j} i={i} rand={rand} alpha={alpha}");
     }
-    attribute alpha: Number;
+    var alpha: Number;
 }
 
 public class MotoMenuAnimation extends CustomNode {
-    attribute active: Boolean
+    var active: Boolean
             on replace { if (active) anim.start() else anim.stop(); };
     function stop() { active = false }
     function start() { active = true }
-    attribute t: Number;
-    attribute anim: Timeline = Timeline {
+    var t: Number;
+    var anim: Timeline = Timeline {
         repeatCount: java.lang.Integer.MAX_VALUE
 	keyFrames: KeyFrame {
             time: 1s/16
@@ -50,7 +50,7 @@ public class MotoMenuAnimation extends CustomNode {
         }
     };
 
-    attribute n:Number = 10;
+    var n:Number = 10;
 
     override function create():Node {
         Group {

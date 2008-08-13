@@ -11,11 +11,11 @@ import javafx.scene.image.*;
 import javafx.animation.*;
 
 public class MotoMenuButton extends CustomNode {
-    public attribute anim: MotoMenuAnimation;
-    public attribute label1: String;
-    public attribute label2: String;
-    public attribute action: function();
-    attribute hover: Boolean = bind rect.isMouseOver() on replace {
+    public var anim: MotoMenuAnimation;
+    public var label1: String;
+    public var label2: String;
+    public var action: function();
+    var hover: Boolean = bind rect.isMouseOver() on replace {
         a.start();
         if (hover) {
             anim.start();
@@ -23,7 +23,7 @@ public class MotoMenuButton extends CustomNode {
             anim.stop();
         }        
     };
-    attribute a: Timeline = Timeline {
+    var a: Timeline = Timeline {
         toggle: true
         keyFrames: [
             KeyFrame {
@@ -41,9 +41,9 @@ public class MotoMenuButton extends CustomNode {
         ]
     };
 
-    attribute y: Number;
-    attribute group:Group;
-    attribute rect:Rectangle;
+    var y: Number;
+    var group:Group;
+    var rect:Rectangle;
     
     override function create():Node {
         Group {

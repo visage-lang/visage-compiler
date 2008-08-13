@@ -11,25 +11,25 @@ import javafx.ext.swing.*;
 import javafx.animation.*;
 
 class LabelWrapper extends CustomNode {
-    public attribute label:Node;
+    public var label:Node;
     override function create():Node {
         label;
     }
 }
 public class Title1 extends CustomNode {
-    attribute label1: Node;
-    attribute label2: Node;
-    attribute label3: Node;
-    attribute logoGroup: Node;
-    public attribute height:Integer;
-    public attribute width:Integer;
-    attribute power: Node;
-    attribute motorolaY: Number;
-    attribute poweredByY: Number;
-    attribute powerY: Number;    
-    attribute poweredHeight =  bind power.getHeight();
-    attribute poweredHeight2 = bind -(power.getHeight()/2);    
-    attribute timelineEnter: Timeline = bind Timeline {
+    var label1: Node;
+    var label2: Node;
+    var label3: Node;
+    var logoGroup: Node;
+    public var height:Integer;
+    public var width:Integer;
+    var power: Node;
+    var motorolaY: Number;
+    var poweredByY: Number;
+    var powerY: Number;    
+    var poweredHeight =  bind power.getHeight();
+    var poweredHeight2 = bind -(power.getHeight()/2);    
+    var timelineEnter: Timeline = bind Timeline {
         toggle: false // true
         keyFrames:
         [ KeyFrame {
@@ -49,7 +49,7 @@ public class Title1 extends CustomNode {
             ]            
         }]
     };
-    attribute timelineExit: Timeline = bind Timeline {
+    var timelineExit: Timeline = bind Timeline {
         toggle: false // true
         keyFrames:
         [ KeyFrame {
@@ -71,8 +71,8 @@ public class Title1 extends CustomNode {
         }]
     };    
 
-    attribute group:Group;
-    attribute hover:Boolean = bind group.isMouseOver() on replace {
+    var group:Group;
+    var hover:Boolean = bind group.isMouseOver() on replace {
         if(hover) {
             timelineEnter.start();
         }else {
@@ -80,7 +80,7 @@ public class Title1 extends CustomNode {
         }
     };
 
-    attribute title = this;
+    var title = this;
     override function create():Node {
         power = LabelWrapper { 
             label:label3

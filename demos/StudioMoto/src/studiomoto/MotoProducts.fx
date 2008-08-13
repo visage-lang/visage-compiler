@@ -12,36 +12,36 @@ import javafx.animation.*;
 import java.lang.System;
 
 public class Product {
-    public attribute title: String;
-    public attribute url: String;
+    public var title: String;
+    public var url: String;
 }
 
 public class MotoProducts extends MotoPanel {
-    attribute products: Product[];
-    attribute consoleY: Number  = -200;
-    attribute phoneY: Number = -200;
-    attribute flipPhoneY: Number = -200;
-    attribute pdaY: Number = -200;
-    attribute headphonesY: Number = -200;
+    var products: Product[];
+    var consoleY: Number  = -200;
+    var phoneY: Number = -200;
+    var flipPhoneY: Number = -200;
+    var pdaY: Number = -200;
+    var headphonesY: Number = -200;
     
-    attribute consoleShadowY: Number  = -200;
-    attribute flipPhoneShadowY: Number = -200;
-    attribute pdaShadowY: Number = -200;
-    attribute headphonesShadowY: Number = -200;
-    attribute phoneShadowY: Number = -200;
+    var consoleShadowY: Number  = -200;
+    var flipPhoneShadowY: Number = -200;
+    var pdaShadowY: Number = -200;
+    var headphonesShadowY: Number = -200;
+    var phoneShadowY: Number = -200;
     
-    attribute consoleImage: Image = getImage(5);
-    attribute phoneImage: Image = getImage(6);
-    attribute flipPhoneImage: Image = getImage(7);
-    attribute pdaImage: Image = getImage(8);
-    attribute headphonesImage: Image = getImage(9);
+    var consoleImage: Image = getImage(5);
+    var phoneImage: Image = getImage(6);
+    var flipPhoneImage: Image = getImage(7);
+    var pdaImage: Image = getImage(8);
+    var headphonesImage: Image = getImage(9);
     
-    attribute shadow1: Image = getImage(1);
-    attribute shadow2: Image = getImage(2);
-    attribute shadow3: Image = getImage(3);
-    attribute shadow4: Image = getImage(4);
-    attribute introCount: Number;
-    attribute productVisible: Boolean;
+    var shadow1: Image = getImage(1);
+    var shadow2: Image = getImage(2);
+    var shadow3: Image = getImage(3);
+    var shadow4: Image = getImage(4);
+    var introCount: Number;
+    var productVisible: Boolean;
     
     
     function getImage(n:Integer): Image {
@@ -72,7 +72,7 @@ public class MotoProducts extends MotoPanel {
     
     
                   
-    attribute introAnim: Timeline = bind Timeline {
+    var introAnim: Timeline = bind Timeline {
          keyFrames:
               [KeyFrame {
                   time: 0s
@@ -204,24 +204,24 @@ public class MotoProducts extends MotoPanel {
 
     // NOTE: these were all var's in the original code, 
     // but they don't work that way in the interpreter, bug??
-    attribute open:Boolean = false;
-    attribute margin:Integer = 3;
-    attribute transparentFill = Color.TRANSPARENT;
-    attribute group:Group;
-    attribute lhover:Boolean = bind group.isMouseOver() on replace { 
+    var open:Boolean = false;
+    var margin:Integer = 3;
+    var transparentFill = Color.TRANSPARENT;
+    var group:Group;
+    var lhover:Boolean = bind group.isMouseOver() on replace { 
         if(not lhover) {
             open = false;
         }
     };
     
     // From MotoPanel
-     override attribute title = ComponentView {
+     override var title = ComponentView {
         component: Label {
             text: "<html><div style='font-face:Arial;font-size:14pt'><span style='color:white;'>Moto</span><span style='color:yellow;'>Products</span></div></html>"
         }
     };
         
-      override attribute content = Group {
+      override var content = Group {
         content: HBox {
             transform: Transform.translate(0, 10)
             content:

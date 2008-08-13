@@ -12,16 +12,16 @@ import javafx.ext.swing.*;
 import java.lang.System;
 
 public class MotoPanel extends Intro {
-    attribute width: Number;
-    attribute height: Number;
-    attribute titleX: Number;
-    attribute contentY: Number;
-    attribute title: Node;
-    attribute content: Node;
-    attribute alpha1: Number;
+    var width: Number;
+    var height: Number;
+    var titleX: Number;
+    var contentY: Number;
+    var title: Node;
+    var content: Node;
+    var alpha1: Number;
     
     
-    attribute intro: Timeline = Timeline {
+    var intro: Timeline = Timeline {
 
         keyFrames:
            [ KeyFrame {
@@ -45,9 +45,9 @@ public class MotoPanel extends Intro {
     override function doIntro():Void {
        intro.start();
     }
-    attribute level:Number;
-    attribute glow:Glow = Glow{level:bind level};
-    attribute glowAnimation = Timeline {
+    var level:Number;
+    var glow:Glow = Glow{level:bind level};
+    var glowAnimation = Timeline {
         keyFrames:
         [KeyFrame {
             time: 0s
@@ -63,7 +63,7 @@ public class MotoPanel extends Intro {
         }]
     }; 
     
-    attribute hover = bind isMouseOver() on replace {
+    var hover = bind isMouseOver() on replace {
         if(hover) {
             glowAnimation.start();
         } else {
