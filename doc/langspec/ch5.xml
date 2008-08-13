@@ -16,7 +16,7 @@ import java.lang.System;
 
 var rand = (Math.random() * 100).intValue();
 var s:String = null;
-if (rand % 2 == 0) {
+if (rand mod 2 == 0) {
      s = "rand is even"
 } else {
      s = "rand is odd"
@@ -518,7 +518,7 @@ The JavaFX Script programming language provides standard operators similar to
 
 	<tr style="border-top:thin solid black;">
 
-      <td rowspan="5" valign="top">10</td>
+      <td rowspan="4" valign="top">10</td>
       <td><code class="style1">+=</code></td>
       <td>Add and assign </td>
       <td>+=</td>
@@ -545,14 +545,6 @@ The JavaFX Script programming language provides standard operators similar to
       <td><code class="style1">/=</code></td>
     </tr>
 	
-		<tr>
-
-      <td><code class="style1">%=</code></td>
-      <td>Remainder and assign </td>
-      <td><code class="style1">%=</code></td>
-    </tr>
-	
-
 
 
 	<tr style="border-top:thin solid black;">
@@ -598,7 +590,7 @@ System.out.println(x + y);  // prints 6
 System.out.println(x - y);  // prints -2
 System.out.println(x * y);  // prints 8
 System.out.println(x / y);   // prints 0
-System.out.println(x % y);   // prints 2
+System.out.println(x mod y);   // prints 2
 System.out.println(a and b); // prints false
 System.out.println(a or b);  // prints true
 System.out.println(not a);  // prints false

@@ -93,7 +93,7 @@ Here is another example that uses a filter. This example defines a function that
 
 <programlisting>
 function factors(n:Number) {
-     return for (i in [1 .. n/2] where n % i == 0) i;
+     return for (i in [1 .. n/2] where n mod i == 0) i;
 }
 </programlisting>
 
