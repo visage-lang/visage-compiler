@@ -13,7 +13,7 @@ class Data {
 	var pass =0;
 	var fail =0;
 	var a = bind [12,234,45,9];
-	var b = bind { for(k in [1..10] where (k%2 == 0)) k };
+	var b = bind { for(k in [1..10] where (k mod 2 == 0)) k };
 	var c:Integer[] = bind [];
 	var d:Integer[] = bind [a,b,c];
 	var e:Integer[] = bind [a,[b,d],c];
