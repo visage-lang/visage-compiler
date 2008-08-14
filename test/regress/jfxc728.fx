@@ -17,7 +17,7 @@ public class Three extends jfxc728One.One, Two {
     public function setAttr3(val :String) :Void  { attr = val }
 }
 
-function main() {
+function run() {
     var xx = Three {};
     xx.setAttr1(12);
     xx.setAttr3("xx3");

@@ -259,7 +259,7 @@ with painted film, rear wheels, mirrors, wiper, windscreen, and headlights."
 }
 
 
-function main() {
+function run() {
     Canvas {
         content: ProcessInPictures{}
     }

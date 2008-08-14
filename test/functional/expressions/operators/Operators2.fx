@@ -6,7 +6,7 @@
 
 import java.lang.*;
 
-function main() {
+function run() {
 	//Evaluate Operands before Operation
 	var divisor = 0;
 	try {

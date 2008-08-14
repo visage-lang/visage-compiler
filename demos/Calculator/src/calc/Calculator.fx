@@ -187,7 +187,7 @@ public class Calculator extends CustomNode {
 }
 
 // start Calculator
-function main() {
+function run() {
     var canvas = Canvas {
         background: Color.TRANSPARENT
         content: [Calculator {

@@ -63,7 +63,7 @@ public class SiteSupport extends MotoPanel {
 
 }
 
-function main() {
+function run() {
     Canvas {
         background: Color.BLACK
         content:

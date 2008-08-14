@@ -112,7 +112,7 @@ public class MotoBottomPanel extends Intro {
 }
 
 
-function main() {
+function run() {
     Canvas {
         background: Color.BLACK;
 

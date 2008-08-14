@@ -42,7 +42,7 @@ public class InsideMusicPane extends MotoPanel {
 }
 
 // test
-function main() {
+function run() {
     Canvas {
   	  background: Color.BLACK
 	    content:

@@ -367,7 +367,7 @@ cars' colors."
 }
 
 // test
-function main() {
+function run() {
     Canvas{
         content: ColorSelector{}
     }

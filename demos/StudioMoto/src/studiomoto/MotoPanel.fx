@@ -136,7 +136,7 @@ public class MotoPanel extends Intro {
     }
 }
 
-function main() {
+function run() {
     Canvas {
         background: Color.BLACK
         content:

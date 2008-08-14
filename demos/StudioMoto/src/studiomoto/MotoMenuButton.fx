@@ -160,7 +160,7 @@ public class MotoMenuButton extends CustomNode {
     }
 }
 
-function main() {
+function run() {
     MotoMenuButton { 
         label1: "Test", 
         label2: "Test 2" , 

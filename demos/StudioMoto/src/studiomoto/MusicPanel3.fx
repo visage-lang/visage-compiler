@@ -48,7 +48,7 @@ public class MusicPanel3 extends CustomNode {
 }
 
 
-function main() {
+function run() {
     MusicPanel3 {}
 }
 

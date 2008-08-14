@@ -184,7 +184,7 @@ public class MotoCenterPanel extends CustomNode {
     }
 }
     
-function main() {
+function run() {
     Canvas {
         background: Color.BROWN
         content: MotoCenterPanel {

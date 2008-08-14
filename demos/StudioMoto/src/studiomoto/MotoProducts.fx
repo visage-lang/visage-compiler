@@ -352,7 +352,7 @@ public class MotoProducts extends MotoPanel {
 }
 
 
-function main() {
+function run() {
     Canvas {
         background: Color.RED
         content: MotoProducts {

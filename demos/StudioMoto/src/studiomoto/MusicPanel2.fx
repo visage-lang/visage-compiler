@@ -100,7 +100,7 @@ public class MusicPanel2 extends CustomNode {
     };
 }
 
-function main() {
+function run() {
     MusicPanel2 {}
 }
 

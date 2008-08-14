@@ -49,7 +49,7 @@ function fileExists(urlStr:String):Boolean {
 
 
 // start FX pad
-function main(__ARGS__ : String[]) {
+function run(__ARGS__ : String[]) {
 
     var javafxPad = JavaFXPad{ url: if(sizeof __ARGS__ > 0) __ARGS__[0] else null };
 

@@ -167,7 +167,7 @@ public class JavafxDefs {
 
         fxObjectName = names.fromString(fxObjectString);
         interfaceSuffixName = names.fromString(interfaceSuffix);
-        mainFunctionName = names.fromString("main");
+        mainFunctionName = names.fromString("run");
         runMethodName = names.fromString(runMethodString);
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);

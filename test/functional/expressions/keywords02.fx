@@ -64,7 +64,7 @@ class outer {
  }
 }
 
-function main() {
+function run() {
     def TU = new TestUtils;
 
      /*
