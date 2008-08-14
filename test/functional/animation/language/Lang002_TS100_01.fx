@@ -26,11 +26,11 @@ var n:Number = 1.0;
 var d:Duration = 1s;
 
 class XYZ {
-    public attribute s:String = "abc";
-    public attribute i:Integer = 0;
-    public attribute b:Boolean = true;
-    public attribute n:Number = 1.0;
-    public attribute d:Duration = 1s;
+    public var s:String = "abc";
+    public var i:Integer = 0;
+    public var b:Boolean = true;
+    public var n:Number = 1.0;
+    public var d:Duration = 1s;
 }
 
 var xyz = XYZ{};
