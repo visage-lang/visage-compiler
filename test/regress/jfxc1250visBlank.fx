@@ -50,7 +50,7 @@ public class jfxc1250visBlank {
 	function memFScr() { 3 }
 }
 
-function run() {
+function run( ) {
 /////
 var sv = jfxc1250visBlank {};
 System.out.println(jfxc1250visBlank.slPub);

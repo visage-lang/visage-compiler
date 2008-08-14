@@ -20,6 +20,6 @@ public class Two extends One {
     }
 }
 
-function run() {
+function run( ) {
     Two{}.pub(); 
 }

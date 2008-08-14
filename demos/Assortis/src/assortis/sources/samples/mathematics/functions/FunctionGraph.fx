@@ -93,7 +93,7 @@ public class Coordinats extends CustomNode{
     }
 }
 
-function run() {
+function run( ) {
     var w = 300;
     var h = 300;
 

@@ -31,7 +31,7 @@ public class MusicPlaytime extends MotoPanel {
     
 }
 
-function run() {
+function run( ) {
     Canvas {
         background: Color.BLACK
         content:

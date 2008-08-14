@@ -45,7 +45,7 @@ function checkfoo( i:Integer, i2:Integer):Integer {
 	return ret;
 }
 
-function run() {
+function run( ) {
     var v = 10;
     var f2 = new foo2;
     TU.checkI(f2.roi(),10,"check bound readable attribute");

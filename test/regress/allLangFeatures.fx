@@ -52,7 +52,7 @@ public class AllTrees {
     }
 }
 
-function run() {
+function run( ) {
 // VARIABLE
 // INSTANTIATE_NEW
 var x = new AllTrees();

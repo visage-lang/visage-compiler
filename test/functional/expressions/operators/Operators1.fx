@@ -7,7 +7,7 @@
 import java.lang.System;
 import java.lang.Exception;
 //Evaluate Left-Hand Operand First
-function run() {
+function run( ) {
 	var i = 2;
 	var j = (i=3) * i;
 	System.out.println(j);	 // prints 9

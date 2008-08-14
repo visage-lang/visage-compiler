@@ -23,7 +23,7 @@ public class TShape extends TNode {
     }
 }
 
-function run() {
+function run( ) {
     var tn = TShape{};
     System.out.println(tn.foo())
 }

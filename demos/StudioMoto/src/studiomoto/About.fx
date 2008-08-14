@@ -30,7 +30,7 @@ public class About extends MotoPanel {
 
 
 // test
-function run() {
+function run( ) {
     Canvas {
         background: Color.BLACK
         content:

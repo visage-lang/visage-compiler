@@ -15,7 +15,7 @@ public class HomeButton extends CustomNode {
 };
 
 // test
-function run() {
+function run( ) {
     HomeButton {}
 }
 

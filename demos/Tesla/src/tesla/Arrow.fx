@@ -55,7 +55,7 @@ public class Arrow extends CustomNode {
 
 
 // test
-function run() {
+function run( ) {
     Canvas {
        var arrow = Arrow{}
         content:

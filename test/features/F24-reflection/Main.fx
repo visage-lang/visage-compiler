@@ -42,7 +42,7 @@ public class Simple extends Square, java.lang.Object {
    public attribute at1;
 };
 
-function run() {
+function run( ) {
 var clsSquare = context.findClass("Main.Square");
 var clsMyRect = context.findClass("Main.MyRect");
 System.out.println("clsSquare={clsSquare} jfx-class:{clsSquare.isJfxType()} compound:{clsSquare.isCompoundClass()}");

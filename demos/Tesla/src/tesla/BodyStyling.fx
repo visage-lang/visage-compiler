@@ -366,7 +366,7 @@ Group {
 
 
 // test
-function run() {
+function run( ) {
     Canvas{
         content:
             BodyStyling{}
