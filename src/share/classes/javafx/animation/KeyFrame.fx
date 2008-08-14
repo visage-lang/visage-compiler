@@ -38,7 +38,11 @@ public class KeyFrame extends Comparable {
      * 
      * @profile common
      */
-    public var time: Duration;
+    public var time: Duration on replace {
+	if(owner != null) {
+	    owner.invalidate();
+	}
+    };
 
     /**
      * The list of target variables and the desired values they should
@@ -81,6 +85,13 @@ public class KeyFrame extends Comparable {
      */
     public var canSkip: Boolean = false;
 
+    /**
+     * The timeline in which this key frame to be executed. It 
+     * provides feedback to timeline if there is any attribute
+     * change that timeline needs to be invalidated.
+     */
+    var owner: Timeline;
+    
     /**
      * A comparison function used to sort KeyFrames by their
      * specified reference time.

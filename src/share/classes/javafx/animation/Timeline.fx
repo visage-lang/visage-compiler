@@ -96,6 +96,9 @@ public class Timeline {
      * @profile common
      */
     public var keyFrames: KeyFrame[] on replace {
+	for(keyFrame: KeyFrame in keyFrames) {
+	    keyFrame.owner = this;
+	}
         invalidate();
     };
 
@@ -393,8 +396,13 @@ public class Timeline {
             curT = adjustedTotalElapsed;
             cycle = 0;
         } else {
-            curT = adjustedTotalElapsed mod duration;
-            cycle = adjustedTotalElapsed / duration as Integer;
+	    if(duration != 0) {
+		    curT = adjustedTotalElapsed mod duration;
+		    cycle = adjustedTotalElapsed / duration as Integer;
+	    } else {
+		    curT = 0;
+		    cycle = 0;
+	    }
             if (curT == 0 and adjustedTotalElapsed != 0) {
                 // we're at the end, or exactly on a cycle boundary;
                 // treat this as the "1.0" case of the previous cycle
