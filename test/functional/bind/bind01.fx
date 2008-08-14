@@ -18,7 +18,7 @@ var enableBindingOverhaul;
 //simple bind of variable to variable expression
 class binder {
 
- private attribute df:DecimalFormat = new DecimalFormat("###,###.##");
+ private var df:DecimalFormat = new DecimalFormat("###,###.##");
 /** some formatters */
  function formatNumber(n:Number):String { 
    df.setMinimumIntegerDigits(1);
@@ -103,7 +103,7 @@ System.out.println(  x ); //prints [ 1, 1, 1, 1, 1..., 1 ] ???
 }
 
 function test5() {
-	System.out.println("test5: bind readonly attributes, series of binds to attributes");
+	System.out.println("test5: bind readonly vars, series of binds to vars");
 var C = new circles;
 System.out.println("RAD     DIA   CIRCUM  AREA");
 System.out.println("----    ----  ------  -------");
@@ -142,14 +142,14 @@ function test7() {}
 }
 
 class circles {
-    /*readonly*/ attribute pi : Number = 3.14157;
-    attribute radius : Number = 1;
-	 private /*readonly*/ attribute MID:Integer=2;
-    /*readonly*/ attribute diameter:Number = bind radius * 2;
-    /*readonly*/ attribute circumference : Number = bind diameter * pi;
-    /*readonly*/ attribute area : Number =  bind (radius)*(radius)*pi;
-	 private attribute df:DecimalFormat = new DecimalFormat("###,###,######.##");
-    init {		 System.out.println("test5: multiple binds to attribute");	 }
+    /*readonly*/ var pi : Number = 3.14157;
+    var radius : Number = 1;
+	 private /*readonly*/ var MID:Integer=2;
+    /*readonly*/ var diameter:Number = bind radius * 2;
+    /*readonly*/ var circumference : Number = bind diameter * pi;
+    /*readonly*/ var area : Number =  bind (radius)*(radius)*pi;
+	 private var df:DecimalFormat = new DecimalFormat("###,###,######.##");
+    init {		 System.out.println("test5: multiple binds to var");	 }
 	 function formatNumber(n:Number):String {
 		 df.setMinimumIntegerDigits(MID);
 		 df.setMinimumFractionDigits(2);
@@ -164,9 +164,9 @@ class circles {
 
 
  class X {
-       attribute a: Number;
-       attribute b: Number on replace old {    System.out.println("X.b is now {b}");   };
-       attribute c: Number on replace old {    System.out.println("X.c is now {c}");    };
+       var a: Number;
+       var b: Number on replace old {    System.out.println("X.b is now {b}");   };
+       var c: Number on replace old {    System.out.println("X.c is now {c}");    };
  }
 
 
