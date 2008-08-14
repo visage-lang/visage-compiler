@@ -46,10 +46,10 @@ class DefaultValuesDemo {
 }
 
 var demo = DefaultValuesDemo {};
-System.out.println("Default Value: " + demo.a);
-System.out.println("Default Value: " + demo.b);
-System.out.println("Default Value: " + demo.c);
-System.out.println("Default Value: " + demo.d);
+System.out.println("Default Value: {demo.a}");
+System.out.println("Default Value: {demo.b}");
+System.out.println("Default Value: {demo.c}");
+System.out.println("Default Value: {demo.d}");
 </programlisting>
 
 

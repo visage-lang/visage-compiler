@@ -198,6 +198,19 @@ var s = "The answer is {if (answer) "Yes" else "No"}"; // s = 'The answer is Yes
 Unlike the Java programming language, a JavaFX Script programming language String literal can contain newlines.
 </para>
 
+<para>
+To concatenate Strings, use curly braces inside the quotes:
+</para>
+
+<programlisting>
+import java.lang.System;
+
+var one = "This example ";
+var two = "demonstrates string concatenation.";
+var three = "{one}{two}";
+System.out.println(three);
+</programlisting>
+
 <para>You also can control how numbers and dates are converted to character 
 strings by providing an additional formatting prefix in a string expression. 
  This additional formatting prefix follows the specification of <code>java.util.Formatter</code>:</para>
