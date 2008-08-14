@@ -52,13 +52,13 @@ class outer {
  function getThis():String { 	def sthis = outterthis.toString(); 	return sthis;  }
 
  var inn = inner {
-	function getThis():String { def sthis = this.toString(); return sthis; }
+	override function getThis():String { def sthis = this.toString(); return sthis; }
  }
 
 
  function mlocal():String {
 	def m_local = localclass { 
-	       function getThis():String { def sthis = this.toString(); return sthis; }
+	       override function getThis():String { def sthis = this.toString(); return sthis; }
 	}
 	return m_local.getThis();
  }
