@@ -16,8 +16,12 @@ public class Three extends jfxc728One.One, Two {
     public function getAttr3() :String { attr; }
     public function setAttr3(val :String) :Void  { attr = val }
 }
-var xx = Three {};
-xx.setAttr1(12);
-xx.setAttr3("xx3");
-//java.lang.System.out.println("xx");
-java.lang.System.out.println("xx.attr1: {xx.getAttr1()} .attr2: {xx.getAttr2()} .attr3: {xx.getAttr3()}.");
+
+function main() {
+    var xx = Three {};
+    xx.setAttr1(12);
+    xx.setAttr3("xx3");
+    //java.lang.System.out.println("xx");
+    java.lang.System.out.println("xx.attr1: {xx.getAttr1()} .attr2: {xx.getAttr2()} .attr3: {xx.getAttr3()}.");
+}
+

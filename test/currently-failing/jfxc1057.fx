@@ -1,8 +1,13 @@
 /**
  * Regression test JFXC-1057 : variable type inferenced to '? extends ...' type
  *
- * @test
- * @run
+ * @test/fail
+ *
+ * JFXC-1057 to cover this new failure (it is a Location now)
+ *
+ * was:
+ * *test
+ * *run
  */
 import java.lang.System;
 class Foo {

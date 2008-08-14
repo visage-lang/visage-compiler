@@ -89,6 +89,7 @@ public class JavafxDefs {
      */
     public final Name fxObjectName;
     public final Name interfaceSuffixName;
+    final Name mainFunctionName;
     final Name runMethodName;
     final Name receiverName;
     final Name initializeName;
@@ -166,6 +167,7 @@ public class JavafxDefs {
 
         fxObjectName = names.fromString(fxObjectString);
         interfaceSuffixName = names.fromString(interfaceSuffix);
+        mainFunctionName = names.fromString("main");
         runMethodName = names.fromString(runMethodString);
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);

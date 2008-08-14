@@ -15,17 +15,17 @@ import java.lang.Exception;
  * This FAILS for smaller sequences
  */
 
-public class qsort
+class qsort
 {
-    attribute bPrint: Boolean = true;
-    attribute arraysize = 0;
-    attribute Int_sequence:Integer[];
-    attribute compare_count = 0;
-    attribute swap_count = 0;
+    var bPrint: Boolean = true;
+    var arraysize = 0;
+    var Int_sequence:Integer[];
+    var compare_count = 0;
+    var swap_count = 0;
     function PrintOff(b: Boolean) { bPrint = not b; }
 
      //////// debugging function //////////////////////////
-	 attribute debug = false;
+	 var debug = false;
 	 function debugout(msg:String) { if (debug)	 {System.out.println( msg ); } }
 
     /** Return length of internal array */
@@ -125,7 +125,7 @@ var totalSwaps = 0;
 System.out.print("START...");
 println("----Integer array-----------------");
 for( j in [0..arraysize-1]) {
-   insert ((j*multiplier + 1) %modnum) into Int_sequence;
+   insert ((j*multiplier + 1)  mod modnum) into Int_sequence;
 }
 printArray("Unsorted");
 sort(0,arraysize-1);
@@ -148,7 +148,7 @@ QSortTest.test1();
 qsort.println("----Double array-----------------");
       Double Darray[] = new Double[arraysize];
       for(Integer j = 0; j<arraysize; j++)
-         Darray[j] = new Double( ((j*multiplier + 1) %modnum)*1.235 );
+         Darray[j] = new Double( ((j*multiplier + 1)  mod modnum)*1.235 );
       qsort<Double> qD = new qsort<Double>(Darray);
       String type = qD.Int_sequence[0].getClass().getName();
 qsort.println("type of Object array[1]: " + type);
@@ -163,7 +163,7 @@ qsort.println("type of Object array[1]: " + type);
 qsort.println("----Integer array-----------------");
       Integer iarray[]  = new Integer[arraysize];
       for(Integer j = 0; j<arraysize; j++)
-         iarray[j] = (j*multiplier + 1) %modnum;
+         iarray[j] = (j*multiplier + 1)  mod modnum;
       qsort<Integer> q = new qsort<Integer>(iarray);
       q.printArray("Unsorted");
       q.sort(0,q.length()-1);

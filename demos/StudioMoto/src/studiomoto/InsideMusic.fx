@@ -36,9 +36,13 @@ public class InsideMusic extends MotoPanel {
     
 }
 
-Canvas {
-    background: Color.BLACK
-    content:
-    InsideMusic {height: 180, width: 250}
+// test
+function main() {
+    Canvas {
+        background: Color.BLACK
+        content:
+        InsideMusic {height: 180, width: 250}
+    }
 }
+
 

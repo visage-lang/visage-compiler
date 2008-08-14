@@ -112,11 +112,12 @@ public class MotoBottomPanel extends Intro {
 }
 
 
-Canvas {
-    background: Color.BLACK;
+function main() {
+    Canvas {
+        background: Color.BLACK;
 
-    var p = MotoBottomPanel {panelHeight: 200, panelWidth: 250, panelMargin: 15};
-    content: [Rectangle {height: 300, width: 900,  fill: Color.BLACK, onMouseClicked: function(e) {p.doIntro();}}, p]
-
+        var p = MotoBottomPanel {panelHeight: 200, panelWidth: 250, panelMargin: 15};
+        content: [Rectangle {height: 300, width: 900,  fill: Color.BLACK, onMouseClicked: function(e) {p.doIntro();}}, p]
+    }
 }
 

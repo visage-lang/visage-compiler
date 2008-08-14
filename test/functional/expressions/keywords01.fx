@@ -24,14 +24,16 @@ public class foo2 extends foo {
 	function roi():Integer {return roI; }
 	function ros():String { return roS; }
  }
-var v = 10;
-var f2 = new foo2;
-TU.checkI(f2.roi(),10,"check bound readable attribute");
 
-//fb2 is bound to foo2.data + v
-def fb2 = bind f2.RequiredAbstractFunction() + v;
-TU.checkI(fb2, 20,"var bound to function in expression");
-f2.roi();
+/*
+ * JFXC-36 Cannot assign to a readable attribute from within same class
+ * readable keyword semanctics not implemented.
+ */
+class ro {
+//readable is now enforced, commented out until it is handled some other way
+	/*readable*/ attribute ROA = 10;
+	function roa():Integer { return ROA; }
+}
 
 function checkfoo( i:Integer, i2:Integer):Integer {
    var ret = 1;
@@ -43,7 +45,17 @@ function checkfoo( i:Integer, i2:Integer):Integer {
 	return ret;
 }
 
-for(i in [10,20]) {
+function main() {
+    var v = 10;
+    var f2 = new foo2;
+    TU.checkI(f2.roi(),10,"check bound readable attribute");
+
+    //fb2 is bound to foo2.data + v
+    def fb2 = bind f2.RequiredAbstractFunction() + v;
+    TU.checkI(fb2, 20,"var bound to function in expression");
+    f2.roi();
+
+    for(i in [10,20]) {
 	v = i;
 	f2.setData(i);
 	TU.checkI(f2.roi(),i,"check bound readable attribute");
@@ -55,37 +67,29 @@ for(i in [10,20]) {
 	} finally {
 	   TU.check(true,"Make sure we got to finally block");
 	}
-}
+    }
 
-f2.setData(50);
-f2.roi();
-try {
+    f2.setData(50);
+    f2.roi();
+    try {
 	f2.roI = 20;
-} catch( be: Exception ) {
+    } catch( be: Exception ) {
 	TU.checkB(be instanceof com.sun.javafx.runtime.BindingException,
 		"check BindingExecption2: {be}");
-}
-if( f2.ros().compareTo("readable")!=0){
+    }
+    if( f2.ros().compareTo("readable")!=0){
 	throw new Exception("failed on check of initial value of readable string");
-}
-f2.roS = "Hello, World!";
-TU.checkS(f2.ros(),"Hello, World!","check value of readable string after reasssignment!");
+    }
+    f2.roS = "Hello, World!";
+    TU.checkS(f2.ros(),"Hello, World!","check value of readable string after reasssignment!");
 
-/*
- * JFXC-36 Cannot assign to a readable attribute from within same class
- * readable keyword semanctics not implemented.
- */
-class ro {
-//readable is now enforced, commented out until it is handled some other way
-	/*readable*/ attribute ROA = 10;
-	function roa():Integer { return ROA; }
-}
-var r = new ro;
-if(r.roa()!=10){ 
+    var r = new ro;
+    if(r.roa()!=10){ 
 	throw new Exception("initial value of ROA is incorrect!");
-}
-r.ROA=100;  //<--should not be allowed??? -- and now it isn't, this is why readable is commented out
-TU.checkI(r.roa(),100,
+    }
+    r.ROA=100;  //<--should not be allowed??? -- and now it isn't, this is why readable is commented out
+    TU.checkI(r.roa(),100,
 	"Why can this readable variable be set? If you're reading this, it has been fixed!");
 
-TU.report();
+    TU.report();
+}

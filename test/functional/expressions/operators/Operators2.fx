@@ -23,4 +23,4 @@ function main() {
 function loseBig():Integer {
 	throw new Exception("Shuffle off to Buffalo!");
 }
-main();
+

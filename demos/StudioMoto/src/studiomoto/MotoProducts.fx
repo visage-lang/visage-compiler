@@ -352,18 +352,20 @@ public class MotoProducts extends MotoPanel {
 }
 
 
-Canvas {
-    background: Color.RED
-    content: MotoProducts {
-        height: 220
-        width: 1000
-        products:
-        [Product {
-            title: "Product 1"
-        },
-        Product {
-            title: "Product 2"
-        }]
+function main() {
+    Canvas {
+        background: Color.RED
+        content: MotoProducts {
+            height: 220
+            width: 1000
+            products:
+            [Product {
+                title: "Product 1"
+            },
+            Product {
+                title: "Product 2"
+            }]
+        }
     }
 }
 

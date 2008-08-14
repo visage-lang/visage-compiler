@@ -7,7 +7,7 @@
 
 import java.lang.System;
 
-public abstract class X {
+abstract class X {
     public attribute a: Number = 1;
     public attribute b: Number = 2;
     public abstract function givemec() : Integer;

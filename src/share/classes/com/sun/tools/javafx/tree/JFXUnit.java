@@ -54,13 +54,14 @@ import javax.tools.JavaFileObject;
  */
 public class JFXUnit extends JFXTree implements UnitTree {
 
-    public JFXExpression pid;
+    public final JFXExpression pid;
     public List<JFXTree> defs;
     public JavaFileObject sourcefile;
     public PackageSymbol packge;
     public Scope namedImportScope;
     public Scope starImportScope;
     public long flags;
+    public boolean isLibrary = false;
     public Position.LineMap lineMap = null;
     public Map<JCTree, String> docComments = null;
     public Map<JCTree, Integer> endPositions = null;

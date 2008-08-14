@@ -7,7 +7,7 @@
 
 import java.lang.System;
 
-public class BugTest {
+class BugTest {
     attribute status: Number;
     attribute codes: Number[] = [0, 1, 2, 3];
     attribute ubtest: Number = codes[status];

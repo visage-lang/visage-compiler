@@ -173,4 +173,6 @@ function pickIcon() {
 }
 
 // test it
-picks();
+function main() {
+    picks();
+}

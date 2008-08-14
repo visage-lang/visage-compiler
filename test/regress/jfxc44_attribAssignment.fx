@@ -7,7 +7,7 @@
 
 import java.lang.System;
 
-public class Foo {
+class Foo {
     attribute aa = 0;
     attribute bb = 0;
     function doit() {

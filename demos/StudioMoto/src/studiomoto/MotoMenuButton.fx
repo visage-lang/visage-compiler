@@ -160,10 +160,12 @@ public class MotoMenuButton extends CustomNode {
     }
 }
 
-MotoMenuButton { 
-    label1: "Test", 
-    label2: "Test 2" , 
-    transform: Transform.translate(100, 100)
-    anim: MotoMenuAnimation {active: true}
-};
+function main() {
+    MotoMenuButton { 
+        label1: "Test", 
+        label2: "Test 2" , 
+        transform: Transform.translate(100, 100)
+        anim: MotoMenuAnimation {active: true}
+    }
+}
 

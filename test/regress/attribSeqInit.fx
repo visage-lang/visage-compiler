@@ -6,7 +6,7 @@
 
 import java.lang.System;
 
-public class F {
+class F {
    public readable attribute months = [
        "Jan", "Feb", "Mar",
        "Apr", "May", "Jun",

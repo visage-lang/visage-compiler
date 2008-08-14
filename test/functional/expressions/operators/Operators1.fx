@@ -30,4 +30,4 @@ function main() {
 function forgetIt():Integer {
 	throw new Exception("I'm outta here!");
 }
-main();
+

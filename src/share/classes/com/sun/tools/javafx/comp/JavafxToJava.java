@@ -149,6 +149,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     private static final String sequencesRangeExclusiveString = "com.sun.javafx.runtime.sequence.Sequences.rangeExclusive";
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.SequenceBuilder";
     private static final String boundSequenceBuilderString = "com.sun.javafx.runtime.sequence.BoundSequenceBuilder";
+    private static final String noMainExceptionString = "com.sun.javafx.runtime.NoMainException";
     private static final String toSequenceString = "toSequence";
     private static final String methodThrowsString = "java.lang.Throwable";
     private JFXClassDeclaration currentClass;  //TODO: this is redundant with attrEnv.enclClass
@@ -1209,13 +1210,30 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     }
 
     @Override
+    public void visitVarScriptInit(JFXVarScriptInit tree) {
+        DiagnosticPosition diagPos = tree.pos();
+        JFXModifiers mods = tree.getModifiers();
+        long modFlags = mods.flags | Flags.FINAL;
+        VarSymbol vsym = tree.getSymbol();
+        JFXVar var = tree.getVar();
+        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+        assert vsym.owner.kind == Kinds.TYP : "this should just be for script-level variables";
+        assert shouldMorph(vmi) : "when we optimize this, this will change, but so should the code";
+        assert (modFlags & Flags.STATIC) != 0;
+        assert (modFlags & JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC) != 0;
+        assert !attrEnv.toplevel.isLibrary;
+
+        result = translateDefinitionalAssignmentToSetExpression(diagPos, var.init, var.getBindStatus(), vsym, null, 0);
+    }
+
+    @Override
     public void visitVar(JFXVar tree) {
         DiagnosticPosition diagPos = tree.pos();
         Type type = tree.type;
         JFXModifiers mods = tree.getModifiers();
         long modFlags = mods.flags & ~Flags.FINAL;
-        VarSymbol vsym = tree.sym;
-        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+        final VarSymbol vsym = tree.getSymbol();
+        final VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         assert vsym.owner.kind != Kinds.TYP : "attributes are processed in the class and should never come here";
 
         // Variables accessed from an inner class must be FINAL
@@ -1254,7 +1272,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
            if ( !shouldMorph(vmi)) {
                 if ( (modFlags & Flags.FINAL) != 0 ) {
                     init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
-                    tree.getBindStatus(), tree.sym);
+                    tree.getBindStatus(), vsym);
                     result = make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
                     return;
                 }
@@ -1272,7 +1290,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
                 TranslatedAttributeInfo attrInfo = new TranslatedAttributeInfo(
                                                             tree,
-                                                            typeMorpher.varMorphInfo(vsym),
+                                                            vmi,
                                                             null,
                                                             tree.getOnReplace(),
                                                             translatedOnReplaceBody(tree.getOnReplace()));
@@ -1281,20 +1299,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
 
             result = translateDefinitionalAssignmentToSet(diagPos, tree.init, tree.getBindStatus(), tree.sym, null, 0);
- /****
-            JCExpression setExpr = translateDefinitionalAssignmentToSetExpression(diagPos, tree.init, tree.getBindStatus(), tree.sym, null, 0);
-            switch (yield) {
-                case ToExecStatement:
-                    result = make.at(diagPos).Exec(setExpr);
-                    break;
-                case ToReturnStatement:
-                    result = make.at(diagPos).Return(setExpr);
-                    break;
-                case ToExpression:
-                    result = setExpr;
-                    break;
-            }
-  ****/
         }
     }
 
@@ -1972,6 +1976,12 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     }
 
     JCMethodDecl makeMainMethod(DiagnosticPosition diagPos, Name className) {
+        List<JCStatement> mainStats;
+        if (false && attrEnv.toplevel.isLibrary) {
+            //TODO: decide if we want this, and under what conditions
+            List<JCExpression> newClassArgs = List.<JCExpression>of(make.at(diagPos).Literal(TypeTags.CLASS, className.toString()));
+            mainStats = List.<JCStatement>of(make.at(diagPos).Throw(make.at(diagPos).NewClass(null, null, makeIdentifier(diagPos, noMainExceptionString), newClassArgs, null)));
+        } else {
             List<JCExpression> emptyExpressionList = List.nil();
             JCExpression classIdent = make.at(diagPos).Ident(className);
             JCExpression classConstant = make.at(diagPos).Select(classIdent, names._class);
@@ -1981,7 +1991,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             args.append(classConstant);
             args.append(commandLineArgs);
             JCMethodInvocation runCall = make.at(diagPos).Apply(emptyExpressionList, startIdent, args.toList());
-            List<JCStatement> mainStats = List.<JCStatement>of(make.at(diagPos).Exec(runCall));
+            mainStats = List.<JCStatement>of(make.at(diagPos).Exec(runCall));
+        }
             List<JCVariableDecl> paramList = List.nil();
             paramList = paramList.append(make.at(diagPos).VarDef(make.Modifiers(0),
                     Name.fromString(names, "args"),

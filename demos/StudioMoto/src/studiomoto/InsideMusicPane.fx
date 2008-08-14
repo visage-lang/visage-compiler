@@ -37,15 +37,16 @@ public class InsideMusicPane extends MotoPanel {
             transform: bind Transform.translate(width -30, height -35)
             image: Image {url: "{__DIR__}Image/88.png"}
         }]
-    };
+    }
     
 }
 
-
-
-Canvas {
-    background: Color.BLACK
-    content:
-    InsideMusic {height: 180, width: 250}
+// test
+function main() {
+    Canvas {
+  	  background: Color.BLACK
+	    content:
+	    InsideMusic {height: 180, width: 250}
+    }
 }
 

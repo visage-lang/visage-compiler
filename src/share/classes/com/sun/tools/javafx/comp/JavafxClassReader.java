@@ -517,10 +517,14 @@ public class JavafxClassReader extends ClassReader {
                         flags |=  Flags.PUBLIC;
                         accessExplicit = true;
                     }
+                    else if (a.type.tsym.flatName() == javafxSyms.javafx_scriptPrivateAnnotationType.tsym.flatName()) {
+                        flags &= ~(Flags.PROTECTED | Flags.PRIVATE | Flags.PUBLIC);
+                        accessExplicit = true;
+                    }
                     else if (a.type.tsym.flatName() == javafxSyms.javafx_inheritedAnnotationType.tsym.flatName()) {
                         continue handleSyms;
                     }
-                    else if (a.type.tsym.flatName() == javafxSyms.javafx_sourceNameAnnotationType.tsym.flatName()) {
+                    if (a.type.tsym.flatName() == javafxSyms.javafx_sourceNameAnnotationType.tsym.flatName()) {
                         Attribute aa = a.member(name.table.value);
                         Object sourceName = a.member(name.table.value).getValue();
                         if (sourceName instanceof String) {

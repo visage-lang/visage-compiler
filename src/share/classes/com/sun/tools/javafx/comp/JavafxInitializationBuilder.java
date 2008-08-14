@@ -709,23 +709,26 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             List<TranslatedAttributeInfo> translatedAttrInfo) {
         // Add the initialization of this class' attributesa
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
+        boolean isLibrary = toJava.attrEnv.toplevel.isLibrary;
         for (TranslatedAttributeInfo tai : translatedAttrInfo) {
             assert tai.attribute != null && tai.attribute.getFXTag() == JavafxTag.VAR_DEF && tai.attribute.pos != Position.NOPOS;
             if (tai.isStatic()) {
-                if (tai.isDirectOwner()) {
-                    DiagnosticPosition diagPos = tai.pos();
+                DiagnosticPosition diagPos = tai.pos();
+                // don't put variable initialization in the static initializer if this is a simple-form
+                // script (where variable initialization is done in the run method).
+                if (tai.isDirectOwner() && (isLibrary || (tai.getFlags() | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC) == 0)) {
                     if (tai.getDefaultInitializtionStatement() != null) {
                         stmts.append(tai.getDefaultInitializtionStatement());
                     }
                     stmts.append( callStatement(diagPos, make.at(diagPos).Ident(tai.getName()), locationInitializeName));
                 }
-                JCStatement stat = makeStaticChangeListenerCall(tai);
+                JCStatement stat = makeChangeListenerCall(tai);
                 if (stat != null) {
                     stmts.append(stat);
                 }
             }
         }
-        return make.Block(Flags.STATIC, stmts.toList());
+        return make.at(cDecl.pos()).Block(Flags.STATIC, stmts.toList());
     }
 
     /**
@@ -743,16 +746,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         // add change listeners for triggers on attribute definitions
         for (TranslatedAttributeInfo info : translatedAttrInfo) {
-            JCStatement stat = makeChangeListenerCall(info);
-            if (stat != null)
-                stmts.append(stat);
+            if (!info.isStatic()) {
+                JCStatement stat = makeChangeListenerCall(info);
+                if (stat != null) {
+                    stmts.append(stat);
+                }
+            }
         }
 
         // add change listeners for "with" triggers
         for (TranslatedOverrideAttributeInfo info : translatedTriggerInfo) {
-            JCStatement stat = makeChangeListenerCall(info);
-            if (stat != null)
-                stmts.append(stat);
+            if (!info.isStatic()) {
+                JCStatement stat = makeChangeListenerCall(info);
+                if (stat != null) {
+                    stmts.append(stat);
+                }
+            }
         }
 
         return make.at(diagPos).MethodDef(
@@ -961,11 +970,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 null);
     }
 
-    JCStatement makeStaticChangeListenerCall(TranslatedAttributeInfo info) {
-	// TBD static attribute triggers
-	return null;
-    }
-    
     /**
      * Make a method body which redirects to the actual implementation in a static method of the defining class.
      */

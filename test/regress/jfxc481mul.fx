@@ -7,14 +7,14 @@
 
 import java.lang.System;
 
-public class MyClass {
-  public attribute foo:String = "bar";
+class MyClass {
+  public var foo:String = "bar";
 }
 
-public class jfxc481mul /*extends junit.framework.TestCase*/ {
-  attribute x:Integer = 2;
-  attribute y:Integer = 1;
-  attribute seq:MyClass[] = [MyClass{}, MyClass{},MyClass{}];
+class jfxc481mul /*extends junit.framework.TestCase*/ {
+  var x:Integer = 2;
+  var y:Integer = 1;
+  var seq:MyClass[] = [MyClass{}, MyClass{},MyClass{}];
   function boo(a : Integer) : MyClass { MyClass{} }
 
   public function test() {

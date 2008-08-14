@@ -22,7 +22,7 @@ import com.sun.scenario.animation.Interpolators;
 import java.lang.Float;
 import java.lang.Object;
 
-public class GoldenData extends Interpolatable {
+class GoldenData extends Interpolatable {
 	public attribute value: Number = 0;
 
 	override function ofTheWay(endVal: Object, t: Number): Object {
@@ -37,7 +37,7 @@ public class GoldenData extends Interpolatable {
 	}
 }
 
-public class MyInterpolator extends SimpleInterpolator {
+class MyInterpolator extends SimpleInterpolator {
 	public attribute i:com.sun.scenario.animation.Interpolator 
 		= Interpolators.getEasingInstance(new Float(0.25), new Float(0.34));
 	

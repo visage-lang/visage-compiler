@@ -271,7 +271,7 @@ public class JavaFXScriptEngineTest {
             fail("script should have failed due to missing declaration");
         } catch (ScriptException e) {
             Object result = engine.eval("var x = 2;");
-            assertNull(result);  // declarations don't return results
+            assertEquals(2, ((Number)result).intValue());  // var declarations now return results
         }
     }
    

@@ -31,8 +31,10 @@ public class MusicPlaytime extends MotoPanel {
     
 }
 
-Canvas {
-    background: Color.BLACK
-    content:
-    About {height: 200, width: 1000}
+function main() {
+    Canvas {
+        background: Color.BLACK
+        content:
+        About {height: 200, width: 1000}
+    }
 }

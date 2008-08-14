@@ -6,16 +6,16 @@
 
 import java.lang.System;
 
-public class T {
-  attribute x: Number = 0
+class T {
+  var x: Number = 0
       on replace {System.out.println("x ={x}");}
-  attribute y: Number = bind x
+  var y: Number = bind x
       on replace {System.out.println("y ={y}");}
-  attribute zx: Number = bind x
+  var zx: Number = bind x
       on replace {System.out.println("zx ={zx}");}
-  attribute zy: Number = bind y
+  var zy: Number = bind y
       on replace {System.out.println("zy ={zy}");}
-  attribute zy2: Number = bind y
+  var zy2: Number = bind y
       on replace {System.out.println("zy2 ={zy2}");}
   init {
       x = 20;

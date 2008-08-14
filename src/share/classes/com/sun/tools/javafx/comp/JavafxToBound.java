@@ -1507,6 +1507,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
+    public void visitVarScriptInit(JFXVarScriptInit tree) {
+        assert false : "should not be processed as part of a binding";
+    }
+
+    @Override
     public void visitVar(JFXVar tree) {
         // this is handled in translarVar
         assert false : "should not be processed as part of a binding";

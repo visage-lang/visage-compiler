@@ -29,7 +29,6 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.Name;
 import com.sun.javafx.api.JavafxBindStatus;
-import java.util.Map;
 
 /**
  * Variable declaration.
@@ -70,6 +69,10 @@ public class JFXVar extends JFXExpression implements VariableTree {
     
     public Name getName() {
         return name;
+    }
+
+    public VarSymbol getSymbol() {
+        return sym;
     }
 
     public JFXTree getType() {

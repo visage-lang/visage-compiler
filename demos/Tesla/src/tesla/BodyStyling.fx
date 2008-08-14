@@ -364,7 +364,11 @@ Group {
 }
 }
 
-Canvas{
-content:
-BodyStyling{}
+
+// test
+function main() {
+    Canvas{
+        content:
+            BodyStyling{}
+    }
 }

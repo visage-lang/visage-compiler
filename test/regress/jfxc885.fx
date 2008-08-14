@@ -5,12 +5,13 @@
 
 import java.lang.System;
 
-public class Foo {
-    public attribute attr = false on replace {
+class Foo {
+    public var attr = false on replace {
         java.lang.System.out.println("REPLACED with {attr}");
     }
 }
-public class Moo {
+
+class Moo {
     public attribute sattr : Boolean[] on replace {
         java.lang.System.out.println("REPLACED with {sattr}");
     }

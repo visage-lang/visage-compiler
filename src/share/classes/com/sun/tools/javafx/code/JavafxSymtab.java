@@ -45,6 +45,7 @@ public class JavafxSymtab extends Symtab {
     public static final String privateAnnotationClassName = "com.sun.javafx.runtime.Private";
     public static final String protectedAnnotationClassName = "com.sun.javafx.runtime.Protected";
     public static final String publicAnnotationClassName = "com.sun.javafx.runtime.Public";
+    public static final String scriptPrivateAnnotationClassName = "com.sun.javafx.runtime.ScriptPrivate";
     public static final String readableAnnotationClassName = "com.sun.javafx.runtime.Readable";
     public static final String defAnnotationClassName = "com.sun.javafx.runtime.Def";
     public static final String staticAnnotationClassName = "com.sun.javafx.runtime.Static";
@@ -75,6 +76,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_privateAnnotationType;
     public final Type javafx_protectedAnnotationType;
     public final Type javafx_publicAnnotationType;
+    public final Type javafx_scriptPrivateAnnotationType;
     public final Type javafx_readableAnnotationType;
     public final Type javafx_defAnnotationType;
     public final Type javafx_staticAnnotationType;
@@ -138,6 +140,7 @@ public class JavafxSymtab extends Symtab {
         javafx_privateAnnotationType = enterClass(privateAnnotationClassName);
         javafx_protectedAnnotationType = enterClass(protectedAnnotationClassName);
         javafx_publicAnnotationType = enterClass(publicAnnotationClassName);
+        javafx_scriptPrivateAnnotationType = enterClass(scriptPrivateAnnotationClassName);
         javafx_readableAnnotationType = enterClass(readableAnnotationClassName);
         javafx_defAnnotationType = enterClass(defAnnotationClassName);
         javafx_staticAnnotationType = enterClass(staticAnnotationClassName);

@@ -7,12 +7,12 @@
 
 import java.lang.System;
 
-public class CanvasMouseEvent {
-    public attribute x: Number;
-    public attribute y: Number;
+class CanvasMouseEvent {
+    public var x: Number;
+    public var y: Number;
 }
-public class Circle {
-  public attribute onMouseClicked: function(e:CanvasMouseEvent):Void;
+class Circle {
+  public var onMouseClicked: function(e:CanvasMouseEvent):Void;
 };
 var c = Circle {
     onMouseClicked: function(mEvt) {

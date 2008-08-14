@@ -122,7 +122,7 @@ function check() {
 	//System.out.println("Total time ticks(FPS): {count} per 1s");
 
 	if(count != 1) {
-		throw new AssertionError("test failed: count");
+		throw new AssertionError("test failed: count={count} -- expected 1)");
 	}
 
 	if(avgBegin != 0.0) {

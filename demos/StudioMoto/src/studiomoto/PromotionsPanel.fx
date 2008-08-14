@@ -61,9 +61,11 @@ public class PromotionsPanel extends CustomNode {
     }
 }
 
-Canvas {
-    background: Color.BLACK
-    content: PromotionsPanel {} as Node
+function main() {
+    Canvas {
+        background: Color.BLACK
+        content: PromotionsPanel {} as Node
+    }
 }
 
 

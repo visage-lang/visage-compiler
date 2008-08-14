@@ -579,8 +579,15 @@ public abstract class JavafxTranslationSupport {
         else if ((flags & Flags.PRIVATE) != 0) {
             annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.privateAnnotationClassName), List.<JCExpression>nil()));
         }
-        else if ((flags & Flags.PROTECTED) != 0) {        
+        else if ((flags & Flags.PROTECTED) != 0) {
             annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.protectedAnnotationClassName), List.<JCExpression>nil()));
+        }
+        else if ((flags & JavafxFlags.PACKAGE_ACCESS) != 0) {
+            //TODO
+            //annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.packageAnnotationClassName), List.<JCExpression>nil()));
+        }
+        else {        // otherwise it is script private
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.scriptPrivateAnnotationClassName), List.<JCExpression>nil()));
         }
 
         if ((flags & JavafxFlags.PUBLIC_READABLE) != 0) {

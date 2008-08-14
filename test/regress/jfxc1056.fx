@@ -3,7 +3,7 @@
  * @run
  */
 import java.lang.System;
-public class Foo {
+class Foo {
     attribute text : String;
     public attribute func: function(): String = myfunc;
     public function myfunc(): String {text}

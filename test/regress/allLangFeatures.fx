@@ -51,6 +51,8 @@ public class AllTrees {
         1 as Number
     }
 }
+
+function main() {
 // VARIABLE
 // INSTANTIATE_NEW
 var x = new AllTrees();
@@ -229,6 +231,7 @@ seq[1..2];
 
 // TRIGGER_WRAPPER
 // ???
+}
 
 // TYPE_UNKNOWN
 function g() {
@@ -242,6 +245,7 @@ var tf : function () : String;
 // EMPTY_STATEMENT
 // ???
 
+function more() {
 // INT_LITERAL
 1;
 // LONG_LITERAL
@@ -271,3 +275,4 @@ reverse seq;
 
 // ERRONEOUS
 // OTHER
+}

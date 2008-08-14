@@ -1,4 +1,7 @@
+test/should-fail/jfxc892a.fx:7: return outside method
+var c = { return a; }
+          ^
 test/should-fail/jfxc892a.fx:7: 'void' type not allowed here
 var c = { return a; }
 ^
-1 error
+2 errors

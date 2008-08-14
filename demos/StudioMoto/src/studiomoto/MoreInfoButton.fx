@@ -36,5 +36,7 @@ public class MoreInfoButton extends CustomNode {
     }
 }
 
-MoreInfoButton {}
+function main() {
+    MoreInfoButton {}
+}
 

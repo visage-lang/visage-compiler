@@ -37,14 +37,17 @@ public class Square extends MyRect {
    protected attribute atProt : String;
    private attribute atPriv : String;
 };
+
+public class Simple extends Square, java.lang.Object {
+   public attribute at1;
+};
+
+function main() {
 var clsSquare = context.findClass("Main.Square");
 var clsMyRect = context.findClass("Main.MyRect");
 System.out.println("clsSquare={clsSquare} jfx-class:{clsSquare.isJfxType()} compound:{clsSquare.isCompoundClass()}");
 System.out.println("Sq.super: {clsSquare.getSuperClasses(false)}");
 
-public class Simple extends Square, java.lang.Object {
-   public attribute at1;
-};
 var smpl = Simple {};
 var smplRef = context.makeObjectRef(smpl);
 var clsSimple = smplRef.getType();
@@ -92,5 +95,4 @@ for (attr in context.findClass("Main.Square").getAttributes(false)) {
 System.out.println("Simple attributes (only): ");
 for (attr in context.findClass("Main.Simple").getAttributes(false)) {
   System.out.println("  {attr.getName()} : {attr.getType()}") };
-
-
+}

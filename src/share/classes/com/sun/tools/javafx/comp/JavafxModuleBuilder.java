@@ -116,74 +116,122 @@ public class JavafxModuleBuilder {
             }
         }.scan(module.defs);
         //debugPositions(module);
-        addPseudoVariables(diagPos[0], moduleClassName, module, scriptClassDefs, usesFile[0], usesDir[0]);
+
+        ListBuffer<JFXTree> scriptTops = ListBuffer.<JFXTree>lb();
+        scriptTops.appendList( pseudoVariables(diagPos[0], moduleClassName, module, usesFile[0], usesDir[0]) );
+        scriptTops.appendList(module.defs);
 
         // Divide module defs between run method body, Java compilation unit, and module class
         ListBuffer<JFXTree> topLevelDefs = new ListBuffer<JFXTree>();
         JFXClassDeclaration moduleClass = null;
         JFXExpression value = null;
-        for (JFXTree tree : module.defs) {
+        boolean isLibrary = false;
+        final long EXTERNALIZING_FLAGS = Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.PACKAGE_ACCESS | JavafxFlags.PUBLIC_READABLE;
+        for (JFXTree tree : scriptTops) {
+            switch (tree.getFXTag()) {
+                case CLASS_DEF: {
+                    JFXClassDeclaration decl = (JFXClassDeclaration) tree;
+                    if ((decl.getModifiers().flags & EXTERNALIZING_FLAGS) != 0) {
+                        isLibrary = true;
+                    }
+                    break;
+                }
+                case FUNCTION_DEF: {
+                    JFXFunctionDefinition decl =
+                            (JFXFunctionDefinition) tree;
+                    Name name = decl.name;
+                    if (name == defs.mainFunctionName || (decl.getModifiers().flags & EXTERNALIZING_FLAGS) != 0) {
+                        isLibrary = true;
+                    }
+                    break;
+                }
+                case VAR_DEF: { 
+                    JFXVar decl = (JFXVar) tree;
+                    if ((decl.getModifiers().flags & EXTERNALIZING_FLAGS) != 0) {
+                        isLibrary = true;
+                    }
+                    break;
+                }
+            }
+        }
+        module.isLibrary = isLibrary;
+        boolean looseExpressionErrorShown = false;
+        for (JFXTree tree : scriptTops) {
             if (value != null) {
                 stats.append(value);
                 value = null;
             }
             switch (tree.getFXTag()) {
-            case IMPORT:
-                topLevelDefs.append(tree);
-                break;
-            case CLASS_DEF: {
-                JFXClassDeclaration decl = (JFXClassDeclaration)tree;   
-                Name name = decl.getName();
-                checkName(tree.pos, name);
-                if (name == moduleClassName) {
-                    moduleClass = decl;
-                } else {
-                    decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
-                    scriptClassDefs.append(tree);
+                case IMPORT:
+                    topLevelDefs.append(tree);
+                    break;
+                case CLASS_DEF: {
+                    JFXClassDeclaration decl = (JFXClassDeclaration) tree;
+                    Name name = decl.getName();
+                    checkName(tree.pos, name);
+                    if (name == moduleClassName) {
+                        moduleClass = decl;
+                    } else {
+                        decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
+                        scriptClassDefs.append(tree);
+                    }
+                    break;
                 }
-                break;
-            }
-            case FUNCTION_DEF: {
-                JFXFunctionDefinition decl =
-                    (JFXFunctionDefinition)tree;
-                decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
-                Name name = decl.name;
-                checkName(tree.pos, name);
-                scriptClassDefs.append(tree);
-                //stats.append(decl);
-                break;
-            }
-            case VAR_DEF: { //TODO: deal with var value
-                JFXVar decl = (JFXVar) tree;
-                checkName(tree.pos, decl.getName());
-                if ((decl.getModifiers().flags & (Flags.PUBLIC | Flags.PRIVATE | JavafxFlags.PUBLIC_READABLE)) != 0L) {
-                    // externally visible, so needs to be a static on the script class
-                    // we can't handle this in the lazy conversion since attribution will barf on a var with these flags
-                    // note that protected is an error, but we will let attribution handle that
+                case FUNCTION_DEF: {
+                    JFXFunctionDefinition decl = (JFXFunctionDefinition) tree;
                     decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
-                    scriptClassDefs.append(tree);
-                } else {
-                    // otherwise lazily see is it can be local to the run method
-                    stats.append(decl);
+                    Name name = decl.name;
+                    if (name == defs.mainFunctionName) {
+                        // this is the main function, move its body to the run method
+                        JFXBlockExpression body = decl.getBodyExpression();
+                        stats.appendList(body.getStmts());
+                        if (body.getValue() != null) {
+                            stats.append(body.getValue());
+                        }
+                    } else {
+                        checkName(tree.pos, name);
+                        scriptClassDefs.append(tree);
+                    }
+                    break;
                 }
-                break;
-            }
-            default:
-                value = (JFXExpression) tree;
-                break;
+                case VAR_DEF: {
+                    JFXVar decl = (JFXVar) tree;
+                    if ( (decl.mods.flags & SCRIPT_LEVEL_SYNTH_STATIC) == 0) {
+                        // if this wasn't already created as a synthetic
+                        checkName(tree.pos, decl.getName());
+                    }
+                    decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
+                    scriptClassDefs.append(decl);  // declare variable as a static in the script class
+                    if (!isLibrary) {
+                        // This is a simple-form script where the main-code is just loose at the script-level.
+                        // The main-code will go into the run method.  The variable initializations should
+                        // be in-place inline.   Place the variable initialization in 'value' so that
+                        // it will wind up in the code of the run method.
+                        value = fxmake.VarScriptInit(decl);
+                    }
+                    break;
+                }
+                default: {
+                    if (isLibrary && !looseExpressionErrorShown) {
+                        log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_LOOSE_EXPRESSIONS);
+                        looseExpressionErrorShown = true;
+                    }
+                    value = (JFXExpression) tree;
+                    break;
+                }
             }
         }
-                
+
         // Add run() method... If the class can be a module class.
         JFXFunctionDefinition runMethod = makeRunFunction(stats.toList(), value);
         scriptClassDefs.prepend(runMethod);
 
         if (moduleClass == null) {
-            moduleClass =  fxmake.ClassDeclaration(
-                fxmake.Modifiers(PUBLIC),   //public access needed for applet initialization 
-                moduleClassName, 
-                List.<JFXExpression>nil(),             // no supertypes
-                scriptClassDefs.toList());
+            moduleClass = fxmake.ClassDeclaration(
+                    fxmake.Modifiers(PUBLIC), //public access needed for applet initialization
+                    moduleClassName,
+                    List.<JFXExpression>nil(), // no supertypes
+                    scriptClassDefs.toList());
         } else {
             moduleClass.setMembers(scriptClassDefs.appendList(moduleClass.getMembers()).toList());
         }
@@ -211,8 +259,9 @@ public class JavafxModuleBuilder {
 
     }
     
-    private void addPseudoVariables(DiagnosticPosition diagPos, Name moduleClassName, JFXUnit module,
-            ListBuffer<JFXTree> stats, boolean usesFile, boolean usesDir) {
+    private List<JFXTree> pseudoVariables(DiagnosticPosition diagPos, Name moduleClassName, JFXUnit module,
+            boolean usesFile, boolean usesDir) {
+        ListBuffer<JFXTree> pseudoDefs = ListBuffer.<JFXTree>lb();
         if (usesFile || usesDir) {
             // java.net.URL __FILE__ = Util.get__FILE__(moduleClass);
             JFXExpression moduleClassFQN = module.pid != null ?
@@ -227,20 +276,20 @@ public class JavafxModuleBuilder {
                 fxmake.at(diagPos).Var(pseudoFile, getURLType(diagPos), 
                          fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC),
                          false, getFileURL, JavafxBindStatus.UNBOUND, null);
+            pseudoDefs.append(fileVar);
 
             // java.net.URL __DIR__;
             if (usesDir) {
                 JFXExpression getDir = fxmake.at(diagPos).Identifier("com.sun.javafx.runtime.Util.get__DIR__");
                 args = List.<JFXExpression>of(fxmake.at(diagPos).Ident(pseudoFile));
                 JFXExpression getDirURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getDir, args);
-                stats.prepend(
+                pseudoDefs.append(
                     fxmake.at(diagPos).Var(pseudoDir, getURLType(diagPos), 
                              fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC),
                              false, getDirURL, JavafxBindStatus.UNBOUND, null));
             }
-
-            stats.prepend(fileVar);  // must come before __DIR__ call
         }
+        return pseudoDefs.toList();
     }
     
     private JFXType getURLType(DiagnosticPosition diagPos) {

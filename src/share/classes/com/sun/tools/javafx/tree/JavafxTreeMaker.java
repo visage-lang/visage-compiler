@@ -710,6 +710,11 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
+     public JFXVarScriptInit VarScriptInit(JFXVar var) {
+         JFXVarScriptInit tree = new JFXVarScriptInit(var);
+         tree.pos = var.pos;
+         return tree;
+     }
 
     public JFXVar Var(Name name,
             JFXType type,

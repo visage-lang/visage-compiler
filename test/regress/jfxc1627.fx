@@ -8,7 +8,7 @@
 
 import java.lang.System;
 
-public def round : String = "Orbital";
+def round : String = "Orbital";
 
 class Fuzzy {
 

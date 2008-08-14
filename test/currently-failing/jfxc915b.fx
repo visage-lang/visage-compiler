@@ -1,9 +1,14 @@
 /*
  * Test automatic conversion of primitive datatypes
- * See also jfxc915b.fx.
+ * See also jfxc915a.fx.
  *
- * @test
- * @run
+ * @test/fail
+ *
+ * New failure covered by JFXC-1780
+ *
+ * was:
+ * *test
+ * *run
  */
 
 import java.lang.*;

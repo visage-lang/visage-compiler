@@ -93,47 +93,46 @@ public class Coordinats extends CustomNode{
     }
 }
 
+function main() {
+    var w = 300;
+    var h = 300;
 
-var w = 300;
-var h = 300;
+    var xMin = -4;
+    var xMax = 4;
 
-var xMin = -4;
-var xMax = 4;
-
-var dx = 0.1;
-var scale = 20;
+    var dx = 0.1;
+    var scale = 20;
 
 
-SwingFrame{
-    width:  300
-    height: 300
-    title: "Function Graph"
+    SwingFrame{
+        width:  300
+        height: 300
+        title: "Function Graph"
 
-    content: Canvas{
-	 content: [ Group{
+        content: Canvas{
+    	 content: [ Group{
 
-            transform: Translate.translate(w/2, h/2)
-            content: [ Coordinats{
-                xMin: xMin
-                xMax: xMax
-                scale: scale
-            }, FunctionGraph {
-                xMin: xMin
-                xMax: xMax
-                scale: scale
-                dx: dx
-                color: Color.DARKORANGE
-                func: f1
-            },FunctionGraph {
-                xMin: xMin
-                xMax: xMax
-                scale: scale
-                dx: dx
-                color: Color.BLUE
-                func: f2                
-            }]
-      
-          
+                transform: Translate.translate(w/2, h/2)
+                content: [ Coordinats{
+                    xMin: xMin
+                    xMax: xMax
+                    scale: scale
+                }, FunctionGraph {
+                    xMin: xMin
+                    xMax: xMax
+                    scale: scale
+                    dx: dx
+                    color: Color.DARKORANGE
+                    func: f1
+                },FunctionGraph {
+                    xMin: xMin
+                    xMax: xMax
+                    scale: scale
+                    dx: dx
+                    color: Color.BLUE
+                    func: f2                
+            }]            
         }]
+       }
     }
 }

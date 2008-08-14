@@ -7,7 +7,7 @@
 
 import java.lang.System;
 
-public abstract class X {
+abstract class X {
    abstract function blah() : Integer;
 }
 

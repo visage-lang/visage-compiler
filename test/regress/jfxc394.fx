@@ -2,10 +2,10 @@
  * @test
  * @run
  */
-public class Foo {
-    public attribute attr: String = "HI";
+class Foo {
+    public var attr: String = "HI";
 }
-public class Bar extends Foo {
-    public attribute foo : String = attr;
+class Bar extends Foo {
+    public var foo : String = attr;
 }
 Bar{}

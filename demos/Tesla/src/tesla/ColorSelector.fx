@@ -366,6 +366,9 @@ cars' colors."
     }
 }
 
-Canvas{
-content: ColorSelector{}
+// test
+function main() {
+    Canvas{
+        content: ColorSelector{}
+    }
 }

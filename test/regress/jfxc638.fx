@@ -3,7 +3,7 @@
  *
  */
 
-public function foo (localSeq:Integer[]) {
+function foo (localSeq:Integer[]) {
     localSeq[0] = 4; 
 }
 

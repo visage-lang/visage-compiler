@@ -3,10 +3,10 @@
  * @run
  */
 import java.lang.System;
-public class Bug {
-    attribute foo:String;
+class Bug {
+    var foo:String;
 
-    attribute bar = java.lang.Runnable {
+    var bar = java.lang.Runnable {
         public function run():Void {
             foo = "Hello World";
         }

@@ -7,21 +7,21 @@
 
 import java.lang.System;
 
-public function translate(x:Number, y: Number): Translate {
+function translate(x:Number, y: Number): Translate {
     return Translate {
 	x: bind x
 	y: bind y
     }
 }
 
-public bound function btranslate(x:Number, y: Number): Translate {
+bound function btranslate(x:Number, y: Number): Translate {
     return Translate {
 	x: bind x
 	y: bind y
     }
 }
 
-public class Translate {
+class Translate {
     public attribute x: Number;
     public attribute y: Number;
 }

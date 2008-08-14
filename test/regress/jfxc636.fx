@@ -3,9 +3,11 @@
  * @test
  * @run
  */
+
 import java.lang.System;
-public class Main1 {
-    attribute attr: Integer[] on replace oldVal[a..b] = newVal {
+
+class Main1 {
+    var attr: Integer[] on replace oldVal[a..b] = newVal {
         var j = 0;
         for (i in oldVal) {j++}
         System.out.println("loop attr oldVal {j} times.");
@@ -16,7 +18,7 @@ public class Main1 {
 }
 var x1 = Main1{attr: [1, 2, 3]};
 
-public class Main2 {
+class Main2 {
 
     function func(val: Integer[]) {
         var j = 0;

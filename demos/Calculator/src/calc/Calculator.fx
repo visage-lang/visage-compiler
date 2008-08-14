@@ -186,20 +186,21 @@ public class Calculator extends CustomNode {
     } 
 }
 
+// start Calculator
+function main() {
+    var canvas = Canvas {
+        background: Color.TRANSPARENT
+        content: [Calculator {
+        }]
+    }
 
-
-var canvas = Canvas {
-    background: Color.TRANSPARENT
-    content: [Calculator {
-    }]
-}
-
-SwingFrame {
-  title: 'JavaFX Calculator'
-  background: Color.WHITE
-  content: canvas
-  visible: true
-}      
+    SwingFrame {
+      title: 'JavaFX Calculator'
+      background: Color.WHITE
+      content: canvas
+      visible: true
+    }     
+} 
 
 
 

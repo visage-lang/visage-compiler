@@ -54,22 +54,24 @@ public class Arrow extends CustomNode {
 }    
 
 
-Canvas {
-    var arrow = Arrow{}
-    content:
-    arrow,
-/*    Subtract {
-        transform: Translate.translate(100, 100)
-        shape1: Rect {
-            height: 44
-            width: 44
-        }
-        //        var arrow = 
-        shape2: Union {
-            transform: [Translate.translate(10, 12), Rotate.rotate(180, 12.5, 10)]
-            content: Arrow{}.arrowShape
-            
-        }
-        fill: Color.rgba(.7, .7, .7, 1)
-    }*/
+// test
+function main() {
+    Canvas {
+       var arrow = Arrow{}
+        content:
+        arrow,
+    /*    Subtract {
+            transform: Translate.translate(100, 100)
+            shape1: Rect {
+                height: 44
+                width: 44
+            }
+            //        var arrow = 
+            shape2: Union {
+                transform: [Translate.translate(10, 12), Rotate.rotate(180, 12.5, 10)]
+                content: Arrow{}.arrowShape 
+            }
+            fill: Color.rgba(.7, .7, .7, 1)
+        }*/
+    }
 }

@@ -8,9 +8,9 @@
 
 import java.lang.System;
 
-public var TU = new TestUtils;
+var TU = new TestUtils;
 
-public class InitTest {
+class InitTest {
     var tf : Integer =0;
 	 var firedtriggers:String[];
 	 function triggers(msg:String) { System.out.print( "{msg}: triggers fired: {tf}: ");System.out.println({firedtriggers} ); }

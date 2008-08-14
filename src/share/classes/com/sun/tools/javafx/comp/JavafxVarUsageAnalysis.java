@@ -79,6 +79,10 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
     
     @Override
+    public void visitVarScriptInit(JFXVarScriptInit tree) {
+    }
+
+    @Override
     public void visitVar(JFXVar tree) {
         boolean wasInBindContext = inBindContext;
         inBindContext |= tree.isBound();

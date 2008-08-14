@@ -7,7 +7,7 @@
 
 import java.lang.System;
 
-public class Bar {
+class Bar {
 	attribute alpha : Integer = 3;
 	private attribute beta : Integer = bind alpha * 10;
 	function foo(x : Integer, y : Integer) : Integer { x - y } 

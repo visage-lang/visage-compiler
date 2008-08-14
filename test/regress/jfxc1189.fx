@@ -6,4 +6,4 @@
  */
 
 var d: javafx.lang.Duration;
-var msg = "{d}"; // throws NPE here 
+var msg = "{d}"; // throws NPE here

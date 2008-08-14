@@ -7,7 +7,7 @@ import java.lang.System;
 var foo: Integer[] = null;
 var bar = if (foo == null) null else for (i in foo) i;
 System.out.println("foo [{foo}]");
-public class Test {
+class Test {
     public function foo() {
         return [1, 2, 3];
     }

@@ -999,6 +999,10 @@ public class JavafxAttr implements JavafxVisitor {
         }
     }
 
+    @Override
+    public void visitVarScriptInit(JFXVarScriptInit tree) {
+        result = tree.type = attribExpr(tree.getVar(), env);
+    }
 
     @Override
     public void visitVar(JFXVar tree) {
@@ -1041,7 +1045,8 @@ public class JavafxAttr implements JavafxVisitor {
 
         }
         warnOnStaticUse(tree.pos(), tree.getModifiers(), sym);
-        result = tree.type;
+        // type is the type of the variable unless the variable is bound
+        result = tree.isBound()? syms.voidType : tree.type;
     }
 
     private void warnOnStaticUse(DiagnosticPosition pos, JFXModifiers mods, Symbol sym) {

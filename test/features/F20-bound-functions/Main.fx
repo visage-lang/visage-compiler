@@ -7,7 +7,7 @@
 
 import java.lang.*;
 
-public class Paia {
+class Paia {
   attribute context : Integer;
   bound function flo(ralph : Integer) : Integer { ralph + context }
   attribute sum = bind flo(1000);

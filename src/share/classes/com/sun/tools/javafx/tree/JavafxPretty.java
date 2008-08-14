@@ -39,6 +39,7 @@ import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Position;
+import com.sun.tools.javafx.code.JavafxFlags;
 import java.util.Iterator;
 
 import static com.sun.tools.javac.code.Flags.*;
@@ -1120,6 +1121,17 @@ public class JavafxPretty implements JavafxVisitor {
         return "";
     }
 
+    @Override
+    public void visitVarScriptInit(JFXVarScriptInit tree) {
+        // REMOVE
+        try {
+        print("variable initialization for ");
+           print(tree.getVar());
+    } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+   }
+
     public void visitVar(JFXVar tree) {
         try {
             if (docComments != null && docComments.get(tree) != null) {
@@ -1127,10 +1139,13 @@ public class JavafxPretty implements JavafxVisitor {
             }
             printDocComment(tree);
             printExpr(tree.mods);
-            if (variableScope == SCOPE_CLASS)
-                print("attribute ");
-            else if (variableScope != SCOPE_PARAMS)
-                print("var ");
+            if (variableScope != SCOPE_PARAMS) {
+                if ((tree.getModifiers().flags & JavafxFlags.IS_DEF) != 0) {
+                    print("def ");
+                } else {
+                    print("var ");
+                }
+            }
             print(tree.getName());
             printTypeSpecifier(tree.getJFXType());
             if (variableScope != SCOPE_PARAMS) {

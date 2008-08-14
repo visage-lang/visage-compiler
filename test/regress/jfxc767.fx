@@ -8,8 +8,8 @@
 import java.lang.System;
 import java.util.BitSet;
 
-public class Foo {
-    attribute bits : BitSet = BitSet {
+class Foo {
+    var bits : BitSet = BitSet {
             public function toString():String {
                 return "Class: { getClass().getSuperclass() }";
             }

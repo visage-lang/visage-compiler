@@ -135,52 +135,51 @@ public class Guitar extends CustomNode {
     }
 }
 
-
-
-
-
-SwingFrame {
-    title: "Guitar Tuner"
-    height: 500
-    width: 600
-    closeAction: function() {System.exit(0);}
-    visible: true
-    background: Color.BLACK
-    content: Canvas {
-        
+function main() {
+    SwingFrame {
+        title: "Guitar Tuner"
+        height: 500
+        width: 600
+        closeAction: function() {System.exit(0);}
+        visible: true
         background: Color.BLACK
-        content:
-        [ImageView {
-            cursor: Cursor.DEFAULT
-            image: Image{url: "http://dontipton.com/myPictures/guitar-lights-neck-circle.jpg"}
-        },
-        ComponentView {
-            cursor: Cursor.DEFAULT
-            opacity: 0.6
-            transform: [Transform.translate(20, 20), Transform.scale(0.5, 0.5)]
-            component: Label {
-                font: Font{name:"Tahoma", style:FontStyle.BOLD, size:20}
-                foreground: Color.WHITE
-                text:
-                "<html>
-                   <body>
-                   <table>
-                   <tr>
-                   <td>
-                   <img src='http://l.yimg.com/static.widgets.yahoo.com/133/images/minichit_missing.png'></img>
-                   </td> 
-                   <td width='150'>
-                   JavaFX Clone of Yahoo Widget Engine Guitar Tuner Widget
-                   </td>
-                   </tr>
-                </table>"
-            }
-        },
-        Guitar {
-            cursor: Cursor.DEFAULT
-            transform: bind [Transform.translate(300.0, 200.0) ]
-            verticalAlignment: VerticalAlignment.CENTER
-            horizontalAlignment: HorizontalAlignment.CENTER
-        }]
+        content: Canvas {
+        
+            background: Color.BLACK
+            content:
+            [ImageView {
+                cursor: Cursor.DEFAULT
+                image: Image{url: "http://dontipton.com/myPictures/guitar-lights-neck-circle.jpg"}
+            },
+            ComponentView {
+                cursor: Cursor.DEFAULT
+                opacity: 0.6
+                transform: [Transform.translate(20, 20), Transform.scale(0.5, 0.5)]
+                component: Label {
+                    font: Font{name:"Tahoma", style:FontStyle.BOLD, size:20}
+                    foreground: Color.WHITE
+                    text:
+                    "<html>
+                       <body>
+                       <table>
+                       <tr>
+                       <td>
+                       <img src='http://l.yimg.com/static.widgets.yahoo.com/133/images/minichit_missing.png'></img>
+                       </td> 
+                       <td width='150'>
+                       JavaFX Clone of Yahoo Widget Engine Guitar Tuner Widget
+                       </td>
+                       </tr>
+                    </table>"
+                }
+            },
+            Guitar {
+                cursor: Cursor.DEFAULT
+                transform: bind [Transform.translate(300.0, 200.0) ]
+                verticalAlignment: VerticalAlignment.CENTER
+                horizontalAlignment: HorizontalAlignment.CENTER
+            }]
+        }
     }
 }
+

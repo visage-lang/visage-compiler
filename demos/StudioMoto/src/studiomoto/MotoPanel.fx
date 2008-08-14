@@ -132,28 +132,29 @@ public class MotoPanel extends Intro {
                 }
             }]
         }
-        };
-    };
-};
+        }
+    }
+}
 
-Canvas {
-    background: Color.BLACK
-    content:
-    MotoPanel {
-        width: 200
-        height: 200
-        title: Text {
-            content: "Promotions", 
-            textOrigin: TextOrigin.TOP
-            fill: Color.WHITE, 
-            font: Font{name: "ARIAL", size: 14}
+function main() {
+    Canvas {
+        background: Color.BLACK
+        content:
+        MotoPanel {
+            width: 200
+            height: 200
+            title: Text {
+                content: "Promotions", 
+                textOrigin: TextOrigin.TOP
+                fill: Color.WHITE, 
+                font: Font{name: "ARIAL", size: 14}
+            }
+            content: Text {
+                content: "Promotions", 
+                fill: Color.WHITE, 
+                font: Font{name: "ARIAL", size: 14}
+            }      
         }
-        content: Text {
-            content: "Promotions", 
-            fill: Color.WHITE, 
-            font: Font{name: "ARIAL", size: 14}
-        }
-        
     }
 }
 

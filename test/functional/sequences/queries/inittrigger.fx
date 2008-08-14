@@ -6,7 +6,7 @@
  */
 
 import java.lang.System;
-public class InitTest {
+class InitTest {
     public attribute foo:Boolean = true on replace old {
         System.out.println("1. Replace Boolean old = {old}; new = {foo}");
     }

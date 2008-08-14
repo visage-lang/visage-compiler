@@ -63,7 +63,11 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
     var sortedElements:   DummyElement[];
     var unsortedElements: DummyElement[];
     var longSequence:     DummyElement[];
-    
+
+    // for comparison
+    var totallyEmptyInteger:     Integer[];
+    var totallyEmptyElements:    DummyElement[];
+
     var element: DummyElement[];
     var comparator: DummyComparator;
     
@@ -84,6 +88,9 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         unsortedElements = [element[3], element[1], element[2]];
         longSequence     = [element[0], element[1], element[2], element[1], element[3]];
 
+        totallyEmptyInteger    = [];
+        totallyEmptyElements    = [];
+
         // Comparator
         comparator = DummyComparator {};
     }
@@ -98,7 +105,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
         // search in empty sequence
         result = Sequences.binarySearch(emptyInteger, 1);
-        assertEquals([], emptyInteger);
+        assertEquals(totallyEmptyInteger, emptyInteger);
         assertEquals(-1, result);
         
         // single element sequence
@@ -137,7 +144,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
         // search in empty sequence
         result = Sequences.binarySearch(emptyElements, element[1], comparator);
-        assertEquals([], emptyElements);
+        assertEquals(totallyEmptyElements, emptyElements);
         assertEquals(-1, result);
         
         // single element sequence
@@ -191,7 +198,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
         // search in empty sequence
         result = Sequences.indexByIdentity(emptyElements, element[1]);
-        assertEquals([], emptyElements);
+        assertEquals(totallyEmptyElements, emptyElements);
         assertEquals(-1, result);
         
         // single element sequence
@@ -262,7 +269,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
         // search in empty sequence
         result = Sequences.indexOf(emptyElements, element[1]);
-        assertEquals([], emptyElements);
+        assertEquals(totallyEmptyElements, emptyElements);
         assertEquals(-1, result);
         
         // single element sequence
@@ -541,7 +548,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
         // search in empty sequence
         result = Sequences.nextIndexByIdentity(emptyElements, element[1], 1);
-        assertEquals([], emptyElements);
+        assertEquals(totallyEmptyElements, emptyElements);
         assertEquals(-1, result);
         
         // single element sequence
@@ -588,7 +595,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
         // search in empty sequence
         result = Sequences.nextIndexOf(emptyElements, element[1], 1);
-        assertEquals([], emptyElements);
+        assertEquals(totallyEmptyElements, emptyElements);
         assertEquals(-1, result);
         
         // single element sequence
@@ -625,8 +632,8 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
         // reverse empty sequence
         result = Sequences.<<reverse>>(emptyInteger) as Integer[];
-        assertEquals([], emptyInteger);
-        assertEquals([], result);
+        assertEquals(totallyEmptyInteger, emptyInteger);
+        assertEquals(totallyEmptyInteger, result);
         
         // reverse single element sequence
         result = Sequences.<<reverse>>(singleInteger) as Integer[];
@@ -651,8 +658,8 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
         // sort empty sequence
         result = Sequences.sort(emptyInteger) as Integer[];
-        assertEquals([], emptyInteger);
-        assertEquals([], result);
+        assertEquals(totallyEmptyInteger, emptyInteger);
+        assertEquals(totallyEmptyInteger, result);
         
         // sort single element
         result = Sequences.sort(singleInteger) as Integer[];
@@ -677,8 +684,8 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
         
         // sort empty sequence
         result = Sequences.sort(emptyElements, comparator) as DummyElement[];
-        assertEquals([], emptyElements);
-        assertEquals([], result);
+        assertEquals(totallyEmptyElements, emptyElements);
+        assertEquals(totallyEmptyElements, result);
         
         // sort single element
         result = Sequences.sort(singleElements, comparator) as DummyElement[];
@@ -720,18 +727,18 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
 		// compare empty sequences
 		localSeq = [];
 		result = Sequences.isEqualByContentIdentity(emptyElements, localSeq);
-        assertEquals([], emptyElements);
-        assertEquals([], localSeq);
+        assertEquals(totallyEmptyElements, emptyElements);
+        assertEquals(totallyEmptyElements, localSeq);
         assertEquals(true, result);
 		
 		// compare first sequence being null
 		result = Sequences.isEqualByContentIdentity(null, emptyElements);
-        assertEquals([], emptyElements);
+        assertEquals(totallyEmptyElements, emptyElements);
         assertEquals(true, result);
 		
 		// compare second sequence being null
 		result = Sequences.isEqualByContentIdentity(emptyElements, null);
-        assertEquals([], emptyElements);
+        assertEquals(totallyEmptyElements, emptyElements);
         assertEquals(true, result);
 		
 		// compare equal sequence

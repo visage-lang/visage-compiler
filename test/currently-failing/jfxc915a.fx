@@ -2,8 +2,7 @@
  * Test automatic conversion of primitive datatypes
  * See also jfxc915b.fx.
  *
- * @test
- * @test/warning
+ * @test/fail
  */
 
 import java.lang.*;
