@@ -15,9 +15,9 @@ abstract class foo {
 }
 
 public class foo2 extends foo {
-	private attribute data:Integer = 10;
-	public readable attribute roI = bind data;
-	public readable attribute roS = "readable";
+	private var data:Integer = 10;
+	public readable var roI = bind data;
+	public readable var roS = "readable";
 
 	override bound function RequiredAbstractFunction():Integer { return data; }
 	function setData( newd : Integer) { data = newd;}
@@ -31,7 +31,7 @@ public class foo2 extends foo {
  */
 class ro {
 //readable is now enforced, commented out until it is handled some other way
-	/*readable*/ attribute ROA = 10;
+	/*readable*/ var ROA = 10;
 	function roa():Integer { return ROA; }
 }
 
@@ -48,7 +48,7 @@ function checkfoo( i:Integer, i2:Integer):Integer {
 function run( ) {
     var v = 10;
     var f2 = new foo2;
-    TU.checkI(f2.roi(),10,"check bound readable attribute");
+    TU.checkI(f2.roi(),10,"check bound readable var");
 
     //fb2 is bound to foo2.data + v
     def fb2 = bind f2.RequiredAbstractFunction() + v;
@@ -58,7 +58,7 @@ function run( ) {
     for(i in [10,20]) {
 	v = i;
 	f2.setData(i);
-	TU.checkI(f2.roi(),i,"check bound readable attribute");
+	TU.checkI(f2.roi(),i,"check bound readable var");
 	try {
 		checkfoo(fb2,i+v); //i+v since setData uses i and fb2 is bound to v :)
 	} catch(e:Exception) {
@@ -90,6 +90,6 @@ function run( ) {
     r.ROA=100;  //<--should not be allowed??? -- and now it isn't, this is why readable is commented out
     TU.checkI(r.roa(),100,
 	"Why can this readable variable be set? If you're reading this, it has been fixed!");
-
     TU.report();
 }
+
