@@ -23,7 +23,7 @@ import java.lang.Float;
 import java.lang.Object;
 
 class GoldenData extends Interpolatable {
-	public attribute value: Number = 0;
+	public var value: Number = 0;
 
 	override function ofTheWay(endVal: Object, t: Number): Object {
 		var ev = endVal as GoldenData;
@@ -38,7 +38,7 @@ class GoldenData extends Interpolatable {
 }
 
 class MyInterpolator extends SimpleInterpolator {
-	public attribute i:com.sun.scenario.animation.Interpolator 
+	public var i:com.sun.scenario.animation.Interpolator 
 		= Interpolators.getEasingInstance(new Float(0.25), new Float(0.34));
 	
 	override function curve(t: Number): Number {
