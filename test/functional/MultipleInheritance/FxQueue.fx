@@ -4,7 +4,7 @@
 **/
 
 abstract class FxQueue{
-attribute myQueue:java.lang.Object[] ;
+var myQueue:java.lang.Object[] ;
 public abstract function poll();
 public abstract function peek();
 public function clear(){

@@ -3,7 +3,7 @@
  * @subtest
 **/
 abstract class FxComparator{
-	attribute comparatorCalled:String = "FxComparator"; 
+	var comparatorCalled:String = "FxComparator";
 	abstract function compare(one,another):Integer;
 }
 
