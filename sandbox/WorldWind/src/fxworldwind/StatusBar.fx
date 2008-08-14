@@ -56,14 +56,14 @@ public class StatusBar extends GridPanel, PositionListener, RenderingListener {
     };
     public attribute showNetworkStatus:Boolean = true;
     
-    private attribute latDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
-    private attribute lonDisplay: SimpleLabel = SimpleLabel{
+    attribute latDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
+    attribute lonDisplay: SimpleLabel = SimpleLabel{
             horizontalAlignment: HorizontalAlignment.CENTER
             text: "Off globe"
         };
-    private attribute altDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
-    private attribute eleDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
-    private attribute heartBeat: SimpleLabel = SimpleLabel{
+    attribute altDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
+    attribute eleDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
+    attribute heartBeat: SimpleLabel = SimpleLabel{
             horizontalAlignment: HorizontalAlignment.CENTER
             foreground: Color.rgba(255, 0, 0, 0)
         };

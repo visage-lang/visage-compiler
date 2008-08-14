@@ -13,8 +13,8 @@ import java.lang.System;
 
 public class Editor extends ToolComponent{
     
-    private attribute editorPane: JTextArea;
-    private attribute updateComponentFlag: Boolean = false;
+    attribute editorPane: JTextArea;
+    attribute updateComponentFlag: Boolean = false;
     
     public attribute line: Integer;
     
@@ -45,14 +45,14 @@ public class Editor extends ToolComponent{
 
     //public attribute onKeyUp: function(keyEvent :KeyEvent);
 
-    private attribute highlighter: EditorHighlighter;// = EditorHighlighter{ component: bind editorPane };
+    attribute highlighter: EditorHighlighter;// = EditorHighlighter{ component: bind editorPane };
     
     public attribute ErrorMessages: ErrorMessage[] on replace{
           highlighter.highlightErrors(ErrorMessages);
     }
 
     
-    private function updateComponentField(text: String){
+    function updateComponentField(text: String){
             updateComponentFlag = true;
             this.text = text;
             updateComponentFlag = false;

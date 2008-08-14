@@ -21,7 +21,7 @@ public class MyRect extends MyShape, MyCanvasItem {
   /*
   function scriptAccFun1() : Void {}
   protected function protectedAccFun1() : Void {}
-  private function privateAccFun1() : Void {}
+  function privateAccFun1() : Void {}
   public function publicAccFun1() : Void {}
   */
   public function corners():java.awt.geom.Point2D[] { crners }
@@ -35,7 +35,7 @@ public class Square extends MyRect {
    attribute atBlank : String;
    public attribute atPub : String;
    protected attribute atProt : String;
-   private attribute atPriv : String;
+   attribute atPriv : String;
 };
 
 public class Simple extends Square, java.lang.Object {

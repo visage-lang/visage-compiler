@@ -28,8 +28,8 @@ public abstract class ToolComponent extends Component{
         if(dropEnable){ ComponentDropTarget{ component: this } }
     };
     
-    private attribute mouseListener: java.awt.event.MouseListener;
-    private attribute motionListener: java.awt.event.MouseMotionListener;
+    attribute mouseListener: java.awt.event.MouseListener;
+    attribute motionListener: java.awt.event.MouseMotionListener;
     
     public attribute drag: function():java.lang.Object; 
     public attribute drop: function(value: java.lang.Object);

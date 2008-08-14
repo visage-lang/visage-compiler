@@ -49,12 +49,12 @@ public abstract class Shape extends VisualNode {
         return sgshape;
     }
     public attribute fillRule: FillRule;
-    private attribute awtShape: java.awt.Shape;
-    private attribute awtTransform: AffineTransform;
+    attribute awtShape: java.awt.Shape;
+    attribute awtTransform: AffineTransform;
     public attribute outline: Boolean = false;
 
     // TODO: implement properly
-    private function getAWTShape(): java.awt.Shape{
+    function getAWTShape(): java.awt.Shape{
         getNode();
         awtTransform = new AffineTransform();
         transformFilter.getTransform(awtTransform);

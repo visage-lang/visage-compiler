@@ -16,10 +16,10 @@ import javax.swing.event.*;
 import javax.swing.text.DefaultHighlighter$DefaultHighlightPainter as DefaultHighlightPainter;
 
 public class LineAnnotation {
-    private attribute changeListeners: <<javax.swing.event.ChangeListener>>*;
-    private attribute an: <<net.java.javafx.ui.f3kit.F3TextArea$LineAnnotation>>;
-    private operation getAn():<<net.java.javafx.ui.f3kit.F3TextArea$LineAnnotation>>;
-    private operation fireChange();
+    attribute changeListeners: <<javax.swing.event.ChangeListener>>*;
+    attribute an: <<net.java.javafx.ui.f3kit.F3TextArea$LineAnnotation>>;
+    operation getAn():<<net.java.javafx.ui.f3kit.F3TextArea$LineAnnotation>>;
+    operation fireChange();
 
     public attribute line: Integer;
     public attribute column: Integer;
@@ -97,12 +97,12 @@ trigger on LineAnnotation.currentWidth = x {
 
 
 public class SourceEditor extends ScrollableWidget {
-    private operation doHighlight();
-    private attribute edit:UndoableEdit?;
-    private attribute undoManager: UndoManager;
-    private attribute inUpdate:Boolean;
-    private attribute documentListener:<<javax.swing.event.DocumentListener>>;
-    private attribute jtextarea: <<net.java.javafx.ui.f3kit.F3TextArea>>;
+    operation doHighlight();
+    attribute edit:UndoableEdit?;
+    attribute undoManager: UndoManager;
+    attribute inUpdate:Boolean;
+    attribute documentListener:<<javax.swing.event.DocumentListener>>;
+    attribute jtextarea: <<net.java.javafx.ui.f3kit.F3TextArea>>;
     public attribute highlight: Number*;
     public attribute editable: Boolean?;
     public attribute rows: Number?;

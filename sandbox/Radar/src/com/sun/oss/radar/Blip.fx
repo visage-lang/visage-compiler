@@ -43,10 +43,10 @@ public class Blip extends CompositeNode {
     };
     attribute tail:Location[];
     public attribute course:Number; // course in degrees
-    private attribute imageView:ImageView;
-    private attribute textNode:Text;
-    private attribute x:Number = bind location.x;
-    private attribute y:Number = bind location.y;
+    attribute imageView:ImageView;
+    attribute textNode:Text;
+    attribute x:Number = bind location.x;
+    attribute y:Number = bind location.y;
     
     // speed in pixels / ms
     attribute velocity:Number = 0.001;

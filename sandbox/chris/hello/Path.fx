@@ -33,7 +33,7 @@ import com.sun.scenario.scenegraph.SGShape;
  * (B&eacute;zier) curves.
  */
 class Path extends Shape {
-    private attribute UNSET: Integer = java.lang.Integer.MIN_VALUE;
+    attribute UNSET: Integer = java.lang.Integer.MIN_VALUE;
     attribute locked: Boolean on replace  {
         if (not locked) {
             buildPath();

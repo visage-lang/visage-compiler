@@ -11,7 +11,7 @@ import java.lang.System;
 
 class One {
 
-  public-readable private var twub = 333;
+  public-readable var twub = 333;
 
   function change() : Void {
      twub = 444;

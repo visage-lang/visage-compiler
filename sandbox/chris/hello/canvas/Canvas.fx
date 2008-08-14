@@ -27,8 +27,8 @@ import hello.Widget;
 public class Canvas extends Widget, CanvasElement, Container {
 
     // private:
-    private attribute jsgpanel: JSGPanel;
-    private attribute root: SGGroup;
+    attribute jsgpanel: JSGPanel;
+    attribute root: SGGroup;
     // public:
     public attribute content: Node[] on insert[i](c) {
 	c.parentCanvasElement = (this as java.lang.Object) as CanvasElement;

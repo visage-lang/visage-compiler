@@ -19,7 +19,7 @@ class CLS {
 
 var cls = CLS {};
 
-private function makeKF(n:Number):KeyFrame {
+function makeKF(n:Number):KeyFrame {
     KeyFrame {
         time: Duration.valueOf(n)
         values: cls.a => n

@@ -15,15 +15,15 @@ public class LightsOutSplash extends CompositeNode {
     
     public attribute main:LightsOutMain;
     
-    private attribute text_lights: Text= Text {
+    attribute text_lights: Text= Text {
         //content:"Lights", x:125,y:70, font:stdFont, fill: Color.WHITE
         content:"Lights", x:-300.0,y:70, font:stdFont, fill: Color.WHITE
     };
-    private attribute text_out: Text = Text {
+    attribute text_out: Text = Text {
         //content:"Out", x:155,y:130, font:stdFont, fill: Color.WHITE
         content:"Out", x:500.0,y:130, font:stdFont, fill: Color.WHITE
     };
-    private attribute start_button : BlueButton = 
+    attribute start_button : BlueButton = 
         BlueButton { text: "Start", font: Font.Font("Arial",["BOLD"],20)
             //transform : [Transform.translate(152,230)], width: 100, height: 30,
             transform : [Transform.translate(152,500)], width: 100, height: 30,
@@ -59,7 +59,7 @@ public class LightsOutSplash extends CompositeNode {
             }
         };
         
-    private function removeFromMain():Void {
+    function removeFromMain():Void {
         delete this from main.content;
     }
 

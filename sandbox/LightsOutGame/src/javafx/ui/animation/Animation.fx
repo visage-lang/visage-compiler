@@ -18,7 +18,7 @@ import com.sun.javafx.runtime.animation.*;
  * @author jclarke
  */
 public class Animation {
-    private static attribute UNSET:Integer = java.lang.Integer.MIN_VALUE;
+    static attribute UNSET:Integer = java.lang.Integer.MIN_VALUE;
     
     public attribute timingTarget:FXTimingTarget on replace {
         changed = true;
@@ -69,8 +69,8 @@ public class Animation {
         changed = true;
     };
     
-    private attribute animation:FXAnimation;
-    private attribute changed:Boolean;
+    attribute animation:FXAnimation;
+    attribute changed:Boolean;
     
     public function start():Void {
         if((not isRunning() and changed) or animation == null) {

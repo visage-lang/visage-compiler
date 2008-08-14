@@ -33,11 +33,11 @@ class IndeterminateProgressBar extends CompositeNode
     public attribute y: Integer;
     public attribute fill: AbstractColor;
 
-    private attribute pf: PointerFactory = PointerFactory{};
-    private attribute rot1: Integer;
-    private attribute __rot1 = bind pf.make(rot1);
-    private attribute _rot1 = __rot1.unwrap();
-    private attribute rot1Timeline: Timeline = Timeline {
+    attribute pf: PointerFactory = PointerFactory{};
+    attribute rot1: Integer;
+    attribute __rot1 = bind pf.make(rot1);
+    attribute _rot1 = __rot1.unwrap();
+    attribute rot1Timeline: Timeline = Timeline {
         repeatCount: java.lang.Double.POSITIVE_INFINITY
         keyFrames: [
              KeyFrame {
@@ -62,10 +62,10 @@ class IndeterminateProgressBar extends CompositeNode
         ]
     };
 
-    private attribute rot2: Integer;
-    private attribute __rot2 = bind pf.make(rot2);
-    private attribute _rot2 = __rot2.unwrap();
-    private attribute rot2Timeline: Timeline = Timeline {
+    attribute rot2: Integer;
+    attribute __rot2 = bind pf.make(rot2);
+    attribute _rot2 = __rot2.unwrap();
+    attribute rot2Timeline: Timeline = Timeline {
         keyFrames: [
              KeyFrame {
                 keyTime: 0s

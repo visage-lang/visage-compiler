@@ -6,7 +6,7 @@
  */
 
 public class jfxc344 { 
-    private attribute jdesk: javax.swing.JDesktopPane; 
+    attribute jdesk: javax.swing.JDesktopPane; 
     public attribute foo :String on replace { 
 	var bar : java.lang.Object[] = [new jfxc344];
         var frames = jdesk.getAllFrames(); 

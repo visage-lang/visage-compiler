@@ -10,7 +10,7 @@ class CanvasElement {
 }
 
 class Node extends CanvasElement {
-    private attribute cachedCanvas: Canvas;
+    attribute cachedCanvas: Canvas;
     public function getCanvas(): Canvas {
         var n = this.parentCanvasElement;
         while (n != null) {

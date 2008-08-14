@@ -2,7 +2,7 @@ package hello;
 
 public class ButtonGroup {
 
-    private attribute jbuttongroup: javax.swing.ButtonGroup  =
+    attribute jbuttongroup: javax.swing.ButtonGroup  =
 	new javax.swing.ButtonGroup();
 
     public attribute content: AbstractButton[] 

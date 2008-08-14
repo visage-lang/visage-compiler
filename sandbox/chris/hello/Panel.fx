@@ -4,7 +4,7 @@ import java.lang.System;
 
 public class Panel extends Widget {
 
-    private attribute jpanel: JPanel;
+    attribute jpanel: JPanel;
 
     public attribute content: Widget[]
 	on replace[i](w) {

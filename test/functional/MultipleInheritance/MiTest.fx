@@ -13,9 +13,9 @@ An FX class can extend multiple other FX classes, and multiple Java interfaces, 
 **/
 
 class Employee extends java.lang.Object,java.lang.Cloneable {  //Fx class extending Java Class and a Java interface
-	private var name :String;
-	private var exprnce: Integer;
-	private var salary :Integer;
+	var name :String;
+	var exprnce: Integer;
+	var salary :Integer;
 	function getName():String{
 		this.name;
 	}
@@ -90,16 +90,16 @@ class EmployeeSalaryComparator extends FxComparator{
         }
 }
 
-/** Multiple superclasses provide default initialization for an var(comparatorUsed.comparatorCalled).
+/** Multiple superclasses provide default initialization for an attribute(comparatorUsed.comparatorCalled).
 The class that appears later in the superclass order wins(EmployeeExperienceComparator in this case), 
 and the implementation contributed by the losing class is ignored. 
-Similarly var 'comparatorCalled' is initialized in all 3 superclasses,but only the initialization
+Similarly attribute 'comparatorCalled' is initialized in all 3 superclasses,but only the initialization
 of the class that appears later in the superclass order wins(EmployeeExperienceComparator again)
 **/
 
 class Comparator1 extends EmployeeNameComparator,EmployeeExperienceComparator{
 
-/*In this case, duplicate var 'comparatorCalled' is initialized in all  the superclasses 
+/*In this case, duplicate attribute 'comparatorCalled' is initialized in all  the superclasses 
  and duplicate method implementations for 'compare' is provided
 */
 
@@ -110,9 +110,9 @@ class Comparator2 extends EmployeeExperienceComparator,EmployeeSalaryComparator,
 
 
 class Employeedb{
-var employeeQueue:Employee[];
-var comparatorChosen:FxComparator;
-var empPQueue:FxPriorityQueue = FxPriorityQueue{comparatorUsed:comparatorChosen};
+attribute employeeQueue:Employee[];
+attribute comparatorChosen:FxComparator;
+attribute empPQueue:FxPriorityQueue = FxPriorityQueue{comparatorUsed:comparatorChosen};
 init{
 	   java.lang.System.out.println("Comparator chosen=> {empPQueue.comparatorUsed.comparatorCalled}");
 }

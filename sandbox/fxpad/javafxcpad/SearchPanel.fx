@@ -15,7 +15,7 @@ public class SearchPanel extends CompositeNode {
 }
 
 public class CloseButton extends CompositeNode {
-    private attribute pressed: Boolean;
+    attribute pressed: Boolean;
     public attribute action: operation()?;
 }
 
@@ -108,7 +108,7 @@ class SearchButton extends CompositeNode {
     attribute baseline: Number;
     attribute font: Font?;
     attribute action: function()?;
-    private attribute pressed: Boolean;
+    attribute pressed: Boolean;
 }
 
 attribute SearchButton.font = new Font("VERDANA", "BOLD", 11);

@@ -43,8 +43,8 @@ Sum 1..8: : 36
 Sum 1..9: : 45
 Sum 1..10: : 55
 [ 1, 3, 6, 10, 15, 21, 28, 36, 45 ]
-test5: bind readonly attributes, series of binds to attributes
-test5: multiple binds to attribute
+test5: bind readonly vars, series of binds to vars
+test5: multiple binds to var
 RAD     DIA   CIRCUM  AREA
 ----    ----  ------  -------
 01.00  02.00  06.28  03.14

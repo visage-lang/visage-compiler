@@ -16,7 +16,7 @@ import java.lang.System;
 
 public class ButtonView extends CompositeNode {
      
-    private attribute isPressed: Boolean;
+    attribute isPressed: Boolean;
     public attribute enabled: Boolean = true;
     public attribute pressed: Node;
     public attribute normal: Node;
@@ -50,7 +50,7 @@ public class ButtonView extends CompositeNode {
 
 public class SliderView extends CompositeNode {
 
-    private attribute isPressed: Boolean;
+    attribute isPressed: Boolean;
     public attribute enabled: Boolean;
     public attribute pressed: Node;
     public attribute normal: Node;

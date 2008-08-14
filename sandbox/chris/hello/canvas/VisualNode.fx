@@ -127,16 +127,16 @@ public abstract class VisualNode extends Node {
     public attribute strokeDashOffset: Number on replace {
         updateStroke();
     };
-    private attribute sgvisualnode: SGAbstractShape;
+    attribute sgvisualnode: SGAbstractShape;
 
-    private attribute awtStroke: java.awt.Paint = bind if (this.stroke == null) then null else this.stroke.getPaint()
+    attribute awtStroke: java.awt.Paint = bind if (this.stroke == null) then null else this.stroke.getPaint()
         on replace  {
             if (sgvisualnode != null and awtStroke != null) {
                 sgvisualnode.setDrawPaint(awtStroke);
             }
             updateMode();
         };
-    private attribute awtFill: java.awt.Paint = bind if (fill == null) null else fill.getPaint() 
+    attribute awtFill: java.awt.Paint = bind if (fill == null) null else fill.getPaint() 
         on replace {
             if (sgvisualnode != null and awtFill != null) {
                 sgvisualnode.setFillPaint(awtFill);
@@ -152,7 +152,7 @@ public abstract class VisualNode extends Node {
         return sgvisualnode;
     }
 
-   private  function updateMode() {
+    function updateMode() {
         if (sgvisualnode != null) {
             if (awtFill != null and awtStroke != null) {
                 sgvisualnode.setMode(SGAbstractShape.Mode.STROKE_FILL);

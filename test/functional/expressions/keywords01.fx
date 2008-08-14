@@ -15,9 +15,9 @@ abstract class foo {
 }
 
 public class foo2 extends foo {
-	private var data:Integer = 10;
-	public readable var roI = bind data;
-	public readable var roS = "readable";
+	var data:Integer = 10;
+	public /*TODO: this is not really a test of public-readable */ var roI = bind data;
+	public /*TODO: this is not really a test of public-readable */ var roS = "readable";
 
 	override bound function RequiredAbstractFunction():Integer { return data; }
 	function setData( newd : Integer) { data = newd;}

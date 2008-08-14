@@ -8,7 +8,7 @@ import java.lang.System;
 
     class Bar { 
         public-readable var a = 3;
-        private var b = bind a * 10; 
+        var b = bind a * 10; 
         function f1(x, y, z) { x - y } 
         public function f2(a, b, c) { a + b != 6; } 
     } 

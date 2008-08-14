@@ -87,7 +87,7 @@ public class JavaFXPad extends CompositeWidget {
     operation runNow();
     operation validateNow();
     function isValid(): Boolean;
-    private attribute hasCRs: Boolean;
+    attribute hasCRs: Boolean;
     attribute fontSize: Number;
     attribute mouseX: Number;
     attribute mouseY: Number;

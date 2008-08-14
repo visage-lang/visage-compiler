@@ -57,23 +57,23 @@ import com.sun.scenario.scenegraph.event.SGMouseListener;
 public abstract class Node extends CanvasElement {
 
 
-    private function clamp(n:Number, min:Number, max:Number):Number{
+    function clamp(n:Number, min:Number, max:Number):Number{
        return Math.max(Math.min(n, max), min);
     }
 
     attribute transformFilter: SGTransform.Affine;
-    private attribute alignmentFilter: SGAlignment;
-    private attribute compositeFilter: SGComposite;
-    private attribute clipFilter: SGClip;
-    private attribute antialiasClip: Boolean = false;
-    private attribute effectFilter: SGEffect;
-    private attribute contentNode: SGNode;
+    attribute alignmentFilter: SGAlignment;
+    attribute compositeFilter: SGComposite;
+    attribute clipFilter: SGClip;
+    attribute antialiasClip: Boolean = false;
+    attribute effectFilter: SGEffect;
+    attribute contentNode: SGNode;
 
     protected attribute bounds: Rectangle2D;
-    private attribute focusListener: FocusListener;
+    attribute focusListener: FocusListener;
     
 
-    private function getScreenLocation(component:java.awt.Component): java.awt.Point{
+    function getScreenLocation(component:java.awt.Component): java.awt.Point{
         var comp = component;
         while (comp != null and not (comp instanceof java.awt.Frame) and 
                not (comp instanceof java.awt.Window) and

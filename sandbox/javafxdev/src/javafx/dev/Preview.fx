@@ -17,8 +17,8 @@ import com.sun.tools.javafx.preview.*;
 
 public class Preview extends Component{
     
-    private attribute component:Component; 
-    private attribute timer: Timer = Timer{};
+    attribute component:Component; 
+    attribute timer: Timer = Timer{};
     
     public attribute code: String ="Preview" on replace{
         timer.addTask( function():Void{ preview(code) } );
@@ -28,7 +28,7 @@ public class Preview extends Component{
     public attribute errors: ErrorMessage[] ;
     public attribute selectedError: ErrorMessage;
 
-    private attribute diagnosticIndex: Integer = -1 on replace{
+    attribute diagnosticIndex: Integer = -1 on replace{
         //System.out.println("[preview] diagnosticIndex: {diagnosticIndex}");
         if(-1 < diagnosticIndex ){
             selectedError = errors[diagnosticIndex];
@@ -36,7 +36,7 @@ public class Preview extends Component{
     };
     
     
-    private function preview(code: String){
+    function preview(code: String){
         //System.out.println("----------------------------");
         //System.out.println("{code}");
         var obj = Util.executeFXCode(code);

@@ -5,9 +5,9 @@
 import java.lang.System;
 import com.sun.javafx.runtime.*;
 class Foo {
-   private attribute pf: PointerFactory = PointerFactory{};
-   private attribute alpha : Integer;
-   private attribute _alpha = {var bp = bind pf.make(alpha); bp.unwrap(); };
+   attribute pf: PointerFactory = PointerFactory{};
+   attribute alpha : Integer;
+   attribute _alpha = {var bp = bind pf.make(alpha); bp.unwrap(); };
  };
 var foo = Foo { alpha: 100 };
 var alphap : Pointer = foo._alpha;

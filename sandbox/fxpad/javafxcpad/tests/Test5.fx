@@ -11,7 +11,7 @@ public abstract class AbstractWidget  {
 }
 
 public abstract class Widget extends AbstractWidget {
-    private function updateBounds() {
+    function updateBounds() {
         if (component != null) {
             component.setBounds(x.intValue(), y.intValue(), width.intValue(), height.intValue());
         }
@@ -58,7 +58,7 @@ public abstract class AbstractButton extends AbstractWidget {
 
 public class Button extends Widget, AbstractButton {
     
-    private attribute button: JButton;
+    attribute button: JButton;
     protected function createComponent():JComponent {
         System.out.println("create button");
         button = new JButton(text); 

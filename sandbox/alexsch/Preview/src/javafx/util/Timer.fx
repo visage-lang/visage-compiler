@@ -8,7 +8,7 @@ public class Timer {
     public attribute TIMEOUT = 600;
     public attribute tasks: TimerTask[];
     
-    private attribute timeline: Timeline = Timeline {
+    attribute timeline: Timeline = Timeline {
             keyFrames:  KeyFrame { time: 0.6s,  action: function() { run() }} 
             repeatCount: java.lang.Double.POSITIVE_INFINITY
         };
@@ -34,7 +34,7 @@ public class Timer {
         }
     } 
     
-    private function run(){
+    function run(){
         var time = System.currentTimeMillis();
         for(keyTimer in tasks){
             if ( ( keyTimer.time + TIMEOUT ) < time.doubleValue() ){

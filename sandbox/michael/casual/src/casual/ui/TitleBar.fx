@@ -30,7 +30,7 @@ public class TitleBar extends CompositeNode
     
     public attribute onClose: function();    
     
-    private attribute thickness: Integer = 21;
+    attribute thickness: Integer = 21;
 
     function composeNode() {
         Group {

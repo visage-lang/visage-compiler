@@ -27,8 +27,8 @@ class Timer
             }
         };
     
-    private attribute current: Calendar;
-    private attribute formatter: DateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
+    attribute current: Calendar;
+    attribute formatter: DateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
     
     public attribute hours: Number = bind current.get(Calendar.HOUR_OF_DAY);
     public attribute minutes: Number = bind current.get(Calendar.MINUTE);

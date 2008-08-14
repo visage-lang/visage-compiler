@@ -31,7 +31,7 @@ import javafx.ui.*;
  */
 
 public class AppPanel extends BorderPanel {
-    private attribute self = this;
+    attribute self = this;
     public attribute includeStatusBar:Boolean;
     attribute wwd:WWD =  WWD{preferredSize: self.preferredSize}
     attribute statusBar:StatusBar = StatusBar{

@@ -41,10 +41,10 @@ public class LayerPanel extends BorderPanel {
     public attribute wwd:WWD on replace {
         this.fill();
     }
-    private attribute self = this;
-    private attribute layersPanel:GridPanel;
-    private attribute defaultFont:Font;
-    private attribute atMaxFont:Font;
+    attribute self = this;
+    attribute layersPanel:GridPanel;
+    attribute defaultFont:Font;
+    attribute atMaxFont:Font;
     
     override attribute center = GridPanel {
         rows: 1
@@ -69,7 +69,7 @@ public class LayerPanel extends BorderPanel {
         }        
     };
     
-    private function fill():Void
+    function fill():Void
     {
         // Fill the layers panel with the titles of all layers in the world window's current model.
         var iterator = wwd.wwd.getModel().getLayers().iterator();
@@ -91,7 +91,7 @@ public class LayerPanel extends BorderPanel {
         }
     }    
     
-    private function updateStatus():Void
+    function updateStatus():Void
     {
         for( layerItem in this.layersPanel.cells)
         {

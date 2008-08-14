@@ -4,9 +4,9 @@ import java.lang.System;
 
 public class SimpleLabel extends Widget {
 
-    private attribute jlabel: JLabel;
+    attribute jlabel: JLabel;
 
-    private attribute swingIcon: javax.swing.Icon = bind if (icon == null) null else icon.getIcon()
+    attribute swingIcon: javax.swing.Icon = bind if (icon == null) null else icon.getIcon()
 	on replace {
 	    if (jlabel != null) {
 		jlabel.setIcon(swingIcon);

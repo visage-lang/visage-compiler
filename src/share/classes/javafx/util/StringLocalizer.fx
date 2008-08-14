@@ -17,11 +17,11 @@ import com.sun.javafx.runtime.util.StringLocalization;
  * var localizer = StringLocalizer{ key: "Hello, World!" };
  *
  * // This prints localized text for "Hello, World!" for the default locale
- * System.out.println(localizer.localizedString); 
+ * System.out.println(localizer.localizedString);
  *
  * // This prints localized text for "Duke" for the default locale
  * localizer.key = "Duke";
- * System.out.println(localizer.localizedString); 
+ * System.out.println(localizer.localizedString);
  * </pre></code>
  *
  * By default, translations are retrieved from the JavaFX properties file
@@ -33,8 +33,8 @@ import com.sun.javafx.runtime.util.StringLocalization;
  * <pre><code>
  * StringLocalizer.associate("foo.bar.resources.MyResources", "foo.bar");
  * </code></pre>
- * After this call, all the translations from JavaFX script files in 
- * <code>foo.bar</code> package are searched in 
+ * After this call, all the translations from JavaFX script files in
+ * <code>foo.bar</code> package are searched in
  * <code>foo/bar/resources/MyResources_xx.fxproperties</code>, where 'xx' denotes
  * the default locale.
  *
@@ -53,17 +53,17 @@ public class StringLocalizer {
     /**
      * The locale used for determining the JavaFX properties resource
      * bundle.  If it is not explicitly specified, Locale.getDefault()
-     * is used.  
+     * is used.
      * Note: Made this script private for now, as there is no Locale class in some
      * platforms (e.g., CLDC/MIDP)
      */
     var locale: Locale = Locale.getDefault();
 
     /**
-     * The canonical base name of the JavaFX properties file.  It consists 
-     * of the package name and the base bundle name of the JavaFX properties 
-     * file.  For example, the canonical base name of 'MyResources_xx.fxproperties', 
-     * where 'xx' denotes the locale, in 'foo.bar' package is 
+     * The canonical base name of the JavaFX properties file.  It consists
+     * of the package name and the base bundle name of the JavaFX properties
+     * file.  For example, the canonical base name of 'MyResources_xx.fxproperties',
+     * where 'xx' denotes the locale, in 'foo.bar' package is
      * 'foo.bar.MyResources'.  If this variable is not explicitly specified,
      * it is synthesized from the caller's package and script file name, e.g.,
      * a JavaFX Script 'Example.fx' is in 'foo.bar' package, the synthesized
@@ -80,11 +80,11 @@ public class StringLocalizer {
      * @needsreview
      */
     public var defaultString : String;
-   
+
     /**
      * The localized string for the given variables.  If there
      * is no appropriate localized string found in JavaFX properties files,
-     * this variable will have the value in <code>defaultString</code> if 
+     * this variable will have the value in <code>defaultString</code> if
      * it is specified, otherwise it will have the value in <code>key</code>.
      *
      * @needsreview
@@ -126,12 +126,12 @@ public class StringLocalizer {
 /**
  * Associates a JavaFX
  * package with a JavaFX properties file.  If an association is made, further
- * localizations in the source script files in the 
+ * localizations in the source script files in the
  * specified package will be searched within the specified JavaFX properties
  * file.
  *
  * @needsreview
- * @param properties denotes the canonical base name of the JavaFX properties 
+ * @param properties denotes the canonical base name of the JavaFX properties
  *     file, e.g., 'foo.bar.MyResources'.
  * @param packageName denotes the JavaFX package name, e.g., 'foo.bar'.
  */
@@ -147,9 +147,9 @@ public function associate(properties: String, packageName: String) : Void {
  * file.
  *
  * @needsreview
- * @param properties denotes the canonical base name of the JavaFX properties 
+ * @param properties denotes the canonical base name of the JavaFX properties
  *     file, e.g., 'foo.bar.MyResources'.
- * @param packageName denotes the JavaFX package name of the source script file, 
+ * @param packageName denotes the JavaFX package name of the source script file,
  *     e.g., 'foo.bar'.
  * @param scriptFileName the file name of the source script file, e.g., 'Example.fx'.
  */

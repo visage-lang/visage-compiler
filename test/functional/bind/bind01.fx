@@ -18,7 +18,7 @@ var enableBindingOverhaul;
 //simple bind of variable to variable expression
 class binder {
 
- private var df:DecimalFormat = new DecimalFormat("###,###.##");
+ var df:DecimalFormat = new DecimalFormat("###,###.##");
 /** some formatters */
  function formatNumber(n:Number):String { 
    df.setMinimumIntegerDigits(1);
@@ -144,11 +144,11 @@ function test7() {}
 class circles {
     /*readonly*/ var pi : Number = 3.14157;
     var radius : Number = 1;
-	 private /*readonly*/ var MID:Integer=2;
+	 /*readonly*/ var MID:Integer=2;
     /*readonly*/ var diameter:Number = bind radius * 2;
     /*readonly*/ var circumference : Number = bind diameter * pi;
     /*readonly*/ var area : Number =  bind (radius)*(radius)*pi;
-	 private var df:DecimalFormat = new DecimalFormat("###,###,######.##");
+	 var df:DecimalFormat = new DecimalFormat("###,###,######.##");
     init {		 System.out.println("test5: multiple binds to var");	 }
 	 function formatNumber(n:Number):String {
 		 df.setMinimumIntegerDigits(MID);

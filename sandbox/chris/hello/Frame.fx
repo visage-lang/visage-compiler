@@ -8,10 +8,10 @@ public class Frame extends UIElement {
 	return getFrame();
     }
 
-    private attribute windowListener: java.awt.event.WindowListener;
-    private attribute componentListener: java.awt.event.ComponentListener;
-    private attribute frame: javax.swing.JFrame;
-    private attribute inListener: Boolean;
+    attribute windowListener: java.awt.event.WindowListener;
+    attribute componentListener: java.awt.event.ComponentListener;
+    attribute frame: javax.swing.JFrame;
+    attribute inListener: Boolean;
 
     public attribute owner: UIElement;
 
@@ -29,26 +29,26 @@ public class Frame extends UIElement {
     public attribute height: Number on replace { setSize(); }
     public attribute width: Number on replace { setSize(); }
 
-    private function setSize() {
+    function setSize() {
 	size = new java.awt.Dimension(width.intValue(), height.intValue());
 	if (frame != null and not inListener) {
 	    frame.setSize(size);
 	}
     }
 
-    private attribute size: java.awt.Dimension = null;
+    attribute size: java.awt.Dimension = null;
 
     public attribute x: Number = 0 on replace { setLocation(); }
     public attribute y: Number = 0 on replace { setLocation(); }
 
-    private function setLocation() {
+    function setLocation() {
 	if (frame != null and not inListener) {
 	    var location = new java.awt.Point(x.intValue(), y.intValue());
 	    frame.setLocation(location);
 	}
     }
 
-    //private attribute location: java.awt.Point = null;
+    //attribute location: java.awt.Point = null;
 
     public function toFront(): Frame {
 	getFrame().toFront();

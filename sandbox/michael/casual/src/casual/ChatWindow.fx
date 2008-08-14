@@ -351,7 +351,7 @@ public class ChatWindow extends CasualFrame
     override attribute undecorated = true;
     override attribute centerOnScreen = true;
     
-    private attribute scrollbarCanvas: Canvas = Canvas
+    attribute scrollbarCanvas: Canvas = Canvas
     {
         visible: bind showContents
         border: new EmptyBorder

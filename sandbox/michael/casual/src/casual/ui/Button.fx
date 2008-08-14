@@ -61,10 +61,10 @@ public class Button extends CompositeNode
 
     ;
     
-    private attribute pf: PointerFactory = PointerFactory{};
-    private attribute __clickTrigger = bind pf.make(clickTrigger);
-    private attribute _clickTrigger = __clickTrigger.unwrap();
-    private attribute clickTriggerAnim: Timeline = Timeline {
+    attribute pf: PointerFactory = PointerFactory{};
+    attribute __clickTrigger = bind pf.make(clickTrigger);
+    attribute _clickTrigger = __clickTrigger.unwrap();
+    attribute clickTriggerAnim: Timeline = Timeline {
         keyFrames: [
              KeyFrame {
                 keyTime: 0s

@@ -8,8 +8,8 @@ import java.lang.System;
 
 public class Image extends Icon {
 
-   private attribute swingIcon = bind lazy if (awtImage == null) null else new javax.swing.ImageIcon(awtImage);
-   private attribute awtImage: java.awt.Image = 
+   attribute swingIcon = bind lazy if (awtImage == null) null else new javax.swing.ImageIcon(awtImage);
+   attribute awtImage: java.awt.Image = 
        bind lazy if (url == null) null else Toolkit.getDefaultToolkit().createImage(new URL(url));
 
    public attribute url: String;

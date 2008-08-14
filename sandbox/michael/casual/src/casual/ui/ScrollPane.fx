@@ -17,7 +17,7 @@ public class ScrollPane extends CompositeNode
     public attribute width: Number;
     public attribute scrollFactor: Number;
     
-    private attribute scrollOffset: Number = bind Math.max((view.currentHeight - height)*scrollFactor, 0);
+    attribute scrollOffset: Number = bind Math.max((view.currentHeight - height)*scrollFactor, 0);
 
     function composeNode() {
         Clip {

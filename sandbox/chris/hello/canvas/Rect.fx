@@ -32,9 +32,9 @@ import com.sun.scenario.scenegraph.SGShape;
  */
 public class Rect extends Shape {
 
-    private attribute sgrect: SGShape;
+    attribute sgrect: SGShape;
 
-    private attribute awtrect: java.awt.geom.RoundRectangle2D.Double;
+    attribute awtrect: java.awt.geom.RoundRectangle2D.Double;
 
     /** The x coordinate of this rectangle's location. */
     public attribute x: Number on replace {

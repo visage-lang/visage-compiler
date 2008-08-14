@@ -6,7 +6,7 @@
 
 import java.lang.System;
 
-private var a : Integer = 14;  //TODO: to work-around JFXC-1721, 'private' has been added
+var a : Integer = 14;
 function doublea() { a + a }
 
 class Main {

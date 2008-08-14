@@ -4,7 +4,7 @@
  */
 
 public class FQNReturn {
-    private attribute win: java.awt.Window;
+    attribute win: java.awt.Window;
     public function getWindow(): java.awt.Window {
         return win;
     }

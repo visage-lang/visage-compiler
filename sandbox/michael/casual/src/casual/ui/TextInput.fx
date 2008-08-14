@@ -25,7 +25,7 @@ public class TextInput extends CompositeNode
     public attribute height: Integer;
     public attribute size: Dimension;
     
-    private attribute input: TextArea = TextArea {
+    attribute input: TextArea = TextArea {
         size: bind size 
         lineWrap: true
         height: bind height

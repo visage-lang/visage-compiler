@@ -13,7 +13,7 @@ import java.lang.Object;
 
 class Keyword
 {
-    private static attribute casualURL: String = CASUAL.getResourceURL(); // root URL for casual resources
+    static attribute casualURL: String = CASUAL.getResourceURL(); // root URL for casual resources
 
     public attribute id: String;
     public attribute key: String;
@@ -357,7 +357,7 @@ class Keyword
 
 public class MessageParser
 {
-    private static attribute instance: MessageParser = new MessageParser;
+    static attribute instance: MessageParser = new MessageParser;
     public static function getInstance(): MessageParser {
         return instance;
     }

@@ -9,8 +9,8 @@ import java.awt.*;
 import java.awt.event.*; 
 
 public class Frame extends ComponentListener { 
-    private attribute jlabel: JLabel = new JLabel(); 
-    private attribute jframe: JFrame = new JFrame(); 
+    attribute jlabel: JLabel = new JLabel(); 
+    attribute jframe: JFrame = new JFrame(); 
 
 
     public attribute title: String = "" 
@@ -30,7 +30,7 @@ on replace {jframe.setLocation(new Point(screenX, screenY)); update();};
     public attribute visible: Boolean = false 
 on replace {jframe.setVisible(visible); update();}; 
 
-    private function update(): Void { 
+    function update(): Void { 
 jlabel.setText("{screenX} {screenY} {width} {height}"); 
     } 
 

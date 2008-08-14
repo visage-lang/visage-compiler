@@ -5,7 +5,7 @@ import java.lang.System;
 
 public class ThemeManager extends Theme
 {
-    private static attribute instance: ThemeManager = new ThemeManager;
+    static attribute instance: ThemeManager = new ThemeManager;
     public static function getInstance(): ThemeManager {
         return instance;
     }

@@ -2,51 +2,51 @@ package hello;
 
 public abstract class AbstractButton extends Widget {
 
-    private attribute buttonComponent: javax.swing.AbstractButton;
+    attribute buttonComponent: javax.swing.AbstractButton;
 
-    private attribute swingIcon: javax.swing.Icon = bind if (icon == null) null else icon.getIcon()
+    attribute swingIcon: javax.swing.Icon = bind if (icon == null) null else icon.getIcon()
 	on replace {
 	    if (buttonComponent != null) {
 		buttonComponent.setIcon(swingIcon);
 	    }
 	}
 
-    private attribute swingDisabledIcon: javax.swing.Icon = bind if (disabledIcon == null) null else disabledIcon.getIcon()
+    attribute swingDisabledIcon: javax.swing.Icon = bind if (disabledIcon == null) null else disabledIcon.getIcon()
 	on replace {
 	    if (buttonComponent != null) {
 		buttonComponent.setDisabledIcon(swingDisabledIcon);
 	    }
 	}
 
-    private attribute swingSelectedIcon: javax.swing.Icon = bind if (selectedIcon == null) null else selectedIcon.getIcon()
+    attribute swingSelectedIcon: javax.swing.Icon = bind if (selectedIcon == null) null else selectedIcon.getIcon()
 	on replace {
 	    if (buttonComponent != null) {
 		buttonComponent.setSelectedIcon(swingSelectedIcon);
 	    }
 	}
 
-    private attribute swingDisabledSelectedIcon: javax.swing.Icon = bind if (disabledSelectedIcon == null) null else disabledSelectedIcon.getIcon()
+    attribute swingDisabledSelectedIcon: javax.swing.Icon = bind if (disabledSelectedIcon == null) null else disabledSelectedIcon.getIcon()
 	on replace {
 	    if (buttonComponent != null) {
 		buttonComponent.setDisabledSelectedIcon(swingDisabledSelectedIcon);
 	    }
 	}
 
-    private attribute swingRolloverIcon: javax.swing.Icon = bind if (rolloverIcon == null) null else rolloverIcon.getIcon()
+    attribute swingRolloverIcon: javax.swing.Icon = bind if (rolloverIcon == null) null else rolloverIcon.getIcon()
 	on replace {
 	    if (buttonComponent != null) {
 		buttonComponent.setRolloverIcon(swingRolloverIcon);
 	    }
 	}
 
-    private attribute swingRolloverSelectedIcon: javax.swing.Icon = bind if (rolloverSelectedIcon == null) null else rolloverSelectedIcon.getIcon()
+    attribute swingRolloverSelectedIcon: javax.swing.Icon = bind if (rolloverSelectedIcon == null) null else rolloverSelectedIcon.getIcon()
 	on replace {
 	    if (buttonComponent != null) {
 		buttonComponent.setRolloverSelectedIcon(swingRolloverSelectedIcon);
 	    }
 	}
 
-    private attribute swingPressedIcon: javax.swing.Icon = bind if (pressedIcon == null) null else pressedIcon.getIcon()
+    attribute swingPressedIcon: javax.swing.Icon = bind if (pressedIcon == null) null else pressedIcon.getIcon()
 	on replace {
 	    if (buttonComponent != null) {
 		buttonComponent.setPressedIcon(swingPressedIcon);

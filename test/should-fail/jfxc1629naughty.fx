@@ -6,7 +6,7 @@
 
 class One {
 
-  public-readable private var twub = 333;
+  public-readable var twub = 333;
 
   function make() : One {
      twub = 444; // OK

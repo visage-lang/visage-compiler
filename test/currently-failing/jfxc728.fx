@@ -1,18 +1,13 @@
 /**
  * Test general private attributes.
- * @test
+ *
  * @compilefirst jfxc728One.fx
- * @run
+ * @test/fail
+ * *run
  */
 
-public class Two {
-    private attribute attr : Number = 2.5;
-    public function getAttr2() :Number { attr; }
-    public function setAttr2(val :Number) :Void  { attr = val }
-}
-
-public class Three extends jfxc728One.One, Two {
-    private attribute attr : String;
+public class Three extends jfxc728One.One, jfxc728One.Two {
+    attribute attr : String;
     public function getAttr3() :String { attr; }
     public function setAttr3(val :String) :Void  { attr = val }
 }

@@ -2,7 +2,7 @@ package hello;
 
 public class BorderPanel {
 
-    private attribute jpanel: javax.swing.JPanel;
+    attribute jpanel: javax.swing.JPanel;
 
     public attribute top: Widget 
 			  /*

@@ -1,11 +1,11 @@
 /*
  * @test
- * @run
+ * @run/fail
  * 
  */
 
 public class One {
-    private function func() {
+    function func() {
         java.lang.System.out.println("One.func() called");
     }
     
@@ -15,7 +15,7 @@ public class One {
 }
 
 public class Two extends One {
-    private function func() {
+    function func() {
         java.lang.System.out.println("Two.func() called");
     }
 }

@@ -10,8 +10,8 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class Frame {
-    private attribute jlabel: JLabel = new JLabel();
-    private attribute jframe: JFrame = new JFrame();
+    attribute jlabel: JLabel = new JLabel();
+    attribute jframe: JFrame = new JFrame();
 
     public attribute title: String = "" on replace {jframe.setTitle(title); update()}
 
@@ -25,7 +25,7 @@ public class Frame {
 
     public attribute visible: Boolean = false on replace {jframe.setVisible(visible); update()}
 
-    private function update(): Void { jlabel.setText("{screenX} {screenY} {width} {height}") }
+    function update(): Void { jlabel.setText("{screenX} {screenY} {width} {height}") }
 
     attribute componentListener:ComponentListener = ComponentListener {
 

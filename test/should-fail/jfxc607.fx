@@ -9,7 +9,7 @@ public def round : String = "Orbital";
 
 class Fuzzy {
 
-   private def count = 1234;
+   def count = 1234;
 
    function doit() {
       def snurd = 3.1415926;

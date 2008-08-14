@@ -11,7 +11,7 @@ class reada {
 
     public-readable var running = false;
 
-    private function createAdapter():Foo {
+    function createAdapter():Foo {
         Foo {
             function begin() : Void {
                 running = true;

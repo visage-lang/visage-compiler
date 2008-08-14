@@ -4,7 +4,7 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -19,7 +19,7 @@
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
- */ 
+ */
 
 package fxworldwind;
 
@@ -42,9 +42,9 @@ public class StatisticsPanel extends BorderPanel {
     public attribute wwd:WWD on replace {
         wwd.wwd.setPerFrameStatisticsKeys(PerformanceStatistic.ALL_STATISTICS_SET);
     }
-    private  attribute statsPanel:GridPanel;
-    private attribute self = this;
-    
+    attribute statsPanel:GridPanel;
+    attribute self = this;
+
     override attribute center = GridPanel {
         rows:1
         vgap:10
@@ -67,7 +67,7 @@ public class StatisticsPanel extends BorderPanel {
 
         }
     };
-    
+
     public function update():Void {
         delete statsPanel.cells;
         // Fill the layers panel with the titles of all layers in the world window's current model.
@@ -80,9 +80,9 @@ public class StatisticsPanel extends BorderPanel {
                 insert SimpleLabel{text: stat} into statsPanel.cells;
             }
         }
-        
+
     }
-    
+
     init {
         wwd.wwd.addRenderingListener(RenderingListener {
             public function stageChanged(event:RenderingEvent):Void {

@@ -21,7 +21,7 @@ public class Message extends CompositeNode
     public attribute width: Number;
     public attribute height: Number;
     
-    private function getAlign(type: MessageType): String {
+    function getAlign(type: MessageType): String {
         return if (type == MessageType.INCOMING)
             then "left"
         else if (type == MessageType.OUTGOING)
@@ -30,7 +30,7 @@ public class Message extends CompositeNode
             "center";
     };
     
-    private function getForeground(type: MessageType): Color {
+    function getForeground(type: MessageType): Color {
         return if (type == MessageType.INCOMING)
             then ThemeManager.getInstance().messageOutForeground
         else if (type == MessageType.OUTGOING)
@@ -39,7 +39,7 @@ public class Message extends CompositeNode
             ThemeManager.getInstance().commentForeground;
     };
     
-    private function getBackground(type: MessageType): Color {
+    function getBackground(type: MessageType): Color {
         return if (type == MessageType.INCOMING)
             then ThemeManager.getInstance().messageOutBackground
         else if (type == MessageType.OUTGOING)
@@ -48,7 +48,7 @@ public class Message extends CompositeNode
             ThemeManager.getInstance().commentBackground;
     };
     
-    private function getFont(type: MessageType): Font {
+    function getFont(type: MessageType): Font {
         return if (type == MessageType.INCOMING)
             then ThemeManager.getInstance().messageFont
         else if (type == MessageType.OUTGOING)
@@ -57,7 +57,7 @@ public class Message extends CompositeNode
             ThemeManager.getInstance().commentFont;
     };
     
-    private function getBorder(type: MessageType): EmptyBorder {
+    function getBorder(type: MessageType): EmptyBorder {
         return if (type == MessageType.INCOMING)
             then ThemeManager.getInstance().messageBorder
         else if (type == MessageType.OUTGOING)

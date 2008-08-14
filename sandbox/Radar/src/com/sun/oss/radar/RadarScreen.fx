@@ -43,16 +43,16 @@ public class RadarScreen extends CompositeNode {
     public attribute blips:Blip[];
     
     
-    private attribute cx:Number = bind width/2;
-    private attribute cy:Number = bind width/2; // on purpose to keep aspect the same
-    private attribute radius:Number = bind width/2;
-    private attribute extent = bind java.lang.Math.sqrt(2*radius*radius);
+    attribute cx:Number = bind width/2;
+    attribute cy:Number = bind width/2; // on purpose to keep aspect the same
+    attribute radius:Number = bind width/2;
+    attribute extent = bind java.lang.Math.sqrt(2*radius*radius);
     
-    private attribute angle:Number;
+    attribute angle:Number;
     attribute pf: PointerFactory = PointerFactory{};
     attribute bpAngle:Pointer = bind pf.make(angle);
     attribute pAngle:Pointer = bpAngle.unwrap();
-    private attribute sweepLine:Group = Group {
+    attribute sweepLine:Group = Group {
         transform: bind [Transform.translate(cx,cy),Rotate{angle: angle}]
         content: [
             Polygon {

@@ -6,9 +6,9 @@ import java.lang.System;
 public abstract class Widget extends AbstractWidget {
 
     /* flag to prevent intermediate bounds update */
-    private attribute inComponentListener = false;
+    attribute inComponentListener = false;
 
-    private function updateBounds() {
+    function updateBounds() {
         if (not inComponentListener and component != null) {
             component.setBounds(x.intValue(), y.intValue(), width.intValue(), height.intValue());
         }
@@ -30,7 +30,7 @@ public abstract class Widget extends AbstractWidget {
     protected attribute component: JComponent = null;
     protected abstract function createComponent(): JComponent;
     
-    private function setBounds() {
+    function setBounds() {
         var b = component.getBounds();
         inComponentListener = true;
 	if (x.intValue() != b.getX()) {

@@ -28,10 +28,10 @@ public class Color extends Paint {
     public attribute blue: Number;
     public attribute opacity: Number = 1.0;
 
-    private attribute awtColor: java.awt.Color = 
+    attribute awtColor: java.awt.Color = 
         bind lazy makeColor(red, green, blue, opacity);
 
-    private function makeColor(red:Number, green:Number, blue:Number, opacity:Number):java.awt.Color {
+    function makeColor(red:Number, green:Number, blue:Number, opacity:Number):java.awt.Color {
 	return new java.awt.Color(red.floatValue(),
 				  green.floatValue(),
 				  blue.floatValue(),
