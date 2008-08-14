@@ -118,7 +118,7 @@ function flipSequence(iseq:Integer[]):Integer[] {
 
 //sample Integer stack
 class TestIntStack {
-  attribute thestack:Integer[]
+  var thestack:Integer[]
 	  	   on replace oldValue[indx  .. lastIndex]=newElements { }//System.out.println("replaced {String.valueOf(oldValue)}[{indx}..{lastIndex}] by {String.valueOf(newElements)}")};
   function getStack():Integer[] { return thestack; }
   function getTop():Integer { var t = sizeof thestack-1; return t; }
