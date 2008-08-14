@@ -6,13 +6,13 @@
 import java.lang.System;
 
 public class TestUtils  {
-	attribute pass = 0;
-	attribute fail = 0;
-   attribute GFT = 0; //Golden_File_Tests; do not show up as pass or fail check
-	attribute bDEBUG = false;
-	attribute failures:String[];
+	var pass = 0;
+	var fail = 0;
+   var GFT = 0; //Golden_File_Tests; do not show up as pass or fail check
+	var bDEBUG = false;
+	var failures:String[];
 	function debugout(msg: String) { if(bDEBUG) System.out.println( "{msg}" ); }
-	attribute replacements = [ "REPLACEMENTS:" ];
+	var replacements = [ "REPLACEMENTS:" ];
 	function Replacements() {System.out.println( replacements ); }
 	function printSequence( seq : Integer[] ) { System.out.println( seq ); }
    function print(msg:String) { System.out.println(msg); }
