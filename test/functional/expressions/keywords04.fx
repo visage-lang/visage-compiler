@@ -50,7 +50,7 @@ TU.checkB( aLabel.compareTo("Good-Bye!")==0 and aBoundLabel.compareTo("Good-Bye!
 
 //bound sequences
 var fives = [ 5..100 step 5];
-var tens = bind for (i in fives where i % 10 == 0) i;
+var tens = bind for (i in fives where i mod 10 == 0) i;
 TU.checkIs( tens, [ 10,20,30,40,50,60,70,80,90,100],"bind to sequence before value change");
 fives = [ 100..150 step 5 ];
 TU.checkIs( tens, [100,110,120,130,140,150],"change value of bound sequence");
