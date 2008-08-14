@@ -347,7 +347,7 @@ The JavaFX Script programming language provides standard operators similar to
 	
 	<tr><td class="style1">not</td>
     <td>Logical negation </td>
-    <td>&lt;&gt;</td>
+    <td>!</td>
     <td>Boolean</td>
 	</tr>	
 	
@@ -581,7 +581,7 @@ var y = 4;
 var a = true;
 var b = false;
 System.out.println(x == y); // prints false 
-System.out.println(x &lt;&gt; y); // prints true
+System.out.println(x != y); // prints true
 System.out.println(x &lt; y);  // prints true
 System.out.println(x &gt; y);  // prints false
 System.out.println(x &gt;= y); // prints false
