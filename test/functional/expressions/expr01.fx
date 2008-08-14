@@ -22,7 +22,7 @@ function checknotB(b:Boolean,msg:String) { if(b){fail++;print("FAILED: {msg}");}
 function report() { System.out.println("tests: {pass + fail}  passed: {pass}  failed: {fail}"); }
 var rand = (Math.random() * 100).intValue();
 var s:String = null;
-if (rand % 2 == 0) {
+if (rand mod 2 == 0) {
      s = "rand is even";
     checkS(s,"rand is even","Check random number");
 } else {
@@ -111,7 +111,7 @@ var seq2:Integer[];
 
    // print only the even numbers using a filter
 	seq2=[];
-   for (k in [0..10] where k % 2 == 0) {	insert k into seq2;        }
+   for (k in [0..10] where k mod 2 == 0) {	insert k into seq2;        }
 	checkIs( seq2,[0,2,4,6,8,10],"check list comprehension with modulo 2");
 
    // print only the odd numbers using a range expression
@@ -175,7 +175,7 @@ Examples:
           for (i in [0..10]) 
 			 {
               if (i > 5) {  break; }
-              if (i % 2 == 0) { continue;  }
+              if (i mod 2 == 0) { continue;  }
               insert i into seq;
           }
           checkIs( seq,[1,3,5],"check break and continue in for loop");
@@ -188,7 +188,7 @@ Examples:
            while (i < 10) 
 			  {  
                if (i > 5)      { break;     } //step when i gets larger than 5
-               if (i % 2 == 0) { i++; continue;  } //goto to top of while i is even, ie. go on if i is odd
+               if (i mod 2 == 0) { i++; continue;  } //goto to top of while i is even, ie. go on if i is odd
 					insert i into seq;
                i += 1;
            }
@@ -204,7 +204,7 @@ So, the above example from the top of this section could also be written as foll
 */
 
 rand = (Math.random() * 100).intValue();
-s = if (rand % 2 == 0) {
+s = if (rand mod 2 == 0) {
      "rand is even";
 } else {
      "rand is odd";
@@ -218,7 +218,7 @@ else {checkS(s,"rand is odd", "check block expression using Math.random");}
  */
 
 rand = (Math.random() * 100).intValue();
-s = if (rand % 2 == 0) "rand is even" else "rand is odd";
+s = if (rand mod 2 == 0) "rand is even" else "rand is odd";
 if (s == "rand is even") { checkS(s,"rand is even", "check block expression using Math.random"); }
 else {checkS(s,"rand is odd", "check block expression using Math.random");}
 
@@ -248,7 +248,8 @@ For example, the following expression defines an sequence consisting of the odd 
 If number1 is greater than number2 a descending series is created:
 */
 
-/* This is the interpretted style of declaration. */
+/* This is the interpretted style of declaration. this and line 256 get warning:
+expr01.fx:253: warning: empty sequence range literal, probably not what you meant. */
 nums = [3..0];
 checknotB(nums==[3,2,1,0],"check descending sequence declare with interpreter style declaration."); // not true
 /* "new" way is to specify step increment, but... */
