@@ -145,7 +145,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
     
     @Override
-    public void visitBlockExpression(JFXBlockExpression tree) {
+    public void visitBlockExpression(JFXBlock tree) {
         scan(tree.stats);
         scan(tree.value);
     }

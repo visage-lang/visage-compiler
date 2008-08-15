@@ -26,7 +26,7 @@ package com.sun.tools.javafx.tree;
 /** The visitor interface for JavaFX trees.
  */
 public interface JavafxVisitor {
-    public void visitUnit(JFXUnit tree);
+    public void visitScript(JFXScript tree);
     public void visitImport(JFXImport tree);
     public void visitSkip(JFXSkip tree);
     public void visitWhileLoop(JFXWhileLoop tree);
@@ -65,7 +65,7 @@ public interface JavafxVisitor {
     public void visitVar(JFXVar tree);
     public void visitVarScriptInit(JFXVarScriptInit tree);
     public void visitOnReplace(JFXOnReplace tree);
-    public void visitBlockExpression(JFXBlockExpression tree);
+    public void visitBlockExpression(JFXBlock tree);
     public void visitFunctionValue(JFXFunctionValue tree);
     public void visitSequenceEmpty(JFXSequenceEmpty tree);
     public void visitSequenceRange(JFXSequenceRange tree);
@@ -78,7 +78,7 @@ public interface JavafxVisitor {
     public void visitForExpressionInClause(JFXForExpressionInClause tree);
     public void visitIndexof(JFXIndexof tree);
     public void visitTimeLiteral(JFXTimeLiteral tree);
-    public void visitOverrideAttribute(JFXOverrideAttribute tree);
+    public void visitOverrideClassVar(JFXOverrideClassVar tree);
     public void visitInterpolate(JFXInterpolate tree);
     public void visitInterpolateValue(JFXInterpolateValue tree);
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree);

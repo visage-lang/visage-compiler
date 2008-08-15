@@ -1064,7 +1064,7 @@ public class JavafxAttr implements JavafxVisitor {
      * @param tree
      * @param env
      */
-    public void finishOverrideAttribute(JFXOverrideAttribute tree, JavafxEnv<JavafxAttrContext> env) {
+    public void finishOverrideAttribute(JFXOverrideClassVar tree, JavafxEnv<JavafxAttrContext> env) {
         VarSymbol v = tree.sym;
         Type declType = tree.getId().type;
         result = tree.type = declType;
@@ -1109,7 +1109,7 @@ public class JavafxAttr implements JavafxVisitor {
     }
 
     @Override
-    public void visitOverrideAttribute(JFXOverrideAttribute tree) {
+    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         //TODO: handle static triggers
         JFXIdent id = tree.getId();
         JFXOnReplace onr = tree.getOnReplace();
@@ -1284,7 +1284,7 @@ public class JavafxAttr implements JavafxVisitor {
     }
 
     @Override
-    public void visitBlockExpression(JFXBlockExpression tree) {
+    public void visitBlockExpression(JFXBlock tree) {
         // Create a new local environment with a local scope.
         JavafxEnv<JavafxAttrContext> localEnv;
         if (env.info.scope.owner.kind == TYP) {
@@ -1720,7 +1720,7 @@ public class JavafxAttr implements JavafxVisitor {
             } else if ((tree.mods.flags & NATIVE) != 0) {
                 log.error(tree.pos(), MsgSym.MESSAGE_NATIVE_METH_CANNOT_HAVE_BODY);
             } else {
-                JFXBlockExpression body = opVal.getBodyExpression();
+                JFXBlock body = opVal.getBodyExpression();
                 if (body.value instanceof JFXReturn) {
                     body.value = ((JFXReturn) body.value).expr;
                 }
@@ -3779,7 +3779,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
     }
 
-    public void visitUnit(JFXUnit tree) {
+    public void visitScript(JFXScript tree) {
         assert false : "Should not reach here";
     }
 

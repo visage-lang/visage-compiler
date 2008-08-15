@@ -34,7 +34,7 @@ import com.sun.javafx.api.JavafxBindStatus;
  *
  * @author Robert Field
  */
-public class JFXOverrideAttribute extends JFXTree implements TriggerTree {
+public class JFXOverrideClassVar extends JFXTree implements TriggerTree {
     private final JFXIdent expr;
     private final JFXExpression init;
     private final JavafxBindStatus bindStatus;
@@ -42,7 +42,7 @@ public class JFXOverrideAttribute extends JFXTree implements TriggerTree {
     
     public VarSymbol sym;
     
-    protected JFXOverrideAttribute(JFXIdent expr,
+    protected JFXOverrideClassVar(JFXIdent expr,
             JFXExpression init,
             JavafxBindStatus bindStat,
             JFXOnReplace onReplace,
@@ -55,7 +55,7 @@ public class JFXOverrideAttribute extends JFXTree implements TriggerTree {
     }
     
     public void accept(JavafxVisitor v) {
-        v.visitOverrideAttribute(this);
+        v.visitOverrideClassVar(this);
     }
     
     public JFXIdent getId() {

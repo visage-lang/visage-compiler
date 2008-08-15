@@ -39,7 +39,7 @@ import com.sun.tools.javafx.comp.JavafxAttrContext;
 import com.sun.tools.javafx.comp.JavafxEnv;
 import com.sun.tools.javafx.main.CommandLine;
 import com.sun.tools.javafx.main.Main;
-import com.sun.tools.javafx.tree.JFXUnit;
+import com.sun.tools.javafx.tree.JFXScript;
 import com.sun.tools.javafx.tree.JFXTree;
 import java.io.File;
 import java.io.IOException;
@@ -64,8 +64,8 @@ public class JavafxcTaskImpl extends JavafxcTask {
     private String[] args;
     private Context context;
     private List<JavaFileObject> fileObjects;
-    private Map<JavaFileObject, JFXUnit> notYetEntered;
-    private List<JFXUnit> units;
+    private Map<JavaFileObject, JFXScript> notYetEntered;
+    private List<JFXScript> units;
     private JavafxTaskListener taskListener;
     private AtomicBoolean used = new AtomicBoolean();
     private Integer result = null;
@@ -141,7 +141,7 @@ public class JavafxcTaskImpl extends JavafxcTask {
                 throw new IllegalArgumentException("Malformed arguments " + filenames.toString(" "));
             compiler = com.sun.tools.javafx.main.JavafxCompiler.instance(context);
             compiler.keepComments = true;
-            notYetEntered = new HashMap<JavaFileObject, JFXUnit>();
+            notYetEntered = new HashMap<JavaFileObject, JFXScript>();
             for (JavaFileObject file: fileObjects)
                 notYetEntered.put(file, null);
             args = null;
@@ -193,7 +193,7 @@ public class JavafxcTaskImpl extends JavafxcTask {
         try {
             prepareCompiler();
             units = compiler.parseFiles(fileObjects);
-            for (JFXUnit unit: units) {
+            for (JFXScript unit: units) {
                 JavaFileObject file = unit.getSourceFile();
                 if (notYetEntered.containsKey(file))
                     notYetEntered.put(file, unit);
@@ -212,16 +212,16 @@ public class JavafxcTaskImpl extends JavafxcTask {
     void enter() throws IOException {
         prepareCompiler();
 
-        ListBuffer<JFXUnit> roots = null;
+        ListBuffer<JFXScript> roots = null;
 
         if (notYetEntered.size() > 0) {
             if (!parsed)
                 parse();
             for (JavaFileObject file: fileObjects) {
-                JFXUnit unit = notYetEntered.remove(file);
+                JFXScript unit = notYetEntered.remove(file);
                 if (unit != null) {
                     if (roots == null)
-                        roots = new ListBuffer<JFXUnit>();
+                        roots = new ListBuffer<JFXScript>();
                     roots.append(unit);
                 }
             }

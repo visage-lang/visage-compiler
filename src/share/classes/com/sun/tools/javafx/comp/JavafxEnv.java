@@ -56,7 +56,7 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
 
     /** The enclosing toplevel tree.
      */
-    public JFXUnit toplevel;
+    public JFXScript toplevel;
 
     /** The translated toplevel tree.
      */

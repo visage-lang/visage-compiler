@@ -55,13 +55,13 @@ public class JFXFunctionDefinition extends JFXExpression implements FunctionDefi
             Name name,
             JFXType rettype,
             List<JFXVar> funParams,
-            JFXBlockExpression bodyExpression) {
+            JFXBlock bodyExpression) {
         this.mods = mods;
         this.name = name;
         this.operation = new JFXFunctionValue(rettype, funParams, bodyExpression);
     }
 
-    public JFXBlockExpression getBodyExpression() {
+    public JFXBlock getBodyExpression() {
         return operation.getBodyExpression();
     }
 

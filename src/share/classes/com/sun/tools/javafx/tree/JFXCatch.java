@@ -32,9 +32,9 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
 public class JFXCatch extends JFXTree implements CatchTree {
 
     public JFXVar param;
-    public JFXBlockExpression body;
+    public JFXBlock body;
 
-    protected JFXCatch(JFXVar param, JFXBlockExpression body) {
+    protected JFXCatch(JFXVar param, JFXBlock body) {
         this.param = param;
         this.body = body;
     }
@@ -52,7 +52,7 @@ public class JFXCatch extends JFXTree implements CatchTree {
         return param;
     }
 
-    public JFXBlockExpression getBlock() {
+    public JFXBlock getBlock() {
         return body;
     }
 

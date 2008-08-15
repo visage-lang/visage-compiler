@@ -36,12 +36,12 @@ public class JFXFunctionValue extends JFXExpression implements FunctionValueTree
 
     public JFXType rettype;
     public List<JFXVar> funParams;
-    public JFXBlockExpression bodyExpression;
+    public JFXBlock bodyExpression;
     public JFXFunctionDefinition definition;
 
     public JFXFunctionValue(JFXType rettype,
             List<JFXVar> params,
-            JFXBlockExpression bodyExpression) {
+            JFXBlock bodyExpression) {
         this.rettype = rettype;
         this.funParams = params;
         this.bodyExpression = bodyExpression;
@@ -63,7 +63,7 @@ public class JFXFunctionValue extends JFXExpression implements FunctionValueTree
         return (java.util.List) funParams;
     }
 
-    public JFXBlockExpression getBodyExpression() {
+    public JFXBlock getBodyExpression() {
         return bodyExpression;
     }
 

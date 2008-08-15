@@ -123,9 +123,9 @@ public class JavafxTreeInfo {
                     tree.accept(this);
             }
             @Override
-	    public void visitUnit(JFXUnit that) {
+	    public void visitScript(JFXScript that) {
 		if (that.packge == sym) result = that;
-		else super.visitUnit(that);
+		else super.visitScript(that);
 	    }
             @Override
             public void visitFunctionDefinition(JFXFunctionDefinition that) {
@@ -143,7 +143,7 @@ public class JavafxTreeInfo {
 	return s.result;
     }
 
-    public static List<JFXTree> pathFor(final JFXTree node, final JFXUnit unit) {
+    public static List<JFXTree> pathFor(final JFXTree node, final JFXScript unit) {
 	class Result extends Error {
 	    static final long serialVersionUID = -5942088234594905625L;
 	    List<JFXTree> path;
@@ -416,7 +416,7 @@ public class JavafxTreeInfo {
         case APPLY:
             return symbolFor(((JFXFunctionInvocation) node).meth);
         case TOPLEVEL:
-            return ((JFXUnit) node).packge;
+            return ((JFXScript) node).packge;
 
         default:
             return null;
@@ -468,8 +468,8 @@ public class JavafxTreeInfo {
      *  defined endpos.
      */
     public static int endPos(JFXTree tree) {
-        if (tree.getFXTag() == JavafxTag.BLOCK_EXPRESSION && ((JFXBlockExpression) tree).endpos != Position.NOPOS)
-            return ((JFXBlockExpression) tree).endpos;
+        if (tree.getFXTag() == JavafxTag.BLOCK_EXPRESSION && ((JFXBlock) tree).endpos != Position.NOPOS)
+            return ((JFXBlock) tree).endpos;
         else if (tree.getFXTag() == JavafxTag.TRY) {
             JFXTry t = (JFXTry) tree;
             return endPos((t.finalizer != null)
@@ -487,8 +487,8 @@ public class JavafxTreeInfo {
 
         if (endPositions == null) {
             // fall back on limited info in the tree
-            return tree instanceof JFXBlockExpression ? 
-                ((JFXBlockExpression)tree).endpos : JavafxTreeInfo.endPos(tree);
+            return tree instanceof JFXBlock ?
+                ((JFXBlock)tree).endpos : JavafxTreeInfo.endPos(tree);
         }
 
         Integer mapPos = endPositions.get(tree);
@@ -501,7 +501,7 @@ public class JavafxTreeInfo {
           case POSTINIT_DEF:
             return getEndPos((JFXTree) ((JFXPostInitDefinition) tree).getBody(), endPositions);
           case OVERRIDE_ATTRIBUTE_DEF: {
-            JFXOverrideAttribute t = (JFXOverrideAttribute)tree;
+            JFXOverrideClassVar t = (JFXOverrideClassVar)tree;
             if (t.getOnReplace() != null)
                 return getEndPos(t.getOnReplace(), endPositions);
             return getEndPos(t.getInitializer(), endPositions);

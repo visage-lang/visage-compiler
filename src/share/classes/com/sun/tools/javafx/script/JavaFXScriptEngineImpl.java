@@ -40,7 +40,7 @@ import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.tools.javafx.api.JavafxcTrees;
-import com.sun.tools.javafx.tree.JFXUnit;
+import com.sun.tools.javafx.tree.JFXScript;
 import com.sun.tools.javafx.tree.JFXTree;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -231,7 +231,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                         if (pkg != null) {
                             // insert bindings after package and before first unit member
                             SourcePositions positions = JavafxcTrees.instance(task).getSourcePositions();
-                            JFXTree firstDef = ((JFXUnit)unit).defs.head;
+                            JFXTree firstDef = ((JFXScript)unit).defs.head;
                             bindingInsert = (int)positions.getStartPosition(unit, firstDef);
                         }
                     }

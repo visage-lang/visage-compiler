@@ -210,7 +210,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         return translateGeneric(tree);
     }
 
-    public JCCompilationUnit translate(JFXUnit tree) {
+    public JCCompilationUnit translate(JFXScript tree) {
         return translateGeneric(tree);
     }
 
@@ -240,8 +240,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     public JCExpression translate(JFXExpression tree, Type type) {
         if (tree == null)
             return null;
-        if (tree instanceof JFXBlockExpression && yield == Yield.ToExpression) {
-            visitBlockExpression((JFXBlockExpression) tree, type);
+        if (tree instanceof JFXBlock && yield == Yield.ToExpression) {
+            visitBlockExpression((JFXBlock) tree, type);
             return (JCExpression) result;
         }
         return convertTranslated(translate(tree), tree.pos(), tree.type, type);
@@ -348,7 +348,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         return ret;
     }
 
-    JCBlock translateBlockExpressionToBlock(JFXBlockExpression bexpr) {
+    JCBlock translateBlockExpressionToBlock(JFXBlock bexpr) {
         JCStatement stmt = translateExpression(bexpr, Wrapped.InNothing, syms.voidType);
         return stmt==null? null : asBlock(stmt);
     }
@@ -480,7 +480,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
      * @param body The block to mogrify.
      * @param module If non-null, the module class whose body this is.
      */
-    public void fixupBlockExpression (JFXBlockExpression body, JFXClassDeclaration module) {
+    public void fixupBlockExpression (JFXBlock body, JFXClassDeclaration module) {
         boolean changed = false;
         ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>();
 
@@ -524,7 +524,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
      * @param module If non-null, the module class whose body this is.
      */
     /**********************
-    public void fixupBlockExpression (JFXBlockExpression body, JFXClassDeclaration module) {
+    public void fixupBlockExpression (JFXBlock body, JFXClassDeclaration module) {
         final Map<VarSymbol, JFXVar> toModule = new HashMap<VarSymbol, JFXVar>(); //vars to move to module level
         final Map<VarSymbol, JFXVar> candidate = new HashMap<VarSymbol, JFXVar>(); //other top-level vars
 
@@ -587,7 +587,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
      * ****/
 
     @Override
-    public void visitUnit(JFXUnit tree) {
+    public void visitScript(JFXScript tree) {
         for (JFXTree def : tree.defs) {
             if (def instanceof JFXClassDeclaration) {
                 JFXClassDeclaration cdecl = (JFXClassDeclaration) def;
@@ -719,7 +719,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                             break;
                         }
                         case OVERRIDE_ATTRIBUTE_DEF: {
-                            JFXOverrideAttribute override = (JFXOverrideAttribute) def;
+                            JFXOverrideClassVar override = (JFXOverrideClassVar) def;
                             boolean isStatic = (override.sym.flags() & STATIC) != 0;
                             JCStatement init;
                             if (override.getInitializer() == null) {
@@ -1303,7 +1303,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     }
 
     @Override
-    public void visitOverrideAttribute(JFXOverrideAttribute tree) {
+    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         assert false : "should be processed by parent tree";
     }
 
@@ -1439,7 +1439,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
 
             // construct the body of the translated function
-            JFXBlockExpression bexpr = tree.getBodyExpression();
+            JFXBlock bexpr = tree.getBodyExpression();
             JCBlock body;
             if (bexpr == null) {
                 body = null; // null if no block expression
@@ -1503,11 +1503,11 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
          throw new AssertionError(tree);
     }
 
-    public void visitBlockExpression(JFXBlockExpression tree) {
+    public void visitBlockExpression(JFXBlock tree) {
         visitBlockExpression(tree, tree.type);
     }
 
-    public void visitBlockExpression(JFXBlockExpression tree, Type pt) {
+    public void visitBlockExpression(JFXBlock tree, Type pt) {
         DiagnosticPosition diagPos = tree.pos();
         ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
         prependToStatements = ListBuffer.lb();
@@ -1745,7 +1745,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
 
             @Override
-            public void visitBlockExpression(JFXBlockExpression tree) {
+            public void visitBlockExpression(JFXBlock tree) {
                 markSideEffects(); // maybe doesn't but covers all statements
             }
 
@@ -2313,7 +2313,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                             if (!types.isSameType(l.type, syms.javafx_DurationType)) {
                                 // FIXME This may get side-effects out-of-order.
                                 // A simple fix is to use a static Duration.mul(double,Duration).
-                                // Another is to use a BlockExpression and a temporary.
+                                // Another is to use a Block and a temporary.
                                 r = l;
                                 l = tree.rhs;
                             }
@@ -3023,7 +3023,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
      *
      */
 
-    private JCBlock makeRunMethodBody(JFXBlockExpression bexpr) {
+    private JCBlock makeRunMethodBody(JFXBlock bexpr) {
         DiagnosticPosition diagPos = bexpr.pos();
         final JFXExpression value = bexpr.value;
         JCBlock block;
@@ -3194,7 +3194,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         return ret;
     }
 
-    private void fillClassesWithOuters(JFXUnit tree) {
+    private void fillClassesWithOuters(JFXScript tree) {
         class FillClassesWithOuters extends JavafxTreeScanner {
             JFXClassDeclaration currentClass;
 

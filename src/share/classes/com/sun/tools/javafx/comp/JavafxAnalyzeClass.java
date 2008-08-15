@@ -196,7 +196,7 @@ class JavafxAnalyzeClass {
     static class TranslatedOverrideAttributeInfo extends AttributeInfo {
         private final JFXOnReplace onReplace;
         private final JCBlock onReplaceTranslatedBody;
-        TranslatedOverrideAttributeInfo(JFXOverrideAttribute override, 
+        TranslatedOverrideAttributeInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
                 JCStatement initStmt, JFXOnReplace onReplace, JCBlock onReplaceTranslatedBody) {
             super(override.pos(), override.sym.name, override.sym, vmi, initStmt, true);

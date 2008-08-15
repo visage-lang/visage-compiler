@@ -457,9 +457,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      *  @param filename     The name of the file from which input stream comes.
      *  @param input        The input stream to be parsed.
      */
-    protected JFXUnit parse(JavaFileObject filename, CharSequence content) {
+    protected JFXScript parse(JavaFileObject filename, CharSequence content) {
         long msec = now();
-        JFXUnit tree = null;
+        JFXScript tree = null;
         if (content != null) {
             if (verbose) {
                 printVerbose(MsgSym.MESSAGE_PARSING_STARTED, filename);
@@ -485,7 +485,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         // test shouldn't be needed when we have better error recovery
         if (tree == null) {
             // We have nothing, so make an empty module
-            tree = make.TopLevel(null, List.<JFXTree>nil());
+            tree = make.Script(null, List.<JFXTree>nil());
         }
 
         tree.sourcefile = filename;
@@ -508,10 +508,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         /** Parse contents of file.
      *  @param filename     The name of the file to be parsed.
      */
-    public JFXUnit parse(JavaFileObject filename) {
+    public JFXScript parse(JavaFileObject filename) {
         JavaFileObject prev = log.useSource(filename);
         try {
-            JFXUnit t = parse(filename, readSource(filename));
+            JFXScript t = parse(filename, readSource(filename));
             if (t.endPositions != null)
                 log.setEndPosTable(filename, t.endPositions);
             return t;
@@ -543,7 +543,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** Emit pretty=printed fx source corresponding to an input file.
      */
-    void printJavafxSource(JFXUnit cu, CharSequence content) {
+    void printJavafxSource(JFXScript cu, CharSequence content) {
         String dump = options.get("dumpfx");
         BufferedWriter out = null;
         if (dump != null) {
@@ -576,7 +576,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         if (completionFailureName == c.fullname) {
             throw new CompletionFailure(c, "user-selected completion failure by class name");
         }
-        JFXUnit tree;
+        JFXScript tree;
         JavaFileObject filename = c.classfile;
         JavaFileObject prev = log.useSource(filename);
 
@@ -584,7 +584,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             tree = parse(filename, filename.getCharContent(false));
         } catch (IOException e) {
             log.error(MsgSym.MESSAGE_ERROR_READING_FILE, filename, e);
-            tree = make.TopLevel(null, List.<JFXTree>nil());
+            tree = make.Script(null, List.<JFXTree>nil());
         } finally {
             log.useSource(prev);
         }
@@ -657,7 +657,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         start_msec = now();
         try {
             // Translate JavafxTrees into Javac trees.
-            List<JFXUnit> cus = stopIfError(parseFiles(sourceFileObjects));
+            List<JFXScript> cus = stopIfError(parseFiles(sourceFileObjects));
 
 //             stopIfError(buildJavafxModule(cus, sourceFileObjects));
 
@@ -811,12 +811,12 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     /**
      * Parses a list of files.
      */
-   public List<JFXUnit> parseFiles(List<JavaFileObject> fileObjects) throws IOException {
+   public List<JFXScript> parseFiles(List<JavaFileObject> fileObjects) throws IOException {
        if (errorCount() > 0)
        	   return List.nil();
 
         //parse all files
-        ListBuffer<JFXUnit> trees = lb();
+        ListBuffer<JFXScript> trees = lb();
         for (JavaFileObject fileObject : fileObjects)
             trees.append(parse(fileObject));
         return trees.toList();
@@ -827,10 +827,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * As a side-effect, this puts elements on the "todo" list.
      * Also stores a list of all top level classes in rootClasses.
      */
-    public List<JFXUnit> enterTrees(List<JFXUnit> roots) {
+    public List<JFXScript> enterTrees(List<JFXScript> roots) {
         //enter symbols for all files
         if (taskListener != null) {
-            for (JFXUnit unit: roots) {
+            for (JFXScript unit: roots) {
                 JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ENTER, unit);
                 taskListener.started(e);
             }
@@ -839,7 +839,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         enter.main(roots);
         
         if (taskListener != null) {
-            for (JFXUnit unit: roots) {
+            for (JFXScript unit: roots) {
                 JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ENTER, unit);
                 taskListener.finished(e);
             }
@@ -849,7 +849,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         //the original compilation units listed on the command line.
         if (sourceOutput || stubOutput) {
             ListBuffer<JFXClassDeclaration> cdefs = lb();
-            for (JFXUnit unit : roots) {
+            for (JFXScript unit : roots) {
                 for (List<JFXTree> defs = unit.defs;
                      defs.nonEmpty();
                      defs = defs.tail) {
@@ -984,10 +984,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
         // where
-        Map<JFXUnit, List<JavafxEnv<JavafxAttrContext>>> groupByFile(List<JavafxEnv<JavafxAttrContext>> list) {
+        Map<JFXScript, List<JavafxEnv<JavafxAttrContext>>> groupByFile(List<JavafxEnv<JavafxAttrContext>> list) {
             // use a LinkedHashMap to preserve the order of the original list as much as possible
-            Map<JFXUnit, List<JavafxEnv<JavafxAttrContext>>> map = new LinkedHashMap<JFXUnit, List<JavafxEnv<JavafxAttrContext>>>();
-            Set<JFXUnit> fixupSet = new HashSet<JFXUnit>();
+            Map<JFXScript, List<JavafxEnv<JavafxAttrContext>>> map = new LinkedHashMap<JFXScript, List<JavafxEnv<JavafxAttrContext>>>();
+            Set<JFXScript> fixupSet = new HashSet<JFXScript>();
             for (List<JavafxEnv<JavafxAttrContext>> l = list; l.nonEmpty(); l = l.tail) {
                 JavafxEnv<JavafxAttrContext> env = l.head;
                 List<JavafxEnv<JavafxAttrContext>> sublist = map.get(env.toplevel);
@@ -1002,7 +1002,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 map.put(env.toplevel, sublist);
             }
             // fixup any lists that need reversing back to the correct order
-            for (JFXUnit tree: fixupSet)
+            for (JFXScript tree: fixupSet)
                 map.put(tree, map.get(tree).reverse());
             return map;
         }

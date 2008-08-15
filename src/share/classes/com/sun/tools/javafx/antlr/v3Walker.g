@@ -58,13 +58,13 @@ import org.antlr.runtime.tree.*;
     }
 }
 
-script returns [JFXUnit result]
+script returns [JFXScript result]
 @init   { docComments = null;
           endPositions = genEndPos ? new HashMap<JCTree,Integer>() : null; }
 @after  { $result.docComments = docComments;
           $result.endPositions = endPositions; }
 	: ^(SCRIPT packageDecl? scriptItems DOC_COMMENT?)
-                                                        { $result = F.TopLevel($packageDecl.value, $scriptItems.items.toList());
+                                                        { $result = F.Script($packageDecl.value, $scriptItems.items.toList());
                                                           setDocComment($result, $DOC_COMMENT);
                                                           $result.pos = $result.pid != null ? $result.pid.pos : $result.defs.head.pos;
                                                           endPos($result, $SCRIPT); }
@@ -135,9 +135,9 @@ postInitDefinition  returns [JFXPostInitDefinition value]
 	: ^(POSTINIT blockExpression)	 			{ $value = F.at(pos($POSTINIT)).PostInitDefinition($blockExpression.value);
                                                           endPos($value, $POSTINIT); }
 	;
-overrideDeclaration returns [JFXOverrideAttribute value]
+overrideDeclaration returns [JFXOverrideClassVar value]
 	: ^(OVERRIDE identifier boundExpression? onReplaceClause?)
-							{ $value = F.at(pos($OVERRIDE)).OverrideAttribute($identifier.value,
+							{ $value = F.at(pos($OVERRIDE)).OverrideClassVar($identifier.value,
 									$boundExpression.value, $boundExpression.status,
 									$onReplaceClause.value);
                                                           endPos($value, $OVERRIDE);}
@@ -178,7 +178,7 @@ formalParameter returns [JFXVar var]
 	: ^(PARAM name type)				{ $var = F.at($name.pos).Param($name.value, $type.type);
                                                           endPos($var, $PARAM); }
 	;
-blockExpression  returns [JFXBlockExpression value]
+blockExpression  returns [JFXBlock value]
 @init { ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>(); JFXExpression val = null;}
 	: ^(LBRACE   (
 	                  statement			{ if (val != null) {
@@ -186,7 +186,7 @@ blockExpression  returns [JFXBlockExpression value]
                                                           }
 	     					  	  val = $statement.value; }
 		     )*
-	    )						{ $value = F.at(pos($LBRACE)).BlockExpression(0L, stats.toList(), val);
+	    )						{ $value = F.at(pos($LBRACE)).Block(0L, stats.toList(), val);
                                                           endPos($value, $LBRACE); }
 	;
 variableDeclaration    returns [JFXExpression value]
@@ -254,7 +254,7 @@ catchClause  returns [JFXCatch value]
 	: ^(CATCH formalParameter blockExpression)		{ $value = F.at(pos($CATCH)).Catch($formalParameter.var, $blockExpression.value);
                                                           endPos($value, $CATCH); }
 	;
-finallyClause  returns [JFXBlockExpression value]
+finallyClause  returns [JFXBlock value]
 	: ^(FINALLY blockExpression)				{ $value = $blockExpression.value; }
 	;
 boundExpression   returns [JavafxBindStatus status, JFXExpression value]

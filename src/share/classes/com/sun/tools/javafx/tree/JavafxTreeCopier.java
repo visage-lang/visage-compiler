@@ -41,10 +41,10 @@ public class JavafxTreeCopier implements JavafxVisitor {
         return lb.toList();
     }
 
-    public void visitUnit(JFXUnit tree) {
+    public void visitScript(JFXScript tree) {
         JFXExpression pid = copy(tree.pid);
         List<JFXTree> defs = copy(tree.defs);
-        result = maker.at(tree.pos).TopLevel(pid, defs);
+        result = maker.at(tree.pos).Script(pid, defs);
     }
 
     public void visitImport(JFXImport tree) {
@@ -63,15 +63,15 @@ public class JavafxTreeCopier implements JavafxVisitor {
     }
 
     public void visitTry(JFXTry tree) {
-        JFXBlockExpression body = copy(tree.body);
+        JFXBlock body = copy(tree.body);
         List<JFXCatch> catchers = copy(tree.catchers);
-        JFXBlockExpression finalizer = copy(tree.finalizer);
+        JFXBlock finalizer = copy(tree.finalizer);
         result = maker.at(tree.pos).Try(body, catchers, finalizer);
     }
 
     public void visitCatch(JFXCatch tree) {
         JFXVar param = copy(tree.param);
-        JFXBlockExpression body = copy(tree.body);
+        JFXBlock body = copy(tree.body);
         result = maker.at(tree.pos).Catch(param, body);
     }
 
@@ -190,17 +190,17 @@ public class JavafxTreeCopier implements JavafxVisitor {
         Name name = tree.getName();
         JFXType restype = copy(tree.getJFXReturnType());
         List<JFXVar> params = copy(tree.getParameters());
-        JFXBlockExpression bodyExpression = copy(tree.getBodyExpression());
+        JFXBlock bodyExpression = copy(tree.getBodyExpression());
         result = maker.at(tree.pos).FunctionDefinition(mods, name, restype, params, bodyExpression);
     }
 
     public void visitInitDefinition(JFXInitDefinition tree) {
-        JFXBlockExpression body = tree.body;
+        JFXBlock body = tree.body;
         result = maker.at(tree.pos).InitDefinition(body);
     }
 
     public void visitPostInitDefinition(JFXPostInitDefinition tree) {
-        JFXBlockExpression body = tree.body;
+        JFXBlock body = tree.body;
         result = maker.at(tree.pos).PostInitDefinition(body);
     }
 
@@ -261,20 +261,20 @@ public class JavafxTreeCopier implements JavafxVisitor {
         JFXVar firstIndex = copy(tree.getFirstIndex());
         JFXVar lastIndex = copy(tree.getLastIndex());
         JFXVar newElements = copy(tree.getNewElements());
-        JFXBlockExpression body = copy(tree.getBody());
+        JFXBlock body = copy(tree.getBody());
         result = maker.at(tree.pos).OnReplace(oldValue, firstIndex, lastIndex, tree.getEndKind(), newElements, body);
     }
 
-    public void visitBlockExpression(JFXBlockExpression tree) {
+    public void visitBlockExpression(JFXBlock tree) {
         List<JFXExpression> stats = copy(tree.stats);
         JFXExpression value = copy(tree.value);
-        result = maker.at(tree.pos).BlockExpression(tree.flags, stats, value);
+        result = maker.at(tree.pos).Block(tree.flags, stats, value);
     }
 
     public void visitFunctionValue(JFXFunctionValue tree) {
         JFXType restype = copy(tree.rettype);
         List<JFXVar> params = copy(tree.getParams());
-        JFXBlockExpression bodyExpression = copy(tree.bodyExpression);
+        JFXBlock bodyExpression = copy(tree.bodyExpression);
         result = maker.at(tree.pos).FunctionValue(restype, params, bodyExpression);
     }
 
@@ -342,11 +342,11 @@ public class JavafxTreeCopier implements JavafxVisitor {
         result = maker.at(tree.pos).TimeLiteral(literal, tree.duration);
     }
 
-    public void visitOverrideAttribute(JFXOverrideAttribute tree) {
+    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         JFXIdent expr = copy(tree.getId());
         JFXExpression initializer = copy(tree.getInitializer());
         JFXOnReplace onr = copy(tree.getOnReplace());
-        result = maker.at(tree.pos).OverrideAttribute(expr, initializer, tree.getBindStatus(), onr);
+        result = maker.at(tree.pos).OverrideClassVar(expr, initializer, tree.getBindStatus(), onr);
     }
 
     public void visitInterpolate(JFXInterpolate tree) {

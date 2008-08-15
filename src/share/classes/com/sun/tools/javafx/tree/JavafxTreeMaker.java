@@ -61,7 +61,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     /** The toplevel tree to which created trees belong.
      */
-    public JFXUnit toplevel;
+    public JFXScript toplevel;
 
     /** The current name table. */
     protected Name.Table names;
@@ -84,7 +84,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     /** Create a tree maker with a given toplevel and FIRSTPOS as initial position.
      */
-    protected JavafxTreeMaker(JFXUnit toplevel, Name.Table names, Types types, JavafxSymtab syms) {
+    protected JavafxTreeMaker(JFXScript toplevel, Name.Table names, Types types, JavafxSymtab syms) {
         this.pos = Position.FIRSTPOS;
         this.toplevel = toplevel;
         this.names = names;
@@ -94,7 +94,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     /** Create a new tree maker for a given toplevel.
      */
-    public JavafxTreeMaker forToplevel(JFXUnit toplevel) {
+    public JavafxTreeMaker forToplevel(JFXScript toplevel) {
         return new JavafxTreeMaker(toplevel, names, types, syms);
     }
 
@@ -130,13 +130,13 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXTry Try(JFXBlockExpression body, List<JFXCatch> catchers, JFXBlockExpression finalizer) {
+    public JFXTry Try(JFXBlock body, List<JFXCatch> catchers, JFXBlock finalizer) {
         JFXTry tree = new JFXTry(body, catchers, finalizer);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXCatch Catch(JFXVar param, JFXBlockExpression body) {
+    public JFXCatch Catch(JFXVar param, JFXBlock body) {
         JFXCatch tree = new JFXCatch(param, body);
         tree.pos = pos;
         return tree;
@@ -475,8 +475,8 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXBlockExpression BlockExpression(long flags, List<JFXExpression> stats, JFXExpression value) {
-        JFXBlockExpression tree = new JFXBlockExpression(flags, stats, value);
+    public JFXBlock Block(long flags, List<JFXExpression> stats, JFXExpression value) {
+        JFXBlock tree = new JFXBlock(flags, stats, value);
         tree.pos = pos;
         return tree;
     }
@@ -486,7 +486,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             Name name,
             JFXType restype,
             List<JFXVar> params,
-            JFXBlockExpression bodyExpression) {
+            JFXBlock bodyExpression) {
         JFXFunctionDefinition tree = new JFXFunctionDefinition(
                 modifiers,
                 name,
@@ -501,7 +501,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     public JFXFunctionValue FunctionValue(
             JFXType restype,
              List<JFXVar> params,
-            JFXBlockExpression bodyExpression) {
+            JFXBlock bodyExpression) {
         JFXFunctionValue tree = new JFXFunctionValue(
                 restype,
                 params,
@@ -511,14 +511,14 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     }
 
     public JFXInitDefinition InitDefinition(
-            JFXBlockExpression body) {
+            JFXBlock body) {
         JFXInitDefinition tree = new JFXInitDefinition(
                 body);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXPostInitDefinition PostInitDefinition(JFXBlockExpression body) {
+    public JFXPostInitDefinition PostInitDefinition(JFXBlock body) {
         JFXPostInitDefinition tree = new JFXPostInitDefinition(body);
         tree.pos = pos;
         return tree;
@@ -684,26 +684,26 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     }
 
 
-    public JFXOverrideAttribute TriggerWrapper(JFXIdent expr, JFXOnReplace onr) {
-        JFXOverrideAttribute tree = new JFXOverrideAttribute(expr, null, null, onr, null);
+    public JFXOverrideClassVar TriggerWrapper(JFXIdent expr, JFXOnReplace onr) {
+        JFXOverrideClassVar tree = new JFXOverrideClassVar(expr, null, null, onr, null);
         tree.pos = pos;
         return tree;
     }
 
-    public JFXOnReplace OnReplace(JFXVar oldValue, JFXBlockExpression body) {
+    public JFXOnReplace OnReplace(JFXVar oldValue, JFXBlock body) {
         JFXOnReplace tree = new JFXOnReplace(oldValue, body);
         tree.pos = pos;
         return tree;
     }
 
      public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
-             JFXVar lastIndex, JFXVar newElements, JFXBlockExpression body) {
+             JFXVar lastIndex, JFXVar newElements, JFXBlock body) {
          return OnReplace(oldValue, firstIndex, lastIndex,
                  JFXSequenceSlice.END_INCLUSIVE, newElements, body);
     }
 
      public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
-             JFXVar lastIndex, int endKind, JFXVar newElements, JFXBlockExpression body) {
+             JFXVar lastIndex, int endKind, JFXVar newElements, JFXBlock body) {
          JFXOnReplace tree = new JFXOnReplace(oldValue, firstIndex, lastIndex,
                  endKind, newElements, body);
         tree.pos = pos;
@@ -728,11 +728,11 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
-    public JFXOverrideAttribute OverrideAttribute(JFXIdent expr,
+    public JFXOverrideClassVar OverrideClassVar(JFXIdent expr,
             JFXExpression initializer,
             JavafxBindStatus bindStatus,
             JFXOnReplace onr) {
-        JFXOverrideAttribute tree = new JFXOverrideAttribute(expr, initializer,
+        JFXOverrideClassVar tree = new JFXOverrideClassVar(expr, initializer,
                 bindStatus, onr, null);
         tree.pos = pos;
         return tree;
@@ -875,11 +875,11 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     }
 
     /**
-     * Clone of javac's JavafxTreeMaker.TopLevel, minus the assertion check of defs types.
+     * Clone of javac's JavafxTreeMaker.Script, minus the assertion check of defs types.
      */
-    public JFXUnit TopLevel(JFXExpression pid,
+    public JFXScript Script(JFXExpression pid,
                                       List<JFXTree> defs) {
-        JFXUnit tree = new JFXUnit(pid, defs,
+        JFXScript tree = new JFXScript(pid, defs,
                                      null, null, null, null);
         tree.pos = pos;
         return tree;

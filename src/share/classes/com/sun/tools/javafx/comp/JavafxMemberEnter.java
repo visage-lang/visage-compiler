@@ -417,8 +417,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
     @Override
     public void visitTree(JFXTree tree) {
-        if (tree instanceof JFXBlockExpression)
-            visitBlockExpression((JFXBlockExpression) tree);
+        if (tree instanceof JFXBlock)
+            visitBlockExpression((JFXBlock) tree);
         else
             super.visitTree(tree);
     }
@@ -429,7 +429,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     }
     
     @Override
-    public void visitUnit(JFXUnit tree) {
+    public void visitScript(JFXScript tree) {
         if (tree.starImportScope.elems != null) {
             // we must have already processed this toplevel
             return;

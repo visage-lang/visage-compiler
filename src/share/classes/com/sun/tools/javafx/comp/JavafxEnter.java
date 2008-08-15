@@ -58,7 +58,7 @@ public class JavafxEnter extends JavafxTreeScanner {
     private final JavaFileManager fileManager;
     private final JavafxTodo todo;
     private final JavafxTypes types;
-    private JavafxModuleBuilder javafxModuleBuilder;
+    private JavafxScriptClassBuilder javafxModuleBuilder;
     
     public static JavafxEnter instance(Context context) {
 	JavafxEnter instance = context.get(javafxEnterKey);
@@ -78,7 +78,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 	memberEnter = JavafxMemberEnter.instance(context);
 	annotate = JavafxAnnotate.instance(context);
 	lint = Lint.instance(context);
-        javafxModuleBuilder = JavafxModuleBuilder.instance(context);
+        javafxModuleBuilder = JavafxScriptClassBuilder.instance(context);
 
 	predefClassDef = fxmake.ClassDeclaration(
 	    fxmake.Modifiers(PUBLIC),
@@ -170,7 +170,7 @@ public class JavafxEnter extends JavafxTreeScanner {
     /** Create a fresh environment for toplevels.
      *	@param tree	The toplevel tree.
      */
-    JavafxEnv<JavafxAttrContext> topLevelEnv(JFXUnit tree) {
+    JavafxEnv<JavafxAttrContext> topLevelEnv(JFXScript tree) {
 	JavafxEnv<JavafxAttrContext> localEnv = new JavafxEnv<JavafxAttrContext>(tree, new JavafxAttrContext());
 	localEnv.toplevel = tree;
 	localEnv.enclClass = predefClassDef;
@@ -181,7 +181,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 	return localEnv;
     } 
 
-    public JavafxEnv<JavafxAttrContext> getTopLevelEnv(JFXUnit tree) {
+    public JavafxEnv<JavafxAttrContext> getTopLevelEnv(JFXScript tree) {
         JavafxEnv<JavafxAttrContext> localEnv = new JavafxEnv<JavafxAttrContext>(tree, new JavafxAttrContext());
         localEnv.toplevel = tree;
         localEnv.enclClass = predefClassDef;
@@ -248,7 +248,7 @@ public class JavafxEnter extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitUnit(JFXUnit tree) {
+    public void visitScript(JFXScript tree) {
 	JavaFileObject prev = log.useSource(tree.sourcefile);
 	boolean isPkgInfo = tree.sourcefile.isNameCompatible("package-info",
 							     JavaFileObject.Kind.SOURCE);
@@ -268,7 +268,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 	    if (env0 == null) {
 		typeEnvs.put(tree.packge, localEnv);
 	    } else {
-		JFXUnit tree0 = env0.toplevel;
+		JFXScript tree0 = env0.toplevel;
                 if (!fileManager.isSameFile(tree.sourcefile, tree0.sourcefile)) {
 		    log.warning(tree.pid != null ? tree.pid.pos()
 						 : null,
@@ -371,7 +371,7 @@ public class JavafxEnter extends JavafxTreeScanner {
     /** Main method: enter all classes in a list of toplevel trees.
      *	@param trees	  The list of trees to be processed.
      */
-    public void main(List<JFXUnit> trees) {
+    public void main(List<JFXScript> trees) {
 	complete(trees, null);
     }
 
@@ -380,7 +380,7 @@ public class JavafxEnter extends JavafxTreeScanner {
      *  @param trees      The list of trees to be processed.
      *  @param c          The class symbol to be processed.
      */
-    public void complete(List<JFXUnit> trees, ClassSymbol c) {
+    public void complete(List<JFXScript> trees, ClassSymbol c) {
         annotate.enterStart();
 	ListBuffer<ClassSymbol> prevUncompleted = uncompleted;
 	if (memberEnter.completionEnabled) uncompleted = new ListBuffer<ClassSymbol>();
@@ -402,7 +402,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 
 		// if there remain any unimported toplevels (these must have
 		// no classes at all), process their import statements as well.
-		for (JFXUnit tree : trees) {
+		for (JFXScript tree : trees) {
 		    if (tree.starImportScope.elems == null) {
 			JavaFileObject prev = log.useSource(tree.sourcefile);
 			JavafxEnv<JavafxAttrContext> localEnv = typeEnvs.get(tree.packge);

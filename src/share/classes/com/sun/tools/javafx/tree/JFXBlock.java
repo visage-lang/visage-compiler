@@ -34,7 +34,7 @@ import com.sun.tools.javac.util.Position;
  *
  * @author bothner
  */
-public class JFXBlockExpression extends JFXExpression implements BlockExpressionTree {
+public class JFXBlock extends JFXExpression implements BlockExpressionTree {
 
     public long flags;
     public List<JFXExpression> stats;
@@ -42,7 +42,7 @@ public class JFXBlockExpression extends JFXExpression implements BlockExpression
     /** Position of closing brace, optional. */
     public int endpos = Position.NOPOS;
 
-    protected JFXBlockExpression(long flags, List<JFXExpression> stats, JFXExpression value) {
+    protected JFXBlock(long flags, List<JFXExpression> stats, JFXExpression value) {
         this.stats = stats;
         this.flags = flags;
         this.value = value;

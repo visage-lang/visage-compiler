@@ -52,7 +52,7 @@ import javax.tools.JavaFileObject;
  *                         ranges indexed by the tree nodes they belong to.
  *                         Defined only if option -Xjcov is set.
  */
-public class JFXUnit extends JFXTree implements UnitTree {
+public class JFXScript extends JFXTree implements UnitTree {
 
     public final JFXExpression pid;
     public List<JFXTree> defs;
@@ -66,7 +66,7 @@ public class JFXUnit extends JFXTree implements UnitTree {
     public Map<JCTree, String> docComments = null;
     public Map<JCTree, Integer> endPositions = null;
 
-    protected JFXUnit(
+    protected JFXScript(
             JFXExpression pid,
             List<JFXTree> defs,
             JavaFileObject sourcefile,
@@ -83,7 +83,7 @@ public class JFXUnit extends JFXTree implements UnitTree {
 
     @Override
     public void accept(JavafxVisitor v) {
-        v.visitUnit(this);
+        v.visitScript(this);
     }
 
     public JavaFXKind getJavaFXKind() {

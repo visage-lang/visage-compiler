@@ -472,7 +472,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         result = makeConstantLocation(tree.pos(), targetType(tree.type), toJava.makeFunctionValue(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type) );
     }
 
-    public void visitBlockExpression(JFXBlockExpression tree) {   //done
+    public void visitBlockExpression(JFXBlock tree) {   //done
         assert (tree.type != syms.voidType) : "void block expressions should be not exist in bind expressions";
         DiagnosticPosition diagPos = tree.pos();
 
@@ -1408,7 +1408,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
-    public void visitOverrideAttribute(JFXOverrideAttribute tree) {
+    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         assert false : "should not be processed as part of a binding";
     }
 
@@ -1419,7 +1419,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
 
     @Override
-    public void visitUnit(JFXUnit tree) {
+    public void visitScript(JFXScript tree) {
         assert false : "should not be processed as part of a binding";
    }
 

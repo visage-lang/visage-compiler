@@ -69,7 +69,7 @@ public class JavafxTreeScanner implements JavafxVisitor {
  * Visitor methods
  ****************************************************************************/
     
-    public void visitUnit(JFXUnit tree) {
+    public void visitScript(JFXScript tree) {
         scan(tree.pid);
         scan(tree.defs);
     }
@@ -198,11 +198,11 @@ public class JavafxTreeScanner implements JavafxVisitor {
 
     @Override
     public void visitInitDefinition(JFXInitDefinition that) {
-        scan((JFXBlockExpression)that.getBody());
+        scan((JFXBlock)that.getBody());
     }
 
     public void visitPostInitDefinition(JFXPostInitDefinition that) {
-        scan((JFXBlockExpression)that.getBody());
+        scan((JFXBlock)that.getBody());
     }
 
     @Override
@@ -304,7 +304,7 @@ public class JavafxTreeScanner implements JavafxVisitor {
     }
     
     @Override
-    public void visitOverrideAttribute(JFXOverrideAttribute tree) {
+    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         scan(tree.getId());
 	scan(tree.getInitializer());
         scan(tree.getOnReplace());
@@ -342,7 +342,7 @@ public class JavafxTreeScanner implements JavafxVisitor {
     }
     
     @Override
-    public void visitBlockExpression(JFXBlockExpression that) {
+    public void visitBlockExpression(JFXBlock that) {
         scan(that.stats);
         scan(that.value);
     }

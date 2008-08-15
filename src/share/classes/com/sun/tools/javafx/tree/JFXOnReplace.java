@@ -37,20 +37,20 @@ public class JFXOnReplace extends JFXTree implements OnReplaceTree {
     
     private final JFXVar firstIndex;
     private final JFXVar oldValue;
-    private final JFXBlockExpression body;
+    private final JFXBlock body;
     private int endKind;
 
     private JFXVar lastIndex;
     private JFXVar newElements;
 
     
-    public JFXOnReplace( JFXVar oldValue, JFXBlockExpression body) {
+    public JFXOnReplace( JFXVar oldValue, JFXBlock body) {
         this(oldValue, null, null, 0, null, body);
     }
     
     
     public JFXOnReplace(JFXVar oldValue, JFXVar firstIndex, JFXVar lastIndex,
-            int endKind, JFXVar newElements, JFXBlockExpression body) {
+            int endKind, JFXVar newElements, JFXBlock body) {
         this.oldValue = oldValue;
         this.firstIndex = firstIndex;
         this.lastIndex = lastIndex;
@@ -71,7 +71,7 @@ public class JFXOnReplace extends JFXTree implements OnReplaceTree {
         return oldValue;
     }
     
-    public JFXBlockExpression getBody() {
+    public JFXBlock getBody() {
         return body;
     }
     

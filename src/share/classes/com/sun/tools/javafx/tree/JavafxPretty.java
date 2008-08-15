@@ -288,7 +288,7 @@ public class JavafxPretty implements JavafxVisitor {
      *  @param cdef     The class definition, which is assumed to be part of the
      *                  toplevel tree.
      */
-    public void printUnit(JFXUnit tree) throws IOException {
+    public void printUnit(JFXScript tree) throws IOException {
         docComments = tree.docComments;
         printDocComment(tree);
         if (tree.pid != null) {
@@ -333,7 +333,7 @@ public class JavafxPretty implements JavafxVisitor {
      * Visitor methods
      *************************************************************************/
 
-    public void visitUnit(JFXUnit tree) {
+    public void visitScript(JFXScript tree) {
         try {
             printUnit(tree);
         } catch (IOException e) {
@@ -771,7 +771,7 @@ public class JavafxPretty implements JavafxVisitor {
             if (tree.getType() != null) {
                 pretty.printExpr(tree.getType());
             }
-            JFXBlockExpression body = tree.getBodyExpression();
+            JFXBlock body = tree.getBodyExpression();
             if (body != null) {
                 pretty.printExpr(body);
             }
@@ -801,7 +801,7 @@ public class JavafxPretty implements JavafxVisitor {
             fxpretty.variableScope = SCOPE_METHOD;
             pretty.print(")");
             pretty.printExpr(tree.operation.rettype);
-            JFXBlockExpression body = tree.getBodyExpression();
+            JFXBlock body = tree.getBodyExpression();
             if (body != null) {
                 pretty.print(" ");
                 pretty.printExpr(body);
@@ -851,11 +851,11 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitBlockExpression(JFXBlockExpression tree) {
+    public void visitBlockExpression(JFXBlock tree) {
         visitBlockExpression(this, tree);
     }
 
-    public static void visitBlockExpression(JavafxPretty pretty, JFXBlockExpression tree) {
+    public static void visitBlockExpression(JavafxPretty pretty, JFXBlock tree) {
         try {
             pretty.printFlags(tree.flags);
             pretty.print("{");
@@ -1167,7 +1167,7 @@ public class JavafxPretty implements JavafxVisitor {
     }
 
     @Override
-    public void visitOverrideAttribute(JFXOverrideAttribute tree) {
+    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         try {
             print("override attribute ");
             printExpr(tree.getId());
@@ -1335,7 +1335,7 @@ public class JavafxPretty implements JavafxVisitor {
             if (tree.getTrigger() != null) {
                 align();
                 print("trigger ");
-                visitBlockExpression(this, (JFXBlockExpression)tree.getTrigger());
+                visitBlockExpression(this, (JFXBlock)tree.getTrigger());
             }
             
             undent();

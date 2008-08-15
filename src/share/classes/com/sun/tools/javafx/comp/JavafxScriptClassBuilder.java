@@ -48,9 +48,9 @@ import java.util.Map;
 import java.util.Set;
 import javax.tools.FileObject;
 
-public class JavafxModuleBuilder {
-    protected static final Context.Key<JavafxModuleBuilder> javafxModuleBuilderKey =
-        new Context.Key<JavafxModuleBuilder>();
+public class JavafxScriptClassBuilder {
+    protected static final Context.Key<JavafxScriptClassBuilder> javafxModuleBuilderKey =
+        new Context.Key<JavafxScriptClassBuilder>();
 
     private final JavafxDefs defs;
     private Table names;
@@ -64,14 +64,14 @@ public class JavafxModuleBuilder {
     
     private static final boolean debugBadPositions = Boolean.getBoolean("JavafxModuleBuilder.debugBadPositions");
 
-    public static JavafxModuleBuilder instance(Context context) {
-        JavafxModuleBuilder instance = context.get(javafxModuleBuilderKey);
+    public static JavafxScriptClassBuilder instance(Context context) {
+        JavafxScriptClassBuilder instance = context.get(javafxModuleBuilderKey);
         if (instance == null)
-            instance = new JavafxModuleBuilder(context);
+            instance = new JavafxScriptClassBuilder(context);
         return instance;
     }
 
-    protected JavafxModuleBuilder(Context context) {
+    protected JavafxScriptClassBuilder(Context context) {
         defs = JavafxDefs.instance(context);
         names = Table.instance(context);
         fxmake = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
@@ -82,8 +82,8 @@ public class JavafxModuleBuilder {
         commandLineArgs = names.fromString("__ARGS__");
     }
 
-    public void preProcessJfxTopLevel(JFXUnit module) {
-        Name moduleClassName = moduleName(module);
+    public void preProcessJfxTopLevel(JFXScript module) {
+        Name moduleClassName = scriptName(module);
         
         if (debugBadPositions) {
             checkForBadPositions(module);
@@ -183,7 +183,7 @@ public class JavafxModuleBuilder {
                     Name name = decl.name;
                     if (name == defs.mainFunctionName) {
                         // this is the main function, move its body to the run method
-                        JFXBlockExpression body = decl.getBodyExpression();
+                        JFXBlock body = decl.getBodyExpression();
                         stats.appendList(body.getStmts());
                         if (body.getValue() != null) {
                             stats.append(body.getValue());
@@ -245,7 +245,7 @@ public class JavafxModuleBuilder {
         reservedTopLevelNamesSet = null;
     }
     
-    private void debugPositions(final JFXUnit module) {
+    private void debugPositions(final JFXScript module) {
         new JavafxTreeScanner() {
 
             @Override
@@ -259,7 +259,7 @@ public class JavafxModuleBuilder {
 
     }
     
-    private List<JFXTree> pseudoVariables(DiagnosticPosition diagPos, Name moduleClassName, JFXUnit module,
+    private List<JFXTree> pseudoVariables(DiagnosticPosition diagPos, Name moduleClassName, JFXScript module,
             boolean usesFile, boolean usesDir) {
         ListBuffer<JFXTree> pseudoDefs = ListBuffer.<JFXTree>lb();
         if (usesFile || usesDir) {
@@ -301,7 +301,7 @@ public class JavafxModuleBuilder {
         JFXVar mainArgs = fxmake.Param(commandLineArgs, 
                 fxmake.TypeClass(fxmake.Ident(Name.fromString(names, "String")), TypeTree.Cardinality.ANY));
         List<JFXVar> argsVarList = List.<JFXVar>of(mainArgs);
-        JFXBlockExpression body = fxmake.BlockExpression(0, stats, value);
+        JFXBlock body = fxmake.Block(0, stats, value);
         JFXExpression rettree = fxmake.Type(syms.objectType);
         rettree.type = syms.objectType;
         return fxmake.FunctionDefinition(
@@ -312,7 +312,7 @@ public class JavafxModuleBuilder {
                 body);        
     }
     
-    private Name moduleName(JFXUnit tree) {
+    private Name scriptName(JFXScript tree) {
         String fileObjName = null;
 
         FileObject fo = tree.getSourceFile();
@@ -343,7 +343,7 @@ public class JavafxModuleBuilder {
         }
     }
     
-    private void checkForBadPositions(JFXUnit testTree) {
+    private void checkForBadPositions(JFXScript testTree) {
         final Map<JCTree, Integer> endPositions = testTree.endPositions;  
         new JavafxTreeScanner() {
 

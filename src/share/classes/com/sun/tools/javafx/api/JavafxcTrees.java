@@ -102,7 +102,7 @@ public class JavafxcTrees {
                 }
 
                 public long getEndPosition(UnitTree file, Tree tree) {
-                    Map<JCTree,Integer> endPositions = ((JFXUnit) file).endPositions;
+                    Map<JCTree,Integer> endPositions = ((JFXScript) file).endPositions;
                     return JavafxTreeInfo.getEndPos((JFXTree)tree, endPositions);
                 }
             };
@@ -138,7 +138,7 @@ public class JavafxcTrees {
     }
 
     public JavaFXTreePath getPath(Element e) {
-        final Pair<JFXTree, JFXUnit> treeTopLevel = getTreeAndTopLevel(e);
+        final Pair<JFXTree, JFXScript> treeTopLevel = getTreeAndTopLevel(e);
         if (treeTopLevel == null)
             return null;
         return getPath(treeTopLevel.snd, treeTopLevel.fst);
@@ -223,7 +223,7 @@ public class JavafxcTrees {
             }
         }
 
-        JFXUnit unit = (JFXUnit) path.getCompilationUnit();
+        JFXScript unit = (JFXScript) path.getCompilationUnit();
         Copier copier = new Copier(fxmake.forToplevel(unit));
 
         JavafxEnv<JavafxAttrContext> env = null;
@@ -239,8 +239,8 @@ public class JavafxcTrees {
 
         for ( ; l.nonEmpty(); l = l.tail) {
             Tree tree = l.head;
-            if (tree instanceof JFXUnit) {
-                env = enter.getTopLevelEnv((JFXUnit)tree);
+            if (tree instanceof JFXScript) {
+                env = enter.getTopLevelEnv((JFXScript)tree);
             }
             else if (tree instanceof JFXClassDeclaration) {
                 env = enter.getClassEnv(((JFXClassDeclaration)tree).sym);
@@ -251,7 +251,7 @@ public class JavafxcTrees {
             else if (tree instanceof JFXVar) {
                 field = (JFXVar)tree;
             }
-            else if (tree instanceof JFXBlockExpression) {
+            else if (tree instanceof JFXBlock) {
                 if (function != null)
                     env = memberEnter.getMethodEnv(function, env);
                 JFXTree body = copier.copy((JFXTree)tree, (JFXTree) path.getLeaf());
@@ -285,7 +285,7 @@ public class JavafxcTrees {
         }
     }
     
-    private Pair<JFXTree, JFXUnit> getTreeAndTopLevel(Element e) {
+    private Pair<JFXTree, JFXScript> getTreeAndTopLevel(Element e) {
         if (e == null)
             return null;
 
@@ -300,7 +300,7 @@ public class JavafxcTrees {
         JFXTree tree = JavafxTreeInfo.declarationFor(sym, enterEnv.tree);
         if (tree == null || enterEnv.toplevel == null)
             return null;
-        return new Pair<JFXTree,JFXUnit>(tree, enterEnv.toplevel);
+        return new Pair<JFXTree,JFXScript>(tree, enterEnv.toplevel);
     }
 
     public JavafxEnv<JavafxAttrContext> getFunctionEnv(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
