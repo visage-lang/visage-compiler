@@ -401,7 +401,8 @@ public class Timeline {
 		    cycle = adjustedTotalElapsed / duration as Integer;
 	    } else {
 		    curT = 0;
-		    cycle = 0;
+		    cycle = (repeatCount as Integer) - 1;
+		    needsStop = true;
 	    }
             if (curT == 0 and adjustedTotalElapsed != 0) {
                 // we're at the end, or exactly on a cycle boundary;
