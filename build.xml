@@ -11,10 +11,12 @@
     <property name="antlr.grammarv3" value="v3" />
     <property name="antlr.grammarv3w" value="v3Walker" />
 
-    <target name="default" depends="jar,runtime,javafxdoc,launcher"
+    <!-- @@@ TODO: Eliminate vestiges of runtime and demos -->
+
+    <target name="default" depends="jar,javafxdoc,launcher"
             description="Build javafxc compiler and runtime distribution"/>
 
-    <target name="all" depends="jar, runtime, javafxdoc, launcher, source-zip, test, spec, docs, pack-jars, demos"
+    <target name="all" depends="jar, javafxdoc, launcher, source-zip, test, spec, docs, pack-jars"
             description="Build and test all project artifacts"/>
             
     <target name="dist" description="Build distribution bundles" depends="dist-init,dist-zip,dist-tgz"/>
@@ -558,15 +560,11 @@
         </copy>
     </target>
     
-    <target name="pack-jars" depends="runtime">
+    <target name="pack-jars" depends="jar">
         <taskdef name="pack200" classpath="${file.reference.pack200task.jar}"
                  classname="com.sun.tools.apache.ant.pack200.Pack200Task"/>
         <pack200 src="${dist.jar}" gzipoutput="true" destfile='${dist.jar}.pack.gz'/>
         <pack200 src="${dist.javafxrt.jar}" gzipoutput="true" destfile='${dist.javafxrt.jar}.pack.gz'/>
-        <pack200 src="${dist.dir}/lib/Scenario.jar" gzipoutput="true" destfile='${dist.dir}/lib/Scenario.jar.pack.gz'/>
-        <pack200 src="${dist.dir}/lib/javafxgui.jar" gzipoutput="true" destfile='${dist.dir}/lib/javafxgui.jar.pack.gz'/>
-        <pack200 src="${dist.dir}/lib/javafx-swing.jar" gzipoutput="true" destfile='${dist.dir}/lib/javafx-swing.jar.pack.gz'/>
-        <pack200 src="${dist.dir}/lib/jmc.jar" gzipoutput="true" destfile='${dist.dir}/lib/jmc.jar.pack.gz'/>
     </target>
     
     <target name="source-zip" depends="init">
