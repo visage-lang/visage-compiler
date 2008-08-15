@@ -546,7 +546,7 @@ public class DocEnv {
     /**
      * Create the PackageDoc (or a subtype) for a package symbol.
      */
-    void makePackageDoc(PackageSymbol pack, String docComment, JFXUnit tree) {
+    void makePackageDoc(PackageSymbol pack, String docComment, JFXScript tree) {
         PackageDocImpl result = packageMap.get(pack);
         docComment = processDocComment(docComment);
         if (result != null) {

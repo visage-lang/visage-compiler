@@ -65,7 +65,7 @@ public class JavafxdocEnter extends JavafxEnter {
     final DocEnv docenv;
 
     @Override
-    public void main(List<JFXUnit> trees) {
+    public void main(List<JFXScript> trees) {
         // count all Enter errors as warnings.
         int nerrors = messager.nerrors;
         super.main(trees);
@@ -74,10 +74,10 @@ public class JavafxdocEnter extends JavafxEnter {
     }
 
     @Override
-    public void visitUnit(JFXUnit tree) {
+    public void visitScript(JFXScript tree) {
         if (tree.docComments == null)
             tree.docComments = new HashMap<JCTree, String>();
-        super.visitUnit(tree);
+        super.visitScript(tree);
         if (tree.sourcefile.isNameCompatible("package-info", JavaFileObject.Kind.SOURCE)) {
             String comment = tree.docComments.get(tree);
             docenv.makePackageDoc(tree.packge, comment, tree);

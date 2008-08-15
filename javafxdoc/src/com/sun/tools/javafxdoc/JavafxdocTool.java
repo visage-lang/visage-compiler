@@ -135,15 +135,15 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
         clsreader.sourceCompleter = docClasses ? null : this;
 
         ListBuffer<String> filenames = new ListBuffer<String>();
-        ListBuffer<JFXUnit> classTrees = new ListBuffer<JFXUnit>();
-        ListBuffer<JFXUnit> packTrees = new ListBuffer<JFXUnit>();
+        ListBuffer<JFXScript> classTrees = new ListBuffer<JFXScript>();
+        ListBuffer<JFXScript> packTrees = new ListBuffer<JFXScript>();
 
         try {
             for (List<String> it = javaNames; it.nonEmpty(); it = it.tail) {
                 String name = it.head;
                 if (!docClasses && name.endsWith(".fx") && new File(name).exists()) {
                     docenv.notice("main.Loading_source_file", name);
-                        JFXUnit tree = parse(name);
+                        JFXScript tree = parse(name);
                         classTrees.append(tree);
                 } else if (isValidPackageName(name)) {
                     filenames = filenames.append(name);
@@ -199,7 +199,7 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
      * .java files found in such a directory to args.
      */
     private void parsePackageClasses(String name,
-                                     ListBuffer<JFXUnit> trees,
+                                     ListBuffer<JFXScript> trees,
                                      List<String> excludedPackages)
         throws IOException {
         if (excludedPackages.contains(name)) {
@@ -356,9 +356,9 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
     /**
      * From a list of top level trees, return the list of contained class definitions
      */
-    List<JFXClassDeclaration> listClasses(List<JFXUnit> trees) {
+    List<JFXClassDeclaration> listClasses(List<JFXScript> trees) {
         ListBuffer<JFXClassDeclaration> result = new ListBuffer<JFXClassDeclaration>();
-        for (JFXUnit t : trees) {
+        for (JFXScript t : trees) {
             for (JFXTree def : t.defs) {
                 if (def instanceof JFXClassDeclaration)
                     result.append((JFXClassDeclaration)def);
@@ -367,7 +367,7 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
         return result.toList();
     }
     
-    private JFXUnit parse(String filename) throws IOException {
+    private JFXScript parse(String filename) throws IOException {
         JavacFileManager fm = (JavacFileManager)fileManager;
         return parse(fm.getJavaFileObjectsFromStrings(List.of(filename)).iterator().next());
     }

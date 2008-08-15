@@ -60,7 +60,7 @@ public class PackageDocImpl extends DocImpl implements PackageDoc {
     private static final String PACKAGE_HTML_FILE_NAME = "package.html";
 
     protected PackageSymbol sym;
-    private JFXUnit tree = null;    // for source position
+    private JFXScript tree = null;    // for source position
 
     public String docPath = null;
     public String zipDocPath = null;
@@ -85,12 +85,12 @@ public class PackageDocImpl extends DocImpl implements PackageDoc {
                           String documentation, JFXTree tree) {
         super(env, documentation);
         this.sym = sym;
-        this.tree = (JFXUnit) tree;
+        this.tree = (JFXScript) tree;
         foundDoc = (documentation != null);
     }
 
     void setTree(JFXTree tree) {
-        this.tree = (JFXUnit) tree;
+        this.tree = (JFXScript) tree;
     }
 
     @Override
