@@ -168,7 +168,7 @@
             </compilation-unit>
             <compilation-unit>
                 <package-root>src/share/classes</package-root>
-                <classpath mode="compile">lib/javac.jar:lib/javadoc.jar:lib/jmc.jar:lib/org-netbeans-modules-java-j2seproject-copylibstask.jar:lib/Pack200Task.jar:lib/script-api.jar:lib/swing-layout.jar:tools/ant-1.7.0/ant.jar:tools/antlr-3.1b1/antlr-runtime-3.1b1.jar:build/classes</classpath>
+                <classpath mode="compile">lib/javac.jar:lib/javadoc.jar:lib/jmc.jar:lib/org-netbeans-modules-java-j2seproject-copylibstask.jar:lib/Pack200Task.jar:lib/script-api.jar:tools/ant-1.7.0/ant.jar:tools/antlr-3.1b1/antlr-runtime-3.1b1.jar:build/classes</classpath>
                 <source-level>1.5</source-level>
             </compilation-unit>
             <compilation-unit>
