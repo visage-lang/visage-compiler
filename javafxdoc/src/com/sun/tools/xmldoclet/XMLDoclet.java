@@ -215,14 +215,14 @@ public class XMLDoclet {
     }
 
     private PackageDoc[] packagesToProcess(RootDoc root) {
-        Set set = new HashSet(Arrays.asList(root.specifiedPackages()));
+        Set<PackageDoc> set = new HashSet<PackageDoc>(Arrays.asList(root.specifiedPackages()));
         ClassDoc[] classes = root.specifiedClasses();
         for (int i = 0; i < classes.length; i++) {
             set.add(classes[i].containingPackage());
         }
-        ArrayList results = new ArrayList(set);
+        ArrayList<PackageDoc> results = new ArrayList<PackageDoc>(set);
         Collections.sort(results);
-        return (PackageDoc[]) results.toArray(new PackageDoc[] {});
+        return results.toArray(new PackageDoc[] {});
     }
 
     /**
@@ -663,7 +663,7 @@ public class XMLDoclet {
                 }
             }
             if (changed)
-                inlineTags = (Tag[]) list.toArray(new Tag[0]);
+                inlineTags = list.toArray(new Tag[0]);
         }
         return inlineTags;
     }
@@ -906,9 +906,5 @@ public class XMLDoclet {
             sb.append(help);
             return sb.toString();
         }
-    }
-
-    private static void p(String string) {
-        System.out.println(string);
     }
 }

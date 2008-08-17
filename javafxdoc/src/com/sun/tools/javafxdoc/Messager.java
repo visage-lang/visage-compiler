@@ -109,6 +109,7 @@ public class Messager extends Log implements DocErrorReporter {
      * @param warnWriter   Stream for warnings
      * @param noticeWriter Stream for other messages
      */
+    @SuppressWarnings("deprecation")
     protected Messager(Context context,
                        String programName,
                        PrintWriter errWriter,
@@ -152,7 +153,7 @@ public class Messager extends Log implements DocErrorReporter {
     String getText(String key, Object ... args) {
         try {
             String message = getString(key);
-            return MessageFormat.format(message, (Object[])args);
+            return MessageFormat.format(message, args);
         } catch (MissingResourceException e) {
             return "********** Resource for javafxdoc is broken. There is no " +
                 key + " key in resource.";

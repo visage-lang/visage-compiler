@@ -512,6 +512,7 @@ public class XHTMLProcessingUtils {
         return text;
     }
     
+    @SuppressWarnings("unchecked")
     private static void renderScriptToImage(File imgFile, String script) throws ScriptException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, ClassNotFoundException {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine scrEng = manager.getEngineByExtension("javafx");

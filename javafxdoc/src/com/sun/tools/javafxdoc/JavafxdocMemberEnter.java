@@ -61,7 +61,7 @@ class JavafxdocMemberEnter extends JavafxMemberEnter {
     @Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         super.visitFunctionDefinition(tree);
-        MethodSymbol meth = (MethodSymbol)tree.sym;
+        MethodSymbol meth = tree.sym;
         if (meth == null || meth.kind != Kinds.MTH) return;
         String docComment = env.toplevel.docComments.get(tree);
         Position.LineMap lineMap = env.toplevel.lineMap;
@@ -79,7 +79,7 @@ class JavafxdocMemberEnter extends JavafxMemberEnter {
                 !isParameter(tree.sym)) {
             String docComment = env.toplevel.docComments.get(tree);
             Position.LineMap lineMap = env.toplevel.lineMap;
-            docenv.makeFieldDoc((VarSymbol)tree.sym, docComment, tree, lineMap);
+            docenv.makeFieldDoc(tree.sym, docComment, tree, lineMap);
         }
     }
 

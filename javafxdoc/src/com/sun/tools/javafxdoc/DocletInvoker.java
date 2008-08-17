@@ -201,6 +201,7 @@ public class DocletInvoker {
     /**
      * Utility method for calling doclet functionality
      */
+    @SuppressWarnings("unchecked")
     private Object invoke(String methodName, Object returnValueIfNonExistent,
                           Class[] paramTypes, Object[] params)
         throws DocletInvokeException {

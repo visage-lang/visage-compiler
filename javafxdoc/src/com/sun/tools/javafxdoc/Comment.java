@@ -76,6 +76,7 @@ class Comment {
             /**
              * The entry point to the comment string parser
              */
+            @SuppressWarnings("fallthrough")
             void parseCommentStateMachine() {
                 final int IN_TEXT = 1;
                 final int TAG_GAP = 2;
