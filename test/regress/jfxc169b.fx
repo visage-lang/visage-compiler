@@ -5,8 +5,8 @@ import java.lang.System;
  * @subtest jfxc169a.fx
  */
 
-class jfxc169b {
-    function foo() {
+public class jfxc169b {
+    package function foo() {
         System.out.println("blah");
     }
 

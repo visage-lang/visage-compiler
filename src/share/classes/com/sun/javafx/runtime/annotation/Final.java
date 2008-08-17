@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,20 +21,20 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime;
+package com.sun.javafx.runtime.annotation;
 
+import java.lang.annotation.Retention;
 import java.lang.annotation.Documented;
+import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
-import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import java.lang.annotation.Target;
 
 /**
- * OverridesJava
+ * Final
  */
 @Retention(RUNTIME)
 @Documented
 @Target({METHOD, TYPE})
-public @interface OverridesJava {
+public @interface Final {
 }

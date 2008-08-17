@@ -1,13 +1,13 @@
 /*
  * @subtest Main.fx
  */
-class ModuleTestA {
-    attribute vs : String;
-    attribute vi : Integer;
-    attribute vn : Number;
-    attribute vb : Boolean;
+package class ModuleTestA {
+    package var vs : String;
+    package var vi : Integer;
+    package var vn : Number;
+    package var vb : Boolean;
 }
 
-class ModuleTestB {
-    attribute bar : Integer = 77;
+package class ModuleTestB {
+    package var bar : Integer = 77;
 }

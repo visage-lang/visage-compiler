@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime;
+package com.sun.javafx.runtime.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Documented;
@@ -30,10 +30,10 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Private
+ * Readable -- readable access modifier
  */
 @Retention(RUNTIME)
 @Documented
 @Target({METHOD, FIELD, TYPE})
-public @interface Private {
+public @interface PublicReadable {
 }

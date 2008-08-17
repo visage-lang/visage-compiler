@@ -38,7 +38,7 @@ var t: Timeline = Timeline {
 
 function launchIn(ms: Integer, func: function(): Void): Void {
     var timer = new Timer(ms, ActionListener {
-        public function actionPerformed(e: ActionEvent) {
+        override function actionPerformed(e: ActionEvent) {
             func();
         }
     });

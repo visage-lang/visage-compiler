@@ -90,7 +90,7 @@ public class KeyFrame extends Comparable {
      * provides feedback to timeline if there is any attribute
      * change that timeline needs to be invalidated.
      */
-    var owner: Timeline;
+    package var owner: Timeline;
     
     /**
      * A comparison function used to sort KeyFrames by their
@@ -103,7 +103,7 @@ public class KeyFrame extends Comparable {
         return time.compareTo(kf.time);
     }
 
-    function visit() {
+    package function visit() {
         for (kv in values) {
             if (kv.target != null and kv.value != null) {
                 kv.target.set(kv.value);

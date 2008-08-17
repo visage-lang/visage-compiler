@@ -21,21 +21,19 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime;
+package com.sun.javafx.runtime.annotation;
 
-import java.lang.annotation.Retention;
 import java.lang.annotation.Documented;
-import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
+import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.lang.annotation.Target;
 
 /**
- * Annotation to indicate the JavaFX source name a member derives from.
- * Used when a the name was "mangled" to field a member name.
+ * Static
  */
 @Retention(RUNTIME)
 @Documented
 @Target({METHOD, FIELD, TYPE})
-public @interface SourceName {
-    String value();
+public @interface Static {
 }

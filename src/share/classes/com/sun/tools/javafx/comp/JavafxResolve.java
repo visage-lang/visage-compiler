@@ -142,12 +142,21 @@ public class JavafxResolve {
      *  @param c      The class whose accessibility is checked.
      */
     public boolean isAccessible(JavafxEnv<JavafxAttrContext> env, TypeSymbol c) {
-        switch ((short)(c.flags() & AccessFlags)) {
+        // because the PACKAGE_ACCESS bit is too high for the switch, test it later
+        switch ((short)(c.flags() & Flags.AccessFlags)) {
         case PRIVATE:
             return
                 env.enclClass.sym.outermostClass() ==
                 c.owner.outermostClass();
         case 0:
+            if ((c.flags() & JavafxFlags.PACKAGE_ACCESS) == 0) {
+                // script-private
+                //System.err.println("isAccessible " + c + " = " + (env.enclClass.sym.outermostClass() ==
+                //        c.outermostClass()) + ", enclClass " + env.enclClass.getName());
+                //System.err.println(" encl outer: " + env.enclClass.sym.outermostClass() + ", c outer: " + c.outermostClass());
+                return env.enclClass.sym.outermostClass() == c.outermostClass();
+            };
+            // 'package' access
             return
                 env.toplevel.packge == c.owner // fast special case
                 ||
@@ -215,7 +224,8 @@ public class JavafxResolve {
      */
     public boolean isAccessibleForWrite(JavafxEnv<JavafxAttrContext> env, Type site, Symbol sym) {
         if (sym.name == names.init && sym.owner != site.tsym) return false;
-        switch ((short)(sym.flags() & AccessFlags)) {
+        // because the PACKAGE_ACCESS bit is too high for the switch, test it later
+        switch ((short)(sym.flags() & Flags.AccessFlags)) {
         case PRIVATE:
             return
                 (env.enclClass.sym == sym.owner // fast special case
@@ -225,6 +235,16 @@ public class JavafxResolve {
                 &&
                 isInheritedIn(sym, site.tsym, types);
         case 0:
+            if ((sym.flags() & JavafxFlags.PACKAGE_ACCESS) == 0) {
+                // script-private
+                //TODO: don't know what is right
+                return
+                        (env.enclClass.sym == sym.owner // fast special case
+                        ||
+                        env.enclClass.sym.outermostClass() ==
+                        sym.owner.outermostClass());
+            };
+            // 'package' access
             return
                 (env.toplevel.packge == sym.owner.owner // fast special case
                  ||
@@ -1937,13 +1957,13 @@ public class JavafxResolve {
                         && !isAccessible(env, this.site)))
                     log.error(pos, MsgSym.MESSAGE_NOT_DEF_ACCESS_CLASS_INTF_CANNOT_ACCESS,
                         sym, sym.location());
-                else if ((sym.flags() & (PRIVATE | PROTECTED)) != 0)
-                    log.error(pos, MsgSym.MESSAGE_REPORT_ACCESS, sym,
-                              JavafxTreeInfo.flagNames(sym.flags() & (PRIVATE | PROTECTED)),
-                              sym.location());
-                else
+                else if ((sym.flags() & JavafxFlags.PACKAGE_ACCESS) != 0)
                     log.error(pos, MsgSym.MESSAGE_NOT_DEF_PUBLIC_CANNOT_ACCESS,
                               sym, sym.location());
+                else
+                    log.error(pos, MsgSym.MESSAGE_REPORT_ACCESS, sym,
+                              JavafxCheck.protectionString(sym.flags()),
+                              sym.location());
             }
         }
     }
@@ -2026,8 +2046,14 @@ public class JavafxResolve {
         }
     }
 
+    /**
+     *  @param sym    The symbol.
+     *  @param clazz  The type symbol of which the tested symbol is regarded
+     *                as a member.
+     */
     public boolean isInheritedIn(Symbol sym, Symbol clazz, JavafxTypes types) {
-        switch ((int)(sym.flags_field & Flags.AccessFlags)) {
+        // because the PACKAGE_ACCESS bit is too high for the switch, test it later
+        switch ((short)(sym.flags_field & Flags.AccessFlags)) {
         default: // error recovery
         case PUBLIC:
             return true;
@@ -2037,6 +2063,12 @@ public class JavafxResolve {
             // we model interfaces as extending Object
             return (clazz.flags() & INTERFACE) == 0;
         case 0:
+            if ((sym.flags() & JavafxFlags.PACKAGE_ACCESS) == 0) {
+                // script-private
+                //TODO: this isn't right
+                //return sym.owner == clazz;
+            };
+            // 'package' access
             ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
             Set superSet = new HashSet<Type>();
             if (clazz.type != null) {

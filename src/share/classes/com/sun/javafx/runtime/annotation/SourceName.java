@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime;
+package com.sun.javafx.runtime.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Documented;
@@ -30,10 +30,12 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Readable -- readable access modifier
+ * Annotation to indicate the JavaFX source name a member derives from.
+ * Used when a the name was "mangled" to field a member name.
  */
 @Retention(RUNTIME)
 @Documented
 @Target({METHOD, FIELD, TYPE})
-public @interface Readable {
+public @interface SourceName {
+    String value();
 }

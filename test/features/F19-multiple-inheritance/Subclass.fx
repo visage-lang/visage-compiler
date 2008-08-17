@@ -2,9 +2,11 @@
  * @subtest F19
  */
 
-class Subclass extends Base1, Base2 {
-    attribute d : Integer;
+public class Subclass extends Base1, Base2 {
+    package var d : Integer;
 
-    function foo() { a + b + c + d }
-    function wahoo() { d }
+    //TODO: reinstate
+    //  remove as work-around to JFXC-1803
+    //function foo() { "{a}{b}{c}{d}" }
+    package function wahoo() { d }
 }

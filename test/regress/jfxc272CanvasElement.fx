@@ -2,6 +2,6 @@
  * @subtest jfxc272
  */
  
-class jfxc272CanvasElement {
-	public attribute parentCanvasElement: jfxc272CanvasElement;
+public class jfxc272CanvasElement {
+	public var parentCanvasElement: jfxc272CanvasElement;
 }

@@ -2,8 +2,8 @@
  * @subtest F19
  */
 
-class Base2 {
-    attribute c : Integer;
+public class Base2 {
+    package var c : Integer;
 
-    function bark() { c }
+    package function bark() { c }
 }

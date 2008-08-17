@@ -69,6 +69,7 @@ public class JavafxDefs {
     
     public static final String javaLangPackageNameString = "java.lang";
     public static final String runtimePackageNameString = "com.sun.javafx.runtime";
+    public static final String annotationPackageNameString = "com.sun.javafx.runtime.annotation";
     public static final String locationPackageNameString = "com.sun.javafx.runtime.location";
     public static final String sequencePackageNameString = "com.sun.javafx.runtime.sequence";
     public static final String functionsPackageNameString = "com.sun.javafx.functions";
@@ -128,6 +129,7 @@ public class JavafxDefs {
     final Name[] locationBijectiveBindMilieuMethodName;
     
 	public final Name runtimePackageName;
+	public final Name annotationPackageName;
 	public final Name locationPackageName;
 	public final Name sequencePackageName;
 	public final Name functionsPackageName;
@@ -201,6 +203,7 @@ public class JavafxDefs {
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
         applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
 		runtimePackageName = names.fromString(runtimePackageNameString);
+		annotationPackageName = names.fromString(annotationPackageNameString);
 		javaLangPackageName = names.fromString(javaLangPackageNameString);
 		locationPackageName = names.fromString(locationPackageNameString);
 		sequencePackageName = names.fromString(sequencePackageNameString);

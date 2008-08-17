@@ -39,7 +39,6 @@ import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxFlags;
 
 import com.sun.tools.javafx.main.JavafxCompiler;
-import javax.tools.JavaFileObject;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
 /** Provides operations to read a classfile into an internal
@@ -130,6 +129,7 @@ public class JavafxClassReader extends ClassReader {
         if (compound)
             className = className.subName(0, className.len - defs.interfaceSuffixName.len);
         JavafxClassSymbol cSym = (JavafxClassSymbol) enterClass(className);
+        //cSym.flags_field |= jsymbol.flags_field;
         if (compound)
             cSym.flags_field |= JavafxFlags.COMPOUND_CLASS;
         else {
@@ -428,6 +428,8 @@ public class JavafxClassReader extends ClassReader {
             ClassType jt = (ClassType)jsymbol.type;
             csym.members_field = new Scope(csym);
 
+            //TODO: include annoations
+            // csym.flags_field = flagsFromAnnotationsAndFlags(jsymbol);
             csym.flags_field = jsymbol.flags_field;
             
             ct.typarams_field = translateTypes(jt.typarams_field);
@@ -486,55 +488,28 @@ public class JavafxClassReader extends ClassReader {
             handleSyms:
             for (List<Symbol> l = syms; l.nonEmpty(); l=l.tail) {
                 Name name = l.head.name;
-                long flags = l.head.flags_field;
+                long flags = flagsFromAnnotationsAndFlags(l.head);
                 if ((flags & PRIVATE) != 0)
                     continue;
-                boolean accessExplicit = false;
                 boolean sawSourceNameAnnotation = false;
+                JavafxSymtab javafxSyms = (JavafxSymtab) this.syms;
                 for (Attribute.Compound a : l.head.getAnnotationMirrors()) {
-                    JavafxSymtab javafxSyms = (JavafxSymtab) this.syms;
                     if (a.type.tsym.flatName() == javafxSyms.javafx_staticAnnotationType.tsym.flatName()) {
                         flags |=  Flags.STATIC;
-                    }
-                    if (a.type.tsym.flatName() == javafxSyms.javafx_defAnnotationType.tsym.flatName()) {
+                    } else if (a.type.tsym.flatName() == javafxSyms.javafx_defAnnotationType.tsym.flatName()) {
                         flags |=  JavafxFlags.IS_DEF;
-                    }
-                    if (a.type.tsym.flatName() == javafxSyms.javafx_readableAnnotationType.tsym.flatName()) {
+                    } else if (a.type.tsym.flatName() == javafxSyms.javafx_publicReadableAnnotationType.tsym.flatName()) {
                         flags |=  JavafxFlags.PUBLIC_READABLE;
-                    }
-                    if (a.type.tsym.flatName() == javafxSyms.javafx_privateAnnotationType.tsym.flatName()) {
-                        flags &= ~(Flags.PROTECTED | Flags.PUBLIC);
-                        flags |=  Flags.PRIVATE;
-                        accessExplicit = true;
-                    }
-                    else if (a.type.tsym.flatName() == javafxSyms.javafx_protectedAnnotationType.tsym.flatName()) {
-                        flags &= ~(Flags.PRIVATE | Flags.PUBLIC);
-                        flags |=  Flags.PROTECTED;
-                        accessExplicit = true;
-                    }
-                    else if (a.type.tsym.flatName() == javafxSyms.javafx_publicAnnotationType.tsym.flatName()) {
-                        flags &= ~(Flags.PROTECTED | Flags.PRIVATE);
-                        flags |=  Flags.PUBLIC;
-                        accessExplicit = true;
-                    }
-                    else if (a.type.tsym.flatName() == javafxSyms.javafx_scriptPrivateAnnotationType.tsym.flatName()) {
-                        flags &= ~(Flags.PROTECTED | Flags.PRIVATE | Flags.PUBLIC);
-                        accessExplicit = true;
-                    }
-                    else if (a.type.tsym.flatName() == javafxSyms.javafx_inheritedAnnotationType.tsym.flatName()) {
+                    } else if (a.type.tsym.flatName() == javafxSyms.javafx_inheritedAnnotationType.tsym.flatName()) {
                         continue handleSyms;
-                    }
-                    if (a.type.tsym.flatName() == javafxSyms.javafx_sourceNameAnnotationType.tsym.flatName()) {
+                    } else if (a.type.tsym.flatName() == javafxSyms.javafx_sourceNameAnnotationType.tsym.flatName()) {
                         Attribute aa = a.member(name.table.value);
-                        Object sourceName = a.member(name.table.value).getValue();
+                        Object sourceName = aa.getValue();
                         if (sourceName instanceof String) {
                             name = names.fromString((String) sourceName);
                             sawSourceNameAnnotation = true;
                         }
                     }
-                }
-                if (! accessExplicit && iface != null) {
-                    flags &= ~(Flags.PRIVATE | Flags.PROTECTED | Flags.PUBLIC);
                 }
                 if (l.head instanceof MethodSymbol) {
                     if (! sawSourceNameAnnotation &&
@@ -566,9 +541,31 @@ public class JavafxClassReader extends ClassReader {
                     csym.members_field.enter(v);
                 }
                 else {
+                    l.head.flags_field = flags;
                     csym.members_field.enter(translateSymbol(l.head));
                 }
             }
         }
+    }
+    
+    private long flagsFromAnnotationsAndFlags(Symbol sym) {
+        long initialFlags = sym.flags_field;
+        long nonAccessFlags = initialFlags & ~JavafxFlags.AccessFlags;
+        long accessFlags = initialFlags & JavafxFlags.AccessFlags;
+        JavafxSymtab javafxSyms = (JavafxSymtab) this.syms;
+        for (Attribute.Compound a : sym.getAnnotationMirrors()) {
+            if (a.type.tsym.flatName() == javafxSyms.javafx_privateAnnotationType.tsym.flatName()) {
+                accessFlags = Flags.PRIVATE;
+            } else if (a.type.tsym.flatName() == javafxSyms.javafx_protectedAnnotationType.tsym.flatName()) {
+                accessFlags = Flags.PROTECTED;
+            } else if (a.type.tsym.flatName() == javafxSyms.javafx_packageAnnotationType.tsym.flatName()) {
+                accessFlags = JavafxFlags.PACKAGE_ACCESS;
+            } else if (a.type.tsym.flatName() == javafxSyms.javafx_publicAnnotationType.tsym.flatName()) {
+                accessFlags = Flags.PUBLIC;
+            } else if (a.type.tsym.flatName() == javafxSyms.javafx_scriptPrivateAnnotationType.tsym.flatName()) {
+                accessFlags = 0L;
+            }
+        }
+        return nonAccessFlags | accessFlags;
     }
 }

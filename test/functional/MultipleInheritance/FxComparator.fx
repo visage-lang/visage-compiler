@@ -2,19 +2,19 @@
  *
  * @subtest
 **/
-abstract class FxComparator{
-	var comparatorCalled:String = "FxComparator";
-	abstract function compare(one,another):Integer;
+public abstract class FxComparator{
+	public var comparatorCalled:String = "FxComparator";
+	public abstract function compare(one,another):Integer;
 }
 
-class IntegerComparator extends FxComparator{
+public class IntegerComparator extends FxComparator{
 	init{
 		comparatorCalled="IntegerComparator";
 	}
-	function compare(one,another):Integer{
+	public function compare(one,another):Integer{
 		return intcompare(one as Integer,another as Integer);
 	}
-	function intcompare(one:Integer,another : Integer):Integer{
+	public function intcompare(one:Integer,another : Integer):Integer{
 		if(one > another){
 			return 1;
 		}

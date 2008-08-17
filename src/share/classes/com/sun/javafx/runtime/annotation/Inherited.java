@@ -21,19 +21,19 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime;
+package com.sun.javafx.runtime.annotation;
 
-import java.lang.annotation.Documented;
-import static java.lang.annotation.ElementType.*;
 import java.lang.annotation.Retention;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Target;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Static
+ * Inherited is used to mark a compiler-generated stub method.
  */
 @Retention(RUNTIME)
 @Documented
 @Target({METHOD, FIELD, TYPE})
-public @interface Static {
+public @interface Inherited {
 }

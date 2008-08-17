@@ -471,9 +471,12 @@ public abstract class JavafxTranslationSupport {
     String attributeNameString(Symbol sym, String prefix) {
         String sname = sym.name.toString();
         Symbol owner = sym.owner;
-        if ((sym.flags() & (PRIVATE|STATIC)) == PRIVATE
+        long access = sym.flags() & JavafxFlags.NonPrivateAccessFlags;
+        if ((sym.flags() & STATIC) == 0L
+                && access == 0L // private or script-private
                 && types.isCompoundClass(owner)) {
-             sname = owner.toString().replace('.', '$') + '$' + sname;
+            // mangle name to hide it
+            sname = owner.toString().replace('.', '$') + '$' + sname;
         }
         return prefix + sname;
     }
@@ -574,32 +577,31 @@ public abstract class JavafxTranslationSupport {
         make.at(diagPos);
         JCModifiers ret = mods;
         if ((flags & Flags.PUBLIC) != 0) {
-            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.publicAnnotationClassName), List.<JCExpression>nil()));
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.publicAnnotationClassNameString), List.<JCExpression>nil()));
         }
         else if ((flags & Flags.PRIVATE) != 0) {
-            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.privateAnnotationClassName), List.<JCExpression>nil()));
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.privateAnnotationClassNameString), List.<JCExpression>nil()));
         }
         else if ((flags & Flags.PROTECTED) != 0) {
-            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.protectedAnnotationClassName), List.<JCExpression>nil()));
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.protectedAnnotationClassNameString), List.<JCExpression>nil()));
         }
         else if ((flags & JavafxFlags.PACKAGE_ACCESS) != 0) {
-            //TODO
-            //annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.packageAnnotationClassName), List.<JCExpression>nil()));
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.packageAnnotationClassNameString), List.<JCExpression>nil()));
         }
         else {        // otherwise it is script private
-            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.scriptPrivateAnnotationClassName), List.<JCExpression>nil()));
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.scriptPrivateAnnotationClassNameString), List.<JCExpression>nil()));
         }
 
         if ((flags & JavafxFlags.PUBLIC_READABLE) != 0) {
-            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.readableAnnotationClassName), List.<JCExpression>nil()));
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.publicReadableAnnotationClassNameString), List.<JCExpression>nil()));
         }
 
         if ((flags & JavafxFlags.IS_DEF) != 0) {
-            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.defAnnotationClassName), List.<JCExpression>nil()));
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.defAnnotationClassNameString), List.<JCExpression>nil()));
         }
 
         if ((flags & Flags.STATIC) != 0) {
-            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.staticAnnotationClassName), List.<JCExpression>nil()));
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.staticAnnotationClassNameString), List.<JCExpression>nil()));
         }
 
         if (annotations.nonEmpty()) {
@@ -613,7 +615,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     protected JCModifiers addInheritedAnnotationModifiers(DiagnosticPosition diagPos, long flags, JCModifiers mods) {
-        return make.Modifiers(mods.flags, List.of(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.inheritedAnnotationClassName), List.<JCExpression>nil())));
+        return make.Modifiers(mods.flags, List.of(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.inheritedAnnotationClassNameString), List.<JCExpression>nil())));
     }
 
     protected void pretty(JCTree tree) {

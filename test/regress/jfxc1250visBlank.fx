@@ -50,9 +50,32 @@ public class jfxc1250visBlank {
 	function memFScr() { 3 }
 }
 
+class Foo {
+	public var fooPub = 3;
+	protected var fooPro = 3;
+	package var fooPkg = 3;
+	var fooScr = 3;
+	non-writable public var fooNPub = 3;
+	non-writable protected var fooNPro = 3;
+	non-writable package var fooNPkg = 3;
+	non-writable var fooNScr = 3;
+	public-readable protected var fooRPro = 3;
+	public-readable package var fooRPkg = 3;
+	public-readable var fooRScr = 3;
+	non-writable public-readable protected var fooNRPro = 3;
+	non-writable public-readable package var fooNRPkg = 3;
+	non-writable public-readable var fooNRScr = 3;
+
+	public function fooFPub() { 3 }
+	protected function fooFPro() { 3 }
+	package function fooFPkg() { 3 }
+	function fooFScr() { 3 }
+}
+
 function run( ) {
 /////
 var sv = jfxc1250visBlank {};
+var fv = Foo {};
 System.out.println(jfxc1250visBlank.slPub);
 System.out.println(jfxc1250visBlank.slPkg);
 System.out.println(jfxc1250visBlank.slScr);
@@ -66,12 +89,33 @@ System.out.println(jfxc1250visBlank.slNRScr);
 
 System.out.println(sv.memPub);
 System.out.println(sv.memPkg);
+System.out.println(sv.memPro);
+System.out.println(sv.memScr);
 System.out.println(sv.memNPub);
 System.out.println(sv.memNPkg);
+System.out.println(sv.memNPro);
+System.out.println(sv.memNScr);
+System.out.println(sv.memRPro);
 System.out.println(sv.memRPkg);
 System.out.println(sv.memRScr);
+System.out.println(sv.memNRPro);
 System.out.println(sv.memNRPkg);
 System.out.println(sv.memNRScr);
+
+System.out.println(fv.fooPub);
+System.out.println(fv.fooPkg);
+System.out.println(fv.fooPro);
+System.out.println(fv.fooScr);
+System.out.println(fv.fooNPub);
+System.out.println(fv.fooNPkg);
+System.out.println(fv.fooNPro);
+System.out.println(fv.fooNScr);
+System.out.println(fv.fooRPro);
+System.out.println(fv.fooRPkg);
+System.out.println(fv.fooRScr);
+System.out.println(fv.fooNRPro);
+System.out.println(fv.fooNRPkg);
+System.out.println(fv.fooNRScr);
 
 System.out.println(jfxc1250visBlank.slFPub());
 System.out.println(jfxc1250visBlank.slFPkg());

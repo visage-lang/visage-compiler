@@ -31,14 +31,9 @@ import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
-import com.sun.tools.javafx.comp.JavafxClassReader;
-import com.sun.tools.javafx.comp.JavafxInitializationBuilder;
-import static com.sun.tools.javafx.comp.JavafxDefs.*;
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.TypeTags.*;
 
 /**
- * Marker wrapper on class: this is a JavaFX var
+ * Marker wrapper on class: this is a JavaFX class
  * 
  * @author llitchev
  */

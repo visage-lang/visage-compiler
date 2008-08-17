@@ -21,20 +21,19 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime;
+package com.sun.javafx.runtime.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Target;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Abstract
+ * Private
  */
 @Retention(RUNTIME)
 @Documented
-@Target({METHOD, TYPE})
-public @interface Abstract {
+@Target({METHOD, FIELD, TYPE})
+public @interface Private {
 }

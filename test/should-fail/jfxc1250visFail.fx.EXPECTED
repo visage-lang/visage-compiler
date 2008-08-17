@@ -1,0 +1,70 @@
+test\should-fail\jfxc1250visFail.fx:147: slScr has script-private access in jfxc1250subFail
+	System.out.println(jfxc1250subFail.slScr);
+	                                  ^
+test\should-fail\jfxc1250visFail.fx:150: slNScr has script-private access in jfxc1250subFail
+	System.out.println(jfxc1250subFail.slNScr);
+	                                  ^
+test\should-fail\jfxc1250visFail.fx:162: memScr has script-private access in jfxc1250subFail
+	System.out.println(sf.memScr);
+	                     ^
+test\should-fail\jfxc1250visFail.fx:166: memNScr has script-private access in jfxc1250subFail
+	System.out.println(sf.memNScr);
+	                     ^
+test\should-fail\jfxc1250visFail.fx:178: slFScr() has script-private access in jfxc1250subFail
+	System.out.println(jfxc1250subFail.slFScr());
+	                                  ^
+test\should-fail\jfxc1250visFail.fx:185: memFScr() has script-private access in jfxc1250subFail
+	System.out.println(sf.memFScr());
+	                     ^
+test\should-fail\jfxc1250visFail.fx:191: jfxc1250subFail.cScr has script-private access in jfxc1250subFail
+	var x3 = jfxc1250subFail.cScr {};
+	                        ^
+test\should-fail\jfxc1250visFail.fx:198: slPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	System.out.println(jfxc1250subFailA.slPkg);
+	                                   ^
+test\should-fail\jfxc1250visFail.fx:199: slScr has script-private access in jfxc1250.a.jfxc1250subFailA
+	System.out.println(jfxc1250subFailA.slScr);
+	                                   ^
+test\should-fail\jfxc1250visFail.fx:201: slNPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	System.out.println(jfxc1250subFailA.slNPkg);
+	                                   ^
+test\should-fail\jfxc1250visFail.fx:202: slNScr has script-private access in jfxc1250.a.jfxc1250subFailA
+	System.out.println(jfxc1250subFailA.slNScr);
+	                                   ^
+test\should-fail\jfxc1250visFail.fx:212: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	System.out.println(sfa.memPkg);
+	                      ^
+test\should-fail\jfxc1250visFail.fx:213: memPro has protected access in jfxc1250.a.jfxc1250subFailA
+	System.out.println(sfa.memPro);
+	                      ^
+test\should-fail\jfxc1250visFail.fx:214: memScr has script-private access in jfxc1250.a.jfxc1250subFailA
+	System.out.println(sfa.memScr);
+	                      ^
+test\should-fail\jfxc1250visFail.fx:216: memNPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	System.out.println(sfa.memNPkg);
+	                      ^
+test\should-fail\jfxc1250visFail.fx:217: memNPro has protected access in jfxc1250.a.jfxc1250subFailA
+	System.out.println(sfa.memNPro);
+	                      ^
+test\should-fail\jfxc1250visFail.fx:218: memNScr has script-private access in jfxc1250.a.jfxc1250subFailA
+	System.out.println(sfa.memNScr);
+	                      ^
+test\should-fail\jfxc1250visFail.fx:229: slFPkg() is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	System.out.println(jfxc1250subFailA.slFPkg());
+	                                   ^
+test\should-fail\jfxc1250visFail.fx:230: slFScr() has script-private access in jfxc1250.a.jfxc1250subFailA
+	System.out.println(jfxc1250subFailA.slFScr());
+	                                   ^
+test\should-fail\jfxc1250visFail.fx:236: memFPkg() is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	System.out.println(sfa.memFPkg());
+	                      ^
+test\should-fail\jfxc1250visFail.fx:237: memFScr() has script-private access in jfxc1250.a.jfxc1250subFailA
+	System.out.println(sfa.memFScr());
+	                      ^
+test\should-fail\jfxc1250visFail.fx:242: jfxc1250.a.jfxc1250subFailA.cPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	var x2 = jfxc1250subFailA.cPkg {};
+	                         ^
+test\should-fail\jfxc1250visFail.fx:243: jfxc1250.a.jfxc1250subFailA.cScr has script-private access in jfxc1250.a.jfxc1250subFailA
+	var x3 = jfxc1250subFailA.cScr {};
+	                         ^
+23 errors

@@ -851,11 +851,15 @@ public class JavafxCheck {
 		 &&
                  checkDisjoint(pos, flags,
                                PUBLIC,
-                               PRIVATE | PROTECTED)
+                               PRIVATE | PROTECTED | JavafxFlags.PACKAGE_ACCESS)
 		 &&
                  checkDisjoint(pos, flags,
                                PRIVATE,
-                               PUBLIC | PROTECTED)
+                               PUBLIC | PROTECTED | JavafxFlags.PACKAGE_ACCESS)
+		 &&
+                 checkDisjoint(pos, flags,
+                               JavafxFlags.PACKAGE_ACCESS,
+                               PRIVATE | PROTECTED | PUBLIC)
 		 &&
 		 checkDisjoint(pos, flags,
 			       FINAL,
@@ -1074,21 +1078,23 @@ public class JavafxCheck {
      *  where PRIVATE is highest and PUBLIC is lowest.
      */
     static int protection(long flags) {
-        switch ((short)(flags & AccessFlags)) {
+        // because the PACKAGE_ACCESS bit is too high for the switch, test it later
+        switch ((short)(flags & Flags.AccessFlags)) {
         case PRIVATE: return 3;
         case PROTECTED: return 1;
         default:
         case PUBLIC: return 0;
-        case 0: return 2;
+        // 'package' vs script-private
+        case 0: return ((flags & JavafxFlags.PACKAGE_ACCESS)!=0)? 2 : 3;
         }
     }
 
     /** A string describing the access permission given by a flag set.
      *  This always returns a space-separated list of Java Keywords.
      */
-    private static String protectionString(long flags) {
-	long flags1 = flags & AccessFlags;
-	return (flags1 == 0) ? "package" : JavafxTreeInfo.flagNames(flags1);
+    public static String protectionString(long flags) {
+	long flags1 = flags & JavafxFlags.AccessFlags;
+	return (flags1 == 0) ? "script-private" : JavafxTreeInfo.flagNames(flags1);
     }
 
     /** A customized "cannot override" error message.

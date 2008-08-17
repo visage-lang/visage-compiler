@@ -788,7 +788,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (sym.owner == csym) {
                     List<JCAnnotation> annotations;
                     if (fieldName != sym.name) {
-                        annotations = List.<JCAnnotation>of(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.sourceNameAnnotationClassName), List.<JCExpression>of(make.Literal(sym.name.toString()))));
+                        annotations = List.<JCAnnotation>of(make.Annotation(makeIdentifier(diagPos, syms.sourceNameAnnotationClassNameString), List.<JCExpression>of(make.Literal(sym.name.toString()))));
                     }
                     else
                         annotations = List.<JCAnnotation>nil();

@@ -2,5 +2,5 @@
  * @subtest jfxc306LinearGradient
  */
 
-class jfxc306Paint {
+public class jfxc306Paint {
 }

@@ -157,19 +157,19 @@ modifierFlags   returns [long flags = 0L, int pos = -1]
 							} )*
 	;
 modifierFlag   returns [long flag, int pos]
-	:  BOUND          				{ $flag = JavafxFlags.BOUND; $pos = pos($BOUND); }
-	|  PUBLIC          				{ $flag = Flags.PUBLIC;      $pos = pos($PUBLIC); }
-	|  PACKAGE         				{ $flag = Flags.PUBLIC/*TODO:JavafxFlags.PACKAGE*/;     $pos = pos($PACKAGE); }
-	|  PROTECTED       				{ $flag = Flags.PROTECTED;   $pos = pos($PROTECTED); }
-	|  PUBLIC_READABLE       			{ $flag = JavafxFlags.PUBLIC_READABLE;   $pos = pos($PUBLIC_READABLE); }
-	|  NON_WRITABLE       				{ $flag = JavafxFlags.NON_WRITABLE;   $pos = pos($NON_WRITABLE); }
-	|  OVERRIDE       				{ $flag = JavafxFlags.OVERRIDE;   $pos = pos($OVERRIDE); }
-	|  ABSTRACT        				{ $flag = Flags.ABSTRACT;    $pos = pos($ABSTRACT); }
+	:  BOUND          				{ $flag = JavafxFlags.BOUND; 		$pos = pos($BOUND); }
+	|  PUBLIC          				{ $flag = Flags.PUBLIC;      		$pos = pos($PUBLIC); }
+	|  PACKAGE         				{ $flag = JavafxFlags.PACKAGE_ACCESS;	$pos = pos($PACKAGE); }
+	|  PROTECTED       				{ $flag = Flags.PROTECTED;		$pos = pos($PROTECTED); }
+	|  PUBLIC_READABLE       			{ $flag = JavafxFlags.PUBLIC_READABLE;	$pos = pos($PUBLIC_READABLE); }
+	|  NON_WRITABLE       				{ $flag = JavafxFlags.NON_WRITABLE;	$pos = pos($NON_WRITABLE); }
+	|  OVERRIDE       				{ $flag = JavafxFlags.OVERRIDE;		$pos = pos($OVERRIDE); }
+	|  ABSTRACT        				{ $flag = Flags.ABSTRACT;		$pos = pos($ABSTRACT); }
 	
 	//TODO: deprecated -- remove these at some point
-	|  STATIC        				{ $flag = Flags.STATIC;      $pos = pos($STATIC); }
-	|  PRIVATE         				{ $flag = Flags.PRIVATE;     $pos = pos($PRIVATE); }
-	|  READABLE       				{ $flag = JavafxFlags.PUBLIC_READABLE;   $pos = pos($READABLE); }
+	|  STATIC        				{ $flag = Flags.STATIC;      		$pos = pos($STATIC); }
+	|  PRIVATE         				{ $flag = Flags.PRIVATE;     		$pos = pos($PRIVATE); }
+	|  READABLE       				{ $flag = JavafxFlags.PUBLIC_READABLE;	$pos = pos($READABLE); }
 	;
 formalParameters  returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]
 	: ^(LPAREN (formalParameter			{ params.append($formalParameter.var); } )* )

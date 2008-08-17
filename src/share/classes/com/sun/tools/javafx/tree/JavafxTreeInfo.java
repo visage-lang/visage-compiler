@@ -30,6 +30,7 @@ import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.tree.JCTree;
 
+import com.sun.tools.javafx.code.JavafxFlags;
 import static com.sun.tools.javac.code.Flags.*;
 
 /** Utility class containing inspector methods for trees.
@@ -185,7 +186,17 @@ public class JavafxTreeInfo {
     /** Return flags as a string, separated by " ".
      */
     public static String flagNames(long flags) {
-        return Flags.toString(flags & StandardFlags).trim();
+        StringBuffer fsb = new StringBuffer(Flags.toString(flags & StandardFlags));
+        if ((flags & JavafxFlags.PACKAGE_ACCESS) != 0) {
+            fsb.append("package ");
+        }
+        if ((flags & JavafxFlags.PUBLIC_READABLE) != 0) {
+            fsb.append("public-readable ");
+        }
+        if ((flags & JavafxFlags.NON_WRITABLE) != 0) {
+            fsb.append("non-writable ");
+        }
+        return fsb.toString().trim();
     }
 
     /** Operator precedences values.

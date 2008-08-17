@@ -8,7 +8,7 @@
  * @run
  */
 class jfxc272Canvas extends jfxc272Widget, jfxc272CanvasElement {
-    public attribute content: jfxc272Node[]
+    public var content: jfxc272Node[]
         on replace oldValue[a..b] = newElements {
             for (newValue in newElements)
                 newValue.parentCanvasElement = this;

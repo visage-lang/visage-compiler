@@ -21,19 +21,19 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime;
+package com.sun.javafx.runtime.annotation;
 
-import java.lang.annotation.*;
-import static java.lang.annotation.RetentionPolicy.*;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Public
- *
- * @author Brian Goetz
+ * Protected
  */
 @Retention(RUNTIME)
 @Documented
 @Target({METHOD, FIELD, TYPE})
-public @interface Public {
+public @interface Protected {
 }

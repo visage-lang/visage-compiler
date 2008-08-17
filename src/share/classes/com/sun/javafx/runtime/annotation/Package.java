@@ -21,19 +21,19 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime;
+package com.sun.javafx.runtime.annotation;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
+import static java.lang.annotation.RetentionPolicy.*;
 import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Def -- 'def' final variables
+ * Public
+ *
+ * @author Brian Goetz
  */
 @Retention(RUNTIME)
 @Documented
 @Target({METHOD, FIELD, TYPE})
-public @interface Def {
+public @interface Package {
 }

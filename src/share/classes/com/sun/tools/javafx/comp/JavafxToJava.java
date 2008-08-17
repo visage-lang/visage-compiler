@@ -605,33 +605,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         additionalImports = ListBuffer.lb();
         prependToStatements = prependToDefinitions = ListBuffer.lb();
         for (JFXTree def : tree.defs) {
-            if (def.getFXTag() == JavafxTag.IMPORT) {
-                //TODO: determine if any imports are needed in translated code (I don't think so), if not, remove
-                /***************
-                JCTree tdef = translate(def);
-                if (tdef != null) {
-                    imports.append(tdef);
-                }
-                if (!((JFXImport) def).isStatic()) {
-                    if (((JFXImport) def).getQualifiedIdentifier().getFXTag() == JavafxTag.SELECT) {
-                        JFXSelect select = (JFXSelect) ((JFXImport) def).getQualifiedIdentifier();
-                        if (select.name != names.asterisk &&
-                                types.isCompoundClass(select.sym)) {
-                            imports.append(make.Import(make.Select(
-                                    translate(select.selected),
-                                    names.fromString(select.name.toString() + interfaceSuffix)),
-                                    false));
-                        }
-                    } else if (((JFXImport) def).getQualifiedIdentifier().getFXTag() == JavafxTag.IDENT) {
-                        JFXIdent ident = (JFXIdent) ((JFXImport) def).getQualifiedIdentifier();
-                        if (ident.name != names.asterisk &&
-                                types.isCompoundClass(ident.sym)) {
-                            imports.append(make.Import(make.Ident(names.fromString(ident.name.toString() + interfaceSuffix)), false));
-                        }
-                    }
-                }
-                 * *****************/
-            } else {
+            if (def.getFXTag() != JavafxTag.IMPORT) {
                 // anything but an import
                 translatedDefinitions.append(translate(def));
             }
@@ -879,10 +853,12 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             if (tree.sym.owner.kind == Kinds.TYP) {
                 flags |= Flags.STATIC;
             }
+            JCModifiers classMods = make.at(diagPos).Modifiers(flags);
+            classMods = addAccessAnnotationModifiers(diagPos, tree.mods.flags, classMods);
 
             // make the Java class corresponding to this FX class, and return it
             JCClassDecl res = make.at(diagPos).ClassDef(
-                    make.at(diagPos).Modifiers(flags),
+                    classMods,
                     tree.getName(),
                     List.<JCTypeParameter>nil(), // type parameters
                     model.superType==null? null : makeTypeTree( null,model.superType, false),

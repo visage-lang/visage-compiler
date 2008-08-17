@@ -25,7 +25,7 @@ package javafx.reflect;
 import java.util.*;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
-import com.sun.javafx.runtime.SourceName;
+import com.sun.javafx.runtime.annotation.SourceName;
 
 /** Implementation of {@link ReflectionContext} using Java reflection.
  * Can only access objects and types in the current JVM.
@@ -299,7 +299,7 @@ class LocalClassRef extends ClassRef {
             Method m = methods[i];
             if (m.isSynthetic())
                 continue;
-            if (m.getAnnotation(com.sun.javafx.runtime.Inherited.class) != null)
+            if (m.getAnnotation(com.sun.javafx.runtime.annotation.Inherited.class) != null)
                 continue;
             String mname = m.getName();
             if ("userInit$".equals(mname) || "postInit$".equals(mname) ||
@@ -337,7 +337,7 @@ class LocalClassRef extends ClassRef {
             Field fld = fields[i];
             if (fld.isSynthetic())
                 continue;
-            if (fld.getAnnotation(com.sun.javafx.runtime.Inherited.class) != null)
+            if (fld.getAnnotation(com.sun.javafx.runtime.annotation.Inherited.class) != null)
                 continue;
             String name = fld.getName();
             SourceName sourceName = fld.getAnnotation(SourceName.class);

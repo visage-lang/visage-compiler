@@ -251,7 +251,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
     // is the sym accessible everywhere in packge?
     boolean staticImportAccessible(Symbol sym, PackageSymbol packge) {
-        int flags = (int)(sym.flags() & AccessFlags);
+        // because the PACKAGE_ACCESS bit is too high for the switch, test it later
+        int flags = (short)(sym.flags() & Flags.AccessFlags);
         switch (flags) {
         default:
         case PUBLIC:
@@ -259,6 +260,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         case PRIVATE:
             return false;
         case 0:
+            // 'package' vs script-private
+            return (flags & JavafxFlags.PACKAGE_ACCESS)!=0;
         case PROTECTED:
             return sym.packge() == packge;
         }

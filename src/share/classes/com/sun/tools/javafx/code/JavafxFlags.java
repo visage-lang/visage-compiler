@@ -45,6 +45,9 @@ public class JavafxFlags {
     public static final long SCRIPT_LEVEL_SYNTH_STATIC = LAST_JAVA_FLAG << 8;
     public static final long NON_WRITABLE = LAST_JAVA_FLAG << 9;
     public static final long PACKAGE_ACCESS = LAST_JAVA_FLAG << 10;
+
+    public static final long NonPrivateAccessFlags = Flags.PUBLIC | Flags.PROTECTED | PACKAGE_ACCESS;
+    public static final long AccessFlags = NonPrivateAccessFlags | Flags.PRIVATE;
     
     /** If this is a class that gets translated to a class and an inteface.
      * (This is used to implement multiple inheritance.)

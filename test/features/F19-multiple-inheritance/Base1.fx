@@ -2,10 +2,10 @@
  * @subtest F19
  */
 
-class Base1 {
-    attribute a : Integer;
-    attribute b : Integer;
+public class Base1 {
+    package var a : Integer;
+    package var b : Integer;
 
-    function foo() { a + b; }
-    function moo() { a }
+    package function foo() { a + b; }
+    package function moo() { a }
 }

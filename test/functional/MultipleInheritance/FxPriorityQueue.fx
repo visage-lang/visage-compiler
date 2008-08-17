@@ -2,7 +2,7 @@
  *
  * @subtest
 **/
-class FxPriorityQueue extends FxQueue,java.io.Serializable{ //Fx Class extending another Fx Class and Java interface
+public class FxPriorityQueue extends FxQueue,java.io.Serializable{ //Fx Class extending another Fx Class and Java interface
 	var myPQueue:java.lang.Object[]=bind myQueue with inverse ;
 	public var comparatorUsed:FxComparator;
 	var qsize :Integer = bind sizeof myQueue;
@@ -23,15 +23,15 @@ class FxPriorityQueue extends FxQueue,java.io.Serializable{ //Fx Class extending
 		} 
 		return retIndx;
 	}	
-	public function poll(){
+	override function poll(){
 		var retVal= myPQueue[getIndexByHighestPriority()];	 
 		delete myPQueue[getIndexByHighestPriority()];
 		return retVal;
 	}
-	public function peek(){
+	override function peek(){
 		return myPQueue[getIndexByHighestPriority()] ;			
 	}
-	public function put(item) {
+	override function put(item) {
 	      insert item into myPQueue;
 	}
 }
