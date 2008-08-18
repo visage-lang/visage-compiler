@@ -59,6 +59,12 @@
                     <location>javafxdoc</location>
                     <encoding>UTF-8</encoding>
                 </source-folder>
+                <source-folder>
+                    <label>test/sandbox</label>
+                    <type>java</type>
+                    <location>test/sandbox</location>
+                    <encoding>UTF-8</encoding>
+                </source-folder>
             </folders>
             <ide-actions>
                 <action name="build">
@@ -112,6 +118,19 @@
                         </arity>
                     </context>
                 </action>
+                <action name="run.single">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>run-selected-file-in-sandbox</target>
+                    <context>
+                        <property>run.class</property>
+                        <folder>test/sandbox</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
             </ide-actions>
             <view>
                 <items>
@@ -134,6 +153,10 @@
                     <source-folder style="packages">
                         <label>javafxdoc</label>
                         <location>javafxdoc</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>test/sandbox</label>
+                        <location>test/sandbox</location>
                     </source-folder>
                     <source-file>
                         <location>${ant.script}</location>
@@ -180,6 +203,12 @@
             <compilation-unit>
                 <package-root>javafxdoc</package-root>
                 <unit-tests/>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>test/sandbox</package-root>
+                <unit-tests/>
+                <classpath mode="compile">tools/junit-4.4/junit-4.4.jar:build/classes:lib/javac.jar:tools/antlr-3.1b1/antlr-runtime-3.1b1.jar</classpath>
                 <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>
