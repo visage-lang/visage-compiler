@@ -447,7 +447,10 @@
     </target>
 
     <target name="javafxdoc" depends="jar">
+        <!-- javadoc.jar depends on doclets.jar but we don't have it. Create a temporary file here: -->
+        <jar jarfile="lib/doclets.jar"/>
         <ant dir="${javafxdoc.dir}" antfile="build.xml" target="jar" inheritall="false"/>
+        <delete file="lib/doclets.jar"/>
     </target>
     
     <target name="launcher" description="Copy command wrappers to dist/bin directory.">
