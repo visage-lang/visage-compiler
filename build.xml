@@ -14,7 +14,7 @@
     <!-- @@@ TODO: Eliminate vestiges of runtime and demos -->
 
     <target name="default" depends="jar,javafxdoc,launcher"
-            description="Build javafxc compiler and runtime distribution"/>
+            description="Build javafxc compiler and compiler runtime distribution"/>
 
     <target name="all" depends="jar, javafxdoc, launcher, source-zip, test, spec, docs, pack-jars"
             description="Build and test all project artifacts"/>
@@ -40,7 +40,7 @@
             description="Build and test all project artifacts with coverage"/>
 
     <target name="compiler-only" depends="jar"
-            description="Build just the javafxc compiler (no runtime or bin scripts)"/>
+            description="Build just the javafxc compiler (no bin scripts, javafxdoc, etc)"/>
 
     <available property="ant.jar" value="${ant.home}/lib/ant.jar" file="${ant.home}/lib/ant.jar"/>
     <!-- if the previous location is not correct than find the ant.jar from the java.class.path value -->
@@ -109,7 +109,7 @@
         <property name="test-sys-prop.test.fx.includes" value="${test.fx.includes}"/>
     </target>
 
-    <target name="-pre-init" depends="check-ant,check-jdk-1.6,do-bootstrap,update-scenegraph,tool-paths,single-fx-test-check">
+    <target name="-pre-init" depends="check-ant,check-jdk-1.6,do-bootstrap,tool-paths,single-fx-test-check">
         <fail unless="has-jdk-1.6">You need JDK 1.6 or higher to build JavaFX.</fail>
         <echo message="JDK version ${java.version}"/>
         <echo message="Ant version ${ant.version}"/>
@@ -233,13 +233,13 @@
         </javafxc>
     </target>
 
-    <target depends="init,javafxdoc,runtime" name="-javadoc-build">
+    <target depends="init,javafxdoc" name="-javadoc-build">
         <mkdir dir="${dist.javadoc.dir}"/>
         <path id="bootpath" path="${javac.classpath}"/>
         <property name="bootjars" refid="bootpath"/>
-        <path id="clspath" path="build/classes:runtime/build/classes:${javac.test.classpath}"/>
+        <path id="clspath" path="build/classes"/>
         <property name="clsjars" refid="clspath"/>
-        <path id="srcpath" path="src/share/classes:runtime/src/share/classes"/>
+        <path id="srcpath" path="src/share/classes"/>
         <property name="srcpathprop" refid="srcpath"/>
         <copy todir="${dist.javafxdoc.dir}">
             <fileset dir="${basedir}/javadoc-files">
