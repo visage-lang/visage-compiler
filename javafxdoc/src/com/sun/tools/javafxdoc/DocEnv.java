@@ -94,8 +94,6 @@ public class DocEnv {
     /** Access filter (public, protected, ...).  */
     ModifierFilter showAccess;
 
-    private ClassDocImpl runtimeException;
-
     /** True if we are using a sentence BreakIterator. */
     boolean breakiterator;
 

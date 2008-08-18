@@ -23,8 +23,6 @@
 
 package com.sun.tools.javafxdoc;
 
-import java.util.Locale;
-
 import com.sun.javadoc.*;
 
 import com.sun.tools.javac.util.ListBuffer;

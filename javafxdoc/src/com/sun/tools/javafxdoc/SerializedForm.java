@@ -104,7 +104,7 @@ class SerializedForm {
             md = cd.findMethod("writeExternal", writeExternalParamArr);
             if (md != null) {
                 methods.append(md);
-                Tag tag[] = md.tags("serialData");
+                /*Tag tag[] = */ md.tags("serialData");
             }
         // } else { // isSerializable() //### ???
         } else if (cd.isSerializable()) {

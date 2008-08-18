@@ -27,9 +27,7 @@ import java.io.*;
 
 import java.util.Collection;
 
-import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.comp.*;
 import com.sun.tools.javac.parser.DocCommentScanner;
 import com.sun.tools.javac.util.Paths;
 import com.sun.tools.javafx.tree.*;
@@ -38,7 +36,6 @@ import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.util.JavafxFileManager;
 import com.sun.tools.javafx.comp.JavafxClassReader;
-import static com.sun.javadoc.LanguageVersion.*;
 
 /**
  *  This class could be the main entry point for Javafxdoc when Javafxdoc is 
@@ -87,7 +84,6 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
      *  Construct a new javadoc tool.
      */
     public static JavafxdocTool make0(Context context) {
-        Messager messager = null;
         try {
             // Because of circularities we need to register these services
             // before we allocate JavafxClassReader, which needs to be done
@@ -108,7 +104,9 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
 
             return new JavafxdocTool(context);
         } catch (CompletionFailure ex) {
-            messager.error(Position.NOPOS, ex.getMessage());
+            Messager messager = Messager.instance0(context);
+            if (messager != null)
+            	messager.error(Position.NOPOS, ex.getMessage());
             return null;
         }
     }
@@ -190,9 +188,6 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
         }
         return isValidClassName(s);
     }
-
-
-    private final static char pathSep = File.pathSeparatorChar;
 
     /**
      * search all directories in path for subdirectory name. Add all
@@ -317,7 +312,7 @@ public class JavafxdocTool extends com.sun.tools.javafx.main.JavafxCompiler {
     final static boolean surrogatesSupported = surrogatesSupported();
     private static boolean surrogatesSupported() {
         try {
-            boolean b = Character.isHighSurrogate('a');
+            Character.isHighSurrogate('a'); 
             return true;
         } catch (NoSuchMethodError ex) {
             return false;

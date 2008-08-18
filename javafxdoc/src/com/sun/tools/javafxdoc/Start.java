@@ -78,9 +78,6 @@ class Start {
 
     private DocletInvoker docletInvoker;
 
-    private static final int F_VERBOSE = 1 << 0;
-    private static final int F_WARNINGS = 1 << 2;
-
     /* Treat warnings as errors. */
     private boolean rejectWarnings = false;
 

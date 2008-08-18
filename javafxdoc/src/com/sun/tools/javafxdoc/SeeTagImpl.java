@@ -317,6 +317,7 @@ class SeeTagImpl extends TagImpl implements SeeTag, LayoutCharacters {
         }
     }
 
+    /* Not used
     private MemberDoc findReferencedMethod(String memName, String[] paramarr,
                                            ClassDoc referencedClass) {
         MemberDoc meth = findExecutableMember(memName, paramarr, referencedClass);
@@ -331,6 +332,7 @@ class SeeTagImpl extends TagImpl implements SeeTag, LayoutCharacters {
         }
         return null;
     }
+    */
 
     private MemberDoc findExecutableMember(String memName, String[] paramarr,
                                            ClassDoc referencedClass) {

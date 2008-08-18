@@ -25,13 +25,6 @@ package com.sun.tools.javafxdoc;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.TypeTags;
-import com.sun.tools.javac.code.Type.ClassType;
-
 class PrimitiveType implements com.sun.javadoc.Type {
 
     private final String name;

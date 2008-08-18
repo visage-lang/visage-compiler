@@ -25,8 +25,6 @@ package com.sun.tools.javafxdoc;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.code.Attribute;
-import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 
@@ -53,8 +51,6 @@ import java.text.CollationKey;
 public abstract class ProgramElementDocImpl
         extends DocImpl implements ProgramElementDoc {
 
-    private final Symbol sym;
-
     // For source position information.
     JFXTree tree = null;
     Position.LineMap lineMap = null;
@@ -66,7 +62,6 @@ public abstract class ProgramElementDocImpl
     protected ProgramElementDocImpl(DocEnv env, Symbol sym,
                                     String doc, JFXTree tree, Position.LineMap lineMap) {
         super(env, doc);
-        this.sym = sym;
         this.tree = tree;
         this.lineMap = lineMap;
     }

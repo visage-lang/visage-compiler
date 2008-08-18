@@ -23,11 +23,7 @@
 
 package com.sun.tools.javafxdoc;
 
-import java.util.*;
-
 import com.sun.javadoc.*;
-
-import static com.sun.javadoc.LanguageVersion.*;
 
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
@@ -47,9 +43,7 @@ import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javafx.comp.JavafxAttrContext;
 import com.sun.tools.javafx.comp.JavafxEnv;
 import com.sun.tools.javafx.tree.*;
-import static com.sun.tools.javac.code.Flags.*;
 import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.TypeTags.*;
 
 import java.io.File;
 import java.util.Set;

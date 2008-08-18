@@ -24,7 +24,6 @@
 package com.sun.tools.javafxdoc;
 
 import java.util.Locale;
-import java.util.HashSet;
 import java.text.Collator;
 import java.text.BreakIterator;
 

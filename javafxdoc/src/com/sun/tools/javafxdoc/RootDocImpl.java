@@ -315,7 +315,7 @@ public class RootDocImpl extends DocImpl implements RootDoc {
      */
     protected String documentation() {
         if (documentation == null) {
-            int cnt = options.length();
+            //int cnt = options.length();
             String overviewPath = getOverviewPath();
             if (overviewPath == null) {
                 // no doc file to be had

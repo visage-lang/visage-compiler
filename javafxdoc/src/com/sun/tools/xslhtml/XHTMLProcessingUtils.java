@@ -28,11 +28,9 @@ package com.sun.tools.xslhtml;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -54,7 +52,6 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -237,9 +234,11 @@ public class XHTMLProcessingUtils {
         p(INFO,getString("finished"));
     }
 
+    /* Not used
     private static void p(Transformer trans, Document packages_doc) throws TransformerException {
         trans.transform(new DOMSource(packages_doc), new StreamResult(System.out));
     }
+    */
 
     private static void processPackage(String packageName, Element pkg, XPath xpath, File docsdir, Transformer trans, Element package_elem) throws TransformerException, XPathExpressionException, IOException, FileNotFoundException, ParserConfigurationException {
         File packageDir = new File(docsdir, packageName);
@@ -368,6 +367,7 @@ public class XHTMLProcessingUtils {
         }
     }
     
+    /* Not used
     private static void copy(File infile, File outfile) throws FileNotFoundException, IOException {
         FileInputStream in = new FileInputStream(infile);
         FileOutputStream out = new FileOutputStream(outfile);
@@ -380,6 +380,7 @@ public class XHTMLProcessingUtils {
             out.write(buf, 0, n);
         }
     }
+    */
     
     static String getString(String key) {
         ResourceBundle msgRB = messageRB;
@@ -418,9 +419,11 @@ public class XHTMLProcessingUtils {
         }
     }
     
+    /* Not used
     private static void p(String string) {
         System.out.println(string);
     }
+    */
 
     /**
      * Command-line/debugging entry
@@ -491,8 +494,8 @@ public class XHTMLProcessingUtils {
     }
     
     private static String highlight(String text) {
-        String pattern = "(/\\*)";
-        String replace = "<span class='comment'>/*";
+        //String pattern = "(/\\*)";
+        //String replace = "<span class='comment'>/*";
         //comments
         text = text.replaceAll("/\\*", "<i class='comment'>/*");
         text = text.replaceAll("\\*/","*/</i>");
@@ -500,7 +503,7 @@ public class XHTMLProcessingUtils {
         text = text.replaceAll("(import|package)","<b>$1</b>");
         //keywords
         text = text.replaceAll("(var)","<b class='keyword'>$1</b>");
-        //attribte names
+        //attribute names
         text = text.replaceAll("(\\w\\w*):","<b>$1</b>:");
         //attribute values
         text = text.replaceAll("(\\d+)","<span class='number-literal'>$1</span>");

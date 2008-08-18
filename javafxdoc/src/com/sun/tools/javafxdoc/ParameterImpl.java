@@ -37,7 +37,6 @@ import com.sun.tools.javac.code.Symbol.VarSymbol;
  */
 public class ParameterImpl implements Parameter {
 
-    private final DocEnv env;
     private final VarSymbol sym;
     private final com.sun.javadoc.Type type;
 
@@ -45,7 +44,6 @@ public class ParameterImpl implements Parameter {
      * Constructor of parameter info class.
      */
     ParameterImpl(DocEnv env, VarSymbol sym) {
-        this.env = env;
         this.sym = sym;
         this.type = TypeMaker.getType(env, sym.type, false);
     }
