@@ -130,6 +130,13 @@
                 <attribute name="Main-Class" value="${main.class}"/>
             </manifest>
         </jar>
+        <jar compress="${jar.compress}" destfile="${dist.javafxrt.jar}" >
+            <fileset dir="${build.classes.dir}" >
+                <include name="**/*.class" />
+                <exclude name="com/sun/tools/javafx/**"/>
+                <exclude name="com/sun/javafx/api/**"/>
+            </fileset>
+        </jar>
     </target>
 
     <target depends="-pre-compile" name="generate-parserv3" unless="parserv3.uptodate" >
