@@ -142,14 +142,14 @@ public class JavafxResolve {
      *  @param c      The class whose accessibility is checked.
      */
     public boolean isAccessible(JavafxEnv<JavafxAttrContext> env, TypeSymbol c) {
-        // because the PACKAGE_ACCESS bit is too high for the switch, test it later
+        // because the SCRIPT_PRIVATE bit is too high for the switch, test it later
         switch ((short)(c.flags() & Flags.AccessFlags)) {
         case PRIVATE:
             return
                 env.enclClass.sym.outermostClass() ==
                 c.owner.outermostClass();
         case 0:
-            if ((c.flags() & JavafxFlags.PACKAGE_ACCESS) == 0) {
+            if ((c.flags() & JavafxFlags.SCRIPT_PRIVATE) != 0) {
                 // script-private
                 //System.err.println("isAccessible " + c + " = " + (env.enclClass.sym.outermostClass() ==
                 //        c.outermostClass()) + ", enclClass " + env.enclClass.getName());
@@ -224,7 +224,7 @@ public class JavafxResolve {
      */
     public boolean isAccessibleForWrite(JavafxEnv<JavafxAttrContext> env, Type site, Symbol sym) {
         if (sym.name == names.init && sym.owner != site.tsym) return false;
-        // because the PACKAGE_ACCESS bit is too high for the switch, test it later
+        // because the SCRIPT_PRIVATE bit is too high for the switch, test it later
         switch ((short)(sym.flags() & Flags.AccessFlags)) {
         case PRIVATE:
             return
@@ -235,7 +235,7 @@ public class JavafxResolve {
                 &&
                 isInheritedIn(sym, site.tsym, types);
         case 0:
-            if ((sym.flags() & JavafxFlags.PACKAGE_ACCESS) == 0) {
+            if ((sym.flags() & JavafxFlags.SCRIPT_PRIVATE) != 0) {
                 // script-private
                 //TODO: don't know what is right
                 return
@@ -1957,7 +1957,7 @@ public class JavafxResolve {
                         && !isAccessible(env, this.site)))
                     log.error(pos, MsgSym.MESSAGE_NOT_DEF_ACCESS_CLASS_INTF_CANNOT_ACCESS,
                         sym, sym.location());
-                else if ((sym.flags() & JavafxFlags.PACKAGE_ACCESS) != 0)
+                else if ((sym.flags() & JavafxFlags.AccessFlags) == 0L) // 'package' access
                     log.error(pos, MsgSym.MESSAGE_NOT_DEF_PUBLIC_CANNOT_ACCESS,
                               sym, sym.location());
                 else
@@ -2052,7 +2052,7 @@ public class JavafxResolve {
      *                as a member.
      */
     public boolean isInheritedIn(Symbol sym, Symbol clazz, JavafxTypes types) {
-        // because the PACKAGE_ACCESS bit is too high for the switch, test it later
+        // because the SCRIPT_PRIVATE bit is too high for the switch, test it later
         switch ((short)(sym.flags_field & Flags.AccessFlags)) {
         default: // error recovery
         case PUBLIC:
@@ -2063,7 +2063,7 @@ public class JavafxResolve {
             // we model interfaces as extending Object
             return (clazz.flags() & INTERFACE) == 0;
         case 0:
-            if ((sym.flags() & JavafxFlags.PACKAGE_ACCESS) == 0) {
+            if ((sym.flags() & JavafxFlags.SCRIPT_PRIVATE) != 0) {
                 // script-private
                 //TODO: this isn't right
                 //return sym.owner == clazz;

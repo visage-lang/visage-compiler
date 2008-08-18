@@ -471,9 +471,9 @@ public abstract class JavafxTranslationSupport {
     String attributeNameString(Symbol sym, String prefix) {
         String sname = sym.name.toString();
         Symbol owner = sym.owner;
-        long access = sym.flags() & JavafxFlags.NonPrivateAccessFlags;
+        long privateAccess = sym.flags() & (Flags.PRIVATE | JavafxFlags.SCRIPT_PRIVATE);
         if ((sym.flags() & STATIC) == 0L
-                && access == 0L // private or script-private
+                && privateAccess != 0L // private or script-private
                 && types.isCompoundClass(owner)) {
             // mangle name to hide it
             sname = owner.toString().replace('.', '$') + '$' + sname;
@@ -585,11 +585,11 @@ public abstract class JavafxTranslationSupport {
         else if ((flags & Flags.PROTECTED) != 0) {
             annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.protectedAnnotationClassNameString), List.<JCExpression>nil()));
         }
-        else if ((flags & JavafxFlags.PACKAGE_ACCESS) != 0) {
-            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.packageAnnotationClassNameString), List.<JCExpression>nil()));
-        }
-        else {        // otherwise it is script private
+        else if ((flags & JavafxFlags.SCRIPT_PRIVATE) != 0) {
             annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.scriptPrivateAnnotationClassNameString), List.<JCExpression>nil()));
+        }
+        else {        // otherwise it is package access
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.packageAnnotationClassNameString), List.<JCExpression>nil()));
         }
 
         if ((flags & JavafxFlags.PUBLIC_READABLE) != 0) {

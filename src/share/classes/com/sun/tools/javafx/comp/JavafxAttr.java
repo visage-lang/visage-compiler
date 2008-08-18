@@ -3655,8 +3655,8 @@ public class JavafxAttr implements JavafxVisitor {
         // now fix up the access modifiers
         long origFlags = m.flags();
         long flags = origFlags;
-        if ((flags & JavafxFlags.AccessFlags) == 0) {
-            flags |= other.flags() & JavafxFlags.AccessFlags;
+        if ((flags & JavafxFlags.ExplicitAccessFlags) == 0) {
+            flags |= other.flags() & JavafxFlags.ExplicitAccessFlags;
         }
         if ((flags & JavafxFlags.PUBLIC_READABLE) == 0) {
             flags |= other.flags() & JavafxFlags.PUBLIC_READABLE;

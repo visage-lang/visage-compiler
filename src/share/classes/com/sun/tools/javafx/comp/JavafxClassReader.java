@@ -558,11 +558,11 @@ public class JavafxClassReader extends ClassReader {
             } else if (a.type.tsym.flatName() == javafxSyms.javafx_protectedAnnotationType.tsym.flatName()) {
                 accessFlags = Flags.PROTECTED;
             } else if (a.type.tsym.flatName() == javafxSyms.javafx_packageAnnotationType.tsym.flatName()) {
-                accessFlags = JavafxFlags.PACKAGE_ACCESS;
+                accessFlags = 0L;
             } else if (a.type.tsym.flatName() == javafxSyms.javafx_publicAnnotationType.tsym.flatName()) {
                 accessFlags = Flags.PUBLIC;
             } else if (a.type.tsym.flatName() == javafxSyms.javafx_scriptPrivateAnnotationType.tsym.flatName()) {
-                accessFlags = 0L;
+                accessFlags = JavafxFlags.SCRIPT_PRIVATE;
             }
         }
         return nonAccessFlags | accessFlags;

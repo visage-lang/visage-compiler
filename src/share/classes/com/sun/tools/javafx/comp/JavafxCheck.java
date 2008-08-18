@@ -851,14 +851,14 @@ public class JavafxCheck {
 		 &&
                  checkDisjoint(pos, flags,
                                PUBLIC,
-                               PRIVATE | PROTECTED | JavafxFlags.PACKAGE_ACCESS)
+                               PRIVATE | PROTECTED | JavafxFlags.SCRIPT_PRIVATE)
 		 &&
                  checkDisjoint(pos, flags,
                                PRIVATE,
-                               PUBLIC | PROTECTED | JavafxFlags.PACKAGE_ACCESS)
+                               PUBLIC | PROTECTED | JavafxFlags.SCRIPT_PRIVATE)
 		 &&
                  checkDisjoint(pos, flags,
-                               JavafxFlags.PACKAGE_ACCESS,
+                               JavafxFlags.SCRIPT_PRIVATE,
                                PRIVATE | PROTECTED | PUBLIC)
 		 &&
 		 checkDisjoint(pos, flags,
@@ -1078,14 +1078,14 @@ public class JavafxCheck {
      *  where PRIVATE is highest and PUBLIC is lowest.
      */
     static int protection(long flags) {
-        // because the PACKAGE_ACCESS bit is too high for the switch, test it later
+        // because the SCRIPT_PRIVATE bit is too high for the switch, test it later
         switch ((short)(flags & Flags.AccessFlags)) {
         case PRIVATE: return 3;
         case PROTECTED: return 1;
         default:
         case PUBLIC: return 0;
         // 'package' vs script-private
-        case 0: return ((flags & JavafxFlags.PACKAGE_ACCESS)!=0)? 2 : 3;
+        case 0: return ((flags & JavafxFlags.SCRIPT_PRIVATE)==0)? 2 : 3;
         }
     }
 
@@ -1094,7 +1094,7 @@ public class JavafxCheck {
      */
     public static String protectionString(long flags) {
 	long flags1 = flags & JavafxFlags.AccessFlags;
-	return (flags1 == 0) ? "script-private" : JavafxTreeInfo.flagNames(flags1);
+	return JavafxTreeInfo.flagNames(flags1);
     }
 
     /** A customized "cannot override" error message.

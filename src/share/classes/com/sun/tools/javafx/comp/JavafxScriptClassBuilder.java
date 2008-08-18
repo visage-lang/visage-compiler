@@ -82,6 +82,39 @@ public class JavafxScriptClassBuilder {
         commandLineArgs = names.fromString("__ARGS__");
     }
 
+    public void convertAccessFlags(JFXScript script) {
+        new JavafxTreeScanner() {
+            
+            void convertFlags(JFXModifiers mods) {
+                long flags = mods.flags;
+                long access = flags & (Flags.AccessFlags | JavafxFlags.PACKAGE_ACCESS);
+                if (access == 0L) {
+                    flags |= JavafxFlags.SCRIPT_PRIVATE;
+                }
+                mods.flags = flags;
+            }
+
+            @Override
+            public void visitClassDeclaration(JFXClassDeclaration tree) {
+                super.visitClassDeclaration(tree);
+                convertFlags(tree.getModifiers());
+            }
+
+            @Override
+            public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+                super.visitFunctionDefinition(tree);
+                convertFlags(tree.getModifiers());
+            }
+
+            @Override
+            public void visitVar(JFXVar tree) {
+                super.visitVar(tree);
+                convertFlags(tree.getModifiers());
+            }
+        }.scan(script);
+    }
+
+
     public void preProcessJfxTopLevel(JFXScript module) {
         Name moduleClassName = scriptName(module);
         
@@ -241,6 +274,8 @@ public class JavafxScriptClassBuilder {
         topLevelDefs.append(moduleClass);
         
         module.defs = topLevelDefs.toList();
+
+        convertAccessFlags(module);
 
         reservedTopLevelNamesSet = null;
     }

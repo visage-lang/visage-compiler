@@ -187,8 +187,11 @@ public class JavafxTreeInfo {
      */
     public static String flagNames(long flags) {
         StringBuffer fsb = new StringBuffer(Flags.toString(flags & StandardFlags));
-        if ((flags & JavafxFlags.PACKAGE_ACCESS) != 0) {
+        if ((flags & JavafxFlags.AccessFlags) == 0) {
             fsb.append("package ");
+        }
+        if ((flags & JavafxFlags.SCRIPT_PRIVATE) != 0) {
+            fsb.append("script-private ");
         }
         if ((flags & JavafxFlags.PUBLIC_READABLE) != 0) {
             fsb.append("public-readable ");

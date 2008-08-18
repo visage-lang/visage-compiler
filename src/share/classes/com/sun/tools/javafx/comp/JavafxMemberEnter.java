@@ -261,7 +261,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             return false;
         case 0:
             // 'package' vs script-private
-            return (flags & JavafxFlags.PACKAGE_ACCESS)!=0;
+            return (flags & JavafxFlags.SCRIPT_PRIVATE)==0;
         case PROTECTED:
             return sym.packge() == packge;
         }
