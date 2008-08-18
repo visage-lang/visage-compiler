@@ -54,12 +54,6 @@
                     <encoding>UTF-8</encoding>
                 </source-folder>
                 <source-folder>
-                    <label>javafxdoc</label>
-                    <type>java</type>
-                    <location>javafxdoc</location>
-                    <encoding>UTF-8</encoding>
-                </source-folder>
-                <source-folder>
                     <label>test/sandbox</label>
                     <type>java</type>
                     <location>test/sandbox</location>
@@ -151,10 +145,6 @@
                         <location>test/src</location>
                     </source-folder>
                     <source-folder style="packages">
-                        <label>javafxdoc</label>
-                        <location>javafxdoc</location>
-                    </source-folder>
-                    <source-folder style="packages">
                         <label>test/sandbox</label>
                         <location>test/sandbox</location>
                     </source-folder>
@@ -198,11 +188,6 @@
                 <package-root>test/src</package-root>
                 <unit-tests/>
                 <classpath mode="compile">tools/junit-4.4/junit-4.4.jar:build/classes:lib/javac.jar:tools/ant-1.7.0/ant.jar:tools/antlr-3.1b1/antlr-runtime-3.1b1.jar</classpath>
-                <source-level>1.5</source-level>
-            </compilation-unit>
-            <compilation-unit>
-                <package-root>javafxdoc</package-root>
-                <unit-tests/>
                 <source-level>1.5</source-level>
             </compilation-unit>
             <compilation-unit>
