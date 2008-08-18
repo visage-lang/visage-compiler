@@ -21,7 +21,7 @@ public class cPub {}
 package class cPkg {}
 class cScr {}
 
-public class jfxc1250subFail {
+package class jfxc1250subFail {
 	public var memPub = 0;
 	protected var memPro = 0;
 	package var memPkg = 0;

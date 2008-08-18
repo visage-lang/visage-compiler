@@ -2,7 +2,7 @@
  * @subtest
  */
 
-public class jfxc1629One {
+package class jfxc1629One {
 
   public-readable var twub = 333;
 

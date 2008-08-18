@@ -4,7 +4,7 @@
 
 import java.lang.System;
 
-public class jfxc710Out extends jfxc710WayOut {
+package class jfxc710Out extends jfxc710WayOut {
    override var wayOuti = 'ovOut-WayOuti'
        on replace { System.out.println('trig: override Out wayOuti {wayOuti}') }
    package var outi = 'Outi'

@@ -303,6 +303,7 @@ public abstract class AbstractGeneratedParser extends Parser {
         super(input, state);
     }
    
+    @Override
     protected void mismatch(IntStream input, int ttype, BitSet follow)
             throws RecognitionException {
         //System.err.println("Mismatch: " + ttype  + ", Set: " + follow);
@@ -495,6 +496,7 @@ public abstract class AbstractGeneratedParser extends Parser {
         return this.getClass().getName();
     }
 
+    @Override
     public String getErrorMessage(RecognitionException e, String[] tokenNames) {
         java.util.List stack = getRuleInvocationStack(e, getParserName());
         String stackTop = stack.get(stack.size()-1).toString();
@@ -583,6 +585,7 @@ public abstract class AbstractGeneratedParser extends Parser {
         return List.<JFXTree>nil();
     }
     
+    @Override
     protected Object getMissingSymbol(IntStream input,
                                       RecognitionException e, 
                                       int expectedTokenType,

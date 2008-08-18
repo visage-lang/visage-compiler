@@ -34,7 +34,7 @@ class EmployeeNameComparator extends FxComparator{
         init{
                 comparatorCalled = "EmployeeNameComparator";
         }
-        function compare(one,another):Integer{
+        override function compare(one,another):Integer{
                 return empCompare(one as Employee,another as Employee);
         }
         function empCompare(oneEmployee:Employee,anotherEmployee:Employee){
@@ -49,7 +49,7 @@ class EmployeeExperienceComparator extends FxComparator{
         init{
                 comparatorCalled = "EmployeeExperienceComparator";
         }
-        function compare(one,another):Integer{
+        override function compare(one,another):Integer{
                 return empCompare(one as Employee,another as Employee);
         }
         function empCompare(oneEmployee:Employee,anotherEmployee:Employee){
@@ -71,7 +71,7 @@ class EmployeeSalaryComparator extends FxComparator{
         init{
                 comparatorCalled = "EmployeeSalaryComparator";
         }
-        function compare(one,another):Integer{
+        override function compare(one,another):Integer{
                 return empCompare(one as Employee,another as Employee);
         }
         function empCompare(oneEmployee:Employee,anotherEmployee:Employee){
@@ -110,9 +110,9 @@ class Comparator2 extends EmployeeExperienceComparator,EmployeeSalaryComparator,
 
 
 class Employeedb{
-attribute employeeQueue:Employee[];
-attribute comparatorChosen:FxComparator;
-attribute empPQueue:FxPriorityQueue = FxPriorityQueue{comparatorUsed:comparatorChosen};
+var employeeQueue:Employee[];
+var comparatorChosen:FxComparator;
+var empPQueue:FxPriorityQueue = FxPriorityQueue{comparatorUsed:comparatorChosen};
 init{
 	   java.lang.System.out.println("Comparator chosen=> {empPQueue.comparatorUsed.comparatorCalled}");
 }

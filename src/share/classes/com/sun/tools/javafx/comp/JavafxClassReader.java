@@ -428,9 +428,8 @@ public class JavafxClassReader extends ClassReader {
             ClassType jt = (ClassType)jsymbol.type;
             csym.members_field = new Scope(csym);
 
-            //TODO: include annoations
-            // csym.flags_field = flagsFromAnnotationsAndFlags(jsymbol);
-            csym.flags_field = jsymbol.flags_field;
+            // flags are derived from flag bits and access modifier annoations
+            csym.flags_field = flagsFromAnnotationsAndFlags(jsymbol);
             
             ct.typarams_field = translateTypes(jt.typarams_field);
             ct.setEnclosingType(translateType(jt.getEnclosingType()));

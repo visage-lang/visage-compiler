@@ -4,7 +4,7 @@
 
 import java.lang.System;
 
-public class jfxc710WayOut {
+package class jfxc710WayOut {
    package var wayOuti = 'WayOuti'
        on replace { System.out.println('trig: wayOut1 {wayOuti}') }
    package function wayOutfi() : String { 'WayOutfi' }
