@@ -592,20 +592,6 @@ public class JavafxAttr implements JavafxVisitor {
             }
         }
 
-        // If symbol is a variable, ...
-        if (sym.kind == VAR) {
-            VarSymbol v = (VarSymbol)sym;
-
-            // ..., evaluate its initializer, if it has one, and check for
-            // illegal forward reference.
-            checkInit(tree, env, v, false);
-
-            // If we are expecting a variable (as opposed to a value), check
-            // that the variable is assignable in the current environment.
-            if (pkind == VAR)
-                checkAssignable(tree.pos(), v, null, env);
-        }
-
         // In a constructor body,
         // if symbol is a field or instance method, check that it is
         // not accessed before the supertype constructor is called.
@@ -623,6 +609,21 @@ public class JavafxAttr implements JavafxVisitor {
 	    while (env1.outer != null && !rs.isAccessible(env, env1.enclClass.sym.type, sym))
 		env1 = env1.outer;
 	}
+
+        // If symbol is a variable, ...
+        if (sym.kind == VAR) {
+            VarSymbol v = (VarSymbol)sym;
+
+            // ..., evaluate its initializer, if it has one, and check for
+            // illegal forward reference.
+            checkInit(tree, env, v, false);
+
+            // If we are expecting a variable (as opposed to a value), check
+            // that the variable is assignable in the current environment.
+            if (pkind == VAR)
+                checkAssignable(tree.pos(), v, null, env1.enclClass.sym.type, env);
+        }
+
         result = checkId(tree, env1.enclClass.sym.type, sym, env, pkind, pt, pSequenceness, varArgs);
     }
 
@@ -705,7 +706,7 @@ public class JavafxAttr implements JavafxVisitor {
             // If we are expecting a variable (as opposed to a value), check
             // that the variable is assignable in the current environment.
             if (pkind == VAR)
-                checkAssignable(tree.pos(), v, tree.selected, env);
+                checkAssignable(tree.pos(), v, tree.selected, site, env);
         }
 
         // Disallow selecting a type from an expression
@@ -1513,7 +1514,7 @@ public class JavafxAttr implements JavafxVisitor {
 
             if (memberSym instanceof VarSymbol) {
                 VarSymbol v = (VarSymbol)memberSym;
-                checkAssignable(part.pos(), v, part, localEnv);
+                checkAssignable(part.pos(), v, part, memberType, localEnv);
             }
             chk.checkBidiBind(part.getMaybeBindExpression(),
                               part.getBindStatus(), part.getExpression());
@@ -3217,7 +3218,7 @@ public class JavafxAttr implements JavafxVisitor {
      *                to the left of the `.', null otherwise.
      *  @param env    The current environment.
      */
-    void checkAssignable(DiagnosticPosition pos, VarSymbol v, JFXTree base, JavafxEnv<JavafxAttrContext> env) {
+    void checkAssignable(DiagnosticPosition pos, VarSymbol v, JFXTree base, Type site, JavafxEnv<JavafxAttrContext> env) {
         //TODO: for attributes they are always final -- this should really be checked in JavafxClassReader
         //TODO: rebutal, actual we should just use a different final
         if ((v.flags() & FINAL) != 0 && !types.isJFXClass(v.owner) &&
@@ -3232,16 +3233,7 @@ public class JavafxAttr implements JavafxVisitor {
         } else if ((v.flags() & Flags.PARAMETER) != 0L) {
             log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_PARAMETER, v);
         } else if ((v.flags() & JavafxFlags.PUBLIC_READABLE) != 0L) {
-            JavafxEnv<JavafxAttrContext> env1 = env;
-            if (v.owner != null && v.owner != env1.enclClass.sym) {
-                // If the found symbol is inaccessible, then it is
-                // accessed through an enclosing instance.  Locate this
-                // enclosing instance:
-                while (env1.outer != null && !rs.isAccessibleForWrite(env, env1.enclClass.sym.type, v)) {
-                    env1 = env1.outer;
-                }
-            }
-            if (!rs.isAccessibleForWrite(env, env1.enclClass.sym.type, v)) {
+            if (!rs.isAccessibleForWrite(env, site, v)) {
                 log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_READABLE, v);
             }
         }
