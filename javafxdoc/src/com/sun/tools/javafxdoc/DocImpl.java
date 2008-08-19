@@ -85,7 +85,7 @@ abstract class DocImpl implements Doc, Comparable<Object> {
      * So subclasses have the option to do lazy initialization of
      * "documentation" string.
      */
-    String documentation() {
+    protected String documentation() {
         if (documentation == null) documentation = "";
         return documentation;
     }

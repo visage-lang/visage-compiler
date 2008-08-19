@@ -92,7 +92,7 @@ public class DocEnv {
     final Symbol externalizableSym;
 
     /** Access filter (public, protected, ...).  */
-    ModifierFilter showAccess;
+    protected ModifierFilter showAccess;
 
     /** True if we are using a sentence BreakIterator. */
     boolean breakiterator;
@@ -112,7 +112,7 @@ public class DocEnv {
     boolean docClasses = false;
 
     /** Does the doclet only expect pre-1.5 doclet API? */
-    boolean legacyDoclet = true;
+    protected boolean legacyDoclet = true;
 
     /**
      * Set this to true if you would like to not emit any errors, warnings and
@@ -125,7 +125,7 @@ public class DocEnv {
      *
      * @param context      Context for this javadoc instance.
      */
-    private DocEnv(Context context) {
+    protected DocEnv(Context context) {
         context.put(docEnvKey, this);
 
         messager = Messager.instance0(context);
@@ -528,7 +528,7 @@ public class DocEnv {
         messager.exit();
     }
 
-    private Map<PackageSymbol, PackageDocImpl> packageMap =
+    protected Map<PackageSymbol, PackageDocImpl> packageMap =
             new HashMap<PackageSymbol, PackageDocImpl>();
     /**
      * Return the PackageDoc of this package symbol.
@@ -562,7 +562,7 @@ public class DocEnv {
     /**
      * Return the ClassDoc (or a subtype) of this class symbol.
      */
-    ClassDocImpl getClassDoc(ClassSymbol clazz) {
+    protected ClassDocImpl getClassDoc(ClassSymbol clazz) {
         ClassDocImpl result = classMap.get(clazz);
         if (result != null) return result;
         result = new ClassDocImpl(this, clazz);
@@ -573,7 +573,7 @@ public class DocEnv {
     /**
      * Create the ClassDoc (or a subtype) for a class symbol.
      */
-    void makeClassDoc(ClassSymbol clazz, String docComment, JFXClassDeclaration tree, Position.LineMap lineMap) {
+    protected void makeClassDoc(ClassSymbol clazz, String docComment, JFXClassDeclaration tree, Position.LineMap lineMap) {
         ClassDocImpl result = classMap.get(clazz);
         docComment = processDocComment(docComment);
         if (result != null) {
@@ -590,7 +590,7 @@ public class DocEnv {
     /**
      * Return the FieldDoc of this var symbol.
      */
-    FieldDocImpl getFieldDoc(VarSymbol var) {
+    protected FieldDocImpl getFieldDoc(VarSymbol var) {
         FieldDocImpl result = fieldMap.get(var);
         if (result != null) return result;
         result = new FieldDocImpl(this, var);
@@ -600,7 +600,7 @@ public class DocEnv {
     /**
      * Create a FieldDoc for a var symbol.
      */
-    void makeFieldDoc(VarSymbol var, String docComment, JFXVar tree, Position.LineMap lineMap) {
+    protected void makeFieldDoc(VarSymbol var, String docComment, JFXVar tree, Position.LineMap lineMap) {
         FieldDocImpl result = fieldMap.get(var);
         docComment = processDocComment(docComment);
         if (result != null) {
@@ -612,13 +612,13 @@ public class DocEnv {
         }
     }
 
-    private Map<MethodSymbol, ExecutableMemberDocImpl> methodMap =
+    protected Map<MethodSymbol, ExecutableMemberDocImpl> methodMap =
             new HashMap<MethodSymbol, ExecutableMemberDocImpl>();
     /**
      * Create a MethodDoc for this MethodSymbol.
      * Should be called only on symbols representing methods.
      */
-    void makeFunctionDoc(MethodSymbol meth, String docComment,
+    protected void makeFunctionDoc(MethodSymbol meth, String docComment,
                        JFXFunctionDefinition tree, Position.LineMap lineMap) {
         FunctionDocImpl result = (FunctionDocImpl)methodMap.get(meth);
         docComment = processDocComment(docComment);
@@ -635,7 +635,7 @@ public class DocEnv {
      * Return the MethodDoc for a MethodSymbol.
      * Should be called only on symbols representing methods.
      */
-    public FunctionDocImpl getMethodDoc(MethodSymbol meth) {
+    public FunctionDocImpl getFunctionDoc(MethodSymbol meth) {
         FunctionDocImpl result = (FunctionDocImpl)methodMap.get(meth);
         if (result != null) return result;
         result = new FunctionDocImpl(this, meth);
@@ -647,7 +647,7 @@ public class DocEnv {
      * Create the ConstructorDoc for a MethodSymbol.
      * Should be called only on symbols representing constructors.
      */
-    void makeConstructorDoc(MethodSymbol meth, String docComment,
+    protected void makeConstructorDoc(MethodSymbol meth, String docComment,
                             JFXFunctionDefinition tree, Position.LineMap lineMap) {
         ConstructorDocImpl result = (ConstructorDocImpl)methodMap.get(meth);
         docComment = processDocComment(docComment);

@@ -166,7 +166,7 @@ public class FunctionDocImpl
             ClassSymbol c = (ClassSymbol)t.tsym;
             for (Scope.Entry e = c.members().lookup(sym.name); e.scope != null; e = e.next()) {
                 if (sym.overrides(e.sym, origin, env.types, true)) {
-                    return env.getMethodDoc((MethodSymbol)e.sym);
+                    return env.getFunctionDoc((MethodSymbol)e.sym);
                 }
             }
         }

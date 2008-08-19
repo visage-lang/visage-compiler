@@ -543,7 +543,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
                 e.sym.kind == Kinds.MTH && e.sym.name != names.init) {
                 MethodSymbol s = (MethodSymbol)e.sym;
                 if (!filter || env.shouldDocument(s)) {
-                    methods = methods.prepend(env.getMethodDoc(s));
+                    methods = methods.prepend(env.getFunctionDoc(s));
                 }
             }
         }
@@ -858,7 +858,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
                 }
             }
             if (lastFound != null) {
-                return env.getMethodDoc(lastFound);
+                return env.getFunctionDoc(lastFound);
             }
         } else {
             for (; e.scope != null; e = e.next()) {
@@ -866,7 +866,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
                     e.sym.kind == Kinds.MTH) {
                     //### Should intern methodName as Name.
                     if (hasParameterTypes((MethodSymbol)e.sym, paramTypes)) {
-                        return env.getMethodDoc((MethodSymbol)e.sym);
+                        return env.getFunctionDoc((MethodSymbol)e.sym);
                     }
                 }
             }

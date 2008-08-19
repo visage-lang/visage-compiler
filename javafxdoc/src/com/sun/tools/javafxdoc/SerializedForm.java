@@ -212,7 +212,7 @@ class SerializedForm {
                      * READOBJECT takes a single parameter, java.io.ObjectInputStream.
                      * WRITEOBJECT takes a single parameter, java.io.ObjectOutputStream.
                      */
-                    methods.append(env.getMethodDoc(md));
+                    methods.append(env.getFunctionDoc(md));
                 }
             }
         }
