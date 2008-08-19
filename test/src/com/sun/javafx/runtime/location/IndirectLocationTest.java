@@ -37,7 +37,7 @@ public class IndirectLocationTest extends JavaFXTestCase {
         final IntLocation falseClause = IntVariable.make(2);
 
         final IntLocation ifLoc = new IndirectIntExpression(false, bool) {
-            protected IntLocation computeLocation() {
+            public IntLocation computeLocation() {
                 return bool.get() ? trueClause : falseClause;
             }
         };

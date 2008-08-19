@@ -36,7 +36,7 @@ public class IndirectLocationHelper<T extends Location> extends ObjectVariable<T
         ov.bind(false, new ObjectBindingExpression<T>() {
             public T computeValue() {
                 helped.clearDynamicDependencies();
-                T location = helped.computeLocationInternal();
+                T location = helped.computeLocation();
                 helped.addDynamicDependency(location);
                 return location;
             }

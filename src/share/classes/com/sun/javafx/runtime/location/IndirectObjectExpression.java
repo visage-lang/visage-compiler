@@ -49,11 +49,7 @@ public abstract class IndirectObjectExpression<T> extends ObjectVariable<T> impl
         });
     }
 
-    public final ObjectLocation<T> computeLocationInternal() {
-        return computeLocation();
-    }
-
-    protected abstract ObjectLocation<T> computeLocation();
+    public abstract ObjectLocation<T> computeLocation();
 
     public ObjectLocation<T>getUnderlyingLocation() {
         return computeLocation();

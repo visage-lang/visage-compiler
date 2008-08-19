@@ -23,9 +23,6 @@
 
 package com.sun.javafx.runtime;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.sequence.Sequence;
 
@@ -109,34 +106,6 @@ public class Util {
 //            return temp;
 //        }
 //    }
-
-    /**
-     * Returns the __FILE__ pseudo-variable for a module.
-     * 
-     * @param moduleClass the fully-qualified name of the module class
-     * @return the resource URL to the module's class
-     */
-    public static URL get__FILE__(Class<?> moduleClass) {
-        try {
-            String resource = moduleClass.getName().replace(".", "/") + ".class";
-            return moduleClass.getClassLoader().getResource(resource);
-        } catch (Throwable t) {
-            return null;
-        }
-    }
-    
-    /**
-     * Returns the __DIR__ pseudo-variable for a module.
-     * @param __FILE__ the module's __FILE__ pseudo-variable
-     * @return the module's __DIR__ URL
-     */
-    public static URL get__DIR__(URL __FILE__) {
-        try {
-            return __FILE__ == null ? null : new java.net.URL(__FILE__, ".");
-        } catch (MalformedURLException ex) {
-            return null;
-        }
-    }
 
     public static<T> boolean isEqual(T oldValue, T newValue) {
         if (oldValue == null) {

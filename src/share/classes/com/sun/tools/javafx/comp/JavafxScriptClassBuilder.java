@@ -23,30 +23,25 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.javafx.api.JavafxBindStatus;
-import com.sun.javafx.api.tree.TypeTree;
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.tree.JCTree;
-import static com.sun.tools.javac.code.Flags.*;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Log;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.Name.Table;
-import com.sun.tools.javafx.code.JavafxSymtab;
-import com.sun.tools.javafx.code.JavafxFlags;
-import com.sun.tools.javafx.tree.*;
-import static com.sun.tools.javafx.tree.JavafxTag.*;
-import static com.sun.tools.javafx.code.JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC;
-import com.sun.tools.javafx.util.MsgSym;
-
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.tools.FileObject;
+
+import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.javafx.api.tree.TypeTree;
+import com.sun.tools.javac.code.Flags;
+import static com.sun.tools.javac.code.Flags.*;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.util.*;
+import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.javac.util.Name.Table;
+import com.sun.tools.javafx.code.JavafxFlags;
+import static com.sun.tools.javafx.code.JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC;
+import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javafx.util.MsgSym;
 
 public class JavafxScriptClassBuilder {
     protected static final Context.Key<JavafxScriptClassBuilder> javafxModuleBuilderKey =
@@ -301,7 +296,7 @@ public class JavafxScriptClassBuilder {
             // java.net.URL __FILE__ = Util.get__FILE__(moduleClass);
             JFXExpression moduleClassFQN = module.pid != null ?
                 fxmake.at(diagPos).Select(module.pid, moduleClassName) : fxmake.at(diagPos).Ident(moduleClassName);
-            JFXExpression getFile = fxmake.at(diagPos).Identifier("com.sun.javafx.runtime.Util.get__FILE__");
+            JFXExpression getFile = fxmake.at(diagPos).Identifier("com.sun.javafx.runtime.PseudoVariables.get__FILE__");
             JFXExpression forName = fxmake.at(diagPos).Identifier("java.lang.Class.forName");
             List<JFXExpression> args = List.<JFXExpression>of(fxmake.at(diagPos).Literal(moduleClassFQN.toString()));
             JFXExpression loaderCall = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), forName, args);
@@ -315,7 +310,7 @@ public class JavafxScriptClassBuilder {
 
             // java.net.URL __DIR__;
             if (usesDir) {
-                JFXExpression getDir = fxmake.at(diagPos).Identifier("com.sun.javafx.runtime.Util.get__DIR__");
+                JFXExpression getDir = fxmake.at(diagPos).Identifier("com.sun.javafx.runtime.PseudoVariables.get__DIR__");
                 args = List.<JFXExpression>of(fxmake.at(diagPos).Ident(pseudoFile));
                 JFXExpression getDirURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getDir, args);
                 pseudoDefs.append(

@@ -50,11 +50,7 @@ abstract class IndirectIntExpression extends IntVariable implements IndirectLoca
         });
     }
 
-    public final IntLocation computeLocationInternal() {
-        return computeLocation();
-    }
-
-    protected abstract IntLocation computeLocation();
+    public abstract IntLocation computeLocation();
 
     public IntLocation getUnderlyingLocation() {
         return computeLocation();

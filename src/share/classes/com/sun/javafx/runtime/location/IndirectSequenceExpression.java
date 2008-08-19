@@ -52,11 +52,7 @@ public abstract class IndirectSequenceExpression<T> extends SequenceVariable<T> 
         });
     }
 
-    public final SequenceLocation<T> computeLocationInternal() {
-        return computeLocation();
-    }
-
-    protected abstract SequenceLocation<T> computeLocation();
+    public abstract SequenceLocation<T> computeLocation();
 
     public SequenceLocation<T> getUnderlyingLocation() {
         return computeLocation();

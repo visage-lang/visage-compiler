@@ -29,5 +29,5 @@ package com.sun.javafx.runtime.location;
  * @author Brian Goetz
  */
 public interface IndirectLocation<T extends Location> extends Location, DynamicViewLocation {
-    public abstract T computeLocationInternal();
+    public abstract T computeLocation();
 }
