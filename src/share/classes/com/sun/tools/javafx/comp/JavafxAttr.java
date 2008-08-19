@@ -621,7 +621,7 @@ public class JavafxAttr implements JavafxVisitor {
             // If we are expecting a variable (as opposed to a value), check
             // that the variable is assignable in the current environment.
             if (pkind == VAR)
-                checkAssignable(tree.pos(), v, null, env1.enclClass.sym.type, env);
+                checkAssignable(tree.pos(), v, null, env1.enclClass.sym.type, env, false);
         }
 
         result = checkId(tree, env1.enclClass.sym.type, sym, env, pkind, pt, pSequenceness, varArgs);
@@ -706,7 +706,7 @@ public class JavafxAttr implements JavafxVisitor {
             // If we are expecting a variable (as opposed to a value), check
             // that the variable is assignable in the current environment.
             if (pkind == VAR)
-                checkAssignable(tree.pos(), v, tree.selected, site, env);
+                checkAssignable(tree.pos(), v, tree.selected, site, env, false);
         }
 
         // Disallow selecting a type from an expression
@@ -1514,7 +1514,7 @@ public class JavafxAttr implements JavafxVisitor {
 
             if (memberSym instanceof VarSymbol) {
                 VarSymbol v = (VarSymbol)memberSym;
-                checkAssignable(part.pos(), v, part, memberType, localEnv);
+                checkAssignable(part.pos(), v, part, memberType, localEnv, true);
             }
             chk.checkBidiBind(part.getMaybeBindExpression(),
                               part.getBindStatus(), part.getExpression());
@@ -3218,7 +3218,7 @@ public class JavafxAttr implements JavafxVisitor {
      *                to the left of the `.', null otherwise.
      *  @param env    The current environment.
      */
-    void checkAssignable(DiagnosticPosition pos, VarSymbol v, JFXTree base, Type site, JavafxEnv<JavafxAttrContext> env) {
+    void checkAssignable(DiagnosticPosition pos, VarSymbol v, JFXTree base, Type site, JavafxEnv<JavafxAttrContext> env, boolean isInit) {
         //TODO: for attributes they are always final -- this should really be checked in JavafxClassReader
         //TODO: rebutal, actual we should just use a different final
         if ((v.flags() & FINAL) != 0 && !types.isJFXClass(v.owner) &&
@@ -3230,7 +3230,7 @@ public class JavafxAttr implements JavafxVisitor {
             log.error(pos, MsgSym.MESSAGE_CANNOT_ASSIGN_VAL_TO_FINAL_VAR, v);
         } else if ((v.flags() & JavafxFlags.IS_DEF) != 0L) {
             log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_DEF, v);
-        } else if ((v.flags() & JavafxFlags.NON_WRITABLE) != 0L) {
+        } else if (!isInit && (v.flags() & JavafxFlags.NON_WRITABLE) != 0L) {
             log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_NON_WRITABLE, v);
         } else if ((v.flags() & Flags.PARAMETER) != 0L) {
             log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_PARAMETER, v);
