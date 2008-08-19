@@ -77,6 +77,10 @@ public abstract class AbstractSimpleVariable implements Location {
         throw new UnsupportedOperationException();
     }
 
+    public void removeChangeListener(ChangeListener listener) {
+        throw new UnsupportedOperationException();
+    }
+
     public void addWeakListener(ChangeListener listener) {
         throw new UnsupportedOperationException();
     }

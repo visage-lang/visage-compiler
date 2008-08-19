@@ -65,6 +65,8 @@ public abstract class AbstractConstantLocation<T> implements ObjectLocation<T> {
 
     public void addChangeListener(ChangeListener listener) { }
 
+    public void removeChangeListener(ChangeListener listener) { }
+
     public void addWeakListener(ChangeListener listener) { }
 
     public void addDependentLocation(WeakReference<Location> location) { }

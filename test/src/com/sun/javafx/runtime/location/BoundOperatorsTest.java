@@ -2,6 +2,7 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.JavaFXTestCase;
+import com.sun.javafx.runtime.sequence.Sequences;
 
 /**
  * BoundOperatorsTest
@@ -64,6 +65,31 @@ public class BoundOperatorsTest extends JavaFXTestCase {
         i.set(5);
         assertEquals(5, ifLoc.getAsInt());
         assertEquals(4, cl.count);
+    }
+
+    public void testIndirectSeqIf() {
+        BooleanLocation b = BooleanVariable.make(true);
+        final SequenceVariable<Integer> x = SequenceVariable.make(Integer.class, Sequences.make(Integer.class, 1, 2, 3));
+        final SequenceVariable<Integer> y = SequenceVariable.make(Integer.class, Sequences.make(Integer.class, 4, 5, 6));
+        SequenceLocation<Integer> ifLoc = BoundOperators.makeBoundIf(Integer.class, false, b,
+                                                                     new Function0<SequenceLocation<Integer>>() {
+                                                                         public SequenceLocation<Integer> invoke() {
+                                                                             return x;
+                                                                         }
+                                                                     },
+                                                                     new Function0<SequenceLocation<Integer>>() {
+                                                                         public SequenceLocation<Integer> invoke() {
+                                                                             return y;
+                                                                         }
+                                                                     });
+        CountingListener cl = new CountingListener();
+        ifLoc.addChangeListener(cl);
+        assertEquals(ifLoc.getAsSequence(), 1, 2, 3);
+        assertEquals(0, cl.count);
+
+        b.set(false);
+        assertEquals(ifLoc.getAsSequence(), 4, 5, 6);
+        assertEquals(1, cl.count);
     }
 
 }

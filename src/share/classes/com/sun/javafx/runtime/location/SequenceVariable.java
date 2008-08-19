@@ -23,9 +23,9 @@
 
 package com.sun.javafx.runtime.location;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
@@ -47,7 +47,7 @@ public class SequenceVariable<T>
     private final SequenceMutator.Listener<T> mutationListener;
     private List<SequenceChangeListener<T>> changeListeners;
     private Sequence<T> value;
-    private SequenceLocation<T> boundLocation;
+    private BoundLocationInfo boundLocation;
 
 
     public static <T> SequenceVariable<T> make(Class clazz) {
@@ -62,24 +62,18 @@ public class SequenceVariable<T>
         return new SequenceVariable<T>(clazz, value);
     }
 
-    public static<T> SequenceVariable<T> make(Class clazz, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
+    public static <T> SequenceVariable<T> make(Class clazz, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
         return new SequenceVariable<T>(clazz, lazy, binding, dependencies);
     }
 
-    public static<T> SequenceVariable<T> make(Class clazz, SequenceBindingExpression<T> binding, Location... dependencies) {
+    public static <T> SequenceVariable<T> make(Class clazz, SequenceBindingExpression<T> binding, Location... dependencies) {
         return new SequenceVariable<T>(clazz, false, binding, dependencies);
     }
 
     /**
-    public static<T> SequenceVariable<T> make(Class clazz, SequenceLocation<T> otherLocation) {
-        SequenceVariable<T> me = make(clazz);
-        me.bind(otherLocation);
-        return me;
-    }
-     * ***/
-
-    /** Create a bijectively bound variable */
-    public static<T> SequenceVariable<T> makeBijective(Class clazz, SequenceVariable<T> other) {
+     * Create a bijectively bound variable
+     */
+    public static <T> SequenceVariable<T> makeBijective(Class clazz, SequenceVariable<T> other) {
         SequenceVariable<T> me = SequenceVariable.<T>make(clazz);
         me.bijectiveBind(other);
         return me;
@@ -87,7 +81,7 @@ public class SequenceVariable<T>
 
     protected SequenceVariable(Class clazz) {
         this.clazz = clazz;
-        this.value = Sequences.emptySequence(clazz);
+        this.value = Sequences.<T>emptySequence(this.clazz);
         this.mutationListener = new SequenceMutator.Listener<T>() {
             public void onReplaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 replaceSlice(startPos, endPos, newElements, newValue);
@@ -103,8 +97,8 @@ public class SequenceVariable<T>
     protected SequenceVariable(Class clazz, Sequence<? extends T> value) {
         this(clazz);
         if (value == null)
-            value = Sequences.emptySequence(clazz);
-        replaceValue(Sequences.upcast(clazz, value));
+            value = Sequences.emptySequence(this.clazz);
+        replaceValue(Sequences.<T>upcast(this.clazz, value));
     }
 
     protected SequenceVariable(Class clazz, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
@@ -118,17 +112,21 @@ public class SequenceVariable<T>
             update();
     }
 
-    /** Update the held value, notifying change listeners */
+    /**
+     * Update the held value, notifying change listeners
+     */
     private void replaceValue(Sequence<T> newValue) {
-        assert(boundLocation == null);
+        assert (boundLocation == null);
         if (newValue == null)
             newValue = Sequences.emptySequence(clazz);
-        replaceSlice(0, Sequences.size(value)-1, newValue, newValue);
+        replaceSlice(0, Sequences.size(value) - 1, newValue, newValue);
     }
 
-    /** Update the held value, notifying change listeners */
+    /**
+     * Update the held value, notifying change listeners
+     */
     private void replaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> newValue) {
-        assert(boundLocation == null);
+        assert (boundLocation == null);
         Sequence<T> oldValue = value;
         if (!Sequences.isEqual(oldValue, newValue) || !isInitialized() || !isEverValid()) {
             boolean notifyDependencies = isValid() || !isInitialized() || !isEverValid();
@@ -193,10 +191,10 @@ public class SequenceVariable<T>
             changeListeners.remove(listener);
     }
 
-    private void notifyListeners(int startPos, int endPos,
-                                 Sequence<? extends T> newElements,
-                                 Sequence<T> oldValue, Sequence<T> newValue,
-                                 boolean notifyDependencies) {
+    protected void notifyListeners(int startPos, int endPos,
+                                   Sequence<? extends T> newElements,
+                                   Sequence<T> oldValue, Sequence<T> newValue,
+                                   boolean notifyDependencies) {
         if (notifyDependencies)
             invalidateDependencies();
         if (changeListeners != null) {
@@ -212,23 +210,18 @@ public class SequenceVariable<T>
 
     public void bind(SequenceLocation<T> otherLocation) {
         ensureBindable();
-        boundLocation = otherLocation;
         Sequence<T> oldValue = value;
         value = otherLocation.get();
-        otherLocation.addChangeListener(new ChangeListener() {
-            public boolean onChange() {
-                invalidateDependencies();
-                return true;
-            }
-        });
-        otherLocation.addChangeListener(new SequenceChangeListener<T>() {
-            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-                value = newValue;
-                // @@@ Right value of notifyDependencies?
-                notifyListeners(startPos, endPos, newElements, oldValue, newValue, false);
-            }
-        });
-        notifyListeners(0, Sequences.size(oldValue)-1, value, oldValue, value, true);
+        boundLocation = new BoundLocationInfo(otherLocation);
+        boundLocation.bind();
+        notifyListeners(0, Sequences.size(oldValue) - 1, value, oldValue, value, true);
+    }
+
+    protected void rebind(SequenceLocation<T> otherLocation) {
+        if (boundLocation != null)
+            boundLocation.unbind();
+        boundLocation = null;
+        bind(otherLocation);
     }
 
     public boolean isBound() {
@@ -417,4 +410,41 @@ public class SequenceVariable<T>
         ensureNotBound();
         SequenceMutator.insertAfter(getRawValue(), mutationListener, values, sequencePredicate);
     }
+
+    private class BoundLocationInfo {
+        public final SequenceLocation<T> otherLocation;
+        public ChangeListener changeListener;
+        public SequenceChangeListener<T> sequenceChangeListener;
+
+        BoundLocationInfo(SequenceLocation<T> otherLocation) {
+            this.otherLocation = otherLocation;
+        }
+
+        void bind() {
+            changeListener = new ChangeListener() {
+                public boolean onChange() {
+                    invalidateDependencies();
+                    return true;
+                }
+            };
+            sequenceChangeListener = new SequenceChangeListener<T>() {
+                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                    value = newValue;
+                    // @@@ Right value of notifyDependencies?
+                    notifyListeners(startPos, endPos, newElements, oldValue, newValue, false);
+                }
+            };
+            otherLocation.addChangeListener(changeListener);
+            otherLocation.addChangeListener(sequenceChangeListener);
+        }
+
+        void unbind() {
+            otherLocation.removeChangeListener(changeListener);
+            otherLocation.removeChangeListener(sequenceChangeListener);
+            changeListener = null;
+            sequenceChangeListener = null;
+        }
+    }
 }
+
+

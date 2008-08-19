@@ -23,14 +23,12 @@
 
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.sequence.Sequence;
-
 /**
  * Indirect locations are used to express bindings that respond nonuniformly with respect to dependencies. For example,
  * bind a.b will change when a changes or when a.b changes, but the response to changes is different. If a.b changes but
  * a doesn't, the response is simply to update the value; if a changes, the response also includes updating the
  * dependency set as well, removing the old a.b and adding the new one.
- *
+ * <p/>
  * Indirect location instances are created with a set of static dependencies; in the example above, a would be a static
  * dependency.  Instances override computeLocation(), which returns a Location with its secondary dependencies set up;
  * in the example above, calling computeLocation() would evaluate a, and return a location corresponding to a.b.
@@ -39,14 +37,17 @@ import com.sun.javafx.runtime.sequence.Sequence;
  */
 public abstract class IndirectSequenceExpression<T> extends SequenceVariable<T> implements IndirectLocation<SequenceLocation<T>> {
 
-    protected final IndirectLocationHelper<SequenceLocation<T>> helper;
+    protected final ObjectLocation<SequenceLocation<T>> helper;
 
     public IndirectSequenceExpression(Class<T> clazz, boolean lazy, Location... dependencies) {
         super(clazz);
-        helper = new IndirectLocationHelper<SequenceLocation<T>>(this, dependencies);
-        bind(lazy, new SequenceBindingExpression<T>() {
-            public Sequence<? extends T> computeValue() {
-                return helper.get().getAsSequence();
+        helper = IndirectLocationHelper.make(this, dependencies);
+        bind(helper.get());
+        // @@@ Downside of this approach: we get two change events, one when the dependencies change, and another when
+        // the rebinding happens.  
+        helper.addChangeListener(new ObjectChangeListener<SequenceLocation<T>>() {
+            public void onChange(SequenceLocation<T> oldValue, SequenceLocation<T> newValue) {
+                rebind(newValue);
             }
         });
     }

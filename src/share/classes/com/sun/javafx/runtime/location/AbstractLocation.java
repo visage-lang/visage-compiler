@@ -169,6 +169,11 @@ public abstract class AbstractLocation implements Location {
         listeners.add(listener);
     }
 
+    public void removeChangeListener(ChangeListener listener) {
+        if (listeners != null)
+            listeners.remove(listener);
+    }
+
     public void addWeakListener(ChangeListener listener) {
         addChangeListener(new WeakListener(listener));
     }

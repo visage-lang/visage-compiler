@@ -156,6 +156,10 @@ public class Locations {
             getLocation().addChangeListener(listener);
         }
 
+        public void removeChangeListener(ChangeListener listener) {
+            getLocation().removeChangeListener(listener);
+        }
+
         public void addWeakListener(ChangeListener listener) {
             getLocation().addWeakListener(listener);
         }

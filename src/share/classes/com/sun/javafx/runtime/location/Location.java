@@ -63,6 +63,10 @@ public interface Location {
      */
     public void addChangeListener(ChangeListener listener);
 
+    /** Remove a previously registered change listener.
+     */
+    public void removeChangeListener(ChangeListener listener);
+
     /** Register a change listener that will be notified whenever this location may have changed, but use a weak
      * reference for the listener, so that the listener list does not pin the listener in memory after it otherwise
      * could be collected.

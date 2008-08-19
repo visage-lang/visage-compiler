@@ -37,11 +37,11 @@ package com.sun.javafx.runtime.location;
  */
 public abstract class IndirectBooleanExpression extends BooleanVariable implements IndirectLocation<BooleanLocation> {
 
-    protected final IndirectLocationHelper<BooleanLocation> helper;
+    protected final ObjectLocation<BooleanLocation> helper;
 
     public IndirectBooleanExpression(boolean lazy, Location... dependencies) {
         super();
-        helper = new IndirectLocationHelper<BooleanLocation>(this, dependencies);
+        helper = IndirectLocationHelper.make(this, dependencies);
         bind(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 return helper.get().getAsBoolean();

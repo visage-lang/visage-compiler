@@ -302,8 +302,6 @@ public class BoundOperators extends GeneratedBoundOperators {
         final SequenceLocation<U> defaultValue = SequenceConstant.<U>make(Sequences.emptySequence(clazz));
 
         return new IndirectSequenceExpression<U>(clazz, lazy, receiver) {
-            // @@@ Sequence triggers are not going to be right.  Need to add a trigger to each "generation" of underlying
-            // sequence location, and propagate sequence triggers to outer Location wrapper
 
             protected SequenceLocation<U> computeLocation() {
                 T selectorValue = receiver.get();

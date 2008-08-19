@@ -25,13 +25,8 @@ package framework;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Scanner;
+import java.util.*;
 
-import java.util.Set;
-import java.util.TreeSet;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.apache.tools.ant.DirectoryScanner;
@@ -82,7 +77,7 @@ public class FXCompilerTest extends TestSuite {
     private static void findTests(File dir, List<Test> tests, Set<String> orphanFiles) throws Exception {
         String pattern = System.getProperty(TEST_FX_INCLUDES);
         DirectoryScanner ds = new DirectoryScanner();
-        ds.setIncludes(new String[] { (pattern == null ? "**/*.fx" : pattern) });
+        ds.setIncludes(new String[]{(pattern == null ? "**/*.fx" : pattern)});
         ds.setBasedir(dir);
         ds.scan();
         final Set<File> included = new TreeSet<File>();
@@ -136,7 +131,7 @@ public class FXCompilerTest extends TestSuite {
                             isTest = true;
                             checkCompilerMsg = true;
                         }
-						else if (token.equals("@test/nocompare")) {
+                        else if (token.equals("@test/nocompare")) {
                             isTest = true;
                             noCompare = true;
                         }
@@ -178,8 +173,8 @@ public class FXCompilerTest extends TestSuite {
                 if (isTest) {
                     if (isFxUnit)
                         tests.add(FXUnitTestWrapper.makeSuite(f, name));
-					if(noCompare)
-						tests.add(new FXRunWrapper(f, name, compileFailure, shouldRun, runFailure, auxFiles, separateFiles, param));
+                    if (noCompare)
+                        tests.add(new FXRunWrapper(f, name, compileFailure, shouldRun, runFailure, auxFiles, separateFiles, param));
                     else
                         tests.add(new FXRunAndCompareWrapper(f, name, compileFailure, shouldRun, runFailure, checkCompilerMsg, auxFiles, separateFiles, param));
                 }
