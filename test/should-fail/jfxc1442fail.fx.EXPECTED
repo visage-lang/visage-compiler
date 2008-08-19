@@ -1,4 +1,4 @@
-test\should-fail\jfxc1442fail.fx:9: Cannot assign to readable variable read
+test\should-fail\jfxc1442fail.fx:9: read has script only (default) write access in jfxc1442sub
 jfxc1442sub.read = 8;
            ^
 1 error

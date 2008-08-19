@@ -1,34 +1,34 @@
-test\should-fail\jfxc1250visFail.fx:147: slScr has script-private access in jfxc1250subFail
+test\should-fail\jfxc1250visFail.fx:147: slScr has script only (default) access in jfxc1250subFail
 	System.out.println(jfxc1250subFail.slScr);
 	                                  ^
-test\should-fail\jfxc1250visFail.fx:150: slNScr has script-private access in jfxc1250subFail
+test\should-fail\jfxc1250visFail.fx:150: slNScr has script only (default) access in jfxc1250subFail
 	System.out.println(jfxc1250subFail.slNScr);
 	                                  ^
-test\should-fail\jfxc1250visFail.fx:162: memScr has script-private access in jfxc1250subFail
+test\should-fail\jfxc1250visFail.fx:162: memScr has script only (default) access in jfxc1250subFail
 	System.out.println(sf.memScr);
 	                     ^
-test\should-fail\jfxc1250visFail.fx:166: memNScr has script-private access in jfxc1250subFail
+test\should-fail\jfxc1250visFail.fx:166: memNScr has script only (default) access in jfxc1250subFail
 	System.out.println(sf.memNScr);
 	                     ^
-test\should-fail\jfxc1250visFail.fx:178: slFScr() has script-private access in jfxc1250subFail
+test\should-fail\jfxc1250visFail.fx:178: slFScr() has script only (default) access in jfxc1250subFail
 	System.out.println(jfxc1250subFail.slFScr());
 	                                  ^
-test\should-fail\jfxc1250visFail.fx:185: memFScr() has script-private access in jfxc1250subFail
+test\should-fail\jfxc1250visFail.fx:185: memFScr() has script only (default) access in jfxc1250subFail
 	System.out.println(sf.memFScr());
 	                     ^
-test\should-fail\jfxc1250visFail.fx:191: jfxc1250subFail.cScr has script-private access in jfxc1250subFail
+test\should-fail\jfxc1250visFail.fx:191: jfxc1250subFail.cScr has script only (default) access in jfxc1250subFail
 	var x3 = jfxc1250subFail.cScr {};
 	                        ^
 test\should-fail\jfxc1250visFail.fx:198: slPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
 	System.out.println(jfxc1250subFailA.slPkg);
 	                                   ^
-test\should-fail\jfxc1250visFail.fx:199: slScr has script-private access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250visFail.fx:199: slScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	System.out.println(jfxc1250subFailA.slScr);
 	                                   ^
 test\should-fail\jfxc1250visFail.fx:201: slNPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
 	System.out.println(jfxc1250subFailA.slNPkg);
 	                                   ^
-test\should-fail\jfxc1250visFail.fx:202: slNScr has script-private access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250visFail.fx:202: slNScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	System.out.println(jfxc1250subFailA.slNScr);
 	                                   ^
 test\should-fail\jfxc1250visFail.fx:212: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
@@ -37,7 +37,7 @@ test\should-fail\jfxc1250visFail.fx:212: memPkg is not public in jfxc1250.a.jfxc
 test\should-fail\jfxc1250visFail.fx:213: memPro has protected access in jfxc1250.a.jfxc1250subFailA
 	System.out.println(sfa.memPro);
 	                      ^
-test\should-fail\jfxc1250visFail.fx:214: memScr has script-private access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250visFail.fx:214: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	System.out.println(sfa.memScr);
 	                      ^
 test\should-fail\jfxc1250visFail.fx:216: memNPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
@@ -46,25 +46,166 @@ test\should-fail\jfxc1250visFail.fx:216: memNPkg is not public in jfxc1250.a.jfx
 test\should-fail\jfxc1250visFail.fx:217: memNPro has protected access in jfxc1250.a.jfxc1250subFailA
 	System.out.println(sfa.memNPro);
 	                      ^
-test\should-fail\jfxc1250visFail.fx:218: memNScr has script-private access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250visFail.fx:218: memNScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	System.out.println(sfa.memNScr);
 	                      ^
 test\should-fail\jfxc1250visFail.fx:229: slFPkg() is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
 	System.out.println(jfxc1250subFailA.slFPkg());
 	                                   ^
-test\should-fail\jfxc1250visFail.fx:230: slFScr() has script-private access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250visFail.fx:230: slFScr() has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	System.out.println(jfxc1250subFailA.slFScr());
 	                                   ^
 test\should-fail\jfxc1250visFail.fx:236: memFPkg() is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
 	System.out.println(sfa.memFPkg());
 	                      ^
-test\should-fail\jfxc1250visFail.fx:237: memFScr() has script-private access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250visFail.fx:237: memFScr() has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	System.out.println(sfa.memFScr());
 	                      ^
 test\should-fail\jfxc1250visFail.fx:242: jfxc1250.a.jfxc1250subFailA.cPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
 	var x2 = jfxc1250subFailA.cPkg {};
 	                         ^
-test\should-fail\jfxc1250visFail.fx:243: jfxc1250.a.jfxc1250subFailA.cScr has script-private access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250visFail.fx:243: jfxc1250.a.jfxc1250subFailA.cScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	var x3 = jfxc1250subFailA.cScr {};
 	                         ^
-23 errors
+test\should-fail\jfxc1250visFail.fx:252: Cannot assign to non-writable 'slNPub'
+	jfxc1250visFail.slNPub = 99;
+	               ^
+test\should-fail\jfxc1250visFail.fx:253: Cannot assign to non-writable 'slNPkg'
+	jfxc1250visFail.slNPkg = 99;
+	               ^
+test\should-fail\jfxc1250visFail.fx:254: Cannot assign to non-writable 'slNScr'
+	jfxc1250visFail.slNScr = 99;
+	               ^
+test\should-fail\jfxc1250visFail.fx:257: Cannot assign to non-writable 'slNRPkg'
+	jfxc1250visFail.slNRPkg = 99;
+	               ^
+test\should-fail\jfxc1250visFail.fx:258: Cannot assign to non-writable 'slNRScr'
+	jfxc1250visFail.slNRScr = 99;
+	               ^
+test\should-fail\jfxc1250visFail.fx:267: Cannot assign to non-writable 'memNPub'
+	vf.memNPub = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:268: Cannot assign to non-writable 'memNPkg'
+	vf.memNPkg = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:269: Cannot assign to non-writable 'memNPro'
+	vf.memNPro = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:270: Cannot assign to non-writable 'memNScr'
+	vf.memNScr = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:274: Cannot assign to non-writable 'memNRPro'
+	vf.memNRPro = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:275: Cannot assign to non-writable 'memNRPkg'
+	vf.memNRPkg = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:276: Cannot assign to non-writable 'memNRScr'
+	vf.memNRScr = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:285: Cannot assign to non-writable 'fooNPub'
+	fv.fooNPub = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:286: Cannot assign to non-writable 'fooNPkg'
+	fv.fooNPkg = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:287: Cannot assign to non-writable 'fooNPro'
+	fv.fooNPro = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:288: Cannot assign to non-writable 'fooNScr'
+	fv.fooNScr = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:292: Cannot assign to non-writable 'fooNRPro'
+	fv.fooNRPro = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:293: Cannot assign to non-writable 'fooNRPkg'
+	fv.fooNRPkg = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:294: Cannot assign to non-writable 'fooNRScr'
+	fv.fooNRScr = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:300: slScr has script only (default) access in jfxc1250subFail
+	jfxc1250subFail.slScr = 99;
+	               ^
+test\should-fail\jfxc1250visFail.fx:303: slNScr has script only (default) access in jfxc1250subFail
+	jfxc1250subFail.slNScr = 99;
+	               ^
+test\should-fail\jfxc1250visFail.fx:305: slRScr has script only (default) write access in jfxc1250subFail
+	jfxc1250subFail.slRScr = 99;
+	               ^
+test\should-fail\jfxc1250visFail.fx:307: slNRScr has script only (default) write access in jfxc1250subFail
+	jfxc1250subFail.slNRScr = 99;
+	               ^
+test\should-fail\jfxc1250visFail.fx:315: memScr has script only (default) access in jfxc1250subFail
+	sf.memScr = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:319: memNScr has script only (default) access in jfxc1250subFail
+	sf.memNScr = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:322: memRScr has script only (default) write access in jfxc1250subFail
+	sf.memRScr = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:325: memNRScr has script only (default) write access in jfxc1250subFail
+	sf.memNRScr = 99;
+	  ^
+test\should-fail\jfxc1250visFail.fx:330: slPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	jfxc1250subFailA.slPkg = 99;
+	                ^
+test\should-fail\jfxc1250visFail.fx:331: slScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+	jfxc1250subFailA.slScr = 99;
+	                ^
+test\should-fail\jfxc1250visFail.fx:333: slNPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	jfxc1250subFailA.slNPkg = 99;
+	                ^
+test\should-fail\jfxc1250visFail.fx:334: slNScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+	jfxc1250subFailA.slNScr = 99;
+	                ^
+test\should-fail\jfxc1250visFail.fx:335: slRPkg has package write access in jfxc1250.a.jfxc1250subFailA
+	jfxc1250subFailA.slRPkg = 99;
+	                ^
+test\should-fail\jfxc1250visFail.fx:336: slRScr has script only (default) write access in jfxc1250.a.jfxc1250subFailA
+	jfxc1250subFailA.slRScr = 99;
+	                ^
+test\should-fail\jfxc1250visFail.fx:337: slNRPkg has package write access in jfxc1250.a.jfxc1250subFailA
+	jfxc1250subFailA.slNRPkg = 99;
+	                ^
+test\should-fail\jfxc1250visFail.fx:338: slNRScr has script only (default) write access in jfxc1250.a.jfxc1250subFailA
+	jfxc1250subFailA.slNRScr = 99;
+	                ^
+test\should-fail\jfxc1250visFail.fx:344: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	sfa.memPkg = 99;
+	   ^
+test\should-fail\jfxc1250visFail.fx:345: memPro has protected access in jfxc1250.a.jfxc1250subFailA
+	sfa.memPro = 99;
+	   ^
+test\should-fail\jfxc1250visFail.fx:346: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+	sfa.memScr = 99;
+	   ^
+test\should-fail\jfxc1250visFail.fx:348: memNPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	sfa.memNPkg = 99;
+	   ^
+test\should-fail\jfxc1250visFail.fx:349: memNPro has protected access in jfxc1250.a.jfxc1250subFailA
+	sfa.memNPro = 99;
+	   ^
+test\should-fail\jfxc1250visFail.fx:350: memNScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+	sfa.memNScr = 99;
+	   ^
+test\should-fail\jfxc1250visFail.fx:351: memRPro has protected write access in jfxc1250.a.jfxc1250subFailA
+	sfa.memRPro = 99;
+	   ^
+test\should-fail\jfxc1250visFail.fx:352: memRPkg has package write access in jfxc1250.a.jfxc1250subFailA
+	sfa.memRPkg = 99;
+	   ^
+test\should-fail\jfxc1250visFail.fx:353: memRScr has script only (default) write access in jfxc1250.a.jfxc1250subFailA
+	sfa.memRScr = 99;
+	   ^
+test\should-fail\jfxc1250visFail.fx:354: memNRPro has protected write access in jfxc1250.a.jfxc1250subFailA
+	sfa.memNRPro = 99;
+	   ^
+test\should-fail\jfxc1250visFail.fx:355: memNRPkg has package write access in jfxc1250.a.jfxc1250subFailA
+	sfa.memNRPkg = 99;
+	   ^
+test\should-fail\jfxc1250visFail.fx:356: memNRScr has script only (default) write access in jfxc1250.a.jfxc1250subFailA
+	sfa.memNRScr = 99;
+	   ^
+70 errors

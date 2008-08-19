@@ -3230,11 +3230,15 @@ public class JavafxAttr implements JavafxVisitor {
             log.error(pos, MsgSym.MESSAGE_CANNOT_ASSIGN_VAL_TO_FINAL_VAR, v);
         } else if ((v.flags() & JavafxFlags.IS_DEF) != 0L) {
             log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_DEF, v);
+        } else if ((v.flags() & JavafxFlags.NON_WRITABLE) != 0L) {
+            log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_NON_WRITABLE, v);
         } else if ((v.flags() & Flags.PARAMETER) != 0L) {
             log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_PARAMETER, v);
         } else if ((v.flags() & JavafxFlags.PUBLIC_READABLE) != 0L) {
             if (!rs.isAccessibleForWrite(env, site, v)) {
-                log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_READABLE, v);
+                log.error(pos, MsgSym.MESSAGE_JAVAFX_REPORT_WRITE_ACCESS, v,
+                              JavafxCheck.protectionString(v.flags()),
+                              v.location());
             }
         }
     }

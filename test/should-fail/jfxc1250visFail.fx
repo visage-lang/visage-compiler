@@ -3,7 +3,7 @@
  *
  * @compilefirst jfxc1250/a/jfxc1250subFailA.fx
  * @compilefirst jfxc1250subFail.fx
- * @test/fail
+ * @test/compile-error
  */
 import java.lang.System;
 import jfxc1250.a.jfxc1250subFailA;
@@ -243,6 +243,118 @@ function cANew() {
 	var x3 = jfxc1250subFailA.cScr {};
 }
 
+/// WRITE ------------------------
+
+function slVisWrite() {
+	jfxc1250visFail.slPub = 99;
+	jfxc1250visFail.slPkg = 99;
+	jfxc1250visFail.slScr = 99;
+	jfxc1250visFail.slNPub = 99;
+	jfxc1250visFail.slNPkg = 99;
+	jfxc1250visFail.slNScr = 99;
+	jfxc1250visFail.slRPkg = 99;
+	jfxc1250visFail.slRScr = 99;
+	jfxc1250visFail.slNRPkg = 99;
+	jfxc1250visFail.slNRScr = 99;
+}
+
+function memVisWrite() {
+	var vf = jfxc1250visFail {};
+	vf.memPub = 99;
+	vf.memPkg = 99;
+	vf.memPro = 99;
+	vf.memScr = 99;
+	vf.memNPub = 99;
+	vf.memNPkg = 99;
+	vf.memNPro = 99;
+	vf.memNScr = 99;
+	vf.memRPro = 99;
+	vf.memRPkg = 99;
+	vf.memRScr = 99;
+	vf.memNRPro = 99;
+	vf.memNRPkg = 99;
+	vf.memNRScr = 99;
+}
+
+function fooVisWrite() {
+	var fv = Foo {};
+	fv.fooPub = 99;
+	fv.fooPkg = 99;
+	fv.fooPro = 99;
+	fv.fooScr = 99;
+	fv.fooNPub = 99;
+	fv.fooNPkg = 99;
+	fv.fooNPro = 99;
+	fv.fooNScr = 99;
+	fv.fooRPro = 99;
+	fv.fooRPkg = 99;
+	fv.fooRScr = 99;
+	fv.fooNRPro = 99;
+	fv.fooNRPkg = 99;
+	fv.fooNRScr = 99;
+}
+
+function slSubWrite() {
+	jfxc1250subFail.slPub = 99;
+	jfxc1250subFail.slPkg = 99;
+	jfxc1250subFail.slScr = 99;
+	jfxc1250subFail.slNPub = 99;
+	jfxc1250subFail.slNPkg = 99;
+	jfxc1250subFail.slNScr = 99;
+	jfxc1250subFail.slRPkg = 99;
+	jfxc1250subFail.slRScr = 99;
+	jfxc1250subFail.slNRPkg = 99;
+	jfxc1250subFail.slNRScr = 99;
+}
+
+function memSubWrite() {
+	var sf = jfxc1250subFail {};
+	sf.memPub = 99;
+	sf.memPkg = 99;
+	sf.memPro = 99;
+	sf.memScr = 99;
+	sf.memNPub = 99;
+	sf.memNPkg = 99;
+	sf.memNPro = 99;
+	sf.memNScr = 99;
+	sf.memRPro = 99;
+	sf.memRPkg = 99;
+	sf.memRScr = 99;
+	sf.memNRPro = 99;
+	sf.memNRPkg = 99;
+	sf.memNRScr = 99;
+}
+
+function slAWrite() {
+	jfxc1250subFailA.slPub = 99;
+	jfxc1250subFailA.slPkg = 99;
+	jfxc1250subFailA.slScr = 99;
+	jfxc1250subFailA.slNPub = 99;
+	jfxc1250subFailA.slNPkg = 99;
+	jfxc1250subFailA.slNScr = 99;
+	jfxc1250subFailA.slRPkg = 99;
+	jfxc1250subFailA.slRScr = 99;
+	jfxc1250subFailA.slNRPkg = 99;
+	jfxc1250subFailA.slNRScr = 99;
+}
+
+function memAWrite() {
+	var sfa = jfxc1250subFailA {};
+	sfa.memPub = 99;
+	sfa.memPkg = 99;
+	sfa.memPro = 99;
+	sfa.memScr = 99;
+	sfa.memNPub = 99;
+	sfa.memNPkg = 99;
+	sfa.memNPro = 99;
+	sfa.memNScr = 99;
+	sfa.memRPro = 99;
+	sfa.memRPkg = 99;
+	sfa.memRScr = 99;
+	sfa.memNRPro = 99;
+	sfa.memNRPkg = 99;
+	sfa.memNRScr = 99;
+}
 
 function run( ) {
 	slVisRead();
@@ -263,4 +375,14 @@ function run( ) {
 	slACall();
 	memACall();
 	cANew();
+
+	slVisWrite();
+	memVisWrite();
+	fooVisWrite();
+
+	slSubWrite();
+	memSubWrite();
+
+	slAWrite();
+	memAWrite();
 }

@@ -1,7 +1,7 @@
-test/should-fail/jfxc1629naughty.fx:8: Cannot assign to readable variable twub
+test\should-fail\jfxc1629naughty.fx:8: twub has script only (default) write access in jfxc1629One
 var uno = jfxc1629One { twub: 222 };  // should fail
                         ^
-test/should-fail/jfxc1629naughty.fx:9: Cannot assign to readable variable twub
+test\should-fail\jfxc1629naughty.fx:9: twub has script only (default) write access in jfxc1629One
 uno.twub = 666; // should fail
    ^
 2 errors

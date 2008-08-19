@@ -191,7 +191,7 @@ public class JavafxTreeInfo {
             fsb.append("package ");
         }
         if ((flags & JavafxFlags.SCRIPT_PRIVATE) != 0) {
-            fsb.append("script-private ");
+            fsb.append("script only (default) ");
         }
         if ((flags & JavafxFlags.PUBLIC_READABLE) != 0) {
             fsb.append("public-readable ");
