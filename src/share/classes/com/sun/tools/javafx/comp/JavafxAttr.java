@@ -3656,10 +3656,7 @@ public class JavafxAttr implements JavafxVisitor {
         long origFlags = m.flags();
         long flags = origFlags;
         if ((flags & JavafxFlags.ExplicitAccessFlags) == 0) {
-            flags |= other.flags() & JavafxFlags.ExplicitAccessFlags;
-        }
-        if ((flags & JavafxFlags.PUBLIC_READABLE) == 0) {
-            flags |= other.flags() & JavafxFlags.PUBLIC_READABLE;
+            flags |= other.flags() & (JavafxFlags.ExplicitAccessFlags | JavafxFlags.AccessFlags);
         }
         if (flags != origFlags) {
             m.flags_field = flags;

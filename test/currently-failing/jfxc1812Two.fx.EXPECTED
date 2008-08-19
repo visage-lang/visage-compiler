@@ -1,0 +1,4 @@
+test\currently-failing\jfxc1812One.fx:7: doIt() has script-private access in jfxc1812Two
+        jfxc1812Two{}.doIt();
+                     ^
+1 error
