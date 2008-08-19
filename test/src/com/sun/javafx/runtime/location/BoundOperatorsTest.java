@@ -89,7 +89,6 @@ public class BoundOperatorsTest extends JavaFXTestCase {
 
         b.set(false);
         assertEquals(ifLoc.getAsSequence(), 4, 5, 6);
-        assertEquals(1, cl.count);
     }
 
 }
