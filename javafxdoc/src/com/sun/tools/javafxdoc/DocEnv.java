@@ -557,12 +557,12 @@ public class DocEnv {
     }
 
 
-    private Map<ClassSymbol, ClassDocImpl> classMap =
+    protected Map<ClassSymbol, ClassDocImpl> classMap =
             new HashMap<ClassSymbol, ClassDocImpl>();
     /**
      * Return the ClassDoc (or a subtype) of this class symbol.
      */
-    protected ClassDocImpl getClassDoc(ClassSymbol clazz) {
+    public ClassDocImpl getClassDoc(ClassSymbol clazz) {
         ClassDocImpl result = classMap.get(clazz);
         if (result != null) return result;
         result = new ClassDocImpl(this, clazz);
@@ -585,12 +585,12 @@ public class DocEnv {
         classMap.put(clazz, result);
     }
 
-    private Map<VarSymbol, FieldDocImpl> fieldMap =
+    protected Map<VarSymbol, FieldDocImpl> fieldMap =
             new HashMap<VarSymbol, FieldDocImpl>();
     /**
      * Return the FieldDoc of this var symbol.
      */
-    protected FieldDocImpl getFieldDoc(VarSymbol var) {
+    public FieldDocImpl getFieldDoc(VarSymbol var) {
         FieldDocImpl result = fieldMap.get(var);
         if (result != null) return result;
         result = new FieldDocImpl(this, var);
