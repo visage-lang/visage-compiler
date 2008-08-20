@@ -134,7 +134,7 @@ function run( ) {
      * to assign. 
      */
     c.y = 25;//should fail?
-    TU.checkI(c.y,25,"Class variable defined as readable cannot be assigned too.");
+    TU.checkI(c.y,25,"Class variable defined as public-readable cannot be assigned too.");
 
     TU.report();
 }

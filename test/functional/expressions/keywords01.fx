@@ -2,7 +2,7 @@ import java.lang.System;
 import java.lang.Exception;
 
 /*
- * abstract class, function, bind used with readable
+ * abstract class, function, bind used with public-readable
  * @test
  * @compilefirst ../TestUtils.fx
  * @run
@@ -26,12 +26,12 @@ public class foo2 extends foo {
  }
 
 /*
- * JFXC-36 Cannot assign to a readable attribute from within same class
- * readable keyword semanctics not implemented.
+ * JFXC-36 Cannot assign to a public-readable attribute from within same class
+ * public-readable keyword semanctics not implemented.
  */
 class ro {
-//readable is now enforced, commented out until it is handled some other way
-	/*readable*/ var ROA = 10;
+//public-readable is now enforced, commented out until it is handled some other way
+	/*public-readable*/ var ROA = 10;
 	function roa():Integer { return ROA; }
 }
 
