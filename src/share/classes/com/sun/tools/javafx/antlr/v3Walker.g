@@ -168,8 +168,8 @@ modifierFlag   returns [long flag, int pos]
 	
 	//TODO: deprecated -- remove these at some point
 	|  STATIC        				{ $flag = Flags.STATIC;      		$pos = pos($STATIC); }
-	|  PRIVATE         				{ $flag = Flags.PRIVATE;     		$pos = pos($PRIVATE); }
-	|  READABLE       				{ $flag = JavafxFlags.PUBLIC_READABLE;	$pos = pos($READABLE); }
+	|  PRIVATE         				{ $flag = Flags.PRIVATE;     		$pos = pos($PRIVATE);  log.warning(pos($PRIVATE), "javafx.not.supported.private"); }
+	|  READABLE       				{ $flag = JavafxFlags.PUBLIC_READABLE;	$pos = pos($READABLE);  log.error(pos($READABLE), "javafx.not.supported.readable"); }
 	;
 formalParameters  returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]
 	: ^(LPAREN (formalParameter			{ params.append($formalParameter.var); } )* )
@@ -217,7 +217,7 @@ paramNameOpt returns [JFXVar var]
 variableLabel    returns [long modifiers, int pos]
 	: VAR						{ $modifiers = 0L; $pos = pos($VAR); }
 	| DEF						{ $modifiers = JavafxFlags.IS_DEF; $pos = pos($DEF); }
-	| ATTRIBUTE					{ $modifiers = 0L; $pos = pos($ATTRIBUTE); }
+	| ATTRIBUTE					{ $modifiers = 0L; $pos = pos($ATTRIBUTE); log.warning(pos($ATTRIBUTE), "javafx.not.supported.attribute"); }
 	;
 statement returns [JFXExpression value]
 	: classDefinition 				{ $value = $classDefinition.value; }
