@@ -197,18 +197,29 @@ public class XHTMLProcessingUtils {
         Document packages_doc = builder.newDocument();
         Element package_list_elem = packages_doc.createElement("packageList");
         packages_doc.appendChild(package_list_elem);
-
+        
+        //merge all xml files into single document
+        Document unified = builder.newDocument();
+        Element javadocElement = unified.createElement("javadoc");
+        unified.appendChild(javadocElement);
         for (String xmlInputPath : xmlInputs) {
             File file = new File(xmlInputPath);
             p(INFO, MessageFormat.format(getString("reading.doc"), file.getAbsolutePath()));
             p(FINE, "exists: " + file.exists());
             Document doc = builder.parse(file);
-        XPath xpath = XPathFactory.newInstance().newXPath();
-
-        // print out packages list
-        NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET); 
-        p(INFO, MessageFormat.format(getString("creating.packages"), packages.getLength()));
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET); 
+            for(int i=0; i<packages.getLength(); i++) {
+                Node copy = unified.importNode(packages.item(i), true);
+                javadocElement.appendChild(copy);
+            }
+        }
         
+        // print out packages list
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        NodeList packages = (NodeList) xpath.evaluate("//package", unified, XPathConstants.NODESET); 
+        p(INFO, MessageFormat.format(getString("creating.packages"), packages.getLength()));
+
         //for each package, generate the package itself and append to package list doc
         for (int i = 0; i < packages.getLength(); i++) {
             Element pkg = ((Element) packages.item(i));
@@ -220,9 +231,9 @@ public class XHTMLProcessingUtils {
             Element first_line = packages_doc.createElement("first-line-comment");
             first_line.appendChild(packages_doc.createTextNode("first line comment"));
             package_elem.appendChild(first_line);
-                processPackage(name, pkg, xpath, docsdir, trans, package_elem);
+            processPackage(name, pkg, xpath, docsdir, trans, package_elem);
         }
-        }
+        //}
 
         //transform the package list doc
         package_list_elem.setAttribute("mode", "overview-frame");
