@@ -48,8 +48,6 @@ public class SequenceBindingTest extends JavaFXTestCase {
         if (! seq.equals(loc.getAsSequence())) {
           Class<Integer> cl1 = seq.getElementType();
           Class<Integer> cl2 = loc.getAsSequence().getElementType();
-          System.err.println("unb cl1:"+cl1+" cl2:"+cl2
-                             +" ass:"+cl2.isAssignableFrom(cl1));
         }
         assertEquals(seq, loc.getAsSequence());
     }

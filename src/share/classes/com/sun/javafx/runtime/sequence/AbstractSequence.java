@@ -106,10 +106,7 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
     @Override
     @SuppressWarnings("unchecked")
     public boolean equals(Object obj) {
-        if (!(obj instanceof Sequence))
-            return false;
-        Sequence other = (Sequence) obj;
-        return (other.getElementType().isAssignableFrom(getElementType())) && Sequences.isEqual(this, (Sequence<T>) other);
+        return obj instanceof Sequence && Sequences.isEqual(this, (Sequence<T>) obj);
     }
 
     @Override

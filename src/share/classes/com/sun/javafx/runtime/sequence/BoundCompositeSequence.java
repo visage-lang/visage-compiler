@@ -61,13 +61,8 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
     public BoundCompositeSequence(Class<T> clazz, SequenceLocation<? extends T>[] locations, int size) {
         super(clazz);
         this.infos = newInfoArray(size);
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++)
             infos[i] = new Info<T>(locations[i]);
-            Class eClass = locations[i].getAsSequence().getElementType();
-            if (!clazz.isAssignableFrom(eClass))
-                throw new ClassCastException("cannot cast " + eClass.getName()
-                        + " segment to " + clazz.getName() + " sequence");
-        }
 
         setInitialValue(computeValue());
         addTriggers();

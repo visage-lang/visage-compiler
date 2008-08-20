@@ -47,10 +47,6 @@ class CompositeSequence<T> extends AbstractSequence<T> implements Sequence<T> {
         int size = 0;
         int depth = 0;
         for (int i = 0, offset = 0; i < sequences.length; i++) {
-            Class eClass = sequences[i].getElementType();
-            if (!clazz.isAssignableFrom(eClass))
-                throw new ClassCastException("cannot cast "+eClass.getName()
-                                             +" segment to "+clazz.getName()+" sequence");
             startPositions[i] = offset;
             size += sequences[i].size();
             offset += sequences[i].size();

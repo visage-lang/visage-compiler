@@ -62,9 +62,6 @@ public class BoundSequences {
         Class<V> vClass = location.getAsSequence().getElementType();
         if (clazz == vClass)
             return (SequenceLocation<T>) location;
-        else if (!clazz.isAssignableFrom(vClass))
-            throw new ClassCastException("Cannot upcast Sequence<" + vClass.getName()
-                    + "> to Sequence<" + clazz.getName() + ">");
         else
             return new BoundUpcastSequence<T, V>(clazz, location);
     }

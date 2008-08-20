@@ -772,10 +772,12 @@ public class Locations {
         }
 
         public V set(T value) {
+            // @@@ Can we get rid of the dynamic cast?
             return location.set(clazz.cast(value));
         }
 
         public T setFromLiteral(T value) {
+            // @@@ Can we get rid of the dynamic cast?
             return location.setFromLiteral(clazz.cast(value));
         }
 
