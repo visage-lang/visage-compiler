@@ -1,6 +1,0 @@
-# This file tells the integrated SDK build
-# what version of jmc to use
-
-# Media (jmc.jar and jmc.dll)
-# http://getjfx.sfbay.sun.com/hudson/job/jfx-media/
-media=381
