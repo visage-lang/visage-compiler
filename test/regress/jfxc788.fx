@@ -8,9 +8,9 @@
 import java.lang.System;
 
 class Rectangle {
-    attribute mouseOver = false;
-    attribute onMouseReleased : function(e : String) : Void;
-    attribute fill : String;
+    var mouseOver = false;
+    var onMouseReleased : function(e : String) : Void;
+    var fill : String;
     bound function isMouseOver() : Boolean { mouseOver }
     bound function isMouseButtonDown(i : Integer) : Boolean { true }
 }

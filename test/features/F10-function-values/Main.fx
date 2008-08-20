@@ -16,9 +16,9 @@ var action1 : function(:String):String
 System.out.println(action1("action1 called"));
 
 class Cl1 {
-  attribute fvar : function(:String):String;
-  attribute xvar : String;
-  attribute concat = function (y : String) { "{xvar}-{y}" };
+  var fvar : function(:String):String;
+  var xvar : String;
+  var concat = function (y : String) { "{xvar}-{y}" };
 };
 var cl = new Cl1();
 cl.xvar = "cl.fvar called";

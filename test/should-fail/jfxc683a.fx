@@ -30,7 +30,7 @@ class Node {
 }
 
 class Group extends Node {
-    attribute content: Node;
+    var content: Node;
 }
 
 

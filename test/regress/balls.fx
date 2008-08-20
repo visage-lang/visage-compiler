@@ -7,8 +7,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.Timer;
 class balls {
-    attribute _is_running : Boolean;
-    attribute timer = new Timer(5, ActionListener { 
+    var _is_running : Boolean;
+    var timer = new Timer(5, ActionListener { 
         public function actionPerformed(evt : java.awt.event.ActionEvent): Void {
             if (_is_running) {
             }

@@ -17,13 +17,13 @@ public class AllTrees {
     }
     
 // MODIFIERS
-    public attribute attrS : String = "sssssss"
+    public var attrS : String = "sssssss"
 // ON_REPLACE
     on replace 
     oldV = newV {
         System.out.println("Changing from {oldV} to {newV}");
     }
-    protected attribute attrN : Integer;
+    protected var attrN : Integer;
 // FUNCTION_DEFINITION
 // FUNCTION_VALUE
 // TYPE_CLASS

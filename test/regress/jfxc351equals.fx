@@ -9,8 +9,8 @@ import java.lang.System;
 import java.lang.Object;
 
 class Bar {
-  attribute x : Integer;
-  attribute y : Integer;
+  var x : Integer;
+  var y : Integer;
   public function equals(obj : Object) : Boolean { 
 	if (obj instanceof Bar) {
 		var other : Bar = obj as Bar;
@@ -19,11 +19,11 @@ class Bar {
 		false
 	}
   }
-  attribute  seq = [1..6];
-  attribute  emptySeq : Integer[] = [];
-  attribute  str = "yo";
-  attribute  emptyStr = "";
-  attribute  nullStr : String  = null;
+  var  seq = [1..6];
+  var  emptySeq : Integer[] = [];
+  var  str = "yo";
+  var  emptyStr = "";
+  var  nullStr : String  = null;
 }
 
 var b1 = Bar {x: 44 y: 98 }

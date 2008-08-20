@@ -8,10 +8,10 @@
 import java.lang.System;
 
 class BugTest {
-    attribute status: Number;
-    attribute codes: Number[] = [0, 1, 2, 3];
-    attribute ubtest: Number = codes[status];
-    attribute btest: Number = bind codes[status];
+    var status: Number;
+    var codes: Number[] = [0, 1, 2, 3];
+    var ubtest: Number = codes[status];
+    var btest: Number = bind codes[status];
 }
 
 var bt = BugTest { status: 2.2 }

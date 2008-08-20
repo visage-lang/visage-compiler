@@ -6,7 +6,7 @@
  */
 
 class Foo {
-   attribute a : Integer;
+   var a : Integer;
 }
 
 Foo {

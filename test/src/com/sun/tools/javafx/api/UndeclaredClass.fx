@@ -30,7 +30,7 @@ import java.lang.System;
  * It should parse successfully, but fail attribution.
  */
 class B {
-   attribute a : A;
+   var a : A;
    function op() : Void { a.x = 4; }
 }
 

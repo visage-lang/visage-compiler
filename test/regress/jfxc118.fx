@@ -8,8 +8,8 @@
 import java.lang.System;
 
 abstract class X {
-    public attribute a: Number = 1;
-    public attribute b: Number = 2;
+    public var a: Number = 1;
+    public var b: Number = 2;
     public abstract function givemec() : Integer;
     public abstract function f(x : Number) : Number;
     public abstract function increment() : Void;

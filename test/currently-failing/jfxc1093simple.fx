@@ -5,7 +5,7 @@
  */
 
 class Foo {
-  attribute x : Integer
+  var x : Integer
 }
 
 var y = [77, 88];

@@ -7,13 +7,13 @@
 import java.lang.System;
 
 class Node {
-  attribute bounds : Integer;
+  var bounds : Integer;
 }
 
 class Foo {
-   attribute focusBounds: Integer = bind focusedNode.bounds;
-   attribute bidirectionalFocusBounds: Integer = bind focusedNode.bounds with inverse;
-   attribute focusedNode : Node;
+   var focusBounds: Integer = bind focusedNode.bounds;
+   var bidirectionalFocusBounds: Integer = bind focusedNode.bounds with inverse;
+   var focusedNode : Node;
 }
 
 var n1 = Node { bounds: 9 }

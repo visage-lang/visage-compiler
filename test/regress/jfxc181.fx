@@ -3,11 +3,11 @@
  */
 
 class Bar {
-    attribute a : Integer;
+    var a : Integer;
 }
 
 class Bar1 {
-    attribute aa : Number;
+    var aa : Number;
     function fun() : Void {
     }
 }

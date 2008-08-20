@@ -1,5 +1,5 @@
 /*
- * Regression test for JFXC-757 : NPE on non-constant override attribute default
+ * Regression test for JFXC-757 : NPE on non-constant override var default
  *
  * @test
  * @run
@@ -8,15 +8,15 @@
 import java.lang.System;
 
 class Guts {
-  attribute name : String
+  var name : String
 }
 
 class Base {
-  attribute gut : Guts = Guts {name: "John Doe"}
+  var gut : Guts = Guts {name: "John Doe"}
 }
 
 class Sub extends Base {
-  override attribute gut = Guts {name: "Jane Doe"}
+  override var gut = Guts {name: "Jane Doe"}
 }
 
 var x = new Sub;

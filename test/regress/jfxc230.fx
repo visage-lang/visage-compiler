@@ -6,7 +6,7 @@
  */
 import java.lang.System;
 class Alpha { 
-  attribute beep : Boolean; 
+  var beep : Boolean; 
   function myop(x : String) : String { var q : String; if (not beep) {return q = if (beep) "yo" else "po"} else "lo" } 
 } 
 
