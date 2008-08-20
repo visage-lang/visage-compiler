@@ -6,7 +6,7 @@ import java.text.DateFormat;
 
 class Timer
 {
-    attribute tick: Timeline = 
+    var tick: Timeline = 
         Timeline {
             keyFrames:
                 KeyFrame { 
@@ -18,7 +18,7 @@ class Timer
             repeatCount: java.lang.Double.POSITIVE_INFINITY
         };
 
-    attribute running: Boolean
+    var running: Boolean
         on replace {
             if (running) {
                 tick.start();
@@ -27,12 +27,12 @@ class Timer
             }
         };
     
-    attribute current: Calendar;
-    attribute formatter: DateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
+    var current: Calendar;
+    var formatter: DateFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
     
-    public attribute hours: Number = bind current.get(Calendar.HOUR_OF_DAY);
-    public attribute minutes: Number = bind current.get(Calendar.MINUTE);
-    public attribute seconds: Number = bind current.get(Calendar.SECOND);
+    public var hours: Number = bind current.get(Calendar.HOUR_OF_DAY);
+    public var minutes: Number = bind current.get(Calendar.MINUTE);
+    public var seconds: Number = bind current.get(Calendar.SECOND);
     
     public function toString(): String {
         return formatter.format(current.getTime());

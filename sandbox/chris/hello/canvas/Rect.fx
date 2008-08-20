@@ -32,47 +32,47 @@ import com.sun.scenario.scenegraph.SGShape;
  */
 public class Rect extends Shape {
 
-    attribute sgrect: SGShape;
+    var sgrect: SGShape;
 
-    attribute awtrect: java.awt.geom.RoundRectangle2D.Double;
+    var awtrect: java.awt.geom.RoundRectangle2D.Double;
 
     /** The x coordinate of this rectangle's location. */
-    public attribute x: Number on replace {
+    public var x: Number on replace {
 	if (sgrect != null) {
 	    awtrect.setRoundRect(x, y, width, height, arcWidth, arcHeight);
 	    sgrect.setShape(awtrect);
 	}
     };
     /** The y coordinate of this rectangle's location. */
-    public attribute y: Number on replace {
+    public var y: Number on replace {
 	if (sgrect != null) {
 	    awtrect.setRoundRect(x, y, width, height, arcWidth, arcHeight);
 	    sgrect.setShape(awtrect);
 	}
     };
     /** The width of this rectangle. */
-    public attribute width: Number on replace {
+    public var width: Number on replace {
 	if (sgrect != null) {
 	    awtrect.setRoundRect(x, y, width, height, arcWidth, arcHeight);
 	    sgrect.setShape(awtrect);
 	}
     };
     /** The height of this rectangle. */
-    public attribute height: Number on replace {
+    public var height: Number on replace {
 	if (sgrect != null) {
 	    awtrect.setRoundRect(x, y, width, height, arcWidth, arcHeight);
 	    sgrect.setShape(awtrect);
 	}
     };
     /** The width of the corner arc of this rectangle. */
-    public attribute arcWidth: Number on replace {
+    public var arcWidth: Number on replace {
 	if (sgrect != null) {
 	    awtrect.setRoundRect(x, y, width, height, arcWidth, arcHeight);
 	    sgrect.setShape(awtrect);
 	}
     };
     /** The height of the corner arc of this rectangle. */
-    public attribute arcHeight: Number on replace {
+    public var arcHeight: Number on replace {
 	if (sgrect != null) {
 	    awtrect.setRoundRect(x, y, width, height, arcWidth, arcHeight);
 	    sgrect.setShape(awtrect);

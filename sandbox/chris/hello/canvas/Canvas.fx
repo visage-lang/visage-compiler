@@ -27,10 +27,10 @@ import hello.Widget;
 public class Canvas extends Widget, CanvasElement, Container {
 
     // private:
-    attribute jsgpanel: JSGPanel;
-    attribute root: SGGroup;
+    var jsgpanel: JSGPanel;
+    var root: SGGroup;
     // public:
-    public attribute content: Node[] on insert[i](c) {
+    public var content: Node[] on insert[i](c) {
 	c.parentCanvasElement = (this as java.lang.Object) as CanvasElement;
 	if (root != null) {
 	    root.add(c.getNode());
@@ -48,7 +48,7 @@ public class Canvas extends Widget, CanvasElement, Container {
 	}
     }
 
-    //attribute border = { var n = 5; EmptyBorder {top: n, left: n, right: n, bottom: n}};
+    //var border = { var n = 5; EmptyBorder {top: n, left: n, right: n, bottom: n}};
 
     public function getF3(obj:SGNode): Node {
 	if (obj == null) { return null; }

@@ -9,13 +9,13 @@ import javafx.ui.EmptyBorder;
 
 public class DevTheme extends DefaultTheme
 {
-    override attribute description = "Development Casual theme";
+    override var description = "Development Casual theme";
 
-    override attribute chatPanelFont = Font.Font("sansserif", ["PLAIN"], 12);
-    override attribute chatFrameBackground = Color.color(0.72, 0.72, 0.72, 1.0);
-    override attribute chatPanelBackgroundDark = Color.color(0.08, 0.08, 0.08, 1.0);
-    override attribute chatPanelBackgroundLight = Color.color(0.20, 0.20, 0.20, 1.0);
-    override attribute chatPanelBackground = LinearGradient
+    override var chatPanelFont = Font.Font("sansserif", ["PLAIN"], 12);
+    override var chatFrameBackground = Color.color(0.72, 0.72, 0.72, 1.0);
+    override var chatPanelBackgroundDark = Color.color(0.08, 0.08, 0.08, 1.0);
+    override var chatPanelBackgroundLight = Color.color(0.20, 0.20, 0.20, 1.0);
+    override var chatPanelBackground = LinearGradient
     {
         startX: 0
         startY: 0

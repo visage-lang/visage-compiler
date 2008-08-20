@@ -6,7 +6,7 @@ import java.lang.System;
 public abstract class Widget extends AbstractWidget {
 
     /* flag to prevent intermediate bounds update */
-    attribute inComponentListener = false;
+    var inComponentListener = false;
 
     function updateBounds() {
         if (not inComponentListener and component != null) {
@@ -14,20 +14,20 @@ public abstract class Widget extends AbstractWidget {
         }
     }
     
-    public attribute height: Number = 0 on replace { updateBounds(); }
-    public attribute width: Number = 0 on replace { updateBounds(); }
-    public attribute x: Number = 0 on replace { updateBounds(); }
-    public attribute y: Number = 0 on replace { updateBounds(); }
+    public var height: Number = 0 on replace { updateBounds(); }
+    public var width: Number = 0 on replace { updateBounds(); }
+    public var x: Number = 0 on replace { updateBounds(); }
+    public var y: Number = 0 on replace { updateBounds(); }
 
-    public attribute opaque: Boolean = false on replace { 
+    public var opaque: Boolean = false on replace { 
         if (component != null) {
             component.setOpaque(opaque);
         } 
     }
 
-    public attribute showing: Boolean = false;
+    public var showing: Boolean = false;
  
-    protected attribute component: JComponent = null;
+    protected var component: JComponent = null;
     protected abstract function createComponent(): JComponent;
     
     function setBounds() {
@@ -48,8 +48,8 @@ public abstract class Widget extends AbstractWidget {
         inComponentListener = false;
     }
     
-    public attribute onMouseDrag: function(event:MouseEvent):Void;
-    public attribute onMouseMove: function(event:MouseEvent):Void;
+    public var onMouseDrag: function(event:MouseEvent):Void;
+    public var onMouseMove: function(event:MouseEvent):Void;
     
     public function getComponent(): JComponent {
         if (component == null) { 

@@ -21,7 +21,7 @@ import java.lang.System;
 
 public class ComponentDropTarget extends DropTargetListener {
 
-    public attribute component: DevComponent on replace{
+    public var component: DevComponent on replace{
         var dropTarget = new DropTarget(component.getJComponent(), DnDConstants.ACTION_COPY_OR_MOVE, this, true, null);
     };
 

@@ -4,9 +4,9 @@ import java.lang.System;
 
 public class Panel extends Widget {
 
-    attribute jpanel: JPanel;
+    var jpanel: JPanel;
 
-    public attribute content: Widget[]
+    public var content: Widget[]
 	on replace[i](w) {
 	    if (jpanel != null) {
 		System.out.println("REPLACE: {i} {w}");

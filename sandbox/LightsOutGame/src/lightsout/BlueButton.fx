@@ -11,18 +11,18 @@ import java.lang.System;
 import javafx.ui.animation.*;
 
 public class BlueButton extends Group {
-    attribute text : String;
-    attribute strokeAlpha : Number = 0.3;
-    attribute font : Font=  Font.Font("Arial",["BOLD"],12);
-    attribute width : Number = 80;
-    attribute height : Number = 30;
-    attribute enterAnime:Animation;
-    attribute exitAnime:Animation;
-    attribute fadingOut:Boolean;
+    var text : String;
+    var strokeAlpha : Number = 0.3;
+    var font : Font=  Font.Font("Arial",["BOLD"],12);
+    var width : Number = 80;
+    var height : Number = 30;
+    var enterAnime:Animation;
+    var exitAnime:Animation;
+    var fadingOut:Boolean;
     
     // TODO JFXC-469
     /*********
-    public attribute content: Node[] = [
+    public var content: Node[] = [
         Rect { fill: Color.rgb(0x30,0x30,0x30), x:2, y:2, width: bind width, height: bind height, arcWidth:6, arcHeight: 6 },
         Rect {
             fill: ColorConstants.blueGrad, 

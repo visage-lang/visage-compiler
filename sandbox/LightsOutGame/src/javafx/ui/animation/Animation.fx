@@ -18,59 +18,59 @@ import com.sun.javafx.runtime.animation.*;
  * @author jclarke
  */
 public class Animation {
-    static attribute UNSET:Integer = java.lang.Integer.MIN_VALUE;
+    static var UNSET:Integer = java.lang.Integer.MIN_VALUE;
     
-    public attribute timingTarget:FXTimingTarget on replace {
+    public var timingTarget:FXTimingTarget on replace {
         changed = true;
     };
-    public attribute interpolator:FXInterpolator on replace {
+    public var interpolator:FXInterpolator on replace {
         changed = true;
     };
-    public attribute delay:Integer = 0 on replace {
+    public var delay:Integer = 0 on replace {
         changed = true;
     };
-    public attribute sequence:Object[] on replace {
+    public var sequence:Object[] on replace {
         changed = true;
     };
-    public attribute property:String on replace {
+    public var property:String on replace {
         changed = true;
     };
-    public attribute instance:Object on replace {
+    public var instance:Object on replace {
         changed = true;
     };
-    public attribute stopProperty:String on replace {
+    public var stopProperty:String on replace {
         changed = true;
     };
-    public attribute stopInstance:Object on replace {
+    public var stopInstance:Object on replace {
         changed = true;
     }; 
-    public attribute stopValue:Object = null on replace {
+    public var stopValue:Object = null on replace {
         changed = true;
     };
-    public attribute interpolation:String on replace {
+    public var interpolation:String on replace {
         changed = true;
     };
-    public attribute repeatCount:Number = 1.0 on replace {
+    public var repeatCount:Number = 1.0 on replace {
         changed = true;
     };
-    public attribute duration:Integer = Clip.INDEFINITE on replace {
+    public var duration:Integer = Clip.INDEFINITE on replace {
         changed = true;
     };
-    public attribute resolution:Integer = UNSET on replace {
+    public var resolution:Integer = UNSET on replace {
         changed = true;
     };
-    public attribute direction:Clip.Direction on replace {
+    public var direction:Clip.Direction on replace {
         changed = true;
     };
-    public attribute repeatBehavior:Clip.RepeatBehavior on replace {
+    public var repeatBehavior:Clip.RepeatBehavior on replace {
         changed = true;
     };
-    public attribute endBehavior:Clip.EndBehavior on replace {
+    public var endBehavior:Clip.EndBehavior on replace {
         changed = true;
     };
     
-    attribute animation:FXAnimation;
-    attribute changed:Boolean;
+    var animation:FXAnimation;
+    var changed:Boolean;
     
     public function start():Void {
         if((not isRunning() and changed) or animation == null) {

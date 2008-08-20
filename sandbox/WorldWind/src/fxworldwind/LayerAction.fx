@@ -32,9 +32,9 @@ import gov.nasa.worldwind.layers.Layer;
  */
 
 public class LayerAction extends AbstractAction {
-        public attribute wwd:WorldWindow;
-        public attribute selected:Boolean;
-        public attribute layer:Layer on replace {
+        public var wwd:WorldWindow;
+        public var selected:Boolean;
+        public var layer:Layer on replace {
             this.layer.setEnabled(this.selected);
         };
         init {

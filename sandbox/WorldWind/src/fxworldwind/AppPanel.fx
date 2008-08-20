@@ -31,17 +31,17 @@ import javafx.ui.*;
  */
 
 public class AppPanel extends BorderPanel {
-    attribute self = this;
-    public attribute includeStatusBar:Boolean;
-    attribute wwd:WWD =  WWD{preferredSize: self.preferredSize}
-    attribute statusBar:StatusBar = StatusBar{
+    var self = this;
+    public var includeStatusBar:Boolean;
+    var wwd:WWD =  WWD{preferredSize: self.preferredSize}
+    var statusBar:StatusBar = StatusBar{
             visible: bind includeStatusBar
             eventSource: wwd.wwd
     };
         
-    override attribute center = ScrollPane { view: bind wwd }
-    override attribute pageEnd = bind statusBar;
-    override attribute preferredSize on replace {
+    override var center = ScrollPane { view: bind wwd }
+    override var pageEnd = bind statusBar;
+    override var preferredSize on replace {
         wwd.preferredSize = preferredSize;
     }
     
