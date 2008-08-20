@@ -73,12 +73,12 @@ public class ErrorHandler {
 
     public static void bindException(RuntimeException e) {
         if (debug)
-            e.printStackTrace(System.err);
+            e.printStackTrace();
     }
 
     public static void triggerException(RuntimeException e) {
         if (debug)
-            e.printStackTrace(System.err);
+            e.printStackTrace();
     }
 
     /** Called when attempting to coerce a null numeric or boolean value to a primitive */
