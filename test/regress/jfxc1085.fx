@@ -7,14 +7,14 @@
 import java.lang.System;
 
 class Foo {
-  attribute y : Integer
+  var y : Integer
 }
 
 class Bar {
-  attribute rat = 8;
+  var rat = 8;
   function yum() : Foo {
     Foo {
-     override attribute y = rat;
+     override var y = rat;
     }
   }
 }

@@ -9,7 +9,7 @@ import javafx.animation.*;
 import java.lang.System;
 
 class CLS {
-    public attribute a: Number = 0;
+    public var a: Number = 0;
 }
 
 var cls = CLS {};

@@ -9,16 +9,16 @@ import java.lang.System;
 var enableBindingOverhaul;
 
 class Foo {
-    attribute k = 5;
-    attribute z = 3.1415926535;
-    attribute s = 'blah';
-    attribute b = false;
-    attribute q = [5..10];
-    attribute bs = bind "k={k} z={%6.3f z} z^2={%e z*z} s={s} {if(b) 'clowns' else '{s}{%6d k}'}";
-    attribute bk = bind k;
-    attribute bz = bind z;
-    attribute bb = bind b;
-    attribute bq = bind q;
+    var k = 5;
+    var z = 3.1415926535;
+    var s = 'blah';
+    var b = false;
+    var q = [5..10];
+    var bs = bind "k={k} z={%6.3f z} z^2={%e z*z} s={s} {if(b) 'clowns' else '{s}{%6d k}'}";
+    var bk = bind k;
+    var bz = bind z;
+    var bb = bind b;
+    var bq = bind q;
 
     function go() {
 	System.out.println(bk);

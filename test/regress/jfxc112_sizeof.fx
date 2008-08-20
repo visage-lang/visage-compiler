@@ -12,7 +12,7 @@ System.out.println("singleton={sizeof "blueberries"}");
 System.out.println("singleton={sizeof [0..1000]}");
 
 class Foo {
-   attribute seq = [8..1];
+   var seq = [8..1];
 }
 
 var q = new Foo;

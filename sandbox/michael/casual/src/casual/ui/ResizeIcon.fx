@@ -14,10 +14,10 @@ import javafx.ui.canvas.CanvasMouseEvent;
 
 public class ResizeIcon extends CompositeNode
 {
-    public attribute frame: CasualFrame;
+    public var frame: CasualFrame;
     
-    public attribute width: Integer;
-    public attribute height: Integer;
+    public var width: Integer;
+    public var height: Integer;
 
     function composeNode() {
         Group {

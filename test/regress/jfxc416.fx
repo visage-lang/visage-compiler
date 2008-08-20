@@ -8,7 +8,7 @@
 import java.lang.System;
 
 class Base {
-    attribute foo = 1 on replace old {
+    var foo = 1 on replace old {
         System.out.println("Base.foo={foo}, old={old}");
     }
     

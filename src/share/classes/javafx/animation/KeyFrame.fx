@@ -87,7 +87,7 @@ public class KeyFrame extends Comparable {
 
     /**
      * The timeline in which this key frame to be executed. It 
-     * provides feedback to timeline if there is any attribute
+     * provides feedback to timeline if there is any var
      * change that timeline needs to be invalidated.
      */
     package var owner: Timeline;

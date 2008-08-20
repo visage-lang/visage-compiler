@@ -11,8 +11,8 @@
  */
 import java.lang.System;
 class Foo {
-  attribute title = 'If Only To Have A Name';
-  attribute count = 120;
+  var title = 'If Only To Have A Name';
+  var count = 120;
 }
 var ooh = Foo {};
 var classFoo = ooh.getClass();

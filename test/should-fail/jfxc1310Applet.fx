@@ -4,7 +4,7 @@
  */
 
 public class jfxc1310Applet {
-    attribute app:jfxc1310Application;
+    var app:jfxc1310Application;
 
     function do() {
         app.content;

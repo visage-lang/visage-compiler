@@ -7,7 +7,7 @@
 
 import java.lang.System;
 class A {
-attribute f: function(:String,:String):String = null;
+var f: function(:String,:String):String = null;
 }
 
 var a = A {

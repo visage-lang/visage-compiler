@@ -21,11 +21,11 @@ import java.awt.Dimension;
 
 public class TextInput extends CompositeNode
 {
-    public attribute text: String;
-    public attribute height: Integer;
-    public attribute size: Dimension;
+    public var text: String;
+    public var height: Integer;
+    public var size: Dimension;
     
-    attribute input: TextArea = TextArea {
+    var input: TextArea = TextArea {
         size: bind size 
         lineWrap: true
         height: bind height

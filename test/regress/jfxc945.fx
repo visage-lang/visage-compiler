@@ -5,7 +5,7 @@
 import javafx.fxunit.*;
 
 class Foo {
-  attribute a : Integer;
+  var a : Integer;
 }
 
 class jfxc945 extends FXTestCase {

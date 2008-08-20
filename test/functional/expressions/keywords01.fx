@@ -26,7 +26,7 @@ public class foo2 extends foo {
  }
 
 /*
- * JFXC-36 Cannot assign to a public-readable attribute from within same class
+ * JFXC-36 Cannot assign to a public-readable var from within same class
  * public-readable keyword semanctics not implemented.
  */
 class ro {

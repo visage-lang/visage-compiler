@@ -35,9 +35,9 @@ import java.lang.System;
 
 class FocusedTextField extends TextField
 {
-    public attribute frame: AccountWindow;
+    public var frame: AccountWindow;
 
-    override attribute focusable = bind frame.focusReady
+    override var focusable = bind frame.focusReady
         on replace {
             if (focusable == true)
             {
@@ -52,9 +52,9 @@ class FocusedTextField extends TextField
 
 class FocusedPasswordField extends PasswordField
 {
-    public attribute frame: AccountWindow;
+    public var frame: AccountWindow;
 
-    override attribute focusable = bind frame.focusReady
+    override var focusable = bind frame.focusReady
         on replace {
             if (focusable == true)
             {
@@ -69,7 +69,7 @@ class FocusedPasswordField extends PasswordField
 
 public class AccountWindow extends CasualFrame
 {
-    public attribute buddy: Buddy = Buddy { type: Buddy.BuddyType.USER }
+    public var buddy: Buddy = Buddy { type: Buddy.BuddyType.USER }
         on replace {
             if (buddy.type == Buddy.BuddyType.USER)
             {        
@@ -154,16 +154,16 @@ public class AccountWindow extends CasualFrame
         }
     };
     
-    attribute preferences: Preferences = Preferences.userRoot().node("Casual");
+    var preferences: Preferences = Preferences.userRoot().node("Casual");
 
-    attribute addressRow: Row = Row {alignment: Alignment.BASELINE}
-    attribute passwordRow: Row = Row {alignment: Alignment.BASELINE}
-    attribute firstNameRow: Row = Row {alignment: Alignment.BASELINE}
-    attribute lastNameRow: Row = Row {alignment: Alignment.BASELINE}
-    attribute labelsColumn: Column = Column {alignment: Alignment.TRAILING}
-    attribute fieldsColumn: Column = Column {alignment: Alignment.LEADING, resizable: true}
+    var addressRow: Row = Row {alignment: Alignment.BASELINE}
+    var passwordRow: Row = Row {alignment: Alignment.BASELINE}
+    var firstNameRow: Row = Row {alignment: Alignment.BASELINE}
+    var lastNameRow: Row = Row {alignment: Alignment.BASELINE}
+    var labelsColumn: Column = Column {alignment: Alignment.TRAILING}
+    var fieldsColumn: Column = Column {alignment: Alignment.LEADING, resizable: true}
 
-    attribute userField: FocusedTextField = FocusedTextField {
+    var userField: FocusedTextField = FocusedTextField {
         frame: this
 //        horizontal: {pref: 270}
         row: firstNameRow
@@ -179,7 +179,7 @@ public class AccountWindow extends CasualFrame
         }
     };
 
-    attribute passwordField: FocusedPasswordField = FocusedPasswordField {
+    var passwordField: FocusedPasswordField = FocusedPasswordField {
         frame: this
         visible: bind (buddy.type == Buddy.BuddyType.USER)
         focusTraversalKeysEnabled: bind (buddy.type == Buddy.BuddyType.USER)
@@ -202,29 +202,29 @@ public class AccountWindow extends CasualFrame
         }
     };
     
-    override attribute dialog = Dialog {
+    override var dialog = Dialog {
         frame: this
         active: false
     };
 
     
-    attribute focusReady: Boolean;
-    attribute focusRectX: Integer;
-    attribute focusRectY: Integer;
-    attribute focusRectWidth: Integer;
-    attribute focusRectHeight: Integer;
+    var focusReady: Boolean;
+    var focusRectX: Integer;
+    var focusRectY: Integer;
+    var focusRectWidth: Integer;
+    var focusRectHeight: Integer;
 
-    override attribute background = bind ThemeManager.getInstance().windowBackground;
-    override attribute undecorated = true;
-    override attribute width = 440;
-    override attribute height = 250;
-    override attribute centerOnScreen = true;
+    override var background = bind ThemeManager.getInstance().windowBackground;
+    override var undecorated = true;
+    override var width = 440;
+    override var height = 250;
+    override var centerOnScreen = true;
 
     postinit {
         requestFocus();
     };
     
-    attribute buttonCancel: Button = 
+    var buttonCancel: Button = 
         Button {
             text: "CANCEL"
             width: 60
@@ -236,7 +236,7 @@ public class AccountWindow extends CasualFrame
             }
         };
     
-    attribute buttonAddLogin: Button = 
+    var buttonAddLogin: Button = 
         Button {
             text: bind if (buddy.type == Buddy.BuddyType.USER) then "LOGIN" else "ADD"
             width: 50
@@ -248,7 +248,7 @@ public class AccountWindow extends CasualFrame
             }
         };
 
-    override attribute content = Canvas
+    override var content = Canvas
     {
         content: Group
         {
@@ -519,7 +519,7 @@ public class AccountWindow extends CasualFrame
         }
     };
 
-    override attribute focusReady = false;
-    override attribute visible = true;
+    override var focusReady = false;
+    override var visible = true;
 }
 

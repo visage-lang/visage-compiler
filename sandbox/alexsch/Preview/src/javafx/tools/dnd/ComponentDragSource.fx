@@ -22,7 +22,7 @@ import java.lang.System;
 
 public class ComponentDragSource extends DragGestureListener, DragSourceListener {
 
-    public attribute component: ToolComponent on replace{
+    public var component: ToolComponent on replace{
         var dragSource = DragSource.getDefaultDragSource();
         dragSource.createDefaultDragGestureRecognizer(component.getJComponent(), DnDConstants.ACTION_COPY_OR_MOVE, this);
     };

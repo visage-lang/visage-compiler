@@ -3,7 +3,7 @@
  * @run
  */
 
-class Foo { attribute red : Integer; }
+class Foo { var red : Integer; }
 
 function foo(r:Integer): Foo { 
     Foo { red: r } 

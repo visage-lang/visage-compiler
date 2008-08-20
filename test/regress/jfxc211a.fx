@@ -1,4 +1,4 @@
-/* JFXC-211:  Cannot locate attribute declared in a super class with Mulitple Inheritence
+/* JFXC-211:  Cannot locate var declared in a super class with Mulitple Inheritence
  *
  * @test
  * @run
@@ -6,21 +6,21 @@
 
 import java.lang.System;
 class Base1 { 
-    attribute a : Integer; 
-    attribute b : Integer; 
+    var a : Integer; 
+    var b : Integer; 
 
     function foo() { a + b; } 
     function moo() { a } 
 } 
 
 class Base2 { 
-    attribute c : Integer; 
+    var c : Integer; 
 
     function bark() { c } 
 } 
 
 class Subclass extends Base1, Base2 { 
-    attribute d : Integer; 
+    var d : Integer; 
 
     override function foo() { a + b + c + d } 
     function wahoo() { d } 

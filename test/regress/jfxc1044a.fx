@@ -11,7 +11,7 @@ import javafx.lang.Duration;
 import java.lang.System;
 
 class CLS {
-    public attribute a:Number = -1;
+    public var a:Number = -1;
 }
 
 var cls = CLS {};

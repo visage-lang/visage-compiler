@@ -7,5 +7,5 @@
  */
 
 class jfxc165 {
-	attribute barS : jfxc165a = jfxc165b.BAR;
+	var barS : jfxc165a = jfxc165b.BAR;
 }

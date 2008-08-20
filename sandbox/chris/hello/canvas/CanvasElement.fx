@@ -28,7 +28,7 @@ package hello.canvas;
 
 public abstract class CanvasElement {
     /** The containing element of this element. */
-    public attribute parentCanvasElement: CanvasElement;
+    public var parentCanvasElement: CanvasElement;
 
     /** Convenience method to obtain the containing canvas. */
     /** Returns the canvas element that contains this element */

@@ -2,74 +2,74 @@ package hello;
 
 public abstract class AbstractButton extends Widget {
 
-    attribute buttonComponent: javax.swing.AbstractButton;
+    var buttonComponent: javax.swing.AbstractButton;
 
-    attribute swingIcon: javax.swing.Icon = bind if (icon == null) null else icon.getIcon()
+    var swingIcon: javax.swing.Icon = bind if (icon == null) null else icon.getIcon()
 	on replace {
 	    if (buttonComponent != null) {
 		buttonComponent.setIcon(swingIcon);
 	    }
 	}
 
-    attribute swingDisabledIcon: javax.swing.Icon = bind if (disabledIcon == null) null else disabledIcon.getIcon()
+    var swingDisabledIcon: javax.swing.Icon = bind if (disabledIcon == null) null else disabledIcon.getIcon()
 	on replace {
 	    if (buttonComponent != null) {
 		buttonComponent.setDisabledIcon(swingDisabledIcon);
 	    }
 	}
 
-    attribute swingSelectedIcon: javax.swing.Icon = bind if (selectedIcon == null) null else selectedIcon.getIcon()
+    var swingSelectedIcon: javax.swing.Icon = bind if (selectedIcon == null) null else selectedIcon.getIcon()
 	on replace {
 	    if (buttonComponent != null) {
 		buttonComponent.setSelectedIcon(swingSelectedIcon);
 	    }
 	}
 
-    attribute swingDisabledSelectedIcon: javax.swing.Icon = bind if (disabledSelectedIcon == null) null else disabledSelectedIcon.getIcon()
+    var swingDisabledSelectedIcon: javax.swing.Icon = bind if (disabledSelectedIcon == null) null else disabledSelectedIcon.getIcon()
 	on replace {
 	    if (buttonComponent != null) {
 		buttonComponent.setDisabledSelectedIcon(swingDisabledSelectedIcon);
 	    }
 	}
 
-    attribute swingRolloverIcon: javax.swing.Icon = bind if (rolloverIcon == null) null else rolloverIcon.getIcon()
+    var swingRolloverIcon: javax.swing.Icon = bind if (rolloverIcon == null) null else rolloverIcon.getIcon()
 	on replace {
 	    if (buttonComponent != null) {
 		buttonComponent.setRolloverIcon(swingRolloverIcon);
 	    }
 	}
 
-    attribute swingRolloverSelectedIcon: javax.swing.Icon = bind if (rolloverSelectedIcon == null) null else rolloverSelectedIcon.getIcon()
+    var swingRolloverSelectedIcon: javax.swing.Icon = bind if (rolloverSelectedIcon == null) null else rolloverSelectedIcon.getIcon()
 	on replace {
 	    if (buttonComponent != null) {
 		buttonComponent.setRolloverSelectedIcon(swingRolloverSelectedIcon);
 	    }
 	}
 
-    attribute swingPressedIcon: javax.swing.Icon = bind if (pressedIcon == null) null else pressedIcon.getIcon()
+    var swingPressedIcon: javax.swing.Icon = bind if (pressedIcon == null) null else pressedIcon.getIcon()
 	on replace {
 	    if (buttonComponent != null) {
 		buttonComponent.setPressedIcon(swingPressedIcon);
 	    }
 	}
 
-    public attribute action: function() = null;
-    public attribute selected: Boolean;
-    public attribute text: String = "" on replace {
+    public var action: function() = null;
+    public var selected: Boolean;
+    public var text: String = "" on replace {
         if (buttonComponent != null) buttonComponent.setText(text);
     }
 
-    public attribute icon: Icon = null;
-    public attribute disabledIcon: Icon = null;
-    public attribute selectedIcon: Icon = null;
-    public attribute disabledSelectedIcon: Icon = null;
-    public attribute rolloverIcon: Icon = null;
-    public attribute rolloverSelectedIcon: Icon = null;
-    public attribute pressedIcon: Icon = null;
-    public attribute iconTextGap: Integer;
+    public var icon: Icon = null;
+    public var disabledIcon: Icon = null;
+    public var selectedIcon: Icon = null;
+    public var disabledSelectedIcon: Icon = null;
+    public var rolloverIcon: Icon = null;
+    public var rolloverSelectedIcon: Icon = null;
+    public var pressedIcon: Icon = null;
+    public var iconTextGap: Integer;
 
     /*
-    public attribute buttonGroup: ButtonGroup on replace(old {
+    public var buttonGroup: ButtonGroup on replace(old {
 	if (old != null) {
 	    delete this from old.content;
 	}

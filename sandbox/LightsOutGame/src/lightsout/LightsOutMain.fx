@@ -11,9 +11,9 @@ import java.lang.System;
 
 public class LightsOutMain extends Group {
     // main game screen
-    attribute locan:LightsOutCanvas = LightsOutCanvas { opacity:0 };
+    var locan:LightsOutCanvas = LightsOutCanvas { opacity:0 };
     //splash screen
-    attribute screen:LightsOutSplash = LightsOutSplash { main:this, opacity: 1.0 };
+    var screen:LightsOutSplash = LightsOutSplash { main:this, opacity: 1.0 };
 }
 
 // do init stuff

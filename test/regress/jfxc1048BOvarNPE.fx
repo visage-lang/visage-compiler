@@ -8,12 +8,12 @@
 import java.lang.System;
 
 class Outer {
-  attribute content : Inner[]
+  var content : Inner[]
 }
 
 class Inner {
-  attribute name : String;
-  attribute thing : Inner
+  var name : String;
+  var thing : Inner
 }
 
 var it = bind

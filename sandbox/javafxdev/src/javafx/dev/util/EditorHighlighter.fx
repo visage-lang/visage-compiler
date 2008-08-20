@@ -12,9 +12,9 @@ import javax.swing.text.JTextComponent;
 public class EditorHighlighter{
     
     
-    public attribute component: JTextComponent;
+    public var component: JTextComponent;
 
-    public static attribute KEY_WORDS:String[] =  ["import"];
+    public static var KEY_WORDS:String[] =  ["import"];
 
     
     public function clear(){

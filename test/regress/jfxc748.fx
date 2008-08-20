@@ -15,7 +15,7 @@ var bar = java.lang.Runnable {
 
 var bug : Bug = null;
 class Bug {
-    attribute foo:String = "doesn't work.";
+    var foo:String = "doesn't work.";
 }
 bar.run();
 System.out.println("bug now {bug.foo}");

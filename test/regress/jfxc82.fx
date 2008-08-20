@@ -7,19 +7,19 @@
 var KEYBOARD = Keyboard{} 
 
 public class KeyStroke { 
-    attribute description: String; 
-    attribute id: Number 
+    var description: String; 
+    var id: Number 
         on replace { 
             KEYBOARD.keyMap.put(id, this); 
             description = javax.swing.KeyStroke.getKeyStroke(id.intValue(), 0).toString(); 
          
     }; 
-    attribute keyChar: String; 
+    var keyChar: String; 
 } 
 
 public class Keyboard { 
      
-    protected attribute keyMap:java.util.Map = new java.util.HashMap(); 
+    protected var keyMap:java.util.Map = new java.util.HashMap(); 
 
     public function getKeyStroke(id:Number): KeyStroke { 
         return keyMap.get(id) as KeyStroke; 

@@ -17,18 +17,18 @@ import com.sun.tools.javafx.preview.*;
 
 public class Preview extends Component{
     
-    attribute component:Component; 
-    attribute timer: Timer = Timer{};
+    var component:Component; 
+    var timer: Timer = Timer{};
     
-    public attribute code: String ="Preview" on replace{
+    public var code: String ="Preview" on replace{
         timer.addTask( function():Void{ preview(code) } );
     };
     
     
-    public attribute errors: ErrorMessage[] ;
-    public attribute selectedError: ErrorMessage;
+    public var errors: ErrorMessage[] ;
+    public var selectedError: ErrorMessage;
 
-    attribute diagnosticIndex: Integer = -1 on replace{
+    var diagnosticIndex: Integer = -1 on replace{
         //System.out.println("[preview] diagnosticIndex: {diagnosticIndex}");
         if(-1 < diagnosticIndex ){
             selectedError = errors[diagnosticIndex];
@@ -65,18 +65,18 @@ function getIntegerFromLong(x: Number):Integer{
 }
 
 public class FXUnit {
-    attribute title: String;
-    attribute width: Integer = 175;
-    attribute height: Integer = 100;
+    var title: String;
+    var width: Integer = 175;
+    var height: Integer = 100;
     
-    attribute menus: Menu[];
-    attribute content: Component;
+    var menus: Menu[];
+    var content: Component;
     
-    attribute background: Color;
+    var background: Color;
 
-    attribute isWindow = false;
+    var isWindow = false;
 
-    attribute ErrorMessages: ErrorMessage[];
+    var ErrorMessages: ErrorMessage[];
 
 
     public static function createUnit(obj: Object){

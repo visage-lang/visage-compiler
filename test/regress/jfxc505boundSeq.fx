@@ -8,18 +8,18 @@
 import java.lang.System;
 
 class jfxc505boundSeq {
-  attribute a = 3;
-  attribute b = 8;
-  attribute s = 2;
-  attribute qi = bind [a..b step s];
-  attribute qe = bind [a..<b step s];
+  var a = 3;
+  var b = 8;
+  var s = 2;
+  var qi = bind [a..b step s];
+  var qe = bind [a..<b step s];
 
-  attribute x = 0;
-  attribute y = 2;
-  attribute qisi = bind qi[x..y];
-  attribute qise = bind qi[x..<y];
-  attribute qisio = bind qi[x..];
-  attribute qiseo = bind qi[x..<];
+  var x = 0;
+  var y = 2;
+  var qisi = bind qi[x..y];
+  var qise = bind qi[x..<y];
+  var qisio = bind qi[x..];
+  var qiseo = bind qi[x..<];
 
   function check(t : Integer[], expect : Integer[]) : String {
     if (t == expect)

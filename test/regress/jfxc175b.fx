@@ -7,12 +7,12 @@
  * @run
  */
 class BarTest {
-	attribute a : Integer = 0;
+	var a : Integer = 0;
 	function action() : Void {};
 }
 
 class Bar {
-    public attribute barTest : BarTest[]
+    public var barTest : BarTest[]
 	on replace oldValue[a..b] = newElements {
 	    for (newValue in newElements) {
                 var k = newValue.a;

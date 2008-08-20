@@ -3,7 +3,7 @@
  * @run
  */
 public class ConfirmDialog {
-    public attribute visible: Boolean = false on replace {
+    public var visible: Boolean = false on replace {
         if (visible) {
             //TODO DO LATER - this is a work around until a more permanent solution is provided
             javax.swing.SwingUtilities.invokeLater(java.lang.Runnable {
@@ -20,8 +20,8 @@ public class ConfirmDialog {
              );
         } 
     }
-    public attribute onYes: function():Void;
-    public attribute onNo: function():Void;
-    public attribute onCancel: function():Void;
+    public var onYes: function():Void;
+    public var onNo: function():Void;
+    public var onCancel: function():Void;
 }
 

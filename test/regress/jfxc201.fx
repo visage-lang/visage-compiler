@@ -9,7 +9,7 @@ class Component {
 } 
 
 class Container extends Component { 
-    attribute content : Component[]; 
+    var content : Component[]; 
 } 
 
 class Label extends Component { 

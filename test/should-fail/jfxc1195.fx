@@ -8,7 +8,7 @@ class A{
             return x;
     }
     */
-    attribute doIt=function ():String[]{
+    var doIt=function ():String[]{
             ["Fx","Rocks"];
     }
 }

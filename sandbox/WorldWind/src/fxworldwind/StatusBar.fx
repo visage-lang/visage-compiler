@@ -39,9 +39,9 @@ import gov.nasa.worldwind.WorldWindow;
  */
 
 public class StatusBar extends GridPanel, PositionListener, RenderingListener {
-    override attribute rows = 1;
-    override attribute columns = 5;
-    public attribute eventSource:WorldWindow on replace(old) {
+    override var rows = 1;
+    override var columns = 5;
+    public var eventSource:WorldWindow on replace(old) {
         if (old != null)
         {
             old.removePositionListener(this);
@@ -54,21 +54,21 @@ public class StatusBar extends GridPanel, PositionListener, RenderingListener {
             this.eventSource.addRenderingListener(this);
         }        
     };
-    public attribute showNetworkStatus:Boolean = true;
+    public var showNetworkStatus:Boolean = true;
     
-    attribute latDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
-    attribute lonDisplay: SimpleLabel = SimpleLabel{
+    var latDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
+    var lonDisplay: SimpleLabel = SimpleLabel{
             horizontalAlignment: HorizontalAlignment.CENTER
             text: "Off globe"
         };
-    attribute altDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
-    attribute eleDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
-    attribute heartBeat: SimpleLabel = SimpleLabel{
+    var altDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
+    var eleDisplay: SimpleLabel = SimpleLabel{horizontalAlignment: HorizontalAlignment.CENTER};
+    var heartBeat: SimpleLabel = SimpleLabel{
             horizontalAlignment: HorizontalAlignment.CENTER
             foreground: Color.rgba(255, 0, 0, 0)
         };
     
-    override attribute cells = bind [
+    override var cells = bind [
         altDisplay,
         latDisplay,
         lonDisplay,

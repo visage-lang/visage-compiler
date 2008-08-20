@@ -8,8 +8,8 @@
 import java.lang.System;
 
 class Foo {
-    attribute aa = 0;
-    attribute bb = 0;
+    var aa = 0;
+    var bb = 0;
     function doit() {
        var x = aa = 55;
        System.out.println(x);

@@ -33,17 +33,17 @@ import com.sun.scenario.scenegraph.SGShape;
  * (B&eacute;zier) curves.
  */
 class Path extends Shape {
-    attribute UNSET: Integer = java.lang.Integer.MIN_VALUE;
-    attribute locked: Boolean on replace  {
+    var UNSET: Integer = java.lang.Integer.MIN_VALUE;
+    var locked: Boolean on replace  {
         if (not locked) {
             buildPath();
         }
     };
     //TODO 
-    public attribute lastMoveToX: Number = UNSET;
-    public attribute lastMoveToY: Number = UNSET;
-    public attribute xCenter: Number = UNSET;
-    public attribute yCenter: Number = UNSET;
+    public var lastMoveToX: Number = UNSET;
+    public var lastMoveToY: Number = UNSET;
+    public var xCenter: Number = UNSET;
+    public var yCenter: Number = UNSET;
     protected function buildPath() {
         if (sgshape != null and not locked) {
             var gp = new GeneralPath(fillRule.id.intValue(), sizeof d);
@@ -58,7 +58,7 @@ class Path extends Shape {
      * Path Data<br></br>
      * A list of commands and/or shapes which define this path.
      */
-    public attribute d: AbstractPathElement[]
+    public var d: AbstractPathElement[]
         on insert [ndx] (p) {
             p.path = this;
             this.buildPath();
@@ -81,7 +81,7 @@ class Path extends Shape {
         return sgshape;
     }
 
-    attribute fillRule = FillRule.NON_ZERO;
+    var fillRule = FillRule.NON_ZERO;
 }
 
 

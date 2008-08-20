@@ -9,10 +9,10 @@ import javafx.animation.*;
 
 public class Timer {
     
-    public attribute TIMEOUT = 600;
-    public attribute tasks: TimerTask[];
+    public var TIMEOUT = 600;
+    public var tasks: TimerTask[];
     
-    attribute timeline: Timeline = Timeline {
+    var timeline: Timeline = Timeline {
             keyFrames:  KeyFrame { time: 0.6s,  action: function() { run() }} 
             repeatCount: java.lang.Double.POSITIVE_INFINITY
         };

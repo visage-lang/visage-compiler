@@ -8,12 +8,12 @@ package javafx.tools;
 
 
 public class ErrorMessage {
-    public attribute line:Integer;
-    public attribute position:Integer;
-    public attribute startPosition:Integer;
-    public attribute endPosition:Integer;
+    public var line:Integer;
+    public var position:Integer;
+    public var startPosition:Integer;
+    public var endPosition:Integer;
  
-    public attribute message: String;
+    public var message: String;
     
     public function toString (): String { "line: {line} {message}"  } 
 }

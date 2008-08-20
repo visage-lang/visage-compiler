@@ -13,7 +13,7 @@ import javafx.ui.canvas.*;
  */
 
 public class Row extends Group {
-    attribute lights: Light[];
-    attribute model: LightsOutModel;
-    public attribute content: Node[] = bind lights;
+    var lights: Light[];
+    var model: LightsOutModel;
+    public var content: Node[] = bind lights;
 }

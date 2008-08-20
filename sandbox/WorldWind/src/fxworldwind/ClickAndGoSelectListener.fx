@@ -41,9 +41,9 @@ import gov.nasa.worldwind.globes.Globe;
 
 public class ClickAndGoSelectListener extends SelectListener  {
     
-    public attribute wwd:WorldWindow;
-    public attribute pickedObjClass:Class;    // Which picked object class do we handle
-    public attribute elevationOffset:Number;  // Above the target position    
+    public var wwd:WorldWindow;
+    public var pickedObjClass:Class;    // Which picked object class do we handle
+    public var elevationOffset:Number;  // Above the target position    
     
     public function selected(event: SelectEvent):Void {
         if (event.getEventAction().equals(SelectEvent.LEFT_CLICK))

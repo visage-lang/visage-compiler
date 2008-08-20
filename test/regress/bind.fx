@@ -1,5 +1,5 @@
 /*
- * Test bind both in module variables and class attribute.
+ * Test bind both in module variables and class var.
  * Regression test against them smashing each other.
  * @test
  * @run
@@ -8,8 +8,8 @@
 import java.lang.System;
 
 class Bar {
-	attribute alpha : Integer = 3;
-	attribute beta : Integer = bind alpha * 10;
+	var alpha : Integer = 3;
+	var beta : Integer = bind alpha * 10;
 	function foo(x : Integer, y : Integer) : Integer { x - y } 
 }
 

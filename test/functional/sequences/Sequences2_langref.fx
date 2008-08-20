@@ -12,9 +12,9 @@ import java.lang.System;
  */
 
 class Album {
-     attribute title: String;
-     attribute artist: String;
-     attribute tracks: String[];
+     var title: String;
+     var artist: String;
+     var tracks: String[];
 }
 
 var albums =

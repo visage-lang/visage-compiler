@@ -1,5 +1,5 @@
 /*
- * Regression test to attribute initialized to sequence NPE reported by Jim Clarke
+ * Regression test to var initialized to sequence NPE reported by Jim Clarke
  * @test
  * @run
  */
@@ -7,7 +7,7 @@
 import java.lang.System;
 
 class F {
-   public public-readable attribute months = [
+   public public-readable var months = [
        "Jan", "Feb", "Mar",
        "Apr", "May", "Jun",
        "Jul", "Aug", "Sep",

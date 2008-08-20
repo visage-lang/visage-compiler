@@ -7,12 +7,12 @@ import java.awt.*;
 import java.lang.System; 
 
 public abstract class Node { 
-    public attribute opacity: Number = 1; 
+    public var opacity: Number = 1; 
 } 
 
 public class AbstractVisualNode extends Node { 
-    public attribute fill: Paint = null; 
-    public attribute stroke: Paint = null; 
+    public var fill: Paint = null; 
+    public var stroke: Paint = null; 
 } 
 
 public class VisualNode extends Node { 
@@ -23,10 +23,10 @@ public class Shape extends AbstractVisualNode, VisualNode  {
 } 
 
 public class Rect extends Shape { 
-    public attribute x: Number; 
-    public attribute y: Number; 
-    public attribute width: Number; 
-    public attribute height: Number; 
+    public var x: Number; 
+    public var y: Number; 
+    public var width: Number; 
+    public var height: Number; 
 } 
 
 var rect = MyRect { 
@@ -37,11 +37,11 @@ var t = Text {
 
 
 public class Text extends Shape { 
-    //attribute fill:Paint = Color.black; 
+    //var fill:Paint = Color.black; 
     init { fill = Color.black }
 } 
 
 public class MyRect extends Rect { 
-    //attribute fill:Paint = new Color(0, 0, 255); 
+    //var fill:Paint = new Color(0, 0, 255); 
     init { fill = new Color(0, 0, 255) }
 } 

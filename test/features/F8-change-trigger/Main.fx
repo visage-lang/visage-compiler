@@ -9,11 +9,11 @@
 import java.lang.System;
 
 class Foo {
-    attribute x : Integer
+    var x : Integer
         on replace = newV { System.out.println("x: =>{newV}={x}"); };
-    attribute y : Integer
+    var y : Integer
         on replace { System.out.println("y: {y}"); };
-    attribute z : String = "Ralph"
+    var z : String = "Ralph"
         on replace { System.out.println("z: {z}"); };
 }
 
@@ -24,11 +24,11 @@ f.x = 4;
 n = 10;
 
 class Foo2 {
-    attribute x : Integer
+    var x : Integer
         on replace oldValue { System.out.println("x: {oldValue} => {x}"); };
-    attribute y : Integer
+    var y : Integer
         on replace oldValue { System.out.println("y: {oldValue} => {y}"); };
-    attribute z : String = "Bert"
+    var z : String = "Bert"
         on replace oldValue = newValue { System.out.println("z: {oldValue} => {newValue}={z}"); };
 }
 

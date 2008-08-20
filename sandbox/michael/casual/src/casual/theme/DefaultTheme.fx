@@ -9,29 +9,29 @@ import javafx.ui.Font;
 import javafx.ui.EmptyBorder;
 
 public class DefaultTheme extends Theme {
-    override attribute description = "Default Casual theme (by ant)";
+    override var description = "Default Casual theme (by ant)";
 
-    override attribute defaultFont = Font.Font("sansserif", ["PLAIN"], 10);
-    override attribute defaultForeground = Color.BLACK;
-    override attribute defaultBackground = Color.WHITE;
+    override var defaultFont = Font.Font("sansserif", ["PLAIN"], 10);
+    override var defaultForeground = Color.BLACK;
+    override var defaultBackground = Color.WHITE;
 
-    override attribute uiForeground = Color.color(0.12, 0.12, 0.12, 1.0);
-    override attribute uiBackground = Color.color(0.72, 0.72, 0.72, 1.0);
-    override attribute uiBorderColor = Color.color(0.12, 0.12, 0.12, 1.0);
-    override attribute uiStrokeWidth = 2;
+    override var uiForeground = Color.color(0.12, 0.12, 0.12, 1.0);
+    override var uiBackground = Color.color(0.72, 0.72, 0.72, 1.0);
+    override var uiBorderColor = Color.color(0.12, 0.12, 0.12, 1.0);
+    override var uiStrokeWidth = 2;
 
-    override attribute windowFont = Font.Font("sansserif", ["PLAIN"], 10);
-    override attribute windowInactive = Color.color(0.0, 0.0, 0.0, 0.05);
-    //attribute windowInactive = new Color(1, 0.5, 0.5, 0.05);
-    override attribute windowBackground = Color.color(0.72, 0.72, 0.72, 1.0);
-    override attribute windowBorder = EmptyBorder
+    override var windowFont = Font.Font("sansserif", ["PLAIN"], 10);
+    override var windowInactive = Color.color(0.0, 0.0, 0.0, 0.05);
+    //var windowInactive = new Color(1, 0.5, 0.5, 0.05);
+    override var windowBackground = Color.color(0.72, 0.72, 0.72, 1.0);
+    override var windowBorder = EmptyBorder
     {
         top: 2
         left: 2
         bottom: 2
         right: 2
     };
-    override attribute windowInputAreaBorder = EmptyBorder
+    override var windowInputAreaBorder = EmptyBorder
     {
         top: 4
         left: 6
@@ -39,12 +39,12 @@ public class DefaultTheme extends Theme {
         right: 6
     };
 
-    override attribute titleBarFont = Font.Font("sansserif", ["BOLD"], 10);
-    override attribute titleBarForeground = Color.WHITE;
-    override attribute titleBarBackground = Color.color(0.08, 0.08, 0.08, 1.0);
-    override attribute titleBarCloseIconColor = Color.color(0.50, 0.20, 0.20, 1.0);
-    override attribute titleBarMinimizeIconColor = Color.color(0.72, 0.72, 0.72, 1.0);
-    override attribute titleBorder = EmptyBorder
+    override var titleBarFont = Font.Font("sansserif", ["BOLD"], 10);
+    override var titleBarForeground = Color.WHITE;
+    override var titleBarBackground = Color.color(0.08, 0.08, 0.08, 1.0);
+    override var titleBarCloseIconColor = Color.color(0.50, 0.20, 0.20, 1.0);
+    override var titleBarMinimizeIconColor = Color.color(0.72, 0.72, 0.72, 1.0);
+    override var titleBorder = EmptyBorder
     {
         top: 8
         left: 6
@@ -52,12 +52,12 @@ public class DefaultTheme extends Theme {
         right: 6
     };
 
-    override attribute chatPanelFont = Font.Font("sansserif", ["PLAIN"], 12);
-    override attribute chatFrameBackground = Color.color(0.72, 0.72, 0.72, 1.0);
-    override attribute chatPanelBackgroundDark = Color.color(0.08, 0.08, 0.08, 1.0);
-    override attribute chatPanelBackgroundLight = Color.color(0.20, 0.20, 0.20, 1.0);
+    override var chatPanelFont = Font.Font("sansserif", ["PLAIN"], 12);
+    override var chatFrameBackground = Color.color(0.72, 0.72, 0.72, 1.0);
+    override var chatPanelBackgroundDark = Color.color(0.08, 0.08, 0.08, 1.0);
+    override var chatPanelBackgroundLight = Color.color(0.20, 0.20, 0.20, 1.0);
     
-    override attribute chatPanelBackground = LinearGradient
+    override var chatPanelBackground = LinearGradient
     {
         startX: 0
         startY: 0
@@ -113,23 +113,23 @@ public class DefaultTheme extends Theme {
         } as Color
     }
 
-    override attribute messageFont = Font.Font("sansserif", ["PLAIN"], 12);
-    override attribute commentFont = Font.Font("sansserif", ["PLAIN"], 10);
-    override attribute messageInBackground = Color.color(0.90, 0.90, 0.90, 0.5);
-    override attribute messageInForeground = Color.BLACK;
-    override attribute messageOutBackground = Color.color(0.30, 0.30, 0.30, 0.5);
-    override attribute messageOutForeground = Color.WHITE;
-    override attribute commentForeground = Color.BLACK;
-    override attribute commentBackground = Color.color(0.70, 0.70, 0.70, 0.50);
-    override attribute messageBorderColor = Color.color(0.15, 0.15, 0.15, 1.0);
-    override attribute messageBorder = EmptyBorder
+    override var messageFont = Font.Font("sansserif", ["PLAIN"], 12);
+    override var commentFont = Font.Font("sansserif", ["PLAIN"], 10);
+    override var messageInBackground = Color.color(0.90, 0.90, 0.90, 0.5);
+    override var messageInForeground = Color.BLACK;
+    override var messageOutBackground = Color.color(0.30, 0.30, 0.30, 0.5);
+    override var messageOutForeground = Color.WHITE;
+    override var commentForeground = Color.BLACK;
+    override var commentBackground = Color.color(0.70, 0.70, 0.70, 0.50);
+    override var messageBorderColor = Color.color(0.15, 0.15, 0.15, 1.0);
+    override var messageBorder = EmptyBorder
     {
         top: 6
         left: 8
         bottom: 6
         right: 8
     };
-    override attribute commentBorder = EmptyBorder
+    override var commentBorder = EmptyBorder
     {
         top: 3
         left: 8
@@ -137,17 +137,17 @@ public class DefaultTheme extends Theme {
         right: 8
     };
 
-    override attribute messageInputForeground = Color.WHITE;
-    override attribute messageInputBackground = Color.color(0.50, 0.50, 0.50, 1.0);
-    override attribute messageInputBorderColor = Color.color(0.25, 0.25, 0.25, 1.0);
-    override attribute messageInputBorder = EmptyBorder
+    override var messageInputForeground = Color.WHITE;
+    override var messageInputBackground = Color.color(0.50, 0.50, 0.50, 1.0);
+    override var messageInputBorderColor = Color.color(0.25, 0.25, 0.25, 1.0);
+    override var messageInputBorder = EmptyBorder
     {
         top: 2
         left: 0
         bottom: 1
         right: 1
     };
-    override attribute messageInputAreaBorder = EmptyBorder
+    override var messageInputAreaBorder = EmptyBorder
     {
         top: 6
         left: 8
@@ -155,12 +155,12 @@ public class DefaultTheme extends Theme {
         right: 8
     };
 
-    override attribute fieldForeground = Color.color(0.0, 0.0, 0.0, 1.0);
-    override attribute fieldBackground = Color.color(0.72, 0.72, 0.72, 1.0);
-    override attribute fieldFocusColor = Color.color(0.90, 0.90, 0.90, 1.0);
+    override var fieldForeground = Color.color(0.0, 0.0, 0.0, 1.0);
+    override var fieldBackground = Color.color(0.72, 0.72, 0.72, 1.0);
+    override var fieldFocusColor = Color.color(0.90, 0.90, 0.90, 1.0);
 
-    override attribute errorForeground = Color.color(1.0, 1.0, 1.0, 1.0);
-    override attribute errorBackgroundInside = LinearGradient
+    override var errorForeground = Color.color(1.0, 1.0, 1.0, 1.0);
+    override var errorBackgroundInside = LinearGradient
     {
         startX: 0
         startY: 0
@@ -193,11 +193,11 @@ public class DefaultTheme extends Theme {
             }
         ]
     } as AbstractColor;
-    override attribute errorBackgroundOutside = Color.color(0.0, 0.0, 0.0, 0.75);
-    override attribute errorBorderColor = chatFrameBackground;
+    override var errorBackgroundOutside = Color.color(0.0, 0.0, 0.0, 0.75);
+    override var errorBorderColor = chatFrameBackground;
 
-    override attribute warningForeground = Color.color(1.0, 1.0, 1.0, 1.0);
-    override attribute warningBackgroundInside = LinearGradient
+    override var warningForeground = Color.color(1.0, 1.0, 1.0, 1.0);
+    override var warningBackgroundInside = LinearGradient
     {
         startX: 0
         startY: 0
@@ -230,11 +230,11 @@ public class DefaultTheme extends Theme {
             }
         ]
     } as AbstractColor;
-    override attribute warningBackgroundOutside = errorBackgroundOutside;
-    override attribute warningBorderColor = errorBorderColor;
+    override var warningBackgroundOutside = errorBackgroundOutside;
+    override var warningBorderColor = errorBorderColor;
 
-    override attribute infoForeground = Color.color(1.0, 1.0, 1.0, 1.0);
-    override attribute infoBackgroundInside = LinearGradient
+    override var infoForeground = Color.color(1.0, 1.0, 1.0, 1.0);
+    override var infoBackgroundInside = LinearGradient
     {
         startX: 0
         startY: 0
@@ -267,7 +267,7 @@ public class DefaultTheme extends Theme {
             }
         ]
     } as AbstractColor;
-    override attribute infoBackgroundOutside = errorBackgroundOutside;
-    override attribute infoBorderColor = errorBorderColor;
+    override var infoBackgroundOutside = errorBackgroundOutside;
+    override var infoBorderColor = errorBorderColor;
 };
 

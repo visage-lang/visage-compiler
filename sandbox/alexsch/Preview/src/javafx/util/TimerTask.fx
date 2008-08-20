@@ -1,9 +1,9 @@
 package javafx.util;
 
 public class TimerTask {
-    attribute name: String;
-    attribute time: Number;
-    attribute action: function();
+    var name: String;
+    var time: Number;
+    var action: function();
     
     public function toString () {  name } 
 }  

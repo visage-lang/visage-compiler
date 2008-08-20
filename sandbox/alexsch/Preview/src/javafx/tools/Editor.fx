@@ -13,17 +13,17 @@ import java.lang.System;
 
 public class Editor extends ToolComponent{
     
-    attribute editorPane: JTextArea;
-    attribute updateComponentFlag: Boolean = false;
+    var editorPane: JTextArea;
+    var updateComponentFlag: Boolean = false;
     
-    public attribute line: Integer;
+    public var line: Integer;
     
-    public attribute caretPosition: Integer on replace{
+    public var caretPosition: Integer on replace{
         //System.out.println("[editor] set caret position: {caretPosition}");
         editorPane.setCaretPosition(caretPosition);
         editorPane.requestFocus();
     }
-    override attribute drop = function(value: java.lang.Object) {
+    override var drop = function(value: java.lang.Object) {
         //System.out.println("[editor] Drop: {value}");
         if(value instanceof String){
             editorPane.<<insert>>(value as String,editorPane.getCaretPosition());
@@ -33,7 +33,7 @@ public class Editor extends ToolComponent{
     }
     
     
-    public attribute text: String on replace{
+    public var text: String on replace{
         if(not updateComponentFlag){
             editorPane.setText(text);
         }
@@ -41,13 +41,13 @@ public class Editor extends ToolComponent{
         highlighter.highlightKeyWords();
     };
 
-    public attribute editable: Boolean;
+    public var editable: Boolean;
 
-    //public attribute onKeyUp: function(keyEvent :KeyEvent);
+    //public var onKeyUp: function(keyEvent :KeyEvent);
 
-    attribute highlighter: EditorHighlighter;// = EditorHighlighter{ component: bind editorPane };
+    var highlighter: EditorHighlighter;// = EditorHighlighter{ component: bind editorPane };
     
-    public attribute ErrorMessages: ErrorMessage[] on replace{
+    public var ErrorMessages: ErrorMessage[] on replace{
           highlighter.highlightErrors(ErrorMessages);
     }
 

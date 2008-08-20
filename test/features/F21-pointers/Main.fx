@@ -51,7 +51,7 @@ sp.set([1, 2, 3, 4]);
 System.out.println(s); // [1, 2, 3, 4]
 
 class Foo {
-  attribute x = 2;
+  var x = 2;
 }
 
 var f1 = Foo { x: 3 };

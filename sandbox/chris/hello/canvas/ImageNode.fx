@@ -5,13 +5,13 @@ import com.sun.scenario.scenegraph.SGImage;
 import com.sun.scenario.scenegraph.SGNode;
 
 public class ImageNode extends Node {
-    attribute awtImage: java.awt.Image;
-    attribute sgimage: SGImage;
+    var awtImage: java.awt.Image;
+    var sgimage: SGImage;
     protected function createNode(): SGNode {
 	sgimage = new SGImage();
         sgimage.setImage(awtImage);
 	return sgimage;
     }
 
-    public attribute image: Image;
+    public var image: Image;
 }

@@ -15,7 +15,7 @@ import java.io.*;
 import java.lang.System;
 
 public class Delete extends ShellTask{
-    public attribute file: String;
+    public var file: String;
     
     public function execute () {  
         System.out.println("[delete] file: {file}");

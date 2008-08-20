@@ -8,15 +8,15 @@
 import java.lang.System;
 
 class Frame {
-  attribute content : Stuff[];
+  var content : Stuff[];
   public function toString() : String {
      "Frame"
   }
 }
 
 class Stuff {
-  attribute name : String;
-  attribute parent : Frame;
+  var name : String;
+  var parent : Frame;
   public function toString() : String {
      "({name}:{parent})"
   }

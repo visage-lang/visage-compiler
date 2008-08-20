@@ -38,14 +38,14 @@ import gov.nasa.worldwind.event.RenderingEvent;
  */
 
 public class StatisticsPanel extends BorderPanel {
-    override attribute preferredSize = new Dimension(200, 400);
-    public attribute wwd:WWD on replace {
+    override var preferredSize = new Dimension(200, 400);
+    public var wwd:WWD on replace {
         wwd.wwd.setPerFrameStatisticsKeys(PerformanceStatistic.ALL_STATISTICS_SET);
     }
-    attribute statsPanel:GridPanel;
-    attribute self = this;
+    var statsPanel:GridPanel;
+    var self = this;
 
-    override attribute center = GridPanel {
+    override var center = GridPanel {
         rows:1
         vgap:10
         border: CompoundBorder {

@@ -4,11 +4,11 @@
  */
  
 class Foo {
-    attribute bar1 on replace {
+    var bar1 on replace {
         java.lang.System.out.println("bar1 replace={bar1}");
     }
 
-    attribute bar2:String on replace {
+    var bar2:String on replace {
         java.lang.System.out.println("bar2 replace={bar2}");
     }
 }

@@ -1,7 +1,7 @@
 import javafx.ui.*;
 		
 class HelloWorldModel {
-    attribute saying: String;
+    var saying: String;
 }
 
 var model = HelloWorldModel {

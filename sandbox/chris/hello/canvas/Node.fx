@@ -61,16 +61,16 @@ public abstract class Node extends CanvasElement {
        return Math.max(Math.min(n, max), min);
     }
 
-    attribute transformFilter: SGTransform.Affine;
-    attribute alignmentFilter: SGAlignment;
-    attribute compositeFilter: SGComposite;
-    attribute clipFilter: SGClip;
-    attribute antialiasClip: Boolean = false;
-    attribute effectFilter: SGEffect;
-    attribute contentNode: SGNode;
+    var transformFilter: SGTransform.Affine;
+    var alignmentFilter: SGAlignment;
+    var compositeFilter: SGComposite;
+    var clipFilter: SGClip;
+    var antialiasClip: Boolean = false;
+    var effectFilter: SGEffect;
+    var contentNode: SGNode;
 
-    protected attribute bounds: Rectangle2D;
-    attribute focusListener: FocusListener;
+    protected var bounds: Rectangle2D;
+    var focusListener: FocusListener;
     
 
     function getScreenLocation(component:java.awt.Component): java.awt.Point{
@@ -133,7 +133,7 @@ public abstract class Node extends CanvasElement {
     
 
     //TODO: implement properly...
-    public attribute toolTipText: String on replace  {
+    public var toolTipText: String on replace  {
     /*
         if (alignmentFilter != null) {
             alignmentFilter.setToolTipText(value);
@@ -143,7 +143,7 @@ public abstract class Node extends CanvasElement {
 
 
     /** Determines whether this node responds to mouse events, or other picking functions. */
-    public attribute selectable: Boolean  = true on replace  {
+    public var selectable: Boolean  = true on replace  {
         // TODO: are these needed
         /*
         sg.setPickable(value);
@@ -158,7 +158,7 @@ public abstract class Node extends CanvasElement {
      * image will be created consisting of the result of applying the list of 
      * filters (in order) to the new content. The generated image will then 
      * be used to paint the node.
-    public attribute filter: Filter[]
+    public var filter: Filter[]
         on insert [ndx] (f) {
             if (effectFilter != null) {
                 //JXFC-XXX com.sun.javafx.runtime.sequence.Sequence<java.awt.image.BufferedImageOp>
@@ -181,14 +181,14 @@ public abstract class Node extends CanvasElement {
         };
      */
     /** A number between 0 and 1, 0 being transparent and 1 opaque. */
-    public attribute opacity: Number = 1.0 on replace {
+    public var opacity: Number = 1.0 on replace {
         if (compositeFilter != null) {
             compositeFilter.setOpacity(clamp(opacity, 0, 1).floatValue());
         }
     }
 
     /** Determines the horizontal alignment of this node relative to its origin. */
-    attribute halign: HorizontalAlignment on replace  {
+    var halign: HorizontalAlignment on replace  {
         if (halign == null) {
             //halign = HorizontalAlignment.LEADING;
         }
@@ -198,7 +198,7 @@ public abstract class Node extends CanvasElement {
     }
 
     /** Determines the vertical alignment of this node relative to its origin. */
-	public attribute valign: VerticalAlignment on replace {
+	public var valign: VerticalAlignment on replace {
         if (valign == null) {
             //valign = VerticalAlignment.TOP;
         }
@@ -212,24 +212,24 @@ public abstract class Node extends CanvasElement {
      * false, this node and anything it contains will not be painted and
      * will not receive events.
      */
-    public attribute visible: Boolean = true on replace {
+    public var visible: Boolean = true on replace {
 	    if (alignmentFilter != null) {
 		alignmentFilter.setVisible(visible);
 	    }
     };
 
-    /** Read-only attribute returning the current x coordinate of this node relative to its parent. */
-    public attribute currentX: Number;
-    /** Read-only attribute returning the current y coordinate of this node relative to its parent. */
-    public attribute currentY: Number;
-    /** Read-only attribute returning the current width of this node. */
-    public attribute currentWidth: Number;
-    /** Read-only attribute returning the current height of this node. */
-    public attribute currentHeight: Number;
+    /** Read-only var returning the current x coordinate of this node relative to its parent. */
+    public var currentX: Number;
+    /** Read-only var returning the current y coordinate of this node relative to its parent. */
+    public var currentY: Number;
+    /** Read-only var returning the current width of this node. */
+    public var currentWidth: Number;
+    /** Read-only var returning the current height of this node. */
+    public var currentHeight: Number;
 
-    public attribute hover: Boolean;
+    public var hover: Boolean;
 
-    public attribute id: String on replace {
+    public var id: String on replace {
 	if (contentNode != null) {
 	    contentNode.setID(id);   
 	}

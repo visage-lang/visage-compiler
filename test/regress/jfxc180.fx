@@ -6,13 +6,13 @@
 import java.lang.Object;
 
 class Bar {
-	attribute a : Integer;
-    	public attribute enabled: Boolean = true;
-	public attribute action: function():Void;
+	var a : Integer;
+    	public var enabled: Boolean = true;
+	public var action: function():Void;
 }
 
 class BarUser {
-	attribute b : Bar[] 
+	var b : Bar[] 
 	on replace oldValue[a..b] = newElements {
 	    for (newValue in newElements) {
                 var k = newValue.a;

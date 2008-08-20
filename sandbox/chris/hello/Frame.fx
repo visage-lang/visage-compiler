@@ -8,26 +8,26 @@ public class Frame extends UIElement {
 	return getFrame();
     }
 
-    attribute windowListener: java.awt.event.WindowListener;
-    attribute componentListener: java.awt.event.ComponentListener;
-    attribute frame: javax.swing.JFrame;
-    attribute inListener: Boolean;
+    var windowListener: java.awt.event.WindowListener;
+    var componentListener: java.awt.event.ComponentListener;
+    var frame: javax.swing.JFrame;
+    var inListener: Boolean;
 
-    public attribute owner: UIElement;
+    public var owner: UIElement;
 
-    public attribute opaque: Boolean;
-    public attribute opacity: Number;
-    public attribute disposeOnClose: Boolean = false;
-    public attribute hideOnClose: Boolean = false;
-    public attribute content: Widget;
+    public var opaque: Boolean;
+    public var opacity: Number;
+    public var disposeOnClose: Boolean = false;
+    public var hideOnClose: Boolean = false;
+    public var content: Widget;
     /**
      * This is the title of the frame.  It can be changed
      * at any time.  
      */
-    public attribute title: String;
+    public var title: String;
 
-    public attribute height: Number on replace { setSize(); }
-    public attribute width: Number on replace { setSize(); }
+    public var height: Number on replace { setSize(); }
+    public var width: Number on replace { setSize(); }
 
     function setSize() {
 	size = new java.awt.Dimension(width.intValue(), height.intValue());
@@ -36,10 +36,10 @@ public class Frame extends UIElement {
 	}
     }
 
-    attribute size: java.awt.Dimension = null;
+    var size: java.awt.Dimension = null;
 
-    public attribute x: Number = 0 on replace { setLocation(); }
-    public attribute y: Number = 0 on replace { setLocation(); }
+    public var x: Number = 0 on replace { setLocation(); }
+    public var y: Number = 0 on replace { setLocation(); }
 
     function setLocation() {
 	if (frame != null and not inListener) {
@@ -48,7 +48,7 @@ public class Frame extends UIElement {
 	}
     }
 
-    //attribute location: java.awt.Point = null;
+    //var location: java.awt.Point = null;
 
     public function toFront(): Frame {
 	getFrame().toFront();
@@ -64,16 +64,16 @@ public class Frame extends UIElement {
 	return this;
     }
 
-    public attribute onOpen: function();
-    public attribute onClose: function();
-    public attribute centerOnScreen: Boolean;
-    //public attribute background: Color;
+    public var onOpen: function();
+    public var onClose: function();
+    public var centerOnScreen: Boolean;
+    //public var background: Color;
     /**
      * Makes the frame visible or invisible. Frame's are initially invisible.
-     * You must explicitly assign <code>true</code> to this attribute to make the frame
+     * You must explicitly assign <code>true</code> to this var to make the frame
      * visible on the screen.
      */
-    public attribute visible: Boolean on replace {
+    public var visible: Boolean on replace {
 	if (not inListener) {
 	    if (visible) {
 		javax.swing.SwingUtilities.invokeLater(Runnable {
@@ -92,20 +92,20 @@ public class Frame extends UIElement {
      * <code>resizable</code> will be true if the frame is
      * resizable, otherwise it will be false.
      */
-    public attribute resizable: Boolean = true;
+    public var resizable: Boolean = true;
     /**
      * The icon image for this frame, or <code>null</code> 
      * if this frame doesn't have an icon image.
      */
-    public attribute iconImage: Image;
+    public var iconImage: Image;
     /**
      * Disables or enables decorations for this frame.
-     * This attribute can only be set while the frame is not displayable.
+     * This var can only be set while the frame is not displayable.
      */
-    public attribute undecorated: Boolean = false;
-    public attribute showing: Boolean = false;
-    public attribute iconified: Boolean = false;
-    public attribute active: Boolean;
+    public var undecorated: Boolean = false;
+    public var showing: Boolean = false;
+    public var iconified: Boolean = false;
+    public var active: Boolean;
 
     protected function createFrame():javax.swing.JFrame {
 	return new javax.swing.JFrame();

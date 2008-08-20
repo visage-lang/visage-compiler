@@ -12,7 +12,7 @@ import com.sun.scenario.scenegraph.SGNode;
 
 // class definitions
 public class LightsOutModel extends Group {
-    attribute rows: Row[];
+    var rows: Row[];
     function randomize():Void{
         if(sizeof rows > 0) {
             //clear first
@@ -43,9 +43,9 @@ public class LightsOutModel extends Group {
         }
         finished = won;
     }
-    attribute moveCount: Number;
-    attribute finished: Boolean = false;
-    public attribute content: Node[] = bind rows;
+    var moveCount: Number;
+    var finished: Boolean = false;
+    public var content: Node[] = bind rows;
     public function createNode(): SGNode {
         for(i in [0..4]) {
             var self = this;

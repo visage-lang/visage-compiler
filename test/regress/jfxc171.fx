@@ -7,9 +7,9 @@ import java.awt.font.TextLayout;
 import java.lang.Object;
 
 public class Font { 
-    public attribute size: Integer; 
-    public attribute face: Object; 
-    public attribute faceName: String; 
+    public var size: Integer; 
+    public var face: Object; 
+    public var faceName: String; 
 
     function bar() : Void {
         if(face != null ) { 

@@ -27,32 +27,32 @@ import java.lang.Math;
 
 public class BuddyWindow extends CasualFrame
 {
-    public attribute im: InstantMessenger;
+    public var im: InstantMessenger;
 
-    attribute buddy: Buddy = bind im.buddies[buddyIndex];
-    attribute buddyIndex: Integer;
+    var buddy: Buddy = bind im.buddies[buddyIndex];
+    var buddyIndex: Integer;
     
-    attribute preferences: Preferences = Preferences.userRoot().node("Casual");
+    var preferences: Preferences = Preferences.userRoot().node("Casual");
     
-    override attribute background = bind ThemeManager.getInstance().windowBackground;
+    override var background = bind ThemeManager.getInstance().windowBackground;
 
-    override attribute screenx = Math.max (0, preferences.getInt("screenx", 0))
+    override var screenx = Math.max (0, preferences.getInt("screenx", 0))
         on replace {
             preferences.putInt("screenx", screenx);
         };
 
-    override attribute screeny = Math.max (0, preferences.getInt("screeny", 0))
+    override var screeny = Math.max (0, preferences.getInt("screeny", 0))
         on replace {
             preferences.putInt("screeny", screeny);
         };
         
-    override attribute undecorated = true;
-    override attribute width = 250;
-    override attribute height = 300;
-    override attribute centerOnScreen = true;
-    override attribute visible = true;
+    override var undecorated = true;
+    override var width = 250;
+    override var height = 300;
+    override var centerOnScreen = true;
+    override var visible = true;
 
-    override attribute content = Canvas
+    override var content = Canvas
     {
         content: Group
         {

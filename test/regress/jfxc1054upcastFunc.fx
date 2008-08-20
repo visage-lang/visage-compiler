@@ -8,7 +8,7 @@
 import java.lang.System;
 
 class Foo {
-    public attribute selectAction: function(tag:String):Void;
+    public var selectAction: function(tag:String):Void;
 }
 
 var select = function(url:String):Void {

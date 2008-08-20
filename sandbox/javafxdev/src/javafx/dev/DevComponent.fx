@@ -25,19 +25,19 @@ public abstract class DevComponent extends Component{
     public abstract function composeComponent(): Component;        
 
     
-    public attribute dragEnable: Boolean = false on replace{
+    public var dragEnable: Boolean = false on replace{
         if(dragEnable){ ComponentDragSource{ component: this } }
     };
     
-    public attribute dropEnable: Boolean = false on replace{
+    public var dropEnable: Boolean = false on replace{
         if(dropEnable){ ComponentDropTarget{ component: this } }
     };
     
-    attribute mouseListener: java.awt.event.MouseListener;
-    attribute motionListener: java.awt.event.MouseMotionListener;
+    var mouseListener: java.awt.event.MouseListener;
+    var motionListener: java.awt.event.MouseMotionListener;
     
-    public attribute drag: function():java.lang.Object; 
-    public attribute drop: function(value: java.lang.Object);
+    public var drag: function():java.lang.Object; 
+    public var drop: function(value: java.lang.Object);
     
     
     protected function createJComponent(): JComponent {

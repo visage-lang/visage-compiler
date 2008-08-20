@@ -25,10 +25,10 @@ import java.lang.System;
 
 class ChatTimer extends Timer
 {
-    public attribute alarm: Boolean;
-    public attribute period: Integer;
-    public attribute frame: ChatWindow;
-    override attribute minutes
+    public var alarm: Boolean;
+    public var period: Integer;
+    public var frame: ChatWindow;
+    override var minutes
         on replace {
             if (minutes%period == 0)
             {
@@ -52,12 +52,12 @@ class ChatTitleBar extends TitleBar
 
 class ChatLines extends VBox
 {
-    public attribute typeOfLastMessage: MessageType;
-    public attribute frame: ChatWindow;
+    public var typeOfLastMessage: MessageType;
+    public var frame: ChatWindow;
     
-    attribute oldHeight: Number;
+    var oldHeight: Number;
     
-    override attribute currentHeight 
+    override var currentHeight 
         on replace {
             if (typeOfLastMessage == MessageType.OUTGOING)
             {
@@ -92,9 +92,9 @@ class ChatScrollbar extends ScrollBar
 
 class ChatInput extends TextInput
 {
-    attribute frame:ChatWindow;
+    var frame:ChatWindow;
     
-    override attribute text
+    override var text
         on replace {
             if ((text.length() > 0) and (frame.userTyping == false))
             {
@@ -116,7 +116,7 @@ class ChatInput extends TextInput
 
 public class ChatDialog extends Dialog
 {
-    override attribute active
+    override var active
         on replace {
             if (active == false)
             {
@@ -142,18 +142,18 @@ public class ChatDialog extends Dialog
 
 public class ChatWindow extends CasualFrame
 {
-    public attribute buddy: Buddy
+    public var buddy: Buddy
         on replace {
             buddy.window = this;
             buddy.chatting = true;
         };
     
-    attribute messages: Message[];
-    attribute feedbackMsg: Message;
-    attribute buddyTyping: Boolean = false;
-    attribute userTyping: Boolean = false;
+    var messages: Message[];
+    var feedbackMsg: Message;
+    var buddyTyping: Boolean = false;
+    var userTyping: Boolean = false;
     
-    attribute timer: ChatTimer = 
+    var timer: ChatTimer = 
         ChatTimer {
             running: true
 
@@ -166,7 +166,7 @@ public class ChatWindow extends CasualFrame
             addTimeMessage();
         };
 
-    attribute chatInput: ChatInput = ChatInput {
+    var chatInput: ChatInput = ChatInput {
         frame: this
         size: Dimension { width: bind scrollPane.width }
         onKeyDown: function(e:KeyEvent)
@@ -190,7 +190,7 @@ public class ChatWindow extends CasualFrame
         }
     };
 
-    attribute scrollPane: Canvas = Canvas {
+    var scrollPane: Canvas = Canvas {
         onMouseWheelMoved: function(e)
         {
 	    var t = e.wheelRotation/360;
@@ -208,7 +208,7 @@ public class ChatWindow extends CasualFrame
         }
     };
     
-    attribute scrollBar: ChatScrollbar = ChatScrollbar {
+    var scrollBar: ChatScrollbar = ChatScrollbar {
         var paneHeight = bind scrollPane.height
         var chatLinesHeight = bind chatLines.currentHeight
 
@@ -221,14 +221,14 @@ public class ChatWindow extends CasualFrame
         showButtons: bind if (chatLinesHeight>0 and paneHeight>0) then (chatLinesHeight>paneHeight) else false
     };
     
-    attribute chatLines: ChatLines = ChatLines {
+    var chatLines: ChatLines = ChatLines {
         frame: this
         content: bind for (message in messages) message
     };
     
-    attribute scrollFactor: Number = 1;
+    var scrollFactor: Number = 1;
     
-    attribute showContents: Boolean = bind (((doLiveResize==false) and (inLiveResize==true)) == false);
+    var showContents: Boolean = bind (((doLiveResize==false) and (inLiveResize==true)) == false);
     
     public function receiveMessage(message:String){
     //println("ChatWindow.receiveMessage:\"{message}\"");
@@ -342,16 +342,16 @@ public class ChatWindow extends CasualFrame
         addMessage(messageStr, MessageType.COMMENT);
     };
 
-    override attribute background = bind ThemeManager.getInstance().windowBackground;// gznote: should take AbstractColor
+    override var background = bind ThemeManager.getInstance().windowBackground;// gznote: should take AbstractColor
 
     postinit {
         requestFocus();
     };
     
-    override attribute undecorated = true;
-    override attribute centerOnScreen = true;
+    override var undecorated = true;
+    override var centerOnScreen = true;
     
-    attribute scrollbarCanvas: Canvas = Canvas
+    var scrollbarCanvas: Canvas = Canvas
     {
         visible: bind showContents
         border: new EmptyBorder
@@ -359,7 +359,7 @@ public class ChatWindow extends CasualFrame
         content: scrollBar
     };
     
-    override attribute dialog = ChatDialog {
+    override var dialog = ChatDialog {
         frame: this
         width: 300
         height: 100
@@ -367,7 +367,7 @@ public class ChatWindow extends CasualFrame
     };
 
     
-    override attribute content = Canvas
+    override var content = Canvas
     {
         content: Group
         {
@@ -457,7 +457,7 @@ public class ChatWindow extends CasualFrame
         }
     };
 
-    override attribute active
+    override var active
         on replace {
             if (active == true)
             {

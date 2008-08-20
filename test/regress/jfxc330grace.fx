@@ -12,11 +12,11 @@ class Foo {
    function fs() : String { "bonzo" }
    function fo() : Foo { Foo{} }
    function fas() : String[] { ["peter", "paul", "mary"] }
-   attribute next : Foo;
+   var next : Foo;
    function getNext() : Foo { next }
    public function toString() : String { "Foo" }
 
-  attribute str : java.lang.Object; 
+  var str : java.lang.Object; 
   function toStr() : Void {
               str.toString();
   }

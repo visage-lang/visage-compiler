@@ -88,14 +88,14 @@ function run( ) {
     //this should fail
     a1.a = 42; 
     //..or this should fail, hopefully, as with let, one of these or both will fail
-    TU.checkI(a1.a, 42, "readable attribute should not be able to be reassigned.");
+    TU.checkI(a1.a, 42, "readable var should not be able to be reassigned.");
 
     /*
      * check calls to super class method and method through 'super'
      */
     def b1 = new B;
     TU.checkI(b1.getBa(),32,"super class method call");
-    TU.checkI(b1.getA(),32,"super class attribute");
+    TU.checkI(b1.getA(),32,"super class var");
 
     /*
      * Not sure of these. 

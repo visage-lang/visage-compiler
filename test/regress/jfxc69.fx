@@ -9,7 +9,7 @@ import java.lang.System;
 var b : String;
 
 class Foo {
-    attribute a : String;
+    var a : String;
 }
 
 var foo = new Foo;

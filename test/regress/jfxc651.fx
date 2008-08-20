@@ -8,9 +8,9 @@ import com.sun.javafx.runtime.PointerFactory;
 import com.sun.javafx.runtime.Pointer;
 
 class ThumbnailView {
-   attribute alphaValue: Number = 1.0;
-   attribute pf: PointerFactory = PointerFactory{};
-   attribute selectedPhotoIndex: Number on replace {
+   var alphaValue: Number = 1.0;
+   var pf: PointerFactory = PointerFactory{};
+   var selectedPhotoIndex: Number on replace {
        var bpAlphaValue = bind pf.make(alphaValue);
    };
 }

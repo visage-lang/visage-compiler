@@ -21,19 +21,19 @@ import javafx.ui.canvas.Rect;
 
 public class DialogType
 {
-    public attribute id: String;
+    public var id: String;
 
-    public static attribute ERROR:DialogType = DialogType
+    public static var ERROR:DialogType = DialogType
     {
         id: "ERROR"
     };
 
-    public static attribute WARNING:DialogType = DialogType
+    public static var WARNING:DialogType = DialogType
     {
         id: "WARNING"
     };
 
-    public static attribute INFO:DialogType = DialogType
+    public static var INFO:DialogType = DialogType
     {
         id: "INFO"
     };
@@ -41,19 +41,19 @@ public class DialogType
 
 public class Dialog extends CompositeNode
 {
-    public attribute frame: CasualFrame;
+    public var frame: CasualFrame;
     
-    public attribute x: Integer;
-    public attribute y: Integer;
-    public attribute width: Integer;
-    public attribute height: Integer;
-    public attribute buttonText: String = "OK";
+    public var x: Integer;
+    public var y: Integer;
+    public var width: Integer;
+    public var height: Integer;
+    public var buttonText: String = "OK";
     
-    public attribute active: Boolean;
-    public attribute interactive: Boolean;
-    public attribute type: DialogType;
-    public attribute text: String;
-    public attribute headline: String;
+    public var active: Boolean;
+    public var interactive: Boolean;
+    public var type: DialogType;
+    public var text: String;
+    public var headline: String;
     
     function getFontSmall(type: DialogType): Font {
         return ThemeManager.getInstance().windowFont.bold();
@@ -99,7 +99,7 @@ public class Dialog extends CompositeNode
             ThemeManager.getInstance().infoBorderColor;
     };
 
-    override attribute isSelectionRoot = true;
+    override var isSelectionRoot = true;
     
 
 

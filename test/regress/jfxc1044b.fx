@@ -14,7 +14,7 @@ import javax.swing.Timer;
 import java.awt.event.*;
 
 class CLS {
-    public attribute a:Number = -1;
+    public var a:Number = -1;
 }
 
 var cls = CLS {};

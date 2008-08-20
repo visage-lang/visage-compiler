@@ -26,14 +26,14 @@ package hello.canvas;
 import java.awt.BasicStroke;
 
 class StrokeLineCap {
-    attribute id: Number;
-    attribute name: String;
+    var id: Number;
+    var name: String;
 
-    public static attribute BUTT = 
+    public static var BUTT = 
 	StrokeLineCap { id: BasicStroke.CAP_BUTT, name: "CAP_BUTT" };
-    public static attribute ROUND =
+    public static var ROUND =
 	StrokeLineCap { id: BasicStroke.CAP_ROUND, name: "CAP_ROUND" };
-    public static attribute SQUARE =
+    public static var SQUARE =
 	StrokeLineCap { id: BasicStroke.CAP_SQUARE, name: "CAP_SQUARE" };    
 }
 

@@ -29,13 +29,13 @@ import java.lang.Math;
 
 public class ScrollBar extends CompositeNode
 {
-    public attribute pageScrollFactor: Number;
-    public attribute unitScrollFactor: Number;
-    public attribute scrollFactor: Number; // proportional location of scroll position
-    public attribute size: Number;  // size of this scrollbar in pixels
-    public attribute orientation: Orientation = Orientation.HORIZONTAL; 
-    public attribute showThumb: Boolean = false;
-    public attribute showButtons: Boolean = false;
+    public var pageScrollFactor: Number;
+    public var unitScrollFactor: Number;
+    public var scrollFactor: Number; // proportional location of scroll position
+    public var size: Number;  // size of this scrollbar in pixels
+    public var orientation: Orientation = Orientation.HORIZONTAL; 
+    public var showThumb: Boolean = false;
+    public var showButtons: Boolean = false;
 
     // bug workaround
 //    class Workaround extends Group

@@ -11,10 +11,10 @@ import java.lang.System;
 
 public class JabberIM extends InstantMessenger
 {
-    attribute connection: XMPPConnection;
-    attribute roster: Roster;
-    attribute chatManager: ChatManager;
-    attribute rosterListener: RosterListener;
+    var connection: XMPPConnection;
+    var roster: Roster;
+    var chatManager: ChatManager;
+    var rosterListener: RosterListener;
 
     function login(window:AccountWindow): Void
     {

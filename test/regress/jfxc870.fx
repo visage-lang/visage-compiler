@@ -8,7 +8,7 @@ import java.lang.System;
 var b = true;
 var isVisible = bind b;
 class A {
-    attribute action: function();
+    var action: function();
 }
 A {
     action: function() {

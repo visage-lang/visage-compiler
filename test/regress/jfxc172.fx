@@ -4,8 +4,8 @@
  * @run
  */
 class Bar {
-    attribute focusable : Boolean = true;
-    public attribute focused: Boolean = false on replace { 
+    var focusable : Boolean = true;
+    public var focused: Boolean = false on replace { 
         if (focused) { 
             requestFocus(); 
         } else { 

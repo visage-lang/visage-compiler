@@ -20,9 +20,9 @@ System.out.println("{offset} + {k} = {bs}");
 
 
 class Foo {
-  attribute val : Number;
+  var val : Number;
   bound function v(scale : Integer) : Number { val * scale }
-  attribute next : Foo;
+  var next : Foo;
   bound function getNext() : Foo { next }
 }
 

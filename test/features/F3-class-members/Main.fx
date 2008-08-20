@@ -7,9 +7,9 @@
 import java.lang.*;
 
 class Foo {
-    attribute a : String ;
-    attribute b : String = bind a;
-    attribute c : String ;
+    var a : String ;
+    var b : String = bind a;
+    var c : String ;
     function bleep() : String {
         return "roll";
     }

@@ -3,7 +3,7 @@
  */
 
 class Foo {
-    public attribute attr: java.lang.Object[];
+    public var attr: java.lang.Object[];
 }
 
 Foo {

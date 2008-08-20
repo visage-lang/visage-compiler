@@ -4,7 +4,7 @@
  */
 
 public class Foo {
-    public attribute bar: Boolean = true on replace {
+    public var bar: Boolean = true on replace {
         java.lang.System.out.println("replaced bar with {bar}"); 
     }
 }

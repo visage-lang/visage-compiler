@@ -22,8 +22,8 @@ bound function btranslate(x:Number, y: Number): Translate {
 }
 
 class Translate {
-    public attribute x: Number;
-    public attribute y: Number;
+    public var x: Number;
+    public var y: Number;
 }
 
 var x = 2;

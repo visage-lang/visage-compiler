@@ -10,7 +10,7 @@ var a : Integer = 14;
 function doublea() { a + a }
 
 class Main {
-    attribute b : Integer = 55;
+    var b : Integer = 55;
 }
 
 var ah = new Main;

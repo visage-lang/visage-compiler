@@ -8,13 +8,13 @@
 import java.lang.System;
 
 class Node {
-  attribute bounds : Integer;
+  var bounds : Integer;
 }
 
 class Foo {
-   attribute focusedNode : Node; //TODO: JFXC-707 (make last atribute)
-   attribute focusBounds: Integer = bind focusedNode.bounds;
-   attribute bidirectionalFocusBounds: Integer = bind focusedNode.bounds with inverse;
+   var focusedNode : Node; //TODO: JFXC-707 (make last atribute)
+   var focusBounds: Integer = bind focusedNode.bounds;
+   var bidirectionalFocusBounds: Integer = bind focusedNode.bounds with inverse;
 }
 
 var n1 = Node { bounds: 9 }

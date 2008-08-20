@@ -8,34 +8,34 @@ import java.lang.System;
 
 class aclass {
 
-public attribute bnull:Boolean
+public var bnull:Boolean
 	on replace { System.out.println("bnull new value: {bnull}"); }
    function set_bnull(newb:Boolean){ bnull = newb; System.out.println("set_b(): bnull:{bnull}"); }
-public attribute snull:String
+public var snull:String
 	on replace oldvalue  { System.out.println("snull old:{oldvalue}  new:{snull}"); }
-public attribute inull:Integer
+public var inull:Integer
 	on replace oldvalue=newvalue  { System.out.println("inull old:{oldvalue}  newvalue:{newvalue}==inull:{inull}"); }
-public attribute names:testclass[]
+public var names:testclass[]
 	on replace old[idx1..idx2]=newvalues {}
 
 
-public attribute b = false
+public var b = false
 	on replace { System.out.println("b new: {b}"); }
-public attribute s = "Hello"
+public var s = "Hello"
 	on replace oldvalue  { System.out.println("s old:{oldvalue}  new:{s}"); }
-public attribute i = 5
+public var i = 5
 	on replace oldvalue=newvalue  { System.out.println("i old:{oldvalue}  newvalue:{newvalue}==i:{i}"); }
 
 //can capture old sequence; on init {old} is null
-public attribute seqb:Boolean[]=[false,false,false]
+public var seqb:Boolean[]=[false,false,false]
 	on replace old { System.out.println("seqb old:{old}  new:{seqb}"); }
 
 //Capture old, indexes, new elements and new sequence
-public attribute seqs:String[]=["Mary","had","little","lamb"]
+public var seqs:String[]=["Mary","had","little","lamb"]
 	on replace old[idx1..idx2]=newElements { System.out.println("seqs old:{old}  indexes:{idx1}..{idx2}  new elements:{newElements}  new sequence:{seqs}");}
 
 //simple trigger used for a sequence
-public attribute seqi = [ 100,101,102,103,106,108,110 ]
+public var seqi = [ 100,101,102,103,106,108,110 ]
 	on replace { System.out.println("seqi"); System.out.println( {seqi} ); };
 
 
@@ -76,7 +76,7 @@ function test() {
 }
 
 class testclass{
-	attribute name:String = "test class";
+	var name:String = "test class";
 
 	function setName(newname:String):String {
 		var o = name;

@@ -9,13 +9,13 @@ import java.lang.System;
 class TextField {};
 
 class Button {
-    attribute text: String;
-    attribute action: function();
+    var text: String;
+    var action: function();
 }
 
 class Frame {
-    attribute content: Button;
-    attribute visible: Boolean;
+    var content: Button;
+    var visible: Boolean;
 }
 
 class Foo {

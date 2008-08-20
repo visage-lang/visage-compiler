@@ -13,48 +13,48 @@ import java.lang.Object;
 
 class Keyword
 {
-    static attribute casualURL: String = CASUAL.getResourceURL(); // root URL for casual resources
+    static var casualURL: String = CASUAL.getResourceURL(); // root URL for casual resources
 
-    public attribute id: String;
-    public attribute key: String;
-    public attribute rsrc: Object;
-    public static attribute HTTP:Keyword = Keyword
+    public var id: String;
+    public var key: String;
+    public var rsrc: Object;
+    public static var HTTP:Keyword = Keyword
     {
         id: "HTTP"
         key: "http://"
     };
 
-    public static attribute HTTP2:Keyword = Keyword
+    public static var HTTP2:Keyword = Keyword
     {
         id: "HTTP2"
         key: "https://"
     };
 
-    public static attribute WWW:Keyword = Keyword
+    public static var WWW:Keyword = Keyword
     {
         id: "WWW"
         key: "www."
     };
 
-    public static attribute IMG:Keyword = Keyword
+    public static var IMG:Keyword = Keyword
     {
         id: "IMG"
         key: "[img]="
     };
 
-    public static attribute AUDIO:Keyword = Keyword
+    public static var AUDIO:Keyword = Keyword
     {   
         id: "AUDIO"
         key: "[audio]="
     };
 
-    public static attribute PAGE:Keyword = Keyword
+    public static var PAGE:Keyword = Keyword
     {   
         id: "PAGE"
         key: "[page]="
     };
 
-    public static attribute RING:Keyword = Keyword
+    public static var RING:Keyword = Keyword
     {
         var url = "{casualURL}/sounds/ring.wav"
 
@@ -63,7 +63,7 @@ class Keyword
         rsrc: Applet.newAudioClip(new URL(url))
     };
 
-    public static attribute SMILE:Keyword = Keyword
+    public static var SMILE:Keyword = Keyword
     {    
         var url = "{casualURL}/images/smile.png"
 
@@ -72,14 +72,14 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute SMILE2:Keyword = Keyword
+    public static var SMILE2:Keyword = Keyword
     {
         id: "SMILE2"
         key: ":)"
         rsrc: bind SMILE.rsrc
     };
 
-    public static attribute WINK:Keyword = Keyword
+    public static var WINK:Keyword = Keyword
     {
         var url = "{casualURL}/images/wink.png"
 
@@ -88,14 +88,14 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute WINK2:Keyword = Keyword
+    public static var WINK2:Keyword = Keyword
     {
         id: "WINK2"
         key: ";)"
         rsrc: bind WINK.rsrc
     };
 
-    public static attribute FROWN:Keyword = Keyword
+    public static var FROWN:Keyword = Keyword
     {
         var url = "{casualURL}/images/frown.png"
 
@@ -104,14 +104,14 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute FROWN2:Keyword = Keyword
+    public static var FROWN2:Keyword = Keyword
     {
         id: "FROWN2"
         key: ":("
         rsrc: bind FROWN.rsrc
     };
 
-    public static attribute UNDECIDED:Keyword = Keyword
+    public static var UNDECIDED:Keyword = Keyword
     {
         var url = "{casualURL}/images/undecided.png"
 
@@ -120,14 +120,14 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute UNDECIDED2:Keyword = Keyword
+    public static var UNDECIDED2:Keyword = Keyword
     {
         id: "UNDECIDED2"
         key: ":-\\"
         rsrc: bind UNDECIDED.rsrc
     };
 
-    public static attribute GASP:Keyword = Keyword
+    public static var GASP:Keyword = Keyword
     {
         var url = "{casualURL}/images/gasp.png"
 
@@ -136,28 +136,28 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute GASP2:Keyword = Keyword
+    public static var GASP2:Keyword = Keyword
     {
         id: "GASP2"
         key: ":-O"
         rsrc: bind GASP.rsrc
     };
 
-    public static attribute GASP3:Keyword = Keyword
+    public static var GASP3:Keyword = Keyword
     {
         id: "GASP3"
         key: ":-0"
         rsrc: bind GASP.rsrc
     };
 
-    public static attribute GASP4:Keyword = Keyword
+    public static var GASP4:Keyword = Keyword
     {
         id: "GASP4"
         key: "=-o"
         rsrc: bind GASP.rsrc
     };
 
-    public static attribute LAUGH:Keyword = Keyword
+    public static var LAUGH:Keyword = Keyword
     {
         var url = "{casualURL}/images/laugh.png"
 
@@ -166,14 +166,14 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute LAUGH2:Keyword = Keyword
+    public static var LAUGH2:Keyword = Keyword
     {
         id: "LAUGH2"
         key: ":D"
         rsrc: bind LAUGH.rsrc
     };
 
-    public static attribute KISS:Keyword = Keyword
+    public static var KISS:Keyword = Keyword
     {
         var url = "{casualURL}/images/kiss.png"
 
@@ -182,7 +182,7 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute TONQUE:Keyword = Keyword
+    public static var TONQUE:Keyword = Keyword
     {
         var url = "{casualURL}/images/tonque.png"
 
@@ -191,28 +191,28 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute TONQUE2:Keyword = Keyword
+    public static var TONQUE2:Keyword = Keyword
     {
         id: "TONQUE2"
         key: ":p"
         rsrc: bind TONQUE.rsrc
     };
 
-    public static attribute TONQUE3:Keyword = Keyword
+    public static var TONQUE3:Keyword = Keyword
     {
         id: "TONQUE3"
         key: ":-P"
         rsrc: bind TONQUE.rsrc
     };
 
-    public static attribute TONQUE4:Keyword = Keyword
+    public static var TONQUE4:Keyword = Keyword
     {
         id: "TONQUE4"
         key: ":P"
         rsrc: bind TONQUE.rsrc
     };
 
-    public static attribute EMBARRASED:Keyword = Keyword
+    public static var EMBARRASED:Keyword = Keyword
     {
         var url = "{casualURL}/images/embarrassed.png"
 
@@ -221,7 +221,7 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute FOOT:Keyword = Keyword
+    public static var FOOT:Keyword = Keyword
     {
         var url = "{casualURL}/images/foot.png"
 
@@ -230,7 +230,7 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute COOL:Keyword = Keyword
+    public static var COOL:Keyword = Keyword
     {
         var url = "{casualURL}/images/cool.png"
 
@@ -239,7 +239,7 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute ANGRY:Keyword = Keyword
+    public static var ANGRY:Keyword = Keyword
     {
         var url = "{casualURL}/images/angry.png"
 
@@ -248,42 +248,42 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute ANGRY2:Keyword = Keyword
+    public static var ANGRY2:Keyword = Keyword
     {
         id: "ANGRY2"
         key: ">:-O"
         rsrc: bind ANGRY.rsrc
     };
 
-    public static attribute ANGRY3:Keyword = Keyword
+    public static var ANGRY3:Keyword = Keyword
     {
         id: "ANGRY3"
         key: ">:-0"
         rsrc: bind ANGRY.rsrc
     };
 
-    public static attribute ANGRY4:Keyword = Keyword
+    public static var ANGRY4:Keyword = Keyword
     {
         id: "ANGRY4"
         key: ">:o"
         rsrc: bind ANGRY.rsrc
     };
 
-    public static attribute ANGRY5:Keyword = Keyword
+    public static var ANGRY5:Keyword = Keyword
     {
         id: "ANGRY5"
         key: ">:O"
         rsrc: bind ANGRY.rsrc
     };
 
-    public static attribute ANGRY6:Keyword = Keyword
+    public static var ANGRY6:Keyword = Keyword
     {
         id: "ANGRY6"
         key: ">:0"
         rsrc: bind ANGRY.rsrc
     };
 
-    public static attribute INNOCENT:Keyword = Keyword
+    public static var INNOCENT:Keyword = Keyword
     {
         var url = "{casualURL}/images/innocent.png"
 
@@ -292,21 +292,21 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute INNOCENT2:Keyword = Keyword
+    public static var INNOCENT2:Keyword = Keyword
     {
         id: "INNOCENT2"
         key: "O:-)"
         rsrc: bind INNOCENT.rsrc
     };
 
-    public static attribute INNOCENT3:Keyword = Keyword
+    public static var INNOCENT3:Keyword = Keyword
     {
         id: "INNOCENT3"
         key: "0:-)"
         rsrc: bind INNOCENT.rsrc
     };
 
-    public static attribute CRY:Keyword = Keyword
+    public static var CRY:Keyword = Keyword
     {
         var url = "{casualURL}/images/cry.png"
 
@@ -315,21 +315,21 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute CRY2:Keyword = Keyword
+    public static var CRY2:Keyword = Keyword
     {
         id: "CRY2"
         key: ":^("
         rsrc: bind CRY.rsrc
     };
 
-    public static attribute CRY3:Keyword = Keyword
+    public static var CRY3:Keyword = Keyword
     {
         id: "CRY3"
         key: ":`("
         rsrc: bind CRY.rsrc
     };
 
-    public static attribute SEALED:Keyword = Keyword
+    public static var SEALED:Keyword = Keyword
     {
         var url = "{casualURL}/images/sealed.png"
 
@@ -338,14 +338,14 @@ class Keyword
         rsrc: "<img align='top' hspace='1' vspace='0' src='{url}'></img>"
     };
 
-    public static attribute SEALED2:Keyword = Keyword
+    public static var SEALED2:Keyword = Keyword
     {
         id: "SEALED2"
         key: ":-X"
         rsrc: bind SEALED.rsrc
     };
 
-    public static attribute MONEY:Keyword = Keyword
+    public static var MONEY:Keyword = Keyword
     {
         var url = "{casualURL}/images/money.png"
 
@@ -357,7 +357,7 @@ class Keyword
 
 public class MessageParser
 {
-    static attribute instance: MessageParser = new MessageParser;
+    static var instance: MessageParser = new MessageParser;
     public static function getInstance(): MessageParser {
         return instance;
     }

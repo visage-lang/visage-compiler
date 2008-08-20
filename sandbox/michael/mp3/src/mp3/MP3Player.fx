@@ -16,11 +16,11 @@ import java.lang.System;
 
 public class ButtonView extends CompositeNode {
      
-    attribute isPressed: Boolean;
-    public attribute enabled: Boolean = true;
-    public attribute pressed: Node;
-    public attribute normal: Node;
-    public attribute action: function();
+    var isPressed: Boolean;
+    public var enabled: Boolean = true;
+    public var pressed: Node;
+    public var normal: Node;
+    public var action: function();
     
     function composeNode(): Node {
         Group {
@@ -50,11 +50,11 @@ public class ButtonView extends CompositeNode {
 
 public class SliderView extends CompositeNode {
 
-    attribute isPressed: Boolean;
-    public attribute enabled: Boolean;
-    public attribute pressed: Node;
-    public attribute normal: Node;
-    public attribute slide: function(dx:Number, dy:Number);
+    var isPressed: Boolean;
+    public var enabled: Boolean;
+    public var pressed: Node;
+    public var normal: Node;
+    public var slide: function(dx:Number, dy:Number);
 
     function composeNode(): Node {
         Group {
@@ -75,41 +75,41 @@ public class SliderView extends CompositeNode {
 }
 
 public class Main extends CompositeNode {
-    attribute skinFileChooser: FileChooser;
-    attribute fileChooser: FileChooser;
-    attribute skinUrl: String = bind (skinUrls[selectedSkinUrl]);
-    attribute skinUrls: String[];
-    attribute selectedSkinUrl: Integer;
-    attribute backgroundImage: Image = bind
+    var skinFileChooser: FileChooser;
+    var fileChooser: FileChooser;
+    var skinUrl: String = bind (skinUrls[selectedSkinUrl]);
+    var skinUrls: String[];
+    var selectedSkinUrl: Integer;
+    var backgroundImage: Image = bind
         Image {url: "{skinUrl}/main.bmp"};
-    attribute titleBarImage: Image = bind
+    var titleBarImage: Image = bind
         Image {url: this.getImageURL(skinUrl, "TitleBar.bmp")};
-    attribute playPauseImage: Image = bind
+    var playPauseImage: Image = bind
         Image {url: this.getImageURL(skinUrl, "PlayPaus.bmp")};
-    attribute posbarImage: Image = bind
+    var posbarImage: Image = bind
         Image {url: this.getImageURL(skinUrl, "PosBar.bmp")};
-    attribute monosterImage: Image = bind
+    var monosterImage: Image = bind
         Image {url: this.getImageURL(skinUrl, "MonoSter.bmp")};
-    attribute shufrepImage: Image = bind
+    var shufrepImage: Image = bind
         Image {url: this.getImageURL(skinUrl, "ShufRep.bmp")};
-    attribute numbersImage: Image = bind
+    var numbersImage: Image = bind
         Image {url: this.getImageURL(skinUrl, "Numbers.bmp")};
-    attribute textImage: Image = bind
+    var textImage: Image = bind
         Image {url: this.getImageURL(skinUrl, "Text.bmp")};
-    attribute volumeImage: Image = bind
+    var volumeImage: Image = bind
         Image {url: this.getImageURL(skinUrl, "Volume.bmp")};
-    attribute equalizerImage: Image = bind
+    var equalizerImage: Image = bind
         Image {url: this.getImageURL(skinUrl, "EqMain.bmp")};
-    attribute songUrl: String;
+    var songUrl: String;
     
-    attribute volumeX: Number = 54/2 
+    var volumeX: Number = 54/2 
         on replace {
             volume = (volumeX/54 * 15).intValue();
             gain = volumeX / 54;
         }
     ;
 
-    attribute player: BasicPlayer = new BasicPlayer()
+    var player: BasicPlayer = new BasicPlayer()
         on replace {
             var self = this;
             controller = player;
@@ -186,10 +186,10 @@ public class Main extends CompositeNode {
             };
             player.addBasicPlayerListener(playerListener);
         };
-    attribute playerListener: BasicPlayerListener;
-    attribute controller: BasicController;
+    var playerListener: BasicPlayerListener;
+    var controller: BasicController;
 
-    attribute playing: Boolean
+    var playing: Boolean
         on replace {
             if (playing) {
                 controller.play();
@@ -203,7 +203,7 @@ public class Main extends CompositeNode {
         }
     ;
     
-    attribute paused: Boolean
+    var paused: Boolean
         on replace {
             if (paused) {
                 controller.pause();
@@ -213,31 +213,31 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute working: Boolean;
-    attribute stereo: Boolean = true;
-    attribute shuffle: Boolean;
-    attribute repeat: Boolean;
-    attribute volume: Integer;
-    attribute gain: Number
+    var working: Boolean;
+    var stereo: Boolean = true;
+    var shuffle: Boolean;
+    var repeat: Boolean;
+    var volume: Integer;
+    var gain: Number
         on replace {
             if (playing) {
                 player.setGain(gain);
             }
         }
     ;
-    attribute duration: Number; // song duration in microseconds
+    var duration: Number; // song duration in microseconds
 
-    attribute frameRate: Number;
-    attribute bitRate: Integer;
-    attribute sampleRate: Integer;
+    var frameRate: Number;
+    var bitRate: Integer;
+    var sampleRate: Integer;
 
-    attribute moveFrame: function(dx:Number, dy:Number);
+    var moveFrame: function(dx:Number, dy:Number);
 
-    attribute pos: Number = bind if (duration == 0) then 0 else elapsedMicroseconds/duration;
+    var pos: Number = bind if (duration == 0) then 0 else elapsedMicroseconds/duration;
 
-    attribute elapsedMicroseconds: Integer;
-    attribute elapsedMinutes: Integer;
-    attribute elapsedSeconds: Integer;
+    var elapsedMicroseconds: Integer;
+    var elapsedMinutes: Integer;
+    var elapsedSeconds: Integer;
 
     function back() {
         var i = selectedSkinUrl - 1;
@@ -335,10 +335,10 @@ public class Main extends CompositeNode {
         return "{baseURL}/{imageFile.toLowerCase()}";
     }
 
-    attribute controlButtonsImage: Image = bind
+    var controlButtonsImage: Image = bind
         Image {url: this.getImageURL(skinUrl, "CButtons.bmp")};
         
-    attribute controlButtonsNormal: Node[] = 
+    var controlButtonsNormal: Node[] = 
         for (i in [0..4])
             Clip {
                 antialias: true
@@ -348,7 +348,7 @@ public class Main extends CompositeNode {
             }
     ;
     
-    attribute controlButtonsPressed: Node[] = 
+    var controlButtonsPressed: Node[] = 
         for (i in [0..4])
             Clip {
                 antialias: true
@@ -358,7 +358,7 @@ public class Main extends CompositeNode {
             }
     ;
     
-    attribute loadButtonNormal: Node =
+    var loadButtonNormal: Node =
         Clip {
             antialias: true
             transform: Translate {x: -114, y: 0}
@@ -367,7 +367,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute loadButtonPressed: Node =
+    var loadButtonPressed: Node =
         Clip {
             antialias: true
             transform: Translate {x: -114, y: -16}
@@ -377,14 +377,14 @@ public class Main extends CompositeNode {
     ;
 
 
-    attribute stereoOn: Node = 
+    var stereoOn: Node = 
         Clip {
             shape: Rect {x: 0, y: 0, height: 12, width: 29}
             content: ImageView {image: bind monosterImage}
         }
     ;
 
-    attribute stereoOff: Node = 
+    var stereoOff: Node = 
         Clip {
             transform: Translate {x: 0, y: -12}
             shape: Rect {x: 0, y: 12, height: 12, width: 29}
@@ -392,7 +392,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute monoOn: Node = 
+    var monoOn: Node = 
         Clip {
             transform: Translate {x: -29, y: 0}
             shape: Rect {x: 29, y: 0, height: 12, width: 27}
@@ -400,7 +400,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute monoOff: Node = 
+    var monoOff: Node = 
         Clip {
             transform: Translate {x: -29, y: -12}
             shape: Rect {x: 29, y: 12, height: 12, width: 27}
@@ -408,7 +408,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute shuffleOnNormal: Node =
+    var shuffleOnNormal: Node =
         Clip {
             antialias: true
             transform: Translate {x: -28, y: -30}
@@ -417,7 +417,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute shuffleOnPressed: Node =
+    var shuffleOnPressed: Node =
         Clip {
             antialias: true
             transform: Translate {x: -28, y: -45}
@@ -426,7 +426,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute shuffleOffNormal: Node =
+    var shuffleOffNormal: Node =
         Clip {
             antialias: true
             transform: Translate {x: -28, y: 0}
@@ -435,7 +435,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute shuffleOffPressed: Node =
+    var shuffleOffPressed: Node =
         Clip {
             antialias: true
             transform: Translate {x: -28, y: -15}
@@ -444,7 +444,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute repeatOnNormal: Node =
+    var repeatOnNormal: Node =
         Clip {
             antialias: true
             transform: Translate {x: 0, y: -30}
@@ -453,7 +453,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute repeatOnPressed: Node =
+    var repeatOnPressed: Node =
         Clip {
             antialias: true
             transform: Translate {x: 0, y: -45}
@@ -462,7 +462,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute repeatOffNormal: Node =
+    var repeatOffNormal: Node =
         Clip {
             antialias: true
             transform: Translate {x: 0, y: 0}
@@ -471,7 +471,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute repeatOffPressed: Node =
+    var repeatOffPressed: Node =
         Clip {
             antialias: true
             transform: Translate {x: 0, y: -15}
@@ -481,7 +481,7 @@ public class Main extends CompositeNode {
     ;
 
 
-    attribute backButton: ButtonView = 
+    var backButton: ButtonView = 
         ButtonView {
             toolTipText: "Previous"
             normal: bind controlButtonsNormal[0]
@@ -490,7 +490,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute playButton: ButtonView =
+    var playButton: ButtonView =
         ButtonView {
             enabled: bind songUrl != null
             toolTipText: "Play"
@@ -500,7 +500,7 @@ public class Main extends CompositeNode {
         }
     ;
     
-    attribute pauseButton: ButtonView = 
+    var pauseButton: ButtonView = 
         ButtonView {
             enabled: bind songUrl != null
             toolTipText: "Pause"
@@ -510,7 +510,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute stopButton: ButtonView = 
+    var stopButton: ButtonView = 
         ButtonView {
             enabled: bind songUrl != null
             toolTipText: "Stop"
@@ -520,7 +520,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute forwardButton: ButtonView = 
+    var forwardButton: ButtonView = 
         ButtonView {
             toolTipText: "Next"
             normal: bind controlButtonsNormal[4]
@@ -529,7 +529,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute loadButton: ButtonView = 
+    var loadButton: ButtonView = 
         ButtonView {
             toolTipText: "Load/Eject"
             normal: bind loadButtonNormal
@@ -538,7 +538,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute volumeSlider: SliderView = 
+    var volumeSlider: SliderView = 
         SliderView {
             toolTipText: "Volume"
             pressed: bind volumeSliderPressed
@@ -556,7 +556,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute shuffleOnButton: ButtonView = 
+    var shuffleOnButton: ButtonView = 
         ButtonView {
             visible: bind shuffle
             normal: bind shuffleOnNormal
@@ -565,7 +565,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute shuffleOffButton: ButtonView = 
+    var shuffleOffButton: ButtonView = 
         ButtonView {
             visible: bind not shuffle
             normal: bind shuffleOffNormal
@@ -574,7 +574,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute repeatOnButton: ButtonView = 
+    var repeatOnButton: ButtonView = 
         ButtonView {
             visible: bind repeat
             normal: bind repeatOnNormal
@@ -583,7 +583,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute repeatOffButton: ButtonView = 
+    var repeatOffButton: ButtonView = 
         ButtonView {
             visible: bind not repeat
             normal: bind repeatOffNormal
@@ -592,7 +592,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute titleBarFocused: Node = 
+    var titleBarFocused: Node = 
         Clip {
             transform: Translate {x: -27, y: 0}
             shape: Rect {x: 27, y: 0, height: 14, width: 275}
@@ -600,7 +600,7 @@ public class Main extends CompositeNode {
         }
     ;
     
-    attribute titleBarUnfocused: Node = 
+    var titleBarUnfocused: Node = 
         Clip {
             transform: Translate {x: -27, y: -15}
             shape: Rect {x: 27, y: 15, height: 14, width: 275}
@@ -608,7 +608,7 @@ public class Main extends CompositeNode {
         }
     ;
     
-    attribute closeButtonNormal: Node =
+    var closeButtonNormal: Node =
         Clip {
             selectable: true
             transform: Translate {x: -18, y: 0}
@@ -617,7 +617,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute closeButtonPressed: Node = 
+    var closeButtonPressed: Node = 
         Clip {
             selectable: true
             transform: Translate {x: -18, y: -9}
@@ -626,7 +626,7 @@ public class Main extends CompositeNode {
         }
     ;
     
-    attribute playIndicator: Node = 
+    var playIndicator: Node = 
         Clip {
             transform: Translate {x: 0, y: 0}
             shape: Rect {x: 0, y: 0, height: 9, width: 9}
@@ -634,7 +634,7 @@ public class Main extends CompositeNode {
         }
     ;
     
-    attribute pauseIndicator: Node = 
+    var pauseIndicator: Node = 
         Clip {
             transform: Translate {x: -9, y: 0}
             shape: Rect {x: 9, y: 0, height: 9, width: 9}
@@ -642,7 +642,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute stopIndicator: Node = 
+    var stopIndicator: Node = 
         Clip {
             transform: Translate {x: -18, y: 0}
             shape: Rect {x: 18, y: 0, height: 9, width: 9}
@@ -650,7 +650,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute workIndicatorOn: Node = 
+    var workIndicatorOn: Node = 
         Clip {
             transform: Translate {x: -39, y: 0}
             shape: Rect {x: 39, y: 0, height: 9, width: 3}
@@ -658,8 +658,8 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute workIndicatorOff: Node;
-    attribute playPauseBackground: Node = 
+    var workIndicatorOff: Node;
+    var playPauseBackground: Node = 
         Clip {
             transform: Translate {x: -27, y: 0}
             shape: Rect {x: 27, y: 0, height: 9, width: 9}
@@ -667,7 +667,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute posbarSlideBar: Node = 
+    var posbarSlideBar: Node = 
         Clip {
             antialias: true
             shape: Rect {x: 0, y: 0, height: 9, width: 248}
@@ -675,7 +675,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute posbarSlider: Node = 
+    var posbarSlider: Node = 
         Clip {
             antialias: true
             transform: Translate {x: -248, y: 0}
@@ -684,7 +684,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute posbarSliderPushed: Node = 
+    var posbarSliderPushed: Node = 
         Clip {
             transform: Translate {x: -278, y: 0}
             shape: Rect {x: 278, y: 0, height: 9, width: 29}
@@ -694,7 +694,7 @@ public class Main extends CompositeNode {
 
     // TODO CANVASIMAGE - refactor as soon as CanvasImage.getImage() is implemented
     //                    (requires com.sun.scenario.scenegraph.JSGPanel.toIcon())
-//    attribute numbers: Image[] = 
+//    var numbers: Image[] = 
 //        for (i in [0..9])
 //            CanvasImage {
 //                content: Clip {
@@ -704,28 +704,28 @@ public class Main extends CompositeNode {
 //                }
 //            }
 //    ;
-    attribute minDigitNode1: Node[] =
+    var minDigitNode1: Node[] =
         for (i in [0..9])
             Clip {
                 transform: Translate {x: -i*9, y: 0}
                 shape: Rect {x: i*9, y: 0, height: 13, width: 9}
                 content: ImageView {image: bind numbersImage}
             }
-    attribute minDigitNode2: Node[] =
+    var minDigitNode2: Node[] =
         for (i in [0..9])
             Clip {
                 transform: Translate {x: -i*9, y: 0}
                 shape: Rect {x: i*9, y: 0, height: 13, width: 9}
                 content: ImageView {image: bind numbersImage}
             }
-    attribute secDigitNode1: Node[] =
+    var secDigitNode1: Node[] =
         for (i in [0..9])
             Clip {
                 transform: Translate {x: -i*9, y: 0}
                 shape: Rect {x: i*9, y: 0, height: 13, width: 9}
                 content: ImageView {image: bind numbersImage}
             }
-    attribute secDigitNode2: Node[] =
+    var secDigitNode2: Node[] =
         for (i in [0..9])
             Clip {
                 transform: Translate {x: -i*9, y: 0}
@@ -733,7 +733,7 @@ public class Main extends CompositeNode {
                 content: ImageView {image: bind numbersImage}
             }
     
-    attribute volumeViews: Node[] = 
+    var volumeViews: Node[] = 
         for (n in [0..15])
             Clip {
                 transform: Translate {x: 0, y: -n*15}
@@ -742,7 +742,7 @@ public class Main extends CompositeNode {
             }
     ;
     
-    attribute volumeSliderNormal: Node =
+    var volumeSliderNormal: Node =
         Clip {
             transform: Translate {x: 0, y: -422}
             shape: Rect {x: 0, y: 422, height: 11, width: 14}
@@ -750,7 +750,7 @@ public class Main extends CompositeNode {
         }
     ;
 
-    attribute volumeSliderPressed: Node =
+    var volumeSliderPressed: Node =
         Clip {
             transform: Translate {x: -15, y: -422}
             shape: Rect {x: 15, y: 422, height: 11, width: 14}
@@ -758,7 +758,7 @@ public class Main extends CompositeNode {
         }
     ;
     
-    attribute font: Font = 
+    var font: Font = 
         Font {
             faceName: "Arial"
             style: FontStyle {name: "BOLD"}
@@ -766,7 +766,7 @@ public class Main extends CompositeNode {
         }
     ;
     
-    attribute textColor: Paint  = Color.WHITE;
+    var textColor: Paint  = Color.WHITE;
     
     function composeNode(): Node {
         return Group {

@@ -37,7 +37,7 @@ import gov.nasa.worldwind.avlist.AVKey;
  */
 
 public class WWD extends Widget {
-    public attribute wwd: WorldWindowGLJPanel = new WorldWindowGLJPanel() on replace {
+    public var wwd: WorldWindowGLJPanel = new WorldWindowGLJPanel() on replace {
         //wwd.setPreferredSize(new Dimension(800, 600));
         // Create the default model as described in the current worldwind properties.  
         var m = WorldWind.createConfigurationComponent(AVKey.MODEL_CLASS_NAME) as Model;

@@ -3,5 +3,5 @@
  */
 
 public class jfxc1310Application {
-    public attribute content: Component;
+    public var content: Component;
 } 

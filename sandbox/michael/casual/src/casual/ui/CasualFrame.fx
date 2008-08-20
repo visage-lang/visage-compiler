@@ -2,10 +2,10 @@ package casual.ui;
 
 public abstract class CasualFrame extends javafx.ui.Frame
 {
-    attribute inLiveResize: Boolean = false;
-    attribute doLiveResize: Boolean = java.lang.System.getProperty("os.name").startsWith("Mac") == false;
+    var inLiveResize: Boolean = false;
+    var doLiveResize: Boolean = java.lang.System.getProperty("os.name").startsWith("Mac") == false;
     
-    attribute dialog: Dialog;
+    var dialog: Dialog;
     public abstract function requestFocus() : Void;
 
     public function showErrorMessage(text:String, headline:String, interactive:Boolean) {
@@ -44,5 +44,5 @@ public abstract class CasualFrame extends javafx.ui.Frame
         }
     };
 
-    override attribute disposeOnClose = true;
+    override var disposeOnClose = true;
 }

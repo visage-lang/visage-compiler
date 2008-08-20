@@ -8,7 +8,7 @@
 import java.lang.System;
 
 class A{
-        attribute name :String;
+        var name :String;
         bound function doIt (x:String[]):String[] {
               ["Fx","Rocks"];
         }

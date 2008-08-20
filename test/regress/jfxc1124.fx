@@ -1,5 +1,5 @@
 /**
- * regression test: JFXC-1224 : Compiler error when converting indexof value to int inside function attribute definitions
+ * regression test: JFXC-1224 : Compiler error when converting indexof value to int inside function var definitions
  *
  * @test
  * @run
@@ -10,7 +10,7 @@ import java.lang.System;
 var series = [ "One", "two", "three" ];
 
 class CBox {
-   attribute onChange : function(newValue:Boolean) : Integer;
+   var onChange : function(newValue:Boolean) : Integer;
 }
 
 var ff =  bind for (s in series)

@@ -11,6 +11,6 @@ package javafx.dev.shell;
  */
 
 public class Project {
-    public attribute src:String;
-    public attribute dist:String;
+    public var src:String;
+    public var dist:String;
 }

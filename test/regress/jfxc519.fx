@@ -6,11 +6,11 @@
 import java.lang.System;
 
 class Foo { 
-  attribute x : Integer[] = [ 0 ]
+  var x : Integer[] = [ 0 ]
     on replace { 
       System.out.println("x: {x.toString()}");
     };
-  attribute y : Integer
+  var y : Integer
     on replace { 
       System.out.println("y: {y}");
     };

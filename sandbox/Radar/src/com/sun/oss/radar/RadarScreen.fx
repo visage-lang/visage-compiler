@@ -37,22 +37,22 @@ import java.util.Date;
  */
 
 public class RadarScreen extends CompositeNode {
-    public attribute height:Number;
-    public attribute width:Number;
-    public attribute foreground:Color = Color.rgba(0, 204, 0, 205);
-    public attribute blips:Blip[];
+    public var height:Number;
+    public var width:Number;
+    public var foreground:Color = Color.rgba(0, 204, 0, 205);
+    public var blips:Blip[];
     
     
-    attribute cx:Number = bind width/2;
-    attribute cy:Number = bind width/2; // on purpose to keep aspect the same
-    attribute radius:Number = bind width/2;
-    attribute extent = bind java.lang.Math.sqrt(2*radius*radius);
+    var cx:Number = bind width/2;
+    var cy:Number = bind width/2; // on purpose to keep aspect the same
+    var radius:Number = bind width/2;
+    var extent = bind java.lang.Math.sqrt(2*radius*radius);
     
-    attribute angle:Number;
-    attribute pf: PointerFactory = PointerFactory{};
-    attribute bpAngle:Pointer = bind pf.make(angle);
-    attribute pAngle:Pointer = bpAngle.unwrap();
-    attribute sweepLine:Group = Group {
+    var angle:Number;
+    var pf: PointerFactory = PointerFactory{};
+    var bpAngle:Pointer = bind pf.make(angle);
+    var pAngle:Pointer = bpAngle.unwrap();
+    var sweepLine:Group = Group {
         transform: bind [Transform.translate(cx,cy),Rotate{angle: angle}]
         content: [
             Polygon {
@@ -73,7 +73,7 @@ public class RadarScreen extends CompositeNode {
 
         ]
     };
-    attribute sweep = Timeline {
+    var sweep = Timeline {
         keyFrames:[ 
             KeyFrame { 
                 keyTime: 0s, 
@@ -117,8 +117,8 @@ public class RadarScreen extends CompositeNode {
         ]
         repeatCount: java.lang.Double.POSITIVE_INFINITY 
     }
-    attribute timeStr:String = "{new Date()}";
-    attribute clock:Timeline = Timeline {
+    var timeStr:String = "{new Date()}";
+    var clock:Timeline = Timeline {
         keyFrames:[ 
             KeyFrame { 
                 keyTime: 1s, 

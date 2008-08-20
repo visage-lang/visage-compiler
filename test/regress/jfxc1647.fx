@@ -6,14 +6,14 @@
 import java.lang.System;
 
 class One { 
-    public attribute x: Integer[] on replace oldSlice[a..b] = newSlice { 
+    public var x: Integer[] on replace oldSlice[a..b] = newSlice { 
         System.out.println("x: removed {oldSlice[a..b].toString()} and added {newSlice.toString()}"); 
     } 
 } 
 
 class Two { 
-    public attribute one: One; 
-    public attribute y: Integer[] = bind one.x on replace oldSlice[a..b] = newSlice { 
+    public var one: One; 
+    public var y: Integer[] = bind one.x on replace oldSlice[a..b] = newSlice { 
         System.out.println("y: removed {oldSlice[a..b].toString()} and added {newSlice.toString()}"); 
     } 
 } 

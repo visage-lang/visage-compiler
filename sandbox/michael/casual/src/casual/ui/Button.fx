@@ -25,23 +25,23 @@ import javafx.ui.canvas.CanvasMouseEvent;
 
 class ClickRect extends Rect
 {
-    attribute pressedHover: Boolean;
+    var pressedHover: Boolean;
 }
 
 public class Button extends CompositeNode
 {
-    public attribute x: Integer;
-    public attribute y: Integer;
-    public attribute width: Integer;
-    public attribute height: Integer;
-    public attribute text: String;
-    public attribute font: Font;
+    public var x: Integer;
+    public var y: Integer;
+    public var width: Integer;
+    public var height: Integer;
+    public var text: String;
+    public var font: Font;
     
-    public attribute onClick: function();
+    public var onClick: function();
     
-    attribute clickTarget: ClickRect;
+    var clickTarget: ClickRect;
     
-    attribute clickTrigger: Number
+    var clickTrigger: Number
         on replace {
             if (clickTrigger < 1)
             {
@@ -61,10 +61,10 @@ public class Button extends CompositeNode
 
     ;
     
-    attribute pf: PointerFactory = PointerFactory{};
-    attribute __clickTrigger = bind pf.make(clickTrigger);
-    attribute _clickTrigger = __clickTrigger.unwrap();
-    attribute clickTriggerAnim: Timeline = Timeline {
+    var pf: PointerFactory = PointerFactory{};
+    var __clickTrigger = bind pf.make(clickTrigger);
+    var _clickTrigger = __clickTrigger.unwrap();
+    var clickTriggerAnim: Timeline = Timeline {
         keyFrames: [
              KeyFrame {
                 keyTime: 0s
@@ -92,7 +92,7 @@ public class Button extends CompositeNode
         clickTriggerAnim.start();
     }
     
-    override attribute isSelectionRoot = true;
+    override var isSelectionRoot = true;
 
     function composeNode() { Group
         {

@@ -5,7 +5,7 @@
  */
 
 public class SkipParensTest {
-    attribute selectedButton on replace oldSelection {
+    var selectedButton on replace oldSelection {
         if (oldSelection != null) {
         }
     };

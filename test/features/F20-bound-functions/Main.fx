@@ -8,10 +8,10 @@
 import java.lang.*;
 
 class Paia {
-  attribute context : Integer;
+  var context : Integer;
   bound function flo(ralph : Integer) : Integer { ralph + context }
-  attribute sum = bind flo(1000);
-  attribute jeff = 1;
+  var sum = bind flo(1000);
+  var jeff = 1;
   bound function sophie(ray : Integer) : Integer { jeff * ray };
 }
 
@@ -31,8 +31,8 @@ ba.context = 0;
 System.out.println(ba.sum);
 
 class Julie {
-  attribute eris = "cotati";
-  attribute olof;
+  var eris = "cotati";
+  var olof;
   bound function donna() : String { "from: {eris} to: {olof}" }
 }
 

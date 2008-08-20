@@ -9,8 +9,8 @@ import java.lang.System;
  */
 
 class X {
-    attribute nums: Number[];
-    attribute xs: Number[] = bind nums
+    var nums: Number[];
+    var xs: Number[] = bind nums
         on replace oldValue[begin..end]=newElements {
             System.out.println("replace {oldValue.toString()}[{begin}..{end}] = {newElements.toString()}");
         }

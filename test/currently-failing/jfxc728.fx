@@ -7,7 +7,7 @@
  */
 
 public class Three extends jfxc728One.One, jfxc728One.Two {
-    attribute attr : String;
+    var attr : String;
     public function getAttr3() :String { attr; }
     public function setAttr3(val :String) :Void  { attr = val }
 }

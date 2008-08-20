@@ -23,12 +23,12 @@
 package hello;
 
 public class Color extends Paint {
-    public attribute red: Number;
-    public attribute green: Number;
-    public attribute blue: Number;
-    public attribute opacity: Number = 1.0;
+    public var red: Number;
+    public var green: Number;
+    public var blue: Number;
+    public var opacity: Number = 1.0;
 
-    attribute awtColor: java.awt.Color = 
+    var awtColor: java.awt.Color = 
         bind lazy makeColor(red, green, blue, opacity);
 
     function makeColor(red:Number, green:Number, blue:Number, opacity:Number):java.awt.Color {

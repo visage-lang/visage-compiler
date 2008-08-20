@@ -9,11 +9,11 @@ import java.lang.System;
 var enableBindingOverhaul;
 
 class Foo {
-  attribute i = 1234;
-  attribute b = true;
-  attribute d = 3.1415926;
-  attribute s = "Dirt";
-  attribute q = [new java.util.ArrayList, 44, "Gezz"];
+  var i = 1234;
+  var b = true;
+  var d = 3.1415926;
+  var s = "Dirt";
+  var q = [new java.util.ArrayList, 44, "Gezz"];
 }
 
 function xxxxx() {

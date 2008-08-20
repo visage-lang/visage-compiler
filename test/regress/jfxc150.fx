@@ -7,7 +7,7 @@
 import java.lang.System; 
 
 public class X { 
-   attribute x: Integer = 0 
+   var x: Integer = 0 
    on replace oldValue {System.out.println("X.replace {oldValue} with {x}");} 
 } 
 

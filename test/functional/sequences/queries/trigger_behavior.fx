@@ -6,9 +6,9 @@ import java.lang.System;
 */
 
 class T extends TestUtils {
-public attribute b:Boolean	on replace { GFT++; System.out.println("Boolean new value: {b}"); }
-public attribute s:String	on replace oldvalue  { GFT++; System.out.println("String old:{oldvalue}  new:{s}"); }
-public attribute i:Integer	on replace oldvalue=newvalue  { GFT++; System.out.println("Integer old:{oldvalue}  newvalue:{newvalue}==i:{i}"); }
+public var b:Boolean	on replace { GFT++; System.out.println("Boolean new value: {b}"); }
+public var s:String	on replace oldvalue  { GFT++; System.out.println("String old:{oldvalue}  new:{s}"); }
+public var i:Integer	on replace oldvalue=newvalue  { GFT++; System.out.println("Integer old:{oldvalue}  newvalue:{newvalue}==i:{i}"); }
 
 function test() {
    System.out.println("-----set Boolean 5 times; false, true, true,false, false-----");

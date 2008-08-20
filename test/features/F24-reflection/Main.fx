@@ -9,15 +9,15 @@ import java.lang.System;
 import com.sun.javafx.runtime.sequence.Sequences;
 
 public abstract class MyShape {
-  public attribute shapeStrAttr : String;
-  public attribute shapeIntAttr : Integer;
-  public attribute shapeNumAttr : Number;
-  public attribute shapeFunAttr1 : function(:Number,:String):Integer;
+  public var shapeStrAttr : String;
+  public var shapeIntAttr : Integer;
+  public var shapeNumAttr : Number;
+  public var shapeFunAttr1 : function(:Number,:String):Integer;
   public abstract function transformed(tr:java.awt.geom.AffineTransform):MyShape;
 };
 public class MyCanvasItem { };
 public class MyRect extends MyShape, MyCanvasItem {
-  public attribute crners : java.awt.geom.Point2D[];
+  public var crners : java.awt.geom.Point2D[];
   /*
   function scriptAccFun1() : Void {}
   protected function protectedAccFun1() : Void {}
@@ -32,14 +32,14 @@ public class MyRect extends MyShape, MyCanvasItem {
 
 var context : LocalReflectionContext = LocalReflectionContext.getInstance();
 public class Square extends MyRect {
-   attribute atBlank : String;
-   public attribute atPub : String;
-   protected attribute atProt : String;
-   attribute atPriv : String;
+   var atBlank : String;
+   public var atPub : String;
+   protected var atProt : String;
+   var atPriv : String;
 };
 
 public class Simple extends Square, java.lang.Object {
-   public attribute at1;
+   public var at1;
 };
 
 function run( ) {

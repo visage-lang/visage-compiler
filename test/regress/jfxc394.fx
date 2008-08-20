@@ -1,4 +1,4 @@
-/* Regression test: JFXC-394:NPE when initializing attribute to the value of a superclass attribute
+/* Regression test: JFXC-394:NPE when initializing var to the value of a superclass var
  * @test
  * @run
  */

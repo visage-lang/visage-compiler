@@ -26,18 +26,18 @@ package hello.canvas;
 import java.awt.BasicStroke;
 
 class StrokeLineJoin {
-    attribute id: Number;
-    attribute name: String;
+    var id: Number;
+    var name: String;
     
-    public static attribute BEVEL = StrokeLineJoin { 
+    public static var BEVEL = StrokeLineJoin { 
 	id: BasicStroke.JOIN_BEVEL, 
         name: "JOIN_BEVEL" 
     };
-    public static attribute MITER = StrokeLineJoin {
+    public static var MITER = StrokeLineJoin {
         id: BasicStroke.JOIN_MITER, 
         name: "JOIN_MITER" 
     };
-    public static attribute ROUND = StrokeLineJoin {
+    public static var ROUND = StrokeLineJoin {
         id: BasicStroke.JOIN_ROUND, 
         name: "JOIN_ROUND" 
     };

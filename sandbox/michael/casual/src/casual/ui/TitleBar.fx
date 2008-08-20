@@ -18,19 +18,19 @@ import javafx.ui.canvas.CanvasMouseEvent;
 
 public class TitleBar extends CompositeNode
 {
-    public attribute frame: CasualFrame;
+    public var frame: CasualFrame;
     
-    public attribute width: Integer;
-    public attribute foreground: Color;
-    public attribute background: Color;
+    public var width: Integer;
+    public var foreground: Color;
+    public var background: Color;
     
-    public attribute title: String;
-    public attribute showCloseIcon: Boolean = true;
-    public attribute showMinimizeIcon: Boolean = true;
+    public var title: String;
+    public var showCloseIcon: Boolean = true;
+    public var showMinimizeIcon: Boolean = true;
     
-    public attribute onClose: function();    
+    public var onClose: function();    
     
-    attribute thickness: Integer = 21;
+    var thickness: Integer = 21;
 
     function composeNode() {
         Group {

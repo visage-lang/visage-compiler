@@ -7,7 +7,7 @@
 
 
 class trial10 { 
-    attribute flag: Boolean = false; 
+    var flag: Boolean = false; 
     function f() { 
         if (! flag) { 
             flag = true; 

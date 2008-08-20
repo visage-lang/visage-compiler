@@ -12,18 +12,18 @@ import hello.canvas.Canvas;
 
 
 class Ball {
-    static attribute elasticity = -0.2;
-    static attribute maxSpeed = 3.0;
-    static attribute ballRadius = 26;
-    static attribute walls = new Insets(0, 0, 300, 500);
+    static var elasticity = -0.2;
+    static var maxSpeed = 3.0;
+    static var ballRadius = 26;
+    static var walls = new Insets(0, 0, 300, 500);
  
-    attribute x: Number;
-    attribute y: Number;
-    attribute vx: Number;
-    attribute vy: Number;
-    attribute r: Number;
-    attribute d: Number;
-    attribute d2: Number;
+    var x: Number;
+    var y: Number;
+    var vx: Number;
+    var vy: Number;
+    var r: Number;
+    var d: Number;
+    var d2: Number;
  
     // What order are attributes initialized in? Not knowing, I do it in init {}
 
@@ -82,23 +82,23 @@ class Ball {
 }
 
 class BallModel {
-    attribute F: Number;
-    attribute lastF: Number;
-    attribute lastTime: Number;
+    var F: Number;
+    var lastF: Number;
+    var lastTime: Number;
 
-    attribute ballImage =
+    var ballImage =
 	Image { url: "http://bubblemark.com/assets/ball.png"};
-    attribute ballCount = 16;
-    attribute balls = bind for (i in [1..ballCount]) new Ball;
-    attribute timer:Timer;
-    attribute labels: SimpleLabel[];
-    attribute listener:ActionListener = ActionListener {
+    var ballCount = 16;
+    var balls = bind for (i in [1..ballCount]) new Ball;
+    var timer:Timer;
+    var labels: SimpleLabel[];
+    var listener:ActionListener = ActionListener {
        public function actionPerformed(event:ActionEvent):Void {
 	   timerEvent();
        }
     }
 
-    public attribute fps: Number;
+    public var fps: Number;
 
     function updateFPS():Void {
 	var currTime:Number = System.currentTimeMillis();

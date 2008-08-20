@@ -8,7 +8,7 @@
 import java.lang.System;
 
 class jfxc753 {
-   attribute y = 14;
+   var y = 14;
    function foo() : jfxc753 {
       System.out.println("foo");
       this

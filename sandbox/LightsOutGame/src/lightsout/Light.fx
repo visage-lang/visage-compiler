@@ -14,10 +14,10 @@ import javafx.ui.animation.*;
  */
 
 public class Light extends Group {
-    attribute gx: Number;
-    attribute gy: Number;
-    attribute selected: Boolean;
-    attribute row: Row;
+    var gx: Number;
+    var gy: Number;
+    var selected: Boolean;
+    var row: Row;
     function setSelected(t:Boolean) {
         selected = t;
         if(selected) { 
@@ -50,14 +50,14 @@ public class Light extends Group {
     function flip() {
         setSelected(not selected);
     }
-    attribute view: Rect;
-    attribute x:Number;
-    attribute y:Number;
-    attribute model:LightsOutModel;
-    public attribute transform: Transform[] = 
+    var view: Rect;
+    var x:Number;
+    var y:Number;
+    var model:LightsOutModel;
+    public var transform: Transform[] = 
                     bind [ Transform.translate( gx*55+15+x, gy*55+15+y)];
-    attribute onMousePressed:function(:CanvasMouseEvent):Void  = function(e:CanvasMouseEvent):Void { toggle(); };
-    attribute strokeAlpha = 0.0;
+    var onMousePressed:function(:CanvasMouseEvent):Void  = function(e:CanvasMouseEvent):Void { toggle(); };
+    var strokeAlpha = 0.0;
     init {
         var size = 50;
         //var strokeAlpha = 0.0;

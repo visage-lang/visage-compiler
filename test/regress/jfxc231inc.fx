@@ -8,7 +8,7 @@
 import java.lang.System;
 
 class Foo {
-	attribute x : Integer;
+	var x : Integer;
 	function inc() { ++x }
 	function dec() { --x }
 	function postInc() { x++ }

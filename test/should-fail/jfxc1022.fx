@@ -3,16 +3,16 @@
  */
 
 class Box {
-  attribute holders: Holder[] = bind for (i in [0..5]) Holder {
+  var holders: Holder[] = bind for (i in [0..5]) Holder {
           box: this
           index: i
   }
 }
 
 class Holder {
-  attribute box : Box;
-  attribute index : Integer;
-  attribute x = bind
+  var box : Box;
+  var index : Integer;
+  var x = bind
       if (index <= 0) 0.0
       else box.holders[index-1].x + 1.0
 }

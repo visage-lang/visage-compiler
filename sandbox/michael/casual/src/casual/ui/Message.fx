@@ -16,10 +16,10 @@ import javafx.ui.canvas.Rect;
 
 public class Message extends CompositeNode
 {
-    public attribute type: MessageType;
-    public attribute message: String;
-    public attribute width: Number;
-    public attribute height: Number;
+    public var type: MessageType;
+    public var message: String;
+    public var width: Number;
+    public var height: Number;
     
     function getAlign(type: MessageType): String {
         return if (type == MessageType.INCOMING)

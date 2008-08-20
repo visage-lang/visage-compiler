@@ -17,7 +17,7 @@ import com.sun.javafx.runtime.PointerFactory;
 
 class IndeterminateProgressBar extends CompositeNode
 {
-    public attribute active: Boolean
+    public var active: Boolean
         on replace {
             if (active) {
                 rot1Timeline.start();
@@ -28,16 +28,16 @@ class IndeterminateProgressBar extends CompositeNode
             }
         }
     ;
-    public attribute size: Integer;
-    public attribute x: Integer;
-    public attribute y: Integer;
-    public attribute fill: AbstractColor;
+    public var size: Integer;
+    public var x: Integer;
+    public var y: Integer;
+    public var fill: AbstractColor;
 
-    attribute pf: PointerFactory = PointerFactory{};
-    attribute rot1: Integer;
-    attribute __rot1 = bind pf.make(rot1);
-    attribute _rot1 = __rot1.unwrap();
-    attribute rot1Timeline: Timeline = Timeline {
+    var pf: PointerFactory = PointerFactory{};
+    var rot1: Integer;
+    var __rot1 = bind pf.make(rot1);
+    var _rot1 = __rot1.unwrap();
+    var rot1Timeline: Timeline = Timeline {
         repeatCount: java.lang.Double.POSITIVE_INFINITY
         keyFrames: [
              KeyFrame {
@@ -62,10 +62,10 @@ class IndeterminateProgressBar extends CompositeNode
         ]
     };
 
-    attribute rot2: Integer;
-    attribute __rot2 = bind pf.make(rot2);
-    attribute _rot2 = __rot2.unwrap();
-    attribute rot2Timeline: Timeline = Timeline {
+    var rot2: Integer;
+    var __rot2 = bind pf.make(rot2);
+    var _rot2 = __rot2.unwrap();
+    var rot2Timeline: Timeline = Timeline {
         keyFrames: [
              KeyFrame {
                 keyTime: 0s

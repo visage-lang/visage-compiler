@@ -22,7 +22,7 @@
  */
 
 public class JFXC1205 {
-    attribute selectedButton on replace oldSelection {
+    var selectedButton on replace oldSelection {
         if (oldSelection != null) {
         }
     }

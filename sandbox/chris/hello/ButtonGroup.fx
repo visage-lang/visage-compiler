@@ -2,10 +2,10 @@ package hello;
 
 public class ButtonGroup {
 
-    attribute jbuttongroup: javax.swing.ButtonGroup  =
+    var jbuttongroup: javax.swing.ButtonGroup  =
 	new javax.swing.ButtonGroup();
 
-    public attribute content: AbstractButton[] 
+    public var content: AbstractButton[] 
 	on replace[i](b) {
            jbuttongroup.remove(b.getButton());
    	   jbuttongroup.add(content[i].getButton());
@@ -17,7 +17,7 @@ public class ButtonGroup {
 	    jbuttongroup.remove(b.getButton());
         }
 
-    public attribute selection: Integer on replace {
+    public var selection: Integer on replace {
 	content[selection].selected = true;
     }
 }

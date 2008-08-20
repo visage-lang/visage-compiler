@@ -28,7 +28,7 @@ import javafx.ui.*;
  */
 
 public class Airplane extends Blip {
-    override attribute image = Image {url: "{__DIR__}images/airplane32.gif"}
+    override var image = Image {url: "{__DIR__}images/airplane32.gif"}
     
     
     

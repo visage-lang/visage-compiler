@@ -3,7 +3,7 @@
  */
 
 class BoundFuncTest{
-   attribute arr:String [] =["This ", "is ", "weird"];
+   var arr:String [] =["This ", "is ", "weird"];
    function func(){
         delete arr;
    }

@@ -15,20 +15,20 @@ import java.lang.System;
 class FooSlice extends TestUtils {
 
 /** seq1, 0 - 50 x 5's */
-attribute seq1 = [0..50 step 5]
+var seq1 = [0..50 step 5]
 on replace oldValue[indx  .. lastIndex]=newElements {	GFT++; insert "{oldValue}" into replacements;		};
 
 /** seq2, 2^0 - 2^8 */
-attribute seq2 = [0,1,2,3,4]
+var seq2 = [0,1,2,3,4]
 on replace oldValue[indx  .. lastIndex]=newElements
   { GFT++; insert "seq_2: replace {newElements} at {indx}\n" into replacements;  };
 
-attribute seq_2p : Integer[]
+var seq_2p : Integer[]
 on replace oldValue[indx  .. lastIndex]=newElements
   { GFT++; insert "seq_2p: replaced {String.valueOf(oldValue)}[{indx}..{lastIndex}] by {String.valueOf(newElements)}\n" into replacements;  };
 
 /** seq3 10 element descending sequence 10 - 1 */
-attribute seq3 = [10..1 step -1]
+var seq3 = [10..1 step -1]
 on replace oldValue[indx  .. lastIndex]=newElements
 	{  GFT++;
 		if(sizeof oldValue  < sizeof newElements) 			{
@@ -37,14 +37,14 @@ on replace oldValue[indx  .. lastIndex]=newElements
    };
 
 /** seq4, 4 element descending sequence 101 - 98. Negative step must be used to declare descending sequences */
-attribute done: Boolean = false;
-attribute seq4 = [101..98 step -1]
+var done: Boolean = false;
+var seq4 = [101..98 step -1]
 on replace oldValue[indx  .. lastIndex]=newElements {	GFT++;
    insert "insert {newElements} or {oldValue} into {seq4}" into replacements;
 };
 
 /** seq5, 11 element sequence 100 - 110 */
-attribute seq5 = [100..110]
+var seq5 = [100..110]
 	on replace oldValue[indx  .. lastIndex]=newElements {	GFT++; insert "{oldValue}" into replacements;		};
 
 /**

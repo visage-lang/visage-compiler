@@ -2,9 +2,9 @@ package hello;
 
 public class CheckBox extends AbstractButton {
 
-    attribute jcheckbox: javax.swing.JCheckBox;
+    var jcheckbox: javax.swing.JCheckBox;
 
-    public attribute borderPaintedFlat: Boolean on replace {
+    public var borderPaintedFlat: Boolean on replace {
 	if (jcheckbox != null) {
 	    jcheckbox.setBorderPaintedFlat(borderPaintedFlat);
 	}

@@ -36,20 +36,20 @@ public abstract class VisualNode extends Node {
     /** The <code>stroke</code> property paints along the outline of the given 
      * graphical element.
      */
-    public attribute stroke: Paint;
+    public var stroke: Paint;
 
     /**
      * The <code>fill</code> property paints the interior of the given 
      graphical element. The area to be painted consists of any areas inside 
      * the outline of the node's shape. 
      */
-    public attribute fill: Paint;
+    public var fill: Paint;
 
     /**
      * <code>strokeLineCap</code> specifies the shape to be used at the end 
      * of open subpaths when they are stroked. Defaults to <code>SQUARE</code>.
      */
-    public attribute strokeLineCap: StrokeLineCap = null /*StrokeLineCap.SQUARE*/ on replace {
+    public var strokeLineCap: StrokeLineCap = null /*StrokeLineCap.SQUARE*/ on replace {
         updateStroke();
     };
     /**
@@ -57,14 +57,14 @@ public abstract class VisualNode extends Node {
      * corners of paths or basic shapes when they are stroked. Defaults to
      * <code>MITER</code>.
      */
-    public attribute strokeLineJoin: StrokeLineJoin = /* StrokeLineJoin.MITER*/ null on replace {
+    public var strokeLineJoin: StrokeLineJoin = /* StrokeLineJoin.MITER*/ null on replace {
         updateStroke();
     };
     /**
      * The width of the stroke on the current object. A zero value causes 
      * no stroke to be painted. A negative value is an error. Defaults to 1.0.
      */
-    public attribute strokeWidth: Number = 1.0 on replace {
+    public var strokeWidth: Number = 1.0 on replace {
         updateStroke();
     };
     /**
@@ -98,18 +98,18 @@ public abstract class VisualNode extends Node {
      * theta less than approximately 11.5 degrees.
      * </p>
      */
-    public attribute strokeMiterLimit: Number = 10.0 on replace {
+    public var strokeMiterLimit: Number = 10.0 on replace {
         updateStroke();
     };
     /**
      * <code>strokeDashArray</code> controls the pattern of dashes and gaps 
-     * used to stroke paths. This attribute contains a list of lengths that 
+     * used to stroke paths. This var contains a list of lengths that 
      * specify the lengths of alternating dashes and gaps. If an odd number 
      * of values is provided, then the list of values is repeated to yield an 
      * even number of values. Thus, strokeDashArray: [5,3,2] is equivalent to
      * strokeDashArray: [5,3,2,5,3,2]. Defaults to [].
      */
-    public attribute strokeDashArray: Number[] 
+    public var strokeDashArray: Number[] 
         on replace [ndx] (oldValue) {
             updateStroke();
         }
@@ -124,19 +124,19 @@ public abstract class VisualNode extends Node {
      * <code>strokeDashOffset</code> specifies the distance into the dash 
      * pattern to start the dash. Defaults to 0.0.
      */
-    public attribute strokeDashOffset: Number on replace {
+    public var strokeDashOffset: Number on replace {
         updateStroke();
     };
-    attribute sgvisualnode: SGAbstractShape;
+    var sgvisualnode: SGAbstractShape;
 
-    attribute awtStroke: java.awt.Paint = bind if (this.stroke == null) then null else this.stroke.getPaint()
+    var awtStroke: java.awt.Paint = bind if (this.stroke == null) then null else this.stroke.getPaint()
         on replace  {
             if (sgvisualnode != null and awtStroke != null) {
                 sgvisualnode.setDrawPaint(awtStroke);
             }
             updateMode();
         };
-    attribute awtFill: java.awt.Paint = bind if (fill == null) null else fill.getPaint() 
+    var awtFill: java.awt.Paint = bind if (fill == null) null else fill.getPaint() 
         on replace {
             if (sgvisualnode != null and awtFill != null) {
                 sgvisualnode.setFillPaint(awtFill);

@@ -8,7 +8,7 @@
 import java.lang.System;
 
 class Bar { 
-    attribute name : String;
+    var name : String;
     public function toString() : String { name }
 }
 

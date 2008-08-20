@@ -2,8 +2,8 @@ package javafxpad;
 import javafx.ui.*;
 
 public class LineNumberPanel extends Widget {
-    attribute panel: <<net.java.javafx.ui.LineNumberPanel>>;
-    public attribute lineCount: Number;
+    var panel: <<net.java.javafx.ui.LineNumberPanel>>;
+    public var lineCount: Number;
     public operation getCellBounds(line:Integer):<<java.awt.Rectangle>>;
 }
 

@@ -1,4 +1,4 @@
-/* JFXC-211: jfxc211b test -- Cannot locate attribute declared in a super class with Mulitple Inheritence
+/* JFXC-211: jfxc211b test -- Cannot locate var declared in a super class with Mulitple Inheritence
  *
  * @test
  * @run
@@ -12,7 +12,7 @@ public abstract class jfxc211ActionWidget extends jfxc211Widget {
     /**
      * Function which implements this widget's action.
      */
-    public attribute action: function():Void;
+    public var action: function():Void;
 }
 
 class jfxc211Button extends jfxc211Widget, jfxc211ActionWidget {

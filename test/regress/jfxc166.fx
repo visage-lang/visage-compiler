@@ -6,8 +6,8 @@
 
 import java.awt.event.ActionEvent; 
 public class Foo { 
-    protected attribute jmenuitem:javax.swing.JMenuItem; 
-    public attribute action: function():Void; 
+    protected var jmenuitem:javax.swing.JMenuItem; 
+    public var action: function():Void; 
 
     public function createComponent():javax.swing.JComponent { 
         jmenuitem = new javax.swing.JMenuItem(); 

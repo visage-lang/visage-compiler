@@ -7,15 +7,15 @@
 import java.lang.System;
 
 class A {
- attribute x = 3;
+ var x = 3;
 }
 
 class B extends A {
-  attribute y = 9;
+  var y = 9;
 }
 
 class C {
-  attribute z =7;
+  var z =7;
 }
 
 def a = new A;

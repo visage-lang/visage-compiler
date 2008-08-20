@@ -6,7 +6,7 @@
 import java.lang.System;
 
 class Foo {
-  attribute uno 
+  var uno 
     on replace { System.out.println("Changed:{ uno }"); };
   init  { System.out.println("Initialized:{ uno }"); }
 }

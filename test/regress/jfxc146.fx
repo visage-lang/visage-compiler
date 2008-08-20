@@ -9,25 +9,25 @@ import java.awt.*;
 import java.awt.event.*; 
 
 public class Frame extends ComponentListener { 
-    attribute jlabel: JLabel = new JLabel(); 
-    attribute jframe: JFrame = new JFrame(); 
+    var jlabel: JLabel = new JLabel(); 
+    var jframe: JFrame = new JFrame(); 
 
 
-    public attribute title: String = "" 
+    public var title: String = "" 
 on replace {jframe.setTitle(title);update();}; 
 
-    public attribute height: Integer = 0 
+    public var height: Integer = 0 
 on replace {jframe.setSize(new Dimension(width, height)); update();}; 
 
-    public attribute width: Integer = 0 
+    public var width: Integer = 0 
 on replace {jframe.setSize(new Dimension(width, height)); update();}; 
 
-    public attribute screenX: Integer = 0 
+    public var screenX: Integer = 0 
 on replace {jframe.setLocation(new Point(screenX, screenY)); update();}; 
-    public attribute screenY: Integer = 0 
+    public var screenY: Integer = 0 
 on replace {jframe.setLocation(new Point(screenX, screenY)); update();}; 
 
-    public attribute visible: Boolean = false 
+    public var visible: Boolean = false 
 on replace {jframe.setVisible(visible); update();}; 
 
     function update(): Void { 

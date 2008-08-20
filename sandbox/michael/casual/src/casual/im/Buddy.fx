@@ -4,21 +4,21 @@ import casual.ChatWindow;
 
 public class BuddyKey
 {
-    public attribute id: String;
+    public var id: String;
 
-    public static attribute FIRST_NAME:BuddyKey = BuddyKey
+    public static var FIRST_NAME:BuddyKey = BuddyKey
     {
         id: "FIRST_NAME"
     };
-    public static attribute LAST_NAME:BuddyKey = BuddyKey
+    public static var LAST_NAME:BuddyKey = BuddyKey
     {
         id: "LAST_NAME"
     };
-    public static attribute USER_NAME:BuddyKey = BuddyKey
+    public static var USER_NAME:BuddyKey = BuddyKey
     {
         id: "USER_NAME"
     };
-    public static attribute ACCOUNT_NAME:BuddyKey = BuddyKey
+    public static var ACCOUNT_NAME:BuddyKey = BuddyKey
     {
         id: "ACCOUNT_NAME"
     };
@@ -26,13 +26,13 @@ public class BuddyKey
 
 public class BuddyType
 {
-    public attribute id: String;
+    public var id: String;
 
-    public static attribute USER:BuddyType = BuddyType
+    public static var USER:BuddyType = BuddyType
     {
         id: "USER"
     };
-    public static attribute BUDDY:BuddyType = BuddyType
+    public static var BUDDY:BuddyType = BuddyType
     {
         id: "BUDDY"
     };
@@ -40,17 +40,17 @@ public class BuddyType
 
 public class BuddyPresence
 {
-    public attribute id: String;
+    public var id: String;
 
-    public static attribute AVAILABLE:BuddyPresence = BuddyPresence
+    public static var AVAILABLE:BuddyPresence = BuddyPresence
     {
         id: "AVAILABLE"
     };
-    public static attribute BUSY:BuddyPresence = BuddyPresence
+    public static var BUSY:BuddyPresence = BuddyPresence
     {
         id: "BUSY"
     };
-    public static attribute AWAY:BuddyPresence = BuddyPresence
+    public static var AWAY:BuddyPresence = BuddyPresence
     {
         id: "AWAY"
     };
@@ -58,17 +58,17 @@ public class BuddyPresence
 
 public class Buddy
 {
-    attribute chat: Chat;
-    public attribute window: ChatWindow;
+    var chat: Chat;
+    public var window: ChatWindow;
     
-    public attribute type: BuddyType = BuddyType.BUDDY;
+    public var type: BuddyType = BuddyType.BUDDY;
     
-    public attribute firstName: String;
-    public attribute lastName: String;
-    public attribute userName: String;
-    public attribute account: Account;
+    public var firstName: String;
+    public var lastName: String;
+    public var userName: String;
+    public var account: Account;
     
-    public attribute accountName: String
+    public var accountName: String
         on replace {
             if (accountName.equalsIgnoreCase(Account.JABBER.server) == true)
             {
@@ -85,7 +85,7 @@ public class Buddy
             }
         };
 
-    public attribute presence: BuddyPresence = BuddyPresence.AWAY
+    public var presence: BuddyPresence = BuddyPresence.AWAY
         on replace {
             if (presence == BuddyPresence.AVAILABLE)
             {
@@ -98,8 +98,8 @@ public class Buddy
         };
 
     
-    public attribute password: String;
-    public attribute chatting: Boolean = false;
+    public var password: String;
+    public var chatting: Boolean = false;
     
     public function receiveMessage(message:String)
     {

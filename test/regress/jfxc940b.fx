@@ -8,12 +8,12 @@
 import java.lang.System;
 
 class Frame {
-  attribute content : Stuff;
+  var content : Stuff;
 }
 
 class Stuff {
-  attribute parent : Frame;
-  attribute name: String;
+  var parent : Frame;
+  var name: String;
 }        
         
 var sframe:Frame = Frame {

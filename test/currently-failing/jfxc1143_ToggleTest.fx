@@ -1,5 +1,5 @@
 /**
-  * Checks timeline toggle attribute
+  * Checks timeline toggle var
   *
   * @test
   * @run/fail

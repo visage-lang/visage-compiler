@@ -1,4 +1,4 @@
-/* Feature test #12 - bidirectional attribute binding
+/* Feature test #12 - bidirectional var binding
  * Demonstrates: bidirectional binding
  * @test
  * @run
@@ -7,8 +7,8 @@
 import java.lang.System;
  
 class AttHold {
-    attribute a : Integer = 14;
-    attribute b : Integer = bind a with inverse;
+    var a : Integer = 14;
+    var b : Integer = bind a with inverse;
 }
 var label = "far";
 var boundLabel = bind label with inverse;

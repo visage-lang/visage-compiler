@@ -8,8 +8,8 @@ package javafx.dev.util;
 
 
 public class Item {
-    public attribute name:String;
-    public attribute value:java.lang.Object ;
+    public var name:String;
+    public var value:java.lang.Object ;
     
     public function toString ():String { return name } 
 }

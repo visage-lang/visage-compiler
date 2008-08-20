@@ -6,7 +6,7 @@
 
 import java.lang.System;
 
-class Cell {attribute x: Number; attribute y: Number;}
+class Cell {var x: Number; var y: Number;}
 
 var size = 10;
 var grid = bind for (row in [1..size], col in [1..size]) Cell {x: col, y: row};

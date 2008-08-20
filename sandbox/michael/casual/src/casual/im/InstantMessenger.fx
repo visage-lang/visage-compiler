@@ -20,6 +20,6 @@ public abstract class InstantMessenger
     public abstract function isConnected():Boolean;
     public abstract function isAuthenticated(): Boolean;
     
-    public attribute user: Buddy;
-    public attribute buddies: Buddy[];
+    public var user: Buddy;
+    public var buddies: Buddy[];
 }

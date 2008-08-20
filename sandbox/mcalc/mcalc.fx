@@ -160,12 +160,12 @@ var Page1 = GridPanel {
  *
  */
  class amortgage {
-   attribute tempTerm = "30";
-	attribute tempIRate = "0.0";
-	attribute tempPurchasePrice = "0";
-	attribute tempDownPercent = "0.0";
-	attribute tempPrinciple = 0;
-	attribute tempMonthlyPI = 0.0;
+   var tempTerm = "30";
+	var tempIRate = "0.0";
+	var tempPurchasePrice = "0";
+	var tempDownPercent = "0.0";
+	var tempPrinciple = 0;
+	var tempMonthlyPI = 0.0;
 	function compareTo(m:amortgage):Boolean {
 		 var isSame=false;
 		 if(tempTerm.compareTo(m.tempTerm)==0 and 
@@ -198,11 +198,11 @@ function saveThisMortgage() {
  * Data structure for basic row unit in the amortization table
  */
 class amortTableRow {
-   attribute month     = 1;
-	attribute payment   = 0.0;
-	attribute interest  = 0.0;
-	attribute principle = 0.0;
-	attribute balance   = 0.0;
+   var month     = 1;
+	var payment   = 0.0;
+	var interest  = 0.0;
+	var principle = 0.0;
+	var balance   = 0.0;
 }
 
 /** 

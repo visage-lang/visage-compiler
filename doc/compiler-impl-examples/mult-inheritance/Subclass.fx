@@ -1,13 +1,13 @@
 class Base {
-    attribute a : Integer = 3;
+    var a : Integer = 3;
 }
 
 class OtherBase {
-    attribute b : Integer = 4;
+    var b : Integer = 4;
 }
 
 class Subclass extends Base, OtherBase {
-    attribute c : Integer = 5;
+    var c : Integer = 5;
 }
 
 Subclass { a: 1, b: 2 }

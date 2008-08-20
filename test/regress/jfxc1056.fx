@@ -4,8 +4,8 @@
  */
 import java.lang.System;
 class Foo {
-    attribute text : String;
-    public attribute func: function(): String = myfunc;
+    var text : String;
+    public var func: function(): String = myfunc;
     public function myfunc(): String {text}
 }
 var foo = Foo { text: "Hello" };

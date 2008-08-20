@@ -12,7 +12,7 @@ class Foo {
 }
 
 class Moo {
-    public attribute sattr : Boolean[] on replace {
+    public var sattr : Boolean[] on replace {
         java.lang.System.out.println("REPLACED with {sattr}");
     }
 }

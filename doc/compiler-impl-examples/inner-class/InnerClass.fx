@@ -1,5 +1,5 @@
 class Outer {
-    attribute o : Integer;
+    var o : Integer;
     var v = Middle {
         a : 1
         function toString() : String { "middle" }
@@ -10,8 +10,8 @@ class Outer {
 }
 
 class Middle {
-    public attribute a : Integer;
-    public attribute listener : Listener;
+    public var a : Integer;
+    public var listener : Listener;
 }
 
 abstract class Listener {

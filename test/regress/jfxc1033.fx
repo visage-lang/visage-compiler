@@ -8,27 +8,27 @@
 import java.lang.System; 
 
 class Owner {
-  attribute name : String on replace { System.out.println("Update name: {name}") }
+  var name : String on replace { System.out.println("Update name: {name}") }
   init { System.out.println("Creating Owner name: {name}") }
   public function toString() : String {"Owner name: {name}"}
 }
 
 class Money {
-  attribute dollars : Number on replace { System.out.println("Update dollars: {dollars}") }
+  var dollars : Number on replace { System.out.println("Update dollars: {dollars}") }
   init { System.out.println("Creating Money dollars: {dollars}") }
   public function toString() : String {"Money dollars: {dollars}"}
 }
 
 class Combs {
-  attribute count : Integer on replace { System.out.println("Update count: {count}") }
+  var count : Integer on replace { System.out.println("Update count: {count}") }
   init { System.out.println("Creating Combs count: {count}") }
   public function toString() : String {"Combs count: {count}"}
 }
 
 class Purse {
-  attribute owner : Owner on replace { System.out.println("Update owner = {owner}") }
-  attribute money : Money on replace { System.out.println("Update money = {money}") }
-  attribute combs : Combs on replace { System.out.println("Update combs = {combs}") }
+  var owner : Owner on replace { System.out.println("Update owner = {owner}") }
+  var money : Money on replace { System.out.println("Update money = {money}") }
+  var combs : Combs on replace { System.out.println("Update combs = {combs}") }
   init { System.out.println("Creating Purse") }
   public function toString() : String {"Purse {owner} {money} {combs}"}
 }

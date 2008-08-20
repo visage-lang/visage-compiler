@@ -5,9 +5,9 @@ import org.jivesoftware.smack.packet.Message;
 
 public class JabberChat extends Chat
 {
-    attribute chat: org.jivesoftware.smack.Chat;
-    attribute buddy: Buddy;
-    attribute manager: org.jivesoftware.smack.ChatManager;
+    var chat: org.jivesoftware.smack.Chat;
+    var buddy: Buddy;
+    var manager: org.jivesoftware.smack.ChatManager;
     
     postinit
     {

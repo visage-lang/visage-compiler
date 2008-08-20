@@ -39,7 +39,7 @@ import com.sun.scenario.scenegraph.SGAbstractShape;
  * that represent some form of geometric shape.
  */
 public abstract class Shape extends VisualNode {
-    protected attribute sgshape: SGShape;
+    protected var sgshape: SGShape;
     protected abstract function createShape(): SGShape; 
     public function getShape(): SGShape{
         if (sgshape == null) {
@@ -48,10 +48,10 @@ public abstract class Shape extends VisualNode {
         }
         return sgshape;
     }
-    public attribute fillRule: FillRule;
-    attribute awtShape: java.awt.Shape;
-    attribute awtTransform: AffineTransform;
-    public attribute outline: Boolean = false;
+    public var fillRule: FillRule;
+    var awtShape: java.awt.Shape;
+    var awtTransform: AffineTransform;
+    public var outline: Boolean = false;
 
     // TODO: implement properly
     function getAWTShape(): java.awt.Shape{

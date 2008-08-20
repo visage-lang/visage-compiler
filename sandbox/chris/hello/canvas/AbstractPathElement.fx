@@ -27,7 +27,7 @@ package hello.canvas;
 import java.awt.geom.GeneralPath;
 
 public abstract class AbstractPathElement {
-    protected attribute path: Path;
+    protected var path: Path;
     protected abstract function addTo(gp:GeneralPath):Void;
 }
 

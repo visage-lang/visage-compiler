@@ -26,15 +26,15 @@ package hello.canvas;
 import java.awt.geom.GeneralPath;
 
 public class FillRule {
-    attribute name: String;
-    attribute id: Number;
+    var name: String;
+    var id: Number;
 
-    public static attribute EVEN_ODD = FillRule {
+    public static var EVEN_ODD = FillRule {
         name: "EVEN_ODD", 
         id: GeneralPath.WIND_EVEN_ODD
     };
 
-    public static attribute NON_ZERO = FillRule {
+    public static var NON_ZERO = FillRule {
         name: "NON_ZERO", 
         id: GeneralPath.WIND_NON_ZERO
     };    

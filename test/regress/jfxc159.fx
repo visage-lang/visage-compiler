@@ -6,7 +6,7 @@
  */
 
 public class Foo { 
-    protected attribute keyMap:java.util.Map = new java.util.HashMap(); 
+    protected var keyMap:java.util.Map = new java.util.HashMap(); 
 
     public function getKeyStroke(id:Number): Bar { 
         return keyMap.get(id) as Bar; 
@@ -17,8 +17,8 @@ public class Foo {
 } 
 
 public class Bar { 
-    public attribute foo:Foo; 
-    public attribute foobar:Number on replace { 
+    public var foo:Foo; 
+    public var foobar:Number on replace { 
         foo.putKeyStroke(foobar, this); 
    } 
 } 

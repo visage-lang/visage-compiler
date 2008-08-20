@@ -1,5 +1,5 @@
 /*
- * Regression test: attribution fails to find attribute
+ * Regression test: attribution fails to find var
  *
  * @test
  * @run
@@ -8,7 +8,7 @@
 import java.lang.System;
 
 public abstract class TTransformable {
-    public attribute af = 1234;
+    public var af = 1234;
 }
 
 public abstract class TCanvasElement {

@@ -9,7 +9,7 @@
 import java.lang.System;
 
 class defaultseq {
-   attribute achorti : Number[];
+   var achorti : Number[];
 }
 
 var bulorpt : defaultseq[];

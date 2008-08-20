@@ -4,18 +4,18 @@ import java.lang.System;
 
 public class SimpleLabel extends Widget {
 
-    attribute jlabel: JLabel;
+    var jlabel: JLabel;
 
-    attribute swingIcon: javax.swing.Icon = bind if (icon == null) null else icon.getIcon()
+    var swingIcon: javax.swing.Icon = bind if (icon == null) null else icon.getIcon()
 	on replace {
 	    if (jlabel != null) {
 		jlabel.setIcon(swingIcon);
 	    }
 	}
 
-    public attribute icon: Icon = null;
+    public var icon: Icon = null;
 
-    public attribute text: String = "" on replace {
+    public var text: String = "" on replace {
         if (jlabel != null) jlabel.setText(text);
     }
 

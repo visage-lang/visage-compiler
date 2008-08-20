@@ -11,17 +11,17 @@ import java.lang.System;
 
 
 public class Palette extends ToolComponent{
-    public attribute items: PaletteItem[];
+    public var items: PaletteItem[];
 
-    public attribute selectedItem: PaletteItem;
+    public var selectedItem: PaletteItem;
 
 
-    public attribute selectedIndex: Integer on replace{
+    public var selectedIndex: Integer on replace{
         selectedItem  = items[selectedIndex];
     };
     
     
-    override attribute drag = function(): java.lang.Object {
+    override var drag = function(): java.lang.Object {
         System.out.println("[palette] Drag");
         return selectedItem.value;
     }

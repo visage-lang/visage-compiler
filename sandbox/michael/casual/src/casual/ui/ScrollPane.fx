@@ -12,12 +12,12 @@ import java.lang.Math;
 
 public class ScrollPane extends CompositeNode
 {
-    public attribute view: Node;
-    public attribute height: Number;
-    public attribute width: Number;
-    public attribute scrollFactor: Number;
+    public var view: Node;
+    public var height: Number;
+    public var width: Number;
+    public var scrollFactor: Number;
     
-    attribute scrollOffset: Number = bind Math.max((view.currentHeight - height)*scrollFactor, 0);
+    var scrollOffset: Number = bind Math.max((view.currentHeight - height)*scrollFactor, 0);
 
     function composeNode() {
         Clip {

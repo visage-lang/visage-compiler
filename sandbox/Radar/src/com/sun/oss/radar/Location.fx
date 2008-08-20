@@ -28,8 +28,8 @@ package com.sun.oss.radar;
  */
 
 public class Location {
-    attribute x:Number = 0;
-    attribute y:Number = 0;
+    var x:Number = 0;
+    var y:Number = 0;
     
     public function toString():String {
         return "[x: {x}, y: {y}";

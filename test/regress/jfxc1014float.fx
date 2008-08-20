@@ -9,10 +9,10 @@ import java.lang.System;
 import java.lang.Float;
 
 class Foo {
-  attribute ob = new Float(1);
-  attribute ff = ob.floatValue();
-  attribute bb = ob.byteValue();
-  attribute ss = ob.shortValue();
+  var ob = new Float(1);
+  var ff = ob.floatValue();
+  var bb = ob.byteValue();
+  var ss = ob.shortValue();
 }
 
 var ooh = Foo{}

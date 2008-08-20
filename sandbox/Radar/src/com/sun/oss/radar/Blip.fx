@@ -35,21 +35,21 @@ import java.lang.System;
 
 public class Blip extends CompositeNode {
     
-    public attribute image:Image = Image {url: "{__DIR__}images/blip.png"};
-    public attribute text:String;
-    public attribute foreground:Color = Color.YELLOW;
-    public attribute location:Location on replace old {
+    public var image:Image = Image {url: "{__DIR__}images/blip.png"};
+    public var text:String;
+    public var foreground:Color = Color.YELLOW;
+    public var location:Location on replace old {
         insert old before tail[0];
     };
-    attribute tail:Location[];
-    public attribute course:Number; // course in degrees
-    attribute imageView:ImageView;
-    attribute textNode:Text;
-    attribute x:Number = bind location.x;
-    attribute y:Number = bind location.y;
+    var tail:Location[];
+    public var course:Number; // course in degrees
+    var imageView:ImageView;
+    var textNode:Text;
+    var x:Number = bind location.x;
+    var y:Number = bind location.y;
     
     // speed in pixels / ms
-    attribute velocity:Number = 0.001;
+    var velocity:Number = 0.001;
     
     public function nextLocation(time:Number) {
         var tdelta = velocity * time;
@@ -59,7 +59,7 @@ public class Blip extends CompositeNode {
         location = Location{x: location.x - dx, y: location.y + dy};
     }
     
-    attribute movement = Timeline {
+    var movement = Timeline {
         keyFrames:[ 
             KeyFrame { 
                 keyTime: 0s, 

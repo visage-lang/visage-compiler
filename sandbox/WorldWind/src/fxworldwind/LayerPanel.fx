@@ -37,16 +37,16 @@ import gov.nasa.worldwind.layers.Layer;
  */
 
 public class LayerPanel extends BorderPanel {
-    override attribute preferredSize = new Dimension(200, 400);
-    public attribute wwd:WWD on replace {
+    override var preferredSize = new Dimension(200, 400);
+    public var wwd:WWD on replace {
         this.fill();
     }
-    attribute self = this;
-    attribute layersPanel:GridPanel;
-    attribute defaultFont:Font;
-    attribute atMaxFont:Font;
+    var self = this;
+    var layersPanel:GridPanel;
+    var defaultFont:Font;
+    var atMaxFont:Font;
     
-    override attribute center = GridPanel {
+    override var center = GridPanel {
         rows: 1
         vgap: 10
         border: CompoundBorder {

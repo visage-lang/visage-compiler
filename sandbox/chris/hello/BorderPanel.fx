@@ -2,9 +2,9 @@ package hello;
 
 public class BorderPanel {
 
-    attribute jpanel: javax.swing.JPanel;
+    var jpanel: javax.swing.JPanel;
 
-    public attribute top: Widget 
+    public var top: Widget 
 			  /*
 	on replace(old) {
 	if (jpanel != null) {
@@ -20,7 +20,7 @@ public class BorderPanel {
     }
 			  */;
 
-    public attribute left: Widget /* on replace(old) {
+    public var left: Widget /* on replace(old) {
 	if (jpanel != null) {
 	    if (old != null) {
 		jpanel.remove(old.getComponent());
@@ -32,7 +32,7 @@ public class BorderPanel {
 	    jpanel.repaint();
 	}
 	}*/;
-    public attribute bottom: Widget /* on replace(old) {
+    public var bottom: Widget /* on replace(old) {
 	if (jpanel != null) {
 	    if (old != null) {
 		jpanel.remove(old.getComponent());
@@ -45,7 +45,7 @@ public class BorderPanel {
 	}
 	}*/;
 
-    public attribute right: Widget /* on replace(old) {
+    public var right: Widget /* on replace(old) {
 	if (jpanel != null) {
 	    if (old != null) {
 		jpanel.remove(old.getComponent());
@@ -57,7 +57,7 @@ public class BorderPanel {
 	    jpanel.repaint();
 	}
 	} */;
-    public attribute center: Widget /* on replace(old) {
+    public var center: Widget /* on replace(old) {
 	if (jpanel != null) {
 	    if (old != null) {
 		jpanel.remove(old.getComponent());

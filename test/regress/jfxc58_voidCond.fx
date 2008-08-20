@@ -12,12 +12,12 @@ var PLAIN = FontStyle {id: 2, name: "PLAIN"};
 var ITALIC = FontStyle {id: 3, name: "ITALIC"};
 
 public class FontStyle {
-    public attribute id: Integer;
-    public attribute name: String;
+    public var id: Integer;
+    public var name: String;
 }
 
 public class Foo {
-    public attribute style: FontStyle[];
+    public var style: FontStyle[];
     
     public function Font(faceName:String, style:String[], size:Integer){
         for (i in style) {

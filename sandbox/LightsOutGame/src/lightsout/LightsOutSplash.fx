@@ -11,19 +11,19 @@ import javafx.ui.animation.Animation;
 import com.sun.javafx.runtime.animation.FXTimingTargetAdapter;
 
 public class LightsOutSplash extends CompositeNode {
-    public static attribute stdFont:Font = Font.Font("Arial", ["BOLD"], 55);   
+    public static var stdFont:Font = Font.Font("Arial", ["BOLD"], 55);   
     
-    public attribute main:LightsOutMain;
+    public var main:LightsOutMain;
     
-    attribute text_lights: Text= Text {
+    var text_lights: Text= Text {
         //content:"Lights", x:125,y:70, font:stdFont, fill: Color.WHITE
         content:"Lights", x:-300.0,y:70, font:stdFont, fill: Color.WHITE
     };
-    attribute text_out: Text = Text {
+    var text_out: Text = Text {
         //content:"Out", x:155,y:130, font:stdFont, fill: Color.WHITE
         content:"Out", x:500.0,y:130, font:stdFont, fill: Color.WHITE
     };
-    attribute start_button : BlueButton = 
+    var start_button : BlueButton = 
         BlueButton { text: "Start", font: Font.Font("Arial",["BOLD"],20)
             //transform : [Transform.translate(152,230)], width: 100, height: 30,
             transform : [Transform.translate(152,500)], width: 100, height: 30,
@@ -64,7 +64,7 @@ public class LightsOutSplash extends CompositeNode {
     }
 
     // a reference to main so we can do screen transitions
-    attribute locan: LightsOutCanvas;
+    var locan: LightsOutCanvas;
     public function transitionIn(){
         //fade in
         //opacity = [0.0..1.0 step 0.01] dur 1000 delay 0;

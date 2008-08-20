@@ -27,24 +27,24 @@ package hello;
  * Provides enumerated values for component alignment and text position
  */
 public class VerticalAlignment {
-    public attribute id: Number;
-    public attribute name: String;
+    public var id: Number;
+    public var name: String;
     
-    public static attribute TOP = VerticalAlignment {
+    public static var TOP = VerticalAlignment {
         id: javax.swing.SwingConstants.TOP
         name: "TOP"
     };
 
 
-    public static attribute MIDDLE = VerticalAlignment {
+    public static var MIDDLE = VerticalAlignment {
         id: javax.swing.SwingConstants.CENTER
         name: "MIDDLE"
     };
 
     // TODO: can't we just standardize on CENTER?
-    public static attribute CENTER = MIDDLE;
+    public static var CENTER = MIDDLE;
 
-    public static attribute BOTTOM = VerticalAlignment {
+    public static var BOTTOM = VerticalAlignment {
         id: javax.swing.SwingConstants.BOTTOM
         name: "BOTTOM"
     };

@@ -11,7 +11,7 @@ import lightsout.ColorConstants;
 
 
 public class LightsOutCanvas extends Group { 
-    attribute model: LightsOutModel;
+    var model: LightsOutModel;
     init {
         model = LightsOutModel{};
         model.randomize();

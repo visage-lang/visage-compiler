@@ -9,8 +9,8 @@ package com.sun.tools.javafx.api;
  */
 
 public class Point {
-    attribute x;
-    attribute y;
+    var x;
+    var y;
 }
 
 public class Point2 extends Point {}

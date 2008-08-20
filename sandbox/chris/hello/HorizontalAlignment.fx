@@ -27,20 +27,20 @@ package hello;
  * Provides enumerated values for component alignment and text position
  */
 public class HorizontalAlignment {
-    public attribute id: Number;
-    public attribute name: String;
+    public var id: Number;
+    public var name: String;
     
-    public static attribute LEADING = HorizontalAlignment {
+    public static var LEADING = HorizontalAlignment {
         id: javax.swing.SwingConstants.LEADING
         name: "LEADING"
     };
 
-    public static attribute CENTER = HorizontalAlignment {
+    public static var CENTER = HorizontalAlignment {
         id: javax.swing.SwingConstants.CENTER
         name: "CENTER"
     };
 
-    public static attribute TRAILING = HorizontalAlignment {
+    public static var TRAILING = HorizontalAlignment {
         id: javax.swing.SwingConstants.TRAILING
         name: "TRAILING"
     };

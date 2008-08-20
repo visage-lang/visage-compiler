@@ -8,79 +8,79 @@ import javafx.ui.EmptyBorder;
 // TODO: JFXC531 Remove this class as soon as LinearGradient supports 
 //               proportional values
 public class LinearGradientJFXC531 extends javafx.ui.LinearGradient {
-    attribute width: Number;
-    attribute height: Number;
+    var width: Number;
+    var height: Number;
 }
 
 public abstract class Theme
 {
-    public readonly attribute description: String;
+    public readonly var description: String;
     
-    public readonly attribute defaultFont: Font;
-    public readonly attribute defaultForeground: Color;
-    public readonly attribute defaultBackground: AbstractColor;
+    public readonly var defaultFont: Font;
+    public readonly var defaultForeground: Color;
+    public readonly var defaultBackground: AbstractColor;
     
-    public readonly attribute uiForeground: Color;
-    public readonly attribute uiBackground: Color;
-    public readonly attribute uiBorderColor: Color;
-    public readonly attribute uiStrokeWidth: Integer;
+    public readonly var uiForeground: Color;
+    public readonly var uiBackground: Color;
+    public readonly var uiBorderColor: Color;
+    public readonly var uiStrokeWidth: Integer;
     
-    public readonly attribute windowFont: Font;
-    public readonly attribute windowInactive: Color;
-    public readonly attribute windowBackground: Color; 
-    public readonly attribute windowBorder: EmptyBorder;
-    public readonly attribute windowInputAreaBorder: EmptyBorder;
+    public readonly var windowFont: Font;
+    public readonly var windowInactive: Color;
+    public readonly var windowBackground: Color; 
+    public readonly var windowBorder: EmptyBorder;
+    public readonly var windowInputAreaBorder: EmptyBorder;
     
-    public readonly attribute titleBarFont: Font;
-    public readonly attribute titleBarForeground: Color;
-    public readonly attribute titleBarBackground: Color;
-    public readonly attribute titleBorder: EmptyBorder;
-    public readonly attribute titleBarCloseIconColor: Color;
-    public readonly attribute titleBarMinimizeIconColor: Color;
+    public readonly var titleBarFont: Font;
+    public readonly var titleBarForeground: Color;
+    public readonly var titleBarBackground: Color;
+    public readonly var titleBorder: EmptyBorder;
+    public readonly var titleBarCloseIconColor: Color;
+    public readonly var titleBarMinimizeIconColor: Color;
     
-    public readonly attribute chatPanelFont: Font;
-    public readonly attribute chatFrameBackground: Color;
-    public readonly attribute chatPanelBackgroundDark: Color;
-    public readonly attribute chatPanelBackgroundLight: Color;
-    public readonly attribute chatPanelBackground: Color;
+    public readonly var chatPanelFont: Font;
+    public readonly var chatFrameBackground: Color;
+    public readonly var chatPanelBackgroundDark: Color;
+    public readonly var chatPanelBackgroundLight: Color;
+    public readonly var chatPanelBackground: Color;
     // TODO: JFXC531 Remove this function and use chatPanelBackground instead
     public abstract function getChatPanelBackground(w: Number, h: Number): Color;
-    public readonly attribute chatPanelBorder: EmptyBorder;
+    public readonly var chatPanelBorder: EmptyBorder;
     
-    public readonly attribute messageFont: Font;
-    public readonly attribute commentFont: Font;
-    public readonly attribute messageInForeground: Color;
-    public readonly attribute messageInBackground: Color;
-    public readonly attribute messageOutForeground: Color;
-    public readonly attribute messageOutBackground: Color;
-    public readonly attribute commentForeground: Color;
-    public readonly attribute commentBackground: Color;
-    public readonly attribute messageBorderColor: Color;
-    public readonly attribute messageBorder: EmptyBorder;
-    public readonly attribute commentBorder: EmptyBorder;
+    public readonly var messageFont: Font;
+    public readonly var commentFont: Font;
+    public readonly var messageInForeground: Color;
+    public readonly var messageInBackground: Color;
+    public readonly var messageOutForeground: Color;
+    public readonly var messageOutBackground: Color;
+    public readonly var commentForeground: Color;
+    public readonly var commentBackground: Color;
+    public readonly var messageBorderColor: Color;
+    public readonly var messageBorder: EmptyBorder;
+    public readonly var commentBorder: EmptyBorder;
     
-    public readonly attribute messageInputForeground: Color;
-    public readonly attribute messageInputBackground: Color;
-    public readonly attribute messageInputBorderColor: Color;
-    public readonly attribute messageInputBorder: EmptyBorder;
-    public readonly attribute messageInputAreaBorder: EmptyBorder;
+    public readonly var messageInputForeground: Color;
+    public readonly var messageInputBackground: Color;
+    public readonly var messageInputBorderColor: Color;
+    public readonly var messageInputBorder: EmptyBorder;
+    public readonly var messageInputAreaBorder: EmptyBorder;
     
-    public readonly attribute fieldForeground: Color;
-    public readonly attribute fieldBackground: Color;
-    public readonly attribute fieldFocusColor: Color;
+    public readonly var fieldForeground: Color;
+    public readonly var fieldBackground: Color;
+    public readonly var fieldFocusColor: Color;
 
-    public readonly attribute errorForeground: Color;
-    public readonly attribute errorBackgroundInside: AbstractColor;
-    public readonly attribute errorBackgroundOutside: Color;
-    public readonly attribute errorBorderColor: Color;
+    public readonly var errorForeground: Color;
+    public readonly var errorBackgroundInside: AbstractColor;
+    public readonly var errorBackgroundOutside: Color;
+    public readonly var errorBorderColor: Color;
 
-    public readonly attribute warningForeground: Color;
-    public readonly attribute warningBackgroundInside: AbstractColor;
-    public readonly attribute warningBackgroundOutside: Color;
-    public readonly attribute warningBorderColor: Color;
+    public readonly var warningForeground: Color;
+    public readonly var warningBackgroundInside: AbstractColor;
+    public readonly var warningBackgroundOutside: Color;
+    public readonly var warningBorderColor: Color;
 
-    public readonly attribute infoForeground: Color;
-    public readonly attribute infoBackgroundInside: AbstractColor;
-    public readonly attribute infoBackgroundOutside: Color;
-    public readonly attribute infoBorderColor: Color;
+    public readonly var infoForeground: Color;
+    public readonly var infoBackgroundInside: AbstractColor;
+    public readonly var infoBackgroundOutside: Color;
+    public readonly var infoBorderColor: Color;
 }

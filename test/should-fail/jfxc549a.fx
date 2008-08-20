@@ -7,5 +7,5 @@
  * and needs to be quoted with Guillemets (<< and >>).
  */
 class Node {
-    attribute insert: Number;
+    var insert: Number;
 };

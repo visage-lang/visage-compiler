@@ -19,5 +19,5 @@ public class BoundSelectTest extends FXTestCase {
 }
 
 class Foo {
-    attribute i : Integer;
+    var i : Integer;
 }

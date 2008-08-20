@@ -1,5 +1,5 @@
 /*
- * Regression test for JFXC-757 : NPE on non-constant override attribute default
+ * Regression test for JFXC-757 : NPE on non-constant override var default
  *
  * @test
  * @run
@@ -8,7 +8,7 @@
 import java.lang.System;
 
 class A extends java.util.BitSet {
-  attribute a : Integer
+  var a : Integer
     on replace { System.out.println("trigger"); }
 }
 

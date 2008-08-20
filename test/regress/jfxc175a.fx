@@ -8,7 +8,7 @@
  * @run
  */
 class Bar {
-	attribute a : Integer;
+	var a : Integer;
 	function getA() : Integer { return a; }
 }
 

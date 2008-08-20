@@ -10,8 +10,8 @@ import java.lang.System;
 var enableBindingOverhaul;
 
 class A {}
-class B extends A { attribute b = "box" }
-class C extends B { attribute c = "see" }
+class B extends A { var b = "box" }
+class C extends B { var c = "see" }
 
 var x : A = new A;
 def isA = bind x instanceof A;

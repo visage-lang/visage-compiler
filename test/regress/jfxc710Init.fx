@@ -6,15 +6,15 @@
 import java.lang.System;
 
 class Base {
-    attribute duplicate = 10;
-    attribute foo = 1 on replace old {
+    var duplicate = 10;
+    var foo = 1 on replace old {
         System.out.println("Base.foo={foo}, old={old}");
     }
 }
 
 class Subclass extends Base {
-    override attribute duplicate = 20;
-    attribute bar = foo + 10 on replace old {
+    override var duplicate = 20;
+    var bar = foo + 10 on replace old {
 
         System.out.println("Subclass.bar={bar}, old={old}");
     }

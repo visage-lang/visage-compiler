@@ -8,7 +8,7 @@
 import java.lang.System;
 
 class Foo {
-  attribute hop;
+  var hop;
   public function foo() { 55 }
 }
 

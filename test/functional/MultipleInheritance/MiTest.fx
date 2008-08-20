@@ -90,16 +90,16 @@ class EmployeeSalaryComparator extends FxComparator{
         }
 }
 
-/** Multiple superclasses provide default initialization for an attribute(comparatorUsed.comparatorCalled).
+/** Multiple superclasses provide default initialization for an var(comparatorUsed.comparatorCalled).
 The class that appears later in the superclass order wins(EmployeeExperienceComparator in this case), 
 and the implementation contributed by the losing class is ignored. 
-Similarly attribute 'comparatorCalled' is initialized in all 3 superclasses,but only the initialization
+Similarly var 'comparatorCalled' is initialized in all 3 superclasses,but only the initialization
 of the class that appears later in the superclass order wins(EmployeeExperienceComparator again)
 **/
 
 class Comparator1 extends EmployeeNameComparator,EmployeeExperienceComparator{
 
-/*In this case, duplicate attribute 'comparatorCalled' is initialized in all  the superclasses 
+/*In this case, duplicate var 'comparatorCalled' is initialized in all  the superclasses 
  and duplicate method implementations for 'compare' is provided
 */
 

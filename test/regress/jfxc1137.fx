@@ -4,7 +4,7 @@
  */
 import java.lang.*;
 class X {
-  public attribute a : String;
+  public var a : String;
 }
 var x = X {a: "*"};
 var y = {x};

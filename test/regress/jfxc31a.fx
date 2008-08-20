@@ -7,7 +7,7 @@
 class Cursor {}
 
 class FXCursor {
-    protected attribute awtCursor:  Cursor;
+    protected var awtCursor:  Cursor;
     public function getCursor():  Cursor  {
     	if (awtCursor == null) then {
        	     awtCursor = createCursor();

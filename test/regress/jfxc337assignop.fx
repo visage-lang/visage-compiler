@@ -8,7 +8,7 @@
 import java.lang.System;
 
 class Foo {
-	attribute x : Integer;
+	var x : Integer;
 	function doubleIt() { x *= 2 }
 	function giveMeFive() { x += 5 }
 	function loseOne() { x -= 1 }
