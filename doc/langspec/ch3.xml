@@ -4,26 +4,26 @@
 
 
 
-<chapter id="functions"><title>Attributes and Functions</title>
+<chapter id="functions"><title>Member Variables and Functions</title>
 
 
-<sect2 id="attribute"><title>Attributes</title>
+<sect2 id="attribute"><title>Member Variables</title>
 
-<para>Attributes define the state of an object. They are declared using the <code>attribute</code> keyword followed by the attribute's name, a colon (optional), the attribute's type (optional) terminated with a semicolon. </para>
+<para>Member variables define the state of an object. The are declared within a class definition using the <code>var</code> keyword followed by the variable's name, a colon (optional), the variable's type (optional) terminated with a semicolon. </para>
 
 
 <programlisting>
-attribute <emphasis>AttributeName</emphasis> : <emphasis>AttributeType </emphasis> ;
+var <emphasis>MemberVariableName</emphasis> : <emphasis>MemberVariableType </emphasis> ;
 </programlisting>
 
-<para>It is possible to declare default values for attributes (which can later be overridden by values provided in object literals.) The initializers are evaluated in the order the attributes are specified in the class declaration in the context of the newly created object: </para>
+<para>It is possible to declare default values for member variables (which can later be overridden by values provided in object literals.) The initializers are evaluated in the order the member variables are specified in the class declaration in the context of the newly created object: </para>
 
 <programlisting>
 import java.lang.System;
 
 class X {
-     attribute a: Number = 10;
-     attribute b: Number = -1;
+     var a: Number = 10;
+     var b: Number = -1;
 }
 
 var x = X { };
@@ -33,16 +33,16 @@ System.out.println(x.b); // prints -1.0
 
 
 <para>
-In the absence of explicit initialization, each attribute is assigned a reasonable default:</para>
+In the absence of explicit initialization, each variable is assigned a reasonable default:</para>
 
 <programlisting>
 import java.lang.System;
 
 class DefaultValuesDemo {
-     attribute a: Number;
-     attribute b: Integer;
-     attribute c: Boolean;
-     attribute d: String;
+     var a: Number;
+     var b: Integer;
+     var c: Boolean;
+     var d: String;
 }
 
 var demo = DefaultValuesDemo {};
@@ -72,10 +72,10 @@ Default Value:
 
 </sect2>
 
-<sect2 id="function"><title>Functions</title>
+<sect2 id="function"><title>Member Functions</title>
 
 <para>
-Functions define the behavior of an object. A function takes the following form: </para>
+Member functions define the behavior of an object. A member function takes the following form: </para>
 
 
 <programlisting>
@@ -85,7 +85,7 @@ function <emphasis>name</emphasis> (<emphasis>parameterName</emphasis> : <emphas
 <para>where <emphasis>body</emphasis> can be any expression.</para>
 
 <para>
-Functions are first-class objects (they can, for example, be assigned to variables, or passed as parameters to other functions.)</para>
+Member functions are first-class objects (they can, for example, be assigned to variables, or passed as parameters to other functions.)</para>
 
 
 <para>
@@ -103,7 +103,7 @@ function grow(): Void {
 ...
 </programlisting>
 
-<para>The demo also provided an overloaded version that allowed the user to specify a particular size: </para>
+<para>It also provided an overloaded version that allowed the user to specify a particular amount: </para>
 
 <programlisting>
 
@@ -118,7 +118,7 @@ function grow(amount: Integer): Void {
 </programlisting>
 
 <para>Functions can also be anonymous. Anonymous functions are often used to 
-assign behavior to the <code>action</code> attribute of a GUI 
+assign behavior to the <code>action</code> member variable of a GUI 
 component:
 </para>
 

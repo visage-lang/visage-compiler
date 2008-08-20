@@ -4,11 +4,11 @@
 
 
 
-<chapter id="types"><title>Variables and Basic Data Types</title>
+<chapter id="types"><title>Script Variables and Basic Data Types</title>
 
 
 
-<sect2 id="variable"><title>Variables</title>
+<sect2 id="variable"><title>Script Variables</title>
 
 <para>
 As discussed in <ulink url="overview.html"><emphasis>Chapter 1</emphasis></ulink>, the <code>var</code> keyword is used to introduce a new variable into your program. 
@@ -39,7 +39,7 @@ Variable naming conventions are identical to the conventions in the <trademark>J
 
 <para>
 Any sequence of characters (including white space) contained in double angle brackets 
-&lt;&lt;&gt;&gt; is treated as an identifier. This enables the use of <trademark>JavaFX</trademark> Script programming language keywords (or other normally illegal identifiers) as class, variable, function, or attribute names.
+&lt;&lt;&gt;&gt; is treated as an identifier. This enables the use of <trademark>JavaFX</trademark> Script programming language keywords (or other normally illegal identifiers) as class, variable, function, or member variable names.
 </para>
 
 

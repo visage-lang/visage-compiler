@@ -194,8 +194,8 @@ let pt = Point { x: bind myX  y: bind myY  }
 import java.lang.System;
 
 class Point {
-     attribute x : Number;
-     attribute y : Number;
+     var x : Number;
+     var y : Number;
 }
 
 var scale = 1.0;

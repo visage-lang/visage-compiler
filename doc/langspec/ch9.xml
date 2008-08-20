@@ -41,7 +41,7 @@ Notice the asymmetry between <code>oldValue</code> and <code>newElements</code>.
 The syntax of the replace trigger is meant to be evocative of a slice assignment. For example:</para>
 
 <programlisting>
-attribute x
+var x
     on replace oldVal[lo..hi]=newVals { exp };
   var save = x;
   x[i..j] = y;
@@ -56,8 +56,8 @@ Then <code>exp</code> is evaluated, with <code>oldVal</code> bound to <code>save
 Unified replace triggers work well with slice assignments. For example, you can define a bind, as in the following:</para>
 
 <programlisting>
-attribute x;
-attribute y = bind x;
+var x;
+var y = bind x;
 </programlisting>
 
 
@@ -66,27 +66,27 @@ attribute y = bind x;
 as equivalent to:</para>
 
 <programlisting>
-attribute x =
+var x =
    on replace [i..j]=n
    { y[i..j]=n };
-attribute y = [];
+var y = [];
 </programlisting>
 
 <para>If y is a <emphasis>map</emphasis> of x:</para>
 
 <programlisting>
-attribute x;
-attribute y = bind for (xi in x) f(xi);
+var x;
+var y = bind for (xi in x) f(xi);
 </programlisting>
 
 <para>
 that is equivalent to the following:</para>
 
 <programlisting>
-attribute x =
+var x =
   on replace [i..j]=n
   { y[i..j] = for (k in n) f(k) };
-attribute y = [];
+var y = [];
 </programlisting>
 
 <para>Deleting or replacing a range of elements in a sequence, or inserting a sequence into a single location all result in a single trigger invocation. Some other operations, such as deleting all elements that satisfy a predicate, might be decomposed to multiple trigger call. In that case the state that is seen by each trigger invocation is consistent. Specifically, the programmer-visible state is <emphasis>as if</emphasis> the predicate-delete (for example) were implemented as a set of independent slice-delete operations.</para>

@@ -68,15 +68,15 @@ java.lang.System.out.println("Twice {ten} is {2 * ten}.");   </programlisting>
 
     <para>Class definitions share many similarities with the Java programming
     language, but some differences are notable. State, for example, is
-    information stored in <emphasis>attributes</emphasis>, not fields.
-    Behavior is exposed through <emphasis>functions</emphasis>, not methods.
+    information stored in <emphasis>member variables</emphasis>, not fields.
+    Behavior is exposed through <emphasis>member functions</emphasis>, not methods.
     The following example defines a simple <code>Rectangle</code> class that
     demonstrates the basic syntax of each.</para>
 
     <programlisting>class Rectangle {
 
-     attribute width: Integer;
-     attribute height: Integer;
+     var width: Integer;
+     var height: Integer;
 
      function grow(): Void {
           grow(1);
@@ -90,15 +90,15 @@ java.lang.System.out.println("Twice {ten} is {2 * ten}.");   </programlisting>
 }
 </programlisting>
 
-    <para>The JavaFX Script programming language supports <emphasis>multiple
-    inheritance</emphasis>, making it possible to inherit from more than one
-    class.</para>
+    <para>Another notable difference is that the JavaFX Script 
+programming language supports <emphasis>multiple
+    inheritance</emphasis>.</para>
 
     <para>Classes are covered in detail in <ulink url="classintro.html">
         <emphasis>Chapter 2</emphasis>
       </ulink></para>
 
-    <para>Attributes and Functions are covered in detail in <ulink
+    <para>Member variables and functions are covered in detail in <ulink
         url="functions.html">
         <emphasis>Chapter 3</emphasis>
       </ulink></para>
@@ -110,7 +110,7 @@ java.lang.System.out.println("Twice {ten} is {2 * ten}.");   </programlisting>
     <para><emphasis>Object literals</emphasis> provide a simple syntax for
     class instantiation. The following code creates a single instance of the
     <code>Rectangle</code> class defined previously, initializing its
-    <code>width</code> and <code>height</code> attributes to <code>100</code>.
+    <code>width</code> and <code>height</code> member variables to <code>100</code>.
     (Note that <code>new</code> is not needed.)</para>
 
     <programlisting>Rectangle {
@@ -120,8 +120,8 @@ java.lang.System.out.println("Twice {ten} is {2 * ten}.");   </programlisting>
 
 }</programlisting>
 
-    <para>To store a reference to this object, use the <code>var</code>
-    keyword:</para>
+    <para>Used in this context, the <code>var</code>
+    keyword can also be used to store a reference to the newly created object:</para>
 
     <programlisting>var myRect = Rectangle {
      
@@ -178,7 +178,7 @@ var weekend = week[5..6]; // second slice
       </ulink> covers the basics of declaring sequences, while <ulink
         url="comprehensions.html">
         <emphasis>Chapter 7</emphasis>
-      </ulink> focuses on <emphasis>using</emphasis> sequences.</para>
+      </ulink> focuses on <emphasis>using</emphasis> them.</para>
   </sect3>
 
   <sect3 id="databinding">
@@ -186,7 +186,7 @@ var weekend = week[5..6]; // second slice
 
     <para><emphasis>Data binding</emphasis> provides a simple syntax for
     synchronizing the state of multiple objects. When two objects are
-    <emphasis>bound</emphasis> to each other, the second object's value
+    <emphasis>bound</emphasis>, the second object's value
     automatically changes whenever the first object is updated. A common use
     of data binding is to keep GUI components synchronized with their
     underlying data.</para>
@@ -223,7 +223,7 @@ Frame {
 
     <para><emphasis>Triggers</emphasis> are blocks of code that run when
     certain conditions are true. For example, you may want to be alerted if an
-    attribute's value has been set to something that is inappropriate. The
+    variable's value has been set to something that is inappropriate. The
     following example shows the basic trigger syntax:</para>
 
     <programlisting>import java.lang.System;
@@ -235,12 +235,10 @@ ReplaceDemo {
 }
 
 class ReplaceDemo {
-     attribute mySensitiveData: String
+     var mySensitiveData: String
           on replace {
                System.out.println("I noticed a change!");                      
           };
-
-          // application-specific safeguarding code would go here 
 }
 </programlisting>
 

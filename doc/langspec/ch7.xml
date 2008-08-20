@@ -18,9 +18,9 @@ The following program demonstrates this syntax,  using the <code>for</code> oper
 <programlisting>
 
 class Album {
-     attribute title: String;
-     attribute artist: String;
-     attribute tracks: String[];
+     var title: String;
+     var artist: String;
+     var tracks: String[];
 }
 
 var albums =
