@@ -23,14 +23,22 @@
 
 package com.sun.tools.javafx.antlr;
 
+import java.util.HashMap;
+
 import com.sun.tools.javac.code.Source;
+
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.tree.JCTree;
+
+import com.sun.tools.javafx.tree.JFXInterpolateValue;
 import com.sun.tools.javafx.tree.JFXTree;
 import com.sun.tools.javafx.tree.JFXErroneous;
+import com.sun.tools.javafx.tree.JavafxTreeInfo;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
+
 import com.sun.tools.javafx.util.MsgSym;
 import org.antlr.runtime.*;
 
@@ -51,6 +59,20 @@ public abstract class AbstractGeneratedParser extends Parser {
     
     /** The Source language setting. */
     protected Source source;
+    
+    /** The token id for white space */
+    protected int whiteSpaceToken;
+    
+    /** Should the parser generate an end positions map? */
+    protected boolean genEndPos;
+
+    /** The end positions map. */
+    HashMap<JCTree,Integer> endPositions;
+
+    /** The doc comments map */
+    HashMap<JCTree,String> docComments;
+
+    private JavafxTreeInfo treeInfo;
     
     /** The name table. */
     protected Name.Table names;
@@ -581,6 +603,63 @@ public abstract class AbstractGeneratedParser extends Parser {
         return ((CommonToken)tok).getStartIndex();
     }
     
+    void endPos(JCTree tree, com.sun.tools.javac.util.List<JFXInterpolateValue> list) {
+        if (genEndPos) {
+            int endLast = endPositions.get(list.last());
+            endPositions.put(tree, endLast);
+        }
+    }
+
+
+	/** Using the current token stream position as the start point
+	 *  search back through the input token stream and set the end point
+	 *  of the supplied tree object to the first non-whitespace token
+	 *  we find.
+	 */
+    void endPos(JCTree tree) {
+
+		CommonToken tok;
+		int index = input.index();
+		int end = 0;
+		
+		if	(genEndPos && index > 0)
+		{ 
+			for(;;)
+			{
+				// Find the current token
+				//
+				tok = (CommonToken)input.get(index);
+			
+				if	(tok == null)
+				{	
+					// Not much we can do about that - should not
+					// happen. 
+					//
+					break;
+				}
+				
+				if	(tok.getType() == whiteSpaceToken && tok.getType() != Token.EOF)
+				{
+					index--;
+				}
+				else
+				{
+					// We have found a token that is non-whitespace and is not EOF
+					//
+					endPos(tree, tok.getStopIndex() + 1);
+					break;
+				}
+			}
+		
+		}
+    }
+    
+    
+    void endPos(JCTree tree, int end) {
+        if (genEndPos)
+            endPositions.put(tree, end);
+    }
+
     protected List noJFXTrees() {
         return List.<JFXTree>nil();
     }
