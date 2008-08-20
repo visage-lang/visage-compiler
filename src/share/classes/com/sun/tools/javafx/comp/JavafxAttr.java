@@ -2641,14 +2641,8 @@ public class JavafxAttr implements JavafxVisitor {
         boolean addToSuperTypes = true;
 
         for (JFXExpression superClass : tree.getSupertypes()) {
-            Type supType = null;
-            Symbol supSym = JavafxTreeInfo.symbol(superClass);
-            if (supSym == null)  {
-                supType = attribType(superClass, env);
-            }
-            else {
-                supType = supSym.type;
-            }
+            Type supType = superClass.type == null ? attribType(superClass, env)
+                                                   : superClass.type;
             // java.lang.Enum may not be subclassed by a non-enum
             if (supType.tsym == syms.enumSym &&
                 ((c.flags_field & (Flags.ENUM|Flags.COMPOUND)) == 0))
@@ -2688,7 +2682,7 @@ public class JavafxAttr implements JavafxVisitor {
                     }
 
                     if (hasNonParamCtor) {
-                        ((ClassType)javafxClassSymbol.type).supertype_field = javaSupertypeSymbol.type;
+                        ((ClassType)javafxClassSymbol.type).supertype_field = supType;
                         addToSuperTypes = false;
                     }
                     else {
