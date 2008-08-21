@@ -67,14 +67,15 @@ java.lang.System.out.println("Twice {ten} is {2 * ten}.");   </programlisting>
     <title>Classes</title>
 
     <para>Class definitions share many similarities with the Java programming
-    language, but some differences are notable. State, for example, is
-    information stored in <emphasis>member variables</emphasis>, not fields.
-    Behavior is exposed through <emphasis>member functions</emphasis>, not methods.
-    The following example defines a simple <code>Rectangle</code> class that
-    demonstrates the basic syntax of each.</para>
+    language, but some differences are notable.
+
+
+    The following example defines a simple <code>Rectangle</code> class:
+    </para>
 
     <programlisting>class Rectangle {
-
+     
+     def sides: Integer = 4;
      var width: Integer;
      var height: Integer;
 
@@ -90,15 +91,12 @@ java.lang.System.out.println("Twice {ten} is {2 * ten}.");   </programlisting>
 }
 </programlisting>
 
-    <para>Another notable difference is that the JavaFX Script 
-programming language supports <emphasis>multiple
-    inheritance</emphasis>.</para>
 
     <para>Classes are covered in detail in <ulink url="classintro.html">
         <emphasis>Chapter 2</emphasis>
       </ulink></para>
 
-    <para>Member variables and functions are covered in detail in <ulink
+    <para>Instance variables and functions are covered in detail in <ulink
         url="functions.html">
         <emphasis>Chapter 3</emphasis>
       </ulink></para>
@@ -110,7 +108,7 @@ programming language supports <emphasis>multiple
     <para><emphasis>Object literals</emphasis> provide a simple syntax for
     class instantiation. The following code creates a single instance of the
     <code>Rectangle</code> class defined previously, initializing its
-    <code>width</code> and <code>height</code> member variables to <code>100</code>.
+    <code>width</code> and <code>height</code> instance variables to <code>100</code>.
     (Note that <code>new</code> is not needed.)</para>
 
     <programlisting>Rectangle {

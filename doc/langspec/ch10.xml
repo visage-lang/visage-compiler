@@ -34,7 +34,7 @@
       </listitem>
 
       <listitem>
-        Each timeline also provides certain member variables that describe it
+        Each timeline also provides certain instance variables that describe it
         (<code>autoReverse</code>, <code>repeatCount</code>,
         <code>toggle</code>, etc.) plus a number of functions that control its
         playback (<code>start()</code>, <code>stop()</code>,
@@ -168,7 +168,7 @@ Frame {
                           var size = 1.0;
                           var color = Color.GREEN;
 
-                         // Initialize member variables
+                         // Initialize instance variables
                          cursor: Cursor.HAND
                          height: 50
                          width: 50

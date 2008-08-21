@@ -11,14 +11,14 @@
 <sect2 id="variable"><title>Script Variables</title>
 
 <para>
-As discussed in <ulink url="overview.html"><emphasis>Chapter 1</emphasis></ulink>, the <code>var</code> keyword is used to introduce a new variable into your program. 
+As mentioned in <ulink url="overview.html"><emphasis>Chapter 1</emphasis></ulink>, the <code>var</code> and <code>def</code> keywords are used to introduce a new variable into your program. (The <code>def</code> keyword introduces a variable that should not be assigned to, overridden, or set in an object literal.)   
 A variable's type can be specified in its declaration, but doing so is optional. If a variable's type is omitted from the declaration, 
 the type can be inferred from its use.</para>
 
 <para>A variable declaration takes the following form:</para>
 
 <programlisting>
-var <emphasis>variableName : type = initializer;</emphasis>
+[to do: syntax diagram]
 </programlisting>
 
 <para><emphasis role="bold">Examples: </emphasis></para>
@@ -39,7 +39,7 @@ Variable naming conventions are identical to the conventions in the <trademark>J
 
 <para>
 Any sequence of characters (including white space) contained in double angle brackets 
-&lt;&lt;&gt;&gt; is treated as an identifier. This enables the use of <trademark>JavaFX</trademark> Script programming language keywords (or other normally illegal identifiers) as class, variable, function, or member variable names.
+&lt;&lt;&gt;&gt; is treated as an identifier. This enables the use of <trademark>JavaFX</trademark> Script programming language keywords (or other normally illegal identifiers) as class, script variable, function, or instance variable names.
 </para>
 
 

@@ -4,19 +4,19 @@
 
 
 
-<chapter id="functions"><title>Member Variables and Functions</title>
+<chapter id="functions"><title>Instance Variables and Functions</title>
 
 
-<sect2 id="attribute"><title>Member Variables</title>
+<sect2 id="attribute"><title>Instance Variables</title>
 
-<para>Member variables define the state of an object. The are declared within a class definition using the <code>var</code> keyword followed by the variable's name, a colon (optional), the variable's type (optional) terminated with a semicolon. </para>
+<para>Instance variables define the state of an object. The are declared within a class definition using the <code>var</code> or <code>def</code> keywords followed by the variable's name, a colon (optional), the variable's type (optional) terminated with a semicolon. </para>
 
 
 <programlisting>
-var <emphasis>MemberVariableName</emphasis> : <emphasis>MemberVariableType </emphasis> ;
+[to-do: syntax diagram here]
 </programlisting>
 
-<para>It is possible to declare default values for member variables (which can later be overridden by values provided in object literals.) The initializers are evaluated in the order the member variables are specified in the class declaration in the context of the newly created object: </para>
+<para>It is possible to declare default values for instance variables (which can later be overridden by values provided in object literals.) The initializers are evaluated in the order the instance variables are specified in the class declaration in the context of the newly created object: </para>
 
 <programlisting>
 import java.lang.System;
@@ -72,10 +72,10 @@ Default Value:
 
 </sect2>
 
-<sect2 id="function"><title>Member Functions</title>
+<sect2 id="function"><title>Instance Functions</title>
 
 <para>
-Member functions define the behavior of an object. A member function takes the following form: </para>
+Instance functions define the behavior of an object. An instance function takes the following form: </para>
 
 
 <programlisting>
@@ -85,7 +85,7 @@ function <emphasis>name</emphasis> (<emphasis>parameterName</emphasis> : <emphas
 <para>where <emphasis>body</emphasis> can be any expression.</para>
 
 <para>
-Member functions are first-class objects (they can, for example, be assigned to variables, or passed as parameters to other functions.)</para>
+Instance functions are first-class objects (they can, for example, be assigned to variables, or passed as parameters to other functions.)</para>
 
 
 <para>
@@ -118,7 +118,7 @@ function grow(amount: Integer): Void {
 </programlisting>
 
 <para>Functions can also be anonymous. Anonymous functions are often used to 
-assign behavior to the <code>action</code> member variable of a GUI 
+assign behavior to the <code>action</code> instance variable of a GUI 
 component:
 </para>
 

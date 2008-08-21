@@ -18,32 +18,30 @@
             <tr>
               <td><code>abstract</code></td>
 
-              <td><code><!--  assert --></code></td>
-
-              <td><code><!-- attribute --></code></td>
-
               <td><code>bind</code></td>
 
               <td><code>break</code></td>
-            </tr>
 
-            <tr>
               <td><code>class</code></td>
 
               <td><code>continue</code></td>
-	      
-	      <td><code>delete</code></td>
+            </tr>
 
-              <td><code>false</code></td>
+            <tr>
+              <td><code>def</code></td>
+
+              <td><code>delete</code></td>
+	      
+	      <td><code>false</code></td>
 
               <td><code>for</code></td>
+
+              <td><code>function</code></td>
 	      
 	      
             </tr>
 
             <tr>
-              <td><code>function</code></td>
-
               <td><code>if</code></td>
 
               <td><code>import</code></td>
@@ -51,11 +49,11 @@
               <td><code>init</code></td>
 
               <td><code>insert</code></td>
+
+              <td><code>mod</code></td>
             </tr>
 
             <tr>
-              <td><code>mod</code></td>
-
               <td><code>new</code></td>
 
               <td><code>not</code></td>
@@ -63,10 +61,12 @@
               <td><code>null</code></td>
 
               <td><code>package</code></td>
+
+              <td><code>private</code></td>
             </tr>
 
             <tr>
-              <td><code>private</code></td>
+              <td><code> </code></td>
 
               <td><code><!-- protected --></code></td>
 
