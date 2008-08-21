@@ -41,6 +41,7 @@ import com.sun.tools.javafx.tree.JavafxTreeMaker;
 
 import com.sun.tools.javafx.util.MsgSym;
 import org.antlr.runtime.*;
+import org.antlr.runtime.tree.CommonTree;
 
 /**
  * Base class for ANTLR generated parsers 
@@ -597,19 +598,51 @@ public abstract class AbstractGeneratedParser extends Parser {
         }
     
     }
+    /**
+     * Calculates the current character position in the input stream.
+     * This method skips whitespace tokens by virtue of using LT(1)
+     * which automatically skips off channel tokens. Use when there is
+     * no token yet exmined in a rule.
+     * 
+     * @return The character position of the next non-whitespace token
+     * 
+     */
+    protected int pos() {
+        //System.out.println("TOKEN: line: " + tok.getLine() + " char: " + tok.getCharPositionInLine() + " pos: " + ((CommonToken)tok).getStartIndex());
+        return ((CommonToken)(input.LT(1))).getStartIndex();
+    }
     
     protected int pos(Token tok) {
         //System.out.println("TOKEN: line: " + tok.getLine() + " char: " + tok.getCharPositionInLine() + " pos: " + ((CommonToken)tok).getStartIndex());
         return ((CommonToken)tok).getStartIndex();
     }
     
+    /**
+     * Associate a documentation comment with a particular AST.
+     * 
+     * The parser keeps a map off all the AST fragements which it has
+     * identified has having a documentation comment. This is the
+     * method that creates and builds that list as the parser rules
+     * find out associations.
+     * 
+     * @param tree  The tree or tree fragment with which the documentation comment should be associated.
+     * @param comment The comment that has been identified as the documentation comment for this tree.
+     */
+    void setDocComment(JCTree tree, CommonToken comment) {
+        if (comment != null) {
+            if (docComments == null) {
+                docComments = new HashMap<JCTree,String>();
+            }
+            docComments.put(tree, comment.getText());
+        }
+    }
+        
     void endPos(JCTree tree, com.sun.tools.javac.util.List<JFXInterpolateValue> list) {
         if (genEndPos) {
             int endLast = endPositions.get(list.last());
             endPositions.put(tree, endLast);
         }
     }
-
 
 	/** Using the current token stream position as the start point
 	 *  search back through the input token stream and set the end point
@@ -654,7 +687,12 @@ public abstract class AbstractGeneratedParser extends Parser {
 		}
     }
     
-    
+    /**
+     * Create the end position map for the given JCTree at the supplied\
+     * character index.
+     * @param tree The tree for which we are mapping the endpoint
+     * @param end The character positoin in the input stream that matches the end of the tree
+     */
     void endPos(JCTree tree, int end) {
         if (genEndPos)
             endPositions.put(tree, end);
