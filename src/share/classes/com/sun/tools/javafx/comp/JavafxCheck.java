@@ -39,6 +39,7 @@ import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.code.Type.ForAll;
 import com.sun.tools.javac.code.Type.TypeVar;
+import com.sun.tools.javac.code.Type.MethodType;
 import static com.sun.tools.javac.code.TypeTags.*;
 import static com.sun.tools.javac.code.TypeTags.WILDCARD;
 import com.sun.tools.javac.comp.Infer;
@@ -1973,14 +1974,23 @@ public
 	return new ConversionWarner(pos, MsgSym.MESSAGE_UNCHECKED_ASSIGN, found, expected);
     }
 	
-	public void warnEmptyRangeLiteral(DiagnosticPosition pos, JFXLiteral lower, JFXLiteral upper, JFXLiteral step, boolean isExclusive) {
-        double lowerValue = ((Number)lower.getValue()).doubleValue();
-        double upperValue = ((Number)upper.getValue()).doubleValue();
-        double stepValue = step != null? ((Number)step.getValue()).doubleValue() : 1;
-        if ((stepValue > 0 && lowerValue > upperValue)
-                || (stepValue < 0 && lowerValue < upperValue)
-                || (isExclusive && lowerValue == upperValue)) {
-            log.warning(pos, MsgSym.MESSAGE_JAVAFX_RANGE_LITERAL_EMPTY);
-		}
-	}
+    public void warnEmptyRangeLiteral(DiagnosticPosition pos, JFXLiteral lower, JFXLiteral upper, JFXLiteral step, boolean isExclusive) {
+    double lowerValue = ((Number)lower.getValue()).doubleValue();
+    double upperValue = ((Number)upper.getValue()).doubleValue();
+    double stepValue = step != null? ((Number)step.getValue()).doubleValue() : 1;
+    if ((stepValue > 0 && lowerValue > upperValue)
+            || (stepValue < 0 && lowerValue < upperValue)
+            || (isExclusive && lowerValue == upperValue)) {
+        log.warning(pos, MsgSym.MESSAGE_JAVAFX_RANGE_LITERAL_EMPTY);
+            }
+    }
+        
+    public Type checkFunctionType(DiagnosticPosition pos, MethodType m) {
+        if (m.argtypes.length() > JavafxSymtab.MAX_FIXED_PARAM_LENGTH) {
+            log.error(pos, MsgSym.MESSAGE_TOO_MANY_PARAMETERS);
+            return syms.errType;
+        } else {
+            return syms.makeFunctionType(m);
+        }
+    }
 }

@@ -216,9 +216,10 @@ public class JavafxAttr implements JavafxVisitor {
 //        if (owntype.tag != ERROR && pt.tag != METHOD && pt.tag != FORALL) {
             if ((pkind & VAL) != 0 && ownkind == MTH) {
                 ownkind = VAL;
-                if (owntype instanceof MethodType)
-                    owntype = syms.makeFunctionType((MethodType) owntype);
+                if (owntype instanceof MethodType) {
+                    owntype = chk.checkFunctionType(tree.pos(), (MethodType)owntype);
                 }
+            }
             if ((ownkind & ~pkind) == 0) {
                 owntype = chk.checkType(tree.pos(), owntype, pt, pSequenceness);
             } else {

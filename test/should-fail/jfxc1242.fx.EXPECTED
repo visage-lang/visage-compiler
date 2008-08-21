@@ -1,3 +1,7 @@
 test/should-fail/jfxc1242.fx:9: sorry, not implemented: functions with more than 8 parameters
 var ftype:function(:Integer,:Integer,:Integer,:Integer,:Integer,:Integer,:Integer,:Integer,:Integer):Integer = lotsOfArgs; 
           ^
+test/should-fail/jfxc1242.fx:9: sorry, not implemented: functions with more than 8 parameters
+var ftype:function(:Integer,:Integer,:Integer,:Integer,:Integer,:Integer,:Integer,:Integer,:Integer):Integer = lotsOfArgs; 
+                                                                                                               ^
+2 errors
