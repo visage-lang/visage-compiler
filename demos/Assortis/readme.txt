@@ -1,1 +1,0 @@
-The Assortis project uses Substance Java look & feel from https://substance.dev.java.net
