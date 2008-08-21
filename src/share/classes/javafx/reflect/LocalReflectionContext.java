@@ -26,6 +26,7 @@ import java.util.*;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
 import com.sun.javafx.runtime.annotation.SourceName;
+import com.sun.tools.javafx.util.NotImplementedException;
 
 /** Implementation of {@link ReflectionContext} using Java reflection.
  * Can only access objects and types in the current JVM.
@@ -172,9 +173,9 @@ public class LocalReflectionContext extends ReflectionContext {
 
     public SequenceBuilder makeSequenceBuilder (TypeRef elementType) {
         return new SequenceBuilder() {
-            public void append(ValueRef value) { throw new RuntimeException("NOT IMPLEMENTED"); }
+            public void append(ValueRef value) { throw new NotImplementedException(); }
 
-            public ValueRef getSequence() { throw new RuntimeException("NOT IMPLEMENTED"); }
+            public ValueRef getSequence() { throw new NotImplementedException(); }
         };
     }
 
@@ -286,9 +287,9 @@ class LocalClassRef extends ClassRef {
         return result;
     }
 
-    public MemberRef getMember(String name, TypeRef type) { throw new RuntimeException("NOT IMPLEMENTED"); }
-    public AttributeRef getAttribute(String name) { throw new RuntimeException("NOT IMPLEMENTED"); }
-    public MethodRef getMethod(String name, TypeRef... argType) { throw new RuntimeException("NOT IMPLEMENTED"); }
+    public MemberRef getMember(String name, TypeRef type) { throw new NotImplementedException(); }
+    public AttributeRef getAttribute(String name) { throw new NotImplementedException(); }
+    public MethodRef getMethod(String name, TypeRef... argType) { throw new NotImplementedException(); }
     
     protected void getMethods(MemberFilter filter, SortedMemberArray<? super MethodRef> result) {
         boolean isCompound = isCompoundClass();
@@ -351,7 +352,7 @@ class LocalClassRef extends ClassRef {
         }
     }
 
-    public ObjectRef allocate () { throw new RuntimeException("NOT IMPLEMENTED"); }
+    public ObjectRef allocate () { throw new NotImplementedException(); }
 
     public TypeRef getDeclaringType() {
         return null;
@@ -360,8 +361,8 @@ class LocalClassRef extends ClassRef {
     public boolean isStatic() {
         return true;
     }
-  //public void setAttribute(AttributeRef field, ValueRef value) { throw new RuntimeException("NOT IMPLEMENTED"); }
-  //public void initAttribute(AttributeRef field, ValueRef value) { throw new RuntimeException("NOT IMPLEMENTED"); }
+  //public void setAttribute(AttributeRef field, ValueRef value) { throw new NotImplementedException(); }
+  //public void initAttribute(AttributeRef field, ValueRef value) { throw new NotImplementedException(); }
 }
 
 class LocalObjectRef extends ObjectRef {

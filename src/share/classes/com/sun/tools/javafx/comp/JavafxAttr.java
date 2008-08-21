@@ -51,6 +51,7 @@ import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
+import com.sun.tools.javafx.util.NotImplementedException;
 import static com.sun.tools.javafx.code.JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC;
 
 /** This is the main context-dependent analysis phase in GJC. It
@@ -3668,7 +3669,7 @@ public class JavafxAttr implements JavafxVisitor {
     }
 
     public void visitInterpolate(JFXInterpolate tree) {
-        throw new RuntimeException("NOT IMPLEMENTED");
+        throw new NotImplementedException();
         /*
         tree.getVariable().accept(this);
         for (InterpolateValueTree t : tree.getInterpolateValues()) {
