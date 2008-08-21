@@ -220,14 +220,14 @@ public class FXRunAndCompareWrapper extends TestCase {
                 else
                     break;
             }
-            else if (es.equals(as))
-                continue;
             else if (expectRunFailure && ((es == null) || as == null || !es.equals(as)))
                 break;
             else if (es == null)
                 fail("Expected output for " + testFile + " ends prematurely at line " + lineCount);
             else if (as == null)
                 fail("Program output for " + testFile + " ends prematurely at line " + lineCount);
+            else if (es.equals(as))
+                continue;
             else if (compareCompilerMsg && equalsCompilerMsgs(es, as))
                 continue;
             else
