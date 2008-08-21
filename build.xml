@@ -266,6 +266,15 @@
         switch to alternate launching method so we can add gui jars to classpath
         <java jar="dist/lib/javafxdoc.jar" fork="true" failonerror="true">
         -->
+    	<mkdir dir="${build.dir}/doc"/>
+        <javadoc destdir="${dist.javadoc.dir}" failonerror="true" version="${javadoc.version}" private="${javadoc.private}" source="${javac.source}"
+                 packagenames="javafx.reflect" sourcepath="${src.classes.dir}">
+            <doclet name="com.sun.tools.xmldoclet.XMLDoclet"
+                    path="${dist.javafxrdoc.jar}">
+               <param name="-o" value="${build.dir}/doc/javadoc.xml"/>
+               <param name="-nohtml"/>
+            </doclet>
+         </javadoc>
         <java  fork="true" failonerror="true" classname="com.sun.tools.javafxdoc.Main">
             <classpath location="dist/lib/javafxdoc.jar"/>
             <classpath refid="clspath"/>
@@ -275,6 +284,7 @@
             <arg value="${srcpathprop}"/>
             <arg value="-classpath"/>
             <arg value="${clsjars}"/>
+        	<arg line="-i ${build.dir}/doc/javadoc.xml"/>
             
             <arg line="-mastercss general.css"/>
             <arg line="-xsl: inline-classlist=true"/>
