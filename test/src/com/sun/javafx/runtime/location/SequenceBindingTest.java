@@ -22,8 +22,6 @@
  */
 package com.sun.javafx.runtime.location;
 
-import java.util.Map;
-
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.JavaFXTestCase;
 import com.sun.javafx.runtime.sequence.*;
@@ -336,11 +334,11 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(nloc.getAsSequence(), 1, 2, 3);
         assertEquals(asObjects.getAsSequence(), 1, 2, 3);
 
-        assertThrows(ClassCastException.class, new VoidCallable() {
-            public void call() throws Exception {
-                Sequence<Map> asMaps = Sequences.upcast(Map.class, (Sequence) asObjects.getAsSequence());
-            }
-        });
+//        assertThrows(ClassCastException.class, new VoidCallable() {
+//            public void call() throws Exception {
+//                Sequence<Map> asMaps = Sequences.upcast(Map.class, (Sequence) asObjects.getAsSequence());
+//            }
+//        });
     }
 
     public void testBoundConcat() {
