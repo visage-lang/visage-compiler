@@ -415,7 +415,7 @@ import org.antlr.runtime.tree.*;
 		// We have a valid token, see if it is a documentation
 		// comment, rather than just a normal comment.
 		//
-		Token token = input.get(index);
+		CommonToken token = (CommonToken)(input.get(index));
        	if (token.getText().startsWith("/**")) {
        	
        		// It was a documentation comment so change its type
@@ -833,7 +833,7 @@ LAST_TOKEN
 //
 INVALIDC
 	: .
-	;$keyword$
+	;
 	
 
 // ------------------------------------------------------------------    	
@@ -848,7 +848,7 @@ INVALIDC
 // The parsers job is to produce the JavaFX speciailized AST, which
 // is the basis for all the rest of the tool chain, including symbol table and code 
 // generation as well as code completion for editors and so on.
-//
+// ------------------------------------------------------------------
 
 /**
  * The usual entry point for the JavaFX parser, this will parse a complete
@@ -877,23 +877,30 @@ script
 		{
 			// Construct the JavFX AST
 			//
-			$result = F.Script($packageDecl.value, $scriptItems.items.toList());
+			$result = F.Script($packageDecl.value, $si.items.toList());
             setDocComment($result, docComment);	// Add any detected documentation comment
 		}
 
 		EOF 	// Forces parser to consume entire token stream or error out
 
 		{		
-			// Set tree span
+			// Set tree span and endpoint map (if required).
         	//
         	$result.pos = $result.pid != null ? $result.pid.pos : $result.defs.head.pos;
         	endPos($result); 
         }
     ;
     
-    
+
+// ----------------------    
+// Package specification.
+// The package declaration is optional. It qualifes the namespace/location
+// of all subsequent delcarations in the script.
+//
 packageDecl
 
+	// Package declaration builds a JFXExpression tree
+	//
 	returns [JFXExpression value]
 
     : PACKAGE qualname SEMI
@@ -905,49 +912,187 @@ packageDecl
     		{ $value = null; }
 	;
 	
+// ----------------
+// Script elements.
+// Zero or more script elements belong to a script. Script elements
+// are allowed to be completely empty, or effectively empty by
+// existing as a SEMI (semi colon only). This structure allows
+// class definitions and function definitions to appear to be
+// only optionally terminated with a SEMI. The language spec allows
+// ONLY class definitions and function definitions to be optionally
+// terminated in this way, other constructs MUST be terminated
+// with a SEMI.
+//
 scriptItems
-	: scriptItem (SEMI scriptItem )*
-	;
-	
-scriptItem
-	: importDecl 	
-	| classDefinition 	
-	| functionDefinition    
-	| (varModifier)=>scriptVariableDeclaration
-	| statement	
-	|					
-	;
-	
-catch [RecognitionException re] {
 
-    reportError(re);
-    
-    if (input.LA(1) != Token.EOF) {
-    
-        input.consume();
-        scriptItem_return r = scriptItem();
-        retval.tree = r.tree;
-        
-    }
+	// This rule builds a list of JFXTree, which is used 
+	// by the caller to build the actual AST.
+	//
+	returns [ListBuffer<JFXTree> items = new ListBuffer<JFXTree>()]
+
+	:
+		(
+			  // Certain script members may be prefixed with modifiers
+			  // such as 'public'. We allow the parser to first consume 
+			  // all modifier keywords, regardless of whether this is a 
+			  // valid modifier for the upcoming declaration. Whether it is
+			  // valid or not is a matter for semantic checks to decide.
+			  //
+			  (modifiers)=>modifiers
+				(
+					  classDefinition 	
+					| functionDefinition    
+					| scriptVariableDeclaration SEMI
+				)
+				
+			| importDecl SEMI
+			
+			| statement	SEMI
+			
+			| SEMI
+		)*
+	;
+
+// ----------
+// Modifiers.
+// Collects the modifier flags for all known modifiers, regardless
+// of their validity with the declaration they will be associated with.
+// Attributing will verify the smeantics of the modifiers.
+//
+modifiers
+
+	// Constructs and returns a specialized modifer node
+	//
+	returns [JFXModifiers mods]
+
+@init {
+
+	// The flags we build up for the AST
+	//
+	long	flags 	= 0;
+	
+	// The start character position for this AST
+	//
+	int   	cPos		= pos();
 }
 
+	: 	(	
+			mf=modifierFlag
+			
+			{
+				// Or in the newly discovered modifier
+				//
+				flags	|= $mf.flag;
+			}
+	
+		)*
+		
+		{
+			// Build the modifier flags (just as empty if we did not pick any up)
+			//
+			$mods = F.at(cPos).Modifiers(flags);
+			
+			// Tree span
+			//
+			endPos($mods);
+		}
+	;
+
+// ---------------
+// Modifier flags.
+// All the possible modifier keywords that can be applied to 
+// constructs such as var, class and so on,
+//
+modifierFlag
+
+	returns [long flag]
+	
+	: ABSTRACT			{ $flag = Flags.ABSTRACT;				}
+	| BOUND				{ $flag = JavafxFlags.BOUND;			}
+	| OVERRIDE			{ $flag = JavafxFlags.OVERRIDE;			}
+	| PACKAGE			{ $flag = Flags.PUBLIC /*TODO:JavafxFlags.PACKAGE */;	}
+	| PROTECTED			{ $flag = Flags.PROTECTED;				}
+	| PUBLIC			{ $flag = Flags.PUBLIC;					}
+	| PUBLIC_READABLE	{ $flag = JavafxFlags.PUBLIC_READABLE;	}
+	| NON_WRITABLE		{ $flag = JavafxFlags.NON_WRITABLE;		}
+	
+	//TODO: deprecated -- remove these at some point
+	//                    For now, warn about their deprecation
+	//
+	| PRIVATE			{ $flag = Flags.PRIVATE;    			}
+	| READABLE			{ $flag = JavafxFlags.PUBLIC_READABLE;	}
+	| STATIC			{ $flag = Flags.STATIC;      			}
+	;
+
+// -----------------	
+// Import statement.
+// Include definitions from an external source
+//
 importDecl
+
+	returns [JFXTree value]
+
  	: IMPORT importId
+ 	
+ 		{
+ 			// AST construction
+ 			$value = F.at(pos($IMPORT)).Import($importId.pid, false);
+ 			
+ 			// AST span
+ 			//
+			endPos($value);
+ 		}
 	;
 	
 importId
- 	: name
-		( DOT name)* 
-        ( DOT STAR)?  
+
+	returns [JFXExpression pid]
+
+ 	: n1=name
+ 		{
+ 			$pid = $n1.value;
+ 		}
+		( 
+			d1=DOT n2=name
+		
+				{
+					$pid = F.at($n2.pos).Select($pid, $n2.value);
+                    endPos($pid);
+				}
+		)* 
+        ( 
+        	DOT STAR
+        	
+        		{
+					$pid = F.at($n2.pos).Select($pid, names.asterisk);
+                    endPos($pid);
+				}
+        )?  
 	;
 	
 classDefinition 
-@after { 
 
-	Tree docComment = getDocComment($classDefinition.start);
-    $classDefinition.tree.addChild(docComment); 
+	returns [JFXClassDeclaration value]
+	
+@init { 
+
+	// Search for the document comment token. At this point LT(1)
+	// returns the first on channel token, so we can scan back from
+	// there to see if there was a document comment.
+	//
+	CommonToken  docComment = getDocComment(input.LT(1));
+
 }
-	: classModifierFlags  CLASS name supers LBRACE classMembers RBRACE
+
+
+	: CLASS name supers 
+		LBRACE 
+			classMembers 
+		RBRACE
+		
+		{
+			setDocComment($value, docComment);	// Add any detected documentation comment
+		}
 	;
 	
 supers 
@@ -971,27 +1116,20 @@ classMember
 	| functionDefinition 
     |
 	;
-	
-catch [RecognitionException re] {
-  
-    reportError(re);
-
-    if (input.LA(1) != Token.EOF) {
-    
-        input.consume();
-        classMember_return r = classMember();
-        retval.tree = r.tree;
-    
-    }
-}
 
 functionDefinition
-@after { 
 
-	Tree docComment = getDocComment($functionDefinition.start);
-    $functionDefinition.tree.addChild(docComment); 
+@init { 
+
+	// Search for the document comment token. At this point LT(1)
+	// returns the first on channel token, so we can scan back from
+	// there to see if there was a document comment.
+	//
+	CommonToken  docComment = getDocComment(input.LT(1));
+
 }
-	: functionModifierFlags FUNCTION name formalParameters typeReference block?
+
+	: FUNCTION name formalParameters typeReference ((LBRACE)=>block)?
 	;
 	
 overrideDeclaration
@@ -1010,77 +1148,47 @@ postInitDefinition
 //	: WITH name onReplaceClause		-> ^(WITH name onReplaceClause)
 //	;
 
-//TODO: modifier flag testing should be done in JavafxAttr, where it would be cleaner and better errors could be generated
-//
-functionModifierFlags  
-	: functionModifier*
-	;
 	
 scriptVariableDeclaration
-@after { 
 
-	Tree docComment = getDocComment($scriptVariableDeclaration.start);
-    $scriptVariableDeclaration.tree.addChild(docComment); 
+@init { 
+
+	// Search for the document comment token. At this point LT(1)
+	// returns the first on channel token, so we can scan back from
+	// there to see if there was a document comment.
+	//
+	CommonToken  docComment = getDocComment(input.LT(1));
+
 }
-	: varModifierFlags variableLabel  name  typeReference (EQ boundExpression)? onReplaceClause?
+	: variableLabel  name  typeReference (EQ boundExpression)? onReplaceClause?
 	;
 	
 classVariableDeclaration   
-@after { 
 
-	Tree docComment = getDocComment($classVariableDeclaration.start);
-    $classVariableDeclaration.tree.addChild(docComment); 
+@init { 
+
+	// Search for the document comment token. At this point LT(1)
+	// returns the first on channel token, so we can scan back from
+	// there to see if there was a document comment.
+	//
+	CommonToken  docComment = getDocComment(input.LT(1));
+
 }
-	: varModifierFlags classVarLabel  name  typeReference (EQ boundExpression)? onReplaceClause?
+	: classVarLabel  name  typeReference (EQ boundExpression)? onReplaceClause?
 	;
 	
 localVariableDeclaration
-@after { Tree docComment = getDocComment($localVariableDeclaration.start);
-         $localVariableDeclaration.tree.addChild(docComment); 
+
+@init { 
+
+	// Search for the document comment token. At this point LT(1)
+	// returns the first on channel token, so we can scan back from
+	// there to see if there was a document comment.
+	//
+	CommonToken  docComment = getDocComment(input.LT(1));
+
 }
 	: variableLabel  name  typeReference ((EQ)=>EQ boundExpression)? ((ON)=>onReplaceClause)?
-	;
-	
-varModifierFlags
-	: varModifier*
-	;
-	
-classModifierFlags
-	: classModifier*
-	;
-	
-accessModifier 
-	:  PUBLIC          			
-	|  PROTECTED       	
-	|  PACKAGE       	
-	
-	//TODO: deprecated -- remove this at some point
-	|  PRIVATE         			
-	;
-	
-functionModifier 
-	:  ABSTRACT        			
-	|  OVERRIDE
-	|  BOUND
-	|  accessModifier	
-	
-	//TODO: deprecated -- remove this at some point
-	|  STATIC    
-	;
-	
-varModifier 
-	:  PUBLIC_READABLE
-	|  NON_WRITABLE		
-	|  accessModifier	
-	
-	//TODO: deprecated -- remove these at some point
-	|  READABLE        	
-	|  STATIC        			
-	;
-	
-classModifier 
-	:  ABSTRACT        			
-	|  accessModifier	
 	;
 	
 formalParameters
@@ -1091,15 +1199,6 @@ formalParameter
 	: name typeReference
     |
 	;
-
-catch [RecognitionException re] {
-    reportError(re);
-    if (input.LA(1) != Token.EOF) {
-        input.consume();
-        formalParameter_return r = formalParameter();
-        retval.tree = r.tree;
-    }
-}
 
 block 
 	: LBRACE blockComponent
@@ -1112,16 +1211,6 @@ blockComponent
 	|
 	;
 	
-catch [RecognitionException re] {
-    
-    reportError(re);
-    
-    if (input.LA(1) != Token.EOF) {
-        input.consume();
-        blockComponent_return r = blockComponent();
-        retval.tree = r.tree;
-    }
-}
 
 statement 
 	: insertStatement 	
@@ -1410,15 +1499,6 @@ keyValuePart
 	: expression
     |
     ;
-    
-catch [RecognitionException re] {
-    reportError(re);
-    if (input.LA(1) != Token.EOF) {
-        input.consume();
-        keyValuePart_return r = keyValuePart();
-        retval.tree = r.tree;
-    }
-}
 
 functionExpression  
 	: FUNCTION formalParameters typeReference block
@@ -1498,14 +1578,6 @@ expressionItem
 	|
 	;
 	
-catch [RecognitionException re] {
-    reportError(re);
-    if (input.LA(1) != Token.EOF) {
-        input.consume();
-        expressionItem_return r = expressionItem();
-        retval.tree = r.tree;
-    }
-}
 expressionListOpt  
 	: LPAREN expressionList RPAREN
 	|
@@ -1526,7 +1598,6 @@ type
  	
 typeArgList
  	: typeArg (COMMA typeArg)*
-// 	| /* emprty list */			-> ^(TYPED_ARG_LIST)
 	;
 
 typeArg 
@@ -1534,14 +1605,6 @@ typeArg
 	|
  	;
  	
-catch [RecognitionException re] {
-    reportError(re);
-    if (input.LA(1) != Token.EOF) {
-        input.consume();
-        typeArg_return r = typeArg();
-        retval.tree = r.tree;
-    }
-}
 typeReference 
  	: COLON type
  	| /*nada*/
@@ -1585,12 +1648,34 @@ literal
 	;
 	
 qualname 
-	: name
+
+	returns [JFXExpression value]
+	
+	: n1=name
+		{
+			$value = F.at($n1.pos).Ident($n1.value);
+			endPos($value, $n1.pos + $n1.value.length());
+		}
 		( 
-			(DOT)=> DOT nn=name
+			(DOT)=> DOT n2=name
+			
+				{
+					$value = F.at(pos($DOT)).Select($value, $n2.value);
+					endPos($value); 
+				}
+			
 		)*  
 	;
 
 name 
-	: IDENTIFIER						
+
+	returns [Name value, int pos]
+	
+	: IDENTIFIER
+	
+		{ 
+			$value = Name.fromString(names, $IDENTIFIER.text); 
+			$pos = pos($IDENTIFIER); 
+		}
+						
 	;
