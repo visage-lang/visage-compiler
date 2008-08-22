@@ -27,7 +27,6 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_MSG_BUG = "javafx.msg.bug"; 
     public static final String MESSAGE_JAVAFX_OPT_ARG_NAME = "javafx.opt.arg.name"; 
     public static final String MESSAGE_JAVAFX_OPT_PLATFORM = "javafx.opt.platform"; 
-    public static final String MESSAGE_JAVAFX_ERR_WRONG_JAVA_VERSION = "javafx.err.wrong.java.version";
 
 
     public static final String MESSAGEPREFIX_COMPILER_ERR = "compiler.err."; 

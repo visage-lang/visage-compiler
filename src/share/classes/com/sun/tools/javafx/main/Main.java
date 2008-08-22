@@ -590,11 +590,6 @@ public class Main {
 
             context.put(Log.outKey, out);
             
-            if (options.get("-no-java-check") == null && !checkJavaVersion()) {
-                Log.printLines(out, getJavafxLocalizedString(MsgSym.MESSAGE_JAVAFX_ERR_WRONG_JAVA_VERSION));
-                return EXIT_SYSERR;
-            }
-
             fileManager = context.get(JavaFileManager.class);
 
             comp = JavafxCompiler.instance(context);
