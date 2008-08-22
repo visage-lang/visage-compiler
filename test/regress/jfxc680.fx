@@ -8,6 +8,6 @@ import java.lang.System;
 var point2DClass : Class = Class.forName("java.awt.geom.Point2D");
 var floatArrayClass : Class = Class.forName("[F");
 var colorArrayClass : Class = Class.forName("[Ljava.awt.Color;");
-var lgpClass : Class = Class.forName("java.awt.LinearGradientPaint");
+var lgpClass : Class = Class.forName("jfxc680sub");
 var ctor = lgpClass.getConstructor(point2DClass, point2DClass, floatArrayClass, colorArrayClass);
 System.out.println("ctor: {ctor}");
