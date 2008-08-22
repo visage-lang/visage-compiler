@@ -83,7 +83,7 @@
     
     <xsl:template name="head-post">
         <link href="{$root-path}general.css" rel="stylesheet"/>
-        <link href="{$root-path}v3.css" rel="stylesheet"/>
+        <link href="{$root-path}sdk.css" rel="stylesheet"/>
         <script type="text/javascript" src="{$root-path}core.js"/>
         <script type="text/javascript" src="{$root-path}more.js"/>
         <script type="text/javascript" src="{$root-path}sessvars.js"/>

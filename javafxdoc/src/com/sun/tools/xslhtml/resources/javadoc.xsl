@@ -26,7 +26,7 @@
     <xsl:output method="html"/>
     
     <xsl:variable name="use-toc-tables">true</xsl:variable>
-    <xsl:param name="master-css">master.css</xsl:param>
+    <xsl:param name="master-css">general.css</xsl:param>
     <xsl:param name="extra-css"/>
     <xsl:param name="extra-js"/>
     <xsl:param name="extra-js2"/> <!-- josh: this is a hack -->
@@ -251,7 +251,6 @@
                 <xsl:if test="$extra-css"><link href="../{$extra-css}" rel="stylesheet"/></xsl:if>
                 <xsl:if test="$extra-js"><script src="../{$extra-js}"></script></xsl:if>
                 <xsl:if test="$extra-js2"><script src="../{$extra-js2}"></script></xsl:if>
-                <script src="../navigation.js"></script>
                 <xsl:call-template name="head-post"/>
             </head>
             <body>

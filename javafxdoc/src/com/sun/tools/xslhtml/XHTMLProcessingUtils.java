@@ -93,7 +93,7 @@ public class XHTMLProcessingUtils {
 
     private static ResourceBundle messageRB = null;
     private static Logger logger = Logger.getLogger(XHTMLProcessingUtils.class.getName());;
-    
+    private static boolean SDK_THEME = true;
     static {
         // set verbose for initial development
         logger.setLevel(ALL); //TODO: remove or set to INFO when finished
@@ -123,8 +123,13 @@ public class XHTMLProcessingUtils {
         System.setProperty("javax.xml.parsers.SAXParserFactory",
             "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
         
-        if (xsltStream == null)
-            xsltStream = XHTMLProcessingUtils.class.getResourceAsStream("resources/javadoc.xsl");
+        if (xsltStream == null) {
+            if(SDK_THEME) {
+                xsltStream = XHTMLProcessingUtils.class.getResourceAsStream("resources/sdk.xsl");
+            } else {
+                xsltStream = XHTMLProcessingUtils.class.getResourceAsStream("resources/javadoc.xsl");
+            }
+        }
         
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -155,15 +160,16 @@ public class XHTMLProcessingUtils {
 
         p(INFO, getString("copying"));
 
-        copy(XHTMLProcessingUtils.class.getResource("resources/index.html"), new File(docsdir, "index.html"));
-        copy(XHTMLProcessingUtils.class.getResource("resources/empty.html"), new File(docsdir, "empty.html"));
-        copy(XHTMLProcessingUtils.class.getResource("resources/master.css"), new File(docsdir, "master.css"));
-        copy(XHTMLProcessingUtils.class.getResource("resources/demo.css"), new File(docsdir, "demo.css"));
-        copy(XHTMLProcessingUtils.class.getResource("resources/navigation.js"), new File(docsdir, "navigation.js"));
+        copyResource(docsdir,"index.html");
+        copyResource(docsdir,"empty.html");
+        copyResource(docsdir,"general.css");
+        copyResource(docsdir,"sdk.css");
+        copyResource(docsdir,"core.js");
+        copyResource(docsdir,"more.js");
+        copyResource(docsdir,"sessvars.js");
         File images = new File(docsdir,"images");
         images.mkdir();
         copy(XHTMLProcessingUtils.class.getResource("resources/quote-background-1.gif"), new File(images, "quote-background-1.gif"));
-        //copy(new File("demo.css"), new File(docsdir, "demo.css"));
 
         p(INFO, getString("transforming"));
 
@@ -189,6 +195,11 @@ public class XHTMLProcessingUtils {
             }
         });
         Transformer trans = transFact.newTransformer(xslt);
+        if(SDK_THEME) {
+            trans.setParameter("inline-classlist","true");
+            trans.setParameter("inline-descriptions", "true");
+        }
+        
         for(String key : parameters.keySet()) {
             System.out.println("using key: " + key + " " + parameters.get(key));
             trans.setParameter(key, parameters.get(key));
@@ -432,6 +443,10 @@ public class XHTMLProcessingUtils {
         }
     }
     
+    private static void copyResource(File docsdir, String string) throws FileNotFoundException, IOException {
+        copy(XHTMLProcessingUtils.class.getResource("resources/"+string),new File(docsdir,string));
+    }
+
     /* Not used
     private static void copy(File infile, File outfile) throws FileNotFoundException, IOException {
         FileInputStream in = new FileInputStream(infile);
