@@ -279,12 +279,6 @@
             <arg value="-classpath"/>
             <arg value="${clsjars}"/>
         	<arg line="-i ${build.dir}/doc/javadoc.xml"/>
-            
-            <arg line="-mastercss general.css"/>
-            <arg line="-xsl: inline-classlist=true"/>
-            <arg line="-xsl: inline-descriptions=true"/>
-            
-            <arg line="-xsltfile ${basedir}/javadoc-files/sdk.xsl"/>
             <classpath>
                 <path path="${build.classes.dir}:${javac.test.classpath}:dist/lib/javafxgui.jar"/>
             </classpath>
