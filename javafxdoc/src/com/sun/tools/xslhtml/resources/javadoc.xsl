@@ -198,6 +198,7 @@
                     <h4 class='header'><a href="#"><xsl:value-of select="@name"/></a></h4>
                     <ul class='content'>
                         <xsl:for-each select="class">
+                            <xsl:sort select="@name"/>
                             <li>
                                 <xsl:attribute name="class">
                                     <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
