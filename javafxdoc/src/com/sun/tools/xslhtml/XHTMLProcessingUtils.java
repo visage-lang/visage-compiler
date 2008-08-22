@@ -73,6 +73,8 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import org.w3c.dom.Attr;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -202,18 +204,7 @@ public class XHTMLProcessingUtils {
         Document unified = builder.newDocument();
         Element javadocElement = unified.createElement("javadoc");
         unified.appendChild(javadocElement);
-        for (String xmlInputPath : xmlInputs) {
-            File file = new File(xmlInputPath);
-            p(INFO, MessageFormat.format(getString("reading.doc"), file.getAbsolutePath()));
-            p(FINE, "exists: " + file.exists());
-            Document doc = builder.parse(file);
-            XPath xpath = XPathFactory.newInstance().newXPath();
-            NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET); 
-            for(int i=0; i<packages.getLength(); i++) {
-                Node copy = unified.importNode(packages.item(i), true);
-                javadocElement.appendChild(copy);
-            }
-        }
+        mergeDocuments(xmlInputs, builder, unified, javadocElement);
         
         // print out packages list
         XPath xpath = XPathFactory.newInstance().newXPath();
@@ -245,11 +236,74 @@ public class XHTMLProcessingUtils {
         p(INFO,getString("finished"));
     }
 
-    /* Not used
-    private static void p(Transformer trans, Document packages_doc) throws TransformerException {
-        trans.transform(new DOMSource(packages_doc), new StreamResult(System.out));
+    private static void mergeDocuments(List<String> xmlInputs, DocumentBuilder builder, Document unified, Element javadocElement) 
+            throws DOMException, SAXException, XPathExpressionException, IOException {
+        Map<String,Element> packageMap = new HashMap<String,Element>();
+        
+        for (String xmlInputPath : xmlInputs) {
+            File file = new File(xmlInputPath);
+            p(INFO, MessageFormat.format(getString("reading.doc"), file.getAbsolutePath()));
+            p(FINE, "exists: " + file.exists());
+            Document doc = builder.parse(file);
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET);
+            p(INFO,"found " + packages.getLength()+" packages");
+            for (int i = 0; i < packages.getLength(); i++) {
+                Element copy = (Element) unified.importNode(packages.item(i), true);
+                String pkgName = copy.getAttribute("name");
+                if(!packageMap.containsKey(pkgName)) {
+                    packageMap.put(pkgName, copy);
+                } else {
+                    Element pkg = packageMap.get(pkgName);
+                    NodeList classes = copy.getChildNodes();
+                    //copy to a List for safety before we start moving nodes around
+                    List<Node> classesList = new ArrayList<Node>();
+                    for(int j=0; j<classes.getLength();j++) {
+                        classesList.add(classes.item(j));
+                    }
+                    for(Node cls : classesList) {
+                        pkg.appendChild(cls);
+                    }
+                }
+            }
+        }
+        
+        for(String pkgName : packageMap.keySet()) {
+            Element pkg = packageMap.get(pkgName);
+            javadocElement.appendChild(pkg);
+        }
     }
-    */
+    
+    
+/*//keep this around for now.
+    private static void p(Level INFO, Element javadocElement, String tab) {
+        p(INFO,javadocElement,tab,-1);
+    }
+    private static void p(Level INFO, Element javadocElement, String tab, int depth) {
+        if(depth ==0) return;
+        p(INFO,tab+"<element: " + javadocElement.getTagName() + " " + javadocElement.hashCode());
+        for(int i=0; i<javadocElement.getAttributes().getLength(); i++) {
+            Attr attr = (Attr) javadocElement.getAttributes().item(i);
+            p(INFO,tab+"    attr: " + attr.getName() + "=" + attr.getValue());
+        }
+        for(int i=0; i<javadocElement.getChildNodes().getLength();i++) {
+            Node n = javadocElement.getChildNodes().item(i);
+            if(n instanceof Element) {
+                p(INFO,(Element)n,tab+"  ",depth-1);
+            } else {
+                p(INFO,tab+"  child = " + n.getNodeName() + " " + n.getNodeValue() + " " + n.hashCode());
+            }
+        }
+        p(INFO,tab+"</element: " + javadocElement.getTagName());
+    }
+*/    
+    
+
+    // Not used
+/*    private static void p(Transformer trans, Document packages_doc) throws TransformerException {
+        trans.transform(new DOMSource(packages_doc), new StreamResult(System.out));
+    }*/
+    
 
     private static void processPackage(String packageName, Element pkg, XPath xpath, File docsdir, Transformer trans, Element package_elem) throws TransformerException, XPathExpressionException, IOException, FileNotFoundException, ParserConfigurationException {
         File packageDir = new File(docsdir, packageName);
