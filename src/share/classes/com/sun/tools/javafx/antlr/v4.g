@@ -940,14 +940,15 @@ scriptItems
 			  //
 			  (modifiers)=>modifiers
 				(
-					  classDefinition 	
-					| functionDefinition    
-					| scriptVariableDeclaration SEMI
+					  classDefinition		[$modifiers.mods]
+					| functionDefinition    [$modifiers.mods]
+					| variableDeclaration 	[$modifiers.mods]
+						SEMI
 				)
 				
 			| importDecl SEMI
 			
-			| statement	SEMI
+			| statement
 			
 			| SEMI
 		)*
@@ -1019,8 +1020,8 @@ modifierFlag
 	//TODO: deprecated -- remove these at some point
 	//                    For now, warn about their deprecation
 	//
-	| PRIVATE			{ $flag = Flags.PRIVATE;    			}
-	| READABLE			{ $flag = JavafxFlags.PUBLIC_READABLE;	}
+	| PRIVATE			{ $flag = Flags.PRIVATE;    			log.warning(pos($PRIVATE), "javafx.not.supported.private"); }
+	| READABLE			{ $flag = JavafxFlags.PUBLIC_READABLE;	log.error(pos($READABLE), "javafx.not.supported.readable"); }
 	| STATIC			{ $flag = Flags.STATIC;      			}
 	;
 
@@ -1030,6 +1031,8 @@ modifierFlag
 //
 importDecl
 
+	// The import declaration is built as a generic JFXTree
+	//
 	returns [JFXTree value]
 
  	: IMPORT importId
@@ -1044,13 +1047,19 @@ importDecl
  		}
 	;
 	
+// ------------
+// Import spec.
+// Parses the (possibly) qualifed name space that the script must import,
+//
 importId
 
+	// Qualified names are built as expression trees
+	//
 	returns [JFXExpression pid]
 
- 	: n1=name
+ 	: i1=identifier
  		{
- 			$pid = $n1.value;
+ 			$pid = $i1.value;
  		}
 		( 
 			d1=DOT n2=name
@@ -1070,8 +1079,16 @@ importId
         )?  
 	;
 	
-classDefinition 
+// Class definition.
+// Parses a complete class definition and builds up the JFX AST
+// that represents this.
+//
+// param mods The previously built modifier flags
+//
+classDefinition [ JFXModifiers mods ]
 
+	// The class definition has its own JFXTree type
+	//
 	returns [JFXClassDeclaration value]
 	
 @init { 
@@ -1084,40 +1101,109 @@ classDefinition
 
 }
 
-
 	: CLASS name supers 
 		LBRACE 
 			classMembers 
 		RBRACE
 		
-		{
-			setDocComment($value, docComment);	// Add any detected documentation comment
+		{ 
+			$value = F.at(pos($CLASS)).ClassDeclaration
+			
+				(
+	  						  
+					$mods,	
+					$name.value,
+					$supers.ids.toList(),
+					$classMembers.mems.toList()
+				);
+				setDocComment($value, docComment);	// Add any detected documentation comment
+				endPos($value); 
 		}
 	;
 	
+// -----------------
+// Super class spec.
+// Parses a list of super classes for a class definition and builds the
+// associated JFX AST.
+//
 supers 
+
+	// The return is a list of JFX expressions representing one
+	// or more super class type name.
+	//
+	returns [ListBuffer<JFXExpression> ids = new ListBuffer<JFXExpression>()]
+
 	: EXTENDS typeName
-           ( COMMA typeName )*
-	|
+			{
+				$ids.append($typeName.value);	// First type name in list
+			}
+           ( 
+           	COMMA t2=typeName 
+           	
+           		{ 
+           			$ids.append($t2.value); 
+           		}
+           )*
+           
+	| // Upsilon - this class inherits no other types so the list will be empty
 	;
 		  					
+// --------------
+// Class members.
+// Parses all the possible elements of a class definition and produces the
+// Java FX AST nodes that represent them
+//
 classMembers 
-	: classMember 
-	  (SEMI
-	     classMember 
+
+	// Returns a list of the class members, ready for the caller to produce the
+	// class defintion AST.
+	//
+	returns [ListBuffer<JFXTree> mems = new ListBuffer<JFXTree>()]
+
+	: (
+		classMember 
+	
+			{ 
+				$mems.append($classMember.member); 
+			}
+		| SEMI
 	  )*
 	;
 	
+// --------------
+// Class members.
+// Parses all constructs that can be a member of a class and returns
+// the JAva FX AST that represents it.
+//
 classMember
-	: initDefinition	
-	| postInitDefinition
-	| classVariableDeclaration 
+
+	// A class member has a specialized JFX tree node, which is what
+	// we return from this rule.
+	//
+ 	returns [JFXTree member]
+ 
+	: initDefinition				{ $member = $initDefinition.value; }
+	| postInitDefinition			{ $member = $postInitDefinition.value; }
+	
+	| (modifiers)=>modifiers
+		(
+			  variableDeclaration		[$modifers.mods] 		{ $member = $variableDeclaration.value; }
+			| functionDefinition		[$modifers.mods]		{ $member = $functionDefinition.value; }
+		)
 	| overrideDeclaration 
-	| functionDefinition 
-    |
 	;
 
-functionDefinition
+// ----------
+// Functions.
+// While funcitnos can be declared at any level, their syntax is the same.
+// As always, the semantic pass of the JFX tree must verify that the
+// supplied modifers are valid in this context.
+//
+functionDefinition [ JFXModifiers mods ]
+
+	// A function defintion has a specialized node in the JavaFX AST
+	//
+	returns [JFXFunctionDefinition value]
 
 @init { 
 
@@ -1128,56 +1214,117 @@ functionDefinition
 	CommonToken  docComment = getDocComment(input.LT(1));
 
 }
-
 	: FUNCTION name formalParameters typeReference ((LBRACE)=>block)?
-	;
 	
-overrideDeclaration
-	: OVERRIDE classVarLabel  name (EQ boundExpression)? onReplaceClause?
-;
-
-initDefinition
-	: INIT block
+		{
+			// Create the function defintion AST
+			//
+			$value = F.at(pos($FUNCTION)).FunctionDefinition
+							(
+								$mods,
+								$name.value, 
+								$typeReference.type,
+								$formalParameters.params.toList(), 
+								$block.value
+							);
+							
+			// Documentation comment (if any)
+			//
+			setDocComment($value, docComment);
+			
+			// Tree span
+			//
+			endPos($value); 
+		}
 	;
 
+// ---------
+// Override.
+// Specifes that the local class overrides something that it has
+// inherited - parser this and produce the JavaFX tree that reflects it.
+//
+overrideDeclaration
+
+	returns [JFXOverrideClassVar value]
+
+	: OVERRIDE variableLabel  identifier (EQ boundExpression)? onReplaceClause?
+	
+		{
+			// Build the AST
+			//
+			$value = F.at(pos($OVERRIDE)).OverrideClassVar
+						(
+							$identifier.value,
+							$boundExpression.value,
+							$boundExpression.status,
+							$onReplaceClause.value
+						);
+			
+			// Tree span
+			//
+			endPos($value);
+		}
+	;
+
+// ------------
+// Init block.
+// Parse the initialization block for a class definition.
+// Note that we allow more than one of these syntactically.
+//
+initDefinition
+
+	// The initialisation block has a specialized JFX tree node
+	//
+	returns [JFXInitDefinition value]
+	
+	: INIT block
+	
+		{
+			// Build the AST
+			//
+			$value = F.at(pos($INIT)).InitDefinition($block.value);
+			
+			// Tree span
+			//
+			endPos($value); 
+		}
+	;
+
+// Post initialization.
+// Parse the post initialization block and produce the AST
+//
 postInitDefinition
+
+	// Post initialization has its own specialized JFX tree node
+	//
+	returns [JFXPostInitDefinition value]
+
 	: POSTINIT block
+		{ 
+			// Build the AST
+			//
+			$value = F.at(pos($POSTINIT)).PostInitDefinition($block.value);
+
+			// Tree span
+			//
+			endPos($value); 
+		}
 	;
 	
 //triggerDefinition
 //	: WITH name onReplaceClause		-> ^(WITH name onReplaceClause)
 //	;
 
-	
-scriptVariableDeclaration
 
-@init { 
+// Variables.
+// While they can be defined at different levels (script, member, local) the syntax
+// for declaring variables, and the modifiers and so on are all exactly
+// the same (syntactically) at all levels.
+// Parser a variable declaration and return the resultant JFX expression tree.
+//
+variableDeclaration [ JFXModifiers mods ]
 
-	// Search for the document comment token. At this point LT(1)
-	// returns the first on channel token, so we can scan back from
-	// there to see if there was a document comment.
-	//
-	CommonToken  docComment = getDocComment(input.LT(1));
-
-}
-	: variableLabel  name  typeReference (EQ boundExpression)? onReplaceClause?
-	;
-	
-classVariableDeclaration   
-
-@init { 
-
-	// Search for the document comment token. At this point LT(1)
-	// returns the first on channel token, so we can scan back from
-	// there to see if there was a document comment.
-	//
-	CommonToken  docComment = getDocComment(input.LT(1));
-
-}
-	: classVarLabel  name  typeReference (EQ boundExpression)? onReplaceClause?
-	;
-	
-localVariableDeclaration
+	returns [JFXExpression value]
 
 @init { 
 
@@ -1189,132 +1336,666 @@ localVariableDeclaration
 
 }
 	: variableLabel  name  typeReference ((EQ)=>EQ boundExpression)? ((ON)=>onReplaceClause)?
+	
+		{
+			// Add in the modifier flags accumulated by the label type
+			// Note that syntactiaclly, we allow all label types at all levels and must throw
+			// out any invalid ones at the semantic checking phase
+			//
+			$mods.flags |= $variableLabel.modifiers;
+	    	
+	    	// Construct the varaible JFXTree
+	    	//
+	    	$value = F.at($variableLabel.pos).Var
+	    				(
+	    					$name.value,
+	    					$type.type,
+	    					$mods,
+	    					false,
+	    					$boundExpressionOpt.value,
+	    					$boundExpressionOpt.status,
+	    					$onReplaceClause.value
+	    				);
+	    	
+	    	// Documentation comment (if any)
+	    	//
+			setDocComment($value, docComment);
+			
+			// Tree span
+			//
+			endPos($value); 
+		}
 	;
 	
+
+// ----------------
+// Parameter lists.
+// Parse the formal parameters of a function declaration and produce the
+// corresponding AST. 
+//
 formalParameters
-	: LPAREN formalParameter (COMMA formalParameter)*  RPAREN
+
+	// Return type is a list of all the AST nodes that represent a 
+	// formal parameter, this is used to generate the AST for the
+	// funciton definition itself.
+	//
+	returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]
+ 
+	: LPAREN 
+	
+		(
+			fp1=formalParameter 
+	
+			{
+				// Capture the first parameter
+				//
+				params.append($fp1.var); 
+			}
+			(
+				COMMA fp2=formalParameter
+				
+					{ 
+						// Second and subsequent parameter ASTs
+						//
+						params.append($fp2.var); 
+					} 
+			)*  
+		)?
+			
+	  RPAREN
 	;
 	
+// -----------------
+// Formal parameter.
+// Parse the specification of an individual function parameter and
+// produce the AST. Note that a parameter may be left empty
+//
 formalParameter
+
+	// Formal parameters are contained in a JFX tree var node.
+	//
+	returns [JFXVar var]
+
 	: name typeReference
-    |
+	
+		{ 
+			$var = F.at($name.pos).Param($name.value, $type.type);
+			endPos($var); 
+		}
 	;
 
+// ------
+// block.
+// A block component is actually a unit that returns a value, it is an expression.
+// In certain contexts the braces are more lexigraphically significant, such as the
+// boundaires of if blocks. Hence those contexts specify the block directly rather than
+// leaving the expression statement to pick it up.
+//
+// This means that a statement such as:
+//
+// if (x) { y} -z
+//
+// Does not consume the { y } -z as a complete expression but does
+// what a programmer intuitively expects and uses only {y } as the
+// subject of the if, with -z being a separate expression statement.
+//
+// A programmer can treat the above construct as a single expression
+// by enclosing it in braces:
+//
+// if (x) { { y } -z }
+//
+// Which is then obvious. This also improves error recovery possibilities,
+// which is a requirement for code completion utilities and so forth.
+//
 block 
-	: LBRACE blockComponent
-	   (SEMI blockComponent) *
+	
+	// The block expression has a specialized node inthe JFX tree
+	//
+	returns [JFXBlock value]
+
+@init { 
+
+	// A list of all the statement ASTs that make up the block expression
+	//
+	ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>(); 
+	
+	// For building invidual statements
+	//
+	JFXExpression val = null;
+}
+	
+	: LBRACE 
+	
+		(
+			statement
+	
+				{
+					// If the current statement is not the first one
+					// then append it to the list. This logic leaves us with 
+					// the AST for the last statement in the block
+					// in our val variable, which we need to build the
+					// AST for the block.
+					//
+					if	(val != null)
+					{
+						stats.append(val);
+					}
+					
+					// Pick up the AST for the staemetn we just parsed.
+					//
+					val = $statement.value;
+				}
+				
+			| SEMI
+	   )*
+	
 	  RBRACE
+	  
+	  	{
+		  	$value = F.at(pos($LBRACE)).Block(0L, stats.toList(), val);
+	  		endPos($value);
+	  	}
 	;
-	
-blockComponent
-	: statement		
-	|
-	;
-	
 
+// -----------
+// statements.
+// Parse the set of elments that are viewed as programmig statements. Note
+// that this includes expressions which are considered statements.
+// Note that each individual statement specifies whether it requires a
+// terminating SEMI, whether this is optional, or whether this is just
+// not required (such as if () {} ).
+//
 statement 
-	: insertStatement 	
-	| deleteStatement 
- 	| whileStatement
-	| BREAK    		
-	| CONTINUE  	 	 	
-    | throwStatement	   	
-    | returnStatement 		
-    | tryStatement	
-    | expression
+
+	// All statements return an expression tree
+	//
+	returns [JFXExpression value]
+
+	: insertStatement		{ $value = $insertStatement.value; 								}
+	| deleteStatement		{ $value = $deleteStatement.value; 								}
+ 	| whileStatement		{ $value = $whileStatement.value; 								}
+	| BREAK    				{ $value = F.at(pos($BREAK)).Break(null); 		endpos($value); } SEMI
+	| CONTINUE  	 	 	{ $value = F.at(pos($CONTINUE)).Continue(null);	endpos($value); } SEMI
+    | throwStatement	   	{ $value = $throwStatement.value; 								}
+    | returnStatement 		{ $value = $returnStatement.value; 								}
+    | tryStatement			{ $value = $tryStatement.value; 								}
+    | expression SEMI		{ $value = $expression.value; 									}
     ;
-    
+  
+// -----------  
+// ON REPLACE.
+// Parse an ON REPLACE clause which is an optional element of variable
+// declarations and OVERRIDEs.
+//
 onReplaceClause
-	: ON REPLACE oldval=paramNameOpt clause=sliceClause? block
+
+	// onReplace has its own JFX Tree node type
+	//
+	returns [JFXOnReplace value]
+	
+@init
+{
+	// Indicates presence of first and last elements
+	//
+	boolean haveFirst = false;
+}
+
+
+	: ON REPLACE oldv=paramNameOpt 
+	
+		(
+			LBRACKET first=name DOTDOT last=name RBRACKET
+			
+			{ 
+				haveFirst = true;	// Signal for AST build
+			}
+		)? 
+		EQ newElements=name
+	
+		block
+		
+		{ 
+			// Build the appropriate AST
+			//
+			if	(haveFirst) {
+			
+				$value = F.at(pos($ON)).OnReplace($oldv.var, $first.var, $last.var, $newElements.var, $blockExpression.value);
+				
+			} else {
+			
+				$value = F.at(pos($ON)).OnReplace($oldv.var, null, null, $newElements.var, $blockExpression.value);
+			}
+			endPos($value); 
+		}
 	;
 	
-sliceClause
-	: LBRACKET first=name DOTDOT last=name RBRACKET EQ newElements=name
-
-	| EQ newValue=name
-
-	;
-	
+// ------------------
+// Optional parameter
+// Parse and construct an AST for optional parameters
+//
 paramNameOpt
-    : name
-    |
+
+	// Returns a JFXVar tree node
+	//
+	returns [JFXVar var]
+
+    : paramName
+    	{
+    		{ $var = paramName.var; }
+    	}
+    	
+    |	{ $var = null; }
     ;
+
+// ---------
+// Parameter.
+// Parse and construct the AST for a parameter
+//
+paramName
+
+	// Returns a JFXVar tree node
+	//
+	returns [JFXVar var]
+
+	: name
+		{
+    		{ $var = F.at($name.pos).Param($name.value, F.TypeUnknown()); }
+    	}
+	;
+	
     
+// The ways in which a variable can be declared
+//
 variableLabel 
-	: VAR	
-	| DEF	
-	;
 	
-classVarLabel 
-	: VAR	
-	| DEF	
-	| ATTRIBUTE
-	;
+	// returns the appropriate modifier flags and the position of the token
+	//
+	returns [long modifiers, int pos]
 	
+	: VAR			{ $modifiers = 0L; $pos = pos($VAR); }
+	| DEF			{ $modifiers = JavafxFlags.IS_DEF; $pos = pos($DEF); }
+	| ATTRIBUTE		{ $modifiers = 0L; $pos = pos($ATTRIBUTE); log.warning(pos($ATTRIBUTE), "javafx.not.supported.attribute"); }
+	;
+
+// ------	
+// Throw.
+// Parse the standard exception throwing mechanism.
+//
 throwStatement
-	: THROW expression
-	;
+
+	// Returns the JFX Expression tree representing what we must throw
+	//
+	returns [JFXExpression value]
+
+	: THROW expression SEMI
 	
+		{ 
+			// AST for the thrown expression
+			//
+			$value = F.at(pos($THROW)).Throw($expression.value);
+			
+			// Tree span
+			//
+			endPos($value);
+		}
+	;
+
 whileStatement
-	: WHILE LPAREN expression RPAREN block
-	;
 	
+	// Returns the JFX Expression tree representing the WHILE
+	//
+	returns [JFXExpression value]
+	
+@init
+{
+	JFXExpression loopVal;
+}
+	: WHILE LPAREN expression RPAREN 
+	
+		(	  (LBRACE)=>block
+				{
+					loopVal = $block.value);
+				}
+			| statement
+			
+				{
+					loopVal = $statement.value;
+				}
+		)
+		
+		{
+			
+			// The AST for the WHILE, using either the block or statement
+			//
+			$value = F.at(pos($WHILE)).WhileLoop($expression.value, loopVal);
+			
+			// Tree span
+			//
+			endPos($value);
+		}
+	;
+
+// -------
+// INSERT.
+// Parse the insert statement and produce the relevant AST
+//
 insertStatement  
+	
+	// All steatemetns return a JFX expression tree
+	//
+	returns [JFXExpression value]
+
 	: INSERT elem=expression
-	    ( INTO eseq=expression
-	    | BEFORE indexedSequenceForInsert
-	    | AFTER indexedSequenceForInsert
-	    )
+		(
+			  INTO eseq=expression
+			  
+			  	{
+			  		// Form 1, INTO
+			  		//
+					$value = F.at(pos($INSERT)).SequenceInsert($eseq.value, $elem.value, null, false);
+			  	}
+			  	
+			| BEFORE isfi=indexedSequenceForInsert
+			
+				{
+					// Form 2, BEFORE
+					//
+					$value = F.at(pos($INSERT)).SequenceInsert($isif.seq, $elem.value, $isfi.idx, false);
+				}
+				
+			| AFTER isfi=indexedSequenceForInsert
+			
+				{
+					// Form 3, AFTER
+					//
+					$value = F.at(pos($INSERT)).SequenceInsert($isif.seq, $elem.value, $isfi.idx, true);
+				}
+		)
+
+		{
+			// Tree span
+			//
+			endPos($value);
+		}	    
+	    SEMI
+	    
 	;
 	
+// ----------------
+// Insert seqeunce.
+// Parse the syntax for an insert sequence specified by the 
+// INSERT BEFORE and INSERT AFTER variants.
+//
 indexedSequenceForInsert
+
+	returns [JFXExpression seq, JFXExpression idx]
+
 	: primaryExpression 			
+	
+		{
+			// Sequence expression
+			//
+			$seq = $primaryExpression.value;
+		}
+		
 	  LBRACKET expression RBRACKET
+	  
+	  	{
+	  		// Index expressions
+	  		//
+	  		$idx = $expression.value;
+	  	}
+	  		
  	;
- 	
+ 
+// -----------------	
+// DELETE statement.
+// Parse the DELETE statement forms and return the appropriate AST
+//
 deleteStatement  
-	: DELETE  e1=expression  
+
+	// Delete returns a JFX Expression tree
+	//
+	returns [JFXExpression value]
+
+	: DELETE e1=expression
+
 	   ( 
 	   		  (FROM)=>FROM e2=expression
+	   		  	
+	   		  	{
+	   		  		$value = F.at(pos($DELETE)).SequenceDelete($e2.value,$e1.value);
+	   		  	}
+	   		  	
 	   		| /* indexed and whole cases */
+	   		
+	   			{
+	   				$value = F.at(pos($DELETE)).SequenceDelete($e1.value);
+	   			}
+	   			
 	   )
-	;
-	
-returnStatement
-	: RETURN expression?
-	;
-	
-tryStatement
-	: TRY block 			
-		( 	  finallyClause
-	   		| catchClause+ finallyClause?   
-	   	)
-	;
-	
-finallyClause
-	: FINALLY block
-	;
-	
-catchClause
-	: CATCH LPAREN formalParameter RPAREN block
-	;
-	
-boundExpression 
-	: BIND expression ((WITH)=>WITH INVERSE)?
-	| expression
-	;
-	
-expression 
-	: ifExpression   		
-	| forExpression   	
-	| newExpression 	
-	| assignmentExpression	
-	| localVariableDeclaration
+	   
+	   {
+	   		// Tree span
+	   		//
+	   		endPos($value);
+	   }
+	   SEMI
 	;
 
+// -----------------
+// RETURN statement.
+// Parse the return statement forms and produce the relevant AST
+//
+returnStatement
+
+	// RETURN returns a JFX Expression tree
+	//
+	returns [JFXExpression value]
+
+	: RETURN 
+		
+		(
+			  expression	{	$value = F.at(pos($RETURN)).Return($expression.value);	}
+			|				{	$value = F.at(pos($RETURN)).Return(null);				}
+		)
+		
+		{
+			// Tree span
+			//
+			endPos($value);
+		}
+		
+		SEMI
+	;
+	
+// -----------------------------
+// TRY..CATCH..FINALLY seqeunce.
+// Parse and build the AST for the stabdard try sequence
+// TODO: Come back and relax the syntax requirements so as to catch malformed structure at semantic level
+//       I.E. "Too many finally claues for try at nnn"
+tryStatement
+
+	// returns a JFX Expression tree
+	//
+	returns [JFXExpression value]
+	
+@init
+{
+	// AST for any finally clause
+	//
+	JFXExpression finallyVal = null;
+	
+	// AST for any catch clauses
+	//
+	ListBuffer<JFXCatch> caught = ListBuffer<JFXCatch> caught = ListBuffer.lb();
+}
+	: TRY block 			
+		(
+		 	  f1=finallyClause	{ finallyVal = $f1.value; }
+	   		| (
+	   				catchClause
+	   				
+	   				{
+	   					// Accumulate the catch clauses
+	   					//
+	   					caught.append($catchClause.value);
+	   				}
+	   		  )+ 
+	   			
+	   			( 
+	   				f2=finallyClause	{ finallyVal = $f2.value; }
+	   			)?   
+	   	)
+	   	
+	   	{
+	   		// Build the AST
+	   		//
+	   		$value = F.at(pos($TRY)).Try($block.value, caught.toList(), finallyVal);
+	   		
+	   		// Tree span
+	   		//
+	   		endPos($value);
+	   	}
+	;
+	
+// -------
+// FINALLY
+// Parse the finally clause of a trey...catch...finally sequence
+//
+finallyClause
+
+	// returns a JFX Expression tree
+	//
+	returns [JFXBlock value]
+	
+	: FINALLY block
+	
+		{
+			$value = $block.value;
+			endPos($value);
+		}
+	;
+	
+// ------
+// CATCH.
+// Parse a catch clause of a try...catch...finally
+//
+catchClause
+
+	// Catch has its own JFX tree node type
+	//
+	returns [JFXCatch value]
+	
+	: CATCH LPAREN formalParameter RPAREN block
+	
+		{
+			$value = F.at(pos($CATCH)).Catch($formalParameter.var, $block.value);
+			endPos($value);
+		}
+	;
+	
+// ---------------------
+// Boundable expression.
+// Used to parse expressions that can be bound to a variable.
+//
+boundExpression 
+
+	// We nede to return a status flag to say how and if the
+	// expression is bound, and the AST for the expression itself.
+	//
+	returns [JavafxBindStatus status, JFXExpression value]
+
+@init 
+{ 
+	boolean isLazy 			= false; 	// Signals presence of LAZY
+	boolean isBidirectional	= false; 	// Signals presence of INVERSE
+}
+
+	: BIND e1=expression 
+	
+			(
+				(WITH)=>WITH INVERSE
+				
+				{
+					// Update status
+					//
+					isBidirectional = true;
+				}
+			)?
+			
+			{
+				// Set up the bound expression
+				//
+				$value	= e1.value;
+				
+				// Update the status
+				//
+				$status	= isBidirectional? isLazy? LAZY_BIDIBIND : BIDIBIND
+	  									   : isLazy? LAZY_UNIDIBIND :  UNIDIBIND;
+			}
+	
+	| e2=expression
+	
+		{
+			// Unbound expression AST
+			//
+			$value 	= $e2.value;
+			
+			// Update the status
+			//
+			$status	= UNBOUND;
+		}
+	;
+	
+// -----------
+// expression.
+// General expression parse and AST build.
+//
+expression
+
+	// Expression has its own dedicated JFX tree node type
+	//
+	returns [JFXExpression value]
+ 
+	: ifExpression
+
+		{
+			$value = $ifExpression.value;
+		}
+				
+	| forExpression   	
+
+		{
+			$value = $forExpression.value;
+		}
+		
+	| newExpression
+
+		{
+			$value = $newExpression.value;
+		}
+		
+	| assignmentExpression
+
+		{
+			$value = $assignmentExpression.value;
+		}
+		
+	| variableDeclaration
+	
+		{
+			$value = $variableDeclaration.value;
+		}
+	;
+
+// ------------------------
+// FOR statement/expression
+//
 forExpression
 	: FOR LPAREN inClause (COMMA inClause)* RPAREN statement
 	;
+
 	
 inClause
 	: formalParameter IN in=expression (WHERE wh=expression)?
@@ -1322,12 +2003,19 @@ inClause
 	
 ifExpression 
 	: IF LPAREN econd=expression  RPAREN 
-		THEN?  ethen=statement  elseClause
+		THEN?  
+			(	  (LBRACE)=>block
+				| statement  
+			)
+			((ELSE)=>elseClause)?
 	;
 	
 elseClause
-	: (ELSE)=>  ELSE  statement
-	| /*nada*/
+	: ELSE  
+		(
+			  (LBRACE)=>block
+			| statement
+		)
 	;
 	
 assignmentExpression  
@@ -1509,9 +2197,12 @@ newExpression
 	;
 	
 objectLiteralPart  
-	: localVariableDeclaration    
-	| overrideDeclaration	      
-	| functionDefinition 	      		
+	: (OVERRIDE)=>overrideDeclaration
+	| modifiers
+		(
+			  variableDeclaration    [$modifiers.mods]
+			| functionDefinition	 [$modifiers.mods]
+		)
 	| objectLiteralInit*
     ;
        	
@@ -1667,6 +2358,17 @@ qualname
 		)*  
 	;
 
+identifier
+
+	returns [JFXExpression value]
+
+	: n1=name
+		{
+			$value = F.at($n1.pos).Ident($n1.value);
+			endPos($value, $n1.pos + $n1.value.length());
+		}
+	;
+	
 name 
 
 	returns [Name value, int pos]
