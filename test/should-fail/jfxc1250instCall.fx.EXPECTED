@@ -1,0 +1,28 @@
+test\should-fail\jfxc1250instCall.fx:33: cannot find symbol
+symbol  : variable memFScr
+location: class jfxc1250instCall.Inh
+	System.out.println( memFScr() );   // ERROR: inherited, same package
+	                    ^
+test\should-fail\jfxc1250instCall.fx:41: cannot find symbol
+symbol  : variable memFPkg
+location: class jfxc1250instCall.InhA
+	System.out.println( memFPkg() );   // ERROR: inherited, different package
+	                    ^
+test\should-fail\jfxc1250instCall.fx:42: cannot find symbol
+symbol  : variable memFScr
+location: class jfxc1250instCall.InhA
+	System.out.println( memFScr() );   // ERROR: inherited, different package
+	                    ^
+test\should-fail\jfxc1250instCall.fx:77: memFScr() has script only (default) access in jfxc1250subFail
+	System.out.println( vf.memFScr() );   // ERROR: same package
+	                      ^
+test\should-fail\jfxc1250instCall.fx:83: memFPro() has protected access in jfxc1250.a.jfxc1250subFailA
+	System.out.println( vf.memFPro() );   // ERROR: different package
+	                      ^
+test\should-fail\jfxc1250instCall.fx:84: memFPkg() is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	System.out.println( vf.memFPkg() );   // ERROR: different package
+	                      ^
+test\should-fail\jfxc1250instCall.fx:85: memFScr() has script only (default) access in jfxc1250.a.jfxc1250subFailA
+	System.out.println( vf.memFScr() );   // ERROR: different package
+	                      ^
+7 errors

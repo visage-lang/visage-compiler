@@ -1516,7 +1516,7 @@ public class JavafxAttr implements JavafxVisitor {
 
             if (memberSym instanceof VarSymbol) {
                 VarSymbol v = (VarSymbol)memberSym;
-                checkAssignable(part.pos(), v, part, memberType, localEnv, true);
+                checkAssignable(part.pos(), v, part, clazz.type, localEnv, true);
             }
             chk.checkBidiBind(part.getMaybeBindExpression(),
                               part.getBindStatus(), part.getExpression());
@@ -3226,15 +3226,20 @@ public class JavafxAttr implements JavafxVisitor {
             log.error(pos, MsgSym.MESSAGE_CANNOT_ASSIGN_VAL_TO_FINAL_VAR, v);
         } else if ((v.flags() & JavafxFlags.IS_DEF) != 0L) {
             log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_DEF, v);
-        } else if (!isInit && (v.flags() & JavafxFlags.NON_WRITABLE) != 0L) {
-            log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_NON_WRITABLE, v);
         } else if ((v.flags() & Flags.PARAMETER) != 0L) {
             log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_PARAMETER, v);
-        } else if ((v.flags() & JavafxFlags.PUBLIC_READABLE) != 0L) {
+        } else {
+            // now check access permissions for write/init
+            if (isInit && (v.flags() & JavafxFlags.PUBLIC_INIT) != 0L) {
+                return;  // it is an initialization, and init is explicitly allowed
+            }
             if (!rs.isAccessibleForWrite(env, site, v)) {
-                log.error(pos, MsgSym.MESSAGE_JAVAFX_REPORT_WRITE_ACCESS, v,
-                              JavafxCheck.protectionString(v.flags()),
-                              v.location());
+                String msg = isInit ?
+                    MsgSym.MESSAGE_JAVAFX_REPORT_INIT_ACCESS :
+                    MsgSym.MESSAGE_JAVAFX_REPORT_WRITE_ACCESS;
+                log.error(pos, msg, v,
+                        JavafxCheck.protectionString(v.flags()),
+                        v.location());
             }
         }
     }

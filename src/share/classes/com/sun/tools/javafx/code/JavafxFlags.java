@@ -39,11 +39,11 @@ public class JavafxFlags {
     public static final long INNER_ACCESS = LAST_JAVA_FLAG << 2;
     public static final long BOUND = LAST_JAVA_FLAG << 3;
     public static final long IN_INITIALIZER = LAST_JAVA_FLAG << 4;
-    public static final long PUBLIC_READABLE = LAST_JAVA_FLAG << 5;
-    public static final long IS_DEF = LAST_JAVA_FLAG << 6;
-    public static final long OVERRIDE = LAST_JAVA_FLAG << 7;
-    public static final long SCRIPT_LEVEL_SYNTH_STATIC = LAST_JAVA_FLAG << 8;
-    public static final long NON_WRITABLE = LAST_JAVA_FLAG << 9;
+    public static final long OVERRIDE = LAST_JAVA_FLAG << 5;
+    public static final long SCRIPT_LEVEL_SYNTH_STATIC = LAST_JAVA_FLAG << 6;
+    public static final long IS_DEF = LAST_JAVA_FLAG << 7;
+    public static final long PUBLIC_READ = LAST_JAVA_FLAG << 8;
+    public static final long PUBLIC_INIT = LAST_JAVA_FLAG << 9;
     public static final long PACKAGE_ACCESS = LAST_JAVA_FLAG << 10;
     public static final long SCRIPT_PRIVATE = LAST_JAVA_FLAG << 11;
 

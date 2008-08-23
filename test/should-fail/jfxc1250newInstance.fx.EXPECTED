@@ -1,0 +1,10 @@
+test\should-fail\jfxc1250newInstance.fx:32: jfxc1250subFail.cScr has script only (default) access in jfxc1250subFail
+	var x3 = jfxc1250subFail.cScr {};
+	                        ^
+test\should-fail\jfxc1250newInstance.fx:37: jfxc1250.a.jfxc1250subFailA.cPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	var x2 = jfxc1250subFailA.cPkg {};
+	                         ^
+test\should-fail\jfxc1250newInstance.fx:38: jfxc1250.a.jfxc1250subFailA.cScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+	var x3 = jfxc1250subFailA.cScr {};
+	                         ^
+3 errors

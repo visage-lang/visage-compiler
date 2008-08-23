@@ -4,7 +4,7 @@
 
 package class jfxc1629One {
 
-  public-readable var twub = 333;
+  public-read var twub = 333;
 
   function make() : jfxc1629One {
      twub = 444; // OK

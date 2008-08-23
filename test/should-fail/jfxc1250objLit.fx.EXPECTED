@@ -1,0 +1,43 @@
+test\should-fail\jfxc1250objLit.fx:63: memScr has script only (default) access in jfxc1250subFail
+	    memScr: 123,   // ERROR: inherited, same package
+	    ^
+test\should-fail\jfxc1250objLit.fx:73: memRScr has script only (default) initialization access in jfxc1250subFail
+	    memRScr: 123,   // ERROR: inherited, same package
+	    ^
+test\should-fail\jfxc1250objLit.fx:87: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	    memPkg: 123,   // ERROR: inherited, different package
+	    ^
+test\should-fail\jfxc1250objLit.fx:89: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+	    memScr: 123,   // ERROR: inherited, different package
+	    ^
+test\should-fail\jfxc1250objLit.fx:98: memRPkg has package initialization access in jfxc1250.a.jfxc1250subFailA
+	    memRPkg: 123,   // ERROR: inherited, different package
+	    ^
+test\should-fail\jfxc1250objLit.fx:99: memRScr has script only (default) initialization access in jfxc1250.a.jfxc1250subFailA
+	    memRScr: 123,   // ERROR: inherited, different package
+	    ^
+test\should-fail\jfxc1250objLit.fx:172: memScr has script only (default) access in jfxc1250subFail
+	    memScr: 123,   // ERROR: same package
+	    ^
+test\should-fail\jfxc1250objLit.fx:182: memRScr has script only (default) initialization access in jfxc1250subFail
+	    memRScr: 123,   // ERROR: same package
+	    ^
+test\should-fail\jfxc1250objLit.fx:194: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	    memPkg: 123,   // ERROR: different package
+	    ^
+test\should-fail\jfxc1250objLit.fx:195: memPro has protected access in jfxc1250.a.jfxc1250subFailA
+	    memPro: 123,   // ERROR: different package
+	    ^
+test\should-fail\jfxc1250objLit.fx:196: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+	    memScr: 123,   // ERROR: different package
+	    ^
+test\should-fail\jfxc1250objLit.fx:204: memRPro has protected initialization access in jfxc1250.a.jfxc1250subFailA
+	    memRPro: 123,   // ERROR: different package
+	    ^
+test\should-fail\jfxc1250objLit.fx:205: memRPkg has package initialization access in jfxc1250.a.jfxc1250subFailA
+	    memRPkg: 123,   // ERROR: different package
+	    ^
+test\should-fail\jfxc1250objLit.fx:206: memRScr has script only (default) initialization access in jfxc1250.a.jfxc1250subFailA
+	    memRScr: 123,   // ERROR: different package
+	    ^
+14 errors

@@ -61,6 +61,8 @@ tokens {
    PRIVATE='private';
    PROTECTED='protected';
    PUBLIC='public';
+   PUBLIC_INIT='public-init';
+   PUBLIC_READ='public-read';
    PUBLIC_READABLE='public-readable';
    READABLE='readable';
    RETURN='return';
@@ -589,8 +591,10 @@ functionModifier
 	|  STATIC    
 	;
 varModifier 
-	:  PUBLIC_READABLE
-	|  NON_WRITABLE		
+	:  PUBLIC_READ
+	|  PUBLIC_INIT
+	|  PUBLIC_READABLE
+	|  NON_WRITABLE
 	|  accessModifier	
 	
 	//TODO: deprecated -- remove these at some point

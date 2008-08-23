@@ -154,7 +154,7 @@ public class JavafxScriptClassBuilder {
         JFXClassDeclaration moduleClass = null;
         JFXExpression value = null;
         boolean isLibrary = false;
-        final long EXTERNALIZING_FLAGS = Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.PACKAGE_ACCESS | JavafxFlags.PUBLIC_READABLE;
+        final long EXTERNALIZING_FLAGS = Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.PACKAGE_ACCESS | JavafxFlags.PUBLIC_READ | JavafxFlags.PUBLIC_INIT;
         for (JFXTree tree : scriptTops) {
             switch (tree.getFXTag()) {
                 case CLASS_DEF: {

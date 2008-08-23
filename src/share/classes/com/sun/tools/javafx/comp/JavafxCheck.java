@@ -852,15 +852,19 @@ public class JavafxCheck {
 		 &&
                  checkDisjoint(pos, flags,
                                PUBLIC,
-                               PRIVATE | PROTECTED | JavafxFlags.SCRIPT_PRIVATE)
+                               PRIVATE | PROTECTED | JavafxFlags.PACKAGE_ACCESS | JavafxFlags.SCRIPT_PRIVATE)
 		 &&
                  checkDisjoint(pos, flags,
                                PRIVATE,
-                               PUBLIC | PROTECTED | JavafxFlags.SCRIPT_PRIVATE)
+                               PUBLIC | PROTECTED | JavafxFlags.PACKAGE_ACCESS | JavafxFlags.SCRIPT_PRIVATE)
 		 &&
                  checkDisjoint(pos, flags,
                                JavafxFlags.SCRIPT_PRIVATE,
-                               PRIVATE | PROTECTED | PUBLIC)
+                               PRIVATE | PROTECTED | PUBLIC | JavafxFlags.PACKAGE_ACCESS)
+		 &&
+                 checkDisjoint(pos, flags,
+                               JavafxFlags.PACKAGE_ACCESS,
+                               PRIVATE | PROTECTED | PUBLIC | JavafxFlags.SCRIPT_PRIVATE)
 		 &&
 		 checkDisjoint(pos, flags,
 			       FINAL,

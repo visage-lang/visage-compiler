@@ -48,7 +48,8 @@ public class JavafxSymtab extends Symtab {
     public static final String packageAnnotationClassNameString = anno + ".Package";
     public static final String publicAnnotationClassNameString = anno + ".Public";
     public static final String scriptPrivateAnnotationClassNameString = anno + ".ScriptPrivate";
-    public static final String publicReadableAnnotationClassNameString = anno + ".PublicReadable";
+    public static final String publicInitAnnotationClassNameString = anno + ".PublicInitable";
+    public static final String publicReadAnnotationClassNameString = anno + ".PublicReadable";
     public static final String defAnnotationClassNameString = anno + ".Def";
     public static final String staticAnnotationClassNameString = anno + ".Static";
     public static final String inheritedAnnotationClassNameString = anno + ".Inherited";
@@ -80,7 +81,8 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_packageAnnotationType;
     public final Type javafx_publicAnnotationType;
     public final Type javafx_scriptPrivateAnnotationType;
-    public final Type javafx_publicReadableAnnotationType;
+    public final Type javafx_publicInitAnnotationType;
+    public final Type javafx_publicReadAnnotationType;
     public final Type javafx_defAnnotationType;
     public final Type javafx_staticAnnotationType;
     public final Type javafx_inheritedAnnotationType;
@@ -145,7 +147,8 @@ public class JavafxSymtab extends Symtab {
         javafx_packageAnnotationType = enterClass(packageAnnotationClassNameString);
         javafx_publicAnnotationType = enterClass(publicAnnotationClassNameString);
         javafx_scriptPrivateAnnotationType = enterClass(scriptPrivateAnnotationClassNameString);
-        javafx_publicReadableAnnotationType = enterClass(publicReadableAnnotationClassNameString);
+        javafx_publicInitAnnotationType = enterClass(publicInitAnnotationClassNameString);
+        javafx_publicReadAnnotationType = enterClass(publicReadAnnotationClassNameString);
         javafx_defAnnotationType = enterClass(defAnnotationClassNameString);
         javafx_staticAnnotationType = enterClass(staticAnnotationClassNameString);
         javafx_inheritedAnnotationType = enterClass(inheritedAnnotationClassNameString);

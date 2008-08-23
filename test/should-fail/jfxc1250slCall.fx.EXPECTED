@@ -1,0 +1,25 @@
+test\should-fail\jfxc1250slCall.fx:23: cannot find symbol
+symbol  : variable slFScr
+location: class jfxc1250slCall.Inh
+	slFScr();   // ERROR: inherited, same package
+	^
+test\should-fail\jfxc1250slCall.fx:37: cannot find symbol
+symbol  : variable slFPkg
+location: class jfxc1250slCall.InhA
+	slFPkg();   // ERROR: inherited, different package
+	^
+test\should-fail\jfxc1250slCall.fx:38: cannot find symbol
+symbol  : variable slFScr
+location: class jfxc1250slCall.InhA
+	slFScr();   // ERROR: inherited, different package
+	^
+test\should-fail\jfxc1250slCall.fx:68: slFScr() has script only (default) access in jfxc1250subFail
+	System.out.println( jfxc1250subFail.slFScr() );   // ERROR: same package
+	                                   ^
+test\should-fail\jfxc1250slCall.fx:73: slFPkg() is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	System.out.println( jfxc1250subFailA.slFPkg() );   // ERROR: different package
+	                                    ^
+test\should-fail\jfxc1250slCall.fx:74: slFScr() has script only (default) access in jfxc1250.a.jfxc1250subFailA
+	System.out.println( jfxc1250subFailA.slFScr() );   // ERROR: different package
+	                                    ^
+6 errors

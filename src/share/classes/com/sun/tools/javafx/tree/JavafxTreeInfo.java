@@ -193,11 +193,11 @@ public class JavafxTreeInfo {
         if ((flags & JavafxFlags.SCRIPT_PRIVATE) != 0) {
             fsb.append("script only (default) ");
         }
-        if ((flags & JavafxFlags.PUBLIC_READABLE) != 0) {
-            fsb.append("public-readable ");
+        if ((flags & JavafxFlags.PUBLIC_READ) != 0) {
+            fsb.append("public-read ");
         }
-        if ((flags & JavafxFlags.NON_WRITABLE) != 0) {
-            fsb.append("non-writable ");
+        if ((flags & JavafxFlags.PUBLIC_INIT) != 0) {
+            fsb.append("public-init ");
         }
         return fsb.toString().trim();
     }

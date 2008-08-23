@@ -161,15 +161,17 @@ modifierFlag   returns [long flag, int pos]
 	|  PUBLIC          				{ $flag = Flags.PUBLIC;      		$pos = pos($PUBLIC); }
 	|  PACKAGE         				{ $flag = JavafxFlags.PACKAGE_ACCESS;	$pos = pos($PACKAGE); }
 	|  PROTECTED       				{ $flag = Flags.PROTECTED;		$pos = pos($PROTECTED); }
-	|  PUBLIC_READABLE       			{ $flag = JavafxFlags.PUBLIC_READABLE;	$pos = pos($PUBLIC_READABLE); }
-	|  NON_WRITABLE       				{ $flag = JavafxFlags.NON_WRITABLE;	$pos = pos($NON_WRITABLE); }
+	|  PUBLIC_INIT             			{ $flag = JavafxFlags.PUBLIC_INIT;	$pos = pos($PUBLIC_INIT); }
+	|  PUBLIC_READ             			{ $flag = JavafxFlags.PUBLIC_READ;	$pos = pos($PUBLIC_READ); }
 	|  OVERRIDE       				{ $flag = JavafxFlags.OVERRIDE;		$pos = pos($OVERRIDE); }
 	|  ABSTRACT        				{ $flag = Flags.ABSTRACT;		$pos = pos($ABSTRACT); }
 	
 	//TODO: deprecated -- remove these at some point
 	|  STATIC        				{ $flag = Flags.STATIC;      		$pos = pos($STATIC); }
+	|  PUBLIC_READABLE       			{ $flag = JavafxFlags.PUBLIC_READ;	$pos = pos($PUBLIC_READABLE); }
+	|  NON_WRITABLE       				{ $flag = JavafxFlags.PUBLIC_INIT;	$pos = pos($NON_WRITABLE); }
 	|  PRIVATE         				{ $flag = Flags.PRIVATE;     		$pos = pos($PRIVATE);  log.warning(pos($PRIVATE), "javafx.not.supported.private"); }
-	|  READABLE       				{ $flag = JavafxFlags.PUBLIC_READABLE;	$pos = pos($READABLE);  log.error(pos($READABLE), "javafx.not.supported.readable"); }
+	|  READABLE       				{ $flag = JavafxFlags.PUBLIC_READ;	$pos = pos($READABLE);  log.error(pos($READABLE), "javafx.not.supported.readable"); }
 	;
 formalParameters  returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]
 	: ^(LPAREN (formalParameter			{ params.append($formalParameter.var); } )* )

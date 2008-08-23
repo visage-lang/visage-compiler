@@ -8,11 +8,11 @@ import java.lang.System;
 public class TestUtils  {
 	var pass = 0;
 	var fail = 0;
-   var GFT = 0; //Golden_File_Tests; do not show up as pass or fail check
+   public var GFT = 0; //Golden_File_Tests; do not show up as pass or fail check
 	var bDEBUG = false;
 	var failures:String[];
 	function debugout(msg: String) { if(bDEBUG) System.out.println( "{msg}" ); }
-	var replacements = [ "REPLACEMENTS:" ];
+   public var replacements = [ "REPLACEMENTS:" ];
    public function Replacements() {System.out.println( replacements ); }
    public function printSequence( seq : Integer[] ) { System.out.println( seq ); }
    public function print(msg:String) { System.out.println(msg); }

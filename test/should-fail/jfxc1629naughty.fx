@@ -1,5 +1,5 @@
 /**
- * Regression test for JFXC-1629 : Enforce public-readable modifier
+ * Regression test for JFXC-1629 : Enforce public-read modifier
  *
  * @compile jfxc1629One.fx
  * @test/compile-error

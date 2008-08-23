@@ -207,7 +207,7 @@ public class JavafxResolve {
      */
     public boolean isAccessible(JavafxEnv<JavafxAttrContext> env, Type site, Symbol sym) {
         if (sym.name == names.init && sym.owner != site.tsym) return false;
-        if ((sym.flags() & JavafxFlags.PUBLIC_READABLE) != 0) {
+        if ((sym.flags() & (JavafxFlags.PUBLIC_READ | JavafxFlags.PUBLIC_INIT)) != 0) {
             // assignment access handled elsewhere -- treat like
             return isAccessible(env, site);
         }
@@ -238,21 +238,28 @@ public class JavafxResolve {
             if ((sym.flags() & JavafxFlags.SCRIPT_PRIVATE) != 0) {
                 // script-private
                 //TODO: don't know what is right
-                return
-                        (env.enclClass.sym == sym.owner // fast special case
-                        ||
-                        env.enclClass.sym.outermostClass() ==
-                        sym.owner.outermostClass());
+                if (env.enclClass.sym == sym.owner) {
+                    return true;  // fast special case -- in this class
+                }
+                Symbol enclOuter = env.enclClass.sym.outermostClass();
+                Symbol ownerOuter = sym.owner.outermostClass();
+                return enclOuter == ownerOuter;
             };
             // 'package' access
-            return
-                (env.toplevel.packge == sym.owner.owner // fast special case
-                 ||
-                 env.toplevel.packge == sym.packge())
-                &&
-                isAccessible(env, site)
-                &&
-                isInheritedIn(sym, site.tsym, types);
+            PackageSymbol pkg = env.toplevel.packge;
+            boolean samePkg = 
+                    (pkg == sym.owner.owner // fast special case
+                    ||
+                    pkg == sym.packge());
+            boolean typeAccessible = isAccessible(env, site);
+            // TODO: javac logic is to also 'and'-in inheritedIn.
+            // Based possibly on bugs in what is passed in,
+            // this doesn't work when accessing static variables in an outer class.
+            // When called from findVar this works because the site in the actual
+            // owner of the sym, but when coming from an ident and checkAssignable
+            // this isn't true.
+            //boolean inheritedIn = isInheritedIn(sym, site.tsym, types);
+            return samePkg && typeAccessible;
         case PROTECTED:
             return
                 (env.toplevel.packge == sym.owner.owner // fast special case
@@ -853,7 +860,32 @@ public class JavafxResolve {
                           operator);
     }
     // where
-             private Symbol findMember(JavafxEnv<JavafxAttrContext> env,
+    private Symbol findMember(JavafxEnv<JavafxAttrContext> env,
+                              Type site,
+                              Name name,
+                              Type expected,
+                              Type intype,
+                              Symbol bestSoFar,
+                              boolean allowBoxing,
+                              boolean useVarargs,
+                              boolean operator) {
+        Symbol best = findMemberWithoutAccessChecks(env,
+                          site,
+                          name,
+                          expected,
+                          intype,
+                          bestSoFar,
+                          allowBoxing,
+                          useVarargs,
+                          operator);
+        if (!(best instanceof ResolveError) && !isAccessible(env, site, best)) {
+            // it is not accessible, return an error instead
+            best = new AccessError(env, site, best);
+        }
+        return best;
+    }
+    // where
+    private Symbol findMemberWithoutAccessChecks(JavafxEnv<JavafxAttrContext> env,
                               Type site,
                               Name name,
                               Type expected,
@@ -916,7 +948,7 @@ public class JavafxResolve {
             for (List<Type> l = types.interfaces(c.type);
                  l.nonEmpty();
                  l = l.tail) {
-                bestSoFar = findMember(env, site, name, expected,
+                bestSoFar = findMemberWithoutAccessChecks(env, site, name, expected,
                                        l.head, bestSoFar,
                                        allowBoxing, useVarargs, operator);
             }
@@ -932,7 +964,7 @@ public class JavafxResolve {
         if (bestSoFar.kind > AMBIGUOUS && intype.tsym instanceof JavafxClassSymbol) {
             List<Type> supertypes = ((JavafxClassSymbol)intype.tsym).getSuperTypes();
             for (Type tp : supertypes) {
-                bestSoFar = findMember(env, site, name, expected, tp,
+                bestSoFar = findMemberWithoutAccessChecks(env, site, name, expected, tp,
                         bestSoFar, allowBoxing, useVarargs, operator);                
                 if (bestSoFar.kind < AMBIGUOUS) {
                     break;
@@ -2050,6 +2082,15 @@ public class JavafxResolve {
      *  @param sym    The symbol.
      *  @param clazz  The type symbol of which the tested symbol is regarded
      *                as a member.
+     *
+     * From the javac code from which this was cloned --
+     *
+     * Is this symbol inherited into a given class?
+     *  PRE: If symbol's owner is a interface,
+     *       it is already assumed that the interface is a superinterface
+     *       of given class.
+     *  @param clazz  The class for which we want to establish membership.
+     *                This must be a subclass of the member's owner.
      */
     public boolean isInheritedIn(Symbol sym, Symbol clazz, JavafxTypes types) {
         // because the SCRIPT_PRIVATE bit is too high for the switch, test it later
