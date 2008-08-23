@@ -116,7 +116,7 @@ public class Timeline {
      *
      * @profile common
      */
-    public-readable var running: Boolean = false;
+    public-read var running: Boolean = false;
 
     /**
      * Read-only variable that indicates whether the animation is
@@ -132,7 +132,7 @@ public class Timeline {
      *
      * @profile common
      */
-    public-readable var paused: Boolean = false;
+    public-read var paused: Boolean = false;
 
     // if false, indicates that the internal (optimized) data structure
     // needs to be rebuilt

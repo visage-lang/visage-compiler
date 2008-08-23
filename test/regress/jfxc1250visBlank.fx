@@ -12,13 +12,13 @@ import jfxc1250.a.jfxc1250subA;
 public var slPub = 3;
 package var slPkg = 3;
 var slScr = 3;
-non-writable public var slNPub = 3;
-non-writable package var slNPkg = 3;
-non-writable var slNScr = 3;
-public-readable package var slRPkg = 3;
-public-readable var slRScr = 3;
-non-writable public-readable package var slNRPkg = 3;
-non-writable public-readable var slNRScr = 3;
+public-init public var slNPub = 3;
+public-init package var slNPkg = 3;
+public-init var slNScr = 3;
+public-read package var slRPkg = 3;
+public-read var slRScr = 3;
+public-init public-read package var slNRPkg = 3;
+public-init public-read var slNRScr = 3;
 
 public function slFPub() { 3 }
 package function slFPkg() { 3 }
@@ -33,16 +33,16 @@ public class jfxc1250visBlank {
 	protected var memPro = 3;
 	package var memPkg = 3;
 	var memScr = 3;
-	non-writable public var memNPub = 3;
-	non-writable protected var memNPro = 3;
-	non-writable package var memNPkg = 3;
-	non-writable var memNScr = 3;
-	public-readable protected var memRPro = 3;
-	public-readable package var memRPkg = 3;
-	public-readable var memRScr = 3;
-	non-writable public-readable protected var memNRPro = 3;
-	non-writable public-readable package var memNRPkg = 3;
-	non-writable public-readable var memNRScr = 3;
+	public-init public var memNPub = 3;
+	public-init protected var memNPro = 3;
+	public-init package var memNPkg = 3;
+	public-init var memNScr = 3;
+	public-read protected var memRPro = 3;
+	public-read package var memRPkg = 3;
+	public-read var memRScr = 3;
+	public-init public-read protected var memNRPro = 3;
+	public-init public-read package var memNRPkg = 3;
+	public-init public-read var memNRScr = 3;
 
 	public function memFPub() { 3 }
 	protected function memFPro() { 3 }
@@ -55,16 +55,16 @@ class Foo {
 	protected var fooPro = 3;
 	package var fooPkg = 3;
 	var fooScr = 3;
-	non-writable public var fooNPub = 3;
-	non-writable protected var fooNPro = 3;
-	non-writable package var fooNPkg = 3;
-	non-writable var fooNScr = 3;
-	public-readable protected var fooRPro = 3;
-	public-readable package var fooRPkg = 3;
-	public-readable var fooRScr = 3;
-	non-writable public-readable protected var fooNRPro = 3;
-	non-writable public-readable package var fooNRPkg = 3;
-	non-writable public-readable var fooNRScr = 3;
+	public-init public var fooNPub = 3;
+	public-init protected var fooNPro = 3;
+	public-init package var fooNPkg = 3;
+	public-init var fooNScr = 3;
+	public-read protected var fooRPro = 3;
+	public-read package var fooRPkg = 3;
+	public-read var fooRScr = 3;
+	public-init public-read protected var fooNRPro = 3;
+	public-init public-read package var fooNRPkg = 3;
+	public-init public-read var fooNRScr = 3;
 
 	public function fooFPub() { 3 }
 	protected function fooFPro() { 3 }

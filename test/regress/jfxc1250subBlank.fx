@@ -4,13 +4,13 @@
 public var slPub = 0;
 package var slPkg = 0;
 var slScr = 0;
-non-writable public var slNPub = 0;
-non-writable package var slNPkg = 0;
-non-writable var slNScr = 0;
-public-readable package var slRPkg = 0;
-public-readable var slRScr = 0;
-non-writable public-readable package var slNRPkg = 0;
-non-writable public-readable var slNRScr = 0;
+public-init public var slNPub = 0;
+public-init package var slNPkg = 0;
+public-init var slNScr = 0;
+public-read package var slRPkg = 0;
+public-read var slRScr = 0;
+public-init public-read package var slNRPkg = 0;
+public-init public-read var slNRScr = 0;
 
 public function slFPub() { 0 }
 package function slFPkg() { 0 }
@@ -25,16 +25,16 @@ public class jfxc1250subBlank {
 	protected var memPro = 0;
 	package var memPkg = 0;
 	var memScr = 0;
-	non-writable public var memNPub = 0;
-	non-writable protected var memNPro = 0;
-	non-writable package var memNPkg = 0;
-	non-writable var memNScr = 0;
-	public-readable protected var memRPro = 0;
-	public-readable package var memRPkg = 0;
-	public-readable var memRScr = 0;
-	non-writable public-readable protected var memNRPro = 0;
-	non-writable public-readable package var memNRPkg = 0;
-	non-writable public-readable var memNRScr = 0;
+	public-init public var memNPub = 0;
+	public-init protected var memNPro = 0;
+	public-init package var memNPkg = 0;
+	public-init var memNScr = 0;
+	public-read protected var memRPro = 0;
+	public-read package var memRPkg = 0;
+	public-read var memRScr = 0;
+	public-init public-read protected var memNRPro = 0;
+	public-init public-read package var memNRPkg = 0;
+	public-init public-read var memNRScr = 0;
 
 	public function memFPub() { 0 }
 	protected function memFPro() { 0 }

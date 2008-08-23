@@ -90,7 +90,7 @@ public class StringLocalizer {
      * @needsreview
      * @readonly
      */
-    public-readable package var localizedString : String = bind {
+    public-read package var localizedString : String = bind {
         if ("".equals(defaultString)) {
             StringLocalization.getLocalizedString(propertiesName, key, key, locale);
         } else {

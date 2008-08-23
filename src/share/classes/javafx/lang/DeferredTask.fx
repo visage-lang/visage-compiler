@@ -51,7 +51,7 @@ public class DeferredTask {
      * @profile common
      * @readonly
      */
-    public-readable var done : Boolean;
+    public-read var done : Boolean;
 
     postinit {
         Entry.deferTask(function() : Void { try { action(); } finally { done = true } });

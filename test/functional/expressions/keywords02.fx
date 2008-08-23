@@ -2,7 +2,7 @@ import java.lang.System;
 
 /*
  * keywords not used in sqe functional tests as of 3/18/08
- * def, public-readable, super, this
+ * def, public-read, super, this
  *
  * @test
  * @compilefirst ../TestUtils.fx
@@ -10,7 +10,7 @@ import java.lang.System;
  */
 
 protected class A {
-public public-readable var a = 32;
+public public-read var a = 32;
 public function getA():Integer { return a; }
 public function getAThis():String { 
   def sthis= this.toString(); 
@@ -19,7 +19,7 @@ public function getAThis():String {
 }
 
 protected class B extends A {
-  public-readable var b = 33;
+  public-read var b = 33;
   function getBb():Integer { return b; }
   function getBa():Integer { def a = super.getA(); return a; }
   function getBThis():String { def bst = this.toString(); return bst; }
@@ -27,8 +27,8 @@ protected class B extends A {
 }
 
 class C extends B {
-// public-readable is now enforced, commented out since it causes code below to not compile
- /*public-readable*/ var y = 34;
+// public-read is now enforced, commented out since it causes code below to not compile
+ /*public-read*/ var y = 34;
  var y2 = 35;
  function getCBa(): Integer { def _a = super.getBa(); return _a; }
  function getCThis():String { def _this = this.toString(); return _this; }
@@ -39,16 +39,16 @@ class C extends B {
  * classes for 'this' checks
  */
 abstract class inner {
-	public-readable var innerthis;
+	public-read var innerthis;
 	abstract function getThis():String 
  }
 abstract class localclass {
-	public-readable var localthis;
+	public-read var localthis;
 	abstract function getThis():String 
 }
 
 class outer {
- public-readable var outterthis = this;
+ public-read var outterthis = this;
  function getThis():String { 	def sthis = outterthis.toString(); 	return sthis;  }
 
  var inn = inner {
@@ -129,7 +129,7 @@ function run( ) {
     TU.checkI(c.getCBa(), 32, "call to super's method calling super.");
 
     /* 
-     * c.y is a public-readable var.
+     * c.y is a public-read var.
      * Should this be a compile error or just retain original value and ignore attempt
      * to assign. 
      */

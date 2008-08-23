@@ -1,5 +1,5 @@
 /*
- * Regression test JFXC-1629 : Enforce public-readable modifier
+ * Regression test JFXC-1629 : Enforce public-read modifier
  * Inner access case.
  *
  * @test
@@ -9,7 +9,7 @@ class Foo {}
 
 class reada {
 
-    public-readable var running = false;
+    public-read var running = false;
 
     function createAdapter():Foo {
         Foo {

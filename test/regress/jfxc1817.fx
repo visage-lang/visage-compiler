@@ -8,7 +8,7 @@
 import java.lang.System;
 
 class Test {
-    public non-writable var foo: Integer;
+    public-init var foo: Integer;
 }
 
 var x = Test{foo: 3};

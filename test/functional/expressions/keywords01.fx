@@ -2,7 +2,7 @@ import java.lang.System;
 import java.lang.Exception;
 
 /*
- * abstract class, function, bind used with public-readable
+ * abstract class, function, bind used with public-read
  * @test
  * @compilefirst ../TestUtils.fx
  * @run
@@ -16,8 +16,8 @@ abstract class foo {
 
 public class foo2 extends foo {
 	var data:Integer = 10;
-	public /*TODO: this is not really a test of public-readable */ var roI = bind data;
-	public /*TODO: this is not really a test of public-readable */ var roS = "readable";
+	public /*TODO: this is not really a test of public-read */ var roI = bind data;
+	public /*TODO: this is not really a test of public-read */ var roS = "readable";
 
 	override bound function RequiredAbstractFunction():Integer { return data; }
 	function setData( newd : Integer) { data = newd;}
@@ -26,12 +26,12 @@ public class foo2 extends foo {
  }
 
 /*
- * JFXC-36 Cannot assign to a public-readable var from within same class
- * public-readable keyword semanctics not implemented.
+ * JFXC-36 Cannot assign to a public-read var from within same class
+ * public-read keyword semanctics not implemented.
  */
 class ro {
-//public-readable is now enforced, commented out until it is handled some other way
-	/*public-readable*/ var ROA = 10;
+//public-read is now enforced, commented out until it is handled some other way
+	/*public-read*/ var ROA = 10;
 	function roa():Integer { return ROA; }
 }
 
