@@ -347,7 +347,8 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_NOT_SUPPORTED_READABLE = "javafx.not.supported.readable";
     public static final String MESSAGE_JAVAFX_NOT_SUPPORTED_ATTRIBUTE = "javafx.not.supported.attribute";
     public static final String MESSAGE_JAVAFX_NOT_SUPPORTED_PRIVATE = "javafx.not.supported.private";
-
+    public static final String MESSAGE_JAVAFX_BAD_STR_COMPOUND = "javafx.bad.str.compound";
+    
     public static final String MESSAGE_PLUGIN_CANNOT_FIND_PLUGIN = "plugin.cannot.find.plugin"; 
     public static final String MESSAGE_PLUGIN_CANNOT_LOAD_PLUGIN = "plugin.cannot.load.plugin"; 
 }
