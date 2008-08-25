@@ -91,6 +91,8 @@ tokens {
    	PRIVATE			= 'private';
    	PROTECTED		= 'protected';
    	PUBLIC			= 'public';
+    PUBLIC_INIT     = 'public-init';
+    PUBLIC_READ     = 'public-read';
    	PUBLIC_READABLE	= 'public-readable';
    	READABLE		= 'readable';
    	RETURN			= 'return';
@@ -243,12 +245,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.io.OutputStreamWriter;
 
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javafx.util.MsgSym;
-
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.javafx.api.tree.*;
+
+import com.sun.tools.javac.util.*;
+import com.sun.tools.javafx.util.MsgSym;
 
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javafx.code.JavafxFlags;
@@ -256,9 +258,6 @@ import static com.sun.tools.javac.util.ListBuffer.lb;
 import com.sun.javafx.api.JavafxBindStatus;
 
 import static com.sun.javafx.api.JavafxBindStatus.*;
-
-import org.antlr.runtime.*;
-import org.antlr.runtime.tree.*;
 
 }
 
@@ -1009,14 +1008,17 @@ modifierFlag
 	| PACKAGE			{ $flag = Flags.PUBLIC /*TODO:JavafxFlags.PACKAGE */;	}
 	| PROTECTED			{ $flag = Flags.PROTECTED;				}
 	| PUBLIC			{ $flag = Flags.PUBLIC;					}
-	| PUBLIC_READABLE	{ $flag = JavafxFlags.PUBLIC_READABLE;	}
-	| NON_WRITABLE		{ $flag = JavafxFlags.NON_WRITABLE;		}
+	| PUBLIC_READ   	{ $flag = JavafxFlags.PUBLIC_READ;	}
+	| PUBLIC_INIT		{ $flag = JavafxFlags.PUBLIC_INIT;		}
+        
 	
 	//TODO: deprecated -- remove these at some point
 	//                    For now, warn about their deprecation
 	//
+	| PUBLIC_READABLE	{ $flag = JavafxFlags.PUBLIC_READ;      }
+	| NON_WRITABLE		{ $flag = JavafxFlags.PUBLIC_INIT;		}
 	| PRIVATE			{ $flag = Flags.PRIVATE;    			log.warning(pos($PRIVATE), "javafx.not.supported.private"); }
-	| READABLE			{ $flag = JavafxFlags.PUBLIC_READABLE;	log.error(pos($READABLE), "javafx.not.supported.readable"); }
+	| READABLE			{ $flag = JavafxFlags.PUBLIC_READ;      log.error(pos($READABLE), "javafx.not.supported.readable"); }
 	| STATIC			{ $flag = Flags.STATIC;      			}
 	;
 
@@ -1168,10 +1170,10 @@ classMember
 	: initDefinition				{ $member = $initDefinition.value; }
 	| postInitDefinition			{ $member = $postInitDefinition.value; }
 	
-	| (modifiers)=>modifiers
+	| (modifiers)=>m=modifiers
 		(
-			  variableDeclaration		[$modifers.mods] 		{ $member = $variableDeclaration.value; }
-			| functionDefinition		[$modifers.mods]		{ $member = $functionDefinition.value; }
+			  variableDeclaration		[$m.mods] 		{ $member = $variableDeclaration.value; }
+			| functionDefinition		[$m.mods]		{ $member = $functionDefinition.value; }
 		)
 	| overrideDeclaration 
 	;
