@@ -901,7 +901,7 @@ public class JavafxAttr implements JavafxVisitor {
                         lhsVar.type == syms.javafx_AnyType/* ??? */ ||
                         lhsVar.type == syms.javafx_UnspecifiedType) {
                     if (tree.rhs.type != null && lhsVar.type != tree.rhs.type) {
-                        lhsVar.type = lhsSym.type = tree.rhs.type;
+                        lhsVar.type = lhsSym.type = types.upperBound(tree.rhs.type);
                         JFXExpression jcExpr = fxmake.at(tree.pos()).Ident(lhsSym);
                         lhsVar.setJFXType(fxmake.at(tree.pos()).TypeClass(jcExpr, lhsVar.getJFXType().getCardinality()));
                     }
@@ -993,7 +993,7 @@ public class JavafxAttr implements JavafxVisitor {
             else
                 initType = syms.objectType;  // nothing to go on, so we assume Object
             if (declType == syms.javafx_UnspecifiedType && v.type == null)
-                result = tree.type = v.type = initType;
+                result = tree.type = v.type = types.upperBound(initType);
             //chk.validateAnnotations(tree.mods.annotations, v);
         }
         finally {
