@@ -23,20 +23,22 @@
 
 package javafx.reflect;
 
-/** A proxy/mirror for a run-time value. */
+/** A handle/proxy for a {@code Number} reference.
+ */
 
-public abstract class ValueRef {
-    protected ValueRef() {
+public class NumberValue extends ValueRef {
+    double value;
+    TypeRef type;
+
+    public NumberValue(double value, TypeRef type) {
+        this.value = value;
+        this.value = value;
     }
 
-    /** Get the run-time type of this value. */
-    public abstract TypeRef getType();
+    public double doubleValue() { return value; }
 
-    public int getItemCount() { return isNull() ? 0 : 1; }
+    public boolean isNull() { return false; }
+    public TypeRef getType() { return type; }
 
-    public abstract boolean isNull();
-
-    public ValueRef getItem(int index) { return this; }
-
-    public abstract String getValueString();
+    public String getValueString() { return Double.toString(value); }
 }

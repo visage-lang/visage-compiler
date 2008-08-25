@@ -47,6 +47,7 @@ public abstract class ClassRef extends TypeRef implements MemberRef {
             "com.sun.javafx.runtime.location.IntVariable";
     public static final String FUNCTION_CLASSNAME_PREFIX =
             "com.sun.javafx.functions.Function";
+    public static final String LOCATION_GETTER_PREFIX = "get$";
 
     protected ClassRef(ReflectionContext context, int modifiers) {
         this.context = context;
@@ -143,7 +144,7 @@ public abstract class ClassRef extends TypeRef implements MemberRef {
     }
     protected abstract void getAttributes(MemberFilter filter, SortedMemberArray<? super AttributeRef> result);
 
-    public ReflectionContext getReflectionContect() {
+    public ReflectionContext getReflectionContext() {
         return context;
     }
 

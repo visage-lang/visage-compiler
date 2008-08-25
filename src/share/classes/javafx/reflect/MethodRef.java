@@ -42,6 +42,8 @@ public abstract class MethodRef implements MemberRef {
                 return MethodRef.this.getType();
             }
             public boolean isNull() { return false; }
+
+            public String getValueString() { return "("+owner.getValueString()+")."+MethodRef.this; }
         };
     }
 

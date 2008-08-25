@@ -27,10 +27,15 @@ MyRect attributes:
   attribute Main.MyRect.crners:java.awt.geom.Point2D[]
 MyRect attributes (inherited also): 
   crners : java.awt.geom.Point2D[]
+  crners : java.awt.geom.Point2D[] = [ ]
   shapeFunAttr1 : function(Number,java.lang.String):Integer
+  shapeFunAttr1 : function(Number,java.lang.String):Integer = null
   shapeIntAttr : Integer
+  shapeIntAttr : Integer = 12
   shapeNumAttr : Number
+  shapeNumAttr : Number = 1.5
   shapeStrAttr : class java.lang.String
+  shapeStrAttr : class java.lang.String = str1
 Square attributes (only): 
   atBlank : class java.lang.String
   atPriv : class java.lang.String

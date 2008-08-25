@@ -31,4 +31,10 @@ class PrimitiveTypeRef extends TypeRef {
         this.name = name;
     }
     public String getName() { return name; }
+
+    static final TypeRef integerType =
+        new PrimitiveTypeRef(Integer.TYPE, "Integer");
+
+    static final TypeRef numberType =
+        new PrimitiveTypeRef(Double.TYPE, "Number");
 };

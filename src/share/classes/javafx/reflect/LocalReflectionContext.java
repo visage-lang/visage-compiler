@@ -24,9 +24,10 @@
 package javafx.reflect;
 import java.util.*;
 import java.lang.reflect.*;
-import java.lang.annotation.*;
 import com.sun.javafx.runtime.annotation.SourceName;
 import com.sun.tools.javafx.util.NotImplementedException;
+import com.sun.javafx.runtime.location.ObjectLocation;
+import com.sun.javafx.runtime.sequence.Sequence;
 
 /** Implementation of {@link ReflectionContext} using Java reflection.
  * Can only access objects and types in the current JVM.
@@ -45,10 +46,50 @@ public class LocalReflectionContext extends ReflectionContext {
     public static LocalReflectionContext getInstance() { return instance; }
 
     /** Create a reference to a given Object. */
-    public ObjectRef makeObjectRef(Object obj) {
+    public ObjectRef mirrorOf(Object obj) {
         return new LocalObjectRef(obj, this);
         //throw new Error();
         //return new LocalObjectRef(this, obj);
+    }
+
+    public ValueRef mirrorOf(final Object val, final TypeRef type) {
+        if (type instanceof ClassRef)
+            return new LocalObjectRef(val, (ClassRef) type);
+        else if (type instanceof PrimitiveTypeRef) {
+            if (type == PrimitiveTypeRef.integerType)
+                return mirrorOf(((Integer) val).intValue());
+            else // if (type == PrimitiveTypeRef.numberType)
+                return mirrorOf(((Double) val).doubleValue());
+        }
+        else if (type instanceof SequenceTypeRef && val instanceof Sequence) {
+            final Sequence seq = (Sequence) val;
+            final TypeRef eltype = ((SequenceTypeRef) type).getComponentType();
+            return new ValueRef() {
+                public String getValueString() { return val == null ? null : val.toString(); }
+                public TypeRef getType() { return type; }
+                public boolean isNull() { return seq.isEmpty(); }
+                public int getItemCount() { return seq.size(); }
+                public ValueRef getItem(int index) { return mirrorOf(seq.get(index), eltype); }
+            };
+        } else {
+            return new ValueRef() {
+                public String getValueString() { return val == null ? null : val.toString(); }
+                public TypeRef getType() { return type; }
+                public boolean isNull() { return val == null; }
+            };
+        }
+    }
+
+    public ObjectRef mirrorOf(String val) {
+      return mirrorOf((Object) val);
+    }
+
+    public ValueRef mirrorOf (int value) {
+        return new IntegerValue(value, getIntegerType());
+    }
+
+    public ValueRef mirrorOf (double value) {
+        return new NumberValue(value, getNumberType());
     }
 
     /** Get the {@code ClassRef} for the class with the given name. */
@@ -166,6 +207,9 @@ public class LocalReflectionContext extends ReflectionContext {
             }
             return new LocalClassRef(this, modifiers, cls, clsInterface);
         }
+        catch (RuntimeException ex) {
+            throw ex;
+        }
         catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -180,11 +224,11 @@ public class LocalReflectionContext extends ReflectionContext {
     }
 
     public TypeRef getIntegerType() {
-        return new PrimitiveTypeRef(Integer.TYPE, "Integer");
+        return PrimitiveTypeRef.integerType;
     }
 
     public TypeRef getNumberType() {
-        return new PrimitiveTypeRef(Double.TYPE, "Number");
+        return PrimitiveTypeRef.numberType;
     }
 }
 
@@ -201,8 +245,8 @@ class LocalClassRef extends ClassRef {
     }
 
     @Override
-    public LocalReflectionContext getReflectionContect() {
-        return (LocalReflectionContext) super.getReflectionContect();
+    public LocalReflectionContext getReflectionContext() {
+        return (LocalReflectionContext) super.getReflectionContext();
     }
 
     /** Returns a hash-code.
@@ -260,7 +304,7 @@ class LocalClassRef extends ClassRef {
         boolean isCompound = isCompoundClass();
         Class cls = isCompound ? refInterface : refClass;
         Class[] interfaces = cls.getInterfaces();
-        LocalReflectionContext context = getReflectionContect();
+        LocalReflectionContext context = getReflectionContext();
         if (! isCompound) {
             Class s = cls.getSuperclass();
             if (s != null) {
@@ -294,7 +338,7 @@ class LocalClassRef extends ClassRef {
     protected void getMethods(MemberFilter filter, SortedMemberArray<? super MethodRef> result) {
         boolean isCompound = isCompoundClass();
         Class cls = /*isCompound ? refInterface :*/ refClass;
-        LocalReflectionContext context = getReflectionContect();
+        LocalReflectionContext context = getReflectionContext();
         Method[] methods = cls.getDeclaredMethods();
         for (int i = 0;  i < methods.length;  i++) {
             Method m = methods[i];
@@ -309,7 +353,7 @@ class LocalClassRef extends ClassRef {
             if (mname.endsWith("$impl"))
                 continue;
 
-            if (mname.startsWith("get$") ||
+            if (mname.startsWith(ClassRef.LOCATION_GETTER_PREFIX) ||
                     mname.startsWith("applyDefaults$")) {
                 continue;
             }
@@ -331,8 +375,9 @@ class LocalClassRef extends ClassRef {
     }
     
    protected void getAttributes(MemberFilter filter, SortedMemberArray<? super AttributeRef> result) {
-        LocalReflectionContext context = getReflectionContect();
+        LocalReflectionContext context = getReflectionContext();
         Class cls = refClass;
+        Class[] noClasses = {};
         Field[] fields = cls.getDeclaredFields();
         for (int i = 0;  i < fields.length;  i++) {
             Field fld = fields[i];
@@ -346,7 +391,18 @@ class LocalClassRef extends ClassRef {
                 name = sourceName.value();
             Type gtype = fld.getGenericType();
             TypeRef tr = context.makeTypeRef(gtype);
-            LocalAttributeRef ref = new LocalAttributeRef(name, this, tr, null);
+            LocalAttributeRef ref = new LocalAttributeRef(name, this, tr);
+            ref.fld = fld;
+            if (isCompoundClass()) {
+                String getLocName = ClassRef.LOCATION_GETTER_PREFIX + name;
+                try {
+                  Method getter = refInterface.getMethod(getLocName, noClasses);
+                  ref.fld = null;
+                  ref.locationGetter = getter;
+                } catch (NoSuchMethodException ex) {
+                    // ??? for now leave 'fld'
+                }
+            }
             if (filter != null && filter.accept(ref))
                 result.insert(ref);
         }
@@ -374,6 +430,11 @@ class LocalObjectRef extends ObjectRef {
         this.obj = obj;
     }
 
+    public LocalObjectRef(Object obj, ClassRef type) {
+        this.type = type;
+        this.obj = obj;
+    }
+
     public ClassRef getType() {
         return type;
     }
@@ -381,19 +442,27 @@ class LocalObjectRef extends ObjectRef {
     public boolean isNull() {
         return obj == null;
     }
+
+    public String getValueString() {
+        if (obj == null)
+            return null;
+        else
+            return obj.toString();
+    }
 }
 
 
 class LocalAttributeRef extends AttributeRef {
     Method accessMethod;
+    Field fld;
+    Method locationGetter;
     TypeRef type;
     String name;
     ClassRef owner;
     
-    public LocalAttributeRef(String name, LocalClassRef owner, TypeRef type, Method accessMethod) {
+    public LocalAttributeRef(String name, LocalClassRef owner, TypeRef type) {
         this.name = name;
         this.type = type;
-        this.accessMethod = accessMethod;
         this.owner = owner;
     }
 
@@ -404,7 +473,28 @@ class LocalAttributeRef extends AttributeRef {
 
     @Override
     public ValueRef getValue(ObjectRef obj) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Object robj = obj == null ? null : ((LocalObjectRef) obj).obj;
+        try {
+            if (fld != null || locationGetter != null) {
+                LocalReflectionContext context =
+                    (LocalReflectionContext) owner.getReflectionContext();
+                Object val;
+                if (locationGetter != null)
+                    val = locationGetter.invoke(robj, new Object[0]);
+                else
+                    val = fld.get(robj);
+                if (val instanceof ObjectLocation)
+                    val = ((ObjectLocation) val).get();
+                return context.mirrorOf(val, type);
+            }
+        }
+        catch (RuntimeException ex) {
+            throw ex;
+        }
+        catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        throw new UnsupportedOperationException("Not supported yet - "+type+"["+type.getClass().getName()+"]");
     }
 
     @Override
@@ -454,8 +544,17 @@ class LocalMethodRef extends MethodRef {
         return type;
     }
 
+    Object unwrap(ValueRef value) {
+      return ((LocalObjectRef) value).obj; // FIXME
+    }
+
     /** Invoke this method on the given receiver and arguments. */
     public ValueRef invoke(ObjectRef owner, ValueRef... arg) {
+        int alen = arg.length;
+        Object[] rargs = new Object[alen];
+        for (int i = 0;  i < alen;  i++) {
+            rargs[i] = unwrap(arg[i]);
+        }
         throw new UnsupportedOperationException("not implemented: invoke");
     }
 }

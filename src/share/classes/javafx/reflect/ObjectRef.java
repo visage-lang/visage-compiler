@@ -32,8 +32,8 @@ public abstract class ObjectRef extends ValueRef {
 
     public abstract ClassRef getType();
 
-    public ReflectionContext getReflectionContect() {
-      return getType().getReflectionContect();
+    public ReflectionContext getReflectionContext() {
+        return getType().getReflectionContext();
     }
 
   /** Initialize an attribute of an object to a given value.

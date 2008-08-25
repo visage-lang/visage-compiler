@@ -25,7 +25,7 @@ public class MyRect extends MyShape, MyCanvasItem {
   public function publicAccFun1() : Void {}
   */
   public function corners():java.awt.geom.Point2D[] { crners }
-  public function transformed(tr:java.awt.geom.AffineTransform):MyShape {
+  override function transformed(tr:java.awt.geom.AffineTransform):MyShape {
     MyRect { } // not right ...
   }
 };
@@ -49,7 +49,7 @@ System.out.println("clsSquare={clsSquare} jfx-class:{clsSquare.isJfxType()} comp
 System.out.println("Sq.super: {clsSquare.getSuperClasses(false)}");
 
 var smpl = Simple {};
-var smplRef = context.makeObjectRef(smpl);
+var smplRef = context.mirrorOf(smpl);
 var clsSimple = smplRef.getType();
 System.out.println("clsSimple={clsSimple} jfx-class:{clsSimple.isJfxType()}  compound:{clsSimple.isCompoundClass()}");
 System.out.println("Simpl.super: {clsSimple.getSuperClasses(false)}");
@@ -76,7 +76,7 @@ var myRect = MyRect {
     shapeStrAttr: "str1"
     shapeIntAttr: 12
 };
-var myRectRef = context.makeObjectRef(myRect);
+var myRectRef = context.mirrorOf(myRect);
 
 System.out.println("MyRect attributes: ");
 var attrsMyRect = clsMyRect.getAttributes(true);
@@ -84,9 +84,9 @@ for (attr in clsMyRect.getAttributes(false)) {
   System.out.println("  {attr}") };
 System.out.println("MyRect attributes (inherited also): ");
 for (attr in attrsMyRect) {
-  System.out.println("  {attr.getName()} : {attr.getType()}") };
-  // var attrval = attr.getValue(myRectRef);
-  //  System.out.println("  {attr.getName()} : {attr.getType()} = {attrval.getValueString()}") };
+  System.out.println("  {attr.getName()} : {attr.getType()}");
+  var attrval = attr.getValue(myRectRef);
+  System.out.println("  {attr.getName()} : {attr.getType()} = {attrval.getValueString()}") };
 
 System.out.println("Square attributes (only): ");
 for (attr in context.findClass("Main.Square").getAttributes(false)) {

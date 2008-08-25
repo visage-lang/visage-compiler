@@ -71,4 +71,10 @@ public abstract class ReflectionContext {
                 builder.append(values[i]);
         return builder.getSequence();
     }
+
+    public abstract ValueRef mirrorOf (int value);
+
+    public abstract ValueRef mirrorOf (double value);
+
+    public abstract ValueRef mirrorOf (String value);
 }
