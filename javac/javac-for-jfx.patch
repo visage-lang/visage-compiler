@@ -1,7 +1,6 @@
 Index: com/sun/tools/javac/code/Symtab.java
-===================================================================
---- com/sun/tools/javac/code/Symtab.java	(revision 259)
-+++ com/sun/tools/javac/code/Symtab.java	(working copy)
+--- com/sun/tools/javac/code/Symtab.java Base (BASE)
++++ com/sun/tools/javac/code/Symtab.java Locally Modified (Based On LOCAL)
 @@ -55,8 +55,10 @@
      /** Get the symbol table instance. */
      public static Symtab instance(Context context) {
@@ -71,9 +70,8 @@ Index: com/sun/tools/javac/code/Symtab.java
          // string concatenation
          enterBinop("+", stringType, objectType, stringType, string_add);
 Index: com/sun/tools/javac/comp/Attr.java
-===================================================================
---- com/sun/tools/javac/comp/Attr.java	(revision 259)
-+++ com/sun/tools/javac/comp/Attr.java	(working copy)
+--- com/sun/tools/javac/comp/Attr.java Base (BASE)
++++ com/sun/tools/javac/comp/Attr.java Locally Modified (Based On LOCAL)
 @@ -68,18 +68,18 @@
      protected static final Context.Key<Attr> attrKey =
          new Context.Key<Attr>();
@@ -234,9 +232,8 @@ Index: com/sun/tools/javac/comp/Attr.java
      }
  }
 Index: com/sun/tools/javac/comp/AttrContext.java
-===================================================================
---- com/sun/tools/javac/comp/AttrContext.java	(revision 259)
-+++ com/sun/tools/javac/comp/AttrContext.java	(working copy)
+--- com/sun/tools/javac/comp/AttrContext.java Base (BASE)
++++ com/sun/tools/javac/comp/AttrContext.java Locally Modified (Based On LOCAL)
 @@ -40,23 +40,23 @@
  
      /** The scope of local symbols.
@@ -290,9 +287,8 @@ Index: com/sun/tools/javac/comp/AttrContext.java
      }
  
 Index: com/sun/tools/javac/comp/Check.java
-===================================================================
---- com/sun/tools/javac/comp/Check.java	(revision 259)
-+++ com/sun/tools/javac/comp/Check.java	(working copy)
+--- com/sun/tools/javac/comp/Check.java Base (BASE)
++++ com/sun/tools/javac/comp/Check.java Locally Modified (Based On LOCAL)
 @@ -56,13 +56,13 @@
      protected static final Context.Key<Check> checkKey =
          new Context.Key<Check>();
@@ -462,9 +458,8 @@ Index: com/sun/tools/javac/comp/Check.java
  
          // enter each constructor this-call into the map
 Index: com/sun/tools/javac/comp/ConstFold.java
-===================================================================
---- com/sun/tools/javac/comp/ConstFold.java	(revision 259)
-+++ com/sun/tools/javac/comp/ConstFold.java	(working copy)
+--- com/sun/tools/javac/comp/ConstFold.java Base (BASE)
++++ com/sun/tools/javac/comp/ConstFold.java Locally Modified (Based On LOCAL)
 @@ -42,7 +42,7 @@
   *  This code and its internal interfaces are subject to change or
   *  deletion without notice.</b>
@@ -493,9 +488,8 @@ Index: com/sun/tools/javac/comp/ConstFold.java
           if (etype.tsym.type == ttype.tsym.type)
               return etype;
 Index: com/sun/tools/javac/comp/Enter.java
-===================================================================
---- com/sun/tools/javac/comp/Enter.java	(revision 259)
-+++ com/sun/tools/javac/comp/Enter.java	(working copy)
+--- com/sun/tools/javac/comp/Enter.java Base (BASE)
++++ com/sun/tools/javac/comp/Enter.java Locally Modified (Based On LOCAL)
 @@ -95,11 +95,11 @@
  
      Log log;
@@ -576,9 +570,8 @@ Index: com/sun/tools/javac/comp/Enter.java
              return env.toplevel.sourcefile.isNameCompatible(c.name.toString(),
                                                              JavaFileObject.Kind.SOURCE);
 Index: com/sun/tools/javac/comp/Flow.java
-===================================================================
---- com/sun/tools/javac/comp/Flow.java	(revision 259)
-+++ com/sun/tools/javac/comp/Flow.java	(working copy)
+--- com/sun/tools/javac/comp/Flow.java Base (BASE)
++++ com/sun/tools/javac/comp/Flow.java Locally Modified (Based On LOCAL)
 @@ -295,7 +295,7 @@
  
      /** Complain that pending exceptions are not caught.
@@ -589,9 +582,8 @@ Index: com/sun/tools/javac/comp/Flow.java
               exit != null;
               exit = pendingExits.next()) {
 Index: com/sun/tools/javac/comp/Infer.java
-===================================================================
---- com/sun/tools/javac/comp/Infer.java	(revision 259)
-+++ com/sun/tools/javac/comp/Infer.java	(working copy)
+--- com/sun/tools/javac/comp/Infer.java Base (BASE)
++++ com/sun/tools/javac/comp/Infer.java Locally Modified (Based On LOCAL)
 @@ -67,7 +67,7 @@
      public static class NoInstanceException extends RuntimeException {
          private static final long serialVersionUID = 0;
@@ -602,9 +594,8 @@ Index: com/sun/tools/javac/comp/Infer.java
          JCDiagnostic diagnostic;
  
 Index: com/sun/tools/javac/comp/MemberEnter.java
-===================================================================
---- com/sun/tools/javac/comp/MemberEnter.java	(revision 259)
-+++ com/sun/tools/javac/comp/MemberEnter.java	(working copy)
+--- com/sun/tools/javac/comp/MemberEnter.java Base (BASE)
++++ com/sun/tools/javac/comp/MemberEnter.java Locally Modified (Based On LOCAL)
 @@ -65,7 +65,7 @@
      private final Enter enter;
      private final Log log;
@@ -660,9 +651,8 @@ Index: com/sun/tools/javac/comp/MemberEnter.java
                                     final MethodSymbol m) {
          annotate.later(new Annotate.Annotator() {
 Index: com/sun/tools/javac/comp/Resolve.java
-===================================================================
---- com/sun/tools/javac/comp/Resolve.java	(revision 259)
-+++ com/sun/tools/javac/comp/Resolve.java	(working copy)
+--- com/sun/tools/javac/comp/Resolve.java Base (BASE)
++++ com/sun/tools/javac/comp/Resolve.java Locally Modified (Based On LOCAL)
 @@ -52,8 +52,8 @@
          new Context.Key<Resolve>();
  
@@ -786,9 +776,8 @@ Index: com/sun/tools/javac/comp/Resolve.java
              AmbiguityError pair = this;
              while (true) {
 Index: com/sun/tools/javac/jvm/ClassReader.java
-===================================================================
---- com/sun/tools/javac/jvm/ClassReader.java	(revision 259)
-+++ com/sun/tools/javac/jvm/ClassReader.java	(working copy)
+--- com/sun/tools/javac/jvm/ClassReader.java Base (BASE)
++++ com/sun/tools/javac/jvm/ClassReader.java Locally Modified (Based On LOCAL)
 @@ -68,7 +68,7 @@
      protected static final Context.Key<ClassReader> classReaderKey =
          new Context.Key<ClassReader>();
@@ -1145,9 +1134,8 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
              flags &= ~ACC_BRIDGE;
              flags |= BRIDGE;
 Index: com/sun/tools/javac/jvm/Code.java
-===================================================================
---- com/sun/tools/javac/jvm/Code.java	(revision 259)
-+++ com/sun/tools/javac/jvm/Code.java	(working copy)
+--- com/sun/tools/javac/jvm/Code.java Base (BASE)
++++ com/sun/tools/javac/jvm/Code.java Locally Modified (Based On LOCAL)
 @@ -153,7 +153,7 @@
       *  We need this to emit line numbers lazily, which we need to do
       *  because of jump-to-jump optimization.
@@ -1166,9 +1154,8 @@ Index: com/sun/tools/javac/jvm/Code.java
                  target = cp;
              } else if (get1(target) == goto_) {
 Index: com/sun/tools/javac/jvm/Gen.java
-===================================================================
---- com/sun/tools/javac/jvm/Gen.java	(revision 259)
-+++ com/sun/tools/javac/jvm/Gen.java	(working copy)
+--- com/sun/tools/javac/jvm/Gen.java Base (BASE)
++++ com/sun/tools/javac/jvm/Gen.java Locally Modified (Based On LOCAL)
 @@ -172,7 +172,7 @@
  
      /** Code buffer, set by genMethod.
@@ -1178,7 +1165,7 @@ Index: com/sun/tools/javac/jvm/Gen.java
  
      /** Items structure, set by genMethod.
       */
-@@ -657,7 +657,7 @@
+@@ -657,15 +657,15 @@
  
      /** Visitor argument: The current environment.
       */
@@ -1187,7 +1174,8 @@ Index: com/sun/tools/javac/jvm/Gen.java
  
      /** Visitor argument: The expected type (prototype).
       */
-@@ -665,7 +665,7 @@
+-    Type pt;
++    protected Type pt;
  
      /** Visitor result: The item representing the computed value.
       */
@@ -1206,9 +1194,8 @@ Index: com/sun/tools/javac/jvm/Gen.java
          /** A chain for all unresolved jumps that exit the current environment.
           */
 Index: com/sun/tools/javac/jvm/Items.java
-===================================================================
---- com/sun/tools/javac/jvm/Items.java	(revision 259)
-+++ com/sun/tools/javac/jvm/Items.java	(working copy)
+--- com/sun/tools/javac/jvm/Items.java Base (BASE)
++++ com/sun/tools/javac/jvm/Items.java Locally Modified (Based On LOCAL)
 @@ -185,7 +185,7 @@
  
      /** The base class of all items, which implements default behavior.
@@ -1318,9 +1305,8 @@ Index: com/sun/tools/javac/jvm/Items.java
              Chain falseChain = jumpFalse();
              if (!isFalse()) {
 Index: com/sun/tools/javac/tree/Pretty.java
-===================================================================
---- com/sun/tools/javac/tree/Pretty.java	(revision 259)
-+++ com/sun/tools/javac/tree/Pretty.java	(working copy)
+--- com/sun/tools/javac/tree/Pretty.java Base (BASE)
++++ com/sun/tools/javac/tree/Pretty.java Locally Modified (Based On LOCAL)
 @@ -56,7 +56,7 @@
       *  the output even though that detail would not be valid java
       *  soruce.
@@ -1374,9 +1360,8 @@ Index: com/sun/tools/javac/tree/Pretty.java
      /** Visitor method: print expression tree.
       *  @param prec  The current precedence level.
 Index: com/sun/tools/javac/tree/TreeInfo.java
-===================================================================
---- com/sun/tools/javac/tree/TreeInfo.java	(revision 259)
-+++ com/sun/tools/javac/tree/TreeInfo.java	(working copy)
+--- com/sun/tools/javac/tree/TreeInfo.java Base (BASE)
++++ com/sun/tools/javac/tree/TreeInfo.java Locally Modified (Based On LOCAL)
 @@ -57,9 +57,9 @@
  
      /** The names of all operators.
@@ -1390,9 +1375,8 @@ Index: com/sun/tools/javac/tree/TreeInfo.java
  
          Name.Table names = Name.Table.instance(context);
 Index: com/sun/tools/javac/tree/TreeMaker.java
-===================================================================
---- com/sun/tools/javac/tree/TreeMaker.java	(revision 259)
-+++ com/sun/tools/javac/tree/TreeMaker.java	(working copy)
+--- com/sun/tools/javac/tree/TreeMaker.java Base (BASE)
++++ com/sun/tools/javac/tree/TreeMaker.java Locally Modified (Based On LOCAL)
 @@ -67,12 +67,12 @@
      public JCCompilationUnit toplevel;
  
@@ -1419,9 +1403,8 @@ Index: com/sun/tools/javac/tree/TreeMaker.java
          this.toplevel = toplevel;
          this.names = names;
 Index: com/sun/tools/javac/tree/TreeTranslator.java
-===================================================================
---- com/sun/tools/javac/tree/TreeTranslator.java	(revision 259)
-+++ com/sun/tools/javac/tree/TreeTranslator.java	(working copy)
+--- com/sun/tools/javac/tree/TreeTranslator.java Base (BASE)
++++ com/sun/tools/javac/tree/TreeTranslator.java Locally Modified (Based On LOCAL)
 @@ -46,7 +46,10 @@
  
      /** Visitor result field: a tree
@@ -1435,9 +1418,8 @@ Index: com/sun/tools/javac/tree/TreeTranslator.java
      /** Visitor method: Translate a single node.
       */
 Index: com/sun/tools/javac/util/Log.java
-===================================================================
---- com/sun/tools/javac/util/Log.java	(revision 259)
-+++ com/sun/tools/javac/util/Log.java	(working copy)
+--- com/sun/tools/javac/util/Log.java Base (BASE)
++++ com/sun/tools/javac/util/Log.java Locally Modified (Based On LOCAL)
 @@ -203,6 +203,10 @@
       */
      private char[] buf = null;
@@ -1526,9 +1508,8 @@ Index: com/sun/tools/javac/util/Log.java
                  if (buf[bp] == '\t')
                      column = (column / TabInc * TabInc) + TabInc;
 Index: com/sun/tools/javac/util/Paths.java
-===================================================================
---- com/sun/tools/javac/util/Paths.java	(revision 259)
-+++ com/sun/tools/javac/util/Paths.java	(working copy)
+--- com/sun/tools/javac/util/Paths.java Base (BASE)
++++ com/sun/tools/javac/util/Paths.java Locally Modified (Based On LOCAL)
 @@ -89,7 +89,7 @@
  
      private static boolean NON_BATCH_MODE = System.getProperty("nonBatchMode") != null;// TODO: Use -XD compiler switch for this.

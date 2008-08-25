@@ -28,6 +28,8 @@ import com.sun.tools.javac.jvm.*;
 import com.sun.tools.javac.comp.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.tree.*;
+import com.sun.tools.javac.tree.JCTree.JCReturn;
+import com.sun.tools.javac.code.Type;
 
 /**
  *
@@ -73,6 +75,14 @@ public class BlockExprGen extends Gen {
       }
   }
   
+  public void visitReturn(JCReturn tree) {
+      // get return-type of enclosing method
+      Type localType = pt;
+      pt = env.enclMethod.getReturnType().type;
+      super.visitReturn(tree);
+      pt = localType;
+  }
+
   @Override
   public void visitTree(JCTree tree) {
          if (tree instanceof BlockExprJCBlockExpression)
