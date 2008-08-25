@@ -1224,20 +1224,20 @@ functionDefinition [ JFXModifiers mods ]
 // ---------
 // Override.
 // Specifes that the local class overrides something that it has
-// inherited - parser this and produce the JavaFX tree that reflects it.
+// inherited - parse this and produce the JavaFX tree that reflects it.
 //
 overrideDeclaration
 
 	returns [JFXOverrideClassVar value]
 
-	: OVERRIDE variableLabel  identifier (EQ boundExpression)? onReplaceClause?
+	: OVERRIDE variableLabel  i=identifier (EQ boundExpression)? onReplaceClause?
 	
 		{
 			// Build the AST
 			//
 			$value = F.at(pos($OVERRIDE)).OverrideClassVar
 						(
-							$identifier.value,
+							$i.value,
 							$boundExpression.value,
 							$boundExpression.status,
 							$onReplaceClause.value
@@ -1313,8 +1313,34 @@ variableDeclaration [ JFXModifiers mods ]
 	//
 	CommonToken  docComment = getDocComment(input.LT(1));
 
+    // Bind status if present
+    //
+    JavafxBindStatus bStatus = null;
+
+    // Bind value expression, if present
+    //
+    JFXExpression bValue = null;
+
+    // ONReplace clause if present
+    //
+    JFXOnReplace  oValue = null;
 }
-	: variableLabel  name  typeReference ((EQ)=>EQ boundExpression)? ((ON)=>onReplaceClause)?
+	: variableLabel  name  typeReference 
+
+        (
+            (EQ)=>EQ boundExpression
+                {
+                    bValue  = $boundExpression.value;
+                    bStatus = $boundExpression.status;
+                }
+        )? 
+        
+        (
+            (ON)=>onReplaceClause
+                {
+                    oValue = $onReplaceClause.value;
+                }
+        )?
 	
 		{
 			// Add in the modifier flags accumulated by the label type
@@ -1331,9 +1357,9 @@ variableDeclaration [ JFXModifiers mods ]
 	    					$typeReference.rtype,
 	    					$mods,
 	    					false,
-	    					$boundExpressionOpt.value,
-	    					$boundExpressionOpt.status,
-	    					$onReplaceClause.value
+	    					bValue,
+	    					bStatus,
+	    					oValue
 	    				);
 	    	
 	    	// Documentation comment (if any)
@@ -1485,8 +1511,8 @@ statement
 	: insertStatement		{ $value = $insertStatement.value; 								}
 	| deleteStatement		{ $value = $deleteStatement.value; 								}
  	| whileStatement		{ $value = $whileStatement.value; 								}
-	| BREAK    				{ $value = F.at(pos($BREAK)).Break(null); 		endpos($value); } SEMI
-	| CONTINUE  	 	 	{ $value = F.at(pos($CONTINUE)).Continue(null);	endpos($value); } SEMI
+	| BREAK    				{ $value = F.at(pos($BREAK)).Break(null); 		endPos($value); } SEMI
+	| CONTINUE  	 	 	{ $value = F.at(pos($CONTINUE)).Continue(null);	endPos($value); } SEMI
     | throwStatement	   	{ $value = $throwStatement.value; 								}
     | returnStatement 		{ $value = $returnStatement.value; 								}
     | tryStatement			{ $value = $tryStatement.value; 								}
