@@ -2171,7 +2171,7 @@ assignmentOpExpression
 //	
 assignOp
 
-	returns	[int op]	// Returns the operation token that we find
+	returns	[JavafxTag op]	// Returns the operation token that we find
 	
 	: PLUSEQ		{ $op = JavafxTag.PLUS_ASG; 			}
 	| SUBEQ			{ $op = JavafxTag.MINUS_ASG;			}
@@ -2313,7 +2313,7 @@ relationalExpression
 //
 relOps
 
-	returns [int relOp]	// Returns the JFX operator type
+	returns [JavafxTag relOp]	// Returns the JFX operator type
 	
 	: LTGT
 		{ 
@@ -2359,7 +2359,7 @@ additiveExpression
 //
 arithOps
 
-	returns [int arithOp]	// Returns the JFX operator type
+	returns [JavafxTag arithOp]	// Returns the JFX operator type
 	
 	: PLUS		{ $arithOp = JavafxTag.PLUS; 	}
 	| SUB		{ $arithOp = JavafxTag.MINUS;	}
@@ -2396,7 +2396,7 @@ multiplicativeExpression
 //
 multOps
 
-	returns [int multOp]	// Returns the JFX operator type
+	returns [JavafxTag multOp]	// Returns the JFX operator type
 	
 	: STAR    	{ $multOp = JavafxTag.MUL;	}
 	| SLASH   	{ $multOp = JavafxTag.DIV;	}
@@ -2453,7 +2453,7 @@ unaryExpression
 //
 unaryOps
 
-	returns [int unOp]	// Returns the JFX operator type
+	returns [JavafxTag unOp]	// Returns the JFX operator type
 	
 	: SUB			{ $unOp = JavafxTag.NEG; }
 	| NOT			{ $unOp = JavafxTag.NOT; }
