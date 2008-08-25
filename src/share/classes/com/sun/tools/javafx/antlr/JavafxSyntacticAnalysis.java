@@ -12,6 +12,7 @@ import com.sun.tools.javafx.tree.JFXScript;
 /**
  *
  * @author Robert Field
+ * @author Jim Idle
  */
 public class JavafxSyntacticAnalysis {
 
@@ -55,40 +56,75 @@ public class JavafxSyntacticAnalysis {
         }
         {
             try {
-                // Create input stream from standard input
-                ANTLRStringStream input = new ANTLRStringStream(content.toString());
-                // Create a lexer attached to that input stream
-                v3Lexer lexer = new v3Lexer(context, input);
-                // Create a stream of tokens pulled from the lexer
-                CommonTokenStream tokens = new CommonTokenStream(lexer);
-                // Create a parser attached to the token stream
-                v3Parser parser = new v3Parser(tokens);
-                // Set the context
-                parser.initialize(context);
-                // Invoke the script rule in get return value
-                v3Parser.script_return comReturn = parser.script();
-                CommonTree comTree = (CommonTree) comReturn.getTree();
-
-                //System.out.println(comTree.toStringTree());
                 
-                if ( (System.getenv("NETBEAN_EDITOR") != null) ||
-                     (errorCount() == 0) )          {
-              
-                    // Walk resulting tree; create treenode stream first
-                    CommonTreeNodeStream nodes = new CommonTreeNodeStream(comTree);
-                    // AST nodes have payloads that point into token stream
-                    nodes.setTokenStream(tokens);
-                    // Create a tree Walker attached to the nodes stream
-                    v3Walker walker = new v3Walker(nodes);
+                if ( (System.getenv("JAVAFX_COM_V4") != null)) {
+                    
+                    System.out.println("Using v4 compiler\n");
+                    
+                    // Create input stream from standard input
+                    //
+                    ANTLRStringStream input = new ANTLRStringStream(content.toString());
+                    
+                    // Create a lexer attached to that input stream
+                    //
+                    v4Lexer lexer = new v4Lexer(context, input);
+                    
+                    // Create a stream of tokens pulled from the lexer
+                    //
+                    CommonTokenStream tokens = new CommonTokenStream(lexer);
+                    
+                    // Create a parser attached to the token stream
+                    //
+                    v4Parser parser = new v4Parser(tokens);
+                    
                     // Set the context
-                    walker.initialize(context);
-                    // Invoke the start symbol, rule script
-                    unit = walker.script();
+                    //
+                    parser.initialize(context);
+                    
+                    // Invoke the script rule and parse the script. This should
+                    // always return a JFXSript.
+                    //
+                    unit = parser.script();
+                    
+                    // That's it
+                    
+                } else {
+                
+                    // Create input stream from standard input
+                    ANTLRStringStream input = new ANTLRStringStream(content.toString());
+                    // Create a lexer attached to that input stream
+                    v3Lexer lexer = new v3Lexer(context, input);
+                    // Create a stream of tokens pulled from the lexer
+                    CommonTokenStream tokens = new CommonTokenStream(lexer);
+                    // Create a parser attached to the token stream
+                    v3Parser parser = new v3Parser(tokens);
+                    // Set the context
+                    parser.initialize(context);
+                    // Invoke the script rule in get return value
+                    v3Parser.script_return comReturn = parser.script();
+                    CommonTree comTree = (CommonTree) comReturn.getTree();
+
+                    //System.out.println(comTree.toStringTree());
+
+                    if ( (System.getenv("NETBEAN_EDITOR") != null) ||
+                         (errorCount() == 0) )          {
+
+                        // Walk resulting tree; create treenode stream first
+                        CommonTreeNodeStream nodes = new CommonTreeNodeStream(comTree);
+                        // AST nodes have payloads that point into token stream
+                        nodes.setTokenStream(tokens);
+                        // Create a tree Walker attached to the nodes stream
+                        v3Walker walker = new v3Walker(nodes);
+                        // Set the context
+                        walker.initialize(context);
+                        // Invoke the start symbol, rule script
+                        unit = walker.script();
+                    }
+                    String treeChoice = options.get("tree");
+                    if (treeChoice != null) {
+                        printTree(comTree, "---");
+                    }
                 }
-                String treeChoice = options.get("tree");
-                if (treeChoice != null) {
-                    printTree(comTree, "---");
-                }            
             } catch (Throwable thr) {
                 System.err.println("Error in syntactic analysis in " + fileName + ":");
                 thr.printStackTrace(System.err);
