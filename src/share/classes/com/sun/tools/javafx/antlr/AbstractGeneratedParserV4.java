@@ -44,9 +44,12 @@ import org.antlr.runtime.*;
 import org.antlr.runtime.tree.CommonTree;
 
 /**
- * Base class for ANTLR generated parsers 
+ * Base class for ANTLR generated parsers.
+ * This version incorporates error reporting and recovery changes
+ * enabled by using ANTLR 3.1.
  * 
  * @author Robert Field
+ * @author Jim Idle
  */
 public abstract class AbstractGeneratedParserV4 extends Parser {
     
@@ -260,24 +263,19 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
     protected String[][] ruleMap = { 
             {"script", "the script contents"},
             {"scriptItems", "the script contents"},
-            {"scriptItem", "the script contents"},
             {"packageDecl", "a package declaration"},
             {"importDecl", "an import declaration"},
             {"importId", "an import declaration"},
             {"classDefinition", "a class declaration"},
+            {"overrideDeclaration", "an overriden variable"},
             {"supers", "the 'extends' part of a class declaration"},
             {"classMembers", "the members of a class declaration"},
             {"classMember", "the members of a class declaration"},
             {"functionDefinition", "a function declaration"},
             {"initDefinition", "an 'init' block"},
             {"postInitDefinition", "a 'postinit' block"},
-            {"functionModifierFlags", " the modifiers on a function declaration"},
-            {"functionModifier", " the modifiers on a function declaration"},
-            {"varModifierFlags", " the modifiers on a variable declaration"},
-            {"varModifier", " the modifiers on a variable declaration"},
-            {"classModifierFlags", " the modifiers on a class declaration"},
-            {"classModifier", " the modifiers on a class declaration"},
-            {"accessModifier", "an access modifier"},
+            {"modifers", " the modifiers for a declaration (function, var, class, etc)"},
+            {"modiferFlag", "an access modifier"},
             {"formalParameters", " the parameters of a function declaration"},
             {"formalParameter", " a formal parameter"},
             {"block", "a block"},
@@ -333,8 +331,19 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         super.mismatch(input, ttype, follow);
     }
 
+    /**
+     * Using the supplied grammar rule name, search the rule map
+     * and return a user friendly description of the what the
+     * rule indicates we must have been parsing at the time of
+     * error.
+     * 
+     * @param ruleName The grammar rule name as supplied by ANTLR error routines
+     * @return Friendly form of the rule name for use in messages
+     */
     protected String stackPositionDescription(String ruleName) {
+        
         // optimize for the non-error case: do sequential search
+        //
         for (String[] pair : ruleMap) {
             if (pair[0].equals(ruleName)) {
                 return pair[1];
