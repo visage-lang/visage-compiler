@@ -51,7 +51,7 @@ public class JavafxDefs {
     public static final String startMethodString = "com.sun.javafx.runtime.Entry.start";
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
-    public static final String runMethodString = Entry.entryMethodName();
+    public static final String internalRunFunctionNameString = Entry.entryMethodName();
     public static final String receiverNameString = "receiver$";
     public static final String initializeNameString ="initialize$";
     public static final String getMethodNameString = "get";
@@ -90,8 +90,8 @@ public class JavafxDefs {
      */
     public final Name fxObjectName;
     public final Name interfaceSuffixName;
-    final Name mainFunctionName;
-    final Name runMethodName;
+    final Name userRunFunctionName;
+    final Name internalRunFunctionName;
     final Name receiverName;
     final Name initializeName;
     final Name getMethodName;
@@ -169,8 +169,8 @@ public class JavafxDefs {
 
         fxObjectName = names.fromString(fxObjectString);
         interfaceSuffixName = names.fromString(interfaceSuffix);
-        mainFunctionName = names.fromString("run");
-        runMethodName = names.fromString(runMethodString);
+        userRunFunctionName = names.fromString("run");
+        internalRunFunctionName = names.fromString(internalRunFunctionNameString);
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);
         getMethodName = Name.fromString(names, getMethodNameString);

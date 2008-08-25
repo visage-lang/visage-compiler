@@ -31,6 +31,7 @@ import javax.tools.FileObject;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree;
+import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javac.code.Flags;
 import static com.sun.tools.javac.code.Flags.*;
 import com.sun.tools.javac.tree.JCTree;
@@ -55,7 +56,7 @@ public class JavafxScriptClassBuilder {
     private Set<Name> reservedTopLevelNamesSet;
     private Name pseudoFile;
     private Name pseudoDir;
-    private Name commandLineArgs;
+    private Name defaultRunArgName;
     
     private static final boolean debugBadPositions = Boolean.getBoolean("JavafxModuleBuilder.debugBadPositions");
 
@@ -74,7 +75,7 @@ public class JavafxScriptClassBuilder {
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         pseudoFile = names.fromString("__FILE__");
         pseudoDir = names.fromString("__DIR__");
-        commandLineArgs = names.fromString("__ARGS__");
+        defaultRunArgName = names.fromString("__ARGS__");
     }
 
     public void convertAccessFlags(JFXScript script) {
@@ -108,6 +109,42 @@ public class JavafxScriptClassBuilder {
             }
         }.scan(script);
     }
+    
+    private void checkAndNormalizeUserRunFunction(JFXFunctionDefinition runFunc) {
+        JFXFunctionValue fval = runFunc.operation;
+        List<JFXVar> params = fval.funParams;
+        switch (params.size()) {
+            case 0: {
+                // no parameter specified, fill it in
+                fval.funParams = makeRunFunctionArgs(defaultRunArgName);
+                break;
+            }
+            case 1: {
+                JFXType paramType = params.head.getJFXType();
+                if (paramType.getCardinality() == Cardinality.ANY &&
+                        paramType instanceof JFXTypeClass) {
+                    JFXExpression cnExp = ((JFXTypeClass) paramType).getClassName();
+                    if (cnExp instanceof JFXIdent) {
+                        Name cName = ((JFXIdent)cnExp).getName();
+                        if (cName == syms.stringTypeName) {
+                            break;
+                        }
+                    }
+                }
+                // not well-formed, fall-through
+            }
+            default: {
+                // bad arguments
+                log.error(runFunc.pos(), MsgSym.MESSAGE_JAVAFX_RUN_FUNCTION_PARAM);
+                fval.funParams = makeRunFunctionArgs(defaultRunArgName);
+            }
+        }
+        
+        //TODO: check specified return type
+        
+        // set return type
+        fval.rettype = makeRunFunctionType();
+    }
 
 
     public void preProcessJfxTopLevel(JFXScript module) {
@@ -116,9 +153,6 @@ public class JavafxScriptClassBuilder {
         if (debugBadPositions) {
             checkForBadPositions(module);
         }
-
-        ListBuffer<JFXTree> scriptClassDefs = new ListBuffer<JFXTree>();
-        ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>();
 
         // check for references to pseudo variables and if found, declare them
         final boolean[] usesFile = new boolean[1];
@@ -149,18 +183,16 @@ public class JavafxScriptClassBuilder {
         scriptTops.appendList( pseudoVariables(diagPos[0], moduleClassName, module, usesFile[0], usesDir[0]) );
         scriptTops.appendList(module.defs);
 
-        // Divide module defs between run method body, Java compilation unit, and module class
-        ListBuffer<JFXTree> topLevelDefs = new ListBuffer<JFXTree>();
-        JFXClassDeclaration moduleClass = null;
-        JFXExpression value = null;
-        boolean isLibrary = false;
+        // Determine if this is a library script
+        boolean externalAccessFound = false;
+        JFXFunctionDefinition userRunFunction = null;
         final long EXTERNALIZING_FLAGS = Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.PACKAGE_ACCESS | JavafxFlags.PUBLIC_READ | JavafxFlags.PUBLIC_INIT;
         for (JFXTree tree : scriptTops) {
             switch (tree.getFXTag()) {
                 case CLASS_DEF: {
                     JFXClassDeclaration decl = (JFXClassDeclaration) tree;
                     if ((decl.getModifiers().flags & EXTERNALIZING_FLAGS) != 0) {
-                        isLibrary = true;
+                        externalAccessFound = true;
                     }
                     break;
                 }
@@ -168,21 +200,37 @@ public class JavafxScriptClassBuilder {
                     JFXFunctionDefinition decl =
                             (JFXFunctionDefinition) tree;
                     Name name = decl.name;
-                    if (name == defs.mainFunctionName || (decl.getModifiers().flags & EXTERNALIZING_FLAGS) != 0) {
-                        isLibrary = true;
+                    if (name == defs.userRunFunctionName) {
+                        if (userRunFunction == null) {
+                            checkAndNormalizeUserRunFunction(decl);
+                            userRunFunction = decl;
+                        } else {
+                            log.error(decl.pos(), MsgSym.MESSAGE_JAVAFX_RUN_FUNCTION_SINGLE);
+                        }
+                    }
+                    if ((decl.getModifiers().flags & EXTERNALIZING_FLAGS) != 0) {
+                        externalAccessFound = true;
                     }
                     break;
                 }
                 case VAR_DEF: { 
                     JFXVar decl = (JFXVar) tree;
                     if ((decl.getModifiers().flags & EXTERNALIZING_FLAGS) != 0) {
-                        isLibrary = true;
+                        externalAccessFound = true;
                     }
                     break;
                 }
             }
         }
+        final boolean isLibrary = externalAccessFound || (userRunFunction != null);
         module.isLibrary = isLibrary;
+        ListBuffer<JFXTree> scriptClassDefs = new ListBuffer<JFXTree>();
+        ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>();
+        JFXExpression value = null;
+       
+        // Divide module defs between internsl run function body, Java compilation unit, and module class
+        ListBuffer<JFXTree> topLevelDefs = new ListBuffer<JFXTree>();
+        JFXClassDeclaration moduleClass = null;
         boolean looseExpressionErrorShown = false;
         for (JFXTree tree : scriptTops) {
             if (value != null) {
@@ -199,30 +247,30 @@ public class JavafxScriptClassBuilder {
                     checkName(tree.pos, name);
                     if (name == moduleClassName) {
                         moduleClass = decl;
+                        // script-class added to topLevelDefs below
                     } else {
+                        // classes other than the script-class become nested static classes
                         decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
                         scriptClassDefs.append(tree);
                     }
                     break;
                 }
                 case FUNCTION_DEF: {
+                    // turn script-level functions into script-class static functions
                     JFXFunctionDefinition decl = (JFXFunctionDefinition) tree;
                     decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
                     Name name = decl.name;
-                    if (name == defs.mainFunctionName) {
-                        // this is the main function, move its body to the run method
-                        JFXBlock body = decl.getBodyExpression();
-                        stats.appendList(body.getStmts());
-                        if (body.getValue() != null) {
-                            stats.append(body.getValue());
-                        }
-                    } else {
-                        checkName(tree.pos, name);
+                    checkName(tree.pos, name);
+                    // User run function isn't used directly.
+                    // Guts will be added to internal run function.
+                    // Other functions added to the script-class
+                    if (name != defs.userRunFunctionName) {
                         scriptClassDefs.append(tree);
                     }
                     break;
                 }
                 case VAR_DEF: {
+                    // turn script-level variables into script-class static variables
                     JFXVar decl = (JFXVar) tree;
                     if ( (decl.mods.flags & SCRIPT_LEVEL_SYNTH_STATIC) == 0) {
                         // if this wasn't already created as a synthetic
@@ -240,6 +288,7 @@ public class JavafxScriptClassBuilder {
                     break;
                 }
                 default: {
+                    // loose expressions, if allowed, get added to the statements/value
                     if (isLibrary && !looseExpressionErrorShown) {
                         log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_LOOSE_EXPRESSIONS);
                         looseExpressionErrorShown = true;
@@ -249,10 +298,31 @@ public class JavafxScriptClassBuilder {
                 }
             }
         }
-
-        // Add run() method... If the class can be a module class.
-        JFXFunctionDefinition runMethod = makeRunFunction(stats.toList(), value);
-        scriptClassDefs.prepend(runMethod);
+        
+        {
+            // Create the internal run function, take as much as
+            // possible from the user run function (if it exists)
+            Name commandLineArgs = defaultRunArgName;
+            if (userRunFunction != null) {
+                List<JFXVar> params = userRunFunction.operation.getParams();
+                if (params.size() == 1) {
+                    commandLineArgs = params.head.getName();
+                }
+                // a run function was specified, start the statement
+                JFXBlock body = userRunFunction.getBodyExpression();
+                if (body.getStmts().size() > 0 || body.getValue() != null) {
+                    if (value != null) {
+                        stats.append(value);
+                    }
+                    stats.appendList(body.getStmts());
+                    if (body.getValue() != null) {
+                        value = body.getValue();
+                    }
+                }
+            }
+            JFXFunctionDefinition internalRunFunction = makeInternalRunFunction(commandLineArgs, stats.toList(), value);
+            scriptClassDefs.prepend(internalRunFunction);
+        }
 
         if (moduleClass == null) {
             moduleClass = fxmake.ClassDeclaration(
@@ -263,8 +333,9 @@ public class JavafxScriptClassBuilder {
         } else {
             moduleClass.setMembers(scriptClassDefs.appendList(moduleClass.getMembers()).toList());
         }
+        
         moduleClass.isModuleClass = true;
-        moduleClass.runMethod = runMethod;
+        moduleClass.runMethod = userRunFunction;
 
         topLevelDefs.append(moduleClass);
         
@@ -303,9 +374,9 @@ public class JavafxScriptClassBuilder {
             args = List.<JFXExpression>of(loaderCall);
             JFXExpression getFileURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getFile, args);
             JFXExpression fileVar =
-                fxmake.at(diagPos).Var(pseudoFile, getURLType(diagPos), 
+                fxmake.at(diagPos).Var(pseudoFile, getURLType(diagPos),
                          fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC),
-                         false, getFileURL, JavafxBindStatus.UNBOUND, null);
+                         getFileURL, JavafxBindStatus.UNBOUND, null);
             pseudoDefs.append(fileVar);
 
             // java.net.URL __DIR__;
@@ -314,9 +385,9 @@ public class JavafxScriptClassBuilder {
                 args = List.<JFXExpression>of(fxmake.at(diagPos).Ident(pseudoFile));
                 JFXExpression getDirURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getDir, args);
                 pseudoDefs.append(
-                    fxmake.at(diagPos).Var(pseudoDir, getURLType(diagPos), 
+                    fxmake.at(diagPos).Var(pseudoDir, getURLType(diagPos),
                              fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC),
-                             false, getDirURL, JavafxBindStatus.UNBOUND, null));
+                             getDirURL, JavafxBindStatus.UNBOUND, null));
             }
         }
         return pseudoDefs.toList();
@@ -327,18 +398,26 @@ public class JavafxScriptClassBuilder {
         return fxmake.at(diagPos).TypeClass(urlFQN, TypeTree.Cardinality.SINGLETON);
     }
 
-    private JFXFunctionDefinition makeRunFunction(List<JFXExpression> stats, JFXExpression value) {
-        JFXVar mainArgs = fxmake.Param(commandLineArgs, 
-                fxmake.TypeClass(fxmake.Ident(Name.fromString(names, "String")), TypeTree.Cardinality.ANY));
-        List<JFXVar> argsVarList = List.<JFXVar>of(mainArgs);
-        JFXBlock body = fxmake.Block(0, stats, value);
-        JFXExpression rettree = fxmake.Type(syms.objectType);
+    private List<JFXVar> makeRunFunctionArgs(Name argName) {
+        JFXVar mainArgs = fxmake.Param(argName, fxmake.TypeClass(
+                fxmake.Ident(syms.stringTypeName),
+                TypeTree.Cardinality.ANY));
+         return List.<JFXVar>of(mainArgs);
+    }
+
+    private JFXType makeRunFunctionType() {
+         JFXExpression rettree = fxmake.Type(syms.objectType);
         rettree.type = syms.objectType;
+        return fxmake.TypeClass(rettree, JFXType.Cardinality.SINGLETON);
+    }
+
+    private JFXFunctionDefinition makeInternalRunFunction(Name argName, List<JFXExpression> stats, JFXExpression value) {
+        JFXBlock body = fxmake.Block(0, stats, value);
         return fxmake.FunctionDefinition(
                 fxmake.Modifiers(PUBLIC | STATIC | SCRIPT_LEVEL_SYNTH_STATIC | SYNTHETIC),
-                defs.runMethodName,
-                fxmake.TypeClass(rettree, JFXType.Cardinality.SINGLETON),
-                argsVarList,
+                defs.internalRunFunctionName,
+                makeRunFunctionType(),
+                makeRunFunctionArgs(argName),
                 body);        
     }
     
@@ -365,7 +444,6 @@ public class JavafxScriptClassBuilder {
             // make sure no one tries to declare these reserved names
             reservedTopLevelNamesSet.add(pseudoFile);
             reservedTopLevelNamesSet.add(pseudoDir);
-            reservedTopLevelNamesSet.add(commandLineArgs);
         }
         
         if (reservedTopLevelNamesSet.contains(name)) {

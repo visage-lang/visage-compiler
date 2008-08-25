@@ -514,7 +514,7 @@ public class JavafxClassReader extends ClassReader {
                 }
                 if (l.head instanceof MethodSymbol) {
                     if (! sawSourceNameAnnotation &&
-                            (name == defs.runMethodName || name == defs.initializeName ||
+                            (name == defs.internalRunFunctionName || name == defs.initializeName ||
                             name == defs.postInitName || name == defs.userInitName ||
                             name == defs.addTriggersName ||
                             name == names.clinit ||

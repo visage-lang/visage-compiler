@@ -486,6 +486,12 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 log.error(diagPos, MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, stmt.toString());
             }
         }
+        while (value.getFXTag() == JavafxTag.VAR_DEF) {
+            // for now, at least, ignore the declaration part of a terminal var decl.
+            //TODO: when vars can be referenced before decl (say in "var: self" replacement)
+            // this will need to be changed.
+            value = ((JFXVar)value).getInitializer();
+        }
         assert value.getFXTag() != JavafxTag.RETURN;
         result = makeBlockExpression(diagPos, //TODO tree.flags lost
                 translatedVars.toList(),

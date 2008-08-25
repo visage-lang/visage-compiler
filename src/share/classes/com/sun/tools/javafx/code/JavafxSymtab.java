@@ -163,7 +163,7 @@ public class JavafxSymtab extends Symtab {
         stringTypeName = names.fromString("String");
         voidTypeName = names.fromString("Void");
 
-        runMethodName = names.fromString(JavafxDefs.runMethodString);
+        runMethodName = names.fromString(JavafxDefs.internalRunFunctionNameString);
 
         javafx_FXObjectType = enterClass("com.sun.javafx.runtime.FXObject");
         enterOperators();

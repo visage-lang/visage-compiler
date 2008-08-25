@@ -252,7 +252,7 @@ public class JavafxTreeCopier implements JavafxVisitor {
         JFXModifiers mods = copy(tree.getModifiers());
         JFXExpression init = copy(tree.getInitializer());
         JFXOnReplace onReplace = copy(tree.getOnReplace());
-        result = maker.at(tree.pos).Var(tree.name, type, mods, tree.isLocal(), 
+        result = maker.at(tree.pos).Var(name, type, mods, 
                                         init, tree.getBindStatus(), onReplace);
     }
 

@@ -1729,21 +1729,21 @@ public class JavafxAttr implements JavafxVisitor {
                 }
                 // Attribute method bodyExpression
                 Type typeToCheck = returnType;
-                if(tree.name == defs.runMethodName) {
+                if(tree.name == defs.internalRunFunctionName) {
                     typeToCheck = Type.noType;
                 }
                 else if (returnType == syms.voidType) {
                     typeToCheck = Type.noType;
                 }
 
-                Type bodyType = attribExpr(body, localEnv, typeToCheck); // Special hading for the JavafxDefs.runMethodName method. Its body is empty at this point.
+                Type bodyType = attribExpr(body, localEnv, typeToCheck); // Special handling for the run function. Its body is empty at this point.
                 if (body.value == null) {
                     if (returnType == syms.unknownType)
                         returnType = syms.javafx_VoidType; //TODO: this is wrong if there is a return statement
                 } else {
                     if (returnType == syms.unknownType)
                         returnType = bodyType == syms.unreachableType ? syms.javafx_VoidType : bodyType;
-                    else if (returnType != syms.javafx_VoidType && tree.getName() != defs.runMethodName
+                    else if (returnType != syms.javafx_VoidType && tree.getName() != defs.internalRunFunctionName
                             // Temporary hack to suppress duplicate warning on Number->Integer.
                             // Hack can go away if/when we make it an error.  FIXME.
                             && ! (typeToCheck.tag <= LONG && bodyType.tag >= FLOAT && bodyType.tag <= DOUBLE))
@@ -2339,7 +2339,6 @@ public class JavafxAttr implements JavafxVisitor {
             JFXType jfxType = fxmake.at(tree.pos()).TypeClass(jcExpression, Cardinality.SINGLETON);
             jfxType.type = newType;
             var.setJFXType(jfxType);
-            var.vartype = jfxType;
             var.sym.type = newType;
         }
 

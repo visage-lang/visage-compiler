@@ -1457,7 +1457,7 @@ public
 	for (Scope.Entry e1 = t1.tsym.members().elems; e1 != null; e1 = e1.sibling) {
 	    Symbol s1 = e1.sym;
 	    Type st1 = null;
-	    if (s1.kind != MTH || s1.name == defs.runMethodName ||
+	    if (s1.kind != MTH || s1.name == defs.internalRunFunctionName ||
                     !s1.isInheritedIn(site.tsym, types)) continue;
             Symbol impl = types.implementation((MethodSymbol)s1, site.tsym, false);
             if (impl != null && (impl.flags() & ABSTRACT) == 0) continue;

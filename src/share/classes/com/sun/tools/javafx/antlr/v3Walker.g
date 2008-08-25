@@ -198,7 +198,6 @@ variableDeclaration    returns [JFXExpression value]
 	    						  $value = F.at($variableLabel.pos).Var($name.value,
 	    							$type.type,
 	    							mods,
-	    							false,
 	    							$boundExpressionOpt.value,
 	    							$boundExpressionOpt.status,
 	    							$onReplaceClause.value);

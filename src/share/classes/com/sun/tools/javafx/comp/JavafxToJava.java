@@ -1002,7 +1002,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         result = new InstanciateTranslator(tree, this) {
 
             protected void processLocalVar(JFXVar var) {
-                stats.append((JCStatement)translateGeneric(var));
+                stats.append(translateExpressionToStatement(var));
             }
 
             protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name attrName) {
@@ -1274,7 +1274,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 prependToStatements.append(changeListener);
             }
 
-            result = translateDefinitionalAssignmentToSet(diagPos, tree.init, tree.getBindStatus(), tree.sym, null, 0);
+            result = translateDefinitionalAssignmentToSetExpression(diagPos, tree.init, tree.getBindStatus(), tree.sym, null, 0);
         }
     }
 

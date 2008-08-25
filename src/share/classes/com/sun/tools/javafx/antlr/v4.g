@@ -91,9 +91,9 @@ tokens {
    	PRIVATE			= 'private';
    	PROTECTED		= 'protected';
    	PUBLIC			= 'public';
-    PUBLIC_INIT     = 'public-init';
-    PUBLIC_READ     = 'public-read';
-   	PUBLIC_READABLE	= 'public-readable';
+        PUBLIC_INIT             = 'public-init';
+        PUBLIC_READ             = 'public-read';
+   	PUBLIC_READABLE	        = 'public-readable';
    	READABLE		= 'readable';
    	RETURN			= 'return';
    	REVERSE			= 'reverse';
@@ -1369,7 +1369,6 @@ variableDeclaration [ JFXModifiers mods ]
 	    					$name.value,
 	    					$typeReference.rtype,
 	    					$mods,
-	    					false,
 	    					bValue,
 	    					bStatus,
 	    					oValue

@@ -39,28 +39,23 @@ import com.sun.javafx.api.JavafxBindStatus;
 public class JFXVar extends JFXExpression implements VariableTree {
     public JFXModifiers mods;
     public Name name;
-    public JFXExpression vartype;
     public JFXExpression init;
     public VarSymbol sym;
     private JFXType jfxtype;
     private final JavafxBindStatus bindStatus;
-    private final boolean local;
     private final JFXOnReplace onReplace;
 
     protected JFXVar(Name name,
             JFXType jfxtype,
             JFXModifiers mods,
-            boolean local,
             JFXExpression init,
             JavafxBindStatus bindStat,
             JFXOnReplace onReplace,
             VarSymbol sym) {
             this.mods = mods;
             this.name = name;
-            this.vartype = jfxtype;
             this.init = init;
             this.sym = sym;
-        this.local = local;
         this.jfxtype = jfxtype;
         this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
         this.onReplace = onReplace;
@@ -75,8 +70,9 @@ public class JFXVar extends JFXExpression implements VariableTree {
         return sym;
     }
 
+    // for VariableTree
     public JFXTree getType() {
-        return vartype;
+        return jfxtype;
     }
 
     public JFXExpression getInitializer() {
@@ -101,10 +97,6 @@ public class JFXVar extends JFXExpression implements VariableTree {
     
     public JFXOnReplace getOnReplace() {
         return onReplace;
-    }
-
-    public boolean isLocal() {
-        return local;
     }
 
     public JavafxBindStatus getBindStatus() {

@@ -54,6 +54,7 @@ public class JFXVarScriptInit extends JFXExpression implements VariableTree {
         return var.getName();
     }
 
+    // for VariableTree
     public JFXTree getType() {
         return var.getType();
     }

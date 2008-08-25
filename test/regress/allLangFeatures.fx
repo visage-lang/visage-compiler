@@ -225,6 +225,11 @@ insert 10 before seq[2];
 // SEQUENCE_SLICE
 seq[1..2];
 
+// SIZEOF
+sizeof seq;
+// REVERSE
+reverse seq;
+
 // STRING_EXPRESSION
 
 " { 10 } ";
@@ -267,11 +272,6 @@ false;
 "asfdasfd";
 // NULL_LITERAL
 null;
-
-// SIZEOF
-sizeof seq;
-// REVERSE
-reverse seq;
 
 // ERRONEOUS
 // OTHER
