@@ -1554,11 +1554,11 @@ onReplaceClause
 			//
 			if	(haveFirst) {
 			
-				$value = F.at(pos($ON)).OnReplace($oldv.var, $first.var, $last.var, $newElements.var, $blockExpression.value);
+				$value = F.at(pos($ON)).OnReplace($oldv.var, $first.var, $last.var, $newElements.var, $block.value);
 				
 			} else {
 			
-				$value = F.at(pos($ON)).OnReplace($oldv.var, null, null, $newElements.var, $blockExpression.value);
+				$value = F.at(pos($ON)).OnReplace($oldv.var, null, null, $newElements.var, $block.value);
 			}
 			endPos($value); 
 		}
