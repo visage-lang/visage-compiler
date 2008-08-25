@@ -2,7 +2,7 @@
  * Interpolator_TS304_02.fx
  *
  * @test
- * @run
+ * @run/fail
  */
 
 /**
