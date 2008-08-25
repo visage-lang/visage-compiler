@@ -1574,7 +1574,7 @@ paramNameOpt
 
     : paramName
     	{
-    		{ $var = paramName.var; }
+    		{ $var = $paramName.var; }
     	}
     	
     |	{ $var = null; }
@@ -1686,7 +1686,7 @@ insertStatement
 				{
 					// Form 2, BEFORE
 					//
-					$value = F.at(pos($INSERT)).SequenceInsert($isif.seq, $elem.value, $isfi.idx, false);
+					$value = F.at(pos($INSERT)).SequenceInsert($isfi.seq, $elem.value, $isfi.idx, false);
 				}
 				
 			| AFTER isfi=indexedSequenceForInsert
@@ -1694,7 +1694,7 @@ insertStatement
 				{
 					// Form 3, AFTER
 					//
-					$value = F.at(pos($INSERT)).SequenceInsert($isif.seq, $elem.value, $isfi.idx, true);
+					$value = F.at(pos($INSERT)).SequenceInsert($isfi.seq, $elem.value, $isfi.idx, true);
 				}
 		)
 
