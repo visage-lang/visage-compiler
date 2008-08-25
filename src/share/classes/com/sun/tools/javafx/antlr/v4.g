@@ -899,9 +899,7 @@ script
 //
 packageDecl
 
-	// Package declaration builds a JFXExpression tree
-	//
-	returns [JFXExpression value]
+	returns [JFXExpression value] 	// Package declaration builds a JFXExpression tree
 
     : PACKAGE qualname SEMI
     
@@ -925,11 +923,10 @@ packageDecl
 //
 scriptItems
 
-	// This rule builds a list of JFXTree, which is used 
-	// by the caller to build the actual AST.
-	//
-	returns [ListBuffer<JFXTree> items = new ListBuffer<JFXTree>()]
-
+	
+	returns [ListBuffer<JFXTree> items = new ListBuffer<JFXTree>()] // This rule builds a list of JFXTree, which is used 
+																	// by the caller to build the actual AST.
+																	//
 	:
 		(
 			  // Certain script members may be prefixed with modifiers
@@ -962,9 +959,7 @@ scriptItems
 //
 modifiers
 
-	// Constructs and returns a specialized modifer node
-	//
-	returns [JFXModifiers mods]
+	returns [JFXModifiers mods]	// Constructs and returns a specialized modifer node
 
 @init {
 
@@ -1031,9 +1026,7 @@ modifierFlag
 //
 importDecl
 
-	// The import declaration is built as a generic JFXTree
-	//
-	returns [JFXTree value]
+	returns [JFXTree value] // The import declaration is built as a generic JFXTree
 
  	: IMPORT importId
  	
@@ -1053,9 +1046,7 @@ importDecl
 //
 importId
 
-	// Qualified names are built as expression trees
-	//
-	returns [JFXExpression pid]
+	returns [JFXExpression pid]	// Qualified names are built as expression trees
 
  	: i1=identifier
  		{
@@ -1087,9 +1078,7 @@ importId
 //
 classDefinition [ JFXModifiers mods ]
 
-	// The class definition has its own JFXTree type
-	//
-	returns [JFXClassDeclaration value]
+	returns [JFXClassDeclaration value]	// The class definition has its own JFXTree type
 	
 @init { 
 
@@ -1128,14 +1117,12 @@ classDefinition [ JFXModifiers mods ]
 //
 supers 
 
-	// The return is a list of JFX expressions representing one
-	// or more super class type name.
-	//
-	returns [ListBuffer<JFXExpression> ids = new ListBuffer<JFXExpression>()]
+	returns [ListBuffer<JFXExpression> ids = new ListBuffer<JFXExpression>()]	// The return is a list of JFX expressions representing one
+																				// or more super class type name.
 
-	: EXTENDS typeName
+	: EXTENDS t1=typeName
 			{
-				$ids.append($typeName.value);	// First type name in list
+				$ids.append($t1.value);	// First type name in list
 			}
            ( 
            	COMMA t2=typeName 
@@ -1155,11 +1142,8 @@ supers
 //
 classMembers 
 
-	// Returns a list of the class members, ready for the caller to produce the
-	// class defintion AST.
-	//
-	returns [ListBuffer<JFXTree> mems = new ListBuffer<JFXTree>()]
-
+	returns [ListBuffer<JFXTree> mems = new ListBuffer<JFXTree>()]		// Returns a list of the class members, ready for the caller to produce the
+																		// class defintion AST.
 	: (
 		classMember 
 	
@@ -1177,10 +1161,9 @@ classMembers
 //
 classMember
 
-	// A class member has a specialized JFX tree node, which is what
-	// we return from this rule.
-	//
- 	returns [JFXTree member]
+ 	returns [JFXTree member]		// A class member has a specialized JFX tree node, which is what
+									// we return from this rule.
+
  
 	: initDefinition				{ $member = $initDefinition.value; }
 	| postInitDefinition			{ $member = $postInitDefinition.value; }
@@ -1201,9 +1184,7 @@ classMember
 //
 functionDefinition [ JFXModifiers mods ]
 
-	// A function defintion has a specialized node in the JavaFX AST
-	//
-	returns [JFXFunctionDefinition value]
+	returns [JFXFunctionDefinition value]		// A function defintion has a specialized node in the JavaFX AST
 
 @init { 
 
@@ -1223,7 +1204,7 @@ functionDefinition [ JFXModifiers mods ]
 							(
 								$mods,
 								$name.value, 
-								$typeReference.type,
+								$typeReference.rtype,
 								$formalParameters.params.toList(), 
 								$block.value
 							);
@@ -1273,9 +1254,7 @@ overrideDeclaration
 //
 initDefinition
 
-	// The initialisation block has a specialized JFX tree node
-	//
-	returns [JFXInitDefinition value]
+	returns [JFXInitDefinition value]	// The initialisation block has a specialized JFX tree node
 	
 	: INIT block
 	
@@ -1295,9 +1274,7 @@ initDefinition
 //
 postInitDefinition
 
-	// Post initialization has its own specialized JFX tree node
-	//
-	returns [JFXPostInitDefinition value]
+	returns [JFXPostInitDefinition value]	// Post initialization has its own specialized JFX tree node
 
 	: POSTINIT block
 		{ 
@@ -1349,7 +1326,7 @@ variableDeclaration [ JFXModifiers mods ]
 	    	$value = F.at($variableLabel.pos).Var
 	    				(
 	    					$name.value,
-	    					$type.type,
+	    					$typeReference.rtype,
 	    					$mods,
 	    					false,
 	    					$boundExpressionOpt.value,
@@ -1375,11 +1352,9 @@ variableDeclaration [ JFXModifiers mods ]
 //
 formalParameters
 
-	// Return type is a list of all the AST nodes that represent a 
-	// formal parameter, this is used to generate the AST for the
-	// funciton definition itself.
-	//
-	returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]
+	returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]		// Return type is a list of all the AST nodes that represent a 
+																		// formal parameter, this is used to generate the AST for the
+																		// funciton definition itself.
  
 	: LPAREN 
 	
@@ -1412,14 +1387,12 @@ formalParameters
 //
 formalParameter
 
-	// Formal parameters are contained in a JFX tree var node.
-	//
-	returns [JFXVar var]
+	returns [JFXVar var]	// Formal parameters are contained in a JFX tree var node.
 
 	: name typeReference
 	
 		{ 
-			$var = F.at($name.pos).Param($name.value, $type.type);
+			$var = F.at($name.pos).Param($name.value, $typeReference.rtype);
 			endPos($var); 
 		}
 	;
@@ -1448,10 +1421,8 @@ formalParameter
 // which is a requirement for code completion utilities and so forth.
 //
 block 
-	
-	// The block expression has a specialized node inthe JFX tree
-	//
-	returns [JFXBlock value]
+
+	returns [JFXBlock value]	// The block expression has a specialized node inthe JFX tree
 
 @init { 
 
@@ -1507,9 +1478,7 @@ block
 //
 statement 
 
-	// All statements return an expression tree
-	//
-	returns [JFXExpression value]
+	returns [JFXExpression value] // All statements return an expression tree
 
 	: insertStatement		{ $value = $insertStatement.value; 								}
 	| deleteStatement		{ $value = $deleteStatement.value; 								}
@@ -1529,9 +1498,7 @@ statement
 //
 onReplaceClause
 
-	// onReplace has its own JFX Tree node type
-	//
-	returns [JFXOnReplace value]
+	returns [JFXOnReplace value]	// onReplace has its own JFX Tree node type
 	
 @init
 {
@@ -1544,13 +1511,13 @@ onReplaceClause
 	: ON REPLACE oldv=paramNameOpt 
 	
 		(
-			LBRACKET first=name DOTDOT last=name RBRACKET
+			LBRACKET first=paramName DOTDOT last=paramName RBRACKET
 			
 			{ 
 				haveFirst = true;	// Signal for AST build
 			}
 		)? 
-		EQ newElements=name
+		EQ newElements=paramName
 	
 		block
 		
@@ -1575,9 +1542,7 @@ onReplaceClause
 //
 paramNameOpt
 
-	// Returns a JFXVar tree node
-	//
-	returns [JFXVar var]
+	returns [JFXVar var]	// Returns a JFXVar tree node
 
     : paramName
     	{
@@ -1593,9 +1558,7 @@ paramNameOpt
 //
 paramName
 
-	// Returns a JFXVar tree node
-	//
-	returns [JFXVar var]
+	returns [JFXVar var]	// Returns a JFXVar tree node
 
 	: name
 		{
@@ -1608,9 +1571,7 @@ paramName
 //
 variableLabel 
 	
-	// returns the appropriate modifier flags and the position of the token
-	//
-	returns [long modifiers, int pos]
+	returns [long modifiers, int pos] // returns the appropriate modifier flags and the position of the token
 	
 	: VAR			{ $modifiers = 0L; $pos = pos($VAR); }
 	| DEF			{ $modifiers = JavafxFlags.IS_DEF; $pos = pos($DEF); }
@@ -1623,9 +1584,7 @@ variableLabel
 //
 throwStatement
 
-	// Returns the JFX Expression tree representing what we must throw
-	//
-	returns [JFXExpression value]
+	returns [JFXExpression value]	// Returns the JFX Expression tree representing what we must throw
 
 	: THROW expression SEMI
 	
@@ -1640,11 +1599,12 @@ throwStatement
 		}
 	;
 
+// ---------------
+// While statement
+//
 whileStatement
 	
-	// Returns the JFX Expression tree representing the WHILE
-	//
-	returns [JFXExpression value]
+	returns [JFXExpression value]	// Returns the JFX Expression tree representing the WHILE
 	
 @init
 {
@@ -1654,7 +1614,7 @@ whileStatement
 	
 		(	  (LBRACE)=>block
 				{
-					loopVal = $block.value);
+					loopVal = $block.value;
 				}
 			| statement
 			
@@ -1681,9 +1641,7 @@ whileStatement
 //
 insertStatement  
 	
-	// All steatemetns return a JFX expression tree
-	//
-	returns [JFXExpression value]
+	returns [JFXExpression value]	// All steatemetns return a JFX expression tree
 
 	: INSERT elem=expression
 		(
@@ -1754,9 +1712,7 @@ indexedSequenceForInsert
 //
 deleteStatement  
 
-	// Delete returns a JFX Expression tree
-	//
-	returns [JFXExpression value]
+	returns [JFXExpression value]	// Delete returns a JFX Expression tree
 
 	: DELETE e1=expression
 
@@ -1789,9 +1745,7 @@ deleteStatement
 //
 returnStatement
 
-	// RETURN returns a JFX Expression tree
-	//
-	returns [JFXExpression value]
+	returns [JFXExpression value]	// RETURN returns a JFX Expression tree
 
 	: RETURN 
 		
@@ -1816,9 +1770,7 @@ returnStatement
 //       I.E. "Too many finally claues for try at nnn"
 tryStatement
 
-	// returns a JFX Expression tree
-	//
-	returns [JFXExpression value]
+	returns [JFXExpression value]	// returns a JFX Expression tree
 	
 @init
 {
@@ -1865,9 +1817,7 @@ tryStatement
 //
 finallyClause
 
-	// returns a JFX Expression tree
-	//
-	returns [JFXBlock value]
+	returns [JFXBlock value] // returns a JFX Expression tree
 	
 	: FINALLY block
 	
@@ -1883,9 +1833,7 @@ finallyClause
 //
 catchClause
 
-	// Catch has its own JFX tree node type
-	//
-	returns [JFXCatch value]
+	returns [JFXCatch value]	// Catch has its own JFX tree node type
 	
 	: CATCH LPAREN formalParameter RPAREN block
 	
@@ -1901,10 +1849,8 @@ catchClause
 //
 boundExpression 
 
-	// We nede to return a status flag to say how and if the
-	// expression is bound, and the AST for the expression itself.
-	//
-	returns [JavafxBindStatus status, JFXExpression value]
+	returns [JavafxBindStatus status, JFXExpression value] 	// We nede to return a status flag to say how and if the
+															// expression is bound, and the AST for the expression itself.
 
 @init 
 { 
@@ -1954,9 +1900,7 @@ boundExpression
 //
 expression
 
-	// Expression has its own dedicated JFX tree node type
-	//
-	returns [JFXExpression value]
+	returns [JFXExpression value]	// Expression has its own dedicated JFX tree node type
  
 	: ifExpression
 
@@ -1982,7 +1926,7 @@ expression
 			$value = $assignmentExpression.value;
 		}
 		
-	| variableDeclaration
+	| m=modifiers variableDeclaration [$m.mods]
 	
 		{
 			$value = $variableDeclaration.value;
@@ -1993,352 +1937,1608 @@ expression
 // FOR statement/expression
 //
 forExpression
-	: FOR LPAREN inClause (COMMA inClause)* RPAREN statement
-	;
 
-	
-inClause
-	: formalParameter IN in=expression (WHERE wh=expression)?
-	;
-	
-ifExpression 
-	: IF LPAREN econd=expression  RPAREN 
-		THEN?  
-			(	  (LBRACE)=>block
-				| statement  
-			)
-			((ELSE)=>elseClause)?
-	;
-	
-elseClause
-	: ELSE  
+	returns [JFXExpression value]	// All statements are expressions
+
+@init
+{
+	// In clause accumulator
+	//
+	ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb();
+}
+	: FOR 
+		LPAREN 
+		
+			i1=inClause			{  clauses.append($i1.value); }
+			(COMMA i2=inClause	{  clauses.append($i2.value); } )* 
+			
+		RPAREN 
+		
 		(
 			  (LBRACE)=>block
+			  
+			  	{
+			 		$value = F.at(pos($FOR)).ForExpression($inClauses.clauses.toList(), $block.value);
+				}
+				
 			| statement
+				
+				{
+			 		$value = F.at(pos($FOR)).ForExpression($inClauses.clauses.toList(), $statement.value);
+				}
 		)
+		
+		{
+			// Tree span
+			//
+			endPos($value);
+		}
 	;
+
+// ----------
+// IN clause.
+// Parse an individual IN clause of a FOR statement.
+//
+inClause
+
+	returns [JFXForExpressionInClause value]	// Dedicated AST tree node
+
+@init
+{
+	// Assume no WHERE expression
+	//
+	JFXExpression weVal = null;
+}
+
+	: formalParameter IN se=expression 
 	
-assignmentExpression  
-	: assignmentOpExpression 
-		(     
-			  (EQ)=> EQ expression
+		(
+			  WHERE we=expression	{ weVal = $we.value; }
 			|
 		)
+		
+		{
+			$value = F.at(pos($IN)).InClause($formalParameter.var, $se.value, weVal);
+			endPos($value); 
+		}
 	;
 	
-assignmentOpExpression 
-	: e1=andExpression					
-	  
-		(     PLUSEQ	e2=expression
-	   		| SUBEQ   	e2=expression
-	   		| STAREQ   	e2=expression
-	   		| SLASHEQ   e2=expression
-	   		| PERCENTEQ	e2=expression	
-	   		
-	   				{ 
-	   					log.warning(pos($PERCENTEQ), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The operator \%= will not be supported in the JavaFX 1.0 release" );
-	   				}
-	   				
-           	| SUCHTHAT v=andExpression (TWEEN i=andExpression)?
-	   		|
-	   )
+// -----------------------
+// If Then Else expression
+//
+ifExpression 
+
+	returns [JFXExpression value]	// The expression tree that represents the If expression
+	
+@init
+{
+	// Statement or block expression
+	//
+	JFXExpression sVal = null;
+	
+	// Else expression (if present)
+	//
+	JFXExpression eVal = null;
+}
+	: IF LPAREN econd=expression  RPAREN 
+		THEN?  
+			(	  (LBRACE)=>block	{ sVal = $block.value; 		}
+				| statement  		{ sVal = $statement.value;		}
+			)
+			(
+				(ELSE)=>elseClause	{ eVal = $elseClause.value;	}
+			)?
+			
+		{
+			// The IF AST
+			//
+			$value = F.at(pos($IF)).Conditional($econd.value, sVal, eVal);
+			
+			// Tree span
+			//
+			endPos($value);
+		}
 	;
 	
-andExpression  
-	:	e1=orExpression
-	  		( AND e2=orExpression)*
-	;
+// -----------
+// Else clause
+// Parse the else expression of an if statement
+//
+elseClause
+
+	returns [JFXExpression value]	// The expression tree that represents the Else expression
 	
-orExpression  
-	: e1=typeExpression
-	  
-	  	( OR   e2=typeExpression )*
-	;
-	
-typeExpression 
-	: relationalExpression		
-		(     INSTANCEOF itn=type
-	   		| AS atn=type
-	   		|
-	   )
-	;
-	
-relationalExpression  
-	: additiveExpression
+	: ELSE  
 		(
-			  LTGT   e=additiveExpression      
+			  (LBRACE)=>block	{ $value = $block.value; 		}
+			| statement			{ $value = $statement.value; 	}
+		)
+	;
+	
+
+// -----------
+// Assignment.
+// Parse and produce teh AST for an assignement expression. Note
+// that name of this rule is a slight misnomer. It might encapsulate
+// an assignment, but it might be just a straight expression.
+//
+assignmentExpression  
+
+	returns [JFXExpression value]	// The expression tree that represents the assignment expression
+
+@init
+{
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+	: lhs=assignmentOpExpression 
+		(     
+			  (EQ)=> EQ rhs=expression
 			  
-			  		{ 
-			  			log.warning(pos($LTGT), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The not-equal operator <> will be replaced by !=" );
-			  		}	
+			  	{
+			  		// This is actually an assign
+			  		//
+			  		$value = F.at(rPos).Assign($lhs.value, $rhs.value);
 			  		
-			| NOTEQ  e=additiveExpression
-			| EQEQ   e=additiveExpression
-			| LTEQ   e=additiveExpression
-			| GTEQ   e=additiveExpression
-			| LT     e=additiveExpression
-			| GT     e=additiveExpression
-		)* 
+			  		// Tree span
+			  		//
+			  		endpos($value);
+			  	}
+			  	
+			|	// Just an expression without an assignment
+				//
+				{
+					$value = $lhs.value;
+				}
+		)
 	;
 	
-additiveExpression 
-	: multiplicativeExpression
-		(
-		      PLUS   e=multiplicativeExpression
-			| SUB    e=multiplicativeExpression
-		)* 
+assignmentOpExpression
+
+	returns [JFXExpression value]	// The expression tree that represents the assignment expression
+
+@init
+{
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+
+	: lhs=andExpression					
+	  
+		(     assignOp rhs=expression
+		
+				{
+					// AST for assignement
+					//
+					$value = F.at(rPos).Assignop($assignOp.op, $lhs.value, $rhs.value);
+				}
+				
+           	| SUCHTHAT such=andExpression (TWEEN i=andExpression)?
+           	
+           		{
+           			// AST FOR Interpolation
+           			//
+           			$value = F.at(rPos).InterpolateValue($lhs.value, $such.value, $i.value);
+           		}
+           	
+	   		|	{ 
+	   				// AST for expressions
+	   				//
+	   				$value = $lhs.value; 
+	   			}	
+	   )
+	   
+	   {
+	   		// AST Span
+	   		//
+	   		endPos($value);
+	   }
+	;
+
+// -----------------
+// Assign operators
+// All the operators that involve assignments.
+//	
+assignOp
+
+	returns	[int op]	// Returns the operation token that we find
+	
+	: PLUSEQ		{ $op = JavafxTag.PLUS_ASG; 			}
+	| SUBEQ			{ $op = JavafxTag.MINUS_ASG;			}
+	| STAREQ		{ $op = JavafxTag.JavafxTag.MUL_ASG;	}
+	| SLASHEQ		{ $op = JavafxTag.DIV_ASG;				}
+	| PERCENTEQ
+		{ 
+			$op = JavafxTag.MOD_ASG;
+			log.warning(pos($PERCENTEQ), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The operator \%= will not be supported in the JavaFX 1.0 release" );
+		}
 	;
 	
-multiplicativeExpression
-	: unaryExpression
+// -------------
+// AND opertator
+// LL(k) AND precedence
+//
+andExpression
+
+	returns [JFXExpression value] 	// Expression tree for AND
+		
+@init
+{
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+
+	:	e1=orExpression
+			
+			{
+				$value = $e1.value;
+			}
+	  		( 
+	  			AND e2=orExpression
+	  			
+	  			{
+	  				$value = F.at(rPos).Binary(JavafxTag.AND, $e1.value, $e2.value);
+	  				endPos($value);
+	  			}
+	  		)*
+	;
+	
+// -----------
+// OR operator
+// LL(k) OR precedence
+//
+orExpression
+
+	returns [JFXExpression value] 	// Expression tree for OR
+		
+@init
+{
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+
+	: e1=typeExpression
+
+		{
+			$value = $e1.value;
+		}
+	  	( 
+	  		OR e2=typeExpression 
+	  		
+	  		{
+	  			$value = F.at(rPos).Binary(JavafxTag.OR, $e1.value, $e2.value);
+	  			endPos($value);
+	  		}
+	  	)*
+	;
+	
+// ----------------
+// Typed expression
+// LL(k) precedence
+//
+typeExpression 
+
+	returns [JFXExpression value] 	// Expression tree for typed expressions
+		
+@init
+{
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+
+	: relationalExpression		
+
 		(
-			  STAR    	e=unaryExpression
-			| SLASH   	e=unaryExpression
-			| PERCENT 	e=unaryExpression
+			  INSTANCEOF itn=type
 			
 				{
-					log.warning(pos($PERCENT), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The remainder operator \% will be replaced by mod" );
-				}	
-             
-           | MOD    	e=unaryExpression
+					$value = F.at(rPos).TypeTest($relationalExpression.value, $itn.rtype);
+					endPos($value);
+				}
+			| AS atn=type
+			
+				{
+					$value = F.at(rPos).TypeCast($atn.rtype, $relationalExpression.value);
+					endPos($value);
+				}
+			
+			| 	{
+					$value = $relationalExpression.value;
+				}
+	   )
+	;
+
+// -----------
+// Relationals
+// LL(k) precedence
+//	
+relationalExpression  
+
+	returns [JFXExpression value] 	// Expression tree for typed expressions
+		
+@init
+{
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+
+	: a1=additiveExpression	{ $value = $a1.value;	}
+		(
+			  relOps   a2=additiveExpression
+			  	
+			  	{
+			  		$value = F.at(rPos).Binary($relOps.relOp, $a1.value, $a2.value);
+			  		endPos($value);
+			  	}
+		)* 
+	;
+	
+// ---------------------
+// Relational operators.
+// LL(k) precedence, all operators are same precedence
+//
+relOps
+
+	returns [int relOp]	// Returns the JFX operator type
+	
+	: LTGT
+		{ 
+			$relOp = JavafxTag.NE;
+			log.warning(pos($LTGT), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The not-equal operator <> will be replaced by !=" );
+		}	
+			  		
+	| NOTEQ  { $relOp = JavafxTag.NE;	}
+	| EQEQ   { $relOp = JavafxTag.EQ;	}
+	| LTEQ   { $relOp = JavafxTag.LE;	}
+	| GTEQ   { $relOp = JavafxTag.GE;	}
+	| LT     { $relOp = JavafxTag.LT;	}
+	| GT     { $relOp = JavafxTag.GT;	}
+	;
+
+// ---------------------
+// Arithmetic operations
+// LL(k) precedence.
+//	
+additiveExpression 
+
+	returns [JFXExpression value] 	// Expression tree for additive expressions
+		
+@init
+{
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+	: m1=multiplicativeExpression	{ $value = $m1.value; }
+		(
+		      arithOps   m2=multiplicativeExpression
+
+				{
+					$value = F.at(rPos).Binary($arithOps.arithOp , $e1.value, $e2.value);
+					endPos($value);
+				}
+		)* 
+	;
+
+// --------------------
+// Arithmetic operators
+//
+arithOps
+
+	returns [int arithOp]	// Returns the JFX operator type
+	
+	: PLUS		{ $arithOp = JavafxTag.PLUS; 	}
+	| SUB		{ $arithOp = JavafxTag.MINUS;	}
+	;
+
+// --------------------------
+// Multiplicative expressions
+// LL(k) precedence emboides all operators at the same precednce as MUL
+//	
+multiplicativeExpression
+
+	returns [JFXExpression value] 	// Expression tree for additive expressions
+		
+@init
+{
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+	: u1=unaryExpression	{ $value = u1.value; }
+		(
+			multOps u2=unaryExpression
+				
+				{
+					$value = F.at(rPos).Binary($multOps.multOp, $u1.value, $u2.value);
+					endPos($value);
+				}
 	   )* 
 	;
+
+// -------------------------
+// Multiplicative operators.
+// LL(k) precedence - incorporates any other operators at this precedence
+//
+multOps
+
+	returns [int multOp]	// Returns the JFX operator type
 	
-//TODO: POUND QUES TYPEOF REVERSE
-unaryExpression 
-	: suffixedExpression
-	| SUB      	e=unaryExpression
-	| NOT      	e=unaryExpression
-	| SIZEOF   	e=unaryExpression
-	| PLUSPLUS 	e=unaryExpression
-	| SUBSUB   	e=unaryExpression
-	| REVERSE  	e=unaryExpression
-    | INDEXOF 	name
+	: STAR    	{ $multOp = JavafxTag.MUL;	}
+	| SLASH   	{ $multOp = JavafxTag.DIV;	}
+	| PERCENT 	
+			
+		{
+			$multOp = JavafxTag.MOD;
+			log.warning(pos($PERCENT), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The remainder operator \% will be replaced by mod" );
+		}	
+             
+	| MOD		{ $multOp = JavafxTag.MOD;	}
 	;
 	
+// -----------------	
+// Unary expressions
+// LL(k) Precedence
+//
+//TODO: POUND QUES TYPEOF REVERSE
+unaryExpression
+
+	returns [JFXExpression value] 	// Expression tree for unary expressions
+
+@init
+{
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+
+	: se=suffixedExpression
+
+		{
+			$value = $se.value;
+		}
+		
+	| INDEXOF		id=identifier
+	
+		{ 	
+			$value = F.at(rPos).Indexof($id.value);
+			endPOs($value);
+		}
+		
+	| unaryOps     	e=unaryExpression
+
+		{
+			$value = F.at(rPos).Unary($unaryOps.unOp, $e.value);
+			endPOs($value);
+		}
+	;
+	
+// -------------------------
+// Unary operators.
+// LL(k) precedence
+//
+unaryOps
+
+	returns [int unOp]	// Returns the JFX operator type
+	
+	: SUB			{ $unOp = JavafxTag.NEG; }
+	| NOT			{ $unOp = JavafxTag.NOT; }
+	| SIZEOF		{ $unOp = JavafxTag.SIZEOF; }
+	| PLUSPLUS		{ $unOp = JavafxTag.PREINC; }
+	| SUBSUB		{ $unOp = JavafxTag.PREDEC; }
+	| REVERSE		{ $unOp = JavafxTag.REVERS; }
+	;
+
+// ------------------
+// Postfix operations
+// LL(k) precedence
+//
 suffixedExpression 
-	: postfixExpression
+
+	returns [JFXExpression value] 	// Expression tree for suffix expressions
+
+@init
+{
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+
+	: pe=postfixExpression
 		( 
 			  PLUSPLUS
+			  
+			  	{
+			  		$value = F.at($pe.value.pos).Unary(JavafxTag.POSTINC, $pe.value);
+			  		endPos($value);
+			  	}
+			  	
 			| SUBSUB
-			|
+			
+				{
+					$value = F.at($pe.value.pos).Unary(JavafxTag.POSTDEC, $pe.value);
+					endPos($value);
+				}
+				
+			| { $value = $pe.value; }
 		)
 	;
 	
+// ------------------------
+// Postfix-able expressions
+// LL(k) precedence
+//
 postfixExpression 
-	: primaryExpression
+
+	returns [JFXExpression value] 	// Expression tree for suffix expressions
+
+@init
+{
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+	
+	// Position for pipe epxression
+	//
+	int pPos;
+	
+	// Indicates if we had the LT token
+	//
+	int clusiveType = SequenceSliceTree.END_INCLUSIVE;
+	
+	// Last element of sequence (if present)
+	//
+	JFXExpression	lastExpr = null;
+}
+
+	: pe=primaryExpression	{ $value = $pe.value; }
 	
 		( 
 			  DOT 
 				( 
-					  name
-					//TODO:		 | CLASS   					
+					  n1=name
+					  
+					  {
+							$value = F.at(rPos).Select($value, $n1.value);
+					  }
+					  
+					//TODO:		 | CLASS 
 	         	)
 
 			| LPAREN expressionList RPAREN
-			| LBRACKET 
+			
+				{
+					$value = F.at(rPos).Apply(null, $value, $expressionList.args.toList());
+					endPos($value);
+				}
+				
+			| LBRACKET
+			
+				{
+					// INit our flags
+					//
+					clusiveType = SequenceSliceTree.END_INCLUSIVE;
+					lastExpr 	= null;
+				}
 	
 				(
-					  name PIPE expression RBRACKET
+					  n2=name PIPE e1=expression RBRACKET
+					  
+					  {
+					  	// Build a list of clauses as AST builder expects this
+					  	//
+					  	ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb();
+                  		
+                  		// Build a var reference
+                  		//
+                  		JFXVar var = F.at($n2.pos).Param($n2.value, F.TypeUnknown());
+                  		
+                  		// Set up the in clause
+                  		//
+	          			clauses.append(F.at(rPos).InClause(var, $value, $e1.value));
+	          			
+	          			// Predicate needs identifier AST
+	          			//
+                  		$value = F.at(rPos).Predicate(clauses.toList(), F.at($n2.pos).Ident($n2.value));
+                  		
+                  		// Tree span
+                  		//
+                  		endPos($value);
+					  }
+					  
 					| first=expression
                             
 						(
 							  RBRACKET
+							  
+							  	{
+							  		$value = F.at(rPos).SequenceIndexed($value, $first.value);
+							  		endPos($value);
+							  	}
+							  	
 	                    	| DOTDOT 
 	                    		(
-									  LT last=expression?
-									| last=expression?
+									  (LT { clusiveType = SequenceSliceTree.END_EXCLUSIVE; } )? 
+									  	(
+									  		last=expression
+									  		{
+									  			lastExpr = $last.value;
+									  		}
+									  	)?
+									  	
 								)
-	                      		RBRACKET
+								
+	                      	  RBRACKET
+	                      	  
+	                      	  {
+	                      	  	// If we have LT, then this is an exclusive slice
+	                      	  	//
+	                      	  	$value = F.at(rPos).SequenceSlice
+	                      	  									(
+	                      	  										$value,
+	                      	  										$first.value,
+	                      	  										lastExpr,
+	                                                            	clusiveType
+	                                                            );
+								endPos($value);
+	                      	  }
                     	)
              	)
 	   	)* 
 	;
-	
+
+// -------------------
+// Primary expressions
+// LL(k) precedence - primitives which cannot be reduced other
+// than to atoms.
+//	
 primaryExpression  
-	: qualname					
+
+	returns [JFXExpression value] 	// Expression tree for primary expressions
+
+@init
+{
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+	
+	// Use to build a list of objectLiteral parts.
+	//
+	ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb();
+	
+}
+	: qualname
+		{
+			$value = $qualname.value;
+		}
 		(
-			  LBRACE  objectLiteralPart
-	              (SEMI objectLiteralPart)*   RBRACE
+			LBRACE  
+			  	
+					o1=objectLiteral
+						
+			RBRACE
+	              
+				{
+					// AST
+					//
+					$value = F.at(rPos).ObjectLiteral($value, $o1.parts.toList());
+					
+					// Tree span
+					//
+					endPos($value);
+				}
 			|
 		)
+
 	| THIS
+
+		{
+			$value = F.at(pos($THIS)).Ident(names._this);
+			endPos($value);
+		}
+		
 	| SUPER
-	| stringExpression
-	| bracketExpression
+	
+		{
+			$value = F.at(pos($SUPER)).Ident(names._super);
+			endPos($value);
+		}
+		
+	| se=stringExpression
+
+		{
+			$value = $se.value;
+		}
+		
+	| be=bracketExpression
+	
+		{
+			$value = $be.value;
+		}
+		
 	| block
+	
+		{
+			$value = $block.value;
+		}
+		
 	| literal
-	| functionExpression
-	| LPAREN expression RPAREN
+	
+		{
+			$value = $literal.value;
+		}
+		
+	| fe=functionExpression
+	
+		{
+			$value = $fe.value;
+		}
+	
+	| LPAREN e=expression RPAREN
+	
+		{
+			$value = $e.value;
+		}
+		
 	| AT 
 		LPAREN 
-			TIME_LITERAL 
+			tl=TIME_LITERAL 
 		RPAREN 
 		LBRACE 
-			keyFrameLiteralPart 
+			k=keyFrameLiteralPart 
 		RBRACE
+		
+		{
+			$value = F.at(rPos).KeyFrameLiteral($tl.value, $k.exprs.toList(), null);
+			endPos($value);
+		}
 	;
-	  
+	
+// ------------
+// Frame values
+//  
 keyFrameLiteralPart
-	: keyValuePart (SEMI keyValuePart)*
-    ;
-    
-keyValuePart
-	: expression
-    |
+
+	returns [ListBuffer<JFXExpression> exprs = new ListBuffer<JFXExpression>(); ]	// Gathers a list of expressions representing frame values
+
+	: k1=expression 			{ exprs.append($k1.value);	}
+	
+		(SEMI+
+		
+			k2=expression		{ exprs.append($k2.value);	}
+		)* SEMI*
     ;
 
-functionExpression  
+// -------------------
+// Anonymous functions
+//
+functionExpression
+
+	returns [JFXExpression value] 	// Expression tree for anonymous function
+
 	: FUNCTION formalParameters typeReference block
+	
+		{
+			// JFX AST
+			//
+			$value = F.at(pos($FUNCTION)).FunctionValue
+								(
+									$typeReference.rtype, 
+									$formalParameters.params.toList(),
+									$block.value
+								);
+								
+			// Tree span
+			//
+			endPos($value);
+		}
 	;
 	
-newExpression 
+// ---
+// NEW
+//
+newExpression
+
+	returns [JFXExpression value] 	// Expression tree for new expression
+	
 	: NEW typeName expressionListOpt
-	;
 	
-objectLiteralPart  
+		{
+			$value = F.at(pos($NEW)).InstanciateNew($typeName.value, $expressionListOpt.args.toList());
+			endPos($value);
+		}
+	;
+
+// ---------------
+// Object literals
+//
+objectLiteral
+
+	returns [ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb()]	// Gather a list of all the object literal insitalizations
+	
+	:   (COMMA|SEMI)*	// Separators are optional and just syntactic sugar
+		(
+			oli=objectLiteralPart 
+			
+				(COMMA|SEMI)*	// Separators are optional and just syntactic sugar
+			
+			{
+				parts.append($oli.value);
+			}
+		)+
+	;
+
+// Individual components of an object literal
+//
+objectLiteralPart
+
+	returns [JFXTree value] 	// Expression tree for object literal elements
+
 	: (OVERRIDE)=>overrideDeclaration
+	
+		{
+			$value = $overrideDeclaration.value;
+		}
+		
 	| modifiers
 		(
 			  variableDeclaration    [$modifiers.mods]
+			  
+			  	{
+			  		$value = $variableDeclaration.value;
+			  	}
+			  	
 			| functionDefinition	 [$modifiers.mods]
+			
+				{
+					$value = $functionDefinition.value;
+				}
 		)
-	| objectLiteralInit*
+		
+	| oli=objectLiteralInit
+		
+		{
+			$value = $oli.value;
+		}
     ;
-       	
+  
+// --------------------------     	
+// Object literal initializer
+//	
 objectLiteralInit
-	: name COLON  boundExpression COMMA?
+
+	returns [JFXTree value]		// Construct the AST for a name value pair
+	
+@init
+{
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+	
+}
+	: name COLON  boundExpression
+	
+		{
+			// AST
+			//
+			$value = F.at($n.pos).ObjectLiteralPart
+									(
+										$name.value,
+								 		$boundExpression.value, 
+								 		$boundExpression.status
+								 	);
+								 	
+			// Tree span
+			//
+			endPos($value);
+		}
+	;
+
+// -------	
+// Strings
+// JavaFX string expresoins are more richly expressive than the more usual
+// quoted strings.
+//
+// 1) A translation key may prefix string literals;
+// 2) The string literal itself may consist of multiple parts, which are
+//    concatenated at compile time, rather than run time.
+//    I.E. ##"MyTransKey" "String part 1" "String part 2\n"
+//    This allows for multi line string literals, built at compile time
+//    over which the script author then has unambiguous control over
+//    leading spaces, can explictly insert new lines, and can comment
+//    individual components.
+//    I.E. 
+//      var myString =
+//          "<header>"       // This is the header
+//          "some stuff\n"   // Some stuff now, with a trailing newline
+//          "  level 1\n"    // More stuff, with leading spaces and a traliing newline
+//
+// Overall this leades to better error recovery for the parser, while leaving
+// the language syntax obvious to and clearly controlled by, the script author;
+//
+// Notes: 
+//
+// 1) Only string literals can be compounded in this way - expressions are
+//    parsed here, but are thrown out with a semantic error explaining
+//    that this is a compile time concept, not a runtime concept;
+// 2) A single translation key prefix applys to the entire compound string.
+//    Individual compound parts cannot be translated individually;
+//
+stringExpression 
+
+	returns [JFXExpression value] 	// Expression tree for stringExpressions
+
+@init
+{
+	// Buffer in which to accumulate all string elements
+	//
+	ListBuffer<JFXExpression> strexp = new ListBuffer<JFXExpression>();
+	
+	// Translation key, if any, for the literal string
+	//
+    String translationKey = null;
+    
+    // Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+
+	: (
+		  (
+			// Translation key is optional
+		  	//
+		  	TRANSLATION_KEY	{ translationKey = $TRANSLATION_KEY.text; } 
+		  )?
+	
+			// We must find at least one compund element to the string
+			//
+			strCompoundElement [ strexp ]
+			
+			(
+				// After the first element, there may be any number of additional
+				// elements, including zero. We must force the parser to take
+				// the righteous path for syntactically correct constructs, then
+				// error out semantically on anything else.
+				//
+				   (STRING_LITERAL|QUOTE_LBRACE_STRING_LITERAL) =>strCompoundElement [ strexp ]
+			
+					// Expressions are not allowed as compound elements but this will be
+					// a common thing to happen while editing and probably a common mistake
+					// so we parse it and then falg a semantic error rather than issue
+					// a syntax error which would be difficult to recover from.
+					// TODO: See if we can resolve the left recurssion problems
+					// taht this causes
+				//| 	{
+						// Record where we are for the error message
+						//
+				//		ePos = pos();
+				//	}
+				
+				//	expression
+			
+				//	{
+						// Issue semantic error
+						// TODO: perhaps this should be added tot the AST
+						//
+				//		log.error(ePos, "javafx.bad.str.compound");
+				//	}
+
+			)*
+	  )
+	  
+		{
+  			// AST for string expression
+  			// If we accumulated just a single entry then by definition
+  			// we accumulated just a simple string literal, but if there
+  			// is more than one entry, or there is a translation key,
+  			// then we have a string expression
+  			//
+  			if	(strexp.size() > 1 || translationKey != null)
+			{
+				// Complex expression
+				//
+	  			$value = F.at(rPos).StringExpression(strexp.toList(), translationKey);
+
+				// Tree span
+  				//
+  				endPos($value);
+
+	  		}
+	  		else
+	  		{
+	  			// This is an individual string literal, and is already endPos'ed
+	  			//
+	  			$value  = strexp.toList(0);
+			}  			
+		}
 	;
 	
-stringExpression  
-	: TRANSLATION_KEY
-	  	STRING_LITERAL
-	  
-	| QUOTE_LBRACE_STRING_LITERAL
-	  	stringFormat	
-	  	expression 	
-	  	stringExpressionInner*   
-	  RBRACE_QUOTE_STRING_LITERAL
-	  
-	| TRANSLATION_KEY
-		QUOTE_LBRACE_STRING_LITERAL
-	  
-	  		stringFormat	
-	  		expression 	
-	  		stringExpressionInner*   
-	  		
-	  	RBRACE_QUOTE_STRING_LITERAL
+// --------------------------------------------
+// An individual component of a compound string
+//
+strCompoundElement [ ListBuffer<JFXExpression> strexp ]
+	
+	: stringLiteral	[ strexp ]	  		
+	| qlsl 			[ strexp ]
 	;
 	
-stringExpressionInner
-	: RBRACE_LBRACE_STRING_LITERAL stringFormat expression 			
+// ---------------
+// String literals
+// We may have multiple string literals following each
+// other, which we auto concatentate here at compile time
+//
+stringLiteral [ ListBuffer<JFXExpression> strexp ]
+
+
+@init
+{
+	// Record position of invalid expression used in compile time
+	// string compounding.
+	//
+	int ePos;
+	
+	// Used to accumulate multiple string literals
+	//
+	StringBuffer sbLit = new StringBuffer();
+	
+	// The string litereal we will created
+	//
+	JFXExpression sVal = null;
+	
+}
+	: s1=STRING_LITERAL 
+	
+		{
+			// Accumulate the literal
+			//
+			sbLit.append($s1.text);
+		}
+	
+		(
+			(STRING_LITERAL)=> s2=STRING_LITERAL
+			
+			{
+				// Accumulate the literal
+				//
+				sbLit.append($s2.text);
+			}
+		)*
+		
+		{
+			// Now we create the actual string literal
+			//
+			sVal = F.at(pos($s1)).Literal(TypeTags.CLASS, sbLit.toString());
+			
+			// Tree span
+			//
+			endPos(sVal);
+			
+			// Add to list
+			//
+			strexp.append(sVal);
+			
+			// Here, if we have as yet encountered no other string literals, then
+			// we can just add the Literal because the first literal of
+			// the string expression AST is always without formatting etc,
+			// however, if this is the second or subsequent literal such as
+			// in: "hhhhhh{expr}" "Second", then the AST for string expressions
+			// expects a format and expression to follow as it is assuming
+			// a string expression rather than a string literal. Hence we must fake an empty format
+			// and an empty string expression.
+			//
+			if	(strexp.size() > 1)
+			{
+				// Already had the first literal, add a fake format and expression
+				//
+				strexp.append(F.at(rPos).Literal(TypeTags.CLASS, ""));
+				strexp.append(F.at(rPos).Literal(TypeTags.CLASS, ""));
+			}
+		}
 	;
 	
-stringFormat  
+// --------------------
+// String lit component
+// String literals with embedded formats/expressions
+//
+qlsl [ ListBuffer<JFXExpression> strexp]
+
+	: 	ql=QUOTE_LBRACE_STRING_LITERAL	
+	
+			{
+				// Add in the discovered literal value
+				//
+				strexp.append
+						(
+							F.at(pos($ql)).Literal
+											(	TypeTags.CLASS,
+											 	$ql.text
+											)
+						);	
+			}
+			
+		// Optional string format
+		//
+	    stringFormat	[strexp]
+	    
+	    // An expression to evaluate at runtime
+	    // 
+	  	e2=expression 					{ strexp.append($e2.value);	}
+	  
+	  	// Any number of inner elements
+	  	//
+	  	( stringExpressionInner [strexp]  )*   
+	  
+	  	// The last component of the {} enclosing string literal
+	  	//
+	  	qr=RBRACE_QUOTE_STRING_LITERAL
+	  
+	  		{
+	  			// Add in the discovered literal
+	  			//
+				strexp.append
+						(
+							F.at(pos($qr)).Literal
+											(	TypeTags.CLASS,
+											 	$qr.text
+											)
+						);	
+			}
+	;
+	
+// ----------------------
+// String element with optional format expression
+//
+stringExpressionInner [ ListBuffer<JFXExpression> strexp]
+
+	: rlsl=RBRACE_LBRACE_STRING_LITERAL 
+	
+		{
+			// Construct a new literal for the leading literal
+			//
+			JFXEpression rb = F.at(pos($rlsl)).Literal(TypeTags.CLASS, $rlsl.text);
+			
+			// Record the span
+			//
+			endPos(rb);
+			
+			// Add the literal to the list
+			//
+			strexp.append(rb);
+			
+		}
+		
+		// Deal with the string format
+		//
+		stringFormat[strexp] 
+		
+		// Expression to evaluate at runtime
+		//
+		expression
+		
+		{
+			strexp.append($expression.value);
+		}
+	;
+	
+// --------------------
+// Format specification
+// Optional format specifier in standard Java form
+//
+stringFormat [ ListBuffer<JFXExpression> strexp]
+
+@init
+{
+	// The value to add in to the mix
+	//
+	JFXExpression value;
+	
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
 	: FORMAT_STRING_LITERAL
-	| /* no format */
+	
+		{
+			value = F.at(rPos).Literal(TypeTags.CLASS, $fs.text);
+			endPos(value);
+			strexp.append(value);
+		}
+		
+	| // no format
+		{
+			value = F.at(rPos).Literal(TypeTags.CLASS, "");
+			endPos(value);
+			strexp.append(value);
+		}
 	;
 	
-bracketExpression  
+// ---------------------------
+// Sequence
+// Which is a [] enclosed expression list
+//
+bracketExpression
+
+	returns [JFXExpression value] 	// Expression tree for stringExpressions
+
+@init
+{
+	// Buffer in which to accumulate all string elements
+	//
+	ListBuffer<JFXExpression> seqexp = new ListBuffer<JFXExpression>();
+    
+    // Work out current position in the input stream
+	//
+	int	rPos = pos();
+	
+	// Optional step expression
+	//
+	JFXExpression	stepEx = null;
+	
+	// Optional LT qualifier
+	//
+	boolean 	haveLT	= false;
+}
+
 	: LBRACKET   
-		( 	  /*nada*/
-	    	| e1=expression 	
+	
+		( 	: COMMA* e1=expression
+				{
+					seqexp.append($e1.value);
+				}
 		     	(   
-		     		  /*nada*/
-		     		| COMMA 
-		     	   		(   
-		     	   			  /*nada*/
-	            			| expression 		
-		     	         		(COMMA expression)*
-	                          	COMMA?
-	                    )
+		     		  
+		     		  (
+		     			COMMA 
+		     				(
+		     					e2=expression
+		     						{
+		     							seqexp.append($e2.value);
+		     						}
+		     				)?
+		     		  )*
 	                    
-		     		| DOTDOT LT? dd=expression	
-		     	    		( STEP st=expression )?
-		     	)   
+	                    {
+	                    	// Explicit sequence detected
+	                    	//
+	                    	$value = F.at(rPos).ExplicitSequence(exps.toList());
+	                    	endPos($value);
+	                    }
+	                    
+		     		| DOTDOT 
+		     			(LT { haveLT = true; })? 
+		     			dd=expression
+		     	    	( STEP st=expression { stepEx = $st.value; } )?
+		     	    	
+		     	    	{
+		     	    		$value = F.at(pos($DOTDOT)).RangeSequence($e1.value, $dd.value, stepEx, haveLT);
+		     	    		endPos($value);
+		     	    	}
+		     	)
+		     	
+		     |  // Empty sequence 
+		     	{
+		     		 $value = F.at(rPos).EmptySequence();
+		     	}
 	    )
 	  RBRACKET
 	;
 
+// ----------------
+// Expression list.
+// Comma separated list of expressions.
+//
 expressionList
-	: expressionItem (COMMA expressionItem)*
+
+	returns [ListBuffer<JFXExpression> args = new ListBuffer<JFXExpression>()]	// List of expressions we pcik up
+
+	: e1=expression
+		
+		{
+			args.append($e1.value);
+		}
+		
+		(
+			COMMA 	(
+						e2=expression
+						
+						{
+							args.append($e2.value);
+						}
+					)?
+		)*
 	;
 
-expressionItem
-	: expression
-	|
-	;
+// ------------------------
+// Optional expression list
+// For the moment this is only used by New....
+//
+expressionListOpt
 	
-expressionListOpt  
+	returns [ListBuffer<JFXExpression> args = new ListBuffer<JFXExpression>()]	// List of expressions we pcik up
+
 	: LPAREN expressionList RPAREN
-	|
+		{
+			$args = $expressionList.args;
+		}
+		
+	|	// Was not present
 	;
-	
-type 
+
+
+// -----
+// Types
+//
+type
+
+	returns [JFXType rtype]
+
+@init
+{
+    // Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
 	: typeName cardinality
+	
+		{
+			$rtype = F.at(rPos).TypeClass($typeName.value, $cardinality.ary);
+			endPos($rtype);
+		}
+		
  	| FUNCTION 
  		LPAREN 
  			typeArgList
 		RPAREN 
 		
-			typeReference 
+			ret=typeReference 
           	cardinality	//TODO: this introduces an ambiguity: return cardinality vs type cardinality
+          	
+		{
+			$rtype = F.at(rPos).TypeFunctional($typeArgList.ptypes.toList(), $ret.rtype, $cardinality.ary);
+			endPos($rtype);
+		}
 
  	| STAR cardinality
- 	;
  	
+ 		{
+ 			$rtype = F.at(rPos).TypeAny($cardinality.ary);
+ 			endPos($rtype);
+ 		}
+ 	;
+
+// ----------------------------
+// A list of types as arguments
+//
 typeArgList
- 	: typeArg (COMMA typeArg)*
+ 	
+ returns [ListBuffer<JFXType> ptypes = ListBuffer.<JFXType>lb(); ]
+ 
+ 	: t1=typeArg
+ 	
+ 		{
+ 			ptypes.append($t1.rtype);
+ 		}
+ 		 
+ 		(
+ 			COMMA 
+ 			(
+ 				t2=typeArg
+ 				
+ 				{
+ 					ptypes.append($t2.rtype);
+ 				}
+ 			)?
+ 		)*
 	;
 
+// -------------------------
+// Individual typed argument
+//
 typeArg 
- 	: (name? COLON)? type
-	|
+
+	returns [JFXType rtype]
+
+ 	: (
+ 		(
+ 			name	// TODO: Check this, it is currently ignored for AST and does not
+ 					//       look quite right.
+ 		)? 
+ 			COLON
+ 	  )?
+ 	  
+ 	  type
+ 	
+ 		{
+ 			$rtype = $type.rtype;
+ 		}
  	;
  	
-typeReference 
+ // --------------
+ // Type reference
+ // Used to build parameter lists for functions etc
+typeReference
+
+	returns	[JFXType rtype]
+	
  	: COLON type
+ 	
+ 		{
+ 			$rtype = $type.rtype;
+ 		}
  	| /*nada*/
  	;
  	
-cardinality 
-	: (LBRACKET)=>LBRACKET RBRACKET
-	|
-	;
+// -------------------------
+// Array indicator for types
+//
+cardinality
+
+	returns [TypeTree.Cardinality ary]
 	
-typeName  
+	: (LBRACKET)=>LBRACKET RBRACKET
+	
+		{
+			$ary = TypeTree.Cardinality.ANY;
+		}
+		
+	|	{
+			$ary = TypeTree.Cardinality.SINGLETON;
+		}
+	;
+
+// ----------
+// Named type
+// Possibly a generic
+//
+typeName
+
+	returns [JFXExpression value]
+
+@init
+{
+	// Accumulate any generic arguments
+	//
+	ListBuffer<JFXExpression> exprbuff = ListBuffer.<JFXExpression>lb();
+}
+
 	: qualname 		
 		(
-			  LT genericArgument (COMMA genericArgument)* GT
-			|
+			  LT ga1=genericArgument 	{ exprbuff.append(ga1.value); }
+			  	
+			  		(
+			  			COMMA
+			  				(
+			  					ga2=genericArgument
+			  				
+			  							{ exprbuff.append(ga2.value); }
+			  				)?
+			  		)* 
+			  GT
+			  
+			  {
+			  	// AST for generic
+			  	//
+			  	// TODO: Implement this?
+			  	//
+			  	log.error(pos($LT), "javafx.generalerror", "Java generic type declarations are not currently supported");
+			  }
+			  
+			|	// Non generic
+				{
+					$value = $qualname.value;
+				}
 		)
 	;
 	
-genericArgument 
-	: typeName
+genericArgument
+
+	returns [JFXExpression value]
+
+@init 
+{
+	BoundKind 		bk 		= BoundKind.UNBOUND;
+	JFXExpression 	texpr 	= null; 
+}
+
+	: typeName	{ $value = $typeName.value; }
+	
 	| QUES 
 		(  
 			( 
-				  EXTENDS 		
-		  		| SUPER		
+				  EXTENDS 		{ bk = BoundKind.EXTENDS; 	}
+		  		| SUPER			{ bk = BoundKind.SUPER; 	}
 		  	) 
-		 	typeName		
+		 	typeName			{ texpr = $typeName.value; }
 		)?
+		
+		{
+			// TODO: NYI - Remove or implement?
+		}
 	;
+
+// --------
+// Literals.
+// Incorporates all literals except STRING_LITERAL which is dealt with
+// in the stringExpression rule
+//
+literal
+
+	returns [JFXExpression value]
 	
-literal  
-	: STRING_LITERAL	
-	| DECIMAL_LITERAL	
-	| OCTAL_LITERAL		
-	| HEX_LITERAL
-    | TIME_LITERAL			
-	| FLOATING_POINT_LITERAL 
-	| TRUE   		
-	| FALSE   		
-	| NULL 		
+@init
+{
+    // Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+	: 
+		(
+			 DECIMAL_LITERAL
+			
+				{
+					$value = F.at(rPos).Literal(TypeTags.INT, (int)Convert.string2long($DECIMAL_LITERAL.text, 10));
+				}
+				
+			| OCTAL_LITERAL
+			
+				{
+					$value = F.at(rPos).Literal(TypeTags.INT, (int)Convert.string2long($OCTAL_LITERAL.text, 8));
+				}
+			
+			| HEX_LITERAL
+			
+				{
+					$value = F.at(rPos).Literal(TypeTags.INT, (int)Convert.string2long($HEX_LITERAL.text, 16));
+				}
+				
+		    | TIME_LITERAL
+		    
+		    	{
+		    		$value = F.at(rPos).TimeLiteral($TIME_LITERAL.text);
+		    	}
+		    	
+			| FLOATING_POINT_LITERAL
+			
+				{
+					$value = F.at(rPos).Literal(TypeTags.DOUBLE, Double.valueOf($FLOATING_POINT_LITERAL.text));
+				}
+				
+			| TRUE
+			
+				{
+					$value = F.at(rPos).Literal(TypeTags.BOOLEAN, 1);
+				}
+				
+			| FALSE
+			
+				{
+					$value = F.at(rPos).Literal(TypeTags.BOOLEAN, 0);
+				}
+				
+			| NULL
+			
+				{
+					$value = F.at(rPos).Literal(TypeTags.BOT, null);
+				}
+		)
+		
+		{
+			// Tree span
+			//
+			endPos($value);
+		}
 	;
-	
-qualname 
+
+// -------------------------	
+// Qualified (possibly) name
+//
+qualname
 
 	returns [JFXExpression value]
 	
@@ -2358,6 +3558,10 @@ qualname
 		)*  
 	;
 
+// -----------------------
+// ID
+// Basic identifier parse
+//
 identifier
 
 	returns [JFXExpression value]
@@ -2368,7 +3572,12 @@ identifier
 			endPos($value, $n1.pos + $n1.value.length());
 		}
 	;
-	
+
+// ------------------------
+// ID
+// Parse and identifier token that isn't necessarilly an Identifier,
+// it coudl just be a tag or function name etc.
+//
 name 
 
 	returns [Name value, int pos]
