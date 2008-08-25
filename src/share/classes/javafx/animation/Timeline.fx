@@ -167,7 +167,7 @@ public class Timeline {
     // if false, indicates that the internal (optimized) data structure
     // needs to be rebuilt
     var valid = false;
-    function invalidate() {
+    package function invalidate() {
         valid = false;
     }
 
