@@ -1802,17 +1802,13 @@ tryStatement
 	
 @init
 {
-	// AST for any finally clause
-	//
-	JFXExpression finallyVal = null;
-	
 	// AST for any catch clauses
 	//
-	ListBuffer<JFXCatch> caught = ListBuffer<JFXCatch> caught = ListBuffer.lb();
+	ListBuffer<JFXCatch> caught = ListBuffer.lb();
 }
 	: TRY block 			
 		(
-		 	  f1=finallyClause	{ finallyVal = $f1.value; }
+		 	  f1=finallyClause
 	   		| (
 	   				catchClause
 	   				
@@ -1824,14 +1820,14 @@ tryStatement
 	   		  )+ 
 	   			
 	   			( 
-	   				f2=finallyClause	{ finallyVal = $f2.value; }
+	   				f1=finallyClause
 	   			)?   
 	   	)
 	   	
 	   	{
 	   		// Build the AST
 	   		//
-	   		$value = F.at(pos($TRY)).Try($block.value, caught.toList(), finallyVal);
+	   		$value = F.at(pos($TRY)).Try($block.value, caught.toList(), $f1.value);
 	   		
 	   		// Tree span
 	   		//
