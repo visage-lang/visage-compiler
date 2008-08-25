@@ -80,9 +80,7 @@ function rerun1() {
 
 function rerun2() {
 	//System.out.println("count = {count}");
-	if(count != 2) {
-		throw new AssertionError("test failed");
-	}
+        end();
 	//System.out.println("\nInterpolator.EASEOUT:");
 	keyValue.interpolate = Interpolator.EASEOUT;
 	count = 0;
@@ -92,9 +90,7 @@ function rerun2() {
 
 function rerun3() {
 	//System.out.println("count = {count}");
-	if(count != 2) {
-		throw new AssertionError("test failed");
-	}
+        end();
 	//System.out.println("\nInterpolator.EASEBOTH:");
 	keyValue.interpolate = Interpolator.EASEBOTH;
 	count = 0;
@@ -104,9 +100,7 @@ function rerun3() {
 
 function rerun4() {
 	//System.out.println("count = {count}");
-	if(count != 2) {
-		throw new AssertionError("test failed");
-	}
+        end();
 	//System.out.println("\nInterpolator.DISCRETE:");
 	keyValue.interpolate = Interpolator.DISCRETE;
 	count = 0;
