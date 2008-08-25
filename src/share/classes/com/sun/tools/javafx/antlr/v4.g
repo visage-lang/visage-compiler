@@ -49,7 +49,7 @@ options {
 	// to implement the parser. Hence for instance this is where the 
 	// JavafxTreeMaker lives.
 	//
-	superClass 	= AbstractGeneratedParser; 
+	superClass 	= AbstractGeneratedParserV4; 
 }
 
 // -----------------------------------------------------------------
