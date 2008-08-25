@@ -24,6 +24,7 @@
 package com.sun.tools.javafx.script;
 
 import com.sun.tools.javafx.api.JavafxcTool;
+import com.sun.tools.javafx.util.JavaVersionCheck;
 import com.sun.javafx.api.*;
 import java.io.FileReader;
 import java.io.IOException;
@@ -116,7 +117,7 @@ public class JavaFXScriptCompiler {
             options.add(classPath);
         }
         options.add("-target");
-        options.add(isJava6() ? "1.6" : "1.5");
+        options.add(JavaVersionCheck.isJava6() ? "1.6" : "1.5");
         
         options.add("-XDdumpfx=/tmp");
         
@@ -141,15 +142,6 @@ public class JavaFXScriptCompiler {
         return classBytes; 
     }
     
-    private static boolean isJava6() {
-        try {
-            Class.forName("java.util.ServiceLoader");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }
-
     static void printDiagnostics(DiagnosticCollector<JavaFileObject> diagnostics, Writer err) {
         // install customized diagnostic message formats, which don't print script name
         com.sun.tools.javac.util.Context context = new com.sun.tools.javac.util.Context();

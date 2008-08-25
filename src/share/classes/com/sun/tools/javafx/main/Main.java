@@ -23,7 +23,6 @@
 
 package com.sun.tools.javafx.main;
 
-import com.sun.tools.javac.util.Options;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.Reader;
@@ -44,6 +43,7 @@ import com.sun.tools.javafx.main.RecognizedOptions.OptionHelper;
 import com.sun.tools.javafx.util.JavafxFileManager;
 import com.sun.tools.javafx.util.PlatformPlugin;
 import com.sun.tools.javafx.util.MsgSym;
+import com.sun.tools.javafx.util.JavaVersionCheck;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -322,6 +322,11 @@ public class Main {
         backEndContext.put(DiagnosticListener.class, new DiagnosticForwarder(context));
         // add -target flag to backEndContext, if specified
         options = Options.instance(backEndContext);
+        
+        // if running on Java 5 set target
+        if (!JavaVersionCheck.isJava6()) {
+            options.put("-target", Target.JDK1_5.name);
+        }
         try {
             String[] allArgs = CommandLine.parse(args);
             for (int i = 0; i < allArgs.length; i++) {
