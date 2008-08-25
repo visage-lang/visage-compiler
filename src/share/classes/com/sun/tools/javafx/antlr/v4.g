@@ -1636,7 +1636,7 @@ whileStatement
 	
 @init
 {
-	JFXExpression loopVal;
+	JFXExpression loopVal = null;
 }
 	: WHILE LPAREN expression RPAREN 
 	
@@ -1897,7 +1897,7 @@ boundExpression
 			{
 				// Set up the bound expression
 				//
-				$value	= e1.value;
+				$value	= $e1.value;
 				
 				// Update the status
 				//
@@ -1982,13 +1982,13 @@ forExpression
 			  (LBRACE)=>block
 			  
 			  	{
-			 		$value = F.at(pos($FOR)).ForExpression($inClauses.clauses.toList(), $block.value);
+			 		$value = F.at(pos($FOR)).ForExpression(clauses.toList(), $block.value);
 				}
 				
 			| statement
 				
 				{
-			 		$value = F.at(pos($FOR)).ForExpression($inClauses.clauses.toList(), $statement.value);
+			 		$value = F.at(pos($FOR)).ForExpression(clauses.toList(), $statement.value);
 				}
 		)
 		
@@ -2107,7 +2107,7 @@ assignmentExpression
 			  		
 			  		// Tree span
 			  		//
-			  		endpos($value);
+			  		endPos($value);
 			  	}
 			  	
 			|	// Just an expression without an assignment
@@ -2171,7 +2171,7 @@ assignOp
 	
 	: PLUSEQ		{ $op = JavafxTag.PLUS_ASG; 			}
 	| SUBEQ			{ $op = JavafxTag.MINUS_ASG;			}
-	| STAREQ		{ $op = JavafxTag.JavafxTag.MUL_ASG;	}
+	| STAREQ		{ $op = JavafxTag.MUL_ASG;              }
 	| SLASHEQ		{ $op = JavafxTag.DIV_ASG;				}
 	| PERCENTEQ
 		{ 
@@ -2344,7 +2344,7 @@ additiveExpression
 		      arithOps   m2=multiplicativeExpression
 
 				{
-					$value = F.at(rPos).Binary($arithOps.arithOp , $e1.value, $e2.value);
+					$value = F.at(rPos).Binary($arithOps.arithOp , $m1.value, $m2.value);
 					endPos($value);
 				}
 		)* 
@@ -2375,7 +2375,7 @@ multiplicativeExpression
 	//
 	int	rPos = pos();
 }
-	: u1=unaryExpression	{ $value = u1.value; }
+	: u1=unaryExpression	{ $value = $u1.value; }
 		(
 			multOps u2=unaryExpression
 				
@@ -2432,14 +2432,14 @@ unaryExpression
 	
 		{ 	
 			$value = F.at(rPos).Indexof($id.value);
-			endPOs($value);
+			endPos($value);
 		}
 		
 	| unaryOps     	e=unaryExpression
 
 		{
 			$value = F.at(rPos).Unary($unaryOps.unOp, $e.value);
-			endPOs($value);
+			endPos($value);
 		}
 	;
 	
@@ -2456,7 +2456,7 @@ unaryOps
 	| SIZEOF		{ $unOp = JavafxTag.SIZEOF; }
 	| PLUSPLUS		{ $unOp = JavafxTag.PREINC; }
 	| SUBSUB		{ $unOp = JavafxTag.PREDEC; }
-	| REVERSE		{ $unOp = JavafxTag.REVERS; }
+	| REVERSE		{ $unOp = JavafxTag.REVERSE; }
 	;
 
 // ------------------
@@ -2635,6 +2635,10 @@ primaryExpression
 	// Use to build a list of objectLiteral parts.
 	//
 	ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb();
+
+    // Used to construct time literal expression
+    //
+    JFXExpression sVal = null;
 	
 }
 	: qualname
@@ -2712,14 +2716,18 @@ primaryExpression
 		
 	| AT 
 		LPAREN 
-			tl=TIME_LITERAL 
+			TIME_LITERAL
+            {
+                sVal = F.at(pos($TIME_LITERAL)).Literal(TypeTags.CLASS, $TIME_LITERAL.text);
+                endPos(sVal);
+            }
 		RPAREN 
 		LBRACE 
 			k=keyFrameLiteralPart 
 		RBRACE
 		
 		{
-			$value = F.at(rPos).KeyFrameLiteral($tl.value, $k.exprs.toList(), null);
+			$value = F.at(rPos).KeyFrameLiteral(sVal, $k.exprs.toList(), null);
 			endPos($value);
 		}
 	;
@@ -2851,7 +2859,7 @@ objectLiteralInit
 		{
 			// AST
 			//
-			$value = F.at($n.pos).ObjectLiteralPart
+			$value = F.at($name.pos).ObjectLiteralPart
 									(
 										$name.value,
 								 		$boundExpression.value, 
@@ -2978,7 +2986,7 @@ stringExpression
 	  		{
 	  			// This is an individual string literal, and is already endPos'ed
 	  			//
-	  			$value  = strexp.toList(0);
+	  			$value  = strexp.toList().get(0);
 			}  			
 		}
 	;
@@ -3060,8 +3068,8 @@ stringLiteral [ ListBuffer<JFXExpression> strexp ]
 			{
 				// Already had the first literal, add a fake format and expression
 				//
-				strexp.append(F.at(rPos).Literal(TypeTags.CLASS, ""));
-				strexp.append(F.at(rPos).Literal(TypeTags.CLASS, ""));
+				strexp.append(F.at(pos()).Literal(TypeTags.CLASS, ""));
+				strexp.append(F.at(pos()).Literal(TypeTags.CLASS, ""));
 			}
 		}
 	;
@@ -3125,7 +3133,7 @@ stringExpressionInner [ ListBuffer<JFXExpression> strexp]
 		{
 			// Construct a new literal for the leading literal
 			//
-			JFXEpression rb = F.at(pos($rlsl)).Literal(TypeTags.CLASS, $rlsl.text);
+			JFXExpression rb = F.at(pos($rlsl)).Literal(TypeTags.CLASS, $rlsl.text);
 			
 			// Record the span
 			//
@@ -3166,7 +3174,7 @@ stringFormat [ ListBuffer<JFXExpression> strexp]
 	//
 	int	rPos = pos();
 }
-	: FORMAT_STRING_LITERAL
+	: fs=FORMAT_STRING_LITERAL
 	
 		{
 			value = F.at(rPos).Literal(TypeTags.CLASS, $fs.text);
@@ -3230,7 +3238,7 @@ bracketExpression
 	                    {
 	                    	// Explicit sequence detected
 	                    	//
-	                    	$value = F.at(rPos).ExplicitSequence(exps.toList());
+	                    	$value = F.at(rPos).ExplicitSequence(seqexp.toList());
 	                    	endPos($value);
 	                    }
 	                    
@@ -3433,14 +3441,14 @@ typeName
 
 	: qualname 		
 		(
-			  LT ga1=genericArgument 	{ exprbuff.append(ga1.value); }
+			  LT ga1=genericArgument 	{ exprbuff.append($ga1.value); }
 			  	
 			  		(
 			  			COMMA
 			  				(
 			  					ga2=genericArgument
 			  				
-			  							{ exprbuff.append(ga2.value); }
+			  							{ exprbuff.append($ga2.value); }
 			  				)?
 			  		)* 
 			  GT
