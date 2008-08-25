@@ -43,5 +43,5 @@ public class KeyValue {
     /**
      * @profile common
      */      
-    public var interpolate: Interpolator = Interpolator.DISCRETE;
+    public var interpolate: Interpolator = Interpolator.LINEAR;
 }

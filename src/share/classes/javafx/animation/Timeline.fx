@@ -32,7 +32,16 @@ import javafx.lang.Sequences;
 import java.lang.Object;
 import java.lang.System;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.lang.System;
+
+function makeDur(millis:Number):Duration {
+    return 1ms * millis;
+}
+
+class CurrentKeyValue extends KeyValue {
+}
 
 /**
  * Used to specify an animation that repeats indefinitely (until
@@ -47,7 +56,30 @@ public def INDEFINITE = -1;
  *
  * @profile common
  */
+
 public class Timeline {
+
+    /**
+     * Speed control
+     * 
+     * @profile common
+     */
+
+    public var speed: Number = 1.0 on replace old {
+        if (old != 0) {
+            lastElapsed /= old;
+        }
+        lastElapsed *= speed;
+    }
+
+    /**
+     * Enable/disable interpolation
+     *
+     * @profile common
+     */
+
+    public var interpolate: Boolean = true;
+        
 
     /**
      * Defines the number of cycles in this animation.
@@ -58,6 +90,7 @@ public class Timeline {
      * @profile common
      */
     public var repeatCount: Number = 1.0;
+
 
     /**
      * Defines whether this animation reverses direction on alternating
@@ -96,14 +129,11 @@ public class Timeline {
      * @profile common
      */
     public var keyFrames: KeyFrame[] on replace {
-	for(keyFrame: KeyFrame in keyFrames) {
-	    keyFrame.owner = this;
-	}
         invalidate();
     };
 
     /**
-     * Read-only variable that indicates whether the animation is
+     * Read-only var that indicates whether the animation is
      * currently running.
      * <p>
      * This value is initially {@code false}.
@@ -116,10 +146,10 @@ public class Timeline {
      *
      * @profile common
      */
-    public-read var running: Boolean = false;
+    public-readable var running: Boolean = false;
 
     /**
-     * Read-only variable that indicates whether the animation is
+     * Read-only var that indicates whether the animation is
      * currently paused.  
      * <p>
      * This value is initially {@code false}.
@@ -132,12 +162,12 @@ public class Timeline {
      *
      * @profile common
      */
-    public-read var paused: Boolean = false;
+    public-readable var paused: Boolean = false;
 
     // if false, indicates that the internal (optimized) data structure
     // needs to be rebuilt
     var valid = false;
-    package function invalidate() {
+    function invalidate() {
         valid = false;
     }
 
@@ -170,21 +200,40 @@ public class Timeline {
      * @profile common
      */
     public function start() {
+        reset();
         if (toggle) {
             // change direction in place
             if (clip == null) {
                 buildClip();
             }
-            isReverse = not isReverse;
-            offsetValid = false;
-            frameIndex = keyFrames.size() - frameIndex;
             if (not clip.isRunning()) {
-            clip.start();
+                clip.start();
             }
         } else {
             // stop current clip and restart from beginning
             buildClip();
             clip.start();
+        }
+    }
+
+    var initialKeyValues: KeyValue[];
+
+    function reset():Void {
+        for (kv in initialKeyValues) {
+            kv.value = kv.target.get();
+        }
+        if (toggle) {
+            // change direction in place
+            isReverse = not isReverse;
+            offsetValid = false;
+            frameIndex = keyFrames.size() - frameIndex;
+        } else {
+            // stop current clip and restart from beginning
+            frameIndex = 0;
+        }
+        for (i in [0..<subtimelines.size()]) {
+            var sub = subtimelines.get(i) as SubTimeline;
+            sub.timeline.reset();
         }
     }
 
@@ -214,7 +263,11 @@ public class Timeline {
      * @profile common
      */
     public function resume() {
-        clip.resume();
+        if (not running) {
+            start();
+        } else {
+            clip.resume();
+        }
     }
 
     function buildClip() {
@@ -227,12 +280,12 @@ public class Timeline {
 
     var clip: Clip;
     var sortedFrames: KeyFrame[];
-    var targets: ArrayList = new ArrayList();
+    var targets: Map = new HashMap();
     var subtimelines: ArrayList = new ArrayList();
     var adapter: TimingTarget = createAdapter();
 
     var cycleIndex: Integer = 0;
-    var frameIndex: Integer = 0;
+    var frameIndex: Integer = 0; 
 
     var isReverse: Boolean = true;
     var offsetT: Number = 0;
@@ -254,6 +307,7 @@ public class Timeline {
     //   - KeyValue.interpolate
     //
     function rebuildTargets():Void {
+        initialKeyValues = [];
         targets.clear();
         subtimelines.clear();
         duration = 0;
@@ -293,15 +347,7 @@ public class Timeline {
 
             for (keyValue in keyFrame.values) {
                 // TODO: targets should really be Map<KeyValueTarget,List<KFPair>>
-                var pairlist: KFPairList;
-                for (i in [0..<targets.size()]) {
-                    var pl = targets.get(i) as KFPairList;
-                    if (pl.target == keyValue.target) {
-                        // already have a KFPairList for this target
-                        pairlist = pl;
-                        break;
-                    }
-                }
+                var pairlist: KFPairList = targets.get(keyValue.target) as KFPairList;
                 if (pairlist == null) {
                     pairlist = KFPairList { 
                         target: keyValue.target 
@@ -312,13 +358,14 @@ public class Timeline {
                             target: keyValue.target;
                             value: keyValue.target.get();
                         }
+                        insert kv into initialKeyValues;
                         var kfp = KFPair {
                             value: kv
                             frame: zeroFrame
                         }
                         pairlist.add(kfp);
                     }
-                    targets.add(pairlist);
+                    targets.put(keyValue.target, pairlist);
                 }
                 var kfpair = KFPair {
                     frame: keyFrame
@@ -331,7 +378,31 @@ public class Timeline {
         valid = true;
     }
 
-    function process(totalElapsed:Number):Void {
+    /**
+     * Sets the Timeline's play head to {@code position}
+     */
+
+    public function setPosition(position:Duration):Void {
+        if (running) {
+           timeOffset += position.toMillis();                      
+        } else {
+           timeOffset = position.toMillis();                      
+        }
+    }
+
+    /**
+     * Returns the current position of the Timeline's play head
+     */
+
+    public bound function getPosition():Duration {
+        var pos = if (duration == 0) 0 else lastElapsed mod duration;
+        return makeDur(pos);
+    }
+
+
+    var timeOffset: Number;
+
+    function process(totalElapsedArg:Number):Void {
         // 1. calculate totalDur
         // 2. modify totalElapsed depending on direction
         // 3. clamp totalElapsed and set needsStop if necessary
@@ -341,18 +412,19 @@ public class Timeline {
         // 7. do interpolation between active key frames
         // 8. visit subtimelines
         // 9. stop clip if needsStop
+        var totalElapsed = totalElapsedArg * speed;
+        totalElapsed += timeOffset;
 
         var needsStop = false;
         var totalDur = getTotalDur();
-        var adjustedTotalElapsed = totalElapsed;
 
         if (totalDur >= 0) {
             if (toggle) {
                 if (not offsetValid) {
                     if (isReverse) {
-                        offsetT = adjustedTotalElapsed + lastElapsed;
+                        offsetT = totalElapsed + lastElapsed;
                     } else {
-                        offsetT = adjustedTotalElapsed - lastElapsed;
+                        offsetT = totalElapsed - lastElapsed;
                     }
                     offsetValid = true;
                 }
@@ -364,28 +436,27 @@ public class Timeline {
                 // the range [0,totalDur] so that other calculations below
                 // will work as usual)
                 if (isReverse) {
-                    adjustedTotalElapsed = offsetT - adjustedTotalElapsed;
+                    totalElapsed = offsetT - totalElapsed;
                 } else {
-                    adjustedTotalElapsed = adjustedTotalElapsed - offsetT;
+                    totalElapsed = totalElapsed - offsetT;
                 }
             }
 
             // process one last pulse to ensure targets reach their end values
             if (toggle and isReverse) {
-                if (adjustedTotalElapsed <= 0) {
-                    adjustedTotalElapsed = 0;
+                if (totalElapsed <= 0) {
+                    totalElapsed = 0;
                     needsStop = true;
                 }
             } else {
-                if (adjustedTotalElapsed >= totalDur) {
-                    adjustedTotalElapsed = totalDur;
+                if (totalElapsed >= totalDur) {
+                    totalElapsed = totalDur;
                     needsStop = true;
                 }
             }
-
-            // capture last adjusted totalElapsed value (used in toggle case)
-            lastElapsed = adjustedTotalElapsed;
         }
+
+        lastElapsed = totalElapsed;
 
         var curT:Number;
         var cycle:Integer;
@@ -393,18 +464,12 @@ public class Timeline {
         if (duration < 0) {
             // indefinite duration (e.g. will occur when a sub-timeline
             // has indefinite repeatCount); always stay on zero cycle
-            curT = adjustedTotalElapsed;
+            curT = totalElapsed;
             cycle = 0;
         } else {
-	    if(duration != 0) {
-		    curT = adjustedTotalElapsed mod duration;
-		    cycle = adjustedTotalElapsed / duration as Integer;
-	    } else {
-		    curT = 0;
-		    cycle = (repeatCount as Integer) - 1;
-		    needsStop = true;
-	    }
-            if (curT == 0 and adjustedTotalElapsed != 0) {
+            curT = totalElapsed mod duration;
+            cycle = totalElapsed / duration as Integer;
+            if (curT == 0 and totalElapsed != 0) {
                 // we're at the end, or exactly on a cycle boundary;
                 // treat this as the "1.0" case of the previous cycle
                 // instead of the "0.0" case of the current cycle
@@ -439,43 +504,51 @@ public class Timeline {
             }
         }
         visitFrames(curT, backward, false);
-
-        // now handle the active interval for each target
-        for (i in [0..<targets.size()]) {
-            var pairlist = targets.get(i) as KFPairList;
-            var kfpair1 = pairlist.get(0);
-            var leftT = kfpair1.frame.time.toMillis();
-
-            if (curT < leftT) {
-                // haven't yet reached the first key frame
-                // for this target
-                continue;
-            }
-
-            var v1:KeyValue;
-            var v2:KeyValue;
-            var segT = 0.0;
-
-            for (j in [1..<pairlist.size()]) {
-                // find keyframes on either side of the curT value
-                var kfpair2 = pairlist.get(j);
-                var rightT = kfpair2.frame.time.toMillis();
-                if (curT <= rightT) {
-                    v1 = kfpair1.value;
-                    v2 = kfpair2.value;
-                    segT = (curT - leftT) / (rightT - leftT);
-                    break;
+        if (interpolate) {
+            // now handle the active interval for each target
+            var iter = targets.values().iterator();
+            while (iter.hasNext()) {
+                var pairlist = iter.next() as KFPairList;
+                var kfpair1 = pairlist.get(0);
+                var leftT = kfpair1.frame.time.toMillis();
+                
+                if (curT < leftT) {
+                    // haven't yet reached the first key frame
+                    // for this target
+                    continue;
                 }
-
-                kfpair1 = kfpair2;
-                leftT = kfpair1.frame.time.toMillis();
+                
+                var v1:KeyValue;
+                var v2:KeyValue;
+                var segT = 0.0;
+                
+                for (j in [1..<pairlist.size()]) {
+                    // find keyframes on either side of the curT value
+                    var kfpair2 = pairlist.get(j);
+                    var rightT = kfpair2.frame.time.toMillis();
+                    if (curT < rightT) {
+                        v1 = kfpair1.value;
+                        v2 = kfpair2.value;
+                        segT = (curT - leftT) / (rightT - leftT);
+                        break;
+                    } 
+                    kfpair1 = kfpair2;
+                    leftT = kfpair1.frame.time.toMillis();
+                }
+                if (segT == 0.0 or segT == 1.0) {
+                    continue;
+                }
+                if (v1 != null and v2 != null) {
+                    if (v2.interpolate == null) {
+                        var v = Interpolator.LINEAR.interpolate(v1.value, 
+                                                                v2.value, segT);
+                        pairlist.target.set(v);
+                    } else {
+                        pairlist.target.set(v2.interpolate.interpolate(v1.value, v2.value, segT));
+                    }
+                } 
             }
-
-            if (v1 != null and v2 != null) {
-                pairlist.target.set(v2.interpolate.interpolate(v1.value, v2.value, segT));
-            } 
         }
-
         // look through all sub-timelines and recursively call process()
         // on any active SubTimeline objects
         for (i in [0..<subtimelines.size()]) {
@@ -490,6 +563,7 @@ public class Timeline {
 
         if (needsStop and clip != null) {
             clip.stop();
+            timeOffset = 0.0;
         }
     }
 
