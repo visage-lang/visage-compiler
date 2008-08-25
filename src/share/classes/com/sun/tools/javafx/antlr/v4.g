@@ -49,7 +49,7 @@ options {
 	// to implement the parser. Hence for instance this is where the 
 	// JavafxTreeMaker lives.
 	//
-	superClass 	= AbstractGeneratedParserV4; 
+	superClass 	= AbstractGeneratedParser; 
 }
 
 // -----------------------------------------------------------------
@@ -91,8 +91,6 @@ tokens {
    	PRIVATE			= 'private';
    	PROTECTED		= 'protected';
    	PUBLIC			= 'public';
-    PUBLIC_INIT     = 'public-init';
-    PUBLIC_READ     = 'public-read';
    	PUBLIC_READABLE	= 'public-readable';
    	READABLE		= 'readable';
    	RETURN			= 'return';
@@ -245,12 +243,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.io.OutputStreamWriter;
 
+import com.sun.tools.javac.util.*;
+import com.sun.tools.javafx.util.MsgSym;
+
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.javafx.api.tree.*;
-
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javafx.util.MsgSym;
 
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javafx.code.JavafxFlags;
@@ -258,6 +256,9 @@ import static com.sun.tools.javac.util.ListBuffer.lb;
 import com.sun.javafx.api.JavafxBindStatus;
 
 import static com.sun.javafx.api.JavafxBindStatus.*;
+
+import org.antlr.runtime.*;
+import org.antlr.runtime.tree.*;
 
 }
 
@@ -1008,17 +1009,14 @@ modifierFlag
 	| PACKAGE			{ $flag = Flags.PUBLIC /*TODO:JavafxFlags.PACKAGE */;	}
 	| PROTECTED			{ $flag = Flags.PROTECTED;				}
 	| PUBLIC			{ $flag = Flags.PUBLIC;					}
-	| PUBLIC_READ   	{ $flag = JavafxFlags.PUBLIC_READ;	}
-	| PUBLIC_INIT		{ $flag = JavafxFlags.PUBLIC_INIT;		}
-        
+	| PUBLIC_READABLE	{ $flag = JavafxFlags.PUBLIC_READABLE;	}
+	| NON_WRITABLE		{ $flag = JavafxFlags.NON_WRITABLE;		}
 	
 	//TODO: deprecated -- remove these at some point
 	//                    For now, warn about their deprecation
 	//
-	| PUBLIC_READABLE	{ $flag = JavafxFlags.PUBLIC_READ;      }
-	| NON_WRITABLE		{ $flag = JavafxFlags.PUBLIC_INIT;		}
 	| PRIVATE			{ $flag = Flags.PRIVATE;    			log.warning(pos($PRIVATE), "javafx.not.supported.private"); }
-	| READABLE			{ $flag = JavafxFlags.PUBLIC_READ;      log.error(pos($READABLE), "javafx.not.supported.readable"); }
+	| READABLE			{ $flag = JavafxFlags.PUBLIC_READABLE;	log.error(pos($READABLE), "javafx.not.supported.readable"); }
 	| STATIC			{ $flag = Flags.STATIC;      			}
 	;
 
@@ -1167,15 +1165,16 @@ classMember
 									// we return from this rule.
 
  
-	: initDefinition				{ $member = $initDefinition.value; }
-	| postInitDefinition			{ $member = $postInitDefinition.value; }
-	
-	| (modifiers)=>m=modifiers
+	: initDefinition					{ $member = $initDefinition.value; 		}
+	| postInitDefinition				{ $member = $postInitDefinition.value; 	}
+	| (OVERRIDE variableLabel)=>
+			overrideDeclaration 		{ $member = $overrideDeclaration.value;	}
+	| modifiers
 		(
-			  variableDeclaration		[$m.mods] 		{ $member = $variableDeclaration.value; }
-			| functionDefinition		[$m.mods]		{ $member = $functionDefinition.value; }
+			  variableDeclaration		[$modifers.mods] 		{ $member = $variableDeclaration.value; }
+			| functionDefinition		[$modifers.mods]		{ $member = $functionDefinition.value; }
 		)
-	| overrideDeclaration 
+
 	;
 
 // ----------
@@ -1224,20 +1223,20 @@ functionDefinition [ JFXModifiers mods ]
 // ---------
 // Override.
 // Specifes that the local class overrides something that it has
-// inherited - parse this and produce the JavaFX tree that reflects it.
+// inherited - parser this and produce the JavaFX tree that reflects it.
 //
 overrideDeclaration
 
 	returns [JFXOverrideClassVar value]
 
-	: OVERRIDE variableLabel  i=identifier (EQ boundExpression)? onReplaceClause?
+	: OVERRIDE variableLabel  identifier (EQ boundExpression)? onReplaceClause?
 	
 		{
 			// Build the AST
 			//
 			$value = F.at(pos($OVERRIDE)).OverrideClassVar
 						(
-							$i.value,
+							$identifier.value,
 							$boundExpression.value,
 							$boundExpression.status,
 							$onReplaceClause.value
@@ -1313,34 +1312,8 @@ variableDeclaration [ JFXModifiers mods ]
 	//
 	CommonToken  docComment = getDocComment(input.LT(1));
 
-    // Bind status if present
-    //
-    JavafxBindStatus bStatus = null;
-
-    // Bind value expression, if present
-    //
-    JFXExpression bValue = null;
-
-    // ONReplace clause if present
-    //
-    JFXOnReplace  oValue = null;
 }
-	: variableLabel  name  typeReference 
-
-        (
-            (EQ)=>EQ boundExpression
-                {
-                    bValue  = $boundExpression.value;
-                    bStatus = $boundExpression.status;
-                }
-        )? 
-        
-        (
-            (ON)=>onReplaceClause
-                {
-                    oValue = $onReplaceClause.value;
-                }
-        )?
+	: variableLabel  name  typeReference ((EQ)=>EQ boundExpression)? ((ON)=>onReplaceClause)?
 	
 		{
 			// Add in the modifier flags accumulated by the label type
@@ -1357,9 +1330,9 @@ variableDeclaration [ JFXModifiers mods ]
 	    					$typeReference.rtype,
 	    					$mods,
 	    					false,
-	    					bValue,
-	    					bStatus,
-	    					oValue
+	    					$boundExpressionOpt.value,
+	    					$boundExpressionOpt.status,
+	    					$onReplaceClause.value
 	    				);
 	    	
 	    	// Documentation comment (if any)
@@ -1511,8 +1484,8 @@ statement
 	: insertStatement		{ $value = $insertStatement.value; 								}
 	| deleteStatement		{ $value = $deleteStatement.value; 								}
  	| whileStatement		{ $value = $whileStatement.value; 								}
-	| BREAK    				{ $value = F.at(pos($BREAK)).Break(null); 		endPos($value); } SEMI
-	| CONTINUE  	 	 	{ $value = F.at(pos($CONTINUE)).Continue(null);	endPos($value); } SEMI
+	| BREAK    				{ $value = F.at(pos($BREAK)).Break(null); 		endpos($value); } SEMI
+	| CONTINUE  	 	 	{ $value = F.at(pos($CONTINUE)).Continue(null);	endpos($value); } SEMI
     | throwStatement	   	{ $value = $throwStatement.value; 								}
     | returnStatement 		{ $value = $returnStatement.value; 								}
     | tryStatement			{ $value = $tryStatement.value; 								}
@@ -1554,11 +1527,11 @@ onReplaceClause
 			//
 			if	(haveFirst) {
 			
-				$value = F.at(pos($ON)).OnReplace($oldv.var, $first.var, $last.var, $newElements.var, $block.value);
+				$value = F.at(pos($ON)).OnReplace($oldv.var, $first.var, $last.var, $newElements.var, $blockExpression.value);
 				
 			} else {
 			
-				$value = F.at(pos($ON)).OnReplace($oldv.var, null, null, $newElements.var, $block.value);
+				$value = F.at(pos($ON)).OnReplace($oldv.var, null, null, $newElements.var, $blockExpression.value);
 			}
 			endPos($value); 
 		}
@@ -1574,7 +1547,7 @@ paramNameOpt
 
     : paramName
     	{
-    		{ $var = $paramName.var; }
+    		{ $var = paramName.var; }
     	}
     	
     |	{ $var = null; }
@@ -1636,7 +1609,7 @@ whileStatement
 	
 @init
 {
-	JFXExpression loopVal = null;
+	JFXExpression loopVal;
 }
 	: WHILE LPAREN expression RPAREN 
 	
@@ -1686,7 +1659,7 @@ insertStatement
 				{
 					// Form 2, BEFORE
 					//
-					$value = F.at(pos($INSERT)).SequenceInsert($isfi.seq, $elem.value, $isfi.idx, false);
+					$value = F.at(pos($INSERT)).SequenceInsert($isif.seq, $elem.value, $isfi.idx, false);
 				}
 				
 			| AFTER isfi=indexedSequenceForInsert
@@ -1694,7 +1667,7 @@ insertStatement
 				{
 					// Form 3, AFTER
 					//
-					$value = F.at(pos($INSERT)).SequenceInsert($isfi.seq, $elem.value, $isfi.idx, true);
+					$value = F.at(pos($INSERT)).SequenceInsert($isif.seq, $elem.value, $isfi.idx, true);
 				}
 		)
 
@@ -1802,13 +1775,17 @@ tryStatement
 	
 @init
 {
+	// AST for any finally clause
+	//
+	JFXExpression finallyVal = null;
+	
 	// AST for any catch clauses
 	//
-	ListBuffer<JFXCatch> caught = ListBuffer.lb();
+	ListBuffer<JFXCatch> caught = ListBuffer<JFXCatch> caught = ListBuffer.lb();
 }
 	: TRY block 			
 		(
-		 	  f1=finallyClause
+		 	  f1=finallyClause	{ finallyVal = $f1.value; }
 	   		| (
 	   				catchClause
 	   				
@@ -1820,14 +1797,14 @@ tryStatement
 	   		  )+ 
 	   			
 	   			( 
-	   				f1=finallyClause
+	   				f2=finallyClause	{ finallyVal = $f2.value; }
 	   			)?   
 	   	)
 	   	
 	   	{
 	   		// Build the AST
 	   		//
-	   		$value = F.at(pos($TRY)).Try($block.value, caught.toList(), $f1.value);
+	   		$value = F.at(pos($TRY)).Try($block.value, caught.toList(), finallyVal);
 	   		
 	   		// Tree span
 	   		//
@@ -1897,7 +1874,7 @@ boundExpression
 			{
 				// Set up the bound expression
 				//
-				$value	= $e1.value;
+				$value	= e1.value;
 				
 				// Update the status
 				//
@@ -1982,13 +1959,13 @@ forExpression
 			  (LBRACE)=>block
 			  
 			  	{
-			 		$value = F.at(pos($FOR)).ForExpression(clauses.toList(), $block.value);
+			 		$value = F.at(pos($FOR)).ForExpression($inClauses.clauses.toList(), $block.value);
 				}
 				
 			| statement
 				
 				{
-			 		$value = F.at(pos($FOR)).ForExpression(clauses.toList(), $statement.value);
+			 		$value = F.at(pos($FOR)).ForExpression($inClauses.clauses.toList(), $statement.value);
 				}
 		)
 		
@@ -2107,7 +2084,7 @@ assignmentExpression
 			  		
 			  		// Tree span
 			  		//
-			  		endPos($value);
+			  		endpos($value);
 			  	}
 			  	
 			|	// Just an expression without an assignment
@@ -2167,11 +2144,11 @@ assignmentOpExpression
 //	
 assignOp
 
-	returns	[JavafxTag op]	// Returns the operation token that we find
+	returns	[int op]	// Returns the operation token that we find
 	
 	: PLUSEQ		{ $op = JavafxTag.PLUS_ASG; 			}
 	| SUBEQ			{ $op = JavafxTag.MINUS_ASG;			}
-	| STAREQ		{ $op = JavafxTag.MUL_ASG;              }
+	| STAREQ		{ $op = JavafxTag.JavafxTag.MUL_ASG;	}
 	| SLASHEQ		{ $op = JavafxTag.DIV_ASG;				}
 	| PERCENTEQ
 		{ 
@@ -2309,7 +2286,7 @@ relationalExpression
 //
 relOps
 
-	returns [JavafxTag relOp]	// Returns the JFX operator type
+	returns [int relOp]	// Returns the JFX operator type
 	
 	: LTGT
 		{ 
@@ -2344,7 +2321,7 @@ additiveExpression
 		      arithOps   m2=multiplicativeExpression
 
 				{
-					$value = F.at(rPos).Binary($arithOps.arithOp , $m1.value, $m2.value);
+					$value = F.at(rPos).Binary($arithOps.arithOp , $e1.value, $e2.value);
 					endPos($value);
 				}
 		)* 
@@ -2355,7 +2332,7 @@ additiveExpression
 //
 arithOps
 
-	returns [JavafxTag arithOp]	// Returns the JFX operator type
+	returns [int arithOp]	// Returns the JFX operator type
 	
 	: PLUS		{ $arithOp = JavafxTag.PLUS; 	}
 	| SUB		{ $arithOp = JavafxTag.MINUS;	}
@@ -2375,7 +2352,7 @@ multiplicativeExpression
 	//
 	int	rPos = pos();
 }
-	: u1=unaryExpression	{ $value = $u1.value; }
+	: u1=unaryExpression	{ $value = u1.value; }
 		(
 			multOps u2=unaryExpression
 				
@@ -2392,7 +2369,7 @@ multiplicativeExpression
 //
 multOps
 
-	returns [JavafxTag multOp]	// Returns the JFX operator type
+	returns [int multOp]	// Returns the JFX operator type
 	
 	: STAR    	{ $multOp = JavafxTag.MUL;	}
 	| SLASH   	{ $multOp = JavafxTag.DIV;	}
@@ -2432,14 +2409,14 @@ unaryExpression
 	
 		{ 	
 			$value = F.at(rPos).Indexof($id.value);
-			endPos($value);
+			endPOs($value);
 		}
 		
 	| unaryOps     	e=unaryExpression
 
 		{
 			$value = F.at(rPos).Unary($unaryOps.unOp, $e.value);
-			endPos($value);
+			endPOs($value);
 		}
 	;
 	
@@ -2449,14 +2426,14 @@ unaryExpression
 //
 unaryOps
 
-	returns [JavafxTag unOp]	// Returns the JFX operator type
+	returns [int unOp]	// Returns the JFX operator type
 	
 	: SUB			{ $unOp = JavafxTag.NEG; }
 	| NOT			{ $unOp = JavafxTag.NOT; }
 	| SIZEOF		{ $unOp = JavafxTag.SIZEOF; }
 	| PLUSPLUS		{ $unOp = JavafxTag.PREINC; }
 	| SUBSUB		{ $unOp = JavafxTag.PREDEC; }
-	| REVERSE		{ $unOp = JavafxTag.REVERSE; }
+	| REVERSE		{ $unOp = JavafxTag.REVERS; }
 	;
 
 // ------------------
@@ -2635,10 +2612,6 @@ primaryExpression
 	// Use to build a list of objectLiteral parts.
 	//
 	ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb();
-
-    // Used to construct time literal expression
-    //
-    JFXExpression sVal = null;
 	
 }
 	: qualname
@@ -2716,18 +2689,14 @@ primaryExpression
 		
 	| AT 
 		LPAREN 
-			TIME_LITERAL
-            {
-                sVal = F.at(pos($TIME_LITERAL)).Literal(TypeTags.CLASS, $TIME_LITERAL.text);
-                endPos(sVal);
-            }
+			tl=TIME_LITERAL 
 		RPAREN 
 		LBRACE 
 			k=keyFrameLiteralPart 
 		RBRACE
 		
 		{
-			$value = F.at(rPos).KeyFrameLiteral(sVal, $k.exprs.toList(), null);
+			$value = F.at(rPos).KeyFrameLiteral($tl.value, $k.exprs.toList(), null);
 			endPos($value);
 		}
 	;
@@ -2812,7 +2781,9 @@ objectLiteralPart
 
 	returns [JFXTree value] 	// Expression tree for object literal elements
 
-	: (OVERRIDE)=>overrideDeclaration
+	: (OVERRIDE variableLabel)=>
+	
+		overrideDeclaration
 	
 		{
 			$value = $overrideDeclaration.value;
@@ -2859,7 +2830,7 @@ objectLiteralInit
 		{
 			// AST
 			//
-			$value = F.at($name.pos).ObjectLiteralPart
+			$value = F.at($n.pos).ObjectLiteralPart
 									(
 										$name.value,
 								 		$boundExpression.value, 
@@ -2986,7 +2957,7 @@ stringExpression
 	  		{
 	  			// This is an individual string literal, and is already endPos'ed
 	  			//
-	  			$value  = strexp.toList().get(0);
+	  			$value  = strexp.toList(0);
 			}  			
 		}
 	;
@@ -3068,8 +3039,8 @@ stringLiteral [ ListBuffer<JFXExpression> strexp ]
 			{
 				// Already had the first literal, add a fake format and expression
 				//
-				strexp.append(F.at(pos()).Literal(TypeTags.CLASS, ""));
-				strexp.append(F.at(pos()).Literal(TypeTags.CLASS, ""));
+				strexp.append(F.at(rPos).Literal(TypeTags.CLASS, ""));
+				strexp.append(F.at(rPos).Literal(TypeTags.CLASS, ""));
 			}
 		}
 	;
@@ -3133,7 +3104,7 @@ stringExpressionInner [ ListBuffer<JFXExpression> strexp]
 		{
 			// Construct a new literal for the leading literal
 			//
-			JFXExpression rb = F.at(pos($rlsl)).Literal(TypeTags.CLASS, $rlsl.text);
+			JFXEpression rb = F.at(pos($rlsl)).Literal(TypeTags.CLASS, $rlsl.text);
 			
 			// Record the span
 			//
@@ -3174,7 +3145,7 @@ stringFormat [ ListBuffer<JFXExpression> strexp]
 	//
 	int	rPos = pos();
 }
-	: fs=FORMAT_STRING_LITERAL
+	: FORMAT_STRING_LITERAL
 	
 		{
 			value = F.at(rPos).Literal(TypeTags.CLASS, $fs.text);
@@ -3238,7 +3209,7 @@ bracketExpression
 	                    {
 	                    	// Explicit sequence detected
 	                    	//
-	                    	$value = F.at(rPos).ExplicitSequence(seqexp.toList());
+	                    	$value = F.at(rPos).ExplicitSequence(exps.toList());
 	                    	endPos($value);
 	                    }
 	                    
@@ -3441,14 +3412,14 @@ typeName
 
 	: qualname 		
 		(
-			  LT ga1=genericArgument 	{ exprbuff.append($ga1.value); }
+			  LT ga1=genericArgument 	{ exprbuff.append(ga1.value); }
 			  	
 			  		(
 			  			COMMA
 			  				(
 			  					ga2=genericArgument
 			  				
-			  							{ exprbuff.append($ga2.value); }
+			  							{ exprbuff.append(ga2.value); }
 			  				)?
 			  		)* 
 			  GT
@@ -3596,7 +3567,7 @@ qualname
 //
 identifier
 
-	returns [JFXIdent value]
+	returns [JFXExpression value]
 
 	: n1=name
 		{
