@@ -1171,7 +1171,7 @@ classMember
 	| postInitDefinition			{ $member = $postInitDefinition.value; 	}
 	| (OVERRIDE variableLabel)=>
 			overrideDeclaration		{ $member = $overrideDeclaration.value;	}
-	| (modifiers)=>m=modifiers
+	| m=modifiers
 		(
 			  variableDeclaration		[$m.mods] 		{ $member = $variableDeclaration.value; }
 			| functionDefinition		[$m.mods]		{ $member = $functionDefinition.value; }
