@@ -1967,13 +1967,13 @@ public class JavafxAttr implements JavafxVisitor {
     @Override
     public void visitBreak(JFXBreak tree) {
         tree.target = findJumpTarget(tree.pos(), tree.getFXTag(), tree.label, env);
-        result = syms.unreachableType;
+        result = tree.type = syms.unreachableType;
     }
 
     @Override
     public void visitContinue(JFXContinue tree) {
         tree.target = findJumpTarget(tree.pos(), tree.getFXTag(), tree.label, env);
-        result = syms.unreachableType;
+        result = tree.type = syms.unreachableType;
     }
     //where
         /** Return the target of a break or continue statement, if it exists,
