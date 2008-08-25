@@ -75,6 +75,7 @@ public class BlockExprGen extends Gen {
       }
   }
   
+    @Override
   public void visitReturn(JCReturn tree) {
       // get return-type of enclosing method
       Type localType = pt;
