@@ -3592,7 +3592,7 @@ qualname
 //
 identifier
 
-	returns [JFXExpression value]
+	returns [JFXIdent value]
 
 	: n1=name
 		{
