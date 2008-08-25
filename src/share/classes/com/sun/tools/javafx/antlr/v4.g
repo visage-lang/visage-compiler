@@ -934,12 +934,19 @@ scriptItems
 			  // valid modifier for the upcoming declaration. Whether it is
 			  // valid or not is a matter for semantic checks to decide.
 			  //
-			  (modifiers)=>modifiers
+			  // Script level variable declarations can conflict with
+			  // local variable declarations (which do not allow modifiers
+			  // and are encapsulated in the expression rule, which is called
+			  // by the statement rule. Hence we must special case it here
+			  // unless we want to pass around status to all our rules.
+			  // The predicate is a small one and passes or fails quickly.
+			  //
+			  (modifiers (VAR|DEF|ATTRIBUTE|CLASS|FUNCTION))=>
+			  	m1=modifiers
 				(
-					  classDefinition		[$modifiers.mods]
-					| functionDefinition    [$modifiers.mods]
-					| variableDeclaration 	[$modifiers.mods]
-						SEMI
+					  classDefinition		[$m1.mods]
+					| variableDeclaration 	[$m1.mods] SEMI
+					| functionDefinition    [$m1.mods]
 				)
 				
 			| importDecl SEMI
@@ -1198,7 +1205,12 @@ functionDefinition [ JFXModifiers mods ]
 	CommonToken  docComment = getDocComment(input.LT(1));
 
 }
-	: FUNCTION name formalParameters typeReference ((LBRACE)=>block)?
+	: FUNCTION name formalParameters typeReference 
+	
+		// The function block is optional as is the terminating semi colon
+		// if it is absent.
+		//
+		((LBRACE)=>block | (SEMI)=>SEMI)?
 	
 		{
 			// Create the function defintion AST
@@ -1927,6 +1939,12 @@ expression
 
 	returns [JFXExpression value]	// Expression has its own dedicated JFX tree node type
  
+ @init
+ {
+ 	// Used for error reporting
+ 	//
+ 	int ePos = 0;
+ }
 	: ifExpression
 
 		{
@@ -1951,7 +1969,29 @@ expression
 			$value = $assignmentExpression.value;
 		}
 		
-	| m=modifiers variableDeclaration [$m.mods]
+	| // Expressions can only declare local variables, hence we
+	  // we parse any we find, but throw them out as a semantic
+	  // error
+	  {
+	  	ePos = pos();
+	  }
+	  m=modifiers 
+	  
+	  	{
+	  		if	($m.mods.flags != 0)
+	  		{
+	  			// Ignore the modifiers
+	  			//
+	  			$m.mods.flags = 0;
+	  			
+	  			// Issue the error
+	  			//
+	  			log.error(ePos, "javafx.cannot.modify.localvar");
+	  			
+	  		}
+	  	}
+	  	
+	  	variableDeclaration [$m.mods]
 	
 		{
 			$value = $variableDeclaration.value;

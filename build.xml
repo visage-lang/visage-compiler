@@ -9,6 +9,7 @@
     <property environment="env" />
     <import file="tools-defs.xml"/>
     <property name="antlr.grammarv3" value="v3" />
+    <property name="antlr.grammarv4" value="v4" />
     <property name="antlr.grammarv3w" value="v3Walker" />
 
     <!-- @@@ TODO: Eliminate vestiges of runtime and demos -->
@@ -112,6 +113,7 @@
     </target>
 
     <target name="-post-init">
+        <property name="antlr.grammarv4.file" value="${antlr.src.dir}/${antlr.grammarv4}.g" />
         <property name="antlr.grammarv3.file" value="${antlr.src.dir}/${antlr.grammarv3}.g" />
         <property name="antlr.grammarv3w.file" value="${antlr.src.dir}/${antlr.grammarv3w}.g" />
     </target>
@@ -135,6 +137,14 @@
         </jar>
     </target>
 
+    <target depends="-pre-compile" name="generate-parserv4" unless="parserv4.uptodate" >
+        <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+            <arg value="-o" />
+            <arg value="${antlr.generated.dir}" />
+            <arg value="${antlr.grammarv4.file}" />
+            <jvmarg value="-Xmx256m"/>
+        </java>
+    </target>
     <target depends="-pre-compile" name="generate-parserv3" unless="parserv3.uptodate" >
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
             <arg value="-o" />
@@ -204,10 +214,11 @@
         </copy>
     </target>
 
-    <target name="generated-java" depends="generate-parserv3,generate-parserv3w" />
+    <target name="generated-java" depends="generate-parserv3,generate-parserv3w,generate-parserv4" />
     
     <target depends="init,-def-pcompile" name="-pre-compile">
         <mkdir dir="${build.classes.dir}"/>
+        <uptodate property="parserv4.uptodate" srcfile="${antlr.grammarv4.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv4}Parser.java" />
         <uptodate property="parserv3.uptodate" srcfile="${antlr.grammarv3.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv3}Parser.java" />
         <uptodate property="parserv3w.uptodate" srcfile="${antlr.grammarv3w.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv3w}.java" />
     </target>
@@ -375,6 +386,7 @@
     <target name="-post-clean" depends="runtime-clean,javafxdoc-clean,spec-clean,launcher-clean">
         <!-- Delete ANTLR-generated files -->
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v3*.*" excludes="**/v3.g **/v3Walker.g"/>
+        <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v4*.*" excludes="**/v4.g"/>
         <delete dir="${syntax.diagrams.dir}" />
         <delete dir="${build.instrumented.dir}"/>
         <delete file="cobertura.ser" />
