@@ -42,11 +42,6 @@ public class Bits {
         return (value & mask) != 0;
     }
 
-    public static int clear(int value, int mask) {
-        return value & ~mask;
-    }
-
-
 
     public static long shiftLeft(long value, int shift) {
         return value << shift;
@@ -84,7 +79,4 @@ public class Bits {
         return (value & mask) != 0;
     }
 
-    public static long clear(long value, long mask) {
-        return value & ~mask;
-    }
 }
