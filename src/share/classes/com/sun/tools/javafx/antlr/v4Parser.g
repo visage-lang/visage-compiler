@@ -269,14 +269,37 @@ scriptItems
 			  (modifiers (VAR|DEF|ATTRIBUTE|CLASS|FUNCTION))=>
 			  	m1=modifiers
 				(
-					  classDefinition		[$m1.mods]
-					| variableDeclaration 	[$m1.mods] SEMI
-					| functionDefinition    [$m1.mods]
+					  c=classDefinition			[$m1.mods]
+					  
+					 		{ 
+								$items.append($c.value); 
+							}
+							
+					| v=variableDeclaration 	[$m1.mods] SEMI
+					
+							{ 
+								$items.append($v.value); 
+							}
+							
+					| f=functionDefinition    	[$m1.mods]
+					
+
+					 		{ 
+								$items.append($f.value); 
+							}
 				)
 				
-			| importDecl SEMI
+			| i=importDecl SEMI
 			
-			| statement
+				{ 
+					$items.append($i.value); 
+				}
+			
+			| s=statement
+			
+				{ 
+					$items.append($s.value); 
+				}
 			
 			| SEMI
 		)*
@@ -2568,12 +2591,11 @@ bracketExpression
 
 	: LBRACKET   
 	
-		( 	: COMMA* e1=expression
+		( 	e1=expression
 				{
 					seqexp.append($e1.value);
 				}
-		     	(   
-		     		  
+		     	(
 		     		  (
 		     			COMMA 
 		     				(
@@ -2581,7 +2603,7 @@ bracketExpression
 		     						{
 		     							seqexp.append($e2.value);
 		     						}
-		     				)?
+		     				)
 		     		  )*
 	                    
 	                    {
@@ -2591,7 +2613,7 @@ bracketExpression
 	                    	endPos($value);
 	                    }
 	                    
-		     		| DOTDOT 
+		     		| DOTDOT
 		     			(LT { haveLT = true; })? 
 		     			dd=expression
 		     	    	( STEP st=expression { stepEx = $st.value; } )?

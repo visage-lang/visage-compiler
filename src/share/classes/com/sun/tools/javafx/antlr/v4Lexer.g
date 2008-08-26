@@ -436,14 +436,22 @@ TranslationKeyBody
 	: (~('[' | ']' | '\\')|'\\' .)+
     ;
  
+//------------------------------------------------------------
+// Numeric literals.
+// These are handled specailly to reduce lexer complexity and
+// negate the need to override standard ANTLR lexing methods.
+// This improves performance and enhance readibility.
+// The following fragmetn rules are to documetn the types and
+// to provide a lexer symbol for the token type. The actual
+// parsing is carried out in the FLOATING_POINT_LITERAL rule.
+//
+
 // Time literals are self evident in meaning and are currently
 // recognized by the lexer. This may change as in some cases 
 // trying to do too much in the lexer results in lexing errors
 // that are difficult to recover from.
 //
-TIME_LITERAL 
-	: (DECIMAL_LITERAL | Digits '.' (Digits)? (Exponent)? | '.' Digits (Exponent)?) ( 'ms' | 'm' | 's' | 'h' ) 
-	;
+fragment	TIME_LITERAL 		: 	;
 
 // Decimal literals may not have leading zeros unless
 // they are just the constant 0. They are integer only.
@@ -451,24 +459,12 @@ TIME_LITERAL
 // numeric literlas may merge into one rule that overrides
 // the type.
 //
-DECIMAL_LITERAL 
-	: ('0' | '1'..'9' '0'..'9'*)  
-	
-		{ 
-			checkIntLiteralRange(getText(), getCharIndex(), 10); 
-		}
-	;
+fragment	DECIMAL_LITERAL 	:	;
 
 // Octal literals are preceeded by a leading zero and must be followed
 // by one or more valid octal digits. 
 //
-OCTAL_LITERAL 
-	: '0' ('0'..'7')+  
-		
-		{ 
-			checkIntLiteralRange(getText(), getCharIndex(), 8); 
-		}
-	;
+fragment	OCTAL_LITERAL 		: 	;
 
 // Hex literals are preceded by 0X or 0x and must have one or
 // more valid hex digits following them. The problem with specifying
@@ -476,49 +472,239 @@ OCTAL_LITERAL
 // rather than a parse or semantic error, which is probably better
 // and so this may change (see comments assocaited with DECIMAL_LITERAL)
 //
-HEX_LITERAL 
-	: '0' ('x'|'X') HexDigit+    			
-	
-		{ 
-			setText(getText().substring(2, getText().length()));
-			checkIntLiteralRange(getText(), getCharIndex(), 16); 
-		}
-	;
+fragment	HEX_LITERAL 		:	;
 
-// Validate hex digits
+// ------------------------------------------------------------
+// This rule is in fact the proxy rule for all types of numeric
+// literals. ANTLR lexers are LL recognizers rather than pattern
+// matchers such as flex. Hence we want to hand craft this rule
+// to guide it through all the possible combinatsion of digits and
+// dots in the most efficent way.
 //
-fragment
-HexDigit 
-	: ('0'..'9'|'a'..'f'|'A'..'F') 
-	;
-
-// Floating porint literals incorporate ranges as well as the
-// the standard floating point number representations.
+// This rule presents all the decision points in definite order,
+// giving the scanner little hard work to do to select the
+// correct token to match. The fragment rules above (TIME_LITERAL, DOTDOT
+// and so on), are essentially just there to create the token
+// types.
 //
 FLOATING_POINT_LITERAL
-    : d=DECIMAL_LITERAL RangeDots
-    	  	{
-    	  		$d.setType(DECIMAL_LITERAL);
-    	  		emit($d);
-          		$RangeDots.setType(DOTDOT);
-    	  		emit($RangeDots);
-    	  	}
-    | d=OCTAL_LITERAL RangeDots
-    	  	{
-    	  		$d.setType(OCTAL_LITERAL);
-    	  		emit($d);
-          		$RangeDots.setType(DOTDOT);
-    	  		emit($RangeDots);
-    	  	}
-    |	  Digits '.' (Digits)? (Exponent)? 
-    | '.' Digits (Exponent)? 
-    |     Digits Exponent
+
+@init
+{
+	// Indicates out of range digit
+	//
+	boolean rangeError = false;
+	
+}
+    :	
+    	// A leading zero can either be a decimal literal
+    	// (if it is the sole component) or introduces
+    	// an octal or hexadecimal number. Time sequences
+    	// are also possible for the single '0' digit.
+    	//
+    	'0'
+    		(
+    			  ('x'|'X')		// Hex literal indicated
+    			  
+    			  {
+    			  	// Always set the type, so the parser is not confused
+    			  	//
+    			  	$type = HEX_LITERAL;
+    			  }
+    			  (
+    			  		// We consume any letters and digits that follow 0x
+    			  		// and control the error that we issue.  
+    			  	  (
+    			  	  	  ('0'..'9'|'a'..'f'|'A'..'F')		// Valid Hex
+    			  	  	| ('g'..'z' |'G'..'Z')				// Invalid hex
+    			  	  		
+    			  	  		{
+    			  	  			rangeError = true;	// Signal at least one bad digit
+    			  	  		}
+    			  	  )+
+    			  	  
+    			  	  {
+    			  	  		setText(getText().substring(2, getText().length()));
+    			  	  		if	(rangeError)
+    			  	  		{
+    			  	  			System.out.println("Hex digits are only 0..9 and a..f fool!");
+    			  	  		}
+    			  	  		else
+    			  	  		{
+								//checkIntLiteralRange(getText(), getCharIndex(), 16); 
+							}
+    			  	  }
+    			  	  
+    			  	  (
+    			  	  		
+    			  	  		
+    			  	  		// Hex numbers cannot be flaoting point, but catch this here
+    			  	  		// rather than mismatch it.
+    			  	  		//
+    			  	  			{ input.LA(2) != '.'}?=> '.' Digits?	{ System.out.println("Hex constants cannot be floating point"); }
+    			  	  		|
+    			  	  	
+    			  	  )
+    			  	  
+    			  	|	// If no digits follow 0x then it is an error
+    			  		//
+    			  		{
+    			  			System.out.println("Hex must have at least one digit fool!");
+    			  		}
+    			  		
+    			  )
+    			  
+    			| 	// Digits indicate an octal sequence
+    				// but we allow a match for any standard ASCII digit
+    				// and issue a controlled error, rather than allow
+    				// the lexer to throw mismatch errors. This is much nicer
+    				// for users.
+    				//
+    				(
+    					  '0'..'7'	// Valid octal digit
+    					
+    					| '8'..'9'	// Invalid octal digit
+    					
+    						{ 
+    							rangeError = true; // Signal that at least one digit was wrong
+    						}
+    				)+
+    				
+    				{
+    					// Always set the type to octal, so the parser does not see
+    					// a lexing error, even though the compiler knows there is an
+    					// error.
+    					//
+    					$type = OCTAL_LITERAL;
+    					
+    					if	(rangeError)
+    					{
+    						System.out.println("Octals are only 0..7 fool!");
+    					}
+    					else
+    					{
+    						// checkIntLiteralRange(getText(), getCharIndex(), 8); 
+    					}
+    				}
+    				 (
+    				 		// Octal numbers cannot be floating point, but catch this here
+    			  	  		// rather than mismatch it.
+    			  	  		//
+    			  	  		{ input.LA(2) != '.'}?=> '.' Digits?	{ System.out.println("Octal constants cannot be floating point"); }
+    			  	  	|
+    			  	  )
+    			  	  
+    			|	// Time sequence specifier means this was 0 length time
+    				// in whatever units.
+    				//
+    				('m' 's'? | 's' | 'h')
+    				
+    				{ $type = TIME_LITERAL; }
+    				
+  				
+    			|	// We can of course have 0.nnnnn
+    				//
+    				{ input.LA(2) != '.'}?=> '.' 
+    					(
+    						  // Decimal, but possibly time
+    						  //
+    						  Digits Exponent?
+    						  
+    						  	(
+    						  		  	('m' 's'? | 's' | 'h')
+    				
+				    					{ $type = TIME_LITERAL; }
+				    				
+				    				| 	// Just 0.nnn
+				    					//
+				    					{ $type = FLOATING_POINT_LITERAL; }
+    						  	)
+    						  	
+    						|	// Just 0.
+    							//
+    							{ $type = FLOATING_POINT_LITERAL; }
+    					)
+    				
+    			|	// If there were no following digits or adornments or range follows
+    				// then this was just Zero
+    				//
+    				{ 
+    					$type = DECIMAL_LITERAL;
+    					//checkIntLiteralRange(getText(), getCharIndex(), 10);
+    				}  			
+    		)
+    
+    |	// Leading non zero digits can only be base 10, but might
+    	// be a floating point or a time, 
+    	//
+    	('1'..'9') Digits?
+    	
+    		// Numeric so far, resolve float and times
+    		//
+    		(
+    				
+    			{ input.LA(2) != '.'}?=>
+    			
+    				  '.' Digits? Exponent?
+    			
+    				(
+    					  ('m' 's'? | 's' | 'h')
+    				
+				    		{ $type = TIME_LITERAL; }
+				    				
+				    	| 	// Just n.nnn
+				    					//
+				    		{ $type = FLOATING_POINT_LITERAL; }
+    				)
+    				
+    			|	// Just a decimal literal
+    				//
+    				(
+    					  ('m' 's'? | 's' | 'h')
+    				
+				    		{ $type = TIME_LITERAL; }
+				    				
+				    	| 	// Just n.nnn
+				    		//
+				    		{ 
+				    			$type = DECIMAL_LITERAL; 
+				    			//checkIntLiteralRange(getText(), getCharIndex(), 10); 
+				    		}
+    				)
+    		)
+
+    |
+    	'.'
+    	
+    		(	  // Float, but is it a time?
+    			  //
+    			  Digits Exponent?
+    			  
+    			  	(
+    			  		 ('m' 's'? | 's' | 'h')	
+    			 
+    			 			{ $type = TIME_LITERAL; }
+    			 			
+    			 		| 	// Just  floating point
+    			 			//
+    			 			{ $type = FLOATING_POINT_LITERAL; }
+    			 	
+    				)
+    				
+    			|	// Is it a range specifer?
+    				//
+    				'.'
+    				{
+    					$type = DOTDOT;	// Yes, it was ..
+    				}
+    				
+    			|	// It was just a single .
+    				//
+    				
+    				{ $type = DOT; }
+    		)
     ;
 
-fragment
-RangeDots 
-	:	DOTDOT
-	;
 	
 fragment
 Digits	
@@ -527,7 +713,12 @@ Digits
  	
 fragment
 Exponent 
-	: 	('e'|'E') ('+'|'-')? Digits
+	: 	('e'|'E') ('+'|'-')? 
+	
+			(
+				  Digits
+				| { System.out.println("Exponents must be specify a number for scale!"); }
+			)
  	;
 
 // Identifiers are any sequence of vharacters considered

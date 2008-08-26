@@ -156,6 +156,12 @@
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
+            <arg value="${antlr.grammarv4l.file}" />
+            <jvmarg value="-Xmx256m"/>
+        </java>
+        <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+            <arg value="-o" />
+            <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv4p.file}" />
             <jvmarg value="-Xmx256m"/>
         </java>
