@@ -415,6 +415,8 @@ public class JavafxTreeInfo {
         switch (node.getFXTag()) {
         case VAR_DEF:
             return ((JFXVar) node).sym;
+        case VAR_SCRIPT_INIT:
+            return ((JFXVarScriptInit) node).getSymbol();
         case CLASS_DEF:
             return ((JFXClassDeclaration) node).sym;
         case FUNCTION_DEF:

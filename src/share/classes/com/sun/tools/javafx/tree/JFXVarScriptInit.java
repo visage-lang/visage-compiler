@@ -101,7 +101,7 @@ public class JFXVarScriptInit extends JFXExpression implements VariableTree {
 
     @Override
     public JavafxTag getFXTag() {
-        return JavafxTag.VAR_DEF;
+        return JavafxTag.VAR_SCRIPT_INIT;
     }
     
     public JFXModifiers getModifiers() {

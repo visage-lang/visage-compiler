@@ -169,6 +169,10 @@ public enum JavafxTag {
      */
     VAR_DEF,
 
+    /** the run function initialization of a script-level var
+     */
+    VAR_SCRIPT_INIT,
+
     /** loose trigger wrapper
      */
     OVERRIDE_ATTRIBUTE_DEF,
