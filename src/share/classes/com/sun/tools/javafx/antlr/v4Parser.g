@@ -853,7 +853,8 @@ statement
     | throwStatement	   	{ $value = $throwStatement.value; 								}
     | returnStatement 		{ $value = $returnStatement.value; 								}
     | tryStatement			{ $value = $tryStatement.value; 								}
-    | expression SEMI		{ $value = $expression.value; 									}
+    | expression ((SEMI)=>SEMI)?		
+    						{ $value = $expression.value;									}
     ;
   
 // -----------  
@@ -1706,7 +1707,7 @@ additiveExpression
 }
 	: m1=multiplicativeExpression	{ $value = $m1.value; }
 		(
-		      arithOps   m2=multiplicativeExpression
+		      (arithOps)=>arithOps   m2=multiplicativeExpression
 
 				{
 					$value = F.at(rPos).Binary($arithOps.arithOp , $m1.value, $m2.value);
@@ -1841,14 +1842,14 @@ suffixedExpression
 
 	: pe=postfixExpression
 		( 
-			  PLUSPLUS
+			  (PLUSPLUS)=>PLUSPLUS
 			  
 			  	{
 			  		$value = F.at($pe.value.pos).Unary(JavafxTag.POSTINC, $pe.value);
 			  		endPos($value);
 			  	}
 			  	
-			| SUBSUB
+			| (SUBSUB)=>SUBSUB
 			
 				{
 					$value = F.at($pe.value.pos).Unary(JavafxTag.POSTDEC, $pe.value);
@@ -1900,14 +1901,14 @@ postfixExpression
 					//TODO:		 | CLASS 
 	         	)
 
-			| LPAREN expressionList RPAREN
+			| (LPAREN)=>LPAREN expressionList RPAREN
 			
 				{
 					$value = F.at(rPos).Apply(null, $value, $expressionList.args.toList());
 					endPos($value);
 				}
 				
-			| LBRACKET
+			| (LBRACKET)=>LBRACKET
 			
 				{
 					// INit our flags
@@ -2011,7 +2012,7 @@ primaryExpression
 			$value = $qualname.value;
 		}
 		(
-			LBRACE  
+			(LBRACE)=>LBRACE  
 			  	
 					o1=objectLiteral
 						
@@ -2661,7 +2662,7 @@ expressionListOpt
 	
 	returns [ListBuffer<JFXExpression> args = new ListBuffer<JFXExpression>()]	// List of expressions we pcik up
 
-	: LPAREN expressionList RPAREN
+	: (LPAREN)=>LPAREN expressionList RPAREN
 		{
 			$args = $expressionList.args;
 		}
