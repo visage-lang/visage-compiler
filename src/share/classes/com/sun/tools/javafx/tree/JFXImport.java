@@ -32,21 +32,15 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
  */
 public class JFXImport extends JFXTree implements ImportTree {
 
-    public boolean staticImport;
     public JFXExpression qualid;
 
-    protected JFXImport(JFXExpression qualid, boolean importStatic) {
+    protected JFXImport(JFXExpression qualid) {
         this.qualid = qualid;
-        this.staticImport = importStatic;
     }
 
     @Override
     public void accept(JavafxVisitor v) {
         v.visitImport(this);
-    }
-
-    public boolean isStatic() {
-        return staticImport;
     }
 
     public JFXExpression getQualifiedIdentifier() {

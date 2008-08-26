@@ -468,20 +468,15 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         JFXExpression imp = tree.qualid;
         Name name = JavafxTreeInfo.name(imp);
 
-        if (!tree.isStatic()) {
-            if (tree.qualid.getFXTag() == JavafxTag.SELECT) {
-                if (name == names.fromString("Integer")) { // TODO: use the constant in the new NameTable when available.
-                    log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_INTEGER_PRIMITIVE_TYPE);
-                }
-                else if (name == names.fromString("Number")) { // TODO: use the constant in the new NameTable when available.
-                    log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_NUMBER_PRIMITIVE_TYPE);
-                }
-                else if (name == names.fromString("Boolean")) { // TODO: use the constant in the new NameTable when available.
-                    log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_BOOLEAN_PRIMITIVE_TYPE);
-                }
-                else if (name == names.fromString("String")) { // TODO: use the constant in the new NameTable when available.
-                    log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_STRING_PRIMITIVE_TYPE);
-                }
+        if (tree.qualid.getFXTag() == JavafxTag.SELECT) {
+            if (name == names.fromString("Integer")) { // TODO: use the constant in the new NameTable when available.
+                log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_INTEGER_PRIMITIVE_TYPE);
+            } else if (name == names.fromString("Number")) { // TODO: use the constant in the new NameTable when available.
+                log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_NUMBER_PRIMITIVE_TYPE);
+            } else if (name == names.fromString("Boolean")) { // TODO: use the constant in the new NameTable when available.
+                log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_BOOLEAN_PRIMITIVE_TYPE);
+            } else if (name == names.fromString("String")) { // TODO: use the constant in the new NameTable when available.
+                log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_STRING_PRIMITIVE_TYPE);
             }
         }
         
@@ -503,7 +498,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             // Import on demand.
             chk.checkCanonical(imp);
             if (p instanceof ClassSymbol) {
-                tree.staticImport = true;
                 importStaticAll(tree.pos, p, env);
             } else {
                 importAll(tree.pos, p, env);
@@ -518,7 +512,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             // Named type import.
             if (p instanceof ClassSymbol) {
                 chk.checkCanonical(s.selected);
-                tree.staticImport = true;
                 importNamedStatic(tree.pos(), p, name, localEnv);
                 return;
             }

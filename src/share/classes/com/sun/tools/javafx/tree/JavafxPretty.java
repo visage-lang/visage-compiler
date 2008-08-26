@@ -344,7 +344,6 @@ public class JavafxPretty implements JavafxVisitor {
     public void visitImport(JFXImport tree) {
         try {
             print("import ");
-            if (tree.staticImport) print("static ");
             printExpr(tree.qualid);
             print(";");
             println();

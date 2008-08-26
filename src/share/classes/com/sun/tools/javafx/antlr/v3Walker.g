@@ -82,7 +82,7 @@ scriptItem  returns [JFXTree value]
 	| statement      				{ $value = $statement.value; }
 	;
 importDecl  returns [JFXTree value]
- 	: ^(IMPORT importId)				{ $value = F.at(pos($IMPORT)).Import($importId.pid, false);
+ 	: ^(IMPORT importId)				{ $value = F.at(pos($IMPORT)).Import($importId.pid);
                                                           endPos($value, $IMPORT); }
 	;
 importId  returns [JFXExpression pid]

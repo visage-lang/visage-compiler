@@ -49,7 +49,7 @@ public class JavafxTreeCopier implements JavafxVisitor {
 
     public void visitImport(JFXImport tree) {
         JFXExpression qualid = copy(tree.qualid);
-        result = maker.at(tree.pos).Import(qualid, tree.staticImport);
+        result = maker.at(tree.pos).Import(qualid);
     }
 
     public void visitSkip(JFXSkip tree) {

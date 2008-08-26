@@ -366,7 +366,7 @@ importDecl
  	
  		{
  			// AST construction
- 			$value = F.at(pos($IMPORT)).Import($importId.pid, false);
+ 			$value = F.at(pos($IMPORT)).Import($importId.pid);
  			
  			// AST span
  			//

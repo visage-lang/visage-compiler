@@ -112,8 +112,8 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return this;
     }
 
-    public JFXImport Import(JFXExpression qualid, boolean importStatic) {
-        JFXImport tree = new JFXImport(qualid, importStatic);
+    public JFXImport Import(JFXExpression qualid) {
+        JFXImport tree = new JFXImport(qualid);
         tree.pos = pos;
         return tree;
     }

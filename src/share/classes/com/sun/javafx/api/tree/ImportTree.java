@@ -29,8 +29,6 @@ package com.sun.javafx.api.tree;
  * For example:
  * <pre>
  *   import <em>qualifiedIdentifier</em> ;
- *
- *   static import <em>qualifiedIdentifier</em> ;
  * </pre>
  *
  * @see "The Java Language Specification, 3rd ed, section 7.5"
@@ -40,7 +38,6 @@ package com.sun.javafx.api.tree;
  * @since 1.6
  */
 public interface ImportTree extends Tree {
-    boolean isStatic();
     /**
      * @return a qualified identifier ending in "*" if and only if
      * this is an import-on-demand.
