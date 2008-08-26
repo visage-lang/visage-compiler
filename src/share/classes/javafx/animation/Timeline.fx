@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.lang.System;
+import java.lang.Math;
 
 function makeDur(millis:Number):Duration {
     return 1ms * millis;
@@ -128,7 +129,10 @@ public class Timeline {
      *
      * @profile common
      */
-    public var keyFrames: KeyFrame[] on replace {
+    public var keyFrames: KeyFrame[] on replace oldValues = newValues {
+	for(keyFrame: KeyFrame in newValues) {
+	    keyFrame.owner = this;
+	}
         invalidate();
     };
 
@@ -182,7 +186,12 @@ public class Timeline {
         if (duration < 0 or repeatCount < 0) {
             return -1;
         }
-        return duration * repeatCount;
+	
+	// enforce minimum duration of 1 ms
+	// Refer to JFXC-1399, minimum duration prevents 
+	// timeline run too fast, especially when duration = 0
+	// can result tight loop.
+        return Math.max(duration, 1) * repeatCount;
     }
 
     /**
@@ -467,19 +476,22 @@ public class Timeline {
             curT = totalElapsed;
             cycle = 0;
         } else {
-            curT = totalElapsed mod duration;
-            cycle = totalElapsed / duration as Integer;
+	    // enforce minimum duration of 1 ms
+	    var dur = Math.max(duration, 1);
+	    
+            curT = totalElapsed mod dur;
+            cycle = totalElapsed / dur as Integer;
             if (curT == 0 and totalElapsed != 0) {
                 // we're at the end, or exactly on a cycle boundary;
                 // treat this as the "1.0" case of the previous cycle
                 // instead of the "0.0" case of the current cycle
                 // TODO: there's probably a better way to deal with this...
-                curT = duration;
+                curT = dur;
                 cycle -= 1;
             }
             if (autoReverse) {
                 if (cycle mod 2 == 1) {
-                    curT = duration - curT;
+                    curT = dur - curT;
                     backward = true;
                 }
             }
