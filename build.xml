@@ -3,7 +3,6 @@
     <description>Builds, tests, and runs the openjfx-compiler project.</description>
 
     <property name="tools.dir" value="${basedir}/tools"/>
-    <property name="runtime.dir" value="${basedir}/runtime"/>
     <property name="javafxdoc.dir" value="${basedir}/javafxdoc"/>
     <property name="launcher.dir" value="${basedir}/launcher"/>
     <property environment="env" />
@@ -12,8 +11,6 @@
     <property name="antlr.grammarv4p" value="v4Parser" />
     <property name="antlr.grammarv4l" value="v4Lexer" />
     <property name="antlr.grammarv3w" value="v3Walker" />
-
-    <!-- @@@ TODO: Eliminate vestiges of runtime and demos -->
 
     <target name="default" depends="jar,javafxdoc,launcher"
             description="Build javafxc compiler and compiler runtime distribution"/>
@@ -403,7 +400,7 @@
 
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
-    <target name="-post-clean" depends="runtime-clean,javafxdoc-clean,spec-clean,launcher-clean">
+    <target name="-post-clean" depends="javafxdoc-clean,spec-clean,launcher-clean">
         <!-- Delete ANTLR-generated files -->
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v3*.*" excludes="**/v3.g **/v3Walker.g"/>
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v4*.*" excludes="**/v4Lexer.g **/v4Parser.g"/>
@@ -474,15 +471,6 @@
         </copy>
     </target>
 
-    <target name="runtime" depends="jar">
-        <ant dir="${runtime.dir}" antfile="build.xml" target="jar" inheritall="false">
-            <property name="tools.dir" value="${tools.dir}"/>
-            <propertyset>
-                <propertyref regex="^.*\.class\.path$$"/>
-            </propertyset>
-        </ant>
-    </target>
-
     <target name="javafxdoc" depends="jar">
         <!-- javadoc.jar depends on doclets.jar but we don't have it. Create a temporary file here: -->
         <jar jarfile="lib/doclets.jar"/>
@@ -510,22 +498,6 @@
         </copy>
     </target>
     
-    <target name="demos" depends="jar,runtime">
-        <ant antfile="demos/build.xml" target="all" inheritall="false" />
-        <copy todir="dist/demos">
-            <fileset dir="demos" excludes="StudioMoto/**,**/build/,**/dist/,**/lib/"/>
-        </copy>
-    </target>
-    
-    <target name="demos-clean">
-        <ant antfile="demos/build.xml" target="clean" inheritall="false"/>
-        <delete dir="dist/demos" failonerror="false"/>
-    </target>
-    
-    <target name="runtime-clean" >
-        <ant dir="${runtime.dir}" antfile="build.xml" target="clean" inheritall="false" />
-    </target>
-    
     <target name="javafxdoc-clean">
         <ant dir="${javafxdoc.dir}" antfile="build.xml" target="clean" inheritall="false" />
     </target>
@@ -549,7 +521,6 @@
         <antcall target="spec-clean"/>
         <antcall target="launcher-clean"/>
         <mkdir dir="dist/lib"/>
-        <antcall target="demos-clean"/>
         <delete dir="dist/lib"/>
     </target>
     
@@ -610,7 +581,6 @@
     <target name="source-zip" depends="init">
         <zip destfile="${dist.dir}/src.zip">
             <zipfileset dir="${src.classes.dir}"/>
-            <zipfileset dir="runtime/src/share/classes"/>
             <zipfileset dir="javafxdoc/src"/>
         </zip>
     </target>

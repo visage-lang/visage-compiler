@@ -1,6 +1,7 @@
-import com.sun.javafx.runtime.OverridesJava;
-
 import javax.swing.*;
+
+import com.sun.javafx.runtime.OverridesJava;
+import com.sun.javafx.runtime.annotation.OverridesJava;
 
 /**
  * ExtendsJava$Impl
