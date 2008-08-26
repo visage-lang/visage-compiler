@@ -23,9 +23,6 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
 
@@ -35,13 +32,12 @@ import com.sun.javafx.runtime.ErrorHandler;
  * @author Brian Goetz
  */
 public class DoubleVariable
-        extends AbstractVariable<Double, DoubleLocation, DoubleBindingExpression>
+        extends AbstractVariable<Double, DoubleLocation, DoubleBindingExpression, DoubleChangeListener>
         implements DoubleLocation {
 
     public static final double DEFAULT = 0.0;
 
     protected double $value = DEFAULT;
-    private List<DoubleChangeListener> replaceListeners;
 
 
     public static DoubleVariable make() {
@@ -157,12 +153,6 @@ public class DoubleVariable
             if (isInitialized())
                 replaceValue(DEFAULT);
         }
-    }
-
-    public void addChangeListener(DoubleChangeListener listener) {
-        if (replaceListeners == null)
-            replaceListeners = new ArrayList<DoubleChangeListener>();
-        replaceListeners.add(listener);
     }
 
     public void addChangeListener(final ObjectChangeListener<Double> listener) {

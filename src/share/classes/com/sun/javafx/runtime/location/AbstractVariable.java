@@ -23,6 +23,9 @@
 
 package com.sun.javafx.runtime.location;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import com.sun.javafx.runtime.BindingException;
 
 /**
@@ -30,13 +33,14 @@ import com.sun.javafx.runtime.BindingException;
  *
  * @author Brian Goetz
  */
-public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocation<T_VALUE>, T_BINDING extends AbstractBindingExpression>
+public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocation<T_VALUE>, T_BINDING extends AbstractBindingExpression, T_LISTENER>
         extends AbstractLocation
-        implements ObjectLocation<T_VALUE>, BindableLocation<T_VALUE, T_BINDING> {
+        implements ObjectLocation<T_VALUE>, BindableLocation<T_VALUE, T_BINDING, T_LISTENER> {
 
     protected T_BINDING binding;
     protected boolean isLazy, everInitialized, everValid;
     protected DeferredInitializer deferredLiteral;
+    protected List<T_LISTENER> replaceListeners;
 
     protected AbstractVariable() { }
 
@@ -165,6 +169,17 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
 
     public boolean isMutable() {
         return !isBound();
+    }
+
+    public void addChangeListener(T_LISTENER listener) {
+        if (replaceListeners == null)
+            replaceListeners = new ArrayList<T_LISTENER>();
+        replaceListeners.add(listener);
+    }
+
+    public void removeChangeListener(T_LISTENER listener) {
+        if (replaceListeners != null)
+            replaceListeners.remove(listener);
     }
 }
 

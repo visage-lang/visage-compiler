@@ -23,9 +23,7 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
@@ -40,12 +38,11 @@ import com.sun.javafx.runtime.sequence.Sequences;
  * @author Brian Goetz
  */
 public class SequenceVariable<T>
-        extends AbstractVariable<Sequence<T>, SequenceLocation<T>, SequenceBindingExpression<T>>
+        extends AbstractVariable<Sequence<T>, SequenceLocation<T>, SequenceBindingExpression<T>, SequenceChangeListener<T>>
         implements SequenceLocation<T> {
 
     private final Class<T> clazz;
     private final SequenceMutator.Listener<T> mutationListener;
-    private List<SequenceChangeListener<T>> changeListeners;
     private Sequence<T> value;
     private BoundLocationInfo boundLocation;
 
@@ -180,25 +177,14 @@ public class SequenceVariable<T>
         });
     }
 
-    public void addChangeListener(SequenceChangeListener<T> listener) {
-        if (changeListeners == null)
-            changeListeners = new ArrayList<SequenceChangeListener<T>>();
-        changeListeners.add(listener);
-    }
-
-    public void removeChangeListener(SequenceChangeListener<T> listener) {
-        if (changeListeners != null)
-            changeListeners.remove(listener);
-    }
-
     protected void notifyListeners(int startPos, int endPos,
                                    Sequence<? extends T> newElements,
                                    Sequence<T> oldValue, Sequence<T> newValue,
                                    boolean notifyDependencies) {
         if (notifyDependencies)
             invalidateDependencies();
-        if (changeListeners != null) {
-            for (SequenceChangeListener<T> listener : changeListeners)
+        if (replaceListeners != null) {
+            for (SequenceChangeListener<T> listener : replaceListeners)
                 try {
                     listener.onChange(startPos, endPos, newElements, oldValue, newValue);
                 }

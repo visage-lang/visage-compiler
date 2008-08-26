@@ -30,7 +30,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface BindableLocation<T_VALUE, T_BINDING extends AbstractBindingExpression>
+public interface BindableLocation<T_VALUE, T_BINDING extends AbstractBindingExpression, T_LISTENER>
         extends Location {
 
     public void bind(boolean lazy, T_BINDING binding, Location... dependencies);
@@ -47,4 +47,8 @@ public interface BindableLocation<T_VALUE, T_BINDING extends AbstractBindingExpr
 
     /** Has the variable ever been initialized? */
     boolean isInitialized();
+
+    void addChangeListener(T_LISTENER listener);
+
+    void removeChangeListener(T_LISTENER listener);
 }

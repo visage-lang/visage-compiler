@@ -23,9 +23,6 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
 import com.sun.javafx.runtime.Util;
@@ -36,12 +33,11 @@ import com.sun.javafx.runtime.Util;
  * @author Brian Goetz
  */
 public class ObjectVariable<T>
-        extends AbstractVariable<T, ObjectLocation<T>, ObjectBindingExpression<T>>
+        extends AbstractVariable<T, ObjectLocation<T>, ObjectBindingExpression<T>, ObjectChangeListener<T>>
         implements ObjectLocation<T> {
 
     protected T $value;
     protected T $default;
-    private List<ObjectChangeListener<T>> replaceListeners;
 
     public static<T> ObjectVariable<T> make() {
         return new ObjectVariable<T>();
@@ -141,12 +137,6 @@ public class ObjectVariable<T>
 
     public boolean isNull() {
         return $value == null;
-    }
-
-    public void addChangeListener(ObjectChangeListener<T> listener) {
-        if (replaceListeners == null)
-            replaceListeners = new ArrayList<ObjectChangeListener<T>>();
-        replaceListeners.add(listener);
     }
 
     private void notifyListeners(T oldValue, T newValue, boolean notifyDependencies) {

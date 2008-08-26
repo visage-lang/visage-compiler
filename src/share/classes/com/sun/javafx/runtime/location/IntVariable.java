@@ -23,9 +23,6 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
 
@@ -34,11 +31,10 @@ import com.sun.javafx.runtime.ErrorHandler;
  *
  * @author Brian Goetz
  */
-public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindingExpression> implements IntLocation {
+public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindingExpression, IntChangeListener> implements IntLocation {
     public static final int DEFAULT = 0;
 
     protected int $value = DEFAULT;
-    private List<IntChangeListener> replaceListeners;
 
     public static IntVariable make() {
         return new IntVariable();
@@ -152,12 +148,6 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
             if (isInitialized())
                 replaceValue(DEFAULT);
         }
-    }
-
-    public void addChangeListener(IntChangeListener listener) {
-        if (replaceListeners == null)
-            replaceListeners = new ArrayList<IntChangeListener>();
-        replaceListeners.add(listener);
     }
 
     public void addChangeListener(final ObjectChangeListener<Integer> listener) {

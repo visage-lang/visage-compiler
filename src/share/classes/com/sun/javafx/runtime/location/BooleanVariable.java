@@ -23,9 +23,6 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
 
@@ -35,12 +32,11 @@ import com.sun.javafx.runtime.ErrorHandler;
  * @author Brian Goetz
  */
 public class BooleanVariable
-        extends AbstractVariable<Boolean, BooleanLocation, BooleanBindingExpression>
+        extends AbstractVariable<Boolean, BooleanLocation, BooleanBindingExpression, BooleanChangeListener>
         implements BooleanLocation {
 
     public static final boolean DEFAULT = false;
     protected boolean $value = DEFAULT;
-    private List<BooleanChangeListener> replaceListeners;
 
     public static BooleanVariable make() {
         return new BooleanVariable();
@@ -154,12 +150,6 @@ public class BooleanVariable
 
     public boolean isNull() {
         return false;
-    }
-
-    public void addChangeListener(BooleanChangeListener listener) {
-        if (replaceListeners == null)
-            replaceListeners = new ArrayList<BooleanChangeListener>();
-        replaceListeners.add(listener);
     }
 
     public void addChangeListener(final ObjectChangeListener<Boolean> listener) {
