@@ -866,38 +866,20 @@ onReplaceClause
 
 	returns [JFXOnReplace value]	// onReplace has its own JFX Tree node type
 	
-@init
-{
-	// Indicates presence of first and last elements
-	//
-	boolean haveFirst = false;
-}
-
-
 	: ON REPLACE oldv=paramNameOpt 
 	
 		(
-			LBRACKET first=paramName DOTDOT last=paramName RBRACKET
-			
-			{ 
-				haveFirst = true;	// Signal for AST build
-			}
+			  LBRACKET first=paramName DOTDOT last=paramName RBRACKET
+			| EQ newElements=paramName
 		)? 
-		EQ newElements=paramName
+		
 	
 		block
 		
 		{ 
 			// Build the appropriate AST
 			//
-			if	(haveFirst) {
-			
-				$value = F.at(pos($ON)).OnReplace($oldv.var, $first.var, $last.var, $newElements.var, $block.value);
-				
-			} else {
-			
-				$value = F.at(pos($ON)).OnReplace($oldv.var, null, null, $newElements.var, $block.value);
-			}
+			$value = F.at(pos($ON)).OnReplace($oldv.var, $first.var, $last.var, $newElements.var, $block.value);
 			endPos($value); 
 		}
 	;
