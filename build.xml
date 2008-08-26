@@ -498,10 +498,6 @@
         </copy>
     </target>
     
-    <target name="demos-clean">
-        <!-- NOP to keep Hudson from breaking -->
-   </target>
-
     <target name="javafxdoc-clean">
         <ant dir="${javafxdoc.dir}" antfile="build.xml" target="clean" inheritall="false" />
     </target>
