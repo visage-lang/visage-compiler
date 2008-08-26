@@ -152,6 +152,7 @@
             <arg value="${antlr.grammarv4p.file}" />
             <jvmarg value="-Xmx256m"/>
         </java>
+    	<property name="parserv4.uptodate" value="v3Walker" />
     </target>
 
     <target depends="-pre-compile, generate-lexerv4" name="generate-parserv4" unless="parserv4.uptodate">
