@@ -1,0 +1,214 @@
+/*
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ * CA 95054 USA or visit www.sun.com if you need additional information or
+ * have any questions.
+ */
+
+package com.sun.tools.javafx.antlr;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.sun.tools.javac.util.Log;
+import com.sun.tools.javafx.util.MsgSym;
+import org.antlr.runtime.*;
+
+/**
+ * Base class for ANTLR generated parsers
+ *
+ * @author Robert Field
+ * @author Zhiqun Chen
+ */
+public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
+
+    /**
+     * The log to be used for error diagnostics.
+     */
+    protected Log log;
+    protected int previousTokenType = -1;
+    List<Token> tokens = new ArrayList<Token>();
+    private final BraceQuoteTracker NULL_BQT = new BraceQuoteTracker(null, '\'', false);
+    private BraceQuoteTracker quoteStack = NULL_BQT;
+
+    protected AbstractGeneratedLexerV4() {
+    }
+
+    protected AbstractGeneratedLexerV4(CharStream input) {
+        super(input);
+    }
+
+    protected AbstractGeneratedLexerV4(CharStream input, RecognizerSharedState state) {
+        super(input, state);
+    }
+
+    void processString() {
+        setText(StringLiteralProcessor.convert(log, getCharIndex(), getText()));
+    }
+
+    void processFormatString() {
+        // Add quote characters and adjust the index to invoke StringLiteralProcessor.convert().
+        StringBuilder sb = new StringBuilder();
+        sb.append('"').append(getText()).append('"');
+        setText(StringLiteralProcessor.convert(log, getCharIndex() + 1, sb.toString()));
+    }
+
+    void processTranslationKey() {
+        String text = getText().substring(2); // remove '##'
+        if (text.length() > 0) {
+            text = StringLiteralProcessor.convert(log, getCharIndex(), text);
+        }
+        setText(text);
+    }
+
+
+    protected void enterBrace(int quote, boolean nextIsPercent) {
+        quoteStack.enterBrace(quote, nextIsPercent);
+    }
+
+    protected void leaveQuote() {
+        quoteStack.leaveQuote();
+    }
+
+    protected boolean rightBraceLikeQuote(int quote) {
+        return quoteStack.rightBraceLikeQuote(quote);
+    }
+
+    protected void leaveBrace() {
+        quoteStack.leaveBrace();
+    }
+
+    protected boolean percentIsFormat() {
+        return quoteStack.percentIsFormat();
+    }
+
+    protected void resetPercentIsFormat() {
+        quoteStack.resetPercentIsFormat();
+    }
+
+    protected int getLexicalState() {
+        return quoteStack.getLexicalState();
+    }
+
+
+    public String getErrorMessage(RecognitionException e, String[] tokenNames) {
+
+        StringBuffer mb = new StringBuffer();
+        if (e instanceof NoViableAltException) {
+            NoViableAltException nvae = (NoViableAltException) e;
+            if (e.c == Token.EOF) {
+                mb.append("Sorry, I reached to the end of file. ");
+                mb.append("Perhaps you are having a mismatched " + "'" + "\"" + "' or '{'");
+            }
+            else {
+                mb.append("Sorry, " + getCharErrorDisplay(e.c));
+                mb.append(" is not supported in JavaFX");
+            }
+        }
+        else if (e instanceof FailedPredicateException) {
+            mb.append("Sorry, I was trying to understand a " + getCharErrorDisplay(e.c) + ". ");
+            mb.append("Perhaps you are having a mismatched " + "'" + "\"" + "' or '{'");
+            recover(e);
+        }
+        else {
+            mb.append(super.getErrorMessage(e, tokenNames));
+        }
+
+        return mb.toString();
+    }
+
+
+    @Override
+    public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
+
+        String msg = getErrorMessage(e, tokenNames);
+//        log.error(Position.NOPOS, "javafx.generalerror", msg);
+        log.error(getCharIndex(), MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
+    }
+
+
+    /**
+     * Track "He{"l{"l"}o"} world" quotes
+     */
+    protected class BraceQuoteTracker {
+        private int braceDepth;
+        private char quote;
+        private boolean percentIsFormat;
+        private BraceQuoteTracker next;
+
+        private BraceQuoteTracker(BraceQuoteTracker prev, char quote, boolean percentIsFormat) {
+            this.quote = quote;
+            this.percentIsFormat = percentIsFormat;
+            this.braceDepth = 1;
+            this.next = prev;
+        }
+
+        void enterBrace(int quote, boolean percentIsFormat) {
+            if (quote == 0) {  // exisiting string expression or non string expression
+                if (quoteStack != NULL_BQT) {
+                    ++quoteStack.braceDepth;
+                    quoteStack.percentIsFormat = percentIsFormat;
+                }
+            }
+            else {
+                quoteStack = new BraceQuoteTracker(quoteStack, (char) quote, percentIsFormat); // push
+            }
+        }
+
+        /**
+         * Return quote kind if we are reentering a quote
+         *
+         * @return leaving quote
+         */
+        char leaveBrace() {
+            if (quoteStack != NULL_BQT && --quoteStack.braceDepth == 0) {
+                return quoteStack.quote;
+            }
+            return 0;
+        }
+
+        boolean rightBraceLikeQuote(int quote) {
+            return quoteStack != NULL_BQT && quoteStack.braceDepth == 1 && (quote == 0 || quoteStack.quote == (char) quote);
+        }
+
+        void leaveQuote() {
+            assert (quoteStack != NULL_BQT && quoteStack.braceDepth == 0);
+            quoteStack = quoteStack.next; // pop
+        }
+
+        boolean percentIsFormat() {
+            return quoteStack != NULL_BQT && quoteStack.percentIsFormat;
+        }
+
+        void resetPercentIsFormat() {
+            quoteStack.percentIsFormat = false;
+        }
+
+        boolean inBraceQuote() {
+            return quoteStack != NULL_BQT;
+        }
+
+        /** Encode the lexical state into an integer, to permit incremental lexing in IDEs that support it */
+        int getLexicalState() {
+            // This is a hack -- state is not invertible yet
+            return (quoteStack == NULL_BQT) ? 0 : quoteStack.braceDepth;
+
+        }
+    }
+}
