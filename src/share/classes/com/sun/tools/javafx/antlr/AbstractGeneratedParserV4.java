@@ -666,13 +666,26 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
 	 *  search back through the input token stream and set the end point
 	 *  of the supplied tree object to the first non-whitespace token
 	 *  we find.
+     * 
+     * Note that this version of endPos() is called when all elements of a
+     * construct have been parsed. Hence we traverse back from one token
+     * before the current index.
 	 */
     void endPos(JCTree tree) {
 
 		CommonToken tok;
+        
 		int index = input.index();
 		int end = 0;
 		
+        // Unless we are at the very start (this should not
+        // happen, but is coded for anyway), then the token that
+        // ended whatever AST fragment we are constructing was the 
+        // one before the one at the current index and so we need
+        // to start at that token.
+        //
+        if  (index > 1) index--;
+        
 		if	(genEndPos && index > 0)
 		{ 
 			for(;;)
