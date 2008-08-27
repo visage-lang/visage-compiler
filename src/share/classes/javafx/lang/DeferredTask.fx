@@ -42,7 +42,7 @@ public class DeferredTask {
      *
      * @profile common
      */
-    public /* required initonly */ var action: function() : Void;
+    public-init var action: function() : Void;
 
     /** 
      * A {@code boolean} value indicating whether the deferred task has actually
