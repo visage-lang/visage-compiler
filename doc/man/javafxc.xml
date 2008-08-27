@@ -103,10 +103,10 @@
 
     <para>Each source code file must have a <filename>.fx</filename> suffix, 
     while is compiled into a module class file with the same root name and a
-    <filename>.class</filename>> suffix. For example, a module called
+    <filename>.class</filename> suffix. For example, a module called
     <code>MyModule</code> would be written in a source file called
-    <filename>MyModule.fx</filename>> and compiled into a module file called
-    <filename>MyModule.class</filename>>. Module files are Java platform class files,
+    <filename>MyModule.fx</filename> and compiled into a module file called
+    <filename>MyModule.class</filename>. Module files are Java platform class files,
     just like class files created with the Java programming language.</para>
 
     <para>Class definitions produce additional class files. These class files
