@@ -551,18 +551,24 @@ public class XHTMLProcessingUtils {
                 try {
                     //String script = "import javafx.gui.*; CubicCurve { x1: 0  y1: 50  ctrlX1: 25  ctrlY1: 0 ctrlX2: 75  ctrlY2: 100   x2: 100  y2: 50 fill:Color.RED }";
                     String script = example.getTextContent();
-                    File imgFile = new File(packageDir,clazz.getAttribute("name")+i+".png");
-                    renderScriptToImage(imgFile, script);
                     StringBuffer out = new StringBuffer();
                     out.append("<p>the code:</p>");
                     out.append("<pre class='example-code'><code>");
                     String styledScript = highlight(script);
                     out.append(styledScript);
                     out.append("</code></pre>");
-                    out.append("<p>produces:</p>");
-                    out.append("<p>");
-                    out.append("<img class='example-screenshot' src='"+imgFile.getName()+"'/>");
-                    out.append("</p>");
+                    try {
+                        File imgFile = new File(packageDir,clazz.getAttribute("name")+i+".png");
+                        renderScriptToImage(imgFile, script);
+                        out.append("<p>produces:</p>");
+                        out.append("<p>");
+                        out.append("<img class='example-screenshot' src='"+imgFile.getName()+"'/>");
+                        out.append("</p>");
+                    } catch (Exception ex) {
+                        System.out.println("error processing code: " + clazz.getAttribute("name"));
+                        System.out.println("error processing: " + example.getTextContent());
+                        ex.printStackTrace();
+                    }
                     example.setTextContent(out.toString());
                 } catch (Exception ex) {
                     System.out.println("error processing code: " + clazz.getAttribute("name"));
