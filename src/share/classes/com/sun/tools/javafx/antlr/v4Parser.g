@@ -967,7 +967,7 @@ throwStatement
 
 	returns [JFXExpression value]	// Returns the JFX Expression tree representing what we must throw
 
-	: THROW expression SEMI
+	: THROW expression ((SEMI)=>SEMI)?
 	
 		{ 
 			// AST for the thrown expression
@@ -1582,7 +1582,7 @@ andExpression
 	  			AND e2=orExpression
 	  			
 	  			{
-	  				$value = F.at(rPos).Binary(JavafxTag.AND, $e1.value, $e2.value);
+	  				$value = F.at(rPos).Binary(JavafxTag.AND, $value, $e2.value);
 	  				endPos($value);
 	  			}
 	  		)*
@@ -1612,7 +1612,7 @@ orExpression
 	  		OR e2=typeExpression 
 	  		
 	  		{
-	  			$value = F.at(rPos).Binary(JavafxTag.OR, $e1.value, $e2.value);
+	  			$value = F.at(rPos).Binary(JavafxTag.OR, $value, $e2.value);
 	  			endPos($value);
 	  		}
 	  	)*
@@ -1675,7 +1675,7 @@ relationalExpression
 			  relOps   a2=additiveExpression
 			  	
 			  	{
-			  		$value = F.at(rPos).Binary($relOps.relOp, $a1.value, $a2.value);
+			  		$value = F.at(rPos).Binary($relOps.relOp, $value, $a2.value);
 			  		endPos($value);
 			  	}
 		)* 
@@ -1722,7 +1722,7 @@ additiveExpression
 		      (arithOps)=>arithOps   m2=multiplicativeExpression
 
 				{
-					$value = F.at(rPos).Binary($arithOps.arithOp , $m1.value, $m2.value);
+					$value = F.at(rPos).Binary($arithOps.arithOp , $value, $m2.value);
 					endPos($value);
 				}
 		)* 
@@ -1758,7 +1758,7 @@ multiplicativeExpression
 			multOps u2=unaryExpression
 				
 				{
-					$value = F.at(rPos).Binary($multOps.multOp, $u1.value, $u2.value);
+					$value = F.at(rPos).Binary($multOps.multOp, $value, $u2.value);
 					endPos($value);
 				}
 	   )* 
@@ -1854,14 +1854,14 @@ suffixedExpression
 
 	: pe=postfixExpression
 		( 
-			  (PLUSPLUS)=>PLUSPLUS
+			  { input.LT(-1).getType() != RBRACE }?=> PLUSPLUS
 			  
 			  	{
 			  		$value = F.at($pe.value.pos).Unary(JavafxTag.POSTINC, $pe.value);
 			  		endPos($value);
 			  	}
 			  	
-			| (SUBSUB)=>SUBSUB
+			| { input.LT(-1).getType() != RBRACE }?=> SUBSUB
 			
 				{
 					$value = F.at($pe.value.pos).Unary(JavafxTag.POSTDEC, $pe.value);
@@ -2096,7 +2096,7 @@ primaryExpression
 		LPAREN 
 			TIME_LITERAL
             {
-                sVal = F.at(pos($TIME_LITERAL)).Literal(TypeTags.CLASS, $TIME_LITERAL.text);
+                sVal = F.at(pos($TIME_LITERAL)).TimeLiteral($TIME_LITERAL.text);
                 endPos(sVal);
             }
 		RPAREN 

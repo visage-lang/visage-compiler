@@ -675,7 +675,13 @@ FLOATING_POINT_LITERAL
     					  ('m' 's'? | 's' | 'h')
     				
 				    		{ $type = TIME_LITERAL; }
-				    				
+				    
+				    	| Exponent				
+				    	
+				    		{
+				    			$type = FLOATING_POINT_LITERAL;
+				    		}
+				    		
 				    	| 	// Just n.nnn
 				    		//
 				    		{ 

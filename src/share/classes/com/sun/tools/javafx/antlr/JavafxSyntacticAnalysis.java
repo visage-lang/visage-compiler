@@ -59,8 +59,6 @@ public class JavafxSyntacticAnalysis {
                 
                 if ( (System.getenv("JAVAFX_COM_V4") != null)) {
                     
-                    System.out.println("Using v4 compiler\n");
-                    
                     // Create input stream from standard input
                     //
                     ANTLRStringStream input = new ANTLRStringStream(content.toString());
@@ -85,6 +83,7 @@ public class JavafxSyntacticAnalysis {
                     // always return a JFXSript.
                     //
                     unit = parser.script();
+
                     
                     // That's it
                     
@@ -130,6 +129,14 @@ public class JavafxSyntacticAnalysis {
                 thr.printStackTrace(System.err);
             }
         }
+
+// DEBUG DEVELOPMENT ONLY
+
+		if ( (System.getenv("TREE_ME") != null && unit != null)) {
+
+			System.out.println("Printing AST\n");
+			System.out.println(unit.toString());
+		}
         return unit;
     }
 
