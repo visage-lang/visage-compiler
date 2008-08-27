@@ -11,7 +11,8 @@
 <sect2 id="variable"><title>Script Variables</title>
 
 <para>
-As mentioned in <ulink url="overview.html"><emphasis>Chapter 1</emphasis></ulink>, the <code>var</code> and <code>def</code> keywords are used to introduce a new variable into your program. (The <code>def</code> keyword introduces a variable that should not be assigned to, overridden, or set in an object literal.)   
+As mentioned in <ulink url="overview.html"><emphasis>Chapter 1</emphasis></ulink>, the <code>var</code> and <code>def</code> keywords are used to introduce a new variable into your program. (The <code>def</code> keyword introduces a variable that cannot be assigned to, overridden, or set in an object literal; 
+a <code>def</code> can be bound, however, making it not a true constant.)   
 A variable's type can be specified in its declaration, but doing so is optional. If a variable's type is omitted from the declaration, 
 the type can be inferred from its use.</para>
 
