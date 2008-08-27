@@ -527,11 +527,13 @@ FLOATING_POINT_LITERAL
     			  	  		setText(getText().substring(2, getText().length()));
     			  	  		if	(rangeError)
     			  	  		{
-    			  	  			System.out.println("Hex digits are only 0..9 and a..f fool!");
+    			  	  			// Error - malformed hex constant
+    			  	  			//
+    			  	  			log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_HEX_MALFORMED);
     			  	  		}
     			  	  		else
     			  	  		{
-								//checkIntLiteralRange(getText(), getCharIndex(), 16); 
+								checkIntLiteralRange(getText(), getCharIndex(), 16); 
 							}
     			  	  }
     			  	  
@@ -541,7 +543,13 @@ FLOATING_POINT_LITERAL
     			  	  		// Hex numbers cannot be flaoting point, but catch this here
     			  	  		// rather than mismatch it.
     			  	  		//
-    			  	  			{ input.LA(2) != '.'}?=> '.' Digits?	{ System.out.println("Hex constants cannot be floating point"); }
+    			  	  			{ input.LA(2) != '.'}?=> '.' Digits?	
+    			  	  				
+    			  	  				{ 
+    			  	  					// Error - malformed hex constant
+    			  	  					//
+    			  	  					log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_HEX_FLOAT);
+    			  	  				}
     			  	  		|
     			  	  	
     			  	  )
@@ -549,7 +557,7 @@ FLOATING_POINT_LITERAL
     			  	|	// If no digits follow 0x then it is an error
     			  		//
     			  		{
-    			  			System.out.println("Hex must have at least one digit fool!");
+    			  			log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_HEX_MISSING);
     			  		}
     			  		
     			  )
@@ -579,18 +587,22 @@ FLOATING_POINT_LITERAL
     					
     					if	(rangeError)
     					{
-    						System.out.println("Octals are only 0..7 fool!");
+    						log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_OCTAL_MALFORMED);
     					}
     					else
     					{
-    						// checkIntLiteralRange(getText(), getCharIndex(), 8); 
+    						checkIntLiteralRange(getText(), getCharIndex(), 8); 
     					}
     				}
     				 (
     				 		// Octal numbers cannot be floating point, but catch this here
     			  	  		// rather than mismatch it.
     			  	  		//
-    			  	  		{ input.LA(2) != '.'}?=> '.' Digits?	{ System.out.println("Octal constants cannot be floating point"); }
+    			  	  		{ input.LA(2) != '.'}?=> '.' Digits?	
+    			  	  		
+    			  	  			{ 
+    			  	  				log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_OCTAL_FLOAT);
+    			  	  			}
     			  	  	|
     			  	  )
     			  	  
@@ -630,7 +642,7 @@ FLOATING_POINT_LITERAL
     				//
     				{ 
     					$type = DECIMAL_LITERAL;
-    					//checkIntLiteralRange(getText(), getCharIndex(), 10);
+    					checkIntLiteralRange(getText(), getCharIndex(), 10);
     				}  			
     		)
     
@@ -668,7 +680,7 @@ FLOATING_POINT_LITERAL
 				    		//
 				    		{ 
 				    			$type = DECIMAL_LITERAL; 
-				    			//checkIntLiteralRange(getText(), getCharIndex(), 10); 
+				    			checkIntLiteralRange(getText(), getCharIndex(), 10); 
 				    		}
     				)
     		)
@@ -717,7 +729,7 @@ Exponent
 	
 			(
 				  Digits
-				| { System.out.println("Exponents must be specify a number for scale!"); }
+				| { log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_EXPONENT_MALFORMED); }
 			)
  	;
 
@@ -822,9 +834,14 @@ LAST_TOKEN
 // This special token is always the last rule in the lexer grammar. It
 // is basically a catch all for characters that are not covered by any
 // other lexical construct and are therefore illegal. This rule allows
-// us to create a sensible error message and AST node.
+// us to create a sensible error message.
 //
 INVALIDC
 	: .
+		{
+			// We assume it isn't safe to print as otherwise we would have matched it
+			//	
+			log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_BAD_CHARACTER, "\\u" + Integer.toHexString( getText().charAt(0) ) );
+		}
 	;
 	
