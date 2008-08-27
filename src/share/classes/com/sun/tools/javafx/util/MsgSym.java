@@ -354,4 +354,10 @@ public class MsgSym {
     public static final String MESSAGE_PLUGIN_CANNOT_FIND_PLUGIN = "plugin.cannot.find.plugin"; 
     public static final String MESSAGE_PLUGIN_CANNOT_LOAD_PLUGIN = "plugin.cannot.load.plugin"; 
     public static final String MESSAGE_JAVAFX_BAD_CHARACTER = "javafx.bad.character";
+    public static final String MESSAGE_JAVAFX_HEX_MALFORMED = "javafx.hex.malformed";
+    public static final String MESSAGE_JAVAFX_HEX_FLOAT = "javafx.hex.float";
+    public static final String MESSAGE_JAVAFX_HEX_MISSING = "javafx.hex.missing";
+    public static final String MESSAGE_JAVAFX_OCTAL_MALFORMED = "javafx.octal.malformed";
+    public static final String MESSAGE_JAVAFX_OCTAL_FLOAT = "javafx.octal.float";
+    public static final String MESSAGE_JAVAFX_EXPONENT_MALFORMED = "javafx.exponent.malformed";
 }
