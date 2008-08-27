@@ -33,6 +33,7 @@ import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.tree.JCTree;
 
+import com.sun.tools.javac.util.Options;
 import com.sun.tools.javafx.tree.JFXInterpolateValue;
 import com.sun.tools.javafx.tree.JFXTree;
 import com.sun.tools.javafx.tree.JFXErroneous;
@@ -40,8 +41,8 @@ import com.sun.tools.javafx.tree.JavafxTreeInfo;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
 
 import com.sun.tools.javafx.util.MsgSym;
+import javax.tools.DiagnosticListener;
 import org.antlr.runtime.*;
-import org.antlr.runtime.tree.CommonTree;
 
 /**
  * Base class for ANTLR generated parsers.
@@ -310,10 +311,18 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
     
     /** initializes a new instance of GeneratedParser */
     protected void initialize(Context context) {
-        this.F = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
-        this.log = Log.instance(context);
-        this.names = Name.Table.instance(context);
-        this.source = Source.instance(context);
+       
+        this.F          = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
+        this.log        = Log.instance(context);
+        this.names      = Name.Table.instance(context);
+        this.source     = Source.instance(context);
+        Options options = Options.instance(context);
+        this.genEndPos  =    options.get("-Xjcov") != null 
+                          || context.get(DiagnosticListener.class) != null 
+                          || Boolean.getBoolean("JavafxModuleBuilder.debugBadPositions");
+        
+        this.treeInfo = (JavafxTreeInfo) JavafxTreeInfo.instance(context);
+        
     }
     
     protected AbstractGeneratedParserV4(TokenStream input) {
