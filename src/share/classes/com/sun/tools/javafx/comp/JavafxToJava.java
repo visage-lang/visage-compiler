@@ -71,8 +71,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     private final JavafxToBound toBound;
     private final JavafxInitializationBuilder initBuilder;
 
-    private final JFXExpression doNotInitializeMarker;
-
     /*
      * Buffers holding definitions waiting to be prepended to the current list of definitions.
      * At class or top-level these are the same.
@@ -176,8 +174,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         toBound = JavafxToBound.instance(context);
         initBuilder = JavafxInitializationBuilder.instance(context);
         target = Target.instance(context);
-
-        doNotInitializeMarker = fxmake.Literal(TypeTags.INT, 666);
     }
 
     /** Visitor method: Translate a single node.
@@ -551,7 +547,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         case VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
                             boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
-                            JCStatement init = attrDef.getInitializer()==doNotInitializeMarker? null :
+                            JCStatement init = 
                                 translateDefinitionalAssignmentToSet(attrDef.pos(),
                                 attrDef.getInitializer(), attrDef.getBindStatus(), attrDef.sym,
                                 isStatic? null : defs.receiverName, FROM_DEFAULT_MILIEU);
