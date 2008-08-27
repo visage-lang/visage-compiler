@@ -136,6 +136,14 @@ action: function() {
 
 </programlisting>
 
+<para>
+When overriding a function, use the <code>override</code> keyword. Failure to 
+do so will result in a compile-time error. It is also an error to claim to 
+ override when your code actually does not.
+</para>
+
+
+
 </sect2> </chapter>
 
 
