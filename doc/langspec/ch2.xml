@@ -70,7 +70,7 @@ java.lang.System.out.println(myName); // prints "John Doe"
 
 <para>
 The syntax for specifying a class is the <code>class</code> keyword followed by the class name, optionally the <code>extends</code> keyword, and a comma 
-separated list of the names of base classes, an open curly brace, a list of attributes and functions that each end in a semicolon, and a closing curly brace.</para>
+separated list of the names of base classes, an open curly brace, a list of instance variables and functions that each end in a semicolon, and a closing curly brace.</para>
 
 <para>The JavaFX Script programming language supports 
 multiple inheritance, and therefore, defines some new terminology and rules: </para>
@@ -102,19 +102,13 @@ behavior of a constructor, define a function that returns a new object,
 </sect2> 
 
  
-<sect2 id="object"><title>Defining Objects</title>
+<sect2 id="object"><title>Creating Objects</title>
 
 <para>As described in the previous chapter, the 
 preferred way to instantiate a class is with an <emphasis>object literal</emphasis>.
-This form of object allocation uses a declarative syntax consisting of the name of the class followed by a curly brace delimited list of attribute initializers. Each initializer consists of the attribute name followed by a colon, followed by an expression that defines its value. However, it is also possible to use the <code>new</code> keyword when creating an object: 
+This form of object allocation uses a declarative syntax consisting of the name of the class followed by a curly brace delimited list of instance variable initializers, variable definitions, instance variable 
+overrides, function definitions, and/or function overrides. Each instance variable initializer consists of the instance variable name followed by a colon, followed by an expression that defines its value. 
 </para>
-
-<programlisting>
-import java.io.File;
-
-var tmpPath = "/home/users/docs/tmp.txt"
-var myFile = new File("tmp.txt");
-</programlisting>
 
 </sect2> </chapter>
 
