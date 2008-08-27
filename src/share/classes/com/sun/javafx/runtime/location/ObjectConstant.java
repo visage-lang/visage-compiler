@@ -42,6 +42,4 @@ public class ObjectConstant<T> extends AbstractConstantLocation<T> implements Ob
     public T get() {
         return $value;
     }
-
-    public void addChangeListener(ObjectChangeListener<T> listener) { }
 }
