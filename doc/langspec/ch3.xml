@@ -87,6 +87,9 @@ function <emphasis>name</emphasis> (<emphasis>parameterName</emphasis> : <emphas
 <para>
 Instance functions are first-class objects (they can, for example, be assigned to variables, or passed as parameters to other functions.)</para>
 
+<para>
+Function parameters are immutable; assignment to them will result in an error. 
+</para>
 
 <para>
 Chapter one presented a simple example, defining a <code>grow</code> function 
@@ -141,6 +144,8 @@ When overriding a function, use the <code>override</code> keyword. Failure to
 do so will result in a compile-time error. It is also an error to claim to 
  override when your code actually does not.
 </para>
+
+
 
 
 
