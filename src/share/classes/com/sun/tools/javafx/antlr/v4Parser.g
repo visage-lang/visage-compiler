@@ -194,6 +194,15 @@ script
 	// there to see if there was a document comment.
 	//
 	CommonToken  docComment = getDocComment(input.LT(1));
+	
+	// Initialize the tree map if we are creating the AST end position
+	// map.
+	//
+	endPositions = genEndPos ? new HashMap<JCTree,Integer>() : null;
+	
+	// Initialize document comment collection
+	//
+	docComments	= null;
 }
 
 	:  pd=packageDecl si=scriptItems 
@@ -275,7 +284,7 @@ scriptItems
 								$items.append($c.value); 
 							}
 							
-					| v=variableDeclaration 	[$m1.mods] SEMI
+					| v=variableDeclaration 	[$m1.mods] 
 					
 							{ 
 								$items.append($v.value); 
@@ -289,7 +298,7 @@ scriptItems
 							}
 				)
 				
-			| i=importDecl SEMI
+			| i=importDecl
 			
 				{ 
 					$items.append($i.value); 
@@ -892,8 +901,9 @@ onReplaceClause
 	: ON REPLACE oldv=paramNameOpt 
 	
 		(
-			  LBRACKET first=paramName DOTDOT last=paramName RBRACKET
-			| EQ newElements=paramName
+			  (LBRACKET first=paramName DOTDOT last=paramName RBRACKET)?
+			 
+				 EQ newElements=paramName
 		)? 
 		
 	
@@ -977,28 +987,15 @@ whileStatement
 	
 	returns [JFXExpression value]	// Returns the JFX Expression tree representing the WHILE
 	
-@init
-{
-	JFXExpression loopVal = null;
-}
 	: WHILE LPAREN expression RPAREN 
 	
-		(	  (LBRACE)=>block
-				{
-					loopVal = $block.value;
-				}
-			| statement
+		 loopVal=statement
 			
-				{
-					loopVal = $statement.value;
-				}
-		)
-		
 		{
-			
+	
 			// The AST for the WHILE, using either the block or statement
 			//
-			$value = F.at(pos($WHILE)).WhileLoop($expression.value, loopVal);
+			$value = F.at(pos($WHILE)).WhileLoop($expression.value, $loopVal.value);
 			
 			// Tree span
 			//
@@ -1046,7 +1043,8 @@ insertStatement
 			//
 			endPos($value);
 		}	    
-	    SEMI
+	    
+	    ((SEMI)=>SEMI)?
 	    
 	;
 	
@@ -1107,7 +1105,7 @@ deleteStatement
 	   		//
 	   		endPos($value);
 	   }
-	   SEMI
+	   ((SEMI)=>SEMI)?
 	;
 
 // -----------------
@@ -1121,8 +1119,19 @@ returnStatement
 	: RETURN 
 		
 		(
-			  expression	{	$value = F.at(pos($RETURN)).Return($expression.value);	}
-			|				{	$value = F.at(pos($RETURN)).Return(null);				}
+			  expression		
+			  
+			  	{	
+			  		$value = F.at(pos($RETURN)).Return($expression.value);	
+			  	}
+			  	
+			  	((SEMI)=>SEMI)?
+			  	
+			| SEMI			// Can't have a SEMI be optional here as we must eitehr consume
+							// the next expression or not.
+				{	
+					$value = F.at(pos($RETURN)).Return(null);				
+				}
 		)
 		
 		{
@@ -1131,7 +1140,7 @@ returnStatement
 			endPos($value);
 		}
 		
-		SEMI
+		
 	;
 	
 // -----------------------------
@@ -1416,10 +1425,9 @@ ifExpression
 	JFXExpression eVal = null;
 }
 	: IF LPAREN econd=expression  RPAREN 
-		THEN?  
-			(	  (LBRACE)=>block	{ sVal = $block.value; 		}
-				| statement  		{ sVal = $statement.value;		}
-			)
+	
+		THEN?  statement 			{ sVal = $statement.value;		}
+			
 			(
 				(ELSE)=>elseClause	{ eVal = $elseClause.value;	}
 			)?
@@ -1445,8 +1453,7 @@ elseClause
 	
 	: ELSE  
 		(
-			  (LBRACE)=>block	{ $value = $block.value; 		}
-			| statement			{ $value = $statement.value; 	}
+			statement			{ $value = $statement.value; 	}
 		)
 	;
 	
@@ -2166,15 +2173,22 @@ objectLiteral
 	returns [ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb()]	// Gather a list of all the object literal insitalizations
 	
 	:   (COMMA|SEMI)*	// Separators are optional and just syntactic sugar
-		(
-			oli=objectLiteralPart 
+	
+		(		
+			(
+				oli=objectLiteralPart 
 			
-				(COMMA|SEMI)*	// Separators are optional and just syntactic sugar
+				{
+					parts.append($oli.value);
+				}
+			)
 			
-			{
-				parts.append($oli.value);
-			}
-		)+
+			(COMMA|SEMI)*	// Separators are optional and just syntactic sugar
+			
+			
+		)*		// May be no elements in the object literal, just {}
+	
+				
 	;
 
 // Individual components of an object literal
@@ -2596,14 +2610,16 @@ bracketExpression
 					seqexp.append($e1.value);
 				}
 		     	(
+		     		COMMA*
 		     		  (
-		     			COMMA 
+		     			
 		     				(
 		     					e2=expression
 		     						{
 		     							seqexp.append($e2.value);
 		     						}
 		     				)
+		     				COMMA*
 		     		  )*
 	                    
 	                    {
@@ -2776,7 +2792,13 @@ typeReference
  		{
  			$rtype = $type.rtype;
  		}
- 	| /*nada*/
+ 		
+ 	| // Untyped element, the AST needs to reflect that
+ 	
+ 		{ 
+ 			$rtype = F.TypeUnknown(); 
+ 		}
+
  	;
  	
 // -------------------------
