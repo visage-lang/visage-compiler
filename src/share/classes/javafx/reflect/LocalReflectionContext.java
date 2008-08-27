@@ -174,9 +174,11 @@ public class LocalReflectionContext extends ReflectionContext {
         
         Class clas = (Class) typ;
         String rawName = ((Class) typ).getName();
-        if (ClassRef.DOUBLE_VARIABLE_CLASSNAME.equals(rawName))
+        if (ClassRef.DOUBLE_VARIABLE_CLASSNAME.equals(rawName)
+                || typ == Double.TYPE)
             return getNumberType();
-        if (ClassRef.INT_VARIABLE_CLASSNAME.equals(rawName))
+        if (ClassRef.INT_VARIABLE_CLASSNAME.equals(rawName)
+                || typ == Integer.TYPE)
             return getIntegerType();
 
         return makeClassRef((Class) typ);
@@ -333,7 +335,34 @@ class LocalClassRef extends ClassRef {
 
     public MemberRef getMember(String name, TypeRef type) { throw new NotImplementedException(); }
     public AttributeRef getAttribute(String name) { throw new NotImplementedException(); }
-    public MethodRef getMethod(String name, TypeRef... argType) { throw new NotImplementedException(); }
+
+    public MethodRef getMethod(String name, TypeRef... argType) {
+        int nargs = argType.length;
+        Class[] ctypes = new Class[nargs];
+        for (int i = 0;  i < nargs;  i++) {
+            TypeRef typ = argType[i];
+            Class cls;
+            if (typ == PrimitiveTypeRef.integerType)
+                cls = Integer.TYPE;
+            else if (typ == PrimitiveTypeRef.numberType)
+                cls = Double.TYPE;
+            else { // FIXME - handle other cases
+                LocalClassRef ctyp = (LocalClassRef) typ;
+                cls = ctyp.isCompoundClass() ? ctyp.refInterface : ctyp.refClass;
+            }
+            ctypes[i] = cls;
+        }
+        try {
+            Method meth = (isCompoundClass() ? refInterface : refClass).getMethod(name, ctypes);
+            return asMethodRef(meth, getReflectionContext());
+        }
+        catch (RuntimeException ex) {
+            throw ex;
+        }
+        catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
     
     protected void getMethods(MemberFilter filter, SortedMemberArray<? super MethodRef> result) {
         boolean isCompound = isCompoundClass();
@@ -357,24 +386,36 @@ class LocalClassRef extends ClassRef {
                     mname.startsWith("applyDefaults$")) {
                 continue;
             }
-            FunctionTypeRef type = new FunctionTypeRef();
-            Type[] ptypes = m.getGenericParameterTypes();
-            if (m.isVarArgs()) {
-                // ????
+            if (isCompoundClass()) {
+                try {
+                    m = refInterface.getDeclaredMethod(m.getName(), m.getParameterTypes());
+                }
+                catch (Exception ex) {
+                    // Just ignore ???
+                }
             }
-            TypeRef[] prtypes = new TypeRef[ptypes.length];
-            for (int j = 0; j < ptypes.length;  j++)
-                prtypes[j] = context.makeTypeRef(ptypes[j]);
-            type.argTypes = prtypes;
-            Type gret = m.getGenericReturnType();
-            type.returnType = context.makeTypeRef(gret);
-            MethodRef mref = new LocalMethodRef(m, this, type);
+            MethodRef mref = asMethodRef(m, context);
             if (filter != null && filter.accept(mref))
                 result.insert(mref);
         }
     }
     
-   protected void getAttributes(MemberFilter filter, SortedMemberArray<? super AttributeRef> result) {
+    MethodRef asMethodRef(Method m, LocalReflectionContext context) {
+        Type[] ptypes = m.getGenericParameterTypes();
+        if (m.isVarArgs()) {
+            // ????
+        }
+        FunctionTypeRef type = new FunctionTypeRef();
+        TypeRef[] prtypes = new TypeRef[ptypes.length];
+        for (int j = 0; j < ptypes.length;  j++)
+            prtypes[j] = context.makeTypeRef(ptypes[j]);
+        type.argTypes = prtypes;
+        Type gret = m.getGenericReturnType();
+        type.returnType = context.makeTypeRef(gret);
+        return new LocalMethodRef(m, this, type);
+    }
+    
+    protected void getAttributes(MemberFilter filter, SortedMemberArray<? super AttributeRef> result) {
         LocalReflectionContext context = getReflectionContext();
         Class cls = refClass;
         Class[] noClasses = {};
@@ -421,7 +462,7 @@ class LocalClassRef extends ClassRef {
   //public void initAttribute(AttributeRef field, ValueRef value) { throw new NotImplementedException(); }
 }
 
-class LocalObjectRef extends ObjectRef {
+class LocalObjectRef extends ObjectRef implements LocalValueRef {
     Object obj;
     ClassRef type;
 
@@ -449,6 +490,8 @@ class LocalObjectRef extends ObjectRef {
         else
             return obj.toString();
     }
+
+    public Object asObject() { return obj; }
 }
 
 
@@ -545,7 +588,7 @@ class LocalMethodRef extends MethodRef {
     }
 
     Object unwrap(ValueRef value) {
-      return ((LocalObjectRef) value).obj; // FIXME
+        return ((LocalValueRef) value).asObject();
     }
 
     /** Invoke this method on the given receiver and arguments. */
@@ -555,6 +598,17 @@ class LocalMethodRef extends MethodRef {
         for (int i = 0;  i < alen;  i++) {
             rargs[i] = unwrap(arg[i]);
         }
-        throw new UnsupportedOperationException("not implemented: invoke");
+        try {
+            Object result = method.invoke(unwrap(owner), rargs);
+            LocalReflectionContext context =
+                    (LocalReflectionContext) owner.getReflectionContext();
+            return context.mirrorOf(result, getType().getReturnType());
+        }
+         catch (RuntimeException ex) {
+            throw ex;
+        }
+        catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

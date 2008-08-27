@@ -8,15 +8,18 @@ import javafx.reflect.*;
 import java.lang.System;
 import com.sun.javafx.runtime.sequence.Sequences;
 
-public abstract class MyShape {
+abstract class MyShape {
   public var shapeStrAttr : String;
   public var shapeIntAttr : Integer;
   public var shapeNumAttr : Number;
   public var shapeFunAttr1 : function(:Number,:String):Integer;
   public abstract function transformed(tr:java.awt.geom.AffineTransform):MyShape;
+  public function times1(x: Number): Number {
+    return shapeIntAttr*shapeNumAttr*x;
+  }
 };
-public class MyCanvasItem { };
-public class MyRect extends MyShape, MyCanvasItem {
+class MyCanvasItem { };
+class MyRect extends MyShape, MyCanvasItem {
   public var crners : java.awt.geom.Point2D[];
   /*
   function scriptAccFun1() : Void {}
@@ -31,18 +34,18 @@ public class MyRect extends MyShape, MyCanvasItem {
 };
 
 var context : LocalReflectionContext = LocalReflectionContext.getInstance();
-public class Square extends MyRect {
+class Square extends MyRect {
    var atBlank : String;
    public var atPub : String;
    protected var atProt : String;
    var atPriv : String;
 };
 
-public class Simple extends Square, java.lang.Object {
+class Simple extends Square, java.lang.Object {
    public var at1;
 };
 
-function run( ) {
+//function run( ) {
 var clsSquare = context.findClass("Main.Square");
 var clsMyRect = context.findClass("Main.MyRect");
 System.out.println("clsSquare={clsSquare} jfx-class:{clsSquare.isJfxType()} compound:{clsSquare.isCompoundClass()}");
@@ -94,5 +97,13 @@ for (attr in context.findClass("Main.Square").getAttributes(false)) {
 
 System.out.println("Simple attributes (only): ");
 for (attr in context.findClass("Main.Simple").getAttributes(false)) {
-  System.out.println("  {attr.getName()} : {attr.getType()}") };
-}
+  System.out.println("  {attr.getName()} : {attr.getType()}"); };
+
+System.out.println("MyRect methods: ");
+for (meth in clsMyRect.getMethods(true)) {
+  System.out.println("  {meth}"); };
+
+def m1 = clsMyRect.getMethod("times1", context.getNumberType());
+System.out.println("MyRect.times1(Number): {m1}");
+def two_five = context.mirrorOf(2.5);
+System.out.println("call times1(2.5): {m1.invoke(myRectRef, two_five)}");

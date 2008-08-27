@@ -26,7 +26,7 @@ package javafx.reflect;
 /** A handle/proxy for a {@code Number} reference.
  */
 
-public class NumberValue extends ValueRef {
+public class NumberValue extends ValueRef implements LocalValueRef {
     double value;
     TypeRef type;
 
@@ -41,4 +41,9 @@ public class NumberValue extends ValueRef {
     public TypeRef getType() { return type; }
 
     public String getValueString() { return Double.toString(value); }
+    public String toString() { return "NumberValue("+value+')'; }
+    
+    public Object asObject() {
+        return Double.valueOf(doubleValue());
+    }
 }
