@@ -1663,13 +1663,14 @@ typeExpression
 			  INSTANCEOF itn=type
 			
 				{
-					$value = F.at(rPos).TypeTest($relationalExpression.value, $itn.rtype);
+					$value = F.at(pos($INSTANCEOF)).TypeTest($relationalExpression.value, $itn.rtype);
 					endPos($value);
 				}
+				
 			| AS atn=type
 			
 				{
-					$value = F.at(rPos).TypeCast($atn.rtype, $relationalExpression.value);
+					$value = F.at(pos($AS)).TypeCast($atn.rtype, $relationalExpression.value);
 					endPos($value);
 				}
 			
@@ -1696,7 +1697,9 @@ relationalExpression
 
 	: a1=additiveExpression	{ $value = $a1.value;	}
 		(
-			  relOps   a2=additiveExpression
+			{ rPos = pos(); }	// Use operator as position for AST
+			
+			relOps   a2=additiveExpression
 			  	
 			  	{
 			  		$value = F.at(rPos).Binary($relOps.relOp, $value, $a2.value);
@@ -1741,14 +1744,23 @@ additiveExpression
 	//
 	int	rPos = pos();
 }
-	: m1=multiplicativeExpression	{ $value = $m1.value; }
+	: m1=multiplicativeExpression	
+		{ 
+			$value = $m1.value; 
+		}
 		(
-		      (arithOps)=>arithOps   m2=multiplicativeExpression
+			
+			
+		    (arithOps)=>
+		    
+		    	{ rPos = pos(); }	// Use operator as position for AST
+		    	
+		    	arithOps   m2=multiplicativeExpression
 
-				{
-					$value = F.at(rPos).Binary($arithOps.arithOp , $value, $m2.value);
-					endPos($value);
-				}
+			{
+				$value = F.at(rPos).Binary($arithOps.arithOp , $value, $m2.value);
+				endPos($value);
+			}
 		)* 
 	;
 
@@ -1779,6 +1791,8 @@ multiplicativeExpression
 }
 	: u1=unaryExpression	{ $value = $u1.value; }
 		(
+			{ rPos = pos(); }	// Use operator as position for AST
+			
 			multOps u2=unaryExpression
 				
 				{
@@ -1881,14 +1895,14 @@ suffixedExpression
 			  { input.LT(-1).getType() != RBRACE }?=> PLUSPLUS
 			  
 			  	{
-			  		$value = F.at($pe.value.pos).Unary(JavafxTag.POSTINC, $pe.value);
+			  		$value = F.at(rPos).Unary(JavafxTag.POSTINC, $pe.value);
 			  		endPos($value);
 			  	}
 			  	
 			| { input.LT(-1).getType() != RBRACE }?=> SUBSUB
 			
 				{
-					$value = F.at($pe.value.pos).Unary(JavafxTag.POSTDEC, $pe.value);
+					$value = F.at(rPos).Unary(JavafxTag.POSTDEC, $pe.value);
 					endPos($value);
 				}
 				
@@ -1931,13 +1945,18 @@ postfixExpression
 					  n1=name
 					  
 					  {
-							$value = F.at(rPos).Select($value, $n1.value);
+							$value = F.at(pos($DOT)).Select($value, $n1.value);
+							endPos($value);
 					  }
 					  
 					//TODO:		 | CLASS 
 	         	)
 
-			| (LPAREN)=>LPAREN expressionList RPAREN
+			| (LPAREN)=>LPAREN 
+			
+					{ rPos = pos(); }	// start of expression list as position for AST
+					
+					expressionList RPAREN
 			
 				{
 					$value = F.at(rPos).Apply(null, $value, $expressionList.args.toList());
@@ -1954,7 +1973,11 @@ postfixExpression
 				}
 	
 				(
-					  n2=name PIPE e1=expression RBRACKET
+					  n2=name PIPE 
+					  
+					  { rPos = pos(); }	// Use expression as position for AST
+					  
+					  e1=expression RBRACKET
 					  
 					  {
 					  	// Build a list of clauses as AST builder expects this
@@ -1971,14 +1994,16 @@ postfixExpression
 	          			
 	          			// Predicate needs identifier AST
 	          			//
-                  		$value = F.at(rPos).Predicate(clauses.toList(), F.at($n2.pos).Ident($n2.value));
+                  		$value = F.at(pos($PIPE)).Predicate(clauses.toList(), F.at($n2.pos).Ident($n2.value));
                   		
                   		// Tree span
                   		//
                   		endPos($value);
 					  }
 					  
-					| first=expression
+					| { rPos = pos(); }	// Use expression as position for AST
+					
+						first=expression
                             
 						(
 							  RBRACKET
