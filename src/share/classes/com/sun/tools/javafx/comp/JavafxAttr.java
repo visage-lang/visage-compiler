@@ -95,9 +95,12 @@ public class JavafxAttr implements JavafxVisitor {
      * other instance information
      */
     private final Source source;
-
-    //TODO: this should be switche to false when the workspace is ready
-    private static final boolean allowOldStyleTriggers = false;
+    
+    enum WriteKind {
+        ASSIGN,
+        INIT_NON_BIND,
+        INIT_BIND
+    }
 
     Map<JavafxVarSymbol, JFXVar> varSymToTree =
             new HashMap<JavafxVarSymbol, JFXVar>();
@@ -623,7 +626,7 @@ public class JavafxAttr implements JavafxVisitor {
             // If we are expecting a variable (as opposed to a value), check
             // that the variable is assignable in the current environment.
             if (pkind == VAR)
-                checkAssignable(tree.pos(), v, null, env1.enclClass.sym.type, env, false);
+                checkAssignable(tree.pos(), v, null, env1.enclClass.sym.type, env, WriteKind.ASSIGN);
         }
 
         result = checkId(tree, env1.enclClass.sym.type, sym, env, pkind, pt, pSequenceness, varArgs);
@@ -708,7 +711,7 @@ public class JavafxAttr implements JavafxVisitor {
             // If we are expecting a variable (as opposed to a value), check
             // that the variable is assignable in the current environment.
             if (pkind == VAR)
-                checkAssignable(tree.pos(), v, tree.selected, site, env, false);
+                checkAssignable(tree.pos(), v, tree.selected, site, env, WriteKind.ASSIGN);
         }
 
         // Disallow selecting a type from an expression
@@ -1516,7 +1519,10 @@ public class JavafxAttr implements JavafxVisitor {
 
             if (memberSym instanceof VarSymbol) {
                 VarSymbol v = (VarSymbol)memberSym;
-                checkAssignable(part.pos(), v, part, clazz.type, localEnv, true);
+                WriteKind kind = part.isBound()? 
+                    WriteKind.INIT_BIND :
+                    WriteKind.INIT_NON_BIND;
+                checkAssignable(part.pos(), v, part, clazz.type, localEnv, kind);
             }
             chk.checkBidiBind(part.getMaybeBindExpression(),
                               part.getBindStatus(), part.getExpression());
@@ -3213,7 +3219,7 @@ public class JavafxAttr implements JavafxVisitor {
      *                to the left of the `.', null otherwise.
      *  @param env    The current environment.
      */
-    void checkAssignable(DiagnosticPosition pos, VarSymbol v, JFXTree base, Type site, JavafxEnv<JavafxAttrContext> env, boolean isInit) {
+    void checkAssignable(DiagnosticPosition pos, VarSymbol v, JFXTree base, Type site, JavafxEnv<JavafxAttrContext> env, WriteKind writeKind) {
         //TODO: for attributes they are always final -- this should really be checked in JavafxClassReader
         //TODO: rebutal, actual we should just use a different final
         if ((v.flags() & FINAL) != 0 && !types.isJFXClass(v.owner) &&
@@ -3229,13 +3235,27 @@ public class JavafxAttr implements JavafxVisitor {
             log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_PARAMETER, v);
         } else {
             // now check access permissions for write/init
-            if (isInit && (v.flags() & JavafxFlags.PUBLIC_INIT) != 0L) {
-                return;  // it is an initialization, and init is explicitly allowed
+            switch (writeKind) {
+                case INIT_NON_BIND:
+                    if ((v.flags() & JavafxFlags.PUBLIC_INIT) != 0L) {
+                        // it is an initialization, and init is explicitly allowed
+                        return;
+                    }
+                    break;
             }
             if (!rs.isAccessibleForWrite(env, site, v)) {
-                String msg = isInit ?
-                    MsgSym.MESSAGE_JAVAFX_REPORT_INIT_ACCESS :
-                    MsgSym.MESSAGE_JAVAFX_REPORT_WRITE_ACCESS;
+                String msg;
+                switch (writeKind) {
+                    case INIT_BIND:
+                        msg = MsgSym.MESSAGE_JAVAFX_REPORT_BIND_ACCESS;
+                        break;
+                    case INIT_NON_BIND:
+                        msg = MsgSym.MESSAGE_JAVAFX_REPORT_INIT_ACCESS;
+                        break;
+                    default:
+                        msg = MsgSym.MESSAGE_JAVAFX_REPORT_WRITE_ACCESS;
+                        break;
+                }
                 log.error(pos, msg, v,
                         JavafxCheck.protectionString(v.flags()),
                         v.location());
