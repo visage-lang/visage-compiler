@@ -1923,7 +1923,8 @@ postfixExpression
 	// Work out current position in the input stream
 	//
 	int	rPos = pos();
-	
+	int	sPos = rPos;
+
 	// Position for pipe epxression
 	//
 	int pPos;
@@ -1963,7 +1964,7 @@ postfixExpression
 					endPos($value);
 				}
 				
-			| (LBRACKET)=>LBRACKET
+			| (LBRACKET)=>l1=LBRACKET
 			
 				{
 					// INit our flags
@@ -1977,7 +1978,7 @@ postfixExpression
 					  
 					  { rPos = pos(); }	// Use expression as position for AST
 					  
-					  e1=expression RBRACKET
+					  e1=expression r3=RBRACKET
 					  
 					  {
 					  	// Build a list of clauses as AST builder expects this
@@ -1990,7 +1991,7 @@ postfixExpression
                   		
                   		// Set up the in clause
                   		//
-	          			clauses.append(F.at(rPos).InClause(var, $value, $e1.value));
+	          			clauses.append(F.at(pos($l1)).InClause(var, $value, $e1.value));
 	          			
 	          			// Predicate needs identifier AST
 	          			//
@@ -1998,18 +1999,21 @@ postfixExpression
                   		
                   		// Tree span
                   		//
-                  		endPos($value);
+                  		endPos($value, pos($r3));
 					  }
 					  
-					| { rPos = pos(); }	// Use expression as position for AST
-					
-						first=expression
+					| first=expression
                             
 						(
-							  RBRACKET
+							  r1=RBRACKET
 							  
 							  	{
-							  		$value = F.at(rPos).SequenceIndexed($value, $first.value);
+							  		// Use left bracket as AST start pos
+							  		//
+							  		$value = F.at(sPos).SequenceIndexed($value, $first.value);
+							  		
+							  		// Use right bracket as AST end pos
+							  		//
 							  		endPos($value);
 							  	}
 							  	
@@ -2025,12 +2029,12 @@ postfixExpression
 									  	
 								)
 								
-	                      	  RBRACKET
+	                      	  r2=RBRACKET
 	                      	  
 	                      	  {
 	                      	  	// If we have LT, then this is an exclusive slice
 	                      	  	//
-	                      	  	$value = F.at(rPos).SequenceSlice
+	                      	  	$value = F.at(sPos).SequenceSlice
 	                      	  									(
 	                      	  										$value,
 	                      	  										$first.value,
@@ -2692,6 +2696,7 @@ bracketExpression
 		     |  // Empty sequence 
 		     	{
 		     		 $value = F.at(rPos).EmptySequence();
+		     		 endPos($value);
 		     	}
 	    )
 	  RBRACKET
