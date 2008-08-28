@@ -648,6 +648,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      */
     void setDocComment(JCTree tree, CommonToken comment) {
         if (comment != null) {
+
             if (docComments == null) {
                 docComments = new HashMap<JCTree,String>();
             }

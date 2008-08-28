@@ -112,7 +112,7 @@ import static com.sun.javafx.api.JavafxBindStatus.*;
 	 */
     CommonToken getDocComment(Token start) {
     
-    	// Locate the positoin of this token in the input stream
+    	// Locate the position of the token before this one in the input stream
     	//
 		int index = start.getTokenIndex() - 1;
 		
@@ -122,8 +122,26 @@ import static com.sun.javafx.api.JavafxBindStatus.*;
 		//
 		while (index >= 0) { 
 			Token tok = input.get(index);
-			if (tok.getType() == WS || 
-				tok.getType() == SEMI && tok.getText().equals("beginning of new statement")) {
+			int type;
+			
+			// Because modifiers are dealt with uniformly now, we must ignore
+			// them when running backwards looking for comments. Perhaps I will
+			// review this and record the pre-modifer position or make modifiers
+			// find the documentation comment.
+			//
+			type = tok.getType();
+			if (   type == WS 
+				|| type == ABSTRACT			|| type == BOUND
+				|| type == OVERRIDE			|| type == PACKAGE
+				|| type == PROTECTED		|| type == PUBLIC
+				|| type == PUBLIC_READ		|| type == PUBLIC_INIT
+				//TODO: deprecated -- remove these at some point
+				//
+				|| type == PUBLIC_READABLE	|| type == NON_WRITABLE
+				|| type == PRIVATE			|| type == READABLE
+				|| type == STATIC
+						
+			) {
               --index;
             } else {
               break;
@@ -135,6 +153,7 @@ import static com.sun.javafx.api.JavafxBindStatus.*;
 		// and return null if it is not.
 		//
 		if (index < 0 || input.get(index).getType() != COMMENT) {
+		
            return null;
 		}
 		
@@ -221,6 +240,11 @@ script
         	//
         	$result.pos = $result.pid != null ? $result.pid.pos : $result.defs.head.pos;
         	endPos($result); 
+        	
+        	// Pass on the documentation comments and the endpos map
+        	//
+        	$result.docComments 	= docComments;
+        	$result.endPositions	= endPositions;
         }
     ;
     
@@ -2996,7 +3020,7 @@ identifier
 	: n1=name
 		{
 			$value = F.at($n1.pos).Ident($n1.value);
-			endPos($value, $n1.pos + $n1.value.length());
+						endPos($value, $n1.pos + $n1.value.length());
 		}
 	;
 
