@@ -714,6 +714,11 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
                 results.append(env);
             }
+            catch (RuntimeException ex) {
+                if (env.where != null)
+                    log.note(env.where, MsgSym.MESSAGE_JAVAFX_INTERNAL_ERROR);
+                throw ex;
+            }
             finally {
                 log.useSource(prev);
             }

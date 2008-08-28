@@ -186,7 +186,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 	if (tree == null) {
 	    ret = null;
 	} else {
+            attrEnv.where = tree;
 	    tree.accept(this);
+            attrEnv.where = null;
 	    ret = (TC)this.result;
 	    this.result = null;
 	}
@@ -225,7 +227,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 	if (tree == null) {
 	    ret = null;
 	} else {
+            attrEnv.where = tree;
 	    tree.accept(this);
+            attrEnv.where = null;
 	    ret = (JFXOnReplace)this.result;
 	    this.result = null;
 	}
@@ -354,7 +358,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 	if (expr == null) {
 	    return null;
 	} else {
+            attrEnv.where = expr;
 	    expr.accept(this);
+            attrEnv.where = null;
 	    JCTree ret = this.result;
 	    this.result = null;
 	    return ret instanceof JCStatement?

@@ -70,6 +70,10 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
      */
     public JFXFunctionDefinition enclMethod;
 
+    /** Location info for debugging
+     */
+    public JFXTree where;
+
     /** A generic field for further information.
      */
     public A info;

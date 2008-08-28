@@ -360,4 +360,5 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_OCTAL_MALFORMED = "javafx.octal.malformed";
     public static final String MESSAGE_JAVAFX_OCTAL_FLOAT = "javafx.octal.float";
     public static final String MESSAGE_JAVAFX_EXPONENT_MALFORMED = "javafx.exponent.malformed";
+    public static final String MESSAGE_JAVAFX_INTERNAL_ERROR = "javafx.internal.error";
 }
