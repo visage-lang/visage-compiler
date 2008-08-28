@@ -62,7 +62,7 @@ public class JFXC746Test {
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file);
             JavafxcTask javafxTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             List<? extends UnitTree> treeList = (List)javafxTask.parse();
-            assertTrue(treeList.size() == 1);
+            assertTrue("AST list size should be 1!", treeList.size() == 1);
 
             SourcePositions sp = JavafxcTrees.instance(javafxTask).getSourcePositions();
             UnitTree tree = treeList.iterator().next();
@@ -70,13 +70,13 @@ public class JFXC746Test {
             long start = sp.getStartPosition(tree, pkg);
             long end = sp.getEndPosition(tree, pkg);
             String pkgName = pkg.toString();
-            assertTrue(end - start == pkgName.length());
+            assertTrue("Package AST end-start <" + (end-start) + "> should be same as pkgName len <" + pkgName.length() + ">", end - start == pkgName.length());
             
             Tree cls = tree.getTypeDecls().iterator().next();
             start = sp.getStartPosition(tree, cls);
             end = sp.getEndPosition(tree, cls);
             String clsDecl = "class Test{}";
-            assertTrue(end - start  == clsDecl.length());
+            assertTrue("Class AST end-start <"+ (end-start+1)+ "> should be same as class length <" + clsDecl.length() + ">", end - start + 1  == clsDecl.length());
         } finally {
             Thread.currentThread().setContextClassLoader(orig);
         }

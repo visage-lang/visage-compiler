@@ -496,7 +496,7 @@ classDefinition [ JFXModifiers mods ]
 					$classMembers.mems.toList()
 				);
 				setDocComment($value, docComment);	// Add any detected documentation comment
-				endPos($value); 
+				endPos($value, pos($RBRACE)); 
 		}
 	;
 	
@@ -562,7 +562,7 @@ classMember
 	| m=modifiers
 		(
 			  variableDeclaration		[$m.mods] 		{ $member = $variableDeclaration.value; }
-			| functionDefinition		[$m.mods]		{ $member = $functionDefinition.value; }
+			| functionDefinition		[$m.mods]		{ $member = $functionDefinition.value; 	}
 		)
 	
 	;
@@ -967,7 +967,10 @@ paramName
 
 	: name
 		{
-    		{ $var = F.at($name.pos).Param($name.value, F.TypeUnknown()); }
+    		{ 
+    			$var = F.at($name.pos).Param($name.value, F.TypeUnknown()); 
+    			endPos($var);
+    		}
     	}
 	;
 	
