@@ -75,7 +75,7 @@ public class JavafxScriptClassBuilder {
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         pseudoFile = names.fromString("__FILE__");
         pseudoDir = names.fromString("__DIR__");
-        defaultRunArgName = names.fromString("__ARGS__");
+        defaultRunArgName = names.fromString("<ARGS>");
     }
 
     public void convertAccessFlags(JFXScript script) {

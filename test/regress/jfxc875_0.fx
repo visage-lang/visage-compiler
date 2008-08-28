@@ -5,6 +5,8 @@
  */
 import java.lang.System;
 
-System.out.println("sizeof __ARGS__={sizeof __ARGS__}");
-for (s in __ARGS__)
-    System.out.println("s={s}");
+function run(args : String[]) {
+	System.out.println("sizeof args={sizeof args}");
+	for (s in args)
+	    System.out.println("s={s}");
+}
