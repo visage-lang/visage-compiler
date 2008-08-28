@@ -108,9 +108,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 	if (tree == null) {
 	    ret = null;
 	} else {
+            JFXTree prevWhere = toJava.attrEnv.where;
             toJava.attrEnv.where = tree;
 	    tree.accept(this);
-            toJava.attrEnv.where = null;
+            toJava.attrEnv.where = prevWhere;
 	    ret = (TC)this.result;
 	    this.result = null;
 	}
