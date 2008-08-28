@@ -5,6 +5,7 @@
  */
 
 public def pkgDef = "Close I am.";
+public function pkgFunction() { "Closely done." }
 
 public class  pkgClass {
     public var thing : String = "Close here too."

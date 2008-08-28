@@ -587,15 +587,7 @@ public class JavafxResolve {
                                 e.sym.flags_field |= JavafxFlags.ASSIGNED_TO;
                         }
                         if (checkArgs) {
-                            Type mt = e.sym.type;
-                            if (mt instanceof FunctionType)
-                                mt = mt.asMethodType();
-                            // Better to use selectBest, but that requires some
-                            // changes.  FIXME
-                            if (! (mt instanceof MethodType) ||
-                                    ! argumentsAcceptable(mtype.getParameterTypes(), mt.getParameterTypes(),
-                                    true, false, Warner.noWarnings))
-                                return wrongMethod.setWrongSym(e.sym);
+                            return checkArgs(e.sym, mtype);
                         }
                         return e.sym;
                     }
@@ -612,7 +604,7 @@ public class JavafxResolve {
         for (; e.scope != null; e = e.next()) {
             sym = e.sym;
             Type origin = e.getOrigin().owner.type;
-            if (sym.kind == VAR) {
+            if ((sym.kind & (MTH|VAR)) != 0) {
                 if (e.sym.owner.type != origin)
                     sym = sym.clone(e.getOrigin().owner);
                 return isAccessible(env, origin, sym)
@@ -624,7 +616,7 @@ public class JavafxResolve {
         e = env.toplevel.starImportScope.lookup(name);
         for (; e.scope != null; e = e.next()) {
             sym = e.sym;
-            if (sym.kind != VAR)
+            if ((sym.kind & (MTH|VAR)) == 0)
                 continue;
             // invariant: sym.kind == VAR
             if (bestSoFar.kind < AMBIGUOUS && sym.owner != bestSoFar.owner)
@@ -645,6 +637,23 @@ public class JavafxResolve {
             return bestSoFar.clone(origin);
         else
             return bestSoFar;
+    }
+    //where
+
+    private Symbol checkArgs(Symbol sym, Type mtype) {
+        Type mt = sym.type;
+        if (mt instanceof FunctionType) {
+            mt = mt.asMethodType();
+        }
+        // Better to use selectBest, but that requires some
+        // changes.  FIXME
+        if (!(mt instanceof MethodType) ||
+                !argumentsAcceptable(mtype.getParameterTypes(), mt.getParameterTypes(),
+                true, false, Warner.noWarnings)) {
+            return wrongMethod.setWrongSym(sym);
+        }
+        return sym;
+
     }
 
     Warner noteWarner = new Warner();

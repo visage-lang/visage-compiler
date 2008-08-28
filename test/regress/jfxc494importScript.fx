@@ -9,6 +9,7 @@
 import sub494.jfxc494sub.*;
 import java.lang.System;
 
+System.out.println(scriptFunction());
 System.out.println(scriptDef);
 var x = new scriptClass;
 System.out.println(x.thing);

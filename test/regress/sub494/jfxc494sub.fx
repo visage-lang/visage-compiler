@@ -7,6 +7,7 @@
 package sub494;
 
 public def scriptDef = "Here I am.";
+public function scriptFunction() { "Here I'm acting." }
 
 public class  scriptClass {
     public var thing : String = "Here too."
