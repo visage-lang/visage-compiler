@@ -76,8 +76,8 @@ public class JFXC746Test {
             start = sp.getStartPosition(tree, cls);
             end = sp.getEndPosition(tree, cls);
             String clsDecl = "class Test{}";
-            // For V4 assertTrue("Class AST end-start <"+ (end-start+1)+ "> should be same as class length <" + clsDecl.length() + ">", end - start + 1  == clsDecl.length());
-            assertTrue("Class AST end-start <"+ (end-start)+ "> should be same as class length <" + clsDecl.length() + ">", end - start + 1  == clsDecl.length());
+            // For V4 assertTrue("Class AST end-start <"+ (end-start)+1 "> should be same as class length <" + clsDecl.length() + ">", end - start +1  == clsDecl.length());
+            assertTrue("Class AST end-start <"+ (end-start)+ "> should be same as class length <" + clsDecl.length() + ">", end - start  == clsDecl.length());
         } finally {
             Thread.currentThread().setContextClassLoader(orig);
         }
