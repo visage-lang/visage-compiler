@@ -120,14 +120,20 @@ var sliders = $$('.long-desc').map(function(target) {
 });
 
 $$('.long-desc-open').each(function(lnk,index) {
-	//window.alert("found desc short index " + sliders[index]);
+    //window.alert("found desc short index " + sliders[index]);
 
-	lnk.addEvent('click', function(e) { 
-		//window.alert("in click");
-		e = new Event(e);
-		sliders[index].toggle();
-		e.stop();
-	});
+    lnk.addEvent('click', function(e) { 
+        //window.alert("in click");
+        e = new Event(e);
+        sliders[index].toggle();
+        e.stop();
+        var im = lnk.getElement('img');
+        if(im.get('rel') == 'open') {
+            im.set('src','../images/JFX_arrow_right.png').set('rel','close');
+        } else {
+            im.set('src','../images/JFX_arrow_down.png').set('rel','open');
+        }
+    });
 });
 
 

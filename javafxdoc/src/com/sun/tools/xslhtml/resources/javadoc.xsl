@@ -695,9 +695,10 @@
                     <xsl:apply-templates select="docComment/firstSentenceTags"/>
                     <xsl:if test="$inline-descriptions='true'">
                         <xsl:if test="docComment/extraNotes[@multipleSentences='true']">
-                            More: [<a href="#" class="long-desc-open">+</a>]
+                            <a href="#" class="long-desc-open"><img src="../images/JFX_arrow_right.png"/></a>
                             <div class="long-desc">
                                 <xsl:call-template name="attribute-full-description"/>
+                                &amp;nbsp;
                             </div>
                         </xsl:if>
                     </xsl:if>
@@ -830,7 +831,7 @@
                 <xsl:call-template name="extra-method"/>
                 <xsl:call-template name="extra-method-toc"/>
             </xsl:attribute>
-            <p>
+            <div>
             <xsl:apply-templates select="docComment/firstSentenceTags"/>
                 <xsl:if test="$inline-descriptions='true'">
                     <xsl:if test="docComment/extraNotes[@multipleSentences='true']">
@@ -840,7 +841,7 @@
                         </div>
                     </xsl:if>
                 </xsl:if>
-            </p>
+            </div>
         </dd>
         </xsl:if>
     </xsl:template>

@@ -170,6 +170,10 @@ public class XHTMLProcessingUtils {
         File images = new File(docsdir,"images");
         images.mkdir();
         copy(XHTMLProcessingUtils.class.getResource("resources/quote-background-1.gif"), new File(images, "quote-background-1.gif"));
+        copyResource(images,"JFX_arrow_down.png");
+        copyResource(images,"JFX_arrow_right.png");
+        copyResource(images,"JFX_arrow_up.png");
+        copyResource(images,"JFX_highlight_dot.png");
 
         p(INFO, getString("transforming"));
 
