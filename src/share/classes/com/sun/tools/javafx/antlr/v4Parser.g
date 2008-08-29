@@ -393,10 +393,10 @@ modifierFlag
 	: ABSTRACT			{ $flag = Flags.ABSTRACT;				}
 	| BOUND				{ $flag = JavafxFlags.BOUND;			}
 	| OVERRIDE			{ $flag = JavafxFlags.OVERRIDE;			}
-	| PACKAGE			{ $flag = Flags.PUBLIC /*TODO:JavafxFlags.PACKAGE */;	}
+	| PACKAGE			{ $flag = JavafxFlags.PACKAGE_ACCESS;	}
 	| PROTECTED			{ $flag = Flags.PROTECTED;				}
 	| PUBLIC			{ $flag = Flags.PUBLIC;					}
-	| PUBLIC_READ   	{ $flag = JavafxFlags.PUBLIC_READ;	}
+	| PUBLIC_READ   	{ $flag = JavafxFlags.PUBLIC_READ;		}
 	| PUBLIC_INIT		{ $flag = JavafxFlags.PUBLIC_INIT;		}
         
 	
@@ -566,6 +566,7 @@ classMember
 		)
 	
 	;
+
 
 // ----------
 // Functions.
@@ -1385,19 +1386,11 @@ forExpression
 			
 		RPAREN 
 		
-		(
-			  (LBRACE)=>block
-			  
-			  	{
-			 		$value = F.at(pos($FOR)).ForExpression(clauses.toList(), $block.value);
-				}
+		statement
 				
-			| statement
-				
-				{
-			 		$value = F.at(pos($FOR)).ForExpression(clauses.toList(), $statement.value);
-				}
-		)
+			{
+		 		$value = F.at(pos($FOR)).ForExpression(clauses.toList(), $statement.value);
+			}
 		
 		{
 			// Tree span
@@ -1957,13 +1950,11 @@ postfixExpression
 	         	)
 
 			| (LPAREN)=>LPAREN 
-			
-					{ rPos = pos(); }	// start of expression list as position for AST
-					
+
 					expressionList RPAREN
 			
 				{
-					$value = F.at(rPos).Apply(null, $value, $expressionList.args.toList());
+					$value = F.at(pos($LPAREN)).Apply(null, $value, $expressionList.args.toList());
 					endPos($value);
 				}
 				

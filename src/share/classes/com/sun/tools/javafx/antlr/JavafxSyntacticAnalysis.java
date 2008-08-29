@@ -52,12 +52,12 @@ public class JavafxSyntacticAnalysis {
         JFXScript unit = null;
         String parserChoice = options.get("parser");
         if (parserChoice == null) {
-            parserChoice = "v3"; // default
+            parserChoice = "v4"; // default
         }
         {
             try {
                 
-                if ( (System.getenv("JAVAFX_COM_V4") != null)) {
+                if ( parserChoice.startsWith("v4") ) {
                     
                     // Create input stream from standard input
                     //

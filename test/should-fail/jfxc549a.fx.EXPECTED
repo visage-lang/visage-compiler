@@ -2,4 +2,10 @@ test/should-fail/jfxc549a.fx:10: Sorry, I was trying to understand an identifier
  Perhaps you are missing a 'identifier'.
     var insert: Number;
         ^
-1 error
+test/should-fail/jfxc549a.fx:10: Sorry, I was trying to understand an expression but I got confused when I saw ':'.
+    var insert: Number;
+              ^
+test/should-fail/jfxc549a.fx:11: Sorry, I was trying to understand the script contents but I got confused when I saw '}'.
+};
+^
+3 errors
