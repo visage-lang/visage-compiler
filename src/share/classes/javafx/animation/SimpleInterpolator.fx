@@ -23,6 +23,7 @@
 
 package javafx.animation;
 import java.lang.Object;
+import com.sun.javafx.runtime.Numerics;
 
 /** 
  * A SimpleIterator is defined in terms of a "curve".
@@ -47,10 +48,9 @@ public abstract class SimpleInterpolator extends Interpolator {
      * @profile common
      */      
     public override function interpolate(startValue:Object, endValue:Object, fraction:Number):Object {
-        if (startValue instanceof java.lang.Number and
-	    endValue instanceof java.lang.Number) {
-	    var start : Number = (startValue as java.lang.Number).doubleValue();
-	    var end : Number = (endValue as java.lang.Number).doubleValue();
+        if (Numerics.isNumber(startValue) and Numerics.isNumber(endValue)) {
+	    var start : Number = Numerics.toDouble(startValue);
+	    var end : Number = Numerics.toDouble(endValue);
 	    var val = start + (end-start)*curve(fraction);
 	    if (startValue instanceof java.lang.Integer and
 	        endValue instanceof java.lang.Integer)

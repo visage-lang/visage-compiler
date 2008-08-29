@@ -103,10 +103,10 @@ public class Pointer implements KeyValueTarget {
     public void set(Object value) {
         switch (type) {
             case INTEGER:
-                ((IntLocation) location).setAsInt(((Number)value).intValue());
+                ((IntLocation) location).setAsInt(Numerics.toInt(value));
                 break;
             case DOUBLE:
-                ((DoubleLocation) location).setAsDouble(((Number)value).doubleValue());
+                ((DoubleLocation) location).setAsDouble(Numerics.toDouble(value));
                 break;
             case BOOLEAN:
                 ((BooleanLocation) location).setAsBoolean((Boolean) value);
