@@ -102,6 +102,12 @@ body {
 #classes-toc .content a:hover {
 	text-decoration: underline;
 }
+#classes-toc .selected-class {
+	background-position: 0% 50%;
+	background-repeat: no-repeat;
+	background-color: white;
+	background-image: url(images/JFX_highlight_dot.png);
+}
 
 
 

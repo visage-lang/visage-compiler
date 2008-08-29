@@ -202,6 +202,9 @@
                             <li>
                                 <xsl:attribute name="class">
                                     <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
+                                    <xsl:if test="@qualifiedName = $target-class">
+                                        <xsl:text> selected-class</xsl:text>
+                                    </xsl:if>
                                 </xsl:attribute>
                                 <a>
                                 <xsl:attribute name="href">
