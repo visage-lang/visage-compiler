@@ -28,6 +28,7 @@ import com.sun.javafx.runtime.annotation.SourceName;
 import com.sun.tools.javafx.util.NotImplementedException;
 import com.sun.javafx.runtime.location.ObjectLocation;
 import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.functions.*;
 
 /** Implementation of {@link ReflectionContext} using Java reflection.
  * Can only access objects and types in the current JVM.
@@ -48,8 +49,6 @@ public class LocalReflectionContext extends ReflectionContext {
     /** Create a reference to a given Object. */
     public ObjectRef mirrorOf(Object obj) {
         return new LocalObjectRef(obj, this);
-        //throw new Error();
-        //return new LocalObjectRef(this, obj);
     }
 
     public ValueRef mirrorOf(final Object val, final TypeRef type) {
@@ -71,6 +70,65 @@ public class LocalReflectionContext extends ReflectionContext {
                 public int getItemCount() { return seq.size(); }
                 public ValueRef getItem(int index) { return mirrorOf(seq.get(index), eltype); }
             };
+        }
+        else if (type instanceof FunctionTypeRef && val instanceof Function) {
+            final FunctionTypeRef ftype = (FunctionTypeRef) type;
+            return new FunctionValueRef() {
+                public ValueRef apply(ValueRef... arg) {
+                    Object result;
+                    int nargs = arg.length;
+                    Object[] rargs = new Object[nargs];
+                    for (int i = 0;  i < nargs;  i++)
+                        rargs[i] = ((LocalValueRef) arg[i]).asObject();
+                    switch (nargs) {
+                        case 0:
+                            result = ((Function0) val).invoke();
+                            break;
+                        case 1:
+                            result = ((Function1) val).invoke(rargs[0]);
+                            break;
+                        case 2:
+                            result = ((Function2) val).invoke(rargs[0], rargs[1]);
+                            break;
+                        case 3:
+                            result = ((Function3) val).invoke(rargs[0],
+                                    rargs[1], rargs[2]);
+                            break;
+                        case 4:
+                            result = ((Function4) val).invoke(rargs[0],
+                                    rargs[1], rargs[2], rargs[3]);
+                            break;
+                        case 5:
+                            result = ((Function5) val).invoke(rargs[0],
+                                    rargs[1], rargs[2], rargs[3], rargs[4]);
+                            break;
+                        case 6:
+                            result = ((Function6) val).invoke(rargs[0],
+                                    rargs[1], rargs[2], rargs[3], rargs[4],
+                                    rargs[5]);
+                            break;
+                        case 7:
+                            result = ((Function7) val).invoke(rargs[0],
+                                    rargs[1], rargs[2], rargs[3], rargs[4],
+                                    rargs[5], rargs[6]);
+                            break;
+                        case 8:
+                            result = ((Function8) val).invoke(rargs[0],
+                                    rargs[1], rargs[2], rargs[3], rargs[4],
+                                    rargs[5], rargs[6], rargs[7]);
+                            break;
+                        default:
+                            throw new IllegalArgumentException();
+                    }
+                    return mirrorOf(result, ftype.getReturnType());
+                }
+                public FunctionTypeRef getType() {
+                    return ftype;
+                }
+                public boolean isNull() { return false; }
+
+                public String getValueString() { return toString(); };
+            };
         } else {
             return new ValueRef() {
                 public String getValueString() { return val == null ? null : val.toString(); }
@@ -81,7 +139,7 @@ public class LocalReflectionContext extends ReflectionContext {
     }
 
     public ObjectRef mirrorOf(String val) {
-      return mirrorOf((Object) val);
+      return new LocalObjectRef(val, this);
     }
 
     public ValueRef mirrorOf (int value) {
