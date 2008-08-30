@@ -550,15 +550,21 @@ public abstract class JavafxTranslationSupport {
     }
 
     /**
-     * For an attribute "attr" make an access to it via the receiver and getter
-     *      "receiver$.get$attr()"
+     * For an attribute "attr" make an access to it via the provided receiver and getter
+     *      "receiver.get$attr()"
+     * Or direct (prefixed) access is static.
+     * If receiver is null, use direct access.
      * */
    JCExpression makeAttributeAccess(DiagnosticPosition diagPos, Symbol attribSym, Name instanceName) {
-       return attribSym.isStatic()?
-           make.Ident(attributeFieldName(attribSym)) :
-           callExpression(diagPos,
-                make.Ident(instanceName),
+       JCExpression instanceIdent = instanceName==null? null : make.at(diagPos).Ident(instanceName);
+       if (attribSym.isStatic()) {
+           Name fieldName = attributeFieldName(attribSym);
+           return instanceIdent==null? make.at(diagPos).Ident(fieldName) : make.at(diagPos).Select(instanceIdent, fieldName);
+       } else {
+           return callExpression(diagPos,
+                instanceIdent,
                 attributeGetterName(attribSym));
+       }
    }
 
     BlockExprJCBlockExpression makeBlockExpression(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value) {

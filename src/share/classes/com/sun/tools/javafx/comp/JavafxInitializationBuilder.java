@@ -855,15 +855,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 List.<JCExpression>nil(), 
                 make.at(diagPos).AnonymousClassDef(make.Modifiers(0L), members.toList()));
 
-        JCExpression attrRef;
+        JCExpression varRef;
         if (info.getSymbol().owner.kind == Kinds.TYP) {
             // on replace is on class variable
-            attrRef = makeAttributeAccess(diagPos, info.getSymbol(), defs.receiverName);
+            varRef = makeAttributeAccess(diagPos, info.getSymbol(),
+                    info.getSymbol().isStatic()? null : defs.receiverName);
         } else {
             // on replace is on local variable
-            attrRef = make.at(diagPos).Ident(info.getName());
+            varRef = make.at(diagPos).Ident(info.getName());
         }
-        JCFieldAccess tmpSelect = make.at(diagPos).Select(attrRef, addChangeListenerName);
+        JCFieldAccess tmpSelect = make.at(diagPos).Select(varRef, addChangeListenerName);
 
         List<JCExpression> args = List.<JCExpression>of(anonymousChangeListener);
         return make.at(diagPos).Exec(make.at(diagPos).Apply(emptyTypeArgs, tmpSelect, args));

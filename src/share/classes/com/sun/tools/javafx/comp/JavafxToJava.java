@@ -882,9 +882,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 stats.append(translateExpressionToStatement(var));
             }
 
-            protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name attrName) {
+            protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name instanceName) {
                 return toJava.translateDefinitionalAssignmentToSet(diagPos, init, bindStatus,
-                        vsym, attrName, FROM_LITERAL_MILIEU);
+                        vsym, instanceName, FROM_LITERAL_MILIEU);
             }
             }.doit();
 
@@ -1019,10 +1019,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     private JCStatement translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
-            Name attrName, int milieu) {
+            Name instanceName, int milieu) {
         return make.at(diagPos).Exec( translateDefinitionalAssignmentToSetExpression(diagPos,
             init, bindStatus, vsym,
-             attrName, milieu) );
+             instanceName, milieu) );
     }
 
     private JCExpression translateDefinitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
@@ -1403,7 +1403,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         if (tree.rhs instanceof JFXBindExpression) {
             JFXBindExpression bind = (JFXBindExpression) tree.rhs;
-            JCExpression lhs = translate(tree.lhs, Wrapped.InLocation);
             result = translateDefinitionalAssignmentToSetExpression(bind.pos(),
                                     bind.getExpression(), bind.getBindStatus(), vsym,
                                     null /*for now*/, FROM_DEFAULT_MILIEU);
@@ -3205,9 +3204,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             protected void processLocalVar(JFXVar var) {
             }
 
-            protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name attrName) {
+            protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name instanceName) {
                 return toJava.translateDefinitionalAssignmentToSet(diagPos, init, bindStatus,
-                        vsym, attrName, FROM_LITERAL_MILIEU);
+                        vsym, instanceName, FROM_LITERAL_MILIEU);
             }
         }.doit();
     }
