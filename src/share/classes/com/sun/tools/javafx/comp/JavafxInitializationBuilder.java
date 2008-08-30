@@ -38,9 +38,9 @@ import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.AttributeInfo;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedAttributeInfo;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideAttributeInfo;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.VarInfo;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedVarInfo;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideClassVarInfo;
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javac.code.Flags.PRIVATE;
 
@@ -151,8 +151,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
      * Return all this as a JavafxClassModel for use in translation.
      * */
    JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl, 
-           List<TranslatedAttributeInfo> translatedAttrInfo, 
-           List<TranslatedOverrideAttributeInfo> translatedOverrideAttrInfo) {
+           List<TranslatedVarInfo> translatedAttrInfo,
+           List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo) {
         boolean classOnly = cDecl.generateClassOnly();
         DiagnosticPosition diagPos = cDecl.pos();
         Type superType = superType(cDecl);
@@ -161,7 +161,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         JavafxAnalyzeClass analysis = new JavafxAnalyzeClass(diagPos,
                 cDecl.sym, translatedAttrInfo, translatedOverrideAttrInfo,
                 log, names, types, reader, typeMorpher);
-        List<AttributeInfo> instanceAttributeInfos = analysis.instanceAttributeInfos();
+        List<VarInfo> instanceAttributeInfos = analysis.instanceAttributeInfos();
         List<ClassSymbol> javaInterfaces = immediateJavaInterfaceNames(cDecl);
         List<ClassSymbol> immediateFxSupertypeNames = immediateJavafxSupertypes(cDecl);
 
@@ -478,9 +478,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return members.toList();
     }
 
-    private List<JCTree> makeInterfaceAttributeGetterMethods(DiagnosticPosition diagPos, List<? extends AttributeInfo> attrInfos) {
+    private List<JCTree> makeInterfaceAttributeGetterMethods(DiagnosticPosition diagPos, List<? extends VarInfo> attrInfos) {
         ListBuffer<JCTree> getters = ListBuffer.lb();
-        for (AttributeInfo ai : attrInfos) {
+        for (VarInfo ai : attrInfos) {
             if (!ai.isStatic()) {
                 JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT);
                 getters.append(make.MethodDef(
@@ -496,14 +496,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return getters.toList();
     }
 
-    private List<JCTree> makeClassAttributeGetterMethods(JFXClassDeclaration cDecl, List<? extends AttributeInfo> attrInfos) {
+    private List<JCTree> makeClassAttributeGetterMethods(JFXClassDeclaration cDecl, List<? extends VarInfo> attrInfos) {
         ListBuffer<JCTree> getters = ListBuffer.lb();
-        for (AttributeInfo ai : attrInfos) {
+        for (VarInfo ai : attrInfos) {
             if (ai.needsCloning()) {
                 long flags = ai.getFlags();
                 DiagnosticPosition diagPos = ai.pos();
                 Name attribName = attributeFieldName(ai.getSymbol());
-                Name methodName = attributeName(ai.getSymbol(), attributeGetMethodNamePrefix);
+                Name methodName = attributeGetterName(ai.getSymbol());
 
                 // Add the return statement for the attribute
                 JCExpression value = make.Ident(attribName);
@@ -558,9 +558,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
      */
     private List<JCTree> makeClassAttributeApplyDefaultsMethods(DiagnosticPosition diagPos,
             JFXClassDeclaration cDecl,
-            List<? extends AttributeInfo> attrInfos) {
+            List<? extends VarInfo> attrInfos) {
         ListBuffer<JCTree> methods = ListBuffer.lb();
-        for (AttributeInfo ai : attrInfos) {
+        for (VarInfo ai : attrInfos) {
             if (ai.needsCloning()) {
                 Name methodName = attributeName(ai.getSymbol(), attributeApplyDefaultsMethodNamePrefix);
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
@@ -625,7 +625,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     }
     
     private JCMethodDecl makeInitializeMethod(DiagnosticPosition diagPos,
-            List<AttributeInfo> attrInfos,
+            List<VarInfo> attrInfos,
             JFXClassDeclaration cDecl) {
         boolean classIsFinal = (cDecl.getModifiers().flags & Flags.FINAL) != 0;
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
@@ -658,7 +658,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         // "InitHelper.finish(new[] { attribute, ... });
         ListBuffer<JCExpression> attrs = ListBuffer.lb();
-        for (AttributeInfo ai : attrInfos) {
+        for (VarInfo ai : attrInfos) {
             if (ai.needsCloning()) {
                 attrs.append(make.at(diagPos).Ident(attributeFieldName(ai.getSymbol())));
             }
@@ -682,10 +682,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     }
     
     // Add the initialization of this class' attributes
-    private List<JCStatement> makeInitAttributesCode(List<AttributeInfo> attrInfos,
+    private List<JCStatement> makeInitAttributesCode(List<VarInfo> attrInfos,
             JFXClassDeclaration cDecl) {
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        for (AttributeInfo ai : attrInfos) {
+        for (VarInfo ai : attrInfos) {
             if ((ai.getFlags() & Flags.STATIC) == 0) {
                 DiagnosticPosition diagPos = ai.pos();
                 Name methodName = attributeName(ai.getSymbol(), attributeApplyDefaultsMethodNamePrefix);
@@ -706,12 +706,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
      * Construct the static block for setting defaults
      * */
     private JCBlock makeInitStaticAttributesBlock(JFXClassDeclaration cDecl,
-            List<TranslatedAttributeInfo> translatedAttrInfo) {
+            List<TranslatedVarInfo> translatedAttrInfo) {
         // Add the initialization of this class' attributesa
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         boolean isLibrary = toJava.attrEnv.toplevel.isLibrary;
-        for (TranslatedAttributeInfo tai : translatedAttrInfo) {
-            assert tai.attribute != null && tai.attribute.getFXTag() == JavafxTag.VAR_DEF && tai.attribute.pos != Position.NOPOS;
+        for (TranslatedVarInfo tai : translatedAttrInfo) {
+            assert tai.var != null && tai.var.getFXTag() == JavafxTag.VAR_DEF && tai.var.pos != Position.NOPOS;
             if (tai.isStatic()) {
                 DiagnosticPosition diagPos = tai.pos();
                 // don't put variable initialization in the static initializer if this is a simple-form
@@ -737,15 +737,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private JCMethodDecl makeAddTriggersMethod(DiagnosticPosition diagPos, 
                                                JFXClassDeclaration cDecl,
                                                List<ClassSymbol> javafxSupers,
-                                               List<TranslatedAttributeInfo> translatedAttrInfo,
-                                               List<TranslatedOverrideAttributeInfo> translatedTriggerInfo) {
+                                               List<TranslatedVarInfo> translatedAttrInfo,
+                                               List<TranslatedOverrideClassVarInfo> translatedTriggerInfo) {
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
         // call the superclasses addTriggers
         stmts.appendList( makeAllSuperCalls(diagPos, javafxSupers, defs.addTriggersName) );
 
         // add change listeners for triggers on attribute definitions
-        for (TranslatedAttributeInfo info : translatedAttrInfo) {
+        for (TranslatedVarInfo info : translatedAttrInfo) {
             if (!info.isStatic()) {
                 JCStatement stat = makeChangeListenerCall(info);
                 if (stat != null) {
@@ -755,7 +755,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         // add change listeners for "with" triggers
-        for (TranslatedOverrideAttributeInfo info : translatedTriggerInfo) {
+        for (TranslatedOverrideClassVarInfo info : translatedTriggerInfo) {
             if (!info.isStatic()) {
                 JCStatement stat = makeChangeListenerCall(info);
                 if (stat != null) {
@@ -777,9 +777,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
     // build a field for each non-static attribute (including inherited).
     // and for static attributes of this class
-    private List<JCTree> makeAttributeFields(Symbol csym, List<? extends AttributeInfo> attrInfos) {
+    private List<JCTree> makeAttributeFields(Symbol csym, List<? extends VarInfo> attrInfos) {
         ListBuffer<JCTree> fields = ListBuffer.lb();
-        for (AttributeInfo ai : attrInfos) {
+        for (VarInfo ai : attrInfos) {
             if (ai.needsCloning()) {
                 DiagnosticPosition diagPos = ai.pos();
                 JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.FINAL | (ai.getFlags() & Flags.STATIC));
@@ -811,7 +811,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     /**
      * Non-destructive creation of "on change" change listener set-up call.
      */
-    JCStatement makeChangeListenerCall(AttributeInfo info) {
+    JCStatement makeChangeListenerCall(VarInfo info) {
         
         //TODO: TranslatedAttributeInfo should be simplified to hold onReplace attribute only
         //

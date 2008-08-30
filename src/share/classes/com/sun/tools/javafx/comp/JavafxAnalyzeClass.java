@@ -36,19 +36,19 @@ class JavafxAnalyzeClass {
 
     private final DiagnosticPosition diagPos;
     private final ClassSymbol currentClassSym;
-    private final ListBuffer<AttributeInfo> attributeInfos = ListBuffer.lb();
+    private final ListBuffer<VarInfo> attributeInfos = ListBuffer.lb();
     private final Map<String,MethodSymbol> needDispatchMethods = new HashMap<String, MethodSymbol>();
-    private final Map<Name, AttributeInfo> translatedAttributes = new HashMap<Name, AttributeInfo>();
-    private final Map<Name, AttributeInfo> visitedAttributes = new HashMap<Name, AttributeInfo>();
+    private final Map<Name, VarInfo> translatedAttributes = new HashMap<Name, VarInfo>();
+    private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
     private final Set<Symbol> addedBaseClasses = new HashSet<Symbol>();
-    private final List<TranslatedAttributeInfo> translatedAttrInfo;
+    private final List<TranslatedVarInfo> translatedAttrInfo;
     private final Log log;
     private final Name.Table names;
     private final JavafxTypes types;
     private final JavafxClassReader reader;
     private final JavafxTypeMorpher typeMorpher;
 
-    static class AttributeInfo {
+    static class VarInfo {
         private final DiagnosticPosition diagPos;
         private final Symbol sym;
         private final VarMorphInfo vmi;
@@ -57,7 +57,7 @@ class JavafxAnalyzeClass {
         private final boolean isDirectOwner;
         private boolean needsCloning;
         
-        private AttributeInfo(DiagnosticPosition diagPos, Name name, Symbol attrSym, VarMorphInfo vmi,
+        private VarInfo(DiagnosticPosition diagPos, Name name, Symbol attrSym, VarMorphInfo vmi,
                 JCStatement initStmt, boolean isDirectOwner) {
             this.diagPos = diagPos;
             this.name = name;
@@ -103,11 +103,6 @@ class JavafxAnalyzeClass {
             return sym.flags();
         }
         
-        // possibly confusing.  "needsCloning()" should be used for all known cases
-        //public boolean isInCompoundClass() {
-        //    return (sym.owner.flags() & JavafxFlags.COMPOUND_CLASS) != 0;
-        //}
-        
         private void setNeedsCloning(boolean needs) {
             needsCloning = needs;
         }
@@ -141,42 +136,17 @@ class JavafxAnalyzeClass {
             return getNameString();
         }
     }
-    
-    /*
-    static class TranslatedAttributeInfo extends AttributeInfo {
-        final JFXVar attribute;
-        final List<JFXAbstractOnChange> onChanges;
-        TranslatedAttributeInfo(JFXVar attribute, VarMorphInfo vmi,
-                JCStatement initStmt, List<JFXAbstractOnChange> onChanges) {
-            super(attribute.pos(), attribute.sym.name, attribute.sym, vmi, initStmt, true);
-            this.attribute = attribute;
-            this.onChanges = onChanges;
-        }
         
-        private void setNeedsCloning(boolean needs) {
-            assert needs;
-        }
-        
-        public boolean needsCloning() {
-            return true; // these are from current class, so always need cloning
-        }
-        
-    } */
-    
-    static class TranslatedAttributeInfo extends AttributeInfo {
-        final JFXVar attribute;
+    static class TranslatedVarInfo extends VarInfo {
+        final JFXVar var;
         private final JFXOnReplace onReplace;
         private final JCBlock onReplaceTranslatedBody;
-        TranslatedAttributeInfo(JFXVar attribute, VarMorphInfo vmi,
+        TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
                 JCStatement initStmt, JFXOnReplace onReplace, JCBlock onReplaceTranslatedBody) {
-            super(attribute.pos(), attribute.sym.name, attribute.sym, vmi, initStmt, true);
-            this.attribute = attribute;
+            super(var.pos(), var.sym.name, var.sym, vmi, initStmt, true);
+            this.var = var;
             this.onReplace = onReplace;
             this.onReplaceTranslatedBody = onReplaceTranslatedBody;
-        }
-        
-        private void setNeedsCloning(boolean needs) {
-            assert needs;
         }
         
         @Override
@@ -193,10 +163,10 @@ class JavafxAnalyzeClass {
     
     
   
-    static class TranslatedOverrideAttributeInfo extends AttributeInfo {
+    static class TranslatedOverrideClassVarInfo extends VarInfo {
         private final JFXOnReplace onReplace;
         private final JCBlock onReplaceTranslatedBody;
-        TranslatedOverrideAttributeInfo(JFXOverrideClassVar override,
+        TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
                 JCStatement initStmt, JFXOnReplace onReplace, JCBlock onReplaceTranslatedBody) {
             super(override.pos(), override.sym.name, override.sym, vmi, initStmt, true);
@@ -212,8 +182,8 @@ class JavafxAnalyzeClass {
      
     JavafxAnalyzeClass(DiagnosticPosition diagPos,
             ClassSymbol currentClassSym,
-            List<TranslatedAttributeInfo> translatedAttrInfo,
-            List<TranslatedOverrideAttributeInfo> translatedOverrideAttrInfo,
+            List<TranslatedVarInfo> translatedAttrInfo,
+            List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo,
             Log log,
             Name.Table names,
             JavafxTypes types,
@@ -228,10 +198,10 @@ class JavafxAnalyzeClass {
         this.currentClassSym = currentClassSym;
         
         this.translatedAttrInfo = translatedAttrInfo;
-        for (TranslatedAttributeInfo tai : translatedAttrInfo) {
+        for (TranslatedVarInfo tai : translatedAttrInfo) {
             translatedAttributes.put(tai.getName(), tai);
         }
-        for (TranslatedOverrideAttributeInfo tai : translatedOverrideAttrInfo) {
+        for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
             translatedAttributes.put(tai.getName(), tai);
         }
 
@@ -240,13 +210,13 @@ class JavafxAnalyzeClass {
         types.isCompoundClass(currentClassSym);
     }
 
-    public List<AttributeInfo> instanceAttributeInfos() {
+    public List<VarInfo> instanceAttributeInfos() {
         return attributeInfos.toList();
     }
 
-    public List<AttributeInfo> staticAttributeInfos() {
-        ListBuffer<AttributeInfo> ais = ListBuffer.lb();
-        for (AttributeInfo ai : translatedAttrInfo) {
+    public List<VarInfo> staticAttributeInfos() {
+        ListBuffer<VarInfo> ais = ListBuffer.lb();
+        for (VarInfo ai : translatedAttrInfo) {
             if (ai.isStatic()) {
                 ais.append( ai );
             }
@@ -320,10 +290,10 @@ class JavafxAnalyzeClass {
         }
     }
 
-    private AttributeInfo addAttribute(Name attrName, Symbol sym, boolean needsCloning) {
-        AttributeInfo attrInfo = translatedAttributes.get(attrName);
+    private VarInfo addAttribute(Name attrName, Symbol sym, boolean needsCloning) {
+        VarInfo attrInfo = translatedAttributes.get(attrName);
         if (attrInfo == null || attrInfo.getSymbol() != sym) {
-            attrInfo = new AttributeInfo(diagPos, 
+            attrInfo = new VarInfo(diagPos,
                     attrName,
                     sym, typeMorpher.varMorphInfo(sym), null, sym.owner == currentClassSym);
         }
@@ -355,7 +325,7 @@ class JavafxAnalyzeClass {
             if (visitedAttributes.containsKey(attrName)) {
                 log.error(MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEFAULT_INITIALIZER, attrName, cSym.name, visitedAttributes.get(attrName));
             } else {
-                AttributeInfo ai = addAttribute(attrName, var, cloneVisible);
+                VarInfo ai = addAttribute(attrName, var, cloneVisible);
                 if ((var.flags() & PRIVATE) == 0)
                     visitedAttributes.put(attrName, ai);
             }

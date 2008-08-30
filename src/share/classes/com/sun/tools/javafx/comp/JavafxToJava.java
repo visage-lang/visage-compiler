@@ -47,8 +47,8 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.JavafxClassModel;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedAttributeInfo;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideAttributeInfo;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedVarInfo;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideClassVarInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
@@ -528,8 +528,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             ListBuffer<JCStatement> translatedInitBlocks = ListBuffer.lb();
             ListBuffer<JCStatement> translatedPostInitBlocks = ListBuffer.lb();
             ListBuffer<JCTree> translatedDefs = ListBuffer.lb();
-            ListBuffer<TranslatedAttributeInfo> attrInfo = ListBuffer.lb();
-            ListBuffer<TranslatedOverrideAttributeInfo> overrideInfo = ListBuffer.lb();
+            ListBuffer<TranslatedVarInfo> attrInfo = ListBuffer.lb();
+            ListBuffer<TranslatedOverrideClassVarInfo> overrideInfo = ListBuffer.lb();
 
            // translate all the definitions that make up the class.
            // collect any prepended definitions, and prepend then to the tranlations
@@ -560,7 +560,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                                 translateDefinitionalAssignmentToSet(attrDef.pos(),
                                 attrDef.getInitializer(), attrDef.getBindStatus(), attrDef.sym,
                                 isStatic? null : defs.receiverName, FROM_DEFAULT_MILIEU);
-                            attrInfo.append(new TranslatedAttributeInfo(
+                            attrInfo.append(new TranslatedVarInfo(
                                     attrDef,
                                     typeMorpher.varMorphInfo(attrDef.sym),
                                     init,
@@ -581,7 +581,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                                     isStatic? null : defs.receiverName,
                                     FROM_DEFAULT_MILIEU);
                             }
-                            overrideInfo.append(new TranslatedOverrideAttributeInfo(
+                            overrideInfo.append(new TranslatedOverrideClassVarInfo(
                                     override,
                                     typeMorpher.varMorphInfo(override.sym),
                                     init,
@@ -1038,8 +1038,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 // statics are accessed directly
                 localAttr = make.Ident(attributeFieldName(vsym));
             } else {
-                String attrAccess = attributeNameString(vsym, attributeGetMethodNamePrefix);
-                localAttr = callExpression(diagPos, make.Ident(attrName), attrAccess);
+                localAttr = callExpression(diagPos, make.Ident(attrName), attributeGetterName(vsym));
             }
         } else {
             // if it is a local variable
@@ -1141,13 +1140,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JFXOnReplace onReplace = tree.getOnReplace();
             if ( onReplace != null ) {
 
-                TranslatedAttributeInfo attrInfo = new TranslatedAttributeInfo(
+                TranslatedVarInfo varInfo = new TranslatedVarInfo(
                                                             tree,
                                                             vmi,
                                                             null,
                                                             tree.getOnReplace(),
                                                             translatedOnReplaceBody(tree.getOnReplace()));
-                JCStatement changeListener = initBuilder.makeChangeListenerCall(attrInfo);
+                JCStatement changeListener = initBuilder.makeChangeListenerCall(varInfo);
                 prependToStatements.append(changeListener);
             }
 
@@ -2958,7 +2957,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         expr = make.at(diagPos).Select(select.getExpression(), attrAccessName);
                     } else {
                         // an instance variable, use get$
-                        Name attrAccessName = attributeName(vsym, attributeGetMethodNamePrefix);
+                        Name attrAccessName = attributeGetterName(vsym);
                         select = make.at(diagPos).Select(select.getExpression(), attrAccessName);
                         List<JCExpression> emptyArgs = List.nil();
                         expr = make.at(diagPos).Apply(null, select, emptyArgs);
@@ -3174,8 +3173,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                             // statics are accessed directly
                             localAttr = make.Ident(vsym);
                         } else {
-                            String attrAccess = attributeNameString(vsym, attributeGetMethodNamePrefix);
-                            localAttr = callExpression(diagPos, make.Ident(attrName), attrAccess);
+                            localAttr = callExpression(diagPos, make.Ident(attrName), attributeGetterName(vsym));
                         }
                     } else {
                         // if it is a local variable

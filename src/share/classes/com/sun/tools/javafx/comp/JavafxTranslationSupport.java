@@ -468,6 +468,10 @@ public abstract class JavafxTranslationSupport {
         return names.fromString(attributeNameString(sym, prefix));
     }
 
+    Name attributeGetterName(Symbol sym) {
+        return attributeName(sym, attributeGetMethodNamePrefix);
+    }
+
     String attributeNameString(Symbol sym, String prefix) {
         String sname = sym.name.toString();
         Symbol owner = sym.owner;
@@ -554,7 +558,7 @@ public abstract class JavafxTranslationSupport {
            make.Ident(attributeFieldName(attribSym)) :
            callExpression(diagPos,
                 make.Ident(defs.receiverName),
-                attributeNameString(attribSym, attributeGetMethodNamePrefix));
+                attributeGetterName(attribSym));
    }
 
     BlockExprJCBlockExpression makeBlockExpression(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value) {
