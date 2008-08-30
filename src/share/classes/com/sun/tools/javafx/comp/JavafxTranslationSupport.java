@@ -461,18 +461,18 @@ public abstract class JavafxTranslationSupport {
 
 
     Name attributeFieldName(Symbol sym) {
-        return names.fromString(attributeNameString(sym, "$"));
-    }
-
-    Name attributeName(Symbol sym, String prefix) {
-        return names.fromString(attributeNameString(sym, prefix));
+        return prefixedAttributeName(sym, "$");
     }
 
     Name attributeGetterName(Symbol sym) {
-        return attributeName(sym, attributeGetMethodNamePrefix);
+        return prefixedAttributeName(sym, attributeGetMethodNamePrefix);
+    }
+    
+    Name attributeApplyDefaultsName(Symbol sym) {
+        return prefixedAttributeName(sym, attributeApplyDefaultsMethodNamePrefix);
     }
 
-    String attributeNameString(Symbol sym, String prefix) {
+    private Name prefixedAttributeName(Symbol sym, String prefix) {
         String sname = sym.name.toString();
         Symbol owner = sym.owner;
         long privateAccess = sym.flags() & (Flags.PRIVATE | JavafxFlags.SCRIPT_PRIVATE);
@@ -482,7 +482,7 @@ public abstract class JavafxTranslationSupport {
             // mangle name to hide it
             sname = owner.toString().replace('.', '$') + '$' + sname;
         }
-        return prefix + sname;
+        return names.fromString( prefix + sname );
     }
 
     private String getParameterTypeSuffix(MethodSymbol sym) {
@@ -553,11 +553,11 @@ public abstract class JavafxTranslationSupport {
      * For an attribute "attr" make an access to it via the receiver and getter
      *      "receiver$.get$attr()"
      * */
-   JCExpression makeAttributeAccess(DiagnosticPosition diagPos, Symbol attribSym) {
+   JCExpression makeAttributeAccess(DiagnosticPosition diagPos, Symbol attribSym, Name instanceName) {
        return attribSym.isStatic()?
            make.Ident(attributeFieldName(attribSym)) :
            callExpression(diagPos,
-                make.Ident(defs.receiverName),
+                make.Ident(instanceName),
                 attributeGetterName(attribSym));
    }
 

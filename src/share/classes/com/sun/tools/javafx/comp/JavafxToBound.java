@@ -238,25 +238,19 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
     private JCStatement definitionalAssignmentToSet(DiagnosticPosition diagPos,
             JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
-            Name attrName, int milieu) {
+            Name instanceName, int milieu) {
         return make.at(diagPos).Exec( definitionalAssignmentToSetExpression(diagPos,
             init, bindStatus, vsym,
-             attrName, milieu) );
+             instanceName, milieu) );
     }
 
     private JCExpression definitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
             JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
-            Name attrName, int milieu) {
+            Name instanceName, int milieu) {
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         JCExpression nonNullInit = (init == null)? makeDefaultValue(diagPos, vmi) : init;
         List<JCExpression> args = List.<JCExpression>of( nonNullInit );
-        JCExpression localAttr;
-        if ((vsym.flags() & STATIC) != 0) {
-            // statics are accessed directly
-            localAttr = make.Ident(vsym);
-        } else {
-            localAttr = callExpression(diagPos, make.Ident(attrName), attributeGetterName(vsym));
-        }
+        JCExpression localAttr = makeAttributeAccess(diagPos, vsym, instanceName);
         Name methName;
         if (bindStatus.isUnidiBind()) {
             methName = defs.locationBindMilieuMethodName[milieu];
@@ -443,10 +437,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         }
                     }
 
-                    protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name attrName) {
+                    protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name instanceName) {
                         JCExpression initRef = buildArgField(translate(init, vsym.type), vsym.type, vsym.name.toString() + "$attr", bindStatus.isBound());
                         return definitionalAssignmentToSet(diagPos, initRef, bindStatus,
-                                vsym, attrName, FROM_LITERAL_MILIEU);
+                                vsym, instanceName, FROM_LITERAL_MILIEU);
                     }
                 }.doit();
             }

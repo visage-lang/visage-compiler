@@ -485,7 +485,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT);
                 getters.append(make.MethodDef(
                         mods,
-                        attributeName(ai.getSymbol(), attributeGetMethodNamePrefix),
+                        attributeGetterName(ai.getSymbol()),
                         makeTypeTree( null,ai.getVariableType()),
                         List.<JCTypeParameter>nil(),
                         List.<JCVariableDecl>nil(),
@@ -562,7 +562,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCTree> methods = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
             if (ai.needsCloning()) {
-                Name methodName = attributeName(ai.getSymbol(), attributeApplyDefaultsMethodNamePrefix);
+                Name methodName = attributeApplyDefaultsName(ai.getSymbol());
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
                 if (ai.getDefaultInitializtionStatement() != null) {
@@ -688,7 +688,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         for (VarInfo ai : attrInfos) {
             if ((ai.getFlags() & Flags.STATIC) == 0) {
                 DiagnosticPosition diagPos = ai.pos();
-                Name methodName = attributeName(ai.getSymbol(), attributeApplyDefaultsMethodNamePrefix);
+                Name methodName = attributeApplyDefaultsName(ai.getSymbol());
 
                 List<JCExpression> arg = List.<JCExpression>of(make.at(diagPos).Ident(names._this));
                 JCStatement applyDefaultsCall = callStatement(diagPos, null, methodName, arg);
@@ -858,7 +858,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         JCExpression attrRef;
         if (info.getSymbol().owner.kind == Kinds.TYP) {
             // on replace is on class variable
-            attrRef = makeAttributeAccess(diagPos, info.getSymbol());
+            attrRef = makeAttributeAccess(diagPos, info.getSymbol(), defs.receiverName);
         } else {
             // on replace is on local variable
             attrRef = make.at(diagPos).Ident(info.getName());

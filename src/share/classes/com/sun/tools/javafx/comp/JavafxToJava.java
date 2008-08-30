@@ -1027,19 +1027,14 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     private JCExpression translateDefinitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
-            Name attrName, int milieu) {
+            Name instanceName, int milieu) {
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         List<JCExpression> args = translateDefinitionalAssignmentToArgs(diagPos, init, bindStatus, vmi);
         JCExpression localAttr;
 
         // if it is an attribute
         if (vsym.owner.kind == Kinds.TYP) {
-            if ((vsym.flags() & STATIC) != 0) {
-                // statics are accessed directly
-                localAttr = make.Ident(attributeFieldName(vsym));
-            } else {
-                localAttr = callExpression(diagPos, make.Ident(attrName), attributeGetterName(vsym));
-            }
+            localAttr = makeAttributeAccess(diagPos, vsym, instanceName);
         } else {
             // if it is a local variable
             assert( (vsym.flags() & Flags.PARAMETER) == 0): "Parameters are not initialized";
@@ -3159,7 +3154,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             protected void processLocalVar(JFXVar var) {
             }
 
-            protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name attrName) {
+            protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name instanceName) {
                 if (targetSymbol==vsym) {
                     JCExpression target = translate(init, Wrapped.InLocation);
  //                   target = callExpression(diagPos, make.Type(syms.javafx_PointerType), "make", target);
@@ -3169,12 +3164,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
                     // if it is an attribute
                     if (vsym.owner.kind == Kinds.TYP) {
-                        if ((vsym.flags() & STATIC) != 0) {
-                            // statics are accessed directly
-                            localAttr = make.Ident(vsym);
-                        } else {
-                            localAttr = callExpression(diagPos, make.Ident(attrName), attributeGetterName(vsym));
-                        }
+                        localAttr = makeAttributeAccess(diagPos, vsym, instanceName);
                     } else {
                         // if it is a local variable
                         assert( (vsym.flags() & Flags.PARAMETER) == 0): "Parameters are not initialized";
@@ -3183,7 +3173,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                    return make.at(diagPos).Exec(callExpression(diagPos, localAttr, defs.locationSetMilieuMethodName[vmi.getTypeKind()][FROM_LITERAL_MILIEU], target));
                } else {
                     return toJava.translateDefinitionalAssignmentToSet(diagPos, init, bindStatus,
-                        vsym, attrName, FROM_LITERAL_MILIEU);
+                        vsym, instanceName, FROM_LITERAL_MILIEU);
                 }
             }
         }.doit();
