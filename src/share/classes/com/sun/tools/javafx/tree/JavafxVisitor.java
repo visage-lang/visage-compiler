@@ -50,7 +50,6 @@ public interface JavafxVisitor {
     public void visitLiteral(JFXLiteral tree);
     public void visitModifiers(JFXModifiers tree);
     public void visitErroneous(JFXErroneous tree);
-    public void visitBindExpression(JFXBindExpression tree);
     public void visitClassDeclaration(JFXClassDeclaration tree);
     public void visitFunctionDefinition(JFXFunctionDefinition tree);
     public void visitInitDefinition(JFXInitDefinition tree);

@@ -1346,10 +1346,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }
     }
 
-    public void visitBindExpression(JFXBindExpression tree) {
-         throw new AssertionError(tree);
-    }
-
     public void visitBlockExpression(JFXBlock tree) {
         visitBlockExpression(tree, tree.type);
     }
@@ -1400,14 +1396,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         Symbol sym = expressionSymbol(tree.lhs);
         VarSymbol vsym = (sym != null && (sym instanceof VarSymbol))? (VarSymbol)sym : null;
-
-        if (tree.rhs instanceof JFXBindExpression) {
-            JFXBindExpression bind = (JFXBindExpression) tree.rhs;
-            result = translateDefinitionalAssignmentToSetExpression(bind.pos(),
-                                    bind.getExpression(), bind.getBindStatus(), vsym,
-                                    null /*for now*/, FROM_DEFAULT_MILIEU);
-            return;
-        }
 
         if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
             // assignment of a sequence element --  s[i]=8, call the sequence set method

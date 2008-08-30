@@ -528,8 +528,6 @@ public class JavafxTreeInfo {
             return getEndPos(((JFXObjectLiteralPart) tree).getExpression(), endPositions);
           case STRING_EXPRESSION:
             return tree.pos + ((JFXStringExpression) tree).translationKey.length();
-          case BIND_EXPRESSION:
-            return getEndPos(((JFXBindExpression) tree).getExpression(), endPositions);
           case FOR_EXPRESSION:
             return getEndPos(((JFXForExpression) tree).getBodyExpression(), endPositions);
           case FOR_EXPRESSION_IN_CLAUSE:

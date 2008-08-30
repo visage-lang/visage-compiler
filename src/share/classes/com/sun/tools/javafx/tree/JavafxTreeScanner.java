@@ -337,11 +337,6 @@ public class JavafxTreeScanner implements JavafxVisitor {
     }
     
     @Override
-    public void visitBindExpression(JFXBindExpression that) {
-        scan(that.expr);
-    }
-    
-    @Override
     public void visitBlockExpression(JFXBlock that) {
         scan(that.stats);
         scan(that.value);

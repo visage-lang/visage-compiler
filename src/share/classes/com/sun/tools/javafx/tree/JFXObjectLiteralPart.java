@@ -34,9 +34,9 @@ import com.sun.javafx.api.JavafxBindStatus;
  * In object literal  "Identifier ':' [ 'bind' 'lazy'?] expression"
  */
 public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteralPartTree {
-    private JFXExpression expr;
     public Name name; // Make this an Ident. Tools might need position information.
-    private JFXExpression translationInit = null;
+    private JFXExpression expr;
+    private final JavafxBindStatus bindStatus;
     public Symbol sym;
    /*
     * @param selector member name and class name of member
@@ -49,38 +49,16 @@ public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteral
             JavafxBindStatus bindStatus,
             Symbol sym) {
         this.name = name;
-        this.expr = bindStatus == JavafxBindStatus.UNBOUND ? expr :
-            new JFXBindExpression(expr, bindStatus);
+        this.expr = expr;
+        this.bindStatus = bindStatus==null? JavafxBindStatus.UNBOUND : bindStatus;
         this.sym = sym;
     }
 
-   /*
-    * @param selector member name and class name of member
-    * @param init type of attribute
-    * @param sym attribute symbol
-    */
-    protected JFXObjectLiteralPart(
-            Name name,
-            JFXExpression expr,
-            Symbol sym) {
-        this.name = name;
-        this.expr = expr;
-        this.sym = sym;
-    }
     public void accept(JavafxVisitor v) { v.visitObjectLiteralPart(this); }
     
     public javax.lang.model.element.Name getName() { return name; }
-    public JFXExpression getExpression() {
-        return expr instanceof JFXBindExpression ?
-            ((JFXBindExpression) expr).getExpression() :
-            expr; }
-    public JFXExpression getMaybeBindExpression() { return expr; }
-    public void setTranslationInit(JFXExpression tra) { translationInit = tra; }
-    public JFXExpression getTranslationInit() { assert false : "currently not being used"; return translationInit; }
-    public JavafxBindStatus getBindStatus() {
-        return expr instanceof JFXBindExpression ?
-            ((JFXBindExpression) expr).getBindStatus() :
-            JavafxBindStatus.UNBOUND; }
+    public JFXExpression getExpression() { return expr; }
+    public JavafxBindStatus getBindStatus() { return bindStatus; }
     public boolean isBound()     { return getBindStatus().isBound(); }
     public boolean isUnidiBind() { return getBindStatus().isUnidiBind(); }
     public boolean isBidiBind()  { return getBindStatus().isBidiBind(); }

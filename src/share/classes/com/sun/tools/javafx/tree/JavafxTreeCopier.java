@@ -172,11 +172,6 @@ public class JavafxTreeCopier implements JavafxVisitor {
         result = maker.at(tree.pos).Erroneous(errs);
     }
 
-    public void visitBindExpression(JFXBindExpression tree) {
-        JFXExpression expr = copy(tree.expr);
-        result = maker.at(tree.pos).BindExpression(expr, tree.getBindStatus());
-    }
-
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         JFXModifiers mods = copy(tree.mods);
         Name name = tree.getName();

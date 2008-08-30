@@ -197,10 +197,6 @@ public enum JavafxTag {
      */
     STRING_EXPRESSION,
     
-    /** Bind expression 'bind expr'
-     */
-    BIND_EXPRESSION,
-
     /** for expression 
      */
     FOR_EXPRESSION,

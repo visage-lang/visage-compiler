@@ -459,22 +459,6 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXBindExpression BindExpression(JFXExpression expr, JavafxBindStatus bindStatus) {
-        if (bindStatus == null)
-            bindStatus = JavafxBindStatus.UNBOUND;
-        JFXBindExpression tree = new JFXBindExpression(expr, bindStatus);
-        tree.pos = pos;
-        return tree;
-    }
-
-    public JFXExpression MaybeBindExpression(JFXExpression expr, JavafxBindStatus bindStatus) {
-        if (bindStatus == null || ! bindStatus.isBound())
-            return expr;
-        JFXBindExpression tree = new JFXBindExpression(expr, bindStatus);
-        tree.pos = pos;
-        return tree;
-    }
-
     public JFXBlock Block(long flags, List<JFXExpression> stats, JFXExpression value) {
         JFXBlock tree = new JFXBlock(flags, stats, value);
         tree.pos = pos;
@@ -643,16 +627,16 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             Name attrName,
             JFXExpression expr,
             JavafxBindStatus bindStatus) {
-        return ObjectLiteralPart(attrName, MaybeBindExpression(expr, bindStatus));
+        JFXObjectLiteralPart tree =
+                new JFXObjectLiteralPart(attrName, expr, bindStatus, null);
+        tree.pos = pos;
+        return tree;
     }
 
     public JFXObjectLiteralPart ObjectLiteralPart(
             Name attrName,
             JFXExpression expr) {
-        JFXObjectLiteralPart tree =
-                new JFXObjectLiteralPart(attrName, expr, null);
-        tree.pos = pos;
-        return tree;
+        return ObjectLiteralPart(attrName, expr, JavafxBindStatus.UNBOUND);
     }
 
     public JFXType  TypeAny(Cardinality cardinality) {

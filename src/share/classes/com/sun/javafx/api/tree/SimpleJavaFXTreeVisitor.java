@@ -156,10 +156,6 @@ public class SimpleJavaFXTreeVisitor <R,P> implements JavaFXTreeVisitor<R,P> {
         return defaultAction(node, p);
     }
 
-    public R visitBindExpression(BindExpressionTree node, P p) {
-        return defaultAction(node, p);
-    }
-
     public R visitBlockExpression(BlockExpressionTree node, P p) {
         return defaultAction(node, p);
     }

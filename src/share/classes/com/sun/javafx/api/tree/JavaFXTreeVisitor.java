@@ -74,7 +74,6 @@ public interface JavaFXTreeVisitor<R,P> {
     R visitVariable(VariableTree node, P p);
     R visitWhileLoop(WhileLoopTree node, P p);
     R visitBlockExpression(BlockExpressionTree node, P p);
-    R visitBindExpression(BindExpressionTree node, P p);
     R visitClassDeclaration(ClassDeclarationTree node, P p);
     R visitForExpression(ForExpressionTree node, P p);
     R visitForExpressionInClause(ForExpressionInClauseTree node, P p);

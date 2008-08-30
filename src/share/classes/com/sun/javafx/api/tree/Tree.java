@@ -396,12 +396,6 @@ public interface Tree {
          */
         ERRONEOUS(ErroneousTree.class),
 
-
-        /**
-         * Used for instances of {@link BindExpressionTree}.
-         */
-        BIND_EXPRESSION(BindExpressionTree.class),
-
          /**
          * Used for instances of {@link BlockExpressionTree}.
          */

@@ -1444,10 +1444,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         assert false : "should not be processed as part of a binding";
     }
 
-    public void visitBindExpression(JFXBindExpression tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
     @Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
         assert false : "should not be processed as part of a binding";

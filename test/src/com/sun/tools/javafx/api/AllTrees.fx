@@ -173,7 +173,7 @@ c mod 5;
 // XOR
 //c ^ 3;
 
-// BIND_EXPRESSION
+/* no longer a tree type:  BIND_EXPRESSION */
 var bbb = bind c;
 
 // FOR_EXPRESSION_FOR

@@ -1284,11 +1284,6 @@ public class JavafxAttr implements JavafxVisitor {
         tree.type = result;
     }
 
-    public void visitBindExpression(JFXBindExpression tree) {
-         Type owntype = attribTree(tree.getExpression(), env, VAL, pt);
-         result = check(tree, owntype, pkind, pkind, pt, pSequenceness);
-    }
-
     @Override
     public void visitBlockExpression(JFXBlock tree) {
         // Create a new local environment with a local scope.
@@ -1524,8 +1519,7 @@ public class JavafxAttr implements JavafxVisitor {
                     WriteKind.INIT_NON_BIND;
                 checkAssignable(part.pos(), v, part, clazz.type, localEnv, kind);
             }
-            chk.checkBidiBind(part.getMaybeBindExpression(),
-                              part.getBindStatus(), part.getExpression());
+            chk.checkBidiBind(part.getExpression().pos(), part.getBindStatus(), part.getExpression());
         }
 
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
