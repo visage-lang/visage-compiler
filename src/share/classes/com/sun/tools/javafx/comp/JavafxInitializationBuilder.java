@@ -720,7 +720,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (tai.getDefaultInitializtionStatement() != null) {
                         stmts.append(tai.getDefaultInitializtionStatement());
                     }
-                    stmts.append( callStatement(diagPos, make.at(diagPos).Ident(tai.getName()), locationInitializeName));
+                    stmts.append( callStatement(diagPos, make.at(diagPos).Ident(attributeFieldName(tai.getSymbol())), locationInitializeName));
                 }
                 JCStatement stat = makeChangeListenerCall(tai);
                 if (stat != null) {
@@ -856,11 +856,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 make.at(diagPos).AnonymousClassDef(make.Modifiers(0L), members.toList()));
 
         JCExpression attrRef;
-        // if it is a non-static attribute
-        if (info.getSymbol().owner.kind == Kinds.TYP && !info.getSymbol().isStatic()) {
-             attrRef = makeAttributeAccess(diagPos, info.getSymbol());
+        if (info.getSymbol().owner.kind == Kinds.TYP) {
+            // on replace is on class variable
+            attrRef = makeAttributeAccess(diagPos, info.getSymbol());
         } else {
-             attrRef = makeIdentifier(diagPos, info.getNameString());
+            // on replace is on local variable
+            attrRef = make.at(diagPos).Ident(info.getName());
         }
         JCFieldAccess tmpSelect = make.at(diagPos).Select(attrRef, addChangeListenerName);
 

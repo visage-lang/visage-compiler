@@ -1036,7 +1036,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         if (vsym.owner.kind == Kinds.TYP) {
             if ((vsym.flags() & STATIC) != 0) {
                 // statics are accessed directly
-                localAttr = make.Ident(vsym);
+                localAttr = make.Ident(attributeFieldName(vsym));
             } else {
                 String attrAccess = attributeNameString(vsym, attributeGetMethodNamePrefix);
                 localAttr = callExpression(diagPos, make.Ident(attrName), attrAccess);
@@ -2948,14 +2948,21 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
              VarSymbol vsym = (VarSymbol) sym;
             VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
             if (shouldMorph(vmi)) {
-                if (sym.owner.kind == Kinds.TYP && !staticReference) {
-                    // this is a non-static reference to an attribute, use the get$ form
+                if (sym.owner.kind == Kinds.TYP) {
+                    // this is a reference to an class variable
                     assert varRef.getTag() == JCTree.SELECT : "attribute must be accessed through receiver";
                     JCFieldAccess select = (JCFieldAccess) varRef;
-                    Name attrAccessName = attributeName(vsym, attributeGetMethodNamePrefix);
-                    select = make.at(diagPos).Select(select.getExpression(), attrAccessName);
-                    List<JCExpression> emptyArgs = List.nil();
-                    expr = make.at(diagPos).Apply(null, select, emptyArgs);
+                    if (staticReference) {
+                        // a script-level (static) variable, direct access with prefix
+                        Name attrAccessName = attributeFieldName(vsym);
+                        expr = make.at(diagPos).Select(select.getExpression(), attrAccessName);
+                    } else {
+                        // an instance variable, use get$
+                        Name attrAccessName = attributeName(vsym, attributeGetMethodNamePrefix);
+                        select = make.at(diagPos).Select(select.getExpression(), attrAccessName);
+                        List<JCExpression> emptyArgs = List.nil();
+                        expr = make.at(diagPos).Apply(null, select, emptyArgs);
+                    }
                 }
 
                 if (wantLocation) {

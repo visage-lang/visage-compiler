@@ -461,7 +461,7 @@ public abstract class JavafxTranslationSupport {
 
 
     Name attributeFieldName(Symbol sym) {
-        return names.fromString(attributeNameString(sym, ""));
+        return names.fromString(attributeNameString(sym, "$"));
     }
 
     Name attributeName(Symbol sym, String prefix) {
@@ -550,7 +550,9 @@ public abstract class JavafxTranslationSupport {
      *      "receiver$.get$attr()"
      * */
    JCExpression makeAttributeAccess(DiagnosticPosition diagPos, Symbol attribSym) {
-       return callExpression(diagPos,
+       return attribSym.isStatic()?
+           make.Ident(attributeFieldName(attribSym)) :
+           callExpression(diagPos,
                 make.Ident(defs.receiverName),
                 attributeNameString(attribSym, attributeGetMethodNamePrefix));
    }
