@@ -127,7 +127,7 @@ public class LocalReflectionContext extends ReflectionContext {
                 }
                 public boolean isNull() { return false; }
 
-                public String getValueString() { return toString(); };
+                public String getValueString() { return type.toString()+"{...}"; };
             };
         } else {
             return new ValueRef() {
@@ -391,8 +391,9 @@ class LocalClassRef extends ClassRef {
         return result;
     }
 
-    public MemberRef getMember(String name, TypeRef type) { throw new NotImplementedException(); }
-    public AttributeRef getAttribute(String name) { throw new NotImplementedException(); }
+    public MemberRef getMember(String name, TypeRef type) {
+        throw new NotImplementedException();
+    }
 
     public MethodRef getMethod(String name, TypeRef... argType) {
         int nargs = argType.length;

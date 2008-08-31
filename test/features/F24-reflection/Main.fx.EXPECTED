@@ -29,25 +29,26 @@ MyRect attributes:
 MyRect attributes (inherited also): 
   crners : java.awt.geom.Point2D[]
   crners : java.awt.geom.Point2D[] = [ ]
-  shapeFunAttr1 : function(Number,java.lang.String):Integer
-  shapeFunAttr1 : function(Number,java.lang.String):Integer = null
+  shapeFunAttr1 : function(Integer,java.lang.String):java.lang.String
+  shapeFunAttr1 : function(Integer,java.lang.String):java.lang.String = function(Integer,java.lang.String):java.lang.String{...}
   shapeIntAttr : Integer
   shapeIntAttr : Integer = 12
   shapeNumAttr : Number
   shapeNumAttr : Number = 1.5
   shapeStrAttr : class java.lang.String
   shapeStrAttr : class java.lang.String = str1
-Square attributes (only): 
+Square attributes (only):
   atBlank : class java.lang.String
-  atPriv : class java.lang.String
   atProt : class java.lang.String
   atPub : class java.lang.String
-Simple attributes (only): 
+Simple attributes (only):
   at1 : class java.lang.Object
-MyRect methods: 
+MyRect methods:
   function Main.MyRect.corners():java.awt.geom.Point2D[]
   function Main.MyShape.times1():Number
   function Main.MyShape.transformed():Main.MyShape
   function Main.MyRect.transformed():Main.MyShape
 MyRect.times1(Number): function Main.MyRect.times1():Number
 call times1(2.5): NumberValue(45.0)
+MyRect.shapeFunAttr1 variable: attribute Main.MyShape.shapeFunAttr1:function(Integer,java.lang.String):java.lang.String
+ - apply(3,"abcdefg") => defg

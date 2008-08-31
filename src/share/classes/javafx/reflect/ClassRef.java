@@ -162,7 +162,13 @@ public abstract class ClassRef extends TypeRef implements MemberRef {
     public abstract MemberRef getMember(String name, TypeRef type);
 
     /** Get the attribute (field) of this class with a given name. */
-    public abstract AttributeRef getAttribute(String name);
+    public AttributeRef getAttribute(String name) {
+        MemberFilter filter = new MemberFilter();
+        filter.setAttributesAccepted(true);
+        filter.setRequiredName(name);
+        List<AttributeRef> attrs = getAttributes(filter, true);
+        return attrs.isEmpty() ? null : attrs.get(0);
+    }
 
     /** Find the function that (best) matches the name and argument types. */
     public abstract MethodRef getMethod(String name, TypeRef... argType);

@@ -12,7 +12,7 @@ abstract class MyShape {
   public var shapeStrAttr : String;
   public var shapeIntAttr : Integer;
   public var shapeNumAttr : Number;
-  public var shapeFunAttr1 : function(:Number,:String):Integer;
+  public var shapeFunAttr1 : function(:Integer,:String):String;
   public abstract function transformed(tr:java.awt.geom.AffineTransform):MyShape;
   public function times1(x: Number): Number {
     return shapeIntAttr*shapeNumAttr*x;
@@ -38,7 +38,6 @@ class Square extends MyRect {
    var atBlank : String;
    public var atPub : String;
    protected var atProt : String;
-   var atPriv : String;
 };
 
 class Simple extends Square, java.lang.Object {
@@ -78,6 +77,9 @@ var myRect = MyRect {
     shapeNumAttr: 1.5
     shapeStrAttr: "str1"
     shapeIntAttr: 12
+    shapeFunAttr1: function (x:Integer,y:String):String {
+       y.substring(x)
+    }
 };
 var myRectRef = context.mirrorOf(myRect);
 
@@ -91,15 +93,15 @@ for (attr in attrsMyRect) {
   var attrval = attr.getValue(myRectRef);
   System.out.println("  {attr.getName()} : {attr.getType()} = {attrval.getValueString()}") };
 
-System.out.println("Square attributes (only): ");
+System.out.println("Square attributes (only):");
 for (attr in context.findClass("Main.Square").getAttributes(false)) {
   System.out.println("  {attr.getName()} : {attr.getType()}") };
 
-System.out.println("Simple attributes (only): ");
+System.out.println("Simple attributes (only):");
 for (attr in context.findClass("Main.Simple").getAttributes(false)) {
   System.out.println("  {attr.getName()} : {attr.getType()}"); };
 
-System.out.println("MyRect methods: ");
+System.out.println("MyRect methods:");
 for (meth in clsMyRect.getMethods(true)) {
   System.out.println("  {meth}"); };
 
@@ -107,3 +109,9 @@ def m1 = clsMyRect.getMethod("times1", context.getNumberType());
 System.out.println("MyRect.times1(Number): {m1}");
 def two_five = context.mirrorOf(2.5);
 System.out.println("call times1(2.5): {m1.invoke(myRectRef, two_five)}");
+
+var fv1 = clsMyRect.getAttribute("shapeFunAttr1");
+System.out.println("MyRect.shapeFunAttr1 variable: {fv1}");
+var fun1 = fv1.getValue(myRectRef) as FunctionValueRef;
+var v2 = fun1.apply(context.mirrorOf(3), context.mirrorOf("abcdefg"));
+System.out.println(" - apply(3,\"abcdefg\") => {v2.getValueString()}");
