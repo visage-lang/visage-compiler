@@ -60,11 +60,13 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     }
     
     private void assertUnique(JCTree that) {
+        /****
         boolean added = seen.add(that);
         if (!added) {
             //System.err.println("Node " + that + " already encountered -- unclean " + that.getClass() + " tree in " + sourceName);
         }
         assert added : "Node " + that + " already encountered -- unclean " + that.getClass() + " tree in " + sourceName;
+        *****/
     }
 
     @Override
