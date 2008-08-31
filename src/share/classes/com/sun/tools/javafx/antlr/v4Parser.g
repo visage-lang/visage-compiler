@@ -2430,6 +2430,21 @@ stringExpression
 // --------------------------------------------
 // An individual component of a compound string
 //
+// When considering the elements accumulated by the 
+// list buffer, assume this:
+//
+// 1) The list will either be a single element, in 
+//    which case it is a single string literal, or
+//    contain (3n)+1 elements where n is the number
+//    expressions in the string {expr}. This is
+//    because an expression consists of the leadin,
+//    a format string and the expression, but there is
+//    always one final element for the trailing part of
+//    the string expression: "leading{\%format expr }trailing"
+// 2) A straight literal string can then either be merged with
+//    the leadin of the next expression or the trailing of
+//    the prior expression, or it stands alone.
+//
 strCompoundElement [ ListBuffer<JFXExpression> strexp ]
 	
 	: stringLiteral	[ strexp ]	  		
@@ -2440,6 +2455,7 @@ strCompoundElement [ ListBuffer<JFXExpression> strexp ]
 // String literals
 // We may have multiple string literals following each
 // other, which we auto concatentate here at compile time
+//
 //
 stringLiteral [ ListBuffer<JFXExpression> strexp ]
 
@@ -2479,34 +2495,58 @@ stringLiteral [ ListBuffer<JFXExpression> strexp ]
 		)*
 		
 		{
-			// Now we create the actual string literal
+
+
+			// Here, one of the following conditions prevails
 			//
-			sVal = F.at(pos($s1)).Literal(TypeTags.CLASS, sbLit.toString());
-			
-			// Tree span
+			//  i)  We have as yet encountered no components of the compound
+			//      string and so we can assume for the moment that the literal
+			//      string elements we have accumulated so far will remain as
+			//	    a simple string literal, and so just add the literal we
+			//	    make as one element.
+			// ii)  There has already been some sort of compound expression
+			//      in which case there will be more than 0 elements currently in
+			//      the compound element list. The list will always be left with
+			//      the trailing part of the expression string as the last element
+			//      of the list as it is built of "leading{\%format expr}trailing".
+			//      So, we can remove the last entry, append this newly accumulated
+			//      string literal to it, and move on.
 			//
-			endPos(sVal);
-			
-			// Add to list
-			//
-			strexp.append(sVal);
-			
-			// Here, if we have as yet encountered no other string literals, then
-			// we can just add the Literal because the first literal of
-			// the string expression AST is always without formatting etc,
-			// however, if this is the second or subsequent literal such as
-			// in: "hhhhhh{expr}" "Second", then the AST for string expressions
-			// expects a format and expression to follow as it is assuming
-			// a string expression rather than a string literal. Hence we must fake an empty format
-			// and an empty string expression.
-			//
-			if	(strexp.size() > 1)
+			if	(strexp.size() == 0)
 			{
-				// Already had the first literal, add a fake format and expression
+			
+				// Now we create the actual string literal
 				//
-				strexp.append(F.at(pos()).Literal(TypeTags.CLASS, ""));
-				strexp.append(F.at(pos()).Literal(TypeTags.CLASS, ""));
+				sVal = F.at(pos($s1)).Literal(TypeTags.CLASS, sbLit.toString());
+			
+				// Add to list
+				//
+				strexp.append(sVal);
+
+				// Tree span
+				//
+				endPos(sVal);
+			
 			}
+			else
+			{
+				// Already had the first expression, replace the traling part of the
+				// last expression with a concatenation of it and this newly found
+				// string.
+				//
+				JFXLiteral trailer = (JFXLiteral)(strexp.elems.get(strexp.size()-1));
+				
+				// Now, append the string we have to the prior trailing part
+				// 
+				sbLit.insert(0, (String)(trailer.getValue()));
+				
+				// Replace the original value
+				//
+				trailer.value = sbLit.toString();
+				
+			}
+			
+
 		}
 	;
 	
@@ -2521,13 +2561,52 @@ qlsl [ ListBuffer<JFXExpression> strexp]
 			{
 				// Add in the discovered literal value
 				//
-				strexp.append
-						(
-							F.at(pos($ql)).Literal
+				// Here, one of the following conditions apply:
+				//
+				//   i) There are currently no entries in the buffer. The size of strexp
+				//      will be 0 in that case and we can process the expression without 
+				//      regard to prior values.
+				//  ii) There was one or leading string literals (non expressions),
+				//      in which case the list buffer size will be 1, representing
+				//      the accumulated string literal. In that case we must append
+				//	    the leadin string ($ql above) to the existing string and make
+				//      it the leadin for this expression.
+				// iii) There were prior expressions in the list, in which case, as per
+				//      ii) we must merge the last literal in the buffer with ($ql) from
+				//      above and make it the leadin string for this expression.
+				//      NB: THis can aonly arise from "{expr}" ("STRING")* "{expr}"
+				//
+				switch	(strexp.size())
+				{
+					case 0:
+			
+						// Add the leadin string
+						//
+						JFXLiteral leader = F.at(pos($ql)).Literal
 											(	TypeTags.CLASS,
 											 	$ql.text
-											)
-						);	
+											);
+						endPos(leader);
+
+						// Add it in to the list
+						//
+						strexp.append(leader);
+						
+						break;	
+
+					default:
+					
+						// Already had a single first literal, or a trailer for an 
+						// expression - make it belong to this leader.
+						//
+						leader = (JFXLiteral)(strexp.elems.get(strexp.size()-1));
+				
+						// Now, append the string we have to the prior trailing part
+						// and replace the original value
+						//
+						leader.value = (String)(leader.getValue()) + $ql.text;
+						break;
+				}
 			}
 			
 		// Optional string format
@@ -2549,13 +2628,15 @@ qlsl [ ListBuffer<JFXExpression> strexp]
 	  		{
 	  			// Add in the discovered literal
 	  			//
-				strexp.append
-						(
-							F.at(pos($qr)).Literal
+	  			JFXLiteral trailer = F.at(pos($qr)).Literal
 											(	TypeTags.CLASS,
 											 	$qr.text
-											)
-						);	
+											);
+				endPos(trailer);
+				
+				// Add to the list
+				//
+				strexp.append(trailer);	
 			}
 	;
 	
