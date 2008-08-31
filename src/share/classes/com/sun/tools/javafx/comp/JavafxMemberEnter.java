@@ -25,7 +25,6 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.jvm.*;
-import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.code.Symbol.*;
@@ -79,8 +78,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     private final Types types;
     private final Target target;
 
-    private final boolean skipAnnotations;
-    
     public static JavafxMemberEnter instance(Context context) {
         JavafxMemberEnter instance = context.get(javafxMemberEnterKey);
         if (instance == null)
@@ -103,9 +100,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         annotate = JavafxAnnotate.instance(context);
         types = Types.instance(context);
         target = Target.instance(context);
-
-        skipAnnotations =
-            Options.instance(context).get("skipAnnotations") != null;
     }
 
 
@@ -134,8 +128,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
      *  @param toScope   The (import) scope in which imported classes
      *               are entered.
      */
-// JavaFX change
-    protected void importAll(int pos,
+    void importAll(int pos,
                            final TypeSymbol tsym,
                            JavafxEnv<JavafxAttrContext> env) {
         // Check that packages imported from exist (JLS ???).
@@ -650,8 +643,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         super.visitReturn(tree);
     }
 
-// Javafx modification
-    // Begin JavaFX trees
     @Override
     public void visitClassDeclaration(JFXClassDeclaration that) {
         for (JFXExpression superClass : that.getSupertypes()) {

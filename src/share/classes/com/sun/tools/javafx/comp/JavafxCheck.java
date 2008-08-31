@@ -163,9 +163,6 @@ public class JavafxCheck {
 /* *************************************************************************
  * Errors and Warnings
  **************************************************************************/
-// JavaFX change
-    public
-// JavaFX change
     Lint setLint(Lint newLint) {
 	Lint prev = lint;
 	lint = newLint;
@@ -176,9 +173,6 @@ public class JavafxCheck {
      *  @param pos        Position to be used for error reporting.
      *  @param sym        The deprecated symbol.
      */ 
-// JavaFX change
-    public
-// JavaFX change
     void warnDeprecated(DiagnosticPosition pos, Symbol sym) {
 	if (!lint.isSuppressed(LintCategory.DEPRECATION))
 	    deprecationHandler.report(pos, MsgSym.MESSAGE_HAS_BEEN_DEPRECATED, sym, sym.location());
@@ -218,9 +212,6 @@ public class JavafxCheck {
      *  @param found      The type that was found.
      *  @param req        The type that was required.
      */
-//JavaFX change
-    public
-//JavaFX change
     Type typeError(DiagnosticPosition pos, Object problem, Type found, Type req) {
         String foundAsJavaFXType = types.toJavaFXString(found);
         String requiredAsJavaFXType = types.toJavaFXString(req);
@@ -259,18 +250,12 @@ public class JavafxCheck {
      *  @param pos        Position to be used for error reporting.
      *  @param sym        The referenced symbol.
      */
-// JavaFX change
-    public
-// JavaFX change
     void earlyRefError(DiagnosticPosition pos, Symbol sym) {
 	log.error(pos, MsgSym.MESSAGE_CANNOT_REF_BEFORE_CTOR_CALLED, sym);
     }
 
     /** Report duplicate declaration error.
      */
-// JavaFX change
-    protected
-// JavaFX change
     void duplicateError(DiagnosticPosition pos, Symbol sym) {
 	if (sym.type == null || !sym.type.isErroneous()) {
 	    log.error(pos, MsgSym.MESSAGE_ALREADY_DEFINED, sym, sym.location());
@@ -279,9 +264,6 @@ public class JavafxCheck {
 
     /** Report array/varargs duplicate declaration 
      */
-// JavaFX change
-    protected
-// JavaFX change
     void varargsDuplicateError(DiagnosticPosition pos, Symbol sym1, Symbol sym2) {
 	if (!sym1.type.isErroneous() && !sym2.type.isErroneous()) {
 	    log.error(pos, MsgSym.MESSAGE_ARRAY_AND_VARARGS, sym1, sym2, sym2.location());
@@ -298,9 +280,6 @@ public class JavafxCheck {
      *	@param v	     The symbol.
      *	@param s	     The scope.
      */
-// JavaFX change
-    public
-// JavaFX change
     void checkTransparentVar(DiagnosticPosition pos, VarSymbol v, Scope s) {
 	if (s.next != null) {
 	    for (Scope.Entry e = s.next.lookup(v.name);
@@ -322,9 +301,6 @@ public class JavafxCheck {
      *	@param c	     The symbol.
      *	@param s	     The scope.
      */
-// JavaFX change
-    public
-// JavaFX change
     void checkTransparentClass(DiagnosticPosition pos, ClassSymbol c, Scope s) {
 	if (s.next != null) {
 	    for (Scope.Entry e = s.next.lookup(c.name);
@@ -347,9 +323,6 @@ public class JavafxCheck {
      *	@param name	     The class name.
      *	@param s	     The enclosing scope.
      */
-// JavaFX change
-    public
-// JavaFX change
     boolean checkUniqueClassName(DiagnosticPosition pos, Name name, Scope s) {
 	for (Scope.Entry e = s.lookup(name); e.scope == s; e = e.next()) {
 	    if (e.sym.kind == TYP && e.sym.name != names.error) {
@@ -376,9 +349,6 @@ public class JavafxCheck {
      *    enclClass is the flat name of the enclosing class,
      *    classname is the simple name of the local class
      */
-// JavaFX change
-    public
-// JavaFX change
     Name localClassName(ClassSymbol c) {
 	for (int i=1; ; i++) {
 	    Name flatname = names.
@@ -518,9 +488,6 @@ public class JavafxCheck {
      *  @param found      The type that is being cast.
      *  @param req        The target type of the cast.
      */
-// JavaFX change
-    public
-// JavaFX change
     Type checkCastable(DiagnosticPosition pos, Type found, Type req) {
 	if (found.tag == FORALL && found instanceof ForAll) {
 	    instantiatePoly(pos, (ForAll) found, req, castWarner(pos, found, req));
@@ -596,9 +563,6 @@ public class JavafxCheck {
 	}
     }
 
-// Javafx change
-    public
-// Javafx change
     /** Check that type is different from 'void'.
      *  @param pos           Position to be used for error reporting.
      *  @param t             The type to be checked.
@@ -744,9 +708,6 @@ public class JavafxCheck {
      *  @param t             The type to be checked.
      *  @param noBounds    True if type bounds are illegal here.
      */
-// JavaFX change
-    public
-// JavaFX change
     Type checkClassType(DiagnosticPosition pos, Type t, boolean noBounds) {
 	t = checkClassType(pos, t);
 	if (noBounds && t.isParameterized()) {
@@ -766,9 +727,6 @@ public class JavafxCheck {
      *  @param pos           Position to be used for error reporting.
      *  @param t             The type to be checked.
      */
-// JavaFX change
-    public
-// JavaFX change
     Type checkReifiableReferenceType(DiagnosticPosition pos, Type t) {
 	if (t.tag != CLASS && t.tag != ARRAY && t.tag != ERROR) {
 	    return typeTagError(pos,
@@ -782,9 +740,6 @@ public class JavafxCheck {
 	}
     }
 
-// Javafx change
-    public
-// Javafx change
     /** Check that type is a reference type, i.e. a class, interface or array type
      *  or a type variable.
      *  @param pos           Position to be used for error reporting.
@@ -809,9 +764,6 @@ public class JavafxCheck {
      *  @param pos           Position to be used for error reporting.
      *  @param t             The type to be checked.
      */
-// JavaFX change
-    public
-// JavaFX change
     Type checkNullOrRefType(DiagnosticPosition pos, Type t) {
 	switch (t.tag) {
 	case CLASS:
@@ -855,9 +807,6 @@ public class JavafxCheck {
      *  @param flags         The set of modifiers given in a definition.
      *  @param sym           The defined symbol.
      */
-// JavaFX change
-    public
-// JavaFX change
     long checkFlags(DiagnosticPosition pos, long flags, Symbol sym, JFXTree tree) {
 	long mask;
 	long implicit = 0;
@@ -994,9 +943,6 @@ public class JavafxCheck {
     /** Visitor method: Validate a type expression, if it is not null, catching
      *  and reporting any completion failures.
      */
-// JavaFX change
-    public
-// JavaFX change
     void validate(JFXTree tree) {
 	try {
 	    if (tree != null) tree.accept(validator);
@@ -1007,9 +953,6 @@ public class JavafxCheck {
 
     /** Visitor method: Validate a list of type expressions.
      */
-// JavaFX change
-    public
-// JavaFX change
     void validate(List<? extends JFXTree> trees) {
 	for (List<? extends JFXTree> l = trees; l.nonEmpty(); l = l.tail)
 	    validate(l.head);
@@ -1266,8 +1209,7 @@ public class JavafxCheck {
      *  @param origin       The class of which the overriding method
      *			    is a member.
      */
-public
-    void checkOverride(JFXTree tree,
+    private void checkOverride(JFXTree tree,
 		       MethodSymbol m,
 		       MethodSymbol other,
 		       ClassSymbol origin) {
@@ -1420,14 +1362,14 @@ public
 
 
     // used to check if there were any unchecked conversions
-    Warner overrideWarner = new Warner();
+    private Warner overrideWarner = new Warner();
 
     /** Check that a class does not inherit two concrete methods
      *  with the same signature.
      *  @param pos          Position to be used for error reporting.
      *  @param site         The class type to be checked.
      */
-    public void checkCompatibleConcretes(DiagnosticPosition pos, Type site) {
+    private void checkCompatibleConcretes(DiagnosticPosition pos, Type site) {
 	Type sup = types.supertype(site);
 	if (sup.tag != CLASS) return;
 
@@ -1479,14 +1421,14 @@ public
      *  @param t1           The first argument type.
      *  @param t2           The second argument type.
      */
-    public boolean checkCompatibleAbstracts(DiagnosticPosition pos,
+    private boolean checkCompatibleAbstracts(DiagnosticPosition pos,
 					    Type t1,
 					    Type t2) {
         return checkCompatibleAbstracts(pos, t1, t2,
                                         types.makeCompoundType(t1, t2));
     }
 
-    public boolean checkCompatibleAbstracts(DiagnosticPosition pos,
+    private boolean checkCompatibleAbstracts(DiagnosticPosition pos,
 					    Type t1,
 					    Type t2,
 					    Type site) {
@@ -1584,9 +1526,6 @@ public
      *			    for errors.
      *  @param m            The overriding method.
      */
-// JavaFX change
-    public
-// JavaFX change
     void checkOverride(JFXTree tree, MethodSymbol m) {
 	ClassSymbol origin = (ClassSymbol)m.owner;
         boolean doesOverride = false;
@@ -1629,9 +1568,6 @@ public
      *  @param pos          Position to be used for error reporting.
      *  @param c            The class.
      */
-// JavaFX change
-    public
-// JavaFX change
     void checkAllDefined(DiagnosticPosition pos, ClassSymbol c) {
 	try {
 	    MethodSymbol undef = firstUndef(c, c);
@@ -1695,9 +1631,6 @@ public
      *  @param pos      Position to be used for error reporting.
      *  @param t        The type referred to.
      */
-// JavaFX change
-    public
-// JavaFX change
     void checkNonCyclic(DiagnosticPosition pos, Type t) {
 	checkNonCyclicInternal(pos, t);
     }
@@ -1778,9 +1711,6 @@ public
      *  method conform to the method they implement.
      *  @param tree         The class definition whose members are checked.
      */
-// JavaFX change
-    public
-// JavaFX change
     void checkImplementations(JFXClassDeclaration tree) {
 	checkImplementations(tree, tree.sym);
     }
@@ -1820,9 +1750,6 @@ public
      *  @param pos          Position to be used for error reporting.
      *  @param c            The class whose interfaces are checked.
      */
-// JavaFX change
-    public
-// JavaFX change
     void checkCompatibleSupertypes(DiagnosticPosition pos, Type c) {
 	List<Type> supertypes = types.interfaces(c);
 	Type supertype = types.supertype(c);
@@ -1845,9 +1772,6 @@ public
      *  @param pos          Position to be used for error reporting.
      *  @param type         The type whose interfaces are checked.
      */
-// JavaFX change
-    public
-// JavaFX change
     void checkClassBounds(DiagnosticPosition pos, Type type) {
 	checkClassBounds(pos, new HashMap<TypeSymbol,Type>(), type);
     }
@@ -1880,9 +1804,6 @@ public
     /** Enter interface into into set.
      *  If it existed already, issue a "repeated interface" error.
      */
-// JavaFX change
-    public
-// JavaFX change
     void checkNotRepeated(DiagnosticPosition pos, Type it, Set<Type> its) {
 	if (its.contains(it))
 	    log.error(pos, MsgSym.MESSAGE_REPEATED_INTERFACE);
@@ -1918,9 +1839,6 @@ public
     }
 
 
-// Javafx change
-    public
-// Javafx change
     /**
      *  Check for division by integer constant zero
      *	@param pos	     Position for error reporting.
@@ -1945,11 +1863,8 @@ public
      *	@param sym	     The symbol.
      *	@param s	     The scope.
      */
-    public boolean checkUnique(DiagnosticPosition pos, Symbol sym, Scope s) {
-// Javafx change
-//        if (sym.type.isErroneous())
+    boolean checkUnique(DiagnosticPosition pos, Symbol sym, Scope s) {
         if (sym.type != null && sym.type.isErroneous())
-// Javafx change
 	    return true;
 	if (sym.owner.name == names.any) return false;
 	for (Scope.Entry e = s.lookup(sym.name); e.scope == s; e = e.next()) {
@@ -1974,9 +1889,6 @@ public
      *	@param sym	     The symbol.
      *	@param s	     The scope
      */
-// JavaFX change
-    public
-// JavaFX change
     boolean checkUniqueImport(DiagnosticPosition pos, Symbol sym, Scope s) {
 	return checkUniqueImport(pos, sym, s, false);
     }
@@ -1988,9 +1900,6 @@ public
      *	@param s	     The scope
      *  @param staticImport  Whether or not this was a static import
      */
-// JavaFX change
-    public
-// JavaFX change
     boolean checkUniqueStaticImport(DiagnosticPosition pos, Symbol sym, Scope s) {
 	return checkUniqueImport(pos, sym, s, true);
     }

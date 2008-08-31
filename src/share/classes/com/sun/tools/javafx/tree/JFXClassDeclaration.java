@@ -36,7 +36,7 @@ import com.sun.tools.javac.code.Scope;
  * A class declaration
  */
 public class JFXClassDeclaration extends JFXExpression implements ClassDeclarationTree {
-    public JFXModifiers mods;
+    public final JFXModifiers mods;
     private final Name name;
     private List<JFXExpression> extending = null;
     private List<JFXExpression> implementing = null;
@@ -57,11 +57,10 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
             List<JFXTree> declarations,
             ClassSymbol sym) {
         this.mods = mods;
-        this.name = name;
+        this.name = name;           
+        this.supertypes = supertypes;
         this.defs = declarations;
         this.sym = sym;
-            
-        this.supertypes = supertypes;
     }
 
     public java.util.List<ExpressionTree> getSupertypeList() {

@@ -1,4 +1,4 @@
 test/should-fail/jfxc1093.fx:7: Expression not supported for bind with inverse.
 var x = bind y[idx] with inverse;
-^
+             ^
 1 error

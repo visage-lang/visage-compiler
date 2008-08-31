@@ -38,35 +38,20 @@ public class JavafxAttrContext {
 
     /** The scope of local symbols.
      */
-// JavaFX change
-    public
-// JavaFX change
-    Scope scope = null;
+    public Scope scope = null;
 
     /** The number of enclosing `static' modifiers.
      */
-// JavaFX change
-    public
-// JavaFX change
     int staticLevel = 0;
 
-// Javafx change
-    public
-// Javafx change
     /** Is this an environment for a this(...) or super(...) call?
      */
     boolean isSelfCall = false;
 
-// Javafx change
-    public
-// Javafx change
     /** Are we evaluating the selector of a `super' or type name?
      */
     boolean selectSuper = false;
 
-// Javafx change
-    public
-// Javafx change
     /** Are arguments to current function applications boxed into an array for varargs?
      */
     boolean varArgs = false;
@@ -77,16 +62,10 @@ public class JavafxAttrContext {
 
     /** A record of the lint/SuppressWarnings currently in effect
      */
-// JavaFX change
-    public
-// JavaFX change
-    Lint lint;
+    public Lint lint;
 
     /** Duplicate this context, replacing scope field and copying all others.
      */
-// JavaFX change
-    public
-// JavaFX change
     JavafxAttrContext dup(Scope scope) {
 	JavafxAttrContext info = new JavafxAttrContext();
 	info.scope = scope;
@@ -101,9 +80,6 @@ public class JavafxAttrContext {
 
     /** Duplicate this context, copying all fields.
      */
-// JavaFX change
-    public
-// JavaFX change
     JavafxAttrContext dup() {
 	return dup(scope);
     }

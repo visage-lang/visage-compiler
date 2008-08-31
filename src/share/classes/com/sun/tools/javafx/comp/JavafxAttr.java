@@ -131,7 +131,6 @@ public class JavafxAttr implements JavafxVisitor {
         source = Source.instance(context);
         allowGenerics = source.allowGenerics();
         allowVarargs = source.allowVarargs();
-        allowEnums = source.allowEnums();
         allowBoxing = source.allowBoxing();
         allowCovariantReturns = source.allowCovariantReturns();
         allowAnonOuterThis = source.allowAnonOuterThis();
@@ -141,55 +140,30 @@ public class JavafxAttr implements JavafxVisitor {
     }
     /** Switch: relax some constraints for retrofit mode.
      */
-// JavaFX change
-    protected
-// JavaFX change
-    boolean relax;
+    private boolean relax;
 
-// Javafx change
-    protected
-// Javafx change
     /** Switch: support generics?
      */
-    boolean allowGenerics;
+    private boolean allowGenerics;
 
     /** Switch: allow variable-arity methods.
      */
-// Javafx change
-    protected
-// Javafx change
-    boolean allowVarargs;
+    private boolean allowVarargs;
 
-// Javafx change
-    protected
-// Javafx change
-    /** Switch: support enums?
-     */
-    boolean allowEnums;
-
-// Javafx change
-    protected
-// Javafx change
     /** Switch: support boxing and unboxing?
      */
-    boolean allowBoxing;
+    private boolean allowBoxing;
 
-// Javafx change
-    protected
-// Javafx change
     /** Switch: support covariant result types?
      */
-    boolean allowCovariantReturns;
+    private boolean allowCovariantReturns;
 
-// Javafx change
-    protected
-// Javafx change
     /** Switch: allow references to surrounding object from anonymous
      * objects during constructor call?
      */
-    boolean allowAnonOuterThis;
+    private boolean allowAnonOuterThis;
 
-    public enum Sequenceness {
+    enum Sequenceness {
         DISALLOWED,
         PERMITTED,
         REQUIRED
@@ -208,7 +182,6 @@ public class JavafxAttr implements JavafxVisitor {
      *  @param pkind    The expected kind (or: protokind) of the tree
      *  @param pt       The expected type (or: prototype) of the tree
      */
-    protected
     Type check(JFXTree tree, Type owntype, int ownkind, int pkind, Type pt, Sequenceness pSequenceness) {
         if (owntype != null && owntype != syms.javafx_UnspecifiedType && owntype.tag != ERROR && pt.tag != METHOD && pt.tag != FORALL) {
 //        if (owntype.tag != ERROR && pt.tag != METHOD && pt.tag != FORALL) {
@@ -250,7 +223,7 @@ public class JavafxAttr implements JavafxVisitor {
 
     /** Visitor argument: the current environment.
      */
-    JavafxEnv<JavafxAttrContext> env;
+    private JavafxEnv<JavafxAttrContext> env;
 
     /** Visitor argument: the currently expected proto-kind.
      */
@@ -262,11 +235,11 @@ public class JavafxAttr implements JavafxVisitor {
 
     /** Visitor argument: is a sequence permitted
      */
-    Sequenceness pSequenceness;
+    private Sequenceness pSequenceness;
 
     /** Visitor result: the computed type.
      */
-    Type result;
+    private Type result;
 
     /** Visitor method: attribute a tree, catching any completion failure
      *  exceptions. Return the tree's type.
@@ -388,9 +361,6 @@ public class JavafxAttr implements JavafxVisitor {
             attribDecl(l.head, env);
     }
 
-// Javafx change
-    protected
-// Javafx change
     /** Attribute a type argument list, returning a list of types.
      */
     List<Type> attribTypes(List<JFXExpression> trees, JavafxEnv<JavafxAttrContext> env) {
@@ -399,59 +369,6 @@ public class JavafxAttr implements JavafxVisitor {
             argtypes.append(chk.checkRefType(l.head.pos(), attribType(l.head, env)));
         return argtypes.toList();
     }
-
-    /**
-     * Attribute type variables (of generic classes or methods).
-     * Compound types are attributed later in attribBounds.
-     * @param typarams the type variables to enter
-     * @param env      the current environment
-     */
-    /*****
-    void attribTypeVariables(List<JFXTypeParameter> typarams, JavafxEnv<JavafxAttrContext> env) {
-        for (JFXTypeParameter tvar : typarams) {
-            TypeVar a = (TypeVar)tvar.type;
-            if (!tvar.bounds.isEmpty()) {
-                List<Type> bounds = List.of(attribType(tvar.bounds.head, env));
-                for (JFXExpression bound : tvar.bounds.tail)
-                    bounds = bounds.prepend(attribType(bound, env));
-                types.setBounds(a, bounds.reverse());
-            } else {
-                // if no bounds are given, assume a single bound of
-                // java.lang.Object.
-                types.setBounds(a, List.of(syms.objectType));
-            }
-        }
-        for (JFXTypeParameter tvar : typarams)
-            chk.checkNonCyclic(tvar.pos(), (TypeVar)tvar.type);
-        attribDecls(typarams, env);
-    }
-
-    void attribBounds(List<JFXTypeParameter> typarams) {
-        for (JFXTypeParameter typaram : typarams) {
-            Type bound = typaram.type.getUpperBound();
-            if (bound != null && bound.tsym instanceof ClassSymbol) {
-                ClassSymbol c = (ClassSymbol)bound.tsym;
-                if ((c.flags_field & COMPOUND) != 0) {
-                    assert (c.flags_field & UNATTRIBUTED) != 0 : c;
-                    attribClass(typaram.pos(), null, c);
-                }
-            }
-        }
-    }
-     * ******/
-
-    /**
-     * Attribute the type references in a list of annotations.
-     */
-    /*****
-    void attribAnnotationTypes(List<JFXAnnotation> annotations,
-                               JavafxEnv<JavafxAttrContext> env) {
-        for (List<JFXAnnotation> al = annotations; al.nonEmpty(); al = al.tail) {
-            JFXAnnotation a = al.head;
-            attribType(a.annotationType, env);
-        }
-    }
-     * ******/
 
     /** Attribute type reference in an `extends' or `implements' clause.
      *
@@ -504,7 +421,7 @@ public class JavafxAttr implements JavafxVisitor {
         return t;
     }
 
-    JavafxEnv<JavafxAttrContext> newLocalEnv(JFXTree tree) {
+    private JavafxEnv<JavafxAttrContext> newLocalEnv(JFXTree tree) {
         JavafxEnv<JavafxAttrContext> localEnv =
                 env.dup(tree, env.info.dup(env.info.scope.dupUnshared()));
         localEnv.outer = env;
@@ -534,7 +451,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = check(tree, syms.booleanType, VAL, pkind, pt, Sequenceness.DISALLOWED);
     }
 
-    void checkTypeCycle (JFXTree tree, Symbol sym) {
+    private void checkTypeCycle(JFXTree tree, Symbol sym) {
         if (sym.type == null) {
             JFXVar var = varSymToTree.get(sym);
             if (var != null)
@@ -848,11 +765,6 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitAssign(JFXAssign tree) {
-// Javafx change        Type owntype = attribTree(tree.lhs, env.dup(tree), VAR, Type.noType);
-// Javafx change        Type capturedType = capture(owntype);
-// Javafx change        attribExpr(tree.rhs, env, owntype);
-// Javafx change        result = check(tree, capturedType, VAL, pkind, pt);
-
         Type owntype = null;
         JavafxEnv<JavafxAttrContext> dupEnv = env.dup(tree);
         dupEnv.outer = env;
@@ -1015,7 +927,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
         sym.complete();
         boolean isClassVar = env.info.scope.owner.kind == TYP;
-
+        
         JFXOnReplace onReplace = tree.getOnReplace();
         if (onReplace != null) {
             JFXVar oldValue = onReplace.getOldValue();
@@ -1029,7 +941,6 @@ public class JavafxAttr implements JavafxVisitor {
 
 
             if (isClassVar) {
-                    // var is a static;
                     // let the owner of the environment be a freshly
                     // created BLOCK-method.
                     JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
@@ -1175,7 +1086,7 @@ public class JavafxAttr implements JavafxVisitor {
 
 
 
-    ArrayList<JFXForExpressionInClause> forClauses = null;
+    private ArrayList<JFXForExpressionInClause> forClauses = null;
 
     @Override
     public void visitForExpression(JFXForExpression tree) {
@@ -1565,7 +1476,7 @@ public class JavafxAttr implements JavafxVisitor {
      * @return The found type.  Null is we found no match.
      *   Notype if we found an ambiguity.
      */
-    Type searchSupersForParamType (ClassSymbol c, Name name, int paramCount, int paramNum) {
+    private Type searchSupersForParamType (ClassSymbol c, Name name, int paramCount, int paramNum) {
         Type found = null;
 
         for (Scope.Entry e = c.members().lookup(name);
@@ -2038,7 +1949,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = tree.type = syms.unreachableType;
     }
 
-    void searchParameterTypes (JFXExpression meth, Type[] paramTypes) {
+    private void searchParameterTypes (JFXExpression meth, Type[] paramTypes) {
         // FUTURE: Search for matching overloaded methods/functions that
         // would be a match for meth, and number of arguments==paramTypes.length.
         // If all the candidates have the same type for parameter # i,
@@ -2463,7 +2374,7 @@ public class JavafxAttr implements JavafxVisitor {
     //where
     /** Return the type of a literal with given type tag.
      */
-    Type litType(int tag, Type pt) {
+    private Type litType(int tag, Type pt) {
         return (tag == TypeTags.CLASS) ? syms.stringType : // a class literal can only be a String
             (tag == TypeTags.BOT && pt.tag == TypeTags.CLASS) ? pt : // for null, make the type the expected type
                 syms.typeOfTag[tag];
@@ -3160,15 +3071,6 @@ public class JavafxAttr implements JavafxVisitor {
                 ((v.flags() & STATIC) != 0) == JavafxResolve.isStatic(env) &&
                 (env.tree.getFXTag() != JavafxTag.ASSIGN ||
                  JavafxTreeInfo.skipParens(((JFXAssign) env.tree).lhs) != tree)) {
-// Javafx change
-                // In JXF is OK to forward reference an attribute even if it's not initialized yet!
-//                if (!onlyWarning || isNonStaticEnumField(v)) {
-//                    log.error(tree.pos(), "illegal.forward.ref");
-//
-//                } else if (useBeforeDeclarationWarning) {
-//                    log.warning(tree.pos(), "forward.ref", v);
-//                }
-// Javafx change end
             }
 
             v.getConstValue(); // ensure initializer is evaluated
@@ -3401,9 +3303,6 @@ public class JavafxAttr implements JavafxVisitor {
 
         tree.type = c.type;
 
-        boolean assertsEnabled = false;
-        assert assertsEnabled = true;
-
         // Check that a generic class doesn't extend Throwable
         if (!c.type.allparams().isEmpty() && types.isSubtype(c.type, syms.throwableType))
             log.error(tree.getExtending().head.pos(), MsgSym.MESSAGE_GENERIC_THROWABLE);
@@ -3494,7 +3393,7 @@ public class JavafxAttr implements JavafxVisitor {
                 log.warning(JavafxTreeInfo.diagnosticPositionFor(svuid, tree), MsgSym.MESSAGE_CONSTANT_SVUID, c);
         }
 
-    protected Type capture(Type type) {
+    private Type capture(Type type) {
         Type ctype = types.capture(type);
         if (type instanceof FunctionType)
             ctype = new FunctionType((FunctionType) type);
@@ -3506,7 +3405,7 @@ public class JavafxAttr implements JavafxVisitor {
         methodSymToTree = null;
     }
 
-    void fixOverride(JFXFunctionDefinition tree, MethodSymbol m) {
+    private void fixOverride(JFXFunctionDefinition tree, MethodSymbol m) {
 	ClassSymbol origin = (ClassSymbol)m.owner;
 	if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name))
 	    if (m.overrides(syms.enumFinalFinalize, origin, types, false)) {
