@@ -57,13 +57,13 @@ class Foo {
 class Inh extends jfxc1250subFail {
     function memWrite() {
 	memPub = 99;   // inherited, same package
-	memPkg = 99;   // inherited, same package
 	memPro = 99;   // inherited, same package
+	memPkg = 99;   // inherited, same package
 	memScr = 99;   // ERROR: inherited, same package
 
 	memIPub = 99;   // inherited, same package
-	memIPkg = 99;   // inherited, same package
 	memIPro = 99;   // inherited, same package
+	memIPkg = 99;   // inherited, same package
 	memIScr = 99;   // ERROR: inherited, same package
 
 	memRPub = 99;   // inherited, same package
@@ -115,13 +115,13 @@ function memInhAWrite() {
 function memHereWrite() {
 	var vf = jfxc1250instWrite {};
 	vf.memHerePub = 99;   // script class, select access
-	vf.memHerePkg = 99;   // script class, select access
 	vf.memHerePro = 99;   // script class, select access
+	vf.memHerePkg = 99;   // script class, select access
 	vf.memHereScr = 99;   // script class, select access
 
 	vf.memHereIPub = 99;   // script class, select access
-	vf.memHereIPkg = 99;   // script class, select access
 	vf.memHereIPro = 99;   // script class, select access
+	vf.memHereIPkg = 99;   // script class, select access
 	vf.memHereIScr = 99;   // script class, select access
 
 	vf.memHereRPub = 99;   // script class, select access
@@ -138,13 +138,13 @@ function memHereWrite() {
 function memFooWrite() {
 	var vf = Foo {};
 	vf.fooPub = 99;   // nested class
-	vf.fooPkg = 99;   // nested class
 	vf.fooPro = 99;   // nested class
+	vf.fooPkg = 99;   // nested class
 	vf.fooScr = 99;   // nested class
 
 	vf.fooIPub = 99;   // nested class
-	vf.fooIPkg = 99;   // nested class
 	vf.fooIPro = 99;   // nested class
+	vf.fooIPkg = 99;   // nested class
 	vf.fooIScr = 99;   // nested class
 
 	vf.fooRPub = 99;   // nested class
@@ -161,13 +161,13 @@ function memFooWrite() {
 function memSubWrite() {
 	var vf = jfxc1250subFail {};
 	vf.memPub = 99;   // same package
-	vf.memPkg = 99;   // same package
 	vf.memPro = 99;   // same package
+	vf.memPkg = 99;   // same package
 	vf.memScr = 99;   // ERROR: same package
 
 	vf.memIPub = 99;   // same package
-	vf.memIPkg = 99;   // same package
 	vf.memIPro = 99;   // same package
+	vf.memIPkg = 99;   // same package
 	vf.memIScr = 99;   // ERROR: same package
 
 	vf.memRPub = 99;   // same package
@@ -184,13 +184,13 @@ function memSubWrite() {
 function memSubAWrite() {
 	var vf = jfxc1250subFailA {};
 	vf.memPub = 99;   // different package
-	vf.memPkg = 99;   // ERROR: different package
 	vf.memPro = 99;   // ERROR: different package
+	vf.memPkg = 99;   // ERROR: different package
 	vf.memScr = 99;   // ERROR: different package
 
 	vf.memIPub = 99;   // different package
-	vf.memIPkg = 99;   // ERROR: different package
 	vf.memIPro = 99;   // ERROR: different package
+	vf.memIPkg = 99;   // ERROR: different package
 	vf.memIScr = 99;   // ERROR: different package
 
 	vf.memRPub = 99;   // different package

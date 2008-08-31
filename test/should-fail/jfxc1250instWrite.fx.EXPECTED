@@ -52,20 +52,20 @@ test\should-fail\jfxc1250instWrite.fx:176: memRScr has script only (default) wri
 test\should-fail\jfxc1250instWrite.fx:181: memIRScr has script only (default) write access in jfxc1250subFail
 	vf.memIRScr = 99;   // ERROR: same package
 	  ^
-test\should-fail\jfxc1250instWrite.fx:187: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
-	vf.memPkg = 99;   // ERROR: different package
-	  ^
-test\should-fail\jfxc1250instWrite.fx:188: memPro has protected access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250instWrite.fx:187: memPro has protected access in jfxc1250.a.jfxc1250subFailA
 	vf.memPro = 99;   // ERROR: different package
+	  ^
+test\should-fail\jfxc1250instWrite.fx:188: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	vf.memPkg = 99;   // ERROR: different package
 	  ^
 test\should-fail\jfxc1250instWrite.fx:189: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	vf.memScr = 99;   // ERROR: different package
 	  ^
-test\should-fail\jfxc1250instWrite.fx:192: memIPkg has package write access in jfxc1250.a.jfxc1250subFailA
-	vf.memIPkg = 99;   // ERROR: different package
-	  ^
-test\should-fail\jfxc1250instWrite.fx:193: memIPro has protected write access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250instWrite.fx:192: memIPro has protected write access in jfxc1250.a.jfxc1250subFailA
 	vf.memIPro = 99;   // ERROR: different package
+	  ^
+test\should-fail\jfxc1250instWrite.fx:193: memIPkg has package write access in jfxc1250.a.jfxc1250subFailA
+	vf.memIPkg = 99;   // ERROR: different package
 	  ^
 test\should-fail\jfxc1250instWrite.fx:194: memIScr has script only (default) write access in jfxc1250.a.jfxc1250subFailA
 	vf.memIScr = 99;   // ERROR: different package

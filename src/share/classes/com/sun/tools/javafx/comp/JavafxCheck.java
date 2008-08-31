@@ -85,6 +85,12 @@ public class JavafxCheck {
     // visits all the various parts of the trees during attribution.
     private Lint lint;
 
+    enum WriteKind {
+        ASSIGN,
+        INIT_NON_BIND,
+        INIT_BIND
+    }
+
     public static JavafxCheck instance(Context context) {
 	JavafxCheck instance = context.get(javafxCheckKey);
 	if (instance == null)
@@ -610,9 +616,6 @@ public class JavafxCheck {
      *  @param pos           Position to be used for error reporting.
      *  @param t             The type to be checked.
      */
-// JavaFX change
-    public
-// JavaFX change
     Type checkClassType(DiagnosticPosition pos, Type t) {
 	if (t.tag != CLASS && t.tag != ERROR)
             return typeTagError(pos,
@@ -624,13 +627,105 @@ public class JavafxCheck {
 	    return t;
     }
 
-  public void checkBidiBind(DiagnosticPosition pos, JavafxBindStatus bindStatus, JFXExpression init) {
-    if (bindStatus == null || ! bindStatus.isBidiBind())
-      return;
-    if (init instanceof JFXIdent || init instanceof JFXSelect)
-      return;
-    log.error(pos, MsgSym.MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND);
-  }
+    /** Is given blank final variable assignable, i.e. in a scope where it
+     *  may be assigned to even though it is final?
+     *  @param v      The blank final variable.
+     *  @param env    The current environment.
+     */
+    boolean isAssignableAsBlankFinal(VarSymbol v, JavafxEnv<JavafxAttrContext> env) {
+        Symbol owner = env.info.scope.owner;
+           // owner refers to the innermost variable, method or
+           // initializer block declaration at this point.
+        return
+            v.owner == owner
+            ||
+            ((owner.name == names.init ||    // i.e. we are in a constructor
+              owner.kind == VAR ||           // i.e. we are in a variable initializer
+              (owner.flags() & BLOCK) != 0)  // i.e. we are in an initializer block
+             &&
+             v.owner == owner.owner
+             &&
+             ((v.flags() & STATIC) != 0) == JavafxResolve.isStatic(env));
+    }
+
+    /** Check that variable can be assigned to.
+     *  @param pos    The current source code position.
+     *  @param v      The assigned varaible
+     *  @param base   If the variable is referred to in a Select, the part
+     *                to the left of the `.', null otherwise.
+     *  @param env    The current environment.
+     */
+    void checkAssignable(DiagnosticPosition pos, VarSymbol v, JFXTree base, Type site, JavafxEnv<JavafxAttrContext> env, WriteKind writeKind) {
+        //TODO: for attributes they are always final -- this should really be checked in JavafxClassReader
+        //TODO: rebutal, actual we should just use a different final
+        if ((v.flags() & FINAL) != 0 && !types.isJFXClass(v.owner) &&
+            ((v.flags() & HASINIT) != 0
+             ||
+             !((base == null ||
+               (base.getFXTag() == JavafxTag.IDENT && JavafxTreeInfo.name(base) == names._this)) &&
+               isAssignableAsBlankFinal(v, env)))) {
+            log.error(pos, MsgSym.MESSAGE_CANNOT_ASSIGN_VAL_TO_FINAL_VAR, v);
+        } else if ((v.flags() & JavafxFlags.IS_DEF) != 0L) {
+            log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_DEF, v);
+        } else if ((v.flags() & Flags.PARAMETER) != 0L) {
+            log.error(pos, MsgSym.MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_PARAMETER, v);
+        } else {
+            // now check access permissions for write/init
+            switch (writeKind) {
+                case INIT_NON_BIND:
+                    if ((v.flags() & JavafxFlags.PUBLIC_INIT) != 0L) {
+                        // it is an initialization, and init is explicitly allowed
+                        return;
+                    }
+                    break;
+            }
+            if (!rs.isAccessibleForWrite(env, site, v)) {
+                String msg;
+                switch (writeKind) {
+                    case INIT_BIND:
+                        msg = MsgSym.MESSAGE_JAVAFX_REPORT_BIND_ACCESS;
+                        break;
+                    case INIT_NON_BIND:
+                        msg = MsgSym.MESSAGE_JAVAFX_REPORT_INIT_ACCESS;
+                        break;
+                    default:
+                        msg = MsgSym.MESSAGE_JAVAFX_REPORT_WRITE_ACCESS;
+                        break;
+                }
+                log.error(pos, msg, v,
+                        JavafxCheck.protectionString(v.flags()),
+                        v.location());
+            }
+        }
+    }
+
+    void checkBidiBind(JFXExpression init, JavafxBindStatus bindStatus, JavafxEnv<JavafxAttrContext> env) {
+        if (bindStatus.isBidiBind()) {
+            Symbol initSym = null;
+            JFXTree base = null;
+            Type site = null;
+            switch (init.getFXTag()) {
+                case IDENT: {
+                    initSym = ((JFXIdent) init).sym;
+                    base = null;
+                    site = env.enclClass.sym.type;
+                    break;
+                }
+                case SELECT: {
+                    JFXSelect select = (JFXSelect) init;
+                    initSym = select.sym;
+                    base = select.getExpression();
+                    site = select.type;
+                    break;
+                }
+            }
+            if (initSym instanceof VarSymbol) {
+                checkAssignable(init.pos(), (VarSymbol) initSym, base, site, env, WriteKind.INIT_BIND);
+            } else {
+                log.error(init.pos(), MsgSym.MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND);
+            }
+        }
+    }
 
     /**
      * Return element type for a sequence type, and report error otherwise.

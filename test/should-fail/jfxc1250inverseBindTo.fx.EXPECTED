@@ -1,0 +1,91 @@
+test\should-fail\jfxc1250inverseBindTo.fx:65: cannot find symbol
+symbol  : variable memScr
+location: class jfxc1250inverseBindTo.Inh
+	Foo { toThis: bind memScr with inverse };   // ERROR: inherited, same package
+	                   ^
+test\should-fail\jfxc1250inverseBindTo.fx:70: memIScr has script only (default) bind access in jfxc1250subFail
+	Foo { toThis: bind memIScr with inverse };   // ERROR: inherited, same package
+	                   ^
+test\should-fail\jfxc1250inverseBindTo.fx:75: memRScr has script only (default) bind access in jfxc1250subFail
+	Foo { toThis: bind memRScr with inverse };   // ERROR: inherited, same package
+	                   ^
+test\should-fail\jfxc1250inverseBindTo.fx:80: memIRScr has script only (default) bind access in jfxc1250subFail
+	Foo { toThis: bind memIRScr with inverse };   // ERROR: inherited, same package
+	                   ^
+test\should-fail\jfxc1250inverseBindTo.fx:88: cannot find symbol
+symbol  : variable memPkg
+location: class jfxc1250inverseBindTo.InhA
+	Foo { toThis: bind memPkg with inverse };   // ERROR: inherited, different package
+	                   ^
+test\should-fail\jfxc1250inverseBindTo.fx:89: cannot find symbol
+symbol  : variable memScr
+location: class jfxc1250inverseBindTo.InhA
+	Foo { toThis: bind memScr with inverse };   // ERROR: inherited, different package
+	                   ^
+test\should-fail\jfxc1250inverseBindTo.fx:93: memIPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind memIPkg with inverse };   // ERROR: inherited, different package
+	                   ^
+test\should-fail\jfxc1250inverseBindTo.fx:94: memIScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind memIScr with inverse };   // ERROR: inherited, different package
+	                   ^
+test\should-fail\jfxc1250inverseBindTo.fx:98: memRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind memRPkg with inverse };   // ERROR: inherited, different package
+	                   ^
+test\should-fail\jfxc1250inverseBindTo.fx:99: memRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind memRScr with inverse };   // ERROR: inherited, different package
+	                   ^
+test\should-fail\jfxc1250inverseBindTo.fx:103: memIRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind memIRPkg with inverse };   // ERROR: inherited, different package
+	                   ^
+test\should-fail\jfxc1250inverseBindTo.fx:104: memIRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind memIRScr with inverse };   // ERROR: inherited, different package
+	                   ^
+test\should-fail\jfxc1250inverseBindTo.fx:169: memScr has script only (default) access in jfxc1250subFail
+	Foo { toThis: bind vf.memScr with inverse };   // ERROR: same package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:174: memIScr has script only (default) bind access in jfxc1250subFail
+	Foo { toThis: bind vf.memIScr with inverse };   // ERROR: same package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:179: memRScr has script only (default) bind access in jfxc1250subFail
+	Foo { toThis: bind vf.memRScr with inverse };   // ERROR: same package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:184: memIRScr has script only (default) bind access in jfxc1250subFail
+	Foo { toThis: bind vf.memIRScr with inverse };   // ERROR: same package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:190: memPro has protected access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind vf.memPro with inverse };   // ERROR: different package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:191: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+	Foo { toThis: bind vf.memPkg with inverse };   // ERROR: different package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:192: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind vf.memScr with inverse };   // ERROR: different package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:195: memIPro has protected bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind vf.memIPro with inverse };   // ERROR: different package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:196: memIPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind vf.memIPkg with inverse };   // ERROR: different package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:197: memIScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind vf.memIScr with inverse };   // ERROR: different package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:200: memRPro has protected bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind vf.memRPro with inverse };   // ERROR: different package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:201: memRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind vf.memRPkg with inverse };   // ERROR: different package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:202: memRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind vf.memRScr with inverse };   // ERROR: different package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:205: memIRPro has protected bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind vf.memIRPro with inverse };   // ERROR: different package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:206: memIRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind vf.memIRPkg with inverse };   // ERROR: different package
+	                     ^
+test\should-fail\jfxc1250inverseBindTo.fx:207: memIRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+	Foo { toThis: bind vf.memIRScr with inverse };   // ERROR: different package
+	                     ^
+28 errors
