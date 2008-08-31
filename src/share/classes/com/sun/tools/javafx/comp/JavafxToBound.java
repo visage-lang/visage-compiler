@@ -662,11 +662,16 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     @Override
     public void visitSequenceRange(JFXSequenceRange tree) { //done: except for step and exclusive
         DiagnosticPosition diagPos = tree.pos();
+        boolean toNumber = 
+                tree.getLower().type == syms.doubleType || 
+                tree.getUpper().type == syms.doubleType || 
+                (tree.getStepOrNull() != null && tree.getStepOrNull().type == syms.doubleType);
+        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(toNumber? syms.doubleType : syms.intType);
         ListBuffer<JCExpression> args = ListBuffer.lb();
-        args.append( translate( tree.getLower() ));
-        args.append( translate( tree.getUpper() ));
+        args.append( translate( tree.getLower(), tmi ));
+        args.append( translate( tree.getUpper(), tmi ));
         if (tree.getStepOrNull() != null) {
-            args.append( translate( tree.getStepOrNull() ));
+            args.append( translate( tree.getStepOrNull(), tmi ));
         }
         if (tree.isExclusive()) {
             args.append( make.at(diagPos).Literal(TypeTags.BOOLEAN, 1) );
