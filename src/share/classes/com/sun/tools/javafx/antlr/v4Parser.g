@@ -213,6 +213,10 @@ script
 	// there to see if there was a document comment.
 	//
 	CommonToken  docComment = getDocComment(input.LT(1));
+
+	// AST start position
+	//
+	int	rPos = pos();
 	
 	// Initialize the tree map if we are creating the AST end position
 	// map.
@@ -222,6 +226,7 @@ script
 	// Initialize document comment collection
 	//
 	docComments	= null;
+	
 }
 
 	:  pd=packageDecl si=scriptItems 
@@ -231,21 +236,19 @@ script
 			//
 			$result = F.Script($packageDecl.value, $si.items.toList());
             setDocComment($result, docComment);	// Add any detected documentation comment
-		}
-
-		EOF 	// Forces parser to consume entire token stream or error out
-
-		{		
-			// Set tree span and endpoint map (if required).
+            
+   			// Set tree span and endpoint map (if required).
         	//
-        	$result.pos = $result.pid != null ? $result.pid.pos : $result.defs.head.pos;
+        	$result.pos = rPos;
         	endPos($result); 
         	
         	// Pass on the documentation comments and the endpos map
         	//
         	$result.docComments 	= docComments;
         	$result.endPositions	= endPositions;
-        }
+		}
+
+		EOF 	// Forces parser to consume entire token stream or error out
     ;
     
 
