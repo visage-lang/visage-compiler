@@ -367,7 +367,13 @@ public class Timeline {
                             target: keyValue.target;
                             value: keyValue.target.get();
                         }
-                        insert kv into initialKeyValues;
+                        
+                        var initkv = KeyValue {
+                            target: kv.target;
+                            value: kv.value;                            
+                        }
+                        
+                        insert initkv into initialKeyValues;
                         var kfp = KFPair {
                             value: kv
                             frame: zeroFrame
