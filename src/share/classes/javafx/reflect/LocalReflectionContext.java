@@ -28,6 +28,7 @@ import com.sun.javafx.runtime.annotation.SourceName;
 import com.sun.tools.javafx.util.NotImplementedException;
 import com.sun.javafx.runtime.location.ObjectLocation;
 import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.javafx.functions.*;
 
 /** Implementation of {@link ReflectionContext} using Java reflection.
@@ -274,13 +275,20 @@ public class LocalReflectionContext extends ReflectionContext {
             throw new RuntimeException(ex);
         }
     }
+    
+    public static Class asClass (TypeRef type) {
+        if (type == PrimitiveTypeRef.integerType)
+            return Integer.TYPE;
+        else if (type == PrimitiveTypeRef.numberType)
+            return Double.TYPE;
+        else { // FIXME - handle other cases
+            LocalClassRef ctyp = (LocalClassRef) type;
+            return ctyp.isCompoundClass() ? ctyp.refInterface : ctyp.refClass;
+        }
+    }
 
-    public SequenceBuilder makeSequenceBuilder (TypeRef elementType) {
-        return new SequenceBuilder() {
-            public void append(ValueRef value) { throw new NotImplementedException(); }
-
-            public ValueRef getSequence() { throw new NotImplementedException(); }
-        };
+    public ValueRef makeSequenceValue(ValueRef[] values, int nvalues, TypeRef elementType) {
+        return new LocalSequenceValue(values, nvalues, elementType, this);
     }
 
     public TypeRef getIntegerType() {
@@ -289,6 +297,33 @@ public class LocalReflectionContext extends ReflectionContext {
 
     public TypeRef getNumberType() {
         return PrimitiveTypeRef.numberType;
+    }
+}
+
+class LocalSequenceValue extends SequenceBuilder.SequenceValue implements LocalValueRef {
+    Sequence seq;
+    LocalReflectionContext context;
+    public LocalSequenceValue(ValueRef[] values, int nvalues, TypeRef elementType,
+            LocalReflectionContext context) {
+        super(values, nvalues, elementType);
+        this.context = context;
+    }
+
+    public Sequence asObject() {
+        if (seq == null) {
+            TypeRef elementType = type.getComponentType();
+            Object[] objs = new Object[nvalues];
+            for (int i = 0;  i < nvalues;  i++)
+                objs[i] = ((LocalValueRef) values[i]).asObject();
+            /* FIXME
+            if (elementType == PrimitiveTypeRef.integerType)
+                ;
+            else if (elementType == PrimitiveTypeRef.numberType)
+                ;
+            */
+            return Sequences.make(context.asClass(elementType), objs);
+        }
+        return seq;
     }
 }
 
@@ -390,26 +425,12 @@ class LocalClassRef extends ClassRef {
         getSuperClasses(all, result);
         return result;
     }
-
-    public MemberRef getMember(String name, TypeRef type) {
-        throw new NotImplementedException();
-    }
-
+    
     public MethodRef getMethod(String name, TypeRef... argType) {
         int nargs = argType.length;
         Class[] ctypes = new Class[nargs];
         for (int i = 0;  i < nargs;  i++) {
-            TypeRef typ = argType[i];
-            Class cls;
-            if (typ == PrimitiveTypeRef.integerType)
-                cls = Integer.TYPE;
-            else if (typ == PrimitiveTypeRef.numberType)
-                cls = Double.TYPE;
-            else { // FIXME - handle other cases
-                LocalClassRef ctyp = (LocalClassRef) typ;
-                cls = ctyp.isCompoundClass() ? ctyp.refInterface : ctyp.refClass;
-            }
-            ctypes[i] = cls;
+            ctypes[i] = LocalReflectionContext.asClass(argType[i]);
         }
         try {
             Method meth = (isCompoundClass() ? refInterface : refClass).getMethod(name, ctypes);

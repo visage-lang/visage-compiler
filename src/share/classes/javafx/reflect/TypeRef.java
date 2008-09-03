@@ -56,8 +56,17 @@ public abstract class TypeRef {
         return true;
     }
 
-    /** For now too conservative, if not comapring ClassRef types,
-     * use equals.
+    /** Coerce argument to this type.
+     * <em>This is a placeholder - not yet implemented. </em>
+     * @param val values to coerce/convert
+     * @return convert, or null if cannot be coerced
+     */
+    public ValueRef coerceOrNull (ValueRef val) {
+        return val; // FIXME
+    }
+
+    /** For now too conservative - if not comparing ClassRef types,
+     * uses equals.
      */
     public boolean isAssignableFrom(TypeRef cls) {
         if (this instanceof ClassRef && cls instanceof ClassRef)

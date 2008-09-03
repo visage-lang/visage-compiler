@@ -23,6 +23,7 @@
 
 package javafx.reflect;
 import java.util.*;
+import com.sun.tools.javafx.util.NotImplementedException;
 
 /** A run-time representation of a JavaFX class.
  * Corresponds to {@code java.lang.Class}.
@@ -158,8 +159,14 @@ public abstract class ClassRef extends TypeRef implements MemberRef {
         return allocate().initialize();
     }
 
-    /** Get a member with the matching name and type. */
-    public abstract MemberRef getMember(String name, TypeRef type);
+    /** Get a member with the matching name and type - NOT IMPLEMENTED YET.
+     * (A method has a FunctionType.)
+     * (Unimplemented because it requires type matching.)
+     */
+    public MemberRef getMember(String name, TypeRef type) {
+        throw new NotImplementedException();
+    }
+
 
     /** Get the attribute (field) of this class with a given name. */
     public AttributeRef getAttribute(String name) {

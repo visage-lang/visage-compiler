@@ -63,7 +63,13 @@ public abstract class ReflectionContext {
     public abstract TypeRef getNumberType();
 
     /** Create a helper object for building a sequence value. */
-    public abstract SequenceBuilder makeSequenceBuilder (TypeRef elementType);
+    public SequenceBuilder makeSequenceBuilder(TypeRef elementType) {
+        return new SequenceBuilder(this, elementType);
+    }
+
+    public ValueRef makeSequenceValue(ValueRef[] values, int nvalues, TypeRef elementType) {
+        return new SequenceBuilder.SequenceValue(values, nvalues, elementType);
+    }
 
     public ValueRef makeSequence(TypeRef elementType, ValueRef... values) {
         SequenceBuilder builder = makeSequenceBuilder(elementType);
