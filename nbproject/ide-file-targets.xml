@@ -31,6 +31,7 @@
             <property name="javac.includes" value="${run.class}"/>
             <property name="test.includes" value="${run.class}"/>
             <property name="test.class" value="${run.class}"/>
+            <property name="test.src.dir" value="test/sandbox"/>
             <target name="test-single"/>
         </ant>
     </target>
