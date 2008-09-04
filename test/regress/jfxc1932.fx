@@ -5,8 +5,6 @@
  * @run
  */
 
-import javafx.lang.Duration;
-
 class Foo {
   var string1 : String on replace old { println("string1 old='{old}', new='{string1}'") }
   var duration1 : Duration on replace old { println("duration1 old={old}, new={duration1}") }
