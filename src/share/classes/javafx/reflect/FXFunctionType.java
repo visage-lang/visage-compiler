@@ -25,13 +25,13 @@ package javafx.reflect;
 
 /** A run-time representation of a JavaFX function type. */
 
-public class FunctionTypeRef extends TypeRef {
+public class FXFunctionType extends FXType {
     protected int minArgs;
-    protected TypeRef[] argTypes;
+    protected FXType[] argTypes;
     protected boolean varArgs;
-    protected TypeRef returnType;
+    protected FXType returnType;
 
-    FunctionTypeRef() {
+    FXFunctionType() {
     }
 
     /** The fixed (minimum) number of arguments needed.
@@ -43,12 +43,12 @@ public class FunctionTypeRef extends TypeRef {
      * Note that varArgs aren't yet supported in JavaFX. */
     public boolean isVarArgs() { return varArgs; }
 
-    public TypeRef getArgumentType(int i) {
+    public FXType getArgumentType(int i) {
         return argTypes[varArgs && i >= minArgs ? minArgs : i]; }
 
-    public TypeRef getReturnType() { return returnType; }
+    public FXType getReturnType() { return returnType; }
 
-    public boolean equals(FunctionTypeRef ftype) {
+    public boolean equals(FXFunctionType ftype) {
         if (minArgs != ftype.minArgs || varArgs != ftype.varArgs
               || ! returnType.equals(ftype.returnType))
             return false;

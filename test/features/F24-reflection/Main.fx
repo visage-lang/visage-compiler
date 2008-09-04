@@ -33,7 +33,7 @@ class MyRect extends MyShape, MyCanvasItem {
   }
 };
 
-var context : LocalReflectionContext = LocalReflectionContext.getInstance();
+var context : FXLocal.Context = FXLocal.getContext();
 class Square extends MyRect {
    var atBlank : String;
    public var atPub : String;
@@ -84,21 +84,20 @@ var myRect = MyRect {
 var myRectRef = context.mirrorOf(myRect);
 
 System.out.println("MyRect attributes: ");
-var attrsMyRect = clsMyRect.getAttributes(true);
-for (attr in clsMyRect.getAttributes(false)) {
+var attrsMyRect = clsMyRect.getVariables(true);
+for (attr in clsMyRect.getVariables(false)) {
   System.out.println("  {attr}") };
 System.out.println("MyRect attributes (inherited also): ");
 for (attr in attrsMyRect) {
-  System.out.println("  {attr.getName()} : {attr.getType()}");
   var attrval = attr.getValue(myRectRef);
-  System.out.println("  {attr.getName()} : {attr.getType()} = {attrval.getValueString()}") };
+  System.out.println("  {attr.getName()} : {attr.getType()} = {attrval.getValueString()};") };
 
 System.out.println("Square attributes (only):");
-for (attr in context.findClass("Main.Square").getAttributes(false)) {
+for (attr in context.findClass("Main.Square").getVariables(false)) {
   System.out.println("  {attr.getName()} : {attr.getType()}") };
 
 System.out.println("Simple attributes (only):");
-for (attr in context.findClass("Main.Simple").getAttributes(false)) {
+for (attr in context.findClass("Main.Simple").getVariables(false)) {
   System.out.println("  {attr.getName()} : {attr.getType()}"); };
 
 System.out.println("MyRect methods:");
@@ -110,9 +109,9 @@ System.out.println("MyRect.times1(Number): {m1}");
 def two_five = context.mirrorOf(2.5);
 System.out.println("call times1(2.5): {m1.invoke(myRectRef, two_five)}");
 
-var fv1 = clsMyRect.getAttribute("shapeFunAttr1");
+var fv1 = clsMyRect.getVariable("shapeFunAttr1");
 System.out.println("MyRect.shapeFunAttr1 variable: {fv1}");
-var fun1 = fv1.getValue(myRectRef) as FunctionValueRef;
+var fun1 = fv1.getValue(myRectRef) as FXLocal.FunctionValue;
 var v2 = fun1.apply(context.mirrorOf(3), context.mirrorOf("abcdefg"));
 System.out.println(" - apply(3,\"abcdefg\") => {v2.getValueString()}");
 
@@ -124,7 +123,7 @@ function repeat(x:Integer,y:String):String {
 
 var fun2 = context.mirrorOf(repeat, fv1.getType());
 fv1.setValue(myRectRef, fun2);
-var fun3 = fv1.getValue(myRectRef) as FunctionValueRef;
+var fun3 = fv1.getValue(myRectRef) as FXLocal.FunctionValue;
 var v3 = fun3.apply(context.mirrorOf(3), context.mirrorOf("abc"));
 System.out.println("After updating shapeFunAttr1 to repeat:");
 System.out.println(" - apply(3,\"abc\") => {v3.getValueString()}");

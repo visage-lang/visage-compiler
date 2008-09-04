@@ -23,20 +23,15 @@
 
 package javafx.reflect;
 
-/** A proxy/mirror for a run-time value. */
+/** A mirror of a function value. */
 
-public abstract class ValueRef {
-    protected ValueRef() {
+public abstract class FXFunctionValue extends FXValue {
+    protected FXFunctionValue() {
     }
 
+    /** Invoke this function. */
+    public abstract FXValue apply(FXValue... arg);
+
     /** Get the run-time type of this value. */
-    public abstract TypeRef getType();
-
-    public int getItemCount() { return isNull() ? 0 : 1; }
-
-    public abstract boolean isNull();
-
-    public ValueRef getItem(int index) { return this; }
-
-    public abstract String getValueString();
+    public abstract FXFunctionType getType();
 }

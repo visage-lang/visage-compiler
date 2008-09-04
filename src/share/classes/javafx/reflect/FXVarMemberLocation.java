@@ -23,27 +23,12 @@
 
 package javafx.reflect;
 
-/** A handle/proxy for an {@code Integer} value
- */
-
-public class IntegerValue extends ValueRef implements LocalValueRef {
-    int value;
-    TypeRef type;
-
-    public IntegerValue(int value, TypeRef type) {
-        this.value = value;
-        this.value = value;
-    }
-
-    public int intValue() { return value; }
-
-    public boolean isNull() { return false; }
-    public TypeRef getType() { return type; }
-
-    public String getValueString() { return Integer.toString(value); }
-    public String toString() { return "IntegerValue("+value+')'; }
-    
-    public Object asObject() {
-         return Integer.valueOf(intValue());
-    }
+/** A reference to a specific attribute in a specific object. */
+class FXVarMemberLocation extends FXLocation {
+    FXObjectValue object;
+    FXVarMember attr;
+    FXVarMemberLocation(FXObjectValue object, FXVarMember attr)
+    { this.object = object; this.attr = attr; }
+    public FXValue getValue() { return attr.getValue(object); }
+    public void setValue(FXValue newValue) { attr.setValue(object, newValue); }
 }

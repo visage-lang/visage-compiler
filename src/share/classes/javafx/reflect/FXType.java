@@ -27,8 +27,8 @@ package javafx.reflect;
  * Corresponds to {@code java.lang.reflect.Type}.
  */
 
-public abstract class TypeRef {
-    TypeRef() {
+public abstract class FXType {
+    FXType() {
     }
 
     /** Return name of type, or null ofr an unnamed type. */
@@ -47,9 +47,9 @@ public abstract class TypeRef {
         return sb.toString();
     }
 
-    /** Get a {@code SequenceTypeRef} using this as the item type. */
-    public SequenceTypeRef getSequenceType() {
-        return new SequenceTypeRef(this);
+    /** Get a {@code FXSequenceType} using this as the item type. */
+    public FXSequenceType getSequenceType() {
+        return new FXSequenceType(this);
     }
     
     public boolean isJfxType() {
@@ -61,16 +61,16 @@ public abstract class TypeRef {
      * @param val values to coerce/convert
      * @return convert, or null if cannot be coerced
      */
-    public ValueRef coerceOrNull (ValueRef val) {
+    public FXValue coerceOrNull (FXValue val) {
         return val; // FIXME
     }
 
-    /** For now too conservative - if not comparing ClassRef types,
+    /** For now too conservative - if not comparing FXClassType types,
      * uses equals.
      */
-    public boolean isAssignableFrom(TypeRef cls) {
-        if (this instanceof ClassRef && cls instanceof ClassRef)
-            return ((ClassRef) this).isAssignableFrom((ClassRef) cls);
+    public boolean isAssignableFrom(FXType cls) {
+        if (this instanceof FXClassType && cls instanceof FXClassType)
+            return ((FXClassType) this).isAssignableFrom((FXClassType) cls);
         // FIXME
         return equals(cls);
     }

@@ -7,17 +7,17 @@
  * <h2>Values</h2>
  * The various reflection operations do not directly use
  * Java values.  Instead,
- * an {@link javafx.reflect.ObjectRef} is a <q>handle</q> or
+ * an {@link javafx.reflect.FXObjectValue} is a <q>handle</q> or
  * proxy for an <code>Object</code>.  This extra layer of indirection
  * isn't needed in many cases, bur it is useful for remote invocation,
  * remote control, or in general access to data in a different VM,
  *
  * <h2>Context</h2>
  * The objects in this package are directly or indirectly created
- * from a {@link javafx.reflect.ReflectionContext ReflectionContext}.
+ * from a {@link javafx.reflect.FXContext FXContext}.
  * In the default case there
- * is a single {@code ReflectionContext} instance that makes use of
- * Java reflection.  However, using a {@code ReflectionContext} again
+ * is a single {@code FXContext} instance that makes use of
+ * Java reflection.  However, using a {@code FXContext} again
  * allows various kinds of indirection.
  *
  * <h2>Object creation</h2>
@@ -28,23 +28,23 @@
  * </pre></blockquote>
  * you can do:
  * <blockquote><pre>
- * ReflectionContext rcontext = ...;
- * ClassRef cls = rcontext.findClass(...);
- * ObjectRef x = ...;
- * ObjectRef z = cls.allocation();
- * z.initAttribute("a", ???);
- * z.initBinding("b", ???);
+ * FXContext rcontext = ...;
+ * FXClassType cls = rcontext.findClass(...);
+ * FXObjectValue x = ...;
+ * FXObjectValue z = cls.allocation();
+ * z.initVar("a", ???);
+ * z.bindVar("b", ???);
  * z = obj.initialize();
  * </pre></blockquote>
  *
  * <h2>Sequence operations</h2>
  * <p>
- * Use {@link javafx.reflect.SequenceBuilder} to create a new sequence.
+ * Use {@link javafx.reflect.FXSequenceBuilder} to create a new sequence.
  * <p>
  * To get the number of items in a sequence,
- * use {@link javafx.reflect.ValueRef#getItemCount ValueRef.getItemCount}.
+ * use {@link javafx.reflect.FXValue#getItemCount ValueRef.getItemCount}.
  * To index into a sequence,
- * use {@link javafx.reflect.ValueRef#getItem ValueRef.getItem}.
+ * use {@link javafx.reflect.FXValue#getItem ValueRef.getItem}.
  *
 <h2>Design notes and issues</h2>
 Some design principles, influenced by the "Mirrored reflection"
@@ -65,7 +65,6 @@ or "service lookup"!
 </ul>
 <h2>To do</h2>
 <ul>
-<li>Actual implementation based on reflection.
 <li>Error handling - if (for example) there is
 no method with a given name, do we return null or throw an exception?  Which exception?
 <li>How to handle bound functions?

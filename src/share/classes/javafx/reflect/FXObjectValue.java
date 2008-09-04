@@ -26,59 +26,59 @@ package javafx.reflect;
 /** A handle/proxy for an {@code Object} reference.
  */
 
-public abstract class ObjectRef extends ValueRef {
-    protected ObjectRef() {
+public abstract class FXObjectValue extends FXValue {
+    protected FXObjectValue() {
     }
 
-    public abstract ClassRef getType();
+    public abstract FXClassType getType();
 
-    public ReflectionContext getReflectionContext() {
+    public FXContext getReflectionContext() {
         return getType().getReflectionContext();
     }
 
   /** Initialize an attribute of an object to a given value.
    * Should only be called between {@code cls.allocate()} and {@code obj.initialize()}.
    */
-  public void initAttribute(String name, ValueRef value) {
-    AttributeRef attr = getType().getAttribute(name);
-    initAttribute(attr, value);
+  public void initVar(String name, FXValue value) {
+    FXVarMember attr = getType().getVariable(name);
+    initVar(attr, value);
   }
   /** Initialize an attribute of an object to a given value.
    * Should only be called between {@code cls.allocate()} and {@code obj.initialize()}.
    */
-  public void initAttribute(AttributeRef attr, ValueRef value) {
-      throw new UnsupportedOperationException("unimplemented: initAttribute");
+  public void initVar(FXVarMember attr, FXValue value) {
+      throw new UnsupportedOperationException("unimplemented: initVar");
   }
   /** Bind an attribute of an object to a given location.
    * Should only be called between {@code cls.allocate()} and {@code obj.initialize()}.
    */
-  public void initBinding(String name, LocationRef location) {
-    AttributeRef attr = getType().getAttribute(name);
-    initBinding(attr, location);
+  public void bindVar(String name, FXLocation location) {
+    FXVarMember attr = getType().getVariable(name);
+    bindVar(attr, location);
   }
   /** Bind an attribute of an object to a given location.
    * Should only be called between {@code cls.allocate()} and {@code obj.initialize()}.
    */
-  public void initBinding(AttributeRef attr, LocationRef location) {
-      throw new UnsupportedOperationException("unimplemented: initBinding");
+  public void bindVar(FXVarMember attr, FXLocation location) {
+      throw new UnsupportedOperationException("unimplemented: bindVar");
   }
 
   /** Finish constructing an object.
    * Run init hooks, triggers etc.
    * @return the constructed object - normally the same as this.
    */
-  public ObjectRef initialize() {
+  public FXObjectValue initialize() {
       throw new UnsupportedOperationException("unimplemented: initialize");
   }
 
   /** Convenience method to invoke a member function. */
-  public ValueRef invoke(String name, ValueRef... args) {
-    TypeRef[] types = new TypeRef[args.length];
+  public FXValue invoke(String name, FXValue... args) {
+    FXType[] types = new FXType[args.length];
     for (int i = args.length;  --i >= 0; ) types[i] = args[i].getType();
     return getType().getMethod(name, types).invoke(this, args);
   }
   /** Convenience method to invoke a member function. */
-  public ValueRef invoke(MethodRef method, ValueRef... args) {
+  public FXValue invoke(FXFunctionMember method, FXValue... args) {
     return method.invoke(this, args);
   }
 }

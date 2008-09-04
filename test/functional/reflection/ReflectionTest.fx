@@ -56,11 +56,11 @@ class TypeInference3 extends TypeInference,TypeInference2 {
     var newAttr = func3([2]);
     var anotherAttr = func8 ();
 }
-var context : LocalReflectionContext = LocalReflectionContext.getInstance();
+var context : FXLocal.Context = FXLocal.getContext();
 var classRef = context.findClass("ReflectionTest.TypeInference3");
 System.out.println("Reflecting class {classRef.getName()}");
 System.out.println("Inherited SuperClasses of TypeInference3 => {classRef.getSuperClasses(true)}");
-for (attr in classRef.getAttributes(true)) {
+for (attr in classRef.getVariables(true)) {
   System.out.println(" Type of {attr.getName()} is inferred as {attr.getType()}") ;
 }
 for (mr in classRef.getMethods(true)) {

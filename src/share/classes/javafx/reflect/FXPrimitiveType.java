@@ -23,6 +23,18 @@
 
 package javafx.reflect;
 
-public interface LocalValueRef {
-    public Object asObject();
-}
+class FXPrimitiveType extends FXType {
+    Class clas;
+    String name;
+    FXPrimitiveType(Class clas, String name) {
+        this.clas = clas;
+        this.name = name;
+    }
+    public String getName() { return name; }
+
+    static final FXType integerType =
+        new FXPrimitiveType(Integer.TYPE, "Integer");
+
+    static final FXType numberType =
+        new FXPrimitiveType(Double.TYPE, "Number");
+};

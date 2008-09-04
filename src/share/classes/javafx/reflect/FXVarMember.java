@@ -23,40 +23,33 @@
 
 package javafx.reflect;
 
-/** A reference to a function in a class.
- * Corresponds to {@code java.lang.reflect.Method}, or
- * {@code com.sun.jdi.Methods}, respectively.
+/** A run-time represention of a JavaFX attribute in a class.
+ * Corresponds to {@code java.lang.reflect.Field},
+ * and {@code com.sun.jdi.Field}, respectively.
  */
-
-public abstract class MethodRef implements MemberRef {
-    protected MethodRef() {
+public abstract class FXVarMember implements FXMember {
+    protected FXVarMember() {
     }
 
-    /** Associate the method with a receiver object to yield a function. */
-    public FunctionValueRef asFunction(final ObjectRef owner) {
-        return new FunctionValueRef() {
-            public ValueRef apply(ValueRef... arg) {
-                return invoke(owner, arg);
-            }
-            public FunctionTypeRef getType() {
-                return MethodRef.this.getType();
-            }
-            public boolean isNull() { return false; }
+    public abstract FXType getType();
 
-            public String getValueString() { return "("+owner.getValueString()+")."+MethodRef.this; }
-        };
+    /** Get the value of the attribute in a specified object. */
+    public abstract FXValue getValue(FXObjectValue obj);
+
+    /** Set the value of the attribute in a specified object. */
+    public abstract void setValue(FXObjectValue obj, FXValue newValue);
+
+    /** Get a handle for the attribute in a specific object. */
+    public FXLocation getLocation(FXObjectValue obj) {
+        return new FXVarMemberLocation(obj, this);
     }
 
-    public abstract FunctionTypeRef getType();
-
-    /** Invoke this method on the given receiver and arguments. */
-    public abstract ValueRef invoke(ObjectRef owner, ValueRef... arg);
+    public abstract void initValue(FXObjectValue obj, FXValue ref);
     
-        
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("function ");
-        TypeRef owner = getDeclaringType();
+        sb.append("attribute ");
+        FXType owner = getDeclaringType();
         if (owner != null) {
             String oname = owner.getName();
             if (oname != null) {
@@ -65,8 +58,8 @@ public abstract class MethodRef implements MemberRef {
             }
         }
         sb.append(getName());
-        getType().toStringRaw(sb);
+        sb.append(':');
+        getType().toStringTerse(sb);
         return sb.toString();
     }
 }
-

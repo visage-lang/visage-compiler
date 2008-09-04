@@ -23,15 +23,13 @@
 
 package javafx.reflect;
 
-/** A mirror of a function value. */
+/** A run-time represention of a JavaFX member of a class.
+ * Corresponds to {@code java.lang.reflect.Member},
+ * and {@code com.sun.jdi.TypeComponent}, respectively.
+ */
 
-public abstract class FunctionValueRef extends ValueRef {
-    protected FunctionValueRef() {
-    }
-
-    /** Invoke this function. */
-    public abstract ValueRef apply(ValueRef... arg);
-
-    /** Get the run-time type of this value. */
-    public abstract FunctionTypeRef getType();
+public interface FXMember {
+    public abstract String getName();
+    public abstract FXType getDeclaringType();
+    public abstract boolean isStatic();
 }

@@ -23,18 +23,20 @@
 
 package javafx.reflect;
 
-class PrimitiveTypeRef extends TypeRef {
-    Class clas;
-    String name;
-    PrimitiveTypeRef(Class clas, String name) {
-        this.clas = clas;
-        this.name = name;
+/** A proxy/mirror for a run-time value. */
+
+public abstract class FXValue {
+    protected FXValue() {
     }
-    public String getName() { return name; }
 
-    static final TypeRef integerType =
-        new PrimitiveTypeRef(Integer.TYPE, "Integer");
+    /** Get the run-time type of this value. */
+    public abstract FXType getType();
 
-    static final TypeRef numberType =
-        new PrimitiveTypeRef(Double.TYPE, "Number");
-};
+    public int getItemCount() { return isNull() ? 0 : 1; }
+
+    public abstract boolean isNull();
+
+    public FXValue getItem(int index) { return this; }
+
+    public abstract String getValueString();
+}

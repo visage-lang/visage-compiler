@@ -29,9 +29,9 @@ import com.sun.tools.javafx.util.NotImplementedException;
  * Corresponds to {@code java.lang.Class}.
  */
 
-public abstract class ClassRef extends TypeRef implements MemberRef {
+public abstract class FXClassType extends FXType implements FXMember {
     String name;
-    ReflectionContext context;
+    FXContext context;
     protected int modifiers;
     protected static final int COMPOUND_CLASS = 1;
     protected static final int FX_CLASS = 2;
@@ -50,7 +50,7 @@ public abstract class ClassRef extends TypeRef implements MemberRef {
             "com.sun.javafx.functions.Function";
     public static final String LOCATION_GETTER_PREFIX = "get$";
 
-    protected ClassRef(ReflectionContext context, int modifiers) {
+    protected FXClassType(FXContext context, int modifiers) {
         this.context = context;
         this.modifiers = modifiers;
     }
@@ -63,7 +63,7 @@ public abstract class ClassRef extends TypeRef implements MemberRef {
         return "class "+getName();
     }
 
-    public boolean equals (ClassRef other) {
+    public boolean equals (FXClassType other) {
         return context.equals(other.context) && name.equals(other.name);
     }
 
@@ -73,7 +73,7 @@ public abstract class ClassRef extends TypeRef implements MemberRef {
      * @return the list of super-classes.  It sorted by class name for
      *   convenience and consistency.
      */
-    public abstract List<ClassRef> getSuperClasses(boolean all);
+    public abstract List<FXClassType> getSuperClasses(boolean all);
     
     public boolean isCompoundClass() {
         return (modifiers & COMPOUND_CLASS) != 0;
@@ -83,114 +83,104 @@ public abstract class ClassRef extends TypeRef implements MemberRef {
         return (modifiers & FX_CLASS) != 0;
     }
 
-     public boolean isAssignableFrom(ClassRef cls) {
+     public boolean isAssignableFrom(FXClassType cls) {
         if (this.equals(cls))
             return true;
-        List<ClassRef> supers = cls.getSuperClasses(false);
-        for (ClassRef s : supers) {
+        List<FXClassType> supers = cls.getSuperClasses(false);
+        for (FXClassType s : supers) {
             if (isAssignableFrom(s))
                 return true;
         }
         return false;
     }
 
-    public List<MemberRef> getMembers(MemberFilter filter, boolean all) {
-        SortedMemberArray<MemberRef> result = new SortedMemberArray<MemberRef>();
+    public List<FXMember> getMembers(FXMemberFilter filter, boolean all) {
+        SortedMemberArray<FXMember> result = new SortedMemberArray<FXMember>();
         if (all) {
-            List<ClassRef> supers = getSuperClasses(all);
-            for (ClassRef cl : supers)
+            List<FXClassType> supers = getSuperClasses(all);
+            for (FXClassType cl : supers)
                 cl.getMembers(filter, result);
         }
         else
             getMembers(filter, result);
         return result;
     }
-    public List<MemberRef> getMembers(boolean all) {
-        return getMembers(new MemberFilter(), all);
+    public List<FXMember> getMembers(boolean all) {
+        return getMembers(new FXMemberFilter(), all);
     }
-    protected void getMembers(MemberFilter filter, SortedMemberArray<MemberRef> result) {
-        getAttributes(filter, result);
+    protected void getMembers(FXMemberFilter filter, SortedMemberArray<FXMember> result) {
+        getVariables(filter, result);
         getMethods(filter, result);
     }
     
-    public List<MethodRef> getMethods(MemberFilter filter, boolean all) {
-        SortedMemberArray<MethodRef> result = new SortedMemberArray<MethodRef>();
+    public List<FXFunctionMember> getMethods(FXMemberFilter filter, boolean all) {
+        SortedMemberArray<FXFunctionMember> result = new SortedMemberArray<FXFunctionMember>();
         if (all) {
-            List<ClassRef> supers = getSuperClasses(all);
-            for (ClassRef cl : supers)
+            List<FXClassType> supers = getSuperClasses(all);
+            for (FXClassType cl : supers)
                 cl.getMethods(filter, result);
         }
         else
             getMethods(filter, result);
         return result;
     }
-    public List<MethodRef> getMethods(boolean all) {
-        return getMethods(MemberFilter.acceptMethods(), all);
+    public List<FXFunctionMember> getMethods(boolean all) {
+        return getMethods(FXMemberFilter.acceptMethods(), all);
     }
-    protected abstract void getMethods(MemberFilter filter, SortedMemberArray<? super MethodRef> result);
+    protected abstract void getMethods(FXMemberFilter filter, SortedMemberArray<? super FXFunctionMember> result);
     
-    public List<AttributeRef> getAttributes(MemberFilter filter, boolean all) {
-        SortedMemberArray<AttributeRef> result = new SortedMemberArray<AttributeRef>();
+    public List<FXVarMember> getVariables(FXMemberFilter filter, boolean all) {
+        SortedMemberArray<FXVarMember> result = new SortedMemberArray<FXVarMember>();
         if (all) {
-            List<ClassRef> supers = getSuperClasses(all);
-            for (ClassRef cl : supers)
-                cl.getAttributes(filter, result);
+            List<FXClassType> supers = getSuperClasses(all);
+            for (FXClassType cl : supers)
+                cl.getVariables(filter, result);
         }
         else
-            getAttributes(filter, result);
+            getVariables(filter, result);
         return result;
     }
-    public List<AttributeRef> getAttributes(boolean all) {
-        return getAttributes(MemberFilter.acceptAttributes(), all);
+    public List<FXVarMember> getVariables(boolean all) {
+        return getVariables(FXMemberFilter.acceptAttributes(), all);
     }
-    protected abstract void getAttributes(MemberFilter filter, SortedMemberArray<? super AttributeRef> result);
-
-    public ReflectionContext getReflectionContext() {
-        return context;
-    }
-
-    /** Return raw uninitialized object. */
-    public abstract ObjectRef allocate ();
-
-    /** Create a new initialized object.
-     * This is just {@code allocate}+{@code ObjectRef.initialize}.
-     */
-    public ObjectRef newInstance() {
-        return allocate().initialize();
-    }
+    protected abstract void getVariables(FXMemberFilter filter, SortedMemberArray<? super FXVarMember> result);
 
     /** Get a member with the matching name and type - NOT IMPLEMENTED YET.
      * (A method has a FunctionType.)
      * (Unimplemented because it requires type matching.)
      */
-    public MemberRef getMember(String name, TypeRef type) {
+    public FXMember getMember(String name, FXType type) {
         throw new NotImplementedException();
     }
 
-
     /** Get the attribute (field) of this class with a given name. */
-    public AttributeRef getAttribute(String name) {
-        MemberFilter filter = new MemberFilter();
+    public FXVarMember getVariable(String name) {
+        FXMemberFilter filter = new FXMemberFilter();
         filter.setAttributesAccepted(true);
         filter.setRequiredName(name);
-        List<AttributeRef> attrs = getAttributes(filter, true);
+        List<FXVarMember> attrs = getVariables(filter, true);
         return attrs.isEmpty() ? null : attrs.get(0);
     }
 
     /** Find the function that (best) matches the name and argument types. */
-    public abstract MethodRef getMethod(String name, TypeRef... argType);
+    public abstract FXFunctionMember getMethod(String name, FXType... argType);
 
-    /* FIXME - move to FieldRef?
-    public abstract void setAttribute(AttributeRef field, ValueRef value);
-    public abstract void initAttribute(AttributeRef field, ValueRef value);
-    public void initAttribute(String field, ValueRef value) {
-      initAttribute(getAttribute(field), value);
+    public FXContext getReflectionContext() {
+        return context;
     }
-    //  public void initAttributeBinding(AttributeRef field, LocationRef value);
-    */
-    
-    protected static class SortedMemberArray<T extends MemberRef> extends AbstractList<T> {
-        MemberRef[] buffer = new MemberRef[4];
+
+    /** Return raw uninitialized object. */
+    public abstract FXObjectValue allocate ();
+
+    /** Create a new initialized object.
+     * This is just {@code allocate}+{@code FXObjectValue.initialize}.
+     */
+    public FXObjectValue newInstance() {
+        return allocate().initialize();
+    }
+
+    protected static class SortedMemberArray<T extends FXMember> extends AbstractList<T> {
+        FXMember[] buffer = new FXMember[4];
         int sz;
         public T get(int index) {
             if (index >= sz)
@@ -205,7 +195,7 @@ public abstract class ClassRef extends TypeRef implements MemberRef {
             // for ClassLoaders complicates that.  Linear search should be ok.
             int i = 0;
             for (; i < sz; i++) {
-                MemberRef c = buffer[i];
+                FXMember c = buffer[i];
                 int cmp = c.getName().compareTo(clname);
                 if (cmp > 0)
                     break;
@@ -215,7 +205,7 @@ public abstract class ClassRef extends TypeRef implements MemberRef {
                 }
             }
             if (sz == buffer.length) {
-                MemberRef[] tmp = new MemberRef[2*sz];
+                FXMember[] tmp = new FXMember[2*sz];
                 System.arraycopy(buffer, 0, tmp, 0, sz);
                 buffer = tmp;
             }

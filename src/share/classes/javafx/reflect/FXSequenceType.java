@@ -23,13 +23,15 @@
 
 package javafx.reflect;
 
-/** A run-time represention of a JavaFX member of a class.
- * Corresponds to {@code java.lang.reflect.Member},
- * and {@code com.sun.jdi.TypeComponent}, respectively.
- */
+/** A run-time representation of a JavaFX sequence type. */
 
-public interface MemberRef {
-    public abstract String getName();
-    public abstract TypeRef getDeclaringType();
-    public abstract boolean isStatic();
+public final class FXSequenceType extends FXType {
+    FXType componentType;
+    public FXType getComponentType() { return componentType; }
+    FXSequenceType(FXType componentType) { this.componentType = componentType; }
+
+    protected void toStringTerse(StringBuilder sb) {
+        componentType.toStringTerse(sb);
+        sb.append("[]");
+    }
 }

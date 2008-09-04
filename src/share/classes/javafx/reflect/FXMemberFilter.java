@@ -25,7 +25,7 @@ package javafx.reflect;
 
 /** Call-back object for use when iterating over a set of members. */
 
-public class MemberFilter {
+public class FXMemberFilter {
     String requiredName;
     static final int ACCEPTING_METHODS = 1;
     static final int ACCEPTING_ATTRIBUTES = 2;
@@ -64,16 +64,16 @@ public class MemberFilter {
     }
     public void setRequiredName(String name) { requiredName = name; }
 
-    public boolean accept(MemberRef member) {
-        if (member instanceof MethodRef) {
+    public boolean accept(FXMember member) {
+        if (member instanceof FXFunctionMember) {
             if (! isAcceptingMethods())
                 return false;
         }
-        else if (member instanceof AttributeRef) {
+        else if (member instanceof FXVarMember) {
             if (! isAcceptingAttributes())
                 return false;
         }
-        else if (member instanceof ClassRef) {
+        else if (member instanceof FXClassType) {
             if (! isAcceptingClasses())
                 return false;
         }
@@ -81,21 +81,21 @@ public class MemberFilter {
             return requiredName.equals(member.getName());
         return true;
     }
-    private static MemberFilter acceptAttributes = new MemberFilter();
+    private static FXMemberFilter acceptAttributes = new FXMemberFilter();
     static { acceptAttributes.flags = ACCEPTING_ATTRIBUTES; }
-    public static MemberFilter acceptAttributes() { return acceptAttributes; }
-    public static MemberFilter acceptAttributes(String requiredName) {
-        MemberFilter f = new MemberFilter();
+    public static FXMemberFilter acceptAttributes() { return acceptAttributes; }
+    public static FXMemberFilter acceptAttributes(String requiredName) {
+        FXMemberFilter f = new FXMemberFilter();
         f.flags = ACCEPTING_ATTRIBUTES;
         f.requiredName = requiredName;
         return f;
     }
 
-    private static MemberFilter acceptMethods = new MemberFilter();
+    private static FXMemberFilter acceptMethods = new FXMemberFilter();
     static { acceptMethods.flags = ACCEPTING_METHODS; }
-    public static MemberFilter acceptMethods() { return acceptMethods; }
-    public static MemberFilter acceptMethods(String requiredName) {
-        MemberFilter f = new MemberFilter();
+    public static FXMemberFilter acceptMethods() { return acceptMethods; }
+    public static FXMemberFilter acceptMethods(String requiredName) {
+        FXMemberFilter f = new FXMemberFilter();
         f.flags = ACCEPTING_METHODS;
         f.requiredName = requiredName;
         return f;

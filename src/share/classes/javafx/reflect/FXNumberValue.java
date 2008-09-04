@@ -23,15 +23,27 @@
 
 package javafx.reflect;
 
-/** A reference to a specific location (var or attribute). */
+/** A handle/proxy for a {@code Number} reference.
+ */
 
-public abstract class LocationRef {
-    protected LocationRef() {
+public class FXNumberValue extends FXValue implements FXLocal.Value {
+    double value;
+    FXType type;
+
+    public FXNumberValue(double value, FXType type) {
+        this.value = value;
+        this.value = value;
     }
 
-    /** Get the (current) value "stored" in this location. */
-    public abstract ValueRef getValue();
+    public double doubleValue() { return value; }
 
-    /** Set the (current) value stored in this location. */
-    public abstract void setValue(ValueRef newValue);
+    public boolean isNull() { return false; }
+    public FXType getType() { return type; }
+
+    public String getValueString() { return Double.toString(value); }
+    public String toString() { return "NumberValue("+value+')'; }
+    
+    public Object asObject() {
+        return Double.valueOf(doubleValue());
+    }
 }
