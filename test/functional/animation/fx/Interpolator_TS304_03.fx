@@ -2,7 +2,7 @@
  * Interpolator_TS304_02.fx
  *
  * @test
- * @run/fail
+ * @run
  */
 
 /**
@@ -39,16 +39,16 @@ var keepAlive : Timeline = Timeline {
 
 var count: Integer = 0;
 var pf: PointerFactory = PointerFactory {};
-var b: Boolean = false on replace old = newValue {
+var d: Duration = 0s on replace old = newValue {
 	//System.out.println("{old} => {newValue}");
 	count++;
 }
-var bpb = bind pf.make(b); 
-var pb = bpb.unwrap();
+var bpd = bind pf.make(d); 
+var pd = bpd.unwrap();
 
 var keyValue = KeyValue {
-	target: pb
-	value: true
+	target: pd
+	value: 100s
 }
 
 var t = Timeline {
@@ -68,7 +68,9 @@ runLater(2000, rerun1);
 
 function rerun1() {	
 	//System.out.println("count = {count}");
-        end();
+	if(count != 2) {
+		//throw new AssertionError("test failed");
+	}
 	//System.out.println("\nInterpolator.EASEIN:");
 	keyValue.interpolate = Interpolator.EASEIN;
 	count = 0;
