@@ -110,24 +110,24 @@ public abstract class FXClassType extends FXType implements FXMember {
     }
     protected void getMembers(FXMemberFilter filter, SortedMemberArray<FXMember> result) {
         getVariables(filter, result);
-        getMethods(filter, result);
+        getFunctions(filter, result);
     }
     
-    public List<FXFunctionMember> getMethods(FXMemberFilter filter, boolean all) {
+    public List<FXFunctionMember> getFunctions(FXMemberFilter filter, boolean all) {
         SortedMemberArray<FXFunctionMember> result = new SortedMemberArray<FXFunctionMember>();
         if (all) {
             List<FXClassType> supers = getSuperClasses(all);
             for (FXClassType cl : supers)
-                cl.getMethods(filter, result);
+                cl.getFunctions(filter, result);
         }
         else
-            getMethods(filter, result);
+            getFunctions(filter, result);
         return result;
     }
-    public List<FXFunctionMember> getMethods(boolean all) {
-        return getMethods(FXMemberFilter.acceptMethods(), all);
+    public List<FXFunctionMember> getFunctions(boolean all) {
+        return getFunctions(FXMemberFilter.acceptMethods(), all);
     }
-    protected abstract void getMethods(FXMemberFilter filter, SortedMemberArray<? super FXFunctionMember> result);
+    protected abstract void getFunctions(FXMemberFilter filter, SortedMemberArray<? super FXFunctionMember> result);
     
     public List<FXVarMember> getVariables(FXMemberFilter filter, boolean all) {
         SortedMemberArray<FXVarMember> result = new SortedMemberArray<FXVarMember>();
@@ -163,7 +163,7 @@ public abstract class FXClassType extends FXType implements FXMember {
     }
 
     /** Find the function that (best) matches the name and argument types. */
-    public abstract FXFunctionMember getMethod(String name, FXType... argType);
+    public abstract FXFunctionMember getFunction(String name, FXType... argType);
 
     public FXContext getReflectionContext() {
         return context;

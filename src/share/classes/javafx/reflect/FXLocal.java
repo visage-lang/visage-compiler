@@ -30,6 +30,7 @@ import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.javafx.runtime.annotation.SourceName;
 import com.sun.tools.javafx.util.NotImplementedException;
+import com.sun.javafx.runtime.FXObject;
 
 /**
  * Implement JavaFX rfeflection on top of {@java.lang.reflect}.
@@ -304,7 +305,7 @@ public class FXLocal {
         return result;
     }
     
-    public FXFunctionMember getMethod(String name, FXType... argType) {
+    public FXFunctionMember getFunction(String name, FXType... argType) {
         int nargs = argType.length;
         Class[] ctypes = new Class[nargs];
         for (int i = 0;  i < nargs;  i++) {
@@ -312,7 +313,7 @@ public class FXLocal {
         }
         try {
             Method meth = (isCompoundClass() ? refInterface : refClass).getMethod(name, ctypes);
-            return asMethodRef(meth, getReflectionContext());
+            return asFunctionMember(meth, getReflectionContext());
         }
         catch (RuntimeException ex) {
             throw ex;
@@ -322,13 +323,13 @@ public class FXLocal {
         }
     }
     
-        protected void getMethods(FXMemberFilter filter, SortedMemberArray<? super FXFunctionMember> result) {
+        protected void getFunctions(FXMemberFilter filter, SortedMemberArray<? super FXFunctionMember> result) {
             boolean isCompound = isCompoundClass();
             Class cls = /*isCompound ? refInterface :*/ refClass;
             Context context = getReflectionContext();
-            java.lang.reflect.Method[] methods = cls.getDeclaredMethods();
+            Method[] methods = cls.getDeclaredMethods();
             for (int i = 0;  i < methods.length;  i++) {
-                java.lang.reflect.Method m = methods[i];
+                Method m = methods[i];
                 if (m.isSynthetic())
                     continue;
                 if (m.getAnnotation(com.sun.javafx.runtime.annotation.Inherited.class) != null)
@@ -352,13 +353,13 @@ public class FXLocal {
                         // Just ignore ???
                     }
                 }
-                FXFunctionMember mref = asMethodRef(m, context);
+                FXFunctionMember mref = asFunctionMember(m, context);
                 if (filter != null && filter.accept(mref))
                     result.insert(mref);
             }
         }
     
-        FXFunctionMember asMethodRef(java.lang.reflect.Method m, Context context) {
+        FXFunctionMember asFunctionMember(Method m, Context context) {
             java.lang.reflect.Type[] ptypes = m.getGenericParameterTypes();
             if (m.isVarArgs()) {
                 // ????
@@ -413,7 +414,27 @@ public class FXLocal {
             }
         }
 
-        public FXObjectValue allocate () { throw new NotImplementedException(); }
+        public FXObjectValue allocate () {
+            Class cls = refClass;
+            Context context = getReflectionContext();
+            try {
+                Object instance;
+                if (isJfxType()) {
+                    Constructor cons = cls.getDeclaredConstructor(Boolean.TYPE);
+                    instance = cons.newInstance(Boolean.TRUE);
+                }
+                else {
+                    instance = cls.newInstance();
+                }
+                return new ObjectValue(instance, this);
+            }
+            catch (RuntimeException ex) {
+                throw ex;
+            }
+            catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        }
 
         public FXType getDeclaringType() {
             return null;
@@ -464,9 +485,9 @@ public class FXLocal {
     }
 
     static class VarMember extends FXVarMember {
-        java.lang.reflect.Method accessMethod;
-        java.lang.reflect.Field fld;
-        java.lang.reflect.Method locationGetter;
+        Method accessMethod;
+        Field fld;
+        Method locationGetter;
         FXType type;
         String name;
         FXClassType owner;
@@ -557,12 +578,12 @@ public class FXLocal {
     }
 
     static class FunctionMember extends FXFunctionMember {
-        java.lang.reflect.Method method;
+        Method method;
         FXClassType owner;
         String name;
         FXFunctionType type;
     
-        FunctionMember(java.lang.reflect.Method method, ClassType owner, FXFunctionType type) {
+        FunctionMember(Method method, ClassType owner, FXFunctionType type) {
             this.method = method;
             this.owner = owner;
             this.name = method.getName();
@@ -652,6 +673,12 @@ public class FXLocal {
                 return null;
             else
                 return obj.toString();
+        }
+
+        public ObjectValue initialize() {
+            if (obj instanceof FXObject)
+                ((FXObject) obj).initialize$();
+            return this;
         }
 
         public Object asObject() { return obj; }

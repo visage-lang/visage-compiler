@@ -23,6 +23,7 @@
 
 package javafx.reflect;
 
+
 /** A handle/proxy for an {@code Object} reference.
  */
 
@@ -75,7 +76,7 @@ public abstract class FXObjectValue extends FXValue {
   public FXValue invoke(String name, FXValue... args) {
     FXType[] types = new FXType[args.length];
     for (int i = args.length;  --i >= 0; ) types[i] = args[i].getType();
-    return getType().getMethod(name, types).invoke(this, args);
+    return getType().getFunction(name, types).invoke(this, args);
   }
   /** Convenience method to invoke a member function. */
   public FXValue invoke(FXFunctionMember method, FXValue... args) {

@@ -1,7 +1,7 @@
 /**
 @test
 @run
-**Functional Testcase for checking Type inference of vars and function return types based on their assignment expressions and return/last statements,verifcation done using Reflection Apis. Currently only basic functionalities like getvars(),getMethods() ,getSuperClasses() are supported.
+**Functional Testcase for checking Type inference of vars and function return types based on their assignment expressions and return/last statements,verifcation done using Reflection Apis. Currently only basic functionalities like getvars(),getFunctions() ,getSuperClasses() are supported.
 **/
 
 import javafx.reflect.*;
@@ -63,7 +63,7 @@ System.out.println("Inherited SuperClasses of TypeInference3 => {classRef.getSup
 for (attr in classRef.getVariables(true)) {
   System.out.println(" Type of {attr.getName()} is inferred as {attr.getType()}") ;
 }
-for (mr in classRef.getMethods(true)) {
+for (mr in classRef.getFunctions(true)) {
     System.out.println(" Return Type of method {mr.getName()} inferred as {mr.getType().getReturnType()}");
 }
 

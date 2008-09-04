@@ -67,10 +67,10 @@ for (cls in clsString.getSuperClasses(true))
     System.out.println("  {cls}");
 
 System.out.println("Square methods (inherited also):");
-for (meth in clsSquare.getMethods(true))
+for (meth in clsSquare.getFunctions(true))
      System.out.println("  {meth}");
 System.out.println("MyRect.methods: ");
-for (meth in clsMyRect.getMethods(false))
+for (meth in clsMyRect.getFunctions(false))
      System.out.println("  {meth}");
 
 var myRect = MyRect {
@@ -101,10 +101,10 @@ for (attr in context.findClass("Main.Simple").getVariables(false)) {
   System.out.println("  {attr.getName()} : {attr.getType()}"); };
 
 System.out.println("MyRect methods:");
-for (meth in clsMyRect.getMethods(true)) {
+for (meth in clsMyRect.getFunctions(true)) {
   System.out.println("  {meth}"); };
 
-def m1 = clsMyRect.getMethod("times1", context.getNumberType());
+def m1 = clsMyRect.getFunction("times1", context.getNumberType());
 System.out.println("MyRect.times1(Number): {m1}");
 def two_five = context.mirrorOf(2.5);
 System.out.println("call times1(2.5): {m1.invoke(myRectRef, two_five)}");
