@@ -40,12 +40,11 @@ var s4 = "The answer is {if (answer) "Yes" else "No"}"; // s = 'The answer is Ye
 TU.checkS(s4,"The answer is Yes","may contain quoted strings (which may contain further embedded expressions");
 var i:Integer = 101;
 TU.checkB("{i} Dalmations" instanceof String, "embedded integers coerced to String");
-//    * Unlike the Java programming language, double-quoted String literals can contain newlines:
 TU.checkS("{i} Dalmations", "101 Dalmations","Integer var embedded in String becomes part of String");
+//    * Just like the Java programming language, double-quoted String literals cannot contain newlines
+//      but can contain escapes.
 
-var s5 = "This
-contains
-new lines";
+var s5 = "This\ncontains\nnew lines";
 System.out.println(s5);
 
 var s6 = "Hello";

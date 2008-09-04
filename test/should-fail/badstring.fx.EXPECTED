@@ -1,0 +1,17 @@
+test/should-fail/badstring.fx:6: Unterminated string literal - missing ' or ".
+var v = "unterminated string
+        ^
+test/should-fail/badstring.fx:7: Unterminated string literal - missing ' or ".
+v = 'unterminated string
+    ^
+test/should-fail/badstring.fx:8: Unterminated string literal - missing ' or ".
+v = "{v} unterminated string
+    ^
+test/should-fail/badstring.fx:9: Unterminated string literal - missing ' or ".
+v = '{v} unterminated string
+    ^
+test/should-fail/badstring.fx:1: Sorry, I was trying to understand a qlsl but I got confused when I saw '<EOF>'.
+ Perhaps you are missing a '} " string literal'.
+/**
+^
+5 errors

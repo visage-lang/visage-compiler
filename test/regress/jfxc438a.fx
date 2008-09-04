@@ -42,13 +42,10 @@ try {
     System.out.println(##'Hello, UnicodeEscapeSpace!');
     System.out.println(##'Hello,	Tab!');
 
-    // multiple line tests
-    System.out.println(##'Unix style
-new line');
-    System.out.println(##'Windows style
-new line');
-    System.out.println(##'Mac style
-new line');
+    // multiple line tests - no longer supported so same as single line
+    System.out.println(##'Unix style\nnew line');
+    System.out.println(##'Windows style\r\nnew line');
+    System.out.println(##'Mac style\rnew line');
 
 } finally {
     // restore the default locale

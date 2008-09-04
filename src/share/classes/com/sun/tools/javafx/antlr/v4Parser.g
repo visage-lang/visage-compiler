@@ -135,13 +135,11 @@ import static com.sun.javafx.api.JavafxBindStatus.*;
 				|| type == OVERRIDE			|| type == PACKAGE
 				|| type == PROTECTED		|| type == PUBLIC
 				|| type == PUBLIC_READ		|| type == PUBLIC_INIT
-				//TODO: deprecated -- remove these at some point
+				//TODO: deprecated -- remove this at some point
 				//
-				|| type == PUBLIC_READABLE	|| type == NON_WRITABLE
-				|| type == PRIVATE			|| type == READABLE
 				|| type == STATIC
 						
-			) {
+			   ) {
               --index;
             } else {
               break;
@@ -188,7 +186,7 @@ import static com.sun.javafx.api.JavafxBindStatus.*;
 // We cannot do syntax directed parsing as it means you cannot use LL(*)
 // algorithms for grammar analysis and code generation.
 //
-// The parsers job is to produce the JavaFX speciailized AST, which
+// The parsers job is to produce the JavaFX specialized AST, which
 // is the basis for all the rest of the tool chain, including symbol table and code 
 // generation as well as code completion for editors and so on.
 // ------------------------------------------------------------------
@@ -406,10 +404,7 @@ modifierFlag
 	//TODO: deprecated -- remove these at some point
 	//                    For now, warn about their deprecation
 	//
-	| PUBLIC_READABLE	{ $flag = JavafxFlags.PUBLIC_READ;      }
-	| NON_WRITABLE		{ $flag = JavafxFlags.PUBLIC_INIT;		}
-	| PRIVATE			{ $flag = Flags.PRIVATE;    			log.warning(pos($PRIVATE), "javafx.not.supported.private"); }
-	| READABLE			{ $flag = JavafxFlags.PUBLIC_READ;      log.error(pos($READABLE), "javafx.not.supported.readable"); }
+	| PRIVATE			{ log.warning(pos($PRIVATE), "javafx.not.supported.private"); }
 	| STATIC			{ $flag = Flags.STATIC;      			}
 	;
 
@@ -1825,7 +1820,6 @@ multOps
 // Unary expressions
 // LL(k) Precedence
 //
-//TODO: POUND QUES TYPEOF REVERSE
 unaryExpression
 
 	returns [JFXExpression value] 	// Expression tree for unary expressions
@@ -3135,7 +3129,7 @@ identifier
 // ------------------------
 // ID
 // Parse and identifier token that isn't necessarilly an Identifier,
-// it coudl just be a tag or function name etc.
+// it could just be a tag or function name etc.
 //
 name 
 

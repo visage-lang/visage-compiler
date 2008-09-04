@@ -93,27 +93,65 @@ import com.sun.tools.javafx.util.MsgSym;
         return SEMI;
     }
 
-    protected void checkIntLiteralRange(String text, int pos, int radix) {
-       
-        long value = Convert.string2long(text, radix);
+    protected boolean checkIntLiteralRange(String text, int pos, int radix, boolean negative) {
+
+		// Value in terms of a long
+		//       
+        long value = 0;
+
+		// Correct start position for error display
+		//
+        pos = pos - text.length() - (negative ? 1 : 0);
         
-        pos = pos - text.length();
+		try {
+
+			// See if we can make a value out of this
+			//        
+        	value = Convert.string2long(text, radix);
+        }
+        catch (Exception e)
+        {
+        	// Number form was too outrageous even for the converter
+        	//
+   	        if (negative) {
+			
+			    log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "small", new String("-" + text));
+            
+			} else {
+	        	log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "big", text);
+	        }
+	        	
+        	return false;
+        }
         
-        if (previousTokenType == SUB) {
+        
+        if (negative) {
+        
             value = -value;
-            if ( value < Integer.MIN_VALUE )
+            if ( value < Integer.MIN_VALUE ) {
+                
                 log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "small", new String("-" + text));
+                return false;
+            }
              
         } else if (value > Integer.MAX_VALUE) {
+            
             log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "big", text);
+            return false;
             
         } 
+     
+     	return true;   
     }
 
     // quote context --
     static final int CUR_QUOTE_CTX	= 0;	// 0 = use current quote context
     static final int SNG_QUOTE_CTX	= 1;	// 1 = single quote quote context
     static final int DBL_QUOTE_CTX	= 2;	// 2 = double quote quote context
+    
+    // Recorded start of string with embedded expression
+    //
+    int	eStringStart = 0;
 }
 
  
@@ -161,7 +199,6 @@ LAST			: 'last';
 LAZY			: 'lazy';
 MOD				: 'mod';
 NEW				: 'new';
-NON_WRITABLE	: 'non-writable';		// Deprecated - delete soon
 NOT				: 'not';
 NULL			: 'null';
 ON				: 'on';
@@ -173,9 +210,7 @@ PRIVATE			: 'private';
 PROTECTED		: 'protected';
 PUBLIC_INIT     : 'public-init';
 PUBLIC			: 'public';
-PUBLIC_READABLE	: 'public-readable';	// Deprecated - delete soon
 PUBLIC_READ     : 'public-read';
-READABLE		: 'readable';
 REPLACE			: 'replace';
 RETURN			: 'return';
 REVERSE			: 'reverse';
@@ -234,6 +269,20 @@ SUCHTHAT	: '=>';
 SUBSUB		: '--';
 
 
+
+// Whitespace characters are essentially ignored
+// by the parser and AST. They are preserved in the token stream
+// by hiding the tokens on a token stream channel that the parser does not examine.
+//
+WS  :  (
+			  (' '|'\t'|'\u000C')
+			| ('\n'|'\r')
+		)
+		{
+			$channel=HIDDEN;
+		}
+    ;
+    
 // String literals being with either a single or double quote
 // character (which must be matched). Additionally, string literals
 // may span mulitple lines.
@@ -244,13 +293,100 @@ SUBSUB		: '--';
 //       lexer superclass.
 //
 STRING_LITERAL  		
-	: '"' DoubleQuoteBody '"'  	
+
+@init
+{
+	// Record string start for error messages
+	//
+	int sPos = getCharIndex();
 	
-			{ processString(); }
+	// Record start position of expression strings for error messages
+	//
+	eStringStart = getCharIndex();
+
+}
+	: '"' DoubleQuoteBody 
+	
+				(
+					  '"' // Well formed string
+					  
+					  	{
+					  		processString();
+					  	}
+					  
+					| '{' // Expression  	
+	
+						{
+							$type = QUOTE_LBRACE_STRING_LITERAL;
+							processString(); 
+						}
+	
+			  			NextIsPercent[DBL_QUOTE_CTX] 
+			  			
+					| 
+						{ input.mark(); }
+						
+						
+						('\n'|'\r') // Badly formed string
+						
+						{
+							// Don't consume the new line
+							//
+							input.rewind();
+										
+							// Report the error
+							//
+							log.error(sPos, MsgSym.MESSAGE_JAVAFX_UNTERMINATED_STRING);
+										
+							// Always use a defined string as the value
+							//
+							setText(getText() + "\"");
+										
+							processString();
+						}
+							
+					)
+				
+	
 			
-	| '\'' SingleQuoteBody '\''  	
+	| '\'' SingleQuoteBody
 	
-			{ processString(); }
+				(
+					  '\'' // Well formed string
+					  
+					  	{
+					  		processString();
+					  	}
+					  
+					| '{' // Expression  	
+	
+						{
+							$type = QUOTE_LBRACE_STRING_LITERAL;
+							processString(); 
+						}
+	
+			  			NextIsPercent[SNG_QUOTE_CTX] 
+			  			
+					| { input.mark(); }
+					
+						('\n'|'\r'|EOF) // Badly formed string
+						{
+							// Don't consume the new line
+							//
+							input.rewind();
+							
+							// Report the error
+							//
+							log.error(sPos, MsgSym.MESSAGE_JAVAFX_UNTERMINATED_STRING);
+							
+							// Always use a defined string as the value
+							//
+							setText(getText() +"'");
+							
+							processString();
+						}
+				)
+	
 	;
 	
 // String Expression token implementation.
@@ -267,18 +403,13 @@ STRING_LITERAL
 // to the NextIsPercent fragment, which will invoke enterBrace()
 // and begin tracking this level of brace string vs " or ' string.
 //
-QUOTE_LBRACE_STRING_LITERAL 	
-	: '"' DoubleQuoteBody '{'   	
-	
-			{ processString(); }
-	
-			  NextIsPercent[DBL_QUOTE_CTX] 
-	
-	| '\'' SingleQuoteBody '{'   	
-	
-			{ processString(); }
-	
-			  NextIsPercent[SNG_QUOTE_CTX] 
+// This lexer rule is not matched here but used to set the
+// token type if discovered by the string literal rule.
+//
+fragment
+QUOTE_LBRACE_STRING_LITERAL
+	: '"'
+	| '\''
 	;
 	
 // The left brace character is significant 
@@ -294,7 +425,7 @@ LBRACE
 	
 // When we currently scanning within a left brace context
 // within a quoted string, then the next right brace terminates
-// a format or expression embedded withing a quited string.
+// a format or expression embedded withing a quoted string.
 // the semantic predicate rightBraceLikeQuote() selects this
 // lexer rule if we scan to a right brace and determine that
 // we are currently expecting right brace to delimit an expression
@@ -304,8 +435,23 @@ LBRACE
 RBRACE_QUOTE_STRING_LITERAL 	
 	: { rightBraceLikeQuote(DBL_QUOTE_CTX) }?=>
 		
-		  '}' DoubleQuoteBody '"'	
-				  
+		  (
+		  		  '}' DoubleQuoteBody
+		  
+			  		(
+						  '"' // Well formed string
+						  
+						| { input.mark(); }
+							
+							('\n'|'\r'|EOF) // Badly formed string
+							
+							{
+								log.error(eStringStart, MsgSym.MESSAGE_JAVAFX_UNTERMINATED_STRING);
+								input.rewind();
+								setText(getText() + "\"");
+							}
+					)					
+		  )  
 		  		{ 
 		  			leaveBrace(); 
 		         	leaveQuote(); 
@@ -314,7 +460,22 @@ RBRACE_QUOTE_STRING_LITERAL
 	
 	| { rightBraceLikeQuote(SNG_QUOTE_CTX) }?=>
 		
-		  '}' SingleQuoteBody '\''	
+		  (
+		  	  '}' SingleQuoteBody
+		  
+		  		(
+					  '\'' // Well formed string
+					  
+					| { input.mark(); }
+						('\n'|'\r'|EOF) // Badly formed string
+						{
+							log.error(eStringStart, MsgSym.MESSAGE_JAVAFX_UNTERMINATED_STRING);
+							input.rewind();
+							setText(getText() + "'");
+						}
+				)
+								
+		  )  
 				  
 		  		{ 
 		  			leaveBrace(); 
@@ -369,17 +530,32 @@ RBRACE
 
 // Scans through the valid body of a double quoted
 // string.
-//				
+//
 fragment
 DoubleQuoteBody  
-	:	 (~('{' |'"'|'\\')|'\\' .)*  
+	:	 (
+			  ~('}'|'{' |'"'|'\\'|'\n'|'\r')
+			| '\\' .
+			| '}'
+				{
+					log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_UNESCAPED_RBRACE);
+				}
+			
+		 )*  
 	;
 
 // Scans through the body of a single quoted string
 //
 fragment
 SingleQuoteBody  
-	:	 (~('{' |'\''|'\\')|'\\' .)*  
+	:	 (
+			  ~('}'|'{' |'\''|'\\'|'\n'|'\r')
+			| '\\' .
+			| '}'
+				{
+					log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_UNESCAPED_RBRACE);
+				}
+		)*  
 	;
 
 // This rules is used as a syntactic predicate by quoted
@@ -495,6 +671,14 @@ FLOATING_POINT_LITERAL
 	//
 	boolean rangeError = false;
 	
+	// First character of rule
+	//
+	int		sPos = getCharIndex();
+	
+	// Is this going to be a negative numeric?
+	//
+	boolean negative = input.LT(-1) == '-';
+	
 }
     :	
     	// A leading zero can either be a decimal literal
@@ -529,26 +713,33 @@ FLOATING_POINT_LITERAL
     			  	  		{
     			  	  			// Error - malformed hex constant
     			  	  			//
-    			  	  			log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_HEX_MALFORMED);
+    			  	  			log.error(sPos, MsgSym.MESSAGE_JAVAFX_HEX_MALFORMED);
+    			  	  			setText("0");
     			  	  		}
     			  	  		else
     			  	  		{
-								checkIntLiteralRange(getText(), getCharIndex(), 16); 
+    			  	  			if (! checkIntLiteralRange(getText(), getCharIndex(), 16, negative))
+    			  	  			{
+    			  	  				setText("0");
+    			  	  			}
 							}
     			  	  }
     			  	  
     			  	  (
-    			  	  		
-    			  	  		
-    			  	  		// Hex numbers cannot be flaoting point, but catch this here
+    			  	  		// Hex numbers cannot be floating point, but catch this here
     			  	  		// rather than mismatch it.
     			  	  		//
-    			  	  			{ input.LA(2) != '.'}?=> '.' Digits?	
+    			  	  			{ input.LA(2) != '.'}?=> 
+    			  	  			
+    			  	  				{ sPos = getCharIndex(); } 
+    			  	  				
+    			  	  				'.' Digits?	
     			  	  				
     			  	  				{ 
     			  	  					// Error - malformed hex constant
     			  	  					//
-    			  	  					log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_HEX_FLOAT);
+    			  	  					log.error(sPos, MsgSym.MESSAGE_JAVAFX_HEX_FLOAT);
+    			  	  					setText("0");
     			  	  				}
     			  	  		|
     			  	  	
@@ -558,6 +749,7 @@ FLOATING_POINT_LITERAL
     			  		//
     			  		{
     			  			log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_HEX_MISSING);
+    			  			setText("0");
     			  		}
     			  		
     			  )
@@ -587,21 +779,30 @@ FLOATING_POINT_LITERAL
     					
     					if	(rangeError)
     					{
-    						log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_OCTAL_MALFORMED);
+    						log.error(sPos, MsgSym.MESSAGE_JAVAFX_OCTAL_MALFORMED);
+    						setText("0");
     					}
     					else
     					{
-    						checkIntLiteralRange(getText(), getCharIndex(), 8); 
+    						if	(! checkIntLiteralRange(getText(), getCharIndex(), 8, negative))
+    						{
+    							setText("0");
+    						}
     					}
     				}
     				 (
     				 		// Octal numbers cannot be floating point, but catch this here
     			  	  		// rather than mismatch it.
     			  	  		//
-    			  	  		{ input.LA(2) != '.'}?=> '.' Digits?	
+    			  	  		{ input.LA(2) != '.'}?=> 
+    			  	  		
+    			  	  		{ sPos = getCharIndex(); }
+    			  	  		
+    			  	  		'.' Digits?	
     			  	  		
     			  	  			{ 
-    			  	  				log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_OCTAL_FLOAT);
+    			  	  				log.error(sPos, MsgSym.MESSAGE_JAVAFX_OCTAL_FLOAT);
+    			  	  				setText("0");
     			  	  			}
     			  	  	|
     			  	  )
@@ -642,7 +843,10 @@ FLOATING_POINT_LITERAL
     				//
     				{ 
     					$type = DECIMAL_LITERAL;
-    					checkIntLiteralRange(getText(), getCharIndex(), 10);
+    					if	(! checkIntLiteralRange(getText(), getCharIndex(), 10, negative))
+    					{
+    						setText("0");
+    					}
     				}  			
     		)
     
@@ -686,7 +890,10 @@ FLOATING_POINT_LITERAL
 				    		//
 				    		{ 
 				    			$type = DECIMAL_LITERAL; 
-				    			checkIntLiteralRange(getText(), getCharIndex(), 10); 
+				    			if (! checkIntLiteralRange(getText(), getCharIndex(), 10, negative))
+				    			{
+				    				setText("0");
+				    			}
 				    		}
     				)
     		)
@@ -735,7 +942,10 @@ Exponent
 	
 			(
 				  Digits
-				| { log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_EXPONENT_MALFORMED); }
+				| 	{ 
+						log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_EXPONENT_MALFORMED); 
+						setText("0.0");
+					}
 			)
  	;
 
@@ -796,16 +1006,7 @@ JavaIDDigit
     | '\u1040'..'\u1049'
 	;
 
-// Whitespace characters are essentially ignored
-// by the parser and AST. They are preserved in the token stream
-// by hiding the tokens on a token stream channel that the parser does not examine.
-//
-WS  :  (' '|'\r'|'\t'|'\u000C'|'\n') 
 
-		{
-			$channel=HIDDEN;
-		}
-    ;
 
 // As with whitespace, JavaFX comments are not seen by the parser.
 // However, certain constructs such as the script itself, will search
