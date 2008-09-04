@@ -453,6 +453,8 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         importNamed(tree.pos(), syms.javafx_NumberType.tsym, env);
         importNamed(tree.pos(), syms.objectType.tsym, env);
 
+        importStaticAll(tree.pos, syms.javafx_AutoImportRuntimeType.tsym, env);
+
         // Process all import clauses.
         memberEnter(tree.defs, env);
     }

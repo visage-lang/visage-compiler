@@ -27,14 +27,12 @@ import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.code.Type.*;
 import static com.sun.tools.javac.jvm.ByteCodes.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javafx.comp.JavafxDefs;
-import com.sun.tools.javafx.util.NotImplementedException;
 
 /**
  *
@@ -63,6 +61,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_StringType;
     public final Type javafx_BooleanType;
     public final Type javafx_DurationType;
+    public final Type javafx_AutoImportRuntimeType;
     public final Type javafx_VoidType;
     public final Type javafx_java_lang_VoidType;
     public final Type javafx_SequenceType;
@@ -75,6 +74,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_KeyFrameType;
     public final Type javafx_PointerType;
     public final Type javafx_LocationType;
+    public final Type javafx_AbstractVariableType;
 
     public final Type javafx_privateAnnotationType;
     public final Type javafx_protectedAnnotationType;
@@ -132,6 +132,7 @@ public class JavafxSymtab extends Symtab {
         javafx_BooleanType = booleanType;
         javafx_VoidType = voidType;
         javafx_DurationType = enterClass("javafx.lang.Duration");
+        javafx_AutoImportRuntimeType = enterClass("javafx.lang.FX");
         unreachableType = new Type(TypeTags.VOID, null);
         unreachableType.tsym = new TypeSymbol(0, names.fromString("<unreachable>"), Type.noType, rootPackage);
         javafx_java_lang_VoidType = types.boxedClass(voidType).type;
@@ -142,6 +143,7 @@ public class JavafxSymtab extends Symtab {
         javafx_KeyFrameType = enterClass("javafx.animation.KeyFrame");
         javafx_PointerType = enterClass("com.sun.javafx.runtime.Pointer");
         javafx_LocationType = enterClass("com.sun.javafx.runtime.location.Location");
+        javafx_AbstractVariableType = enterClass("com.sun.javafx.runtime.location.AbstractVariable");
         javafx_privateAnnotationType = enterClass(privateAnnotationClassNameString);
         javafx_protectedAnnotationType = enterClass(protectedAnnotationClassNameString);
         javafx_packageAnnotationType = enterClass(packageAnnotationClassNameString);
@@ -169,6 +171,7 @@ public class JavafxSymtab extends Symtab {
         enterOperators();
     }
 
+    @Override
     public void enterOperators() {
         super.enterOperators();
 

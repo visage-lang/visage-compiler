@@ -2054,6 +2054,19 @@ public class JavafxAttr implements JavafxVisitor {
                 result = pt;
             }
 
+        Symbol msym = JavafxTreeInfo.symbol(tree.meth);
+        if (msym!=null && msym.owner!=null && msym.owner.type!=null &&
+                msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym &&
+                methName == defs.isInitializedName) {
+            for (List<JFXExpression> l = tree.args; l.nonEmpty(); l = l.tail, i++) {
+                Symbol asym = JavafxTreeInfo.symbol(l.head);
+                if (asym == null) {
+                } else {
+                    Symbol ss = asym;
+                }
+                //TODO: check that the parameter to isInitialized is a variable reference
+            }
+        }
         chk.validate(tree.typeargs);
     }
 

@@ -22,6 +22,10 @@
  */
 
 package javafx.lang;
+
+import java.lang.System;
+import com.sun.javafx.runtime.location.AbstractVariable;
+
 import com.sun.javafx.api.JavaFXScriptEngine;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -47,6 +51,45 @@ class Evaluator {
 public class FX {
     public static boolean isSameObject(Object a, Object b) {
         return a == b;
+    }
+
+    /**
+     * Print the Object 'val'.
+     * 
+     * @param val The Object to be printed
+     */
+    public static void print(Object val) {
+        if (val == null) {
+            System.out.print(val);
+        } else if (val instanceof String) {
+            System.out.print((String) val);
+        } else {
+            System.out.print(val.toString());
+        }
+    }
+
+    /**
+     * Print the Object 'val' and a new-line.
+     * 
+     * @param val The Object to be printed
+     */
+    public static void println(Object val) {
+        if (val == null) {
+            System.out.println(val);
+        } else if (val instanceof String) {
+            System.out.println((String) val);
+        } else {
+            System.out.println(val.toString());
+        }
+    }
+
+    /**
+     * Test if an instance variable has been initialized.
+     * 
+     * @param varRef The variable to be tested.
+     */
+    public static boolean isInitialized(Object varRef) {
+        return ((AbstractVariable) varRef).isEverValid();
     }
 
     /**

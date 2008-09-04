@@ -52,7 +52,7 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
         return everInitialized;
     }
 
-    protected boolean isEverValid() {
+    public boolean isEverValid() {
         return everValid;
     }
 

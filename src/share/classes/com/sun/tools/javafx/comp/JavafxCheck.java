@@ -1529,14 +1529,15 @@ public class JavafxCheck {
     void checkOverride(JFXTree tree, MethodSymbol m) {
 	ClassSymbol origin = (ClassSymbol)m.owner;
         boolean doesOverride = false;
-	if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name))
-	    if (m.overrides(syms.enumFinalFinalize, origin, types, false)) {
-		log.error(tree.pos(), MsgSym.MESSAGE_ENUM_NO_FINALIZE);
-		return;
-	    }
-            ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-            Set<Type> superSet = new HashSet<Type>();
-            types.getSupertypes(origin, supertypes, superSet);
+        if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name)) {
+            if (m.overrides(syms.enumFinalFinalize, origin, types, false)) {
+                log.error(tree.pos(), MsgSym.MESSAGE_ENUM_NO_FINALIZE);
+                return;
+            }
+        }
+        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+        Set<Type> superSet = new HashSet<Type>();
+        types.getSupertypes(origin, supertypes, superSet);
 
         for (Type t : supertypes) {
             if (t.tag == CLASS) {

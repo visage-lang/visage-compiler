@@ -66,6 +66,7 @@ public class JavafxDefs {
     public static final String makeBijectiveMethodNameString = "makeBijective";
     public static final String invokeNameString = "invoke";
     public static final String lambdaNameString = "lambda";
+    public static final String isInitializedNameString = "isInitialized";
     
     public static final String javaLangPackageNameString = "java.lang";
     public static final String runtimePackageNameString = "com.sun.javafx.runtime";
@@ -108,6 +109,7 @@ public class JavafxDefs {
     final Name makeBijectiveMethodName;
     final Name invokeName;
     final Name lambdaName;
+    final Name isInitializedName;
     final Name computeValueName;
     final Name computeElementName;
     final Name initDefName;
@@ -187,6 +189,7 @@ public class JavafxDefs {
         makeBijectiveMethodName = Name.fromString(names, makeBijectiveMethodNameString);
         invokeName = names.fromString(invokeNameString);
         lambdaName = names.fromString(lambdaNameString);
+        isInitializedName = names.fromString(isInitializedNameString);
         computeValueName = names.fromString("computeValue");
         computeElementName = names.fromString("computeElement$");
         initDefName = names.fromString("$init$def$name");

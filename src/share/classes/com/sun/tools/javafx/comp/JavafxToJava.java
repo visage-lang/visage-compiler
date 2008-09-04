@@ -2536,6 +2536,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         result = (new FunctionCallTranslator( tree, this ) {
 
             private final boolean hasSideEffects = selectorMutable && hasSideEffects(selector);
+            private final boolean magicIsInitializedFunction = (msym != null) &&
+                    (msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym) &&
+                    (JavafxTreeInfo.name(tree.meth) == defs.isInitializedName);
 
             public JCTree doit() {
                 JCVariableDecl selectorVar = null;
@@ -2698,7 +2701,12 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                                 handlingVarargs = true;
                             }
                         }
-                        targs.append( translate(l.head, formal) );
+                        JCExpression targ;
+                        if (magicIsInitializedFunction)
+                            targ = translate(l.head, Wrapped.InLocation);
+                        else 
+                            targ = translate(l.head, formal);
+                        targs.append( targ );
                     }
                 }
                 return m().Apply( translateExpressions(tree.typeargs), transMeth, targs.toList());
