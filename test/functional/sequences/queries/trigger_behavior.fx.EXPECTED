@@ -1,6 +1,6 @@
 -----all triggers fire at creation, even to default values------
 Boolean new value: false
-String old:null  new:
+String old:  new:
 Integer old:0  newvalue:0==i:0
 -----triggers do not fire unless value changes------
 -----set Boolean 5 times; false, true, true,false, false-----

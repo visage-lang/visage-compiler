@@ -1,9 +1,9 @@
 -----trigger firing at creation------
 bnull new value: false
-snull old:null  new:
+snull old:  new:
 inull old:0  newvalue:0==inull:0
 b new: false
-s old:null  new:Hello
+s old:  new:Hello
 i old:0  newvalue:5==i:5
 seqb old:  new:falsefalsefalse
 seqs old:  indexes:0..-1  new elements:Maryhadlittlelamb  new sequence:Maryhadlittlelamb

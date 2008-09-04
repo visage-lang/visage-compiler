@@ -2,7 +2,7 @@ Test i0: default init...
 1. Replace Boolean old = false; new = false
 2. Replace Integer old = 0; new = 0
 3. Replace Number old = 0.0; new = 0.0
-4. Replace String old = null; new = 
+4. Replace String old = ; new = 
 5. Replace test_object old = ; new = 
 default init: triggers fired: 5: [ foo, ifoo, dfoo, sfoo, tobject ]
 
@@ -10,7 +10,7 @@ Test i1: defaults re-init...
 1. Replace Boolean old = false; new = false
 2. Replace Integer old = 0; new = 0
 3. Replace Number old = 0.0; new = 0.0
-4. Replace String old = null; new = 
+4. Replace String old = ; new = 
 5. Replace test_object old = ; new = 
 default re-init: triggers fired: 5: [ foo, ifoo, dfoo, sfoo, tobject ]
 i1 After Create
@@ -22,7 +22,7 @@ Test i2: non-defaults init...
 1. Replace Boolean old = false; new = true
 2. Replace Integer old = 0; new = 5
 3. Replace Number old = 0.0; new = 3.14
-4. Replace String old = null; new = Hello, Dollie!
+4. Replace String old = ; new = Hello, Dollie!
 5. Replace test_object old = ; new =  non-default test_object
 6. Replace Boolean[] old = ; new = truetruetrue
 7. Replace Integer [] old = ; new = 678910
@@ -46,7 +46,7 @@ Test i3: non-defaults init, mixed order...
 1. Replace Boolean old = false; new = true
 2. Replace Integer old = 0; new = 5
 3. Replace Number old = 0.0; new = 3.14
-4. Replace String old = null; new = Hello, Dollie!
+4. Replace String old = ; new = Hello, Dollie!
 5. Replace test_object old = ; new =  non-default test_object
 6. Replace Boolean[] old = ; new = truetruetrue
 7. Replace Integer [] old = ; new = 678910

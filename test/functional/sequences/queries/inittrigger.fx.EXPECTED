@@ -2,7 +2,7 @@ Test i1: default init...
 1. Replace Boolean old = false; new = true
 2. Replace Integer old = 0; new = 10
 3. Replace Number old = 0.0; new = 20.0
-4. Replace String old = null; new = Hello, World!
+4. Replace String old = ; new = Hello, World!
 5. Replace test_object old = ; new = declared default test_object
 6. Replace Boolean[] old = ; new = falsefalsefalse
 7. Replace Integer [] old = ; new = 12345
@@ -15,7 +15,7 @@ Test i2: non-defaults init...
 1. Replace Boolean old = false; new = true
 2. Replace Integer old = 0; new = 5
 3. Replace Number old = 0.0; new = 3.14
-4. Replace String old = null; new = Hello, Dollie!
+4. Replace String old = ; new = Hello, Dollie!
 5. Replace test_object old = ; new =  non-default test_object
 6. Replace Boolean[] old = ; new = truetruetrue
 7. Replace Integer [] old = ; new = 678910
@@ -39,7 +39,7 @@ Test i3: non-defaults init, mixed order...
 1. Replace Boolean old = false; new = true
 2. Replace Integer old = 0; new = 5
 3. Replace Number old = 0.0; new = 3.14
-4. Replace String old = null; new = Hello, Dollie!
+4. Replace String old = ; new = Hello, Dollie!
 5. Replace test_object old = ; new =  non-default test_object
 6. Replace Boolean[] old = ; new = truetruetrue
 7. Replace Integer [] old = ; new = 678910

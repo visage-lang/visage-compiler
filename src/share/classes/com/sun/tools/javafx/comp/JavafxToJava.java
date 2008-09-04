@@ -1020,6 +1020,14 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     private JCStatement translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
             Name instanceName, int milieu) {
+        if (init == null && vsym.owner.kind == Kinds.TYP) {
+            // this is a class variable with no explicit initializer, 
+            // use setDefault() so that it is flagged as a default
+            assert !bindStatus.isBound() : "cannot be bound and have no init expression";
+            JCExpression localAttr = makeAttributeAccess(diagPos, vsym, instanceName);
+            Name methName = defs.setDefaultMethodName;
+            return callStatement(diagPos, localAttr, methName);
+        }
         return make.at(diagPos).Exec( translateDefinitionalAssignmentToSetExpression(diagPos,
             init, bindStatus, vsym,
              instanceName, milieu) );

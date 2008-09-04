@@ -330,7 +330,19 @@ public abstract class JavafxTranslationSupport {
 
     JCExpression makeLocationAttributeVariable(TypeMorphInfo tmi,
                                   DiagnosticPosition diagPos) {
-        return makeLocationVariable(tmi, diagPos, List.<JCExpression>nil(), defs.makeMethodName);
+        List<JCExpression> makeArgs;
+        Name makeMethod;
+        if (tmi.getTypeKind() == TYPE_KIND_OBJECT && 
+                (tmi.getRealType() == syms.javafx_StringType || tmi.getRealType() == syms.javafx_DurationType)) {
+            // This is an object type for which the default is something other than null
+            // construct it specifying the default
+            makeArgs = List.<JCExpression>of(makeDefaultValue(diagPos, tmi));
+            makeMethod = defs.makeWithDefaultMethodName;
+        } else {
+            makeArgs = List.<JCExpression>nil();
+            makeMethod = defs.makeMethodName;
+        }
+        return makeLocationVariable(tmi, diagPos, makeArgs, makeMethod);
     }
 
     JCExpression makeLocationVariable(TypeMorphInfo tmi,
@@ -352,7 +364,7 @@ public abstract class JavafxTranslationSupport {
         }
         return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
     }
-
+    
     JCExpression makeConstantLocation(DiagnosticPosition diagPos, Type type, JCExpression expr) {
         TypeMorphInfo tmi = typeMorpher.typeMorphInfo(type);
         List<JCExpression> makeArgs = List.of(expr);

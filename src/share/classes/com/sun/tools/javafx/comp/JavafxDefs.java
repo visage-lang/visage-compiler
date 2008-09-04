@@ -56,6 +56,7 @@ public class JavafxDefs {
     public static final String initializeNameString ="initialize$";
     public static final String getMethodNameString = "get";
     public static final String setMethodNameString ="set";
+    public static final String setDefaultMethodNameString = "setDefault";
     public static final String sizeMethodNameString ="size";
     public static final String addStaticDependentNameString = "addStaticDependent";
     public static final String addDynamicDependentNameString = "addDynamicDependent";
@@ -63,6 +64,7 @@ public class JavafxDefs {
     public static final String trySetFromLiteralMethodNameString = "needDefault";
     public static final String makeAttributeMethodNameString = "makeAttribute";
     public static final String makeMethodNameString = "make";
+    public static final String makeWithDefaultMethodNameString = "makeWithDefault";
     public static final String makeBijectiveMethodNameString = "makeBijective";
     public static final String invokeNameString = "invoke";
     public static final String lambdaNameString = "lambda";
@@ -106,6 +108,7 @@ public class JavafxDefs {
     final Name needDefaultsMethodName;
     final Name makeAttributeMethodName;
     final Name makeMethodName;
+    final Name makeWithDefaultMethodName;
     final Name makeBijectiveMethodName;
     final Name invokeName;
     final Name lambdaName;
@@ -124,6 +127,7 @@ public class JavafxDefs {
     final Name postInitName;
     final Name attributeGetPrefixName;
     final Name applyDefaultsPrefixName;
+    final Name setDefaultMethodName;
     final Name[] locationGetMethodName;
     final Name[] locationSetMethodName;
     final Name[][] locationSetMilieuMethodName;
@@ -186,6 +190,7 @@ public class JavafxDefs {
         needDefaultsMethodName = names.fromString(trySetFromLiteralMethodNameString);
         makeAttributeMethodName = Name.fromString(names, makeAttributeMethodNameString);
         makeMethodName = Name.fromString(names, makeMethodNameString);
+        makeWithDefaultMethodName = Name.fromString(names, makeWithDefaultMethodNameString);
         makeBijectiveMethodName = Name.fromString(names, makeBijectiveMethodNameString);
         invokeName = names.fromString(invokeNameString);
         lambdaName = names.fromString(lambdaNameString);
@@ -211,6 +216,7 @@ public class JavafxDefs {
 		locationPackageName = names.fromString(locationPackageNameString);
 		sequencePackageName = names.fromString(sequencePackageNameString);
 		functionsPackageName = names.fromString(functionsPackageNameString);
+        setDefaultMethodName  = names.fromString(setDefaultMethodNameString);
         locationGetMethodName = new Name[TYPE_KIND_COUNT];
         locationSetMethodName = new Name[TYPE_KIND_COUNT];
         locationSetMilieuMethodName = new Name[TYPE_KIND_COUNT][MILIEU_COUNT];

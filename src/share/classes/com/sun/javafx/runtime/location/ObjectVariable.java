@@ -43,6 +43,13 @@ public class ObjectVariable<T>
         return new ObjectVariable<T>();
     }
 
+    public static<T> ObjectVariable<T> makeWithDefault(T deflt) {
+        ObjectVariable<T> result = new ObjectVariable<T>();
+        result.$default = deflt;
+        result.$value = deflt;
+        return result;
+    }
+
     public static<T> ObjectVariable<T> make(T value) {
         return new ObjectVariable<T>(value);
     }
