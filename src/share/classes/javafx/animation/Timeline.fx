@@ -209,7 +209,7 @@ public class Timeline {
      * @profile common
      */
     public function start() {
-        reset();
+        reset(false);
         if (toggle) {
             // change direction in place
             if (clip == null) {
@@ -227,7 +227,18 @@ public class Timeline {
 
     var initialKeyValues: KeyValue[];
 
-    function reset():Void {
+    function reset(isSubTimeline: Boolean):Void {
+        if(isSubTimeline) {
+            if (toggle and isReverse) {
+                cycleIndex = (repeatCount-1) as Integer;
+                lastElapsed = getTotalDur();
+            } else {
+                cycleIndex = 0;
+                lastElapsed = 0;
+            }
+        }
+        
+        
         for (kv in initialKeyValues) {
             kv.value = kv.target.get();
         }
@@ -242,7 +253,7 @@ public class Timeline {
         }
         for (i in [0..<subtimelines.size()]) {
             var sub = subtimelines.get(i) as SubTimeline;
-            sub.timeline.reset();
+            sub.timeline.reset(true);
         }
     }
 
@@ -350,6 +361,11 @@ public class Timeline {
                         startTime: keyFrame.time
                         timeline: timeline
                     }
+                    
+                    if(timeline.toggle) {
+                        timeline.isReverse = false;
+                    }
+                    
                     subtimelines.add(sub);
                 }
             }
@@ -506,19 +522,50 @@ public class Timeline {
         // look through each KeyFrame and see if we need to visit its
         // key values and its action function
         if (toggle and isReverse) {
+            var cycleBoundary: Boolean = cycleIndex > cycle;
+            var boundaryT;
             backward = not backward;
             while (cycleIndex > cycle) {
+                boundaryT = duration;
+                if(autoReverse and cycleIndex mod 2 == 1) {
+                    if(not backward) boundaryT = 0;
+                }
+                handleCycleBoundary(boundaryT);
                 // we're on a new cycle; visit any key frames that we may
                 // have missed along the way
                 visitCycle(cycleIndex, cycleIndex > cycle+1);
                 cycleIndex--;
             }
+            
+            if(cycleBoundary) {
+                boundaryT = duration;
+                if(autoReverse and cycleIndex mod 2 == 1) {
+                    if(not backward) boundaryT = 0;
+                }
+                handleCycleBoundary(boundaryT);
+            }
+            
         } else {
+            var cycleBoundary: Boolean = cycleIndex < cycle;
+            var boundaryT: Number;
             while (cycleIndex < cycle) {
+                boundaryT = duration;
+                if(autoReverse and cycleIndex mod 2 == 1) {
+                    boundaryT = 0;
+                }
+                handleCycleBoundary(boundaryT);
                 // we're on a new cycle; visit any key frames that we may
                 // have missed along the way
                 visitCycle(cycleIndex, cycleIndex < cycle-1);
                 cycleIndex++;
+            }
+
+            if(cycleBoundary) {
+                boundaryT = duration;
+                if(autoReverse and cycleIndex mod 2 == 1) {
+                    boundaryT = 0;
+                }
+                handleCycleBoundary(boundaryT);
             }
         }
         visitFrames(curT, backward, false);
@@ -571,10 +618,34 @@ public class Timeline {
         // on any active SubTimeline objects
         for (i in [0..<subtimelines.size()]) {
             var sub = subtimelines.get(i) as SubTimeline;
-            if (curT >= sub.startTime.toMillis()) {
-                var subDur = sub.timeline.getTotalDur();
-                if (subDur < 0 or curT <= sub.startTime.toMillis() + subDur) {
-                    sub.timeline.process(curT - sub.startTime.toMillis());
+            var subtimeline = sub.timeline;
+            var subDur = subtimeline.getTotalDur();
+            var startTime = sub.startTime.toMillis();
+            if(backward) {
+                /**
+                 * When timeline is running backward, the last key frame is not visited.
+                 * However, there is possibility that it has sub timeline runs
+                 * beyond the last key frame.
+                 */
+                var lastKeyFrame = sortedFrames[sortedFrames.size() - 1];
+                if(curT <= lastKeyFrame.time.toMillis()) {
+                    stopKeyFrameSubtimelines(lastKeyFrame, curT);
+                }
+                if(curT <= startTime + subDur and curT > startTime) {
+                    if(not subtimeline.running) {
+                        subtimeline.reset(true);
+                        subtimeline.running = true;
+                        
+                    }
+                    subtimeline.process(curT - startTime);
+                }
+                
+            } else {
+                if(subtimeline.running) {
+                    subtimeline.process(curT - startTime);
+                    if(subDur >= 0 and curT > startTime + subDur) {
+                        subtimeline.running = false;
+                    } 
                 }
             }
         }
@@ -601,6 +672,33 @@ public class Timeline {
         frameIndex = if (autoReverse) 1 else 0;
     }
 
+    function handleCycleBoundary(curT: Number) {
+        for (i in [0..<subtimelines.size()]) {
+            var sub = subtimelines.get(i) as SubTimeline;
+            if(sub.timeline.running) {
+                sub.timeline.process(curT - sub.startTime.toMillis());
+                sub.timeline.running = false;
+            }
+        }
+    }
+    
+    function startKeyFrameSubtimelines(kf: KeyFrame, curT: Number) {
+        for(t: Timeline in kf.timelines) {
+            t.reset(true);
+            t.running = true;
+        }
+    }
+    
+    function stopKeyFrameSubtimelines(kf: KeyFrame, curT: Number) {
+        for(t: Timeline in kf.timelines) {
+            if(not t.running) {
+                t.running = true;
+            }
+            t.process(t.getTotalDur());
+            t.running = false;
+        }
+    }
+    
     function visitFrames(curT:Number, backward:Boolean, catchingUp:Boolean) : Void {
         if (backward) {
             var i1 = sortedFrames.size()-1-frameIndex;
@@ -610,6 +708,7 @@ public class Timeline {
                 if (curT <= kf.time.toMillis()) {
                     if (not (catchingUp and kf.canSkip)) {
                         kf.visit();
+                        stopKeyFrameSubtimelines(kf, curT);
                     }
                     frameIndex++;
                 } else {
@@ -624,6 +723,7 @@ public class Timeline {
                 if (curT >= kf.time.toMillis()) {
                     if (not (catchingUp and kf.canSkip)) {
                         kf.visit();
+                        startKeyFrameSubtimelines(kf, curT);
                     }
                     frameIndex++;
                 } else {
