@@ -52,3 +52,5 @@ MyRect.times1(Number): function Main.MyRect.times1():Number
 call times1(2.5): NumberValue(45.0)
 MyRect.shapeFunAttr1 variable: attribute Main.MyShape.shapeFunAttr1:function(Integer,java.lang.String):java.lang.String
  - apply(3,"abcdefg") => defg
+After updating shapeFunAttr1 to repeat:
+ - apply(3,"abc") => abcabcabc

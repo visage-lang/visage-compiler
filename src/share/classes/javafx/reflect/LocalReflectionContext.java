@@ -74,64 +74,9 @@ public class LocalReflectionContext extends ReflectionContext {
         }
         else if (type instanceof FunctionTypeRef && val instanceof Function) {
             final FunctionTypeRef ftype = (FunctionTypeRef) type;
-            return new FunctionValueRef() {
-                public ValueRef apply(ValueRef... arg) {
-                    Object result;
-                    int nargs = arg.length;
-                    Object[] rargs = new Object[nargs];
-                    for (int i = 0;  i < nargs;  i++)
-                        rargs[i] = ((LocalValueRef) arg[i]).asObject();
-                    switch (nargs) {
-                        case 0:
-                            result = ((Function0) val).invoke();
-                            break;
-                        case 1:
-                            result = ((Function1) val).invoke(rargs[0]);
-                            break;
-                        case 2:
-                            result = ((Function2) val).invoke(rargs[0], rargs[1]);
-                            break;
-                        case 3:
-                            result = ((Function3) val).invoke(rargs[0],
-                                    rargs[1], rargs[2]);
-                            break;
-                        case 4:
-                            result = ((Function4) val).invoke(rargs[0],
-                                    rargs[1], rargs[2], rargs[3]);
-                            break;
-                        case 5:
-                            result = ((Function5) val).invoke(rargs[0],
-                                    rargs[1], rargs[2], rargs[3], rargs[4]);
-                            break;
-                        case 6:
-                            result = ((Function6) val).invoke(rargs[0],
-                                    rargs[1], rargs[2], rargs[3], rargs[4],
-                                    rargs[5]);
-                            break;
-                        case 7:
-                            result = ((Function7) val).invoke(rargs[0],
-                                    rargs[1], rargs[2], rargs[3], rargs[4],
-                                    rargs[5], rargs[6]);
-                            break;
-                        case 8:
-                            result = ((Function8) val).invoke(rargs[0],
-                                    rargs[1], rargs[2], rargs[3], rargs[4],
-                                    rargs[5], rargs[6], rargs[7]);
-                            break;
-                        default:
-                            throw new IllegalArgumentException();
-                    }
-                    return mirrorOf(result, ftype.getReturnType());
-                }
-                public FunctionTypeRef getType() {
-                    return ftype;
-                }
-                public boolean isNull() { return false; }
-
-                public String getValueString() { return type.toString()+"{...}"; };
-            };
+            return new LocalFunctionValue((Function) val, ftype, this);
         } else {
-            return new ValueRef() {
+             return new ValueRef() {
                 public String getValueString() { return val == null ? null : val.toString(); }
                 public TypeRef getType() { return type; }
                 public boolean isNull() { return val == null; }
@@ -499,6 +444,10 @@ class LocalClassRef extends ClassRef {
         LocalReflectionContext context = getReflectionContext();
         Class cls = refClass;
         Class[] noClasses = {};
+        String requiredName = filter.getRequiredName();
+        // FIXME possible optimization if requiredName != null
+        // In that case we could use Class.getDeclaredField(String).
+        // However, it's tricky because we need to try all possible renamings.
         Field[] fields = cls.getDeclaredFields();
         for (int i = 0;  i < fields.length;  i++) {
             Field fld = fields[i];
@@ -510,6 +459,8 @@ class LocalClassRef extends ClassRef {
             SourceName sourceName = fld.getAnnotation(SourceName.class);
             if (sourceName != null)
                 name = sourceName.value();
+            if (requiredName != null && ! requiredName.equals(name))
+                continue;
             Type gtype = fld.getGenericType();
             TypeRef tr = context.makeTypeRef(gtype);
             LocalAttributeRef ref = new LocalAttributeRef(name, this, tr);
@@ -622,12 +573,37 @@ class LocalAttributeRef extends AttributeRef {
 
     @Override
     public void setValue(ObjectRef obj, ValueRef newValue) {
+        Object robj = obj == null ? null : ((LocalObjectRef) obj).obj;
+        try {
+            if (fld != null || locationGetter != null) {
+                LocalReflectionContext context =
+                    (LocalReflectionContext) owner.getReflectionContext();
+                Object val;
+                if (locationGetter != null)
+                    val = locationGetter.invoke(robj, new Object[0]);
+                else
+                    val = fld.get(robj);
+                Object newVal = ((LocalValueRef) newValue).asObject();
+                if (val instanceof ObjectLocation)
+                    ((ObjectLocation) val).set(newVal);
+                else {
+                    fld.set(robj, newVal);
+                }
+                return;
+            }
+        }
+        catch (RuntimeException ex) {
+            throw ex;
+        }
+        catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void initValue(ObjectRef obj, ValueRef ref) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        setValue(obj, ref);
     }
 
     public String getName() {
@@ -691,4 +667,68 @@ class LocalMethodRef extends MethodRef {
             throw new RuntimeException(ex);
         }
     }
+}
+
+    class LocalFunctionValue extends FunctionValueRef implements LocalValueRef {
+        Function val;
+        FunctionTypeRef ftype;
+        LocalReflectionContext context;
+        public LocalFunctionValue(Function val, FunctionTypeRef ftype, LocalReflectionContext context) {
+            this.val = val;
+            this.ftype = ftype;
+            this.context = context;
+        }
+
+        public ValueRef apply(ValueRef... arg) {
+            Object result;
+            int nargs = arg.length;
+            Object[] rargs = new Object[nargs];
+            for (int i = 0;  i < nargs;  i++)
+                rargs[i] = ((LocalValueRef) arg[i]).asObject();
+            switch (nargs) {
+                case 0:
+                    result = ((Function0) val).invoke();
+                    break;
+                case 1:
+                    result = ((Function1) val).invoke(rargs[0]);
+                    break;
+                case 2:
+                    result = ((Function2) val).invoke(rargs[0], rargs[1]);
+                    break;
+                case 3:
+                    result = ((Function3) val).invoke(rargs[0],
+                            rargs[1], rargs[2]);
+                    break;
+                case 4:
+                    result = ((Function4) val).invoke(rargs[0],
+                            rargs[1], rargs[2], rargs[3]);
+                    break;
+                case 5:
+                    result = ((Function5) val).invoke(rargs[0],
+                            rargs[1], rargs[2], rargs[3], rargs[4]);
+                    break;
+                case 6:
+                    result = ((Function6) val).invoke(rargs[0],
+                            rargs[1], rargs[2], rargs[3], rargs[4], rargs[5]);
+                    break;
+                case 7:
+                    result = ((Function7) val).invoke(rargs[0], rargs[1],
+                            rargs[2], rargs[3], rargs[4], rargs[5], rargs[6]);
+                    break;
+                case 8:
+                    result = ((Function8) val).invoke(rargs[0], rargs[1],
+                            rargs[2], rargs[3], rargs[4],
+                            rargs[5], rargs[6], rargs[7]);
+                    break;
+                default:
+                    throw new IllegalArgumentException();
+            }
+            return context.mirrorOf(result, ftype.getReturnType());
+        }
+        public FunctionTypeRef getType() {
+            return ftype;
+        }
+        public boolean isNull() { return false; }
+        public String getValueString() { return ftype.toString()+"{...}"; };
+        public Function asObject() { return val; }
 }

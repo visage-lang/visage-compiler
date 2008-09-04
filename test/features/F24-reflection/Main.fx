@@ -115,3 +115,16 @@ System.out.println("MyRect.shapeFunAttr1 variable: {fv1}");
 var fun1 = fv1.getValue(myRectRef) as FunctionValueRef;
 var v2 = fun1.apply(context.mirrorOf(3), context.mirrorOf("abcdefg"));
 System.out.println(" - apply(3,\"abcdefg\") => {v2.getValueString()}");
+
+function repeat(x:Integer,y:String):String {
+       if (x <= 0) ""
+       else if (x == 1) y
+       else "{y}{repeat(x-1,y)}"
+}
+
+var fun2 = context.mirrorOf(repeat, fv1.getType());
+fv1.setValue(myRectRef, fun2);
+var fun3 = fv1.getValue(myRectRef) as FunctionValueRef;
+var v3 = fun3.apply(context.mirrorOf(3), context.mirrorOf("abc"));
+System.out.println("After updating shapeFunAttr1 to repeat:");
+System.out.println(" - apply(3,\"abc\") => {v3.getValueString()}");
