@@ -386,12 +386,12 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         }
 
         protected JCExpression buildArgField(JCExpression arg, Type type, String argLabel, boolean isBound) {
-                TypeMorphInfo tmiArg = typeMorpher.typeMorphInfo(type);
-                Name argName = names.fromString(argLabel);
+            TypeMorphInfo tmiArg = typeMorpher.typeMorphInfo(type);
+            Name argName = names.fromString(argLabel);
 
-                // translate the method arg into a Location field of the BindingExpression
-                // XxxLocation arg$0 = ...;
-                members.append(makeLocationField(arg, argName, tmiArg));
+            // translate the method arg into a Location field of the BindingExpression
+            // XxxLocation arg$0 = ...;
+            members.append(makeLocationField(arg, argName, tmiArg));
 
             // build a list of these args, for use as dependents -- arg$0, arg$1, ...
             if (isBound) {
@@ -424,7 +424,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         JCExpression tinit = init==null?
                                 makeLocationAttributeVariable(typeMorpher.varMorphInfo(var.sym), diagPos)
                                 : translate(init);
-                        buildArgField(tinit, var.type, var.getName().toString(), var.isBound());
+                        // The local variable is built as bound (last param true) because it does not
+                        // directly impact the state of the object.  Any indirect immpacts are captured
+                        // in the binding of the instance variables.
+                        buildArgField(tinit, var.type, var.getName().toString(), true);
                     }
 
                     @Override
