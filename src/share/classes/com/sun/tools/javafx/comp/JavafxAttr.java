@@ -2060,11 +2060,13 @@ public class JavafxAttr implements JavafxVisitor {
                 methName == defs.isInitializedName) {
             for (List<JFXExpression> l = tree.args; l.nonEmpty(); l = l.tail, i++) {
                 Symbol asym = JavafxTreeInfo.symbol(l.head);
-                if (asym == null) {
-                } else {
-                    Symbol ss = asym;
+                if (asym == null || 
+                        !(asym instanceof VarSymbol) ||
+                        (asym.flags() & JavafxFlags.IS_DEF) != 0 ||
+                        asym.owner == null ||
+                        asym.owner.kind != TYP) {
+                    log.error(tree, MsgSym.MESSAGE_JAVAFX_APPLIED_TO_INSTANCE_VAR, defs.isInitializedName);
                 }
-                //TODO: check that the parameter to isInitialized is a variable reference
             }
         }
         chk.validate(tree.typeargs);

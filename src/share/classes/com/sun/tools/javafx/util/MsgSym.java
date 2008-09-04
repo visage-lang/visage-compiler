@@ -332,6 +332,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_ITERATING_NON_SEQUENCE = "javafx.iterating.non.sequence";
     public static final String MESSAGE_JAVAFX_NOT_A_FUNC = "javafx.not.a.function";
     public static final String MESSAGE_JAVAFX_CANNOT_APPLY_FUNCTION = "javafx.cant.apply.function";
+    public static final String MESSAGE_JAVAFX_APPLIED_TO_INSTANCE_VAR = "javafx.applied.to.instance.var";
     public static final String MESSAGE_JAVAFX_MUST_BE_AN_ATTRIBUTE = "javafx.must.be.an.attribute"; 
     public static final String MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE = "javafx.lexer.literal.range";
     public static final String MESSAGE_JAVAFX_BOUND_FUNCTION_MUST_NOT_BE_VOID = "javafx.bound.function.must.not.be.void";
