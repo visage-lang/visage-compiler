@@ -62,6 +62,10 @@ for (cls in clsSimple.getSuperClasses(true))
 var clsString = context.findClass("java.lang.String");
 System.out.println("clsString={clsString} jfx-class:{clsString.isJfxType()} compound:{clsString.isCompoundClass()}");
 
+System.out.println("String .super (direct only):");
+for (cls in clsString.getSuperClasses(false))
+    System.out.println("  {cls}");
+
 System.out.println("String .super (inherited also):");
 for (cls in clsString.getSuperClasses(true))
     System.out.println("  {cls}");

@@ -56,7 +56,7 @@ public abstract class FXFunctionMember implements FXMember {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("function ");
-        FXType owner = getDeclaringType();
+        FXClassType owner = getDeclaringClass();
         if (owner != null) {
             String oname = owner.getName();
             if (oname != null) {

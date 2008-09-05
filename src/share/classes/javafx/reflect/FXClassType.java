@@ -196,13 +196,54 @@ public abstract class FXClassType extends FXType implements FXMember {
             int i = 0;
             for (; i < sz; i++) {
                 FXMember c = buffer[i];
-                int cmp = c.getName().compareTo(clname);
+                // First compare by name.
+                int cmp = c.getName().compareToIgnoreCase(clname);
+                if (cmp == 0)
+                    cmp = c.getName().compareTo(clname);
                 if (cmp > 0)
                     break;
-                if (cmp == 0) {
-                    // Arbitrary order.  FIXME
+                if (cmp < 0)
+                    continue;
+                // Next compare by owner. Inherited members go earlier.
+                FXClassType clowner = cl.getDeclaringClass();
+                FXClassType cowner = c.getDeclaringClass();
+                boolean clAssignableFromC = clowner.isAssignableFrom(cowner);
+                boolean cAssignableFromCl = cowner.isAssignableFrom(clowner);
+                if (clAssignableFromC && ! cAssignableFromCl)
                     break;
+                if (cAssignableFromCl && ! clAssignableFromC)
+                    continue;
+                // Next compare by owner name.
+                String clownerName = clowner.getName();
+                String cownerName = cowner.getName();
+                cmp = cownerName.compareToIgnoreCase(clownerName);
+                if (cmp == 0)
+                    cmp = cownerName.compareTo(clownerName);
+                if (cmp > 0)
+                    break;
+                if (cmp < 0)
+                    continue;
+                // Sort member classes before other members.
+                if (cl instanceof FXClassType)
+                    break;
+                if (c instanceof FXClassType)
+                    continue;
+                // Sort var after member classes, but before other members.
+                if (cl instanceof FXVarMember)
+                    break;
+                if (c instanceof FXVarMember)
+                    continue;
+                if (cl instanceof FXFunctionMember && c instanceof FXFunctionMember) {
+                    String scl = ((FXFunctionMember) cl).getType().toString();
+                    String sc = ((FXFunctionMember) c).getType().toString();
+                    cmp = sc.compareToIgnoreCase(scl);
+                    if (cmp == 0)
+                        cmp = sc.compareTo(scl);
+                    if (cmp < 0)
+                        continue;
                 }
+                // Otherwise arbitrary order.
+                break;
             }
             if (sz == buffer.length) {
                 FXMember[] tmp = new FXMember[2*sz];

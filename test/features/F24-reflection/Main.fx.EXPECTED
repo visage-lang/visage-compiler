@@ -10,6 +10,11 @@ Simpl.super (inherited also):
   class Main.Square
   class java.lang.Object
 clsString=class java.lang.String jfx-class:false compound:false
+String .super (direct only):
+  class java.io.Serializable
+  class java.lang.CharSequence
+  class java.lang.Comparable
+  class java.lang.Object
 String .super (inherited also):
   class java.io.Serializable
   class java.lang.CharSequence
@@ -17,92 +22,92 @@ String .super (inherited also):
   class java.lang.Object
   class java.lang.String
 String methods (inherited also):
-  function java.lang.String.charAt(Integer):JavaChar
   function java.lang.CharSequence.charAt(Integer):JavaChar
-  function java.lang.String.checkBounds(byte[],Integer,Integer):Void
+  function java.lang.String.charAt(Integer):JavaChar
+  function java.lang.String.checkBounds(JavaArray<JavaByte>,Integer,Integer):Void
   function java.lang.Object.clone():java.lang.Object
   function java.lang.String.codePointAt(Integer):Integer
   function java.lang.String.codePointBefore(Integer):Integer
   function java.lang.String.codePointCount(Integer,Integer):Integer
-  function java.lang.String.compareTo(java.lang.String):Integer
   function java.lang.Comparable.compareTo(java.lang.Object):Integer
+  function java.lang.String.compareTo(java.lang.String):Integer
   function java.lang.String.compareToIgnoreCase(java.lang.String):Integer
   function java.lang.String.concat(java.lang.String):java.lang.String
-  function java.lang.String.contains(java.lang.CharSequence):boolean
-  function java.lang.String.contentEquals(java.lang.CharSequence):boolean
-  function java.lang.String.contentEquals(java.lang.StringBuffer):boolean
-  function java.lang.String.copyValueOf(char[]):java.lang.String
-  function java.lang.String.copyValueOf(char[],Integer,Integer):java.lang.String
-  function java.lang.String.endsWith(java.lang.String):boolean
-  function java.lang.String.equals(java.lang.Object):boolean
-  function java.lang.Object.equals(java.lang.Object):boolean
-  function java.lang.String.equalsIgnoreCase(java.lang.String):boolean
+  function java.lang.String.contains(java.lang.CharSequence):JavaBoolean
+  function java.lang.String.contentEquals(java.lang.CharSequence):JavaBoolean
+  function java.lang.String.contentEquals(java.lang.StringBuffer):JavaBoolean
+  function java.lang.String.copyValueOf(JavaArray<JavaChar>):java.lang.String
+  function java.lang.String.copyValueOf(JavaArray<JavaChar>,Integer,Integer):java.lang.String
+  function java.lang.String.endsWith(java.lang.String):JavaBoolean
+  function java.lang.Object.equals(java.lang.Object):JavaBoolean
+  function java.lang.String.equals(java.lang.Object):JavaBoolean
+  function java.lang.String.equalsIgnoreCase(java.lang.String):JavaBoolean
   function java.lang.Object.finalize():Void
-  function java.lang.String.format(java.util.Locale,java.lang.String,java.lang.Object[]):java.lang.String
-  function java.lang.String.format(java.lang.String,java.lang.Object[]):java.lang.String
-  function java.lang.String.getBytes():byte[]
-  function java.lang.String.getBytes(java.nio.charset.Charset):byte[]
-  function java.lang.String.getBytes(java.lang.String):byte[]
-  function java.lang.String.getBytes(Integer,Integer,byte[],Integer):Void
-  function java.lang.String.getChars(Integer,Integer,char[],Integer):Void
-  function java.lang.String.getChars(char[],Integer):Void
+  function java.lang.String.format(java.lang.String,JavaArray<java.lang.Object>):java.lang.String
+  function java.lang.String.format(java.util.Locale,java.lang.String,JavaArray<java.lang.Object>):java.lang.String
+  function java.lang.String.getBytes():JavaArray<JavaByte>
+  function java.lang.String.getBytes(Integer,Integer,JavaArray<JavaByte>,Integer):Void
+  function java.lang.String.getBytes(java.lang.String):JavaArray<JavaByte>
+  function java.lang.String.getBytes(java.nio.charset.Charset):JavaArray<JavaByte>
+  function java.lang.String.getChars(Integer,Integer,JavaArray<JavaChar>,Integer):Void
+  function java.lang.String.getChars(JavaArray<JavaChar>,Integer):Void
   function java.lang.Object.getClass():java.lang.Class
-  function java.lang.String.hashCode():Integer
   function java.lang.Object.hashCode():Integer
-  function java.lang.String.indexOf(char[],Integer,Integer,char[],Integer,Integer,Integer):Integer
-  function java.lang.String.indexOf(java.lang.String,Integer):Integer
-  function java.lang.String.indexOf(java.lang.String):Integer
-  function java.lang.String.indexOf(Integer,Integer):Integer
+  function java.lang.String.hashCode():Integer
   function java.lang.String.indexOf(Integer):Integer
+  function java.lang.String.indexOf(Integer,Integer):Integer
+  function java.lang.String.indexOf(java.lang.String):Integer
+  function java.lang.String.indexOf(java.lang.String,Integer):Integer
+  function java.lang.String.indexOf(JavaArray<JavaChar>,Integer,Integer,JavaArray<JavaChar>,Integer,Integer,Integer):Integer
   function java.lang.String.intern():java.lang.String
-  function java.lang.String.isEmpty():boolean
-  function java.lang.String.lastIndexOf(char[],Integer,Integer,char[],Integer,Integer,Integer):Integer
-  function java.lang.String.lastIndexOf(java.lang.String,Integer):Integer
-  function java.lang.String.lastIndexOf(java.lang.String):Integer
-  function java.lang.String.lastIndexOf(Integer,Integer):Integer
+  function java.lang.String.isEmpty():JavaBoolean
   function java.lang.String.lastIndexOf(Integer):Integer
-  function java.lang.String.length():Integer
+  function java.lang.String.lastIndexOf(Integer,Integer):Integer
+  function java.lang.String.lastIndexOf(java.lang.String):Integer
+  function java.lang.String.lastIndexOf(java.lang.String,Integer):Integer
+  function java.lang.String.lastIndexOf(JavaArray<JavaChar>,Integer,Integer,JavaArray<JavaChar>,Integer,Integer,Integer):Integer
   function java.lang.CharSequence.length():Integer
-  function java.lang.String.matches(java.lang.String):boolean
+  function java.lang.String.length():Integer
+  function java.lang.String.matches(java.lang.String):JavaBoolean
   function java.lang.Object.notify():Void
   function java.lang.Object.notifyAll():Void
   function java.lang.String.offsetByCodePoints(Integer,Integer):Integer
-  function java.lang.String.regionMatches(boolean,Integer,java.lang.String,Integer,Integer):boolean
-  function java.lang.String.regionMatches(Integer,java.lang.String,Integer,Integer):boolean
+  function java.lang.String.regionMatches(Integer,java.lang.String,Integer,Integer):JavaBoolean
+  function java.lang.String.regionMatches(JavaBoolean,Integer,java.lang.String,Integer,Integer):JavaBoolean
   function java.lang.Object.registerNatives():Void
   function java.lang.String.replace(java.lang.CharSequence,java.lang.CharSequence):java.lang.String
   function java.lang.String.replace(JavaChar,JavaChar):java.lang.String
   function java.lang.String.replaceAll(java.lang.String,java.lang.String):java.lang.String
   function java.lang.String.replaceFirst(java.lang.String,java.lang.String):java.lang.String
-  function java.lang.String.split(java.lang.String):java.lang.String[]
-  function java.lang.String.split(java.lang.String,Integer):java.lang.String[]
-  function java.lang.String.startsWith(java.lang.String):boolean
-  function java.lang.String.startsWith(java.lang.String,Integer):boolean
-  function java.lang.String.subSequence(Integer,Integer):java.lang.CharSequence
+  function java.lang.String.split(java.lang.String):JavaArray<java.lang.String>
+  function java.lang.String.split(java.lang.String,Integer):JavaArray<java.lang.String>
+  function java.lang.String.startsWith(java.lang.String):JavaBoolean
+  function java.lang.String.startsWith(java.lang.String,Integer):JavaBoolean
   function java.lang.CharSequence.subSequence(Integer,Integer):java.lang.CharSequence
-  function java.lang.String.substring(Integer,Integer):java.lang.String
+  function java.lang.String.subSequence(Integer,Integer):java.lang.CharSequence
   function java.lang.String.substring(Integer):java.lang.String
-  function java.lang.String.toCharArray():char[]
+  function java.lang.String.substring(Integer,Integer):java.lang.String
+  function java.lang.String.toCharArray():JavaArray<JavaChar>
   function java.lang.String.toLowerCase():java.lang.String
   function java.lang.String.toLowerCase(java.util.Locale):java.lang.String
-  function java.lang.String.toString():java.lang.String
-  function java.lang.Object.toString():java.lang.String
   function java.lang.CharSequence.toString():java.lang.String
+  function java.lang.Object.toString():java.lang.String
+  function java.lang.String.toString():java.lang.String
   function java.lang.String.toUpperCase():java.lang.String
   function java.lang.String.toUpperCase(java.util.Locale):java.lang.String
   function java.lang.String.trim():java.lang.String
-  function java.lang.String.valueOf(Number):java.lang.String
+  function java.lang.String.valueOf(Integer):java.lang.String
+  function java.lang.String.valueOf(java.lang.Object):java.lang.String
+  function java.lang.String.valueOf(JavaArray<JavaChar>):java.lang.String
+  function java.lang.String.valueOf(JavaArray<JavaChar>,Integer,Integer):java.lang.String
+  function java.lang.String.valueOf(JavaBoolean):java.lang.String
+  function java.lang.String.valueOf(JavaChar):java.lang.String
   function java.lang.String.valueOf(JavaFloat):java.lang.String
   function java.lang.String.valueOf(JavaLong):java.lang.String
-  function java.lang.String.valueOf(Integer):java.lang.String
-  function java.lang.String.valueOf(JavaChar):java.lang.String
-  function java.lang.String.valueOf(boolean):java.lang.String
-  function java.lang.String.valueOf(char[],Integer,Integer):java.lang.String
-  function java.lang.String.valueOf(char[]):java.lang.String
-  function java.lang.String.valueOf(java.lang.Object):java.lang.String
+  function java.lang.String.valueOf(Number):java.lang.String
   function java.lang.Object.wait():Void
-  function java.lang.Object.wait(JavaLong,Integer):Void
   function java.lang.Object.wait(JavaLong):Void
+  function java.lang.Object.wait(JavaLong,Integer):Void
 Square methods (inherited also):
   function Main.MyRect.corners():java.awt.geom.Point2D[]
   function Main.MyShape.times1(Number):Number

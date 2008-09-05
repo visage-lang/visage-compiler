@@ -177,6 +177,10 @@ public class FXLocal {
             }
         
             Class clas = (Class) typ;
+            if (clas.isArray()) {
+                FXType elType = makeTypeRef(clas.getComponentType());
+                return new FXJavaArrayType(elType);
+            }
             String rawName = ((Class) typ).getName();
             if (FXClassType.DOUBLE_VARIABLE_CLASSNAME.equals(rawName)
                     || typ == Double.TYPE)
@@ -194,6 +198,8 @@ public class FXLocal {
                 return FXPrimitiveType.floatType;
             if (typ == Character.TYPE)
                 return FXPrimitiveType.charType;
+            if (typ == Boolean.TYPE)
+                return FXPrimitiveType.booleanType;
             if (typ == Void.TYPE)
                 return FXPrimitiveType.voidType;
 
@@ -237,6 +243,8 @@ public class FXLocal {
         public static Class asClass (FXType type) {
             if (type instanceof FXPrimitiveType)
                 return ((FXPrimitiveType) type).clas;
+            else if (type instanceof JavaArrayType)
+                return ((JavaArrayType) type).getJavaClass();
             else { // FIXME - handle other cases
                 ClassType ctyp = (ClassType) type;
                 return ctyp.isCompoundClass() ? ctyp.refInterface : ctyp.refClass;
@@ -256,6 +264,16 @@ public class FXLocal {
         }
     }
 
+    public static class JavaArrayType extends FXJavaArrayType {
+        Class cls;
+        JavaArrayType(FXType componentType, Class cls) {
+            super(componentType);
+            this.cls = cls;
+        }
+
+        public Class getJavaClass() { return cls; }
+    }
+
     public static class ClassType extends FXClassType {
         Class refClass;
         Class refInterface;
@@ -266,7 +284,10 @@ public class FXLocal {
             this.refClass = refClass;
             this.refInterface = refInterface;
             this.name = refClass.getCanonicalName();
-       }
+        }
+
+        public Class getJavaImplementationClass() { return refClass; }
+        public Class getJavaInterfaceClass() { return refInterface; }
 
         @Override
         public Context getReflectionContext() {
@@ -278,60 +299,61 @@ public class FXLocal {
          */
         public int hashCode() {
             return name.hashCode();
-       }
+        }
     
-       public boolean equals (Object obj) {
+        public boolean equals (Object obj) {
             return obj instanceof ClassType
                 && refClass == ((ClassType) obj).refClass;
         }
-           void getSuperClasses(boolean all, SortedClassArray result) {
-        boolean isCompound = isCompoundClass();
-        Class cls = isCompound ? refInterface : refClass;
-        Class[] interfaces = cls.getInterfaces();
-        Context context = getReflectionContext();
-        if (! isCompound) {
-            Class s = cls.getSuperclass();
-            if (s != null) {
-                ClassType cl = (ClassType) context.makeClassRef(s);
+
+        void getSuperClasses(boolean all, SortedClassArray result) {
+            boolean isCompound = isCompoundClass();
+            Class cls = isCompound ? refInterface : refClass;
+            Class[] interfaces = cls.getInterfaces();
+            Context context = getReflectionContext();
+            if (! isCompound) {
+                Class s = cls.getSuperclass();
+                if (s != null) {
+                    ClassType cl = (ClassType) context.makeClassRef(s);
+                    if (result.insert(cl) && all)
+                        cl.getSuperClasses(all, result);
+                }
+            }
+            for (int i = 0;  i < interfaces.length;  i++) {
+                Class iface = interfaces[i];
+                if (iface.getName().equals(Context.FXOBJECT_NAME))
+                    continue;
+                ClassType cl = (ClassType) context.makeClassRef(iface);
                 if (result.insert(cl) && all)
                     cl.getSuperClasses(all, result);
             }
         }
-        for (int i = 0;  i < interfaces.length;  i++) {
-            Class iface = interfaces[i];
-            if (iface.getName().equals(Context.FXOBJECT_NAME))
-                continue;
-            ClassType cl = (ClassType) context.makeClassRef(iface);
-            if (result.insert(cl) && all)
-                cl.getSuperClasses(all, result);
-        }
-    }
 
-    public List<FXClassType> getSuperClasses(boolean all) {
-        SortedClassArray result = new SortedClassArray();
-        if (all)
-            result.insert(this);
-        getSuperClasses(all, result);
-        return result;
-    }
+        public List<FXClassType> getSuperClasses(boolean all) {
+            SortedClassArray result = new SortedClassArray();
+            if (all)
+                result.insert(this);
+            getSuperClasses(all, result);
+            return result;
+        }
     
-    public FXFunctionMember getFunction(String name, FXType... argType) {
-        int nargs = argType.length;
-        Class[] ctypes = new Class[nargs];
-        for (int i = 0;  i < nargs;  i++) {
-            ctypes[i] = Context.asClass(argType[i]);
+        public FXFunctionMember getFunction(String name, FXType... argType) {
+            int nargs = argType.length;
+            Class[] ctypes = new Class[nargs];
+            for (int i = 0;  i < nargs;  i++) {
+                ctypes[i] = Context.asClass(argType[i]);
+            }
+            try {
+                Method meth = (isCompoundClass() ? refInterface : refClass).getMethod(name, ctypes);
+                return asFunctionMember(meth, getReflectionContext());
+            }
+            catch (RuntimeException ex) {
+                throw ex;
+            }
+            catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
         }
-        try {
-            Method meth = (isCompoundClass() ? refInterface : refClass).getMethod(name, ctypes);
-            return asFunctionMember(meth, getReflectionContext());
-        }
-        catch (RuntimeException ex) {
-            throw ex;
-        }
-        catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
     
         protected void getFunctions(FXMemberFilter filter, SortedMemberArray<? super FXFunctionMember> result) {
             boolean isCompound = isCompoundClass();
@@ -444,7 +466,7 @@ public class FXLocal {
             }
         }
 
-        public FXType getDeclaringType() {
+        public FXClassType getDeclaringClass() {
             return null;
         }
 
@@ -576,7 +598,7 @@ public class FXLocal {
             return name;
         }
 
-        public FXType getDeclaringType() {
+        public FXClassType getDeclaringClass() {
             return owner;
         }
 
@@ -600,7 +622,7 @@ public class FXLocal {
 
         public String getName() { return name; }
 
-        public FXClassType getDeclaringType() { return owner; }
+        public FXClassType getDeclaringClass() { return owner; }
     
         public boolean isStatic() {
             return (method.getModifiers() &  java.lang.reflect.Modifier.STATIC) != 0;

@@ -4,7 +4,7 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  
+ * published by the Free Software Foundation.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -23,13 +23,19 @@
 
 package javafx.reflect;
 
-/** A run-time represention of a JavaFX member of a class.
- * Corresponds to {@code java.lang.reflect.Member},
- * and {@code com.sun.jdi.TypeComponent}, respectively.
+/**
+ * An encapsulation of a Java array type.
+ *
+ * @author Per Bothner
  */
+public class FXJavaArrayType extends FXType {
+FXType componentType;
+    public FXType getComponentType() { return componentType; }
+    FXJavaArrayType(FXType componentType) { this.componentType = componentType; }
 
-public interface FXMember {
-    public abstract String getName();
-    public abstract FXClassType getDeclaringClass();
-    public abstract boolean isStatic();
+    protected void toStringTerse(StringBuilder sb) {
+        sb.append("JavaArray<");
+        componentType.toStringTerse(sb);
+        sb.append(">");
+    }
 }

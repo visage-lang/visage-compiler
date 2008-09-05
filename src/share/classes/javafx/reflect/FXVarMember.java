@@ -49,7 +49,7 @@ public abstract class FXVarMember implements FXMember {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("attribute ");
-        FXType owner = getDeclaringType();
+        FXClassType owner = getDeclaringClass();
         if (owner != null) {
             String oname = owner.getName();
             if (oname != null) {

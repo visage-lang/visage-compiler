@@ -50,9 +50,11 @@ class FXPrimitiveType extends FXType {
     static final FXType longType =
         new FXPrimitiveType(Byte.TYPE, "JavaLong");
 
-    static final FXType charType =
-        new FXPrimitiveType(Character.TYPE, "JavaChar");
-
     static final FXType floatType =
         new FXPrimitiveType(Float.TYPE, "JavaFloat");
+    
+    static final FXType charType =
+        new FXPrimitiveType(Character.TYPE, "JavaChar");
+    static final FXType booleanType =
+        new FXPrimitiveType(Boolean.TYPE, "JavaBoolean");
 };
