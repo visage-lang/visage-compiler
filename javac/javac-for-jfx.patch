@@ -1136,6 +1136,15 @@ Index: com/sun/tools/javac/jvm/ClassReader.java
 Index: com/sun/tools/javac/jvm/Code.java
 --- com/sun/tools/javac/jvm/Code.java Base (BASE)
 +++ com/sun/tools/javac/jvm/Code.java Locally Modified (Based On LOCAL)
+@@ -132,7 +132,7 @@
+ 
+     /** The current machine state (registers and stack).
+      */
+-    State state;
++    public State state;
+ 
+     /** Is it forbidden to compactify code, because something is
+      *  pointing to current location?
 @@ -153,7 +153,7 @@
       *  We need this to emit line numbers lazily, which we need to do
       *  because of jump-to-jump optimization.
@@ -1153,9 +1162,36 @@ Index: com/sun/tools/javac/jvm/Code.java
              if (target >= cp) {
                  target = cp;
              } else if (get1(target) == goto_) {
+@@ -1569,7 +1568,7 @@
+  * Simulated VM machine state
+  ****************************************************************************/
+ 
+-    class State implements Cloneable {
++    public class State implements Cloneable {
+         /** The set of registers containing values. */
+         Bits defined;
+ 
+@@ -1577,7 +1576,7 @@
+         Type[] stack;
+ 
+         /** The first stack position currently unused. */
+-        int stacksize;
++        public int stacksize;
+ 
+         /** The numbers of registers containing locked monitors. */
+         int[] locks;
 Index: com/sun/tools/javac/jvm/Gen.java
 --- com/sun/tools/javac/jvm/Gen.java Base (BASE)
 +++ com/sun/tools/javac/jvm/Gen.java Locally Modified (Based On LOCAL)
+@@ -56,7 +56,7 @@
+     protected static final Context.Key<Gen> genKey =
+         new Context.Key<Gen>();
+ 
+-    private final Log log;
++    protected final Log log;
+     private final Symtab syms;
+     private final Check chk;
+     private final Resolve rs;
 @@ -172,7 +172,7 @@
  
      /** Code buffer, set by genMethod.
@@ -1164,6 +1200,15 @@ Index: com/sun/tools/javac/jvm/Gen.java
 +    protected Code code;
  
      /** Items structure, set by genMethod.
+      */
+@@ -188,7 +188,7 @@
+ 
+     /** The number of code-gen errors in this class.
+      */
+-    private int nerrs = 0;
++    protected int nerrs = 0;
+ 
+     /** A hash table mapping syntax trees to their ending source positions.
       */
 @@ -657,15 +657,15 @@
  
@@ -1304,6 +1349,25 @@ Index: com/sun/tools/javac/jvm/Items.java
              Chain trueChain = null;
              Chain falseChain = jumpFalse();
              if (!isFalse()) {
+Index: com/sun/tools/javac/resources/compiler.properties
+--- com/sun/tools/javac/resources/compiler.properties Base (BASE)
++++ com/sun/tools/javac/resources/compiler.properties Locally Modified (Based On LOCAL)
+@@ -614,6 +614,15 @@
+ compiler.misc.resume.abort=\
+     R)esume, A)bort>
+ 
++compiler.misc.version.resource.missing=\
++    Resource bundle missing for version {0}.
++compiler.misc.version.unknown=\
++    Unknown version {0}.
++
++## temporary message until try-catch-block in expression is implemented
++compiler.err.catch.within.expression=\
++    Sorry, currently not implemented: try-catch-block within expression.
++
+ #####
+ 
+ ##
 Index: com/sun/tools/javac/tree/Pretty.java
 --- com/sun/tools/javac/tree/Pretty.java Base (BASE)
 +++ com/sun/tools/javac/tree/Pretty.java Locally Modified (Based On LOCAL)

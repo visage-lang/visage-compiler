@@ -29,7 +29,9 @@ import com.sun.tools.javac.comp.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.tree.JCTree.JCReturn;
+import com.sun.tools.javac.tree.JCTree.JCTry;
 import com.sun.tools.javac.code.Type;
+import com.sun.tools.javafx.util.MsgSym;
 
 /**
  *
@@ -55,40 +57,51 @@ public class BlockExprGen extends Gen {
             instance = new BlockExprGen(context);
         return instance;
     }
-  public void visitBlockExpression(BlockExprJCBlockExpression tree) {
-      // super.visitBlock(tree, tree.stats, tree.value, tree.endpos);
-      int limit = code.nextreg;
-      Env<GenContext> localEnv = env.dup(tree, new GenContext());
-      genStats(tree.stats, localEnv);
-      if (tree.value != null) {
-          tree.value.accept(this);
-          if (result instanceof Items.LocalItem
+    public void visitBlockExpression(BlockExprJCBlockExpression tree) {
+        // super.visitBlock(tree, tree.stats, tree.value, tree.endpos);
+        int limit = code.nextreg;
+        Env<GenContext> localEnv = env.dup(tree, new GenContext());
+        genStats(tree.stats, localEnv);
+        if (tree.value != null) {
+            tree.value.accept(this);
+            if (result instanceof Items.LocalItem
                   /* && we're about to exit result's scope -- FIXME */) {
-              result = result.load();
-          }
-      }
-      // End the scope of all block-local variables in variable info.
-      if (env.tree.getTag() != JCTree.METHODDEF) {
-          code.statBegin(tree.endpos);
-          code.endScopes(limit);
-          code.pendingStatPos = Position.NOPOS;
-      }
-  }
+                result = result.load();
+            }
+        }
+        // End the scope of all block-local variables in variable info.
+        if (env.tree.getTag() != JCTree.METHODDEF) {
+            code.statBegin(tree.endpos);
+            code.endScopes(limit);
+            code.pendingStatPos = Position.NOPOS;
+        }
+    }
+    
+    @Override
+    public void visitTry(JCTry tree) {
+        // check if stack is not empty -> currentlt not supported
+        if (!tree.catchers.isEmpty() && code.state.stacksize > 0) {
+            log.error(tree, MsgSym.MESSAGE_CATCH_WITHIN_EXPRESSION);
+            nerrs++;
+        } else {
+            super.visitTry(tree);
+        }
+    }
   
     @Override
-  public void visitReturn(JCReturn tree) {
-      // get return-type of enclosing method
-      Type localType = pt;
-      pt = env.enclMethod.getReturnType().type;
-      super.visitReturn(tree);
-      pt = localType;
-  }
+    public void visitReturn(JCReturn tree) {
+        // get return-type of enclosing method
+        Type localType = pt;
+        pt = env.enclMethod.getReturnType().type;
+        super.visitReturn(tree);
+        pt = localType;
+    }
 
-  @Override
-  public void visitTree(JCTree tree) {
-         if (tree instanceof BlockExprJCBlockExpression)
-             visitBlockExpression((BlockExprJCBlockExpression) tree);
-         else
-             super.visitTree(tree);
-  }
+    @Override
+    public void visitTree(JCTree tree) {
+        if (tree instanceof BlockExprJCBlockExpression)
+            visitBlockExpression((BlockExprJCBlockExpression) tree);
+        else
+            super.visitTree(tree);
+    }
 }

@@ -1,0 +1,7 @@
+test/currently-failing/jfxc1345.fx:31: Sorry, currently not implemented: try-catch-block within expression.
+    try {
+    ^
+test/currently-failing/jfxc1345.fx:43: Sorry, currently not implemented: try-catch-block within expression.
+    try{
+    ^
+2 errors
