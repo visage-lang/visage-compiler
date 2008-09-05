@@ -32,9 +32,27 @@ class FXPrimitiveType extends FXType {
     }
     public String getName() { return name; }
 
+    static final FXType voidType =
+        new FXPrimitiveType(Void.TYPE, "Void");
+
     static final FXType integerType =
         new FXPrimitiveType(Integer.TYPE, "Integer");
 
     static final FXType numberType =
         new FXPrimitiveType(Double.TYPE, "Number");
+
+    static final FXType byteType =
+        new FXPrimitiveType(Byte.TYPE, "JavaByte");
+
+    static final FXType shortType =
+        new FXPrimitiveType(Short.TYPE, "JavaShort");
+
+    static final FXType longType =
+        new FXPrimitiveType(Byte.TYPE, "JavaLong");
+
+    static final FXType charType =
+        new FXPrimitiveType(Character.TYPE, "JavaChar");
+
+    static final FXType floatType =
+        new FXPrimitiveType(Float.TYPE, "JavaFloat");
 };

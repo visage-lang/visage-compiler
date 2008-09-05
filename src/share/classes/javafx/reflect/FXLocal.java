@@ -184,6 +184,18 @@ public class FXLocal {
             if (FXClassType.INT_VARIABLE_CLASSNAME.equals(rawName)
                     || typ == Integer.TYPE)
                 return getIntegerType();
+            if (typ == Byte.TYPE)
+                return FXPrimitiveType.byteType;
+            if (typ == Short.TYPE)
+                return FXPrimitiveType.shortType;
+            if (typ == Long.TYPE)
+                return FXPrimitiveType.longType;
+            if (typ == Float.TYPE)
+                return FXPrimitiveType.floatType;
+            if (typ == Character.TYPE)
+                return FXPrimitiveType.charType;
+            if (typ == Void.TYPE)
+                return FXPrimitiveType.voidType;
 
             return makeClassRef((Class) typ);
         }
@@ -223,10 +235,8 @@ public class FXLocal {
         }
     
         public static Class asClass (FXType type) {
-            if (type == FXPrimitiveType.integerType)
-                return Integer.TYPE;
-            else if (type == FXPrimitiveType.numberType)
-                return Double.TYPE;
+            if (type instanceof FXPrimitiveType)
+                return ((FXPrimitiveType) type).clas;
             else { // FIXME - handle other cases
                 ClassType ctyp = (ClassType) type;
                 return ctyp.isCompoundClass() ? ctyp.refInterface : ctyp.refClass;
