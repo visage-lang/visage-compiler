@@ -1998,7 +1998,7 @@ public class JavafxResolve {
                         && !isAccessible(env, this.site)))
                     log.error(pos, MsgSym.MESSAGE_NOT_DEF_ACCESS_CLASS_INTF_CANNOT_ACCESS,
                         sym, sym.location());
-                else if ((sym.flags() & JavafxFlags.AccessFlags) == 0L) // 'package' access
+                else if ((sym.flags() & JavafxFlags.JavafxAccessFlags) == 0L) // 'package' access
                     log.error(pos, MsgSym.MESSAGE_NOT_DEF_PUBLIC_CANNOT_ACCESS,
                               sym, sym.location());
                 else

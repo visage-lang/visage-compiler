@@ -1,3 +1,39 @@
+test\should-fail\jfxc1250objLit.fx:19: warning: The access modifier public includes the access of public-init.
+	public-init public var memHereIPub = 0;
+	                   ^
+test\should-fail\jfxc1250objLit.fx:24: warning: The access modifier public includes the access of public-read.
+	public-read public var memHereRPub = 0;
+	                   ^
+test\should-fail\jfxc1250objLit.fx:29: warning: The access modifier public includes the access of public-read.
+	public-init public-read public var memHereIRPub = 0;
+	                               ^
+test\should-fail\jfxc1250objLit.fx:30: warning: The access modifier public-init includes the access of public-read.
+	public-init public-read protected var memHereIRPro = 0;
+	                                  ^
+test\should-fail\jfxc1250objLit.fx:31: warning: The access modifier public-init includes the access of public-read.
+	public-init public-read package var memHereIRPkg = 0;
+	                                ^
+test\should-fail\jfxc1250objLit.fx:32: warning: The access modifier public-init includes the access of public-read.
+	public-init public-read var memHereIRScr = 0;
+	                        ^
+test\should-fail\jfxc1250objLit.fx:41: warning: The access modifier public includes the access of public-init.
+	public-init public var fooIPub = 0;
+	                   ^
+test\should-fail\jfxc1250objLit.fx:46: warning: The access modifier public includes the access of public-read.
+	public-read public var fooRPub = 0;
+	                   ^
+test\should-fail\jfxc1250objLit.fx:51: warning: The access modifier public includes the access of public-read.
+	public-init public-read public var fooIRPub = 0;
+	                               ^
+test\should-fail\jfxc1250objLit.fx:52: warning: The access modifier public-init includes the access of public-read.
+	public-init public-read protected var fooIRPro = 0;
+	                                  ^
+test\should-fail\jfxc1250objLit.fx:53: warning: The access modifier public-init includes the access of public-read.
+	public-init public-read package var fooIRPkg = 0;
+	                                ^
+test\should-fail\jfxc1250objLit.fx:54: warning: The access modifier public-init includes the access of public-read.
+	public-init public-read var fooIRScr = 0;
+	                        ^
 test\should-fail\jfxc1250objLit.fx:63: memScr has script only (default) access in jfxc1250subFail
 	    memScr: 123,   // ERROR: inherited, same package
 	    ^
@@ -41,3 +77,4 @@ test\should-fail\jfxc1250objLit.fx:206: memRScr has script only (default) initia
 	    memRScr: 123,   // ERROR: different package
 	    ^
 14 errors
+12 warnings

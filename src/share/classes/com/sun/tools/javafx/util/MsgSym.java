@@ -346,6 +346,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT = "javafx.function.declared.overrride.does.not.override";
     public static final String MESSAGE_JAVAFX_SHOULD_BE_DECLARED_OVERRIDE = "javafx.function.overrides.another.should.be.declared.override";
     public static final String MESSAGE_JAVAFX_STATIC_DEPRECATED = "javafx.static.deprecated";
+    public static final String MESSAGE_JAVAFX_REDUNDANT_ACCESS_MODIFIERS = "javafx.redundant.access.modifiers";
     public static final String MESSAGE_JAVAFX_VAR_NOT_SUPPORTED_HERE = "javafx.var.not.supported.here";
     public static final String MESSAGE_JAVAFX_STRING_CONCATENATION = "javafx.string.concatenation";
     public static final String MESSAGE_JAVAFX_NOT_SUPPORTED_READABLE = "javafx.not.supported.readable";

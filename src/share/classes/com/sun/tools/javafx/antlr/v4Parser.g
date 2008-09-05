@@ -1352,11 +1352,11 @@ expression
 	  		{
 	  			// Ignore the modifiers
 	  			//
-	  			$m.mods.flags = 0;
+	  			//$m.mods.flags = 0;
 	  			
 	  			// Issue the error
 	  			//
-	  			log.error(ePos, "javafx.cannot.modify.localvar");
+	  			//log.error(ePos, "javafx.cannot.modify.localvar");
 	  			
 	  		}
 	  	}

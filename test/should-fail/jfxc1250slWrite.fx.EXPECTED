@@ -1,3 +1,18 @@
+test\should-fail\jfxc1250slWrite.fx:17: warning: The access modifier public includes the access of public-init.
+public-init public var slHereIPub = 0;
+                   ^
+test\should-fail\jfxc1250slWrite.fx:21: warning: The access modifier public includes the access of public-read.
+public-read public var slHereRPub = 0;
+                   ^
+test\should-fail\jfxc1250slWrite.fx:25: warning: The access modifier public includes the access of public-read.
+public-init public-read public var slHereIRPub = 0;
+                               ^
+test\should-fail\jfxc1250slWrite.fx:26: warning: The access modifier public-init includes the access of public-read.
+public-init public-read package var slHereIRPkg = 0;
+                                ^
+test\should-fail\jfxc1250slWrite.fx:27: warning: The access modifier public-init includes the access of public-read.
+public-init public-read var slHereIRScr = 0;
+                        ^
 test\should-fail\jfxc1250slWrite.fx:34: cannot find symbol
 symbol  : variable slScr
 location: class jfxc1250slWrite.Inh
@@ -77,3 +92,4 @@ test\should-fail\jfxc1250slWrite.fx:169: slIRScr has script only (default) write
 	jfxc1250subFailA.slIRScr = 99;   // ERROR: different package
 	                ^
 24 errors
+5 warnings

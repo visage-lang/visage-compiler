@@ -29,10 +29,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.sun.tools.javac.code.*;
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.Flags.ANNOTATION;
-import static com.sun.tools.javac.code.Flags.SYNCHRONIZED;
-import static com.sun.tools.javac.code.Kinds.*;
 import com.sun.tools.javac.code.Lint.LintCategory;
 import com.sun.tools.javac.code.Symbol.*;
 import com.sun.tools.javac.code.Type.ClassType;
@@ -40,8 +36,12 @@ import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.code.Type.ForAll;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.MethodType;
+
+import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.javac.code.Kinds.*;
 import static com.sun.tools.javac.code.TypeTags.*;
 import static com.sun.tools.javac.code.TypeTags.WILDCARD;
+
 import com.sun.tools.javac.comp.Infer;
 import com.sun.tools.javac.jvm.ByteCodes;
 import com.sun.tools.javac.jvm.ClassReader;
@@ -52,11 +52,13 @@ import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
-import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.comp.JavafxAttr.Sequenceness;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
 import com.sun.javafx.api.JavafxBindStatus;
+
+import static com.sun.tools.javafx.code.JavafxFlags.*;
+import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
 /** Type checking helper class for the attribution phase.
  *
@@ -780,7 +782,8 @@ public class JavafxCheck {
 	}
     }
 
-    /** Check that flag set does not contain elements of two conflicting sets. s
+    /** Check that flag set does not contain elements of two conflicting sets. 
+     *  Log error if it does.
      *  Return true if it doesn't.
      *  @param pos           Position to be used for error reporting.
      *  @param flags         The set of flags to be checked.
@@ -791,6 +794,25 @@ public class JavafxCheck {
         if ((flags & set1) != 0 && (flags & set2) != 0) {
             log.error(pos,
 		      MsgSym.MESSAGE_ILLEGAL_COMBINATION_OF_MODIFIERS,
+		      JavafxTreeInfo.flagNames(JavafxTreeInfo.firstFlag(flags & set1)),
+		      JavafxTreeInfo.flagNames(JavafxTreeInfo.firstFlag(flags & set2)));
+            return false;
+        } else
+            return true;
+    }
+
+    /** Check that flag set does not contain elements of two conflicting sets. 
+     *  Log warning if it does.
+     *  Return true if it doesn't.
+     *  @param pos           Position to be used for error reporting.
+     *  @param flags         The set of flags to be checked.
+     *  @param set1          Conflicting flags set #1.
+     *  @param set2          Conflicting flags set #2.
+     */
+    boolean checkDisjointWarn(DiagnosticPosition pos, long flags, long set1, long set2) {
+        if ((flags & set1) != 0 && (flags & set2) != 0) {
+            log.warning(pos,
+		      MsgSym.MESSAGE_JAVAFX_REDUNDANT_ACCESS_MODIFIERS,
 		      JavafxTreeInfo.flagNames(JavafxTreeInfo.firstFlag(flags & set1)),
 		      JavafxTreeInfo.flagNames(JavafxTreeInfo.firstFlag(flags & set2)));
             return false;
@@ -809,83 +831,39 @@ public class JavafxCheck {
      */
     long checkFlags(DiagnosticPosition pos, long flags, Symbol sym, JFXTree tree) {
 	long mask;
-	long implicit = 0;
 	switch (sym.kind) {
 	case VAR:
 	    if (sym.owner.kind != TYP)
-		mask = LocalVarFlags;
-	    else if ((sym.owner.flags_field & INTERFACE) != 0)
-		mask = implicit = InterfaceVarFlags;
-	    else
-		mask = VarFlags;
+		mask = JavafxLocalVarFlags;
+	    else if ((flags & IS_DEF) != 0)
+		mask = JavafxClassDefFlags;
+            else
+                mask = JavafxClassVarFlags;
 	    break;
 	case MTH:
-	    if (sym.name == names.init) {
-		if ((sym.owner.flags_field & ENUM) != 0) { 
-		    // enum constructors cannot be declared public or
-		    // protected and must be implicitly or explicitly
-		    // private
-		    implicit = PRIVATE;
-		    mask = PRIVATE;
-		} else
-		    mask = ConstructorFlags;
-	    }  else if ((sym.owner.flags_field & INTERFACE) != 0)
-		mask = implicit = InterfaceMethodFlags;
-	    else {
-		mask = MethodFlags;
-	    }
-	    // Imply STRICTFP if owner has STRICTFP set.
-	    if (((flags|implicit) & Flags.ABSTRACT) == 0)
-	      implicit |= sym.owner.flags_field & STRICTFP;
+	    mask = JavafxFunctionFlags;
 	    break;
 	case TYP:
-	    if (sym.isLocal()) {
-		mask = LocalClassFlags;
-                if (sym.name.len == 0 || true /*allow for all inner classes since they have to be static*/) { // Anonymous class
-                    // Anonymous classes in static methods are themselves static;
-                    // that's why we admit STATIC here.
-                    mask |= STATIC;
-                    // JLS: Anonymous classes are final.
-                    implicit |= FINAL;
-                }
-		if ((sym.owner.flags_field & STATIC) == 0 &&
-		    (flags & ENUM) != 0)
-                    log.error(pos, MsgSym.MESSAGE_ENUMS_MUST_BE_STATIC);
-	    } else if (sym.owner.kind == TYP) {
-		mask = MemberClassFlags;
-		if (sym.owner.owner.kind == PCK ||
-                    (sym.owner.flags_field & STATIC) != 0)
-                    mask |= STATIC;
-                else if ((flags & ENUM) != 0)
-                    log.error(pos, MsgSym.MESSAGE_ENUMS_MUST_BE_STATIC);
-		// Nested interfaces and enums are always STATIC (Spec ???)
-		if ((flags & (INTERFACE | ENUM)) != 0 ) implicit = STATIC;
-	    } else {
-		mask = ClassFlags;
-	    }
-	    // Interfaces are always ABSTRACT
-	    if ((flags & INTERFACE) != 0) implicit |= ABSTRACT;
-
-	    // Imply STRICTFP if owner has STRICTFP set.
-	    implicit |= sym.owner.flags_field & STRICTFP;
+	    // flags aren't currently different:  if (sym.isLocal()) ...
+            mask = JavafxClassFlags;
 	    break;
 	default:
 	    throw new AssertionError();
 	}
-	long illegal = flags & StandardFlags & ~mask;
+	long illegal = flags & JavafxUserFlags & ~mask;
+        /***
+        System.err.println(sym);
+        System.err.printf("%022o mask -- %s\n", mask, JavafxTreeInfo.flagNames(mask));
+        System.err.printf("%022o ~mask -- %s\n", ~mask, JavafxTreeInfo.flagNames(~mask));
+        System.err.printf("%022o JavafxUserFlags -- %s\n", JavafxUserFlags, JavafxTreeInfo.flagNames(JavafxUserFlags));
+        System.err.printf("%022o flags -- %s\n", flags, JavafxTreeInfo.flagNames(flags));
+        System.err.printf("%022o illegal -- %s\n", illegal, JavafxTreeInfo.flagNames(illegal));
+        ***/
         if (illegal != 0) {
-	    if ((illegal & INTERFACE) != 0) {
-		log.error(pos, MsgSym.MESSAGE_INTF_NOT_ALLOWED_HERE);
-		mask |= INTERFACE;
-	    }
-	    else {
-		log.error(pos,
+	    		log.error(pos,
 			  MsgSym.MESSAGE_MOD_NOT_ALLOWED_HERE, JavafxTreeInfo.flagNames(illegal));
-	    }
 	}
         else if ((sym.kind == TYP ||
-		  // ISSUE: Disallowing abstract&private is no longer appropriate
-		  // in the presence of inner classes. Should it be deleted here?
 		  checkDisjoint(pos, flags,
 				ABSTRACT,
 				PRIVATE | STATIC))
@@ -896,31 +874,37 @@ public class JavafxCheck {
 		 &&
                  checkDisjoint(pos, flags,
                                PUBLIC,
-                               PRIVATE | PROTECTED | JavafxFlags.PACKAGE_ACCESS | JavafxFlags.SCRIPT_PRIVATE)
+                               PRIVATE | PROTECTED | PACKAGE_ACCESS | SCRIPT_PRIVATE)
 		 &&
                  checkDisjoint(pos, flags,
                                PRIVATE,
-                               PUBLIC | PROTECTED | JavafxFlags.PACKAGE_ACCESS | JavafxFlags.SCRIPT_PRIVATE)
+                               PUBLIC | PROTECTED | PACKAGE_ACCESS | SCRIPT_PRIVATE)
 		 &&
                  checkDisjoint(pos, flags,
-                               JavafxFlags.SCRIPT_PRIVATE,
-                               PRIVATE | PROTECTED | PUBLIC | JavafxFlags.PACKAGE_ACCESS)
+                               SCRIPT_PRIVATE,
+                               PRIVATE | PROTECTED | PUBLIC | PACKAGE_ACCESS)
 		 &&
                  checkDisjoint(pos, flags,
-                               JavafxFlags.PACKAGE_ACCESS,
-                               PRIVATE | PROTECTED | PUBLIC | JavafxFlags.SCRIPT_PRIVATE)
-		 &&
-		 checkDisjoint(pos, flags,
-			       FINAL,
-			       VOLATILE)
+                               PACKAGE_ACCESS,
+                               PRIVATE | PROTECTED | PUBLIC | SCRIPT_PRIVATE)
 		 &&
 		 (sym.kind == TYP ||
 		  checkDisjoint(pos, flags,
 				ABSTRACT | NATIVE,
-				STRICTFP))) {
+				STRICTFP))
+		 &&
+		 checkDisjointWarn(pos, flags,
+			       PUBLIC,
+			       PUBLIC_INIT | PUBLIC_READ)
+		 &&
+		 checkDisjointWarn(pos, flags,
+			       PUBLIC_INIT,
+			       PUBLIC_READ)
+                                
+                                ) {
 	    // skip
         }
-        return flags & (mask | ~StandardFlags) | implicit;
+        return flags & ~illegal;
     }
 
 /* *************************************************************************
@@ -1128,7 +1112,7 @@ public class JavafxCheck {
         default:
         case PUBLIC: return 0;
         // 'package' vs script-private
-        case 0: return ((flags & JavafxFlags.SCRIPT_PRIVATE)==0)? 2 : 3;
+        case 0: return ((flags & SCRIPT_PRIVATE)==0)? 2 : 3;
         }
     }
 
@@ -1136,7 +1120,7 @@ public class JavafxCheck {
      *  This always returns a space-separated list of Java Keywords.
      */
     public static String protectionString(long flags) {
-	long flags1 = flags & JavafxFlags.AccessFlags;
+	long flags1 = flags & (JavafxFlags.JavafxAccessFlags | JavafxFlags.JavafxExplicitAccessFlags);
 	return JavafxTreeInfo.flagNames(flags1);
     }
 
@@ -1238,14 +1222,14 @@ public class JavafxCheck {
         }
 
         // Error if bound function overrides non-bound.
-        if ((other.flags() & JavafxFlags.BOUND) == 0 && (m.flags() & JavafxFlags.BOUND) != 0) {
+        if ((other.flags() & BOUND) == 0 && (m.flags() & BOUND) != 0) {
             log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), MsgSym.MESSAGE_JAVAFX_BOUND_OVERRIDE_METH,
                     cannotOverride(m, other));
             return;
         }
 
         // Error if non-bound function overrides bound.
-        if ((other.flags() & JavafxFlags.BOUND) != 0 && (m.flags() & JavafxFlags.BOUND) == 0) {
+        if ((other.flags() & BOUND) != 0 && (m.flags() & BOUND) == 0) {
             log.error(JavafxTreeInfo.diagnosticPositionFor(m, tree), MsgSym.MESSAGE_JAVAFX_NON_BOUND_OVERRIDE_METH,
                     cannotOverride(m, other));
             return;
@@ -1553,7 +1537,7 @@ public class JavafxCheck {
                 }
             }
 	}
-        boolean declaredOverride = (m.flags() & JavafxFlags.OVERRIDE) != 0;
+        boolean declaredOverride = (m.flags() & OVERRIDE) != 0;
         if (doesOverride) {
             if (!declaredOverride && (m.flags() & (Flags.SYNTHETIC|Flags.STATIC)) == 0) {
                 log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_SHOULD_BE_DECLARED_OVERRIDE, m);

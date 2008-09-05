@@ -22,18 +22,20 @@
  */
 
 package com.sun.tools.javafx.code;
-import com.sun.tools.javac.code.Flags;
+import static com.sun.tools.javac.code.Flags.*;
+
 /**
  * Some Javafx-specific flags for {@code Symbols}'s {@code flags_field}.
  *
- * @author llitchev
+ * @author Lubo Litchev
+ * @author Robert Field
  * @author Per Bothner
  */
 public class JavafxFlags {
     private JavafxFlags() {}
 
     // FIXME - should in Flags.java
-    protected static final long LAST_JAVA_FLAG = Flags.PROPRIETARY;
+    protected static final long LAST_JAVA_FLAG = PROPRIETARY;
 
     public static final long ASSIGNED_TO = LAST_JAVA_FLAG << 1;
     public static final long INNER_ACCESS = LAST_JAVA_FLAG << 2;
@@ -47,8 +49,15 @@ public class JavafxFlags {
     public static final long PACKAGE_ACCESS = LAST_JAVA_FLAG << 10;
     public static final long SCRIPT_PRIVATE = LAST_JAVA_FLAG << 11;
 
-    public static final long AccessFlags = Flags.PUBLIC | Flags.PROTECTED | Flags.PRIVATE | SCRIPT_PRIVATE;
-    public static final long ExplicitAccessFlags = Flags.PUBLIC | Flags.PROTECTED | Flags.PRIVATE | PACKAGE_ACCESS;
+    public static final long JavafxAccessFlags = PUBLIC | PROTECTED | PRIVATE | SCRIPT_PRIVATE;
+    public static final long JavafxExplicitAccessFlags = PUBLIC | PROTECTED | PRIVATE | PACKAGE_ACCESS;
+    
+    public static final long JavafxUserFlags     = JavafxExplicitAccessFlags | STATIC | ABSTRACT | BOUND | OVERRIDE | IS_DEF | PUBLIC_READ | PUBLIC_INIT;
+    public static final long JavafxLocalVarFlags = PARAMETER | IS_DEF;
+    public static final long JavafxClassVarFlags = JavafxExplicitAccessFlags | STATIC | PUBLIC_READ | PUBLIC_INIT;
+    public static final long JavafxClassDefFlags = JavafxExplicitAccessFlags | STATIC | IS_DEF | PUBLIC_READ;
+    public static final long JavafxFunctionFlags = JavafxExplicitAccessFlags | STATIC | ABSTRACT | BOUND | OVERRIDE;
+    public static final long JavafxClassFlags    = JavafxExplicitAccessFlags | STATIC | ABSTRACT;
     
     /** If this is a class that gets translated to a class and an inteface.
      * (This is used to implement multiple inheritance.)

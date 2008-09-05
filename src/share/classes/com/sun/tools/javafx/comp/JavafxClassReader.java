@@ -551,8 +551,8 @@ public class JavafxClassReader extends ClassReader {
     
     private long flagsFromAnnotationsAndFlags(Symbol sym) {
         long initialFlags = sym.flags_field;
-        long nonAccessFlags = initialFlags & ~JavafxFlags.AccessFlags;
-        long accessFlags = initialFlags & JavafxFlags.AccessFlags;
+        long nonAccessFlags = initialFlags & ~JavafxFlags.JavafxAccessFlags;
+        long accessFlags = initialFlags & JavafxFlags.JavafxAccessFlags;
         JavafxSymtab javafxSyms = (JavafxSymtab) this.syms;
         for (Attribute.Compound a : sym.getAnnotationMirrors()) {
             if (a.type.tsym.flatName() == javafxSyms.javafx_privateAnnotationType.tsym.flatName()) {
@@ -566,6 +566,9 @@ public class JavafxClassReader extends ClassReader {
             } else if (a.type.tsym.flatName() == javafxSyms.javafx_scriptPrivateAnnotationType.tsym.flatName()) {
                 accessFlags = JavafxFlags.SCRIPT_PRIVATE;
             }
+        }
+        if (accessFlags == 0L) {
+            accessFlags = JavafxFlags.PACKAGE_ACCESS;
         }
         return nonAccessFlags | accessFlags;
     }

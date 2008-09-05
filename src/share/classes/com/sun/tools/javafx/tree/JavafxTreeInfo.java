@@ -177,17 +177,20 @@ public class JavafxTreeInfo {
      *  pre: flags != 0
      */
     public static long firstFlag(long flags) {
-        int flag = 1;
-        while ((flag & StandardFlags) != 0 && (flag & flags) == 0)
-            flag = flag << 1;
-        return flag;
+        for (int i = 0; i < 63; ++i) {
+            long flag = 1L << i;
+            if ((flag & flags) != 0) {
+                return flag;
+            }
+        }
+        throw new AssertionError();
     }
 
     /** Return flags as a string, separated by " ".
      */
     public static String flagNames(long flags) {
-        StringBuffer fsb = new StringBuffer(Flags.toString(flags & StandardFlags));
-        if ((flags & JavafxFlags.AccessFlags) == 0) {
+        StringBuffer fsb = new StringBuffer(Flags.toString(flags));
+        if ((flags & JavafxFlags.PACKAGE_ACCESS) != 0) {
             fsb.append("package ");
         }
         if ((flags & JavafxFlags.SCRIPT_PRIVATE) != 0) {
@@ -198,6 +201,12 @@ public class JavafxTreeInfo {
         }
         if ((flags & JavafxFlags.PUBLIC_INIT) != 0) {
             fsb.append("public-init ");
+        }
+        if ((flags & JavafxFlags.BOUND) != 0) {
+            fsb.append("bound ");
+        }
+        if ((flags & JavafxFlags.OVERRIDE) != 0) {
+            fsb.append("override ");
         }
         return fsb.toString().trim();
     }
