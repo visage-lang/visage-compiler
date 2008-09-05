@@ -3,6 +3,7 @@
  * Incorrect return value.
  * @test
  *
+ * NOTE: Tag should be test/fail
  * Test currently compiles with incorrect return value.
  * Actually, I can put a comletely bogus return value and it appears it is
  * not checked at all

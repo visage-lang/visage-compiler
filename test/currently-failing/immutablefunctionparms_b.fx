@@ -4,7 +4,8 @@
  *
  * @test
  *
- * NOTE: This currently compiles but the bug contention is that maybe it should not.
+ * NOTE: Tag should be test/fail.
+ * This currently compiles but the bug contention is that maybe it should not.
  * If bug resolution is to leave as is, this test can be put in as a successful
  * regression test, so that if things change, its failures will be an alert,or
  * it can be removed altogether.
