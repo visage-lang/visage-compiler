@@ -253,7 +253,8 @@ public class InitializationTest extends JavaFXTestCase {
                 receiver.get$a().setAsInt(1);
             if (receiver.get$b().needDefault())
                 receiver.get$b().setAsInt(0);
-            receiver.get$c().needDefault();
+            if (receiver.get$c().needDefault())
+                receiver.get$c().setDefault();
         }
 
         public void initialize$() {
@@ -266,13 +267,13 @@ public class InitializationTest extends JavaFXTestCase {
         // Defaults only
         ThreeAttributes instance = new ThreeAttributes();
         instance.initialize$();
-        assertEquals("[a:1, b:0]", instance.list.toString());
+        assertEquals("[a:1, b:0, c:0]", instance.list.toString());
 
         // A from literal
         instance = new ThreeAttributes();
         instance.get$a().setAsIntFromLiteral(4);
         instance.initialize$();
-        assertEquals("[a:4, b:0]", instance.list.toString());
+        assertEquals("[a:4, b:0, c:0]", instance.list.toString());
 
         // B=0, C=0 from literal
         instance = new ThreeAttributes();

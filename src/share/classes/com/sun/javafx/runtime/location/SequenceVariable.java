@@ -43,7 +43,7 @@ public class SequenceVariable<T>
 
     private final Class<T> clazz;
     private final SequenceMutator.Listener<T> mutationListener;
-    private Sequence<T> value;
+    private Sequence<T> $value;
     private BoundLocationInfo boundLocation;
 
 
@@ -78,7 +78,7 @@ public class SequenceVariable<T>
 
     protected SequenceVariable(Class clazz) {
         this.clazz = clazz;
-        this.value = Sequences.<T>emptySequence(this.clazz);
+        this.$value = Sequences.<T>emptySequence(this.clazz);
         this.mutationListener = new SequenceMutator.Listener<T>() {
             public void onReplaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 replaceSlice(startPos, endPos, newElements, newValue);
@@ -105,39 +105,41 @@ public class SequenceVariable<T>
     }
 
     private void ensureValid() {
-        if (isBound() && !isValid())
+        if (isUnidirectionallyBound() && !isValid())
             update();
     }
 
     /**
      * Update the held value, notifying change listeners
      */
-    private void replaceValue(Sequence<T> newValue) {
+    private Sequence<T> replaceValue(Sequence<T> newValue) {
         assert (boundLocation == null);
         if (newValue == null)
             newValue = Sequences.emptySequence(clazz);
-        replaceSlice(0, Sequences.size(value) - 1, newValue, newValue);
+        return replaceSlice(0, Sequences.size($value) - 1, newValue, newValue);
     }
 
     /**
      * Update the held value, notifying change listeners
      */
-    private void replaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> newValue) {
+    private Sequence<T> replaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> newValue) {
         assert (boundLocation == null);
-        Sequence<T> oldValue = value;
-        if (!Sequences.isEqual(oldValue, newValue) || !isInitialized() || !isEverValid()) {
-            boolean notifyDependencies = isValid() || !isInitialized() || !isEverValid();
-            value = newValue;
+        Sequence<T> oldValue = $value;
+
+        if (preReplace(!Sequences.isEqual(oldValue, newValue))) {
+            boolean invalidateDependencies = isValid() || state == STATE_UNBOUND;
+            $value = newValue;
             setValid();
-            notifyListeners(startPos, endPos, newElements, oldValue, newValue, notifyDependencies);
+            notifyListeners(startPos, endPos, newElements, oldValue, newValue, invalidateDependencies);
         }
         else
             setValid();
+        return getRawValue();
     }
 
 
     private Sequence<T> getRawValue() {
-        return value;
+        return $value;
     }
 
     public Sequence<T> get() {
@@ -150,7 +152,7 @@ public class SequenceVariable<T>
 
     public Sequence<T> getAsSequence() {
         ensureValid();
-        return value;
+        return $value;
     }
 
     public Sequence<T> getSlice(int startPos, int endPos) {
@@ -180,8 +182,8 @@ public class SequenceVariable<T>
     protected void notifyListeners(int startPos, int endPos,
                                    Sequence<? extends T> newElements,
                                    Sequence<T> oldValue, Sequence<T> newValue,
-                                   boolean notifyDependencies) {
-        if (notifyDependencies)
+                                   boolean invalidateDependencies) {
+        if (invalidateDependencies)
             invalidateDependencies();
         if (replaceListeners != null) {
             for (SequenceChangeListener<T> listener : replaceListeners)
@@ -196,11 +198,11 @@ public class SequenceVariable<T>
 
     public void bind(SequenceLocation<T> otherLocation) {
         ensureBindable();
-        Sequence<T> oldValue = value;
-        value = otherLocation.get();
+        Sequence<T> oldValue = $value;
+        $value = otherLocation.get();
         boundLocation = new BoundLocationInfo(otherLocation);
         boundLocation.bind();
-        notifyListeners(0, Sequences.size(oldValue) - 1, value, oldValue, value, true);
+        notifyListeners(0, Sequences.size(oldValue) - 1, $value, oldValue, $value, true);
     }
 
     protected void rebind(SequenceLocation<T> otherLocation) {
@@ -210,8 +212,8 @@ public class SequenceVariable<T>
         bind(otherLocation);
     }
 
-    public boolean isBound() {
-        return super.isBound() || (boundLocation != null);
+    protected boolean isUnidirectionallyBound() {
+        return super.isUnidirectionallyBound() || (boundLocation != null);
     }
 
     @Override
@@ -226,7 +228,7 @@ public class SequenceVariable<T>
     @Override
     public void update() {
         try {
-            if (isBound() && !isValid() && boundLocation == null) {
+            if (isUnidirectionallyBound() && !isValid() && boundLocation == null) {
                 replaceValue(Sequences.upcast(clazz, binding.computeValue()));
             }
         }
@@ -238,7 +240,7 @@ public class SequenceVariable<T>
     }
 
     private void ensureNotBound() {
-        if (isBound())
+        if (isUnidirectionallyBound())
             throw new AssignToBoundException("Cannot mutate bound sequence");
     }
 
@@ -247,20 +249,24 @@ public class SequenceVariable<T>
     }
 
     public void setDefault() {
-        setAsSequence(Sequences.emptySequence(clazz));
+        Sequence<T> empty = Sequences.emptySequence(clazz);
+        if (state == STATE_INITIAL) {
+            $value = Sequences.emptySequence(clazz);
+            state = STATE_UNBOUND_DEFAULT;
+            // @@@ Uncomment this to make sequence trigger behavior consistent with others (see JFXC-885)
+            // notifyListeners(0, -1, $value, $value, $value, true);
+        }
+        else
+            setAsSequence(empty);
     }
 
     public Sequence<T> setAsSequence(Sequence<? extends T> newValue) {
         Sequence<T> result;
         ensureNotBound();
         Sequence<T> oldValue = getRawValue();
-        // Workaround for JFXC-885 -- reverted AGAIN
-//        if (!isInitialized() && !isEverValid() && Sequences.size(newValue) == 0 && Sequences.size(value) == 0) {
-//            result = Sequences.emptySequence(clazz);
-//            replaceValue(result);
-//        }
-//        else
-        if (!Sequences.isEqual(oldValue, newValue) || !isInitialized() || !isEverValid()) {
+        state = STATE_UNBOUND;
+        // @@@ To make sequence triggers consistent with others (more JFXC-885), use replaceValue() instead
+        if (!Sequences.isEqual(oldValue, newValue) || state == STATE_UNBOUND && !isValid()) {
             result = SequenceMutator.replaceSlice(oldValue, mutationListener, 0, Sequences.size(oldValue) - 1, newValue);
         }
         else
@@ -415,7 +421,7 @@ public class SequenceVariable<T>
             };
             sequenceChangeListener = new SequenceChangeListener<T>() {
                 public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-                    value = newValue;
+                    $value = newValue;
                     // @@@ Right value of notifyDependencies?
                     notifyListeners(startPos, endPos, newElements, oldValue, newValue, false);
                 }

@@ -38,7 +38,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
      */
     public void testConstantLocation() {
         final IntVariable loc = IntVariable.make(3);
-        assertTrue(!loc.isLazy());
+        assertTrue(!loc.isLazilyBound());
         assertEquals(3, loc);
         loc.setAsInt(5);
         assertEquals(5, loc);
@@ -130,8 +130,8 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
             }
         }, c);
 
-        assertTrue(c.isLazy());
-        assertFalse(d.isLazy());
+        assertTrue(c.isLazilyBound());
+        assertFalse(d.isLazilyBound());
 
         a.setAsInt(3);
         b.setAsInt(4);

@@ -11,21 +11,24 @@ public var s:String	on replace oldvalue  { GFT++; System.out.println("String old
 public var i:Integer	on replace oldvalue=newvalue  { GFT++; System.out.println("Integer old:{oldvalue}  newvalue:{newvalue}==i:{i}"); }
 
 function test() {
-   System.out.println("-----set Boolean 5 times; false, true, true,false, false-----");
+   System.out.println("-----set Boolean 6 times; false, false, true, true,false, false-----");
+	b=false;
 	b=false;
 	b=true;
 	b=true;
 	b=false;
 	b=false;
 
-   System.out.println("-----set Integer 5 times; first to 0, 500, 500,0, 0 -----");
+   System.out.println("-----set Integer 6 times; first to 0, 0, 500, 500,0, 0 -----");
+	i=0;
 	i=0;
 	i=500;
 	i=500;
 	i=0;
 	i=0;
 
-	System.out.println("-----set String 5 times; first to Hello, Hello, \"\",\"\"-----");
+	System.out.println("-----set String 6 times; first to \"\", \"\", Hello, Hello, \"\",\"\"-----");
+	s="";
 	s="";
 	s="Hello";
 	s="Hello";

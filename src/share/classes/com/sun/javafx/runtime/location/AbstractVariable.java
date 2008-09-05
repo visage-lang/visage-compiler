@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import com.sun.javafx.runtime.BindingException;
 
 /**
- * AbstractBindableLocation
+ * AbstractVariable
  *
  * @author Brian Goetz
  */
@@ -37,43 +37,46 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
         extends AbstractLocation
         implements ObjectLocation<T_VALUE>, BindableLocation<T_VALUE, T_BINDING, T_LISTENER> {
 
+    protected static final byte STATE_INITIAL = 0;
+    protected static final byte STATE_UNBOUND_DEFAULT = 1;
+    protected static final byte STATE_UNBOUND = 2;
+    protected static final byte STATE_UNI_BOUND = 3;
+    protected static final byte STATE_UNI_BOUND_LAZY = 4;
+    protected static final byte STATE_BIDI_BOUND = 5;
+
     protected T_BINDING binding;
-    protected boolean isLazy, everInitialized, everValid;
+
     protected DeferredInitializer deferredLiteral;
     protected List<T_LISTENER> replaceListeners;
 
     protected AbstractVariable() { }
 
-    protected void setInitialized() {
-        everInitialized = true;
+    protected AbstractVariable(byte state) {
+        this.state = state;
+    }
+
+    protected void resetState(byte newState) {
+        if (isValid())
+            super.invalidate();
+        state = newState;
     }
 
     public boolean isInitialized() {
-        return everInitialized;
+        return (state != STATE_INITIAL && state != STATE_UNBOUND_DEFAULT);
     }
 
-    public boolean isEverValid() {
-        return everValid;
-    }
-
-    protected void setValid() {
-        super.setValid();
-        everValid = true;
-        setInitialized();
+    protected boolean isBound() {
+        return state >= STATE_UNI_BOUND;
     }
 
     protected void ensureBindable() {
         if (isBound())
             throw new BindingException("Cannot rebind variable");
-        //TODO: commented-out as a temporary work-around to JFXC-979
-        //else if (isInitialized())
-        //    throw new BindingException("Cannot bind variable that already has a value");
     }
 
     public void bijectiveBind(ObjectLocation<T_VALUE> other) {
         ensureBindable();
-        super.invalidate(); //TODO: this is a work-around for JFXC-979
-        setInitialized();
+        resetState(STATE_BIDI_BOUND);
         Bindings.bijectiveBind(this, other);
     }
 
@@ -101,13 +104,11 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
 
     public void bind(boolean lazy, T_BINDING binding, Location... dependencies) {
         ensureBindable();
-        super.invalidate(); //TODO: this is a work-around for JFXC-979
-        setInitialized();
+        resetState(lazy ? STATE_UNI_BOUND_LAZY : STATE_UNI_BOUND);
         this.binding = binding;
         binding.setLocation(this);
-        isLazy = lazy;
         addDependencies(dependencies);
-        if (!isLazy)
+        if (!lazy)
             update();
     }
 
@@ -128,12 +129,12 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
         return value;
     }
 
-    public boolean isBound() {
-        return binding != null;
+    protected boolean isUnidirectionallyBound() {
+        return state == STATE_UNI_BOUND || state == STATE_UNI_BOUND_LAZY;
     }
 
-    public boolean isLazy() {
-        return isBound() && isLazy;
+    protected boolean isLazilyBound() {
+        return state == STATE_UNI_BOUND_LAZY;
     }
 
     /** Returns true if this instance needs a default value.  Warning: this method has side effects; when called,
@@ -152,15 +153,15 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
         // This is where we used to do fireInitialTriggers when we were deferring triggers
         assert(deferredLiteral == null);
         deferredLiteral = null;
-        if (isBound() && !isLazy())
+        if (isUnidirectionallyBound() && !isLazilyBound())
             update();
     }
 
     @Override
     public void invalidate() {
-        if (isBound()) {
+        if (isUnidirectionallyBound()) {
             super.invalidate();
-            if (!isLazy())
+            if (!isLazilyBound())
                 update();
         }
         else
@@ -168,7 +169,7 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
     }
 
     public boolean isMutable() {
-        return !isBound();
+        return !isUnidirectionallyBound();
     }
 
     public void addChangeListener(T_LISTENER listener) {
@@ -180,6 +181,29 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
     public void removeChangeListener(T_LISTENER listener) {
         if (replaceListeners != null)
             replaceListeners.remove(listener);
+    }
+
+    /** Called from replaceValue(); updates state machine and computes whether triggers should fire */
+    protected boolean preReplace(boolean changed) {
+        boolean shouldFire = changed;
+        switch (state) {
+            case STATE_UNBOUND:
+                break;
+
+            case STATE_INITIAL:
+                state = STATE_UNBOUND;
+                shouldFire = true;
+                break;
+
+            case STATE_UNBOUND_DEFAULT:
+                state = STATE_UNBOUND;
+                break;
+
+            default:
+                shouldFire = shouldFire || !isValid();
+                break;
+        }
+        return shouldFire;
     }
 }
 

@@ -23,13 +23,12 @@
 
 package javafx.lang;
 
-import java.lang.System;
-import com.sun.javafx.runtime.location.AbstractVariable;
-
-import com.sun.javafx.api.JavaFXScriptEngine;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
+import com.sun.javafx.api.JavaFXScriptEngine;
+import com.sun.javafx.runtime.location.BindableLocation;
 
 // factored out to avoid linkage error for javax.script.* on Java 1.5
 class Evaluator {
@@ -89,7 +88,7 @@ public class FX {
      * @param varRef The variable to be tested.
      */
     public static boolean isInitialized(Object varRef) {
-        return ((AbstractVariable) varRef).isEverValid();
+        return ((BindableLocation) varRef).isInitialized();
     }
 
     /**

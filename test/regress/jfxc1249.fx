@@ -1,7 +1,7 @@
 /* Rgression test JFXC-1249 : Provide isInitialized() method for variables
  *
  * @test
- * @run/fail
+ * @run
  */
 
 class ii {

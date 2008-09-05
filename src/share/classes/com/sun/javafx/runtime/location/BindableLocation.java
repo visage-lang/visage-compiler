@@ -41,11 +41,7 @@ public interface BindableLocation<T_VALUE, T_BINDING extends AbstractBindingExpr
 
     void bijectiveBindFromLiteral(ObjectLocation<T_VALUE> other);
 
-    public boolean isBound();
-
-    boolean isLazy();
-
-    /** Has the variable ever been initialized? */
+    /** Has the variable ever been initialized?  Initialization includes assigning it a value or binding it. */
     boolean isInitialized();
 
     void addChangeListener(T_LISTENER listener);

@@ -34,7 +34,15 @@ import com.sun.javafx.runtime.ErrorHandler;
  * @author Brian Goetz
  */
 public abstract class AbstractLocation implements Location {
-    private boolean isValid, mustRemoveDependencies;
+
+    /** The isValid flag means that the location currently has an up-to-date value. This would be true if the value is
+    already known, or if the location has a binding and the binding does not need recomputation. */
+    private boolean isValid;
+
+    /** For use by subclasses */
+    protected byte state;
+
+    private boolean mustRemoveDependencies;
 
     // We separate listeners from dependent locations because updating of dependent locations is split into an
     // invalidation phase and an update phase (this is to support lazy locations.)  So there are times when we want
@@ -68,8 +76,10 @@ public abstract class AbstractLocation implements Location {
     }
 
     public void invalidate() {
+        boolean wasValid = isValid;
         isValid = false;
-        doInvalidateDependencies();
+        if (wasValid)
+            doInvalidateDependencies();
     }
 
     /**

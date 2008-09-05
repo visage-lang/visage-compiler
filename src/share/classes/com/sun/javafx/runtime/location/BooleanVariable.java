@@ -64,7 +64,7 @@ public class BooleanVariable
     protected BooleanVariable() { }
 
     protected BooleanVariable(boolean value) {
-        this();
+        super(STATE_UNBOUND);
         $value = value;
         setValid();
     }
@@ -77,11 +77,11 @@ public class BooleanVariable
 
     protected boolean replaceValue(boolean newValue) {
         boolean oldValue = $value;
-        if (oldValue != newValue || !isInitialized() || !isEverValid()) {
-            boolean notifyDependencies = isValid() || !isInitialized() || !isEverValid();
+        if (preReplace(oldValue != newValue)) {
+            boolean invalidateDependencies = isValid() || state == STATE_UNBOUND;
             $value = newValue;
             setValid();
-            notifyListeners(oldValue, newValue, notifyDependencies);
+            notifyListeners(oldValue, newValue, invalidateDependencies);
         }
         else
             setValid();
@@ -89,7 +89,7 @@ public class BooleanVariable
     }
 
     public boolean getAsBoolean() {
-        if (isBound() && !isValid())
+        if (isUnidirectionallyBound() && !isValid())
             update();
         return $value;
     }
@@ -103,9 +103,10 @@ public class BooleanVariable
     }
 
     public boolean setAsBoolean(boolean value) {
-        if (isBound() && $value != value)
+        if (isUnidirectionallyBound() && $value != value)
             throw new AssignToBoundException("Cannot assign to bound variable");
-        return replaceValue(value);
+        else
+            return replaceValue(value);
     }
 
     public boolean setAsBooleanFromLiteral(final boolean value) {
@@ -118,7 +119,13 @@ public class BooleanVariable
     }
 
     public void setDefault() {
-        setAsBoolean(DEFAULT);
+        if (state == STATE_INITIAL) {
+            $value = DEFAULT;
+            state = STATE_UNBOUND_DEFAULT;
+            notifyListeners(DEFAULT, DEFAULT, true);
+        }
+        else
+            setAsBoolean(DEFAULT);
     }
 
     public Boolean set(Boolean value) {
@@ -134,7 +141,7 @@ public class BooleanVariable
     @Override
     public void update() {
         try {
-            if (isBound() && !isValid())
+            if (isUnidirectionallyBound() && !isValid())
                 replaceValue(binding.computeValue());
         }
         catch (RuntimeException e) {
@@ -160,8 +167,8 @@ public class BooleanVariable
         });
     }
 
-    private void notifyListeners(boolean oldValue, boolean newValue, boolean notifyDependencies) {
-        if (notifyDependencies)
+    private void notifyListeners(boolean oldValue, boolean newValue, boolean invalidateDependencies) {
+        if (invalidateDependencies)
             invalidateDependencies();
         if (replaceListeners != null) {
             for (BooleanChangeListener listener : replaceListeners)

@@ -66,7 +66,7 @@ public class DoubleVariable
     protected DoubleVariable() { }
 
     protected DoubleVariable(double value) {
-        this();
+        super(STATE_UNBOUND);
         $value = value;
         setValid();
     }
@@ -79,7 +79,7 @@ public class DoubleVariable
 
 
     public double getAsDouble() {
-        if (isBound() && !isValid())
+        if (isUnidirectionallyBound() && !isValid())
             update();
         return $value;
     }
@@ -94,11 +94,11 @@ public class DoubleVariable
 
     protected double replaceValue(double newValue) {
         double oldValue = $value;
-        if (oldValue != newValue || !isInitialized() || !isEverValid()) {
-            boolean notifyDependencies = isValid() || !isInitialized() || !isEverValid();
+        if (preReplace(oldValue != newValue)) {
+            boolean invalidateDependencies = isValid() || state == STATE_UNBOUND;
             $value = newValue;
             setValid();
-            notifyListeners(oldValue, newValue, notifyDependencies);
+            notifyListeners(oldValue, newValue, invalidateDependencies);
         }
         else
             setValid();
@@ -114,9 +114,10 @@ public class DoubleVariable
     }
 
     public double setAsDouble(double value) {
-        if (isBound() && $value != value)
+        if (isUnidirectionallyBound() && $value != value)
             throw new AssignToBoundException("Cannot assign to bound variable");
-        return replaceValue(value);
+        else
+            return replaceValue(value);
     }
 
     public double setAsDoubleFromLiteral(final double value) {
@@ -129,7 +130,13 @@ public class DoubleVariable
     }
 
     public void setDefault() {
-        setAsDouble(DEFAULT);
+        if (state == STATE_INITIAL) {
+            $value = DEFAULT;
+            state = STATE_UNBOUND_DEFAULT;
+            notifyListeners(DEFAULT, DEFAULT, true);
+        }
+        else
+            setAsDouble(DEFAULT);
     }
 
     public Double set(Double value) {
@@ -145,7 +152,7 @@ public class DoubleVariable
     @Override
     public void update() {
         try {
-            if (isBound() && !isValid())
+            if (isUnidirectionallyBound() && !isValid())
                 replaceValue(binding.computeValue());
         }
         catch (RuntimeException e) {
@@ -163,8 +170,8 @@ public class DoubleVariable
         });
     }
 
-    private void notifyListeners(double oldValue, double newValue, boolean notifyDependencies) {
-        if (notifyDependencies)
+    private void notifyListeners(double oldValue, double newValue, boolean invalidateDependencies) {
+        if (invalidateDependencies)
             invalidateDependencies();
         if (replaceListeners != null) {
             for (DoubleChangeListener listener : replaceListeners)

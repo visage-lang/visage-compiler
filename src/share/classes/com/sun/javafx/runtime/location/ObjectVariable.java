@@ -80,7 +80,7 @@ public class ObjectVariable<T>
     protected ObjectVariable() { }
 
     protected ObjectVariable(T value) {
-        this();
+        super(STATE_UNBOUND);
         $value = value;
         setValid();
     }
@@ -101,18 +101,18 @@ public class ObjectVariable<T>
     }
 
     public T get() {
-        if (isBound() && !isValid())
+        if (isUnidirectionallyBound() && !isValid())
             update();
         return $value;
     }
 
     protected T replaceValue(T newValue) {
         T oldValue = $value;
-        if (!Util.isEqual(oldValue, newValue) || !isInitialized() || !isEverValid()) {
-            boolean notifyDependencies = isValid() || !isInitialized() || !isEverValid();
+        if (preReplace(oldValue != newValue)) {
+            boolean invalidateDependencies = isValid() || state == STATE_UNBOUND;
             $value = newValue;
             setValid();
-            notifyListeners(oldValue, newValue, notifyDependencies);
+            notifyListeners(oldValue, newValue, invalidateDependencies);
         }
         else
             setValid();
@@ -120,19 +120,26 @@ public class ObjectVariable<T>
     }
 
     public T set(T value) {
-        if (isBound() && !Util.isEqual($value, value))
+        if (isUnidirectionallyBound() && !Util.isEqual($value, value))
             throw new AssignToBoundException("Cannot assign to bound variable");
-        return replaceValue(value);
+        else
+            return replaceValue(value);
     }
 
     public void setDefault() {
-        set($default);
+        if (state == STATE_INITIAL) {
+            $value = $default;
+            state = STATE_UNBOUND_DEFAULT;
+            notifyListeners($default, $default, true);
+        }
+        else
+            set($default);
     }
 
     @Override
     public void update() {
         try {
-            if (isBound() && !isValid())
+            if (isUnidirectionallyBound() && !isValid())
                 replaceValue(binding.computeValue());
         }
         catch (RuntimeException e) {
@@ -146,8 +153,8 @@ public class ObjectVariable<T>
         return $value == null;
     }
 
-    private void notifyListeners(T oldValue, T newValue, boolean notifyDependencies) {
-        if (notifyDependencies)
+    private void notifyListeners(T oldValue, T newValue, boolean invalidateDependencies) {
+        if (invalidateDependencies)
             invalidateDependencies();
         if (replaceListeners != null) {
             for (ObjectChangeListener<T> listener : replaceListeners)

@@ -62,7 +62,7 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
     protected IntVariable() { }
 
     protected IntVariable(int value) {
-        this();
+        super(STATE_UNBOUND);
         $value = value;
         setValid();
     }
@@ -74,7 +74,7 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
     }
 
     public int getAsInt() {
-        if (isBound() && !isValid())
+        if (isUnidirectionallyBound() && !isValid())
             update();
         return $value;
     }
@@ -89,11 +89,11 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
 
     protected int replaceValue(int newValue) {
         int oldValue = $value;
-        if (oldValue != newValue || !isInitialized() || !isEverValid()) {
-            boolean notifyDependencies = isValid() || !isInitialized() || !isEverValid();
+        if (preReplace(oldValue != newValue)) {
+            boolean invalidateDependencies = isValid() || state == STATE_UNBOUND;
             $value = newValue;
             setValid();
-            notifyListeners(oldValue, newValue, notifyDependencies);
+            notifyListeners(oldValue, newValue, invalidateDependencies);
         }
         else
             setValid();
@@ -109,9 +109,10 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
     }
 
     public int setAsInt(int value) {
-        if (isBound() && $value != value)
+        if (isUnidirectionallyBound() && $value != value)
             throw new AssignToBoundException("Cannot assign to bound variable");
-        return replaceValue(value);
+        else
+            return replaceValue(value);
     }
 
     public int setAsIntFromLiteral(final int value) {
@@ -124,7 +125,13 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
     }
 
     public void setDefault() {
-        setAsInt(DEFAULT);
+        if (state == STATE_INITIAL) {
+            $value = DEFAULT;
+            state = STATE_UNBOUND_DEFAULT;
+            notifyListeners(DEFAULT, DEFAULT, true);
+        }
+        else
+            setAsInt(DEFAULT);
     }
 
     public Integer set(Integer value) {
@@ -140,7 +147,7 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
     @Override
     public void update() {
         try {
-            if (isBound() && !isValid())
+            if (isUnidirectionallyBound() && !isValid())
                 replaceValue(binding.computeValue());
         }
         catch (RuntimeException e) {
@@ -158,8 +165,8 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
         });
     }
 
-    private void notifyListeners(int oldValue, int newValue, boolean notifyDependencies) {
-        if (notifyDependencies)
+    private void notifyListeners(int oldValue, int newValue, boolean invalidateDependencies) {
+        if (invalidateDependencies)
             invalidateDependencies();
         if (replaceListeners != null) {
             for (IntChangeListener listener : replaceListeners) {
