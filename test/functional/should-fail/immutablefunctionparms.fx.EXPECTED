@@ -1,0 +1,13 @@
+test\functional\should-fail\immutablefunctionparms.fx:9: Cannot assign to parameter 'ps1'
+ps1 = [101,102,103];
+^
+test\functional\should-fail\immutablefunctionparms.fx:10: Cannot assign to parameter 'ps2'
+ps2 = ["Cannot","assign", "to", "ps2"];
+^
+test\functional\should-fail\immutablefunctionparms.fx:12: Cannot assign to parameter 'p1'
+p1 = 5;
+^
+test\functional\should-fail\immutablefunctionparms.fx:13: Cannot assign to parameter 'p2'
+p2 = "Oops";
+^
+4 errors
