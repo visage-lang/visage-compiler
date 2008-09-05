@@ -95,92 +95,6 @@ import com.sun.javafx.api.JavafxBindStatus;
 import static com.sun.javafx.api.JavafxBindStatus.*;
 
 }
-
-@members {
-
-
-	/***
-	 * Given a specific starting token, locate the first non-whitespace token
-	 * that preceeds it, returning it if it is a comment.
-	 *
-	 * A number of syntactical constructs can be preceded by a documentatin COMMENT which 
-	 * is assocaitaed with the construct and should be placed in the AST. Such comments
-	 * must begin with the introduceer '/**'.
-	 * This method scans backwards from the supplied token until it finds a token that is 
-	 * not considered to be WHITESPACE. If the token is a qualifying COMMENT then it is
-	 * deemed to belong to the construct that asked to locate the comment and is
-	 * returned to the caller.
-	 *
-	 * @param start The token from whence to search backwards in the token stream.
-	 * @return null if there is no associated comment, the token that contains the
-	 *         comment, if there is.
-	 */
-    CommonToken getDocComment(Token start) {
-    
-    	// Locate the position of the token before this one in the input stream
-    	//
-		int index = start.getTokenIndex() - 1;
-		
-		// Loop backwards through the token stream until
-		// we find a token that is not considered to be whitespace
-		// or we reach the start of the token stream.
-		//
-		while (index >= 0) { 
-			Token tok = input.get(index);
-			int type;
-			
-			// Because modifiers are dealt with uniformly now, we must ignore
-			// them when running backwards looking for comments. Perhaps I will
-			// review this and record the pre-modifer position or make modifiers
-			// find the documentation comment.
-			//
-			type = tok.getType();
-			if (   type == WS 
-				|| type == ABSTRACT			|| type == BOUND
-				|| type == OVERRIDE			|| type == PACKAGE
-				|| type == PROTECTED		|| type == PUBLIC
-				|| type == PUBLIC_READ		|| type == PUBLIC_INIT
-				//TODO: deprecated -- remove this at some point
-				//
-				|| type == STATIC
-						
-			   ) {
-              --index;
-            } else {
-              break;
-			}
-		}
-
-		// Assuming that we have found a valid token (not reached the
-		// the token stream start, check to see if that token is a COMMENT
-		// and return null if it is not.
-		//
-		if (index < 0 || input.get(index).getType() != COMMENT) {
-		
-           return null;
-		}
-		
-		// We have a valid token, see if it is a documentation
-		// comment, rather than just a normal comment.
-		//
-		CommonToken token = (CommonToken)(input.get(index));
-       	if (token.getText().startsWith("/**")) {
-       	
-       		// It was a documentation comment so change its type
-       		// to reflect this, then return it.
-       		//
-       		// TODO: JI - Move this type changing into the lexer 
-       		//
-			token.setType(DOC_COMMENT);
-			return token;
-		}
-		
-		// The token was either not a comment or was not a documentation
-		// comment.
-		//
-		return null;
-    }
-}
  
 // ------------------------------------------------------------------    	
 // ------------------------------------------------------------------
@@ -291,7 +205,14 @@ scriptItems
 																	// by the caller to build the actual AST.
 																	//
 	:
-		(
+		scriptItem[$items]*
+
+	;
+
+scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, which is used 
+										// by the caller to build the actual AST.
+										//
+	:
 			  // Certain script members may be prefixed with modifiers
 			  // such as 'public'. We allow the parser to first consume 
 			  // all modifier keywords, regardless of whether this is a 
@@ -305,19 +226,12 @@ scriptItems
 			  // unless we want to pass around status to all our rules.
 			  // The predicate is a small one and passes or fails quickly.
 			  //
-			  (modifiers (VAR|DEF|ATTRIBUTE|CLASS|FUNCTION))=>
 			  	m1=modifiers
 				(
 					  c=classDefinition			[$m1.mods]
 					  
 					 		{ 
 								$items.append($c.value); 
-							}
-							
-					| v=variableDeclaration 	[$m1.mods] 
-					
-							{ 
-								$items.append($v.value); 
 							}
 							
 					| f=functionDefinition    	[$m1.mods]
@@ -341,9 +255,8 @@ scriptItems
 				}
 			
 			| SEMI
-		)*
 	;
-
+	
 // ----------
 // Modifiers.
 // Collects the modifier flags for all known modifiers, regardless
@@ -537,14 +450,17 @@ classMembers
 
 	returns [ListBuffer<JFXTree> mems = new ListBuffer<JFXTree>()]		// Returns a list of the class members, ready for the caller to produce the
 																		// class defintion AST.
-	: (
-		classMember 
+	: classMemberSemi[$mems]*
+	;
 	
-			{ 
-				$mems.append($classMember.member); 
-			}
-		| SEMI
-	  )*
+classMemberSemi [ListBuffer<JFXTree> mems]
+	: classMember 
+	
+		{ 
+			$mems.append($classMember.member); 
+		}
+		
+	| SEMI
 	;
 	
 // --------------
@@ -1339,28 +1255,16 @@ expression
 			$value = $assignmentExpression.value;
 		}
 		
-	| // Expressions can only declare local variables, hence we
-	  // we parse any we find, but throw them out as a semantic
-	  // error
+	| // Expressions can parse varaible declarations at all levels
+	  // both local, script, class etc. It is up to the attribution phase
+	  // to throw out modifiers where they are not allowed such as on 
+	  // local variable declarations.
+	  //
 	  {
 	  	ePos = pos();
 	  }
 	  m=modifiers 
-	  
-	  	{
-	  		if	($m.mods.flags != 0)
-	  		{
-	  			// Ignore the modifiers
-	  			//
-	  			//$m.mods.flags = 0;
-	  			
-	  			// Issue the error
-	  			//
-	  			//log.error(ePos, "javafx.cannot.modify.localvar");
-	  			
-	  		}
-	  	}
-	  	
+	   	
 	  	variableDeclaration [$m.mods]
 	
 		{

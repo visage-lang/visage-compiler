@@ -256,6 +256,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
     protected String[][] ruleMap = { 
             {"script",                      "the script contents"},
             {"scriptItems",                 "the script contents"},
+            {"scriptItem",                  "the script contents"},
             {"modifers",                    "the modifiers for a declaration ('function', 'var', 'class', etc)"},
             {"modiferFlag",                 "an access modifier"},
             {"packageDecl",                 "a 'package' declaration"},
@@ -398,10 +399,10 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      */
     @Override
     protected void mismatch(IntStream input, int ttype, BitSet follow)
-            throws RecognitionException {
-        
-        // This method is currently just a hook in case we need to do something
-        // special on a token mismatch. Right now we just let ANTLR handle this.
+            throws RecognitionException 
+    {
+        // Currently this is just a hook back in to the ANTLR
+        // default implementation.
         //
         super.mismatch(input, ttype, follow);
     }
@@ -628,21 +629,34 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
     }
     
     /**
-    * Returns the classification (OPERATOR, PUNCTUATION, etc) of the
-    * supplied token. 
-    * @param t The token to classify
-    * @return The token classification 
-    */
+     * Returns the classification (OPERATOR, PUNCTUATION, etc) of the
+     * supplied token. 
+     * @param t The token to classify
+     * @return The token classification 
+     */
     private TokenClassification classifyToken(Token t) {
-        
-        // Assume that we don't know what this token is
-        //
-        TokenClassification result = TokenClassification.UNKNOWN;
-        
+               
         // Ask ANTLR what the type is
         //
         int tokenType = t.getType();
         
+        // And work out what we have
+        //
+        return classifyToken(tokenType);
+    }
+
+    /**
+     * Returns the classification (OPERATOR, PUNCTUATION, etc) of the
+     * supplied token type
+     * @param t The token to classify
+     * @return The token classification 
+     */
+    private TokenClassification classifyToken(int tokenType) {
+        
+        // Assume that we don't know what this token is
+        //
+        TokenClassification result = TokenClassification.UNKNOWN;
+              
         // And if it is wihtin the range that we know about, then
         // return the classification that we hard coded.
         //
@@ -651,7 +665,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         }
         return result;
     }
-
+    
     /**
      * Returns the parser name, which is really only useful fdor debugging scenarios.
      * @return The name of the parser class
@@ -725,27 +739,93 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         //
         // Other exceptions, and some of the above, are dealt with as generic RecognitionExceptions
         //
-        if (e instanceof MismatchedTokenException) {
-            MismatchedTokenException mte = (MismatchedTokenException) e;
-           
-            mb.append("Sorry, I was trying to understand ");
-            mb.append(posDescription);
-            mb.append(" but I got confused when I saw ");
-            mb.append(getTokenErrorDisplay(e.token));
+        
+        // Leadin is always the same apology
+        //
+        mb.append("Sorry, I was trying to understand ");
+        mb.append(posDescription);
+            
+        if (e instanceof UnwantedTokenException) {
+         
+            // We had an extraneous token in the stream, so we have discarded it
+            // for error recovery but still need to report it.
+            //
+            UnwantedTokenException ute = (UnwantedTokenException) e;
+            
+            // Inveigh about the extra token
+            //
+            mb.append(" but I got confused when I found an extra ");
+            
+            mb.append(getTokenErrorDisplay(ute.getUnexpectedToken()));
             TokenClassification tokenClass = classifyToken(e.token);
             if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
                 mb.append(" which is ");
                 mb.append(tokenClass.forHumans());
             }
-            if (mte.expecting != Token.EOF) {
+            
+            mb.append(" that should not be there");
+            
+        } else if (e instanceof MissingTokenException) {
+            
+            // We were able to work out that there was just a single token missing
+            // and need to report this like that.
+            //
+            MissingTokenException mte = (MissingTokenException) e;
+            
+            // Say what we think is missing
+            //
+            mb.append(" but I got confused because ");
+            
+            if  (mte.expecting == Token.EOF)
+            {
+                mb.append("I was looking for the end of the script here");
+                
+            } else {
+                
+                mb.append("you seem to have missed out '");
+                mb.append(tokenNames[mte.expecting]);
+                mb.append("'");
+                TokenClassification tokenClass = classifyToken(mte.expecting);
+                if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
+                    mb.append(" which is ");
+                    mb.append(tokenClass.forHumans());
+                }
+            
+                mb.append(" that should be there");
+            }
+            
+            
+        } else if (e instanceof MismatchedTokenException) {
+            
+            
+            MismatchedTokenException mte = (MismatchedTokenException) e;
+           
+            mb.append(" but I got confused when I saw ");
+            mb.append(getTokenErrorDisplay(e.token));
+            
+            TokenClassification tokenClass = classifyToken(e.token);
+            if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
+                mb.append(" which is ");
+                mb.append(tokenClass.forHumans());
+            }
+            
+            if (tokenClass == TokenClassification.KEYWORD && mte.expecting == v4Parser.IDENTIFIER) {
+                
+                mb.append(".\n Perhaps you tried to use a keyword as the name of a variable");
+                
+            } else if (mte.expecting != Token.EOF) {
                 mb.append(".\n Perhaps you are missing a ");
                 mb.append("'" + tokenNames[mte.expecting]+"'");
             }
+            else
+            {
+                mb.append(".\n I was looking for the end of the script here");
+            }
+            
         } else if (e instanceof NoViableAltException) {
+            
             NoViableAltException nvae = (NoViableAltException) e;
             
-            mb.append("Sorry, I was trying to understand ");
-            mb.append(posDescription);
             mb.append(" but I got confused when I saw ");
             mb.append(getTokenErrorDisplay(e.token));
             TokenClassification tokenClass = classifyToken(e.token);
@@ -753,6 +833,20 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                 mb.append(" which is ");
                 mb.append(tokenClass.forHumans());
             }
+            
+        } else if (e instanceof MismatchedSetException) {
+
+            MismatchedSetException mse = (MismatchedSetException)e;
+            
+            mb.append(" but I got confused when I saw ");
+            mb.append(getTokenErrorDisplay(e.token));
+            TokenClassification tokenClass = classifyToken(e.token);
+            if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
+                mb.append(" which is ");
+                mb.append(tokenClass.forHumans());
+            }
+            mb.append(".\n I was looking for one of: "+ mse.expecting);
+                    
         } else {
             mb.append( super.getErrorMessage(e, tokenNames) );
         }
@@ -873,6 +967,88 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         }
     }
     
+    
+    /***
+     * Given a specific starting token, locate the first non-whitespace token
+     * that preceeds it, returning it if it is a comment.
+     *
+     * A number of syntactical constructs can be preceded by a documentatin COMMENT which 
+     * is assocaitaed with the construct and should be placed in the AST. Such comments
+     * must begin with the introduceer '/**'.
+     * This method scans backwards from the supplied token until it finds a token that is 
+     * not considered to be WHITESPACE. If the token is a qualifying COMMENT then it is
+     * deemed to belong to the construct that asked to locate the comment and is
+     * returned to the caller.
+     *
+     * @param start The token from whence to search backwards in the token stream.
+     * @return null if there is no associated comment, the token that contains the
+     *         comment, if there is.
+     */
+    protected CommonToken getDocComment(Token start) {
+
+        // Locate the position of the token before this one in the input stream
+        //
+        int index = start.getTokenIndex() - 1;
+
+        // Loop backwards through the token stream until
+        // we find a token that is not considered to be whitespace
+        // or we reach the start of the token stream.
+        //
+        while (index >= 0) {
+            
+            Token tok = input.get(index);
+            int type;
+
+            // Because modifiers are dealt with uniformly now, we must ignore
+            // them when running backwards looking for comments.
+            //
+            type = tok.getType();
+            if (    type == v4Parser.WS         || type == v4Parser.ABSTRACT    || type == v4Parser.BOUND 
+                 || type == v4Parser.OVERRIDE   || type == v4Parser.PACKAGE     || type == v4Parser.PROTECTED 
+                 || type == v4Parser.PUBLIC     || type == v4Parser.PUBLIC_READ || type == v4Parser.PUBLIC_INIT 
+                 
+                 //TODO: deprecated -- remove this at some point
+                 //
+                 || type == v4Parser.STATIC) {
+                
+                --index;
+                
+            } else {
+                
+                break;
+            }
+        }
+
+        // Assuming that we have found a valid token (not reached the
+        // the token stream start, check to see if that token is a COMMENT
+        // and return null if it is not.
+        //
+        if (index < 0 || input.get(index).getType() != v4Parser.COMMENT) {
+
+            return null;
+        }
+
+        // We have a valid token, see if it is a documentation
+        // comment, rather than just a normal comment.
+        //
+        CommonToken token = (CommonToken) (input.get(index));
+        if (token.getText().startsWith("/**")) {
+
+            // It was a documentation comment so change its type
+            // to reflect this, then return it.
+            //
+            // TODO: JI - Move this type changing into the lexer 
+            //
+            token.setType(v4Parser.DOC_COMMENT);
+            return token;
+        }
+
+        // The token was either not a comment or was not a documentation
+        // comment.
+        //
+        return null;
+    }
+
     /**
      * Given a list of interpolation values, create an entry for the supplied AST node
      * in the end position map using the end position of the last AST node in the interpolation
