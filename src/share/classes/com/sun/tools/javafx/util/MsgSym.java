@@ -341,6 +341,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_DEF = "javafx.cannot.assign.to.def"; 
     public static final String MESSAGE_JAVAFX_CANNOT_ASSIGN_TO_PARAMETER = "javafx.cannot.assign.to.parameter";
     public static final String MESSAGE_JAVAFX_REPORT_WRITE_ACCESS = "javafx.report.write.access";
+    public static final String MESSAGE_JAVAFX_REPORT_VAR_QUERY_ACCESS = "javafx.report.var.query.access";
     public static final String MESSAGE_JAVAFX_REPORT_BIND_ACCESS = "javafx.report.bind.access";
     public static final String MESSAGE_JAVAFX_REPORT_INIT_ACCESS = "javafx.report.init.access";
     public static final String MESSAGE_JAVAFX_DEF_MUST_HAVE_INIT = "javafx.def.must.have.init";

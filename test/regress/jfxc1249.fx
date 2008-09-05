@@ -5,16 +5,24 @@
  */
 
 class ii {
-  var x : Integer;
+  var x : Integer on replace { println( "x on replace: {isInitialized(x)}") }
+  var s : String on replace { println( "s on replace: {isInitialized(s)}") }
+  var o : Object on replace { println( "o on replace: {isInitialized(o)}") }
 
   init {
-    println("isInitialized (tested in init): {isInitialized(x)}");
+    println("x init: {isInitialized(x)}");
+    println("s init: {isInitialized(s)}");
+    println("o init: {isInitialized(o)}");
   }
 }
 
 function run() {
    var aii = ii{};
    aii.x = 88;
-   println("isInitialized (tested in run): {isInitialized(aii.x)}");
+   println("x run: {isInitialized(aii.x)}");
+   aii.s = "hi";
+   println("s run: {isInitialized(aii.s)}");
+   aii.o = new Object();
+   println("o run: {isInitialized(aii.o)}");
    println("Done");
 }

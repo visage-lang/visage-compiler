@@ -2059,13 +2059,38 @@ public class JavafxAttr implements JavafxVisitor {
                 msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym &&
                 methName == defs.isInitializedName) {
             for (List<JFXExpression> l = tree.args; l.nonEmpty(); l = l.tail, i++) {
-                Symbol asym = JavafxTreeInfo.symbol(l.head);
-                if (asym == null || 
-                        !(asym instanceof VarSymbol) ||
-                        (asym.flags() & JavafxFlags.IS_DEF) != 0 ||
-                        asym.owner == null ||
-                        asym.owner.kind != TYP) {
-                    log.error(tree, MsgSym.MESSAGE_JAVAFX_APPLIED_TO_INSTANCE_VAR, defs.isInitializedName);
+                JFXExpression arg = l.head;
+                Symbol asym = JavafxTreeInfo.symbol(arg);
+                if (asym == null || !(asym.type instanceof ErrorType)) {
+                    if (asym == null ||
+                            !(asym instanceof VarSymbol) ||
+                            (arg.getFXTag() != JavafxTag.IDENT && arg.getFXTag() != JavafxTag.SELECT) ||
+                            (asym.flags() & JavafxFlags.IS_DEF) != 0 ||
+                            asym.owner == null ||
+                            asym.owner.kind != TYP) {
+                        log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_APPLIED_TO_INSTANCE_VAR, defs.isInitializedName);
+                    } else {
+                        // check that we have write access
+                        // unless it is a public-init or public-read var, that was already handled 
+                        // the regular access check
+                        if ((asym.flags() & (JavafxFlags.PUBLIC_INIT | JavafxFlags.PUBLIC_READ)) != 0) {
+                            Type site;
+                            JFXTree base;
+                            switch (arg.getFXTag()) {
+                                case IDENT:
+                                    base = null;
+                                    site = env.enclClass.sym.type;
+                                    break;
+                                case SELECT:
+                                    base = ((JFXSelect)arg).selected;
+                                    site = base.type;
+                                    break;
+                                default:
+                                    throw new AssertionError(); // see above, should not occur
+                            }
+                            chk.checkAssignable(tree.pos(), (VarSymbol) asym, base, site, env, WriteKind.VAR_QUERY);
+                        }
+                    }
                 }
             }
         }

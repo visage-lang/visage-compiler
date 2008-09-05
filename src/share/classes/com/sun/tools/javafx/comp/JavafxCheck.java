@@ -90,7 +90,8 @@ public class JavafxCheck {
     enum WriteKind {
         ASSIGN,
         INIT_NON_BIND,
-        INIT_BIND
+        INIT_BIND,
+        VAR_QUERY
     }
 
     public static JavafxCheck instance(Context context) {
@@ -654,6 +655,10 @@ public class JavafxCheck {
                     case INIT_NON_BIND:
                         msg = MsgSym.MESSAGE_JAVAFX_REPORT_INIT_ACCESS;
                         break;
+                    case VAR_QUERY:
+                        msg = MsgSym.MESSAGE_JAVAFX_REPORT_VAR_QUERY_ACCESS;
+                        break;
+                    case ASSIGN:
                     default:
                         msg = MsgSym.MESSAGE_JAVAFX_REPORT_WRITE_ACCESS;
                         break;
