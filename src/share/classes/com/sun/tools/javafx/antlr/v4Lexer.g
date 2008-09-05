@@ -1034,9 +1034,7 @@ LINE_COMMENT
     	}
     ;
 
-LAST_TOKEN
-    :	'~~~~~~~~' {false}? '~~~~~~~~'
-    ;
+
     
 // This special token is always the last rule in the lexer grammar. It
 // is basically a catch all for characters that are not covered by any

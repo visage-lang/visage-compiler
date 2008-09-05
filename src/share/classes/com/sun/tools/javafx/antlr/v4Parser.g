@@ -57,6 +57,11 @@ options {
 	tokenVocab	= v4Lexer;
 }
 
+tokens
+{
+	LAST_TOKEN;
+}
+
 // -----------------------------------------------------------------
 // This section provides package and other information
 // to the parser. It is inserted at the start of the generated parser

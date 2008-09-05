@@ -1,4 +1,4 @@
-test/should-fail/jfxc549c.fx:8: Sorry, I was trying to understand a class declaration but I got confused when I saw '+='.
+test/should-fail/jfxc549c.fx:8: Sorry, I was trying to understand a 'class' declaration but I got confused when I saw '+='.
  Perhaps you are missing a '}'.
     +=
     ^

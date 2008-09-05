@@ -10,7 +10,7 @@ v = "{v} unterminated string
 test/should-fail/badstring.fx:9: Unterminated string literal - missing ' or ".
 v = '{v} unterminated string
     ^
-test/should-fail/badstring.fx:1: Sorry, I was trying to understand a qlsl but I got confused when I saw '<EOF>'.
+test/should-fail/badstring.fx:1: Sorry, I was trying to understand a compound string element but I got confused when I saw '<EOF>'.
  Perhaps you are missing a '} " string literal'.
 /**
 ^

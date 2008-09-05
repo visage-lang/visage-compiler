@@ -1,4 +1,4 @@
-test/should-fail/jfxc1700.fx:7: Sorry, I was trying to understand an indexed sequence for insert but I got confused when I saw ';'.
+test/should-fail/jfxc1700.fx:7: Sorry, I was trying to understand an indexed sequence in an insert statement but I got confused when I saw ';' which is a punctuation character.
  Perhaps you are missing a '['.
 insert 10 after 5;
                  ^
