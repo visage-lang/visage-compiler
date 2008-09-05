@@ -1,7 +1,7 @@
 /*
  * jfxc-1945: check for malformed main
  * Incorrect return value.
- * @test/fail
+ * @test
  *
  * Test currently compiles with incorrect return value.
  * Actually, I can put a comletely bogus return value and it appears it is

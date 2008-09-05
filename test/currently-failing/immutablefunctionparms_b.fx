@@ -2,7 +2,7 @@
  * function parameters are immutable, see jfxc-1106
  * Are sequence parameter elements immutable? see jfxc1825
  *
- * @test/fail
+ * @test
  *
  * NOTE: This currently compiles but the bug contention is that maybe it should not.
  * If bug resolution is to leave as is, this test can be put in as a successful
