@@ -149,14 +149,10 @@ public class FXLocal {
                         return new FXSequenceType(makeTypeRef(targs[0]));
                     }
                     if (rawName.startsWith(FXClassType.FUNCTION_CLASSNAME_PREFIX)) {
-                        FXFunctionType type = new FXFunctionType();
                         FXType[] prtypes = new FXType[targs.length-1];
                         for (int i = prtypes.length;  --i >= 0; )
                             prtypes[i] = makeTypeRef(targs[i+1]);
-                        type.argTypes = prtypes;
-                        type.minArgs = prtypes.length;
-                        type.returnType = makeTypeRef(targs[0]);
-                        return type;
+                        return new FXFunctionType(prtypes, makeTypeRef(targs[0]));
                     }
                 }
                            
@@ -174,6 +170,10 @@ public class FXLocal {
                 if (rawName.equals("java.lang.Double"))
                     return getNumberType();
                 return makeTypeRef(typ);
+            }
+            if (typ instanceof TypeVariable) {
+                // KLUDGE
+                typ = Object.class;
             }
         
             Class clas = (Class) typ;
@@ -374,13 +374,11 @@ public class FXLocal {
             if (m.isVarArgs()) {
                 // ????
             }
-            FXFunctionType type = new FXFunctionType();
             FXType[] prtypes = new FXType[ptypes.length];
             for (int j = 0; j < ptypes.length;  j++)
                 prtypes[j] = context.makeTypeRef(ptypes[j]);
-            type.argTypes = prtypes;
             java.lang.reflect.Type gret = m.getGenericReturnType();
-            type.returnType = context.makeTypeRef(gret);
+            FXFunctionType type = new FXFunctionType(prtypes, context.makeTypeRef(gret));
             return new FXLocal.FunctionMember(m, this, type);
         }
     

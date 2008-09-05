@@ -66,6 +66,10 @@ System.out.println("String .super (inherited also):");
 for (cls in clsString.getSuperClasses(true))
     System.out.println("  {cls}");
 
+System.out.println("String methods (inherited also):");
+for (meth in clsString.getFunctions(true))
+     System.out.println("  {meth}");
+
 System.out.println("Square methods (inherited also):");
 for (meth in clsSquare.getFunctions(true))
      System.out.println("  {meth}");

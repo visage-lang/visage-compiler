@@ -34,6 +34,12 @@ public class FXFunctionType extends FXType {
     FXFunctionType() {
     }
 
+    FXFunctionType(FXType[] argTypes, FXType returnType) {
+        this.argTypes = argTypes;
+        minArgs = argTypes.length;
+        this.returnType = returnType;
+    }
+
     /** The fixed (minimum) number of arguments needed.
      * Does not count varargs, and (possible future) optional args.
      */
