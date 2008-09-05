@@ -56,42 +56,64 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
     
     /** The factory to be used for abstract syntax tree construction.
      */
-    protected JavafxTreeMaker F;
+    protected JavafxTreeMaker  F;
     
     /** The log to be used for error diagnostics.
      */
-    protected Log log;
+    protected Log              log;
     
-    /** The Source language setting. */
-    protected Source source;
+    /** 
+     * The Source language setting. 
+     */
+    protected Source           source;
     
-    /** The token id for white space */
+    /** 
+     * The token id for white space 
+     */
     protected int whiteSpaceToken;
     
-    /** Should the parser generate an end positions map? */
+    /** 
+     * Should the parser generate an end positions map? 
+     */
     protected boolean genEndPos;
 
-    /** The end positions map. */
+    /** 
+     * The end positions map. 
+     * End positions are built by the parser such that each entry in the map
+     * is keyed by a JFX tree node built by the parser and the value is
+     * the token number in the token stream that correponds to the end position
+     * of the node.
+     */
     HashMap<JCTree,Integer> endPositions;
 
-    /** The doc comments map */
+    /** 
+     * The doc comments map.
+     * The documentation comments are comments starting
+     * with '/**'. Built by the parser, this map is keyed by the AST
+     * node that a comment belongs to and the value is the full text
+     * of the comment, including the enclosing '/**' and comment end sequence 
+     */
     HashMap<JCTree,String> docComments;
 
+    /**
+     * 
+     */
     private JavafxTreeInfo treeInfo;
     
-    /** The name table. */
+    /** 
+     * The name table.
+     * Keeps track of all the identifiers discovered by the parser in any particular
+     * context.
+     */
     protected Name.Table names;
     
+    /**
+     * Defines the human readable names of all the tokens that the lexer
+     * can produce for use by error messages and utilities that interact with
+     * the user/author.
+     */
     protected java.util.Map<String, String> tokenMap = new java.util.HashMap<String, String>(); 
-
     {
-        /*
-        tokenMap.put("<invalid>", "<invalid>");
-        tokenMap.put("<EOR>","<EOR>");
-        tokenMap.put("<DOWN>", "<DOWN>");
-        tokenMap.put("<UP>", "<UP>");
-        tokenMap.put("SEMI_INSERT_START", "SEMI_INSERT_START");
-        */
         tokenMap.put("ABSTRACT", "abstract");
         tokenMap.put("ASSERT", "assert");
         tokenMap.put("ATTRIBUTE","attribute");
@@ -135,9 +157,6 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         tokenMap.put("PLUSPLUS", "++");
         tokenMap.put("SUBSUB", "--");
         tokenMap.put("PIPE", "|");
-        /*
-        tokenMap.put("SEMI_INSERT_END", "SEMI_INSERT_END");
-        */
         tokenMap.put("AFTER", "after");
         tokenMap.put("AND", "and");
         tokenMap.put("AS", "as");
@@ -191,43 +210,6 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         tokenMap.put("PERCENTEQ", "%=");
         tokenMap.put("COLON", ":");
         tokenMap.put("QUES", "?");
-        /* imaginary tokens
-        tokenMap.put("MODULE", "MODULE");
-        tokenMap.put("MODIFIER", "MODIFIER");
-        tokenMap.put("CLASS_MEMBERS", "CLASS_MEMBERS");
-        tokenMap.put("PARAM", "PRAM");
-        tokenMap.put("FUNC_EXPR", "FUNC_EXPR");
-        tokenMap.put("STATEMENT", "STATEMENT");
-        tokenMap.put("EXPRESSION", "EXPRESSION");
-        tokenMap.put("BLOCK", "BLOCK");
-        tokenMap.put("MISSING_NAME", "MISSING_NAME");
-        tokenMap.put("SLICE_CLAUSE", "SLICE_CLAUSE");
-        tokenMap.put("ON_REPLACE_SLICE", "ON_REPLACE_SLICE");
-        tokenMap.put("ON_REPLACE", "ON_REPLACE");
-        tokenMap.put("ON_REPLACE_ELEMENT", "ON_REPLACE_ELEMENT");
-        tokenMap.put("ON_INSERT_ELEMENT", "ON_INSERT_ELEMENT");
-        tokenMap.put("ON_DELETE_ELEMENT", "ON_DELETE_ELEMENT");
-        tokenMap.put("EXPR_LIST", "EXPR_LIST");
-        tokenMap.put("FUNC_APPLY", "FUNC_APPLY");
-        tokenMap.put("NEGATIVE", "NEGATIVE");
-        tokenMap.put("POSTINCR", "POSTINCR");
-        tokenMap.put("POSTDECR", "POSTDECR");
-        tokenMap.put("SEQ_INDEX", "SEQ_INDEX");
-        tokenMap.put("SEQ_SLICE", "SEQ_SLICE");
-        tokenMap.put("SEQ_SLICE_EXCLUSIVE", "SEQ_SLICE_EXCLUSIVE");
-        tokenMap.put("OBJECT_LIT", "OBJECT_LIT");
-        tokenMap.put("OBJECT_LIT_PART", "OBJECT_LIT_PART");
-        tokenMap.put("SEQ_EMPTY", "SEQ_EMPTY");
-        tokenMap.put("SEQ_EXPLICIT","SEQ_EXPLICIT");
-        tokenMap.put("EMPTY_FORMAT_STRING", "EMPTY_FORMAT_STRING");
-        tokenMap.put("TYPE_NAMED", "TYPE_NAMED");
-        tokenMap.put("TYPE_FUNCTION", "TYPE_FUNCTION");
-        tokenMap.put("TYPE_ANY", "TYPE_ANY");
-        tokenMap.put("TYPE_UNKNOWN", "TYPE_UNKNOWN");
-        tokenMap.put("TYPE_ARG", "TYPE_ARG");
-        tokenMap.put("TYPED_ARG_LIST", "TYPED_ARG_LIST");
-        tokenMap.put("DOC_COMMENT", "DOC_COMMENT");
-        */
         tokenMap.put("DoubleQuoteBody", "double quote string literal");
         tokenMap.put("SingleQuoteBody", "single quote string literal");
         tokenMap.put("STRING_LITERAL", "string literal");
@@ -258,58 +240,116 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         tokenMap.put("LAST_TOKEN", "last token");
     } 
     
-    // this field should not be accessed using the getFXTokenNames method
+    /**
+     * An array of the human readable names of all the tokens the 
+     * lexer can provide to the parser.
+     * 
+     * This field should be accessed using the getFXTokenNames method
+     * @see #getFXTokenNames
+     */
     protected String[] fxTokenNames = null;
     
+    /**
+     * Provides a human readable name for each of the parser grammar rules
+     * for use by error messages or any tool that interacts with the user/author
+     */
     protected String[][] ruleMap = { 
-            {"script", "the script contents"},
-            {"scriptItems", "the script contents"},
-            {"packageDecl", "a package declaration"},
-            {"importDecl", "an import declaration"},
-            {"importId", "an import declaration"},
-            {"classDefinition", "a class declaration"},
-            {"overrideDeclaration", "an overriden variable"},
-            {"supers", "the 'extends' part of a class declaration"},
-            {"classMembers", "the members of a class declaration"},
-            {"classMember", "the members of a class declaration"},
-            {"functionDefinition", "a function declaration"},
-            {"initDefinition", "an 'init' block"},
-            {"postInitDefinition", "a 'postinit' block"},
-            {"modifers", " the modifiers for a declaration (function, var, class, etc)"},
-            {"modiferFlag", "an access modifier"},
-            {"formalParameters", " the parameters of a function declaration"},
-            {"formalParameter", " a formal parameter"},
-            {"block", "a block"},
-            {"blockComponent", "a component of a block"},
-            {"variableDeclaration", "a variable declaration"},
-            {"variableLabel", "a variable declaration"},
-            {"boundExpression", "an expression"},
-            {"inClause", "the 'in' clause of a 'for' expression"},
-            {"elseClause", "the 'else' clause of an 'if' expression"},
-            {"assignmentOpExpression", "an operator assignment expression"},
-            {"primaryExpression", "an expression"},
-            {"stringExpressionInner", "a string expression"},
-            {"bracketExpression", "a sequence creation expression"},
-            {"expressionList", "a list of expressions"},
-            {"expressionListOpt", "a list of expressions"},
-            {"type", "a type specification"},
-            {"typeArgList", "a type specification"},
-            {"typeArg", "a type specification"},
-            {"typeReference", "a type specification"},
-            {"cardinality", "a type specification"},
-            {"typeName", "a type specification"},
-            {"genericArgument", "a type specification"},
-            {"qualident", "an identifier"},
-            {"name", "an identifier"},
-            {"paramNameOpt", "an optional identifier"} 
+            {"script",                      "the script contents"},
+            {"scriptItems",                 "the script contents"},
+            {"modifers",                    "the modifiers for a declaration ('function', 'var', 'class', etc)"},
+            {"modiferFlag",                 "an access modifier"},
+            {"packageDecl",                 "a 'package' declaration"},
+            {"importDecl",                  "an 'import' declaration"},
+            {"importId",                    "an 'import' declaration"},
+            {"classDefinition",             "a 'class' declaration"},
+            {"supers",                      "the 'extends' part of a 'class' declaration"},
+            {"classMembers",                "the members of a 'class' declaration"},
+            {"classMember",                 "a 'class' declaration member"},
+            {"functionDefinition",          "a function declaration"},
+            {"overrideDeclaration",         "an overriden variable"},
+            {"initDefinition",              "an 'init' block"},
+            {"postInitDefinition",          "a 'postinit' block"},
+            {"variableDeclaration",         "a variable declaration"},
+            {"formalParameters",            "the parameters of a function declaration"},
+            {"formalParameter",             "a parameter"},
+            {"block",                       "a block"},
+            {"statement",                   "a statement"},
+            {"onReplaceClause",             "an 'on replace' clause"},
+            {"paramNameOpt",                "an optional parameter name"},
+            {"paramName",                   "a parameter name"},
+            {"variableLabel",               "a variable declaration"},
+            {"throwStatement",              "a 'throw' statement"},
+            {"whileStatement",              "a 'while' statement"},
+            {"insertStatement",             "an 'insert' statement"},
+            {"indexedSequenceForInsert",    "an indexed sequence in an insert statement"},
+            {"deleteStatement",             "a 'delete' statement"},
+            {"returnStatement",             "a 'return' statement"},
+            {"tryStatement",                "a 'try' statement"},
+            {"finallyClause",               "a 'finally' clause"},
+            {"catchClause",                 "a 'catch' clause"},
+            {"boundExpression",             "an expression"},
+            {"expression",                  "an expression"},
+            {"forExpression",               "a 'for' statement or expression"},
+            {"inClause",                    "the 'in' clause of a 'for' expression"},
+            {"ifExpression",                "an if statement or expression"},
+            {"elseClause",                  "the 'else' clause of an 'if' expression"},
+            {"assignmentExpression",        "an assignment"},
+            {"assignmentOpExpression",      "an operator assignment expression"},
+            {"assignOp",                    "an assignment operator"},
+            {"andExpression",               "an expression"},
+            {"orExpression",                "an expression"},
+            {"typeExpression",              "an expression"},
+            {"relationalExpression",        "an expression"},
+            {"relOps",                      "a relational operator"},
+            {"additiveExpression",          "an expression"},
+            {"arithOps",                    "an arithmetic operator"},
+            {"multiplicativeExpression",    "an expression"},
+            {"multOps",                     "an arithmetic operator"},
+            {"unaryExpression",             "an expression"},
+            {"unaryOps",                    "a unary operator"},
+            {"suffixedExpression",          "an expression"},
+            {"postfixExpression",           "an expression"},
+            {"primaryExpression",           "an expression"},
+            {"keyFrameLiteralPart",         "a frame value expression"},
+            {"functionExpression",          "an anonymous function definition"},
+            {"newExpression",               "a 'new' expression"},
+            {"objectLiteral",               "an object literal definition"},
+            {"objectLiteralPart",           "a member of an object literal"},
+            {"objectLiteralInit",           "an object literal initializer"},
+            {"stringExpression",            "a string expression"},
+            {"strCompoundElement",          "a compound string element"},
+            {"stringLiteral",               "a string literal"},
+            {"qlsl",                        "a compound string element"},
+            {"stringExpressionInner",       "an embedded string expression"},
+            {"stringFormat",                "a string formatting specification"},
+            {"bracketExpression",           "a sequence creation expression"},
+            {"expressionList",              "a list of expressions"},
+            {"expressionListOpt",           "an optional list of expressions"},
+            {"type",                        "a type specification"},
+            {"typeArgList",                 "a type specification"},
+            {"typeArg",                     "a type specification"},
+            {"typeReference",               "a type specification"},
+            {"cardinality",                 "a type specification"},
+            {"typeName",                    "a type specification"},
+            {"genericArgument",             "a type specification"},
+            {"literal",                     "a literal constant"},
+            {"qualname",                    "a qualified identifier"},
+            {"identifier",                  "an identifier"},
+            {"name",                        "an identifier"},
     };
     
-    
-    /* ---------- error recovery -------------- */
-    
+    /**
+     * Local JFX tree node used to build an error node in to the AST
+     * when a syntax or semantic error is detected while parsing the
+     * script. Error nodes are used by downstream tools such as IDEs
+     * so that they can navigate source code even while it is not,
+     * strictly speaking, valid code.
+     */
     protected JFXErroneous errorTree;
     
-    /** initializes a new instance of GeneratedParser */
+    /** 
+     * Initializes a new instance of GeneratedParser 
+     */
     protected void initialize(Context context) {
        
         this.F          = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
@@ -325,18 +365,44 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         
     }
     
+    /**
+     * Create a new parser instance, pre-supplying the input token stream.
+     * @param input The stream of tokens that will be pulled from the lexer
+     */
     protected AbstractGeneratedParserV4(TokenStream input) {
         super(input);
     }
     
+    /**
+     * Create a new parser instance, pre-supplying the input token stream
+     * and the shared state.
+     * This is only used when a grammar is imported into another grammar.
+     * 
+     * @param input The stream of tokesn that will be pulled from the lexer
+     * @param state The shared state object created by an interconnectd grammar
+     */
     protected AbstractGeneratedParserV4(TokenStream input, RecognizerSharedState state) {
         super(input, state);
     }
    
+    /**
+     * An override for the standard ANTLR mismatch method, which is called when
+     * the token type predicted for the current input position is not the expected
+     * token type.
+     * 
+     * @param input The input stream whence the token came
+     * @param ttype The token type that was found
+     * @param follow The bitset that indicates all the tokens that would be valid at this point
+     *               in the input stream.
+     * @throws org.antlr.runtime.RecognitionException
+     */
     @Override
     protected void mismatch(IntStream input, int ttype, BitSet follow)
             throws RecognitionException {
-        //System.err.println("Mismatch: " + ttype  + ", Set: " + follow);
+        
+        // This method is currently just a hook in case we need to do something
+        // special on a token mismatch. Right now we just let ANTLR handle this.
+        //
         super.mismatch(input, ttype, follow);
     }
 
@@ -355,9 +421,19 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         //
         for (String[] pair : ruleMap) {
             if (pair[0].equals(ruleName)) {
+                
+                // We found a rule name that matched where we are on the stack
+                // so we can use the description associated with it.
+                //
                 return pair[1];
             }
         }
+        
+        // If here then we did not suppyl a specific description
+        // for this rule, so we attempt to formulate it into something
+        // readable by humans. We wplit the rule name on camel case
+        // and predict if this is 'an' or 'a'
+        //
         StringBuffer sb = new StringBuffer(ruleName.length()+1);
         switch (ruleName.charAt(0)) {
             case 'a': case 'e': case 'i': case 'o': case 'u': 
@@ -378,6 +454,10 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         return sb.toString();
     }
     
+    /**
+     * A translation matrix for converting a particular token classification
+     * into a human readable description.
+     */
     protected enum TokenClassification {
         KEYWORD {
             String forHumans() {
@@ -399,6 +479,11 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                 return "an identifier";
             }
         },  
+        PUNCTUATION {
+              String forHumans() {
+                return "a punctuation character";
+            }
+        },
         UNKNOWN {
             String forHumans() {
                 return "a token";
@@ -407,18 +492,31 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         abstract String forHumans();
     };
 
+    /**
+     * 
+     */
     protected TokenClassification[] tokenClassMap = new TokenClassification[v4Parser.LAST_TOKEN + 1];
+    
+    /**
+     * Initializer is used to initalize our token class map, which tells
+     * error messages and so on how to describe the token to human beings.
+     */
     {
-        // Initiailization block.
-        //     First, set them all to UNKNOWN
+        
+        // First, set all the token types to UNKNOWN. LAST_TOKEN is an artifical
+        // token generated by the parser, so that it is assigned a token number
+        // higher than all the lexer defined tokens and we can use it as size
+        //
         for (int index = 0; index <= v4Parser.LAST_TOKEN; index += 1) {
             tokenClassMap[index] = TokenClassification.UNKNOWN;
         }
-        //     Then set them appropriately.
-        //     If a token is added to the grammar, it will show up as UNKNOWN.
-        //     If a token is removed from the grammar, the corresponding initialization 
-        //       will fail to compile (which is the earliest we could detect the problem).
+        // Now set the type ourselves, leaving anythign we don't know about yet
+        // to show up as UNKNOWN.
+        // If a token is removed from the grammar, the corresponding initialization 
+        // will fail to compile (which is the earliest we could detect the problem).
+        //
         // Keywords:
+        //
         tokenClassMap[v4Parser.ABSTRACT]            = TokenClassification.KEYWORD;
         tokenClassMap[v4Parser.ASSERT]              = TokenClassification.KEYWORD;
         tokenClassMap[v4Parser.ATTRIBUTE]           = TokenClassification.KEYWORD;
@@ -483,18 +581,13 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         tokenClassMap[v4Parser.WITH]                = TokenClassification.KEYWORD;
         tokenClassMap[v4Parser.WHERE]               = TokenClassification.KEYWORD;
         tokenClassMap[v4Parser.TWEEN]               = TokenClassification.KEYWORD;
+        
         // Operators:
-        tokenClassMap[v4Parser.POUND]               = TokenClassification.OPERATOR;
-        tokenClassMap[v4Parser.LPAREN]              = TokenClassification.OPERATOR;
-        tokenClassMap[v4Parser.LBRACKET]            = TokenClassification.OPERATOR;
+        //
         tokenClassMap[v4Parser.PLUSPLUS]            = TokenClassification.OPERATOR;
         tokenClassMap[v4Parser.SUBSUB]              = TokenClassification.OPERATOR;
         tokenClassMap[v4Parser.PIPE]                = TokenClassification.OPERATOR;
         tokenClassMap[v4Parser.DOTDOT]              = TokenClassification.OPERATOR;
-        tokenClassMap[v4Parser.RPAREN]              = TokenClassification.OPERATOR;
-        tokenClassMap[v4Parser.RBRACKET]            = TokenClassification.OPERATOR;
-        tokenClassMap[v4Parser.SEMI]                = TokenClassification.OPERATOR;
-        tokenClassMap[v4Parser.COMMA]               = TokenClassification.OPERATOR;
         tokenClassMap[v4Parser.DOT]                 = TokenClassification.OPERATOR;
         tokenClassMap[v4Parser.EQEQ]                = TokenClassification.OPERATOR;
         tokenClassMap[v4Parser.EQ]                  = TokenClassification.OPERATOR;
@@ -514,32 +607,124 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         tokenClassMap[v4Parser.STAREQ]              = TokenClassification.OPERATOR;
         tokenClassMap[v4Parser.SLASHEQ]             = TokenClassification.OPERATOR;
         tokenClassMap[v4Parser.PERCENTEQ]           = TokenClassification.OPERATOR;
-        tokenClassMap[v4Parser.COLON]               = TokenClassification.OPERATOR;
         tokenClassMap[v4Parser.QUES]                = TokenClassification.OPERATOR;
         tokenClassMap[v4Parser.SUCHTHAT]            = TokenClassification.OPERATOR;
+        
+        // Punctuation/syntactic sugar:
+        //
+        tokenClassMap[v4Parser.COLON]               = TokenClassification.PUNCTUATION;
+        tokenClassMap[v4Parser.RPAREN]              = TokenClassification.PUNCTUATION;
+        tokenClassMap[v4Parser.RBRACKET]            = TokenClassification.PUNCTUATION;
+        tokenClassMap[v4Parser.SEMI]                = TokenClassification.PUNCTUATION;
+        tokenClassMap[v4Parser.COMMA]               = TokenClassification.PUNCTUATION;
+        tokenClassMap[v4Parser.POUND]               = TokenClassification.PUNCTUATION;
+        tokenClassMap[v4Parser.LPAREN]              = TokenClassification.PUNCTUATION;
+        tokenClassMap[v4Parser.LBRACKET]            = TokenClassification.PUNCTUATION;
+        
+        
         // Others:
+        //
         tokenClassMap[v4Parser.IDENTIFIER]          = TokenClassification.IDENTIFIER;
     }
-
+    
+    /**
+    * Returns the classification (OPERATOR, PUNCTUATION, etc) of the
+    * supplied token. 
+    * @param t The token to classify
+    * @return The token classification 
+    */
     private TokenClassification classifyToken(Token t) {
+        
+        // Assume that we don't know what this token is
+        //
         TokenClassification result = TokenClassification.UNKNOWN;
+        
+        // Ask ANTLR what the type is
+        //
         int tokenType = t.getType();
+        
+        // And if it is wihtin the range that we know about, then
+        // return the classification that we hard coded.
+        //
         if ((tokenType >= 0) && tokenType < tokenClassMap.length) {
             result = tokenClassMap[tokenType];
         }
         return result;
     }
 
+    /**
+     * Returns the parser name, which is really only useful fdor debugging scenarios.
+     * @return The name of the parser class
+     */
     protected String getParserName() {
         return this.getClass().getName();
     }
 
+    /**
+     * Using the given exception generated by the parser, produce an error
+     * message string that is geared towards the JAvaFX script author/user.
+     * @param e The exception generated by the parser. 
+     * @param tokenNames The names of the tokens as generated by ANTLR (unused by this method).
+     * @return The human readable error message string.
+     */
     @Override
     public String getErrorMessage(RecognitionException e, String[] tokenNames) {
+        
+        // The rule invocation stack tells us where we are in terms of
+        // LL parse and the path throguh the rules that got us to this point.
+        // 
         java.util.List stack = getRuleInvocationStack(e, getParserName());
+        
+        // The top of the stack is the rule that actaully generated the 
+        // exception.
+        //
         String stackTop = stack.get(stack.size()-1).toString();
+        
+        // Now we know where we are, we can pick out the human oriented
+        // description of what we were tryig to parse.
+        //
         String posDescription = stackPositionDescription(stackTop);
+        
+        // Where we will build the error message string
+        //
         StringBuffer mb = new StringBuffer();
+        
+        // The exact error message we will construct depends on the
+        // exception type that was generated. We will be given one of 
+        // the following exceptions:
+        //
+        // UnwantedTokenException   - There was an extra token in the stream that
+        //                            we can see was extra because the next token after it
+        //                            is the one that would have matched correctly.
+        // 
+        // MissingTokenException    - There was a missing token in the stream that we see 
+        //                            was missing because the token we actually saw was one
+        //                            that is a member of the followset had the token been
+        //                            present.
+        //
+        // MismatchedTokenException - The token we received was not one we were expecting, but
+        //                            we could neither identify a missing token that would have made it
+        //                            something we can deal with, nor that it was just an
+        //                            accidental extra token that we can throw away. Something like
+        //                            A B C D and we got to B but the token we got was neither 
+        //                            C, D nor anything following.
+        //
+        // NoViableAltException     - The token we saw isn't predicted by any alternative
+        //                            path available at this point in the current rule.
+        //                            something like:  ... (B|C|D|E) but we got Z which does
+        //                            not follow from anywhere.
+        //
+        // EarlyExitException       - The parser wants one or more of some construct but there
+        //                            were none at all in the input stream. Something like
+        //                            X SEMI+
+        //
+        // MismatchedSetException   - The parser would have accepted any one of two or more
+        //                            tokens, but the actual token was not in that set and
+        //                            was not a token that we could determine was spurious or
+        //                            from which we could determine that we just had a token missing.
+        //
+        // Other exceptions, and some of the above, are dealt with as generic RecognitionExceptions
+        //
         if (e instanceof MismatchedTokenException) {
             MismatchedTokenException mte = (MismatchedTokenException) e;
            
@@ -580,23 +765,52 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
     }
 **/
     
-    /** What is the error header, normally line/character position information? */
+    /** 
+     * Creates the error/warning message that we need to show users/IDEs when
+     * ANTLR has found a parsing error, has recovered from it and is now
+     * telling us that a parsing exception occurred.
+     * 
+     * We call our own override of getErrorMessage, and this will build the
+     * a string that is geared towards the JavaFX script author. Then we work out
+     * where we are in the character stream and record the error using the
+     * JavaFX infrastructure.
+     */
     @Override
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
+
+        // First, where are we. We can use the token that is in error
+        // to find out where it is in the input stream as we want to 
+        // hightlight the error with respect to that.
+        //
         int pos = ((CommonToken)(e.token)).getStartIndex();
-        // String msg = getErrorMessage(e, tokenNames);
-        //        System.err.println("ERROR: " + msg);
-        
+
+        // Now we build the appropriate error message
+        //
         String msg = getErrorMessage(e, getFXTokenNames(tokenNames));
+        
+        // And record the information using hte JavaFX error sink.
+        //
         log.error(pos, MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
     }
     
+    /**
+     * Provides a reference to the array of human readable descriptions
+     * of each token that the lexer can generate.
+     * @param tokenNames The names of the tokens as ANTLR sees them
+     * @return An array of human readable descriptions indexewd by the ANTLR generated token type (integer)
+     */
     protected String[] getFXTokenNames(String[] tokenNames) {
         
+        // If we have already generated this array, then we jsut return the
+        // reference to it.
+        //
         if (fxTokenNames != null) {
             return fxTokenNames;
         } else {
-            
+          
+            // This is the first request for the array, so we build it
+            // on the fly.
+            //
             fxTokenNames = new String[tokenNames.length];
             int count = 0;
             for (String tokenName:tokenNames) {
@@ -619,16 +833,22 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * which automatically skips off channel tokens. Use when there is
      * no token yet exmined in a rule.
      * 
-     * @return The character position of the next non-whitespace token
+     * @return The character position of the next non-whitespace token in the input stream
      * 
      */
     protected int pos() {
-        //System.out.println("TOKEN: line: " + tok.getLine() + " char: " + tok.getCharPositionInLine() + " pos: " + ((CommonToken)tok).getStartIndex());
-        return ((CommonToken)(input.LT(1))).getStartIndex();
+        
+        return pos(input.LT(1));
     }
     
+    /**
+     * Calculates the character position of the first character of the text
+     * in the input stream that the supplied token represents.
+     * @param tok The token to locate in the input stream
+     * @return The character position of the next non-whitespace token in the input stream
+     */
     protected int pos(Token tok) {
-        //System.out.println("TOKEN: line: " + tok.getLine() + " char: " + tok.getCharPositionInLine() + " pos: " + ((CommonToken)tok).getStartIndex());
+        
         return ((CommonToken)tok).getStartIndex();
     }
     
@@ -652,7 +872,15 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             docComments.put(tree, comment.getText());
         }
     }
-        
+    
+    /**
+     * Given a list of interpolation values, create an entry for the supplied AST node
+     * in the end position map using the end position of the last AST node in the interpolation
+     * value list.
+     * 
+     * @param tree The AST node that we wish to create an endpos for
+     * @param list A list of interpolation value AST nodes.
+     */
     void endPos(JCTree tree, com.sun.tools.javac.util.List<JFXInterpolateValue> list) {
         if (genEndPos) {
             int endLast = endPositions.get(list.last());
@@ -717,20 +945,35 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
     }
     
     /**
-     * Create the end position map for the given JCTree at the supplied\
-     * character index.
+     * Create the end position map entry for the given JCTree at the supplied
+     * character inde, which is the offset into the script source.
+     * 
      * @param tree The tree for which we are mapping the endpoint
-     * @param end The character positoin in the input stream that matches the end of the tree
+     * @param end The character position in the input stream that matches the end of the tree
      */
     void endPos(JCTree tree, int end) {
         if (genEndPos)
             endPositions.put(tree, end);
     }
 
+    /**
+     * 
+     * @return
+     */
     protected List noJFXTrees() {
         return List.<JFXTree>nil();
     }
     
+    /**
+     * If the parser is able to recover from the fact that a single token
+     * is missing from the input stream, then it will call this method
+     * to manufacture a token for use by actions in the grammar.
+     * @param input The token stream where we are normally drawing tokens from
+     * @param e The exception that was raised by the parser
+     * @param expectedTokenType The type of the token that the parser was expecting to see next
+     * @param follow The followset of tokens that can follow on from here
+     * @return A newly manufactured token of the required type
+     */
     @Override
     protected Object getMissingSymbol(IntStream input,
                                       RecognitionException e, 
