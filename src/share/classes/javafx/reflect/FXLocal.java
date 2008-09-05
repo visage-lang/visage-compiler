@@ -368,7 +368,8 @@ public class FXLocal {
                 continue;
                 String mname = m.getName();
                 if ("userInit$".equals(mname) || "postInit$".equals(mname) ||
-                        "addTriggers$".equals(mname) || "initialize$".equals(mname))
+                        "addTriggers$".equals(mname) || "initialize$".equals(mname) ||
+                        "javafx$run$".equals(mname))
                     continue;
                 if (mname.endsWith("$impl"))
                     continue;

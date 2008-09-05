@@ -1,6 +1,9 @@
 /* Feature test #24-- reflection
  *
  * @test
+ * @compile MyShape.fx
+ * @compile MyCanvasItem.fx
+ * @compile MyRect.fx
  * @run
  */
 
@@ -8,30 +11,6 @@ import javafx.reflect.*;
 import java.lang.System;
 import com.sun.javafx.runtime.sequence.Sequences;
 
-abstract class MyShape {
-  public var shapeStrAttr : String;
-  public var shapeIntAttr : Integer;
-  public var shapeNumAttr : Number;
-  public var shapeFunAttr1 : function(:Integer,:String):String;
-  public abstract function transformed(tr:java.awt.geom.AffineTransform):MyShape;
-  public function times1(x: Number): Number {
-    return shapeIntAttr*shapeNumAttr*x;
-  }
-};
-class MyCanvasItem { };
-class MyRect extends MyShape, MyCanvasItem {
-  public var crners : java.awt.geom.Point2D[];
-  /*
-  function scriptAccFun1() : Void {}
-  protected function protectedAccFun1() : Void {}
-  function privateAccFun1() : Void {}
-  public function publicAccFun1() : Void {}
-  */
-  public function corners():java.awt.geom.Point2D[] { crners }
-  override function transformed(tr:java.awt.geom.AffineTransform):MyShape {
-    MyRect { } // not right ...
-  }
-};
 
 var context : FXLocal.Context = FXLocal.getContext();
 class Square extends MyRect {
@@ -46,7 +25,7 @@ class Simple extends Square, java.lang.Object {
 
 //function run( ) {
 var clsSquare = context.findClass("Main.Square");
-var clsMyRect = context.findClass("Main.MyRect");
+var clsMyRect = context.findClass("MyRect");
 System.out.println("clsSquare={clsSquare} jfx-class:{clsSquare.isJfxType()} compound:{clsSquare.isCompoundClass()}");
 System.out.println("Sq.super: {clsSquare.getSuperClasses(false)}");
 
@@ -82,20 +61,20 @@ for (meth in clsMyRect.getFunctions(false))
      System.out.println("  {meth}");
 
 var myRect = MyRect {
-    shapeNumAttr: 1.5
-    shapeStrAttr: "str1"
-    shapeIntAttr: 12
-    shapeFunAttr1: function (x:Integer,y:String):String {
+    shapeNum: 1.5
+    shapeStr: "str1"
+    shapeInt: 12
+    shapeFun1: function (x:Integer,y:String):String {
        y.substring(x)
     }
 };
 var myRectRef = context.mirrorOf(myRect);
 
-System.out.println("MyRect attributes: ");
+System.out.println("MyRect variables: ");
 var attrsMyRect = clsMyRect.getVariables(true);
-for (attr in clsMyRect.getVariables(false)) {
-  System.out.println("  {attr}") };
-System.out.println("MyRect attributes (inherited also): ");
+for (v in clsMyRect.getVariables(false)) {
+  System.out.println("  {v}") };
+System.out.println("MyRect variables (inherited also): ");
 for (attr in attrsMyRect) {
   var attrval = attr.getValue(myRectRef);
   System.out.println("  {attr.getName()} : {attr.getType()} = {attrval.getValueString()};") };
@@ -117,9 +96,9 @@ System.out.println("MyRect.times1(Number): {m1}");
 def two_five = context.mirrorOf(2.5);
 System.out.println("call times1(2.5): {m1.invoke(myRectRef, two_five)}");
 
-var fv1 = clsMyRect.getVariable("shapeFunAttr1");
-System.out.println("MyRect.shapeFunAttr1 variable: {fv1}");
-var fun1 = fv1.getValue(myRectRef) as FXLocal.FunctionValue;
+var shapeFun1_MyRect = clsMyRect.getVariable("shapeFun1");
+System.out.println("MyRect.shapeFun1 variable: {shapeFun1_MyRect}");
+var fun1 = shapeFun1_MyRect.getValue(myRectRef) as FXLocal.FunctionValue;
 var v2 = fun1.apply(context.mirrorOf(3), context.mirrorOf("abcdefg"));
 System.out.println(" - apply(3,\"abcdefg\") => {v2.getValueString()}");
 
@@ -129,9 +108,16 @@ function repeat(x:Integer,y:String):String {
        else "{y}{repeat(x-1,y)}"
 }
 
-var fun2 = context.mirrorOf(repeat, fv1.getType());
-fv1.setValue(myRectRef, fun2);
-var fun3 = fv1.getValue(myRectRef) as FXLocal.FunctionValue;
+var myRectRef2 = clsMyRect.newInstance();
+var shapeInt_MyRect = clsMyRect.getVariable("shapeInt");
+
+System.out.println("Allocated new MyRect: shapeInt:{shapeInt_MyRect.getValue(myRectRef2)}.");
+var fun2 = context.mirrorOf(repeat, shapeFun1_MyRect.getType());
+shapeFun1_MyRect.setValue(myRectRef2, fun2);
+var fun3 = shapeFun1_MyRect.getValue(myRectRef) as FXLocal.FunctionValue;
 var v3 = fun3.apply(context.mirrorOf(3), context.mirrorOf("abc"));
-System.out.println("After updating shapeFunAttr1 to repeat:");
+System.out.println("After updating shapeFun1 to repeat:");
 System.out.println(" - apply(3,\"abc\") => {v3.getValueString()}");
+
+var str1 = clsString.newInstance();
+System.out.println("Allocated new String: {str1.getValueString()}.");

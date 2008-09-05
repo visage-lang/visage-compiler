@@ -1,13 +1,13 @@
 clsSquare=class Main.Square jfx-class:true compound:true
-Sq.super: [class Main.MyRect]
+Sq.super: [class MyRect]
 clsSimple=class Main.Simple jfx-class:true  compound:false
 Simpl.super: [class Main.Square, class java.lang.Object]
 Simpl.super (inherited also):
-  class Main.MyCanvasItem
-  class Main.MyRect
-  class Main.MyShape
   class Main.Simple
   class Main.Square
+  class MyCanvasItem
+  class MyRect
+  class MyShape
   class java.lang.Object
 clsString=class java.lang.String jfx-class:false compound:false
 String .super (direct only):
@@ -109,21 +109,25 @@ String methods (inherited also):
   function java.lang.Object.wait(JavaLong):Void
   function java.lang.Object.wait(JavaLong,Integer):Void
 Square methods (inherited also):
-  function Main.MyRect.corners():java.awt.geom.Point2D[]
-  function Main.MyShape.times1(Number):Number
-  function Main.MyShape.transformed(java.awt.geom.AffineTransform):Main.MyShape
-  function Main.MyRect.transformed(java.awt.geom.AffineTransform):Main.MyShape
+  function MyRect.corners():java.awt.geom.Point2D[]
+  function MyCanvasItem.main(JavaArray<java.lang.String>):Void
+  function MyShape.main(JavaArray<java.lang.String>):Void
+  function MyRect.main(JavaArray<java.lang.String>):Void
+  function MyShape.times1(Number):Number
+  function MyShape.transformed(java.awt.geom.AffineTransform):MyShape
+  function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
 MyRect.methods: 
-  function Main.MyRect.corners():java.awt.geom.Point2D[]
-  function Main.MyRect.transformed(java.awt.geom.AffineTransform):Main.MyShape
-MyRect attributes: 
-  attribute Main.MyRect.crners:java.awt.geom.Point2D[]
-MyRect attributes (inherited also): 
+  function MyRect.corners():java.awt.geom.Point2D[]
+  function MyRect.main(JavaArray<java.lang.String>):Void
+  function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
+MyRect variables: 
+  attribute MyRect.crners:java.awt.geom.Point2D[]
+MyRect variables (inherited also): 
   crners : java.awt.geom.Point2D[] = ;
-  shapeFunAttr1 : function(Integer,java.lang.String):java.lang.String = function(Integer,java.lang.String):java.lang.String{...};
-  shapeIntAttr : Integer = 12;
-  shapeNumAttr : Number = 1.5;
-  shapeStrAttr : class java.lang.String = str1;
+  shapeFun1 : function(Integer,java.lang.String):java.lang.String = function(Integer,java.lang.String):java.lang.String{...};
+  shapeInt : Integer = 12;
+  shapeNum : Number = 1.5;
+  shapeStr : class java.lang.String = str1;
 Square attributes (only):
   atBlank : class java.lang.String
   atProt : class java.lang.String
@@ -131,13 +135,18 @@ Square attributes (only):
 Simple attributes (only):
   at1 : class java.lang.Object
 MyRect methods:
-  function Main.MyRect.corners():java.awt.geom.Point2D[]
-  function Main.MyShape.times1(Number):Number
-  function Main.MyShape.transformed(java.awt.geom.AffineTransform):Main.MyShape
-  function Main.MyRect.transformed(java.awt.geom.AffineTransform):Main.MyShape
-MyRect.times1(Number): function Main.MyRect.times1(Number):Number
+  function MyRect.corners():java.awt.geom.Point2D[]
+  function MyCanvasItem.main(JavaArray<java.lang.String>):Void
+  function MyShape.main(JavaArray<java.lang.String>):Void
+  function MyRect.main(JavaArray<java.lang.String>):Void
+  function MyShape.times1(Number):Number
+  function MyShape.transformed(java.awt.geom.AffineTransform):MyShape
+  function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
+MyRect.times1(Number): function MyRect.times1(Number):Number
 call times1(2.5): NumberValue(45.0)
-MyRect.shapeFunAttr1 variable: attribute Main.MyShape.shapeFunAttr1:function(Integer,java.lang.String):java.lang.String
+MyRect.shapeFun1 variable: attribute MyShape.shapeFun1:function(Integer,java.lang.String):java.lang.String
  - apply(3,"abcdefg") => defg
-After updating shapeFunAttr1 to repeat:
- - apply(3,"abc") => abcabcabc
+Allocated new MyRect: shapeInt:IntegerValue(10).
+After updating shapeFun1 to repeat:
+ - apply(3,"abc") => 
+Allocated new String: .
