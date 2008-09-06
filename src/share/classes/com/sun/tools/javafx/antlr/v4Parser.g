@@ -371,9 +371,7 @@ importId
 					$pid = F.at($n2.pos).Select($pid, names.asterisk);
                     endPos($pid);
 				}
-        )?  
-        
-       
+        )?
 	;
 	
 // Class definition.
@@ -483,7 +481,6 @@ classMember
 			  variableDeclaration		[$m.mods] 		{ $member = $variableDeclaration.value; }
 			| functionDefinition		[$m.mods]		{ $member = $functionDefinition.value; 	}
 		)
-	
 	;
 
 
@@ -1225,6 +1222,7 @@ boundExpression
 		}
 	;
 	
+
 // -----------
 // expression.
 // General expression parse and AST build.
@@ -3047,6 +3045,28 @@ identifier
 		}
 	;
 
+// Catch an error when looking for a name. The only error we can
+// have is that it is not there, so we create an error node for
+// placing in the AST
+//
+catch [RecognitionException re] {
+  
+  	// First, lets report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now create an AST node that represents a missing identifier, The required entry
+	// is of type Name so we use an identifier name that cannot exist in
+	// JavaFX, so that IDEs can detect it.
+	//
+	value = F.at(pos()).Ident(Name.fromString(names, "<missing IDENTIFIER>"));
+	
+	// The AST has no span as the identifier isn't really there
+	//
+	endPos(value, pos());
+
+ }
+ 
 // ------------------------
 // ID
 // Parse and identifier token that isn't necessarilly an Identifier,
@@ -3061,10 +3081,27 @@ name
 		{ 
 			$value = Name.fromString(names, $IDENTIFIER.text); 
 			$pos = pos($IDENTIFIER); 
-		}
-					
+		}				
 	;
 
+// Catch an error when looking for a name. The only error we can
+// have is that it is not there, so we create an error node for
+// placing in the AST
+//
+catch [RecognitionException re] {
+  
+  	// First, lets report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now create an AST node that represents a missing name, The required entry
+	// is of type Name so we use an identifier name that cannot exist in
+	// JavaFX, so that IDEs can detect it.
+	//
+	retval.value = Name.fromString(names, "<missing IDENTIFIER>"); 
+	retval.pos   = pos();
+ }
+ 
 // -----------------------
 // Process a SEMI colon that is always required, regardless of
 // where the contruct is in the script. There are not too many
