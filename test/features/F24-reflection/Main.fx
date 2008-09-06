@@ -75,9 +75,9 @@ var attrsMyRect = clsMyRect.getVariables(true);
 for (v in clsMyRect.getVariables(false)) {
   System.out.println("  {v}") };
 System.out.println("MyRect variables (inherited also): ");
-for (attr in attrsMyRect) {
-  var attrval = attr.getValue(myRectRef);
-  System.out.println("  {attr.getName()} : {attr.getType()} = {attrval.getValueString()};") };
+for (v in attrsMyRect) {
+  var vval = v.getValue(myRectRef);
+  System.out.println("  {if (v.isStatic()) "static " else ""}{v.getName()} : {v.getType()} = {vval.getValueString()};") };
 
 System.out.println("Square attributes (only):");
 for (attr in context.findClass("Main.Square").getVariables(false)) {
@@ -108,9 +108,12 @@ function repeat(x:Integer,y:String):String {
        else "{y}{repeat(x-1,y)}"
 }
 
+var shapeIntDefault_MyRect = clsMyRect.getVariable("shapeIntDefault");
+System.out.println("{shapeIntDefault_MyRect} (static): {shapeIntDefault_MyRect.getValue(null)}");
+shapeIntDefault_MyRect.setValue(null, context.mirrorOf(20));
+
 var myRectRef2 = clsMyRect.newInstance();
 var shapeInt_MyRect = clsMyRect.getVariable("shapeInt");
-
 System.out.println("Allocated new MyRect: shapeInt:{shapeInt_MyRect.getValue(myRectRef2)}.");
 var fun2 = context.mirrorOf(repeat, shapeFun1_MyRect.getType());
 shapeFun1_MyRect.setValue(myRectRef2, fun2);

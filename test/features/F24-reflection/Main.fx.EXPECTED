@@ -121,11 +121,12 @@ MyRect.methods:
   function MyRect.main(JavaArray<java.lang.String>):Void
   function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
 MyRect variables: 
-  attribute MyRect.crners:java.awt.geom.Point2D[]
+  var MyRect.crners:java.awt.geom.Point2D[]
 MyRect variables (inherited also): 
   crners : java.awt.geom.Point2D[] = ;
   shapeFun1 : function(Integer,java.lang.String):java.lang.String = function(Integer,java.lang.String):java.lang.String{...};
   shapeInt : Integer = 12;
+  static shapeIntDefault : Integer = 10;
   shapeNum : Number = 1.5;
   shapeStr : class java.lang.String = str1;
 Square attributes (only):
@@ -144,9 +145,10 @@ MyRect methods:
   function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
 MyRect.times1(Number): function MyRect.times1(Number):Number
 call times1(2.5): NumberValue(45.0)
-MyRect.shapeFun1 variable: attribute MyShape.shapeFun1:function(Integer,java.lang.String):java.lang.String
+MyRect.shapeFun1 variable: var MyShape.shapeFun1:function(Integer,java.lang.String):java.lang.String
  - apply(3,"abcdefg") => defg
-Allocated new MyRect: shapeInt:IntegerValue(10).
+var MyShape.shapeIntDefault:Integer (static): IntegerValue(10)
+Allocated new MyRect: shapeInt:IntegerValue(20).
 After updating shapeFun1 to repeat:
  - apply(3,"abc") => 
 Allocated new String: .

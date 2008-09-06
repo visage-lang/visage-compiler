@@ -48,7 +48,7 @@ public abstract class FXVarMember implements FXMember {
     
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("attribute ");
+        sb.append("var ");
         FXClassType owner = getDeclaringClass();
         if (owner != null) {
             String oname = owner.getName();

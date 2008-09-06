@@ -604,7 +604,9 @@ public class FXLocal {
         }
 
         public boolean isStatic() {
-            throw new UnsupportedOperationException("Not supported yet.");
+            int mods = locationGetter != null ? locationGetter.getModifiers()
+                    : fld.getModifiers();
+            return (mods & Modifier.STATIC) != 0;
         }
     }
 
@@ -626,7 +628,7 @@ public class FXLocal {
         public FXClassType getDeclaringClass() { return owner; }
     
         public boolean isStatic() {
-            return (method.getModifiers() &  java.lang.reflect.Modifier.STATIC) != 0;
+            return (method.getModifiers() &  Modifier.STATIC) != 0;
         }
 
         public FXFunctionType getType() {
