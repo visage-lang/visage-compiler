@@ -1583,7 +1583,7 @@ typeExpression
 			| AS atn=type
 			
 				{
-					$value = F.at(pos($AS)).TypeCast($atn.rtype, $relationalExpression.value);
+					$value = F.at($relationalExpression.value.pos).TypeCast($atn.rtype, $relationalExpression.value);
 					endPos($value);
 				}
 			
