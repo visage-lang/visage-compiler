@@ -369,7 +369,7 @@ importId
         	
         		{
 					$pid = F.at($n2.pos).Select($pid, names.asterisk);
-                    endPos($pid);
+                   endPos($pid);
 				}
         )?
 	;
@@ -1905,7 +1905,7 @@ postfixExpression
 	          			
 	          			// Predicate needs identifier AST
 	          			//
-                  		$value = F.at(pos($PIPE)).Predicate(clauses.toList(), F.at($n2.pos).Ident($n2.value));
+                  		$value = F.at(pos($l1)).Predicate(clauses.toList(), F.at($n2.pos).Ident($n2.value));
                   		
                   		// Tree span
                   		//
