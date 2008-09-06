@@ -148,6 +148,8 @@ call times1(2.5): NumberValue(45.0)
 MyRect.shapeFun1 variable: var MyShape.shapeFun1:function(Integer,java.lang.String):java.lang.String
  - apply(3,"abcdefg") => defg
 var MyShape.shapeIntDefault:Integer (static): IntegerValue(10)
+Created myRectRef2 = MyRect{shapeNum: 2.5}.
+call myRectRef2.times1(2.5): NumberValue(125.0)
 Allocated new MyRect: shapeInt:IntegerValue(20).
 After updating shapeFun1 to repeat:
  - apply(3,"abc") => 

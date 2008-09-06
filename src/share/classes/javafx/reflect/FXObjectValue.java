@@ -48,7 +48,7 @@ public abstract class FXObjectValue extends FXValue {
    * Should only be called between {@code cls.allocate()} and {@code obj.initialize()}.
    */
   public void initVar(FXVarMember attr, FXValue value) {
-      throw new UnsupportedOperationException("unimplemented: initVar");
+      attr.initVar(this, value);
   }
   /** Bind an attribute of an object to a given location.
    * Should only be called between {@code cls.allocate()} and {@code obj.initialize()}.

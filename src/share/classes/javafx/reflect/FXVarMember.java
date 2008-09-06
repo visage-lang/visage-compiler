@@ -44,6 +44,7 @@ public abstract class FXVarMember implements FXMember {
         return new FXVarMemberLocation(obj, this);
     }
 
+    protected abstract void initVar(FXObjectValue instance, FXValue value);
     public abstract void initValue(FXObjectValue obj, FXValue ref);
     
     public String toString() {

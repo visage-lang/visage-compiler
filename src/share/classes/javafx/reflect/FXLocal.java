@@ -29,6 +29,7 @@ import com.sun.javafx.runtime.location.ObjectLocation;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.javafx.runtime.annotation.SourceName;
+import com.sun.javafx.runtime.location.*;
 import com.sun.tools.javafx.util.NotImplementedException;
 import com.sun.javafx.runtime.FXObject;
 
@@ -560,6 +561,37 @@ public class FXLocal {
             throw new UnsupportedOperationException("Not supported yet - "+type+"["+type.getClass().getName()+"]");
         }
 
+        static final Object[] noObjects = {};
+
+        protected void initVar(FXObjectValue instance, FXValue value) {
+            try {
+                Object robj = ((ObjectValue) instance).obj;
+                Object loc;
+                if (locationGetter != null)
+                    loc = locationGetter.invoke(robj, noObjects);
+                else
+                    loc = fld.get(robj);
+                if (loc instanceof IntVariable) {
+                    ((IntVariable) loc).setAsIntFromLiteral(((FXIntegerValue) value).intValue());
+                    return;
+                }
+                if (loc instanceof DoubleVariable) {
+                    ((DoubleVariable) loc).setAsDoubleFromLiteral(((FXNumberValue) value).doubleValue());
+                    return;
+                }
+                if (loc instanceof AbstractVariable) {
+                    ((AbstractVariable) loc).setFromLiteral(((ObjectValue) value).asObject());
+                    return;
+                }
+            }
+            catch (RuntimeException ex) {
+                throw ex;
+            }
+            catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+            throw new UnsupportedOperationException("unimplemented: initVar");
+        }
         @Override
         public void setValue(FXObjectValue obj, FXValue newValue) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
@@ -569,7 +601,7 @@ public class FXLocal {
                         (Context) owner.getReflectionContext();
                     Object val;
                     if (locationGetter != null)
-                        val = locationGetter.invoke(robj, new Object[0]);
+                        val = locationGetter.invoke(robj, noObjects);
                     else
                         val = fld.get(robj);
                     Object newVal = ((Value) newValue).asObject();

@@ -91,10 +91,10 @@ System.out.println("MyRect methods:");
 for (meth in clsMyRect.getFunctions(true)) {
   System.out.println("  {meth}"); };
 
-def m1 = clsMyRect.getFunction("times1", context.getNumberType());
-System.out.println("MyRect.times1(Number): {m1}");
+def times1_MyRect = clsMyRect.getFunction("times1", context.getNumberType());
+System.out.println("MyRect.times1(Number): {times1_MyRect}");
 def two_five = context.mirrorOf(2.5);
-System.out.println("call times1(2.5): {m1.invoke(myRectRef, two_five)}");
+System.out.println("call times1(2.5): {times1_MyRect.invoke(myRectRef, two_five)}");
 
 var shapeFun1_MyRect = clsMyRect.getVariable("shapeFun1");
 System.out.println("MyRect.shapeFun1 variable: {shapeFun1_MyRect}");
@@ -112,7 +112,11 @@ var shapeIntDefault_MyRect = clsMyRect.getVariable("shapeIntDefault");
 System.out.println("{shapeIntDefault_MyRect} (static): {shapeIntDefault_MyRect.getValue(null)}");
 shapeIntDefault_MyRect.setValue(null, context.mirrorOf(20));
 
-var myRectRef2 = clsMyRect.newInstance();
+var myRectRef2 = clsMyRect.allocate();
+myRectRef2.initVar("shapeNum", context.mirrorOf(2.5));
+myRectRef2.initialize();
+System.out.println("Created myRectRef2 = MyRect\{shapeNum: 2.5\}.");
+System.out.println("call myRectRef2.times1(2.5): {times1_MyRect.invoke(myRectRef2, two_five)}");
 var shapeInt_MyRect = clsMyRect.getVariable("shapeInt");
 System.out.println("Allocated new MyRect: shapeInt:{shapeInt_MyRect.getValue(myRectRef2)}.");
 var fun2 = context.mirrorOf(repeat, shapeFun1_MyRect.getType());
