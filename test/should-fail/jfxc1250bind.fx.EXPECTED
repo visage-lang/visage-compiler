@@ -1,121 +1,121 @@
-test\should-fail\jfxc1250bind.fx:21: warning: The access modifier public includes the access of public-init.
+test/should-fail/jfxc1250bind.fx:21: warning: The access modifier public includes the access of public-init.
 	public-init public var memHereIPub = 0;
-	                   ^
-test\should-fail\jfxc1250bind.fx:26: warning: The access modifier public includes the access of public-read.
+	^
+test/should-fail/jfxc1250bind.fx:26: warning: The access modifier public includes the access of public-read.
 	public-read public var memHereRPub = 0;
-	                   ^
-test\should-fail\jfxc1250bind.fx:31: warning: The access modifier public includes the access of public-read.
+	^
+test/should-fail/jfxc1250bind.fx:31: warning: The access modifier public includes the access of public-read.
 	public-init public-read public var memHereIRPub = 0;
-	                               ^
-test\should-fail\jfxc1250bind.fx:32: warning: The access modifier public-init includes the access of public-read.
+	^
+test/should-fail/jfxc1250bind.fx:32: warning: The access modifier public-init includes the access of public-read.
 	public-init public-read protected var memHereIRPro = 0;
-	                                  ^
-test\should-fail\jfxc1250bind.fx:33: warning: The access modifier public-init includes the access of public-read.
+	^
+test/should-fail/jfxc1250bind.fx:33: warning: The access modifier public-init includes the access of public-read.
 	public-init public-read package var memHereIRPkg = 0;
-	                                ^
-test\should-fail\jfxc1250bind.fx:34: warning: The access modifier public-init includes the access of public-read.
+	^
+test/should-fail/jfxc1250bind.fx:34: warning: The access modifier public-init includes the access of public-read.
 	public-init public-read var memHereIRScr = 0;
-	                        ^
-test\should-fail\jfxc1250bind.fx:43: warning: The access modifier public includes the access of public-init.
+	^
+test/should-fail/jfxc1250bind.fx:43: warning: The access modifier public includes the access of public-init.
 	public-init public var fooIPub = 0;
-	                   ^
-test\should-fail\jfxc1250bind.fx:48: warning: The access modifier public includes the access of public-read.
+	^
+test/should-fail/jfxc1250bind.fx:48: warning: The access modifier public includes the access of public-read.
 	public-read public var fooRPub = 0;
-	                   ^
-test\should-fail\jfxc1250bind.fx:53: warning: The access modifier public includes the access of public-read.
+	^
+test/should-fail/jfxc1250bind.fx:53: warning: The access modifier public includes the access of public-read.
 	public-init public-read public var fooIRPub = 0;
-	                               ^
-test\should-fail\jfxc1250bind.fx:54: warning: The access modifier public-init includes the access of public-read.
+	^
+test/should-fail/jfxc1250bind.fx:54: warning: The access modifier public-init includes the access of public-read.
 	public-init public-read protected var fooIRPro = 0;
-	                                  ^
-test\should-fail\jfxc1250bind.fx:55: warning: The access modifier public-init includes the access of public-read.
+	^
+test/should-fail/jfxc1250bind.fx:55: warning: The access modifier public-init includes the access of public-read.
 	public-init public-read package var fooIRPkg = 0;
-	                                ^
-test\should-fail\jfxc1250bind.fx:56: warning: The access modifier public-init includes the access of public-read.
+	^
+test/should-fail/jfxc1250bind.fx:56: warning: The access modifier public-init includes the access of public-read.
 	public-init public-read var fooIRScr = 0;
-	                        ^
-test\should-fail\jfxc1250bind.fx:65: memScr has script only (default) access in jfxc1250subFail
+	^
+test/should-fail/jfxc1250bind.fx:65: memScr has script only (default) access in jfxc1250subFail
 	    memScr: bind toThis,   // ERROR: inherited, same package
 	    ^
-test\should-fail\jfxc1250bind.fx:70: memIScr has script only (default) bind access in jfxc1250subFail
+test/should-fail/jfxc1250bind.fx:70: memIScr has script only (default) bind access in jfxc1250subFail
 	    memIScr: bind toThis,   // ERROR:  inherited, same package
 	    ^
-test\should-fail\jfxc1250bind.fx:75: memRScr has script only (default) bind access in jfxc1250subFail
+test/should-fail/jfxc1250bind.fx:75: memRScr has script only (default) bind access in jfxc1250subFail
 	    memRScr: bind toThis,   // ERROR: inherited, same package
 	    ^
-test\should-fail\jfxc1250bind.fx:80: memIRScr has script only (default) bind access in jfxc1250subFail
+test/should-fail/jfxc1250bind.fx:80: memIRScr has script only (default) bind access in jfxc1250subFail
 	    memIRScr: bind toThis,   // ERROR:  inherited, same package
 	    ^
-test\should-fail\jfxc1250bind.fx:90: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+test/should-fail/jfxc1250bind.fx:90: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
 	    memPkg: bind toThis,   // ERROR: inherited, different package
 	    ^
-test\should-fail\jfxc1250bind.fx:91: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:91: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	    memScr: bind toThis,   // ERROR: inherited, different package
 	    ^
-test\should-fail\jfxc1250bind.fx:95: memIPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:95: memIPkg has package bind access in jfxc1250.a.jfxc1250subFailA
 	    memIPkg: bind toThis,   // ERROR:  inherited, different package
 	    ^
-test\should-fail\jfxc1250bind.fx:96: memIScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:96: memIScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
 	    memIScr: bind toThis,   // ERROR:  inherited, different package
 	    ^
-test\should-fail\jfxc1250bind.fx:100: memRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:100: memRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
 	    memRPkg: bind toThis,   // ERROR: inherited, different package
 	    ^
-test\should-fail\jfxc1250bind.fx:101: memRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:101: memRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
 	    memRScr: bind toThis,   // ERROR: inherited, different package
 	    ^
-test\should-fail\jfxc1250bind.fx:105: memIRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:105: memIRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
 	    memIRPkg: bind toThis,   // ERROR:  inherited, different package
 	    ^
-test\should-fail\jfxc1250bind.fx:106: memIRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:106: memIRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
 	    memIRScr: bind toThis,   // ERROR:  inherited, different package
 	    ^
-test\should-fail\jfxc1250bind.fx:174: memScr has script only (default) access in jfxc1250subFail
+test/should-fail/jfxc1250bind.fx:174: memScr has script only (default) access in jfxc1250subFail
 	    memScr: bind toThis,   // ERROR: same package
 	    ^
-test\should-fail\jfxc1250bind.fx:179: memIScr has script only (default) bind access in jfxc1250subFail
+test/should-fail/jfxc1250bind.fx:179: memIScr has script only (default) bind access in jfxc1250subFail
 	    memIScr: bind toThis,   // ERROR:  same package
 	    ^
-test\should-fail\jfxc1250bind.fx:184: memRScr has script only (default) bind access in jfxc1250subFail
+test/should-fail/jfxc1250bind.fx:184: memRScr has script only (default) bind access in jfxc1250subFail
 	    memRScr: bind toThis,   // ERROR: same package
 	    ^
-test\should-fail\jfxc1250bind.fx:189: memIRScr has script only (default) bind access in jfxc1250subFail
+test/should-fail/jfxc1250bind.fx:189: memIRScr has script only (default) bind access in jfxc1250subFail
 	    memIRScr: bind toThis,   // ERROR:  same package
 	    ^
-test\should-fail\jfxc1250bind.fx:196: memPro has protected access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:196: memPro has protected access in jfxc1250.a.jfxc1250subFailA
 	    memPro: bind toThis,   // ERROR: different package
 	    ^
-test\should-fail\jfxc1250bind.fx:197: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+test/should-fail/jfxc1250bind.fx:197: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
 	    memPkg: bind toThis,   // ERROR: different package
 	    ^
-test\should-fail\jfxc1250bind.fx:198: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:198: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	    memScr: bind toThis,   // ERROR: different package
 	    ^
-test\should-fail\jfxc1250bind.fx:201: memIPro has protected bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:201: memIPro has protected bind access in jfxc1250.a.jfxc1250subFailA
 	    memIPro: bind toThis,   // ERROR:  different package
 	    ^
-test\should-fail\jfxc1250bind.fx:202: memIPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:202: memIPkg has package bind access in jfxc1250.a.jfxc1250subFailA
 	    memIPkg: bind toThis,   // ERROR:  different package
 	    ^
-test\should-fail\jfxc1250bind.fx:203: memIScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:203: memIScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
 	    memIScr: bind toThis,   // ERROR:  different package
 	    ^
-test\should-fail\jfxc1250bind.fx:206: memRPro has protected bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:206: memRPro has protected bind access in jfxc1250.a.jfxc1250subFailA
 	    memRPro: bind toThis,   // ERROR: different package
 	    ^
-test\should-fail\jfxc1250bind.fx:207: memRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:207: memRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
 	    memRPkg: bind toThis,   // ERROR: different package
 	    ^
-test\should-fail\jfxc1250bind.fx:208: memRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:208: memRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
 	    memRScr: bind toThis,   // ERROR: different package
 	    ^
-test\should-fail\jfxc1250bind.fx:211: memIRPro has protected bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:211: memIRPro has protected bind access in jfxc1250.a.jfxc1250subFailA
 	    memIRPro: bind toThis,   // ERROR:  different package
 	    ^
-test\should-fail\jfxc1250bind.fx:212: memIRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:212: memIRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
 	    memIRPkg: bind toThis,   // ERROR:  different package
 	    ^
-test\should-fail\jfxc1250bind.fx:213: memIRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250bind.fx:213: memIRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
 	    memIRScr: bind toThis,   // ERROR:  different package
 	    ^
 28 errors

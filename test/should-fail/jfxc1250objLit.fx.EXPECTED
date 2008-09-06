@@ -1,79 +1,79 @@
-test\should-fail\jfxc1250objLit.fx:19: warning: The access modifier public includes the access of public-init.
+test/should-fail/jfxc1250objLit.fx:19: warning: The access modifier public includes the access of public-init.
 	public-init public var memHereIPub = 0;
-	                   ^
-test\should-fail\jfxc1250objLit.fx:24: warning: The access modifier public includes the access of public-read.
+	^
+test/should-fail/jfxc1250objLit.fx:24: warning: The access modifier public includes the access of public-read.
 	public-read public var memHereRPub = 0;
-	                   ^
-test\should-fail\jfxc1250objLit.fx:29: warning: The access modifier public includes the access of public-read.
+	^
+test/should-fail/jfxc1250objLit.fx:29: warning: The access modifier public includes the access of public-read.
 	public-init public-read public var memHereIRPub = 0;
-	                               ^
-test\should-fail\jfxc1250objLit.fx:30: warning: The access modifier public-init includes the access of public-read.
+	^
+test/should-fail/jfxc1250objLit.fx:30: warning: The access modifier public-init includes the access of public-read.
 	public-init public-read protected var memHereIRPro = 0;
-	                                  ^
-test\should-fail\jfxc1250objLit.fx:31: warning: The access modifier public-init includes the access of public-read.
+	^
+test/should-fail/jfxc1250objLit.fx:31: warning: The access modifier public-init includes the access of public-read.
 	public-init public-read package var memHereIRPkg = 0;
-	                                ^
-test\should-fail\jfxc1250objLit.fx:32: warning: The access modifier public-init includes the access of public-read.
+	^
+test/should-fail/jfxc1250objLit.fx:32: warning: The access modifier public-init includes the access of public-read.
 	public-init public-read var memHereIRScr = 0;
-	                        ^
-test\should-fail\jfxc1250objLit.fx:41: warning: The access modifier public includes the access of public-init.
+	^
+test/should-fail/jfxc1250objLit.fx:41: warning: The access modifier public includes the access of public-init.
 	public-init public var fooIPub = 0;
-	                   ^
-test\should-fail\jfxc1250objLit.fx:46: warning: The access modifier public includes the access of public-read.
+	^
+test/should-fail/jfxc1250objLit.fx:46: warning: The access modifier public includes the access of public-read.
 	public-read public var fooRPub = 0;
-	                   ^
-test\should-fail\jfxc1250objLit.fx:51: warning: The access modifier public includes the access of public-read.
+	^
+test/should-fail/jfxc1250objLit.fx:51: warning: The access modifier public includes the access of public-read.
 	public-init public-read public var fooIRPub = 0;
-	                               ^
-test\should-fail\jfxc1250objLit.fx:52: warning: The access modifier public-init includes the access of public-read.
+	^
+test/should-fail/jfxc1250objLit.fx:52: warning: The access modifier public-init includes the access of public-read.
 	public-init public-read protected var fooIRPro = 0;
-	                                  ^
-test\should-fail\jfxc1250objLit.fx:53: warning: The access modifier public-init includes the access of public-read.
+	^
+test/should-fail/jfxc1250objLit.fx:53: warning: The access modifier public-init includes the access of public-read.
 	public-init public-read package var fooIRPkg = 0;
-	                                ^
-test\should-fail\jfxc1250objLit.fx:54: warning: The access modifier public-init includes the access of public-read.
+	^
+test/should-fail/jfxc1250objLit.fx:54: warning: The access modifier public-init includes the access of public-read.
 	public-init public-read var fooIRScr = 0;
-	                        ^
-test\should-fail\jfxc1250objLit.fx:63: memScr has script only (default) access in jfxc1250subFail
+	^
+test/should-fail/jfxc1250objLit.fx:63: memScr has script only (default) access in jfxc1250subFail
 	    memScr: 123,   // ERROR: inherited, same package
 	    ^
-test\should-fail\jfxc1250objLit.fx:73: memRScr has script only (default) initialization access in jfxc1250subFail
+test/should-fail/jfxc1250objLit.fx:73: memRScr has script only (default) initialization access in jfxc1250subFail
 	    memRScr: 123,   // ERROR: inherited, same package
 	    ^
-test\should-fail\jfxc1250objLit.fx:87: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+test/should-fail/jfxc1250objLit.fx:87: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
 	    memPkg: 123,   // ERROR: inherited, different package
 	    ^
-test\should-fail\jfxc1250objLit.fx:89: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250objLit.fx:89: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	    memScr: 123,   // ERROR: inherited, different package
 	    ^
-test\should-fail\jfxc1250objLit.fx:98: memRPkg has package initialization access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250objLit.fx:98: memRPkg has package initialization access in jfxc1250.a.jfxc1250subFailA
 	    memRPkg: 123,   // ERROR: inherited, different package
 	    ^
-test\should-fail\jfxc1250objLit.fx:99: memRScr has script only (default) initialization access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250objLit.fx:99: memRScr has script only (default) initialization access in jfxc1250.a.jfxc1250subFailA
 	    memRScr: 123,   // ERROR: inherited, different package
 	    ^
-test\should-fail\jfxc1250objLit.fx:172: memScr has script only (default) access in jfxc1250subFail
+test/should-fail/jfxc1250objLit.fx:172: memScr has script only (default) access in jfxc1250subFail
 	    memScr: 123,   // ERROR: same package
 	    ^
-test\should-fail\jfxc1250objLit.fx:182: memRScr has script only (default) initialization access in jfxc1250subFail
+test/should-fail/jfxc1250objLit.fx:182: memRScr has script only (default) initialization access in jfxc1250subFail
 	    memRScr: 123,   // ERROR: same package
 	    ^
-test\should-fail\jfxc1250objLit.fx:194: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+test/should-fail/jfxc1250objLit.fx:194: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
 	    memPkg: 123,   // ERROR: different package
 	    ^
-test\should-fail\jfxc1250objLit.fx:195: memPro has protected access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250objLit.fx:195: memPro has protected access in jfxc1250.a.jfxc1250subFailA
 	    memPro: 123,   // ERROR: different package
 	    ^
-test\should-fail\jfxc1250objLit.fx:196: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250objLit.fx:196: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	    memScr: 123,   // ERROR: different package
 	    ^
-test\should-fail\jfxc1250objLit.fx:204: memRPro has protected initialization access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250objLit.fx:204: memRPro has protected initialization access in jfxc1250.a.jfxc1250subFailA
 	    memRPro: 123,   // ERROR: different package
 	    ^
-test\should-fail\jfxc1250objLit.fx:205: memRPkg has package initialization access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250objLit.fx:205: memRPkg has package initialization access in jfxc1250.a.jfxc1250subFailA
 	    memRPkg: 123,   // ERROR: different package
 	    ^
-test\should-fail\jfxc1250objLit.fx:206: memRScr has script only (default) initialization access in jfxc1250.a.jfxc1250subFailA
+test/should-fail/jfxc1250objLit.fx:206: memRScr has script only (default) initialization access in jfxc1250.a.jfxc1250subFailA
 	    memRScr: 123,   // ERROR: different package
 	    ^
 14 errors

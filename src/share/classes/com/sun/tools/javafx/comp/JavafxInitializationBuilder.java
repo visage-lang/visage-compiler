@@ -711,7 +711,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         boolean isLibrary = toJava.attrEnv.toplevel.isLibrary;
         for (TranslatedVarInfo tai : translatedAttrInfo) {
-            assert tai.var != null && tai.var.getFXTag() == JavafxTag.VAR_DEF && tai.var.pos != Position.NOPOS;
+            assert tai.var != null;
+            assert tai.var.getFXTag() == JavafxTag.VAR_DEF;
+            assert tai.var.pos != Position.NOPOS;
             if (tai.isStatic()) {
                 DiagnosticPosition diagPos = tai.pos();
                 // don't put variable initialization in the static initializer if this is a simple-form

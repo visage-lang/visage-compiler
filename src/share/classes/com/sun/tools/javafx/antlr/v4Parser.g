@@ -226,13 +226,13 @@ scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, w
 			  //
 			  	m1=modifiers
 				(
-					  c=classDefinition			[$m1.mods]
+					  c=classDefinition			[$m1.mods, $m1.pos]
 					  
 					 		{ 
 								$items.append($c.value); 
 							}
 							
-					| f=functionDefinition    	[$m1.mods]
+					| f=functionDefinition    	[$m1.mods, $m1.pos]
 					
 
 					 		{ 
@@ -263,7 +263,7 @@ scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, w
 //
 modifiers
 
-	returns [JFXModifiers mods]	// Constructs and returns a specialized modifer node
+	returns [JFXModifiers mods, int pos]	// Constructs and returns a specialized modifer node
 
 @init {
 
@@ -273,7 +273,7 @@ modifiers
 	
 	// The start character position for this AST
 	//
-	int   	cPos		= pos();
+	$pos		= pos();
 }
 
 	: 	(	
@@ -290,8 +290,8 @@ modifiers
 		{
 			// Build the modifier flags (just as empty if we did not pick any up)
 			//
-			$mods = F.at(cPos).Modifiers(flags);
-			
+			$mods = F.at($pos).Modifiers(flags);
+
 			// Tree span
 			//
 			endPos($mods);
@@ -380,7 +380,7 @@ importId
 //
 // param mods The previously built modifier flags
 //
-classDefinition [ JFXModifiers mods ]
+classDefinition [ JFXModifiers mods, int pos ]
 
 	returns [JFXClassDeclaration value]	// The class definition has its own JFXTree type
 	
@@ -400,7 +400,7 @@ classDefinition [ JFXModifiers mods ]
 		RBRACE
 		
 		{ 
-			$value = F.at(pos($CLASS)).ClassDeclaration
+			$value = F.at($pos).ClassDeclaration
 			
 				(
 	  						  
@@ -478,8 +478,8 @@ classMember
 			overrideDeclaration		{ $member = $overrideDeclaration.value;	}
 	| m=modifiers
 		(
-			  variableDeclaration		[$m.mods] 		{ $member = $variableDeclaration.value; }
-			| functionDefinition		[$m.mods]		{ $member = $functionDefinition.value; 	}
+			  variableDeclaration		[$m.mods, $m.pos] 		{ $member = $variableDeclaration.value; }
+			| functionDefinition		[$m.mods, $m.pos]		{ $member = $functionDefinition.value; 	}
 		)
 	;
 
@@ -490,7 +490,7 @@ classMember
 // As always, the semantic pass of the JFX tree must verify that the
 // supplied modifers are valid in this context.
 //
-functionDefinition [ JFXModifiers mods ]
+functionDefinition [ JFXModifiers mods, int pos ]
 
 	returns [JFXFunctionDefinition value]		// A function defintion has a specialized node in the JavaFX AST
 
@@ -521,7 +521,7 @@ functionDefinition [ JFXModifiers mods ]
 		{
 			// Create the function defintion AST
 			//
-			$value = F.at(pos($FUNCTION)).FunctionDefinition
+			$value = F.at($pos).FunctionDefinition
 							(
 								$mods,
 								$name.value, 
@@ -620,7 +620,7 @@ postInitDefinition
 // the same (syntactically) at all levels.
 // Parser a variable declaration and return the resultant JFX expression tree.
 //
-variableDeclaration [ JFXModifiers mods ]
+variableDeclaration [ JFXModifiers mods, int pos ]
 
 	returns [JFXExpression value]
 
@@ -643,6 +643,7 @@ variableDeclaration [ JFXModifiers mods ]
     // ONReplace clause if present
     //
     JFXOnReplace  oValue = null;
+    
 }
 	: variableLabel  name  typeReference 
 
@@ -670,7 +671,7 @@ variableDeclaration [ JFXModifiers mods ]
 	    	
 	    	// Construct the varaible JFXTree
 	    	//
-	    	$value = F.at($variableLabel.pos).Var
+	    	$value = F.at($pos).Var
 	    				(
 	    					$name.value,
 	    					$typeReference.rtype,
@@ -1268,12 +1269,9 @@ expression
 	  // to throw out modifiers where they are not allowed such as on 
 	  // local variable declarations.
 	  //
-	  {
-	  	ePos = pos();
-	  }
 	  m=modifiers 
 	   	
-	  	variableDeclaration [$m.mods]
+	  	variableDeclaration [$m.mods, $m.pos]
 	
 		{
 			$value = $variableDeclaration.value;
@@ -1327,6 +1325,10 @@ inClause
 	// Assume no WHERE expression
 	//
 	JFXExpression weVal = null;
+	
+	// Start postion
+	//
+	int sPos = pos();
 }
 
 	: formalParameter IN se=expression 
@@ -1337,7 +1339,7 @@ inClause
 		)
 		
 		{
-			$value = F.at(pos($IN)).InClause($formalParameter.var, $se.value, weVal);
+			$value = F.at(sPos).InClause($formalParameter.var, $se.value, weVal);
 			endPos($value); 
 		}
 	;
@@ -1870,7 +1872,7 @@ postfixExpression
 					expressionList RPAREN
 			
 				{
-					$value = F.at(pos($LPAREN)).Apply(null, $value, $expressionList.args.toList());
+					$value = F.at(sPos).Apply(null, $value, $expressionList.args.toList());
 					endPos($value);
 				}
 				
@@ -1905,7 +1907,7 @@ postfixExpression
 	          			
 	          			// Predicate needs identifier AST
 	          			//
-                  		$value = F.at(pos($l1)).Predicate(clauses.toList(), F.at($n2.pos).Ident($n2.value));
+                  		$value = F.at(sPos).Predicate(clauses.toList(), F.at($n2.pos).Ident($n2.value));
                   		
                   		// Tree span
                   		//
@@ -2169,13 +2171,13 @@ objectLiteralPart
 		
 	| modifiers
 		(
-			  variableDeclaration    [$modifiers.mods]
+			  variableDeclaration    [$modifiers.mods, $modifiers.pos]
 			  
 			  	{
 			  		$value = $variableDeclaration.value;
 			  	}
 			  	
-			| functionDefinition	 [$modifiers.mods]
+			| functionDefinition	 [$modifiers.mods, $modifiers.pos]
 			
 				{
 					$value = $functionDefinition.value;
@@ -2670,7 +2672,6 @@ bracketExpression
 	                    	// Explicit sequence detected
 	                    	//
 	                    	$value = F.at(rPos).ExplicitSequence(seqexp.toList());
-	                    	endPos($value);
 	                    }
 	                    
 		     		| DOTDOT
@@ -2679,18 +2680,19 @@ bracketExpression
 		     	    	( STEP st=expression { stepEx = $st.value; } )?
 		     	    	
 		     	    	{
-		     	    		$value = F.at(pos($DOTDOT)).RangeSequence($e1.value, $dd.value, stepEx, haveLT);
-		     	    		endPos($value);
+		     	    		$value = F.at(rPos).RangeSequence($e1.value, $dd.value, stepEx, haveLT);
 		     	    	}
 		     	)
 		     	
 		     |  // Empty sequence 
 		     	{
 		     		 $value = F.at(rPos).EmptySequence();
-		     		 endPos($value);
 		     	}
 	    )
 	  RBRACKET
+	  {
+	  	endPos($value);
+	  }
 	;
 
 // ----------------

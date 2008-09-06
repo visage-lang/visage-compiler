@@ -1,4 +1,4 @@
 test/should-fail/jfxc692.fx:12: warning: empty sequence range literal, probably not what you meant.
 var seq2 = [ 10..1 ];
-               ^
+           ^
 1 warning

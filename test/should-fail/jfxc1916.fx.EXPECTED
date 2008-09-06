@@ -1,20 +1,20 @@
-test\should-fail\jfxc1916.fx:7: warning: The access modifier public-init includes the access of public-read.
+test/should-fail/jfxc1916.fx:7: warning: The access modifier public-init includes the access of public-read.
 public-read public-init var a:Integer=10;
-                        ^
-test\should-fail\jfxc1916.fx:8: warning: The access modifier public-init includes the access of public-read.
+^
+test/should-fail/jfxc1916.fx:8: warning: The access modifier public-init includes the access of public-read.
 public-read public-init package var ap:Integer=10;
-                                ^
-test\should-fail\jfxc1916.fx:11: warning: The access modifier public-init includes the access of public-read.
+^
+test/should-fail/jfxc1916.fx:11: warning: The access modifier public-init includes the access of public-read.
   public-init public-read var b:Integer=10;
-                          ^
-test\should-fail\jfxc1916.fx:12: warning: The access modifier public-init includes the access of public-read.
+  ^
+test/should-fail/jfxc1916.fx:12: warning: The access modifier public-init includes the access of public-read.
   public-init public-read protected var bs:Integer=10;
-                                    ^
-test\should-fail\jfxc1916.fx:13: warning: The access modifier public-init includes the access of public-read.
+  ^
+test/should-fail/jfxc1916.fx:13: warning: The access modifier public-init includes the access of public-read.
   public-init public-read package var bp:Integer=10;
-                                  ^
-test\should-fail\jfxc1916.fx:14: illegal combination of modifiers: public and package
+  ^
+test/should-fail/jfxc1916.fx:14: illegal combination of modifiers: public and package
   public-init public-read public package var bp:Integer=10;
-                                         ^
+  ^
 1 error
 5 warnings

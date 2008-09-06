@@ -1,28 +1,28 @@
-test\should-fail\jfxc1911.fx:8: modifier public not allowed here
+test/should-fail/jfxc1911.fx:8: modifier public not allowed here
   public var x = 0;
-         ^
-test\should-fail\jfxc1911.fx:9: modifier package not allowed here
+  ^
+test/should-fail/jfxc1911.fx:9: modifier package not allowed here
   package var y = 0;
-          ^
-test\should-fail\jfxc1911.fx:10: modifier protected not allowed here
+  ^
+test/should-fail/jfxc1911.fx:10: modifier protected not allowed here
   protected var z = 0;
-            ^
-test\should-fail\jfxc1911.fx:11: modifier public-init not allowed here
+  ^
+test/should-fail/jfxc1911.fx:11: modifier public-init not allowed here
   public-init var a = 0;
-              ^
-test\should-fail\jfxc1911.fx:12: modifier public-read not allowed here
+  ^
+test/should-fail/jfxc1911.fx:12: modifier public-read not allowed here
   public-read var b = 0;
-              ^
-test\should-fail\jfxc1911.fx:16: modifier public not allowed here
+  ^
+test/should-fail/jfxc1911.fx:16: modifier public not allowed here
   public def x = 0;
-         ^
-test\should-fail\jfxc1911.fx:17: modifier package not allowed here
+  ^
+test/should-fail/jfxc1911.fx:17: modifier package not allowed here
   package def y = 0;
-          ^
-test\should-fail\jfxc1911.fx:18: modifier protected not allowed here
+  ^
+test/should-fail/jfxc1911.fx:18: modifier protected not allowed here
   protected def z = 0;
-            ^
-test\should-fail\jfxc1911.fx:19: modifier public-read not allowed here
+  ^
+test/should-fail/jfxc1911.fx:19: modifier public-read not allowed here
   public-read def b = 0;
-              ^
+  ^
 9 errors
