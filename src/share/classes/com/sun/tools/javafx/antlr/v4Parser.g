@@ -178,7 +178,7 @@ packageDecl
 
 	returns [JFXExpression value] 	// Package declaration builds a JFXExpression tree
 
-    : PACKAGE qualname SEMI
+    : PACKAGE qualname possiblyOptSemi
     
     		{ $value = $qualname.value; }
     		
@@ -204,9 +204,7 @@ scriptItems
 	returns [ListBuffer<JFXTree> items = new ListBuffer<JFXTree>()] // This rule builds a list of JFXTree, which is used 
 																	// by the caller to build the actual AST.
 																	//
-	:
-		scriptItem[$items]*
-
+	:	(scriptItem[$items] possiblyOptSemi)*
 	;
 
 scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, which is used 
@@ -374,6 +372,8 @@ importId
                     endPos($pid);
 				}
         )?  
+        
+       
 	;
 	
 // Class definition.
@@ -450,7 +450,7 @@ classMembers
 
 	returns [ListBuffer<JFXTree> mems = new ListBuffer<JFXTree>()]		// Returns a list of the class members, ready for the caller to produce the
 																		// class defintion AST.
-	: classMemberSemi[$mems]*
+	: (classMemberSemi[$mems] possiblyOptSemi)*
 	;
 	
 classMemberSemi [ListBuffer<JFXTree> mems]
@@ -508,10 +508,18 @@ functionDefinition [ JFXModifiers mods ]
 }
 	: FUNCTION name formalParameters typeReference 
 	
-		// The function block is optional as is the terminating semi colon
-		// if it is absent.
+		// The function block is optional if this is an abstract funtino definition
+		// but in that case a semi colon is required. If this is not an abstract function
+		// we let the attributioin function report that there is no function body defined
+		// as this may be coming from an IDE.
 		//
-		((LBRACE)=>block | (SEMI)=>SEMI)?
+		(	  (LBRACE)=>block 
+			
+			| 	// This alt is selected only if the functino declaration is not abstract
+				// and there was no function body. If there is a SEMI at this point, it does not
+				// matter as it will be eaten by the enclosing rule as if it were an empty statement.
+				//
+		)
 	
 		{
 			// Create the function defintion AST
@@ -682,7 +690,7 @@ variableDeclaration [ JFXModifiers mods ]
 			// Tree span
 			//
 			endPos($value); 
-		}
+		}	
 	;
 	
 
@@ -774,12 +782,13 @@ block
 	// For building invidual statements
 	//
 	JFXExpression val = null;
+	
 }
 	
 	: LBRACE 
 	
 		(
-			statement
+			statement possiblyOptSemi
 	
 				{
 					// If the current statement is not the first one
@@ -811,26 +820,28 @@ block
 
 // -----------
 // statements.
-// Parse the set of elments that are viewed as programmig statements. Note
-// that this includes expressions which are considered statements.
+// Parse the set of elements that are viewed as programming statements. Note
+// that this includes expressions, which are considered statements, or perhaps
+// more accurately, statements are just other expressions.
 // Note that each individual statement specifies whether it requires a
-// terminating SEMI, whether this is optional, or whether this is just
-// not required (such as if () {} ).
+// terminating SEMI, or whether this is optional, or whether this is
+// conditionally optional, such as the last statement of the script or
+// brace block.
 //
 statement 
+
 
 	returns [JFXExpression value] // All statements return an expression tree
 
 	: insertStatement		{ $value = $insertStatement.value; 								}
 	| deleteStatement		{ $value = $deleteStatement.value; 								}
  	| whileStatement		{ $value = $whileStatement.value; 								}
-	| BREAK    				{ $value = F.at(pos($BREAK)).Break(null); 		endPos($value); } SEMI
-	| CONTINUE  	 	 	{ $value = F.at(pos($CONTINUE)).Continue(null);	endPos($value); } SEMI
+	| BREAK    				{ $value = F.at(pos($BREAK)).Break(null); 		endPos($value); }
+	| CONTINUE  	 	 	{ $value = F.at(pos($CONTINUE)).Continue(null);	endPos($value); }
     | throwStatement	   	{ $value = $throwStatement.value; 								}
     | returnStatement 		{ $value = $returnStatement.value; 								}
     | tryStatement			{ $value = $tryStatement.value; 								}
-    | expression ((SEMI)=>SEMI)?		
-    						{ $value = $expression.value;									}
+    | expression			{ $value = $expression.value;									}
     ;
   
 // -----------  
@@ -873,7 +884,7 @@ paramNameOpt
     	{
     		{ $var = $paramName.var; }
     	}
-    	
+    
     |	{ $var = null; }
     ;
 
@@ -914,7 +925,7 @@ throwStatement
 
 	returns [JFXExpression value]	// Returns the JFX Expression tree representing what we must throw
 
-	: THROW expression ((SEMI)=>SEMI)?
+	: THROW expression
 	
 		{ 
 			// AST for the thrown expression
@@ -989,10 +1000,7 @@ insertStatement
 			// Tree span
 			//
 			endPos($value);
-		}	    
-	    
-	    ((SEMI)=>SEMI)?
-	    
+		}  
 	;
 	
 // ----------------
@@ -1052,7 +1060,6 @@ deleteStatement
 	   		//
 	   		endPos($value);
 	   }
-	   ((SEMI)=>SEMI)?
 	;
 
 // -----------------
@@ -1072,13 +1079,12 @@ returnStatement
 			  		$value = F.at(pos($RETURN)).Return($expression.value);	
 			  	}
 			  	
-			  	((SEMI)=>SEMI)?
-			  	
-			| SEMI			// Can't have a SEMI be optional here as we must eitehr consume
+			| (possiblyOptSemi)=>possiblyOptSemi //((SEMI)=>SEMI)	// Can't have a SEMI be optional here as we must eitehr consume
 							// the next expression or not.
 				{	
 					$value = F.at(pos($RETURN)).Return(null);				
 				}
+				
 		)
 		
 		{
@@ -1086,8 +1092,6 @@ returnStatement
 			//
 			endPos($value);
 		}
-		
-		
 	;
 	
 // -----------------------------
@@ -1184,7 +1188,11 @@ boundExpression
 	: BIND e1=expression 
 	
 			(
-				(WITH)=>WITH INVERSE
+				(WITH)=>WITH 
+				
+					// Future syntax: (expression AS)?
+				
+					 INVERSE
 				
 				{
 					// Update status
@@ -1230,6 +1238,8 @@ expression
  	// Used for error reporting
  	//
  	int ePos = 0;
+ 	
+
  }
 	: ifExpression
 
@@ -1353,6 +1363,7 @@ ifExpression
 }
 	: IF LPAREN econd=expression  RPAREN 
 	
+
 		THEN?  statement 			{ sVal = $statement.value;		}
 			
 			(
@@ -1367,6 +1378,7 @@ ifExpression
 			// Tree span
 			//
 			endPos($value);
+			
 		}
 	;
 	
@@ -1378,7 +1390,7 @@ elseClause
 
 	returns [JFXExpression value]	// The expression tree that represents the Else expression
 	
-	: ELSE  
+	: ELSE 
 		(
 			statement			{ $value = $statement.value; 	}
 		)
@@ -2072,7 +2084,7 @@ keyFrameLiteralPart
 
 	: k1=expression 			{ exprs.append($k1.value);	}
 	
-		(SEMI+
+		(SEMI SEMI* // This is a trick to force error recovery, otherwise SEMI+ forces an early exit exception
 		
 			k2=expression		{ exprs.append($k2.value);	}
 		)* SEMI*
@@ -3050,5 +3062,46 @@ name
 			$value = Name.fromString(names, $IDENTIFIER.text); 
 			$pos = pos($IDENTIFIER); 
 		}
-						
+					
 	;
+
+// -----------------------
+// Process a SEMI colon that is always required, regardless of
+// where the contruct is in the script. There are not too many
+// of these.
+//
+requiredSemi 
+	: { input.LA(1) != SEMI}?=>
+	
+	  // If there was no semi colon here, then we need to issue an error
+	  // though we don't worry about it syntactically.
+	  //
+	  {
+		  log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_SEMI_REQUIRED);
+	  }
+	
+	| (SEMI)=>SEMI		// This is what we want
+	
+	;
+	
+// -------------------------
+// Decides whether a SEMI is required at this point in the parse (and issues
+// an error if it is and is not present), or is optional (in which case it eats it) or
+// we have just consumed one, which means we can not worry about it as the
+// previous rule obviously decided that it wasn't optional and consumed it.
+// This rule could result in doubly reporting the absent semi colon if there
+// is a construct that consumes one, but does not find one, then a higher
+// rule calls this rule, which also decideds one is necessary as it did not see one.
+// However, the grammar is carefully soncstrcuted such that this does not happen
+//
+possiblyOptSemi
+	: 	
+			{
+				// Call super class function to decide whether to look for
+				// the SEMI or not and whether to log an error if one is 
+				// missing.
+				//
+				checkForSemi();
+			}
+	;
+

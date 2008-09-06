@@ -6,7 +6,7 @@
  */
 
 class DragNode { 
-  var onMouseDragged : function(Integer) : Void
+  var onMouseDragged : function(Integer) : Void;
   init {
     println("Creating new DragNode");
   }

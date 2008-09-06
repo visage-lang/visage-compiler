@@ -54,6 +54,26 @@ import org.antlr.runtime.*;
  */
 public abstract class AbstractGeneratedParserV4 extends Parser {
     
+        /**
+     * Create a new parser instance, pre-supplying the input token stream.
+     * @param input The stream of tokens that will be pulled from the lexer
+     */
+    protected AbstractGeneratedParserV4(TokenStream input) {
+        super(input);
+    }
+    
+    /**
+     * Create a new parser instance, pre-supplying the input token stream
+     * and the shared state.
+     * This is only used when a grammar is imported into another grammar.
+     * 
+     * @param input The stream of tokesn that will be pulled from the lexer
+     * @param state The shared state object created by an interconnectd grammar
+     */
+    protected AbstractGeneratedParserV4(TokenStream input, RecognizerSharedState state) {
+        super(input, state);
+    }
+    
     /** The factory to be used for abstract syntax tree construction.
      */
     protected JavafxTreeMaker  F;
@@ -76,7 +96,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * Should the parser generate an end positions map? 
      */
     protected boolean genEndPos;
-
+    
     /** 
      * The end positions map. 
      * End positions are built by the parser such that each entry in the map
@@ -366,25 +386,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         
     }
     
-    /**
-     * Create a new parser instance, pre-supplying the input token stream.
-     * @param input The stream of tokens that will be pulled from the lexer
-     */
-    protected AbstractGeneratedParserV4(TokenStream input) {
-        super(input);
-    }
-    
-    /**
-     * Create a new parser instance, pre-supplying the input token stream
-     * and the shared state.
-     * This is only used when a grammar is imported into another grammar.
-     * 
-     * @param input The stream of tokesn that will be pulled from the lexer
-     * @param state The shared state object created by an interconnectd grammar
-     */
-    protected AbstractGeneratedParserV4(TokenStream input, RecognizerSharedState state) {
-        super(input, state);
-    }
+
    
     /**
      * An override for the standard ANTLR mismatch method, which is called when
@@ -876,7 +878,20 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         // to find out where it is in the input stream as we want to 
         // hightlight the error with respect to that.
         //
-        int pos = ((CommonToken)(e.token)).getStartIndex();
+        int pos;
+        if  (e instanceof MissingTokenException && input.index() != 1) {
+            
+            // We were missing something, so place the error at the
+            // end of the previous good token
+            //
+            pos = semiPos();
+            
+        } else {
+            
+            // It wasn't anything missing or it was missing right at the start.
+            //
+            pos = ((CommonToken)(e.token)).getStartIndex();
+        }
 
         // Now we build the appropriate error message
         //
@@ -944,6 +959,35 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
     protected int pos(Token tok) {
         
         return ((CommonToken)tok).getStartIndex();
+    }
+    
+    /**
+     * Calculates the position in the character stream where a missing
+     * semi-colon looks like it ought to have been.
+     * 
+     * The method is called from the rule that detects that there should have been
+     * a semi colon to terminate a statement or expression, hence the input
+     * stream will be positioned too far ahead of the position we are looking to report.
+     * To find where we should report we need to search backwards in the input stream for
+     * the first non-hidden token before the current one, then position after the end of
+     * the text that that token represents.
+     * 
+     * Note that if we have a semi colon missing, then we cannot reach the beginning
+     * of the input stream as we must find a token that was not hidden before that point.
+     */
+    protected int semiPos() {
+        
+        CommonToken  tok;
+        
+        // Traverse backwards until we find a token that is on the default
+        // channel.
+        //
+        tok = (CommonToken)(input.LT(-1));
+        
+        // Now, all we need to do is position after the last character of the
+        // text that this token represents.
+        //
+        return tok.getStopIndex() +1;
     }
     
     /**
@@ -1138,6 +1182,88 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      */
     protected List noJFXTrees() {
         return List.<JFXTree>nil();
+    }
+    
+    /**
+     * Examines the token stream to see if we require a SEMI
+     * token to terminate the previous statement, or we do not.
+     * 
+     * The rules for deciding wheter a SEMI is required here or
+     * not are reasonably straight forward:
+     * 
+     * 1) If the next token is a '}' then we do not required a SEMI
+     *    as the last statement of a block does not need to terminate
+     *    with a SEMI;
+     * 
+     * 2) If the next token is EOF then we do not require a SEMI as
+     *    the last statement of the script does not require termination;
+     * 
+     * 3) If the previous token was a '}' then we do not require a SEMI
+     *    as brace blocks do not require termination ever.
+     * 
+     * 4) If the previous token was itself a SEMI then we assume that
+     *    the prior statement was terminated correctly.
+     * 
+     * 5) If the next token is ELSE, then the prior single statement
+     *    of a then clause does not require a SEMI.
+     *    For instance if (x) a else b;
+     * 
+     * Note that we always consume a SEMI colon here if there is one
+     * as there is never any harm in having too many SEMIs.
+     * 
+     * @param contextMessage Message context to use when reporting that a required SEMI is missing
+     */
+    protected void checkForSemi()
+    {
+         
+        Token nextTok       = input.LT(1);
+        int   nextTokType  = nextTok.getType();
+        
+        //System.out.println("Check " + contextMessage);
+        //System.out.println(" next token is  '" + nextTok.getText() + "'");
+        //System.out.println(" previous token is  '" + input.LT(-1).getText() + "'");
+        
+        // If there is a SEMI colon next anyway, then we just eat it
+        //
+        if  (nextTokType == v4Parser.SEMI) {
+            // Just consume it and return then
+            //
+            input.consume();
+            return;
+        }
+        
+        // Ignore if next token is something that relaxes the rules
+        //
+        if  (      nextTokType == v4Parser.RBRACE 
+                || nextTokType == Token.EOF
+                || nextTokType == v4Parser.ELSE
+                || nextTokType == v4Parser.RBRACE_LBRACE_STRING_LITERAL
+                || nextTokType == v4Parser.RBRACE_QUOTE_STRING_LITERAL
+            ) {
+            
+            // The SEMI was optional anyway so just return
+            //
+            return;
+        }
+        
+        // Now we need to know the previous on channel token
+        //
+        Token prevToken = input.LT(-1);
+        
+        if  (      prevToken.getType() == v4Parser.RBRACE
+                || prevToken.getType() == v4Parser.SEMI
+            )
+        {
+            // We don't require a SEMI after a '}' or after a prior SEMI
+            //
+            return;
+        }
+
+        // OK, having got here, we must require a SEMI and it is missing
+        // so issue the error.
+        //
+        log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_SEMI_REQUIRED);
+                 
     }
     
     /**

@@ -16,9 +16,9 @@ print(true);
 print(" pi: ");
 print(3.1415926);
 print(" Foo: ");
-print(af)
+print(af);
 print(" null: ");
-println(null)
+println(null);
 
 println("1234: ");
 println(1234);
@@ -27,9 +27,9 @@ println(true);
 println("pi: ");
 println(3.1415926);
 println("Foo: ");
-println(af)
+println(af);
 println("null: ");
-println(null)
+println(null);
 
 print([1, 2, 3]);
 println("");

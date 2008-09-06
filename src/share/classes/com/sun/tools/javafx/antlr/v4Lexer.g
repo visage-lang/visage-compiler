@@ -733,7 +733,11 @@ FLOATING_POINT_LITERAL
     			  	  			
     			  	  				{ sPos = getCharIndex(); } 
     			  	  				
-    			  	  				'.' Digits?	
+    			  	  				'.' (
+    			  	  	  					  ('0'..'9'|'a'..'f'|'A'..'F')		// Valid Hex
+    			  	  						| ('g'..'z' |'G'..'Z')				// Invalid hex
+    			  	  		
+    			  	  					)*
     			  	  				
     			  	  				{ 
     			  	  					// Error - malformed hex constant
