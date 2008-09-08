@@ -670,6 +670,16 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
+
+    @Override
+    public void visitMissingExpression(JFXMissingExpression tree) {
+        try {
+            print("(Missing Expression)");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public void visitErroneous(JFXErroneous tree) {
         try {
             print("(ERROR)");

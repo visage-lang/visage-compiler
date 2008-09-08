@@ -111,7 +111,8 @@ public class AllTreesAnalyzeTest {
         
         Set<String> constructs = new HashSet<String>();
         for (JavaFXKind k : JavaFXKind.values()) {
-            constructs.add(k.name());
+            if (!k.name().startsWith("MISSING_")) 
+                constructs.add(k.name());
         }
         
         Set<String> missingInTestFiles = new HashSet<String>(constructs);

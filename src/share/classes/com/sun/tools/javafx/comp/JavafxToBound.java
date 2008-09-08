@@ -1528,6 +1528,12 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         assert false : "should not be processed as part of a binding";
     }
 
+
+    @Override
+    public void visitMissingExpression(JFXMissingExpression tree) {
+        throw new UnsupportedOperationException("Shouldn't have gotten this far.");
+    }
+
     @Override
     public void visitErroneous(JFXErroneous tree) {
         assert false : "erroneous nodes shouldn't have gotten this far";

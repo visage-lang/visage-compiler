@@ -2421,6 +2421,11 @@ public class JavafxAttr implements JavafxVisitor {
     }
 
     @Override
+    public void visitMissingExpression(JFXMissingExpression tree) {
+        result = syms.errType;
+    }
+
+    @Override
     public void visitErroneous(JFXErroneous tree) {
         if (tree.errs != null)
             for (JFXTree err : tree.errs)

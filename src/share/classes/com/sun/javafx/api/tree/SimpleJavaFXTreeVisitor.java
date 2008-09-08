@@ -271,4 +271,9 @@ public class SimpleJavaFXTreeVisitor <R,P> implements JavaFXTreeVisitor<R,P> {
     public R visitKeyFrameLiteral(KeyFrameLiteralTree node, P p) {
         return defaultAction(node, p);
     }
+
+    public R visitMissingExpression(ExpressionTree node, P p) {
+        return defaultAction(node, p);
+    }
+
 }

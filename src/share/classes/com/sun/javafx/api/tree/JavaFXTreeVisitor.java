@@ -102,4 +102,5 @@ public interface JavaFXTreeVisitor<R,P> {
     R visitTypeClass(TypeClassTree node, P p);
     R visitTypeFunctional(TypeFunctionalTree node, P p);
     R visitTypeUnknown(TypeUnknownTree node, P p);
+    R visitMissingExpression(ExpressionTree node, P p);
 }

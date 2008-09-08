@@ -70,6 +70,8 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     /** The current symbol table. */
     protected JavafxSymtab syms;
+    
+    protected final Name missingIdent;
 
     /** Create a tree maker with null toplevel and NOPOS as initial position.
      */
@@ -80,22 +82,24 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         this.names = Name.Table.instance(context);
         this.syms = (JavafxSymtab)JavafxSymtab.instance(context);
         this.types = Types.instance(context);
+        this.missingIdent = Name.fromString(names, "<missing IDENTIFIER>");
     }
 
     /** Create a tree maker with a given toplevel and FIRSTPOS as initial position.
      */
-    protected JavafxTreeMaker(JFXScript toplevel, Name.Table names, Types types, JavafxSymtab syms) {
+    protected JavafxTreeMaker(JFXScript toplevel, Name.Table names, Types types, JavafxSymtab syms, Name missingIdent) {
         this.pos = Position.FIRSTPOS;
         this.toplevel = toplevel;
         this.names = names;
         this.types = types;
         this.syms = syms;
+        this.missingIdent = missingIdent;
     }
 
     /** Create a new tree maker for a given toplevel.
      */
     public JavafxTreeMaker forToplevel(JFXScript toplevel) {
-        return new JavafxTreeMaker(toplevel, names, types, syms);
+        return new JavafxTreeMaker(toplevel, names, types, syms, missingIdent);
     }
 
     /** Reassign current position.
@@ -228,6 +232,18 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     public JFXIdent Ident(Name name) {
         JFXIdent tree = new JFXIdent(name, null);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXMissingIdent MissingIdent() {
+        JFXMissingIdent tree = new JFXMissingIdent(missingIdent, null);
+        tree.pos = pos;
+        return tree;
+    }
+
+    public JFXMissingExpression MissingExpression() {
+        JFXMissingExpression tree = new JFXMissingExpression();
         tree.pos = pos;
         return tree;
     }

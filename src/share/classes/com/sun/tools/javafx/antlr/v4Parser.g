@@ -3040,10 +3040,18 @@ identifier
 
 	returns [JFXIdent value]
 
-	: n1=name
+	: IDENTIFIER
 		{
-			$value = F.at($n1.pos).Ident($n1.value);
-						endPos($value, $n1.pos + $n1.value.length());
+			// The catch below doesn't actually happen, as getMissingSymbol fills one in
+			// So, temporary hack
+			if ($IDENTIFIER.text.startsWith("<missing")) {
+			    $value = F.at(pos()).MissingIdent();
+			    endPos($value, pos());
+			} else {
+			    Name name = Name.fromString(names, $IDENTIFIER.text);
+			    $value = F.at(pos($IDENTIFIER)).Ident(name);
+			    endPos($value, pos($IDENTIFIER) + name.length());
+			}
 		}
 	;
 
@@ -3057,11 +3065,9 @@ catch [RecognitionException re] {
   	//
     reportError(re);
 
-	// Now create an AST node that represents a missing identifier, The required entry
-	// is of type Name so we use an identifier name that cannot exist in
-	// JavaFX, so that IDEs can detect it.
+	// Now create an AST node that represents a missing identifier.
 	//
-	value = F.at(pos()).Ident(Name.fromString(names, "<missing IDENTIFIER>"));
+	value = F.at(pos()).MissingIdent();
 	
 	// The AST has no span as the identifier isn't really there
 	//
@@ -3100,7 +3106,7 @@ catch [RecognitionException re] {
 	// is of type Name so we use an identifier name that cannot exist in
 	// JavaFX, so that IDEs can detect it.
 	//
-	retval.value = Name.fromString(names, "<missing IDENTIFIER>"); 
+	retval.value = Name.fromString(names, "<missing IDENTIFIER>");
 	retval.pos   = pos();
  }
  

@@ -388,4 +388,9 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
         r = scanAndReduce(node.getJFXType(), p, r);
         return scanAndReduce(node.getOnReplaceTree(), p, r);
     }
+
+    public R visitMissingExpression(ExpressionTree node, P p) {
+        return null;
+    }
+
 }

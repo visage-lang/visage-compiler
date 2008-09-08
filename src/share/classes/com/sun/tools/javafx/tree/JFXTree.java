@@ -131,6 +131,12 @@ public abstract class JFXTree extends JCTree implements Tree, Cloneable, Diagnos
         return s.toString();
     }
     
+    /**
+     * Was this tree expected, but missing, and filled-in by the parser
+     */
+    public boolean isMissing() {
+        return false;
+    }
     
     /****
      * Make JCTree happy

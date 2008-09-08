@@ -568,6 +568,11 @@ public interface Tree {
         TYPE_UNKNOWN(TypeUnknownTree.class),
 
         /**
+         * Used for expressions which are missing.
+         */
+        MISSING_EXPRESSION(ExpressionTree.class),
+
+        /**
          * ???
          */
         OTHER(null);
@@ -590,7 +595,11 @@ public interface Tree {
      * @return the kind of this tree.
      */
     JavaFXKind getJavaFXKind();
-    
+
+    /**
+     * Was this tree expected, but missing, and filled-in by the parser
+     */
+    boolean isMissing();
 
     /**
      * Accept method used to implement the visitor pattern.  The
