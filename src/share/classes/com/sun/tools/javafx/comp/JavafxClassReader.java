@@ -416,6 +416,8 @@ public class JavafxClassReader extends ClassReader {
                      csym.jsymbol = jsym;
                  }
             }
+            if (jpackage.exists())
+                psym.flags_field |= EXISTS;
         } else {
             sym.owner.complete();
             JavafxClassSymbol csym = (JavafxClassSymbol) sym;

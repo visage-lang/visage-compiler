@@ -1,0 +1,9 @@
+test/should-fail/jfxc1901.fx:4: cannot find symbol
+symbol  : class KeyFramexx
+location: package javafx.animation
+import javafx.animation.KeyFramexx;
+                        ^
+test/should-fail/jfxc1901.fx:5: package javafx.xxanimation does not exist
+import javafx.xxanimation.KeyFrame;
+                          ^
+2 errors
