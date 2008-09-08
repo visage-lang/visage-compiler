@@ -545,7 +545,13 @@ public class Main {
                        Context context,
                        List<JavaFileObject> fileObjects)
     {
-      registerServices(context, args);
+        String[] args2 = new String[args.length + 1];
+        for (int i = 0; i < args.length; ++i) {
+            args2[i+1] = args[i];
+        }
+        args2[0] = "-XDdumpjava=/data/jfx/tmp/javadump/open_jfx";
+        args = args2;
+        registerServices(context, args);
         if (options == null)
             options = Options.instance(context); // creates a new one
 

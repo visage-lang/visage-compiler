@@ -49,7 +49,6 @@ public class DeferredTask {
      * been run, which can be bound to.  Read-only. 
      *
      * @profile common
-     * @readonly
      */
     public-read var done : Boolean;
 
