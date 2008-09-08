@@ -763,6 +763,7 @@ public class FXLocal {
                 Context context) {
             super(seq.size(), sequenceType);
             this.seq = seq;
+            this.context = context;
         }
 
         public FXValue getItem(int index) {
