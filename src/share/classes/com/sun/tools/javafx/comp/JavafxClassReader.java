@@ -24,6 +24,7 @@
 package com.sun.tools.javafx.comp;
 
 import java.util.IdentityHashMap;
+import javax.tools.JavaFileObject;
 import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Type.*;
@@ -419,7 +420,15 @@ public class JavafxClassReader extends ClassReader {
             sym.owner.complete();
             JavafxClassSymbol csym = (JavafxClassSymbol) sym;
             ClassSymbol jsymbol = csym.jsymbol;
-            csym.jsymbol = jsymbol = jreader.loadClass(csym.flatname);
+            if (jsymbol != null && jsymbol.classfile != null && 
+                jsymbol.classfile.getKind() == JavaFileObject.Kind.SOURCE &&
+                jsymbol.classfile.getName().endsWith(".fx")) {
+                SourceCompleter fxSourceCompleter = JavafxCompiler.instance(ctx);
+                fxSourceCompleter.complete(csym);
+                return;
+            } else { 
+                csym.jsymbol = jsymbol = jreader.loadClass(csym.flatname);
+            }
             fixupFullname(csym, jsymbol);
             typeMap.put(jsymbol, csym);
             jsymbol.classfile = ((ClassSymbol) sym).classfile;
