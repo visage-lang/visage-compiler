@@ -32,8 +32,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -177,6 +179,8 @@ public class JFXC1117Test extends TestSuite {
         private String script;
         private String reportErrorString;
         private static File file = new File(testSrc + "/com/sun/tools/javafx/api", FILE_TO_COMPILE);
+        private File tempFile;
+        private Exception savedException;
         
         public AnalyzeTest(String name, String script, String reportErrorString) {
             super(name);
@@ -194,7 +198,9 @@ public class JFXC1117Test extends TestSuite {
             OutputStreamWriter osw = new OutputStreamWriter(fos);
             osw.write(script);
             osw.close();
-            
+            tempFile = File.createTempFile("JFXC1117TestFailure-", ".fx");
+            copy(file, tempFile);
+
             //long t = new Date().getTime();
             //
             //File jim = new File("/home/jimi/jt", Long.toString(t) + ".fx");
@@ -210,10 +216,21 @@ public class JFXC1117Test extends TestSuite {
             if (file.exists()) {
                 file.delete();
             }
+            if ((tempFile != null) && (tempFile.exists()) &&
+                    savedException != null) {
+                // ok, there was an exception, let's log it
+                FileOutputStream fos = new FileOutputStream(tempFile, true);
+                PrintStream ps = new PrintStream(fos);
+                ps.print("\n/*");
+                savedException.printStackTrace(ps);
+                ps.print("\n*/");
+                ps.close();
+            }
         }
         
         @Override
-        protected void runTest() throws IOException {
+        protected void runTest() throws Exception {
+            savedException = null;
             JavafxcTool instance = new JavafxcTool();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
@@ -222,13 +239,23 @@ public class JFXC1117Test extends TestSuite {
             assertNotNull("no task returned", task);
             Iterable<? extends UnitTree> result1 = task.parse();
             assertTrue("no compilation units returned", result1.iterator().hasNext());
-            Iterable<? extends UnitTree> result2 = task.analyze();
+            Iterable<? extends UnitTree> result2 = null;
+            try {
+                result2 = task.analyze();
+            } catch (Exception x) {
+                savedException = x;
+                throw x;
+            }
             assertTrue("no compilation units returned", result2.iterator().hasNext());
             UnitTree t = result2.iterator().next();
             SourcePositions sourcePositions = JavafxcTrees.instance(task).getSourcePositions();
             int start = (int) sourcePositions.getStartPosition(t, t);
             int end = (int) sourcePositions.getEndPosition(t, t);
             assertTrue(getName() + " : " + reportErrorString, start != -1 && end != -1 && end != 0);
+            if ((tempFile != null) && (tempFile.exists())) {
+                // if the test was successfull we can delete the temp copy
+                tempFile.delete();
+            }
         }
         
         static class MockDiagnosticListener<T> implements DiagnosticListener<T> {
@@ -239,6 +266,25 @@ public class JFXC1117Test extends TestSuite {
             public List<String> diagCodes = new ArrayList<String>();
             public int errors() {
                 return diagCodes.size();
+            }
+        }
+    }
+
+    private static void copy(File source, File dest) throws IOException {
+        FileChannel in = null, out = null;
+        try {
+            in = new FileInputStream(source).getChannel();
+            out = new FileOutputStream(dest).getChannel();
+
+            long size = in.size();
+            MappedByteBuffer buf = in.map(FileChannel.MapMode.READ_ONLY, 0, size);
+            out.write(buf);
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
             }
         }
     }
