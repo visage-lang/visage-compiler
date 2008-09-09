@@ -30,7 +30,6 @@ import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.javafx.runtime.annotation.SourceName;
 import com.sun.javafx.runtime.location.*;
-import com.sun.tools.javafx.util.NotImplementedException;
 import com.sun.javafx.runtime.FXObject;
 
 /**

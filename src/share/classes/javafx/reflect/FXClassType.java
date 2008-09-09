@@ -23,7 +23,6 @@
 
 package javafx.reflect;
 import java.util.*;
-import com.sun.tools.javafx.util.NotImplementedException;
 
 /** A run-time representation of a JavaFX class.
  * Corresponds to {@code java.lang.Class}.
@@ -150,7 +149,7 @@ public abstract class FXClassType extends FXType implements FXMember {
      * (Unimplemented because it requires type matching.)
      */
     public FXMember getMember(String name, FXType type) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("getMember not implemented yet.");
     }
 
     /** Get the attribute (field) of this class with a given name. */
