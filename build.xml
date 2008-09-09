@@ -322,9 +322,6 @@
             <arg line="${javafxdoc.packages}"/>
         </java>
         
-       <!-- this is a hack to make the index page be something other than the frameset. -->
-        <copy file="${dist.javafxdoc.dir}/overview-summary.html" tofile="${dist.javafxdoc.dir}/index.html"
-            overwrite="true"/>
     </target>
     
     <target name="-def-pcompile">
