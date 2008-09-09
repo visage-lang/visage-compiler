@@ -1413,7 +1413,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         //
         BitSet follow = computeContextSensitiveRuleFOLLOW();
 
-        System.out.println("Follow set is :" + follow.toString());
+        //System.out.println("Follow set is :" + follow.toString());
         int ttype = input.LA(1);
         while (ttype != v4Parser.SEMI && ttype != v4Parser.RBRACE && ttype != Token.EOF)
         {
