@@ -160,7 +160,6 @@ public class XHTMLProcessingUtils {
 
         p(INFO, getString("copying"));
 
-        copyResource(docsdir,"index.html");
         copyResource(docsdir,"empty.html");
         copyResource(docsdir,"general.css");
         copyResource(docsdir,"sdk.css");
@@ -242,12 +241,9 @@ public class XHTMLProcessingUtils {
         //}
 
         //transform the package list doc
-        package_list_elem.setAttribute("mode", "overview-frame");
-        trans.setParameter("root-path", "./");
-        trans.transform(new DOMSource(packages_doc), new StreamResult(new File(docsdir,"overview-frame.html")));
         trans.setParameter("root-path", "./");
         package_list_elem.setAttribute("mode", "overview-summary");
-        trans.transform(new DOMSource(packages_doc), new StreamResult(new File(docsdir,"overview-summary.html")));
+        trans.transform(new DOMSource(packages_doc), new StreamResult(new File(docsdir,"index.html")));
         p(INFO,getString("finished"));
     }
 
