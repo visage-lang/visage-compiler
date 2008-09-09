@@ -123,7 +123,7 @@ class JavafxAnalyzeClass {
             return isDirectOwner;
         }
         
-        public JCStatement getDefaultInitializtionStatement() {
+        public JCStatement getDefaultInitStatement() {
             return initStmt;
         }
         

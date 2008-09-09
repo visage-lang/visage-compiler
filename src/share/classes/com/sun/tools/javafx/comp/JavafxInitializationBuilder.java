@@ -169,7 +169,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         cDefinitions.appendList(makeAttributeFields(cDecl.sym, instanceAttributeInfos));
         cDefinitions.appendList(makeAttributeFields(cDecl.sym, analysis.staticAttributeInfos()));
         cDefinitions.appendList(makeClassAttributeGetterMethods(cDecl, instanceAttributeInfos));
-        cDefinitions.appendList(makeClassAttributeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
+        cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
         cDefinitions.append(makeInitStaticAttributesBlock(cDecl, translatedAttrInfo));
         cDefinitions.append(makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
         if (outerTypeSym != null) {
@@ -556,7 +556,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     /**
      * Construct the applyDefaults method
      */
-    private List<JCTree> makeClassAttributeApplyDefaultsMethods(DiagnosticPosition diagPos,
+    private List<JCTree> makeApplyDefaultsMethods(DiagnosticPosition diagPos,
             JFXClassDeclaration cDecl,
             List<? extends VarInfo> attrInfos) {
         ListBuffer<JCTree> methods = ListBuffer.lb();
@@ -565,9 +565,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 Name methodName = attributeApplyDefaultsName(ai.getSymbol());
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-                if (ai.getDefaultInitializtionStatement() != null) {
+                if (ai.getDefaultInitStatement() != null) {
                     // a default exists, either on the direct attribute or on an override
-                    stmts.append(ai.getDefaultInitializtionStatement());
+                    stmts.append(ai.getDefaultInitStatement());
                 } else {
                     // no default, look for the supertype which defines it, and defer to it
                     ClassSymbol attrParent = null;
@@ -692,11 +692,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                 List<JCExpression> arg = List.<JCExpression>of(make.at(diagPos).Ident(names._this));
                 JCStatement applyDefaultsCall = callStatement(diagPos, null, methodName, arg);
-                JCExpression needsDefaultCond = callExpression(diagPos,
-                        make.at(diagPos).Ident(attributeFieldName(ai.getSymbol())),
-                        defs.needDefaultsMethodName);
-                JCStatement protectedCall = make.If(needsDefaultCond, applyDefaultsCall, null);
-                stmts.append( protectedCall );
+                if (ai.getVMI().mustMorph()) {
+                    JCExpression needsDefaultCond = callExpression(diagPos,
+                            make.at(diagPos).Ident(attributeFieldName(ai.getSymbol())),
+                            defs.needDefaultsMethodName);
+                    JCStatement protectedCall = make.If(needsDefaultCond, applyDefaultsCall, null);
+                    stmts.append(protectedCall);
+                } else {
+                    stmts.append(applyDefaultsCall);
+                }
             }
         }
         return stmts.toList();
@@ -719,8 +723,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // don't put variable initialization in the static initializer if this is a simple-form
                 // script (where variable initialization is done in the run method).
                 if (tai.isDirectOwner() && (isLibrary || (tai.getFlags() | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC) == 0)) {
-                    if (tai.getDefaultInitializtionStatement() != null) {
-                        stmts.append(tai.getDefaultInitializtionStatement());
+                    if (tai.getDefaultInitStatement() != null) {
+                        stmts.append(tai.getDefaultInitStatement());
                     }
                     stmts.append( callStatement(diagPos, make.at(diagPos).Ident(attributeFieldName(tai.getSymbol())), locationInitializeName));
                 }
@@ -795,14 +799,24 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     else
                         annotations = List.<JCAnnotation>nil();
                     mods = addAccessAnnotationModifiers(diagPos, sym.flags(), mods, annotations);
-                }
-                else
+                } else {
                     mods = addInheritedAnnotationModifiers(diagPos, sym.flags(), mods);
+                }
+                Type varType;
+                JCExpression varInit;
+                VarMorphInfo vmi = ai.getVMI();
+                if (vmi.mustMorph()) {
+                    varType = ai.getVariableType();
+                    varInit = makeLocationAttributeVariable(vmi, diagPos);
+                } else {
+                    varType = ai.getRealType();
+                    varInit = makeDefaultValue(diagPos, vmi);
+                }
                 JCVariableDecl var = make.at(diagPos).VarDef(
                         mods,
                         fieldName,
-                        makeTypeTree( diagPos,ai.getVariableType()),
-                        makeLocationAttributeVariable(ai.getVMI(), diagPos));
+                        makeTypeTree(diagPos, varType),
+                        varInit);
                 fields.append(var);
             }
         }

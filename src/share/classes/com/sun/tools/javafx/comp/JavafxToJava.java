@@ -1020,7 +1020,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     private JCStatement translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
             Name instanceName, int milieu) {
-        if (init == null && vsym.owner.kind == Kinds.TYP) {
+        if (init == null && vsym.owner.kind == Kinds.TYP && shouldMorph(vsym)) {
             // this is a class variable with no explicit initializer, 
             // use setDefault() so that it is flagged as a default
             assert !bindStatus.isBound() : "cannot be bound and have no init expression";
@@ -1036,20 +1036,25 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     private JCExpression translateDefinitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
             Name instanceName, int milieu) {
+        assert( (vsym.flags() & Flags.PARAMETER) == 0): "Parameters are not initialized";
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         List<JCExpression> args = translateDefinitionalAssignmentToArgs(diagPos, init, bindStatus, vmi);
-        JCExpression localAttr;
+        JCExpression varRef;
 
-        // if it is an attribute
         if (vsym.owner.kind == Kinds.TYP) {
-            localAttr = makeAttributeAccess(diagPos, vsym, instanceName);
+            // if it is a class var
+            if (shouldMorph(vmi)) {
+                varRef = makeAttributeAccess(diagPos, vsym, instanceName);
+            } else {
+                varRef = make.at(diagPos).Ident(attributeFieldName(vsym));
+                return make.at(diagPos).Assign(varRef, args.head);
+            }
         } else {
-            // if it is a local variable
-            assert( (vsym.flags() & Flags.PARAMETER) == 0): "Parameters are not initialized";
-            localAttr = make.at(diagPos).Ident(vsym);
+            // if it is a local variable  
+            varRef = make.at(diagPos).Ident(vsym);
 
             if (!shouldMorph(vmi)) {
-                return make.at(diagPos).Assign(localAttr, args.head);
+                return make.at(diagPos).Assign(varRef, args.head);
             }
         }
 
@@ -1061,7 +1066,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         } else {
             methName = defs.locationSetMilieuMethodName[vmi.getTypeKind()][milieu];
         }
-        return callExpression(diagPos, localAttr, methName, args);
+        return callExpression(diagPos, varRef, methName, args);
     }
 
     @Override

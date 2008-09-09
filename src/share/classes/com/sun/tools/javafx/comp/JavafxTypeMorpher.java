@@ -114,17 +114,24 @@ public class JavafxTypeMorpher {
                    if ((isBoundTo() || isSequence()) && (flag_fields & Flags.PARAMETER) == 0) {
                             markMustMorph();
                    }
-               } else if (owner.kind == Kinds.TYP) {
-                   if (getSymbol() instanceof JavafxVarSymbol) {
-                       markMustMorph(); // we made it, soassume it is from a JavaFX class
-                   } else if (sym.flatName() != names._super && sym.flatName() != names._this) {
-                       if (types.isJFXClass(owner)) {
-                           // this is an attribute: it is owned by a JavaFX class and it isn't 'this' or 'super'
-                           markMustMorph();
-                       }
-                   }
-               }
-           }
+                } else if (owner.kind == Kinds.TYP) {
+                    long flags = getSymbol().flags();
+                    //boolean externallyVisible = (flags & JavafxFlags.SCRIPT_PRIVATE) == 0 || (flags & (JavafxFlags.PUBLIC_READ | JavafxFlags.PUBLIC_INIT)) != 0;
+                    boolean externallyVisible = true;
+                    if (getSymbol() instanceof JavafxVarSymbol) {
+                        if (externallyVisible) {
+                            markMustMorph(); // we made it, and it is externally visible, so assume it is from a JavaFX class
+                        }
+                    } else if (sym.flatName() != names._super && sym.flatName() != names._this) {
+                        if (types.isJFXClass(owner)) {
+                            // this is an attribute: it is owned by a JavaFX class and it isn't 'this' or 'super'
+                            if (externallyVisible) {
+                                markMustMorph();
+                            }
+                        }
+                    }
+                }
+            }
            markDeterminedMorphability();
        }
 
