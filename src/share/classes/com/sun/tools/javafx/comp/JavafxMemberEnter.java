@@ -396,7 +396,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         JavafxEnv<JavafxAttrContext> prevEnv = this.env;
         try {
             this.env = env;
-            tree.accept(this);
+            if (tree != null) tree.accept(this);
         }  catch (CompletionFailure ex) {
             chk.completionError(tree.pos(), ex);
         } finally {

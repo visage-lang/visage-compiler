@@ -263,7 +263,7 @@ public class JavafxAttr implements JavafxVisitor {
             this.pkind = pkind;
             this.pt = pt;
             this.pSequenceness = pSequenceness;
-            tree.accept(this);
+            if (tree != null )tree.accept(this);
             if (tree == breakTree)
                 throw new BreakAttr(env);
             return result;

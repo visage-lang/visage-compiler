@@ -226,7 +226,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 	JavafxEnv<JavafxAttrContext> prevEnv = this.env;
         try {
 	    this.env = env;
-	    tree.accept(this);
+	    if (tree != null) tree.accept(this);
 	    return result;
 	}  catch (CompletionFailure ex) {
 	    return chk.completionError(tree.pos(), ex);
