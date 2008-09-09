@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
@@ -23,49 +24,31 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.*;
-import com.sun.javafx.api.tree.Tree.JavaFXKind;
+import com.sun.javafx.api.tree.TimeLiteralTree.Duration;
 
 /**
- * Tree node for time literals, such as "100ms" or "3m".
- * @author tball
+ * Specialized tree that can indicate to the walker that it was manufactured
+ * in place of a time value that should have been there in the source code but
+ * was erroneously not there (or perhaps the IDE is using this tree and the user
+ * has not typed that in yet.
+ *
+ * @author jimi
  */
-public class JFXTimeLiteral extends JFXExpression implements TimeLiteralTree {
-    public JFXLiteral value;
-    public Duration duration;
-    
-   protected JFXTimeLiteral(){
-        this.value = null;
-        this.duration = null;
+public class JFXMissingTimeLiteral extends JFXTimeLiteral {
+
+    public JFXMissingTimeLiteral() {
+        super();
     }
 
-    protected JFXTimeLiteral(JFXLiteral value, Duration duration) {
-        this.value = value;
-        this.duration = duration;
+    public JFXMissingTimeLiteral(JFXLiteral value, Duration duration) {
+        super(value, duration);
     }
 
-    public JavafxTag getFXTag() {
-        return JavafxTag.TIME_LITERAL;
-    }
-
+   /**
+     * Was this tree expected, but missing, and filled-in by the parser
+     */
     @Override
-    public void accept(JavafxVisitor v) {
-        v.visitTimeLiteral(this);
-    }
-
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.TIME_LITERAL;
-    }
-
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        return visitor.visitTimeLiteral(this, data);
-    }
-
-    public Duration getDuration() {
-        return duration;
-    }
-
-    public JFXLiteral getValue() {
-        return value;
+    public boolean isMissing() {
+        return true;
     }
 }

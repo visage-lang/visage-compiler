@@ -26,7 +26,7 @@
 //
 // @author Jim Idle
 //
-// Version 4 of the grammar reverts to a spearate lexer and parser grammar without a separate
+// Version 4 of the grammar reverts to a separate lexer and parser grammar without a separate
 // ANTLR based AST walker. This is because this is the easiest way (at the time of writing)
 // to confine error recovery to the smallest possible set of side effects on the resulting
 // JavafxTree. This is important for down stream tools such as code completion, which require
@@ -455,7 +455,10 @@ classMemberSemi [ListBuffer<JFXTree> mems]
 	: classMember 
 	
 		{ 
-			$mems.append($classMember.member); 
+			if	($classMember.member != null)
+			{
+				$mems.append($classMember.member); 
+			}
 		}
 		
 	| SEMI
@@ -471,7 +474,13 @@ classMember
  	returns [JFXTree member]		// A class member has a specialized JFX tree node, which is what
 									// we return from this rule.
 
- 
+ @init {
+
+	// The start character position for this AST
+	//
+	int rPos		= pos();
+}
+
 	: initDefinition				{ $member = $initDefinition.value; 		}
 	| postInitDefinition			{ $member = $postInitDefinition.value; 	}
 	| (OVERRIDE variableLabel)=>
@@ -483,6 +492,20 @@ classMember
 		)
 	;
 
+// Catch an error when looking for a class member. We create an erroneous node
+// for anything that was at the start up to wher
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform custom resyncing for class members
+	//
+	member = resyncClassMember(rPos, re);
+	
+ }
 
 // ----------
 // Functions.
@@ -2059,10 +2082,9 @@ primaryExpression
 		
 	| AT 
 		LPAREN 
-			TIME_LITERAL
+			tv=timeValue
             {
-                sVal = F.at(pos($TIME_LITERAL)).TimeLiteral($TIME_LITERAL.text);
-                endPos(sVal);
+                sVal = $tv.valNode;
             }
 		RPAREN 
 		LBRACE 
@@ -2971,10 +2993,10 @@ literal
 					$value = F.at(rPos).Literal(TypeTags.INT, (int)Convert.string2long($HEX_LITERAL.text, 16));
 				}
 				
-		    | TIME_LITERAL
+		    | timeValue
 		    
 		    	{
-		    		$value = F.at(rPos).TimeLiteral($TIME_LITERAL.text);
+		    		$value = $timeValue.valNode;
 		    	}
 		    	
 			| FLOATING_POINT_LITERAL
@@ -3032,6 +3054,33 @@ qualname
 		)*  
 	;
 
+// ----------
+// Time value
+// Invoked to pick up a specialized time token and created a special node
+// that indicates it was missing, if the parser created it etc.
+//
+timeValue
+
+	returns [JFXTimeLiteral valNode]
+	
+	: TIME_LITERAL
+	
+		{
+			// Check to see if error recovery made up this value for us
+			//
+			if	($TIME_LITERAL instanceof MissingCommonToken) {
+			
+				$valNode = F.at(pos($TIME_LITERAL)).MissingTimeLiteral();
+				
+			} else {
+			
+				// Create a real node
+				//
+				$valNode = F.at(pos($TIME_LITERAL)).TimeLiteral($TIME_LITERAL.text);
+			}
+            endPos($valNode);
+        }
+	;
 // -----------------------
 // ID
 // Basic identifier parse
@@ -3042,12 +3091,19 @@ identifier
 
 	: IDENTIFIER
 		{
-			// The catch below doesn't actually happen, as getMissingSymbol fills one in
-			// So, temporary hack
-			if ($IDENTIFIER.text.startsWith("<missing")) {
-			    $value = F.at(pos()).MissingIdent();
+			// The recovery mechanisms will auto generate the IDENTIFIER
+			// token, in the case that it can predict that it was just a single
+			// token that the programmer forgot to use. Hence we must
+			// pick up on that and generate a different node for a Missing
+			// identifier.
+			//
+			if ($IDENTIFIER instanceof MissingCommonToken) {
+			
+			    $value = F.at(pos($IDENTIFIER)).MissingIdent();
 			    endPos($value, pos());
+			    
 			} else {
+			
 			    Name name = Name.fromString(names, $IDENTIFIER.text);
 			    $value = F.at(pos($IDENTIFIER)).Ident(name);
 			    endPos($value, pos($IDENTIFIER) + name.length());

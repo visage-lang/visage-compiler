@@ -26,10 +26,9 @@ package com.sun.tools.javafx.api;
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.javafx.api.tree.SourcePositions;
 import com.sun.javafx.api.tree.UnitTree;
-import com.sun.tools.javafx.antlr.v3Lexer;
+import com.sun.tools.javafx.antlr.v4Lexer;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -39,7 +38,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -150,7 +149,7 @@ public class JFXC1117Test extends TestSuite {
     private List<Integer> tokenStartPositions() throws IOException {
         List<Integer> res = new ArrayList<Integer>();
         ANTLRReaderStream input = new ANTLRInputStream(new FileInputStream(masterFile));
-        v3Lexer lexer = new v3Lexer(input);
+        v4Lexer lexer = new v4Lexer(input);
         Token t = lexer.nextToken();
         while (t.getType() != Token.EOF) {
             if (t.getChannel() != Token.HIDDEN_CHANNEL) {
@@ -195,6 +194,15 @@ public class JFXC1117Test extends TestSuite {
             OutputStreamWriter osw = new OutputStreamWriter(fos);
             osw.write(script);
             osw.close();
+            
+            //long t = new Date().getTime();
+            //
+            //File jim = new File("/home/jimi/jt", Long.toString(t) + ".fx");
+            //FileOutputStream fosj = new FileOutputStream(jim);
+            //OutputStreamWriter oswj = new OutputStreamWriter(fosj);
+            //oswj.write(script);
+            //oswj.close();
+            //
         }
 
         @Override

@@ -824,7 +824,10 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         char[] buf = str.toCharArray();
         while (i < buf.length && (Character.isDigit(buf[i]) || buf[i] == '.'))
             i++;
-        assert i > 0 && buf.length - i > 0; // lexer should only pass valid time strings
+        
+        assert i > 0;               // lexer should only pass valid time strings
+        assert buf.length - i > 0;  // lexer should only pass valid time strings
+
         String dur = str.substring(i);
         Duration duration =
                 dur.equals("ms") ? Duration.MILLIS :
@@ -855,6 +858,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
+    public JFXMissingTimeLiteral MissingTimeLiteral() {
+        JFXMissingTimeLiteral tree = new JFXMissingTimeLiteral();
+        tree.pos = pos;
+
+        return tree;
+    }
     public JFXKeyFrameLiteral KeyFrameLiteral(JFXExpression start, List<JFXExpression> values, JFXExpression trigger) {
         JFXKeyFrameLiteral tree = new JFXKeyFrameLiteral(start, values, trigger);
         tree.pos = pos;

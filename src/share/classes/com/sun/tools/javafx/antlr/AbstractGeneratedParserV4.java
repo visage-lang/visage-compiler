@@ -1270,6 +1270,12 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * If the parser is able to recover from the fact that a single token
      * is missing from the input stream, then it will call this method
      * to manufacture a token for use by actions in the grammar.
+     *
+     * In general the tokens we will need to manufacture here will be things
+     * like identifiers, missing parens and braces and other fairly simple constructs
+     * as these can be recognized from the union of follow sets that can be
+     * constructed at any one point.
+     * 
      * @param input The token stream where we are normally drawing tokens from
      * @param e The exception that was raised by the parser
      * @param expectedTokenType The type of the token that the parser was expecting to see next
@@ -1282,19 +1288,145 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                                       int expectedTokenType,
                                       BitSet follow) {
         
-        if (expectedTokenType == Token.EOF) {
-            String tokenText = "<missing EOF>";
-            CommonToken t = new CommonToken(expectedTokenType, tokenText);
-            Token current = ((TokenStream)input).LT(1);
-            if ( current.getType() == Token.EOF ) {
-                current = ((TokenStream)input).LT(-1);
-            }
-            t.setLine(current.getLine());
-            t.setCharPositionInLine(current.getCharPositionInLine());
-            t.setChannel(DEFAULT_TOKEN_CHANNEL);
-            return t;
-        } else {
-            return super.getMissingSymbol(input, e, expectedTokenType, follow);
+        
+        // Used to manufacture the token that we will insert into
+        // the input stream
+        //
+        MissingCommonToken t;
+                
+        // The token string contents, so that we can make up some sensible
+        // error value.
+        //
+        String tokenText;
+
+        // Pick up the current token (the one we will return after this
+        // manufactured one), and use it to generate position information
+        // for our fake token.
+        //
+        Token current = ((TokenStream)input).LT(1);
+        
+        // If there was no next token, then we use the previous
+        // token as a reference point.
+        //
+        if ( current.getType() == Token.EOF ) {
+		current = ((TokenStream)input).LT(-1);
+	}
+                        
+        // Work out what type of token we were expecting so we can 
+        // use it in the token next if we need to.
+        //
+        TokenClassification tokenClass = classifyToken(expectedTokenType);
+        
+        // When we are manufacturing a token for error recovery, we must intercept
+        // a number of token types and create something that can be sensibly used
+        // by the JavaFX AST to indicate that it was in error. Otherwise the AST
+        // will appear to be perfectly correct.
+        //
+        switch (expectedTokenType)
+        {
+            
+            case Token.EOF:
+                
+                // If we were expection end of file at this point, then
+                // there is a little extra work to do.
+                //
+
+                tokenText  = "<missing EOF>";
+                break;            
+
+            
+            case v4Parser.TIME_LITERAL:
+            
+                // A time literal needs spacial handling as if anything wants to
+                // try and use the value it should contain, then it needs to be
+                // some valid default value. Here we use 1 second as a default
+                //
+                tokenText = "1s";
+                break;
+                
+            // For anything else, we use the default methodology
+            //
+            default:
+
+                // We create text that is some indication of what was missing
+                //
+                tokenText = "<missing " + tokenClass.forHumans() + ">";
+                break;
         }
+        
+        // We have created the raw information we need, so now we can 
+        // manufacture the token and just return it for inclusion in
+        // the input stream.
+        //
+        t                 = new MissingCommonToken(expectedTokenType, tokenText);
+                
+        // Use the current token to make up a postion for the
+        // manufactured one.
+        //
+        t.setLine                   (current.getLine());   
+        t.setCharPositionInLine     (current.getCharPositionInLine());
+        t.setChannel                (DEFAULT_TOKEN_CHANNEL);
+        
+        // Our manufactured token is complete so let's return it
+        //
+        return t;
+    }
+
+    // ----------------------------------------------------------------------
+    // Error recovery methods.
+    //
+    // In the general and most simple cases, ANTLR recognizes will do simple error
+    // recovery pretty well, as it will detect things like a single missing token
+    // or a single extraneous token. Howeer, its default in other cases is to
+    // delete a single token and throw a RecognitionException. It will try to
+    // resync the token stream, but if the source is 'very' erroneous, then all
+    // it can really do is consume a token and see if that helps.
+    //
+    // In any particular rule, we have more or less an idea of context and in
+    // these cases we take some specific actions for recovery that will resync
+    // the input stream to somewhere that is more likely to allow us to carry
+    // on parsing.
+    //
+
+    /**
+     * Called to resync the input stream when we received an exception trying
+     * to start the parse of a class member. This happens when the upcoming
+     * stream is very erroneous, such as when someone has tried to place
+     * soenthing in a class definition that has no business being there, or
+     * has left out a critical keyword such as FUNCTION or VAR and we can
+     * therefore just not predict what the code is trying to declare.
+     *
+     * As the class member will be completely out of context, the best thing
+     * we can do is resync to the start of another, viable class member definition.
+     *
+     * @param ruleStart The position in the input stream of the first token that
+     *                  spans the elements in error.
+     * @param re The exception that the parser threw to get us heer, in case we
+     *           can use that information.
+     * @return A JFX error node for the AST that spans the start and end of
+     *         all the tokesn that we had to discard in order to resync somewhere
+     *         sensible.
+     */
+    protected JFXErroneous resyncClassMember(int ruleStart, RecognitionException re)
+    {
+        // First lets find out what the follow set is from this particular context
+        //
+        BitSet follow = computeContextSensitiveRuleFOLLOW();
+
+        System.out.println("Follow set is :" + follow.toString());
+        int ttype = input.LA(1);
+        while (ttype != v4Parser.SEMI && ttype != v4Parser.RBRACE && ttype != Token.EOF)
+        {
+            input.consume();
+            ttype = input.LA(1);
+        }
+
+        JFXErroneous errNode = F.at(ruleStart).Erroneous();
+        endPos(errNode);
+
+        // The caller will send the AST node to whereever it needs to be
+        // in the build structure.
+        //
+        return errNode;
     }
 }
