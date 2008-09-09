@@ -7,7 +7,7 @@ import java.lang.System;
 import javafx.animation.Interpolator;
 
 // CLASS_DECLARATION
-public class AllTrees {
+class AllTrees {
     
 // INIT_DEFINITION
     init {
