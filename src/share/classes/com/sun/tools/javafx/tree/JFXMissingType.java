@@ -23,46 +23,23 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.*;
-import com.sun.javafx.api.tree.Tree.JavaFXKind;
+import com.sun.javafx.api.tree.MissingTree;
 
 /**
- * Any Type
  *
- * @author Robert Field
+ * @author jimi
  */
-public class JFXTypeAny extends JFXType implements TypeAnyTree {
+public class JFXMissingType extends JFXTypeUnknown implements MissingTree {
     
+    public JFXMissingType() {
+        super();
+    }
     
     /**
-     * Used to create erroneous/missing nodes so that some coherent
-     * answer is given if a walker asks for cardinality even though
-     * the node is really erroneous and the question doesn't make sense.
+     * Was this tree expected, but missing, and filled-in by the parser
      */
-    protected JFXTypeAny() {
-        super(TypeTree.Cardinality.ANY);
-    }
-    
-    /*
-     * @param cardinality one of the cardinality constants
-     */
-    protected JFXTypeAny(Cardinality cardinality) {
-        super(cardinality);
-    }
-    public void accept(JavafxVisitor v) { v.visitTypeAny(this); }
-
     @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.TYPEANY;
-    }
-
-    @Override
-    public <R,D> R accept(JavaFXTreeVisitor<R,D> v, D d) {
-        return v.visitTypeAny(this, d);
-    }
-
-    @Override
-    public JavaFXKind getJavaFXKind() {
-        return Tree.JavaFXKind.TYPE_ANY;
+    public boolean isMissing() {
+        return true;
     }
 }

@@ -33,7 +33,8 @@ import com.sun.javafx.api.tree.*;
 public abstract class JFXType extends JFXExpression implements TypeTree {    
     private final Cardinality cardinality;
     
-    /*
+
+    /**
      * @param cardinality one of the cardinality constants
      */
     protected JFXType(Cardinality cardinality) {

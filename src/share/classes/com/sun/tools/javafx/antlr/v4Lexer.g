@@ -87,72 +87,7 @@ import com.sun.tools.javafx.util.MsgSym;
         this.log = Log.instance(context);
     }
 
-	// Return the token type that we are using to indicate a 
-	// manufactured ';'.
-	// 
-    protected int getSyntheticSemiType() {
-        return SEMI;
-    }
 
-    protected boolean checkIntLiteralRange(String text, int pos, int radix, boolean negative) {
-
-		// Value in terms of a long
-		//       
-        long value = 0;
-
-		// Correct start position for error display
-		//
-        pos = pos - text.length() - (negative ? 1 : 0);
-        
-		try {
-
-			// See if we can make a value out of this
-			//        
-        	value = Convert.string2long(text, radix);
-        }
-        catch (Exception e)
-        {
-        	// Number form was too outrageous even for the converter
-        	//
-   	        if (negative) {
-			
-			    log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "small", new String("-" + text));
-            
-			} else {
-	        	log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "big", text);
-	        }
-	        	
-        	return false;
-        }
-        
-        
-        if (negative) {
-        
-            value = -value;
-            if ( value < Integer.MIN_VALUE ) {
-                
-                log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "small", new String("-" + text));
-                return false;
-            }
-             
-        } else if (value > Integer.MAX_VALUE) {
-            
-            log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "big", text);
-            return false;
-            
-        } 
-     
-     	return true;   
-    }
-
-    // quote context --
-    static final int CUR_QUOTE_CTX	= 0;	// 0 = use current quote context
-    static final int SNG_QUOTE_CTX	= 1;	// 1 = single quote quote context
-    static final int DBL_QUOTE_CTX	= 2;	// 2 = double quote quote context
-    
-    // Recorded start of string with embedded expression
-    //
-    int	eStringStart = 0;
 }
 
  

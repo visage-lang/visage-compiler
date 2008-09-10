@@ -24,6 +24,7 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.tree.MissingTree;
 import com.sun.javafx.api.tree.TimeLiteralTree.Duration;
 
 /**
@@ -34,7 +35,7 @@ import com.sun.javafx.api.tree.TimeLiteralTree.Duration;
  *
  * @author jimi
  */
-public class JFXMissingTimeLiteral extends JFXTimeLiteral {
+public class JFXMissingTimeLiteral extends JFXTimeLiteral implements MissingTree  {
 
     public JFXMissingTimeLiteral() {
         super();
@@ -51,4 +52,5 @@ public class JFXMissingTimeLiteral extends JFXTimeLiteral {
     public boolean isMissing() {
         return true;
     }
+    
 }

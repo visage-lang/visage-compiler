@@ -32,11 +32,13 @@ import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.code.Type;
 
 import com.sun.tools.javac.util.Options;
 import com.sun.tools.javafx.tree.JFXInterpolateValue;
 import com.sun.tools.javafx.tree.JFXTree;
 import com.sun.tools.javafx.tree.JFXErroneous;
+import com.sun.tools.javafx.tree.JFXType;
 import com.sun.tools.javafx.tree.JavafxTreeInfo;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
 
@@ -1287,8 +1289,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                                       RecognitionException e, 
                                       int expectedTokenType,
                                       BitSet follow) {
-        
-        
+
         // Used to manufacture the token that we will insert into
         // the input stream
         //
@@ -1343,7 +1344,16 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                 //
                 tokenText = "1s";
                 break;
-                
+
+            case v4Parser.IDENTIFIER:
+
+                // A missing indentifer, which we adorn with text to make sure
+                // it is obvious that it is inserted by this routine, in case
+                // checking the class instance is impractical somewhere down stream.
+                //
+                tokenText = "<missing IDENTIFIER>";
+                break;
+
             // For anything else, we use the default methodology
             //
             default:
@@ -1427,6 +1437,56 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         // The caller will send the AST node to whereever it needs to be
         // in the build structure.
         //
+        return errNode;
+    }
+
+    /**
+     * Called to resync the input stream after we failed to make any sense of
+     * what should have been a type such as : String and so on.
+     * 
+     * Performs customized resynchronization of the input stream and returns
+     * either a missing type node or an erroneous node, depdning on whether it
+     * can make any sense of the error, or just has to resync to the followSet.
+     * 
+     * @param ruleStart The position in the input stream of the first token that
+     *                  spans the elements in error.
+     * @param re The exception that the parser threw to get us heer, in case we
+     *           can use that information.
+     * @return Either a JFX error node for the AST that spans the start and end of
+     *         all the tokens that we had to discard in order to resync somewhere
+     *         sensible, or a JFXMissingType
+     */
+    protected JFXType resyncType(int ruleStart, RecognitionException re)
+    {
+        JFXType errNode;
+        
+    	// If we got an NVA here then basically there was no typeName or typeArgList
+	// and so on. We create a missing type is the rule has consumed no tokens
+	// as we know that the rule was supposed to match a type and there was nothing
+	// there (and we could not manufacture anything it seems.) If we have consumed some
+	// tokens, then we create an erroneous node, resync and move on.
+	//
+	
+	if	(re instanceof NoViableAltException)
+	{
+		// Now create an AST node that represents a missing type, The required entry
+		// is of type Name so we use an identifier name that cannot exist in
+		// JavaFX, so that IDEs can detect it.
+		//
+		errNode = F.at(ruleStart).MissingType();
+		
+	} else {
+	
+		// Perform standar ANTLR recovery.
+		//
+		recover(input, re);
+                errNode = F.at(ruleStart).MissingType();
+	}
+
+        // Calculate the AST span we have covered
+        //
+	endPos(errNode);
+
         return errNode;
     }
 }

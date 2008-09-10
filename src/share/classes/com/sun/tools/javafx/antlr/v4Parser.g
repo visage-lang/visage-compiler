@@ -168,7 +168,21 @@ script
 		EOF 	// Forces parser to consume entire token stream or error out
     ;
     
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
 
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // ----------------------    
 // Package specification.
 // The package declaration is optional. It qualifes the namespace/location
@@ -186,7 +200,22 @@ packageDecl
     
     		{ $value = null; }
 	;
+
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+ }
+ 
 // ----------------
 // Script elements.
 // Zero or more script elements belong to a script. Script elements
@@ -207,6 +236,21 @@ scriptItems
 	:	(scriptItem[$items] possiblyOptSemi)*
 	;
 
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, which is used 
 										// by the caller to build the actual AST.
 										//
@@ -254,7 +298,22 @@ scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, w
 			
 			| SEMI
 	;
+
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+ }
+ 
 // ----------
 // Modifiers.
 // Collects the modifier flags for all known modifiers, regardless
@@ -298,6 +357,21 @@ modifiers
 		}
 	;
 
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
+ 
 // ---------------
 // Modifier flags.
 // All the possible modifier keywords that can be applied to 
@@ -324,6 +398,21 @@ modifierFlag
 	| STATIC			{ $flag = Flags.STATIC;      			}
 	;
 
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // -----------------	
 // Import statement.
 // Include definitions from an external source
@@ -344,6 +433,21 @@ importDecl
  		}
 	;
 	
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // ------------
 // Import spec.
 // Parses the (possibly) qualifed name space that the script must import,
@@ -374,6 +478,21 @@ importId
         )?
 	;
 	
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // Class definition.
 // Parses a complete class definition and builds up the JFX AST
 // that represents this.
@@ -414,6 +533,21 @@ classDefinition [ JFXModifiers mods, int pos ]
 		}
 	;
 	
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // -----------------
 // Super class spec.
 // Parses a list of super classes for a class definition and builds the
@@ -438,7 +572,22 @@ supers
            
 	| // Upsilon - this class inherits no other types so the list will be empty
 	;
-		  					
+
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 		
 // --------------
 // Class members.
 // Parses all the possible elements of a class definition and produces the
@@ -451,6 +600,21 @@ classMembers
 	: (classMemberSemi[$mems] possiblyOptSemi)*
 	;
 	
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 classMemberSemi [ListBuffer<JFXTree> mems]
 	: classMember 
 	
@@ -464,6 +628,21 @@ classMemberSemi [ListBuffer<JFXTree> mems]
 	| SEMI
 	;
 	
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // --------------
 // Class members.
 // Parses all constructs that can be a member of a class and returns
@@ -563,6 +742,21 @@ functionDefinition [ JFXModifiers mods, int pos ]
 		}
 	;
 
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // ---------
 // Override.
 // Specifes that the local class overrides something that it has
@@ -591,6 +785,21 @@ overrideDeclaration
 		}
 	;
 
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // ------------
 // Init block.
 // Parse the initialization block for a class definition.
@@ -613,6 +822,21 @@ initDefinition
 		}
 	;
 
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // Post initialization.
 // Parse the post initialization block and produce the AST
 //
@@ -632,6 +856,21 @@ postInitDefinition
 		}
 	;
 	
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 //triggerDefinition
 //	: WITH name onReplaceClause		-> ^(WITH name onReplaceClause)
 //	;
@@ -714,7 +953,21 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 		}	
 	;
 	
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
 
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // ----------------
 // Parameter lists.
 // Parse the formal parameters of a function declaration and produce the
@@ -750,6 +1003,21 @@ formalParameters
 	  RPAREN
 	;
 	
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // -----------------
 // Formal parameter.
 // Parse the specification of an individual function parameter and
@@ -766,7 +1034,22 @@ formalParameter
 			endPos($var); 
 		}
 	;
+	
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
 
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // ------
 // block.
 // A block component is actually a unit that returns a value, it is an expression.
@@ -839,6 +1122,21 @@ block
 	  	}
 	;
 
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // -----------
 // statements.
 // Parse the set of elements that are viewed as programming statements. Note
@@ -864,7 +1162,22 @@ statement
     | tryStatement			{ $value = $tryStatement.value; 								}
     | expression			{ $value = $expression.value;									}
     ;
+
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
   
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+
 // -----------  
 // ON REPLACE.
 // Parse an ON REPLACE clause which is an optional element of variable
@@ -892,7 +1205,23 @@ onReplaceClause
 			endPos($value); 
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+	$value = null;
+	
+}
+ 
 // ------------------
 // Optional parameter
 // Parse and construct an AST for optional parameters
@@ -908,7 +1237,22 @@ paramNameOpt
     
     |	{ $var = null; }
     ;
+    
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
 
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
+ 
 // ---------
 // Parameter.
 // Parse and construct the AST for a parameter
@@ -917,15 +1261,44 @@ paramName
 
 	returns [JFXVar var]	// Returns a JFXVar tree node
 
-	: name
-		{
-    		{ 
-    			$var = F.at($name.pos).Param($name.value, F.TypeUnknown()); 
-    			endPos($var);
-    		}
+	: pn=IDENTIFIER
+	 	{
+    		Name name;
+    		
+    		// The recovery mechanisms will auto generate the IDENTIFIER
+			// token, in the case that it can predict that it was just a single
+			// token that the programmer forgot to use. Hence we must
+			// pick up on that and generate a different node for a Missing
+			// identifier.
+			//
+			if ($IDENTIFIER instanceof MissingCommonToken) {
+			
+			    name = Name.fromString(names, $IDENTIFIER.text);
+			    $var = F.at(pos($IDENTIFIER)).Param(name, F.TypeUnknown()); 
+			    endPos($var, pos());
+			    
+			} else {
+			
+			    name = Name.fromString(names, $IDENTIFIER.text);
+			    $var = F.at(pos($IDENTIFIER)).Param(name, F.TypeUnknown()); 
+			    endPos($var, pos($IDENTIFIER) + name.length());
+			}
     	}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+ }
     
 // The ways in which a variable can be declared
 //
@@ -937,7 +1310,21 @@ variableLabel
 	| DEF			{ $modifiers = JavafxFlags.IS_DEF; $pos = pos($DEF); }
 	| ATTRIBUTE		{ $modifiers = 0L; $pos = pos($ATTRIBUTE); log.warning(pos($ATTRIBUTE), "javafx.not.supported.attribute"); }
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
 
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // ------	
 // Throw.
 // Parse the standard exception throwing mechanism.
@@ -958,7 +1345,21 @@ throwStatement
 			endPos($value);
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
 
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // ---------------
 // While statement
 //
@@ -981,7 +1382,21 @@ whileStatement
 			endPos($value);
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
 
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // -------
 // INSERT.
 // Parse the insert statement and produce the relevant AST
@@ -1023,7 +1438,21 @@ insertStatement
 			endPos($value);
 		}  
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+ }
+ 
 // ----------------
 // Insert seqeunce.
 // Parse the syntax for an insert sequence specified by the 
@@ -1050,6 +1479,21 @@ indexedSequenceForInsert
 	  	}
 	  		
  	;
+
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
  
 // -----------------	
 // DELETE statement.
@@ -1082,7 +1526,21 @@ deleteStatement
 	   		endPos($value);
 	   }
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
 
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // -----------------
 // RETURN statement.
 // Parse the return statement forms and produce the relevant AST
@@ -1114,7 +1572,21 @@ returnStatement
 			endPos($value);
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+ }
+ 
 // -----------------------------
 // TRY..CATCH..FINALLY seqeunce.
 // Parse and build the AST for the stabdard try sequence
@@ -1158,7 +1630,21 @@ tryStatement
 	   		endPos($value);
 	   	}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+ }
+ 
 // -------
 // FINALLY
 // Parse the finally clause of a trey...catch...finally sequence
@@ -1175,6 +1661,21 @@ finallyClause
 		}
 	;
 	
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
+ 
 // ------
 // CATCH.
 // Parse a catch clause of a try...catch...finally
@@ -1190,7 +1691,21 @@ catchClause
 			endPos($value);
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+ 
 // ---------------------
 // Boundable expression.
 // Used to parse expressions that can be bound to a variable.
@@ -1245,7 +1760,20 @@ boundExpression
 			$status	= UNBOUND;
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}	
 
 // -----------
 // expression.
@@ -1300,6 +1828,20 @@ expression
 			$value = $variableDeclaration.value;
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // ------------------------
 // FOR statement/expression
@@ -1334,6 +1876,20 @@ forExpression
 			endPos($value);
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // ----------
 // IN clause.
@@ -1366,7 +1922,21 @@ inClause
 			endPos($value); 
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // -----------------------
 // If Then Else expression
 //
@@ -1404,7 +1974,21 @@ ifExpression
 			
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // -----------
 // Else clause
 // Parse the else expression of an if statement
@@ -1418,7 +2002,20 @@ elseClause
 			statement			{ $value = $statement.value; 	}
 		)
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}	
 
 // -----------
 // Assignment.
@@ -1457,7 +2054,21 @@ assignmentExpression
 				}
 		)
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 assignmentOpExpression
 
 	returns [JFXExpression value]	// The expression tree that represents the assignment expression
@@ -1500,6 +2111,20 @@ assignmentOpExpression
 	   		endPos($value);
 	   }
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // -----------------
 // Assign operators
@@ -1519,7 +2144,21 @@ assignOp
 			log.warning(pos($PERCENTEQ), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The operator \%= will not be supported in the JavaFX 1.0 release" );
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // -------------
 // AND opertator
 // LL(k) AND precedence
@@ -1549,7 +2188,21 @@ andExpression
 	  			}
 	  		)*
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // -----------
 // OR operator
 // LL(k) OR precedence
@@ -1579,7 +2232,21 @@ orExpression
 	  		}
 	  	)*
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // ----------------
 // Typed expression
 // LL(k) precedence
@@ -1617,6 +2284,20 @@ typeExpression
 				}
 	   )
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // -----------
 // Relationals
@@ -1645,7 +2326,21 @@ relationalExpression
 			  	}
 		)* 
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // ---------------------
 // Relational operators.
 // LL(k) precedence, all operators are same precedence
@@ -1667,6 +2362,20 @@ relOps
 	| LT     { $relOp = JavafxTag.LT;	}
 	| GT     { $relOp = JavafxTag.GT;	}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // ---------------------
 // Arithmetic operations
@@ -1701,6 +2410,20 @@ additiveExpression
 			}
 		)* 
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // --------------------
 // Arithmetic operators
@@ -1712,6 +2435,20 @@ arithOps
 	: PLUS		{ $arithOp = JavafxTag.PLUS; 	}
 	| SUB		{ $arithOp = JavafxTag.MINUS;	}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // --------------------------
 // Multiplicative expressions
@@ -1739,6 +2476,20 @@ multiplicativeExpression
 				}
 	   )* 
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // -------------------------
 // Multiplicative operators.
@@ -1759,7 +2510,21 @@ multOps
              
 	| MOD		{ $multOp = JavafxTag.MOD;	}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // -----------------	
 // Unary expressions
 // LL(k) Precedence
@@ -1795,7 +2560,21 @@ unaryExpression
 			endPos($value);
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // -------------------------
 // Unary operators.
 // LL(k) precedence
@@ -1811,6 +2590,20 @@ unaryOps
 	| SUBSUB		{ $unOp = JavafxTag.PREDEC; }
 	| REVERSE		{ $unOp = JavafxTag.REVERSE; }
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // ------------------
 // Postfix operations
@@ -1846,7 +2639,21 @@ suffixedExpression
 			| { $value = $pe.value; }
 		)
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // ------------------------
 // Postfix-able expressions
 // LL(k) precedence
@@ -1982,6 +2789,20 @@ postfixExpression
              	)
 	   	)* 
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // -------------------
 // Primary expressions
@@ -2096,7 +2917,21 @@ primaryExpression
 			endPos($value);
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // ------------
 // Frame values
 //  
@@ -2111,6 +2946,20 @@ keyFrameLiteralPart
 			k2=expression		{ exprs.append($k2.value);	}
 		)* SEMI*
     ;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // -------------------
 // Anonymous functions
@@ -2136,7 +2985,21 @@ functionExpression
 			endPos($value);
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // ---
 // NEW
 //
@@ -2151,6 +3014,20 @@ newExpression
 			endPos($value);
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // ---------------
 // Object literals
@@ -2177,6 +3054,20 @@ objectLiteral
 	
 				
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // Individual components of an object literal
 //
@@ -2212,7 +3103,21 @@ objectLiteralPart
 			$value = $oli.value;
 		}
     ;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
   
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
+
 // --------------------------     	
 // Object literal initializer
 //	
@@ -2244,6 +3149,20 @@ objectLiteralInit
 			endPos($value);
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // -------	
 // Strings
@@ -2363,7 +3282,21 @@ stringExpression
 			}  			
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // --------------------------------------------
 // An individual component of a compound string
 //
@@ -2387,7 +3320,21 @@ strCompoundElement [ ListBuffer<JFXExpression> strexp ]
 	: stringLiteral	[ strexp ]	  		
 	| qlsl 			[ strexp ]
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // ---------------
 // String literals
 // We may have multiple string literals following each
@@ -2486,6 +3433,20 @@ stringLiteral [ ListBuffer<JFXExpression> strexp ]
 
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 	
 // --------------------
 // String lit component
@@ -2576,7 +3537,21 @@ qlsl [ ListBuffer<JFXExpression> strexp]
 				strexp.append(trailer);	
 			}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // ----------------------
 // String element with optional format expression
 //
@@ -2611,7 +3586,21 @@ stringExpressionInner [ ListBuffer<JFXExpression> strexp]
 			strexp.append($expression.value);
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 // --------------------
 // Format specification
 // Optional format specifier in standard Java form
@@ -2643,6 +3632,20 @@ stringFormat [ ListBuffer<JFXExpression> strexp]
 			strexp.append(value);
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 	
 // ---------------------------
 // Sequence
@@ -2716,6 +3719,20 @@ bracketExpression
 	  	endPos($value);
 	  }
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // ----------------
 // Expression list.
@@ -2742,6 +3759,20 @@ expressionList
 		)*
 	|
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // ------------------------
 // Optional expression list
@@ -2758,7 +3789,20 @@ expressionListOpt
 		
 	|	// Was not present
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
 
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // -----
 // Types
@@ -2780,7 +3824,38 @@ type
 			endPos($rtype);
 		}
 		
- 	| FUNCTION 
+	| typeFunction	{ $rtype = $typeFunction.rtype; }
+	| typeStar		{ $rtype = $typeStar.rtype;		}
+	;
+
+// Catch an error when looking for a type. The only error we can
+// have is that there was nothing that predict any of the alts, 
+// so we create an error node for placing in the AST
+//
+catch [RecognitionException re] {
+  
+  	// First, lets report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Perform custom resync operation
+	//
+	rtype =     resyncType(rPos, re);
+
+ }
+
+typeFunction
+
+	returns [JFXType rtype]
+
+@init
+{
+    // Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+
+	: FUNCTION 
  		LPAREN 
  			typeArgList
 		RPAREN 
@@ -2792,14 +3867,53 @@ type
 			$rtype = F.at(rPos).TypeFunctional($typeArgList.ptypes.toList(), $ret.rtype, $cardinality.ary);
 			endPos($rtype);
 		}
+	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
 
- 	| STAR cardinality
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
+
+typeStar
+
+	returns [JFXType rtype]
+
+@init
+{
+    // Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+ 	: STAR cardinality
  	
  		{
  			$rtype = F.at(rPos).TypeAny($cardinality.ary);
  			endPos($rtype);
  		}
  	;
+ // Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // ----------------------------
 // A list of types as arguments
@@ -2826,6 +3940,20 @@ typeArgList
  		)*
  	|
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // -------------------------
 // Individual typed argument
@@ -2848,7 +3976,21 @@ typeArg
  			$rtype = $type.rtype;
  		}
  	;
- 	
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
+
  // --------------
  // Type reference
  // Used to build parameter lists for functions etc
@@ -2869,7 +4011,21 @@ typeReference
  		}
 
  	;
- 	
+ // Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
+
 // -------------------------
 // Array indicator for types
 //
@@ -2887,6 +4043,20 @@ cardinality
 			$ary = TypeTree.Cardinality.SINGLETON;
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // ----------
 // Named type
@@ -2931,7 +4101,21 @@ typeName
 				}
 		)
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 	
+}
+
 genericArgument
 
 	returns [JFXExpression value]
@@ -2957,6 +4141,20 @@ genericArgument
 			// TODO: NYI - Remove or implement?
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // --------
 // Literals.
@@ -3030,6 +4228,20 @@ literal
 			endPos($value);
 		}
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // -------------------------	
 // Qualified (possibly) name
@@ -3053,6 +4265,20 @@ qualname
 			
 		)*  
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+}
 
 // ----------
 // Time value
@@ -3111,7 +4337,7 @@ identifier
 		}
 	;
 
-// Catch an error when looking for a name. The only error we can
+// Catch an error when looking for an identifier. The only error we can
 // have is that it is not there, so we create an error node for
 // placing in the AST
 //
@@ -3181,10 +4407,9 @@ requiredSemi
 		  log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_SEMI_REQUIRED);
 	  }
 	
-	| (SEMI)=>SEMI		// This is what we want
-	
+	| (SEMI)=>SEMI		// This is what we want	
 	;
-	
+
 // -------------------------
 // Decides whether a SEMI is required at this point in the parse (and issues
 // an error if it is and is not present), or is optional (in which case it eats it) or
