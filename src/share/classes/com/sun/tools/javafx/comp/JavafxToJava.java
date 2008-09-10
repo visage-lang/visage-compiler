@@ -70,6 +70,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
      */
     private final JavafxToBound toBound;
     private final JavafxInitializationBuilder initBuilder;
+    private final JavafxOptimizationStatistics optStat;
 
     /*
      * Buffers holding definitions waiting to be prepended to the current list of definitions.
@@ -173,6 +174,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         toBound = JavafxToBound.instance(context);
         initBuilder = JavafxInitializationBuilder.instance(context);
+        optStat = JavafxOptimizationStatistics.instance(context);
         target = Target.instance(context);
     }
 
@@ -1128,11 +1130,12 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             init = null;
             result = make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
         } else {
-           // create a blank variable declaration and move the declaration to the beginning of the block
-           if ( !shouldMorph(vmi)) {
-                if ( (modFlags & Flags.FINAL) != 0 ) {
+            // create a blank variable declaration and move the declaration to the beginning of the block
+            if (!shouldMorph(vmi)) {
+                optStat.recordLocalVar(vsym, false);
+                if ((modFlags & Flags.FINAL) != 0) {
                     init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
-                    tree.getBindStatus(), vsym);
+                            tree.getBindStatus(), vsym);
                     result = make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
                     return;
                 }
@@ -1140,6 +1143,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 init = makeDefaultValue(diagPos, vmi);
             } else {
                 // location types: XXXVariable.make()
+                optStat.recordLocalVar(vsym, true);
                 init = makeLocationAttributeVariable(vmi, diagPos);
             }
             prependToStatements.append(make.at(Position.NOPOS).VarDef(tmods, tree.name, typeExpression, init));

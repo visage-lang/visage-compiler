@@ -59,6 +59,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
     private final JavafxToJava toJava;
     private final JavafxClassReader reader;
+    private final JavafxOptimizationStatistics optStat;
     
     private final Name addChangeListenerName;
     private final Name locationInitializeName;;
@@ -87,6 +88,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         toJava = JavafxToJava.instance(context);
         reader = (JavafxClassReader) JavafxClassReader.instance(context);
+        optStat = JavafxOptimizationStatistics.instance(context);
         
         addChangeListenerName = names.fromString("addChangeListener");
         locationInitializeName = names.fromString("initialize");
@@ -789,7 +791,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (ai.needsCloning()) {
                 DiagnosticPosition diagPos = ai.pos();
                 JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.FINAL | (ai.getFlags() & Flags.STATIC));
-                Symbol sym = ai.getSymbol();
+                VarSymbol sym = ai.getSymbol();
                 Name fieldName = attributeFieldName(ai.getSymbol());
                 if (sym.owner == csym) {
                     List<JCAnnotation> annotations;
@@ -808,10 +810,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (vmi.mustMorph()) {
                     varType = ai.getVariableType();
                     varInit = makeLocationAttributeVariable(vmi, diagPos);
+                    optStat.recordClassVar(sym, true);
                 } else {
                     varType = ai.getRealType();
                     varInit = makeDefaultValue(diagPos, vmi);
-                }
+                    optStat.recordClassVar(sym, false);
+               }
                 JCVariableDecl var = make.at(diagPos).VarDef(
                         mods,
                         fieldName,

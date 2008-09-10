@@ -8,7 +8,6 @@ import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
@@ -16,7 +15,6 @@ import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.Position;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
@@ -25,7 +23,6 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
 
 import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javafx.comp.JavafxDefs.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,14 +47,14 @@ class JavafxAnalyzeClass {
 
     static class VarInfo {
         private final DiagnosticPosition diagPos;
-        private final Symbol sym;
+        private final VarSymbol sym;
         private final VarMorphInfo vmi;
         private final Name name;
         private final JCStatement initStmt;
         private final boolean isDirectOwner;
         private boolean needsCloning;
         
-        private VarInfo(DiagnosticPosition diagPos, Name name, Symbol attrSym, VarMorphInfo vmi,
+        private VarInfo(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
                 JCStatement initStmt, boolean isDirectOwner) {
             this.diagPos = diagPos;
             this.name = name;
@@ -67,7 +64,7 @@ class JavafxAnalyzeClass {
             this.isDirectOwner = isDirectOwner;
         }
 
-        public Symbol getSymbol() {
+        public VarSymbol getSymbol() {
             return sym;
         }
 
@@ -281,7 +278,7 @@ class JavafxAnalyzeClass {
                 }
                 for (JFXTree def : cDecl.getMembers()) {
                     if (def.getFXTag() == JavafxTag.VAR_DEF) {
-                        processAttribute(((JFXVar) def).sym, cDecl.sym, cloneVisible);
+                        processAttribute((VarSymbol)(((JFXVar) def).sym), cDecl.sym, cloneVisible);
                     } else if (cloneVisible && def.getFXTag() == JavafxTag.FUNCTION_DEF) {
                         processMethod(((JFXFunctionDefinition) def).sym);
                     }
@@ -290,7 +287,7 @@ class JavafxAnalyzeClass {
         }
     }
 
-    private VarInfo addAttribute(Name attrName, Symbol sym, boolean needsCloning) {
+    private VarInfo addAttribute(Name attrName, VarSymbol sym, boolean needsCloning) {
         VarInfo attrInfo = translatedAttributes.get(attrName);
         if (attrInfo == null || attrInfo.getSymbol() != sym) {
             attrInfo = new VarInfo(diagPos,
