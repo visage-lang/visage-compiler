@@ -404,8 +404,6 @@ public class XMLDoclet {
         attrs.clear();
         boolean bound = isBoundFunction(element);
         String modifiersText = element.modifiers();
-        if (bound)
-            modifiersText += " bound";
         attrs.addAttribute("", "", "text", "CDATA", modifiersText);
         hd.startElement("", "", "modifiers", attrs);
         attrs.clear();
