@@ -8,6 +8,7 @@
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
     <xsl:output method="html"/>
+    <xsl:param name="sdk-overview">false</xsl:param>
     <xsl:import href="javadoc.xsl"/>
     
     <!-- duplicates from previous reprise custom.xsl -->
@@ -235,29 +236,30 @@ var myTips = new Tips('.tooltip', {
                     </xsl:for-each>
                 </ul>
 
-                
                 <div id="content">
-                    <h3>JavaFX API Overview</h3>
+                    <h3><xsl:value-of select="$std.doctitle"/> Overview</h3>
                     
-                    <p>The JavaFX <sup>tm</sup> Platform is a rich client platform for cross-screen rich internet applications (RIA) and content. It consists of common elements (2D graphics, Animation, Text and Media) and device specific elements for desktop, mobile and TV.  The JavaFX common set of APIs allow source level portability of the common set of functionalities across all platforms supported by JavaFX.
-                    
-                    The JavaFX Runtimes targeted for different devices will ensure consistency and fidelity for content created based on the JavaFX Common APIs.
+                    <xsl:if test="$sdk-overview='true'">
+                        <p>The JavaFX <sup>tm</sup> Platform is a rich client platform for cross-screen rich internet applications (RIA) and content. It consists of common elements (2D graphics, Animation, Text and Media) and device specific elements for desktop, mobile and TV.  The JavaFX common set of APIs allow source level portability of the common set of functionalities across all platforms supported by JavaFX.
 
-                    The JavaFX Common APIs will continue to evolve to match more powerful, common capabilities on the various device types.
-                    
-                    </p>
-                    
-                    <p><img src="platform_diagram.png"/></p>
-                    
-                    <h3>What you can build with JavaFX:</h3>
-                    
-                    <p><b>Cross Platform Applications:</b> If you want to develop a RIA across screens then you need to use JavaFX Common APIs only. The JavaFX Common APIs currently support 2D Graphics, Animation and Text across all platforms. In future, there will be support for audio, video, networking, local storage and other relevant components in JavaFX Common.</p>
+                        The JavaFX Runtimes targeted for different devices will ensure consistency and fidelity for content created based on the JavaFX Common APIs.
 
-                    <p><b>Desktop Applications:</b> If you are designing a desktop only application  ( Windows and Mac are currently supported) you can extend the functionality of the JavaFX applications by using APIs that are optimized for the desktop in addition to JavaFX Common. This will allow your application to adapt to a desktop look and feel with the JavaFX Swing extensions and also take advantage of Device Media Frameworks and advanced graphics support.</p>
+                        The JavaFX Common APIs will continue to evolve to match more powerful, common capabilities on the various device types.
 
+                        </p>
+
+                        <p><img src="platform_diagram.png"/></p>
+
+                        <h3>What you can build with JavaFX:</h3>
+
+                        <p><b>Cross Platform Applications:</b> If you want to develop a RIA across screens then you need to use JavaFX Common APIs only. The JavaFX Common APIs currently support 2D Graphics, Animation and Text across all platforms. In future, there will be support for audio, video, networking, local storage and other relevant components in JavaFX Common.</p>
+
+                        <p><b>Desktop Applications:</b> If you are designing a desktop only application  ( Windows and Mac are currently supported) you can extend the functionality of the JavaFX applications by using APIs that are optimized for the desktop in addition to JavaFX Common. This will allow your application to adapt to a desktop look and feel with the JavaFX Swing extensions and also take advantage of Device Media Frameworks and advanced graphics support.</p>
+                    </xsl:if>
                     <table class="package-docs">
                         <tr><th></th></tr>
                         <xsl:for-each select="package">
+                            <xsl:sort select="@name"/>
                             <tr>
                                 <td class="name">
                                     <b><!--

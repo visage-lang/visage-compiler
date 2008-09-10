@@ -36,6 +36,7 @@
     <xsl:param name="inline-classlist">false</xsl:param>
     <xsl:param name="inline-descriptions">false</xsl:param>
     <xsl:param name="root-path">../</xsl:param>
+    <xsl:param name="std.doctitle">JavaFX API</xsl:param>
     
     
 <!-- starter template -->    
