@@ -145,12 +145,12 @@ public abstract class ProgramElementDocImpl
         }
 	StringBuffer sb = new StringBuffer();
 
-	if ((flags  & JavafxFlags.PUBLIC_INIT) == 0)	sb.append("public-init ");
-	if ((flags  & JavafxFlags.PUBLIC_READ) == 0)	sb.append("public-read ");
+	if ((flags  & JavafxFlags.PUBLIC_INIT) != 0)	sb.append("public-init ");
+	if ((flags  & JavafxFlags.PUBLIC_READ) != 0)	sb.append("public-read ");
 	if ((flags  & Flags.PUBLIC) != 0)	sb.append("public ");
 	if ((flags  & Flags.PROTECTED) != 0)	sb.append("protected ");
 	if ((flags  & (Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.SCRIPT_PRIVATE)) == 0)	sb.append("package ");
-	if ((flags  & JavafxFlags.BOUND) == 0)	sb.append("bound ");
+	if ((flags  & JavafxFlags.BOUND) != 0)	sb.append("bound ");
 	if ((flags  & Flags.ABSTRACT) != 0)	sb.append("abstract ");
 
 	int len = sb.length();
