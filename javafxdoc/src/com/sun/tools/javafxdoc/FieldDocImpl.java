@@ -31,6 +31,7 @@ import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.TypeTags;
 
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javafx.code.JavafxFlags;
 
 import com.sun.tools.javac.util.Position;
 
@@ -238,6 +239,27 @@ public class FieldDocImpl extends MemberDocImpl implements FieldDoc {
      */
     public boolean isSynthetic() {
         return (getFlags() & Flags.SYNTHETIC) != 0;
+    }
+
+    /**
+     * Returns true if this class variable is declared public-read
+     */
+    public boolean isPublicRead() {
+        return (getFlags() & JavafxFlags.PUBLIC_READ) != 0;
+    }
+
+    /**
+     * Returns true if this class variable is declared public-init
+     */
+    public boolean isPublicInit() {
+        return (getFlags() & JavafxFlags.PUBLIC_INIT) != 0;
+    }
+
+    /**
+     * Returns true if this class variable with 'def'
+     */
+    public boolean isDef() {
+        return (getFlags() & JavafxFlags.IS_DEF) != 0;
     }
 
     /**

@@ -25,6 +25,7 @@ package com.sun.tools.javafxdoc;
 
 import com.sun.javadoc.*;
 
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 
@@ -32,6 +33,7 @@ import com.sun.tools.javafx.tree.JFXTree;
 
 import com.sun.tools.javac.util.Position;
 
+import com.sun.tools.javafx.code.JavafxFlags;
 import java.lang.reflect.Modifier;
 import java.text.CollationKey;
 
@@ -135,14 +137,26 @@ public abstract class ProgramElementDocImpl
      * Annotations are not included.
      */
     public String modifiers() {
-        int modifiers = getModifiers();
+        long flags = getFlags();
         if (isAnnotationTypeElement() ||
                 (isMethod() && containingClass().isInterface())) {
             // Remove the implicit abstract modifier.
-            return Modifier.toString(modifiers & ~Modifier.ABSTRACT);
-        } else {
-            return Modifier.toString(modifiers);
+            flags &= ~Modifier.ABSTRACT;
         }
+	StringBuffer sb = new StringBuffer();
+
+	if ((flags  & JavafxFlags.PUBLIC_INIT) == 0)	sb.append("public-init ");
+	if ((flags  & JavafxFlags.PUBLIC_READ) == 0)	sb.append("public-read ");
+	if ((flags  & Flags.PUBLIC) != 0)	sb.append("public ");
+	if ((flags  & Flags.PROTECTED) != 0)	sb.append("protected ");
+	if ((flags  & (Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.SCRIPT_PRIVATE)) == 0)	sb.append("package ");
+	if ((flags  & JavafxFlags.BOUND) == 0)	sb.append("bound ");
+	if ((flags  & Flags.ABSTRACT) != 0)	sb.append("abstract ");
+
+	int len = sb.length();
+	if (len > 0)	/* trim trailing space */
+	    return sb.toString().substring(0, len-1);
+	return "";
     }
 
     /**
@@ -178,10 +192,17 @@ public abstract class ProgramElementDocImpl
     }
 
     /**
+     * Returns true if this program element is script-private
+     */
+    public boolean isScriptPrivate() {
+        return (getFlags() & JavafxFlags.SCRIPT_PRIVATE) != 0;
+    }
+
+    /**
      * Return true if this program element is package private
      */
     public boolean isPackagePrivate() {
-        return !(isPublic() || isPrivate() || isProtected());
+        return !(isPublic() || isScriptPrivate() || isPrivate() || isProtected());
     }
 
     /**

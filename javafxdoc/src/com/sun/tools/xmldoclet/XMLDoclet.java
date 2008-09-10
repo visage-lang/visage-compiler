@@ -402,7 +402,7 @@ public class XMLDoclet {
     
     private void generateModifiers(ProgramElementDoc element) throws SAXException {
         attrs.clear();
-        boolean bound = boundFunction(element);
+        boolean bound = isBoundFunction(element);
         String modifiersText = element.modifiers();
         if (bound)
             modifiersText += " bound";
@@ -811,16 +811,42 @@ public class XMLDoclet {
         }
     }
     
-    private boolean boundFunction(ProgramElementDoc doc) {
-        if (!(doc instanceof ExecutableMemberDoc))
-            return false;
+    private boolean getBooleanFlag(ProgramElementDoc doc, String flagMethod) {
         try {
             Class<?> cls = doc.getClass();
-            Method m = cls.getMethod("isBound");
+            Method m = cls.getMethod(flagMethod);
             return (Boolean)m.invoke(doc);
         } catch (Exception e) {
             return false;
         }
+    }
+    
+    private boolean isBoundFunction(ProgramElementDoc doc) {
+        if (!(doc instanceof ExecutableMemberDoc))
+            return false;
+        return getBooleanFlag(doc, "isBound");
+    }
+    
+    private boolean isScriptPrivate(ProgramElementDoc doc) {
+        return getBooleanFlag(doc, "isScriptPrivate");
+    }
+    
+    private boolean isPublicInit(ProgramElementDoc doc) {
+        if (!(doc instanceof FieldDoc))
+            return false;
+        return getBooleanFlag(doc, "isPublicInit");
+    }
+    
+    private boolean isPublicRead(ProgramElementDoc doc) {
+        if (!(doc instanceof FieldDoc))
+            return false;
+        return getBooleanFlag(doc, "isPublicRead");
+    }
+    
+    private boolean isDef(ProgramElementDoc doc) {
+        if (!(doc instanceof FieldDoc))
+            return false;
+        return getBooleanFlag(doc, "isDef");
     }
     
     private static Type sequenceType(ClassDoc cd, com.sun.tools.javac.code.Type rawType) {
