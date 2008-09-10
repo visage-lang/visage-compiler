@@ -19,6 +19,7 @@ public class SequenceExerciser {
         ops.put("rr", RandomReadGenerator.class);
         ops.put("rw", RandomWriteGenerator.class);
         ops.put("ra", RandomAccessGenerator.class);
+        ops.put("stream", SequenceAsStream.class);
     }
 
     public static int xorShift(int x) {
@@ -80,7 +81,7 @@ class RandomWriteGenerator implements SequenceOpGenerator {
         int size = seq.get().size();
         int sum = 0;
         for (int i=0; i<opCount; i++) {
-            int value = SequenceExerciser.nextRandom(1000);
+            int value = SequenceExerciser.nextRandom(10000);
             sum += value;
             seq.set(SequenceExerciser.nextRandom(size), value);
         }
@@ -106,10 +107,28 @@ class RandomAccessGenerator implements SequenceOpGenerator {
                 sum += seq.get(SequenceExerciser.nextRandom(size));
             }
             else {
-                int value = SequenceExerciser.nextRandom(1000);
+                int value = SequenceExerciser.nextRandom(10000);
                 sum += value;
                 seq.set(SequenceExerciser.nextRandom(size), value);
             }
+        }
+        return sum;
+    }
+}
+
+class SequenceAsStream implements SequenceOpGenerator {
+    private int opCount;
+
+    public void parseOptions(String[] options, int start) {
+        opCount = Integer.parseInt(options[start]);
+    }
+
+    public int doOp(SequenceLocation<Integer> seq) {
+        int sum = 0;
+        for (int i=0; i<opCount; i++) {
+            seq.insert(SequenceExerciser.nextRandom(10000));
+            sum += seq.get(0);
+            seq.delete(0);
         }
         return sum;
     }
