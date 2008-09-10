@@ -56,11 +56,20 @@ public abstract class FXContext {
     /** Get the {@code FXType} for the "any" type. */
     public FXType getAnyType() { return anyType; }
 
+    /** Get the run-time representation of the JavaXF {@code Boolean} type. */
+    public FXType getBooleanType() {
+        return FXPrimitiveType.booleanType;
+    }
+
     /** Get the run-time representation of the JavaXF {@code Integer} type. */
-    public abstract FXType getIntegerType();
+    public FXType getIntegerType() {
+        return FXPrimitiveType.integerType;
+    }
 
     /** Get the run-time representation of the JavaXF {@code Number} type. */
-    public abstract FXType getNumberType();
+    public FXType getNumberType() {
+        return FXPrimitiveType.numberType;
+    }
 
     /** Create a helper object for building a sequence value. */
     public FXSequenceBuilder makeSequenceBuilder(FXType elementType) {
@@ -96,11 +105,20 @@ public abstract class FXContext {
         return new FXSequenceValue(values, nvalues, elementType);
     }
     
+    /* Create an {@code Boolean} value from a {@code boolean}. */
+    public FXValue mirrorOf (boolean value) {
+        return new FXBooleanValue(value, getBooleanType());
+    }
+
     /* Create an {@code Integer} value from an {@code int}. */
-    public abstract FXValue mirrorOf (int value);
+    public FXValue mirrorOf (int value)  {
+        return new FXIntegerValue(value, getIntegerType());
+    }
 
     /* Create an {@code Number} value from aq {@code double}. */
-    public abstract FXValue mirrorOf (double value);
+    public FXValue mirrorOf (double value) {
+        return new FXNumberValue(value, getNumberType());
+    }
 
     public abstract FXValue mirrorOf (String value);
 }

@@ -69,6 +69,8 @@ public class FXLocal {
             else if (type instanceof FXPrimitiveType) {
                 if (type == FXPrimitiveType.integerType)
                     return mirrorOf(((Integer) val).intValue());
+                else if (type == FXPrimitiveType.booleanType)
+                    return mirrorOf(((Boolean) val).booleanValue());
                 else // if (type == FXPrimitiveType.numberType)
                     return mirrorOf(((Double) val).doubleValue());
             }
@@ -86,14 +88,6 @@ public class FXLocal {
 
         public ObjectValue mirrorOf(String val) {
           return new ObjectValue(val, this);
-        }
-
-        public FXIntegerValue mirrorOf (int value) {
-            return new FXIntegerValue(value, getIntegerType());
-        }
-
-        public FXNumberValue mirrorOf (double value) {
-            return new FXNumberValue(value, getNumberType());
         }
 
         /** Get the {@code FXClassType} for the class with the given name. */
@@ -165,6 +159,8 @@ public class FXLocal {
                 typ = lower.length > 0 ? lower[0] : wtyp.getUpperBounds()[0];
                 String rawName = ((Class) typ).getName();
                 // Kludge
+                if (rawName.equals("java.lang.Boolean"))
+                    return getBooleanType();
                 if (rawName.equals("java.lang.Integer"))
                     return getIntegerType();
                 if (rawName.equals("java.lang.Double"))
@@ -198,7 +194,8 @@ public class FXLocal {
                 return FXPrimitiveType.floatType;
             if (typ == Character.TYPE)
                 return FXPrimitiveType.charType;
-            if (typ == Boolean.TYPE)
+            if (FXClassType.BOOLEAN_VARIABLE_CLASSNAME.equals(rawName)
+                    || typ == Boolean.TYPE)
                 return FXPrimitiveType.booleanType;
             if (typ == Void.TYPE)
                 return FXPrimitiveType.voidType;
@@ -253,14 +250,6 @@ public class FXLocal {
 
         public FXValue makeSequenceValue(FXValue[] values, int nvalues, FXType elementType) {
             return new SequenceValue(values, nvalues, elementType, this);
-        }
-
-        public FXType getIntegerType() {
-            return FXPrimitiveType.integerType;
-        }
-
-        public FXType getNumberType() {
-            return FXPrimitiveType.numberType;
         }
     }
 
@@ -574,6 +563,10 @@ public class FXLocal {
                     ((IntVariable) loc).setAsIntFromLiteral(((FXIntegerValue) value).intValue());
                     return;
                 }
+                 if (loc instanceof BooleanVariable) {
+                    ((BooleanVariable) loc).setAsBooleanFromLiteral(((FXBooleanValue) value).booleanValue());
+                    return;
+                }
                 if (loc instanceof DoubleVariable) {
                     ((DoubleVariable) loc).setAsDoubleFromLiteral(((FXNumberValue) value).doubleValue());
                     return;
@@ -782,12 +775,6 @@ public class FXLocal {
                 Object[] objs = new Object[nvalues];
                 for (int i = 0;  i < nvalues;  i++)
                     objs[i] = ((FXLocal.Value) values[i]).asObject();
-                /* FIXME
-                if (elementType == PrimitiveTypeRef.integerType)
-                    ;
-                else if (elementType == PrimitiveTypeRef.numberType)
-                    ;
-                */
                 return Sequences.make(context.asClass(elementType), objs);
             }
             return seq;

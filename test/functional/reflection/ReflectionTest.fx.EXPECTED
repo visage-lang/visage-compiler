@@ -2,7 +2,7 @@ Reflecting class ReflectionTest.TypeInference3
 Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference, class ReflectionTest.TypeInference2, class ReflectionTest.TypeInference3]
  Type of anotherAttr is inferred as class java.lang.String
  Type of attr1 is inferred as class java.lang.Object
- Type of booleanAttr1 is inferred as class com.sun.javafx.runtime.location.BooleanVariable
+ Type of booleanAttr1 is inferred as Boolean
  Type of fnAttr1 is inferred as function(java.lang.Integer,java.lang.Integer):java.lang.Integer
  Type of fnAttr2 is inferred as function(Number,java.lang.String):java.lang.Void
  Type of fnAttr3 is inferred as function(Number,java.lang.String):Integer

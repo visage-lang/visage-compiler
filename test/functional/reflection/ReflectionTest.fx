@@ -38,7 +38,7 @@ class TypeInference  {
    var seq4 =[1,0.2,new Integer(2)];
    var objAttr1 = null;
    var objAttr2 = if(true){1}else {"av"};
-   var booleanAttr1;// Initialized in init block and infered to BooleanVariable
+   var booleanAttr1;
    var type1Attr1 = if(true){ TypeInference{} } else if (true) { null}else {new TypeInference};
    init{
 	booleanAttr1 = type1Attr1 instanceof TypeInference;
