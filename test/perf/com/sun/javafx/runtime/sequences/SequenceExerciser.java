@@ -39,12 +39,16 @@ public class SequenceExerciser {
         int initialSize = Integer.parseInt(args[0]);
         SequenceLocation<Integer> seq = SequenceVariable.make(Sequences.range(1, initialSize));
         int sum = 0;
+        long start = System.nanoTime();
         for (int i=1; i<args.length; i++) {
-            String[] parts = args[1].split(" ");
+            String[] parts = args[i].split(" ");
             Class<? extends SequenceOpGenerator> g = ops.get(parts[0]);
             SequenceOpGenerator gg = g.newInstance();
             gg.parseOptions(parts, 1);
             sum += gg.doOp(seq);
+            long end = System.nanoTime();
+            System.out.printf("Operation %s: time %d%n", args[i], (end-start));
+            start = end;
         }
     }
 }
