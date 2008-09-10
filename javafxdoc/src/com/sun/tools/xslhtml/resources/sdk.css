@@ -286,16 +286,35 @@ disabled because it breaks when the content div is longer than the viewport*/
 	margin: 0px;
 	background-color: #b7b7b7;
 }
+dt.method, dd.method {
+	border-width: 1px;
+	border-color: #7b7a7c;
+	border-style: solid;
+	padding: 0.5em;
+	margin: 0px;
+	background-color: #e6e6e6;
+}
 
 dt.method {
 	margin-top: 8px;
 	background-color: #c4c4c4;
 	font-size: 11pt;
+	border-bottom-width: 0px;
+	background-color: #e6e6e6;
 }
 
 dd.method {
 	border-top-width: 0px;
 	background-color: white;
+	margin-bottom: 8px;
+	background-color: #f6f5f5;
+}
+
+dd.method dl {
+	padding: 0.5em;
+	font-size: 11pt;
+	background-color: white;
+	color: #3e3c3f;
 }
 
 dl.parameters, dl.returns {
@@ -308,6 +327,10 @@ dl.parameters dt {
 	font-weight: bold;
 }
 
+dd.method dl.parameters dt, dd.method dl.parameters dd, dd.method dl.returns dt, dd.method dl.returns dd {
+	color: black;
+	font-size: 9pt;
+}
 
 
 
