@@ -838,12 +838,18 @@
             <div>
             <xsl:apply-templates select="docComment/firstSentenceTags"/>
                 <xsl:if test="$inline-descriptions='true'">
+                    <!-- josh: we must always show the more content for parameters
+                    and return values, even if there is only a one sentence description.
                     <xsl:if test="docComment/extraNotes[@multipleSentences='true']">
-                        More: [<a href="#" class="long-desc-open">+</a>]
+                    -->
+                        <a href="#" class="long-desc-open"><img src="../images/JFX_arrow_right.png"/></a>
                         <div class="long-desc">
                             <xsl:call-template name="method-like-full-description"/>
+                            &amp;nbsp;
                         </div>
+                        <!--
                     </xsl:if>
+                    -->
                 </xsl:if>
             </div>
         </dd>
@@ -879,7 +885,7 @@
     
     <!-- the full description of a method, minus the signature itself -->
     <xsl:template name="method-like-full-description">
-            
+
             <!-- the rest of the docs -->
             <xsl:apply-templates select="docComment/inlineTags"/>
             <xsl:apply-templates select="docComment/seeTags"/>
