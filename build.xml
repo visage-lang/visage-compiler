@@ -883,6 +883,7 @@
     </target>
     <target depends="init,compile,-pre-compile-test" if="have.tests" name="-do-compile-test">
         <javac classpath="${javac.test.classpath}" debug="true" destdir="${build.test.classes.dir}" srcdir="${test.src.dir}"/>
+        <javac classpath="${javac.test.classpath}" debug="true" destdir="${build.test.classes.dir}" srcdir="${test.perf.src.dir}"/>
         <copy todir="${build.test.classes.dir}">
             <fileset dir="${test.src.dir}" excludes="${build.classes.excludes}"/>
         </copy>
