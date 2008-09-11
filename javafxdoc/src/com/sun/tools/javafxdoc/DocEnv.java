@@ -24,7 +24,6 @@
 package com.sun.tools.javafxdoc;
 
 import java.util.*;
-import java.lang.reflect.Modifier;
 
 import com.sun.javadoc.*;
 
@@ -227,7 +226,7 @@ public class DocEnv {
             return false;
         }
 
-        return showAccess.checkModifier(translateModifiers(mod));
+        return showAccess.checkModifier(mod);
     }
 
     /** Check whether this member should be documented. */
@@ -238,7 +237,7 @@ public class DocEnv {
             return false;
         }
 
-        return showAccess.checkModifier(translateModifiers(mod));
+        return showAccess.checkModifier(mod);
     }
 
     /** check whether this class should be documented. */
@@ -266,7 +265,7 @@ public class DocEnv {
      */
     protected boolean isVisible(ClassSymbol sym) {
         long mod = sym.flags_field;
-        if (!showAccess.checkModifier(translateModifiers(mod))) {
+        if (!showAccess.checkModifier(mod)) {
             return false;
         }
         ClassSymbol encl = sym.owner.enclClass();
@@ -685,37 +684,6 @@ public class DocEnv {
      */
     public String getEncoding() {
         return encoding;
-    }
-
-    /**
-     * Convert modifier bits from private coding used by
-     * the compiler to that of java.lang.reflect.Modifier.
-     */
-    static int translateModifiers(long flags) {
-        int result = 0;
-        if ((flags & Flags.ABSTRACT) != 0)
-            result |= Modifier.ABSTRACT;
-        if ((flags & Flags.FINAL) != 0)
-            result |= Modifier.FINAL;
-        if ((flags & Flags.INTERFACE) != 0)
-            result |= Modifier.INTERFACE;
-        if ((flags & Flags.NATIVE) != 0)
-            result |= Modifier.NATIVE;
-        if ((flags & Flags.PRIVATE) != 0)
-            result |= Modifier.PRIVATE;
-        if ((flags & Flags.PROTECTED) != 0)
-            result |= Modifier.PROTECTED;
-        if ((flags & Flags.PUBLIC) != 0)
-            result |= Modifier.PUBLIC;
-        if ((flags & Flags.STATIC) != 0)
-            result |= Modifier.STATIC;
-        if ((flags & Flags.SYNCHRONIZED) != 0)
-            result |= Modifier.SYNCHRONIZED;
-        if ((flags & Flags.TRANSIENT) != 0)
-            result |= Modifier.TRANSIENT;
-        if ((flags & Flags.VOLATILE) != 0)
-            result |= Modifier.VOLATILE;
-        return result;
     }
     
     protected boolean isJFXSymbol(Symbol sym) {
