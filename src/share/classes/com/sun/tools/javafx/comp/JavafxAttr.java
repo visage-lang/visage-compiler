@@ -443,8 +443,7 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitInstanceOf(JFXInstanceOf tree) {
-        Type exprtype = chk.checkNullOrRefType(
-            tree.expr.pos(), attribExpr(tree.expr, env));
+        Type exprtype = attribExpr(tree.expr, env);
         Type clazztype = chk.checkReifiableReferenceType(
             tree.clazz.pos(), attribType(tree.clazz, env));
         chk.checkCastable(tree.expr.pos(), exprtype, clazztype);
