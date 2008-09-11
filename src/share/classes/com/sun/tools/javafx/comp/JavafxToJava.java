@@ -303,7 +303,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 translated = make.at(diagPos).TypeCast(type, translated);
             }
         }
-
+        if (sourceType.isCompound()) {
+            translated = make.at(diagPos).TypeCast(types.erasure(type), translated);
+        }
         return translated;
     }
 
@@ -2476,6 +2478,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     public void visitInstanceOf(JFXInstanceOf tree) {
         JCTree clazz = this.makeTypeTree( tree,tree.clazz.type);
         JCExpression expr = translate(tree.expr);
+        if (tree.expr.type.isPrimitive()) {
+            expr = this.makeBox(tree.expr.pos(), expr, tree.expr.type);
+        }
         if (types.isSequence(tree.expr.type) && ! types.isSequence(tree.clazz.type))
             expr = callExpression(tree.expr,
                     makeQualifiedTree(tree.expr, "com.sun.javafx.runtime.sequence.Sequences"),

@@ -126,6 +126,20 @@ public class JavafxTypes extends Types {
         getSupertypes(sym, supertypes, superSet);
         return superSet.contains(maybeSuper);
     }
+    
+    @Override
+    public boolean isSubtype(Type t, Type s, boolean capture) {
+        boolean b = super.isSubtype(t, s, capture);
+        if (!b && s.isCompound()) {
+            for (Type s2 : interfaces(s).prepend(supertype(s))) {
+                if (!isSubtype(t, s2, capture))
+                    return false;
+            }
+            return true;
+        }
+        else
+            return b;
+    }
 
     @Override
     public Type asSuper(Type t, Symbol sym) {

@@ -814,10 +814,10 @@ public class JavafxAttr implements JavafxVisitor {
                         lhsVar.type = lhsSym.type = types.upperBound(tree.rhs.type);
                         JFXExpression jcExpr = fxmake.at(tree.pos()).Ident(lhsSym);
                         lhsVar.setJFXType(fxmake.at(tree.pos()).TypeClass(jcExpr, lhsVar.getJFXType().getCardinality()));
-                    }
                 }
             }
         }
+    }
     }
 
     public void finishVar(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
@@ -1220,6 +1220,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
         boolean canReturn = true;
         boolean unreachableReported = false;
+        tree.type = syms.javafx_UnspecifiedType;
         for (List<JFXExpression> l = tree.stats; l.nonEmpty(); l = l.tail) {
             if (! canReturn && ! unreachableReported) {
                 unreachableReported = true;
@@ -1234,8 +1235,11 @@ public class JavafxAttr implements JavafxVisitor {
             if (!canReturn && !unreachableReported) {
                 log.error(tree.value.pos(), MsgSym.MESSAGE_UNREACHABLE_STMT);
             }
-            owntype = attribExpr(tree.value, localEnv);
-        }
+            Type valueType = attribExpr(tree.value, localEnv);
+            owntype = valueType != syms.unreachableType ?
+                unionType(tree.pos(), tree.type, valueType) :
+                syms.unreachableType;
+        }        
         if (owntype == null) {
             owntype = syms.voidType;
         }
@@ -1653,13 +1657,13 @@ public class JavafxAttr implements JavafxVisitor {
                 }
                 if (tree.isBound() && returnType == syms.javafx_VoidType) {
                     log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_BOUND_FUNCTION_MUST_NOT_BE_VOID);
-                }
+                }                
             }
             localEnv.info.scope.leave();
 
             mtype.restype = returnType;
             result = tree.type = mtype;
-
+            
             // If we override any other methods, check that we do so properly.
             // JLS ???
             if (m.owner instanceof ClassSymbol) {
@@ -1792,9 +1796,9 @@ public class JavafxAttr implements JavafxVisitor {
          */
         private Type unionType(DiagnosticPosition pos,
                                Type type1, Type type2) {
-            if (type1 == syms.unreachableType)
+            if (type1 == syms.unreachableType || type1 == syms.javafx_UnspecifiedType)
                 return type2;
-            if (type2 == syms.unreachableType)
+            if (type2 == syms.unreachableType || type2 == syms.javafx_UnspecifiedType)
                 return type1;
             if (type1 == type2)
                 return type1;
@@ -1927,19 +1931,27 @@ public class JavafxAttr implements JavafxVisitor {
             // it conforms to result type of enclosing method.
             Symbol m = env.enclMethod.sym;
             Type rtype = m.type.getReturnType();
+            JFXBlock enclBlock = env.enclMethod.operation.bodyExpression;
             if (rtype == null)
                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_INFER_RETURN_TYPE);
             else if (rtype.tag == VOID) {
-                    if (tree.expr != null)
-                        log.error(tree.expr.pos(),
-                                  MsgSym.MESSAGE_CANNOT_RET_VAL_FROM_METH_DECL_VOID);
-                } else if (tree.expr == null) {
-                    log.error(tree.pos(), MsgSym.MESSAGE_MISSING_RET_VAL);
-                } else {
-                    attribExpr(tree.expr, env, m.type.getReturnType());
+                if (tree.expr != null) {
+                    log.error(tree.expr.pos(),
+                        MsgSym.MESSAGE_CANNOT_RET_VAL_FROM_METH_DECL_VOID);
                 }
-        }
-
+            } else if (tree.expr == null) {
+                if (enclBlock.type == syms.javafx_UnspecifiedType)
+                    enclBlock.type = syms.javafx_VoidType;
+                else
+                    log.error(tree.pos(), MsgSym.MESSAGE_MISSING_RET_VAL);
+            } else {
+                if (enclBlock.type.tag == VOID) {
+                    log.error(tree.pos(), MsgSym.MESSAGE_CANNOT_RET_VAL_FROM_METH_DECL_VOID);
+                }
+                Type exprType = attribExpr(tree.expr, env);
+                enclBlock.type = unionType(tree.pos(), enclBlock.type, exprType);
+            }
+        }    
         result = tree.type = syms.unreachableType;
     }
 
