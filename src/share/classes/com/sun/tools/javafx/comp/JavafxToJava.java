@@ -1132,7 +1132,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         } else {
             // create a blank variable declaration and move the declaration to the beginning of the block
             if (!shouldMorph(vmi)) {
-                optStat.recordLocalVar(vsym, false);
+                optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), false);
                 if ((modFlags & Flags.FINAL) != 0) {
                     init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
                             tree.getBindStatus(), vsym);
@@ -1143,7 +1143,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 init = makeDefaultValue(diagPos, vmi);
             } else {
                 // location types: XXXVariable.make()
-                optStat.recordLocalVar(vsym, true);
+                optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), true);
                 init = makeLocationAttributeVariable(vmi, diagPos);
             }
             prependToStatements.append(make.at(Position.NOPOS).VarDef(tmods, tree.name, typeExpression, init));

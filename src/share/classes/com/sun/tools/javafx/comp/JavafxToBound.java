@@ -54,6 +54,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
      * modules imported by context
      */
     private final JavafxToJava toJava;
+    private final JavafxOptimizationStatistics optStat;
 
     /*
      * other instance information
@@ -89,6 +90,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         context.put(jfxToBoundKey, this);
 
         toJava = JavafxToJava.instance(context);
+        optStat = JavafxOptimizationStatistics.instance(context);
 
         doubleObjectTypeSymbol = types.boxedClass(syms.doubleType).type.tsym;
         intObjectTypeSymbol = types.boxedClass(syms.intType).type.tsym;
@@ -480,7 +482,9 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
         for (JFXExpression stmt : tree.getStmts()) {
             if (stmt.getFXTag() == JavafxTag.VAR_DEF) {
-                translatedVars.append(translateVar((JFXVar) stmt));
+                JFXVar var = (JFXVar) stmt;
+                translatedVars.append(translateVar(var));
+                optStat.recordLocalVar(var.sym, true, true);
             } else {
                 log.error(diagPos, MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, stmt.toString());
             }

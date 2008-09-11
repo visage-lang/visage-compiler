@@ -45,10 +45,15 @@ public class JavafxOptimizationStatistics {
     private int scriptDefLocationCount;
     private int scriptDefDirectCount;
 
-    private int localVarLocationCount;
-    private int localVarDirectCount;
-    private int localDefLocationCount;
-    private int localDefDirectCount;
+    private int localBoundVarLocationCount;
+    private int localBoundVarDirectCount;
+    private int localBoundDefLocationCount;
+    private int localBoundDefDirectCount;
+
+    private int localUnboundVarLocationCount;
+    private int localUnboundVarDirectCount;
+    private int localUnboundDefLocationCount;
+    private int localUnboundDefDirectCount;
     
     /**
      * Context set-up
@@ -76,10 +81,15 @@ public class JavafxOptimizationStatistics {
         scriptDefLocationCount = 0;
         scriptDefDirectCount = 0;
 
-        localVarLocationCount = 0;
-        localVarDirectCount = 0;
-        localDefLocationCount = 0;
-        localDefDirectCount = 0;
+        localBoundVarLocationCount = 0;
+        localBoundVarDirectCount = 0;
+        localBoundDefLocationCount = 0;
+        localBoundDefDirectCount = 0;
+
+        localUnboundVarLocationCount = 0;
+        localUnboundVarDirectCount = 0;
+        localUnboundDefLocationCount = 0;
+        localUnboundDefDirectCount = 0;
 
     }
 
@@ -118,20 +128,36 @@ public class JavafxOptimizationStatistics {
         }
     }
 
-    public void recordLocalVar(VarSymbol vsym, boolean isLocation) {
+    public void recordLocalVar(VarSymbol vsym, boolean isBound, boolean isLocation) {
         long flags = vsym.flags();
         boolean isDef = (flags & JavafxFlags.IS_DEF) != 0;
-        if (isLocation) {
-            if (isDef) {
-                ++localDefLocationCount;
+        if (isBound) {
+            if (isLocation) {
+                if (isDef) {
+                    ++localBoundDefLocationCount;
+                } else {
+                    ++localBoundVarLocationCount;
+                }
             } else {
-                ++localVarLocationCount;
+                if (isDef) {
+                    ++localBoundDefDirectCount;
+                } else {
+                    ++localBoundVarDirectCount;
+                }
             }
         } else {
-            if (isDef) {
-                ++localDefDirectCount;
+            if (isLocation) {
+                if (isDef) {
+                    ++localUnboundDefLocationCount;
+                } else {
+                    ++localUnboundVarLocationCount;
+                }
             } else {
-                ++localVarDirectCount;
+                if (isDef) {
+                    ++localUnboundDefDirectCount;
+                } else {
+                    ++localUnboundVarDirectCount;
+                }
             }
         }
     }
