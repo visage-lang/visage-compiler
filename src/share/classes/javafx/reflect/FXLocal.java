@@ -426,7 +426,14 @@ public class FXLocal {
                       ref.fld = null;
                       ref.locationGetter = getter;
                     } catch (NoSuchMethodException ex) {
-                        // ??? for now leave 'fld'
+                        try {
+                            getLocName = "get" + fld.getName();
+                            Method getter = refInterface.getMethod(getLocName, noClasses);
+                            ref.fld = null;
+                            ref.locationGetter = getter;
+                        } catch (NoSuchMethodException ex2) {
+                            System.err.println("could not find locGetter for " + name);
+                        }
                     }
                 }
                 if (filter != null && filter.accept(ref))
@@ -547,6 +554,24 @@ public class FXLocal {
                 throw new RuntimeException(ex);
             }
             throw new UnsupportedOperationException("Not supported yet - "+type+"["+type.getClass().getName()+"]");
+        }
+        
+        AbstractVariable impl_getAbstractVariable(FXObjectValue obj) {
+            try {
+                Object robj = obj == null ? null : ((ObjectValue) obj).obj;
+                if (locationGetter != null) {
+                    Object val = locationGetter.invoke(robj, new Object[0]);
+                    if (val instanceof AbstractVariable)
+                        return (AbstractVariable) val;
+                }
+                return null;
+            }
+            catch (RuntimeException ex) {
+                throw ex;
+            }
+            catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
         }
 
         static final Object[] noObjects = {};

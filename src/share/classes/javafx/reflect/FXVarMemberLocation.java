@@ -23,12 +23,26 @@
 
 package javafx.reflect;
 
-/** A reference to a specific attribute in a specific object. */
-class FXVarMemberLocation extends FXLocation {
+import com.sun.javafx.runtime.location.*;
+
+/** 
+ * A reference to a specific attribute in a specific object. 
+ *
+ *@treatAsPrivate implementation detail
+ */
+public class FXVarMemberLocation extends FXLocation {
     FXObjectValue object;
     FXVarMember attr;
     FXVarMemberLocation(FXObjectValue object, FXVarMember attr)
     { this.object = object; this.attr = attr; }
     public FXValue getValue() { return attr.getValue(object); }
     public void setValue(FXValue newValue) { attr.setValue(object, newValue); }
+
+    /**@treatAsPrivate implementation detail*/
+    public AbstractVariable impl_getAbstractVariable() {
+        if (attr instanceof FXLocal.VarMember)
+            return ((FXLocal.VarMember) attr).impl_getAbstractVariable(object);
+        else
+            return null;
+    }
 }
