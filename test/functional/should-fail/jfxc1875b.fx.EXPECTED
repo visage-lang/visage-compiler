@@ -1,0 +1,4 @@
+test\functional\should-fail\jfxc1875b.fx:14: months has script only (default) bind access in jfxc1875a
+    months:bind str; // binding a public-init variable
+    ^
+1 error
