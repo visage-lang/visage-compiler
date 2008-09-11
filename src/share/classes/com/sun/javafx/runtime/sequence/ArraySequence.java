@@ -43,9 +43,18 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
 
     public ArraySequence(Class<T> clazz, T... values) {
+        this(clazz, values, false);
+    }
+
+    public ArraySequence(Class<T> clazz, T[] values, boolean handoff) {
         super(clazz);
-        this.array = Util.<T>newObjectArray(values.length);
-        System.arraycopy(values, 0, array, 0, values.length);
+        if (handoff) {
+            this.array = values;
+        }
+        else {
+            this.array = Util.<T>newObjectArray(values.length);
+            System.arraycopy(values, 0, array, 0, values.length);
+        }
         checkForNulls();
     }
 

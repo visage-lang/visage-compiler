@@ -747,110 +747,180 @@ public class SequencesTest extends JavaFXTestCase {
      * 	<T> boolean isEqual(Sequence<T> one, Sequence<T> other) 
      */
     public void testIsEqual() {
-		boolean result;
-		Sequence<DummyElement> localSeq;
-		
-		// compare empty sequences
-		localSeq = Sequences.emptySequence(DummyElement.class);
-		result = Sequences.isEqual(emptyElements, localSeq);
+        boolean result;
+        Sequence<DummyElement> localSeq;
+
+        // compare empty sequences
+        localSeq = Sequences.emptySequence(DummyElement.class);
+        result = Sequences.isEqual(emptyElements, localSeq);
         assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
         assertEquals(Sequences.emptySequence(DummyElement.class), localSeq);
         assertEquals(true, result);
-		
-		// compare first sequence being null
-		result = Sequences.isEqual(null, emptyElements);
+
+        // compare first sequence being null
+        result = Sequences.isEqual(null, emptyElements);
         assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
         assertEquals(true, result);
-		
-		// compare second sequence being null
-		result = Sequences.isEqual(emptyElements, null);
+
+        // compare second sequence being null
+        result = Sequences.isEqual(emptyElements, null);
         assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
         assertEquals(true, result);
-		
-		// compare equal sequence
+
+        // compare equal sequence
         localSeq = Sequences.make(DummyElement.class, element[3], element[1], element[2]);
-		result = Sequences.isEqual(unsortedElements, localSeq);
+        result = Sequences.isEqual(unsortedElements, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[3], element[1], element[2]);
         assertEquals(true, result);
-		
-		// compare sequence unequal by identity but equal by equals()
-		DummyElement localElement = new DummyElement(1);
+
+        // compare sequence unequal by identity but equal by equals()
+        DummyElement localElement = new DummyElement(1);
         localSeq = Sequences.make(DummyElement.class, element[3], localElement, element[2]);
-		result = Sequences.isEqual(unsortedElements, localSeq);
+        result = Sequences.isEqual(unsortedElements, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[3], localElement, element[2]);
         assertEquals(true, result);
-		
-		// compare first sequence smaller than second
+
+        // compare first sequence smaller than second
         localSeq = Sequences.make(DummyElement.class, element[3], element[1]);
-		result = Sequences.isEqual(unsortedElements, localSeq);
+        result = Sequences.isEqual(unsortedElements, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[3], element[1]);
         assertEquals(false, result);
-		
-		// compare first sequence larger than second
+
+        // compare first sequence larger than second
         localSeq = Sequences.make(DummyElement.class, element[3], element[1], element[2], element[3]);
-		result = Sequences.isEqual(unsortedElements, localSeq);
+        result = Sequences.isEqual(unsortedElements, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[3], element[1], element[2], element[3]);
         assertEquals(false, result);
-	}
+    }
 
     /**
      * 	<T> boolean isEqualByContentIdentity(Sequence<T> one, Sequence<T> other) 
      */
     public void testIsEqualByContentIdentity() {
-		boolean result;
-		Sequence<DummyElement> localSeq;
-		
-		// compare empty sequences
-		localSeq = Sequences.emptySequence(DummyElement.class);
-		result = Sequences.isEqualByContentIdentity(emptyElements, localSeq);
+        boolean result;
+        Sequence<DummyElement> localSeq;
+
+        // compare empty sequences
+        localSeq = Sequences.emptySequence(DummyElement.class);
+        result = Sequences.isEqualByContentIdentity(emptyElements, localSeq);
         assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
         assertEquals(Sequences.emptySequence(DummyElement.class), localSeq);
         assertEquals(true, result);
-		
-		// compare first sequence being null
-		result = Sequences.isEqualByContentIdentity(null, emptyElements);
+
+        // compare first sequence being null
+        result = Sequences.isEqualByContentIdentity(null, emptyElements);
         assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
         assertEquals(true, result);
-		
-		// compare second sequence being null
-		result = Sequences.isEqualByContentIdentity(emptyElements, null);
+
+        // compare second sequence being null
+        result = Sequences.isEqualByContentIdentity(emptyElements, null);
         assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
         assertEquals(true, result);
-		
-		// compare equal sequence
+
+        // compare equal sequence
         localSeq = Sequences.make(DummyElement.class, element[3], element[1], element[2]);
-		result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
+        result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[3], element[1], element[2]);
         assertEquals(true, result);
-		
-		// compare sequence unequal by identity but equal by equals()
-		DummyElement localElement = new DummyElement(1);
-		assertNotSame(element[1], localElement);
-		assertEquals(element[1], localElement);
+
+        // compare sequence unequal by identity but equal by equals()
+        DummyElement localElement = new DummyElement(1);
+        assertNotSame(element[1], localElement);
+        assertEquals(element[1], localElement);
         localSeq = Sequences.make(DummyElement.class, element[3], localElement, element[2]);
-		result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
+        result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[3], localElement, element[2]);
         assertEquals(false, result);
-		
-		// compare first sequence smaller than second
+
+        // compare first sequence smaller than second
         localSeq = Sequences.make(DummyElement.class, element[3], element[1]);
-		result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
+        result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[3], element[1]);
         assertEquals(false, result);
-		
-		// compare first sequence larger than second
+
+        // compare first sequence larger than second
         localSeq = Sequences.make(DummyElement.class, element[3], element[1], element[2], element[3]);
-		result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
+        result = Sequences.isEqualByContentIdentity(unsortedElements, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[3], element[1], element[2], element[3]);
         assertEquals(false, result);
-	}
+    }
 	
+
+    public void testSliceEqual() {
+        boolean result;
+        Sequence<DummyElement> localSeq;
+
+        // compare empty sequences
+        localSeq = Sequences.emptySequence(DummyElement.class);
+        result = Sequences.sliceEqual(emptyElements, 0, -1, localSeq);
+        assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
+        assertEquals(Sequences.emptySequence(DummyElement.class), localSeq);
+        assertEquals(true, result);
+
+        // compare sequence being null
+        result = Sequences.sliceEqual(null, 0, -1, emptyElements);
+        assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
+        assertEquals(true, result);
+
+        // compare slice being null
+        result = Sequences.sliceEqual(emptyElements, 0, -1, null);
+        assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
+        assertEquals(true, result);
+
+        // compare equal sequence
+        localSeq = Sequences.make(DummyElement.class, element[3], element[1], element[2]);
+        result = Sequences.sliceEqual(unsortedElements, 0, 2, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[3], element[1], element[2]);
+        assertEquals(true, result);
+
+        // compare sequence unequal by identity but equal by equals()
+        DummyElement localElement = new DummyElement(1);
+        localSeq = Sequences.make(DummyElement.class, element[3], localElement, element[2]);
+        result = Sequences.sliceEqual(unsortedElements, 0, 2, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[3], localElement, element[2]);
+        assertEquals(true, result);
+
+        // compare slice at the beginning
+        localSeq = Sequences.make(DummyElement.class, element[3], element[1]);
+        result = Sequences.sliceEqual(unsortedElements, 0, 1, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[3], element[1]);
+        assertEquals(true, result);
+        
+        // compare slice at the end
+        localSeq = Sequences.make(DummyElement.class, element[1], element[2]);
+        result = Sequences.sliceEqual(unsortedElements, 1, 2, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[1], element[2]);
+        assertEquals(true, result);
+        
+        // compare single-element slice
+        localSeq = Sequences.singleton(DummyElement.class, element[3]);
+        result = Sequences.sliceEqual(unsortedElements, 0, 0, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[3]);
+        assertEquals(true, result);
+        
+        // compare unequal slices
+        localSeq = Sequences.singleton(DummyElement.class, element[2]);
+        result = Sequences.sliceEqual(unsortedElements, 0, 0, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[2]);
+        assertEquals(false, result);
+        localSeq = Sequences.make(DummyElement.class, element[3], element[2]);
+        result = Sequences.sliceEqual(unsortedElements, 0, 1, localSeq);
+        assertEquals(unsortedElements, element[3], element[1], element[2]);
+        assertEquals(localSeq, element[3], element[2]);
+        assertEquals(false, result);
+    }     
 }

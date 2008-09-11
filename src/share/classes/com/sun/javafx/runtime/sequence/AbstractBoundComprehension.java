@@ -131,7 +131,8 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
                     underlying.replaceSlice(startPos, endPos, locationsArray);
                     state.replaceSlice(startPos, endPos, newStates);
                     if (useIndex) {
-                        for (int i = endPos + 1 + netAdded; i < state.size(); i++)
+                        final int length = state.size();
+                        for (int i = endPos + 1 + netAdded; i < length; i++)
                             state.get(i).index.set(i);
                     }
                 }

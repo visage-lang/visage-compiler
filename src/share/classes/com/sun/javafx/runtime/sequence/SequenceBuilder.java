@@ -48,7 +48,7 @@ public class SequenceBuilder<T> {
      * initialSize elements. */
     public SequenceBuilder(Class clazz, int initialSize) {
         this.clazz = clazz;
-        array = Util.<T>newObjectArray(Util.powerOfTwo(1, initialSize));
+        array = Util.<T>newObjectArray(initialSize);
     }
 
     private void ensureSize(int newSize) {
@@ -94,11 +94,15 @@ public class SequenceBuilder<T> {
         size = 0;
     }
 
-    /** Convert the SequenceBuilder to a Sequence.  The elements will be copied to a new sequence, and will remain
-     * in the SequenceBuilder, so it can continue to be used to make more sequences */
+    /** Convert the SequenceBuilder to a Sequence.  The elements will be handed off to a new sequence,
+     * and the SequenceBuilder is no longer usable */
     public Sequence<T> toSequence() {
-        // OPT: This causes the array to be copied; we can do the same trick as in StringBuilder to transfer
-        // ownership of the array instead and avoid the copy
-        return Sequences.make(clazz, array, size);
+        if (array.length == size) {
+            T[] arrayRef = array;
+            array = null;
+            return Sequences.<T>makeViaHandoff(clazz, arrayRef);
+        }
+        else
+            return Sequences.<T>make(clazz, array, size);
     }
 }

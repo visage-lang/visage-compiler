@@ -126,7 +126,7 @@ public class SequenceVariable<T>
         assert (boundLocation == null);
         Sequence<T> oldValue = $value;
 
-        if (preReplace(!Sequences.isEqual(oldValue, newValue))) {
+        if (preReplace(!Sequences.sliceEqual(oldValue, startPos, endPos, newElements))) {
             boolean invalidateDependencies = isValid() || state == STATE_UNBOUND;
             $value = newValue;
             setValid();

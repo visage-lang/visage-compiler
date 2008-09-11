@@ -68,6 +68,10 @@ public final class Sequences {
             return new ArraySequence<T>(clazz, values, size);
     }
 
+    public static<T> Sequence<T> makeViaHandoff(Class<T> clazz, T[] values) {
+        return new ArraySequence<T>(clazz, values, true);
+    }
+
     /** Factory for simple sequence generation */
     public static<T> Sequence<T> make(Class<T> clazz, List<? extends T> values) {
         if (values == null || values.size() == 0)
@@ -264,6 +268,15 @@ public final class Sequences {
             return true;
         }
     }
+    
+    public static<T> boolean sliceEqual(Sequence<T> seq, int startPos, int endPos, Sequence<? extends T> slice) {
+        if (endPos - startPos + 1 != size(slice))
+            return false;
+        for (int i=startPos; i<=endPos; i++)
+            if (!seq.get(i).equals(slice.get(i-startPos)))
+                return false;
+        return true;
+    }     
 
     public static<T> Sequence<? extends T> forceNonNull(Class<T> clazz, Sequence<? extends T> seq) {
         return seq == null ? emptySequence(clazz) : seq;

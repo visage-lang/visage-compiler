@@ -52,7 +52,7 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
     }
 
     public BitSet getBits(SequencePredicate<? super T> predicate) {
-        int length = size();
+        final int length = size();
         BitSet bits = new BitSet(length);
         for (int i = 0; i < length; i++)
             if (predicate.matches(this, i, get(i)))
@@ -73,7 +73,8 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
     }
 
     public void toArray(Object[] array, int destOffset) {
-        for (int i = 0; i < size(); i++)
+        final int length = size();
+        for (int i = 0; i < length; i++)
             array[i + destOffset] = get(i);
     }
 
@@ -85,13 +86,14 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             private int next = 0;
+            final private int length = size();
 
             public boolean hasNext() {
-                return next < size();
+                return next < length;
             }
 
             public T next() {
-                if (next >= size())
+                if (next >= length)
                     throw new NoSuchElementException();
                 else
                     return get(next++);
@@ -112,7 +114,8 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
     @Override
     public int hashCode() {
         int hash = 0;
-        for (int i = 0; i < size(); i++) {
+        final int length = size();
+        for (int i = 0; i < length; i++) {
             T val = get(i);
             hash = 31 * hash + (val != null ? val.hashCode() : 0);
         }
@@ -126,7 +129,8 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
             return "[ ]";
         StringBuilder sb = new StringBuilder();
         sb.append("[ ");
-        for (int i = 0; i < size(); i++) {
+        final int length = size();
+        for (int i = 0; i < length; i++) {
             if (i > 0)
                 sb.append(", ");
             sb.append(get(i));
@@ -158,7 +162,8 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
                          int width, 
                          int precision) {
         // TBD handle flags, width, and precision
-        for (int i = 0; i < size(); i++) {
+        final int length = size();
+        for (int i = 0; i < length; i++) {
             formatter.format("%s", get(i));
         }
     }
