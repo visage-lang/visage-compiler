@@ -184,17 +184,14 @@ public class XHTMLProcessingUtils {
         transFact.setURIResolver(new URIResolver() {
             public Source resolve(String href, String base) throws TransformerException {
                 p(INFO, "Trying to resolve: " + href + " " + base);
-                if("javadoc.xsl".equals(href)) {
-                    URL url = XHTMLProcessingUtils.class.getResource("resources/javadoc.xsl");
-                    p(INFO, "Resolved " + href + ":" + base + " to " + url);
-                    try {
-                        return new StreamSource(url.openStream());
-                    } catch (IOException ex) {
-                        Logger.getLogger(XHTMLProcessingUtils.class.getName()).log(Level.SEVERE, null, ex);
-                        return null;
-                    }
+                URL url = XHTMLProcessingUtils.class.getResource("resources/"+href);
+                p(INFO, "Resolved " + href + ":" + base + " to " + url);
+                try {
+                    return new StreamSource(url.openStream());
+                } catch (IOException ex) {
+                    Logger.getLogger(XHTMLProcessingUtils.class.getName()).log(Level.SEVERE, null, ex);
+                    return null;
                 }
-                return null;
             }
         });
         Transformer trans = transFact.newTransformer(xslt);
@@ -244,6 +241,10 @@ public class XHTMLProcessingUtils {
         trans.setParameter("root-path", "./");
         package_list_elem.setAttribute("mode", "overview-summary");
         trans.transform(new DOMSource(packages_doc), new StreamResult(new File(docsdir,"index.html")));
+
+        Transformer indexTrans = transFact.newTransformer(new StreamSource(XHTMLProcessingUtils.class.getResourceAsStream("resources/master-index.xsl")));
+        indexTrans.setParameter("root-path", "./");
+        indexTrans.transform(new DOMSource(unified), new StreamResult(new File(docsdir,"master-index.html")));
         p(INFO,getString("finished"));
     }
 

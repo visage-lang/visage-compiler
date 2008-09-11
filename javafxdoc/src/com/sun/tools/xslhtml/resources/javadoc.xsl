@@ -747,12 +747,34 @@
     
     <xsl:template match="attribute" mode="href">
         <xsl:attribute name="href">
-            <xsl:text>../</xsl:text>
+            <xsl:text><xsl:value-of select="$root-path"/></xsl:text>
             <xsl:value-of select="../@packageName"/>
             <xsl:text>/</xsl:text>
             <xsl:value-of select="../@qualifiedName"/>
             <xsl:text>.html#</xsl:text>
             <xsl:value-of select="@name"/>
+        </xsl:attribute>
+    </xsl:template>
+    
+    <xsl:template match="function" mode="href">
+        <xsl:attribute name="href">
+            <xsl:text><xsl:value-of select="$root-path"/></xsl:text>
+            <xsl:value-of select="../@packageName"/>
+            <xsl:text>/</xsl:text>
+            <xsl:value-of select="../@qualifiedName"/>
+            <xsl:text>.html</xsl:text>
+            <xsl:text>#</xsl:text>
+            <xsl:apply-templates select="." mode="anchor-signature"/>
+        </xsl:attribute>
+    </xsl:template>
+    
+    <xsl:template match="class" mode="href">
+        <xsl:attribute name="href">
+            <xsl:text><xsl:value-of select="$root-path"/></xsl:text>
+            <xsl:value-of select="@packageName"/>
+            <xsl:text>/</xsl:text>
+            <xsl:value-of select="@qualifiedName"/>
+            <xsl:text>.html</xsl:text>
         </xsl:attribute>
     </xsl:template>
     
@@ -1016,15 +1038,7 @@
         <!-- fx -->
         <xsl:if test="not(../@language='java')">
             <a>
-                <xsl:attribute name="href">
-                    <xsl:text>../</xsl:text>
-                    <xsl:value-of select="../@packageName"/>
-                    <xsl:text>/</xsl:text>
-                    <xsl:value-of select="../@qualifiedName"/>
-                    <xsl:text>.html</xsl:text>
-                    <xsl:text>#</xsl:text>
-                    <xsl:apply-templates select="." mode="anchor-signature"/>
-                </xsl:attribute>
+                <xsl:apply-templates select="." mode="href"/>
                 <b><xsl:value-of select="@name"/></b>
             </a>
             <xsl:apply-templates select="parameters" mode="signature"/>

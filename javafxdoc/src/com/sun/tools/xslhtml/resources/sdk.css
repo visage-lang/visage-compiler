@@ -63,6 +63,9 @@ body {
 	color: #ff9f1d;
 	padding: 2px;
 }
+#top-header #master-index-link {
+    float: left;
+}
 
 
 
