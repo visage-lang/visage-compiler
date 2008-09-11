@@ -39,6 +39,7 @@ import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
 import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 /**
  * Main program of Javadoc.
@@ -66,7 +67,7 @@ class Start {
 
     private ModifierFilter showAccess = null;
 
-    private long defaultFilter = PUBLIC | PROTECTED;
+    private long defaultFilter = PUBLIC | PROTECTED | PUBLIC_READ | PUBLIC_INIT;
 
     private Messager messager;
 
@@ -225,14 +226,13 @@ class Start {
                 setFilter(ModifierFilter.ALL_ACCESS);
             } else if (arg.equals("-package")) {
                 setOption(arg);
-                setFilter(PUBLIC | PROTECTED |
-                          ModifierFilter.PACKAGE );
+                setFilter(PUBLIC | PROTECTED | PUBLIC_READ | PUBLIC_INIT | PACKAGE_ACCESS );
             } else if (arg.equals("-protected")) {
                 setOption(arg);
-                setFilter(PUBLIC | PROTECTED );
+                setFilter(PUBLIC | PROTECTED | PUBLIC_READ | PUBLIC_INIT );
             } else if (arg.equals("-public")) {
                 setOption(arg);
-                setFilter(PUBLIC);
+                setFilter(PUBLIC | PUBLIC_READ | PUBLIC_INIT);
             } else if (arg.equals("-source")) {
                 oneArg(argv, i++);
                 if (compOpts.get("-source") != null) {

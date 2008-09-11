@@ -24,6 +24,7 @@
 package com.sun.tools.javafxdoc;
 
 import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 /**
  *   A class whose instances are filters over Modifier bits.
@@ -37,27 +38,17 @@ import static com.sun.tools.javac.code.Flags.*;
 public class ModifierFilter {
 
     /**
-    * Package private access.
-    * A "pseudo-" modifier bit that can be used in the
-    * constructors of this class to specify package private
-    * access. This is needed since there is no Modifier.PACKAGE.
-    */
-    public static final long PACKAGE = 0x8000000000000000L;
-
-    /**
     * All access modifiers.
     * A short-hand set of modifier bits that can be used in the
     * constructors of this class to specify all access modifiers,
     * Same as PRIVATE | PROTECTED | PUBLIC | PACKAGE.
     */
     public static final long ALL_ACCESS =
-                PRIVATE | PROTECTED | PUBLIC | PACKAGE;
+                PROTECTED | PUBLIC | PACKAGE_ACCESS | SCRIPT_PRIVATE;
 
     private long oneOf;
     private long must;
     private long cannot;
-
-    private static final int ACCESS_BITS = PRIVATE | PROTECTED | PUBLIC;
 
     /**
      * Constructor - Specify a filter.
@@ -104,14 +95,10 @@ public class ModifierFilter {
      *
      * @return                  Whether the modifierBits pass this filter.
      */
-    public boolean checkModifier(int modifierBits) {
-        // Add in the "pseudo-" modifier bit PACKAGE, if needed
-        long fmod = ((modifierBits & ACCESS_BITS) == 0) ?
-                        modifierBits | PACKAGE :
-                        modifierBits;
-        return ((oneOf == 0) || ((oneOf & fmod) != 0)) &&
-                ((must & fmod) == must) &&
-                ((cannot & fmod) == 0);
+    public boolean checkModifier(long modifierBits) {
+        return ((oneOf == 0) || ((oneOf & modifierBits) != 0)) &&
+                ((must & modifierBits) == must) &&
+                ((cannot & modifierBits) == 0);
     }
 
 } // end ModifierFilter
