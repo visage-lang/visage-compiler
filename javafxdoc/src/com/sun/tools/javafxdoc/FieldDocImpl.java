@@ -69,13 +69,6 @@ public class FieldDocImpl extends MemberDocImpl implements FieldDoc {
     }
 
     /**
-     * Returns the flags in terms of javac's flags
-     */
-    protected long getFlags() {
-        return sym.flags();
-    }
-
-    /**
      * Identify the containing class
      */
     protected ClassSymbol getContainingClass() {
@@ -224,14 +217,14 @@ public class FieldDocImpl extends MemberDocImpl implements FieldDoc {
      * Return true if this field is transient
      */
     public boolean isTransient() {
-        return Modifier.isTransient(getModifiers());
+        return (getFlags() & Flags.TRANSIENT) != 0;
     }
 
     /**
      * Return true if this field is volatile
      */
     public boolean isVolatile() {
-        return Modifier.isVolatile(getModifiers());
+        return (getFlags() & Flags.VOLATILE) != 0;
     }
 
     /**

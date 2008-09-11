@@ -57,15 +57,14 @@ public abstract class ProgramElementDocImpl
     JFXTree tree = null;
     Position.LineMap lineMap = null;
 
-
-    // Cache for getModifiers().
-    private int modifiers = -1;
+    private final long flags;
 
     protected ProgramElementDocImpl(DocEnv env, Symbol sym,
                                     String doc, JFXTree tree, Position.LineMap lineMap) {
         super(env, doc);
         this.tree = tree;
         this.lineMap = lineMap;
+        this.flags = sym.flags_field;
     }
 
     void setTree(JFXTree tree) {
@@ -80,16 +79,8 @@ public abstract class ProgramElementDocImpl
     /**
      * Returns the flags in terms of javac's flags
      */
-    abstract protected long getFlags();
-
-    /**
-     * Returns the modifier flags in terms of java.lang.reflect.Modifier.
-     */
-    protected int getModifiers() {
-        if (modifiers == -1) {
-            modifiers = DocEnv.translateModifiers(getFlags());
-        }
-        return modifiers;
+    protected long getFlags() {
+        return flags;
     }
 
     /**
@@ -113,17 +104,8 @@ public abstract class ProgramElementDocImpl
         return env.getPackageDoc(getContainingClass().packge());
     }
 
-    /**
-     * Get the modifier specifier integer.
-     *
-     * @see java.lang.reflect.Modifier
-     */
     public int modifierSpecifier() {
-        int modifiers = getModifiers();
-        if (isMethod() && containingClass().isInterface())
-            // Remove the implicit abstract modifier.
-            return modifiers & ~Modifier.ABSTRACT;
-        return modifiers;
+        throw new UnsupportedOperationException("cannot use modifierSpecifier() with JavaFX");
     }
 
     /**
@@ -137,21 +119,25 @@ public abstract class ProgramElementDocImpl
      * Annotations are not included.
      */
     public String modifiers() {
-        long flags = getFlags();
+        long aflags = getFlags();
         if (isAnnotationTypeElement() ||
                 (isMethod() && containingClass().isInterface())) {
             // Remove the implicit abstract modifier.
-            flags &= ~Modifier.ABSTRACT;
+            aflags &= ~Modifier.ABSTRACT;
         }
-	StringBuffer sb = new StringBuffer();
+        return modifiers(aflags);
+    }
 
-	if ((flags  & JavafxFlags.PUBLIC_INIT) != 0)	sb.append("public-init ");
-	if ((flags  & JavafxFlags.PUBLIC_READ) != 0)	sb.append("public-read ");
-	if ((flags  & Flags.PUBLIC) != 0)	sb.append("public ");
-	if ((flags  & Flags.PROTECTED) != 0)	sb.append("protected ");
-	if ((flags  & (Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.SCRIPT_PRIVATE)) == 0)	sb.append("package ");
-	if ((flags  & JavafxFlags.BOUND) != 0)	sb.append("bound ");
-	if ((flags  & Flags.ABSTRACT) != 0)	sb.append("abstract ");
+    protected String modifiers(long aflags) {
+        StringBuffer sb = new StringBuffer();
+
+	if ((aflags  & JavafxFlags.PUBLIC_INIT) != 0)	sb.append("public-init ");
+	if ((aflags  & JavafxFlags.PUBLIC_READ) != 0)	sb.append("public-read ");
+	if ((aflags  & Flags.PUBLIC) != 0)	sb.append("public ");
+	if ((aflags  & Flags.PROTECTED) != 0)	sb.append("protected ");
+	if ((aflags  & (Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.SCRIPT_PRIVATE)) == 0)	sb.append("package ");
+	if ((aflags  & JavafxFlags.BOUND) != 0)	sb.append("bound ");
+	if ((aflags  & Flags.ABSTRACT) != 0)	sb.append("abstract ");
 
 	int len = sb.length();
 	if (len > 0)	/* trim trailing space */
@@ -171,24 +157,21 @@ public abstract class ProgramElementDocImpl
      * Return true if this program element is public
      */
     public boolean isPublic() {
-        int modifiers = getModifiers();
-        return Modifier.isPublic(modifiers);
+        return (getFlags() & Flags.PUBLIC) != 0;
     }
 
     /**
      * Return true if this program element is protected
      */
     public boolean isProtected() {
-        int modifiers = getModifiers();
-        return Modifier.isProtected(modifiers);
+        return (getFlags() & Flags.PROTECTED) != 0;
     }
 
     /**
      * Return true if this program element is private
      */
     public boolean isPrivate() {
-        int modifiers = getModifiers();
-        return Modifier.isPrivate(modifiers);
+        return (getFlags() & Flags.PRIVATE) != 0;
     }
 
     /**
@@ -209,21 +192,20 @@ public abstract class ProgramElementDocImpl
      * Return true if this program element is static
      */
     public boolean isStatic() {
-        int modifiers = getModifiers();
-        return Modifier.isStatic(modifiers);
+        return (getFlags() & Flags.STATIC) != 0;
     }
 
     /**
      * Return true if this program element is final
      */
     public boolean isFinal() {
-        int modifiers = getModifiers();
-        return Modifier.isFinal(modifiers);
+        return (getFlags() & Flags.FINAL) != 0;
     }
 
     /**
      * Generate a key for sorting.
      */
+    @Override
     CollationKey generateKey() {
         String k = name();
         // System.out.println("COLLATION KEY FOR " + this + " is \"" + k + "\"");

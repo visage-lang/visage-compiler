@@ -30,7 +30,6 @@ import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.xslhtml.XHTMLProcessingUtils;
 import java.io.*;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -407,43 +406,60 @@ public class XMLDoclet {
         attrs.addAttribute("", "", "text", "CDATA", modifiersText);
         hd.startElement("", "", "modifiers", attrs);
         attrs.clear();
-        int modifiers = element.modifierSpecifier();
-        if (Modifier.isPublic(modifiers)) {
+        if (element.isPublic()) {
             hd.startElement("", "", "public", attrs);
             hd.endElement("", "", "public");
         }
-        else if (Modifier.isProtected(modifiers)) {
+        else if (element.isProtected()) {
             hd.startElement("", "", "protected", attrs);
             hd.endElement("", "", "protected");
         }
-        else if (Modifier.isPrivate(modifiers)) {
+        else if (element.isPackagePrivate()) {
+            hd.startElement("", "", "package", attrs);
+            hd.endElement("", "", "package");
+        }
+        else if (element.isPrivate()) {
             hd.startElement("", "", "private", attrs);
             hd.endElement("", "", "private");
         }
         else {
-            hd.startElement("", "", "packagePrivate", attrs);
-            hd.endElement("", "", "packagePrivate");
+            hd.startElement("", "", "script-private", attrs);
+            hd.endElement("", "", "script-private");
         }
-        if (Modifier.isStatic(modifiers)) {
+        if (element.isStatic()) {
             hd.startElement("", "", "static", attrs);
             hd.endElement("", "", "static");
         }
-        if (Modifier.isFinal(modifiers)) {
+        if (element.isFinal()) {
             hd.startElement("", "", "final", attrs);
             hd.endElement("", "", "final");
         }
-        else if (Modifier.isAbstract(modifiers)) {
+        if (isPublicRead(element)) {
+            hd.startElement("", "", "public-read", attrs);
+            hd.endElement("", "", "public-read");
+        }
+        if (isPublicInit(element)) {
+            hd.startElement("", "", "public-init", attrs);
+            hd.endElement("", "", "public-init");
+        } 
+        if (isAbstract(element)) {
             hd.startElement("", "", "abstract", attrs);
             hd.endElement("", "", "abstract");
         }
-        if (Modifier.isNative(modifiers)) {
+        if (isDef(element)) {  // not sure how we want to document this
+            hd.startElement("", "", "read-only", attrs);
+            hd.endElement("", "", "read-only");
+        }
+        /***
+        if (element.isNative()) {
             hd.startElement("", "", "native", attrs);
             hd.endElement("", "", "native");
         }
-        if (Modifier.isStrict(modifiers)) {
+        if (element.isStrict()) {
             hd.startElement("", "", "strictfp", attrs);
             hd.endElement("", "", "strictfp");
         }
+        **/
         if (bound) {
             hd.startElement("", "", "bound", attrs);
             hd.endElement("", "", "bound");
@@ -845,6 +861,10 @@ public class XMLDoclet {
         if (!(doc instanceof FieldDoc))
             return false;
         return getBooleanFlag(doc, "isDef");
+    }
+    
+    private boolean isAbstract(ProgramElementDoc doc) {
+        return getBooleanFlag(doc, "isAbstract");
     }
     
     private static Type sequenceType(ClassDoc cd, com.sun.tools.javac.code.Type rawType) {

@@ -70,13 +70,6 @@ public abstract class ExecutableMemberDocImpl
     }
 
     /**
-     * Returns the flags in terms of javac's flags
-     */
-    protected long getFlags() {
-        return sym.flags();
-    }
-
-    /**
      * Identify the containing class
      */
     protected ClassSymbol getContainingClass() {
@@ -87,14 +80,14 @@ public abstract class ExecutableMemberDocImpl
      * Return true if this method is native
      */
     public boolean isNative() {
-        return Modifier.isNative(getModifiers());
+        return (getFlags() & Flags.NATIVE) != 0;
     }
 
     /**
      * Return true if this method is synchronized
      */
     public boolean isSynchronized() {
-        return Modifier.isSynchronized(getModifiers());
+        return (getFlags() & Flags.SYNCHRONIZED) != 0;
     }
 
     /**

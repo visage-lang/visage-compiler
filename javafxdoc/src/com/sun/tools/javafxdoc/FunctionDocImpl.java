@@ -84,7 +84,7 @@ public class FunctionDocImpl
             // Abstract modifier is implicit.  Strip/canonicalize it.
             return false;
         }
-        return Modifier.isAbstract(getModifiers());
+        return (getFlags() & Flags.ABSTRACT) != 0;
     }
 
     /**

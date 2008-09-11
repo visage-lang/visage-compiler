@@ -41,7 +41,7 @@ import com.sun.tools.javac.util.Position;
  * @author Atul M Dambalkar
  * @author Neal Gafter (rewrite)
  */
-abstract class DocImpl implements Doc, Comparable<Object> {
+public abstract class DocImpl implements Doc, Comparable<Object> {
 
     /**
      * Doc environment

@@ -94,26 +94,6 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
     }
 
     /**
-     * Returns the flags in terms of javac's flags
-     */
-    protected long getFlags() {
-        return getFlags(tsym);
-    }
-
-    /**
-     * Returns the flags of a ClassSymbol in terms of javac's flags
-     */
-    static long getFlags(ClassSymbol clazz) {
-        while (true) {
-            try {
-                return clazz.flags();
-            } catch (CompletionFailure ex) {
-                // quietly ignore completion failures
-            }
-        }
-    }
-
-    /**
      * Identify the containing class
      */
     protected ClassSymbol getContainingClass() {
@@ -125,7 +105,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
      */
     @Override
     public boolean isClass() {
-        return !Modifier.isInterface(getModifiers());
+        return (getFlags() & Flags.INTERFACE) == 0;
     }
 
     /**
@@ -162,7 +142,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
      */
     @Override
     public boolean isInterface() {
-        return Modifier.isInterface(getModifiers());
+        return (getFlags() & Flags.INTERFACE) != 0;
     }
 
     /**
@@ -216,7 +196,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
      * Return true if this class is abstract
      */
     public boolean isAbstract() {
-        return Modifier.isAbstract(getModifiers());
+        return (getFlags() & Flags.ABSTRACT) != 0;
     }
 
     /**
@@ -408,15 +388,9 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
      */
     @Override
     public String modifiers() {
-        return Modifier.toString(modifierSpecifier());
-    }
-
-    @Override
-    public int modifierSpecifier() {
-        int modifiers = getModifiers();
         return (isInterface() || isAnnotationType())
-                ? modifiers & ~Modifier.ABSTRACT
-                : modifiers;
+                ? modifiers(getFlags() & ~Modifier.ABSTRACT)
+                : super.modifiers();
     }
 
     /**
