@@ -479,22 +479,24 @@
                     <tr><th class="name">name</th><th class="type">type</th>
                         <xsl:call-template name="extra-attribute-column-header"/>
                         <th class="description">description</th></tr>
+                        <!-- show all access types grouped together
                     <tr><th class="header">
                         <xsl:attribute name="colspan"><xsl:call-template name="attribute-table-width"/></xsl:attribute>
                         <xsl:text>Public</xsl:text>
-                        </th></tr>
-                    <xsl:for-each select="attribute[modifiers/public]">
+                        </th></tr>-->
+                    <xsl:for-each select="attribute">
                         <xsl:sort select="@name" order="ascending"/>
                         <xsl:apply-templates select="." mode="toc"/>
                     </xsl:for-each>
                     <!-- do all protected attributes -->
+                    <!--
                     <xsl:if test="attribute[modifiers/protected]">
                         <tr><th colspan="3" class="header">Protected</th></tr>
                         <xsl:for-each select="attribute[modifiers/protected]">
                             <xsl:sort select="@name" order="ascending"/>
                             <xsl:apply-templates select="." mode="toc"/>
                         </xsl:for-each>
-                    </xsl:if>
+                    </xsl:if>-->
                 </table>
             </xsl:if>
             
@@ -684,7 +686,9 @@
                 </xsl:attribute>
                 <td class="name">
                     <a>
-                        <xsl:apply-templates select="." mode="href"/>
+                        <xsl:if test="not($inline-descriptions='true')">
+                            <xsl:apply-templates select="." mode="href"/>
+                        </xsl:if>
                         <b class="name"><xsl:value-of select="@name"/></b>
                     </a>
                 </td>
