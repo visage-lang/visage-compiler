@@ -25,6 +25,8 @@ package com.sun.javafx.runtime.sequence;
 
 import java.util.BitSet;
 
+import com.sun.javafx.runtime.util.MathUtil;
+
 /**
  * Helper methods for modifying sequences and notifying sequence change listeners.  The helper methods only call the
  * sequence trigger methods; if the underlying sequence is modified then the caller is responsible for
@@ -358,7 +360,7 @@ public class SequenceMutator {
         // then copy it.
         int size = Sequences.size(sequence);
         return ((0 < size) && (size <= Sequences.FLATTENING_THRESHOLD))
-                || (sequence.getDepth() > Math.log((double) size));
+                || (sequence.getDepth() > MathUtil.log2(size));
     }
 
 }
