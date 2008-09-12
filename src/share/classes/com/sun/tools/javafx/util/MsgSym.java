@@ -370,4 +370,5 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_UNTERMINATED_STRING_EXPRESSION = "javafx.unterminated.string.expression";
     public static final String MESSAGE_JAVAFX_UNESCAPED_RBRACE = "javafx.unescaped.rbrace";
     public static final String MESSAGE_JAVAFX_SEMI_REQUIRED ="javafx.semi.required";
+    public static final String MESSAGE_JAVAFX_INCOMPLETE_QUAL = "javafx.incomplete.qual";
 }

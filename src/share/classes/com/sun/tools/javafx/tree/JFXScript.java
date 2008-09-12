@@ -92,11 +92,18 @@ public class JFXScript extends JFXTree implements UnitTree {
 
     public List<JFXImport> getImports() {
         ListBuffer<JFXImport> imports = new ListBuffer<JFXImport>();
-        for (JFXTree tree : defs) {
-            if (tree.getFXTag() == JavafxTag.IMPORT) {
-                imports.append((JFXImport) tree);
-            } else {
-                break;
+        if (defs != null)
+        {
+            for (JFXTree tree : defs) {
+
+                // Protect againtst invalid trees
+                //
+                if (tree == null) break;
+                if (tree.getFXTag() == JavafxTag.IMPORT) {
+                    imports.append((JFXImport) tree);
+                } else {
+                    break;
+                }
             }
         }
         return imports.toList();
@@ -115,10 +122,14 @@ public class JFXScript extends JFXTree implements UnitTree {
     }
 
     public List<JFXTree> getTypeDecls() {
-        List<JFXTree> typeDefs;
-        for (typeDefs = defs; !typeDefs.isEmpty(); typeDefs = typeDefs.tail) {
-            if (typeDefs.head.getFXTag() != JavafxTag.IMPORT) {
-                break;
+        List<JFXTree> typeDefs = defs;
+
+        if (defs != null)
+        {
+            for (; !typeDefs.isEmpty(); typeDefs = typeDefs.tail) {
+                if (typeDefs.head.getFXTag() != JavafxTag.IMPORT) {
+                    break;
+                }
             }
         }
         return typeDefs;

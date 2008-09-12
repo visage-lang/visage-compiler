@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 1999-2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,34 +25,41 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
+import java.util.List;
 
 /**
- * Any Type
- *
- * @author Robert Field
+ * for (name in seqExpr where whereExpr) bodyExpr
  */
-public class JFXTypeAny extends JFXType implements TypeAnyTree {
-    
-    /*
-     * @param cardinality one of the cardinality constants
+public class JFXErroneousForExpressionInClause extends JFXForExpressionInClause
+        
+            implements  ForExpressionInClauseTree,
+                        ErroneousTree
+{
+    /** List of error nodes accumulated by this node
      */
-    protected JFXTypeAny(Cardinality cardinality) {
-        super(cardinality);
+    protected List<? extends JFXTree> errs;
+
+    /**
+     * Constructor that allows us to provide any nodes we found that may or may
+     * not be in error.
+     *
+     * @param errs
+     */
+    protected JFXErroneousForExpressionInClause(List<? extends JFXTree> errs) {
+        this.errs = errs;
     }
-    public void accept(JavafxVisitor v) { v.visitTypeAny(this); }
+    
+    public List<? extends JFXTree> getErrorTrees() {
+        return errs;
+    }
 
     @Override
     public JavafxTag getFXTag() {
-        return JavafxTag.TYPEANY;
-    }
-
-    @Override
-    public <R,D> R accept(JavaFXTreeVisitor<R,D> v, D d) {
-        return v.visitTypeAny(this, d);
+        return JavafxTag.ERRONEOUS;
     }
 
     @Override
     public JavaFXKind getJavaFXKind() {
-        return Tree.JavaFXKind.TYPE_ANY;
+        return JavaFXKind.ERRONEOUS;
     }
 }

@@ -143,7 +143,11 @@ script
 	// Initialize document comment collection
 	//
 	docComments	= null;
-	
+
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();	
 }
 
 	:  pd=packageDecl si=scriptItems 
@@ -192,6 +196,13 @@ packageDecl
 
 	returns [JFXExpression value] 	// Package declaration builds a JFXExpression tree
 
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
     : PACKAGE qualname possiblyOptSemi
     
     		{ $value = $qualname.value; }
@@ -254,6 +265,18 @@ catch [RecognitionException re] {
 scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, which is used 
 										// by the caller to build the actual AST.
 										//
+@init
+{
+	// Record the start position of this rule, in case of errors
+	//
+	int rPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+}
 	:
 			  // Certain script members may be prefixed with modifiers
 			  // such as 'public'. We allow the parser to first consume 
@@ -268,11 +291,11 @@ scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, w
 			  // unless we want to pass around status to all our rules.
 			  // The predicate is a small one and passes or fails quickly.
 			  //
-			  	m1=modifiers
+			  	m1=modifiers { errNodes.append($m1.mods); }
 				(
 					  c=classDefinition			[$m1.mods, $m1.pos]
 					  
-					 		{ 
+					 		{ 	errNodes.append($c.value);
 								$items.append($c.value); 
 							}
 							
@@ -280,6 +303,7 @@ scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, w
 					
 
 					 		{ 
+					 			errNodes.append($f.value);
 								$items.append($f.value); 
 							}
 				)
@@ -287,12 +311,14 @@ scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, w
 			| i=importDecl
 			
 				{ 
+					errNodes.append($i.value);
 					$items.append($i.value); 
 				}
 			
 			| s=statement
 			
 				{ 
+					errNodes.append($s.value);
 					$items.append($s.value); 
 				}
 			
@@ -300,7 +326,12 @@ scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, w
 	;
 
 // Catch an error. We create an erroneous node for anything that was at the start 
-// up to wherever we made sense of the input.
+// up to wherever we made sense of the input. If we receive an exception here
+// it is because whatever token was next in the input stream did not predict
+// any of the alts. So, we recover the input stream up to the next token
+// in the followset (standard ANTLR recovery), then build an erroneous node
+// that contains no sub trees, but identifies the start and end of the
+// error
 //
 catch [RecognitionException re] {
   
@@ -311,7 +342,15 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
+
+	// Now construct an Erroneous node to span the error nodes
+	// 
+	JFXErroneous errors = F.at(rPos).Erroneous(errNodes.elems);
+	endPos(errors);
 	
+	// And add this in to the script item list
+	//
+	$items.append(errors);
  }
  
 // ----------
@@ -421,6 +460,14 @@ importDecl
 
 	returns [JFXTree value] // The import declaration is built as a generic JFXTree
 
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
+	
  	: IMPORT importId
  	
  		{
@@ -456,6 +503,13 @@ importId
 
 	returns [JFXExpression pid]	// Qualified names are built as expression trees
 
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
  	: i1=identifier
  		{
  			$pid = $i1.value;
@@ -501,7 +555,7 @@ catch [RecognitionException re] {
 //
 classDefinition [ JFXModifiers mods, int pos ]
 
-	returns [JFXClassDeclaration value]	// The class definition has its own JFXTree type
+	returns [JFXTree value]	// The class definition has its own JFXTree type, but we might need Erroneous here
 	
 @init { 
 
@@ -511,22 +565,65 @@ classDefinition [ JFXModifiers mods, int pos ]
 	//
 	CommonToken  docComment = getDocComment(input.LT(1));
 
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+
+	// List of all super classes
+	//
+	ListBuffer<JFXExpression> ids	= null;
+	
+	// List of all members
+	//
+	ListBuffer<JFXTree> mems		= null;
 }
 
-	: CLASS name supers 
+	: CLASS 
+	
+			n1=name 		
+				{ 
+					// Build up new node in case of error
+					//
+					JFXExpression part = F.at($n1.pos).Ident($n1.value);
+					endPos(part);
+					errNodes.append(part);
+				}
+				
+			supers
+			
+				{
+					// Accumulate in case of error
+					//
+					ids = $supers.ids;
+					for ( JFXExpression ex : ids)
+					{
+						errNodes.append(ex);
+					}
+				}
+			 
 		LBRACE 
 			classMembers 
+			
+				{
+					// Accumualte in case of error
+					//
+					mems = $classMembers.mems;
+					for (JFXTree m : mems)
+					{
+						errNodes.append(m);
+					}
+				}
 		RBRACE
 		
 		{ 
 			$value = F.at($pos).ClassDeclaration
-			
 				(
 	  						  
 					$mods,	
 					$name.value,
-					$supers.ids.toList(),
-					$classMembers.mems.toList()
+					ids.toList(),
+					mems.toList()
 				);
 				setDocComment($value, docComment);	// Add any detected documentation comment
 				endPos($value, pos($RBRACE)); 
@@ -546,6 +643,14 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// However, we need to collect the nodes we found into an Erroneous class
+	// definition, as if the got an error in this rule, it was a pretty high
+	// up problem, syntactically. Something like "public class" and nothing else
+	// which can of course come in from IDEs/Editors, all the time.
+	//
+	$value = F.at($pos).Erroneous(errNodes.elems);
+	endPos($value);
+	
  }
  
 // -----------------
@@ -557,7 +662,13 @@ supers
 
 	returns [ListBuffer<JFXExpression> ids = new ListBuffer<JFXExpression>()]	// The return is a list of JFX expressions representing one
 																				// or more super class type name.
-
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: EXTENDS t1=typeName
 			{
 				$ids.append($t1.value);	// First type name in list
@@ -597,6 +708,13 @@ classMembers
 
 	returns [ListBuffer<JFXTree> mems = new ListBuffer<JFXTree>()]		// Returns a list of the class members, ready for the caller to produce the
 																		// class defintion AST.
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: (classMemberSemi[$mems] possiblyOptSemi)*
 	;
 	
@@ -612,17 +730,14 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
+
  }
  
 classMemberSemi [ListBuffer<JFXTree> mems]
 	: classMember 
 	
 		{ 
-			if	($classMember.member != null)
-			{
-				$mems.append($classMember.member); 
-			}
+			$mems.append($classMember.member); 
 		}
 		
 	| SEMI
@@ -658,6 +773,12 @@ classMember
 	// The start character position for this AST
 	//
 	int rPos		= pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+
 }
 
 	: initDefinition				{ $member = $initDefinition.value; 		}
@@ -703,6 +824,11 @@ functionDefinition [ JFXModifiers mods, int pos ]
 	// there to see if there was a document comment.
 	//
 	CommonToken  docComment = getDocComment(input.LT(1));
+
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 
 }
 	: FUNCTION name formalParameters typeReference 
@@ -765,7 +891,14 @@ catch [RecognitionException re] {
 overrideDeclaration
 
 	returns [JFXOverrideClassVar value]
-
+	
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: OVERRIDE variableLabel  i=identifier (EQ boundExpression)? onReplaceClause?
 	
 		{
@@ -808,7 +941,14 @@ catch [RecognitionException re] {
 initDefinition
 
 	returns [JFXInitDefinition value]	// The initialisation block has a specialized JFX tree node
-	
+
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: INIT block
 	
 		{
@@ -843,6 +983,14 @@ catch [RecognitionException re] {
 postInitDefinition
 
 	returns [JFXPostInitDefinition value]	// Post initialization has its own specialized JFX tree node
+
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 
 	: POSTINIT block
 		{ 
@@ -905,15 +1053,33 @@ variableDeclaration [ JFXModifiers mods, int pos ]
     // ONReplace clause if present
     //
     JFXOnReplace  oValue = null;
-    
+ 
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+   
 }
-	: variableLabel  name  typeReference 
+	: variableLabel  
+	
+		n=name
+		
+			{ 
+				// Build up new node in case of error
+				//
+				JFXExpression part = F.at($n.pos).Ident($n.value);
+				endPos(part, $n.pos);	// Was not really there
+				errNodes.append(part);
+			}
+			
+		tr=typeReference 	{ errNodes.append($tr.rtype); }
 
         (
             (EQ)=>EQ boundExpression
                 {
                     bValue  = $boundExpression.value;
                     bStatus = $boundExpression.status;
+                    errNodes.append($boundExpression.value);
                 }
         )? 
         
@@ -921,28 +1087,35 @@ variableDeclaration [ JFXModifiers mods, int pos ]
             (ON)=>onReplaceClause
                 {
                     oValue = $onReplaceClause.value;
+                    errNodes.append($onReplaceClause.value);
                 }
         )?
 	
 		{
 			// Add in the modifier flags accumulated by the label type
-			// Note that syntactiaclly, we allow all label types at all levels and must throw
+			// Note that syntactically, we allow all label types at all levels and must throw
 			// out any invalid ones at the semantic checking phase
 			//
 			$mods.flags |= $variableLabel.modifiers;
 	    	
-	    	// Construct the varaible JFXTree
+	    	// Construct the variable JFXTree, unless it was in error
 	    	//
-	    	$value = F.at($pos).Var
-	    				(
-	    					$name.value,
-	    					$typeReference.rtype,
-	    					$mods,
-	    					bValue,
-	    					bStatus,
-	    					oValue
-	    				);
+	    	if	($n.wasMissing) {
 	    	
+	    		$value = F.at($pos).Erroneous(errNodes.elems);
+	    		
+	    	} else {
+	    	
+		    	$value = F.at($pos).Var
+		    				(
+		    					$name.value,
+		    					$typeReference.rtype,
+		    					$mods,
+		    					bValue,
+		    					bStatus,
+		    					oValue
+		    				);
+	    	}
 	    	// Documentation comment (if any)
 	    	//
 			setDocComment($value, docComment);
@@ -966,6 +1139,11 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Enter into AST as an erroneous node
+	//
+	$value = F.at($pos).Erroneous(errNodes.elems);
+	endPos($value);
+	
  }
  
 // ----------------
@@ -978,7 +1156,13 @@ formalParameters
 	returns [ListBuffer<JFXVar> params = new ListBuffer<JFXVar>()]		// Return type is a list of all the AST nodes that represent a 
 																		// formal parameter, this is used to generate the AST for the
 																		// funciton definition itself.
- 
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: LPAREN 
 	
 		(
@@ -1026,7 +1210,14 @@ catch [RecognitionException re] {
 formalParameter
 
 	returns [JFXVar var]	// Formal parameters are contained in a JFX tree var node.
-
+	
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: name typeReference
 	
 		{ 
@@ -1086,7 +1277,12 @@ block
 	// For building invidual statements
 	//
 	JFXExpression val = null;
-	
+
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+
 }
 	
 	: LBRACE 
@@ -1151,7 +1347,14 @@ statement
 
 
 	returns [JFXExpression value] // All statements return an expression tree
-
+	
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: insertStatement		{ $value = $insertStatement.value; 								}
 	| deleteStatement		{ $value = $deleteStatement.value; 								}
  	| whileStatement		{ $value = $whileStatement.value; 								}
@@ -1186,7 +1389,14 @@ catch [RecognitionException re] {
 onReplaceClause
 
 	returns [JFXOnReplace value]	// onReplace has its own JFX Tree node type
-	
+
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: ON REPLACE oldv=paramNameOpt 
 	
 		(
@@ -1332,7 +1542,14 @@ catch [RecognitionException re] {
 throwStatement
 
 	returns [JFXExpression value]	// Returns the JFX Expression tree representing what we must throw
-
+	
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: THROW expression
 	
 		{ 
@@ -1367,6 +1584,13 @@ whileStatement
 	
 	returns [JFXExpression value]	// Returns the JFX Expression tree representing the WHILE
 	
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: WHILE LPAREN expression RPAREN 
 	
 		 loopVal=statement
@@ -1404,7 +1628,14 @@ catch [RecognitionException re] {
 insertStatement  
 	
 	returns [JFXExpression value]	// All steatemetns return a JFX expression tree
-
+	
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: INSERT elem=expression
 		(
 			  INTO eseq=expression
@@ -1462,6 +1693,14 @@ indexedSequenceForInsert
 
 	returns [JFXExpression seq, JFXExpression idx]
 
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
+
 	: primaryExpression 			
 	
 		{
@@ -1502,7 +1741,14 @@ catch [RecognitionException re] {
 deleteStatement  
 
 	returns [JFXExpression value]	// Delete returns a JFX Expression tree
-
+	
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: DELETE e1=expression
 
 	   ( 
@@ -1548,7 +1794,13 @@ catch [RecognitionException re] {
 returnStatement
 
 	returns [JFXExpression value]	// RETURN returns a JFX Expression tree
-
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: RETURN 
 		
 		(
@@ -1601,6 +1853,12 @@ tryStatement
 	// AST for any catch clauses
 	//
 	ListBuffer<JFXCatch> caught = ListBuffer.lb();
+
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+
 }
 	: TRY block 			
 		(
@@ -1652,7 +1910,7 @@ catch [RecognitionException re] {
 finallyClause
 
 	returns [JFXBlock value] // returns a JFX Expression tree
-	
+
 	: FINALLY block
 	
 		{
@@ -1683,7 +1941,14 @@ catch [RecognitionException re] {
 catchClause
 
 	returns [JFXCatch value]	// Catch has its own JFX tree node type
-	
+
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: CATCH LPAREN formalParameter RPAREN block
 	
 		{
@@ -1719,6 +1984,11 @@ boundExpression
 { 
 	boolean isLazy 			= false; 	// Signals presence of LAZY
 	boolean isBidirectional	= false; 	// Signals presence of INVERSE
+
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
 	: BIND e1=expression 
@@ -1789,6 +2059,10 @@ expression
  	//
  	int ePos = 0;
  	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 
  }
 	: ifExpression
@@ -1855,6 +2129,12 @@ forExpression
 	// In clause accumulator
 	//
 	ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb();
+
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+
 }
 	: FOR 
 		LPAREN 
@@ -1908,12 +2188,19 @@ inClause
 	// Start postion
 	//
 	int sPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
-	: formalParameter IN se=expression 
+	: formalParameter 	{ errNodes.append($formalParameter.var); 	}
+		IN 
+		se=expression 	{ errNodes.append($se.value);				}
 	
 		(
-			  WHERE we=expression	{ weVal = $we.value; }
+			  WHERE we=expression	{ weVal = $we.value; errNodes.append($we.value); }
 			|
 		)
 		
@@ -1935,6 +2222,9 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// But we create an Erroneous version of the node
+	//
+	$value = F.at(sPos).ErroneousInClause(errNodes.elems);
 }
 
 // -----------------------
@@ -1953,6 +2243,12 @@ ifExpression
 	// Else expression (if present)
 	//
 	JFXExpression eVal = null;
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+
 }
 	: IF LPAREN econd=expression  RPAREN 
 	
@@ -1996,7 +2292,13 @@ catch [RecognitionException re] {
 elseClause
 
 	returns [JFXExpression value]	// The expression tree that represents the Else expression
-	
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: ELSE 
 		(
 			statement			{ $value = $statement.value; 	}
@@ -2032,6 +2334,11 @@ assignmentExpression
 	// Work out current position in the input stream
 	//
 	int	rPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 	: lhs=assignmentOpExpression 
 		(     
@@ -2078,6 +2385,12 @@ assignmentOpExpression
 	// Work out current position in the input stream
 	//
 	int	rPos = pos();
+
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+
 }
 
 	: lhs=andExpression					
@@ -2172,6 +2485,12 @@ andExpression
 	// Work out current position in the input stream
 	//
 	int	rPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+
 }
 
 	:	e1=orExpression
@@ -2216,6 +2535,11 @@ orExpression
 	// Work out current position in the input stream
 	//
 	int	rPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
 	: e1=typeExpression
@@ -2260,6 +2584,11 @@ typeExpression
 	// Work out current position in the input stream
 	//
 	int	rPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
 	: relationalExpression		
@@ -2312,6 +2641,11 @@ relationalExpression
 	// Work out current position in the input stream
 	//
 	int	rPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
 	: a1=additiveExpression	{ $value = $a1.value;	}
@@ -2390,6 +2724,12 @@ additiveExpression
 	// Work out current position in the input stream
 	//
 	int	rPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+
 }
 	: m1=multiplicativeExpression	
 		{ 
@@ -2463,6 +2803,12 @@ multiplicativeExpression
 	// Work out current position in the input stream
 	//
 	int	rPos = pos();
+
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+
 }
 	: u1=unaryExpression	{ $value = $u1.value; }
 		(
@@ -2538,6 +2884,11 @@ unaryExpression
 	// Work out current position in the input stream
 	//
 	int	rPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
 	: se=suffixedExpression
@@ -2618,6 +2969,11 @@ suffixedExpression
 	// Work out current position in the input stream
 	//
 	int	rPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
 	: pe=postfixExpression
@@ -2680,6 +3036,11 @@ postfixExpression
 	// Last element of sequence (if present)
 	//
 	JFXExpression	lastExpr = null;
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
 	: pe=primaryExpression	{ $value = $pe.value; }
@@ -2826,7 +3187,11 @@ primaryExpression
     // Used to construct time literal expression
     //
     JFXExpression sVal = null;
-	
+
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();	
 }
 	: qualname
 		{
@@ -2938,7 +3303,14 @@ catch [RecognitionException re] {
 keyFrameLiteralPart
 
 	returns [ListBuffer<JFXExpression> exprs = new ListBuffer<JFXExpression>(); ]	// Gathers a list of expressions representing frame values
-
+	
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: k1=expression 			{ exprs.append($k1.value);	}
 	
 		(SEMI SEMI* // This is a trick to force error recovery, otherwise SEMI+ forces an early exit exception
@@ -2967,7 +3339,14 @@ catch [RecognitionException re] {
 functionExpression
 
 	returns [JFXExpression value] 	// Expression tree for anonymous function
-
+	
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: FUNCTION formalParameters typeReference block
 	
 		{
@@ -3006,7 +3385,14 @@ catch [RecognitionException re] {
 newExpression
 
 	returns [JFXExpression value] 	// Expression tree for new expression
-	
+
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: NEW typeName expressionListOpt
 	
 		{
@@ -3035,7 +3421,14 @@ catch [RecognitionException re] {
 objectLiteral
 
 	returns [ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb()]	// Gather a list of all the object literal insitalizations
-	
+
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	:   (COMMA|SEMI)*	// Separators are optional and just syntactic sugar
 	
 		(		
@@ -3075,6 +3468,13 @@ objectLiteralPart
 
 	returns [JFXTree value] 	// Expression tree for object literal elements
 
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: (OVERRIDE variableLabel)=>
 		overrideDeclaration
 	
@@ -3130,7 +3530,11 @@ objectLiteralInit
 	// Work out current position in the input stream
 	//
 	int	rPos = pos();
-	
+
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 	: name COLON  boundExpression
 	
@@ -3211,6 +3615,11 @@ stringExpression
     // Work out current position in the input stream
 	//
 	int	rPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
 	: (
@@ -3358,7 +3767,12 @@ stringLiteral [ ListBuffer<JFXExpression> strexp ]
 	// The string litereal we will created
 	//
 	JFXExpression sVal = null;
-	
+
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+
 }
 	: s1=STRING_LITERAL 
 	
@@ -3454,6 +3868,13 @@ catch [RecognitionException re] {
 //
 qlsl [ ListBuffer<JFXExpression> strexp]
 
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: 	ql=QUOTE_LBRACE_STRING_LITERAL	
 	
 			{
@@ -3557,6 +3978,13 @@ catch [RecognitionException re] {
 //
 stringExpressionInner [ ListBuffer<JFXExpression> strexp]
 
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: rlsl=RBRACE_LBRACE_STRING_LITERAL 
 	
 		{
@@ -3616,6 +4044,11 @@ stringFormat [ ListBuffer<JFXExpression> strexp]
 	// Work out current position in the input stream
 	//
 	int	rPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 	: fs=FORMAT_STRING_LITERAL
 	
@@ -3672,6 +4105,11 @@ bracketExpression
 	// Optional LT qualifier
 	//
 	boolean 	haveLT	= false;
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
 	: LBRACKET   
@@ -3741,7 +4179,14 @@ catch [RecognitionException re] {
 expressionList
 
 	returns [ListBuffer<JFXExpression> args = new ListBuffer<JFXExpression>()]	// List of expressions we pcik up
-
+	
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: e1=expression
 		
 		{
@@ -3782,6 +4227,13 @@ expressionListOpt
 	
 	returns [ListBuffer<JFXExpression> args = new ListBuffer<JFXExpression>()]	// List of expressions we pcik up
 
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: (LPAREN)=>LPAREN expressionList RPAREN
 		{
 			$args = $expressionList.args;
@@ -3816,6 +4268,11 @@ type
     // Work out current position in the input stream
 	//
 	int	rPos = pos();
+
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 	: typeName cardinality
 	
@@ -3853,6 +4310,11 @@ typeFunction
     // Work out current position in the input stream
 	//
 	int	rPos = pos();
+
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
 	: FUNCTION 
@@ -3892,6 +4354,12 @@ typeStar
     // Work out current position in the input stream
 	//
 	int	rPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+
 }
  	: STAR cardinality
  	
@@ -3922,6 +4390,13 @@ typeArgList
  	
  returns [ListBuffer<JFXType> ptypes = ListBuffer.<JFXType>lb(); ]
  
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
  	: t1=typeArg
  	
  		{
@@ -3962,6 +4437,13 @@ typeArg
 
 	returns [JFXType rtype]
 
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
  	: (
  		(
  			name	// TODO: Check this, it is currently ignored for AST and does not
@@ -3998,6 +4480,13 @@ typeReference
 
 	returns	[JFXType rtype]
 	
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
  	: COLON type
  	
  		{
@@ -4032,7 +4521,14 @@ catch [RecognitionException re] {
 cardinality
 
 	returns [TypeTree.Cardinality ary]
-	
+
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+}
 	: (LBRACKET)=>LBRACKET RBRACKET
 	
 		{
@@ -4071,6 +4567,11 @@ typeName
 	// Accumulate any generic arguments
 	//
 	ListBuffer<JFXExpression> exprbuff = ListBuffer.<JFXExpression>lb();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
 	: qualname 		
@@ -4248,22 +4749,85 @@ catch [RecognitionException re] {
 //
 qualname
 
-	returns [JFXExpression value]
+	returns [JFXExpression value, boolean inError]
 	
-	: n1=name
-		{
-			$value = F.at($n1.pos).Ident($n1.value);
-			endPos($value, $n1.pos + $n1.value.length());
-		}
-		( 
-			(DOT)=> DOT n2=name
-			
-				{
-					$value = F.at(pos($DOT)).Select($value, $n2.value);
-					endPos($value); 
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Start of this rule
+	//
+	int rPos = pos();
+	
+	// Indicates that despite parsing correctly, we discovered an error here
+	// and so this shoudl be erroneous.
+	//
+	$inError = false;
+}
+	: (
+			n1=name
+			{
+				if	($n1.wasMissing) {
+				
+					// The rule caused an identifier to be made up
+					//
+					$inError = true;
 				}
+				
+				$value = F.at($n1.pos).Ident($n1.value);
+				endPos($value);
 			
-		)*  
+				// Accumulate in case of error
+				//
+				errNodes.append($value);
+			}
+			( 
+				(DOT)=> DOT 
+				
+				(
+						(IDENTIFIER)=>n2=name
+						{
+							
+							if	($n2.wasMissing) {
+				
+								// The rule caused an identifier to be made up
+								//
+								$inError = true;
+							}
+							
+							$value = F.at(pos($DOT)).Select($value, $n2.value);
+							endPos($value); 
+							
+							// Build up new node in case of error
+							//
+							JFXExpression part = F.at($n2.pos).Ident($n2.value);
+							errNodes.append(part);
+							endPos(part);
+						}
+						
+					|	{
+							$inError = true;		// Signal that this is malformed
+							log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
+						}
+				)
+			)*  
+		)
+		
+		// If the rule actually discovered some error, then we do
+		// not return the $value as a good qualified name, but as an erroneous node
+		//
+		{
+			if	($inError)	{
+			
+				// Create the error node
+				//
+				$value = F.at(rPos).Erroneous(errNodes.elems);
+				endPos($value);
+			}
+		}
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
@@ -4277,6 +4841,13 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
+	
+	// Create the error node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
+	
+	$inError = true;
 	
 }
 
@@ -4364,13 +4935,22 @@ catch [RecognitionException re] {
 //
 name 
 
-	returns [Name value, int pos]
+	returns [Name value, int pos, boolean wasMissing]
 	
 	: IDENTIFIER
 	
 		{ 
 			$value = Name.fromString(names, $IDENTIFIER.text); 
 			$pos = pos($IDENTIFIER); 
+			
+			if	($IDENTIFIER instanceof MissingCommonToken) {
+			
+				$wasMissing = true;		// Recognizer manufactured this for us
+			
+			} else {
+			
+				$wasMissing = false;		// It was genuinely there
+			}
 		}				
 	;
 
@@ -4386,10 +4966,12 @@ catch [RecognitionException re] {
 
 	// Now create an AST node that represents a missing name, The required entry
 	// is of type Name so we use an identifier name that cannot exist in
-	// JavaFX, so that IDEs can detect it.
+	// JavaFX, so that IDEs can detect it, but flag it as being a manufactured
+	// token to the caller.
 	//
-	retval.value = Name.fromString(names, "<missing IDENTIFIER>");
-	retval.pos   = pos();
+	$value 		= Name.fromString(names, "<missing IDENTIFIER>");
+	$pos   		= semiPos();
+	$wasMissing	= true;
  }
  
 // -----------------------

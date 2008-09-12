@@ -51,6 +51,14 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
 
     public boolean hasBeenTranslated = false; // prevent multiple translations
     
+    protected JFXClassDeclaration()
+    {
+        this.mods       = null;
+        this.name       = null;
+        this.supertypes = null;
+        this.defs       = null;
+        this.sym        = null;
+    }
     protected JFXClassDeclaration(JFXModifiers mods,
             Name name,
             List<JFXExpression> supertypes,

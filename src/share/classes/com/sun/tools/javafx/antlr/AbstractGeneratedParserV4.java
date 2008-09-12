@@ -92,7 +92,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
     /** 
      * The token id for white space 
      */
-    protected int whiteSpaceToken;
+    protected int whiteSpaceToken = v4Parser.WS;
     
     /** 
      * Should the parser generate an end positions map? 
@@ -989,7 +989,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         // Now, all we need to do is position after the last character of the
         // text that this token represents.
         //
-        return tok.getStopIndex() +1;
+        return tok.getStopIndex() + 1;
     }
     
     /**
@@ -1110,61 +1110,42 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         }
     }
 
-	/** Using the current token stream position as the start point
-	 *  search back through the input token stream and set the end point
-	 *  of the supplied tree object to the first non-whitespace token
-	 *  we find.
+    /** Using the current token stream position as the start point
+     *  search back through the input token stream and set the end point
+     *  of the supplied tree object to the first non-whitespace token
+     *  we find.
      * 
      * Note that this version of endPos() is called when all elements of a
      * construct have been parsed. Hence we traverse back from one token
      * before the current index.
-	 */
+     */
     void endPos(JCTree tree) {
 
-		CommonToken tok;
-        
-		int index = input.index();
-		int end = 0;
-		
-        // Unless we are at the very start (this should not
-        // happen, but is coded for anyway), then the token that
-        // ended whatever AST fragment we are constructing was the 
+        CommonToken tok;
+
+        // Unless we are at the very start, then the token that
+        // ended whatever AST fragment we are constructing was the
         // one before the one at the current index and so we need
         // to start at that token.
         //
-        if  (index > 1) index--;
-        
-		if	(genEndPos && index > 0)
-		{ 
-			for(;;)
-			{
-				// Find the current token
-				//
-				tok = (CommonToken)input.get(index);
-			
-				if	(tok == null)
-				{	
-					// Not much we can do about that - should not
-					// happen. 
-					//
-					break;
-				}
-				
-				if	(tok.getType() == whiteSpaceToken && tok.getType() != Token.EOF)
-				{
-					index--;
-				}
-				else
-				{
-					// We have found a token that is non-whitespace and is not EOF
-					//
-					endPos(tree, tok.getStopIndex() + 1);
-					break;
-				}
-			}
-		
-		}
-    }
+        tok = (CommonToken)(input.LT(-1));
+
+        if  (tok == null)
+        {
+            // This can happen if the first thing is a script member
+            // declaration and it has no modifiers, modifiers is then
+            // starting at 0 and ending at 0
+            //
+            tok = (CommonToken)(input.LT(1));
+            endPos(tree, tok.getStartIndex());
+
+        } else {
+
+            // We have found a token that is non-whitespace and is not BOF
+            //
+            endPos(tree, tok.getStopIndex() + 1);
+        }
+     }
     
     /**
      * Create the end position map entry for the given JCTree at the supplied
@@ -1300,17 +1281,17 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         //
         String tokenText;
 
-        // Pick up the current token (the one we will return after this
+        // Pick up the prior token (the one we will return after this
         // manufactured one), and use it to generate position information
         // for our fake token.
         //
-        Token current = ((TokenStream)input).LT(1);
+        CommonToken current = (CommonToken)((TokenStream)input).LT(-1);
         
-        // If there was no next token, then we use the previous
+        // If there was no next token, then we use the next
         // token as a reference point.
         //
         if ( current.getType() == Token.EOF ) {
-		current = ((TokenStream)input).LT(-1);
+		current = (CommonToken)((TokenStream)input).LT(1);
 	}
                         
         // Work out what type of token we were expecting so we can 
@@ -1370,11 +1351,11 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         //
         t                 = new MissingCommonToken(expectedTokenType, tokenText);
                 
-        // Use the current token to make up a postion for the
-        // manufactured one.
+        // Use the current/prior token to make up a position for the
+        // manufactured one, one character after then end of the previous one.
         //
         t.setLine                   (current.getLine());   
-        t.setCharPositionInLine     (current.getCharPositionInLine());
+        t.setCharPositionInLine     (current.getStopIndex() + 1);
         t.setChannel                (DEFAULT_TOKEN_CHANNEL);
         
         // Our manufactured token is complete so let's return it

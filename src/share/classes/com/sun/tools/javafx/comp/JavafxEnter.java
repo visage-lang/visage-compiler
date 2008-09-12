@@ -252,11 +252,22 @@ public class JavafxEnter extends JavafxTreeScanner {
 	JavaFileObject prev = log.useSource(tree.sourcefile);
 	boolean isPkgInfo = tree.sourcefile.isNameCompatible("package-info",
 							     JavaFileObject.Kind.SOURCE);
-	if (tree.pid != null) {
-	    tree.packge = reader.enterPackage(JavafxTreeInfo.fullName(tree.pid));
-	} else {
-	    tree.packge = syms.unnamedPackage;
-	}
+
+        // It is possible to hava a packahe identifier that was in error
+        // as in package x.; So we need to check ans see if we can produce a
+        // name (we will get null if it was an erroneous declaration).
+        //
+        Name packageName =JavafxTreeInfo.fullName(tree.pid);
+            
+        if  (packageName != null) {
+
+            tree.packge = reader.enterPackage(packageName);
+            
+        } else {
+
+            tree.packge = syms.unnamedPackage;
+        }
+
 	tree.packge.complete(); // Find all classes in package.
         JavafxEnv<JavafxAttrContext> localEnv = topLevelEnv(tree);
         

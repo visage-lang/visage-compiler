@@ -393,6 +393,11 @@ public class JavafxTreeInfo {
      *  otherwise return null.
      */
     public static Name fullName(JFXTree tree) {
+
+        // Protect against a missing tree
+        //
+        if  (tree == null) return null;
+
         tree = skipParens(tree);
         switch (tree.getFXTag()) {
         case IDENT:

@@ -461,7 +461,6 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
      */
     public Name paramName(int i)   { return names.fromString("x" + i); }
 
-
     public JFXClassDeclaration ClassDeclaration(JFXModifiers mods,
             Name name,
             List<JFXExpression> supertypes,
@@ -772,6 +771,13 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             JFXExpression seqExpr,
             JFXExpression whereExpr) {
         JFXForExpressionInClause tree = new JFXForExpressionInClause(var, seqExpr, whereExpr);
+        tree.pos = pos;
+        return tree;
+    }
+    
+    public JFXErroneousForExpressionInClause ErroneousInClause(List<? extends JFXTree> errs) {
+
+        JFXErroneousForExpressionInClause tree = new JFXErroneousForExpressionInClause(errs);
         tree.pos = pos;
         return tree;
     }

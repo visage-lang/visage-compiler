@@ -36,6 +36,12 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
     public final JFXExpression whereExpr;
     private boolean indexUsed;
 
+    protected JFXForExpressionInClause() {
+        this.var        = null;
+        this.seqExpr    = null;
+        this.whereExpr  = null;
+    }
+
     protected JFXForExpressionInClause(
             JFXVar var,
             JFXExpression seqExpr,
