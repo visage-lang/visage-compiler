@@ -143,11 +143,6 @@ script
 	// Initialize document comment collection
 	//
 	docComments	= null;
-
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
-	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();	
 }
 
 	:  pd=packageDecl si=scriptItems 
@@ -172,21 +167,6 @@ script
 		EOF 	// Forces parser to consume entire token stream or error out
     ;
     
-// Catch an error. We create an erroneous node for anything that was at the start 
-// up to wherever we made sense of the input.
-//
-catch [RecognitionException re] {
-  
-  	// First, let's report the error as the user needs to know about it
-  	//
-    reportError(re);
-
-	// Now we perform standard ANTLR recovery here
-	//
-	recover(input, re);
-	
- }
- 
 // ----------------------    
 // Package specification.
 // The package declaration is optional. It qualifes the namespace/location
@@ -198,20 +178,20 @@ packageDecl
 
 @init
 {
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
+	// AST start position
 	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	int	rPos = pos();
 }
     : PACKAGE qualname possiblyOptSemi
     
-    		{ $value = $qualname.value; }
+    		{ 
+    			$value = $qualname.value;
+    		}
     		
     | // No package specified
     
     		{ $value = null; }
 	;
-
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
 //
@@ -224,7 +204,11 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
+
+	// Error node for AST
+	//
+	$value = F.at(rPos).Erroneous();
+	endPos($value);
  }
  
 // ----------------
@@ -244,6 +228,12 @@ scriptItems
 	returns [ListBuffer<JFXTree> items = new ListBuffer<JFXTree>()] // This rule builds a list of JFXTree, which is used 
 																	// by the caller to build the actual AST.
 																	//
+@init
+{
+	// AST start position
+	//
+	int	rPos = pos();
+}
 	:	(scriptItem[$items] possiblyOptSemi)*
 	;
 
@@ -259,6 +249,12 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
+
+	// Error node for AST
+	//
+	JFXErroneous value = F.at(rPos).Erroneous();
+	endPos(value);
+	$items.append(value);
 	
  }
  
@@ -396,20 +392,6 @@ modifiers
 		}
 	;
 
-// Catch an error. We create an erroneous node for anything that was at the start 
-// up to wherever we made sense of the input.
-//
-catch [RecognitionException re] {
-  
-  	// First, let's report the error as the user needs to know about it
-  	//
-    reportError(re);
-
-	// Now we perform standard ANTLR recovery here
-	//
-	recover(input, re);
-	
-}
  
 // ---------------
 // Modifier flags.
@@ -466,13 +448,19 @@ importDecl
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Record the start position of this rule, in case of errors
+	//
+	int rPos = pos();
+	
+
 }
 	
  	: IMPORT importId
  	
  		{
  			// AST construction
- 			$value = F.at(pos($IMPORT)).Import($importId.pid);
+ 			$value = F.at(rPos).Import($importId.pid);
  			
  			// AST span
  			//
@@ -493,6 +481,11 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Error node for AST
+	//
+	$value = F.at(rPos).Erroneous();
+	endPos($value);
+
  }
  
 // ------------
@@ -509,27 +502,124 @@ importId
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Record the start position of this rule, in case of errors
+	//
+	int rPos = pos();
+	
+	// Flag indicates that the token sequence was in error
+	//
+	boolean	inError = false;
+	
+	// Flag indicates that we have seen .'*' already
+	//
+	boolean haveStar = false;
+	
+	// Record the posiotn of any START we find, in case we want to error upon it
+	//
+	int	starP = 0;
 }
  	: i1=identifier
  		{
  			$pid = $i1.value;
+ 			
+ 			// Accumulate in case of error, and flag if the indentifer was not thre
+ 			//
+ 			errNodes.append($i1.value);
+ 			inError = $i1.inError;
  		}
 		( 
-			d1=DOT n2=name
-		
-				{
-					$pid = F.at($n2.pos).Select($pid, $n2.value);
-                    endPos($pid);
-				}
-		)* 
-        ( 
-        	DOT STAR
+			(
+				  DOT 
+				| DOTDOT
+					{
+						// If the programmer accidentally typed import X..y; then the
+						// lexer will see that as a range operator, but here, that tells
+						// us there was a missing qualifer
+						//
+						inError = true;		// Signal that this is malformed
+						log.error(pos($DOTDOT)+1, MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
+					}
+			)
+				(
+					(IDENTIFIER)=> n2=name
+					{
+						// Check for errors
+						//
+						if	($n2.inError)
+						{
+							// We shoudl not be able to get this, as the follow set
+							// will not allow error recovery to insert a token as
+							// it is not singular - which one should it insert? However
+							// future improvements may make this happen, so code for it anyway
+							//
+							inError = true;		// Signal that this is malformed
+							log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
+						}
+						
+						$pid = F.at($n2.pos).Select($pid, $n2.value);
+                	    endPos($pid);
+                    
+                	    // Build up new node in case of error
+						//
+						JFXExpression part = F.at($n2.pos).Ident($n2.value);
+						errNodes.append(part);
+						endPos(part);
+
+						// If we already had a '.*' part, then this makes no sense
+						//
+						if	(haveStar) {
+						
+							inError = true;		// Signal that this is malformed
+							log.error(starP, MsgSym.MESSAGE_JAVAFX_IMPORT_BAD_NAME);
+						}
+					}
+
+				| 	(STAR)=>STAR
         	
-        		{
-					$pid = F.at($n2.pos).Select($pid, names.asterisk);
-                   endPos($pid);
-				}
-        )?
+        			{
+						$pid = F.at($n2.pos).Select($pid, names.asterisk);
+                	  	endPos($pid);
+
+                	  	// Build up new node in case of error
+						//
+						starP = pos($STAR);
+						JFXExpression part = F.at(starP).Ident(names.asterisk);
+						errNodes.append(part);
+						endPos(part);
+						
+						// If we already had a '.*' part, then this makes no sense
+						//
+						if	(haveStar) {
+						
+							inError = true;		// Signal that this is malformed
+							log.error(starP, MsgSym.MESSAGE_JAVAFX_IMPORT_BAD_STAR);
+						}
+						
+						// Signal that we have a star now
+						//
+						haveStar = true;
+					}
+					
+				|	// Erroneous
+				
+					{
+						inError = true;		// Signal that this is malformed
+						log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
+					}
+					
+				)
+
+        )*
+        
+        {
+        	// Was the seqeunce in error?
+        	//
+        	if	(inError) {
+        		$pid=F.at(rPos).Erroneous(errNodes.elems);
+        		endPos($pid);
+        	}
+        }
 	;
 	
 // Catch an error. We create an erroneous node for anything that was at the start 
@@ -545,6 +635,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// And we need to return an erroneous node
+	//
+	$pid=F.at(rPos).Erroneous(errNodes.elems);
+    endPos($pid);  	
  }
  
 // Class definition.
@@ -1100,7 +1194,7 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 	    	
 	    	// Construct the variable JFXTree, unless it was in error
 	    	//
-	    	if	($n.wasMissing) {
+	    	if	($n.inError) {
 	    	
 	    		$value = F.at($pos).Erroneous(errNodes.elems);
 	    		
@@ -4770,7 +4864,7 @@ qualname
 	: (
 			n1=name
 			{
-				if	($n1.wasMissing) {
+				if	($n1.inError) {
 				
 					// The rule caused an identifier to be made up
 					//
@@ -4791,7 +4885,7 @@ qualname
 						(IDENTIFIER)=>n2=name
 						{
 							
-							if	($n2.wasMissing) {
+							if	($n2.inError) {
 				
 								// The rule caused an identifier to be made up
 								//
@@ -4884,8 +4978,14 @@ timeValue
 //
 identifier
 
-	returns [JFXIdent value]
+	returns [JFXIdent value, boolean inError]
 
+@init
+{
+	// Assume the input will be there
+	//
+	$inError = false;	
+}
 	: IDENTIFIER
 		{
 			// The recovery mechanisms will auto generate the IDENTIFIER
@@ -4898,6 +4998,7 @@ identifier
 			
 			    $value = F.at(pos($IDENTIFIER)).MissingIdent();
 			    endPos($value, pos());
+			    $inError = true;
 			    
 			} else {
 			
@@ -4920,11 +5021,12 @@ catch [RecognitionException re] {
 
 	// Now create an AST node that represents a missing identifier.
 	//
-	value = F.at(pos()).MissingIdent();
+	$value = F.at(pos()).MissingIdent();
 	
 	// The AST has no span as the identifier isn't really there
 	//
-	endPos(value, pos());
+	endPos($value, pos());
+	$inError = true;
 
  }
  
@@ -4935,7 +5037,7 @@ catch [RecognitionException re] {
 //
 name 
 
-	returns [Name value, int pos, boolean wasMissing]
+	returns [Name value, int pos, boolean inError]
 	
 	: IDENTIFIER
 	
@@ -4945,11 +5047,11 @@ name
 			
 			if	($IDENTIFIER instanceof MissingCommonToken) {
 			
-				$wasMissing = true;		// Recognizer manufactured this for us
+				$inError = true;		// Recognizer manufactured this for us
 			
 			} else {
 			
-				$wasMissing = false;		// It was genuinely there
+				$inError = false;		// It was genuinely there
 			}
 		}				
 	;
@@ -4971,7 +5073,7 @@ catch [RecognitionException re] {
 	//
 	$value 		= Name.fromString(names, "<missing IDENTIFIER>");
 	$pos   		= semiPos();
-	$wasMissing	= true;
+	$inError	= true;
  }
  
 // -----------------------

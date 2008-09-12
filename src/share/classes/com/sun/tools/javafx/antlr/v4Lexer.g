@@ -986,7 +986,18 @@ INVALIDC
 		{
 			// We assume it isn't safe to print as otherwise we would have matched it
 			//	
-			log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_BAD_CHARACTER, "\\u" + Integer.toHexString( getText().charAt(0) ) );
+			String disp = $text;
+			
+			if	(disp == null) {
+			
+				// Something very strange happened
+				//
+				log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_BAD_CHARACTER, "<unknown>");
+				
+			} else {
+			
+				log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_BAD_CHARACTER, "\\u" + Integer.toHexString( disp.charAt(0) ) );
+			}
 		}
 	;
 	
