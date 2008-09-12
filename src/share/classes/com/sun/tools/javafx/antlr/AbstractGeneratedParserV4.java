@@ -1404,14 +1404,92 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         //
         BitSet follow = computeContextSensitiveRuleFOLLOW();
 
-        //System.out.println("Follow set is :" + follow.toString());
-        int ttype = input.LA(1);
-        while (ttype != v4Parser.SEMI && ttype != v4Parser.RBRACE && ttype != Token.EOF)
-        {
-            input.consume();
-            ttype = input.LA(1);
+        // Brace depth for terminating consumption
+        //
+        int braceDepth = 0;
+        
+        for (;;) {
+
+            int ttype = input.LA(1);
+            boolean consumeNext = false;
+
+            switch(ttype)
+            {
+                case    Token.EOF:          // Reached end of file, we must stop
+                case    v4Parser.INIT:      // Reached an init definition
+                case    v4Parser.POSTINIT:  // Reached a post init definition
+                case    v4Parser.OVERRIDE:  // Override defintion
+                
+                    // Any of the modifiers, we must assume to be a new class member
+                    // even if they are not allowed here, as they may be just erroneously
+                    // specified.
+                    //
+                case    v4Parser.ABSTRACT:
+                case    v4Parser.BOUND:
+                case    v4Parser.PACKAGE:
+                case    v4Parser.PROTECTED:
+                case    v4Parser.PUBLIC:
+                case    v4Parser.PUBLIC_READ:
+                case    v4Parser.PUBLIC_INIT:
+                    
+                    // Variable declarations and member functions mean we are done consuming
+                    //
+                case    v4Parser.VAR:
+                case    v4Parser.DEF:
+                case    v4Parser.FUNCTION:
+
+                    // We found a token that looks like it is the start of a new
+                    // class member definition, or otherwise somewhere we should
+                    // end consumption; so we can break this loop.
+                    //
+                    consumeNext = false;
+                    break;
+
+                case    v4Parser.RBRACE:
+                    
+                    // A right brace forces us to consider the brace depth.
+                    // We assume that there was an opening brace for the class
+                    // definition, and that any opening braces being to the
+                    // erroneous class member, hence we force loop exit if,
+                    // after decrementing the brace level, we get to zero
+                    //
+                    braceDepth--;
+                    if  (braceDepth == 0) {
+                        consumeNext = false;
+                    }
+                    break;
+                    
+                case    v4Parser.LBRACE:
+                    
+                    // An opening brace must belong to some constrcut within the erroneous
+                    // class member, and so we count it, and consume it.
+                    //
+                    braceDepth++;
+                    consumeNext = true;
+                    break;
+                    
+                default:
+
+                    // The next token was not anythig nwe wanted to sync to, so
+                    // just consume it and move on.
+                    //
+                    consumeNext = true;
+                    break;
+            }
+            
+            // Now, are we consuming still, or are we done?
+            //
+            if  (consumeNext) {
+                input.consume();
+            } else {
+                break;
+            }
         }
 
+        // We have resynced to somewhere with a possibilty to recover from
+        // So we need to create an erroneous node that covers everything
+        // we skipped.
+        //
         JFXErroneous errNode = F.at(ruleStart).Erroneous();
         endPos(errNode);
 

@@ -481,7 +481,9 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
-	// Error node for AST
+	// Error node for AST, note that if we found an importId then we would
+	// not be in the exception handler, so no need to accumulate it for
+	// error.
 	//
 	$value = F.at(rPos).Erroneous();
 	endPos($value);
@@ -700,7 +702,7 @@ classDefinition [ JFXModifiers mods, int pos ]
 			classMembers 
 			
 				{
-					// Accumualte in case of error
+					// Accumulate in case of error
 					//
 					mems = $classMembers.mems;
 					for (JFXTree m : mems)
@@ -762,16 +764,22 @@ supers
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Start position in case of error
+	//
+	int	rPos = pos();
 }
 	: EXTENDS t1=typeName
 			{
-				$ids.append($t1.value);	// First type name in list
+				$ids.append($t1.value);			// First type name in list
+				errNodes.append($t1.value);		// Accumulate in case of error
 			}
            ( 
            	COMMA t2=typeName 
            	
            		{ 
            			$ids.append($t2.value); 
+           			errNodes.append($t2.value);
            		}
            )*
            
@@ -791,6 +799,12 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Produce the ERRONEOUS node
+	//
+	$ids = new ListBuffer<JFXExpression>();
+	JFXErroneous errnode = F.at(rPos).Erroneous(errNodes.elems);
+	endPos(errnode);
+	$ids.append(errnode);
  }
  		
 // --------------
@@ -808,6 +822,10 @@ classMembers
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Start position, in case of error
+	//
+	int	rPos = pos();
 }
 	: (classMemberSemi[$mems] possiblyOptSemi)*
 	;
@@ -825,6 +843,20 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 
+	// Though it should be impossible to find an error within this rule, we have
+	// coded against the impossible out of respect for Douglas Adams.
+	//
+	for	( JFXTree t : $mems) {
+		errNodes.append(t);
+	}
+	
+	// Reset what we accumulated so far
+	//
+	$mems = new ListBuffer<JFXTree>();
+	JFXErroneous errnode = F.at(rPos).Erroneous(errNodes.elems);
+	endPos(errnode);
+	$mems.append(errnode);
+	
  }
  
 classMemberSemi [ListBuffer<JFXTree> mems]
@@ -836,21 +868,6 @@ classMemberSemi [ListBuffer<JFXTree> mems]
 		
 	| SEMI
 	;
-	
-// Catch an error. We create an erroneous node for anything that was at the start 
-// up to wherever we made sense of the input.
-//
-catch [RecognitionException re] {
-  
-  	// First, let's report the error as the user needs to know about it
-  	//
-    reportError(re);
-
-	// Now we perform standard ANTLR recovery here
-	//
-	recover(input, re);
-	
- }
  
 // --------------
 // Class members.
