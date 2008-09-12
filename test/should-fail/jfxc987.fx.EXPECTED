@@ -1,0 +1,6 @@
+test/should-fail/jfxc987.fx:10: incompatible types
+found   : Object[]
+required: Object
+var seq:Object = [a,b];
+                 ^
+1 error

@@ -403,6 +403,8 @@ public class JavafxTypes extends Types {
         } else if (isJavaFXMethod(type)) {
             MethodType methodType = type.asMethodType();
             methodToJavaFXString(methodType, buffer);
+        } else if (type.isCompound()) {
+            toJavaFXString(supertype(type), buffer);
         } else {
             buffer.append(type.toString());
         }
