@@ -3484,8 +3484,25 @@ functionExpression
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Rule pos in case of error
+	//
+	int	rPos = pos();
+	
 }
-	: FUNCTION formalParameters typeReference block
+	: FUNCTION 
+	
+		formalParameters 	
+			{ 
+				// Accumulate in case of error
+				//
+				for	( JFXTree t : $formalParameters.params) {
+					errNodes.append(t);
+				}
+			}
+			
+		typeReference 	{ errNodes.append($typeReference.rtype); }
+		block			{ errNodes.append($block.value); }
 	
 		{
 			// JFX AST
@@ -3515,6 +3532,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create an ERRONEOUS vode
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
 }
 
 // ---
