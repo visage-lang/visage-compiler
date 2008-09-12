@@ -432,7 +432,6 @@ public class FXLocal {
                             ref.fld = null;
                             ref.locationGetter = getter;
                         } catch (NoSuchMethodException ex2) {
-                            System.err.println("could not find locGetter for " + name);
                         }
                     }
                 }
@@ -556,23 +555,10 @@ public class FXLocal {
             throw new UnsupportedOperationException("Not supported yet - "+type+"["+type.getClass().getName()+"]");
         }
         
-        AbstractVariable impl_getAbstractVariable(FXObjectValue obj) {
-            try {
-                Object robj = obj == null ? null : ((ObjectValue) obj).obj;
-                if (locationGetter != null) {
-                    Object val = locationGetter.invoke(robj, new Object[0]);
-                    if (val instanceof AbstractVariable)
-                        return (AbstractVariable) val;
-                }
-                return null;
-            }
-            catch (RuntimeException ex) {
-                throw ex;
-            }
-            catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
+        public FXLocation getLocation(FXObjectValue obj) {
+            return new VarMemberLocation(obj, this);
         }
+
 
         static final Object[] noObjects = {};
 
@@ -868,5 +854,31 @@ public class FXLocal {
         public boolean isNull() { return false; }
         public String getValueString() { return ftype.toString()+"{...}"; };
         public Function asObject() { return val; }
+    }
+
+    public static class VarMemberLocation extends FXVarMemberLocation {
+        VarMember var;
+
+        public VarMemberLocation(FXObjectValue object, VarMember var) {
+            super(object, var);
+        }
+
+        AbstractVariable getAbstractVariable(FXObjectValue obj) {
+            try {
+                Object robj = obj == null ? null : ((ObjectValue) obj).obj;
+                if (var.locationGetter != null) {
+                    Object val = var.locationGetter.invoke(robj, new Object[0]);
+                    if (val instanceof AbstractVariable)
+                        return (AbstractVariable) val;
+                }
+                return null;
+            }
+            catch (RuntimeException ex) {
+                throw ex;
+            }
+            catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        }
     }
 }
