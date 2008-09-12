@@ -863,7 +863,7 @@ public class FXLocal {
             super(object, var);
         }
 
-        AbstractVariable getAbstractVariable(FXObjectValue obj) {
+        public AbstractVariable getAbstractVariable(FXObjectValue obj) {
             try {
                 Object robj = obj == null ? null : ((ObjectValue) obj).obj;
                 if (var.locationGetter != null) {
