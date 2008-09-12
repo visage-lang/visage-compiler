@@ -1483,7 +1483,12 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 break;
         }
         JCExpression combined = make.at(diagPos).Binary(binaryOp, lhs, rhs);
-
+        if ((types.isSameType(tree.lhs.type, syms.javafx_DurationType) ||
+                    types.isSameType(tree.rhs.type, syms.javafx_DurationType))) {
+            JFXExpression method = fxmake.at(diagPos).Select(tree.lhs, tree.operator);
+            JFXExpression operation = fxmake.at(diagPos).Apply(null, method, List.<JFXExpression>of(tree.rhs));
+            combined = translate(operation);
+        }
         if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
             // assignment of a sequence element --  s[i]+=8, call the sequence set method
             JFXSequenceIndexed si = (JFXSequenceIndexed)tree.lhs;
@@ -1497,12 +1502,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCExpression targetLHS = translate(tree.lhs, Wrapped.InLocation);
             JCFieldAccess setSelect = make.Select(targetLHS, defs.locationSetMethodName[typeMorpher.typeMorphInfo(vsym.type).getTypeKind()]);
             List<JCExpression> setArgs = List.of(combined);
-            result = make.at(diagPos).Apply(null, setSelect, setArgs);
-        } else if ((types.isSameType(tree.lhs.type, syms.javafx_DurationType) ||
-                    types.isSameType(tree.rhs.type, syms.javafx_DurationType))) {
-            JFXExpression method = fxmake.at(diagPos).Select(tree.lhs, tree.operator);
-            JFXExpression operation = fxmake.at(diagPos).Apply(null, method, List.<JFXExpression>of(tree.rhs));
-            result = translate(fxmake.at(diagPos).Assign(tree.lhs, operation));
+            result = make.at(diagPos).Apply(null, setSelect, setArgs);        
         } else {
             // We are setting a "normal" non-Location non-sequence-access, use normal assignop
             result = make.at(diagPos).Assignop(tree.getOperatorTag(), lhs, rhs);
