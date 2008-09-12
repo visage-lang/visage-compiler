@@ -3551,10 +3551,20 @@ newExpression
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Rule pos in case of error
+	//
+	int	rPos = pos();
 }
-	: NEW typeName expressionListOpt
+	: NEW 
+		typeName 				{ errNodes.append($typeName.value); }
+		expressionListOpt
 	
 		{
+			// If we got ehre, there wil lbe no errors for expressionListOpt, and if 
+			// did not, then the expressionListOpt will not be built, so we do not accumulate
+			// its nodes for error.
+			//
 			$value = F.at(pos($NEW)).InstanciateNew($typeName.value, $expressionListOpt.args.toList());
 			endPos($value);
 		}
@@ -3571,7 +3581,11 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
+
+	// Create an ERRONEOUS vode
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);	
 }
 
 // ---------------
@@ -3587,6 +3601,10 @@ objectLiteral
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Rule pos in case of error
+	//
+	int	rPos = pos();
 }
 	:   (COMMA|SEMI)*	// Separators are optional and just syntactic sugar
 	
@@ -3596,6 +3614,7 @@ objectLiteral
 			
 				{
 					parts.append($oli.value);
+					errNodes.append($oli.value);	// Accumulte in case of error
 				}
 			)
 			
@@ -3619,6 +3638,19 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create an ERRONEOUS vode
+	//
+	JFXErroneous errNode = F.at(rPos).Erroneous(errNodes.elems);
+	endPos(errNode);
+	
+	// Reset the return list
+	//
+	$parts = ListBuffer.<JFXTree>lb();
+	
+	// Add the error node
+	//
+	$parts.append(errNode);
+	
 }
 
 // Individual components of an object literal
@@ -3633,6 +3665,11 @@ objectLiteralPart
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Rule pos in case of error
+	//
+	int	rPos = pos();
+	
 }
 	: modifiers
 		(
@@ -3640,12 +3677,14 @@ objectLiteralPart
 			  
 			  	{
 			  		$value = $variableDeclaration.value;
+			  		errNodes.append($value);
 			  	}
 			  	
 			| functionDefinition	 [$modifiers.mods, $modifiers.pos]
 			
 				{
 					$value = $functionDefinition.value;
+					errNodes.append($value);
 				}
 		)
 		
@@ -3653,6 +3692,7 @@ objectLiteralPart
 		
 		{
 			$value = $oli.value;
+			errNodes.append($oli.value);
 		}
     ;
 // Catch an error. We create an erroneous node for anything that was at the start 
@@ -3668,6 +3708,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create an ERRONEOUS node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);	
 }
 
 // --------------------------     	
@@ -3687,19 +3731,52 @@ objectLiteralInit
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Indicates that something went wrong with the parse
+	//
+	boolean	inError = false;
 }
-	: name COLON  boundExpression
+	: n1=name
+		{
+			if	($n1.inError) {
+				
+				// The rule caused an identifier to be made up
+				//
+				inError = true;
+			}
+							
+			// Build up new node in case of error
+			//
+			JFXExpression part = F.at($n1.pos).Ident($n1.value);
+			errNodes.append(part);
+			endPos(part);
+		} 
+		COLON  
+		boundExpression
 	
 		{
-			// AST
-			//
-			$value = F.at($name.pos).ObjectLiteralPart
-									(
-										$name.value,
-								 		$boundExpression.value, 
-								 		$boundExpression.status
-								 	);
-								 	
+			if	(inError) {
+			
+				// Missing name, so throw this into error state
+				//
+				errNodes.append($boundExpression.value);
+				
+				// Create an ERRONEOUS node
+				//
+				$value = F.at(rPos).Erroneous(errNodes.elems);
+				
+			} else {
+			
+				// AST
+				//
+				$value = F.at($n1.pos).ObjectLiteralPart
+										(
+											$n1.value,
+									 		$boundExpression.value, 
+									 		$boundExpression.status
+									 	);
+			}
+							 	
 			// Tree span
 			//
 			endPos($value);
@@ -3718,6 +3795,11 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create an ERRONEOUS node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);	
+
 }
 
 // -------	
@@ -3754,6 +3836,13 @@ stringExpression
 
 	returns [JFXExpression value] 	// Expression tree for stringExpressions
 
+scope {
+	// Indicates that the expression went into a parse error state
+	// somehere and we should not try to resolve it
+	//
+	boolean inError;
+}
+
 @init
 {
 	// Buffer in which to accumulate all string elements
@@ -3772,6 +3861,11 @@ stringExpression
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Start in non error state
+	//
+	$stringExpression::inError = false;
+	
 }
 
 	: (
@@ -3793,53 +3887,53 @@ stringExpression
 				//
 				   (STRING_LITERAL|QUOTE_LBRACE_STRING_LITERAL) =>strCompoundElement [ strexp ]
 			
-					// Expressions are not allowed as compound elements but this will be
-					// a common thing to happen while editing and probably a common mistake
-					// so we parse it and then falg a semantic error rather than issue
-					// a syntax error which would be difficult to recover from.
-					// TODO: See if we can resolve the left recurssion problems
-					// taht this causes
-				//| 	{
-						// Record where we are for the error message
-						//
-				//		ePos = pos();
-				//	}
-				
-				//	expression
-			
-				//	{
-						// Issue semantic error
-						// TODO: perhaps this should be added tot the AST
-						//
-				//		log.error(ePos, "javafx.bad.str.compound");
-				//	}
-
 			)*
 	  )
 	  
 		{
-  			// AST for string expression
-  			// If we accumulated just a single entry then by definition
-  			// we accumulated just a simple string literal, but if there
-  			// is more than one entry, or there is a translation key,
-  			// then we have a string expression
-  			//
-  			if	(strexp.size() > 1 || translationKey != null)
-			{
-				// Complex expression
+			if	($stringExpression::inError) {
+			
+				// Some part of this parse caused an error, so the whole lot just
+				// accumulates into an error node.
 				//
-	  			$value = F.at(rPos).StringExpression(strexp.toList(), translationKey);
-
-				// Tree span
-  				//
-  				endPos($value);
-
-	  		}
-	  		else
-	  		{
-	  			// This is an individual string literal, and is already endPos'ed
+			
+				// Accumulate whatever pieces we discovered
+				//
+				for	(JFXTree t : strexp) {
+	
+					errNodes.append(t);
+				}
+	
+				// Create an ERRONEOUS node
+				//
+				$value = F.at(rPos).Erroneous(errNodes.elems);
+				endPos($value);	
+	
+			} else {
+			
+	  			// AST for string expression
+	  			// If we accumulated just a single entry then by definition
+	  			// we accumulated just a simple string literal, but if there
+	  			// is more than one entry, or there is a translation key,
+	  			// then we have a string expression
 	  			//
-	  			$value  = strexp.toList().get(0);
+	  			if	(strexp.size() > 1 || translationKey != null)
+				{
+					// Complex expression
+					//
+		  			$value = F.at(rPos).StringExpression(strexp.toList(), translationKey);
+	
+					// Tree span
+	  				//
+	  				endPos($value);
+	
+	  			}
+		  		else
+		  		{
+		  			// This is an individual string literal, and is already endPos'ed
+		  			//
+		  			$value  = strexp.toList().get(0);
+				}
 			}  			
 		}
 	;
@@ -3855,6 +3949,18 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
+	
+	// Accumulate whatever pieces we discovered
+	//
+	for	(JFXTree t : strexp) {
+	
+		errNodes.append(t);
+	}
+	
+	// Create an ERRONEOUS node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);	
 	
 }
 
@@ -3894,6 +4000,9 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Flag we are in the error state
+	//
+	$stringExpression::inError = true;	
 }
 
 // ---------------
@@ -3920,11 +4029,6 @@ stringLiteral [ ListBuffer<JFXExpression> strexp ]
 	//
 	JFXExpression sVal = null;
 
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
-	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
-
 }
 	: s1=STRING_LITERAL 
 	
@@ -3946,7 +4050,6 @@ stringLiteral [ ListBuffer<JFXExpression> strexp ]
 		
 		{
 
-
 			// Here, one of the following conditions prevails
 			//
 			//  i)  We have as yet encountered no components of the compound
@@ -3962,7 +4065,7 @@ stringLiteral [ ListBuffer<JFXExpression> strexp ]
 			//      So, we can remove the last entry, append this newly accumulated
 			//      string literal to it, and move on.
 			//
-			if	(strexp.size() == 0)
+			if	( $stringExpression::inError || strexp.size() == 0)
 			{
 			
 				// Now we create the actual string literal
@@ -3995,7 +4098,6 @@ stringLiteral [ ListBuffer<JFXExpression> strexp ]
 				trailer.value = sbLit.toString();
 				
 			}
-			
 
 		}
 	;
@@ -4012,6 +4114,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Flag we are in the error state
+	//
+	$stringExpression::inError = true;
+	
 }
 	
 // --------------------
@@ -4020,63 +4126,72 @@ catch [RecognitionException re] {
 //
 qlsl [ ListBuffer<JFXExpression> strexp]
 
-@init
-{
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
-	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
-}
 	: 	ql=QUOTE_LBRACE_STRING_LITERAL	
 	
 			{
-				// Add in the discovered literal value
-				//
-				// Here, one of the following conditions apply:
-				//
-				//   i) There are currently no entries in the buffer. The size of strexp
-				//      will be 0 in that case and we can process the expression without 
-				//      regard to prior values.
-				//  ii) There was one or leading string literals (non expressions),
-				//      in which case the list buffer size will be 1, representing
-				//      the accumulated string literal. In that case we must append
-				//	    the leadin string ($ql above) to the existing string and make
-				//      it the leadin for this expression.
-				// iii) There were prior expressions in the list, in which case, as per
-				//      ii) we must merge the last literal in the buffer with ($ql) from
-				//      above and make it the leadin string for this expression.
-				//      NB: THis can aonly arise from "{expr}" ("STRING")* "{expr}"
-				//
-				switch	(strexp.size())
-				{
-					case 0:
-			
-						// Add the leadin string
-						//
-						JFXLiteral leader = F.at(pos($ql)).Literal
+				if	($stringExpression::inError) {
+				
+					// Add the leadin string
+					//
+					JFXLiteral leader = F.at(pos($ql)).Literal
 											(	TypeTags.CLASS,
 											 	$ql.text
 											);
-						endPos(leader);
-
-						// Add it in to the list
-						//
-						strexp.append(leader);
-						
-						break;	
-
-					default:
-					
-						// Already had a single first literal, or a trailer for an 
-						// expression - make it belong to this leader.
-						//
-						leader = (JFXLiteral)(strexp.elems.get(strexp.size()-1));
+					endPos(leader);
+	
+					// Add it in to the list
+					//
+					strexp.append(leader);
+							
+				} else {
+					// Add in the discovered literal value
+					//
+					// Here, one of the following conditions apply:
+					//
+					//   i) There are currently no entries in the buffer. The size of strexp
+					//      will be 0 in that case and we can process the expression without 
+					//      regard to prior values.
+					//  ii) There was one or leading string literals (non expressions),
+					//      in which case the list buffer size will be 1, representing
+					//      the accumulated string literal. In that case we must append
+					//	    the leadin string ($ql above) to the existing string and make
+					//      it the leadin for this expression.
+					// iii) There were prior expressions in the list, in which case, as per
+					//      ii) we must merge the last literal in the buffer with ($ql) from
+					//      above and make it the leadin string for this expression.
+					//      NB: THis can aonly arise from "{expr}" ("STRING")* "{expr}"
+					//
+					switch	(strexp.size())
+					{
+						case 0:
 				
-						// Now, append the string we have to the prior trailing part
-						// and replace the original value
-						//
-						leader.value = (String)(leader.getValue()) + $ql.text;
-						break;
+							// Add the leadin string
+							//
+							JFXLiteral leader = F.at(pos($ql)).Literal
+												(	TypeTags.CLASS,
+												 	$ql.text
+												);
+							endPos(leader);
+	
+							// Add it in to the list
+							//
+							strexp.append(leader);
+							
+							break;	
+	
+					default:
+						
+							// Already had a single first literal, or a trailer for an 
+							// expression - make it belong to this leader.
+							//
+							leader = (JFXLiteral)(strexp.elems.get(strexp.size()-1));
+					
+							// Now, append the string we have to the prior trailing part
+							// and replace the original value
+							//
+							leader.value = (String)(leader.getValue()) + $ql.text;
+							break;
+					}
 				}
 			}
 			
@@ -4123,6 +4238,9 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Flag we are in the error state
+	//
+	$stringExpression::inError = true;	
 }
 
 // ----------------------
@@ -4130,13 +4248,6 @@ catch [RecognitionException re] {
 //
 stringExpressionInner [ ListBuffer<JFXExpression> strexp]
 
-@init
-{
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
-	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
-}
 	: rlsl=RBRACE_LBRACE_STRING_LITERAL 
 	
 		{
@@ -4179,6 +4290,9 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Flag we are in the error state
+	//
+	$stringExpression::inError = true;	
 }
 
 // --------------------
@@ -4230,6 +4344,9 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Flag we are in the error state
+	//
+	$stringExpression::inError = true;	
 }
 	
 // ---------------------------
