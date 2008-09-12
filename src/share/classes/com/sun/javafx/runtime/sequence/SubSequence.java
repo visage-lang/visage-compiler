@@ -61,4 +61,13 @@ class SubSequence<T> extends AbstractSequence<T> implements Sequence<T> {
         else
             return sequence.get(position + start);
     }
+    
+    @Override
+    public void toArray(Object[] dest, int destOffset) {
+        if (start <= end) {
+            Object[] array = Util.newObjectArray(sequence.size());
+            sequence.toArray(array, 0);
+            System.arraycopy(array, start, dest, destOffset, end-start);
+        }
+    }
 }

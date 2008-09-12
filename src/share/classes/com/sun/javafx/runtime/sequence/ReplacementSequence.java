@@ -41,4 +41,10 @@ class ReplacementSequence<T> extends DerivedSequence<T> implements Sequence<T> {
     public T get(int position) {
         return (position == newIndex) ? newValue : sequence.get(position);
     }
+    
+    @Override
+    public void toArray(Object[] array, int destOffset) {
+        sequence.toArray(array, destOffset);
+        array[destOffset + newIndex] = newValue;
+    }
 }
