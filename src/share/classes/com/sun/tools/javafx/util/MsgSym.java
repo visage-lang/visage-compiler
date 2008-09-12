@@ -373,5 +373,6 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_INCOMPLETE_QUAL = "javafx.incomplete.qual";
     public static final String MESSAGE_JAVAFX_IMPORT_BAD_STAR = "javafx.import.bad.star";
     public static final String MESSAGE_JAVAFX_IMPORT_BAD_NAME = "javafx.import.bad.name";
+    public static final String MESSAGE_JAVAFX_FUNC_UNNAMED = "javafx.func.unnamed";
 
 }

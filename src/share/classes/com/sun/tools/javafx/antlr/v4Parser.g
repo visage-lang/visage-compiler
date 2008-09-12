@@ -926,7 +926,7 @@ catch [RecognitionException re] {
 //
 functionDefinition [ JFXModifiers mods, int pos ]
 
-	returns [JFXFunctionDefinition value]		// A function defintion has a specialized node in the JavaFX AST
+	returns [JFXTree value]		// A function defintion has a specialized node in the JavaFX AST
 
 @init { 
 
@@ -940,9 +940,48 @@ functionDefinition [ JFXModifiers mods, int pos ]
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
-
+	
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
 }
-	: FUNCTION name formalParameters typeReference 
+	: FUNCTION 
+		
+		(
+			n1=name 
+				{
+					if	($n1.inError) {
+					
+						// Function cannot be anonymous here
+						//
+						log.error($n1.pos, MsgSym.MESSAGE_JAVAFX_FUNC_UNNAMED);
+					}
+					
+					// Accumulate a node in case of error
+					//			
+					JFXIdent id = F.at($n1.pos).Ident($n1.value);
+					endPos(id);
+				
+					// Accumulate in case of error
+					//
+					errNodes.append(id);
+				}
+		)
+		formalParameters
+			{
+				// Accumulate the parameter nodes in case of error
+				//
+				for	(JFXTree t : $formalParameters.params) {
+					errNodes.append(t);
+				}
+			}
+			
+		typeReference 
+			{
+				// Accumulate in case of error
+				//
+				errNodes.append($typeReference.rtype);
+			}
 	
 		// The function block is optional if this is an abstract funtino definition
 		// but in that case a semi colon is required. If this is not an abstract function
@@ -950,6 +989,12 @@ functionDefinition [ JFXModifiers mods, int pos ]
 		// as this may be coming from an IDE.
 		//
 		(	  (LBRACE)=>block 
+		
+				{
+					// Accumulate in case of error
+					//
+					errNodes.append($block.value);
+				}
 			
 			| 	// This alt is selected only if the functino declaration is not abstract
 				// and there was no function body. If there is a SEMI at this point, it does not
@@ -963,7 +1008,7 @@ functionDefinition [ JFXModifiers mods, int pos ]
 			$value = F.at($pos).FunctionDefinition
 							(
 								$mods,
-								$name.value, 
+								$n1.value, 
 								$typeReference.rtype,
 								$formalParameters.params.toList(), 
 								$block.value
@@ -992,6 +1037,9 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Produce an error node rather than a function definition node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
  }
  
 // ---------
