@@ -30,12 +30,12 @@ import com.sun.scenario.animation.TimingTargetAdapter;
 import javafx.lang.Duration;
 import javafx.lang.Sequences;
 import java.lang.Object;
-import java.lang.System;
+import java.lang.Double;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-import java.lang.System;
 import java.lang.Math;
+import java.lang.UnsupportedOperationException;
 
 function makeDur(millis:Number):Duration {
     return 1ms * millis;
@@ -106,20 +106,6 @@ public class Timeline {
      */
     public var autoReverse: Boolean = false;
 
-    /**
-     * Defines whether this animation reverses direction in place
-     * each time {@code start()} is called.  
-     * If {@code true}, the animation will initially proceed forward,
-     * then restarts in place except heading in opposite direction.
-     * The default value is {@code false}, indicating that the
-     * animation will restart from the initial {@code KeyFrame}
-     * each time {@code start()} is called.
-     *
-     * @profile common
-     */
-    public var toggle: Boolean = false on replace {
-        isReverse = true;
-    };
 
     /**
      * Defines the sequence of {@code KeyFrame}s in this animation.
@@ -167,7 +153,50 @@ public class Timeline {
      * @profile common
      */
     public-read var paused: Boolean = false;
+    
+    /**
+     * Read-only var that indicates whether the timeline is moving
+     * forward or backward.
+     * <p>
+     * This value is initially {@code true}, which indicates the timeline
+     * is moving forward when animation is started by default.
+     * <p>
+     * The default behavior can be overriden by calling <code>startBackward</code> 
+     */
+    public-read var forward: Boolean = true;
+    
+    /**
+     * Defines whether this animation reverses direction in place
+     * each time {@code start()} is called.  
+     * If {@code true}, the animation will reverse its direction
+     * when it is restarted.
+     * The default value is {@code false}, indicating that the
+     * animation will restart with previous direction.
+     *
+     * @profile common
+     */
+    public-init var toggle: Boolean = false on replace {
+        forwardStart = not toggle;
+    };
 
+    
+    
+    /**
+     * It indicates previous direction is forward or backward.
+     */
+    var forwardStart: Boolean = true;
+    
+    /**
+     * Current timeline position
+     */
+    var curPosition: Number = 0.0;
+    
+    
+    /**
+     * Indicates if it is a sub timeline
+     */
+     var subtimeline: Boolean = false;
+    
     // if false, indicates that the internal (optimized) data structure
     // needs to be rebuilt
     var valid = false;
@@ -189,68 +218,104 @@ public class Timeline {
 	
 	// enforce minimum duration of 1 ms
 	// Refer to JFXC-1399, minimum duration prevents 
-	// timeline run too fast, especially when duration = 0
-	// can result tight loop.
+	// timeline from running "too fast", especially 
+        // when duration = 0 can result tight loop.
         return Math.max(duration, 1) * repeatCount;
     }
 
     /**
-     * Starts (or restarts) the animation.
-     * <p>
-     * If {@code toggle==false} and the animation is currently running,
-     * the animation will be restarted from its initial position.
-     * <p>
-     * If {@code toggle==true} and the animation is currently running,
-     * the animation will immediately change direction in place and
-     * continue on in that new direction.  When the animation finishes
-     * in one direction, calling {@code start()} again will restart the
-     * animation in the opposite direction.
+     * Starts (or restarts) the animation with forward direction.
      *
      * @profile common
      */
-    public function start() {
-        reset(false);
-        if (toggle) {
-            // change direction in place
-            if (clip == null) {
-                buildClip();
-            }
-            if (not clip.isRunning()) {
-                clip.start();
-            }
-        } else {
+    public function startForward() {
+        if(not subtimeline) {
+            reset(false);
+
+            forward = true;
+            forwardStart = true;
+
+            setSubtimelineDirection(forward);
+
+            curPosition = 0.0;
+
             // stop current clip and restart from beginning
             buildClip();
             clip.start();
         }
     }
 
+    /**
+     * Starts (or restarts) the animation with forward direction.
+     *
+     * @profile common
+     */
+    public function startBackward() {
+        if(not subtimeline) {
+            reset(false);
+
+            forward = false;
+            forwardStart = false;
+
+            setSubtimelineDirection(forward);
+
+            if(duration < 0) {
+                curPosition = -1;
+            } else {
+                curPosition = duration;
+            }
+            // stop current clip and restart from beginning
+            buildClip();
+            clip.start();        
+       }
+    }
+
+    /**
+     * Starts (or restarts) the animation.
+     *
+     * @profile common
+     */
+    public function start() {
+        if(not subtimeline) {
+            
+            reset(false);
+
+            if(toggle) {
+                forwardStart = not forwardStart;
+                forward = forwardStart;
+                setSubtimelineDirection(forward);
+            } else {
+                forward = forwardStart;
+                setSubtimelineDirection(forward);
+            }
+            if(forward) {
+                curPosition = 0;
+            } else {
+                if(duration < 0) {
+                    curPosition = -1;
+                } else {
+                    curPosition = duration;
+                }
+            }
+            buildClip();
+            clip.start();
+        }
+    }
+    
     var initialKeyValues: KeyValue[];
 
     function reset(isSubTimeline: Boolean):Void {
         if(isSubTimeline) {
-            if (toggle and isReverse) {
-                cycleIndex = (repeatCount-1) as Integer;
-                lastElapsed = getTotalDur();
-            } else {
-                cycleIndex = 0;
-                lastElapsed = 0;
-            }
+            cycleIndex = 0;
+            lastElapsed = 0;
+            frameIndex = 0;
         }
         
         
         for (kv in initialKeyValues) {
             kv.value = kv.target.get();
         }
-        if (toggle) {
-            // change direction in place
-            isReverse = not isReverse;
-            offsetValid = false;
-            frameIndex = keyFrames.size() - frameIndex;
-        } else {
-            // stop current clip and restart from beginning
-            frameIndex = 0;
-        }
+
         for (i in [0..<subtimelines.size()]) {
             var sub = subtimelines.get(i) as SubTimeline;
             sub.timeline.reset(true);
@@ -263,8 +328,19 @@ public class Timeline {
      *
      * @profile common
      */
-    public function stop() {
-        clip.stop();
+    public function stop(): Void {
+        if(clip != null) {
+            clip.stop();
+        }
+        
+        // also, stop all sub timelines
+        for (i in [0..<subtimelines.size()]) {
+            var sub = subtimelines.get(i) as SubTimeline;
+            if(sub.timeline.running) {
+                sub.timeline.stop();
+                sub.timeline.running = false;
+            }
+        }
     }
 
     /**
@@ -272,7 +348,9 @@ public class Timeline {
      * this method has no effect.
      */
     public function pause() {
-        clip.pause();
+        if(not subtimeline) {
+            clip.pause();
+        }
     }
 
     /**
@@ -283,10 +361,14 @@ public class Timeline {
      * @profile common
      */
     public function resume() {
-        if (not running) {
-            start();
-        } else {
-            clip.resume();
+        if(not subtimeline) {
+            if (not running) {
+                startForward();
+            } else {
+                if(clip != null) {
+                    clip.resume();
+                }
+            }
         }
     }
 
@@ -307,10 +389,7 @@ public class Timeline {
     var cycleIndex: Integer = 0;
     var frameIndex: Integer = 0; 
 
-    var isReverse: Boolean = true;
-    var offsetT: Number = 0;
     var lastElapsed: Number = 0;
-    var offsetValid: Boolean = false;
 
     //
     // Need to revalidate everything (call rebuildTargets() again) if
@@ -361,11 +440,9 @@ public class Timeline {
                         startTime: keyFrame.time
                         timeline: timeline
                     }
-                    
-                    if(timeline.toggle) {
-                        timeline.isReverse = false;
-                    }
-                    
+                    timeline.forwardStart = forwardStart;
+                    timeline.forward = forward;
+                    timeline.subtimeline = true;
                     subtimelines.add(sub);
                 }
             }
@@ -411,28 +488,31 @@ public class Timeline {
 
     /**
      * Sets the Timeline's play head to {@code position}
+     * <p>
+     * This method has no effect if the timeline is a sub timeline.
      */
 
     public function setPosition(position:Duration):Void {
-        if (running) {
-           timeOffset += position.toMillis();                      
-        } else {
-           timeOffset = position.toMillis();                      
+        if(not subtimeline) {
+            timeOffset = position.toMillis();                      
         }
     }
 
     /**
      * Returns the current position of the Timeline's play head
      */
-
-    public bound function getPosition():Duration {
-        var pos = if (duration == 0) 0 else lastElapsed mod duration;
-        return makeDur(pos);
+    public bound function getPosition():Duration {        
+        return makeDur(curPosition);
     }
 
 
     var timeOffset: Number;
 
+    /**
+     * This routine process all the cases except when timeline
+     * is running backward indefinitely. This special case is 
+     * handled by process_backward_indefinitely().
+     */
     function process(totalElapsedArg:Number):Void {
         // 1. calculate totalDur
         // 2. modify totalElapsed depending on direction
@@ -443,55 +523,32 @@ public class Timeline {
         // 7. do interpolation between active key frames
         // 8. visit subtimelines
         // 9. stop clip if needsStop
-        var totalElapsed = totalElapsedArg * speed;
-        totalElapsed += timeOffset;
-
+        var totalElapsed = if(subtimeline) totalElapsedArg else totalElapsedArg * speed;
+        
         var needsStop = false;
         var totalDur = getTotalDur();
-
-        if (totalDur >= 0) {
-            if (toggle) {
-                if (not offsetValid) {
-                    if (isReverse) {
-                        offsetT = totalElapsed + lastElapsed;
-                    } else {
-                        offsetT = totalElapsed - lastElapsed;
-                    }
-                    offsetValid = true;
-                }
-
-                // adjust totalElapsed to account for direction (the
-                // incoming totalElapsed value will continue to increase
-                // monotonically regardless of how many times the direction
-                // has been reversed, so here we just massage it back into
-                // the range [0,totalDur] so that other calculations below
-                // will work as usual)
-                if (isReverse) {
-                    totalElapsed = offsetT - totalElapsed;
-                } else {
-                    totalElapsed = totalElapsed - offsetT;
-                }
-            }
-
-            // process one last pulse to ensure targets reach their end values
-            if (toggle and isReverse) {
-                if (totalElapsed <= 0) {
-                    totalElapsed = 0;
-                    needsStop = true;
-                }
+        // if timeOffset > 0, there is pending request to change play head position        
+        if(timeOffset > 0) {
+            if(duration < 0) {
+                totalElapsed = timeOffset;
             } else {
-                if (totalElapsed >= totalDur) {
-                    totalElapsed = totalDur;
-                    needsStop = true;
-                }
+                totalElapsed = ((totalElapsed / duration) as Integer) * duration + timeOffset;
             }
+            updateFrameIndex(totalElapsed);
+            timeOffset = 0.0;
         }
+
 
         lastElapsed = totalElapsed;
 
         var curT:Number;
         var cycle:Integer;
-        var backward = false;
+
+        if(totalDur >= 0 and totalElapsed >= totalDur) {
+            totalElapsed = totalDur;
+            needsStop = true;
+        }
+
         if (duration < 0) {
             // indefinite duration (e.g. will occur when a sub-timeline
             // has indefinite repeatCount); always stay on zero cycle
@@ -499,76 +556,68 @@ public class Timeline {
             cycle = 0;
         } else {
 	    // enforce minimum duration of 1 ms
-	    var dur = Math.max(duration, 1);
-	    
+	    var dur = Math.max(duration, 1);	    
             curT = totalElapsed mod dur;
             cycle = totalElapsed / dur as Integer;
-            if (curT == 0 and totalElapsed != 0) {
-                // we're at the end, or exactly on a cycle boundary;
-                // treat this as the "1.0" case of the previous cycle
-                // instead of the "0.0" case of the current cycle
-                // TODO: there's probably a better way to deal with this...
-                curT = dur;
-                cycle -= 1;
-            }
-            if (autoReverse) {
-                if (cycle mod 2 == 1) {
-                    curT = dur - curT;
-                    backward = true;
-                }
-            }
         }
-
-        // look through each KeyFrame and see if we need to visit its
-        // key values and its action function
-        if (toggle and isReverse) {
-            var cycleBoundary: Boolean = cycleIndex > cycle;
-            var boundaryT;
-            backward = not backward;
-            while (cycleIndex > cycle) {
-                boundaryT = duration;
-                if(autoReverse and cycleIndex mod 2 == 1) {
-                    if(not backward) boundaryT = 0;
-                }
-                handleCycleBoundary(boundaryT);
-                // we're on a new cycle; visit any key frames that we may
-                // have missed along the way
-                visitCycle(cycleIndex, cycleIndex > cycle+1);
-                cycleIndex--;
+ 
+        // check if passed cycle boundary
+        while(cycle > cycleIndex and 
+            (repeatCount < 0 or cycleIndex < repeatCount)) {
+            visitCycle(cycleIndex < cycle-1);
+            if(autoReverse) {
+                forward = not forward;
+                setSubtimelineDirection(forward);
             }
-            
-            if(cycleBoundary) {
-                boundaryT = duration;
-                if(autoReverse and cycleIndex mod 2 == 1) {
-                    if(not backward) boundaryT = 0;
+            cycleIndex ++;
+        }
+  
+        
+        if((not needsStop) or cycleIndex < repeatCount) {
+            if(not forward) {
+                if(duration >= 0) {
+                    curT = Math.max(duration, 1) - curT;
+                    curPosition = curT;
+                 } else {
+                    curPosition = -1;
                 }
-                handleCycleBoundary(boundaryT);
-            }
-            
-        } else {
-            var cycleBoundary: Boolean = cycleIndex < cycle;
-            var boundaryT: Number;
-            while (cycleIndex < cycle) {
-                boundaryT = duration;
-                if(autoReverse and cycleIndex mod 2 == 1) {
-                    boundaryT = 0;
-                }
-                handleCycleBoundary(boundaryT);
-                // we're on a new cycle; visit any key frames that we may
-                // have missed along the way
-                visitCycle(cycleIndex, cycleIndex < cycle-1);
-                cycleIndex++;
+            } else {
+                // update current position
+                curPosition = curT;            
             }
 
-            if(cycleBoundary) {
-                boundaryT = duration;
-                if(autoReverse and cycleIndex mod 2 == 1) {
-                    boundaryT = 0;
-                }
-                handleCycleBoundary(boundaryT);
-            }
+            visitFrames(curT, false);
+
+            doInterpolate(curT);
+
+            // look through all sub-timelines and recursively call process()
+            // on any active SubTimeline objects        
+            processSubtimelines(curT);
         }
-        visitFrames(curT, backward, false);
+        
+        if(needsStop) {
+             if(clip != null) {
+                clip.stop();
+            }
+        }    
+    }
+    
+    /**
+     *  This routine handles a special case:
+     *  <l>
+     *      <li> duration < 0
+     *      <li> forward = false
+     *  <l>
+     *  <p>
+     *   
+     */
+    function process_backward_indefinitely(totalElapsedArg:Number):Void {
+        var totalElapsed = if(subtimeline) totalElapsedArg else totalElapsedArg * speed;
+        
+    }
+    
+    
+    function doInterpolate(curT: Number) {
         if (interpolate) {
             // now handle the active interval for each target
             var iter = targets.values().iterator();
@@ -614,64 +663,98 @@ public class Timeline {
                 } 
             }
         }
-        // look through all sub-timelines and recursively call process()
-        // on any active SubTimeline objects
-        for (i in [0..<subtimelines.size()]) {
-            var sub = subtimelines.get(i) as SubTimeline;
-            var subtimeline = sub.timeline;
-            var subDur = subtimeline.getTotalDur();
-            var startTime = sub.startTime.toMillis();
-            if(backward) {
-                /**
-                 * When timeline is running backward, the last key frame is not visited.
-                 * However, there is possibility that it has sub timeline runs
-                 * beyond the last key frame.
-                 */
-                var lastKeyFrame = sortedFrames[sortedFrames.size() - 1];
-                if(curT <= lastKeyFrame.time.toMillis()) {
-                    stopKeyFrameSubtimelines(lastKeyFrame, curT);
-                }
-                if(curT <= startTime + subDur and curT > startTime) {
-                    if(not subtimeline.running) {
-                        subtimeline.reset(true);
-                        subtimeline.running = true;
-                        
-                    }
-                    subtimeline.process(curT - startTime);
-                }
-                
-            } else {
-                if(subtimeline.running) {
-                    subtimeline.process(curT - startTime);
-                    if(subDur >= 0 and curT > startTime + subDur) {
-                        subtimeline.running = false;
-                    } 
-                }
-            }
-        }
-
-        if (needsStop and clip != null) {
-            clip.stop();
-            timeOffset = 0.0;
-        }
+        
     }
 
-    function visitCycle(cycle:Integer, catchingUp:Boolean) {
-        var cycleBackward = false;
-        if (autoReverse) {
-            if (cycle mod 2 == 1) {
-                cycleBackward = true;
+    /**
+     * parent timeline always delivers forward timing to sub timelines, but
+     * sub timelines' direction can be altered by parent timeline.
+     */
+    function processSubtimelines(curT: Number): Void {
+        for (i in [0..<subtimelines.size()]) {
+            var sub = subtimelines.get(i) as SubTimeline;
+            var subTimeline = sub.timeline;
+            var subDur = subTimeline.getTotalDur();
+                        
+            var startTime = sub.startTime.toMillis();
+            var subCurT = curT - startTime;
+            if(subTimeline.forward and subTimeline.running ) {
+                if(subDur < 0 or curT <= startTime + subDur) {
+                    subTimeline.process(subCurT);
+                } else {
+                    subTimeline.process(subDur);
+                    subTimeline.running = false;
+                }
+            } else if(not subTimeline.forward) {
+                if(subTimeline.running) {
+                    subTimeline.process(subCurT);
+                } else if(subDur < 0 or (curT <= startTime + subDur and  curT > startTime)) {
+                    subTimeline.running = true;
+                    subTimeline.process(subCurT);
+                }
             }
+        }        
+    }
+    
+    /**
+     * Parent timeline has altered its direction, sub timelines' direction
+     * needs to be altered accordingly.
+     */
+    function setSubtimelineDirection(forward: Boolean): Void {
+        for (i in [0..<subtimelines.size()]) {
+            var sub = subtimelines.get(i) as SubTimeline;
+            sub.timeline.forwardStart = forward;
+            sub.timeline.forward = forward;
+            sub.timeline.setSubtimelineDirection(forward);
         }
-        if (toggle and isReverse) {
-            cycleBackward = not cycleBackward;
+    }
+    
+    
+    /**
+     * Once play head is repositioned, frameIndex has to be recalcuated
+     * to complete repositioning
+     */
+    function updateFrameIndex(totalElapsed: Number): Void {
+        var curT = if(duration < 0) totalElapsed else (totalElapsed mod duration);
+        
+
+        // now we need to recalculate frameIndex
+        frameIndex = 0;
+        for(kf: KeyFrame in sortedFrames) {
+            if(curT <= kf.time.toMillis()) {
+                if(not forward and curT == kf.time.toMillis()) {
+                frameIndex ++;
+                }
+                break;
+            }
+            frameIndex ++;
         }
-        var cycleT = if (cycleBackward) 0 else duration;
-        visitFrames(cycleT, cycleBackward, catchingUp);
+        if(not forward) {
+            frameIndex = sortedFrames.size() - frameIndex;
+        }
+    }
+    
+    
+    function visitCycle(catchingUp:Boolean) {
+        var cycleT = if (forward) duration else 0;
+        curPosition = cycleT;
+        visitFrames(cycleT, catchingUp);
+        
+        /**
+         * Ignore sub timelines during catching up cycles
+         */
+        if(not catchingUp) {
+            // closeup sub timelines at cycle boundary
+            handleCycleBoundary(cycleT);
+        }
+        
         // avoid repeated visits to terminals in autoReverse case
         frameIndex = if (autoReverse) 1 else 0;
     }
 
+    /**
+     * At the cycle boundary, stops all running sub timelines.
+     */
     function handleCycleBoundary(curT: Number) {
         for (i in [0..<subtimelines.size()]) {
             var sub = subtimelines.get(i) as SubTimeline;
@@ -679,9 +762,14 @@ public class Timeline {
                 sub.timeline.process(curT - sub.startTime.toMillis());
                 sub.timeline.running = false;
             }
+            sub.timeline.reset(true);
         }
     }
     
+    /**
+     * During timeline forward cycle, starts all sub timelines
+     * of just visited key frame
+     */
     function startKeyFrameSubtimelines(kf: KeyFrame, curT: Number) {
         for(t: Timeline in kf.timelines) {
             t.reset(true);
@@ -689,6 +777,10 @@ public class Timeline {
         }
     }
     
+    /**
+     * During timeline backward cycle, stops all sub timelines
+     * of just visited key frame
+     */
     function stopKeyFrameSubtimelines(kf: KeyFrame, curT: Number) {
         for(t: Timeline in kf.timelines) {
             if(not t.running) {
@@ -699,23 +791,8 @@ public class Timeline {
         }
     }
     
-    function visitFrames(curT:Number, backward:Boolean, catchingUp:Boolean) : Void {
-        if (backward) {
-            var i1 = sortedFrames.size()-1-frameIndex;
-            var i2 = 0;
-            for (fi in [i1..i2 step -1]) {
-                var kf = sortedFrames[fi];
-                if (curT <= kf.time.toMillis()) {
-                    if (not (catchingUp and kf.canSkip)) {
-                        kf.visit();
-                        stopKeyFrameSubtimelines(kf, curT);
-                    }
-                    frameIndex++;
-                } else {
-                    break;
-                }
-            }
-        } else {
+    function visitFrames(curT:Number, catchingUp:Boolean) : Void {
+        if (forward) {
             var i1 = frameIndex;
             var i2 = sortedFrames.size()-1;
             for (fi in [i1..i2]) {
@@ -724,6 +801,21 @@ public class Timeline {
                     if (not (catchingUp and kf.canSkip)) {
                         kf.visit();
                         startKeyFrameSubtimelines(kf, curT);
+                    } 
+                    frameIndex++;
+                } else {
+                    break;
+                }
+            }
+        } else {
+            var i1 = sortedFrames.size()-1-frameIndex;
+            var i2 = 0;
+            for (fi in [i1..i2 step -1]) {
+                var kf = sortedFrames[fi];
+                if (curT <= kf.time.toMillis()) {
+                    if (not (catchingUp and kf.canSkip)) {
+                        stopKeyFrameSubtimelines(kf, curT);
+                        kf.visit();
                     }
                     frameIndex++;
                 } else {
@@ -739,16 +831,20 @@ public class Timeline {
                 running = true;
                 paused = false;
 
-                if (toggle and isReverse) {
-                    cycleIndex = (repeatCount-1) as Integer;
-                    lastElapsed = getTotalDur();
+                cycleIndex = 0;
+                if(forwardStart) {
+                    lastElapsed = 0;                   
+                    curPosition = 0;
                 } else {
-                    cycleIndex = 0;
-                    lastElapsed = 0;
+                    lastElapsed = getTotalDur();
+                    if(duration < 0) {
+                        throw new UnsupportedOperationException("backward-running INDEFINITE sub-timeline is not supported");
+                    } else {
+                        curPosition = duration;
+                    }
                 }
+                
                 frameIndex = 0;
-                offsetT = 0;
-                offsetValid = false;
             }
             
             override function timingEvent(fraction, totalElapsed) : Void {
