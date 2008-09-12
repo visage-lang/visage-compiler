@@ -34,7 +34,7 @@ import com.sun.javafx.api.JavafxBindStatus;
  *
  * @author Robert Field
  */
-public class JFXOverrideClassVar extends JFXTree implements TriggerTree {
+public class JFXOverrideClassVar extends JFXExpression implements TriggerTree {
     private final JFXIdent expr;
     private final JFXExpression init;
     private final JavafxBindStatus bindStatus;

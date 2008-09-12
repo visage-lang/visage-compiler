@@ -894,8 +894,6 @@ classMember
 
 	: initDefinition				{ $member = $initDefinition.value; 		}
 	| postInitDefinition			{ $member = $postInitDefinition.value; 	}
-	| (OVERRIDE variableLabel)=>
-			overrideDeclaration		{ $member = $overrideDeclaration.value;	}
 	| m=modifiers
 		(
 			  variableDeclaration		[$m.mods, $m.pos] 		{ $member = $variableDeclaration.value; }
@@ -1042,55 +1040,6 @@ catch [RecognitionException re] {
 	$value = F.at(rPos).Erroneous(errNodes.elems);
  }
  
-// ---------
-// Override.
-// Specifes that the local class overrides something that it has
-// inherited - parse this and produce the JavaFX tree that reflects it.
-//
-overrideDeclaration
-
-	returns [JFXOverrideClassVar value]
-	
-@init
-{
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
-	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
-}
-	: OVERRIDE variableLabel  i=identifier (EQ boundExpression)? onReplaceClause?
-	
-		{
-			// Build the AST
-			//
-			$value = F.at(pos($OVERRIDE)).OverrideClassVar
-						(
-							$i.value,
-							$boundExpression.value,
-							$boundExpression.status,
-							$onReplaceClause.value
-						);
-			
-			// Tree span
-			//
-			endPos($value);
-		}
-	;
-
-// Catch an error. We create an erroneous node for anything that was at the start 
-// up to wherever we made sense of the input.
-//
-catch [RecognitionException re] {
-  
-  	// First, let's report the error as the user needs to know about it
-  	//
-    reportError(re);
-
-	// Now we perform standard ANTLR recovery here
-	//
-	recover(input, re);
-	
- }
  
 // ------------
 // Init block.
@@ -1218,6 +1167,10 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
    
+   	// Used by error accumulation and override construction
+   	//
+   	JFXIdent part = null;
+   
 }
 	: variableLabel  
 	
@@ -1226,12 +1179,12 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 			{ 
 				// Build up new node in case of error
 				//
-				JFXExpression part = F.at($n.pos).Ident($n.value);
+				part = F.at($n.pos).Ident($n.value);
 				endPos(part, $n.pos);	// Was not really there
 				errNodes.append(part);
 			}
 			
-		tr=typeReference 	{ errNodes.append($tr.rtype); }
+		tr=typeReference 	{ errNodes.append($tr.rtype); }  // Accumulate for errors
 
         (
             (EQ)=>EQ boundExpression
@@ -1265,15 +1218,41 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 	    		
 	    	} else {
 	    	
-		    	$value = F.at($pos).Var
-		    				(
-		    					$name.value,
-		    					$typeReference.rtype,
-		    					$mods,
-		    					bValue,
-		    					bStatus,
-		    					oValue
-		    				);
+	    		// Here, we can have either an OVERRIDE or a striaght
+	    		// declaration, but the AST nodes are different.
+	    		//
+	    		if	(($mods.flags & JavafxFlags.OVERRIDE) == JavafxFlags.OVERRIDE) {
+	    		
+	    			// Build the AST for OVERRIDE var
+					//
+					$value = F.at($pos).OverrideClassVar
+						(
+							part,
+							bValue,
+							bStatus,
+							oValue
+						);
+						
+					// Need to check that the override did not specify at type as
+					// the type comes from whatever you are overriding
+					//
+					if	(!($typeReference.rtype instanceof JFXTypeUnknown)) {
+					
+						log.error($typeReference.rtype.pos, MsgSym.MESSAGE_JAVAFX_TYPED_OVERRIDE);
+					}
+			
+	    		} else {
+			    
+			    	$value = F.at($pos).Var
+			    				(
+			    					$name.value,
+			    					$typeReference.rtype,
+			    					$mods,
+			    					bValue,
+			    					bStatus,
+			    					oValue
+			    				);
+			    }
 	    	}
 	    	// Documentation comment (if any)
 	    	//
@@ -3634,14 +3613,7 @@ objectLiteralPart
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
-	: (OVERRIDE variableLabel)=>
-		overrideDeclaration
-	
-		{
-			$value = $overrideDeclaration.value;
-		}
-		
-	| modifiers
+	: modifiers
 		(
 			  variableDeclaration    [$modifiers.mods, $modifiers.pos]
 			  
