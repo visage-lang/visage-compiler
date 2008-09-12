@@ -861,6 +861,7 @@ public class FXLocal {
 
         public VarMemberLocation(FXObjectValue object, VarMember var) {
             super(object, var);
+            this.var = var;
         }
 
         public AbstractVariable getAbstractVariable(FXObjectValue obj) {
