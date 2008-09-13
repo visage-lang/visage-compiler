@@ -68,6 +68,10 @@ public abstract class FXClassType extends FXType implements FXMember {
         return context.equals(other.context) && name.equals(other.name);
     }
 
+    public int hashCode() {
+        return name.hashCode();
+    }
+
     /** Get list of super-classes.
      * Note we don't distinguish between classes and interfaces.
      * @param all if true include all ancestor classes (including this class).
