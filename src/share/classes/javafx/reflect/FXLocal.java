@@ -203,6 +203,10 @@ public class FXLocal {
             return makeClassRef((Class) typ);
         }
 
+        public FXClassType mirrorOf(Class cls) {
+            return makeClassRef(cls);
+        }
+
         /** Create a reference to a given Class. */
         public FXClassType makeClassRef(Class cls) {
             int modifiers = 0;

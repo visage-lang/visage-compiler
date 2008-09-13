@@ -121,4 +121,10 @@ public abstract class FXContext {
     }
 
     public abstract FXValue mirrorOf (String value);
+
+    public abstract FXValue mirrorOf(Object obj, FXType type);
+
+    public abstract FXClassType mirrorOf(Class cls);
+
+    public abstract FXObjectValue mirrorOf(Object obj);
 }
