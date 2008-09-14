@@ -3832,6 +3832,11 @@ keyFrameLiteralPart
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+	
 }
 	: k1=expression 			{ exprs.append($k1.value);	}
 	
@@ -3853,6 +3858,12 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create an Erroneous version of the node
+	//
+	JFXErroneous errNode = F.at(rPos).Erroneous(exprs.elems);
+	endPos(errNode);	
+	exprs = new ListBuffer<JFXExpression>();
+	exprs.append(errNode);
 }
 
 // -------------------
@@ -4770,6 +4781,7 @@ bracketExpression
 		( 	e1=expression
 				{
 					seqexp.append($e1.value);
+					errNodes.append($e1.value);
 				}
 		     	(
 		     		COMMA*
@@ -4779,6 +4791,7 @@ bracketExpression
 		     					e2=expression
 		     						{
 		     							seqexp.append($e2.value);
+		     							errNodes.append($e2.value);
 		     						}
 		     				)
 		     				COMMA*
@@ -4792,8 +4805,16 @@ bracketExpression
 	                    
 		     		| DOTDOT
 		     			(LT { haveLT = true; })? 
-		     			dd=expression
-		     	    	( STEP st=expression { stepEx = $st.value; } )?
+		     			
+		     			dd=expression	{ errNodes.append($dd.value); }
+		     			
+		     	    	( 
+		     	    		STEP st=expression 
+		     	    				{ 
+		     	    					stepEx = $st.value; 
+		     	    					errNodes.append($st.value); 
+		     	    				} 
+		     	    	)?
 		     	    	
 		     	    	{
 		     	    		$value = F.at(rPos).RangeSequence($e1.value, $dd.value, stepEx, haveLT);
@@ -4822,7 +4843,11 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
+
+	// Create an ERRONEOUS node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);	
 }
 
 // ----------------
@@ -4839,11 +4864,16 @@ expressionList
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+    // Work out current position in the input stream
+	//
+	int	rPos = pos();
 }
 	: e1=expression
 		
 		{
-			args.append($e1.value);
+			args.append		($e1.value);
+			errNodes.append	($e1.value);
 		}
 		
 		(
@@ -4851,7 +4881,8 @@ expressionList
 						e2=expression
 						
 						{
-							args.append($e2.value);
+							args.append		($e2.value);
+							errNodes.append	($e2.value);
 						}
 					)?
 		)*
@@ -4870,6 +4901,13 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create an ERRONEOUS node
+	//
+	JFXErroneous errNode = F.at(rPos).Erroneous(args.elems);
+	endPos(errNode);
+	args = new ListBuffer<JFXExpression>();
+	args.append(errNode);
+	
 }
 
 // ------------------------
@@ -4880,34 +4918,14 @@ expressionListOpt
 	
 	returns [ListBuffer<JFXExpression> args = new ListBuffer<JFXExpression>()]	// List of expressions we pcik up
 
-@init
-{
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
-	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
-}
-	: (LPAREN)=>LPAREN expressionList RPAREN
+	: (LPAREN)=>LPAREN expressionList
 		{
 			$args = $expressionList.args;
 		}
-		
+	   RPAREN
+
 	|	// Was not present
 	;
-// Catch an error. We create an erroneous node for anything that was at the start 
-// up to wherever we made sense of the input.
-//
-catch [RecognitionException re] {
-  
-  	// First, let's report the error as the user needs to know about it
-  	//
-    reportError(re);
-
-	// Now we perform standard ANTLR recovery here
-	//
-	recover(input, re);
-	
-}
 
 // -----
 // Types
@@ -5532,7 +5550,7 @@ timeValue
 			//
 			if	($TIME_LITERAL instanceof MissingCommonToken) {
 			
-				$valNode = F.at(pos($TIME_LITERAL)).MissingTimeLiteral();
+				$valNode = F.at(pos($TIME_LITERAL)).ErroneousTimeLiteral();
 				
 			} else {
 			
@@ -5567,7 +5585,7 @@ identifier
 			//
 			if ($IDENTIFIER instanceof MissingCommonToken) {
 			
-			    $value = F.at(pos($IDENTIFIER)).MissingIdent();
+			    $value = F.at(pos($IDENTIFIER)).ErroneousIdent();
 			    endPos($value, pos());
 			    $inError = true;
 			    
@@ -5592,7 +5610,7 @@ catch [RecognitionException re] {
 
 	// Now create an AST node that represents a missing identifier.
 	//
-	$value = F.at(pos()).MissingIdent();
+	$value = F.at(pos()).ErroneousIdent();
 	
 	// The AST has no span as the identifier isn't really there
 	//

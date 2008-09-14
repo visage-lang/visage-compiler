@@ -168,10 +168,6 @@ public class JavafxTreeScanner implements JavafxVisitor {
     public void visitModifiers(JFXModifiers tree) {
     }
 
-    @Override
-    public void visitMissingExpression(JFXMissingExpression tree) {
-    }
-
     public void visitErroneous(JFXErroneous tree) {
     }
 

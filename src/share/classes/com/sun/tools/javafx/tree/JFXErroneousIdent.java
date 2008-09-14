@@ -23,28 +23,51 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.MissingTree;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.util.Name;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
+import com.sun.tools.javac.util.List;
 /**
  * An expected, but absence, identifier inserted by the parser
  * 
  * @author Robert Field
  */
-public class JFXMissingIdent extends JFXIdent implements MissingTree {
-
-    protected JFXMissingIdent(Name name, Symbol sym) {
-        super(name, sym);
-    }
+public class JFXErroneousIdent extends JFXIdent {
 
     /**
-     * Was this tree expected, but missing, and filled-in by the parser
+     * This class is just an Erroneous node masquerading as
+     * a Block so that we can create it in the tree. So it
+     * stores a local erroneous block and uses this for the
+     * vistor pattern etc.
      */
+    private JFXErroneous errNode;
+
+    protected JFXErroneousIdent(List<? extends JFXTree> errs) {
+        errNode = new JFXErroneous(errs);
+    }
+
     @Override
-    public boolean isMissing() {
-        return true;
+    public JavafxTag getFXTag() {
+        return JavafxTag.ERRONEOUS;
+    }
+
+    @Override
+    public void accept(JavafxVisitor v) {
+        v.visitErroneous(errNode);
+    }
+
+    @Override
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+        return v.visitErroneous(errNode, d);
+    }
+
+    public List<? extends JFXTree> getErrorTrees() {
+        return errNode.getErrorTrees();
     }
     
+    @Override
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.ERRONEOUS;
+    }
     
 }

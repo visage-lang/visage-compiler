@@ -167,11 +167,6 @@ public class JavafxTreeCopier implements JavafxVisitor {
         result = maker.at(tree.pos).Modifiers(tree.flags);
     }
 
-    @Override
-    public void visitMissingExpression(JFXMissingExpression tree) {
-        result = maker.at(tree.pos).MissingExpression();
-    }
-
     public void visitErroneous(JFXErroneous tree) {
         List<? extends JFXTree> errs = copy(tree.errs);
         result = maker.at(tree.pos).Erroneous(errs);

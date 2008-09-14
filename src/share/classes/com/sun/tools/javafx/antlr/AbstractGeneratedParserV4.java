@@ -1532,14 +1532,14 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
 		// is of type Name so we use an identifier name that cannot exist in
 		// JavaFX, so that IDEs can detect it.
 		//
-		errNode = F.at(ruleStart).MissingType();
+		errNode = F.at(ruleStart).ErroneousType();
 		
 	} else {
 	
-		// Perform standar ANTLR recovery.
+		// Perform standard ANTLR recovery.
 		//
 		recover(input, re);
-                errNode = F.at(ruleStart).MissingType();
+                errNode = F.at(ruleStart).ErroneousType();
 	}
 
         // Calculate the AST span we have covered

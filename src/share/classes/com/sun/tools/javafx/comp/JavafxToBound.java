@@ -25,7 +25,6 @@ package com.sun.tools.javafx.comp;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.tools.javac.code.*;
-import static com.sun.tools.javac.code.Flags.*;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.tree.JCTree;
@@ -1530,12 +1529,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     @Override
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
         assert false : "should not be processed as part of a binding";
-    }
-
-
-    @Override
-    public void visitMissingExpression(JFXMissingExpression tree) {
-        throw new UnsupportedOperationException("Shouldn't have gotten this far.");
     }
 
     @Override

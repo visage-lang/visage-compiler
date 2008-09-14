@@ -246,17 +246,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXMissingIdent MissingIdent() {
-        JFXMissingIdent tree = new JFXMissingIdent(missingIdent, null);
+    public JFXErroneousIdent ErroneousIdent() {
+        JFXErroneousIdent tree = new JFXErroneousIdent(List.<JFXTree>nil());
         tree.pos = pos;
         return tree;
     }
 
-    public JFXMissingExpression MissingExpression() {
-        JFXMissingExpression tree = new JFXMissingExpression();
-        tree.pos = pos;
-        return tree;
-    }
 
     public JFXLiteral Literal(int tag, Object value) {
         JFXLiteral tree = new JFXLiteral(tag, value);
@@ -681,8 +676,8 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
     
-    public JFXType  MissingType() {
-        JFXType tree = new JFXMissingType();
+    public JFXType  ErroneousType() {
+        JFXType tree = new JFXErroneousType(List.<JFXTree>nil());
         tree.pos = pos;
         return tree;
     }
@@ -897,8 +892,8 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXMissingTimeLiteral MissingTimeLiteral() {
-        JFXMissingTimeLiteral tree = new JFXMissingTimeLiteral();
+    public JFXErroneousTimeLiteral ErroneousTimeLiteral() {
+        JFXErroneousTimeLiteral tree = new JFXErroneousTimeLiteral(List.<JFXTree>nil());
         tree.pos = pos;
 
         return tree;

@@ -2437,11 +2437,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     }
 
     @Override
-    public void visitMissingExpression(JFXMissingExpression tree) {
-        throw new UnsupportedOperationException("Shouldn't have gotten this far.");
-    }
-
-    @Override
     public void visitErroneous(JFXErroneous tree) {
         List<? extends JCTree> errs = translateGeneric(tree.errs);
         result = make.at(tree.pos).Erroneous(errs);

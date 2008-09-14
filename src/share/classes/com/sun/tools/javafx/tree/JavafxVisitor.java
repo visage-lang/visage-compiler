@@ -81,5 +81,4 @@ public interface JavafxVisitor {
     public void visitInterpolate(JFXInterpolate tree);
     public void visitInterpolateValue(JFXInterpolateValue tree);
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree);
-    public void visitMissingExpression(JFXMissingExpression tree);
 }

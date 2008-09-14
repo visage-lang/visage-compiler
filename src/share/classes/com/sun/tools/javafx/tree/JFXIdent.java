@@ -39,6 +39,9 @@ public class JFXIdent extends JFXExpression implements IdentifierTree {
     public Name name;
     public Symbol sym;
 
+    protected JFXIdent() {
+        this(null, null);
+    }
     protected JFXIdent(Name name, Symbol sym) {
         this.name = name;
         this.sym = sym;

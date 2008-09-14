@@ -41,5 +41,8 @@ public abstract class JFXType extends JFXExpression implements TypeTree {
         this.cardinality = cardinality;
     }
     
+    protected JFXType() {
+        this(null);
+    }
     public Cardinality getCardinality() { return cardinality; }
 }

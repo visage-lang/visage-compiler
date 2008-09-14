@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
@@ -24,33 +23,50 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.MissingTree;
-import com.sun.javafx.api.tree.TimeLiteralTree.Duration;
+import com.sun.javafx.api.tree.*;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
+
+import com.sun.tools.javac.util.List;
 
 /**
- * Specialized tree that can indicate to the walker that it was manufactured
- * in place of a time value that should have been there in the source code but
- * was erroneously not there (or perhaps the IDE is using this tree and the user
- * has not typed that in yet.
  *
  * @author jimi
  */
-public class JFXMissingTimeLiteral extends JFXTimeLiteral implements MissingTree  {
-
-    public JFXMissingTimeLiteral() {
-        super();
-    }
-
-    public JFXMissingTimeLiteral(JFXLiteral value, Duration duration) {
-        super(value, duration);
-    }
-
-   /**
-     * Was this tree expected, but missing, and filled-in by the parser
+public class JFXErroneousType extends JFXTypeUnknown {
+    
+    /**
+     * This class is just an Erroneous node masquerading as
+     * a Block so that we can create it in the tree. So it
+     * stores a local erroneous block and uses this for the
+     * vistor pattern etc.
      */
+    private JFXErroneous errNode;
+
+    protected JFXErroneousType(List<? extends JFXTree> errs) {
+        errNode = new JFXErroneous(errs);
+    }
+
     @Override
-    public boolean isMissing() {
-        return true;
+    public JavafxTag getFXTag() {
+        return JavafxTag.ERRONEOUS;
+    }
+
+    @Override
+    public void accept(JavafxVisitor v) {
+        v.visitErroneous(errNode);
+    }
+
+    @Override
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+        return v.visitErroneous(errNode, d);
+    }
+
+    public List<? extends JFXTree> getErrorTrees() {
+        return errNode.getErrorTrees();
     }
     
+    @Override
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.ERRONEOUS;
+    }
 }
