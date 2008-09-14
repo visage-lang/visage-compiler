@@ -56,19 +56,24 @@ public abstract class FXContext {
     /** Get the {@code FXType} for the "any" type. */
     public FXType getAnyType() { return anyType; }
 
-    /** Get the run-time representation of the JavaXF {@code Boolean} type. */
-    public FXType getBooleanType() {
+    /** Get the run-time representation of the JavaFX {@code Boolean} type. */
+    public FXPrimitiveType getBooleanType() {
         return FXPrimitiveType.booleanType;
     }
 
-    /** Get the run-time representation of the JavaXF {@code Integer} type. */
-    public FXType getIntegerType() {
+    /** Get the run-time representation of the JavaFX {@code Integer} type. */
+    public FXPrimitiveType getIntegerType() {
         return FXPrimitiveType.integerType;
     }
 
-    /** Get the run-time representation of the JavaXF {@code Number} type. */
-    public FXType getNumberType() {
+    /** Get the run-time representation of the JavaFX {@code Number} type. */
+    public FXPrimitiveType getNumberType() {
         return FXPrimitiveType.numberType;
+    }
+
+    /** Get the run-time representation of the JavaFX {@code Void} type. */
+    public FXPrimitiveType getVoidType() {
+        return FXPrimitiveType.voidType;
     }
 
     /** Create a helper object for building a sequence value. */

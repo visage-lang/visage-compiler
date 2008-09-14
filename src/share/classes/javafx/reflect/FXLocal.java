@@ -671,20 +671,24 @@ public class FXLocal {
         }
 
         Object unwrap(FXValue value) {
+            if (value == null)
+                return null;
             return ((Value) value).asObject();
         }
 
         /** Invoke this method on the given receiver and arguments. */
-        public FXValue invoke(FXObjectValue owner, FXValue... arg) {
+        public FXValue invoke(FXObjectValue obj, FXValue... arg) {
             int alen = arg.length;
             Object[] rargs = new Object[alen];
             for (int i = 0;  i < alen;  i++) {
                 rargs[i] = unwrap(arg[i]);
             }
             try {
-                Object result = method.invoke(unwrap(owner), rargs);
+                Object result = method.invoke(unwrap(obj), rargs);
                 Context context =
                         (Context) owner.getReflectionContext();
+                if (result == null && getType().getReturnType() == FXPrimitiveType.voidType)
+                    return null;
                 return context.mirrorOf(result, getType().getReturnType());
             }
              catch (RuntimeException ex) {

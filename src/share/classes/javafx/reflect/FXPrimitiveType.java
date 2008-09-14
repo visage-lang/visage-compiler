@@ -23,7 +23,7 @@
 
 package javafx.reflect;
 
-class FXPrimitiveType extends FXType {
+public class FXPrimitiveType extends FXType {
     Class clas;
     String name;
     FXPrimitiveType(Class clas, String name) {
@@ -32,30 +32,30 @@ class FXPrimitiveType extends FXType {
     }
     public String getName() { return name; }
 
-    static final FXType voidType =
+    static final FXPrimitiveType voidType =
         new FXPrimitiveType(Void.TYPE, "Void");
 
-    static final FXType integerType =
+    static final FXPrimitiveType integerType =
         new FXPrimitiveType(Integer.TYPE, "Integer");
 
-    static final FXType numberType =
+    static final FXPrimitiveType numberType =
         new FXPrimitiveType(Double.TYPE, "Number");
 
-    static final FXType byteType =
+    static final FXPrimitiveType byteType =
         new FXPrimitiveType(Byte.TYPE, "JavaByte");
 
-    static final FXType shortType =
+    static final FXPrimitiveType shortType =
         new FXPrimitiveType(Short.TYPE, "JavaShort");
 
-    static final FXType longType =
+    static final FXPrimitiveType longType =
         new FXPrimitiveType(Byte.TYPE, "JavaLong");
 
-    static final FXType floatType =
+    static final FXPrimitiveType floatType =
         new FXPrimitiveType(Float.TYPE, "JavaFloat");
     
-    static final FXType charType =
+    static final FXPrimitiveType charType =
         new FXPrimitiveType(Character.TYPE, "JavaChar");
 
-    static final FXType booleanType =
+    static final FXPrimitiveType booleanType =
         new FXPrimitiveType(Boolean.TYPE, "Boolean");
 };
