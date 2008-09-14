@@ -2267,6 +2267,12 @@ finallyClause
 
 	returns [JFXBlock value] // returns a JFX Expression tree
 
+@init
+{
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
+}
 	: FINALLY block
 	
 		{
@@ -2274,7 +2280,6 @@ finallyClause
 			endPos($value);
 		}
 	;
-	
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
 //
@@ -2288,8 +2293,11 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
-	// Teh only thing we can have happen is that there was no block, so there
+	// The only thing we can have happen is that there was no block, so there
 	// can be no nodes to catch
+	//
+	$value = F.at(rPos).ErroneousBlock();
+	endPos($value);
 }
  
 // ------
@@ -2306,8 +2314,19 @@ catchClause
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
 }
-	: CATCH LPAREN formalParameter RPAREN block
+	: CATCH 
+		LPAREN 
+			formalParameter 
+				{
+					errNodes.append($formalParameter.var);
+				}
+		RPAREN 
+			block
 	
 		{
 			$value = F.at(pos($CATCH)).Catch($formalParameter.var, $block.value);
@@ -2327,6 +2346,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Errnoeous node
+	//
+	$value = F.at(rPos).ErroneousCatch(errNodes.elems);
+	endPos($value);
 }
  
 // ---------------------

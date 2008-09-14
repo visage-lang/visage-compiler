@@ -140,6 +140,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
+    public JFXCatch ErroneousCatch(List<? extends JFXTree> errs) {
+        JFXCatch tree = new JFXErroneousCatch(errs);
+        tree.pos = pos;
+        return tree;
+    }
+    
     public JFXCatch Catch(JFXVar param, JFXBlock body) {
         JFXCatch tree = new JFXCatch(param, body);
         tree.pos = pos;
@@ -484,6 +490,11 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
+    public JFXBlock ErroneousBlock() {
+        JFXErroneousBlock tree = new JFXErroneousBlock(List.<JFXTree>nil());
+        tree.pos = pos;
+        return tree;
+    }
     public JFXBlock ErroneousBlock(List<? extends JFXTree> errs) {
         JFXErroneousBlock tree = new JFXErroneousBlock(errs);
         tree.pos = pos;

@@ -34,6 +34,9 @@ public class JFXCatch extends JFXTree implements CatchTree {
     public JFXVar param;
     public JFXBlock body;
 
+    protected JFXCatch() {
+        this(null, null);
+    }
     protected JFXCatch(JFXVar param, JFXBlock body) {
         this.param = param;
         this.body = body;
