@@ -1548,4 +1548,42 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
 
         return errNode;
     }
+    /**
+     * Use the current stacked followset to work out the valid tokens that
+     * can follow on from the current point in the parse, then recover by
+     * eating tokens that are not a member of the follow set we compute.
+     *
+     * This method is used whenever we wish to force a sync, even though
+     * the parser has not yet checked LA(1) for alt selection. This is useful
+     * in situations where only a subset of tokens can begin a new construct
+     * (such as the start of a new statement in a block) and we waat to
+     * proactively detect garbage so that the current rule does not exit on
+     * on an exception.
+     *
+     * We could override recover() to make this the default behavior but that
+     * is too much like using a sledge hammer to crack a nut. We want finer
+     * grained control of the recovery and error mechanisms.
+     */
+    protected void syncToGoodToken()
+    {
+        try {
+            // Compute the followset that is in context whereever we are in the
+            // rule chain/stack
+            //
+            BitSet follow = computeContextSensitiveRuleFOLLOW();
+
+            // Consume all tokens in the stream until we find a member of the follow
+            // set, which means the next production should be guarenteed to be happy.
+            //
+            while (! follow.member(input.LA(1)) ) {
+                input.consume();
+            }
+        } catch (Exception e) {
+
+          // Just ignore any errors here, we will just let the recognizer
+          // try to resync as normal - something must be very screwed.
+          //
+        }
+
+    }
 }

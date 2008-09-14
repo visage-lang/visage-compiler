@@ -1434,10 +1434,6 @@ block
 	//
 	ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>(); 
 	
-	// For building invidual statements
-	//
-	JFXExpression val = null;
-
 	// Used to accumulate a list of anything that we manage to build up in the parse
 	// in case of error.
 	//
@@ -1448,40 +1444,20 @@ block
 	int	rPos	= pos();
 }
 	
-	: LBRACE 
-	
+	: LBRACE syncBlock[stats]
 		(
-			 statement possiblyOptSemi
-	
-				{
-					// If the current statement is not the first one
-					// then append it to the list. This logic leaves us with 
-					// the AST for the last statement in the block
-					// in our val variable, which we need to build the
-					// AST for the block.
-					//
-					if	(val != null)
-					{
-						stats.append(val);
-					}
-					
-					// Pick up the AST for the staemetn we just parsed.
-					//
-					val = $statement.value;
-					errNodes.append($statement.value);	// In case of error
-				}
-				
-			| SEMI
+			  blkValue=blockElement[$blkValue.value, stats]
+													{errNodes.append($blkValue.value);}
+			  syncBlock[stats]
 	   )*
 	
 	  RBRACE
 	  
 	  	{
-		  	$value = F.at(pos($LBRACE)).Block(0L, stats.toList(), val);
+		  	$value = F.at(pos($LBRACE)).Block(0L, stats.toList(), $blkValue.value);
 	  		endPos($value);
 	  	}
 	;
-
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
 //
@@ -1499,6 +1475,142 @@ catch [RecognitionException re] {
 	// masquerading as a JFXBlock.
 	//
 	$value = F.at(rPos).ErroneousBlock(errNodes.elems);
+	endPos($value);
+ }
+
+// ---------------------------- 
+// Statement/Expression resync.
+// If left to itself, the block rule cannot easilly resync to the start of a statement
+// because we will throw an exception on trying to work out if we can insert or
+// delete a token.
+//
+// If we use this rule after the open '{' and at the end of every complete/recoverable
+// statement contained in a block, then it will be called unconditionally (it always
+// matches the next token because it is the upsilon set). Most importantly, the followset
+// stack will contain the follow set that is allowed to start a new statement. Hence our
+// init rule just uses the trick of syncing to the next good statement, and throwing out
+// any garbled expressions with a neat error. 
+// 
+// We record the token stream start position on rule entry, and upon rule exit
+// if we consumed any tokens, then we add an Erroneous node to the AST and everyone is
+// happy.
+//
+syncBlock[ListBuffer<JFXExpression> stats]
+@init
+{
+	// Start of rule for error node production
+	//
+	int	rPos	= pos();
+	
+	// Consume any garbled tokens that come before the next statement
+	// or the end of the block. The only slight risk here is that the
+	// block becomes MORE inclusive than it should but as the script is
+	// in error, this is a better course than throwing out the block
+	// when the error occurs and screwing up the whole meaning of
+	// the rest of the token stream.
+	//
+	syncToGoodToken();
+}
+@after
+{
+	// If we consume any tokens at this point then we create
+	// an ERRONEOUS AST node for the IDE to monitor and add it
+	// in to the staement list.
+	//
+	if	(rPos != pos()) {
+	
+		// Span all the tokesn we had to consume.
+		//
+		JFXErroneous errNode = F.at(rPos).Erroneous();
+		endPos(errNode);
+		$stats.append(errNode);
+		
+		// Tell the script author where we think there is a screwed up expression
+		//
+		log.error(rPos, MsgSym.MESSAGE_JAVAFX_GARBLED_EXPRESSION);
+	}
+}
+	:	// Deliberately match nothing, causing this rule always to be 
+		// entered.
+	;
+	
+// -----------------
+// Block expression
+// A single element (statement/expression etc) of a block, separated
+// into it's own rule so that erroneous statements do not abort the
+// entire block.
+//
+blockElement [JFXExpression val, ListBuffer<JFXExpression> stats]
+
+returns [JFXExpression value] // All statements return an expression tree
+
+@init
+{
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+}
+	: s=statement 
+		{
+			// If the current statement is not the first one
+			// then append it to the list. This logic leaves us with 
+			// the AST for the last statement in the block
+			// in our val variable, which we need to build the
+			// AST for the block.
+			//
+			if	($val != null) {
+				$stats.append($val);
+			}
+					
+			// Pick up the AST for the statement we just parsed.
+			//
+			if	(! ($s.value instanceof JFXErroneous)) {
+					
+				// Only make the result of the block be this statement
+				// if it was not erroneous, then when the IDE Attributes
+				// the AST, the result of the block will be null or some
+				// value that can be typed, and the AST will not throw NPE
+				// when typing the block
+				//
+				$value = $s.value;
+					 
+			} else {
+					
+				stats.append($s.value);	// Ensure we include Erroneous
+				$value = null;
+			}
+					
+			errNodes.append($s.value);	// In case of error
+			
+		}
+			possiblyOptSemi
+
+	| SEMI	// Empty statements are just ignored
+
+	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+	// Create an erroneousBlock, which is basically an Erroneous node
+	// masquerading as a JFXBlock.
+	//
+	$value = F.at(rPos).Erroneous();
 	endPos($value);
  }
  

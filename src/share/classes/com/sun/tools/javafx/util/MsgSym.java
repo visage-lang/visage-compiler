@@ -380,4 +380,5 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_BAD_TRY = "javafx.bad.try";
     public static final String MESSAGE_JAVAFX_ORPHANED_FINALLY = "javafx.orphaned.finally";
     public static final String MESSAGE_JAVAFX_ORPHANED_CATCH = "javafx.orphaned.catch";
+    public static final String MESSAGE_JAVAFX_GARBLED_EXPRESSION = "javafx.garbled.expression";
 }

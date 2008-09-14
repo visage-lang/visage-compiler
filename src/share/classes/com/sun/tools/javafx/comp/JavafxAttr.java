@@ -1753,6 +1753,7 @@ public class JavafxAttr implements JavafxVisitor {
                     falsepartType = tree.falsepart.type = tree.truepart.type;
             }
         }
+
         result = check(tree,
                        capture(condType(tree.pos(), tree.cond.type,
                                         tree.truepart.type, falsepartType)),
