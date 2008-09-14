@@ -2452,7 +2452,7 @@ expression
  {
  	// Used for error reporting
  	//
- 	int rPos = 0;
+ 	int rPos = pos();
  }
 	: ifExpression
 
@@ -2532,7 +2532,7 @@ forExpression
 
  	// Used for error reporting
  	//
- 	int rPos = 0;
+ 	int rPos = pos();
 
 }
 	: FOR 
@@ -2640,6 +2640,7 @@ catch [RecognitionException re] {
 	// But we create an Erroneous version of the node
 	//
 	$value = F.at(sPos).ErroneousInClause(errNodes.elems);
+	endPos($value);
 }
 
 // -----------------------
@@ -2663,15 +2664,23 @@ ifExpression
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+ 	// Used for error reporting
+ 	//
+ 	int rPos = pos();
 
 }
-	: IF LPAREN econd=expression  RPAREN 
+	: IF LPAREN 
+	
+			econd=expression  	{ errNodes.append($econd.value);	}
+			
+		RPAREN 
 	
 
-		THEN?  statement 			{ sVal = $statement.value;		}
+		THEN?  statement 			{ sVal = $statement.value;	errNodes.append(sVal);	}
 			
 			(
-				(ELSE)=>elseClause	{ eVal = $elseClause.value;	}
+				(ELSE)=>elseClause	{ eVal = $elseClause.value;	errNodes.append(eVal);	}
 			)?
 			
 		{
@@ -2698,6 +2707,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// But we create an Erroneous version of the node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
 }
 
 // -----------
@@ -2709,10 +2722,9 @@ elseClause
 	returns [JFXExpression value]	// The expression tree that represents the Else expression
 @init
 {
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
+	// Used for error productiions
 	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	int	rPos = pos();
 }
 	: ELSE 
 		(
@@ -2732,6 +2744,12 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// We can only get an error here if we had an ELSE clause but
+	// the statement was missing or we could not reach it for too much 
+	// junk, so nothing to put in the errornode
+	//
+	$value = F.at(rPos).Erroneous();
+	endPos($value);
 }	
 
 // -----------
@@ -2756,6 +2774,9 @@ assignmentExpression
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 	: lhs=assignmentOpExpression 
+			{
+				errNodes.append($lhs.value);	// For error production
+			}
 		(     
 			  (EQ)=> EQ rhs=expression
 			  
@@ -2789,6 +2810,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create an Erroneous version of the node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
 }
 
 assignmentOpExpression
@@ -2808,7 +2833,7 @@ assignmentOpExpression
 
 }
 
-	: lhs=andExpression					
+	: lhs=andExpression			{ errNodes.append($lhs.value); }		
 	  
 		(     assignOp rhs=expression
 		
@@ -2818,7 +2843,12 @@ assignmentOpExpression
 					$value = F.at(rPos).Assignop($assignOp.op, $lhs.value, $rhs.value);
 				}
 				
-           	| SUCHTHAT such=andExpression (TWEEN i=andExpression)?
+           	| SUCHTHAT 
+           		such=andExpression { errNodes.append($such.value); }
+           	
+           			(
+           				TWEEN i=andExpression
+           			)?
            	
            		{
            			// AST FOR Interpolation
@@ -2851,6 +2881,11 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
+
+	// Create an Erroneous version of the node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
 	
 }
 
@@ -2884,7 +2919,6 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
 }
 
 // -------------
@@ -2912,6 +2946,7 @@ andExpression
 			
 			{
 				$value = $e1.value;
+				errNodes.append($e1.value);
 			}
 	  		( 
 	  			AND e2=orExpression
@@ -2935,6 +2970,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create an Erroneous version of the node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
 }
 
 // -----------
@@ -2961,6 +3000,7 @@ orExpression
 
 		{
 			$value = $e1.value;
+			errNodes.append($e1.value);
 		}
 	  	( 
 	  		OR e2=typeExpression 
@@ -2984,6 +3024,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create an Erroneous version of the node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
 }
 
 // ----------------
@@ -3006,7 +3050,7 @@ typeExpression
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
-	: relationalExpression		
+	: relationalExpression		{ errNodes.append($relationalExpression.value); }
 
 		(
 			  INSTANCEOF itn=type
@@ -3040,7 +3084,11 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
+
+	// Create an Erroneous version of the node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);	
 }
 
 // -----------
@@ -3063,9 +3111,8 @@ relationalExpression
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
-	: a1=additiveExpression	{ $value = $a1.value;	}
+	: a1=additiveExpression	{ $value = $a1.value; errNodes.append($a1.value); }
 		(
-			{ rPos = pos(); }	// Use operator as position for AST
 			
 			relOps   a2=additiveExpression
 			  	
@@ -3087,7 +3134,11 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
+
+	// Create an Erroneous version of the node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);	
 }
 
 // ---------------------
@@ -3123,7 +3174,6 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
 }
 
 // ---------------------
@@ -3149,13 +3199,10 @@ additiveExpression
 	: m1=multiplicativeExpression	
 		{ 
 			$value = $m1.value; 
+			errNodes.append($m1.value);
 		}
 		(
-			
-			
 		    (arithOps)=>
-		    
-		    	{ rPos = pos(); }	// Use operator as position for AST
 		    	
 		    	arithOps   m2=multiplicativeExpression
 
@@ -3178,6 +3225,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create an Erroneous version of the node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
 }
 
 // --------------------
@@ -3202,7 +3253,6 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
 }
 
 // --------------------------
@@ -3225,7 +3275,7 @@ multiplicativeExpression
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 
 }
-	: u1=unaryExpression	{ $value = $u1.value; }
+	: u1=unaryExpression	{ $value = $u1.value; errNodes.append($u1.value); }
 		(
 			{ rPos = pos(); }	// Use operator as position for AST
 			
@@ -3250,6 +3300,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create an Erroneous version of the node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
 }
 
 // -------------------------
@@ -3283,7 +3337,7 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
+
 }
 
 // -----------------	
@@ -3309,6 +3363,7 @@ unaryExpression
 	: se=suffixedExpression
 
 		{
+			errNodes.append($se.value);
 			$value = $se.value;
 		}
 		
@@ -3338,7 +3393,11 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
+
+	// Create an Erroneous version of the node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
 }
 
 // -------------------------
@@ -3391,7 +3450,7 @@ suffixedExpression
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
-	: pe=postfixExpression
+	: pe=postfixExpression	{ errNodes.append($pe.value); }
 		( 
 			  { input.LT(-1).getType() != RBRACE }?=> PLUSPLUS
 			  
@@ -3423,6 +3482,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create an Erroneous version of the node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
 }
 
 // ------------------------
@@ -3458,16 +3521,17 @@ postfixExpression
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
 
-	: pe=primaryExpression	{ $value = $pe.value; }
+	: pe=primaryExpression	{ $value = $pe.value; errNodes.append($pe.value); }
 	
 		( 
 			  DOT 
 				( 
-					  n1=name
+					  n1=name	// This does not seem right - wrong precedence for x.func().y ?
 					  
 					  {
 							$value = F.at(pos($DOT)).Select($value, $n1.value);
 							endPos($value);
+							errNodes.append($value);
 					  }
 					  
 					//TODO:		 | CLASS 
@@ -3475,10 +3539,15 @@ postfixExpression
 
 			| (LPAREN)=>LPAREN 
 
-					expressionList RPAREN
+					expressionList 
 			
 				{
 					$value = F.at(sPos).Apply(null, $value, $expressionList.args.toList());
+					errNodes.append($value);
+					
+				}
+				RPAREN
+				{
 					endPos($value);
 				}
 				
@@ -3492,13 +3561,24 @@ postfixExpression
 				}
 	
 				(
-					  n2=name PIPE 
+					  n2=name 
+					  	{
+					  		// Build up new node in case of error
+							//
+							JFXExpression part = F.at($n2.pos).Ident($n2.value);
+							errNodes.append(part);
+							endPos(part);
+						}
+					  
+					  PIPE 
 					  
 					  { rPos = pos(); }	// Use expression as position for AST
 					  
 					  e1=expression r3=RBRACKET
 					  
 					  {
+					  	errNodes.append($e1.value);
+					  	
 					  	// Build a list of clauses as AST builder expects this
 					  	//
 					  	ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb();
@@ -3520,7 +3600,7 @@ postfixExpression
                   		endPos($value, pos($r3));
 					  }
 					  
-					| first=expression
+					| first=expression	{ errNodes.append($first.value); }
                             
 						(
 							  r1=RBRACKET
@@ -3541,6 +3621,7 @@ postfixExpression
 									  	(
 									  		last=expression
 									  		{
+									  			errNodes.append($last.value);
 									  			lastExpr = $last.value;
 									  		}
 									  	)?
@@ -3577,7 +3658,11 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
+
+	// Create an Erroneous version of the node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
 }
 
 // -------------------
@@ -3611,11 +3696,19 @@ primaryExpression
 	: qualname
 		{
 			$value = $qualname.value;
+			errNodes.append($value);
 		}
 		(
 			(LBRACE)=>LBRACE  
 			  	
 					o1=objectLiteral
+						{
+							// Accumulate in case of error
+							//
+							for (JFXTree t : $o1.parts) {
+								errNodes.append(t);
+							}
+						}
 						
 			RBRACE
 	              
@@ -3686,10 +3779,20 @@ primaryExpression
 			tv=timeValue
             {
                 sVal = $tv.valNode;
+                errNodes.append($tv.valNode);
             }
 		RPAREN 
 		LBRACE 
-			k=keyFrameLiteralPart 
+			k=keyFrameLiteralPart
+			
+				{
+					// Accumulate in case of error
+					//
+					for ( JFXTree t : $k.exprs) {					
+						errNodes.append(t);
+					}
+					
+				} 
 		RBRACE
 		
 		{
@@ -3709,7 +3812,11 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
+
+	// Create an Erroneous version of the node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);	
 }
 
 // ------------
