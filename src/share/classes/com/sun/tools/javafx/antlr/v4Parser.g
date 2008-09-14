@@ -2363,16 +2363,23 @@ boundExpression
 
 @init 
 { 
-	boolean isLazy 			= false; 	// Signals presence of LAZY
 	boolean isBidirectional	= false; 	// Signals presence of INVERSE
 
 	// Used to accumulate a list of anything that we manage to build up in the parse
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
 }
 
 	: BIND e1=expression 
+	
+		{
+			errNodes.append($e1.value);	// For erroneous node
+		}
 	
 			(
 				(WITH)=>WITH 
@@ -2395,8 +2402,7 @@ boundExpression
 				
 				// Update the status
 				//
-				$status	= isBidirectional? isLazy? LAZY_BIDIBIND : BIDIBIND
-	  									   : isLazy? LAZY_UNIDIBIND :  UNIDIBIND;
+				$status	= isBidirectional? BIDIBIND : UNIDIBIND;
 			}
 	
 	| e2=expression
@@ -2424,6 +2430,14 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Signal as if unbound
+	//
+	$status	= UNBOUND;
+	
+	// Create the erroneous node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
 }	
 
 // -----------
@@ -2438,13 +2452,7 @@ expression
  {
  	// Used for error reporting
  	//
- 	int ePos = 0;
- 	
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
-	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
-
+ 	int rPos = 0;
  }
 	: ifExpression
 
@@ -2495,7 +2503,13 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
+
+	// An error at this point in the expression tree means we
+	// will not have anythig to accumulate for an erroneous node
+	// so we span from the start to the recovery point.
+	//
+	$value = F.at(rPos).Erroneous();
+	endPos($value);
 }
 
 // ------------------------
@@ -2516,18 +2530,32 @@ forExpression
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 
+ 	// Used for error reporting
+ 	//
+ 	int rPos = 0;
+
 }
 	: FOR 
 		LPAREN 
 		
-			i1=inClause			{  clauses.append($i1.value); }
-			(COMMA i2=inClause	{  clauses.append($i2.value); } )* 
+			i1=inClause			
+				{  
+					clauses.append($i1.value); 
+					errNodes.append($i1.value); // For erroneous node
+				}
+			(COMMA i2=inClause	
+					{  
+						clauses.append($i2.value); 
+						errNodes.append($i2.value); // For erroneous node
+					} 
+			)* 
 			
 		RPAREN 
 		
 		statement
 				
 			{
+				errNodes.append($statement.value); 
 		 		$value = F.at(pos($FOR)).ForExpression(clauses.toList(), $statement.value);
 			}
 		
@@ -2550,6 +2578,12 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Though we seemed to start out down a FOR statement, there was an error
+	// that we could not recover from by simple insert/delete token, so we
+	// span the erroneous trees
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
 }
 
 // ----------
