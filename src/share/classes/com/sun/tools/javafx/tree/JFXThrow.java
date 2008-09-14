@@ -33,8 +33,11 @@ public class JFXThrow extends JFXExpression implements ThrowTree {
 
     public JFXExpression expr;
 
+    protected JFXThrow() {
+        this(null);
+    }
     protected JFXThrow(JFXExpression expr) {
-        this.expr = (JFXExpression) expr;
+        this.expr = expr;
     }
 
     @Override

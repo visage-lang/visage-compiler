@@ -25,20 +25,23 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
-import java.util.List;
+
+import com.sun.tools.javac.util.List;
+
 
 /**
  * for (name in seqExpr where whereExpr) bodyExpr
  */
 public class JFXErroneousForExpressionInClause extends JFXForExpressionInClause
-        
-            implements  ForExpressionInClauseTree,
-                        ErroneousTree
-{
-    /** List of error nodes accumulated by this node
-     */
-    protected List<? extends JFXTree> errs;
 
+{
+    /**
+     * This class is just an Erroneous node masquerading as
+     * a Block so that we can create it in the tree. So it
+     * stores a local erroneous block and uses this for the
+     * vistor pattern etc.
+     */
+    private JFXErroneous errNode;
     /**
      * Constructor that allows us to provide any nodes we found that may or may
      * not be in error.
@@ -46,11 +49,21 @@ public class JFXErroneousForExpressionInClause extends JFXForExpressionInClause
      * @param errs
      */
     protected JFXErroneousForExpressionInClause(List<? extends JFXTree> errs) {
-        this.errs = errs;
+        errNode = new JFXErroneous(errs);
     }
     
     public List<? extends JFXTree> getErrorTrees() {
-        return errs;
+        return errNode.getErrorTrees();
+    }
+
+    @Override
+    public void accept(JavafxVisitor v) {
+        v.visitErroneous(errNode);
+    }
+
+    @Override
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
+        return v.visitErroneous(errNode, d);
     }
 
     @Override

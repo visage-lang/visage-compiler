@@ -48,6 +48,11 @@ public class JFXBlock extends JFXExpression implements BlockExpressionTree {
         this.value = value;
     }
 
+    protected JFXBlock() {
+        this.stats = null;
+        this.flags = 0;
+        this.value = null;
+    }
     public java.util.List<ExpressionTree> getStatements() {
         return convertList(ExpressionTree.class, stats);
     }

@@ -44,6 +44,10 @@ public class JFXOnReplace extends JFXTree implements OnReplaceTree {
     private JFXVar newElements;
 
     
+    public JFXOnReplace() {
+        this(null, null, null, 0, null, null);
+    }
+
     public JFXOnReplace( JFXVar oldValue, JFXBlock body) {
         this(oldValue, null, null, 0, null, body);
     }

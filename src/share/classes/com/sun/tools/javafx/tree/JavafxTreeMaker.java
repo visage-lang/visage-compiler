@@ -178,7 +178,11 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
-
+    public JFXThrow ErroneousThrow() {
+        JFXThrow tree = new JFXErroneousThrow();
+        tree.pos = pos;
+        return tree;
+    }
     public JFXFunctionInvocation Apply(List<JFXExpression> typeargs,
                        JFXExpression fn,
                        List<JFXExpression> args)
@@ -480,6 +484,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
+    public JFXBlock ErroneousBlock(List<? extends JFXTree> errs) {
+        JFXErroneousBlock tree = new JFXErroneousBlock(errs);
+        tree.pos = pos;
+        return tree;
+    }
+        
     public JFXFunctionDefinition FunctionDefinition(
             JFXModifiers modifiers,
             Name name,
@@ -691,6 +701,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     public JFXOverrideClassVar TriggerWrapper(JFXIdent expr, JFXOnReplace onr) {
         JFXOverrideClassVar tree = new JFXOverrideClassVar(expr, null, null, onr, null);
+        tree.pos = pos;
+        return tree;
+    }
+    
+   public JFXOnReplace ErroneousOnReplace(List<? extends JFXTree> errs) {
+        JFXOnReplace tree = new JFXErroneousOnReplace(errs);
         tree.pos = pos;
         return tree;
     }

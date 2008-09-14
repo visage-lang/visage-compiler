@@ -1048,7 +1048,7 @@ catch [RecognitionException re] {
 //
 initDefinition
 
-	returns [JFXInitDefinition value]	// The initialisation block has a specialized JFX tree node
+	returns [JFXTree value]	// The initialisation block has a specialized JFX tree node
 
 @init
 {
@@ -1056,6 +1056,10 @@ initDefinition
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
 }
 	: INIT block
 	
@@ -1083,6 +1087,9 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// If we took an exception, then there will not be a block to construct
+	//
+	$value = F.at(rPos).Erroneous();
  }
  
 // Post initialization.
@@ -1090,7 +1097,7 @@ catch [RecognitionException re] {
 //
 postInitDefinition
 
-	returns [JFXPostInitDefinition value]	// Post initialization has its own specialized JFX tree node
+	returns [JFXTree value]	// Post initialization has its own specialized JFX tree node
 
 @init
 {
@@ -1098,6 +1105,10 @@ postInitDefinition
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
 }
 
 	: POSTINIT block
@@ -1125,6 +1136,9 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// If we took an exception, then there will not be a block to construct
+	//
+	$value = F.at(rPos).Erroneous();
  }
  
 //triggerDefinition
@@ -1338,6 +1352,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Because we have raised the error, we won't perform codegen, but we can
+	// leave the list in tact so that the IDE has something to work with. The list
+	// is optional, so even if we have gathered none, we are still good.
+	//
  }
  
 // -----------------
@@ -1377,6 +1395,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Because both name and typeReference will recover with something
+	// sensible, we don't ned to create anything here. In theory, we can't
+	// even get here.
+	//
  }
  
 // ------
@@ -1421,12 +1443,15 @@ block
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
 }
 	
 	: LBRACE 
 	
 		(
-			statement possiblyOptSemi
+			 statement possiblyOptSemi
 	
 				{
 					// If the current statement is not the first one
@@ -1443,6 +1468,7 @@ block
 					// Pick up the AST for the staemetn we just parsed.
 					//
 					val = $statement.value;
+					errNodes.append($statement.value);	// In case of error
 				}
 				
 			| SEMI
@@ -1469,6 +1495,11 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create an erroneousBlock, which is basically an Erroneous node
+	// masquerading as a JFXBlock.
+	//
+	$value = F.at(rPos).ErroneousBlock(errNodes.elems);
+	endPos($value);
  }
  
 // -----------
@@ -1487,11 +1518,10 @@ statement
 	returns [JFXExpression value] // All statements return an expression tree
 	
 @init
-{
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
+{	
+	// Start of rule for error node production/
 	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	int	rPos	= pos();
 }
 	: insertStatement		{ $value = $insertStatement.value; 								}
 	| deleteStatement		{ $value = $deleteStatement.value; 								}
@@ -1517,6 +1547,11 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Here, we can only have got junk, as badly formed statement elements
+	// will be caught in their own rules.
+	//
+	$value = F.at(rPos).Erroneous();
+	endPos($value);
  }
 
 // -----------  
@@ -1534,13 +1569,38 @@ onReplaceClause
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
 }
 	: ON REPLACE oldv=paramNameOpt 
+						{ 
+							if	($oldv.var != null)
+							{
+								errNodes.append($oldv.var);
+							}
+						}
 	
 		(
-			  (LBRACKET first=paramName DOTDOT last=paramName RBRACKET)?
+			  (
+			  	LBRACKET 
+			  		first=paramName 
+						{ 
+							errNodes.append($first.var);
+						}
+			  		DOTDOT 
+			  		last=paramName 
+						{ 
+							errNodes.append($last.var);
+						}
+			  	RBRACKET
+			  )?
 			 
 				 EQ newElements=paramName
+						{ 
+							errNodes.append($newElements.var);
+						}
 		)? 
 		
 	
@@ -1566,7 +1626,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
-	$value = null;
+	// Construct an erroneous version of the expected class
+	//
+	$value = F.at(rPos).ErroneousOnReplace(errNodes.elems);
+	endPos($value);
 	
 }
  
@@ -1585,21 +1648,6 @@ paramNameOpt
     
     |	{ $var = null; }
     ;
-    
-// Catch an error. We create an erroneous node for anything that was at the start 
-// up to wherever we made sense of the input.
-//
-catch [RecognitionException re] {
-  
-  	// First, let's report the error as the user needs to know about it
-  	//
-    reportError(re);
-
-	// Now we perform standard ANTLR recovery here
-	//
-	recover(input, re);
-	
-}
  
 // ---------
 // Parameter.
@@ -1671,6 +1719,8 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	$modifiers = 0L;
+	$pos = semiPos();
  }
  
 // ------	
@@ -1683,10 +1733,9 @@ throwStatement
 	
 @init
 {
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
+	// Start of rule for error node production/
 	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	int	rPos	= pos();
 }
 	: THROW expression
 	
@@ -1712,7 +1761,11 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
-	
+
+	// Now we need an error node
+	//	
+	$value = F.at(rPos).ErroneousThrow();
+	endPos($value);
  }
  
 // ---------------
@@ -1728,8 +1781,18 @@ whileStatement
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
 }
-	: WHILE LPAREN expression RPAREN 
+	: WHILE 
+		LPAREN 
+			expression 
+				{
+					errNodes.append($expression.value);
+				}
+		RPAREN 
 	
 		 loopVal=statement
 			
@@ -1757,6 +1820,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create the erroneous node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
  }
  
 // -------
@@ -1773,12 +1840,20 @@ insertStatement
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
+	
 }
-	: INSERT elem=expression
+	: INSERT elem=expression	{ errNodes.append($elem.value); }
+	
 		(
 			  INTO eseq=expression
 			  
 			  	{
+			  		errNodes.append($eseq.value);
+			  		
 			  		// Form 1, INTO
 			  		//
 					$value = F.at(pos($INSERT)).SequenceInsert($eseq.value, $elem.value, null, false);
@@ -1787,6 +1862,9 @@ insertStatement
 			| BEFORE isfi=indexedSequenceForInsert
 			
 				{
+					if ($isfi.seq != null) errNodes.append($isfi.seq);
+					if ($isfi.idx != null) errNodes.append($isfi.idx);
+										
 					// Form 2, BEFORE
 					//
 					$value = F.at(pos($INSERT)).SequenceInsert($isfi.seq, $elem.value, $isfi.idx, false);
@@ -1795,6 +1873,9 @@ insertStatement
 			| AFTER isfi=indexedSequenceForInsert
 			
 				{
+					if ($isfi.seq != null) errNodes.append($isfi.seq);
+					if ($isfi.idx != null) errNodes.append($isfi.idx);
+					
 					// Form 3, AFTER
 					//
 					$value = F.at(pos($INSERT)).SequenceInsert($isfi.seq, $elem.value, $isfi.idx, true);
@@ -1820,6 +1901,11 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create the erroneous node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
+	
  }
  
 // ----------------
@@ -1837,6 +1923,10 @@ indexedSequenceForInsert
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
 }
 
 	: primaryExpression 			
@@ -1847,13 +1937,16 @@ indexedSequenceForInsert
 			$seq = $primaryExpression.value;
 		}
 		
-	  LBRACKET expression RBRACKET
+	  LBRACKET expression 
 	  
 	  	{
 	  		// Index expressions
 	  		//
 	  		$idx = $expression.value;
+	  		errNodes.append($expression.value);
 	  	}
+	  	
+	  RBRACKET
 	  		
  	;
 
@@ -1870,6 +1963,11 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Only index can throw us out here really
+	// Create the erroneous node
+	//
+	$idx = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($idx);
  }
  
 // -----------------	
@@ -1886,8 +1984,16 @@ deleteStatement
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
 }
 	: DELETE e1=expression
+	
+		{
+			errNodes.append($e1.value);
+		}
 
 	   ( 
 	   		  (FROM)=>FROM e2=expression
@@ -1923,6 +2029,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create the erroneous node
+	//
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
  }
  
 // -----------------
@@ -1934,10 +2044,9 @@ returnStatement
 	returns [JFXExpression value]	// RETURN returns a JFX Expression tree
 @init
 {
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
+	// Start of rule for error node production/
 	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	int	rPos	= pos();
 }
 	: RETURN 
 		
@@ -1948,8 +2057,8 @@ returnStatement
 			  		$value = F.at(pos($RETURN)).Return($expression.value);	
 			  	}
 			  	
-			| (possiblyOptSemi)=>possiblyOptSemi //((SEMI)=>SEMI)	// Can't have a SEMI be optional here as we must eitehr consume
-							// the next expression or not.
+			| (possiblyOptSemi)=>possiblyOptSemi	// Can't have a SEMI be optional here as we must eitehr consume
+													// the next expression or not.
 				{	
 					$value = F.at(pos($RETURN)).Return(null);				
 				}
@@ -1975,6 +2084,10 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create the erroneous node
+	//
+	$value = F.at(rPos).Erroneous();
+	endPos($value);
  }
  
 // -----------------------------
@@ -1997,10 +2110,15 @@ tryStatement
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
+	
 }
 	: TRY block 			
 		(
 		 	  f1=finallyClause
+		 	  
 	   		| (
 	   				catchClause
 	   				
@@ -4755,9 +4873,13 @@ typeReference
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+    // Work out current position in the input stream
+	//
+	int	rPos = pos();
 }
  	: COLON type
- 	
+ 			  
  		{
  			$rtype = $type.rtype;
  		}
@@ -4765,7 +4887,8 @@ typeReference
  	| // Untyped element, the AST needs to reflect that
  	
  		{ 
- 			$rtype = F.TypeUnknown(); 
+ 			$rtype = F.at(rPos).TypeUnknown(); 
+ 			endPos($rtype);
  		}
 
  	;
@@ -4782,6 +4905,13 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// To avoid the complications of what to create class wise if
+	// we get an error here, we create a dummy unknown type. Because
+	// we log the error, we won't perform codegen, but the IDE will
+	// have something to work with.
+	//
+	$rtype = F.at(rPos).TypeUnknown();
+	endPos($rtype);
 }
 
 // -------------------------
