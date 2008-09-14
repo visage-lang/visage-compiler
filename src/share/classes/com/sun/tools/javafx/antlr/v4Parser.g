@@ -2095,6 +2095,7 @@ catch [RecognitionException re] {
 // Parse and build the AST for the stabdard try sequence
 // TODO: Come back and relax the syntax requirements so as to catch malformed structure at semantic level
 //       I.E. "Too many finally claues for try at nnn"
+//
 tryStatement
 
 	returns [JFXExpression value]	// returns a JFX Expression tree
@@ -2114,36 +2115,130 @@ tryStatement
 	//
 	int	rPos	= pos();
 	
+	// Count the number of finally clauses
+	//
+	int	finallyCount = 0;
+	
+	// Count the number of catch clauses
+	//
+	int catchCount = 0;
+	
+	// Only error out on finally/catch out of sequence fo rthe first out
+	// of sequence error.
+	//
+	boolean showSequenceErr = true;
+	
+	// Record start postion of finally clauses for correct error
+	// position.
+	//
+	int fPos = 0;
+	
 }
 	: TRY block 			
-		(
-		 	  f1=finallyClause
+			{ 
+				errNodes.append($block.value); 
+			}
+		( 
+		
+			// Predicate is neccessary to disambiguate associated catch and finally
+			// blocks from orphaned blocks handled in alts 2 and 3 of the main rule
+			//
+			(CATCH|FINALLY)=>
+		
+			(
+				  { 
+					// Record input positoni in case of error.
+					//
+					fPos = pos();
+				  }
+		 	  		f1=finallyClause	
+		 	  		
+		 	  		{ 
+		 	  			errNodes.append($f1.value); 
+		 	  		
+		 	  			if	(finallyCount != 0) {
+		 	  		
+		 	  				// Can only have one finally clause, so log an error
+		 	  				//
+			   				log.error(fPos, MsgSym.MESSAGE_JAVAFX_FINALLY_TOOMANY);
+		 	  			}
+		 	  			finallyCount++; 
+		 	  		}
 		 	  
-	   		| (
+	   			| (
 	   				catchClause
 	   				
 	   				{
+	   					if	(finallyCount != 0 && showSequenceErr)	{
+	   					
+	   						// We came across a catchClause, but we have already seen the finally clause.
+	   						// We only error out the first time we detect the error so we don't throw
+	   						// the same error for each catch clause that is out of order.
+	   						//
+	   						showSequenceErr = false;
+				   			log.error(fPos, MsgSym.MESSAGE_JAVAFX_FINALLY_NOTLAST);
+	   					}
 	   					// Accumulate the catch clauses
 	   					//
 	   					caught.append($catchClause.value);
+	   					errNodes.append($catchClause.value);
+	   					catchCount++;
 	   				}
-	   		  )+ 
-	   			
-	   			( 
-	   				f1=finallyClause
-	   			)?   
-	   	)
+	   		  	  )					
+	   		) 
+	   	)*
 	   	
 	   	{
-	   		// Build the AST
+	   		// Now - check for malformed constructs and make the AST node or the
+	   		// erroneous node as appropriate
 	   		//
-	   		$value = F.at(pos($TRY)).Try($block.value, caught.toList(), $f1.value);
+	   		if	(catchCount == 0 && finallyCount == 0)
+	   		{
+	   			// We must see at least one catch or one finally, or we can't build
+	   			// the AST
+	   			//
+	   			log.error(pos($TRY), MsgSym.MESSAGE_JAVAFX_BAD_TRY);
+	   			$value = F.at(pos($TRY)).Erroneous(errNodes.elems);
+	   			endPos($value);
+	   			
+	   		} else {
 	   		
-	   		// Tree span
-	   		//
-	   		endPos($value);
+		   		// Build the AST
+		   		//
+		   		$value = F.at(pos($TRY)).Try($block.value, caught.toList(), $f1.value);
+	   		
+	   			// Tree span
+	   			//
+	   			endPos($value);
+	   		}
 	   	}
+	
+		// Erroneouds constructs
+		//
+	|	fe=finallyClause
+	
+			{
+				// Dangling finally clause belongs to no try block
+				//
+				errNodes.append($fe.value);
+	   			$value = F.at(rPos).Erroneous(errNodes.elems);
+	   			endPos($value);
+	   			log.error(rPos, MsgSym.MESSAGE_JAVAFX_ORPHANED_FINALLY);
+			}
+			
+	|	ce=catchClause
+
+			{
+				// Dangling catch clause belongs to no try block
+				//
+				errNodes.append($ce.value);
+	   			$value = F.at(rPos).Erroneous(errNodes.elems);
+	   			endPos($value);
+	   			log.error(rPos, MsgSym.MESSAGE_JAVAFX_ORPHANED_CATCH);
+			}
+
 	;
+	
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
 //
@@ -2157,12 +2252,17 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Create the erroneous node
+	//
+	$value = F.at(rPos).Erroneous();
+	endPos($value);
  }
  
 // -------
 // FINALLY
 // Parse the finally clause of a trey...catch...finally sequence
 //
+
 finallyClause
 
 	returns [JFXBlock value] // returns a JFX Expression tree
@@ -2188,6 +2288,8 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	// Teh only thing we can have happen is that there was no block, so there
+	// can be no nodes to catch
 }
  
 // ------

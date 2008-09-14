@@ -375,4 +375,9 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_IMPORT_BAD_NAME = "javafx.import.bad.name";
     public static final String MESSAGE_JAVAFX_FUNC_UNNAMED = "javafx.func.unnamed";
     public static final String MESSAGE_JAVAFX_TYPED_OVERRIDE = "javafx.typed.override";
+    public static final String MESSAGE_JAVAFX_FINALLY_TOOMANY = "javafx.finally.toomany";
+    public static final String MESSAGE_JAVAFX_FINALLY_NOTLAST = "javafx.finally.notlast";
+    public static final String MESSAGE_JAVAFX_BAD_TRY = "javafx.bad.try";
+    public static final String MESSAGE_JAVAFX_ORPHANED_FINALLY = "javafx.orphaned.finally";
+    public static final String MESSAGE_JAVAFX_ORPHANED_CATCH = "javafx.orphaned.catch";
 }
