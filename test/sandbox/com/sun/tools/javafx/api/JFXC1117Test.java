@@ -200,15 +200,8 @@ public class JFXC1117Test extends TestSuite {
             osw.close();
             tempFile = File.createTempFile("JFXC1117TestFailure-", ".fx");
             copy(file, tempFile);
+System.out.println("Setup for file : " + tempFile.getAbsolutePath());
 
-            //long t = new Date().getTime();
-            //
-            //File jim = new File("/home/jimi/jt", Long.toString(t) + ".fx");
-            //FileOutputStream fosj = new FileOutputStream(jim);
-            //OutputStreamWriter oswj = new OutputStreamWriter(fosj);
-            //oswj.write(script);
-            //oswj.close();
-            //
         }
 
         @Override
@@ -238,6 +231,7 @@ public class JFXC1117Test extends TestSuite {
             Iterable<? extends JavaFileObject> files = fm.getJavaFileObjects(file);
             JavafxcTask task = instance.getTask(null, fm, dl, null, files);
             assertNotNull("no task returned", task);
+
             Iterable<? extends UnitTree> result1 = task.parse();
             assertTrue("no compilation units returned", result1.iterator().hasNext());
             Iterable<? extends UnitTree> result2 = null;

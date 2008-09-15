@@ -383,6 +383,8 @@ public class JavafxTreeInfo {
     /** Skip parens and return the enclosed expression
      */
     public static JFXTree skipParens(JFXTree tree) {
+
+        if (tree == null) return tree;
         if (tree.getFXTag() == JavafxTag.PARENS)
             return skipParens((JFXParens)tree);
         else
@@ -425,7 +427,12 @@ public class JavafxTreeInfo {
     }
 
     public static Symbol symbolFor(JFXTree node) {
+        if (node == null)
+        {
+            return null;
+        }
         node = skipParens(node);
+
         switch (node.getFXTag()) {
         case VAR_DEF:
             return ((JFXVar) node).sym;

@@ -1566,16 +1566,30 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      */
     protected void syncToGoodToken()
     {
+        int mark = -1;
+
         try {
             // Compute the followset that is in context whereever we are in the
             // rule chain/stack
             //
             BitSet follow = computeContextSensitiveRuleFOLLOW();
 
+            input.mark();
+
             // Consume all tokens in the stream until we find a member of the follow
             // set, which means the next production should be guarenteed to be happy.
             //
             while (! follow.member(input.LA(1)) ) {
+
+                if  (input.LA(1) == Token.EOF) {
+
+                    // Looks like we didn't find anything a tall that can help us here
+                    // so we need to rewind to where we wer and let normal error handling
+                    // bail out.
+                    //
+                    input.rewind();
+                    return;
+                }
                 input.consume();
             }
         } catch (Exception e) {
@@ -1583,6 +1597,14 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
           // Just ignore any errors here, we will just let the recognizer
           // try to resync as normal - something must be very screwed.
           //
+        }
+        finally {
+
+            // Always release the mark we took
+            //
+            if  (mark != -1) {
+                input.release(mark);
+            }
         }
 
     }

@@ -1377,7 +1377,20 @@ formalParameter
 	: name typeReference
 	
 		{ 
-			$var = F.at($name.pos).Param($name.value, $typeReference.rtype);
+			if ($name.inError) {
+			
+				// Looks like the name was missing, create an erroneous var instead
+				// Build up new node in case of error
+				//
+				JFXExpression part = F.at($name.pos).Ident($name.value);
+				errNodes.append(part);
+				endPos(part);
+				errNodes.append($typeReference.rtype);
+				
+			} else {
+			
+				$var = F.at($name.pos).Param($name.value, $typeReference.rtype);
+			}
 			endPos($var); 
 		}
 	;

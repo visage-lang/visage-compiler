@@ -45,6 +45,11 @@ public class JFXVar extends JFXExpression implements VariableTree {
     private final JavafxBindStatus bindStatus;
     private final JFXOnReplace onReplace;
 
+    protected JFXVar() {
+
+        this(null, null, null, null, null, null, null);
+    }
+
     protected JFXVar(Name name,
             JFXType jfxtype,
             JFXModifiers mods,
