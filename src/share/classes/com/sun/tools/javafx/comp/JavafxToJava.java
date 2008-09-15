@@ -1436,14 +1436,12 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCExpression rhs = translate(tree.rhs, tree.type);
             JFXSequenceIndexed si = (JFXSequenceIndexed)tree.lhs;
             JCExpression index = translate(si.getIndex());
-            JCExpression seq = translate(si.getSequence(), Wrapped.InLocation);
             if (types.isArray(si.getSequence().type)) {
-                JCFieldAccess select = make.Select(seq, defs.getMethodName);
-                JCMethodInvocation get = make.at(diagPos).Apply(null, select, 
-                                                                List.<JCExpression>nil());
-                JCArrayAccess aa = make.Indexed(get, index);
+                JCExpression seq = translate(si.getSequence(), Wrapped.InNothing);
+                JCArrayAccess aa = make.Indexed(seq, index);
                 result = make.at(diagPos).Assign(aa, rhs);
             } else {
+                JCExpression seq = translate(si.getSequence(), Wrapped.InLocation);
                 JCFieldAccess select = make.Select(seq, defs.setMethodName);
                 List<JCExpression> args = List.of(index, rhs);
                 result = make.at(diagPos).Apply(null, select, args);
@@ -1515,16 +1513,14 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
             // assignment of a sequence element --  s[i]+=8, call the sequence set method
             JFXSequenceIndexed si = (JFXSequenceIndexed)tree.lhs;
-            JCExpression seq = translate(si.getSequence(), Wrapped.InLocation);
             JCExpression index = translate(si.getIndex());
             if (types.isArray(si.getSequence().type)) {
-                JCFieldAccess select = make.Select(seq, defs.getMethodName);
-                JCMethodInvocation get = make.at(diagPos).Apply(null, select, 
-                                                                List.<JCExpression>nil());
-                JCArrayAccess aa = make.Indexed(get, index);
+                JCExpression seq = translate(si.getSequence(), Wrapped.InNothing);
+                JCArrayAccess aa = make.Indexed(seq, index);
                 result = make.at(diagPos).Assignop(tree.getOperatorTag(), 
                                                    aa, rhs);
             } else {
+                JCExpression seq = translate(si.getSequence(), Wrapped.InLocation);
                 JCFieldAccess select = make.Select(seq, defs.setMethodName);
                 List<JCExpression> args = List.of(index, combined);
                 result = make.at(diagPos).Apply(null, select, args);
