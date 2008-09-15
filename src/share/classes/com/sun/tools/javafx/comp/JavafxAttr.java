@@ -2863,7 +2863,11 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
-        assert false : "should not reach here";
+
+        // Note that this method can be reached legitimately if visitErroneous is
+        // called and the error nodes contain an objectLiteralPart. Hence this
+        // just sets the result to errType.
+        //
         result = syms.errType;
     }
 
