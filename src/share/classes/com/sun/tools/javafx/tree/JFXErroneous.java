@@ -30,7 +30,7 @@ import com.sun.tools.javac.util.List;
 
 public class JFXErroneous extends JFXExpression implements ErroneousTree {
 
-    public List<? extends JFXTree> errs;
+    private List<? extends JFXTree> errs;
 
     protected JFXErroneous(List<? extends JFXTree> errs) {
         this.errs = errs;

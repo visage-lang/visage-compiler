@@ -168,7 +168,7 @@ public class JavafxTreeCopier implements JavafxVisitor {
     }
 
     public void visitErroneous(JFXErroneous tree) {
-        List<? extends JFXTree> errs = copy(tree.errs);
+        List<? extends JFXTree> errs = copy(tree.getErrorTrees());
         result = maker.at(tree.pos).Erroneous(errs);
     }
 

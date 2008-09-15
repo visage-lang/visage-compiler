@@ -459,39 +459,62 @@ public class JavafxTreeInfo {
      * @param tree  The tree node
      */
     public static int getStartPos(JFXTree tree) {
-        if (tree == null)
+        if (tree == null) {
             return Position.NOPOS;
-        
-        switch(tree.getFXTag()) {
-        case APPLY:
-            return getStartPos(((JFXFunctionInvocation) tree).meth);
-        case ASSIGN:
-            return getStartPos(((JFXAssign) tree).lhs);
-        case PLUS_ASG: case MINUS_ASG: case MUL_ASG:
-        case DIV_ASG: case MOD_ASG:
-            return getStartPos(((JFXAssignOp) tree).lhs);
-        case OR: case AND: 
-        case EQ:
-        case NE: case LT: case GT:
-        case LE: case GE: 
-        case PLUS:
-        case MINUS: case MUL: case DIV:
-        case MOD:
-            return getStartPos(((JFXBinary) tree).lhs);
-        case SELECT:
-            return getStartPos(((JFXSelect) tree).selected);
-        case TYPETEST:
-            return getStartPos(((JFXInstanceOf) tree).expr);
-        case POSTINC:
-        case POSTDEC:
-            return getStartPos(((JFXUnary) tree).arg);
-        case ERRONEOUS: {
-            JFXErroneous node = (JFXErroneous)tree;
-            if (node.errs != null && node.errs.nonEmpty())
-                return getStartPos(node.errs.head);
         }
+
+        switch (tree.getFXTag()) {
+
+            case APPLY:
+                return getStartPos(((JFXFunctionInvocation) tree).meth);
+
+            case ASSIGN:
+                return getStartPos(((JFXAssign) tree).lhs);
+
+            case PLUS_ASG:
+            case MINUS_ASG:
+            case MUL_ASG:
+            case DIV_ASG:
+            case MOD_ASG:
+                return getStartPos(((JFXAssignOp) tree).lhs);
+
+            case OR:
+            case AND:
+            case EQ:
+            case NE:
+            case LT:
+            case GT:
+            case LE:
+            case GE:
+            case PLUS:
+            case MINUS:
+            case MUL:
+            case DIV:
+            case MOD:
+                return getStartPos(((JFXBinary) tree).lhs);
+
+            case SELECT:
+                return getStartPos(((JFXSelect) tree).selected);
+
+            case TYPETEST:
+                return getStartPos(((JFXInstanceOf) tree).expr);
+
+            case POSTINC:
+            case POSTDEC:
+                return getStartPos(((JFXUnary) tree).arg);
+
+            case ERRONEOUS:
+
+                // Erroneous nodes are created with the correct start
+                // position in the source as their pos position, so we do
+                // not need to interrogate the list.
+                //
+                return tree.pos;
+
+            default:
+
+                return tree.pos;
         }
-        return tree.pos;
     }
 
     /** The end position of given tree, if it is a block with

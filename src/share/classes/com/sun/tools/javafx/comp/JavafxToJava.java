@@ -2438,7 +2438,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     @Override
     public void visitErroneous(JFXErroneous tree) {
-        List<? extends JCTree> errs = translateGeneric(tree.errs);
+        List<? extends JCTree> errs = translateGeneric(tree.getErrorTrees());
         result = make.at(tree.pos).Erroneous(errs);
     }
 

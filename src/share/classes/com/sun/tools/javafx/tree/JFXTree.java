@@ -32,9 +32,12 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
 
+import com.sun.tools.javac.util.List;
+
 //TODO for now we need this or classes like DiagnosticPosition are unhappy
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.source.tree.TreeVisitor;
+
 
 
 /**
@@ -138,6 +141,13 @@ public abstract class JFXTree extends JCTree implements Tree, Cloneable, Diagnos
         return false;
     }
     
+    /**
+     * Allow all nodes to become equivalent to Erronous by being abel to
+     * return any Erroneous error nodes they are holding (default they don't have any).
+     */
+    public List<? extends JFXTree> getErrorTrees() {
+        return null;
+    }
     /****
      * Make JCTree happy
      */

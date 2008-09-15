@@ -421,7 +421,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
     @Override
     public void visitErroneous(JFXErroneous tree) {
-        memberEnter(tree.errs, env);
+        memberEnter(tree.getErrorTrees(), env);
     }
     
     @Override
