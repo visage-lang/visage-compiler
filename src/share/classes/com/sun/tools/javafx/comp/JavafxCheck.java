@@ -403,11 +403,8 @@ public class JavafxCheck {
         if (types.isSequence(req)) {  
             req = types.elementType(req);
             pSequenceness = Sequenceness.REQUIRED;
-            if (types.isArray(found)) {
-                found = types.elementType(found);
-            }
         }
-        if (types.isSequence(found)) {  
+        if (types.isSequence(found) || types.isArray(found)) {  
             if (pSequenceness != Sequenceness.DISALLOWED) {
                 found = types.isSequence(found) ? types.elementType(found) : types.elemtype(found);
             } else {
@@ -587,7 +584,7 @@ public class JavafxCheck {
      *  @param t             The type to be checked.
      */
     Type checkClassType(DiagnosticPosition pos, Type t) {
-	if (t.tag != CLASS && t.tag != ERROR && t.tag != ARRAY)
+	if (t.tag != CLASS && t.tag != ERROR)
             return typeTagError(pos,
                                 JCDiagnostic.fragment(MsgSym.MESSAGE_TYPE_REQ_CLASS),
                                 (t.tag == TYPEVAR)
