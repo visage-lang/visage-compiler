@@ -32,7 +32,7 @@ public class FXIntegerValue extends FXValue implements FXLocal.Value {
 
     public FXIntegerValue(int value, FXType type) {
         this.value = value;
-        this.value = value;
+        this.type = type;
     }
 
     public int intValue() { return value; }

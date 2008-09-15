@@ -33,7 +33,7 @@ public class FXBooleanValue  extends FXValue implements FXLocal.Value {
 
     public FXBooleanValue(boolean value, FXType type) {
         this.value = value;
-        this.value = value;
+        this.type = type;
     }
 
     public boolean booleanValue() { return value; }

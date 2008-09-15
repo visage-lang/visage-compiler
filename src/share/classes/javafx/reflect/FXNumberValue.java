@@ -32,7 +32,7 @@ public class FXNumberValue extends FXValue implements FXLocal.Value {
 
     public FXNumberValue(double value, FXType type) {
         this.value = value;
-        this.value = value;
+        this.type = type;
     }
 
     public double doubleValue() { return value; }
