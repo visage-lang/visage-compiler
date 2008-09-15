@@ -1097,6 +1097,14 @@ public class JavafxAttr implements JavafxVisitor {
         int forClausesOldSize = forClauses.size();
 
         for (ForExpressionInClauseTree cl : tree.getInClauses()) {
+
+            // Don't try to examine erroneous in clauses. We don't wish to
+            // place the entire for expression into error nodes, just because
+            // one or more in clauses was in error, so we jsut skip any
+            // erroneous ones.
+            //
+            if  (cl instanceof JFXErroneousForExpressionInClause) continue;
+
             JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
             forClauses.add(clause);
             JFXVar var = clause.getVar();

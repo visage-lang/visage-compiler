@@ -51,7 +51,8 @@ public class JFXErroneousForExpressionInClause extends JFXForExpressionInClause
     protected JFXErroneousForExpressionInClause(List<? extends JFXTree> errs) {
         errNode = new JFXErroneous(errs);
     }
-    
+
+    @Override
     public List<? extends JFXTree> getErrorTrees() {
         return errNode.getErrorTrees();
     }

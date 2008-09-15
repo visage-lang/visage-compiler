@@ -146,7 +146,7 @@ public abstract class JFXTree extends JCTree implements Tree, Cloneable, Diagnos
      * return any Erroneous error nodes they are holding (default they don't have any).
      */
     public List<? extends JFXTree> getErrorTrees() {
-        return null;
+        return List.<JFXTree>nil();
     }
     /****
      * Make JCTree happy
