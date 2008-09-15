@@ -1,0 +1,7 @@
+test/should-fail/maxint.fx:8: Integer number too big: 2147483648.
+var i : Integer = 2147483648;	// Should fail
+                  ^
+test/should-fail/maxint.fx:9: Integer number too small: -2147483648.
+var m : Integer = -2147483648;	// Should fail
+                  ^
+2 errors
