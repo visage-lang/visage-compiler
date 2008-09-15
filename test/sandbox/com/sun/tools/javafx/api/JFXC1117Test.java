@@ -230,6 +230,7 @@ public class JFXC1117Test extends TestSuite {
         
         @Override
         protected void runTest() throws Exception {
+            System.out.println("Running " + reportErrorString);
             savedException = null;
             JavafxcTool instance = new JavafxcTool();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
