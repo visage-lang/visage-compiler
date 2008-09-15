@@ -620,6 +620,11 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     public JFXInstanciate Instanciate(JavaFXKind kind, JFXExpression ident,
             List<JFXExpression> args,
             List<JFXTree> defs) {
+
+        // Don't try and process object literals that have erroneous elements
+        //
+        if  (ident instanceof JFXErroneous) return null;
+
         ListBuffer<JFXObjectLiteralPart> partsBuffer = ListBuffer.lb();
         ListBuffer<JFXTree> defsBuffer = ListBuffer.lb();
         ListBuffer<JFXVar> varsBuffer = ListBuffer.lb();
