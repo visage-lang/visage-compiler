@@ -2808,7 +2808,7 @@ ifExpression
 		THEN?  statement 			{ sVal = $statement.value;	errNodes.append(sVal);	}
 			
 			(
-				(ELSE)=>elseClause	{ eVal = $elseClause.value;	errNodes.append(eVal);	}
+				(ELSE)=>e1=elseClause	{ eVal = $e1.value;	errNodes.append(eVal);	}
 			)?
 			
 		{
@@ -2821,6 +2821,26 @@ ifExpression
 			endPos($value);
 			
 		}
+		
+	| // Deliberately allow an orphaned else (non-orphaned ones will be
+	  // pick ed up by the IF clause above) so it can be parsed an attributed
+	  // for the AST (downstream tools may require this), but then throw it
+	  // out as being orphaned.
+	  //
+	  ee=elseClause
+	  
+	  	{
+	  		// Accumulate for the error node
+	  		//
+	  		errNodes.append($ee.value);
+	  		$value = F.at(rPos).Erroneous(errNodes.elems);
+	  		endPos($value);
+	  		
+	  		// Tell the script author (and the IDE) about their issue
+	  		//
+	  		log.error(rPos, MsgSym.MESSAGE_JAVAFX_ORPHANED_ELSE);
+	  	}
+	
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
