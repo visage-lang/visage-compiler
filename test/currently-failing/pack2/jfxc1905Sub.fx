@@ -1,7 +1,7 @@
-/* 
+/*
  * JFXC-1905 : Compiler rejects a legal override of a inherited function
  * @compilefirst ../pack1/jfxc1905Sup.fx
- * @test 
+ * @test/fail
  *
  */
 
