@@ -2547,7 +2547,7 @@ boundExpression
 //
 catch [RecognitionException re] {
   
-  	// First, let's report the error as the user needs to know about it
+   	// First, let's report the error as the user needs to know about it
   	//
     reportError(re);
 
@@ -2562,8 +2562,11 @@ catch [RecognitionException re] {
 	// Create the erroneous node
 	//
 	$value = F.at(rPos).Erroneous(errNodes.elems);
+	
+	// We discovered nothing in the list and so the endpos
+	// is the same as the rule start position.
 	endPos($value);
-}	
+}
 
 // -----------
 // expression.

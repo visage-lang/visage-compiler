@@ -32,7 +32,6 @@ import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.code.Type;
 
 import com.sun.tools.javac.util.Options;
 import com.sun.tools.javafx.tree.JFXInterpolateValue;
@@ -1155,8 +1154,17 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * @param end The character position in the input stream that matches the end of the tree
      */
     void endPos(JCTree tree, int end) {
-        if (genEndPos)
-            endPositions.put(tree, end);
+
+        // Check that we are not trying to create an endPos that is before the
+        // start of the tree. This can happen if we were in error recovery mode from
+        // a missing element, and ended up taking the end position of the token
+        // in the stream prior to the place where the missing element shoudl be. In that
+        // case we are creating an erroneous node and it will be empty of error nodes,
+        // so gets an end positon the same as its start position.
+        //
+        if (genEndPos) {
+            endPositions.put(tree, end >= tree.getStartPosition() ? end : tree.getStartPosition());
+        }
     }
 
     /**
