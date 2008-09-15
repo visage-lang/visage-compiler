@@ -694,6 +694,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
+    public JFXType TypeArray(JFXExpression className) {
+        JFXType tree = new JFXTypeClass(className, Cardinality.ARRAY, null);
+        tree.pos = pos;
+        return tree;
+    }
+
     public JFXType TypeFunctional(List<JFXType> params,
             JFXType restype,
             Cardinality cardinality) {

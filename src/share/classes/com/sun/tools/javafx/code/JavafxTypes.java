@@ -69,10 +69,19 @@ public class JavafxTypes extends Types {
                 && erasure(type) == syms.javafx_SequenceTypeErasure;
     }
 
+    public Type arrayType(Type elemType) {
+        return new ArrayType(elemType, syms.arrayClass) {
+            public String toString() {
+                return "["+getComponentType()+"]";
+            }
+        };
+    }
+
     public Type sequenceType(Type elemType) {
         return sequenceType(elemType, true);
     }
-     public Type sequenceType(Type elemType, boolean withExtends) {
+
+    public Type sequenceType(Type elemType, boolean withExtends) {
         if (elemType.isPrimitive())
             elemType = boxedClass(elemType).type;
         if (withExtends)
@@ -84,6 +93,9 @@ public class JavafxTypes extends Types {
     }
 
     public Type elementType(Type seqType) {
+        if (isArray(seqType)) {
+            return ((ArrayType)seqType).getComponentType();
+        }
         Type elemType = seqType.getTypeArguments().head;
         if (elemType instanceof CapturedType)
             elemType = ((CapturedType) elemType).wildcard;

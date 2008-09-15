@@ -881,7 +881,7 @@ public class JavafxAttr implements JavafxVisitor {
                          &&  initType != syms.javafx_IntegerType
                          &&  initType != syms.javafx_BooleanType)
                     initType = types.boxedClass(initType).type;
-                else if (types.isArray(initType)) {
+                else if (false && types.isArray(initType)) { // chris: keep array type. don't change it to sequence
                     initType = types.elemtype(initType);
                     if (initType.isPrimitive()) {
                         if (initType == syms.shortType ||
@@ -1119,8 +1119,13 @@ public class JavafxAttr implements JavafxVisitor {
             if (base == null)
                 base = types.asSuper(exprType, syms.iterableType.tsym);
             if (base == null) {
-                log.warning(expr, MsgSym.MESSAGE_JAVAFX_ITERATING_NON_SEQUENCE);
-                elemtype = exprType;
+                if (types.isArray(exprType)) {
+                    // chris: we allow array here - at least for now...
+                    elemtype = types.elementType(exprType);
+                } else {
+                    log.warning(expr, MsgSym.MESSAGE_JAVAFX_ITERATING_NON_SEQUENCE);
+                    elemtype = exprType;
+                }
             } else {
                 List<Type> iterableParams = base.allparams();
                 if (iterableParams.isEmpty()) {
@@ -1296,150 +1301,164 @@ public class JavafxAttr implements JavafxVisitor {
         Type clazztype = chk.checkClassType(
             clazz.pos(), attribType(clazz, env), true);
         chk.validate(clazz);
-        if (!clazztype.tsym.isInterface() &&
-                   clazztype.getEnclosingType().tag == CLASS) {
-            // Check for the existence of an apropos outer instance
-            rs.resolveImplicitThis(tree.pos(), env, clazztype);
+        if (clazztype.tag == ARRAY) {
+            // var array = new [Number](100);
+            // Attribute constructor arguments.
+            if (tree.getArgs().size() != 1) {
+                // error
+                // fix me:
+                throw new Error("bad array size argument"); 
+            } else {
+                attribExpr(tree.getArgs().get(0), env, syms.javafx_IntegerType);
+            }
+            tree.type = clazztype;
+            result = clazztype;
+        } else {
+            if (!clazztype.tsym.isInterface() &&
+                clazztype.getEnclosingType().tag == CLASS) {
+                // Check for the existence of an apropos outer instance
+                rs.resolveImplicitThis(tree.pos(), env, clazztype);
+            }
+            
+            // Attribute constructor arguments.
+            List<Type> argtypes = attribArgs(tree.getArgs(), localEnv);
+            
+            // If we have made no mistakes in the class type...
+            if (clazztype.tag == CLASS) {
+                // Check that class is not abstract
+                if (cdef == null &&
+                    (clazztype.tsym.flags() & (ABSTRACT | INTERFACE)) != 0) {
+                    log.error(tree.pos(), MsgSym.MESSAGE_ABSTRACT_CANNOT_BE_INSTANTIATED,
+                              clazztype.tsym);
+                } else if (cdef != null && clazztype.tsym.isInterface()) {
+                    // Check that no constructor arguments are given to
+                    // anonymous classes implementing an interface
+                    if (!argtypes.isEmpty())
+                        log.error(tree.getArgs().head.pos(), MsgSym.MESSAGE_ANON_CLASS_IMPL_INTF_NO_ARGS);
+                    
+                    
+                    // Error recovery: pretend no arguments were supplied.
+                    argtypes = List.nil();
+                }
+                
+                // Resolve the called constructor under the assumption
+                // that we are referring to a superclass instance of the
+                // current instance (JLS ???).
+                else {
+                    localEnv.info.selectSuper = cdef != null;
+                    localEnv.info.varArgs = false;
+                    
+                    if (! types.isJFXClass(clazztype.tsym))
+                        tree.constructor = rs.resolveConstructor(
+                                                                 tree.pos(), localEnv, clazztype, argtypes, null);
+                    /**
+                       List<Type> emptyTypeargtypes = List.<Type>nil();
+                       tree.constructor = rs.resolveConstructor(
+                       tree.pos(), localEnv, clazztype, argtypes, emptyTypeargtypes);
+                       Type ctorType = checkMethod(clazztype,
+                       tree.constructor,
+                       localEnv,
+                       tree.getArguments(),
+                       argtypes,
+                       emptyTypeargtypes,
+                       localEnv.info.varArgs);
+                       if (localEnv.info.varArgs)
+                       assert ctorType.isErroneous();
+                       * ***/
+                    
+                }
+
+                if (cdef != null) {
+                    // We are seeing an anonymous class instance creation.
+                    // In this case, the class instance creation
+                    // expression
+                    //
+                    //    E.new <typeargs1>C<typargs2>(args) { ... }
+                    //
+                    // is represented internally as
+                    //
+                    //    E . new <typeargs1>C<typargs2>(args) ( class <empty-name> { ... } )  .
+                    //
+                    // This expression is then *transformed* as follows:
+                    //
+                    // (1) add a STATIC flag to the class definition
+                    //     if the current environment is static
+                    // (2) add an extends or implements clause
+                    // (3) add a constructor.
+                    //
+                    // For instance, if C is a class, and ET is the type of E,
+                    // the expression
+                    //
+                    //    E.new <typeargs1>C<typargs2>(args) { ... }
+                    //
+                    // is translated to (where X is a fresh name and typarams is the
+                    // parameter list of the super constructor):
+                    //
+                    //   new <typeargs1>X(<*nullchk*>E, args) where
+                    //     X extends C<typargs2> {
+                    //       <typarams> X(ET e, args) {
+                    //         e.<typeargs1>super(args)
+                    //       }
+                    //       ...
+                    //     }
+                    //               if (JavafxResolve.isStatic(env)) cdef.mods.flags |= STATIC;
+                    
+                    // always need to be static, because they will have generated static members
+                    cdef.mods.flags |= STATIC;
+                    
+                    //              now handled in class processing
+                    //                if (clazztype.tsym.isInterface()) {
+                    //                    cdef.implementing = List.of(clazz);
+                    //                } else {
+                    //                    cdef.extending = clazz;
+                    //                }
+                    
+                    if (cdef.sym == null)
+                        enter.classEnter(cdef, env);
+                    
+                    attribDecl(cdef, localEnv);
+                    attribClass(cdef.pos(), null, cdef.sym);
+                    
+                    // Reassign clazztype and recompute constructor.
+                    clazztype = cdef.sym.type;
+                    Symbol sym = rs.resolveConstructor(
+                                                       tree.pos(), localEnv, clazztype, argtypes,
+                                                       List.<Type>nil(), true, false);
+                    
+                    tree.constructor = sym;
+                }
+                
+                //         if (tree.constructor != null && tree.constructor.kind == MTH)
+                owntype = clazz.type;  // this give declared type, where clazztype would give anon type
+            }
+            
+            for (JFXObjectLiteralPart localPt : tree.getParts()) {
+                JFXObjectLiteralPart part = (JFXObjectLiteralPart)localPt;
+                Symbol memberSym = rs.findIdentInType(env, clazz.type, part.name, VAR);
+                memberSym = rs.access(memberSym, localPt.pos(), clazz.type, part.name, true);
+                memberSym.complete();
+                Type memberType = memberSym.type;
+                if (!(memberSym instanceof VarSymbol) ) {
+                    log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_INVALID_ASSIGNMENT);
+                    memberType = Type.noType;
+                }
+                attribExpr(part.getExpression(), localEnv, memberType);
+                if (memberSym instanceof VarSymbol) {
+                    VarSymbol v = (VarSymbol) memberSym;
+                    WriteKind kind = part.isBound() ? WriteKind.INIT_BIND : WriteKind.INIT_NON_BIND;
+                    chk.checkAssignable(part.pos(), v, part, clazz.type, localEnv, kind);
+                    chk.checkBidiBind(part.getExpression(), part.getBindStatus(), localEnv);
+                }
+                part.type = memberType;
+                part.sym = memberSym;
+            }
+            
+            result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
+            localEnv.info.scope.leave();
         }
-
-        // Attribute constructor arguments.
-        List<Type> argtypes = attribArgs(tree.getArgs(), localEnv);
-
-        // If we have made no mistakes in the class type...
-        if (clazztype.tag == CLASS) {
-            // Check that class is not abstract
-            if (cdef == null &&
-                (clazztype.tsym.flags() & (ABSTRACT | INTERFACE)) != 0) {
-                log.error(tree.pos(), MsgSym.MESSAGE_ABSTRACT_CANNOT_BE_INSTANTIATED,
-                          clazztype.tsym);
-            } else if (cdef != null && clazztype.tsym.isInterface()) {
-                // Check that no constructor arguments are given to
-                // anonymous classes implementing an interface
-                if (!argtypes.isEmpty())
-                    log.error(tree.getArgs().head.pos(), MsgSym.MESSAGE_ANON_CLASS_IMPL_INTF_NO_ARGS);
-
-
-                // Error recovery: pretend no arguments were supplied.
-                argtypes = List.nil();
-            }
-
-            // Resolve the called constructor under the assumption
-            // that we are referring to a superclass instance of the
-            // current instance (JLS ???).
-            else {
-                localEnv.info.selectSuper = cdef != null;
-                localEnv.info.varArgs = false;
-
-                if (! types.isJFXClass(clazztype.tsym))
-                    tree.constructor = rs.resolveConstructor(
-                        tree.pos(), localEnv, clazztype, argtypes, null);
-                /**
-                List<Type> emptyTypeargtypes = List.<Type>nil();
-                tree.constructor = rs.resolveConstructor(
-                    tree.pos(), localEnv, clazztype, argtypes, emptyTypeargtypes);
-                Type ctorType = checkMethod(clazztype,
-                                            tree.constructor,
-                                            localEnv,
-                                            tree.getArguments(),
-                                            argtypes,
-                                            emptyTypeargtypes,
-                                            localEnv.info.varArgs);
-                if (localEnv.info.varArgs)
-                    assert ctorType.isErroneous();
-                 * ***/
-
-            }
-
-            if (cdef != null) {
-                // We are seeing an anonymous class instance creation.
-                // In this case, the class instance creation
-                // expression
-                //
-                //    E.new <typeargs1>C<typargs2>(args) { ... }
-                //
-                // is represented internally as
-                //
-                //    E . new <typeargs1>C<typargs2>(args) ( class <empty-name> { ... } )  .
-                //
-                // This expression is then *transformed* as follows:
-                //
-                // (1) add a STATIC flag to the class definition
-                //     if the current environment is static
-                // (2) add an extends or implements clause
-                // (3) add a constructor.
-                //
-                // For instance, if C is a class, and ET is the type of E,
-                // the expression
-                //
-                //    E.new <typeargs1>C<typargs2>(args) { ... }
-                //
-                // is translated to (where X is a fresh name and typarams is the
-                // parameter list of the super constructor):
-                //
-                //   new <typeargs1>X(<*nullchk*>E, args) where
-                //     X extends C<typargs2> {
-                //       <typarams> X(ET e, args) {
-                //         e.<typeargs1>super(args)
-                //       }
-                //       ...
-                //     }
-//               if (JavafxResolve.isStatic(env)) cdef.mods.flags |= STATIC;
-
-                // always need to be static, because they will have generated static members
-                cdef.mods.flags |= STATIC;
-
-//              now handled in class processing
-//                if (clazztype.tsym.isInterface()) {
-//                    cdef.implementing = List.of(clazz);
-//                } else {
-//                    cdef.extending = clazz;
-//                }
-
-                if (cdef.sym == null)
-                    enter.classEnter(cdef, env);
-
-                 attribDecl(cdef, localEnv);
-                 attribClass(cdef.pos(), null, cdef.sym);
-
-                // Reassign clazztype and recompute constructor.
-                clazztype = cdef.sym.type;
-                Symbol sym = rs.resolveConstructor(
-                    tree.pos(), localEnv, clazztype, argtypes,
-                    List.<Type>nil(), true, false);
-
-                tree.constructor = sym;
-            }
-
-//         if (tree.constructor != null && tree.constructor.kind == MTH)
-              owntype = clazz.type;  // this give declared type, where clazztype would give anon type
-        }
-
-        for (JFXObjectLiteralPart localPt : tree.getParts()) {
-            JFXObjectLiteralPart part = (JFXObjectLiteralPart)localPt;
-            Symbol memberSym = rs.findIdentInType(env, clazz.type, part.name, VAR);
-            memberSym = rs.access(memberSym, localPt.pos(), clazz.type, part.name, true);
-            memberSym.complete();
-            Type memberType = memberSym.type;
-            if (!(memberSym instanceof VarSymbol) ) {
-                log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_INVALID_ASSIGNMENT);
-                memberType = Type.noType;
-            }
-            attribExpr(part.getExpression(), localEnv, memberType);
-            if (memberSym instanceof VarSymbol) {
-                VarSymbol v = (VarSymbol) memberSym;
-                WriteKind kind = part.isBound() ? WriteKind.INIT_BIND : WriteKind.INIT_NON_BIND;
-                chk.checkAssignable(part.pos(), v, part, clazz.type, localEnv, kind);
-                chk.checkBidiBind(part.getExpression(), part.getBindStatus(), localEnv);
-            }
-            part.type = memberType;
-            part.sym = memberSym;
-        }
-
-        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
-        localEnv.info.scope.leave();
     }
 
-    /** Make an attributed null check tree.
+        /** Make an attributed null check tree.
      */
     public JFXExpression makeNullCheck(JFXExpression arg) {
         // optimization: X.this is never null; skip null check
@@ -2943,9 +2962,11 @@ public class JavafxAttr implements JavafxVisitor {
     }
 
     Type sequenceType(Type elemType, Cardinality cardinality) {
-        return cardinality == cardinality.ANY
-                ? types.sequenceType(elemType)
-                : elemType;
+        return (cardinality == cardinality.ANY)
+            ? types.sequenceType(elemType)
+            : (cardinality == cardinality.ARRAY) 
+            ? types.arrayType(elemType)
+            : elemType;
     }
 
         /** Determine type of identifier or select expression and check that

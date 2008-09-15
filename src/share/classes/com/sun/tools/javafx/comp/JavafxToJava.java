@@ -806,71 +806,86 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 stats.append(toJava.translateClassDef(cdef));
                 type = cdef.type;
             }
-            JCExpression classTypeExpr = toJava.makeTypeTree(tree, type, false);
-            Symbol sym = JavafxTreeInfo.symbol(tree.getIdentifier());
-
-            List<JCExpression> newClassArgs = translatedConstructorArgs();
-            if (tree.getClassBody() != null || types.isJFXClass(sym)) {
-                assert newClassArgs.size() == 0 : "should not be args for JavaFX class constructors";
-                newClassArgs = newClassArgs.append(m().Literal(TypeTags.BOOLEAN, 1));
-            }
-            if (tree.getClassBody() != null &&
+            if (types.isArray(type)) {
+                List<JCExpression> args = translatedConstructorArgs();
+                JCExpression typeExpr = toJava.makeTypeTree(tree, 
+                                                            ((ArrayType)type).getComponentType(), false);
+                JCNewArray newAry = m().NewArray(typeExpr,
+                                                 args,
+                                                 null);
+                JCExpression instExpression = newAry;
+                if (toJava.wrap == Wrapped.InLocation) {
+                    instExpression = toJava.makeConstantLocation(diagPos, tree.type, instExpression);
+                }
+                return instExpression;
+            } else {
+                JCExpression classTypeExpr = toJava.makeTypeTree(tree, type, false);
+                Symbol sym = JavafxTreeInfo.symbol(tree.getIdentifier());
+                
+                List<JCExpression> newClassArgs = translatedConstructorArgs();
+                if (tree.getClassBody() != null || types.isJFXClass(sym)) {
+                    assert newClassArgs.size() == 0 : "should not be args for JavaFX class constructors";
+                    newClassArgs = newClassArgs.append(m().Literal(TypeTags.BOOLEAN, 1));
+                }
+                if (tree.getClassBody() != null &&
                     tree.getClassBody().sym != null && toJava.hasOuters.contains(tree.getClassBody().sym) ||
-                 sym != null && toJava.hasOuters.contains(sym)) {
-                JCIdent thisIdent = m().Ident(defs.receiverName);
-                newClassArgs = newClassArgs.prepend(thisIdent);
-            }
-
-            JCNewClass newClass =
+                    sym != null && toJava.hasOuters.contains(sym)) {
+                    JCIdent thisIdent = m().Ident(defs.receiverName);
+                    newClassArgs = newClassArgs.prepend(thisIdent);
+                }
+                
+                JCNewClass newClass =
                     m().NewClass(null, null, classTypeExpr,
-                    newClassArgs,
-                    null);
-
-            JCExpression instExpression;
-            {
-                if (sym != null &&
+                                 newClassArgs,
+                                 null);
+                
+                JCExpression instExpression;
+                {
+                    if (sym != null &&
                         sym.kind == Kinds.TYP && (sym instanceof ClassSymbol) &&
                         (types.isJFXClass((ClassSymbol) sym) ||
-                        tree.getClassBody() != null)) {
-                    // it is a JavaFX class, initializa it properly
-                    JCVariableDecl tmpVar = toJava.makeTmpVar(diagPos, "objlit", type, newClass);
-                    stats.append(tmpVar);
-                    for (JFXObjectLiteralPart olpart : tree.getParts()) {
-                        diagPos = olpart.pos(); // overwrite diagPos (must restore)
-                        JavafxBindStatus bindStatus = olpart.getBindStatus();
-                        JFXExpression init = olpart.getExpression();
-                        VarSymbol vsym = (VarSymbol) olpart.sym;
-                        VarMorphInfo vmi = toJava.typeMorpher.varMorphInfo(vsym);
-                        assert toJava.shouldMorph(vmi);
-
-                        // Lift JFXObjectLiteralPart if needed
-                        if (types.isSequence(olpart.type)) {
-                            JFXExpression olexpr = olpart.getExpression();
-                            if (!types.isSequence(olexpr.type)) {
-                                init = (fxm()).ExplicitSequence(List.<JFXExpression>of(olexpr));
-                                WildcardType tpType = new WildcardType(olexpr.type, BoundKind.EXTENDS, olexpr.type.tsym);
-                                init.type = new ClassType(((JavafxSymtab) syms).javafx_SequenceType, List.<Type>of(tpType), ((JavafxSymtab) syms).javafx_SequenceType.tsym);
+                         tree.getClassBody() != null)) {
+                        // it is a JavaFX class, initializa it properly
+                        JCVariableDecl tmpVar = toJava.makeTmpVar(diagPos, "objlit", type, newClass);
+                        stats.append(tmpVar);
+                        for (JFXObjectLiteralPart olpart : tree.getParts()) {
+                            diagPos = olpart.pos(); // overwrite diagPos (must restore)
+                            JavafxBindStatus bindStatus = olpart.getBindStatus();
+                            JFXExpression init = olpart.getExpression();
+                            VarSymbol vsym = (VarSymbol) olpart.sym;
+                            VarMorphInfo vmi = toJava.typeMorpher.varMorphInfo(vsym);
+                            assert toJava.shouldMorph(vmi);
+                            
+                            // Lift JFXObjectLiteralPart if needed
+                            if (types.isSequence(olpart.type)) {
+                                JFXExpression olexpr = olpart.getExpression();
+                                if (!types.isSequence(olexpr.type) &&
+                                    !types.isArray(olexpr.type)) {
+                                    init = (fxm()).ExplicitSequence(List.<JFXExpression>of(olexpr));
+                                    WildcardType tpType = new WildcardType(olexpr.type, BoundKind.EXTENDS, olexpr.type.tsym);
+                                    init.type = new ClassType(((JavafxSymtab) syms).javafx_SequenceType, List.<Type>of(tpType), ((JavafxSymtab) syms).javafx_SequenceType.tsym);
+                                }
                             }
+                            
+                            stats.append( translateAttributeSet(init, bindStatus, vsym, tmpVar.name) );
                         }
-
-                        stats.append( translateAttributeSet(init, bindStatus, vsym, tmpVar.name) );
+                        diagPos = tree.pos();
+                        JCIdent ident3 = m().Ident(tmpVar.name);
+                        JCStatement applyExec = toJava.callStatement(diagPos, ident3, defs.initializeName);
+                        stats.append(applyExec);
+                        
+                        JCIdent ident2 = m().Ident(tmpVar.name);
+                        instExpression = toJava.makeBlockExpression(diagPos, stats, ident2);
+                    } else {
+                        // this is a Java class, just instanciate it
+                        instExpression = newClass;
                     }
-                    diagPos = tree.pos();
-                    JCIdent ident3 = m().Ident(tmpVar.name);
-                    JCStatement applyExec = toJava.callStatement(diagPos, ident3, defs.initializeName);
-                    stats.append(applyExec);
-
-                    JCIdent ident2 = m().Ident(tmpVar.name);
-                    instExpression = toJava.makeBlockExpression(diagPos, stats, ident2);
-                } else {
-                    // this is a Java class, just instanciate it
-                    instExpression = newClass;
                 }
+                if (toJava.wrap == Wrapped.InLocation) {
+                    instExpression = toJava.makeConstantLocation(diagPos, tree.type, instExpression);
+                }
+                return instExpression;
             }
-            if (toJava.wrap == Wrapped.InLocation) {
-                 instExpression = toJava.makeConstantLocation(diagPos, tree.type, instExpression);
-            }
-            return instExpression;
         }
     }
 
@@ -1420,11 +1435,19 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             // assignment of a sequence element --  s[i]=8, call the sequence set method
             JCExpression rhs = translate(tree.rhs, tree.type);
             JFXSequenceIndexed si = (JFXSequenceIndexed)tree.lhs;
-            JCExpression seq = translate(si.getSequence(), Wrapped.InLocation);
             JCExpression index = translate(si.getIndex());
-            JCFieldAccess select = make.Select(seq, defs.setMethodName);
-            List<JCExpression> args = List.of(index, rhs);
-            result = make.at(diagPos).Apply(null, select, args);
+            JCExpression seq = translate(si.getSequence(), Wrapped.InLocation);
+            if (types.isArray(si.getSequence().type)) {
+                JCFieldAccess select = make.Select(seq, defs.getMethodName);
+                JCMethodInvocation get = make.at(diagPos).Apply(null, select, 
+                                                                List.<JCExpression>nil());
+                JCArrayAccess aa = make.Indexed(get, index);
+                result = make.at(diagPos).Assign(aa, rhs);
+            } else {
+                JCFieldAccess select = make.Select(seq, defs.setMethodName);
+                List<JCExpression> args = List.of(index, rhs);
+                result = make.at(diagPos).Apply(null, select, args);
+            }
         } else if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
             // assignment of a sequence slice --  s[i..j]=8, call the sequence set method
             JFXSequenceSlice si = (JFXSequenceSlice)tree.lhs;
@@ -1494,9 +1517,18 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JFXSequenceIndexed si = (JFXSequenceIndexed)tree.lhs;
             JCExpression seq = translate(si.getSequence(), Wrapped.InLocation);
             JCExpression index = translate(si.getIndex());
-            JCFieldAccess select = make.Select(seq, defs.setMethodName);
-            List<JCExpression> args = List.of(index, combined);
-            result = make.at(diagPos).Apply(null, select, args);
+            if (types.isArray(si.getSequence().type)) {
+                JCFieldAccess select = make.Select(seq, defs.getMethodName);
+                JCMethodInvocation get = make.at(diagPos).Apply(null, select, 
+                                                                List.<JCExpression>nil());
+                JCArrayAccess aa = make.Indexed(get, index);
+                result = make.at(diagPos).Assignop(tree.getOperatorTag(), 
+                                                   aa, rhs);
+            } else {
+                JCFieldAccess select = make.Select(seq, defs.setMethodName);
+                List<JCExpression> args = List.of(index, combined);
+                result = make.at(diagPos).Apply(null, select, args);
+            }
         } else if (shouldMorph(vsym)) {
             // we are setting a var Location, call the set method
             JCExpression targetLHS = translate(tree.lhs, Wrapped.InLocation);
@@ -1743,11 +1775,16 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitSequenceIndexed(final JFXSequenceIndexed tree) {
         DiagnosticPosition diagPos = tree.pos();
+        
         JCExpression seq = translate(tree.getSequence(), Wrapped.InNothing);
         JCExpression index = makeTypeCast(diagPos, syms.intType, tree.getIndex().type, translate(tree.getIndex()));
-        JCFieldAccess select = make.at(diagPos).Select(seq, defs.getMethodName);
-        List<JCExpression> args = List.of(index);
-        result = make.at(diagPos).Apply(null, select, args);
+        if (types.isArray(tree.getSequence().type)) {
+            result = make.at(diagPos).Indexed(seq, index);
+        } else {
+            JCFieldAccess select = make.at(diagPos).Select(seq, defs.getMethodName);
+            List<JCExpression> args = List.of(index);
+            result = make.at(diagPos).Apply(null, select, args);
+        }
     }
 
     @Override
@@ -2303,15 +2340,25 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
 
             DiagnosticPosition diagPos = clause.seqExpr;
-            if (types.isSequence(clause.seqExpr.type)) {
+            if (types.isSequence(clause.seqExpr.type) ||
+                types.isArray(clause.seqExpr.type) ) {
                 // It would be more efficient to move the Iterable.iterator call
                 // to a static method, which can also check for null.
                 // But that requires expanding the ForeachLoop by hand.  Later.
+                JCExpression seqExp = translate(clause.seqExpr);
+                if (types.isArray(clause.seqExpr.type)) {
+                    // chris: add conversion from array to sequence
+                    // not sure if this should be implicit, tbh.
+                    Type elemtype = types.elementType(clause.seqExpr.type);
+                    seqExp = convertTranslated(seqExp, diagPos, 
+                                               clause.seqExpr.type,
+                                               types.sequenceType(elemtype));
+                }
                 JCExpression seq = callExpression(diagPos,
                     makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
                     "forceNonNull",
                     List.of(makeElementClassObject(diagPos, var.type),
-                        translate(clause.seqExpr)));
+                            seqExp));
                 stmt = make.at(clause).ForeachLoop(
                     // loop variable is synthetic should not be bound
                     // even if we are in a bind context

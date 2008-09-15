@@ -4064,7 +4064,7 @@ newExpression
 	int	rPos = pos();
 }
 	: NEW 
-		typeName 				{ errNodes.append($typeName.value); }
+		typeSpec 				{ errNodes.append($typeSpec.value); }
 		expressionListOpt
 	
 		{
@@ -4072,7 +4072,7 @@ newExpression
 			// did not, then the expressionListOpt will not be built, so we do not accumulate
 			// its nodes for error.
 			//
-			$value = F.at(pos($NEW)).InstanciateNew($typeName.value, $expressionListOpt.args.toList());
+			$value = F.at(pos($NEW)).InstanciateNew($typeSpec.value, $expressionListOpt.args.toList());
 			endPos($value);
 		}
 	;
@@ -5057,10 +5057,10 @@ type
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
-	: typeName cardinality
+	: typeSpec cardinality
 	
 		{
-			$rtype = F.at(rPos).TypeClass($typeName.value, $cardinality.ary);
+			$rtype = F.at(rPos).TypeClass($typeSpec.value, $cardinality.ary);
 			endPos($rtype);
 		}
 		
@@ -5348,6 +5348,19 @@ catch [RecognitionException re] {
 	recover(input, re);
 	
 }
+
+typeSpec
+
+    returns [JFXExpression value]
+
+    :
+    (LBRACKET)=>LBRACKET t=typeSpec RBRACKET {
+            $value = F.at(pos($LBRACKET)).TypeArray($t.value);
+    }
+    |
+    typeName { $value = $typeName.value; }
+;
+    
 
 // ----------
 // Named type

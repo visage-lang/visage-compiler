@@ -35,6 +35,7 @@ public interface TypeTree extends Tree {
         SINGLETON, // one
 //      SOME       // '+' one or more
         ANY,       // '[]' zero or more
+        ARRAY,
         UNKNOWN;   // user didn't specify type info        
     }
     
