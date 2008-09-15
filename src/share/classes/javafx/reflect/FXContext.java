@@ -90,7 +90,7 @@ public abstract class FXContext {
      */
     public FXValue makeSequence(FXType elementType, FXValue... values) {
         FXSequenceBuilder builder = makeSequenceBuilder(elementType);
-            for (int i = 0; i <= values.length; i++)
+            for (int i = 0; i < values.length; i++)
                 builder.append(values[i]);
         return builder.getSequence();
     }
