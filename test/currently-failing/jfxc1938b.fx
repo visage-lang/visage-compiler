@@ -4,8 +4,8 @@ import java.lang.System;
  *
  * JFXC-1938 ConcurrentModificationException is thrown if a variable is assgined in two different places simultaneously
  * @compilefirst jfxc1938a.fx
- * @test/fail
- *
+ * @test
+ * @run/fail
  */
 
 function run(args :String[]){    
