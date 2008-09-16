@@ -236,6 +236,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     protected JavafxPrepForBackEnd prepForBackEnd;    
     
+    /** Optimization statistics
+     */
+    protected JavafxOptimizationStatistics optStat;    
+    
     /** The Java Compiler instance the processes the flow through gen.
      */
     protected JavafxJavaCompiler javafxJavaCompiler;    
@@ -306,10 +310,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         attr = JavafxAttr.instance(context);
         chk = JavafxCheck.instance(context);
         annotate = JavafxAnnotate.instance(context);
+        optStat = JavafxOptimizationStatistics.instance(context);
         types = Types.instance(context);
         taskListener = context.get(JavafxTaskListener.class);
-
-        Options options = Options.instance(context);
 
         verbose       = options.get("-verbose")       != null;
         sourceOutput  = options.get("-printsource")   != null; // used to be -s
@@ -538,6 +541,17 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             } catch (IOException ex) {
                 System.err.println("Exception thrown in JavaFX pretty printing: " + ex);
             }
+        }
+    }
+
+    /** Emit Java-like source corresponding to translated tree.
+     */
+    void printOptimizationStatistics(JavafxEnv<JavafxAttrContext> env) {
+        String which = options.get("optstats");
+        if (which != null) {
+            PrintWriter pw = new PrintWriter(System.out);
+            optStat.printData(which, pw);
+            pw.flush();
         }
     }
 
@@ -973,6 +987,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         if (verboseCompilePolicy)
             log.printLines(log.noticeWriter, "[prep-for-back-end " + env.enclClass.sym + "]");
         printJavaSource(env);
+        printOptimizationStatistics(env);
 
         JavaFileObject prev = log.useSource(
                                   env.enclClass.sym.sourcefile != null ?

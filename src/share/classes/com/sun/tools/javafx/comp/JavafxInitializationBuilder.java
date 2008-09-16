@@ -28,13 +28,11 @@ import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.ClassType;
-import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
-import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
@@ -324,6 +322,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         List.<JCExpression>nil(), 
                         mthBody, 
                         null));
+        if (withDispatch) {
+            optStat.recordProxyMethod();
+        }
     }
 
     
@@ -468,13 +469,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             if (typeOwner != null) {
                 ClassSymbol returnSym = typeMorpher.reader.enterClass(names.fromString(typeOwner.type.toString() + interfaceSuffix));
-                JCMethodDecl accessorMethod = make.MethodDef(make.Modifiers(Flags.PUBLIC), outerAccessorName, make.Ident(returnSym), List.<JCTypeParameter>nil(), List.<JCVariableDecl>nil(),
+                JCMethodDecl accessorMethod = make.MethodDef(
+                        make.Modifiers(Flags.PUBLIC), 
+                        outerAccessorName, 
+                        make.Ident(returnSym), 
+                        List.<JCTypeParameter>nil(), 
+                        List.<JCVariableDecl>nil(),
                         List.<JCExpression>nil(), null, null);
-
-                accessorMethod.type = new MethodType(List.<Type>nil(), returnSym.type, List.<Type>nil(), returnSym);
-                accessorMethod.sym = new MethodSymbol(Flags.PUBLIC, outerAccessorName, returnSym.type, returnSym);
-
                 members.append(accessorMethod);
+                optStat.recordProxyMethod();
             }
         }
         return members.toList();
@@ -527,6 +530,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         List.<JCExpression>nil(),
                         statBlock,
                         null));
+                optStat.recordProxyMethod();
             }
         }
         return getters.toList();
@@ -599,6 +603,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         List.<JCExpression>nil(),
                         statBlock,
                         null));
+                optStat.recordProxyMethod();
             }
         }
         return methods.toList();
@@ -797,9 +802,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     List<JCAnnotation> annotations;
                     if (fieldName != sym.name) {
                         annotations = List.<JCAnnotation>of(make.Annotation(makeIdentifier(diagPos, syms.sourceNameAnnotationClassNameString), List.<JCExpression>of(make.Literal(sym.name.toString()))));
-                    }
-                    else
+                    } else {
                         annotations = List.<JCAnnotation>nil();
+                    }
                     mods = addAccessAnnotationModifiers(diagPos, sym.flags(), mods, annotations);
                 } else {
                     mods = addInheritedAnnotationModifiers(diagPos, sym.flags(), mods);
@@ -815,13 +820,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     varType = ai.getRealType();
                     varInit = makeDefaultValue(diagPos, vmi);
                     optStat.recordClassVar(sym, false);
-               }
+                }
                 JCVariableDecl var = make.at(diagPos).VarDef(
                         mods,
                         fieldName,
                         makeTypeTree(diagPos, varType),
                         varInit);
                 fields.append(var);
+                optStat.recordConcreteField();
             }
         }
         return fields.toList();
