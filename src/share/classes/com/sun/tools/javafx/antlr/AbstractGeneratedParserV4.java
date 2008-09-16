@@ -1574,13 +1574,48 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      */
     protected void syncToGoodToken()
     {
+        // Compute the followset that is in context whereever we are in the
+        // rule chain/stack
+        //
+         BitSet follow = state.following[state._fsp]; //computeContextSensitiveRuleFOLLOW();
+
+         syncToGoodToken(follow);
+    }
+
+    /**
+     * Temporary to get around bug in ANTLR 3.1 followSet generation
+     */
+    protected void syncToGoodClassToken()
+    {
+        BitSet follow = new BitSet();
+
+        follow.add(v4Parser.INIT);
+        follow.add(v4Parser.ABSTRACT);
+        follow.add(v4Parser.ATTRIBUTE);
+        follow.add(v4Parser.BOUND);
+        follow.add(v4Parser.DEF);
+        follow.add(v4Parser.FUNCTION);
+        follow.add(v4Parser.OVERRIDE);
+        follow.add(v4Parser.PACKAGE);
+        follow.add(v4Parser.POSTINIT);
+        follow.add(v4Parser.PRIVATE);
+        follow.add(v4Parser.PROTECTED);
+        follow.add(v4Parser.PUBLIC);
+        follow.add(v4Parser.PUBLIC_INIT);
+        follow.add(v4Parser.PUBLIC_READ);
+        follow.add(v4Parser.PRIVATE);
+        follow.add(v4Parser.RBRACE);
+        follow.add(v4Parser.SEMI);
+        follow.add(v4Parser.STATIC);
+        follow.add(v4Parser.VAR);
+
+        syncToGoodToken(follow);
+    }
+    protected void syncToGoodToken(BitSet follow)
+    {
         int mark = -1;
 
         try {
-            // Compute the followset that is in context whereever we are in the
-            // rule chain/stack
-            //
-            BitSet follow = computeContextSensitiveRuleFOLLOW();
 
             input.mark();
 

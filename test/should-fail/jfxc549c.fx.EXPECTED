@@ -1,4 +1,4 @@
-test/should-fail/jfxc549c.fx:8: Sorry, I was trying to understand a 'class' declaration but I got confused when I found an extra '+=' that should not be there.
+test/should-fail/jfxc549c.fx:8: There is a garbled class member definition starting here, I have tried to ignore it. Class members can be 'var', 'def', 'function', 'init' or 'postinit' only.
     +=
     ^
 1 error

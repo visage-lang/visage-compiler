@@ -349,91 +349,6 @@ catch [RecognitionException re] {
 	$items.append(errors);
  }
  
-// ----------
-// Modifiers.
-// Collects the modifier flags for all known modifiers, regardless
-// of their validity with the declaration they will be associated with.
-// Attributing will verify the smeantics of the modifiers.
-//
-modifiers
-
-	returns [JFXModifiers mods, int pos]	// Constructs and returns a specialized modifer node
-
-@init {
-
-	// The flags we build up for the AST
-	//
-	long	flags 	= 0;
-	
-	// The start character position for this AST
-	//
-	$pos		= pos();
-}
-
-	: 	(	
-			mf=modifierFlag
-			
-			{
-				// Or in the newly discovered modifier
-				//
-				flags	|= $mf.flag;
-			}
-	
-		)*
-		
-		{
-			// Build the modifier flags (just as empty if we did not pick any up)
-			//
-			$mods = F.at($pos).Modifiers(flags);
-
-			// Tree span
-			//
-			endPos($mods);
-		}
-	;
-
- 
-// ---------------
-// Modifier flags.
-// All the possible modifier keywords that can be applied to 
-// constructs such as var, class and so on,
-//
-modifierFlag
-
-	returns [long flag]
-	
-	: ABSTRACT			{ $flag = Flags.ABSTRACT;				}
-	| BOUND				{ $flag = JavafxFlags.BOUND;			}
-	| OVERRIDE			{ $flag = JavafxFlags.OVERRIDE;			}
-	| PACKAGE			{ $flag = JavafxFlags.PACKAGE_ACCESS;	}
-	| PROTECTED			{ $flag = Flags.PROTECTED;				}
-	| PUBLIC			{ $flag = Flags.PUBLIC;					}
-	| PUBLIC_READ   	{ $flag = JavafxFlags.PUBLIC_READ;		}
-	| PUBLIC_INIT		{ $flag = JavafxFlags.PUBLIC_INIT;		}
-        
-	
-	//TODO: deprecated -- remove these at some point
-	//                    For now, warn about their deprecation
-	//
-	| PRIVATE			{ log.warning(pos($PRIVATE), "javafx.not.supported.private"); }
-	| STATIC			{ $flag = Flags.STATIC;      			}
-	;
-
-// Catch an error. We create an erroneous node for anything that was at the start 
-// up to wherever we made sense of the input.
-//
-catch [RecognitionException re] {
-  
-  	// First, let's report the error as the user needs to know about it
-  	//
-    reportError(re);
-
-	// Now we perform standard ANTLR recovery here
-	//
-	recover(input, re);
-	
- }
- 
 // -----------------	
 // Import statement.
 // Include definitions from an external source
@@ -643,6 +558,92 @@ catch [RecognitionException re] {
     endPos($pid);  	
  }
  
+
+// ----------
+// Modifiers.
+// Collects the modifier flags for all known modifiers, regardless
+// of their validity with the declaration they will be associated with.
+// Attributing will verify the smeantics of the modifiers.
+//
+modifiers
+
+	returns [JFXModifiers mods, int pos]	// Constructs and returns a specialized modifer node
+
+@init {
+
+	// The flags we build up for the AST
+	//
+	long	flags 	= 0;
+	
+	// The start character position for this AST
+	//
+	$pos		= pos();
+}
+
+	: 	(	
+			mf=modifierFlag
+			
+			{
+				// Or in the newly discovered modifier
+				//
+				flags	|= $mf.flag;
+			}
+	
+		)*
+		
+		{
+			// Build the modifier flags (just as empty if we did not pick any up)
+			//
+			$mods = F.at($pos).Modifiers(flags);
+
+			// Tree span
+			//
+			endPos($mods);
+		}
+	;
+
+ 
+// ---------------
+// Modifier flags.
+// All the possible modifier keywords that can be applied to 
+// constructs such as var, class and so on,
+//
+modifierFlag
+
+	returns [long flag]
+	
+	: ABSTRACT			{ $flag = Flags.ABSTRACT;				}
+	| BOUND				{ $flag = JavafxFlags.BOUND;			}
+	| OVERRIDE			{ $flag = JavafxFlags.OVERRIDE;			}
+	| PACKAGE			{ $flag = JavafxFlags.PACKAGE_ACCESS;	}
+	| PROTECTED			{ $flag = Flags.PROTECTED;				}
+	| PUBLIC			{ $flag = Flags.PUBLIC;					}
+	| PUBLIC_READ   	{ $flag = JavafxFlags.PUBLIC_READ;		}
+	| PUBLIC_INIT		{ $flag = JavafxFlags.PUBLIC_INIT;		}
+        
+	
+	//TODO: deprecated -- remove these at some point
+	//                    For now, warn about their deprecation
+	//
+	| PRIVATE			{ log.warning(pos($PRIVATE), "javafx.not.supported.private"); }
+	| STATIC			{ $flag = Flags.STATIC;      			}
+	;
+
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+ }
+ 
 // Class definition.
 // Parses a complete class definition and builds up the JFX AST
 // that represents this.
@@ -672,7 +673,7 @@ classDefinition [ JFXModifiers mods, int pos ]
 	
 	// List of all members
 	//
-	ListBuffer<JFXTree> mems		= null;
+	ListBuffer<JFXTree> mems		= new ListBuffer<JFXTree>();
 }
 
 	: CLASS 
@@ -699,17 +700,28 @@ classDefinition [ JFXModifiers mods, int pos ]
 				}
 			 
 		LBRACE 
-			classMembers 
+	
+			// Consume any garbled declarations so that we don't drop out
+			// of parsing the class until we hit '}' for the class definition
+			// or get to something that is so garbled we have no choice.
+			//
+			syncClass		[mems] 
+
+			
+			( 
+				classMember [mems] 
 			
 				{
 					// Accumulate in case of error
 					//
-					mems = $classMembers.mems;
-					for (JFXTree m : mems)
-					{
-						errNodes.append(m);
-					}
+					errNodes.append(mems.elems.last());
+					
 				}
+				
+				possiblyOptSemi
+				
+				syncClass [mems]
+			)*
 		RBRACE
 		
 		{ 
@@ -806,75 +818,74 @@ catch [RecognitionException re] {
 	endPos(errnode);
 	$ids.append(errnode);
  }
- 		
-// --------------
-// Class members.
-// Parses all the possible elements of a class definition and produces the
-// Java FX AST nodes that represent them
+ 	
+ // ---------------------------- 
+// Statement/Expression resync for class declaration.
+// If left to itself, the class rule cannot easilly resync to the start of a statement
+// because we will throw an exception on trying to work out if we can insert or
+// delete a token.
 //
-classMembers 
-
-	returns [ListBuffer<JFXTree> mems = new ListBuffer<JFXTree>()]		// Returns a list of the class members, ready for the caller to produce the
-																		// class defintion AST.
+// If we use this rule after the open '{' before the start of every complete/recoverable
+// definition contained in a declarations block, then it will be called unconditionally (it always
+// matches the next token because it is the upsilon set). Most importantly, the followset
+// stack will contain the follow set that is allowed to start a new declaration. Hence our
+// init rule just uses the trick of syncing to the next good declaration, and throwing out
+// any garbled definitions with a neat error. We will always be positioned at a token that
+// can start a new defintion, or the closing '}' or in rare cases, then the sync funciton 
+// will have to give in because the code is just too garbled (but all bets are off at that
+// point.)
+// 
+// We record the token stream start position on rule entry, and upon rule exit
+// if we consumed any tokens, then we add an Erroneous node to the AST and everyone is
+// happy.
+//
+syncClass[ListBuffer<JFXTree> mems]
 @init
 {
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
+	// Start of rule for error node production
 	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	int	rPos	= pos();
 	
-	// Start position, in case of error
+	// Consume any garbled tokens that come before the next statement
+	// or the end of the block. The only slight risk here is that the
+	// block becomes MORE inclusive than it should but as the script is
+	// in error, this is a better course than throwing out the block
+	// when the error occurs and screwing up the whole meaning of
+	// the rest of the token stream.
 	//
-	int	rPos = pos();
+	syncToGoodClassToken();  // Temporary method call - found bug in ANTLR 3.1 followset computation!
 }
-	: (classMemberSemi[$mems] possiblyOptSemi)*
-	;
-	
-// Catch an error. We create an erroneous node for anything that was at the start 
-// up to wherever we made sense of the input.
-//
-catch [RecognitionException re] {
-  
-  	// First, let's report the error as the user needs to know about it
-  	//
-    reportError(re);
-
-	// Now we perform standard ANTLR recovery here
+@after
+{
+	// If we consume any tokens at this point then we create
+	// an ERRONEOUS AST node for the IDE to monitor and add it
+	// in to the staement list.
 	//
-	recover(input, re);
-
-	// Though it should be impossible to find an error within this rule, we have
-	// coded against the impossible out of respect for Douglas Adams.
-	//
-	for	( JFXTree t : $mems) {
-		errNodes.append(t);
-	}
+	if	(rPos != pos()) {
 	
-	// Reset what we accumulated so far
-	//
-	$mems = new ListBuffer<JFXTree>();
-	JFXErroneous errnode = F.at(rPos).Erroneous(errNodes.elems);
-	endPos(errnode);
-	$mems.append(errnode);
-	
- }
- 
-classMemberSemi [ListBuffer<JFXTree> mems]
-	: classMember 
-	
-		{ 
-			$mems.append($classMember.member); 
-		}
+		// Span all the tokesn we had to consume.
+		//
+		JFXErroneous errNode = F.at(rPos).Erroneous();
+		endPos(errNode);
+		$mems.append(errNode);
 		
-	| SEMI
+		// Tell the script author where we think there is a screwed up expression
+		//
+		log.error(rPos, MsgSym.MESSAGE_JAVAFX_GARBLED_DECLARATION);
+	}
+}
+	:	// Deliberately match nothing, causing this rule always to be 
+		// entered.
 	;
+
+
  
 // --------------
 // Class members.
 // Parses all constructs that can be a member of a class and returns
 // the JAva FX AST that represents it.
 //
-classMember
+classMember[ListBuffer<JFXTree> mems]
 
  	returns [JFXTree member]		// A class member has a specialized JFX tree node, which is what
 									// we return from this rule.
@@ -892,15 +903,19 @@ classMember
 
 }
 
-	: initDefinition				{ $member = $initDefinition.value; 		}
-	| postInitDefinition			{ $member = $postInitDefinition.value; 	}
-	| m=modifiers
+	: initDefinition				{ $mems.append($initDefinition.value); 		}
+	| postInitDefinition			{ $mems.append($postInitDefinition.value); 	}
+	|
+		m=modifiers 
+	  
 		(
-			  variableDeclaration		[$m.mods, $m.pos] 		{ $member = $variableDeclaration.value; }
-			| functionDefinition		[$m.mods, $m.pos]		{ $member = $functionDefinition.value; 	}
-		)
+		   variableDeclaration		[$m.mods, $m.pos] 		{ $mems.append($variableDeclaration.value); }
+		 | functionDefinition		[$m.mods, $m.pos]		{ $mems.append($functionDefinition.value); 	}
+	)
+	| SEMI
+	
 	;
-
+	
 // Catch an error when looking for a class member. We create an erroneous node
 // for anything that was at the start up to wher
 //
@@ -912,7 +927,7 @@ catch [RecognitionException re] {
 
 	// Now we perform custom resyncing for class members
 	//
-	member = resyncClassMember(rPos, re);
+	$mems.append(resyncClassMember(rPos, re));
 	
  }
 
@@ -5640,7 +5655,7 @@ qualname
 						}
 						
 					|	{
-							$inError = true;		// Signal that this is malformed
+							$value = F.at(pos($DOT)).Select($value, Name.fromString(names, "<missing IDENTIFIER>");
 							log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
 						}
 				)
