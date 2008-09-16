@@ -21,7 +21,7 @@ FC=
 include Makefile
 
 # Object Directory
-OBJECTDIR=build/javafx_release
+OBJECTDIR=build/javafx_release/Cygwin-Windows
 
 # Object Files
 OBJECTFILES= \

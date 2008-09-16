@@ -31,19 +31,21 @@ Util::Util() {
 Util::~Util() {
 }
 
-std::string Util::evaluatePath (std::string& javafxpath, std::string& libs) {
-    std::string result = "";
-    std::string::size_type start=0, end;
-    while ((end = libs.find(";", start)) != std::string::npos) {
-        ++end; // include semicolon
-        result += javafxpath + "\\" + libs.substr (start, end-start);
-        start = end;
+std::string Util::evaluatePath (const std::string& javafxpath, const std::string& libs) {
+    std::string result = libs;
+    std::string::size_type start=0;
+    while ((start = result.find("${javafx_home}", start)) != std::string::npos) {
+        result.replace (start, 14 /* length of ${javafx_home} */, javafxpath);
+        start += 14;
     }
-    result += javafxpath + "\\" + libs.substr (start);
+    start=0;
+    while ((start = result.find("/", start)) != std::string::npos) {
+        result.replace (start, 1, "\\");
+    }
     return result;
 }
 
-int Util::createProcess(std::string& cmd) {
+int Util::createProcess(const std::string& cmd) {
     STARTUPINFO start;
     PROCESS_INFORMATION pi;
 

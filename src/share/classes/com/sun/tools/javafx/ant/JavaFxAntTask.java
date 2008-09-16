@@ -47,6 +47,7 @@ import java.net.URLClassLoader;
  */
 public class JavaFxAntTask extends Javac {
     public Path compilerClassPath;
+    public String profile;
 
     private static final String FAIL_MSG
             = "JavaFX compile failed; see the compiler error output for details.";
@@ -116,7 +117,7 @@ public class JavaFxAntTask extends Javac {
     public void setCompilerClassPathRef(Reference r) {
         setCompilerClassPath((Path) r.getReferencedObject());
     }
-
+    
     private URL[] pathAsURLs() throws java.net.MalformedURLException {
         Path p = compilerClassPath != null ? compilerClassPath : new Path(getProject());
         java.util.ArrayList<URL> urls = new java.util.ArrayList<URL>();
@@ -124,6 +125,10 @@ public class JavaFxAntTask extends Javac {
             urls.add(new File(s).toURI().toURL());
         }
         return urls.toArray(new URL[0]);
+    }
+
+    public void setProfile(String s) {
+        profile = s;
     }
 
     @Override
@@ -213,6 +218,10 @@ public class JavaFxAntTask extends Javac {
                         ((JavaFxAntTask) getJavac()).compilerClassPath.toString();
                 cmd.createArgument().setValue(cp);
                 cmd.createArgument().setValue(FX_ENTRY_POINT);
+            }
+            String profile = ((JavaFxAntTask) getJavac()).profile;
+            if (profile != null) {
+                cmd.createArgument().setLine("-profile " + profile);
             }
             setupJavacCommandlineSwitches(cmd, true);
             int firstFileName = cmd.size();

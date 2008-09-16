@@ -17,8 +17,6 @@ while [ -h "$PRG" ]; do
     fi
 done
 
-JFX_HOME=`dirname "$PRG"`/../lib
-
 # detect Darwin and Cygwin environments
 darwin=false;
 cygwin=false;
@@ -28,7 +26,7 @@ case "`uname`" in
               JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Home
            fi
            ;;
-  CYGWIN*) cygwin=true;
+  CYGWIN*) cygwin=true;;
 esac
 
 if [ -n "$JAVA_HOME"  ] ; then
@@ -51,19 +49,17 @@ else
   USER_CP="$CLASSPATH"
 fi 
 
-# Jars with classes already defined in the JDK's tools.jar file need to be put
-# on the bootclasspath, along with any classes they reference, due to those
-# classes being on the bootclasspath with Mac OS X Java distributions.
-classpath="$JFX_HOME/javafxrt.jar:$JFX_HOME/javafxgui.jar:$JFX_HOME/javafx-swing.jar:$JFX_HOME/@SCENEGRAPH_JAR@:$JFX_HOME/Decora-HW.jar:$JFX_HOME/Decora-D3D.jar:$JFX_HOME/jmc.jar:$USER_CP"
-nativelibpath="$JFX_HOME"
-
+classpath="$USER_CP"
 args=""
 jargs=""
+profile="desktop"
+
 parse_args() {
 while [ $# -gt 0 ] ; do
     case "$1" in
         -J*) jopt=`expr "X-$1" : 'X--J\(.*\)'`; jargs="$jargs \"$jopt\"";;
         -cp | -classpath) shift; classpath="$classpath:$1";;
+	-profile) shift; profile="$1";;
         *) args="$args \"$1\"";;
     esac
     shift
@@ -72,11 +68,42 @@ done
 
 parse_args "$@" # process arguments on the command line
 
+javafx_home=`dirname "$PRG"`/..
+
+if [ -f "${javafx_home}/profiles/${profile}.properties" ]; then
+    eval `cat "${javafx_home}/profiles/${profile}.properties" | tr ";" ":" | grep -v "^#" | sed "s/^(.*)$/$1;/"`
+else
+    echo "The profile '${profile}' is not supported. Use one of these:"
+    ls ${javafx_home}/profiles | sed "s/\.properties//"
+    exit 1
+fi
+
 # Under Cygwin, convert certain environment variables back to Windows format
 if $cygwin ; then
   classpath=`cygpath --path --windows "$classpath"`
-  nativelibpath=`cygpath --path --windows "$nativelibpath"`
+  execute_classpath=`cygpath --path --windows "$execute_classpath"`
+  execute_bootclasspath=`cygpath --path --windows "$execute_bootclasspath"`
+  execute_bootclasspath_prepend=`cygpath --path --windows "$execute_bootclasspath_prepend"`
+  execute_bootclasspath_append=`cygpath --path --windows "$execute_bootclasspath_append"`
+  execute_nativelibpath=`cygpath --path --windows "$execute_nativelibpath"`
   JAVA_CMD=`cygpath --unix "$JAVA_CMD"`
 fi
 
-eval '"$JAVA_CMD"' '"-Djava.library.path=$nativelibpath"' "$jargs" -classpath '"$classpath"' "$args"
+if [ -n "${execute_bootclasspath}" ]; then
+    jargs="$jargs \"-Xbootclasspath:${execute_bootclasspath}\""
+fi
+if [ -n "${execute_bootclasspath_prepend}" ]; then
+    jargs="$jargs \"-Xbootclasspath/p:${execute_bootclasspath_prepend}\""
+fi
+if [ -n "${execute_bootclasspath_append}" ]; then
+    jargs="$jargs \"-Xbootclasspath/a:${execute_bootclasspath_append}\""
+fi
+if [ -n "${execute_nativelibpath}" ]; then
+    jargs="$jargs \"-Djava.library.path=${execute_nativelibpath}\""
+fi
+jargs="$jargs -classpath '"$classpath:$execute_classpath"'"
+if [ -n "$args" ]; then
+    jargs="$jargs $args"
+fi
+
+eval '"$JAVA_CMD"' "$jargs"

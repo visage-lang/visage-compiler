@@ -26,8 +26,17 @@
 
 #include "configuration.h"
 
-Configuration::Configuration()
-: javafxpath(""), classpath(""), vmargs("") {
+Configuration::Configuration(const std::string& prefix)
+: prefix(prefix),
+        javafxpath(""), 
+        classpath("."), 
+        vmargs(""), 
+        profile_classpath(""), 
+        profile_bootclasspath(""), 
+        profile_bootclasspath_prepend(""), 
+        profile_bootclasspath_append(""), 
+        profile_nativelibpath(""), 
+        profile_filename("desktop.properties") {
 }
 
 Configuration::~Configuration() {
@@ -39,11 +48,13 @@ int Configuration::initConfiguration(int argc, char** argv) {
     // set inital values
     init();
     
-    // read config-file
-    readConfigFile();
-    
     // read arguments
-    if ( (error =  parseArgs(--argc, ++argv)) != EXIT_SUCCESS )  {
+    if ( (error =  parseArgs(--argc, ++argv)) != (EXIT_SUCCESS) )  {
+        return error;
+    }
+    
+    // read config-file
+    if ( (error =  readConfigFile()) != (EXIT_SUCCESS) )  {
         return error;
     }
     
@@ -73,7 +84,6 @@ void Configuration::init() {
     javacmd = (s != NULL)? s : "";
     
     // evaluate CLASSPATH
-    classpath = ".";
     s = getenv("CLASSPATH");
     if (s != NULL) {
         classpath += ";";
@@ -85,40 +95,21 @@ void Configuration::init() {
     GetModuleFileName (NULL, buf, MAX_PATH);
     javafxpath = buf;
     javafxpath.erase (javafxpath.rfind("\\"));
-    javafxpath += "\\..\\lib";
+    javafxpath += "\\..";
     
     // set fxargs if given directly in _FX_ARGS
     s = getenv("_FX_ARGS");
     fxargs = (s != NULL)? s : "";
-
-    // set default classpath-libraries for javafx
-    if (javafx_classpath_libs.empty()) {
-        javafx_classpath_libs = "javafxrt.jar;javafxgui.jar;javafx-swing.jar;Scenario.jar;Decora-HW.jar;Decora-D3D.jar;jmc.jar";
-    }
-    
-    // set default bootclass-libraries for javafxc
-    if (javafxc_bootclasspath_libs.empty()) {
-        javafxc_bootclasspath_libs = "javafxc.jar;javafxrt.jar";
-    }
-    
-    // set default classpath-libraries for javafxc
-    if (javafxc_classpath_libs.empty()) {
-        javafxc_classpath_libs = "javafxgui.jar;javafx-swing.jar;Scenario.jar;jmc.jar";
-    }
-    
-    // set default bootclass-libraries for javafxdoc
-    if (javafxdoc_bootclasspath_libs.empty()) {
-        javafxdoc_bootclasspath_libs = "javafxc.jar;javafxdoc.jar";
-    }
 }
 
-void Configuration::readConfigFile() {
+int Configuration::readConfigFile() {
     // find file
     std::string path = javafxpath;
-    path += "\\javafx.properties";
+    path += "\\profiles\\" + profile_filename;
     std::ifstream file(path.c_str());
     if (file == NULL) {
-        return;
+        fprintf (stderr, "Properties-file %s not found.", profile_filename.c_str());
+        return (EXIT_FAILURE);
     }
     
     // prepare regular expression
@@ -140,30 +131,38 @@ void Configuration::readConfigFile() {
                 continue;
             }
             key   = line.substr (start, end - start + 1);
+            if (key.find(prefix) != 0) {
+                continue;
+            }
+            key.erase (0, prefix.length());
 
-            start = line.find_first_not_of(" \t\n\r", pos+1);
-            end = line.find_last_not_of(" \t\n\r");
+            start = line.find_first_not_of(" \"\t\n\r", pos+1);
+            end = line.find_last_not_of(" \"\t\n\r");
             if (start == std::string::npos || end == std::string::npos) {
                 continue;
             }
             value = line.substr (start, end - start + 1);
             
             // evaluate key/value-pair
-            if (key == "javafx_classpath_libs") {
-                javafx_classpath_libs = value;
+            if (key == "classpath") {
+                profile_classpath = value;
             } else
-            if (key == "javafxc_bootclasspath_libs") {
-                javafxc_bootclasspath_libs = value;
+            if (key == "bootclasspath") {
+                profile_bootclasspath = value;
             } else
-            if (key == "javafxc_classpath_libs") {
-                javafxc_classpath_libs = value;
+            if (key == "bootclasspath_prepend") {
+                profile_bootclasspath_prepend = value;
             } else
-            if (key == "javafxdoc_bootclasspath_libs") {
-                javafxdoc_bootclasspath_libs = value;
+            if (key == "bootclasspath_append") {
+                profile_bootclasspath_append = value;
+            } else
+            if (key == "nativelibpath") {
+                profile_nativelibpath = value;
             };
         }
     }
     file.close();
+    return (EXIT_SUCCESS);
 }
 
 int Configuration::parseArgs(int argc, char** argv) {
@@ -176,7 +175,16 @@ int Configuration::parseArgs(int argc, char** argv) {
                 classpath = arg;
             } else {
                 fprintf (stderr, "No argument for classpath found.");
-                return EXIT_FAILURE;
+                return (EXIT_FAILURE);
+            }
+
+        } else if (0 == strcmp("-profile", arg)) {
+            if (argc-- > 0 && (arg = *argv++) != NULL) {
+                profile_filename = arg;
+                profile_filename += ".properties";
+            } else {
+                fprintf (stderr, "No argument for profile found.");
+                return (EXIT_FAILURE);
             }
 
         } else if (0 == strncmp("-J", arg, 2)) {

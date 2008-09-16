@@ -31,8 +31,8 @@ public:
     Util();
     ~Util();
     
-    std::string evaluatePath (std::string& javafxpath, std::string& libs);
-    int createProcess (std::string& cmd);
+    std::string evaluatePath (const std::string& javafxpath, const std::string& libs);
+    int createProcess (const std::string& cmd);
 };
 
 #endif	/* _UTIL_H */

@@ -26,7 +26,7 @@ public class GenerateTest {
 
     @Test
     public void testGeneratePhase() throws Exception {
-        String javafxLibs = "dist/lib";
+        String javafxLibs = "dist/lib/shared";
         String inputDir = "src/share/classes/javafx/lang";
         String outputDir = getTmpDir().getPath();
         nerrors = 0;

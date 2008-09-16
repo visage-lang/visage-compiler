@@ -39,5 +39,16 @@ class ReverseSequence<T> extends DerivedSequence<T> implements Sequence<T> {
     public T get(int position) {
         return sequence.get(size - 1 - position);
     }
+    
+//    @Override
+//    public void toArray(Object[] dest, int destOffset) {
+//        sequence.toArray(dest, destOffset);
+//        Object obj;
+//        for (int i=0; i<size/2; i++) {
+//            obj = dest[destOffset+i];
+//            dest[destOffset+i] = dest[destOffset+size-i];
+//            dest[destOffset+size-i] = obj;
+//        }
+//    }
 }
 

@@ -21,7 +21,7 @@ FC=
 include Makefile
 
 # Object Directory
-OBJECTDIR=build/javafx_debug
+OBJECTDIR=build/javafx_debug/Cygwin-Windows
 
 # Object Files
 OBJECTFILES= \

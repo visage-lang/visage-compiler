@@ -34,21 +34,25 @@ public:
     std::string vmargs;
     std::string fxargs;
     
-    std::string javafx_classpath_libs;
-    std::string javafxc_bootclasspath_libs;
-    std::string javafxc_classpath_libs;
-    std::string javafxdoc_bootclasspath_libs;
+    std::string profile_classpath;
+    std::string profile_bootclasspath;
+    std::string profile_bootclasspath_prepend;
+    std::string profile_bootclasspath_append;
+    std::string profile_nativelibpath;
     
-    Configuration();
+    Configuration(const std::string& prefix);
     ~Configuration();
     
     int initConfiguration (int argc, char** argv);
     
 private:
     void init();
-    void readConfigFile();
+    int readConfigFile();
     int parseArgs(int argc, char** argv);
     int fileExists(const std::string& path);
+    
+    std::string prefix;
+    std::string profile_filename;
 };
 
 #endif	/* _CONFIGURATION_H */

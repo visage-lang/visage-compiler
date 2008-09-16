@@ -28,7 +28,7 @@
 #include <string>
 
 int main(int argc, char** argv) {
-    Configuration config;
+    Configuration config("compile_");
     Util util;
     int error;
     
@@ -41,13 +41,13 @@ int main(int argc, char** argv) {
     if (! config.vmargs.empty()) {
         cmd += config.vmargs + " ";
     }
-    cmd += "\"-Xbootclasspath/p:" + util.evaluatePath(config.javafxpath, config.javafxc_bootclasspath_libs) + "\" ";
-    cmd += "com.sun.tools.javafx.Main ";
-    cmd += "-classpath \"" + util.evaluatePath(config.javafxpath, config.javafxc_classpath_libs);
+    cmd += "\"-Xbootclasspath/p:" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath_prepend) + "\" ";
+    cmd += "-classpath \"" + util.evaluatePath(config.javafxpath, config.profile_classpath);
     if (! config.classpath.empty()) {
         cmd += ";" + config.classpath;
     }
     cmd += "\" ";
+    cmd += "com.sun.tools.javafx.Main ";
     cmd += config.fxargs;
     
     return util.createProcess (cmd);

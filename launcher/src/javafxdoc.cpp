@@ -29,7 +29,7 @@
 #include "util.h"
 
 int main(int argc, char** argv) {
-    Configuration config;
+    Configuration config("javadoc_");
     Util util;
     int error;
     
@@ -42,11 +42,14 @@ int main(int argc, char** argv) {
     if (! config.vmargs.empty()) {
         cmd += config.vmargs + " ";
     }
-    cmd += "\"-Xbootclasspath/p:" + util.evaluatePath(config.javafxpath, config.javafxdoc_bootclasspath_libs) + "\" ";
-    cmd += "com.sun.tools.javafxdoc.Main ";
+    if (! config.profile_nativelibpath.empty()) {
+        cmd += "-Djava.library.path=\"" + config.profile_nativelibpath + "\" ";
+    }
+    cmd += "\"-Xbootclasspath/p:" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath_prepend) + "\" ";
     if (! config.classpath.empty()) {
         cmd += "-classpath \"" + config.classpath + "\" ";
     }
+    cmd += "com.sun.tools.javafxdoc.Main ";
     cmd += config.fxargs;
     
     return util.createProcess (cmd);

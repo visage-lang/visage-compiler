@@ -38,4 +38,10 @@ class UpcastSequence<T> extends DerivedSequence<T> implements Sequence<T> {
     public T get(int position) {
         return sequence.get(position);
     }
+//    
+//    @Override
+//    public void toArray(Object[] dest, int destOffset) {
+//        sequence.toArray(dest, destOffset);
+//    }
+    
 }

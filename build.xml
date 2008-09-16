@@ -304,7 +304,7 @@
             </doclet>
          </javadoc>
         <java  fork="true" failonerror="true" classname="com.sun.tools.javafxdoc.Main">
-            <classpath location="dist/lib/javafxdoc.jar"/>
+            <classpath location="dist/lib/shared/javafxdoc.jar"/>
             <classpath refid="clspath"/>
             <arg value="-d"/>
             <arg value="${dist.javafxdoc.dir}"/>
@@ -314,7 +314,7 @@
             <arg value="${clsjars}"/>
         	<arg line="-i ${build.dir}/doc/javadoc.xml"/>
             <classpath>
-                <path path="${build.classes.dir}:${javac.test.classpath}:dist/lib/javafxgui.jar"/>
+                <path path="${build.classes.dir}:${javac.test.classpath}"/>
             </classpath>
             <jvmarg line="-Xbootclasspath/p:${bootjars}"/>
             <jvmarg line="-Djava.awt.headless=true"/>
@@ -487,9 +487,6 @@
         </ant>
         <copy todir="dist/bin">
             <fileset dir="src/bin"/>
-            <filterset>
-                <filter token="SCENEGRAPH_JAR" value="${scenegraph.jar.file}"/>
-            </filterset>
         </copy>
         <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>
     </target>
@@ -742,6 +739,8 @@
     <target depends="init" name="-pre-jar">
         <dirname file="${dist.jar}" property="dist.jar.dir"/>
         <mkdir dir="${dist.jar.dir}"/>
+        <dirname file="${dist.scenegraph.jar}" property="dist.desktop.jar.dir"/>
+        <mkdir dir="${dist.desktop.jar.dir}"/>
     </target>
     <target depends="init,compile,-pre-jar" name="-do-jar-without-manifest" unless="manifest.available">
         <jar/>
@@ -764,7 +763,9 @@
         </pathconvert>
         <echo>java -cp "${run.classpath.with.dist.jar}" ${main.class}</echo>
     </target>
-    <target depends="init,compile,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-do-jar-with-libraries" description="Build JAR." name="jar"/>
+    <target depends="init,compile,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-do-jar-with-libraries" description="Build JAR." name="jar">
+        <copy file="${file.reference.scenegraph.jar}" tofile="${dist.scenegraph.jar}" />
+    </target>
     <!--
                 =================
                 EXECUTION SECTION

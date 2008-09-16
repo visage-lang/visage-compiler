@@ -29,7 +29,7 @@
 #include <string>
 
 int main(int argc, char** argv) {
-    Configuration config;
+    Configuration config("execute_");
     Util util;
     int error;
     
@@ -39,8 +39,10 @@ int main(int argc, char** argv) {
     
     // construct command
     std::string cmd = "\"" + config.javacmd + "\" ";
-    cmd += "-Djava.library.path=\"" + config.javafxpath + "\" ";
-    cmd += "-classpath \"" + util.evaluatePath(config.javafxpath, config.javafx_classpath_libs);
+    if (! config.profile_nativelibpath.empty()) {
+        cmd += "-Djava.library.path=\"" + config.profile_nativelibpath + "\" ";
+    }
+    cmd += "-classpath \"" + util.evaluatePath(config.javafxpath, config.profile_classpath);
     if (! config.classpath.empty()) {
         cmd += ";" + config.classpath;
     }
