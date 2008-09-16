@@ -1,8 +1,7 @@
 /*
- * Timeline_TS020_02.fx
+ * Timeline_TS020_01.fx
 
- * @test
- * @run
+ * @test/fail
  */
 
 /**
@@ -29,7 +28,7 @@ function runLater(ms: Number, f: function(): Void): Void {
 }
 
 var images = [1..16];
-var golden: Integer[] = [[0..8], [0..8]]; 
+var golden: Integer[] = [[0..15], [0..15]]; 
 var out: Integer[];
 
 var id: Integer = 0;
@@ -52,9 +51,6 @@ var t : Timeline = Timeline {
             action: function() {
 				//System.out.println("=> {indexof image}");
 				insert indexof image into out;
-				if(indexof image == 8) {
-					t.stop();
-				}
             }
         }
 }

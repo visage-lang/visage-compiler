@@ -2,8 +2,7 @@
  * Regression test for JFXC-1044: KeyFrame.action functions are not invoked in proper time
  *   (for multiple repeat cycles)
  *
- * @test
- * @run
+ * @test/fail
  */
 
 import javafx.animation.*;

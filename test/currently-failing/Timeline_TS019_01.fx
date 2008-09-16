@@ -1,8 +1,7 @@
 /*
- * Timeline_TS020_01.fx
+ * Timeline_TS019_01.fx
 
- * @test
- * @run
+ * @test/fail
  */
 
 /**
@@ -29,7 +28,7 @@ function runLater(ms: Number, f: function(): Void): Void {
 }
 
 var images = [1..16];
-var golden: Integer[] = [[0..15], [0..15]]; 
+var golden: Integer[] = [[0..15], [0..8]]; 
 var out: Integer[];
 
 var id: Integer = 0;
@@ -52,6 +51,9 @@ var t : Timeline = Timeline {
             action: function() {
 				//System.out.println("=> {indexof image}");
 				insert indexof image into out;
+                if(indexof image == 8) {
+                    t.pause();
+                }
             }
         }
 }
@@ -59,11 +61,16 @@ var t : Timeline = Timeline {
 keepAlive.start();
 t.start();
 
-runLater(2000, restart);
+runLater(2000, resume);
+
+function resume() {
+	//System.out.println("t.paused = {t.paused}. will change toggle to false");
+	t.toggle = false;
+	t.resume();
+	runLater(2000, restart);
+}
 
 function restart() {
-	//System.out.println("t.running = {t.running}. will change toggle to false");
-	t.toggle = false;
 	t.start();
 	runLater(2000, check);
 }
