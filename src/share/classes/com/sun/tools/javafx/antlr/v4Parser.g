@@ -5630,9 +5630,10 @@ qualname
 				//
 				errNodes.append($value);
 			}
-			( 
-				(DOT)=> DOT 
+			(
 				
+				(DOT)=>DOT 
+
 				(
 						(IDENTIFIER)=>n2=name
 						{
@@ -5641,7 +5642,7 @@ qualname
 				
 								// The rule caused an identifier to be made up
 								//
-								$inError = true;
+								//$inError = true;
 							}
 							
 							$value = F.at(pos($DOT)).Select($value, $n2.value);
@@ -5655,7 +5656,8 @@ qualname
 						}
 						
 					|	{
-							$value = F.at(pos($DOT)).Select($value, Name.fromString(names, "<missing IDENTIFIER>");
+							$value = F.at(pos($DOT)).Select($value, Name.fromString(names, "<missing>"));
+							endPos($value);
 							log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
 						}
 				)
@@ -5823,7 +5825,7 @@ catch [RecognitionException re] {
 	// JavaFX, so that IDEs can detect it, but flag it as being a manufactured
 	// token to the caller.
 	//
-	$value 		= Name.fromString(names, "<missing IDENTIFIER>");
+	$value 		= Name.fromString(names, "<missing>");
 	$pos   		= semiPos();
 	$inError	= true;
  }
