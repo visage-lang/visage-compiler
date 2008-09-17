@@ -5108,10 +5108,23 @@ type
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 }
-	: typeName cardinality
+	: typeName 	{ errNodes.append($typeName.value); }
+	
+		cardinality
 	
 		{
-			$rtype = F.at(rPos).TypeClass($typeName.value, $cardinality.ary);
+		
+			if	($typeName.value  instanceof JFXErroneous) {
+			
+				// The type did not parse correctly, so we create it as
+				// an erroneous element
+				//
+				$rtype = F.at(rPos).ErroneousType(); //errNodes.elems);
+				
+			} else {
+			
+				$rtype = F.at(rPos).TypeClass($typeName.value, $cardinality.ary);
+			}
 			endPos($rtype);
 		}
 		
@@ -5418,9 +5431,14 @@ typeName
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
+	// Work out current position in the input stream
+	//
+	int	rPos = pos();
+	
 }
 
-	: qualname 		
+	: qualname 		{ errNodes.append($qualname.value); }
 		(
 			  LT ga1=genericArgument 	{ exprbuff.append($ga1.value); }
 			  	
@@ -5444,7 +5462,8 @@ typeName
 			  
 			|	// Non generic
 				{
-					$value = $qualname.value;
+					
+						$value = $qualname.value;
 				}
 		)
 	;
@@ -5460,6 +5479,9 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
+	
+	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
 	
 }
 
@@ -5612,6 +5634,8 @@ qualname
 	// and so this shoudl be erroneous.
 	//
 	$inError = false;
+	
+	$value = null;
 }
 	: (
 			n1=name
@@ -5681,7 +5705,7 @@ qualname
 // up to wherever we made sense of the input.
 //
 catch [RecognitionException re] {
-  
+
   	// First, let's report the error as the user needs to know about it
   	//
     reportError(re);
