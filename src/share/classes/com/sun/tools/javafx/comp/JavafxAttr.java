@@ -1107,12 +1107,22 @@ public class JavafxAttr implements JavafxVisitor {
 
             JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
             forClauses.add(clause);
+            
             JFXVar var = clause.getVar();
+
+            // Don't try to examine erroneous loop controls, such as
+            // when a variable was missing. Again, this is because the IDE may
+            // try to attribute a node that is mostly correct, but contains
+            // one or more components that are in error.
+            //
+            if  (var == null || var instanceof JFXErroneousVar) continue;
+
             Type declType = attribType(var.getJFXType(), forExprEnv);
             JFXExpression expr = (JFXExpression)clause.getSequenceExpression();
             Type exprType = types.upperBound(attribExpr(expr, forExprEnv));
             attribVar(var, forExprEnv);
             chk.checkNonVoid(((JFXTree)clause).pos(), exprType);
+
             Type elemtype;
             // must implement Sequence<T>?
             Type base = types.asSuper(exprType, syms.javafx_SequenceType.tsym);
@@ -1184,6 +1194,20 @@ public class JavafxAttr implements JavafxVisitor {
                  break;
             }
             JFXForExpressionInClause clause = forClauses.get(n);
+
+            // Don't try to examine erroneous in clauses. We don't wish to
+            // place the entire for expression into error nodes, just because
+            // one or more in clauses was in error, so we jsut skip any
+            // erroneous ones.
+            //
+            if  (clause == null || clause instanceof JFXErroneousForExpressionInClause) continue;
+
+            JFXVar v = clause.getVar();
+
+            // Don't try to deal with Erroneous or missing variables
+            //
+            if (v == null || v instanceof JFXErroneousVar) continue;
+            
             if (clause.getVar().getName() == tree.fname.name) {
                 tree.clause = clause;
                 clause.setIndexUsed(true);
@@ -1978,7 +2002,10 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitThrow(JFXThrow tree) {
-        attribExpr(tree.expr, env, syms.throwableType);
+
+        if  (tree != null && tree.expr != null && !(tree.expr instanceof JFXErroneous)) {
+            attribExpr(tree.expr, env, syms.throwableType);
+        }
         result = tree.type = syms.unreachableType;
     }
 
