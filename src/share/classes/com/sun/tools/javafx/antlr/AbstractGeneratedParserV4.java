@@ -33,6 +33,7 @@ import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.tree.JCTree;
 
+import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Options;
 import com.sun.tools.javafx.tree.JFXInterpolateValue;
 import com.sun.tools.javafx.tree.JFXTree;
@@ -367,8 +368,10 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * so that they can navigate source code even while it is not,
      * strictly speaking, valid code.
      */
-    protected JFXErroneous errorTree;
-    
+    protected JFXErroneous errorNode = null;
+
+    protected ListBuffer<JFXErroneous> ASTErrors = new ListBuffer<JFXErroneous>();
+
     /** 
      * Initializes a new instance of GeneratedParser 
      */
@@ -705,7 +708,17 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         // Where we will build the error message string
         //
         StringBuffer mb = new StringBuffer();
-        
+
+        // Rather than just send a diagnostic message containing just a
+        // start position, we really want to create an error spanning
+        // Erroneous node. The recipient, such as the IDE, can then nicely underline
+        // the token(s) that are in error. So we calculate an endPos and start pos to create
+        // an erroneous node at the end of this method, defaulting it to the current
+        // position.
+        //
+        int ep = pos()+1;
+        int sp = pos();
+
         // The exact error message we will construct depends on the
         // exception type that was generated. We will be given one of 
         // the following exceptions:
@@ -753,13 +766,13 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             // We had an extraneous token in the stream, so we have discarded it
             // for error recovery but still need to report it.
             //
-            UnwantedTokenException ute = (UnwantedTokenException) e;
-            
+            UnwantedTokenException  ute = (UnwantedTokenException) e;
+            CommonToken             uwt = (CommonToken)ute.getUnexpectedToken();
             // Inveigh about the extra token
             //
             mb.append(" but I got confused when I found an extra ");
-            
-            mb.append(getTokenErrorDisplay(ute.getUnexpectedToken()));
+            mb.append(getTokenErrorDisplay(uwt));
+
             TokenClassification tokenClass = classifyToken(e.token);
             if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
                 mb.append(" which is ");
@@ -767,6 +780,11 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             }
             
             mb.append(" that should not be there");
+
+            // Work out what our start and end point should be for the error
+            //
+            sp = uwt.getStartIndex();
+            ep = uwt.getStopIndex()+1;
             
         } else if (e instanceof MissingTokenException) {
             
@@ -797,7 +815,14 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                 mb.append(" that should be there");
             }
             
-            
+            // The token is missing, so we want to use the char position directly
+            // after the previous token and just make it a single character long.
+            // This will be the insert point for the missing token, whatever is
+            // actually at that position
+            //
+            sp = semiPos();
+            ep = sp+1;
+
         } else if (e instanceof MismatchedTokenException) {
             
             
@@ -810,6 +835,11 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             {
                 mb.append("hit the end of the script.");
 
+                // The start and end points come directly from the end of the prior token
+                //
+                sp = semiPos();
+                ep = sp+1;
+
             } else {
 
                 mb.append("saw ");
@@ -820,6 +850,11 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                     mb.append(" which is ");
                     mb.append(tokenClass.forHumans());
                 }
+
+                // The start and end points come directly from the mismatched token.
+                //
+                sp = ((CommonToken)mte.token).getStartIndex();
+                ep = ((CommonToken)mte.token).getStopIndex()+1;
             }
             
             if (tokenClass == TokenClassification.KEYWORD && mte.expecting == v4Parser.IDENTIFIER) {
@@ -835,6 +870,8 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             {
                 mb.append(".\n I was looking for the end of the script here");
             }
+
+
             
         } else if (e instanceof NoViableAltException) {
             
@@ -847,6 +884,11 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             {
                 mb.append("hit the end of the script.");
 
+                // The start and end points come directly from the end of the prior token
+                //
+                sp = semiPos();
+                ep = sp+1;
+
             } else {
 
                 mb.append("saw ");
@@ -857,7 +899,14 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                     mb.append(" which is ");
                     mb.append(tokenClass.forHumans());
                 }
+
+                // The start and end points come directly from the mismatched token.
+                //
+                sp = ((CommonToken)nvae.token).getStartIndex();
+                ep = ((CommonToken)nvae.token).getStopIndex()+1;
             }
+
+
             
         } else if (e instanceof MismatchedSetException) {
 
@@ -871,10 +920,38 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                 mb.append(tokenClass.forHumans());
             }
             mb.append(".\n I was looking for one of: "+ mse.expecting);
-                    
+
+             // The start and end points come directly from the mismatched token.
+             //
+             sp = ((CommonToken)e.token).getStartIndex();
+             ep = ((CommonToken)e.token).getStopIndex()+1;
+
         } else {
+
+             // The start and end points come directly from the mismatched token.
+             //
+             sp = ((CommonToken)e.token).getStartIndex();
+             ep = ((CommonToken)e.token).getStopIndex()+1;
+
             mb.append( super.getErrorMessage(e, tokenNames) );
         }
+
+        // Having constructed the error string, and decided on our start
+        // and end points, then we need to create an erroneous node, which we will
+        // eventually supply within the AST, but will also use for logging
+        // the error message, so that the diagnostic positions are useful to
+        // anyone listening to the diagnostics.
+        //
+        errorNode = F.at(sp).Erroneous();
+        endPos(errorNode, ep);
+
+        // Accumulate the error node in a list, so that we
+        // can hand it off to the AST when parsing is complete.
+        //
+        ASTErrors.append(errorNode);
+
+        // Give back the string
+        //
         return  mb.toString();
     }
 
@@ -897,37 +974,40 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
     @Override
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
 
-        // First, where are we. We can use the token that is in error
-        // to find out where it is in the input stream as we want to 
-        // hightlight the error with respect to that.
-        //
-        int pos;
-        if  (
-                   (e instanceof MissingTokenException && input.index() != 1)
-                || e.token.getType() == Token.EOF
-            ) {
-            
-            // We were missing something, or we hit EOF, so place the error at the
-            // end of the previous good token
-            //
-            pos = semiPos();
-            
-        } else {
-            
-            // It wasn't anything missing or it was missing right at the start.
-            //
-            pos = ((CommonToken)(e.token)).getStartIndex();
-        }
-
         // Now we build the appropriate error message
         //
         String msg = getErrorMessage(e, getFXTokenNames(tokenNames));
         
-        // And record the information using hte JavaFX error sink.
+        // And record the information using the JavaFX error sink and the
+        // DiagnosticPostion interface of the errorNode, which is created
+        // by the getErrorMessage call.
         //
-        log.error(pos, MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
+        log.error(errorNode, MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
     }
-    
+
+    /**
+     * Creates the error/warning message that we need to show users/IDEs when
+     * ANTLR has found a parsing error, has recovered from it and is now
+     * telling us that a parsing exception occurred.
+     *
+     * We call our own override of getErrorMessage, and this will build the
+     * a string that is geared towards the JavaFX script author. Then we work out
+     * where we are in the character stream and record the error using the
+     * JavaFX infrastructure.
+     */
+
+    public void displayRecognitionError(String[] tokenNames, RecognitionException e, JFXTree node) {
+
+        // Now we build the appropriate error message
+        //
+        String msg = getErrorMessage(e, getFXTokenNames(tokenNames));
+
+        // And record the information using the JavaFX error sink and the
+        // DiagnosticPostion interface of the supplied node.
+        //
+        log.error(node, MsgSym.MESSAGE_JAVAFX_GENERALERROR, msg);
+    }
+
     /**
      * Provides a reference to the array of human readable descriptions
      * of each token that the lexer can generate.
@@ -1188,7 +1268,8 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         // so gets an end positon the same as its start position.
         //
         if (genEndPos && tree != null) {
-            endPositions.put(tree, end >= tree.getStartPosition() ? end : tree.getStartPosition());
+            
+            endPositions.put(tree, end <= tree.getStartPosition() ? tree.getStartPosition()+1 : end);
         }
     }
 
@@ -1681,6 +1762,64 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                 input.release(mark);
             }
         }
+
+    }
+
+    /** Report a recognition problem.
+	 *
+	 *  This method sets errorRecovery to indicate the parser is recovering
+	 *  not parsing.  Once in recovery mode, no errors are generated.
+	 *  To get out of recovery mode, the parser must successfully match
+	 *  a token (after a resync).  So it will go:
+	 *
+	 * 		1. error occurs
+	 * 		2. enter recovery mode, report error
+	 * 		3. consume until token found in resynch set
+	 * 		4. try to resume parsing
+	 * 		5. next match() will reset errorRecovery mode
+	 *
+	 *  If you override, make sure to update syntaxErrors if you care about that.
+	 */
+    @Override
+	public void reportError(RecognitionException e) {
+
+		// if we've already reported an error and have not matched a token
+		// yet successfully, don't report any errors.
+        //
+		if ( state.errorRecovery ) {
+
+            // Don't count spurious
+            //
+			return;
+		}
+		state.syntaxErrors++;
+		state.errorRecovery = true;
+
+		displayRecognitionError(this.getTokenNames(), e);
+	}
+
+    /**
+     * Acts as per the standard error reporting, but instead of allowing the
+     * normal displayRecognition error to report with reference to the tokens
+     * it has consumed, we always report with reference to the supplied node.
+     * @param e The recognition exception to report on
+     * @param node The node we wnat to report with reference to.
+     */
+    public void reportError(RecognitionException e, JFXTree node) {
+
+        // if we've already reported an error and have not matched a token
+		// yet successfully, don't report any errors.
+        //
+		if ( state.errorRecovery ) {
+
+            // Don't count spurious
+            //
+			return;
+		}
+		state.syntaxErrors++;
+		state.errorRecovery = true;
+
+		displayRecognitionError(this.getTokenNames(), e, node);
 
     }
 }

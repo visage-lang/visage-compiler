@@ -148,6 +148,14 @@ script
 	:  pd=packageDecl si=scriptItems 
 	
 		{
+			// If the parser threw out any error messages, we want to
+			// enter them in to the AST for later analysis if required, but mainly
+			// so they are available to the log sync.
+			//
+			for	(JFXErroneous e : ASTErrors) {
+				$si.items.append(e);
+			}
+			
 			// Construct the JavFX AST
 			//
 			$result = F.Script($packageDecl.value, $si.items.toList());
@@ -1216,13 +1224,33 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 		tr=typeReference 	{ errNodes.append($tr.rtype); }  // Accumulate for errors
 
         (
-            (EQ)=>EQ boundExpression
+              (EQ)=>EQ boundExpression
                 {
                     bValue  = $boundExpression.value;
                     bStatus = $boundExpression.status;
                     errNodes.append($boundExpression.value);
                 }
-        )? 
+                
+			| // Missing initializer. This is fine for var, but cannot be
+			  // the case for def, so we create an erroneous node for the intializer
+			  // in that case, and positoin it where the initializer should be.
+			  //
+			  {
+			  	if	(($variableLabel.modifiers & JavafxFlags.IS_DEF) == JavafxFlags.IS_DEF) {
+			  	
+			  		// Create an erroneous node where we should have the intializer
+			  		//
+			  		bStatus = UNBOUND;
+			  		bValue  = F.at(semiPos()).Erroneous();
+			  		endPos(bValue);							// End pos will adjust span so that it is one character long.
+			  		
+			  		// Send out the error
+			  		//
+			  		log.error(bValue, MsgSym.MESSAGE_JAVAFX_BAD_DEF, $name.text);
+			  	}
+			  
+			  }
+        )
         
         (
             (ON)=>onReplaceClause
@@ -5141,14 +5169,31 @@ type
 //
 catch [RecognitionException re] {
   
-  	// First, lets report the error as the user needs to know about it
-  	//
-    reportError(re);
-
-	// Perform custom resync operation
+	// Now create an AST node that represents a missing type, The required entry
+	// is of type Name so we use an identifier name that cannot exist in
+	// JavaFX, so that IDEs can detect it.
 	//
-	rtype =     resyncType(rPos, re);
+	// Note that if this was part of a type refernce: ':' tttt, then we want to
+	// report the error with reference to the ':' as this is easier for the IDE
+	// to handle.
+	//	
+	if	(input.LA(-1) == COLON) {
+	
+		rPos = pos(input.LT(-1));	// Get the start point of the previous token.
+	}
+	
+	$rtype = F.at(rPos).ErroneousType(errNodes.elems);
+	endPos($rtype);
+	
+   	// Now report the error as the user needs to know about it, but with 
+   	// refernce to the error type
+  	//
+    reportError(re, $rtype);
 
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
  }
 
 typeFunction
@@ -5368,14 +5413,6 @@ typeReference
 //
 catch [RecognitionException re] {
   
-  	// First, let's report the error as the user needs to know about it
-  	//
-    reportError(re);
-
-	// Now we perform standard ANTLR recovery here
-	//
-	recover(input, re);
-	
 	// To avoid the complications of what to create class wise if
 	// we get an error here, we create a dummy unknown type. Because
 	// we log the error, we won't perform codegen, but the IDE will
@@ -5383,6 +5420,15 @@ catch [RecognitionException re] {
 	//
 	$rtype = F.at(rPos).TypeUnknown();
 	endPos($rtype);
+	
+  	// Now, let's report the error as the user needs to know about it, but with
+  	// reference to our new node.
+  	//
+    reportError(re, $rtype);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
 }
 
 // -------------------------
@@ -5483,6 +5529,7 @@ typeName
 //
 catch [RecognitionException re] {
   
+  System.out.println("Exception was in typeName");
   	// First, let's report the error as the user needs to know about it
   	//
     reportError(re);
