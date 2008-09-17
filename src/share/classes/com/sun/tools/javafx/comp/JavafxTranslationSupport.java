@@ -573,6 +573,9 @@ public abstract class JavafxTranslationSupport {
             JCExpression locationFieldRef = make.at(diagPos).Select(makeTypeTree(diagPos, type), defs.defaultingTypeInfoFieldName);
             return getLocationValue(diagPos, locationFieldRef, TYPE_KIND_OBJECT);
         } else {
+            if (type.isPrimitive()) {
+                type = types.boxedClass(type).type;
+            }
             List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, type, true));
             return runtime(diagPos, typeInfosString, "getTypeInfo", typeArgs, List.<JCExpression>nil());
         }
