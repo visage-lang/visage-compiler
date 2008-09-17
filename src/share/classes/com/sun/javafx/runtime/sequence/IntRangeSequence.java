@@ -23,7 +23,7 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.TypeInfos;
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * Special case implementation for sequences that are ranges of integers, such as [1..10].  Range sequences should
@@ -39,7 +39,7 @@ class IntRangeSequence extends AbstractSequence<Integer> implements Sequence<Int
 
 
     public IntRangeSequence(int start, int bound, int step, boolean exclusive) {
-        super(TypeInfos.Integer);
+        super(TypeInfo.Integer);
         this.start = start;
         this.step = step;
         if (Math.abs((long) start - (long) bound) + ((long) (exclusive ? 0 : 1)) > Integer.MAX_VALUE)

@@ -23,10 +23,10 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
-import com.sun.javafx.runtime.TypeInfos;
-import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.location.SequenceChangeListener;
+import com.sun.javafx.runtime.location.SequenceLocation;
 
 /**
  * SimpleBoundComprehension -- special case of a bound list comprehension with one dimension, no where clause
@@ -68,7 +68,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
         V[] intermediateResults = Util.<V>newObjectArray(sequence.size());
         for (int i = 0; i < intermediateResults.length; i++)
             intermediateResults[i] = computeElement$(sequence.get(i), i);
-        return Sequences.make(TypeInfos.getTypeInfo(getClazz()), intermediateResults);
+        return Sequences.make(TypeInfo.getTypeInfo(getClazz()), intermediateResults);
     }
 
     private void addTriggers() {
@@ -96,7 +96,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
                     ourNewElements[directlyAffectedSize + i]
                             = computeElement$(oldValue.get(indirectlyAffectedStart + i), indirectlyAffectedStart + i + elementsAdded);
 
-                Sequence<V> vSequence = Sequences.make(TypeInfos.getTypeInfo(getClazz()), ourNewElements);
+                Sequence<V> vSequence = Sequences.make(TypeInfo.getTypeInfo(getClazz()), ourNewElements);
                 updateSlice(startPos, updateTrailingElements ? indirectlyAffectedEnd : endPos, vSequence);
             }
         });

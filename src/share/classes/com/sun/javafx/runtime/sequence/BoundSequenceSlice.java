@@ -89,7 +89,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
     private void addTriggers() {
         sequenceLoc.addChangeListener(new SequenceChangeListener<T>() {
 
-            public void onChange(int startPos, int endPos, Sequence newElements, Sequence oldValue, Sequence newValue) {
+            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 computeBounds(true, true);
 
                 Sequence<T> newSeq = newValue.getSlice(lower, upper);

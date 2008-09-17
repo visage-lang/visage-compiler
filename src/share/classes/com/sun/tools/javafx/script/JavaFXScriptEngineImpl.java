@@ -42,7 +42,7 @@ import com.sun.javafx.api.tree.ExpressionTree;
 import com.sun.javafx.api.tree.SourcePositions;
 import com.sun.javafx.api.tree.UnitTree;
 import com.sun.javafx.runtime.Entry;
-import com.sun.javafx.runtime.TypeInfos;
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javafx.api.JavafxcTool;
@@ -387,7 +387,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                 }
 
                 // call main method
-                Object args = TypeInfos.String.getEmptySequence();
+                Object args = TypeInfo.String.emptySequence;
                 result = mainMethod.invoke(null, args);
             }
 

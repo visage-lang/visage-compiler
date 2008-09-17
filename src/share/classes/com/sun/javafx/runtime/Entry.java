@@ -43,7 +43,7 @@ public class Entry {
 
     public static void start(Class<?> app, String[] commandLineArgs) throws Throwable {
         Method main = app.getMethod(entryMethodName(), Sequence.class);
-        Object args = Sequences.make(TypeInfos.String, commandLineArgs);
+        Object args = Sequences.make(TypeInfo.String, commandLineArgs);
         
         try {
             main.setAccessible(true);

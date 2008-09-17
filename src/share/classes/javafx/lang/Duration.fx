@@ -191,5 +191,5 @@ public class Duration extends com.sun.javafx.runtime.Duration {
         return com.sun.javafx.runtime.Duration.make(ms) as Duration;
     }
 
-    def TYPE_INFO = com.sun.javafx.runtime.TypeInfos.makeAndRegisterTypeInfo(Duration.valueOf(0.0));
+    def TYPE_INFO = com.sun.javafx.runtime.TypeInfo.makeAndRegisterTypeInfo(Duration.valueOf(0.0));
 

@@ -63,11 +63,11 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
     }
 
     public T getDefaultValue() {
-        return ti.getDefaultValue();
+        return ti.defaultValue;
     }
 
     public Sequence<T> getEmptySequence() {
-        return ti.getEmptySequence();
+        return ti.emptySequence;
     }
 
     public boolean isEmpty() {

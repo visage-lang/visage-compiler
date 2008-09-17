@@ -27,8 +27,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
-import com.sun.javafx.runtime.TypeInfos;
 
 /**
  * Relatively inefficient implementation of a mutable sequence with a slice-replace operation.  This is used internally
@@ -105,7 +105,7 @@ public class DumbMutableSequence<T> implements Iterable<T> {
     }
 
     public Sequence<T> get(Class<T> clazz) {
-        return Sequences.make(TypeInfos.getTypeInfo(clazz), array, size);
+        return Sequences.make(TypeInfo.getTypeInfo(clazz), array, size);
     }
 
     public int size() {

@@ -79,6 +79,10 @@ public class SequenceVariable<T>
             public void onReplaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 replaceSlice(startPos, endPos, newElements, newValue);
             }
+
+            public void onReplaceElement(int pos, T newElement, Sequence<T> oldValue, Sequence<T> newValue) {
+                replaceElement(pos, newElement, newValue);
+            }
         };
     }
 
@@ -117,7 +121,12 @@ public class SequenceVariable<T>
         assert (boundLocation == null);
         Sequence<T> oldValue = $value;
 
-        if (preReplace(!Sequences.sliceEqual(oldValue, startPos, endPos, newElements))) {
+        if (!hasDependencies()) {
+            preReplace(true);
+            $value = newValue;
+            setValid();
+        }
+        else if (preReplace(!Sequences.sliceEqual(oldValue, startPos, endPos, newElements))) {
             boolean invalidateDependencies = isValid() || state == STATE_UNBOUND;
             $value = newValue;
             setValid();
@@ -125,13 +134,33 @@ public class SequenceVariable<T>
         }
         else
             setValid();
-        return getRawValue();
-    }
-
-
-    private Sequence<T> getRawValue() {
         return $value;
     }
+
+    /**
+     * Optimized version, for single-element updates
+     */
+    private Sequence<T> replaceElement(int pos, T newElement, Sequence<T> newValue) {
+        assert (boundLocation == null);
+        Sequence<T> oldValue = $value;
+
+        if (!hasDependencies()) {
+            preReplace(true);
+            $value = newValue;
+            setValid();
+        }
+        else if (preReplace(!newElement.equals(oldValue.get(pos)))) {
+            boolean invalidateDependencies = isValid() || state == STATE_UNBOUND;
+            $value = newValue;
+            setValid();
+            Sequence<T> newElements = Sequences.singleton(oldValue.getElementType(), newElement);
+            notifyListeners(pos, pos, newElements, oldValue, newValue, invalidateDependencies);
+        }
+        else
+            setValid();
+        return $value;
+    }
+
 
     public Class<T> getElementType() {
         return clazz;
@@ -258,7 +287,7 @@ public class SequenceVariable<T>
     public Sequence<T> setAsSequence(Sequence<? extends T> newValue) {
         Sequence<T> result;
         ensureNotBound();
-        Sequence<T> oldValue = getRawValue();
+        Sequence<T> oldValue = $value;
         state = STATE_UNBOUND;
         // @@@ To make sequence triggers consistent with others (more JFXC-885), use replaceValue() instead
         if (!Sequences.isEqual(oldValue, newValue) || state == STATE_UNBOUND && !isValid()) {
@@ -281,21 +310,21 @@ public class SequenceVariable<T>
     @Override
     public T set(int position, T newValue) {
         ensureNotBound();
-        SequenceMutator.set(getRawValue(), mutationListener, position, newValue);
+        SequenceMutator.set($value, mutationListener, position, newValue);
         return newValue;
     }
 
     @Override
     public Sequence<? extends T> replaceSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
         ensureNotBound();
-        SequenceMutator.replaceSlice(getRawValue(), mutationListener, startPos, endPos, newValues);
+        SequenceMutator.replaceSlice($value, mutationListener, startPos, endPos, newValues);
         return newValues;
     }
 
     @Override
     public void delete(int position) {
         ensureNotBound();
-        SequenceMutator.delete(getRawValue(), mutationListener, position);
+        SequenceMutator.delete($value, mutationListener, position);
     }
 
     @Override
@@ -306,7 +335,7 @@ public class SequenceVariable<T>
     @Override
     public void delete(SequencePredicate<T> sequencePredicate) {
         ensureNotBound();
-        SequenceMutator.delete(getRawValue(), mutationListener, sequencePredicate);
+        SequenceMutator.delete($value, mutationListener, sequencePredicate);
     }
 
     @Override
@@ -330,72 +359,72 @@ public class SequenceVariable<T>
     @Override
     public void insert(T value) {
         ensureNotBound();
-        SequenceMutator.insert(getRawValue(), mutationListener, value);
+        SequenceMutator.insert($value, mutationListener, value);
     }
 
     @Override
     public void insert(Sequence<? extends T> values) {
         ensureNotBound();
-        SequenceMutator.insert(getRawValue(), mutationListener, values);
+        SequenceMutator.insert($value, mutationListener, values);
     }
 
     public void insertFirst(T value) {
         ensureNotBound();
-        SequenceMutator.insertFirst(getRawValue(), mutationListener, value);
+        SequenceMutator.insertFirst($value, mutationListener, value);
     }
 
     @Override
     public void insertFirst(Sequence<? extends T> values) {
         ensureNotBound();
-        SequenceMutator.insertFirst(getRawValue(), mutationListener, values);
+        SequenceMutator.insertFirst($value, mutationListener, values);
     }
 
     @Override
     public void insertBefore(T value, int position) {
         ensureNotBound();
-        SequenceMutator.insertBefore(getRawValue(), mutationListener, value, position);
+        SequenceMutator.insertBefore($value, mutationListener, value, position);
     }
 
     @Override
     public void insertBefore(T value, SequencePredicate<T> sequencePredicate) {
         ensureNotBound();
-        SequenceMutator.insertBefore(getRawValue(), mutationListener, value, sequencePredicate);
+        SequenceMutator.insertBefore($value, mutationListener, value, sequencePredicate);
     }
 
     @Override
     public void insertBefore(Sequence<? extends T> values, int position) {
         ensureNotBound();
-        SequenceMutator.insertBefore(getRawValue(), mutationListener, values, position);
+        SequenceMutator.insertBefore($value, mutationListener, values, position);
     }
 
     @Override
     public void insertBefore(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
         ensureNotBound();
-        SequenceMutator.insertBefore(getRawValue(), mutationListener, values, sequencePredicate);
+        SequenceMutator.insertBefore($value, mutationListener, values, sequencePredicate);
     }
 
     @Override
     public void insertAfter(T value, int position) {
         ensureNotBound();
-        SequenceMutator.insertAfter(this.getRawValue(), mutationListener, value, position);
+        SequenceMutator.insertAfter($value, mutationListener, value, position);
     }
 
     @Override
     public void insertAfter(T value, SequencePredicate<T> sequencePredicate) {
         ensureNotBound();
-        SequenceMutator.insertAfter(getRawValue(), mutationListener, value, sequencePredicate);
+        SequenceMutator.insertAfter($value, mutationListener, value, sequencePredicate);
     }
 
     @Override
     public void insertAfter(Sequence<? extends T> values, int position) {
         ensureNotBound();
-        SequenceMutator.insertAfter(getRawValue(), mutationListener, values, position);
+        SequenceMutator.insertAfter($value, mutationListener, values, position);
     }
 
     @Override
     public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
         ensureNotBound();
-        SequenceMutator.insertAfter(getRawValue(), mutationListener, values, sequencePredicate);
+        SequenceMutator.insertAfter($value, mutationListener, values, sequencePredicate);
     }
 
     private class BoundLocationInfo {

@@ -29,7 +29,7 @@ import java.util.List;
 
 import com.sun.javafx.functions.*;
 import com.sun.javafx.runtime.FXObject;
-import com.sun.javafx.runtime.TypeInfos;
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.annotation.SourceName;
 import com.sun.javafx.runtime.location.*;
 import com.sun.javafx.runtime.sequence.Sequence;
@@ -793,7 +793,7 @@ public class FXLocal {
                 Object[] objs = new Object[nvalues];
                 for (int i = 0;  i < nvalues;  i++)
                     objs[i] = ((FXLocal.Value) values[i]).asObject();
-                return Sequences.make(TypeInfos.getTypeInfo(context.asClass(elementType)), objs);
+                return Sequences.make(TypeInfo.getTypeInfo(context.asClass(elementType)), objs);
             }
             return seq;
         }

@@ -183,6 +183,11 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
             replaceListeners.remove(listener);
     }
 
+    public boolean hasDependencies() {
+        return (replaceListeners != null && replaceListeners.size() > 0)
+                || super.hasDependencies();
+    }
+
     /** Called from replaceValue(); updates state machine and computes whether triggers should fire */
     protected boolean preReplace(boolean changed) {
         boolean shouldFire = changed;

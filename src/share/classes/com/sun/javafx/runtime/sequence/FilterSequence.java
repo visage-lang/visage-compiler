@@ -32,28 +32,15 @@ import java.util.BitSet;
  *
  * @author Brian Goetz
  */
-class FilterSequence<T> extends AbstractSequence<T> implements Sequence<T> {
-
-    private final Sequence<? extends T> sequence;
+class FilterSequence<T> extends DerivedSequence<T> implements Sequence<T> {
     private final int[] indices;
 
     public FilterSequence(Sequence<T> sequence, BitSet bits) {
-        super(sequence.getElementType());
-        this.sequence = sequence;
-        indices = new int[bits.cardinality()];
+        // @@@ This is pretty wasteful of space; would probably be cheaper to just copy the values
+        super(sequence.getElementType(), sequence, bits.cardinality(), sequence.getDepth() + 1);
+        indices = new int[size];
         for (int i = bits.nextSetBit(0), next = 0; i >= 0; i = bits.nextSetBit(i + 1))
             indices[next++] = i;
-    }
-
-    @Override
-    public int size() {
-        return indices.length;
-    }
-
-
-    @Override
-    public int getDepth() {
-        return sequence.getDepth() + 1;
     }
 
     @Override

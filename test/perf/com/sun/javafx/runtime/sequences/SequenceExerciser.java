@@ -96,7 +96,7 @@ class RandomWriteGenerator implements SequenceOpGenerator {
 class RandomAccessGenerator implements SequenceOpGenerator {
     private int opCount;
     private int readPercentage;
-    
+
     public void parseOptions(String[] options, int start) {
         opCount = Integer.parseInt(options[start]);
         readPercentage = Integer.parseInt(options[start+1]);

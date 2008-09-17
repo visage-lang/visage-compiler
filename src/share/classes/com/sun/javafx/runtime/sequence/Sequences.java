@@ -26,7 +26,6 @@ package com.sun.javafx.runtime.sequence;
 import java.util.*;
 
 import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.TypeInfos;
 import com.sun.javafx.runtime.Util;
 
 /**
@@ -40,9 +39,6 @@ import com.sun.javafx.runtime.Util;
  */
 public final class Sequences {
 
-    public static final Integer INTEGER_ZERO = 0;
-    public static final Double DOUBLE_ZERO = 0.0;
-    public static final Boolean BOOLEAN_ZERO = false;
     public static final int FLATTENING_THRESHOLD = 16;
 
     // Inhibit instantiation
@@ -57,7 +53,7 @@ public final class Sequences {
     /** Factory for simple sequence generation */
     public static<T> Sequence<T> make(TypeInfo<T> ti, T... values) {
         if (values == null || values.length == 0)
-            return ti.getEmptySequence();
+            return ti.emptySequence;
         else
             return new ArraySequence<T>(ti, values);
     }
@@ -65,7 +61,7 @@ public final class Sequences {
     /** Factory for simple sequence generation */
     public static<T> Sequence<T> make(TypeInfo<T> ti, T[] values, int size) {
         if (values == null || size <= 0)
-            return ti.getEmptySequence();
+            return ti.emptySequence;
         else
             return new ArraySequence<T>(ti, values, size);
     }
@@ -77,7 +73,7 @@ public final class Sequences {
     /** Factory for simple sequence generation */
     public static<T> Sequence<T> make(TypeInfo<T> ti, List<? extends T> values) {
         if (values == null || values.size() == 0)
-            return ti.getEmptySequence();
+            return ti.emptySequence;
         else
             return new ArraySequence<T>(ti, values);
     }
@@ -179,14 +175,14 @@ public final class Sequences {
     /** Create a sequence containing a single element, the specified value */
     public static<T> Sequence<T> singleton(TypeInfo<T> ti, T t) {
         if (t == null)
-            return ti.getEmptySequence();
+            return ti.emptySequence;
         else
             return new SingletonSequence<T>(ti, t);
     }
 
     /** Create an empty sequence */
     public static<T> Sequence<T> emptySequence(Class<T> clazz) {
-        return TypeInfos.getTypeInfo(clazz).getEmptySequence();
+        return TypeInfo.getTypeInfo(clazz).emptySequence;
     }
 
     /** Reverse an existing sequence */
@@ -204,7 +200,8 @@ public final class Sequences {
     @SuppressWarnings("unchecked")
     public static<T> Sequence<T> fromCollection(TypeInfo<T> ti, Collection<T> values) {
         if (values == null)
-            return ti.getEmptySequence();
+            return ti.emptySequence;
+        // OPT: Use handoff, pre-size array
         return new ArraySequence<T>(ti, (T[]) values.toArray());
     }
 
@@ -301,88 +298,88 @@ public final class Sequences {
     /** Convert a T[] to a Sequence<T> */
     public static<T> Sequence<T> fromArray(TypeInfo<T> ti, T[] values) {
         if (values == null)
-            return ti.getEmptySequence();
+            return ti.emptySequence;
         return new ArraySequence<T>(ti, values);
     }
 
     /** Convert a long[] to a Sequence<Long> */
     public static Sequence<Long> fromArray(long[] values) {
         if (values == null)
-            return TypeInfos.Long.getEmptySequence();
+            return TypeInfo.Long.emptySequence;
         Long[] boxed = new Long[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = values[i];
-        return new ArraySequence<Long>(TypeInfos.Long, boxed, values.length);
+        return new ArraySequence<Long>(TypeInfo.Long, boxed, values.length);
     }
 
     /** Convert an int[] to a Sequence<Integer> */
     public static Sequence<Integer> fromArray(int[] values) {
         if (values == null)
-            return TypeInfos.Integer.getEmptySequence();
+            return TypeInfo.Integer.emptySequence;
         Integer[] boxed = new Integer[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = values[i];
-        return new ArraySequence<Integer>(TypeInfos.Integer, boxed, values.length);
+        return new ArraySequence<Integer>(TypeInfo.Integer, boxed, values.length);
     }
 
     /** Convert a short[] to a Sequence<Integer> */
     public static Sequence<Integer> fromArray(short[] values) {
         if (values == null)
-            return TypeInfos.Integer.getEmptySequence();
+            return TypeInfo.Integer.emptySequence;
         Integer[] boxed = new Integer[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = (int) values[i];
-        return new ArraySequence<Integer>(TypeInfos.Integer, boxed, values.length);
+        return new ArraySequence<Integer>(TypeInfo.Integer, boxed, values.length);
     }
 
     /** Convert a char[] to a Sequence<Integer> */
     public static Sequence<Integer> fromArray(char[] values) {
         if (values == null)
-            return TypeInfos.Integer.getEmptySequence();
+            return TypeInfo.Integer.emptySequence;
         Integer[] boxed = new Integer[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = (int) values[i];
-        return new ArraySequence<Integer>(TypeInfos.Integer, boxed, values.length);
+        return new ArraySequence<Integer>(TypeInfo.Integer, boxed, values.length);
     }
 
     /** Convert a byte[] to a Sequence<Integer> */
     public static Sequence<Integer> fromArray(byte[] values) {
         if (values == null)
-            return TypeInfos.Integer.getEmptySequence();
+            return TypeInfo.Integer.emptySequence;
         Integer[] boxed = new Integer[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = (int) values[i];
-        return new ArraySequence<Integer>(TypeInfos.Integer, boxed, values.length);
+        return new ArraySequence<Integer>(TypeInfo.Integer, boxed, values.length);
     }
 
     /** Convert a double[] to a Sequence<Double> */
     public static Sequence<Double> fromArray(double[] values) {
         if (values == null)
-            return TypeInfos.Double.getEmptySequence();
+            return TypeInfo.Double.emptySequence;
         Double[] boxed = new Double[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = values[i];
-        return new ArraySequence<Double>(TypeInfos.Double, boxed, values.length);
+        return new ArraySequence<Double>(TypeInfo.Double, boxed, values.length);
     }
 
     /** Convert a float[] to a Sequence<Double> */
     public static Sequence<Double> fromArray(float[] values) {
         if (values == null)
-            return TypeInfos.Double.getEmptySequence();
+            return TypeInfo.Double.emptySequence;
         Double[] boxed = new Double[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = (double) values[i];
-        return new ArraySequence<Double>(TypeInfos.Double, boxed, values.length);
+        return new ArraySequence<Double>(TypeInfo.Double, boxed, values.length);
     }
 
     /** Convert a boolean[] to a Sequence<Boolean> */
     public static Sequence<Boolean> fromArray(boolean[] values) {
         if (values == null)
-            return TypeInfos.Boolean.getEmptySequence();
+            return TypeInfo.Boolean.emptySequence;
         Boolean[] boxed = new Boolean[values.length];
         for (int i=0; i<values.length; i++)
             boxed[i] = values[i];
-        return new ArraySequence<Boolean>(TypeInfos.Boolean, boxed, values.length);
+        return new ArraySequence<Boolean>(TypeInfo.Boolean, boxed, values.length);
     }
 
     /** Convert a Sequence<T> to an array */
@@ -861,8 +858,7 @@ public final class Sequences {
         T[] array = Sequences.toArray(seq);
         List<T> list = Arrays.asList(array);
         Collections.shuffle(list);
-        Sequence<T> se = Sequences.make(seq.getElementType(), list);
-        return se;
+        return Sequences.make(seq.getElementType(), list);
     }
     
 }

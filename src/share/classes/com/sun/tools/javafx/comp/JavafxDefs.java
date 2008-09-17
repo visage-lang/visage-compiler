@@ -51,7 +51,7 @@ public class JavafxDefs {
     public static final String startMethodString = "com.sun.javafx.runtime.Entry.start";
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
-    public static final String typeInfosString = "com.sun.javafx.runtime.TypeInfos";
+    public static final String typeInfosString = "com.sun.javafx.runtime.TypeInfo";
     public static final String internalRunFunctionNameString = Entry.entryMethodName();
     public static final String receiverNameString = "receiver$";
     public static final String initializeNameString ="initialize$";

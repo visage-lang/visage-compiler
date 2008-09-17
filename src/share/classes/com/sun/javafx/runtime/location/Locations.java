@@ -144,6 +144,10 @@ public class Locations {
             return getLocation().isMutable();
         }
 
+        public boolean hasDependencies() {
+            return getLocation().hasDependencies();
+        }
+
         public void invalidate() {
             getLocation().invalidate();
         }

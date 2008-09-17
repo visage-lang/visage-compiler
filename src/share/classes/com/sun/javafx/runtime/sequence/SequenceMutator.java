@@ -39,6 +39,7 @@ public class SequenceMutator {
 
     public interface Listener<T> {
         public void onReplaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue);
+        public void onReplaceElement(int pos, T newElement, Sequence<T> oldValue, Sequence<T> newValue);
     }
 
     // Inhibit instantiation
@@ -136,19 +137,17 @@ public class SequenceMutator {
             return replaceSlice(target, listener, startPos, endPos, target.getEmptySequence());
 
         Sequence<T> result;
-        Sequence<T> singleton = Sequences.singleton(target.getElementType(), newValue);
 
         // @@@ OPT: Consider a single-element insert sequence type
         if (startPos == endPos) {
             result = new ReplacementSequence<T>(target, startPos, newValue);
-            if (shouldFlatten(result)) {
+            if (shouldFlatten(result))
                 result = result.flatten();
-            }
             if (listener != null) {
-                listener.onReplaceSlice(startPos, endPos, singleton, target, result);
+                listener.onReplaceElement(startPos, newValue, target, result);
             }
         } else {
-            result = replaceSlice(target, listener, startPos, endPos, singleton);
+            result = replaceSlice(target, listener, startPos, endPos, Sequences.singleton(target.getElementType(), newValue));
         }
         return result;
     }

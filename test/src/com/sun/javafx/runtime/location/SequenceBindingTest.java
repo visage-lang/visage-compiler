@@ -24,7 +24,7 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.JavaFXTestCase;
-import com.sun.javafx.runtime.TypeInfos;
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.sequence.*;
 
 /**
@@ -262,11 +262,11 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertException(AssignToBoundException.class, seq, "deleteValue(T)", 1);
         assertException(AssignToBoundException.class, seq, "delete(I)", 0);
         assertException(AssignToBoundException.class, seq, "set(IT)", 0, 0);
-        assertException(AssignToBoundException.class, seq, "setAsSequence(Lcom.sun.javafx.runtime.sequence.Sequence;)", TypeInfos.Integer.getEmptySequence());
+        assertException(AssignToBoundException.class, seq, "setAsSequence(Lcom.sun.javafx.runtime.sequence.Sequence;)", TypeInfo.Integer.emptySequence);
         assertException(AssignToBoundException.class, seq, "insert(T)", 0);
-        assertException(AssignToBoundException.class, seq, "insert(Lcom.sun.javafx.runtime.sequence.Sequence;)", TypeInfos.Integer.getEmptySequence());
+        assertException(AssignToBoundException.class, seq, "insert(Lcom.sun.javafx.runtime.sequence.Sequence;)", TypeInfo.Integer.emptySequence);
         assertException(AssignToBoundException.class, seq, "insertFirst(T)", 0);
-        assertException(AssignToBoundException.class, seq, "insertFirst(Lcom.sun.javafx.runtime.sequence.Sequence;)", TypeInfos.Integer.getEmptySequence());
+        assertException(AssignToBoundException.class, seq, "insertFirst(Lcom.sun.javafx.runtime.sequence.Sequence;)", TypeInfo.Integer.emptySequence);
         // Also insertBefore/After 
     }
 
@@ -300,7 +300,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testDependentTrigger() {
-        final SequenceLocation<Integer> v = SequenceVariable.make(Integer.class, Sequences.make(TypeInfos.Integer, 1, 2, 3));
+        final SequenceLocation<Integer> v = SequenceVariable.make(Integer.class, Sequences.make(TypeInfo.Integer, 1, 2, 3));
         final SequenceLocation<Integer> b = SequenceVariable.make(Integer.class, false,
                                                                   new SequenceBindingExpression<Integer>() {
                                                                       public Sequence<Integer> computeValue() {
@@ -317,7 +317,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(vh);
         assertEqualsAndClear(bh);
 
-        v.setAsSequence(Sequences.make(TypeInfos.Integer, 1, 2));
+        v.setAsSequence(Sequences.make(TypeInfo.Integer, 1, 2));
         assertEquals(v, 1, 2);
         assertEquals(b, 1, 2);
         assertEqualsAndClear(vh, "d-2-3", "d-1-2", "d-0-1", "i-0-1", "i-1-2");
@@ -446,7 +446,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testBoundReverse() {
-        SequenceLocation<Integer> a = SequenceVariable.make(Integer.class, Sequences.make(TypeInfos.Integer, 1, 2, 3));
+        SequenceLocation<Integer> a = SequenceVariable.make(Integer.class, Sequences.make(TypeInfo.Integer, 1, 2, 3));
         SequenceLocation<Integer> r = BoundSequences.reverse(a);
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
         r.addChangeListener(hl);
@@ -493,7 +493,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testChainedSequenceBind() {
-        final SequenceLocation<Integer> a = SequenceVariable.make(Integer.class, Sequences.make(TypeInfos.Integer, 1, 2, 3));
+        final SequenceLocation<Integer> a = SequenceVariable.make(Integer.class, Sequences.make(TypeInfo.Integer, 1, 2, 3));
         final SequenceLocation<Integer> b = SequenceVariable.make(Integer.class, false,
                                                                   new SequenceBindingExpression<Integer>() {
                                                                       public Sequence<Integer> computeValue() {
@@ -517,7 +517,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(b, 1, 2, 3, 4);
         assertEquals(4, i);
         assertEquals(4, j);
-        a.setAsSequence(Sequences.make(TypeInfos.Integer, 1));
+        a.setAsSequence(Sequences.make(TypeInfo.Integer, 1));
         assertEquals(b, 1);
         assertEquals(1, i);
         assertEquals(1, j);
@@ -561,7 +561,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testSliceTriggers() {
-        SequenceLocation<Integer> a = SequenceVariable.make(Integer.class, Sequences.make(TypeInfos.Integer, 1, 2, 3));
+        SequenceLocation<Integer> a = SequenceVariable.make(Integer.class, Sequences.make(TypeInfo.Integer, 1, 2, 3));
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
         a.addChangeListener(hl);
         a.setAsSequence(Sequences.range(1, 2));
@@ -600,11 +600,11 @@ public class SequenceBindingTest extends JavaFXTestCase {
     public void testBoundSequenceBuilder() {
         BoundSequenceBuilder<Integer> sb = new BoundSequenceBuilder<Integer>(Integer.class);
         IntLocation a = IntVariable.make(1);
-        final SequenceLocation<Integer> b = SequenceVariable.make(Integer.class, Sequences.make(TypeInfos.Integer, 4, 5, 6));
+        final SequenceLocation<Integer> b = SequenceVariable.make(Integer.class, Sequences.make(TypeInfo.Integer, 4, 5, 6));
         IntLocation c = IntVariable.make(10);
         SequenceLocation<Integer> d = SequenceVariable.make(Integer.class, new SequenceBindingExpression<Integer>() {
             public Sequence<Integer> computeValue() {
-                return Sequences.make(TypeInfos.Integer, b.getAsSequence().size());
+                return Sequences.make(TypeInfo.Integer, b.getAsSequence().size());
             }
         }, b);
 

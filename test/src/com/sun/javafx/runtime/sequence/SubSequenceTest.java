@@ -23,7 +23,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
-import com.sun.javafx.runtime.TypeInfos;
+import com.sun.javafx.runtime.TypeInfo;
 import org.junit.Assert;
 
 /**
@@ -42,10 +42,10 @@ public class SubSequenceTest extends JavaFXTestCase {
 
     @Override
     protected void setUp() {
-        Sequence<Integer> baseSequence = Sequences.make(TypeInfos.Integer, 1, 2, 3);
+        Sequence<Integer> baseSequence = Sequences.make(TypeInfo.Integer, 1, 2, 3);
 
-        SUBSEQUENCE_FROM_EMPTY_SEQUENCE = new SubSequence<Integer>(TypeInfos.Integer.getEmptySequence(), 1, 0);
-        SUBSEQUENCE_FROM_SINGLETON_SEQUENCE = new SubSequence<Integer>(Sequences.singleton(TypeInfos.Integer, 1), 0, 1);
+        SUBSEQUENCE_FROM_EMPTY_SEQUENCE = new SubSequence<Integer>(TypeInfo.Integer.emptySequence, 1, 0);
+        SUBSEQUENCE_FROM_SINGLETON_SEQUENCE = new SubSequence<Integer>(Sequences.singleton(TypeInfo.Integer, 1), 0, 1);
 
         EMPTY_SUBSEQUENCE = new SubSequence<Integer>(baseSequence, 1, 0);
         SUBSEQUENCE_AT_START = new SubSequence<Integer>(baseSequence, 0, 2);

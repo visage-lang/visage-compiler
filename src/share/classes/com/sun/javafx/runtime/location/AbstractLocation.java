@@ -82,6 +82,11 @@ public abstract class AbstractLocation implements Location {
             doInvalidateDependencies();
     }
 
+    public boolean hasDependencies() {
+        return (dependentLocations != null && dependentLocations.size() > 0)
+                || (listeners != null && listeners.size() > 0);
+    }
+    
     /**
      * Notify change triggers that the value has changed.  This should be done automatically by mutative methods,
      * and is also used at object initialization time to defer notification of changes until the values provided

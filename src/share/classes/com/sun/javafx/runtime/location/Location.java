@@ -87,4 +87,6 @@ public interface Location {
 
     /** Remove this location as a dynamic dependency of any Location it was previously registered with */
     public void clearDynamicDependencies();
+
+    boolean hasDependencies();
 }
