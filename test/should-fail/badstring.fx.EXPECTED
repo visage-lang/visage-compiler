@@ -22,8 +22,8 @@ v = "{v} unterminated string
 test/should-fail/badstring.fx:9: You have missed out a ';', which is needed to separate an expression from the next one.
 v = '{v} unterminated string
                             ^
-test/should-fail/badstring.fx:1: Sorry, I was trying to understand a compound string element but I got confused when I saw '<EOF>'.
+test/should-fail/badstring.fx:12: Sorry, I was trying to understand a compound string element but I got confused when I hit the end of the script..
  Perhaps you are missing a '} " string literal'.
-/**
-^
+v = "{v   + x
+             ^
 9 errors

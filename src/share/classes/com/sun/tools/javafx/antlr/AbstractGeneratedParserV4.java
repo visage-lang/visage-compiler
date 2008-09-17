@@ -802,14 +802,24 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             
             
             MismatchedTokenException mte = (MismatchedTokenException) e;
-           
-            mb.append(" but I got confused when I saw ");
-            mb.append(getTokenErrorDisplay(e.token));
-            
             TokenClassification tokenClass = classifyToken(e.token);
-            if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
-                mb.append(" which is ");
-                mb.append(tokenClass.forHumans());
+            
+            mb.append(" but I got confused when I ");
+
+            if  (mte.token.getType() == Token.EOF)
+            {
+                mb.append("hit the end of the script.");
+
+            } else {
+
+                mb.append("saw ");
+                mb.append(getTokenErrorDisplay(e.token));
+            
+
+                if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
+                    mb.append(" which is ");
+                    mb.append(tokenClass.forHumans());
+                }
             }
             
             if (tokenClass == TokenClassification.KEYWORD && mte.expecting == v4Parser.IDENTIFIER) {
@@ -817,6 +827,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                 mb.append(".\n Perhaps you tried to use a keyword as the name of a variable");
                 
             } else if (mte.expecting != Token.EOF) {
+
                 mb.append(".\n Perhaps you are missing a ");
                 mb.append("'" + tokenNames[mte.expecting]+"'");
             }
@@ -828,13 +839,24 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         } else if (e instanceof NoViableAltException) {
             
             NoViableAltException nvae = (NoViableAltException) e;
-            
-            mb.append(" but I got confused when I saw ");
-            mb.append(getTokenErrorDisplay(e.token));
             TokenClassification tokenClass = classifyToken(e.token);
-            if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
-                mb.append(" which is ");
-                mb.append(tokenClass.forHumans());
+
+            mb.append(" but I got confused when I ");
+
+            if  (nvae.token.getType() == Token.EOF)
+            {
+                mb.append("hit the end of the script.");
+
+            } else {
+
+                mb.append("saw ");
+                mb.append(getTokenErrorDisplay(e.token));
+
+
+                if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
+                    mb.append(" which is ");
+                    mb.append(tokenClass.forHumans());
+                }
             }
             
         } else if (e instanceof MismatchedSetException) {
@@ -880,9 +902,12 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         // hightlight the error with respect to that.
         //
         int pos;
-        if  (e instanceof MissingTokenException && input.index() != 1) {
+        if  (
+                   (e instanceof MissingTokenException && input.index() != 1)
+                || e.token.getType() == Token.EOF
+            ) {
             
-            // We were missing something, so place the error at the
+            // We were missing something, or we hit EOF, so place the error at the
             // end of the previous good token
             //
             pos = semiPos();
