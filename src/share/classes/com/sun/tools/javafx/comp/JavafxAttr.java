@@ -1847,6 +1847,20 @@ public class JavafxAttr implements JavafxVisitor {
                 return type1;
             if (type1 == type2)
                 return type1;
+
+            // Ensure that we don't NPE if either of the inputs were from
+            // Erroneous nodes such as missing blocks on conditionals and so on.
+            //
+            if (type1 == null ) {
+                if  (type2 == null) {
+                    return syms.voidType;
+                } else {
+                    return type2;
+                }
+            } else  if (type2 == null) {
+                        return type1;
+                    }
+            
             if (type1.tag == VOID || type2.tag == VOID)
                 return syms.voidType;
 
