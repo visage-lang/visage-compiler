@@ -5122,7 +5122,7 @@ type
 				// The type did not parse correctly, so we create it as
 				// an erroneous element
 				//
-				$rtype = F.at(rPos).ErroneousType(); //errNodes.elems);
+				$rtype = F.at(rPos).ErroneousType(errNodes.elems);
 				
 			} else {
 			
@@ -5169,10 +5169,16 @@ typeFunction
 
 	: FUNCTION 
  		LPAREN 
- 			typeArgList
+ 			typeArgList 
+ 				{ 
+ 					for (JFXTree t : $typeArgList.ptypes) { 
+ 						errNodes.append(t); 
+ 					} 
+ 				}
 		RPAREN 
 		
-			ret=typeReference 
+			ret=typeReference 	{ errNodes.append($ret.rtype); }
+			
           	cardinality	//TODO: this introduces an ambiguity: return cardinality vs type cardinality
           	
 		{
@@ -5193,6 +5199,8 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
+	$rtype = F.at(rPos).ErroneousType(errNodes.elems);
+	endPos($rtype);
 }
 
 typeStar
@@ -5734,7 +5742,14 @@ catch [RecognitionException re] {
 timeValue
 
 	returns [JFXTimeLiteral valNode]
-	
+
+@init
+{
+    // Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+
 	: TIME_LITERAL
 	
 		{
@@ -5753,6 +5768,25 @@ timeValue
             endPos($valNode);
         }
 	;
+// Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
+	// Create the error node
+	//
+	$valNode = F.at(rPos).ErroneousTimeLiteral();
+	endPos($valNode);
+	
+}
 // -----------------------
 // ID
 // Basic identifier parse

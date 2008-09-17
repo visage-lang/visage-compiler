@@ -687,6 +687,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
+    public JFXType  ErroneousType(List<? extends JFXTree> errs) {
+        JFXType tree = new JFXErroneousType(errs);
+        tree.pos = pos;
+        return tree;
+    }
+
     public JFXType  TypeUnknown() {
         JFXType tree = new JFXTypeUnknown();
         tree.pos = Position.NOPOS;

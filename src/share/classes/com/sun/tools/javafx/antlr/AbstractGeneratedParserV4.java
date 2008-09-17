@@ -1162,7 +1162,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         // case we are creating an erroneous node and it will be empty of error nodes,
         // so gets an end positon the same as its start position.
         //
-        if (genEndPos) {
+        if (genEndPos && tree != null) {
             endPositions.put(tree, end >= tree.getStartPosition() ? end : tree.getStartPosition());
         }
     }

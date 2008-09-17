@@ -1719,9 +1719,18 @@ public class JavafxAttr implements JavafxVisitor {
 
         // Attribute catch clauses
         for (List<JFXCatch> l = tree.catchers; l.nonEmpty(); l = l.tail) {
+
+            if (l == null )  continue;    // Don't try to handle erroneous catch blocks
+
             JFXCatch c = l.head;
+
+            if (c == null) continue;    // Don't try to handle erroneous catch blocks
+
             JavafxEnv<JavafxAttrContext> catchEnv = newLocalEnv(c);
             memberEnter.memberEnter(c.param, env);
+
+            if (c.param == null) continue;    // Don't try to handle erroneous catch blocks
+
             if (c.param.type == null)
                 c.param.sym.type = c.param.type = syms.throwableType;
             Type ctype = attribDecl((JFXVar) c.param, catchEnv);
