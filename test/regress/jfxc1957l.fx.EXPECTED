@@ -1,0 +1,27 @@
+Note: Optimization statistic: Local bound variable count: 2
+Note: Optimization statistic: Local bound variable Location count: 2
+Note: Optimization statistic: Local bound variable direct count: 0
+Note: Optimization statistic: Local bound 'var' count: 1
+Note: Optimization statistic: Local bound 'var' Location count: 1
+Note: Optimization statistic: Local bound 'var' direct count: 0
+Note: Optimization statistic: Local bound 'def' count: 1
+Note: Optimization statistic: Local bound 'def' Location count: 1
+Note: Optimization statistic: Local bound 'def' direct count: 0
+Note: Optimization statistic: Local unbound variable count: 2
+Note: Optimization statistic: Local unbound variable Location count: 2
+Note: Optimization statistic: Local unbound variable direct count: 0
+Note: Optimization statistic: Local unbound 'var' count: 1
+Note: Optimization statistic: Local unbound 'var' Location count: 1
+Note: Optimization statistic: Local unbound 'var' direct count: 0
+Note: Optimization statistic: Local unbound 'def' count: 1
+Note: Optimization statistic: Local unbound 'def' Location count: 1
+Note: Optimization statistic: Local unbound 'def' direct count: 0
+Note: Optimization statistic: Local variable count: 4
+Note: Optimization statistic: Local variable Location count: 4
+Note: Optimization statistic: Local variable direct count: 0
+Note: Optimization statistic: Local 'var' count: 2
+Note: Optimization statistic: Local 'var' Location count: 2
+Note: Optimization statistic: Local 'var' direct count: 0
+Note: Optimization statistic: Local 'def' count: 2
+Note: Optimization statistic: Local 'def' Location count: 2
+Note: Optimization statistic: Local 'def' direct count: 0

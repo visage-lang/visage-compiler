@@ -26,8 +26,9 @@ package com.sun.tools.javafx.comp;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.Log;
 import com.sun.tools.javafx.code.JavafxFlags;
-import java.io.PrintWriter;
+import com.sun.tools.javafx.util.MsgSym;
 
 /**
  * Collect and print statistics on optimization.
@@ -36,6 +37,8 @@ import java.io.PrintWriter;
  */
 public class JavafxOptimizationStatistics {
     
+    private final Log log;
+
     private int instanceVarLocationCount;
     private int instanceVarDirectCount;
     private int instanceDefLocationCount;
@@ -74,6 +77,8 @@ public class JavafxOptimizationStatistics {
 
     protected JavafxOptimizationStatistics(Context context) {
         context.put(jfxOptStatKey, this);
+
+        log = Log.instance(context);
 
         instanceVarLocationCount = 0;
         instanceVarDirectCount = 0;
@@ -177,60 +182,64 @@ public class JavafxOptimizationStatistics {
         ++concreteFieldCount;
     }
     
-    private void printInstanceVariableData(PrintWriter pw) {
+    private void show(String label, int value) {
+        log.note(MsgSym.MESSAGE_JAVAFX_OPTIMIZATION_STATISTIC, label, value);
+    }
+    
+    private void printInstanceVariableData() {
         int instanceVariableLocationCount = instanceVarLocationCount + instanceDefLocationCount;
         int instanceVariableDirectCount = instanceVarDirectCount + instanceDefDirectCount;
         int instanceVariableCount = instanceVariableLocationCount + instanceVariableDirectCount;
 
-        pw.println("Instance variable count: " + instanceVariableCount);
-        pw.println("Instance variable Location count: " + instanceVariableLocationCount);
-        pw.println("Instance variable direct count: " + instanceVariableDirectCount);
+        show("Instance variable count", instanceVariableCount);
+        show("Instance variable Location count", instanceVariableLocationCount);
+        show("Instance variable direct count", instanceVariableDirectCount);
         
-        pw.println("Instance 'var' count: " + (instanceVarLocationCount + instanceVarDirectCount));
-        pw.println("Instance 'var' Location count: " + instanceVarLocationCount);
-        pw.println("Instance 'var' direct count: " + instanceVarDirectCount);
+        show("Instance 'var' count", (instanceVarLocationCount + instanceVarDirectCount));
+        show("Instance 'var' Location count", instanceVarLocationCount);
+        show("Instance 'var' direct count", instanceVarDirectCount);
         
-        pw.println("Instance 'def' count: " + (instanceDefLocationCount + instanceDefDirectCount));
-        pw.println("Instance 'def' Location count: " + instanceDefLocationCount);
-        pw.println("Instance 'def' direct count: " + instanceDefDirectCount);
+        show("Instance 'def' count", (instanceDefLocationCount + instanceDefDirectCount));
+        show("Instance 'def' Location count", instanceDefLocationCount);
+        show("Instance 'def' direct count", instanceDefDirectCount);
     }
     
-    private void printScriptVariableData(PrintWriter pw) {
+    private void printScriptVariableData() {
         int scriptVariableLocationCount = scriptVarLocationCount + scriptDefLocationCount;
         int scriptVariableDirectCount = scriptVarDirectCount + scriptDefDirectCount;
         int scriptVariableCount = scriptVariableLocationCount + scriptVariableDirectCount;
 
-        pw.println("Script variable count: " + scriptVariableCount);
-        pw.println("Script variable Location count: " + scriptVariableLocationCount);
-        pw.println("Script variable direct count: " + scriptVariableDirectCount);
+        show("Script variable count", scriptVariableCount);
+        show("Script variable Location count", scriptVariableLocationCount);
+        show("Script variable direct count", scriptVariableDirectCount);
         
-        pw.println("Script 'var' count: " + (scriptVarLocationCount + scriptVarDirectCount));
-        pw.println("Script 'var' Location count: " + scriptVarLocationCount);
-        pw.println("Script 'var' direct count: " + scriptVarDirectCount);
+        show("Script 'var' count", (scriptVarLocationCount + scriptVarDirectCount));
+        show("Script 'var' Location count", scriptVarLocationCount);
+        show("Script 'var' direct count", scriptVarDirectCount);
         
-        pw.println("Script 'def' count: " + (scriptDefLocationCount + scriptDefDirectCount));
-        pw.println("Script 'def' Location count: " + scriptDefLocationCount);
-        pw.println("Script 'def' direct count: " + scriptDefDirectCount);
+        show("Script 'def' count", (scriptDefLocationCount + scriptDefDirectCount));
+        show("Script 'def' Location count", scriptDefLocationCount);
+        show("Script 'def' direct count", scriptDefDirectCount);
     }
     
-    private void printLocalVariableData(PrintWriter pw) {
+    private void printLocalVariableData() {
         int localBoundVariableLocationCount = localBoundVarLocationCount + localBoundDefLocationCount;
         int localBoundVariableDirectCount = localBoundVarDirectCount + localBoundDefDirectCount;
         int localBoundVariableCount = localBoundVariableLocationCount + localBoundVariableDirectCount;
         int localBoundVarCount = localBoundVarLocationCount + localBoundVarDirectCount;
         int localBoundDefCount = localBoundDefLocationCount + localBoundDefDirectCount;
 
-        pw.println("Local bound variable count: " + localBoundVariableCount);
-        pw.println("Local bound variable Location count: " + localBoundVariableLocationCount);
-        pw.println("Local bound variable direct count: " + localBoundVariableDirectCount);
+        show("Local bound variable count", localBoundVariableCount);
+        show("Local bound variable Location count", localBoundVariableLocationCount);
+        show("Local bound variable direct count", localBoundVariableDirectCount);
         
-        pw.println("Local bound 'var' count: " + localBoundVarCount);
-        pw.println("Local bound 'var' Location count: " + localBoundVarLocationCount);
-        pw.println("Local bound 'var' direct count: " + localBoundVarDirectCount);
+        show("Local bound 'var' count", localBoundVarCount);
+        show("Local bound 'var' Location count", localBoundVarLocationCount);
+        show("Local bound 'var' direct count", localBoundVarDirectCount);
         
-        pw.println("Local bound 'def' count: " + localBoundDefCount);
-        pw.println("Local bound 'def' Location count: " + localBoundDefLocationCount);
-        pw.println("Local bound 'def' direct count: " + localBoundDefDirectCount);
+        show("Local bound 'def' count", localBoundDefCount);
+        show("Local bound 'def' Location count", localBoundDefLocationCount);
+        show("Local bound 'def' direct count", localBoundDefDirectCount);
         
         int localUnboundVariableLocationCount = localUnboundVarLocationCount + localUnboundDefLocationCount;
         int localUnboundVariableDirectCount = localUnboundVarDirectCount + localUnboundDefDirectCount;
@@ -238,17 +247,17 @@ public class JavafxOptimizationStatistics {
         int localUnboundVarCount = localUnboundVarLocationCount + localUnboundVarDirectCount;
         int localUnboundDefCount = localUnboundDefLocationCount + localUnboundDefDirectCount;
 
-        pw.println("Local unbound variable count: " + localUnboundVariableCount);
-        pw.println("Local unbound variable Location count: " + localUnboundVariableLocationCount);
-        pw.println("Local unbound variable direct count: " + localUnboundVariableDirectCount);
+        show("Local unbound variable count", localUnboundVariableCount);
+        show("Local unbound variable Location count", localUnboundVariableLocationCount);
+        show("Local unbound variable direct count", localUnboundVariableDirectCount);
         
-        pw.println("Local unbound 'var' count: " + localUnboundVarCount);
-        pw.println("Local unbound 'var' Location count: " + localUnboundVarLocationCount);
-        pw.println("Local unbound 'var' direct count: " + localUnboundVarDirectCount);
+        show("Local unbound 'var' count", localUnboundVarCount);
+        show("Local unbound 'var' Location count", localUnboundVarLocationCount);
+        show("Local unbound 'var' direct count", localUnboundVarDirectCount);
         
-        pw.println("Local unbound 'def' count: " + localUnboundDefCount);
-        pw.println("Local unbound 'def' Location count: " + localUnboundDefLocationCount);
-        pw.println("Local unbound 'def' direct count: " + localUnboundDefDirectCount);
+        show("Local unbound 'def' count", localUnboundDefCount);
+        show("Local unbound 'def' Location count", localUnboundDefLocationCount);
+        show("Local unbound 'def' direct count", localUnboundDefDirectCount);
         
         int localVariableLocationCount = localBoundVariableLocationCount + localUnboundVariableLocationCount;
         int localVariableDirectCount = localBoundVariableDirectCount + localUnboundVariableDirectCount;
@@ -260,42 +269,42 @@ public class JavafxOptimizationStatistics {
         int localDefLocationCount = localBoundDefLocationCount + localUnboundDefLocationCount;
         int localDefDirectCount = localBoundDefDirectCount + localUnboundDefDirectCount;
 
-        pw.println("Local variable count: " + localVariableCount);
-        pw.println("Local variable Location count: " + localVariableLocationCount);
-        pw.println("Local variable direct count: " + localVariableDirectCount);
+        show("Local variable count", localVariableCount);
+        show("Local variable Location count", localVariableLocationCount);
+        show("Local variable direct count", localVariableDirectCount);
         
-        pw.println("Local 'var' count: " + localVarCount);
-        pw.println("Local 'var' Location count: " + localVarLocationCount);
-        pw.println("Local 'var' direct count: " + localVarDirectCount);
+        show("Local 'var' count", localVarCount);
+        show("Local 'var' Location count", localVarLocationCount);
+        show("Local 'var' direct count", localVarDirectCount);
         
-        pw.println("Local 'def' count: " + localDefCount);
-        pw.println("Local 'def' Location count: " + localDefLocationCount);
-        pw.println("Local 'def' direct count: " + localDefDirectCount);
+        show("Local 'def' count", localDefCount);
+        show("Local 'def' Location count", localDefLocationCount);
+        show("Local 'def' direct count", localDefDirectCount);
     }
     
-    private void printProxyMethodData(PrintWriter pw) {
-        pw.println("Proxy method count: " + proxyMethodCount);
+    private void printProxyMethodData() {
+        show("Proxy method count", proxyMethodCount);
     }
     
-    private void printConcreteFieldData(PrintWriter pw) {
-        pw.println("Concrete field count: " + concreteFieldCount);
+    private void printConcreteFieldData() {
+        show("Concrete field count", concreteFieldCount);
     }
     
-    public void printData(String which, PrintWriter pw) {
+    public void printData(String which) {
         if (which.contains("i")) {
-            printInstanceVariableData(pw);
+            printInstanceVariableData();
         }
         if (which.contains("s")) {
-            printScriptVariableData(pw);
+            printScriptVariableData();
         }
         if (which.contains("l")) {
-            printLocalVariableData(pw);
+            printLocalVariableData();
         }
         if (which.contains("m")) {
-            printProxyMethodData(pw);
+            printProxyMethodData();
         }
         if (which.contains("f")) {
-            printConcreteFieldData(pw);
+            printConcreteFieldData();
         }
     }
  }

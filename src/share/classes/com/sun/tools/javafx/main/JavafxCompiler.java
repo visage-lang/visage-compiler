@@ -549,9 +549,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     void printOptimizationStatistics(JavafxEnv<JavafxAttrContext> env) {
         String which = options.get("optstats");
         if (which != null) {
-            PrintWriter pw = new PrintWriter(System.out);
-            optStat.printData(which, pw);
-            pw.flush();
+            optStat.printData(which);
         }
     }
 

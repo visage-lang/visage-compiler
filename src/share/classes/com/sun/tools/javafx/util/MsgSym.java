@@ -383,4 +383,5 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_GARBLED_EXPRESSION = "javafx.garbled.expression";
     public static final String MESSAGE_JAVAFX_ORPHANED_ELSE = "javafx.orphaned.else";
     public static final String MESSAGE_JAVAFX_GARBLED_DECLARATION = "javafx.garbled.declaration";
+    public static final String MESSAGE_JAVAFX_OPTIMIZATION_STATISTIC = "javafx.optimization.statistic";
 }
