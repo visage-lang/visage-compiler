@@ -871,7 +871,7 @@ syncClass[ListBuffer<JFXTree> mems]
 		
 		// Tell the script author where we think there is a screwed up expression
 		//
-		log.error(rPos, MsgSym.MESSAGE_JAVAFX_GARBLED_DECLARATION);
+		log.error(errNode, MsgSym.MESSAGE_JAVAFX_GARBLED_DECLARATION);
 	}
 }
 	:	// Deliberately match nothing, causing this rule always to be 

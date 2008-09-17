@@ -1170,7 +1170,11 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
-        assert false : "should not reach here";
+        // Do not assert that we cannot reach here as this unit can
+        // be visited by virtue of visiting JFXErronous which
+        // will attempt to visit each Erroneous node that it has
+        // encapsualted.
+        //
     }
 
     public void visitIndexof(JFXIndexof tree) {
@@ -3668,14 +3672,27 @@ public class JavafxAttr implements JavafxVisitor {
     }
 
     public void visitScript(JFXScript tree) {
-        assert false : "Should not reach here";
+
+        // Do not assert that we cannot reach here as this unit can
+        // be visited by virtue of visiting JFXErronous which
+        // will attempt to visit each Erroneous node that it has
+        // encapsualted.
+        //
     }
 
     public void visitCatch(JFXCatch tree) {
-        assert false : "Should not reach here";
+        // Do not assert that we cannot reach here as this unit can
+        // be visited by virtue of visiting JFXErronous which
+        // will attempt to visit each Erroneous node that it has
+        // encapsualted.
+        //
     }
 
     public void visitModifiers(JFXModifiers tree) {
-        assert false : "Should not reach here";
+        // Do not assert that we cannot reach here as this unit can
+        // be visited by virtue of visiting JFXErronous which
+        // will attempt to visit each Erroneous node that it has
+        // encapsualted.
+        //
     }
 }

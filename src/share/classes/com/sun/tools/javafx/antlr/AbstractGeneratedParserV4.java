@@ -1589,6 +1589,8 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
     {
         BitSet follow = new BitSet();
 
+        // Normal follow set
+        //
         follow.add(v4Parser.INIT);
         follow.add(v4Parser.ABSTRACT);
         follow.add(v4Parser.ATTRIBUTE);
@@ -1609,6 +1611,11 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         follow.add(v4Parser.STATIC);
         follow.add(v4Parser.VAR);
 
+        // Additional elements that we want to halt on if syncing.
+        //
+
+
+        
         syncToGoodToken(follow);
     }
     protected void syncToGoodToken(BitSet follow)
