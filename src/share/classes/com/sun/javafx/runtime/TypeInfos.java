@@ -12,7 +12,7 @@ import com.sun.javafx.runtime.sequence.Sequence;
  * @author Brian Goetz
  */
 public class TypeInfos {
-    public static final TypeInfo<Number> Number = new AbstractTypeInfo<Number>(0);
+    // public static final TypeInfo<Number> Number = new AbstractTypeInfo<Number>(0);
     public static final TypeInfo<Long> Long = new AbstractTypeInfo<Long>(0L);
     public static final TypeInfo<Integer> Integer = new AbstractTypeInfo<Integer>(0);
     public static final TypeInfo<Boolean> Boolean = new AbstractTypeInfo<Boolean>(false);
@@ -22,7 +22,7 @@ public class TypeInfos {
 
     private static final Map<Class<?>, TypeInfo<?>> map = new HashMap<Class<?>, TypeInfo<?>>();
     static {
-        map.put(Number.class, Number);
+        // map.put(Number.class, Number);
         map.put(Integer.class, Integer);
         map.put(Long.class, Long);
         map.put(Boolean.class, Boolean);
@@ -45,6 +45,10 @@ public class TypeInfos {
 
     public static<T> Sequence<T> getEmptySequence() {
         return TypeInfos.<T>getTypeInfo().getEmptySequence();
+    }
+
+    public static<T> TypeInfo<T> makeTypeInfo(T defaultValue) {
+        return new AbstractTypeInfo<T>(defaultValue);
     }
 
     public static<T> TypeInfo<T> makeAndRegisterTypeInfo(Class clazz, T defaultValue) {
