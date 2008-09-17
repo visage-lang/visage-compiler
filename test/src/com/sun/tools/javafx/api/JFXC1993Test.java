@@ -61,23 +61,34 @@ public class JFXC1993Test implements Runnable {
         Thread t = new Thread(this);
         t.start();
         // Let's give the compiler 10 seconds - that should be enough
-        Thread.sleep(10000);
-        synchronized (lock) {
-            if (!done) {
-                StackTraceElement[] stack = t.getStackTrace();
-                for (StackTraceElement s : stack) {
-                    System.out.println(s);
-                }
-            }
+        // as this is a very small program and should compile virtually
+        // instantly on any system
+        // 
+		boolean localDone = false;
+		int	lc = 0;
+
+		while (!localDone && lc < 100) {
+
+			Thread.sleep(100);	// Give it half a chance
+
+			// See if it finished
+			//
+        	synchronized (lock) {
+				localDone = done;
+			}
+
+			lc++;
         }
-        Thread.sleep(1000);
+
+        if (!localDone) {
+            StackTraceElement[] stack = t.getStackTrace();
+            for (StackTraceElement s : stack) {
+                System.out.println(s);
+            }
+			fail("Did not finish in time");
+        }
         if (caught != null) {
             caught.printStackTrace();
-        }
-        synchronized (lock) {
-            if (!done) {
-                fail("Did not finished in time");
-            }
         }
     }
 
@@ -93,25 +104,16 @@ public class JFXC1993Test implements Runnable {
     }
 
     private void parseFile() throws Exception {
-        System.out.println("parseFile 1");
         JavafxcTool instance = new JavafxcTool();
-        System.out.println("parseFile 2");
         MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
-        System.out.println("parseFile 3");
         StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
-        System.out.println("parseFile 4");
         List<String> options = 
                 Arrays.asList("-d", ".", "-sourcepath", testSrc, "-classpath", testClasses);
         File file = new File(testSrc + "/com/sun/tools/javafx/api", "JFXC1993.fx");
-        System.out.println("parseFile 5");
     	Iterable<? extends JavaFileObject> files = fm.getJavaFileObjects(file);
-        System.out.println("parseFile 6");
         JavafxcTask task = instance.getTask(null, fm, dl, null, files);
-        System.out.println("parseFile 7");
         assertNotNull("no task returned", task);
-        System.out.println("parseFile 8");
         Iterable<? extends UnitTree> result1 = task.parse();
-        System.out.println("parseFile 9");
     }
     
     static class MockDiagnosticListener<T> implements DiagnosticListener<T> {
