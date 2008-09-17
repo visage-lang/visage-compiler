@@ -488,7 +488,7 @@ importId
 						if	(haveStar) {
 						
 							inError = true;		// Signal that this is malformed
-							log.error(starP, MsgSym.MESSAGE_JAVAFX_IMPORT_BAD_NAME);
+							log.error(part, MsgSym.MESSAGE_JAVAFX_IMPORT_BAD_NAME);
 						}
 					}
 
@@ -510,7 +510,7 @@ importId
 						if	(haveStar) {
 						
 							inError = true;		// Signal that this is malformed
-							log.error(starP, MsgSym.MESSAGE_JAVAFX_IMPORT_BAD_STAR);
+							log.error(part, MsgSym.MESSAGE_JAVAFX_IMPORT_BAD_STAR);
 						}
 						
 						// Signal that we have a star now
@@ -1001,7 +1001,7 @@ functionDefinition [ JFXModifiers mods, int pos ]
 		// we let the attributioin function report that there is no function body defined
 		// as this may be coming from an IDE.
 		//
-		(	  (LBRACE)=>block 
+		(	  (LBRACE)=>block [-1]
 		
 				{
 					// Accumulate in case of error
@@ -1076,7 +1076,7 @@ initDefinition
 	//
 	int	rPos	= pos();
 }
-	: INIT block
+	: INIT block [ -1 ]
 	
 		{
 			// Build the AST
@@ -1126,7 +1126,7 @@ postInitDefinition
 	int	rPos	= pos();
 }
 
-	: POSTINIT block
+	: POSTINIT block [-1]
 		{ 
 			// Build the AST
 			//
@@ -1267,7 +1267,7 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 					//
 					if	(!($typeReference.rtype instanceof JFXTypeUnknown)) {
 					
-						log.error($typeReference.rtype.pos, MsgSym.MESSAGE_JAVAFX_TYPED_OVERRIDE);
+						log.error($typeReference.rtype, MsgSym.MESSAGE_JAVAFX_TYPED_OVERRIDE);
 					}
 			
 	    		} else {
@@ -1452,7 +1452,10 @@ catch [RecognitionException re] {
 // Which is then obvious. This also improves error recovery possibilities,
 // which is a requirement for code completion utilities and so forth.
 //
-block 
+// Accepts an incoming character so that the block node can be created to
+// include a prior token suchas 'finally' or 'try' etc.
+//
+block [ int rPos]
 
 	returns [JFXBlock value]	// The block expression has a specialized node inthe JFX tree
 
@@ -1469,7 +1472,7 @@ block
 
 	// Start of rule for error node production/
 	//
-	int	rPos	= pos();
+	if (rPos == -1) rPos = pos();
 }
 	
 	: LBRACE syncBlock[stats]
@@ -1482,7 +1485,7 @@ block
 	  RBRACE
 	  
 	  	{
-		  	$value = F.at(pos($LBRACE)).Block(0L, stats.toList(), $blkValue.value);
+		  	$value = F.at($rPos).Block(0L, stats.toList(), $blkValue.value);
 	  		endPos($value);
 	  	}
 	;
@@ -1502,7 +1505,7 @@ catch [RecognitionException re] {
 	// Create an erroneousBlock, which is basically an Erroneous node
 	// masquerading as a JFXBlock.
 	//
-	$value = F.at(rPos).ErroneousBlock(errNodes.elems);
+	$value = F.at($rPos).ErroneousBlock(errNodes.elems);
 	endPos($value);
  }
 
@@ -1555,7 +1558,7 @@ syncBlock[ListBuffer<JFXExpression> stats]
 		
 		// Tell the script author where we think there is a screwed up expression
 		//
-		log.error(rPos, MsgSym.MESSAGE_JAVAFX_GARBLED_EXPRESSION);
+		log.error(errNode, MsgSym.MESSAGE_JAVAFX_GARBLED_EXPRESSION);
 	}
 }
 	:	// Deliberately match nothing, causing this rule always to be 
@@ -1744,7 +1747,7 @@ onReplaceClause
 		)? 
 		
 	
-		block
+		block [ -1 ]
 		
 		{ 
 			// Build the appropriate AST
@@ -2274,7 +2277,7 @@ tryStatement
 	int fPos = 0;
 	
 }
-	: TRY block 			
+	: TRY block [-1]
 			{ 
 				errNodes.append($block.value); 
 			}
@@ -2300,7 +2303,7 @@ tryStatement
 		 	  		
 		 	  				// Can only have one finally clause, so log an error
 		 	  				//
-			   				log.error(fPos, MsgSym.MESSAGE_JAVAFX_FINALLY_TOOMANY);
+			   				log.error($f1.value, MsgSym.MESSAGE_JAVAFX_FINALLY_TOOMANY);
 		 	  			}
 		 	  			finallyCount++; 
 		 	  		}
@@ -2316,7 +2319,7 @@ tryStatement
 	   						// the same error for each catch clause that is out of order.
 	   						//
 	   						showSequenceErr = false;
-				   			log.error(fPos, MsgSym.MESSAGE_JAVAFX_FINALLY_NOTLAST);
+				   			log.error($f1.value, MsgSym.MESSAGE_JAVAFX_FINALLY_NOTLAST);
 	   					}
 	   					// Accumulate the catch clauses
 	   					//
@@ -2337,9 +2340,9 @@ tryStatement
 	   			// We must see at least one catch or one finally, or we can't build
 	   			// the AST
 	   			//
-	   			log.error(pos($TRY), MsgSym.MESSAGE_JAVAFX_BAD_TRY);
 	   			$value = F.at(pos($TRY)).Erroneous(errNodes.elems);
 	   			endPos($value);
+	   			log.error($value, MsgSym.MESSAGE_JAVAFX_BAD_TRY);
 	   			
 	   		} else {
 	   		
@@ -2363,7 +2366,7 @@ tryStatement
 				errNodes.append($fe.value);
 	   			$value = F.at(rPos).Erroneous(errNodes.elems);
 	   			endPos($value);
-	   			log.error(rPos, MsgSym.MESSAGE_JAVAFX_ORPHANED_FINALLY);
+	   			log.error($value, MsgSym.MESSAGE_JAVAFX_ORPHANED_FINALLY);
 			}
 			
 	|	ce=catchClause
@@ -2374,7 +2377,7 @@ tryStatement
 				errNodes.append($ce.value);
 	   			$value = F.at(rPos).Erroneous(errNodes.elems);
 	   			endPos($value);
-	   			log.error(rPos, MsgSym.MESSAGE_JAVAFX_ORPHANED_CATCH);
+	   			log.error($value, MsgSym.MESSAGE_JAVAFX_ORPHANED_CATCH);
 			}
 
 	;
@@ -2413,7 +2416,7 @@ finallyClause
 	//
 	int	rPos	= pos();
 }
-	: FINALLY block
+	: FINALLY block [rPos]
 	
 		{
 			$value = $block.value;
@@ -2466,7 +2469,7 @@ catchClause
 					errNodes.append($formalParameter.var);
 				}
 		RPAREN 
-			block
+			block[-1]
 	
 		{
 			$value = F.at(pos($CATCH)).Catch($formalParameter.var, $block.value);
@@ -2853,7 +2856,7 @@ ifExpression
 	  		
 	  		// Tell the script author (and the IDE) about their issue
 	  		//
-	  		log.error(rPos, MsgSym.MESSAGE_JAVAFX_ORPHANED_ELSE);
+	  		log.error($value, MsgSym.MESSAGE_JAVAFX_ORPHANED_ELSE);
 	  	}
 	
 	;
@@ -3913,7 +3916,7 @@ primaryExpression
 			$value = $be.value;
 		}
 		
-	| block
+	| block [-1]
 	
 		{
 			$value = $block.value;
@@ -4060,7 +4063,7 @@ functionExpression
 			}
 			
 		typeReference 	{ errNodes.append($typeReference.rtype); }
-		block			{ errNodes.append($block.value); }
+		block	[-1]	{ errNodes.append($block.value); }
 	
 		{
 			// JFX AST

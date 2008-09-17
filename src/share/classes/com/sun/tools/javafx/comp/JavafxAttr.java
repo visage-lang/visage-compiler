@@ -2446,9 +2446,9 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitErroneous(JFXErroneous tree) {
-        if (tree.getErrorTrees() != null)
-            for (JFXTree err : tree.getErrorTrees())
-                attribTree(err, env, ERR, pt);
+      //  if (tree.getErrorTrees() != null)
+       //     for (JFXTree err : tree.getErrorTrees())
+         //       attribTree(err, env, ERR, pt);
         result = tree.type = syms.errType;
     }
 
