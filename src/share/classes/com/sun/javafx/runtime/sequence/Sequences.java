@@ -217,6 +217,19 @@ public final class Sequences {
         return (Sequence<T>) sequence;
     }
 
+    /** Convert an Integer sequence to a Number sequence */
+    public static Sequence<Double> integerSequenceToNumberSequence(Sequence<Integer> seq) {
+        if (seq == null || seq.size() == 0) {
+            return TypeInfo.Double.emptySequence;
+        }
+        int length = seq.size();
+        Double[] dArray = Util.<Double>newObjectArray(length);
+        for (int i = 0; i < length; i++) {
+            dArray[i] = (double) (seq.get(i));
+        }
+        return new ArraySequence<Double>(TypeInfo.Double, dArray, length);
+    }
+
     /** How large is this sequence?  Can be applied to any object.  */
     public static int size(Object seq) {
         if (seq instanceof Sequence)
