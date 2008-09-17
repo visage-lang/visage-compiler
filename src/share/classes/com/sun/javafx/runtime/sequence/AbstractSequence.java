@@ -23,11 +23,9 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import java.util.BitSet;
-import java.util.Iterator;
-import java.util.Formattable;
-import java.util.Formatter;
-import java.util.NoSuchElementException;
+import java.util.*;
+
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * Abstract base class for sequence classes.  A subclass need only define the size() and get() methods; subclasses
@@ -37,10 +35,10 @@ import java.util.NoSuchElementException;
  * @author Brian Goetz
  */
 public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
-    protected final Class<T> clazz;
+    protected final TypeInfo<T> ti;
 
-    protected AbstractSequence(Class<T> clazz) {
-        this.clazz = clazz;
+    protected AbstractSequence(TypeInfo<T> ti) {
+        this.ti = ti;
     }
 
     public abstract int size();
@@ -60,8 +58,16 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         return bits;
     }
 
-    public Class<T> getElementType() {
-        return clazz;
+    public TypeInfo<T> getElementType() {
+        return ti;
+    }
+
+    public T getDefaultValue() {
+        return ti.getDefaultValue();
+    }
+
+    public Sequence<T> getEmptySequence() {
+        return ti.getEmptySequence();
     }
 
     public boolean isEmpty() {

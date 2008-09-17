@@ -277,23 +277,26 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }
         if (types.isArray(sourceType) && types.isSequence(type)) {
             Type elemType = types.elemtype(sourceType);
-            String mname = "fromArray";
-            if (elemType.isPrimitive())
-                return callExpression(diagPos, makeTypeTree( diagPos,syms.javafx_SequencesType, false),
-                       mname, translated);
-            else {
-                List<JCExpression> args =
-                        List.of(make.at(diagPos).Select(makeTypeTree(diagPos, elemType, true), names._class),
-                        translated);
-                return callExpression(diagPos, makeTypeTree( diagPos,syms.javafx_SequencesType, false),
-                       mname, args);
+            List<JCExpression> args;
+            if (elemType.isPrimitive()) {
+                args = List.of(translated);
+            } else {
+                args = List.of(makeTypeInfo(diagPos, elemType), translated);
             }
+            JCExpression cSequences = makeTypeTree(diagPos, syms.javafx_SequencesType, false);
+            return callExpression(diagPos, cSequences, "fromArray", args);
         }
         if (types.isSequence(type) && ! types.isSequence(sourceType)) {
+            //if (sourceType.tag == TypeTags.BOT) {
+            //    // it is a null, convert to empty sequence
+            //    //TODO: should we leave this null?
+            //    Type elemType = types.elemtype(type);
+            //    return makeEmptySequenceCreator(diagPos, elemType);
+            //}
             return callExpression(diagPos,
                     makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
                     "singleton",
-                    List.of(makeElementClassObject(diagPos, types.elementType(type)),
+                    List.of(makeTypeInfo(diagPos, types.elementType(type)),
                             translated));
         }
 
@@ -1920,6 +1923,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 Type exprType = exprToAdd.type;
                 return makeAdd(expr, exprType);
             }
+            
+            JCExpression makeConstructorArg() {
+                return makeTypeInfo(diagPos, elemType);
+            }
         };
     }
 
@@ -1932,6 +1939,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 Type exprType = exprToAdd.type;
                 return makeAdd(expr, exprType);
             }
+            
+            JCExpression makeConstructorArg() {
+                return makeElementClassObject(diagPos, elemType);
+            }
         };
     }
 
@@ -1942,7 +1953,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         Name sbName;
 
-        UseSequenceBuilder(DiagnosticPosition diagPos, Type elemType, String seqBuilder) {
+        private UseSequenceBuilder(DiagnosticPosition diagPos, Type elemType, String seqBuilder) {
             this.diagPos = diagPos;
             this.elemType = elemType;
             this.seqBuilder = seqBuilder;
@@ -1957,16 +1968,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             sbName = getSyntheticName("sb");
 
             // Build "sb" initializing expression -- new SequenceBuilder<T>(clazz)
-            List<JCExpression> args = List.<JCExpression>of(
-                    makeElementClassObject(diagPos, elemType));
-
             JCExpression newExpr = make.at(diagPos).NewClass(
                 null,                               // enclosing
                 List.<JCExpression>nil(),           // type args
                 make.at(diagPos).TypeApply(         // class name -- SequenceBuilder<elemType>
                      makeQualifiedTree(diagPos, seqBuilder),
                      List.<JCExpression>of(makeTypeTree(diagPos, elemType))),
-                args,                               // args
+                List.<JCExpression>of(makeConstructorArg()),  // args
                 null                                // empty body
                 );
 
@@ -1981,6 +1989,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }
 
         abstract JCStatement makeAdd(JFXExpression expr);
+
+        abstract JCExpression makeConstructorArg();
 
         JCStatement makeAdd(JCExpression expr, Type exprType) {
             if (exprType != elemType) {
@@ -2939,13 +2949,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     JCBlock translatedOnReplaceBody(JFXOnReplace onr) {
         return (onr == null)?  null : translateBlockExpressionToBlock(onr.getBody());
-    }
-
-    // expr.get()
-    JCExpression getLocationValue(DiagnosticPosition diagPos, JCExpression expr, int typeKind) {
-        JCFieldAccess getSelect = make.at(diagPos).Select(expr, defs.locationGetMethodName[typeKind]);
-        List<JCExpression> getArgs = List.nil();
-        return make.at(diagPos).Apply(null, getSelect, getArgs);
     }
 
     JCExpression convertVariableReference(DiagnosticPosition diagPos,

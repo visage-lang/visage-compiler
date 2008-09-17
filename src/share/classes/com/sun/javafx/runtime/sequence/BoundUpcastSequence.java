@@ -43,13 +43,13 @@ public class BoundUpcastSequence<T, V extends T> extends AbstractBoundSequence<T
     }
 
     private Sequence<T> computeValue() {
-        return Sequences.upcast(getClazz(), sequence.get());
+        return Sequences.<T>upcast(sequence.get());
     }
 
     private void addTriggers() {
         sequence.addChangeListener(new SequenceChangeListener<V>() {
             public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
-                updateSlice(startPos, endPos, newElements, Sequences.upcast(getClazz(), newValue));
+                updateSlice(startPos, endPos, newElements, Sequences.<T>upcast(newValue));
             }
         });
     }

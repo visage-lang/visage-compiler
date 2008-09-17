@@ -31,6 +31,8 @@ public class MathUtilTest extends TestCase {
         int sum = 0;
         for (int i=0; i<COUNT; i++) {
             int n = nextRandom(Integer.MAX_VALUE);
+            if (n == 0)
+                continue;
             int lg2 = MathUtil.log2(n);
             int log = (int) (Math.log((double) n) / Math.log((double) 2));
             sum += lg2 + log;

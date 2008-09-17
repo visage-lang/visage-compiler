@@ -23,6 +23,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
+import com.sun.javafx.runtime.TypeInfos;
 import org.junit.Assert;
 
 /**
@@ -41,16 +42,16 @@ public class SubSequenceTest extends JavaFXTestCase {
 
     @Override
     protected void setUp() {
-        Sequence<Integer> baseSequence = Sequences.make(Integer.class, 1, 2, 3);
+        Sequence<Integer> baseSequence = Sequences.make(TypeInfos.Integer, 1, 2, 3);
 
-        SUBSEQUENCE_FROM_EMPTY_SEQUENCE = new SubSequence(Sequences.emptySequence(Integer.class), 1, 0);
-        SUBSEQUENCE_FROM_SINGLETON_SEQUENCE = new SubSequence(Sequences.singleton(Integer.class, 1), 0, 1);
+        SUBSEQUENCE_FROM_EMPTY_SEQUENCE = new SubSequence<Integer>(TypeInfos.Integer.getEmptySequence(), 1, 0);
+        SUBSEQUENCE_FROM_SINGLETON_SEQUENCE = new SubSequence<Integer>(Sequences.singleton(TypeInfos.Integer, 1), 0, 1);
 
-        EMPTY_SUBSEQUENCE = new SubSequence(baseSequence, 1, 0);
-        SUBSEQUENCE_AT_START = new SubSequence(baseSequence, 0, 2);
-        SUBSEQUENCE_AT_END = new SubSequence(baseSequence, 1, 3);
-        SUBSEQUENCE_IN_MIDDLE = new SubSequence(baseSequence, 1, 2);
-        OVERLAPPING_SUBSEQUENCE = new SubSequence(SUBSEQUENCE_AT_START, 1, 2);
+        EMPTY_SUBSEQUENCE = new SubSequence<Integer>(baseSequence, 1, 0);
+        SUBSEQUENCE_AT_START = new SubSequence<Integer>(baseSequence, 0, 2);
+        SUBSEQUENCE_AT_END = new SubSequence<Integer>(baseSequence, 1, 3);
+        SUBSEQUENCE_IN_MIDDLE = new SubSequence<Integer>(baseSequence, 1, 2);
+        OVERLAPPING_SUBSEQUENCE = new SubSequence<Integer>(SUBSEQUENCE_AT_START, 1, 2);
     }
     
     public void testToArray() {

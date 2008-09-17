@@ -25,13 +25,13 @@ package com.sun.javafx.runtime;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessControlException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Iterator;
 
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 
 /**
  * First code that is run to start a JavaFX Script application.
@@ -43,7 +43,7 @@ public class Entry {
 
     public static void start(Class<?> app, String[] commandLineArgs) throws Throwable {
         Method main = app.getMethod(entryMethodName(), Sequence.class);
-        Object args = Sequences.make(String.class, commandLineArgs);
+        Object args = Sequences.make(TypeInfos.String, commandLineArgs);
         
         try {
             main.setAccessible(true);

@@ -545,6 +545,39 @@ public abstract class JavafxTranslationSupport {
         return make.at(diagPos).Select(makeTypeTree( diagPos,syms.boxIfNeeded(elemType), true), names._class);
     }
 
+    private JCExpression primitiveTypeInfo(DiagnosticPosition diagPos, Name typeName) {
+        return make.at(diagPos).Select(makeQualifiedTree(diagPos, typeInfosString), typeName);
+    }
+    
+    /**
+     * Given type, return an expression whose value is the corresponding TypeInfo.
+     * @param diagPos
+     * @param type
+     * @return expression representing the TypeInfo of the class
+     */
+    JCExpression makeTypeInfo(DiagnosticPosition diagPos, Type type) {
+        Type ubType = types.unboxedType(type);
+        if (ubType.tag != TypeTags.NONE)
+            type = ubType;
+        if (types.isSameType(type, syms.javafx_NumberType)) {
+            return primitiveTypeInfo(diagPos, names.fromString("Double")); // "Number" field isn't really
+        } else if (types.isSameType(type, syms.javafx_IntegerType)) {
+            return primitiveTypeInfo(diagPos, syms.integerTypeName);
+        } else if (types.isSameType(type, syms.javafx_BooleanType)) {
+            return primitiveTypeInfo(diagPos, syms.booleanTypeName);
+        } else if (types.isSameType(type, syms.javafx_StringType)) {
+            return primitiveTypeInfo(diagPos, syms.stringTypeName);
+        } else if (types.isSameType(type, syms.longType)) {
+            return primitiveTypeInfo(diagPos, names.fromString("Long"));
+        } else if (types.isSameType(type, syms.javafx_DurationType)) {
+            JCExpression locationFieldRef = make.at(diagPos).Select(makeTypeTree(diagPos, type), defs.defaultingTypeInfoFieldName);
+            return getLocationValue(diagPos, locationFieldRef, TYPE_KIND_OBJECT);
+        } else {
+            List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, type, true));
+            return runtime(diagPos, typeInfosString, "getTypeInfo", typeArgs, List.<JCExpression>nil());
+        }
+    }
+
     protected abstract String getSyntheticPrefix();
 
     Name getSyntheticName(String kind) {
@@ -559,6 +592,13 @@ public abstract class JavafxTranslationSupport {
     }
     private Name indexVarName(Name name) {
         return names.fromString("$indexof$" + name.toString());
+    }
+
+    // expr.get()
+    JCExpression getLocationValue(DiagnosticPosition diagPos, JCExpression expr, int typeKind) {
+        JCFieldAccess getSelect = make.at(diagPos).Select(expr, defs.locationGetMethodName[typeKind]);
+        List<JCExpression> getArgs = List.nil();
+        return make.at(diagPos).Apply(null, getSelect, getArgs);
     }
 
     /**

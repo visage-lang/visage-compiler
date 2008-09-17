@@ -23,6 +23,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
+import com.sun.javafx.runtime.TypeInfos;
 import org.junit.Assert;
 
 /**
@@ -41,12 +42,12 @@ public class ReplacementSequenceTest extends JavaFXTestCase {
 
     @Override
     protected void setUp() {
-        REPLACEMENT_FROM_SINGLETON_SEQUENCE = new ReplacementSequence(Sequences.singleton(Integer.class, 1), 0, 2);
-        Sequence<Integer> baseSequence = Sequences.make(Integer.class, 1, 2, 3);
-        REPLACEMENT_AT_START = new ReplacementSequence(baseSequence, 0, C);
-        REPLACEMENT_IN_MIDDLE = new ReplacementSequence(baseSequence, 1, C);
-        REPLACEMENT_AT_END = new ReplacementSequence(baseSequence, 2, C);
-        OVERLAPPING_REPLACEMENT = new ReplacementSequence(REPLACEMENT_IN_MIDDLE, 1, D);
+        REPLACEMENT_FROM_SINGLETON_SEQUENCE = new ReplacementSequence<Integer>(Sequences.singleton(TypeInfos.Integer, 1), 0, 2);
+        Sequence<Integer> baseSequence = Sequences.make(TypeInfos.Integer, 1, 2, 3);
+        REPLACEMENT_AT_START = new ReplacementSequence<Integer>(baseSequence, 0, C);
+        REPLACEMENT_IN_MIDDLE = new ReplacementSequence<Integer>(baseSequence, 1, C);
+        REPLACEMENT_AT_END = new ReplacementSequence<Integer>(baseSequence, 2, C);
+        OVERLAPPING_REPLACEMENT = new ReplacementSequence<Integer>(REPLACEMENT_IN_MIDDLE, 1, D);
     }
     
     public void testToArray() {

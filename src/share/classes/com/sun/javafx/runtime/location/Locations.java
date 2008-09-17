@@ -62,8 +62,8 @@ public class Locations {
         return ObjectConstant.make(value);
     }
 
-    public static<T> SequenceLocation<T> constant(Sequence<T> value) {
-        return SequenceConstant.make(value);
+    public static<T> SequenceLocation<T> constant(Class<T> clazz, Sequence<T> value) {
+        return SequenceConstant.make(clazz, value);
     }
 
 
@@ -818,6 +818,10 @@ public class Locations {
 
         public T get(int position) {
             return location.get(position);
+        }
+
+        public Class<T> getElementType() {
+            return location.getElementType();
         }
 
         public Sequence<T> getAsSequence() {

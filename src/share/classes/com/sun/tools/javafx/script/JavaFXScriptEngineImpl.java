@@ -23,27 +23,32 @@
 
 package com.sun.tools.javafx.script;
 
-import com.sun.javafx.api.JavaFXScriptEngine;
-import com.sun.javafx.api.JavafxcTask;
-import com.sun.javafx.api.tree.*;
-import com.sun.javafx.runtime.Entry;
-import com.sun.tools.javac.util.JCDiagnostic;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import javax.script.*;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
+
+import com.sun.javafx.api.JavaFXScriptEngine;
+import com.sun.javafx.api.JavafxcTask;
+import com.sun.javafx.api.tree.ExpressionTree;
+import com.sun.javafx.api.tree.SourcePositions;
+import com.sun.javafx.api.tree.UnitTree;
+import com.sun.javafx.runtime.Entry;
+import com.sun.javafx.runtime.TypeInfos;
 import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.tools.javafx.api.JavafxcTrees;
 import com.sun.tools.javafx.tree.JFXScript;
 import com.sun.tools.javafx.tree.JFXTree;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * This is script engine for the JavaFX Script language, based on
@@ -382,7 +387,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                 }
 
                 // call main method
-                Object args = Sequences.emptySequence(String.class);
+                Object args = TypeInfos.String.getEmptySequence();
                 result = mainMethod.invoke(null, args);
             }
 

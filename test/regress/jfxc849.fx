@@ -11,5 +11,10 @@ class Frame {
 }
 
 var frame = new Frame;
-var array = frame.getWindow().getContainerListeners(); 
-System.out.println("array.class={array.getClass()}");
+var listeners = frame.getWindow().getContainerListeners(); 
+for (l in listeners) {
+  var cl : java.awt.event.ContainerListener = l;
+  println(cl);
+};
+
+

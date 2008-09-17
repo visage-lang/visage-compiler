@@ -22,15 +22,18 @@
  */
 
 package javafx.reflect;
-import java.util.*;
+
 import java.lang.reflect.*;
+import java.util.AbstractList;
+import java.util.List;
+
 import com.sun.javafx.functions.*;
-import com.sun.javafx.runtime.location.ObjectLocation;
-import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.runtime.FXObject;
+import com.sun.javafx.runtime.TypeInfos;
 import com.sun.javafx.runtime.annotation.SourceName;
 import com.sun.javafx.runtime.location.*;
-import com.sun.javafx.runtime.FXObject;
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
 
 /**
  * Implement JavaFX rfeflection on top of {@java.lang.reflect}.
@@ -790,7 +793,7 @@ public class FXLocal {
                 Object[] objs = new Object[nvalues];
                 for (int i = 0;  i < nvalues;  i++)
                     objs[i] = ((FXLocal.Value) values[i]).asObject();
-                return Sequences.make(context.asClass(elementType), objs);
+                return Sequences.make(TypeInfos.getTypeInfo(context.asClass(elementType)), objs);
             }
             return seq;
         }

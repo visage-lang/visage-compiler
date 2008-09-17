@@ -26,6 +26,8 @@ package com.sun.javafx.runtime.sequence;
 import java.util.BitSet;
 import java.util.Iterator;
 
+import com.sun.javafx.runtime.TypeInfo;
+
 /**
  * Sequences are immutable, homogeneous, ordered collections.  A sequence has an element type,
  * a length, and a list of elements.  New sequences can be derived by calling the factory methods
@@ -51,7 +53,7 @@ public interface Sequence<T> extends Iterable<T> {
     public boolean isEmpty();
 
     /** What is the element type? */
-    public Class<T> getElementType();
+    public TypeInfo<T> getElementType();
 
     /** Copy the contents of this sequence to an array, at a specified offset within the destination array */
     public void toArray(Object[] array, int destOffset);
@@ -87,4 +89,8 @@ public interface Sequence<T> extends Iterable<T> {
     public BitSet getBits(SequencePredicate<? super T> predicate);
 
     public Iterator<T> iterator();
+
+    T getDefaultValue();
+
+    Sequence<T> getEmptySequence();
 }

@@ -23,6 +23,8 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.TypeInfo;
+
 /**
  * Given S extends T, represent a Sequence of S as a sequence of T.  
  *
@@ -30,8 +32,8 @@ package com.sun.javafx.runtime.sequence;
  */
 class UpcastSequence<T> extends DerivedSequence<T> implements Sequence<T> {
 
-    public UpcastSequence(Class<T> newClazz, Sequence<? extends T> sequence) {
-        super(newClazz, sequence);
+    public UpcastSequence(TypeInfo<T> ti, Sequence<? extends T> sequence) {
+        super(ti, sequence);
     }
 
     @Override

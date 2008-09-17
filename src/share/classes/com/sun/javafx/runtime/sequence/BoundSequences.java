@@ -59,7 +59,7 @@ public class BoundSequences {
      */
     @SuppressWarnings("unchecked")
     public static <T, V extends T> SequenceLocation<T> upcast(Class<T> clazz, SequenceLocation<V> location) {
-        Class<V> vClass = location.getAsSequence().getElementType();
+        Class<V> vClass = location.getElementType();
         if (clazz == vClass)
             return (SequenceLocation<T>) location;
         else

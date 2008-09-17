@@ -3,6 +3,7 @@ package com.sun.javafx.runtime.sequence;
 import java.util.Random;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
+import com.sun.javafx.runtime.TypeInfos;
 import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.location.SequenceVariable;
 
@@ -14,7 +15,7 @@ import com.sun.javafx.runtime.location.SequenceVariable;
 public class DumbMutableSequenceTest extends JavaFXTestCase {
 
     private static void replaceSlice(DumbMutableSequence<Integer> ds, int startPos, int endPos, Integer... values) {
-        ds.replaceSlice(startPos, endPos, Sequences.make(Integer.class, values));
+        ds.replaceSlice(startPos, endPos, Sequences.make(TypeInfos.Integer, values));
     }
 
     private void assertEquals(DumbMutableSequence<Integer> ds, Integer... values) {
@@ -66,7 +67,7 @@ public class DumbMutableSequenceTest extends JavaFXTestCase {
 
     public void testGrowAndShrink() {
         DumbMutableSequence<Integer> ds = new DumbMutableSequence<Integer>();
-        SequenceLocation<Integer> seq = SequenceVariable.make(Sequences.emptySequence(Integer.class));
+        SequenceLocation<Integer> seq = SequenceVariable.make(Integer.class);
         Random r = new Random();
 
         for (int i = 0; i < 10; i++) {
@@ -94,13 +95,13 @@ public class DumbMutableSequenceTest extends JavaFXTestCase {
 
     public void testRandomInsert() {
         DumbMutableSequence<Integer> ds = new DumbMutableSequence<Integer>();
-        SequenceLocation<Integer> seq = SequenceVariable.make(Sequences.emptySequence(Integer.class));
+        SequenceLocation<Integer> seq = SequenceVariable.make(Integer.class);
         Random r = new Random();
 
         for (int i = 0; i < 100; i++) {
             int n = r.nextInt(ds.size() + 1);
             replaceSlice(ds, n, n-1, i);
-            seq.replaceSlice(n, n-1, Sequences.make(Integer.class, i));
+            seq.replaceSlice(n, n-1, Sequences.make(TypeInfos.Integer, i));
             assertEquals(seq.getAsSequence(), ds.get(Integer.class));
             ds.testValid();
         }
@@ -108,7 +109,7 @@ public class DumbMutableSequenceTest extends JavaFXTestCase {
         for (int i = 100; i < 200; i++) {
             int n = r.nextInt(ds.size());
             replaceSlice(ds, n, n, i, i);
-            seq.replaceSlice(n, n, Sequences.make(Integer.class, i, i));
+            seq.replaceSlice(n, n, Sequences.make(TypeInfos.Integer, i, i));
             assertEquals(seq.getAsSequence(), ds.get(Integer.class));
             ds.testValid();
         }

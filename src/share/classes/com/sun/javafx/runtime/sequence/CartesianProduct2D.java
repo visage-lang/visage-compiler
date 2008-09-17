@@ -23,6 +23,8 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.TypeInfo;
+
 /**
  * Special case for two-dimensional foreach comprehension when there are no where clauses on either list and
  * the foreach body always returns a single instance. The results are computed as needed rather than
@@ -40,8 +42,8 @@ public class CartesianProduct2D<T, U, V> extends AbstractSequence<T> implements 
     private final Sequence<V> seq2;
     private final Mapper<T, U, V> mapper;
 
-    public CartesianProduct2D(Class<T> clazz, Sequence<U> seq1, Sequence<V> seq2, Mapper<T, U, V> mapper) {
-        super(clazz);
+    public CartesianProduct2D(TypeInfo<T> ti, Sequence<U> seq1, Sequence<V> seq2, Mapper<T, U, V> mapper) {
+        super(ti);
         this.seq1 = seq1;
         this.seq2 = seq2;
         this.mapper = mapper;

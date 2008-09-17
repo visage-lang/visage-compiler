@@ -23,7 +23,7 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.Util;
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * Represents a sequence with a single element.  Singleton sequences should be created with the Sequences.singleton()
@@ -34,8 +34,8 @@ import com.sun.javafx.runtime.Util;
 class SingletonSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     private final T value;
 
-    public SingletonSequence(Class<T> clazz, T value) {
-        super(clazz);
+    public SingletonSequence(TypeInfo<T> ti, T value) {
+        super(ti);
         this.value = value;
     }
 
@@ -49,6 +49,6 @@ class SingletonSequence<T> extends AbstractSequence<T> implements Sequence<T> {
         if (position == 0)
             return value;
         else
-            return Util.defaultValue(getElementType());
+            return getDefaultValue();
     }
 }

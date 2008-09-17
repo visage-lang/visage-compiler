@@ -24,10 +24,11 @@
 package com.sun.javafx.runtime.sequence;
 
 import java.util.BitSet;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
 
 /**
@@ -42,12 +43,12 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
     private final T[] array;
 
 
-    public ArraySequence(Class<T> clazz, T... values) {
-        this(clazz, values, false);
+    public ArraySequence(TypeInfo<T> ti, T... values) {
+        this(ti, values, false);
     }
 
-    public ArraySequence(Class<T> clazz, T[] values, boolean handoff) {
-        super(clazz);
+    public ArraySequence(TypeInfo<T> ti, T[] values, boolean handoff) {
+        super(ti);
         if (handoff) {
             this.array = values;
         }
@@ -58,22 +59,22 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
         checkForNulls();
     }
 
-    public ArraySequence(Class<T> clazz, T[] values, int size) {
-        super(clazz);
+    public ArraySequence(TypeInfo<T> ti, T[] values, int size) {
+        super(ti);
         this.array =  Util.<T>newObjectArray(size);
         System.arraycopy(values, 0, array, 0, size);
         checkForNulls();
     }
 
     @SuppressWarnings("unchecked")
-    public ArraySequence(Class<T> clazz, List<? extends T> values) {
-        super(clazz);
+    public ArraySequence(TypeInfo<T> ti, List<? extends T> values) {
+        super(ti);
         this.array = (T[]) values.toArray();
         checkForNulls();
     }
 
-    public ArraySequence(Class<T> clazz, Sequence<? extends T>... sequences) {
-        super(clazz);
+    public ArraySequence(TypeInfo<T> ti, Sequence<? extends T>... sequences) {
+        super(ti);
         int size = 0;
         for (Sequence<? extends T> seq : sequences)
             size += seq.size();
@@ -100,7 +101,7 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
     @Override
     public T get(int position) {
         if (position < 0 || position >= array.length)
-            return Util.defaultValue(getElementType());
+            return getDefaultValue();
         else 
             return array[position];
     }

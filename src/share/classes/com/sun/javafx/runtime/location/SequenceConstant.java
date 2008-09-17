@@ -34,19 +34,25 @@ import com.sun.javafx.runtime.sequence.SequencePredicate;
  * @author Brian Goetz
  */
 public class SequenceConstant<T> extends AbstractConstantLocation<Sequence<T>> implements SequenceLocation<T> {
+    private final Class<T> clazz;
     private Sequence<T> $value;
 
-    public static<T> SequenceLocation<T> make(Sequence<T> value) {
-        return new SequenceConstant<T>(value);
+    public static<T> SequenceLocation<T> make(Class<T> clazz, Sequence<T> value) {
+        return new SequenceConstant<T>(clazz, value);
     }
 
-    protected SequenceConstant(Sequence<T> value) {
+    protected SequenceConstant(Class<T> clazz, Sequence<T> value) {
+        this.clazz = clazz;
         this.$value = value;
     }
 
 
     public Sequence<T> getAsSequence() {
         return $value;
+    }
+
+    public Class<T> getElementType() {
+        return clazz;
     }
 
     public Sequence<T> get() {

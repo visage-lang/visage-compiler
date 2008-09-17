@@ -25,6 +25,7 @@ package com.sun.javafx.runtime.sequence;
 
 import java.util.BitSet;
 
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.util.MathUtil;
 
 /**
@@ -66,7 +67,7 @@ public class SequenceMutator {
     public static <T> Sequence<T> replaceSlice(Sequence<T> target, Listener<T> listener,
                                                int startPos, int endPos, Sequence<? extends T> newValues) {
         Sequence<T> result;
-        Class<T> elementType = target.getElementType();
+        TypeInfo<T> elementType = target.getElementType();
         int size = Sequences.size(target);
 
         if (startPos > size || startPos < 0)
@@ -91,7 +92,7 @@ public class SequenceMutator {
         }
         else if (Sequences.size(newValues) == 0) {
             if (newValues == null)
-                newValues = Sequences.emptySequence(target.getElementType());
+                newValues = target.getEmptySequence();
             // Deletion from startPos to endPos inclusive
             if (endPos == startPos-1)
                 result = target;
@@ -132,7 +133,7 @@ public class SequenceMutator {
         if (startPos > size || startPos < 0 || endPos >= size)
             return target;
         if (newValue == null)
-            return replaceSlice(target, listener, startPos, endPos, Sequences.emptySequence(target.getElementType()));
+            return replaceSlice(target, listener, startPos, endPos, target.getEmptySequence());
 
         Sequence<T> result;
         Sequence<T> singleton = Sequences.singleton(target.getElementType(), newValue);
@@ -164,7 +165,7 @@ public class SequenceMutator {
      * Delete the element at the specified position.  If the position is out of range, the sequence is not modified.
      */
     public static <T> Sequence<T> delete(Sequence<T> target, Listener<T> listener, int position) {
-        return replaceSlice(target, listener, position, position, Sequences.emptySequence(target.getElementType()));
+        return replaceSlice(target, listener, position, position, target.getEmptySequence());
     }
 
     /**
@@ -261,7 +262,7 @@ public class SequenceMutator {
                 if (!bits.get(i)) {
                     partialBits.flip(i);
                     Sequence<T> nextValue = Sequences.filter(target, partialBits);
-                    listener.onReplaceSlice(i, i, Sequences.emptySequence(target.getElementType()), lastValue, nextValue);
+                    listener.onReplaceSlice(i, i, target.getEmptySequence(), lastValue, nextValue);
                     lastValue = nextValue;
                 }
             }

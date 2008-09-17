@@ -23,6 +23,8 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.TypeInfo;
+
 /**
  * DerivedSequence
  *
@@ -32,19 +34,19 @@ abstract class DerivedSequence<T> extends AbstractSequence<T> implements Sequenc
     protected final Sequence<? extends T> sequence;
     protected final int size, depth;
 
-    public DerivedSequence(Class<T> clazz, Sequence<? extends T> sequence, int size, int depth) {
-        super(clazz);
+    public DerivedSequence(TypeInfo<T> ti, Sequence<? extends T> sequence, int size, int depth) {
+        super(ti);
         this.sequence = sequence;
         this.size = size;
         this.depth = depth;
     }
 
-    protected DerivedSequence(Class<T> clazz, Sequence<? extends T> sequence, int size) {
-        this(clazz, sequence, size, sequence.getDepth() + 1);
+    protected DerivedSequence(TypeInfo<T> ti, Sequence<? extends T> sequence, int size) {
+        this(ti, sequence, size, sequence.getDepth() + 1);
     }
 
-    protected DerivedSequence(Class<T> clazz, Sequence<? extends T> sequence) {
-        this(clazz, sequence, sequence.size(), sequence.getDepth() + 1);
+    protected DerivedSequence(TypeInfo<T> ti, Sequence<? extends T> sequence) {
+        this(ti, sequence, sequence.size(), sequence.getDepth() + 1);
     }
 
     public int size() {

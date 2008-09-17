@@ -23,6 +23,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
+import com.sun.javafx.runtime.TypeInfos;
 
 /**
  * ComprehensionsTest
@@ -39,7 +40,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
                 return value*2;
             }
         };
-        Sequence<Integer> doubled = Sequences.map(Integer.class, five, doubler);
+        Sequence<Integer> doubled = Sequences.map(TypeInfos.Integer, five, doubler);
         assertEquals(doubled, 0, 2, 4, 6, 8, 10);
         assertEquals(doubled, doubled.flatten());
     }
@@ -70,7 +71,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
     public void test2Dforeach() {
         Sequence<Integer> outer = Sequences.range(1, 2);
         Sequence<Integer> inner = Sequences.range(1, 3);
-        SequenceBuilder<Integer> sb = new SequenceBuilder<Integer>(Integer.class, outer.size() * inner.size());
+        SequenceBuilder<Integer> sb = new SequenceBuilder<Integer>(TypeInfos.Integer, outer.size() * inner.size());
         for (Integer i : outer) {
             for (Integer j : inner) {
                 sb.add(1);
@@ -78,7 +79,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
         }
         Sequence<Integer> result = sb.toSequence();
         assertEquals(result, 1, 1, 1, 1, 1, 1);
-        Sequence<Integer> c2dResult = new CartesianProduct2D<Integer, Integer, Integer>(Integer.class, outer, inner,
+        Sequence<Integer> c2dResult = new CartesianProduct2D<Integer, Integer, Integer>(TypeInfos.Integer, outer, inner,
                 new CartesianProduct2D.Mapper<Integer, Integer, Integer>() {
                     public Integer map(int index1, Integer value1, int index2, Integer value2) {
                         return 1;
@@ -86,7 +87,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
                 });
         assertEquals(result, c2dResult);
 
-        Sequence<Integer> cnResult = new CartesianProduct<Integer>(Integer.class,
+        Sequence<Integer> cnResult = new CartesianProduct<Integer>(TypeInfos.Integer,
                 new CartesianProduct.Mapper<Integer>() {
                     public Integer map(int[] indexes, Object[] values) {
                         return 1;
@@ -97,7 +98,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
         // outer = [ 1..2 ], inner = [ 1..3 ], content = [ i*j ]
         outer = Sequences.range(1, 2);
         inner = Sequences.range(1, 3);
-        sb = new SequenceBuilder<Integer>(Integer.class, outer.size() * inner.size());
+        sb = new SequenceBuilder<Integer>(TypeInfos.Integer, outer.size() * inner.size());
         for (Integer i : outer) {
             for (Integer j : inner) {
                 sb.add(i*j);
@@ -105,7 +106,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
         }
         result = sb.toSequence();
         assertEquals(result, 1, 2, 3, 2, 4, 6);
-        c2dResult = new CartesianProduct2D<Integer, Integer, Integer>(Integer.class, outer, inner,
+        c2dResult = new CartesianProduct2D<Integer, Integer, Integer>(TypeInfos.Integer, outer, inner,
                 new CartesianProduct2D.Mapper<Integer, Integer, Integer>() {
                     public Integer map(int index1, Integer value1, int index2, Integer value2) {
                         return value1 * value2;
@@ -113,7 +114,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
                 });
         assertEquals(result, c2dResult);
 
-        cnResult = new CartesianProduct<Integer>(Integer.class,
+        cnResult = new CartesianProduct<Integer>(TypeInfos.Integer,
                 new CartesianProduct.Mapper<Integer>() {
                     public Integer map(int[] indexes, Object[] values) {
                         return ((Integer) values[0]) * ((Integer) values[1]);
@@ -127,7 +128,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
         Sequence<Integer> first = Sequences.range(1, 2);
         Sequence<Integer> second = Sequences.range(1, 3);
         Sequence<Integer> third = Sequences.range(1, 4);
-        SequenceBuilder<Integer> sb = new SequenceBuilder<Integer>(Integer.class);
+        SequenceBuilder<Integer> sb = new SequenceBuilder<Integer>(TypeInfos.Integer);
         for (Integer i : first) {
             for (Integer j : second) {
                 for (Integer k : third) {
@@ -138,7 +139,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
         Sequence<Integer> result = sb.toSequence();
         assertEquals(result, 1, 2, 3, 4, 2, 4, 6, 8, 3, 6, 9, 12, 2, 4, 6, 8, 4, 8, 12, 16, 6, 12, 18, 24);
 
-        Sequence<Integer> cnResult = new CartesianProduct<Integer>(Integer.class,
+        Sequence<Integer> cnResult = new CartesianProduct<Integer>(TypeInfos.Integer,
                 new CartesianProduct.Mapper<Integer>() {
                     public Integer map(int[] indexes, Object[] values) {
                         return ((Integer) values[0]) * ((Integer) values[1]) * ((Integer) values[2]);

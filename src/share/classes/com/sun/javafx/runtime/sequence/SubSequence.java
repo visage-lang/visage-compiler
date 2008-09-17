@@ -31,6 +31,7 @@ import com.sun.javafx.runtime.Util;
  *
  * @author Brian Goetz
  */
+// @@@ Should extend DerivedSequence
 class SubSequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
     private final Sequence<? extends T> sequence;
@@ -57,7 +58,7 @@ class SubSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     @Override
     public T get(int position) {
         if (position < 0 || position + start >= end)
-            return Util.defaultValue(getElementType());
+            return getDefaultValue();
         else
             return sequence.get(position + start);
     }

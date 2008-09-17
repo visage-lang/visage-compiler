@@ -23,6 +23,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.Util;
+import com.sun.javafx.runtime.TypeInfos;
 import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.location.SequenceChangeListener;
 
@@ -81,7 +82,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             infos[i].size = sequences[i].size();
             offset += sequences[i].size();
         }
-        return Sequences.concatenate(getClazz(), sequences);
+        return Sequences.concatenate(TypeInfos.getTypeInfo(getClazz()), sequences);
     }
 
     private void addTriggers() {
@@ -110,7 +111,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             offset += sequences[i].size();
             newInfos[i].addListener(new MyListener(i + startPos));
         }
-        Sequence<T> newSlice = Sequences.concatenate(getClazz(), sequences);
+        Sequence<T> newSlice = Sequences.concatenate(TypeInfos.getTypeInfo(getClazz()), sequences);
         int deltaElements = newSlice.size() - (affectedEnd - affectedStart + 1);
         int deltaLocations = newValues.length - (endPos - startPos + 1);
         for (int i = endPos + 1; i < infos.length; i++) {

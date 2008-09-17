@@ -22,6 +22,7 @@
  */
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.TypeInfos;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 
@@ -32,8 +33,8 @@ import com.sun.javafx.runtime.sequence.Sequences;
  */
 class CountingSequenceListener implements SequenceChangeListener<Integer> {
     int changeCount, insertCount, deleteCount, replaceCount;
-    Sequence<Integer> inserted = Sequences.emptySequence(Integer.class);
-    Sequence<Integer> deleted = Sequences.emptySequence(Integer.class);
+    Sequence<Integer> inserted = TypeInfos.Integer.getEmptySequence();
+    Sequence<Integer> deleted = TypeInfos.Integer.getEmptySequence();
 
     public void onChange(int startPos, int endPos, Sequence<? extends Integer> newElements, Sequence<Integer> oldValue, Sequence<Integer> newValue) {
         if (endPos == startPos && Sequences.size(newElements) == 1) {

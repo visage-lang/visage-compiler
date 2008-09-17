@@ -2,6 +2,7 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.JavaFXTestCase;
+import com.sun.javafx.runtime.TypeInfos;
 import com.sun.javafx.runtime.sequence.Sequences;
 
 /**
@@ -69,8 +70,8 @@ public class BoundOperatorsTest extends JavaFXTestCase {
 
     public void testIndirectSeqIf() {
         BooleanLocation b = BooleanVariable.make(true);
-        final SequenceVariable<Integer> x = SequenceVariable.make(Integer.class, Sequences.make(Integer.class, 1, 2, 3));
-        final SequenceVariable<Integer> y = SequenceVariable.make(Integer.class, Sequences.make(Integer.class, 4, 5, 6));
+        final SequenceVariable<Integer> x = SequenceVariable.make(Integer.class, Sequences.make(TypeInfos.Integer, 1, 2, 3));
+        final SequenceVariable<Integer> y = SequenceVariable.make(Integer.class, Sequences.make(TypeInfos.Integer, 4, 5, 6));
         SequenceLocation<Integer> ifLoc = BoundOperators.makeBoundIf(Integer.class, false, b,
                                                                      new Function0<SequenceLocation<Integer>>() {
                                                                          public SequenceLocation<Integer> invoke() {

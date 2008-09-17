@@ -23,6 +23,7 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
 
 /**
@@ -38,9 +39,9 @@ class CompositeSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     private final int[] startPositions;
     private final int size, depth;
 
-    public CompositeSequence(Class<T> clazz, Sequence<? extends T>... sequences) {
+    public CompositeSequence(TypeInfo<T> ti, Sequence<? extends T>... sequences) {
         // @@@ TODO: Deal with nulls in sequences
-        super(clazz);
+        super(ti);
         this.sequences = Util.newSequenceArray(sequences.length);
         System.arraycopy(sequences, 0, this.sequences, 0, sequences.length);
         this.startPositions = new int[sequences.length];
@@ -69,7 +70,7 @@ class CompositeSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     @Override
     public T get(int position) {
         if (position < 0 || position >= size)
-            return Util.defaultValue(getElementType());
+            return getDefaultValue();
         // Linear search should be good enough for now
         // @@@ OPT: cache last chunk accessed, use that as predictive starting point for next get
         int chunk = 0;

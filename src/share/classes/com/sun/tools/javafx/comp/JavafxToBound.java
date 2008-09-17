@@ -188,7 +188,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 // this additional test is needed because wildcards compare as different
                 Type inElementType = typeMorpher.typeMorphInfo(inType).getElementType();
                 if (!types.isSameType(inElementType, targetElementType)) {
-                    JCExpression targetClass = makeElementClassObject(diagPos, targetElementType);
+                    JCExpression targetClass = makeTypeInfo(diagPos, targetElementType);
                     tree = runtime(diagPos, cBoundSequences, "upcast", List.of(targetClass, tree));
                 }
             } else if (targetType == syms.doubleType) {

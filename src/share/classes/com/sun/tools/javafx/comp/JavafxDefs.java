@@ -51,6 +51,7 @@ public class JavafxDefs {
     public static final String startMethodString = "com.sun.javafx.runtime.Entry.start";
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
+    public static final String typeInfosString = "com.sun.javafx.runtime.TypeInfos";
     public static final String internalRunFunctionNameString = Entry.entryMethodName();
     public static final String receiverNameString = "receiver$";
     public static final String initializeNameString ="initialize$";
@@ -102,6 +103,7 @@ public class JavafxDefs {
     final Name replaceSliceMethodName;
     final Name setMethodName;
     final Name sizeMethodName;
+    final Name defaultingTypeInfoFieldName;
     final Name addStaticDependentName;
     final Name addDynamicDependentName;
     final Name clearDynamicDependenciesName;
@@ -184,6 +186,7 @@ public class JavafxDefs {
         replaceSliceMethodName = names.fromString("replaceSlice");
         setMethodName = Name.fromString(names, setMethodNameString);
         sizeMethodName = Name.fromString(names, sizeMethodNameString);
+        defaultingTypeInfoFieldName = Name.fromString(names, "$TYPE_INFO");
         addStaticDependentName = names.fromString(addStaticDependentNameString);
         addDynamicDependentName = names.fromString(addDynamicDependentNameString);
         clearDynamicDependenciesName = names.fromString(clearDynamicDependenciesNameString);

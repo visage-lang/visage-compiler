@@ -299,7 +299,7 @@ public class BoundOperators extends GeneratedBoundOperators {
                                                             final ObjectLocation<T> receiver,
                                                             final Function1<SequenceLocation<U>, T> selector) {
 
-        final SequenceLocation<U> defaultValue = SequenceConstant.<U>make(Sequences.emptySequence(clazz));
+        final SequenceLocation<U> defaultValue = SequenceConstant.<U>make(clazz, Sequences.emptySequence(clazz));
 
         return new IndirectSequenceExpression<U>(clazz, lazy, receiver) {
 

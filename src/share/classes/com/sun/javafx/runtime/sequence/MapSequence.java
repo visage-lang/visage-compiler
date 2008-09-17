@@ -23,6 +23,8 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.TypeInfo;
+
 /**
  * Provides a view of an underlying sequence by applying a mapping function to each element of the underlying
  * sequence. The mapping is done lazily, on each call to get(), rather than eagerly, so the time and space
@@ -36,8 +38,8 @@ class MapSequence<T, U> extends AbstractSequence<U> implements Sequence<U> {
     private final Sequence<T> sequence;
     private final SequenceMapper<T, U> mapper;
 
-    public MapSequence(Class<U> clazz, Sequence<T> sequence, SequenceMapper<T, U> mapper) {
-        super(clazz);
+    public MapSequence(TypeInfo<U> ti, Sequence<T> sequence, SequenceMapper<T, U> mapper) {
+        super(ti);
         this.sequence = sequence;
         this.mapper = mapper;
     }

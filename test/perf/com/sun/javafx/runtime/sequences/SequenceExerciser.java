@@ -37,7 +37,7 @@ public class SequenceExerciser {
 
     public static void main(String[] args) throws IllegalAccessException, InstantiationException {
         int initialSize = Integer.parseInt(args[0]);
-        SequenceLocation<Integer> seq = SequenceVariable.make(Sequences.range(1, initialSize));
+        SequenceLocation<Integer> seq = SequenceVariable.make(Integer.class, Sequences.range(1, initialSize));
         int sum = 0;
         long start = System.nanoTime();
         for (int i=1; i<args.length; i++) {

@@ -24,6 +24,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.location.*;
+import com.sun.javafx.runtime.TypeInfos;
 
 /**
  * BoundNumberRangeSequence
@@ -122,7 +123,7 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> impl
                 else if (oldSize >= size) {
                     if (((newValue - oldValue) % step) == 0) {
                         
-                        updateSlice(0, oldSize - size - 1, Sequences.emptySequence(Double.class));
+                        updateSlice(0, oldSize - size - 1, TypeInfos.Double.getEmptySequence());
                     }
                     else {
                         newElements = computeFull(lower, upper, step);
@@ -148,7 +149,7 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> impl
                    updateSlice(oldSize, oldSize - 1, computeFull(lower+oldSize*step, upper, step));
                 }
                 else if (oldSize > size) {
-                    updateSlice(size, oldSize - 1, Sequences.emptySequence(Double.class));
+                    updateSlice(size, oldSize - 1, TypeInfos.Double.getEmptySequence());
                 }
             }
         });

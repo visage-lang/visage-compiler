@@ -113,7 +113,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
                         updateSlice(
                                 0, 
                                 oldSize - size - 1, 
-                                Sequences.emptySequence(sequenceLoc.getAsSequence().getElementType()));
+                                sequenceLoc.getAsSequence().getEmptySequence());
                     }
                 }
             }
@@ -137,7 +137,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
                             updateSlice(
                                     size, 
                                     oldSize - 1, 
-                                    Sequences.emptySequence(sequenceLoc.getAsSequence().getElementType()));
+                                    sequenceLoc.getAsSequence().getEmptySequence());
                         }
                     }
                 }

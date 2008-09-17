@@ -23,6 +23,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
+import com.sun.javafx.runtime.TypeInfos;
 
 /**
  * NumberSequenceTest
@@ -31,8 +32,8 @@ import com.sun.javafx.runtime.JavaFXTestCase;
  * @author Per Bothner
  */
 public class NumberSequenceTest extends JavaFXTestCase {
-    private final Sequence<Double> EMPTY_SEQUENCE = EmptySequence.get(Double.class);
-    private final Sequence<Double> ZERO_SEQUENCE = new ArraySequence<Double>(Double.class, 0.0);
+    private final Sequence<Double> EMPTY_SEQUENCE = TypeInfos.Double.getEmptySequence();
+    private final Sequence<Double> ZERO_SEQUENCE = new ArraySequence<Double>(TypeInfos.Double, 0.0);
 
     /** Test ranges, including skip ranges and backwards ranges */
     public void testRange() {
@@ -91,28 +92,28 @@ public class NumberSequenceTest extends JavaFXTestCase {
     }
 
     public void testMixedConcat () {
-        Sequence<Integer> sI1 = new ArraySequence<Integer>(Integer.class, 1, 2);
-        Sequence<Double> sD1 = new ArraySequence<Double>(Double.class, 1.5, 2.5);
-        Sequence<Number> sN1 = Sequences.concatenate(Number.class, sI1, sD1);
+        Sequence<Integer> sI1 = new ArraySequence<Integer>(TypeInfos.Integer, 1, 2);
+        Sequence<Double> sD1 = new ArraySequence<Double>(TypeInfos.Double, 1.5, 2.5);
+        Sequence<Number> sN1 = Sequences.concatenate(TypeInfos.Number, sI1, sD1);
         assertEquals(sN1, 1, 2, 1.5, 2.5);
-        assertEquals(Sequences.concatenate(Integer.class, sI1, sI1), 1, 2, 1, 2);
+        assertEquals(Sequences.concatenate(TypeInfos.Integer, sI1, sI1), 1, 2, 1, 2);
 
-        Sequence<Number> sN2 = Sequences.concatenate(Number.class, sD1, sD1);
+        Sequence<Number> sN2 = Sequences.concatenate(TypeInfos.Number, sD1, sD1);
         assertEquals(sN2, 1.5, 2.5, 1.5, 2.5);
 
-        Sequence<Double> sD2 = Sequences.concatenate(Double.class, sD1, sD1);
+        Sequence<Double> sD2 = Sequences.concatenate(TypeInfos.Double, sD1, sD1);
         assertEquals(sD2, 1.5, 2.5, 1.5, 2.5);
 
-        sN2 = Sequences.concatenate(Number.class, sI1, sD1);
+        sN2 = Sequences.concatenate(TypeInfos.Number, sI1, sD1);
         assertEquals(sN2, 1, 2, 1.5, 2.5);
 
-        sN2 = Sequences.concatenate(Number.class, sD1, sI1);
+        sN2 = Sequences.concatenate(TypeInfos.Number, sD1, sI1);
         assertEquals(sN2, 1.5, 2.5, 1, 2);
 
-        sN2 = Sequences.concatenate(Number.class, sN1, sI1);
+        sN2 = Sequences.concatenate(TypeInfos.Number, sN1, sI1);
         assertEquals(sN2, 1, 2, 1.5, 2.5, 1, 2);
 
-        sN2 = Sequences.concatenate(Number.class, sD1, sN1);
+        sN2 = Sequences.concatenate(TypeInfos.Number, sD1, sN1);
         assertEquals(sN2, 1.5, 2.5, 1, 2, 1.5, 2.5);
     }
 

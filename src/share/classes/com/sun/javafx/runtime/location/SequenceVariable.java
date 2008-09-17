@@ -51,10 +51,6 @@ public class SequenceVariable<T>
         return new SequenceVariable<T>(clazz);
     }
 
-    public static <T> SequenceVariable<T> make(Sequence<T> value) {
-        return new SequenceVariable<T>(value);
-    }
-
     public static <T> SequenceVariable<T> make(Class clazz, Sequence<? extends T> value) {
         return new SequenceVariable<T>(clazz, value);
     }
@@ -86,16 +82,11 @@ public class SequenceVariable<T>
         };
     }
 
-    protected SequenceVariable(Sequence<T> value) {
-        this(value.getElementType());
-        replaceValue(value);
-    }
-
     protected SequenceVariable(Class clazz, Sequence<? extends T> value) {
         this(clazz);
         if (value == null)
             value = Sequences.emptySequence(this.clazz);
-        replaceValue(Sequences.<T>upcast(this.clazz, value));
+        replaceValue(Sequences.<T>upcast(value));
     }
 
     protected SequenceVariable(Class clazz, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
@@ -140,6 +131,10 @@ public class SequenceVariable<T>
 
     private Sequence<T> getRawValue() {
         return $value;
+    }
+
+    public Class<T> getElementType() {
+        return clazz;
     }
 
     public Sequence<T> get() {
@@ -229,7 +224,7 @@ public class SequenceVariable<T>
     public void update() {
         try {
             if (isUnidirectionallyBound() && !isValid() && boundLocation == null) {
-                replaceValue(Sequences.upcast(clazz, binding.computeValue()));
+                replaceValue(Sequences.upcast(binding.computeValue()));
             }
         }
         catch (RuntimeException e) {
@@ -251,7 +246,7 @@ public class SequenceVariable<T>
     public void setDefault() {
         Sequence<T> empty = Sequences.emptySequence(clazz);
         if (state == STATE_INITIAL) {
-            $value = Sequences.emptySequence(clazz);
+            $value = empty;
             state = STATE_UNBOUND_DEFAULT;
             // @@@ Uncomment this to make sequence trigger behavior consistent with others (see JFXC-885)
             // notifyListeners(0, -1, $value, $value, $value, true);
@@ -280,7 +275,7 @@ public class SequenceVariable<T>
                 setAsSequence(value);
             }
         };
-        return Sequences.upcast(clazz, value);
+        return Sequences.upcast(value);
     }
 
     @Override

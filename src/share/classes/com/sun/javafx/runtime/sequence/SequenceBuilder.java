@@ -23,6 +23,7 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
 
 /**
@@ -35,19 +36,19 @@ import com.sun.javafx.runtime.Util;
 public class SequenceBuilder<T> {
     private final static int DEFAULT_SIZE = 16;
 
-    private final Class clazz;
+    private final TypeInfo<T> ti;
     private T[] array;
     private int size;
 
     /** Create a SequenceBuilder for a Sequence of type T */
-    public SequenceBuilder(Class clazz) {
-        this(clazz, DEFAULT_SIZE);
+    public SequenceBuilder(TypeInfo<T> ti) {
+        this(ti, DEFAULT_SIZE);
     }
 
     /** Create a SequenceBuilder for a Sequence of type T, ensuring that there is initially room for at least
      * initialSize elements. */
-    public SequenceBuilder(Class clazz, int initialSize) {
-        this.clazz = clazz;
+    public SequenceBuilder(TypeInfo<T> ti, int initialSize) {
+        this.ti = ti;
         array = Util.<T>newObjectArray(initialSize);
     }
 
@@ -100,9 +101,9 @@ public class SequenceBuilder<T> {
         if (array.length == size) {
             T[] arrayRef = array;
             array = null;
-            return Sequences.<T>makeViaHandoff(clazz, arrayRef);
+            return Sequences.<T>makeViaHandoff(ti, arrayRef);
         }
         else
-            return Sequences.<T>make(clazz, array, size);
+            return Sequences.<T>make(ti, array, size);
     }
 }

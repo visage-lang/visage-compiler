@@ -98,6 +98,10 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         return value;
     }
 
+    public Class<T> getElementType() {
+        return clazz;
+    }
+
     public Sequence<T> getSlice(int startPos, int endPos) {
         return getAsSequence().getSlice(startPos, endPos);
     }

@@ -23,6 +23,8 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.TypeInfos;
+
 /**
  * Special case implementation for sequences that are ranges of floating point, such as [1.0 .. 2.0 BY .1].
  * Range sequences should be constructed with the Sequences.range() factory method rather than with the
@@ -38,7 +40,7 @@ class NumberRangeSequence extends AbstractSequence<Double> implements Sequence<D
 
 
     public NumberRangeSequence(double start, double bound, double step, boolean exclusive) {
-        super(Double.class);
+        super(TypeInfos.Double);
         this.start = start;
         this.step = step;
         if (bound == start) {

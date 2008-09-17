@@ -23,6 +23,8 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.TypeInfo;
+
 /**
  * Special case for n-dimensional foreach comprehension when there are no where clauses on any list and
  * the foreach body always returns a single instance. The results are computed as needed rather than
@@ -41,8 +43,8 @@ public class CartesianProduct<T> extends AbstractSequence<T> implements Sequence
     private final int size;
     private final int[] sizes;
 
-    public CartesianProduct(Class<T> clazz, Mapper<T> mapper, Sequence<?>... sequences) {
-        super(clazz);
+    public CartesianProduct(TypeInfo<T> ti, Mapper<T> mapper, Sequence<?>... sequences) {
+        super(ti);
         this.sequences = sequences;
         this.mapper = mapper;
         if (sequences.length == 0)
