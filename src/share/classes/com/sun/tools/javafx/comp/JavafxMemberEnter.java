@@ -628,17 +628,47 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
     @Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+
+
+        // If the function defintion is contained within an Erroneous
+        // block, the enclosing scope may not be defined. In this case
+        // we do not enter the function into any scope as it belongs to
+        // the class and the tree is too erroneous to make any sense of
+        // it. Doing nothing is the best course of action as at worst
+        // other parst of the tree will complain that they don't know
+        // anything about this function. So, just try the operation, but
+        // forget about it if anything goes wrong...
+        //
+        // Note that it is only possible to get here with an erroneous tree
+        // if the IDE is calling the attribution, trying to work out what it has.
+        // We don't otherwise attribute erroneous trees, hence it is safe to
+        // ignore any exception. Further, the parser recovers sensibly from
+        // most class definition errors (an erroneous class containing a function
+        // defintion is the most likely case to throw this method out), so the
+        // case is rare.
+        //
+        try {
+
             Scope enclScope = JavafxEnter.enterScope(env);
+
             MethodSymbol m = new MethodSymbol(0, tree.name, null, enclScope.owner);
             m.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, m, tree);
             tree.sym = m;
             enclScope.enter(m);
+
             SymbolCompleter completer = new SymbolCompleter();
             completer.env = env;
             completer.tree = tree;
             completer.attr = attr;
+            
             m.completer = completer;
             attr.methodSymToTree.put(m, tree);
+
+        } catch(NullPointerException e) {
+
+            // Looks like we could not enter the function into any symbol
+            // table. Just ignore it.
+        }
     }
 
     @Override

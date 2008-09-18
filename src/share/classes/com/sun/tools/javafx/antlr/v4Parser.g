@@ -737,7 +737,7 @@ classDefinition [ JFXModifiers mods, int pos ]
 				(
 	  						  
 					$mods,	
-					$name.value,
+					$n1.value,
 					ids.toList(),
 					mems.toList()
 				);
@@ -762,9 +762,41 @@ catch [RecognitionException re] {
 	// However, we need to collect the nodes we found into an Erroneous class
 	// definition, as if the got an error in this rule, it was a pretty high
 	// up problem, syntactically. Something like "public class" and nothing else
-	// which can of course come in from IDEs/Editors, all the time.
+	// which can of course come in from IDEs/Editors, all the time. Because the
+	// parser is pretty good at recovering from nonsense in the declaration, we will
+	// usually only get here for missing elements of the class definition. So, rather
+	// than always throwing the entire class into an erroneous state, we see if we 
+	// have enough to build a class definition that the IDE can use anyway. The 
+	// litmus test for that is whether we gathered any member definitions at all.
+	// If we did, then we will have a class name and 0 or more supers and so on
+	// and so we can build the class definition. (Quite often we get here because of a lack
+	// of a closing '}', so we don;t want to abandon the class just because of that.
 	//
-	$value = F.at($pos).Erroneous(errNodes.elems);
+	if	(mems.nonEmpty()) {
+	
+		// We have enough to build a class definiton AST for the IDE
+		// but we also want to add the erroneous node that reportError created
+		//
+		if	(errorNode != null) {
+			mems.append(errorNode);
+		}
+		$value = F.at($pos).ClassDeclaration
+				(
+	  						  
+					$mods,	
+					$n1.value,
+					ids.toList(),
+					mems.toList()
+				);
+		setDocComment($value, docComment);	// Add any detected documentation comment
+				
+	} else {
+	
+		// We could make neither head nor tail of this beast, so it
+		// has to be erroneous.
+		//
+		$value = F.at($pos).Erroneous(errNodes.elems);
+	}
 	endPos($value);
 	
  }
@@ -3724,7 +3756,14 @@ postfixExpression
 							errNodes.append($value);
 					  }
 					  
-					//TODO:		 | CLASS 
+					| CLASS 
+					
+						{
+							Name cName = Name.fromString(names, "class"); 
+							$value = F.at(pos($DOT)).Select($value, cName);
+							endPos($value);
+							errNodes.append($value);
+					  	}
 	         	)
 
 			| (LPAREN)=>LPAREN 
@@ -5738,6 +5777,14 @@ qualname
 							endPos(part);
 						}
 						
+					//| CLASS 
+					//
+					//	{
+					//		Name cName = Name.fromString(names, "class"); 
+					///		$value = F.at(pos($DOT)).Select($value, cName);
+					//		endPos($value);
+					//		errNodes.append($value);
+					 // 	}
 					|	{
 							$value = F.at(pos($DOT)).Select($value, Name.fromString(names, "<missing>"));
 							endPos($value);

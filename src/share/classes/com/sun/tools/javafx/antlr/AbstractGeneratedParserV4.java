@@ -1816,6 +1816,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             //
 			return;
 		}
+
 		state.syntaxErrors++;
 		state.errorRecovery = true;
 
