@@ -801,7 +801,17 @@ FLOATING_POINT_LITERAL
     				
     			{ input.LA(2) != '.'}?=>
     			
-    				  '.' Digits? Exponent?
+    				(
+    				  // HAving determined that this is not a range, we check to 
+    				  // see that it looks like something that shoudl be a float.
+    				  // We can have an expression such as 1.intVal() and so that
+    				  // needs to be '1' '.' 'intVal' '(' ')'
+    				  // Note that 1.exxxx will always find an erroneous scientific
+    				  // notation, but then if anyone is dumb enough to define a method beginning
+    				  // with 'e' or 'E' for an integer literal, then all bets are off.
+    				  //
+    				  ('.' (~('a'..'d'|'f'..'z'|'A'..'D'|'F'..'Z')))=>
+    				  	'.' Digits? Exponent?
     			
     				(
     					  ('m' 's'? | 's' | 'h')
@@ -811,6 +821,16 @@ FLOATING_POINT_LITERAL
 				    	| 	// Just n.nnn
 				    					//
 				    		{ $type = FLOATING_POINT_LITERAL; }
+    				)
+    				| // Just n, possibly followed by something like .intValue()
+				    		//
+				    		{ 
+				    			$type = DECIMAL_LITERAL; 
+				    			if (! checkIntLiteralRange(getText(), getCharIndex(), 10, negative))
+				    			{
+				    				setText("0");
+				    			}
+				    		}
     				)
     				
     			|	// Just a decimal literal
@@ -826,7 +846,7 @@ FLOATING_POINT_LITERAL
 				    			$type = FLOATING_POINT_LITERAL;
 				    		}
 				    		
-				    	| 	// Just n.nnn
+				    	| 	// Just n, possibly followed by something like .intValue()
 				    		//
 				    		{ 
 				    			$type = DECIMAL_LITERAL; 
