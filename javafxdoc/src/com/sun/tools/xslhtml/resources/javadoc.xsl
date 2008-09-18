@@ -383,7 +383,7 @@
             <xsl:if test="@language='javafx'">
                 <ul id="tabs">
                     <li>Jump to Section:</li>
-                    <li><a href="#overview">overview</a></li><li><a href="#fields-summary">attributes</a></li><li><a href="#methods-summary">functions</a></li>
+                    <li><a href="#overview">overview</a></li><li><a href="#fields-summary">variables</a></li><li><a href="#methods-summary">functions</a></li>
                 </ul>
             </xsl:if>
             
@@ -474,9 +474,10 @@
         <div id="toc">
             
             <xsl:if test="count(attribute) > 0">
-                <a id="fields-summary"><h3>Attribute Summary</h3></a>
+                <a id="fields-summary"><h3>Variable Summary</h3></a>
                 <table class="fields-summary fields">
-                    <tr><th class="name">name</th><th class="type">type</th>
+                    <tr><th class="access">access</th>
+                        <th class="name">name</th><th class="type">type</th>
                         <xsl:call-template name="extra-attribute-column-header"/>
                         <th class="description">description</th></tr>
                         <!-- show all access types grouped together
@@ -513,7 +514,7 @@
             
             
             <!-- inherited attributes -->
-            <h3>Inherited Attributes</h3>
+            <h3>Inherited Variables</h3>
             <xsl:for-each select="hierarchy/super">
                 <xsl:variable name="super-package" select="@packageName"/>
                 <xsl:variable name="super-name" select="@simpleTypeName"/>
@@ -581,7 +582,7 @@
     <xsl:template name="members">
         <xsl:if test="count(attribute) > 0">
             <div id="attributes">
-                <h3>Attributes</h3>
+                <h3>Variables</h3>
                 <xsl:for-each select="attribute">
                     <xsl:sort select="@name" order="ascending"/>
                     <xsl:apply-templates select="."/>
@@ -675,7 +676,7 @@
         <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
             <tr>
                 <xsl:attribute name="class">
-                    <xsl:text>attribute </xsl:text>
+                    <xsl:text>var </xsl:text>
                     <xsl:for-each select="docComment/tags/cssclass">
                         <xsl:value-of select="text()"/>
                         <xsl:text> </xsl:text>
@@ -684,6 +685,9 @@
                     <xsl:call-template name="extra-attribute"/>
                     <xsl:call-template name="extra-attribute-toc"/>
                 </xsl:attribute>
+                <td class="access">
+                    <xsl:value-of select="modifiers/@text"/>
+                </td>
                 <td class="name">
                     <a>
                         <xsl:if test="not($inline-descriptions='true')">

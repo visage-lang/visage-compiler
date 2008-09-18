@@ -29,19 +29,33 @@
 
     
     <xsl:template name="extra-attribute-column-header">
-        <th><a class="tooltip" title="Indicates the attribute is read only">Read Only</a></th>
-        <th><a title="Indicates the attribute can only be set in the Object initializer. Any further changes will be ignored."
-         class="tooltip">Set Once</a></th>
-        <th><a title="Indicates the default value of this attribute"
+        <th><a class="tooltip" title="Indicates the variable can be read">Can Read</a></th>
+        <th><a title="Indicates the variable can only be set in the Object initializer. Any further changes will be ignored."
+         class="tooltip">Can Initialize</a></th>
+        <th><a title="Indicates the varible can only be set in the Object initializer. Any further changes will be ignored."
+         class="tooltip">Can Write</a></th>
+        <th><a title="Indicates the default value of this variable"
          class="tooltip">Default Value</a></th>
     </xsl:template>
     
     <xsl:template name="extra-attribute-column-data">
-        <td class="readonly">
-            <xsl:if test="docComment/tags/readonly">true</xsl:if>
+        <td class="canread">
+            <xsl:if test="modifiers/public">yes</xsl:if>
+            <xsl:if test="modifiers/public-init">yes</xsl:if>
+            <xsl:if test="modifiers/public-read">yes</xsl:if>
+            <xsl:if test="modifiers/protected">subclass</xsl:if>
         </td>
-        <td class="setonce">
-            <xsl:if test="docComment/tags/setonce">true</xsl:if>
+        <td class="caninit">
+            <xsl:if test="modifiers/public">yes</xsl:if>
+            <xsl:if test="modifiers/public-init">yes</xsl:if>
+            <xsl:if test="modifiers/public-read">no</xsl:if>
+            <xsl:if test="modifiers/protected">subclass</xsl:if>
+        </td>
+        <td class="canwrite">
+            <xsl:if test="modifiers/public">yes</xsl:if>
+            <xsl:if test="modifiers/public-init">no</xsl:if>
+            <xsl:if test="modifiers/public-read">no</xsl:if>
+            <xsl:if test="modifiers/protected">subclass</xsl:if>
         </td>
         <td class="defaultvalue">
             <xsl:value-of select="docComment/tags/defaultvalue"/>
