@@ -471,6 +471,7 @@
                 <strong><xsl:value-of select="@packageName"/>.</strong>
                 <b><xsl:value-of select="@name"/></b>
             </a>
+            <xsl:text>, </xsl:text>
         </xsl:for-each>
     </xsl:template>
 
