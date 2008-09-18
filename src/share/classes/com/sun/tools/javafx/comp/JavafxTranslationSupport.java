@@ -281,6 +281,10 @@ public abstract class JavafxTranslationSupport {
             if (castType.isPrimitive() && !exprtype.isPrimitive()) {
                 castType = types.boxedClass(castType).type;
             }
+            if (castType.isPrimitive() && exprtype.isPrimitive()) {
+                JCTree clazz = makeTypeTree(diagPos, exprtype, true);
+                translatedExpr = make.at(diagPos).TypeCast(clazz, translatedExpr);
+            }
             JCTree clazz = makeTypeTree(diagPos, castType, true);
             return make.at(diagPos).TypeCast(clazz, translatedExpr);
         }

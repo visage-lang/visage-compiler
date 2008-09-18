@@ -178,11 +178,7 @@ public class JavafxTypeMorpher {
                 if (realTsym == syms.doubleType.tsym //  || realTsym == syms.floatType.tsym
                         ) {
                     typeKind = TYPE_KIND_DOUBLE;
-                } else if (realTsym == syms.intType.tsym
-                        || realTsym == syms.byteType.tsym
-                        || realTsym == syms.charType.tsym
-                     // || realTsym == syms.longType.tsym //TODO: should this be converted
-                        || realTsym == syms.shortType.tsym) {
+                } else if (realTsym == syms.intType.tsym) {
                     typeKind = TYPE_KIND_INT;
                 } else if (realTsym == syms.booleanType.tsym) {
                     typeKind = TYPE_KIND_BOOLEAN;
@@ -222,7 +218,7 @@ public class JavafxTypeMorpher {
         public Type getElementType() { return elementType; }
 
         public int getTypeKind() { return typeKind; }
-    }
+        }
 
     VarMorphInfo varMorphInfo(Symbol sym) {
         VarMorphInfo vmi = vmiMap.get(sym);

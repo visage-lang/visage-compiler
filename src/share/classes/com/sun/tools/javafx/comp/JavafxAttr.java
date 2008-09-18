@@ -876,22 +876,14 @@ public class JavafxAttr implements JavafxVisitor {
                 if (initType == syms.botType
                         || initType == syms.unreachableType)
                     initType = syms.objectType;
-                else if (initType.isPrimitive()
-                         &&  initType != syms.javafx_NumberType
-                         &&  initType != syms.javafx_IntegerType
-                         &&  initType != syms.javafx_BooleanType)
-                    initType = types.boxedClass(initType).type;
                 else if (types.isArray(initType)) {
-                    initType = types.elemtype(initType);
+                    initType = types.elemtype(initType);                    
                     if (initType.isPrimitive()) {
                         if (initType == syms.shortType ||
                                 initType == syms.byteType)
                             initType = syms.javafx_IntegerType;
                         else if (initType == syms.floatType)
                             initType = syms.javafx_NumberType;
-                        else if (initType == syms.charType ||
-                                initType == syms.longType)
-                            initType = types.boxedClass(initType).type;
                     }
                     initType = types.sequenceType(initType);
                 }
@@ -908,6 +900,7 @@ public class JavafxAttr implements JavafxVisitor {
         finally {
             chk.setLint(prevLint);
             log.useSource(prev);
+            v.pos = tree.pos;
         }
     }
 
@@ -915,7 +908,7 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitVarScriptInit(JFXVarScriptInit tree) {
         result = tree.type = attribExpr(tree.getVar(), env);
     }
-
+            
     @Override
     public void visitVar(JFXVar tree) {
         long flags = tree.getModifiers().flags;
@@ -1244,11 +1237,11 @@ public class JavafxAttr implements JavafxVisitor {
 
             if (env.tree instanceof JFXFunctionDefinition &&
                     env.enclClass.runMethod == env.tree) {
-                env.enclClass.runBodyScope = localEnv.info.scope;
+                        env.enclClass.runBodyScope = localEnv.info.scope;
             } else {
                 localEnv.info.scope.owner = new MethodSymbol(BLOCK, names.empty, null, env.enclClass.sym);
+                    }
             }
-        }
         memberEnter.memberEnter(tree.getStmts(), localEnv);
         if (tree.getValue() != null) {
             memberEnter.memberEnter(tree.getValue(), localEnv);
@@ -2804,8 +2797,8 @@ public class JavafxAttr implements JavafxVisitor {
         for (JFXExpression expr : tree.getItems()) {
                 Type itemType = attribTree(expr, env, VAL,
                         expected, Sequenceness.PERMITTED);
-                if (types.isSequence(itemType)) {
-                    itemType = types.elementType(itemType);
+                if (types.isSequence(itemType) || types.isArray(itemType)) {
+                    itemType = types.isSequence(itemType) ? types.elementType(itemType) : types.elemtype(itemType);
                 }
                 itemType = chk.checkNonVoid(expr, itemType);
                 if (elemType == null || itemType.tag == NONE || itemType.tag == ERROR)
@@ -3189,7 +3182,7 @@ public class JavafxAttr implements JavafxVisitor {
                 ((v.flags() & STATIC) != 0) == JavafxResolve.isStatic(env) &&
                 (env.tree.getFXTag() != JavafxTag.ASSIGN ||
                  JavafxTreeInfo.skipParens(((JFXAssign) env.tree).lhs) != tree)) {
-            }
+        }
 
             v.getConstValue(); // ensure initializer is evaluated
 

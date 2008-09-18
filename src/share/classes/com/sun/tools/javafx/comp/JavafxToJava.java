@@ -297,6 +297,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             //}
             Type targetElemType = types.elementType(targetType);
             JCExpression cSequences = makeTypeTree(diagPos, syms.javafx_SequencesType, false);
+            if (sourceType.isPrimitive())
+                translated = convertTranslated(translated, diagPos, sourceType, targetElemType);
             return callExpression(diagPos,
                     cSequences,
                     "singleton",
@@ -1454,7 +1456,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             result = make.at(diagPos).Apply(null, select, args);
         } else if (shouldMorph(vsym)) {
             // we are setting a var Location, call the set method
-            JCExpression rhs = translate(tree.rhs, tree.lhs.type);  //TODO: use  type converted translate?
+            JCExpression rhs = translate(tree.rhs, tree.lhs.type);  //TODO: use  type converted translate?            
             JCExpression lhs = translate(tree.lhs, Wrapped.InLocation);
             JCFieldAccess setSelect = make.Select(lhs, defs.locationSetMethodName[typeMorpher.typeMorphInfo(vsym.type).getTypeKind()]);
             List<JCExpression> setArgs = List.of(rhs);
@@ -1783,6 +1785,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         DiagnosticPosition diagPos = tree.pos();
         JCExpression seqLoc = translate(tree.getSequence(), Wrapped.InLocation);
         JCExpression elem = translate( tree.getElement() );
+        if (types.isArray(tree.getElement().type)) {
+            elem = convertTranslated(elem, diagPos, tree.getElement().type, tree.getSequence().type);
+        }
         if (tree.getPosition() == null) {
             result = callStatement(diagPos, seqLoc, "insert", elem);
         } else {
@@ -2008,15 +2013,20 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         JCStatement makeAdd(JCExpression expr, Type exprType) {
             if (exprType != elemType) {
-                Type unboxedElemType = types.unboxedType(elemType);
-                if (unboxedElemType != Type.noType) {
-                    Type unboxedExprType = types.unboxedType(exprType);
-                    if (unboxedExprType != Type.noType) {
-                            expr = make.at(diagPos).TypeCast(unboxedExprType, expr);
-                            exprType = unboxedExprType;
-                    }
-                    if (exprType.tag == TypeTags.INT && unboxedElemType.tag == TypeTags.DOUBLE) {
-                        expr = make.at(diagPos).TypeCast(unboxedElemType, expr);
+                if (types.isArray(exprType)) {
+                    expr = convertTranslated(expr, diagPos, exprType, types.sequenceType(elemType));
+                }
+                else {
+                    Type unboxedElemType = types.unboxedType(elemType);
+                    if (unboxedElemType != Type.noType) {
+                        Type unboxedExprType = types.unboxedType(exprType);
+                        if (unboxedExprType != Type.noType) {
+                                expr = make.at(diagPos).TypeCast(unboxedExprType, expr);
+                                exprType = unboxedExprType;
+                        }
+                        if (exprType.tag == TypeTags.INT && unboxedElemType.tag == TypeTags.DOUBLE) {
+                            expr = make.at(diagPos).TypeCast(unboxedElemType, expr);
+                        }
                     }
                 }
              }
