@@ -491,10 +491,13 @@
             <xsl:if test="count(attribute) > 0">
                 <a id="fields-summary"><h3>Variable Summary</h3></a>
                 <table class="fields-summary fields">
-                    <tr><th class="access">access</th>
-                        <th class="name">name</th><th class="type">type</th>
+                    <tr>
+                        <th class="access">access</th>
+                        <th class="name">name</th>
+                        <th class="type">type</th>
                         <xsl:call-template name="extra-attribute-column-header"/>
-                        <th class="description">description</th></tr>
+                        <th class="description">description</th>
+                    </tr>
                         <!-- show all access types grouped together
                     <tr><th class="header">
                         <xsl:attribute name="colspan"><xsl:call-template name="attribute-table-width"/></xsl:attribute>
@@ -654,9 +657,13 @@
         <xsl:if test="count(attribute) > 0">
             <h4><xsl:value-of select="@qualifiedName"/></h4>
             <table class="inherited-field fields">
-                <tr><th class="name">name</th><th class="type">type</th>
+                <tr>
+                    <th class="access">access</th>
+                    <th class="name">name</th>
+                    <th class="type">type</th>
                     <xsl:call-template name="extra-attribute-column-header"/>
-                    <th class="description">description</th></tr>
+                    <th class="description">description</th>
+                </tr>
                 <xsl:for-each select="attribute">
                     <xsl:sort select="@name" order="ascending"/>
                     <xsl:apply-templates select="." mode="toc"/>
