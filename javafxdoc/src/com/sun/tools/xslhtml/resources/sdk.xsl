@@ -32,7 +32,7 @@
         <th><a class="tooltip" title="Indicates the variable can be read">Can Read</a></th>
         <th><a title="Indicates the variable can only be set in the Object initializer. Any further changes will be ignored."
          class="tooltip">Can Initialize</a></th>
-        <th><a title="Indicates the varible can only be set in the Object initializer. Any further changes will be ignored."
+        <th><a title="Indicates the varible can set at any time."
          class="tooltip">Can Write</a></th>
         <th><a title="Indicates the default value of this variable"
          class="tooltip">Default Value</a></th>

@@ -254,20 +254,24 @@ disabled because it breaks when the content div is longer than the viewport*/
 
 
 .fields {
-	font-size: 10.5pt;
-	border-collapse: collapse;
+    font-size: 10.5pt;
+    border-collapse: collapse;
 }
 .fields th {
     text-align: left;
+    text-align: center;
     font-weight: bold;
     padding: .5em;
+    vertical-align: top;
 }
 .fields td {
     background-color: white;
     vertical-align: top;	
     padding-right: .5em;
     padding-left: .5em;
-    padding-top: 1em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    vertical-align: top;
 }
 .fields td.type, .fields td.type i {
     font-style: normal;
@@ -278,6 +282,9 @@ disabled because it breaks when the content div is longer than the viewport*/
     border: 1px solid #7B7A7C;
 }
 
+.fields td.access {
+    white-space: nowrap;
+}
 
 
 /* methods / function summary */
