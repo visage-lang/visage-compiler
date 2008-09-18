@@ -105,7 +105,7 @@ public class JavafxTypeMorpher {
                    long flag_fields = getSymbol().flags();
                    
                    // Variables are morphed if they are accessed within an inner class and have been assigned to
-                   if ( (flag_fields & JavafxFlags.INNER_ACCESS) != 0) {
+                   if ( (flag_fields & JavafxFlags.VARUSE_INNER_ACCESS) != 0) {
                      if ( (flag_fields & JavafxFlags.ASSIGNED_TO) != 0) 
                         markMustMorph();
                    } 

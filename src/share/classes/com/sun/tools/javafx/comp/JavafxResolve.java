@@ -582,7 +582,7 @@ public class JavafxResolve {
                         continue;
                     if ((e.sym.kind & (MTH|VAR)) != 0) {
                         if (innerAccess) {
-                            e.sym.flags_field |= JavafxFlags.INNER_ACCESS;
+                            e.sym.flags_field |= JavafxFlags.VARUSE_INNER_ACCESS;
                             if ((e.sym.flags_field & JavafxFlags.IN_INITIALIZER) != 0)
                                 e.sym.flags_field |= JavafxFlags.ASSIGNED_TO;
                         }

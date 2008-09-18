@@ -1118,7 +1118,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         assert vsym.owner.kind != Kinds.TYP : "attributes are processed in the class and should never come here";
 
         // Variables accessed from an inner class must be FINAL
-        if ((vsym.flags_field & JavafxFlags.INNER_ACCESS) != 0) {
+        if ((vsym.flags_field & JavafxFlags.VARUSE_INNER_ACCESS) != 0) {
             modFlags |= Flags.FINAL;
         }
 
