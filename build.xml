@@ -160,7 +160,6 @@
             <jvmarg value="-Xmx256m"/>
         </java>
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
-			<arg value="-Xconversiontimeout=30000" />
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv4p.file}" />

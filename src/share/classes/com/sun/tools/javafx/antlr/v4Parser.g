@@ -2640,11 +2640,7 @@ expression
 			$value = $forExpression.value;
 		}
 		
-	| newExpression
 
-		{
-			$value = $newExpression.value;
-		}
 		
 	| assignmentExpression
 
@@ -3717,10 +3713,10 @@ postfixExpression
 
 	: pe=primaryExpression	{ $value = $pe.value; errNodes.append($pe.value); }
 	
-		( 
+		(
 			  DOT 
 				( 
-					  n1=name	// This does not seem right - wrong precedence for x.func().y ?
+					  n1=name
 					  
 					  {
 							$value = F.at(pos($DOT)).Select($value, $n1.value);
@@ -3992,6 +3988,12 @@ primaryExpression
 		{
 			$value = F.at(rPos).KeyFrameLiteral(sVal, $k.exprs.toList(), null);
 			endPos($value);
+		}
+	
+	| newExpression
+
+		{
+			$value = $newExpression.value;
 		}
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 
@@ -5497,7 +5499,7 @@ typeName
 
 	: qualname 		{ errNodes.append($qualname.value); }
 		(
-			  LT ga1=genericArgument 	{ exprbuff.append($ga1.value); }
+			  (LT)=>LT ga1=genericArgument 	{ exprbuff.append($ga1.value); }
 			  	
 			  		(
 			  			COMMA
@@ -5529,7 +5531,6 @@ typeName
 //
 catch [RecognitionException re] {
   
-  System.out.println("Exception was in typeName");
   	// First, let's report the error as the user needs to know about it
   	//
     reportError(re);
