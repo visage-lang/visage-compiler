@@ -24,7 +24,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 // Version 4 of the JavaFX parser grammar.
 //
-// @author Jim Idle
+// @author Jim Idle - Temporal Wave LLC
 //
 // Version 4 of the grammar reverts to a separate lexer and parser grammar without a separate
 // ANTLR based AST walker. This is because this is the easiest way (at the time of writing)
@@ -1090,7 +1090,7 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
-	// Produce an error node rather than a function definition node
+	// Produce an error node rather than a function definition node.
 	//
 	$value = F.at(rPos).Erroneous(errNodes.elems);
  }
@@ -1515,7 +1515,7 @@ catch [RecognitionException re] {
 // Accepts an incoming character so that the block node can be created to
 // include a prior token suchas 'finally' or 'try' etc.
 //
-block [ int rPos]
+block [ int inPos]
 
 	returns [JFXBlock value]	// The block expression has a specialized node inthe JFX tree
 
@@ -1532,20 +1532,53 @@ block [ int rPos]
 
 	// Start of rule for error node production/
 	//
-	if (rPos == -1) rPos = pos();
-}
+	int rPos = pos();
+	if ($inPos != -1)
+	{
+		rPos = $inPos;
+	}
 	
-	: LBRACE syncBlock[stats]
+	// Track the result expression of the block
+	//
+	JFXExpression resultType = null;
+}
+	: LBRACE 
+	
+		// Eat up any garbled tokens, ready for the first valid statement
+		//
+		st1=syncBlock[resultType, stats] { resultType = $st1.value; }
 		(
-			  blkValue=blockElement[$blkValue.value, stats]
-													{errNodes.append($blkValue.value);}
-			  syncBlock[stats]
+			blkValue=blockElement[resultType, stats]
+													
+								{
+									// In case of total error failure
+									//
+									errNodes.append($blkValue.value);
+									
+									// This new statement is now the result type of the block
+									//
+									resultType = $blkValue.value;
+								}
+								
+			
+			// Eat up any garbled tokens, ready for another statement
+			//	
+			st2=syncBlock[resultType, stats] { resultType = $st2.value; }
 	   )*
 	
 	  RBRACE
 	  
 	  	{
-		  	$value = F.at($rPos).Block(0L, stats.toList(), $blkValue.value);
+	  		// If the result of the last element was erroneous, then
+			// make the result of the block be void, which means the
+			// result of the block will never be Erroneous, as the tree walkers
+			// can't handle that.
+			//
+			if	(resultType instanceof JFXErroneous) {
+				stats.append(resultType);
+				resultType = null;
+			}
+		  	$value = F.at(rPos).Block(0L, stats.toList(), resultType);
 	  		endPos($value);
 	  	}
 	;
@@ -1563,9 +1596,41 @@ catch [RecognitionException re] {
 	recover(input, re);
 	
 	// Create an erroneousBlock, which is basically an Erroneous node
-	// masquerading as a JFXBlock.
+	// masquerading as a JFXBlock, unless we managed to gather any
+	// useful statements, in which case constrcut the block and add the
+	// erroneous node created by reportError call above. This will usually be
+	// the case and helps the IDE a lot.
 	//
-	$value = F.at($rPos).ErroneousBlock(errNodes.elems);
+	if	(stats.nonEmpty() || resultType != null) {
+		
+		// Add the error node
+		//
+		if	(errorNode != null) {
+		
+			stats.append(errorNode);
+		}
+		
+		// If the result of the last element was erroneous, then
+		// make the result of the block be void, which means the
+		// result of the block will never be Erroneous, as the tree walkers
+		// can't handle that.
+		//
+		if	(resultType instanceof JFXErroneous) {
+			stats.append(resultType);
+			resultType = null;
+		}
+		
+		// Create the block
+		//
+		$value = F.at(rPos).Block(0L, stats.toList(), resultType);
+
+	} else {
+
+		// We could not build anything like a decent block, so we
+		// just create an erroneous node.
+		//	
+		$value = F.at(rPos).ErroneousBlock(errNodes.elems);
+	}
 	endPos($value);
  }
 
@@ -1586,7 +1651,9 @@ catch [RecognitionException re] {
 // if we consumed any tokens, then we add an Erroneous node to the AST and everyone is
 // happy.
 //
-syncBlock[ListBuffer<JFXExpression> stats]
+syncBlock[JFXExpression returnType, ListBuffer<JFXExpression> stats]
+
+	returns [JFXExpression value]
 @init
 {
 	// Start of rule for error node production
@@ -1601,6 +1668,13 @@ syncBlock[ListBuffer<JFXExpression> stats]
 	// the rest of the token stream.
 	//
 	syncToGoodToken();
+	
+	// If we are going to accumulate an erroneous node in the block, then
+	// we first need to accumulate the current block return value and then return
+	// the error node as the new return value. We do not add the errneous block
+	// to the stats here, the caller wil do it within its accumulation loop.
+	//
+	$value = $returnType;
 }
 @after
 {
@@ -1610,12 +1684,21 @@ syncBlock[ListBuffer<JFXExpression> stats]
 	//
 	if	(rPos != pos()) {
 	
-		// Span all the tokesn we had to consume.
+		if	($returnType != null) {
+		
+			// If we already had a return type, then
+			// accumulate it, and the new error node
+			// becomes the return value.
+			//
+			$stats.append($returnType);
+		}
+		
+		// Span all the tokens we had to consume.
 		//
 		JFXErroneous errNode = F.at(rPos).Erroneous();
 		endPos(errNode);
-		$stats.append(errNode);
-		
+		$value = errNode;
+				
 		// Tell the script author where we think there is a screwed up expression
 		//
 		log.error(errNode, MsgSym.MESSAGE_JAVAFX_GARBLED_EXPRESSION);
@@ -1641,49 +1724,35 @@ returns [JFXExpression value] // All statements return an expression tree
 	//
 	int	rPos	= pos();
 	
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
+	// Ensure we capture the current return value of the statement on an
+	// error.
 	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
-	
+	boolean statCaptured = false;
 }
 	: s=statement 
-		{
+		{	
 			// If the current statement is not the first one
-			// then append it to the list. This logic leaves us with 
-			// the AST for the last statement in the block
+			// then append the previous on to the list so that this current one
+			// becomes the return value for the block. This logic leaves us with 
+			// the AST for the last non-erroneous statement in the block
 			// in our val variable, which we need to build the
-			// AST for the block.
+			// AST for the block when we reach its end.
 			//
 			if	($val != null) {
 				$stats.append($val);
+				statCaptured = true;
 			}
-					
-			// Pick up the AST for the statement we just parsed.
-			//
-			if	(! ($s.value instanceof JFXErroneous)) {
-					
-				// Only make the result of the block be this statement
-				// if it was not erroneous, then when the IDE Attributes
-				// the AST, the result of the block will be null or some
-				// value that can be typed, and the AST will not throw NPE
-				// when typing the block
-				//
-				$value = $s.value;
-					 
-			} else {
-					
-				stats.append($s.value);	// Ensure we include Erroneous
-				$value = null;
-			}
-					
-			errNodes.append($s.value);	// In case of error
 			
+
+			// The result of this rule becomes the type of the block, but
+			// the caller will ensure that if this was an erroneous node,
+			// that that does become the type of the block.
+			//
+			$value = $s.value;
 		}
 			possiblyOptSemi
 
 	| SEMI	// Empty statements are just ignored
-
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
@@ -1697,8 +1766,15 @@ catch [RecognitionException re] {
 	// Now we perform standard ANTLR recovery here
 	//
 	recover(input, re);
+
+	// Ensure that we don't lose the prior statement that was currently
+	// the return value of the block;
+	//
+	if	( !statCaptured && 	$val != null) {
+		$stats.append($val);
+	}
 	
-	// Create an erroneousBlock, which is basically an Erroneous node
+	// Create an erroneous node, which is basically an Erroneous node
 	// masquerading as a JFXBlock.
 	//
 	$value = F.at(rPos).Erroneous();
