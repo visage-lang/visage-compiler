@@ -374,9 +374,12 @@
             
             
             <!-- inheritance hierarchy -->
-            <h2><span class="descriptive">Inherits from:</span>
+            <h2><span class="descriptive">Inherits from: </span>
                 <xsl:apply-templates select="." mode="super"/>
                 <xsl:apply-templates select="." mode="interface"/>
+            </h2>
+            <h2><span class="descriptive">Known subclasses: </span>
+                <xsl:apply-templates select="." mode="sub"/>
             </h2>
             
             <!-- navigation header -->
@@ -453,11 +456,23 @@
                 <strong><xsl:value-of select="@packageName"/>.</strong>
                 <b><xsl:value-of select="@name"/></b>
             </a>
+            <xsl:text> </xsl:text>
         
         </xsl:if>
         
     </xsl:template>
     
+    <xsl:template match="class" mode="sub">
+        <xsl:variable name="super" select="@qualifiedName"/>
+        <xsl:for-each select="//class[hierarchy/super/@qualifiedTypeName=$super]">
+            <a>
+                <xsl:attribute name="title"><xsl:value-of select="@packageName"/>.<xsl:value-of select="@name"/></xsl:attribute>
+                <xsl:attribute name="href">../<xsl:value-of select="@packageName"/>/<xsl:value-of select="@packageName"/>.<xsl:value-of select="@name"/>.html</xsl:attribute>
+                <strong><xsl:value-of select="@packageName"/>.</strong>
+                <b><xsl:value-of select="@name"/></b>
+            </a>
+        </xsl:for-each>
+    </xsl:template>
 
     
     
