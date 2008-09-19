@@ -82,23 +82,31 @@ fi
 if $cygwin ; then
   classpath=`cygpath --path --windows "$classpath"`
   execute_classpath=`cygpath --path --windows "$execute_classpath"`
-  execute_bootclasspath=`cygpath --path --windows "$execute_bootclasspath"`
-  execute_bootclasspath_prepend=`cygpath --path --windows "$execute_bootclasspath_prepend"`
-  execute_bootclasspath_append=`cygpath --path --windows "$execute_bootclasspath_append"`
-  execute_nativelibpath=`cygpath --path --windows "$execute_nativelibpath"`
   JAVA_CMD=`cygpath --unix "$JAVA_CMD"`
 fi
 
 if [ -n "${execute_bootclasspath}" ]; then
+    if $cygwin ; then
+        execute_bootclasspath=`cygpath --path --windows "$execute_bootclasspath"`
+    fi
     jargs="$jargs \"-Xbootclasspath:${execute_bootclasspath}\""
 fi
 if [ -n "${execute_bootclasspath_prepend}" ]; then
+    if $cygwin ; then
+        execute_bootclasspath_prepend=`cygpath --path --windows "$execute_bootclasspath_prepend"`
+    fi
     jargs="$jargs \"-Xbootclasspath/p:${execute_bootclasspath_prepend}\""
 fi
 if [ -n "${execute_bootclasspath_append}" ]; then
+    if $cygwin ; then
+        execute_bootclasspath_append=`cygpath --path --windows "$execute_bootclasspath_append"`
+    fi
     jargs="$jargs \"-Xbootclasspath/a:${execute_bootclasspath_append}\""
 fi
 if [ -n "${execute_nativelibpath}" ]; then
+    if $cygwin ; then
+        execute_nativelibpath=`cygpath --path --windows "$execute_nativelibpath"`
+    fi
     jargs="$jargs \"-Djava.library.path=${execute_nativelibpath}\""
 fi
 jargs="$jargs -classpath '"$classpath:$execute_classpath"'"

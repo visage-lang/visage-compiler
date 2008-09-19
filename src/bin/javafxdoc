@@ -88,23 +88,31 @@ fi
 if $cygwin ; then
   classpath=`cygpath --path --windows "$classpath"`
   javadoc_classpath=`cygpath --path --windows "$javadoc_classpath"`
-  javadoc_bootclasspath=`cygpath --path --windows "$javadoc_bootclasspath"`
-  javadoc_bootclasspath_prepend=`cygpath --path --windows "$javadoc_bootclasspath_prepend"`
-  javadoc_bootclasspath_append=`cygpath --path --windows "$javadoc_bootclasspath_append"`
-  javadoc_nativelibpath=`cygpath --path --windows "$javadoc_nativelibpath"`
   JAVA_CMD=`cygpath --unix "$JAVA_CMD"`
 fi
 
 if [ -n "${javadoc_bootclasspath}" ]; then
+    if $cygwin ; then
+        javadoc_bootclasspath=`cygpath --path --windows "$javadoc_bootclasspath"`
+    fi
     jargs="$jargs \"-Xbootclasspath:${javadoc_bootclasspath}\""
 fi
 if [ -n "${javadoc_bootclasspath_prepend}" ]; then
+    if $cygwin ; then
+        javadoc_bootclasspath_prepend=`cygpath --path --windows "$javadoc_bootclasspath_prepend"`
+    fi
     jargs="$jargs \"-Xbootclasspath/p:${javadoc_bootclasspath_prepend}\""
 fi
 if [ -n "${javadoc_bootclasspath_append}" ]; then
+    if $cygwin ; then
+        javadoc_bootclasspath_append=`cygpath --path --windows "$javadoc_bootclasspath_append"`
+    fi
     jargs="$jargs \"-Xbootclasspath/a:${javadoc_bootclasspath_append}\""
 fi
 if [ -n "${javadoc_nativelibpath}" ]; then
+    if $cygwin ; then
+        javadoc_nativelibpath=`cygpath --path --windows "$javadoc_nativelibpath"`
+    fi
     jargs="$jargs \"-Djava.library.path=${javadoc_nativelibpath}\""
 fi
 jargs="$jargs com.sun.tools.javafxdoc.Main -classpath '"$classpath:$javadoc_classpath"'"

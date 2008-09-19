@@ -86,23 +86,31 @@ fi
 if $cygwin ; then
   classpath=`cygpath --path --windows "$classpath"`
   compile_classpath=`cygpath --path --windows "$compile_classpath"`
-  compile_bootclasspath=`cygpath --path --windows "$compile_bootclasspath"`
-  compile_bootclasspath_prepend=`cygpath --path --windows "$compile_bootclasspath_prepend"`
-  compile_bootclasspath_append=`cygpath --path --windows "$compile_bootclasspath_append"`
-  compile_nativelibpath=`cygpath --path --windows "$compile_nativelibpath"`
   JAVA_CMD=`cygpath --unix "$JAVA_CMD"`
 fi
 
 if [ -n "${compile_bootclasspath}" ]; then
+    if $cygwin ; then
+        compile_bootclasspath=`cygpath --path --windows "$compile_bootclasspath"`
+    fi
     jargs="$jargs \"-Xbootclasspath:${compile_bootclasspath}\""
 fi
 if [ -n "${compile_bootclasspath_prepend}" ]; then
+    if $cygwin ; then
+        compile_bootclasspath_prepend=`cygpath --path --windows "$compile_bootclasspath_prepend"`
+    fi
     jargs="$jargs \"-Xbootclasspath/p:${compile_bootclasspath_prepend}\""
 fi
 if [ -n "${compile_bootclasspath_append}" ]; then
+    if $cygwin ; then
+        compile_bootclasspath_append=`cygpath --path --windows "$compile_bootclasspath_append"`
+    fi
     jargs="$jargs \"-Xbootclasspath/a:${compile_bootclasspath_append}\""
 fi
 if [ -n "${compile_nativelibpath}" ]; then
+    if $cygwin ; then
+        compile_nativelibpath=`cygpath --path --windows "$compile_nativelibpath"`
+    fi
     jargs="$jargs \"-Djava.library.path=${compile_nativelibpath}\""
 fi
 jargs="$jargs com.sun.tools.javafx.Main -classpath '"$classpath:$compile_classpath"'"
