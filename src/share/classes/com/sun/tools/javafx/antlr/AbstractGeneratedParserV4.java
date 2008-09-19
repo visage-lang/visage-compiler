@@ -43,6 +43,7 @@ import com.sun.tools.javafx.tree.JavafxTreeInfo;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
 
 import com.sun.tools.javafx.util.MsgSym;
+import java.util.Stack;
 import javax.tools.DiagnosticListener;
 import org.antlr.runtime.*;
 
@@ -128,7 +129,15 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * context.
      */
     protected Name.Table names;
-    
+    /**
+     * Local JFX tree node used to build an error node in to the AST
+     * when a syntax or semantic error is detected while parsing the
+     * script. Error nodes are used by downstream tools such as IDEs
+     * so that they can navigate source code even while it is not,
+     * strictly speaking, valid code.
+     */
+    protected JFXErroneous errorNode = null;  
+
     /**
      * Defines the human readable names of all the tokens that the lexer
      * can produce for use by error messages and utilities that interact with
@@ -361,16 +370,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             {"name",                        "an identifier"},
     };
     
-    /**
-     * Local JFX tree node used to build an error node in to the AST
-     * when a syntax or semantic error is detected while parsing the
-     * script. Error nodes are used by downstream tools such as IDEs
-     * so that they can navigate source code even while it is not,
-     * strictly speaking, valid code.
-     */
-    protected JFXErroneous errorNode = null;
 
-    protected ListBuffer<JFXErroneous> ASTErrors = new ListBuffer<JFXErroneous>();
 
     /** 
      * Initializes a new instance of GeneratedParser 
@@ -966,11 +966,6 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         //
         errorNode = F.at(sp).Erroneous();
         endPos(errorNode, ep);
-
-        // Accumulate the error node in a list, so that we
-        // can hand it off to the AST when parsing is complete.
-        //
-        ASTErrors.append(errorNode);
 
         // Give back the string
         //
@@ -1787,62 +1782,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
 
     }
 
-    /** Report a recognition problem.
-	 *
-	 *  This method sets errorRecovery to indicate the parser is recovering
-	 *  not parsing.  Once in recovery mode, no errors are generated.
-	 *  To get out of recovery mode, the parser must successfully match
-	 *  a token (after a resync).  So it will go:
-	 *
-	 * 		1. error occurs
-	 * 		2. enter recovery mode, report error
-	 * 		3. consume until token found in resynch set
-	 * 		4. try to resume parsing
-	 * 		5. next match() will reset errorRecovery mode
-	 *
-	 *  If you override, make sure to update syntaxErrors if you care about that.
-	 */
-    @Override
-	public void reportError(RecognitionException e) {
 
-		// if we've already reported an error and have not matched a token
-		// yet successfully, don't report any errors.
-        //
-		if ( state.errorRecovery ) {
 
-            // Don't count spurious
-            //
-			return;
-		}
-		state.syntaxErrors++;
-		state.errorRecovery = true;
-
-		displayRecognitionError(this.getTokenNames(), e);
-	}
-
-    /**
-     * Acts as per the standard error reporting, but instead of allowing the
-     * normal displayRecognition error to report with reference to the tokens
-     * it has consumed, we always report with reference to the supplied node.
-     * @param e The recognition exception to report on
-     * @param node The node we wnat to report with reference to.
-     */
-    public void reportError(RecognitionException e, JFXTree node) {
-
-        // if we've already reported an error and have not matched a token
-		// yet successfully, don't report any errors.
-        //
-		if ( state.errorRecovery ) {
-
-            // Don't count spurious
-            //
-			return;
-		}
-
-		state.syntaxErrors++;
-		state.errorRecovery = true;
-
-		displayRecognitionError(this.getTokenNames(), e, node);
-
-    }
+ 
 }

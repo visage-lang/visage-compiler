@@ -62,6 +62,36 @@ tokens
 	LAST_TOKEN;
 }
 
+// This scope is used by rules that wish to change the
+// location in which the error processing routines store the
+// Erroneous nodes they create.
+//
+// As the parser descends the ruleset it needs to know where in the AST it
+// should accumulate Erroneous nodes that represent parsing errors. Parsing
+// errors do not always cause the rule that they occur in to receive an
+// exception and therfore create an Erroneous node instead of whatever
+// they would normally create. But we need to create an Erroneous node so
+// that the error sink recives both start and end positions and so that the
+// IDE can locate the error in the AST. The issue is where in the AST the
+// error should be accumulated. If we are in the middle of a class definition
+// then the error should be there, in a function definition, then part of the function
+// definition and so on. 
+//
+// Each rule that need to change the error accumulation location creates
+// a scope entry in this global scope and sets the ASTErrors member to be
+// a reference to the list of things it is producing. The error routines then
+// just append Erroneous nodes to the ListBuffer that is within the top
+// entry of the stack.
+//
+scope errorStack {
+
+	// Where the error routines should append any Erroneous nodes that
+	// they create. We cannot use generics here as we are not always
+	// accumulating JFXTree.
+	//
+	ListBuffer	 ASTErrors;
+	
+}
 // -----------------------------------------------------------------
 // This section provides package and other information
 // to the parser. It is inserted at the start of the generated parser
@@ -96,6 +126,84 @@ import static com.sun.javafx.api.JavafxBindStatus.*;
 
 }
  
+@parser::members {
+
+    /** Report a recognition problem.
+	 *
+	 *  This method sets errorRecovery to indicate the parser is recovering
+	 *  not parsing.  Once in recovery mode, no errors are generated.
+	 *  To get out of recovery mode, the parser must successfully match
+	 *  a token (after a resync).  So it will go:
+	 *
+	 * 		1. error occurs
+	 * 		2. enter recovery mode, report error
+	 * 		3. consume until token found in resynch set
+	 * 		4. try to resume parsing
+	 * 		5. next match() will reset errorRecovery mode
+	 *
+	 * Note that because we must access the global scope stack, we cannot
+     * place this method in the super class.
+	 */
+    @Override
+	public void reportError(RecognitionException e) {
+
+		// If we've already reported an error and have not matched a token
+		// yet successfully, don't report any errors.
+        //
+		if ( state.errorRecovery ) {
+
+            // Don't count spurious
+            //
+			return;
+		}
+		state.syntaxErrors++;
+		state.errorRecovery = true;
+
+		displayRecognitionError(this.getTokenNames(), e);
+        
+        // The displayRecognitionError() method creates an Erroneous
+        // node that spans the error. As we were nto given a specific
+        // AST node by which to report the error to the diagnostic listener
+        // then we append this error node to the list of elements the
+        // parser is accumulating, whcih is always the ListBuffer at the
+        // top of the global scope 'errorStack'
+        //
+        errorStack_scope es = ((errorStack_scope)errorStack_stack.peek());
+        es.ASTErrors.append(errorNode);
+        
+	}
+
+   /**
+     * Acts as per the standard error reporting, but instead of allowing the
+     * normal displayRecognition error to report with reference to the tokens
+     * it has consumed, we always report with reference to the supplied node.
+     *
+     * Because the standard reportError() method must reside in the generated
+     * class so it has access to the scope class, we keep this version of the 
+     * method here too, for consistency.
+     
+     * @param e The recognition exception to report on
+     * @param node The node we wnat to report with reference to.
+     */
+    public void reportError(RecognitionException e, JFXTree node) {
+
+        // if we've already reported an error and have not matched a token
+		// yet successfully, don't report any errors.
+        //
+		if ( state.errorRecovery ) {
+
+            // Don't count spurious
+            //
+			return;
+		}
+
+		state.syntaxErrors++;
+		state.errorRecovery = true;
+
+		displayRecognitionError(this.getTokenNames(), e, node);
+
+    }	
+}
 // ------------------------------------------------------------------    	
 // ------------------------------------------------------------------
 // PARSER RULES
@@ -123,6 +231,12 @@ script
 
 	returns	[JFXScript result]
 	
+// Where the error routines should accumulate erroneous nodes. There
+// should not really be any accumulated here, but perhaps the packageDecl
+// routine may throw something out.
+//	
+scope errorStack;
+
 @init
 {
 	// Search for the document comment token. At this point LT(1)
@@ -143,6 +257,10 @@ script
 	// Initialize document comment collection
 	//
 	docComments	= null;
+	
+	// Initialize the error accumulator
+	//
+	$errorStack::ASTErrors = new ListBuffer<JFXTree>();
 }
 
 	:  pd=packageDecl si=scriptItems 
@@ -150,10 +268,12 @@ script
 		{
 			// If the parser threw out any error messages, we want to
 			// enter them in to the AST for later analysis if required, but mainly
-			// so they are available to the log sync.
+			// so they are available to the log sync. The only errors accumulated here
+			// have to be before the script items, so they are prepended to the
+			// item list, rather than appended
 			//
-			for	(JFXErroneous e : ASTErrors) {
-				$si.items.append(e);
+			for	(Object e : $errorStack::ASTErrors) {
+				$si.items.prepend((JFXTree)e);
 			}
 			
 			// Construct the JavFX AST
@@ -236,11 +356,22 @@ scriptItems
 	returns [ListBuffer<JFXTree> items = new ListBuffer<JFXTree>()] // This rule builds a list of JFXTree, which is used 
 																	// by the caller to build the actual AST.
 																	//
+																	
+// Where the error routines should accumulate erroneous nodes. Any errors 
+// here are at the script level of course.
+//	
+scope errorStack;
+
 @init
 {
 	// AST start position
 	//
 	int	rPos = pos();
+	
+	// Where to append any Erroneous nodes
+	//
+	$errorStack::ASTErrors = $items;
+	
 }
 	:	(scriptItem[$items] possiblyOptSemi)*
 	;
@@ -662,51 +793,39 @@ classDefinition [ JFXModifiers mods, int pos ]
 
 	returns [JFXTree value]	// The class definition has its own JFXTree type, but we might need Erroneous here
 	
+	// Shift contexts for error accumualtion
+	//
+	scope errorStack;
+	
 @init { 
 
 	// Search for the document comment token. At this point LT(1)
 	// returns the first on channel token, so we can scan back from
 	// there to see if there was a document comment.
 	//
-	CommonToken  docComment = getDocComment(input.LT(1));
+	CommonToken  docComment 		= getDocComment(input.LT(1));
 
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
-	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
-
-	// List of all super classes
-	//
-	ListBuffer<JFXExpression> ids	= null;
-	
 	// List of all members
 	//
 	ListBuffer<JFXTree> mems		= new ListBuffer<JFXTree>();
+	
+	// Super class ids
+	//
+	ListBuffer<JFXExpression> ids	= null;
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	$errorStack::ASTErrors 			= mems;
+
 }
 
 	: CLASS 
 	
-			n1=name 		
-				{ 
-					// Build up new node in case of error
-					//
-					JFXExpression part = F.at($n1.pos).Ident($n1.value);
-					endPos(part);
-					errNodes.append(part);
-				}
-				
-			supers
+			n1=name 
 			
-				{
-					// Accumulate in case of error
-					//
-					ids = $supers.ids;
-					for ( JFXExpression ex : ids)
-					{
-						errNodes.append(ex);
-					}
-				}
-			 
+			supers	{ids = $supers.ids; }
+			
 		LBRACE 
 	
 			// Consume any garbled declarations so that we don't drop out
@@ -714,22 +833,15 @@ classDefinition [ JFXModifiers mods, int pos ]
 			// or get to something that is so garbled we have no choice.
 			//
 			syncClass		[mems] 
-
 			
 			( 
-				classMember [mems] 
-			
-				{
-					// Accumulate in case of error
-					//
-					errNodes.append(mems.elems.last());
-					
-				}
+				classMember 		[mems] 
 				
 				possiblyOptSemi
 				
-				syncClass [mems]
+				syncClass 			[mems]
 			)*
+			
 		RBRACE
 		
 		{ 
@@ -772,31 +884,22 @@ catch [RecognitionException re] {
 	// and so we can build the class definition. (Quite often we get here because of a lack
 	// of a closing '}', so we don;t want to abandon the class just because of that.
 	//
-	if	(mems.nonEmpty()) {
-	
-		// We have enough to build a class definiton AST for the IDE
-		// but we also want to add the erroneous node that reportError created
-		//
-		if	(errorNode != null) {
-			mems.append(errorNode);
-		}
-		$value = F.at($pos).ClassDeclaration
-				(
-	  						  
+
+	// We always have enough to build a class definition AST for the IDE because we will
+	// manufacture a name of <missing> if there wasn't one. That's all the class node
+	// really needs.
+	// 
+	$value = F.at($pos).ClassDeclaration
+				(			  
 					$mods,	
 					$n1.value,
 					ids.toList(),
 					mems.toList()
 				);
 		setDocComment($value, docComment);	// Add any detected documentation comment
-				
-	} else {
 	
-		// We could make neither head nor tail of this beast, so it
-		// has to be erroneous.
-		//
-		$value = F.at($pos).Erroneous(errNodes.elems);
-	}
+	// AST span
+	//
 	endPos($value);
 	
  }
@@ -993,6 +1096,7 @@ functionDefinition [ JFXModifiers mods, int pos ]
 	// in case of error.
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	
 	
 	// Start of rule for error node production/
 	//
@@ -1519,6 +1623,10 @@ block [ int inPos]
 
 	returns [JFXBlock value]	// The block expression has a specialized node inthe JFX tree
 
+// Where the error routines should append any errors
+//
+scope errorStack;
+
 @init { 
 
 	// A list of all the statement ASTs that make up the block expression
@@ -1528,7 +1636,7 @@ block [ int inPos]
 	// Used to accumulate a list of anything that we manage to build up in the parse
 	// in case of error.
 	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	$errorStack::ASTErrors			= stats;
 
 	// Start of rule for error node production/
 	//
@@ -1550,11 +1658,7 @@ block [ int inPos]
 		(
 			blkValue=blockElement[resultType, stats]
 													
-								{
-									// In case of total error failure
-									//
-									errNodes.append($blkValue.value);
-									
+								{									
 									// This new statement is now the result type of the block
 									//
 									resultType = $blkValue.value;
@@ -1601,36 +1705,20 @@ catch [RecognitionException re] {
 	// erroneous node created by reportError call above. This will usually be
 	// the case and helps the IDE a lot.
 	//
-	if	(stats.nonEmpty() || resultType != null) {
-		
-		// Add the error node
-		//
-		if	(errorNode != null) {
-		
-			stats.append(errorNode);
-		}
-		
-		// If the result of the last element was erroneous, then
-		// make the result of the block be void, which means the
-		// result of the block will never be Erroneous, as the tree walkers
-		// can't handle that.
-		//
-		if	(resultType instanceof JFXErroneous) {
-			stats.append(resultType);
-			resultType = null;
-		}
-		
-		// Create the block
-		//
-		$value = F.at(rPos).Block(0L, stats.toList(), resultType);
-
-	} else {
-
-		// We could not build anything like a decent block, so we
-		// just create an erroneous node.
-		//	
-		$value = F.at(rPos).ErroneousBlock(errNodes.elems);
+			
+	// If the result of the last element was erroneous, then
+	// make the result of the block be void, which means the
+	// result of the block will never be Erroneous, as the tree walkers
+	// can't handle that.
+	//
+	if	(resultType instanceof JFXErroneous) {
+		stats.append(resultType);
+		resultType = null;
 	}
+		
+	// Create the block
+	//
+	$value = F.at(rPos).Block(0L, stats.toList(), resultType);
 	endPos($value);
  }
 
@@ -4007,14 +4095,7 @@ primaryExpression
 			(LBRACE)=>LBRACE  
 			  	
 					o1=objectLiteral
-						{
-							// Accumulate in case of error
-							//
-							for (JFXTree t : $o1.parts) {
-								errNodes.append(t);
-							}
-						}
-						
+					
 			RBRACE
 	              
 				{
@@ -4089,15 +4170,7 @@ primaryExpression
 		RPAREN 
 		LBRACE 
 			k=keyFrameLiteralPart
-			
-				{
-					// Accumulate in case of error
-					//
-					for ( JFXTree t : $k.exprs) {					
-						errNodes.append(t);
-					}
-					
-				} 
+
 		RBRACE
 		
 		{
@@ -4124,10 +4197,27 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 
-	// Create an Erroneous version of the node
+	// If we were constructing an object literal or keyframe set, then
+	// we will still create that, but an error node will have been added
+	// to containing block or if there is no containindg block, the script
 	//
-	$value = F.at(rPos).Erroneous(errNodes.elems);
+	if	($o1.parts != null) {
+	
+		$value = F.at(rPos).ObjectLiteral($value, $o1.parts.toList());
+	
+	} else if ($tv.valNode != null) {
+	
+		$value = F.at(rPos).KeyFrameLiteral(sVal, $k.exprs.toList(), null);
+		
+	} else {
+		// Create an Erroneous version of the node
+		//
+		$value = F.at(rPos).Erroneous(errNodes.elems);
+
+	}
+			
 	endPos($value);	
+			
 }
 
 // ------------
@@ -4137,16 +4227,21 @@ keyFrameLiteralPart
 
 	returns [ListBuffer<JFXExpression> exprs = new ListBuffer<JFXExpression>(); ]	// Gathers a list of expressions representing frame values
 	
+	// Where to append erroneous nodes
+	//
+	scope errorStack;
+	
 @init
 {
-	// Used to accumulate a list of anything that we manage to build up in the parse
-	// in case of error.
-	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
-	
+
 	// Work out current position in the input stream
 	//
 	int	rPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	$errorStack::ASTErrors = exprs;
 	
 }
 	: k1=expression 			{ exprs.append($k1.value);	}
@@ -4169,12 +4264,8 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
-	// Create an Erroneous version of the node
-	//
-	JFXErroneous errNode = F.at(rPos).Erroneous(exprs.elems);
-	endPos(errNode);	
-	exprs = new ListBuffer<JFXExpression>();
-	exprs.append(errNode);
+	// Any error messages will auto accumulate and erroneous node, so
+	// we need do nothing here.
 }
 
 // -------------------
@@ -4301,12 +4392,16 @@ objectLiteral
 
 	returns [ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb()]	// Gather a list of all the object literal insitalizations
 
+// Where to append erroneous nodes
+//
+scope errorStack;
+
 @init
 {
 	// Used to accumulate a list of anything that we manage to build up in the parse
 	// in case of error.
 	//
-	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+	$errorStack::ASTErrors = parts;
 	
 	// Rule pos in case of error
 	//
@@ -4320,7 +4415,6 @@ objectLiteral
 			
 				{
 					parts.append($oli.value);
-					errNodes.append($oli.value);	// Accumulte in case of error
 				}
 			)
 			
@@ -4344,18 +4438,11 @@ catch [RecognitionException re] {
 	//
 	recover(input, re);
 	
-	// Create an ERRONEOUS vode
+	// The error message routines will have accumulated
+	// any erroneous nodes, so we don't need ot do anythign here
+	// but return. We don't want to throw the whole set into
+	// error as we can be finer grained.
 	//
-	JFXErroneous errNode = F.at(rPos).Erroneous(errNodes.elems);
-	endPos(errNode);
-	
-	// Reset the return list
-	//
-	$parts = ListBuffer.<JFXTree>lb();
-	
-	// Add the error node
-	//
-	$parts.append(errNode);
 	
 }
 
