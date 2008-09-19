@@ -781,10 +781,32 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             
             mb.append(" that should not be there");
 
-            // Work out what our start and end point should be for the error
+            // Work out what our start and end point should be for the error. WHen we have an extar
+            // token in this language, it is quote often because the source code is coming from
+            // the net beans (or other) IDE and the user is typing some new definition, viz:
             //
+            // var
+            // var answer : Integer = 42;
+            //
+            // In such a case, we would throw the error at the second instance of var, but
+            // it is more useful for the IDE if we throw the error at the first instance
+            // (for various reasons). Henece we do a check here to see if the prior token is the
+            // same type as the current token. If it is, then we report the error with
+            // reference to the prior token. Note that we have already consumed the token
+            // when we get here bceause this is an error that is not sent back to the parser
+            // it is just auto-recovered, so we need to use LA(-2) here.
+            //
+            if  (uwt.getType() == input.LA(-2)) {
+
+                // Replace the token with the previous token
+                //
+                uwt = (CommonToken)(input.LT(-2));
+                ute.token = uwt;
+            }
+
             sp = uwt.getStartIndex();
             ep = uwt.getStopIndex()+1;
+
             
         } else if (e instanceof MissingTokenException) {
             
