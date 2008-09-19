@@ -606,13 +606,17 @@ public class XHTMLProcessingUtils {
     private static void renderScriptToImage(File imgFile, String script) throws ScriptException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, ClassNotFoundException {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine scrEng = manager.getEngineByExtension("javafx");
-        scrEng.getContext().setErrorWriter(new PrintWriter(System.out));
+        PrintWriter pw = new PrintWriter(System.err);
+        scrEng.getContext().setErrorWriter(pw);
         //p(INFO, getString("processing.example") + '\n' + script);
+        try {
+            //System.err.println("evalling: -" + script+"-");
         Object ret = scrEng.eval(script);
         Class fxclass = ret.getClass();
         Rectangle2D bounds = null;
         Method paintMethod = null;
         Object drawObject = null;
+
         try { 
             Method component_method = fxclass.getMethod("getJComponent");
             JComponent component = (JComponent) component_method.invoke(ret);
@@ -645,5 +649,18 @@ public class XHTMLProcessingUtils {
         paintMethod.invoke(drawObject, g2);
         g2.dispose();
         ImageIO.write(img, "png", imgFile);
+        } catch (javax.script.ScriptException ex) {
+            pw.println(ex.getMessage());
+            pw.println(" at: line = " + ex.getLineNumber() + " column = " + ex.getColumnNumber());
+            pw.println("file = " + ex.getFileName());
+            pw.println("exception = "+ ex.toString());
+            pw.println(ex.getMessage());
+            ex.printStackTrace(pw);
+            pw.println("cause = " + ex.getCause());
+        } finally {
+            pw.flush();
+            pw.close();
+        }
     }
+    
 }
