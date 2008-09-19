@@ -74,6 +74,10 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
      */
     public JFXTree where;
 
+    /** Are we currently inside an init{} blocL
+     */
+    public boolean inInitBlock;
+
     /** A generic field for further information.
      */
     public A info;

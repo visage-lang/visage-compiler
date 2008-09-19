@@ -106,7 +106,7 @@ public class JavafxTypeMorpher {
                    
                    // Variables are morphed if they are accessed within an inner class and have been assigned to
                    if ( (flag_fields & JavafxFlags.VARUSE_INNER_ACCESS) != 0) {
-                     if ( (flag_fields & JavafxFlags.ASSIGNED_TO) != 0) 
+                     if ( (flag_fields & (JavafxFlags.VARUSE_INIT_ASSIGNED_TO | JavafxFlags.VARUSE_ASSIGNED_TO)) != 0)
                         markMustMorph();
                    } 
                    // non-parameter local vars are morphed if they are bound to or sequencea

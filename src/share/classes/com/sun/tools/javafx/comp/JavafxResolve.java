@@ -584,7 +584,7 @@ public class JavafxResolve {
                         if (innerAccess) {
                             e.sym.flags_field |= JavafxFlags.VARUSE_INNER_ACCESS;
                             if ((e.sym.flags_field & JavafxFlags.IN_INITIALIZER) != 0)
-                                e.sym.flags_field |= JavafxFlags.ASSIGNED_TO;
+                                e.sym.flags_field |= env.inInitBlock? JavafxFlags.VARUSE_INIT_ASSIGNED_TO : JavafxFlags.VARUSE_ASSIGNED_TO;
                         }
                         if (checkArgs) {
                             return checkArgs(e.sym, mtype);

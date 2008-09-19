@@ -800,7 +800,7 @@ public class JavafxAttr implements JavafxVisitor {
             attribTree(tree.lhs, dupEnv, VAR, owntype);
             lhsSym.type = owntype;
         }
-        lhsSym.flags_field |= JavafxFlags.ASSIGNED_TO;
+        lhsSym.flags_field |= env.inInitBlock? JavafxFlags.VARUSE_INIT_ASSIGNED_TO : JavafxFlags.VARUSE_ASSIGNED_TO;;
         result = check(tree, capturedType, VAL, pkind, pt, pSequenceness);
 
         if (tree.rhs != null && tree.lhs.getFXTag() == JavafxTag.IDENT) {
@@ -2211,7 +2211,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
         }
         if (tree.lhs instanceof JFXIdent)
-            ((JFXIdent) (tree.lhs)).sym.flags_field |= JavafxFlags.ASSIGNED_TO;
+            ((JFXIdent) (tree.lhs)).sym.flags_field |= env.inInitBlock? JavafxFlags.VARUSE_INIT_ASSIGNED_TO : JavafxFlags.VARUSE_ASSIGNED_TO;
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
 
         if (lhsSym != null && tree.rhs != null) {
