@@ -7,10 +7,8 @@
     <property name="launcher.dir" value="${basedir}/launcher"/>
     <property environment="env" />
     <import file="tools-defs.xml"/>
-    <property name="antlr.grammarv3" value="v3" />
     <property name="antlr.grammarv4p" value="v4Parser" />
     <property name="antlr.grammarv4l" value="v4Lexer" />
-    <property name="antlr.grammarv3w" value="v3Walker" />
 
     <target name="default" depends="jar,javafxdoc,launcher"
             description="Build javafxc compiler and compiler runtime distribution"/>
@@ -113,8 +111,6 @@
     <target name="-post-init">
         <property name="antlr.grammarv4l.file" value="${antlr.src.dir}/${antlr.grammarv4l}.g" />
         <property name="antlr.grammarv4p.file" value="${antlr.src.dir}/${antlr.grammarv4p}.g" />
-        <property name="antlr.grammarv3.file" value="${antlr.src.dir}/${antlr.grammarv3}.g" />
-        <property name="antlr.grammarv3w.file" value="${antlr.src.dir}/${antlr.grammarv3w}.g" />
     </target>
 
     <!-- jar file creation: external runtime jar contents are included to reduce classpath issues -->
@@ -149,7 +145,7 @@
             <arg value="${antlr.grammarv4p.file}" />
             <jvmarg value="-Xmx256m"/>
         </java>
-    	<property name="parserv4.uptodate" value="v3Walker" />
+        <property name="parserv4.uptodate" value="true" />
     </target>
 
     <target depends="-pre-compile, generate-lexerv4" name="generate-parserv4" unless="parserv4.uptodate">
@@ -167,26 +163,6 @@
         </java>
     </target>
 
-    <target depends="-pre-compile" name="generate-parserv3" unless="parserv3.uptodate" >
-        <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
-            <arg value="-o" />
-            <arg value="${antlr.generated.dir}" />
-            <arg value="${antlr.grammarv3.file}" />
-            <jvmarg value="-Xmx256m"/>
-        </java>
-    </target>
-
-    <target depends="-pre-compile" name="generate-parserv3w" unless="parserv3w.uptodate" >
-        <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
-            <arg value="-o" />
-            <arg value="${antlr.generated.dir}" />
-            <arg value="${antlr.grammarv3w.file}" />
-            <arg value="-lib" />
-            <arg value="${antlr.generated.dir}" />
-            <jvmarg value="-Xmx256m"/>
-        </java>
-    </target>
-
     <target name="syntax-diagrams" depends="init">
         <mkdir dir="${syntax.diagrams.dir}"/>
         <java classname="org.antlr.works.Console" fork="true">
@@ -195,7 +171,7 @@
                 <path refid="antlr.class.path" />
             </classpath>
             <arg value="-f" />
-            <arg value="${antlr.grammarv3.file}" />
+            <arg value="${antlr.grammarv4.file}" />
             <arg value="-sd" />
             <arg value="png" />
             <arg value="-o" />
@@ -236,14 +212,12 @@
         </copy>
     </target>
 
-    <target name="generated-java" depends="generate-parserv3,generate-parserv3w,generate-lexerv4,generate-parserv4" />
+    <target name="generated-java" depends="generate-lexerv4,generate-parserv4" />
     
     <target depends="init,-def-pcompile" name="-pre-compile">
         <mkdir dir="${build.classes.dir}"/>
         <uptodate property="lexerv4.uptodate" srcfile="${antlr.grammarv4l.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv4l}.java" />
         <uptodate property="parserv4.uptodate" srcfile="${antlr.grammarv4p.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv4p}.java" />
-        <uptodate property="parserv3.uptodate" srcfile="${antlr.grammarv3.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv3}Parser.java" />
-        <uptodate property="parserv3w.uptodate" srcfile="${antlr.grammarv3w.file}" targetfile="${antlr.generated.dir}/${antlr.grammarv3w}.java" />
     </target>
     
     <target name="-post-compile">
@@ -405,7 +379,6 @@
 
     <target name="-post-clean" depends="javafxdoc-clean,spec-clean,launcher-clean">
         <!-- Delete ANTLR-generated files -->
-        <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v3*.*" excludes="**/v3.g **/v3Walker.g"/>
         <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v4*.*" excludes="**/v4Lexer.g **/v4Parser.g"/>
         <delete dir="${syntax.diagrams.dir}" />
         <delete dir="${build.instrumented.dir}"/>
