@@ -800,7 +800,6 @@ public class JavafxAttr implements JavafxVisitor {
             attribTree(tree.lhs, dupEnv, VAR, owntype);
             lhsSym.type = owntype;
         }
-        lhsSym.flags_field |= env.inInitBlock? JavafxFlags.VARUSE_INIT_ASSIGNED_TO : JavafxFlags.VARUSE_ASSIGNED_TO;;
         result = check(tree, capturedType, VAL, pkind, pt, pSequenceness);
 
         if (tree.rhs != null && tree.lhs.getFXTag() == JavafxTag.IDENT) {
@@ -863,9 +862,7 @@ public class JavafxAttr implements JavafxVisitor {
                 // declaration position to maximal possible value, effectively
                 // marking the variable as undefined.
                 v.pos = Position.MAXPOS;
-                v.flags_field |= JavafxFlags.IN_INITIALIZER;
                 initType = attribExpr(tree.init, initEnv, declType);
-                v.flags_field &= ~JavafxFlags.IN_INITIALIZER;
                 initType = chk.checkNonVoid(tree.pos(), initType);
                 if (declType.tag <= LONG && initType.tag >= LONG && initType.tag <= DOUBLE) {
                     // Temporary kludge to supress duplicate warnings.
@@ -2210,8 +2207,6 @@ public class JavafxAttr implements JavafxVisitor {
                                   owntype);
             }
         }
-        if (tree.lhs instanceof JFXIdent)
-            ((JFXIdent) (tree.lhs)).sym.flags_field |= env.inInitBlock? JavafxFlags.VARUSE_INIT_ASSIGNED_TO : JavafxFlags.VARUSE_ASSIGNED_TO;
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
 
         if (lhsSym != null && tree.rhs != null) {

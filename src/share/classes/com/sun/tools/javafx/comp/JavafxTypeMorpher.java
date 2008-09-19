@@ -31,14 +31,16 @@ import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.util.*;
-import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
+
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.locationPackageNameString;
 import static com.sun.tools.javafx.comp.JavafxDefs.sequencePackageNameString;
+import static com.sun.tools.javafx.code.JavafxFlags.*;
+
 
 /**
  *
@@ -86,10 +88,6 @@ public class JavafxTypeMorpher {
     public class VarMorphInfo extends TypeMorphInfo {
         private final Symbol sym;
         private final boolean isMethod;
-        private boolean mustMorph = false;
-        private boolean haveDeterminedMorphability = false;
-        private boolean isBoundTo = false;
-        private boolean isAssignedTo = false;
 
         VarMorphInfo(Symbol sym) {
             super((sym.kind == Kinds.MTH)? ((MethodType)sym.type).getReturnType() : sym.type);
@@ -100,23 +98,26 @@ public class JavafxTypeMorpher {
         private void determineMorphability() {
             if (!isMethod) {
                 Symbol owner = getSymbol().owner;
+                long flags = getSymbol().flags();
+                boolean gottaMorph = (flags & (VARUSE_BOUND_INIT | VARUSE_HAS_ON_REPLACE | VARUSE_USED_IN_BIND | VARUSE_SELF_REFERENCE)) != 0;
                 if (owner.kind == Kinds.MTH) {
-                    
-                   long flag_fields = getSymbol().flags();
-                   
-                   // Variables are morphed if they are accessed within an inner class and have been assigned to
-                   if ( (flag_fields & JavafxFlags.VARUSE_INNER_ACCESS) != 0) {
-                     if ( (flag_fields & (JavafxFlags.VARUSE_INIT_ASSIGNED_TO | JavafxFlags.VARUSE_ASSIGNED_TO)) != 0)
-                        markMustMorph();
-                   } 
-                   // non-parameter local vars are morphed if they are bound to or sequencea
-                    // (bound functions and their parameters are handled elsewhere)
-                   if ((isBoundTo() || isSequence()) && (flag_fields & Flags.PARAMETER) == 0) {
+                    // local var
+
+                    // Variables are morphed if they are accessed within an inner class and have been assigned to
+                    if ((flags & VARUSE_INNER_ACCESS) != 0) {
+                        if ((flags & (VARUSE_INIT_ASSIGNED_TO | VARUSE_ASSIGNED_TO)) != 0) {
                             markMustMorph();
-                   }
+                        }
+                    }
+                    // non-parameter local vars are morphed if they are bound to or sequencea
+                    // (bound functions and their parameters are handled elsewhere)
+                    if ((gottaMorph || isSequence()) && (flags & Flags.PARAMETER) == 0) {
+                        markMustMorph();
+                    }
                 } else if (owner.kind == Kinds.TYP) {
-                    long flags = getSymbol().flags();
-                    //boolean externallyVisible = (flags & JavafxFlags.SCRIPT_PRIVATE) == 0 || (flags & (JavafxFlags.PUBLIC_READ | JavafxFlags.PUBLIC_INIT)) != 0;
+                    // class or script var
+
+                    //boolean externallyVisible = (flags & SCRIPT_PRIVATE) == 0 || (flags & (PUBLIC_READ | PUBLIC_INIT)) != 0;
                     boolean externallyVisible = true;
                     if (getSymbol() instanceof JavafxVarSymbol) {
                         if (externallyVisible) {
@@ -132,23 +133,18 @@ public class JavafxTypeMorpher {
                     }
                 }
             }
-           markDeterminedMorphability();
-       }
+            markDeterminedMorphability();
+        }
 
        public boolean mustMorph() {
-           if (!haveDeterminedMorphability()) {
+           if ((getSymbol().flags_field & VARUSE_NEED_LOCATION_DETERMINED) == 0) {
                determineMorphability();
            }
-           return mustMorph;
+           return (getSymbol().flags_field & VARUSE_NEED_LOCATION) != 0;
        }
 
-        private void markMustMorph() { mustMorph = true; }
-        private void markDeterminedMorphability() { haveDeterminedMorphability = true; }
-        private boolean haveDeterminedMorphability() { return haveDeterminedMorphability; }
-        public boolean isBoundTo() { return isBoundTo; }
-        public boolean isAssignedTo() { return isAssignedTo; }
-        public void markBoundTo() { this.isBoundTo = true; haveDeterminedMorphability = false; }
-        public void markAssignedTo() { this.isAssignedTo = true; }
+        private void markMustMorph() { getSymbol().flags_field |= VARUSE_NEED_LOCATION; }
+        private void markDeterminedMorphability() { getSymbol().flags_field |= VARUSE_NEED_LOCATION_DETERMINED; }
 
         public Symbol getSymbol() {
             return sym;
@@ -306,10 +302,10 @@ public class JavafxTypeMorpher {
             List<Type> newActuals = List.nil();
             for (Type t : actuals) {
                 if ((t.tsym instanceof ClassSymbol) &&
-                        (t.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
+                        (t.tsym.flags_field & COMPOUND_CLASS) != 0) {
                     String str = t.tsym.name.toString().replace("$", ".");
                     ClassSymbol csym = new JavafxClassSymbol(0, names.fromString(str), t.tsym.owner);
-                    csym.flags_field |= JavafxFlags.COMPOUND_CLASS;
+                    csym.flags_field |= COMPOUND_CLASS;
                     Type tp = new ClassType(Type.noType, List.<Type>nil(), csym);
                     newActuals = newActuals.append(tp);
                     break;

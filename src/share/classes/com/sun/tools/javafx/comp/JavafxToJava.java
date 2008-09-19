@@ -813,8 +813,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             Type type;
 
             for (JFXVar var : tree.getLocalvars()) {
-                // force var to be a Location (so class members can see it)
-                toJava.typeMorpher.varMorphInfo(var.sym).markBoundTo();
                 // add the variable before the class definition or object litersl assignment
                 processLocalVar(var);
             }
@@ -1123,10 +1121,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         if ((vsym.flags_field & JavafxFlags.VARUSE_INNER_ACCESS) != 0) {
             modFlags |= Flags.FINAL;
         }
-
-        // force morphing on variables with triggers
-        if (tree.getOnReplace() != null)
-            vmi.markBoundTo();
 
         if (shouldMorph(vmi)) {
             // convert the type to the Location type

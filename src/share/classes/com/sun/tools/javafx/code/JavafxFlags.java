@@ -36,7 +36,7 @@ public class JavafxFlags {
 
     private static final long LAST_JAVA_FLAG = PROPRIETARY;
 
-    // Explicit (parser set) flags
+    // Explicit (parser set) modifier flags
     private static final long FIRST_FX_MOD_FLAG        = LAST_JAVA_FLAG << 1;
     public static final long BOUND                     = FIRST_FX_MOD_FLAG << 0;  // bound function
     public static final long OVERRIDE                  = FIRST_FX_MOD_FLAG << 1;  // overridden function
@@ -44,17 +44,14 @@ public class JavafxFlags {
     public static final long PUBLIC_READ               = FIRST_FX_MOD_FLAG << 3;  // public-read var
     public static final long PUBLIC_INIT               = FIRST_FX_MOD_FLAG << 4;  // public-init var
     public static final long PACKAGE_ACCESS            = FIRST_FX_MOD_FLAG << 5;  // explicit 'package' access
-    private static final long LAST_FX_MOD_FLAG         = PACKAGE_ACCESS;
 
-    // misc FX flags
-    private static final long FIRST_FX_MISC_FLAG       = LAST_FX_MOD_FLAG << 1;
-    public static final long SCRIPT_PRIVATE            = FIRST_FX_MISC_FLAG << 0;  // implicily set flag if public/protected/package are not
-    public static final long SCRIPT_LEVEL_SYNTH_STATIC = FIRST_FX_MISC_FLAG << 1;  // STATIC bit has been set implicitly
-    public static final long IN_INITIALIZER            = FIRST_FX_MISC_FLAG << 2;  // temporary flag set while in var init expression
-    private static final long LAST_FX_MISC_FLAG        = IN_INITIALIZER;
+    // a couple of synthetic modifier flags
+    public static final long SCRIPT_PRIVATE            = FIRST_FX_MOD_FLAG << 6;  // implicily set flag if public/protected/package are not
+    public static final long SCRIPT_LEVEL_SYNTH_STATIC = FIRST_FX_MOD_FLAG << 7;  // STATIC bit has been set implicitly
+    private static final long LAST_FX_MOD_FLAG        = SCRIPT_LEVEL_SYNTH_STATIC;
 
     // Var/def usage info -- all usage info is within the script only
-    private static final long FIRST_VARUSE_FLAG      = LAST_FX_MISC_FLAG << 1;
+    private static final long FIRST_VARUSE_FLAG      = LAST_FX_MOD_FLAG << 1;
     public static final long VARUSE_BOUND_INIT       = FIRST_VARUSE_FLAG << 0;  // defined as bound, initially, in obj lit, or override
     public static final long VARUSE_HAS_ON_REPLACE   = FIRST_VARUSE_FLAG << 1;  // has 'on replace' either in definition or override
     public static final long VARUSE_USED_IN_BIND     = FIRST_VARUSE_FLAG << 2;  // used in a bound expression
@@ -62,13 +59,15 @@ public class JavafxFlags {
     public static final long VARUSE_INIT_ASSIGNED_TO = FIRST_VARUSE_FLAG << 4;  // assigned to inside of an init
     public static final long VARUSE_OBJ_LIT_INIT     = FIRST_VARUSE_FLAG << 5;  // initialized in an obj lit, bound or not
     public static final long VARUSE_OVERRIDDEN       = FIRST_VARUSE_FLAG << 6;  // var overridden in a subclass
-    public static final long VARUSE_INNER_ACCESS     = FIRST_VARUSE_FLAG << 6;  // var accessed within an inner class
-    public static final long VARUSE_NEED_LOCATION    = FIRST_VARUSE_FLAG << 7;  // var should be represented by a Location
+    public static final long VARUSE_INNER_ACCESS     = FIRST_VARUSE_FLAG << 7;  // var accessed within an inner class
+    public static final long VARUSE_SELF_REFERENCE   = FIRST_VARUSE_FLAG << 8;  // the initializing expression references the var
+    public static final long VARUSE_TMP_IN_INIT_EXPR = FIRST_VARUSE_FLAG << 9;  // temp flag, set while inside var's initializing expression
+    public static final long VARUSE_NEED_LOCATION    = FIRST_VARUSE_FLAG << 10; // var should be represented by a Location
     public static final long VARUSE_NEED_LOCATION_DETERMINED
-                                                     = FIRST_VARUSE_FLAG << 8;  // NEED_LOCATION has been computed and set
+                                                     = FIRST_VARUSE_FLAG << 11; // NEED_LOCATION has been computed and set
 
     // Class flags -- reuse same bits as VARUSE* flags
-    private static final long FIRST_FX_CLASS_FLAG    = LAST_FX_MISC_FLAG << 1;
+    private static final long FIRST_FX_CLASS_FLAG    = LAST_FX_MOD_FLAG << 1;
     public static final long COMPOUND_CLASS          = FIRST_FX_CLASS_FLAG << 0;  // class that gets translated to a class and an inteface (MI)
     public static final long FX_CLASS                = FIRST_FX_CLASS_FLAG << 1;  // has 'on replace' either in definition or override
 

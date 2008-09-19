@@ -775,7 +775,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                     envbuff.append(attribute(todo.next()));
                 }
                 
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(envbuff.toList()))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(stopIfError(envbuff)))), results);
                 break;
             }
             default:

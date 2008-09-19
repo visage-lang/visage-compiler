@@ -27,7 +27,7 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.Context;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
+import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 /**
  *
@@ -39,6 +39,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     
     private final JavafxTypeMorpher typeMorpher;
     private boolean inLHS;
+    private boolean inInitBlock;
     private boolean inBindContext;
     
     public static JavafxVarUsageAnalysis instance(Context context) {
@@ -53,61 +54,144 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         
         this.typeMorpher = JavafxTypeMorpher.instance(context);
         inLHS = false;
+        inInitBlock = false;
         inBindContext = false;
     }
     
     public void analyzeVarUse(JavafxEnv<JavafxAttrContext> attrEnv) {
         scan(attrEnv.tree);
     }
+
+    private void mark(Symbol sym, long flag) {
+        sym.flags_field |= flag;
+    }
     
-    private void markVarUse(Symbol sym) {
+    private void markVarAccess(Symbol sym) {
         if (sym instanceof VarSymbol) {
-            VarSymbol vsym = (VarSymbol)sym;
-            VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
             if (inBindContext) {
-                if (inLHS) {
-                    // ??? assignment in function / bind expression
-                } else {
-                    vmi.markBoundTo();
-                }
+                mark(sym, VARUSE_USED_IN_BIND);
             } else {
                 if (inLHS) {
-                    vmi.markAssignedTo();
+                    // note the assignment the assignment
+                    if (inInitBlock) {
+                        mark(sym, VARUSE_INIT_ASSIGNED_TO);
+                    } else {
+                        mark(sym, VARUSE_ASSIGNED_TO);
+                    }
+                }
+                if ((sym.flags_field & VARUSE_TMP_IN_INIT_EXPR) != 0) {
+                    // this is a reference to this variable from within its own initializer
+                    mark(sym, VARUSE_SELF_REFERENCE);
                 }
             }
         }
     }
-    
+
+    private void markDefinition(Symbol sym) {
+        if (inBindContext) {
+            mark(sym, VARUSE_BOUND_INIT);
+        }
+    }
+
+    @Override
+    public void visitScript(JFXScript tree) {
+       inInitBlock = false;
+       inLHS = false;
+       inBindContext = false;
+
+       super.visitScript(tree);
+    }
+
     @Override
     public void visitVarScriptInit(JFXVarScriptInit tree) {
     }
 
     @Override
     public void visitVar(JFXVar tree) {
+        // any changes here should also go into visitOverrideClassVar
         boolean wasInBindContext = inBindContext;
         inBindContext |= tree.isBound();
+        markDefinition(tree.sym);
+        tree.sym.flags_field |= VARUSE_TMP_IN_INIT_EXPR;
         scan(tree.getInitializer());
-        markVarUse(tree.sym);
+        tree.sym.flags_field &= ~VARUSE_TMP_IN_INIT_EXPR;
         inBindContext = wasInBindContext;
-        //TODO: need global handling of 'on replace' in bind context -- probably disallowed
-        scan(tree.getOnReplace());
+        if (tree.getOnReplace() != null) {
+            mark(tree.sym, VARUSE_HAS_ON_REPLACE);
+            scan(tree.getOnReplace());
+        }
     }
     
-   @Override
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+    @Override
+    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         boolean wasInBindContext = inBindContext;
-        inBindContext = false; //TODO should reset, but if bound, should mark as such (once there is only one)
-        scan(tree.getFunctionValue());
+        inBindContext |= tree.isBound();
+        markDefinition(tree.sym);
+        mark(tree.sym, VARUSE_OVERRIDDEN);
+        tree.sym.flags_field |= VARUSE_TMP_IN_INIT_EXPR;
+        scan(tree.getInitializer());
+        tree.sym.flags_field &= ~VARUSE_TMP_IN_INIT_EXPR;
         inBindContext = wasInBindContext;
+        if (tree.getOnReplace() != null) {
+            mark(tree.sym, VARUSE_HAS_ON_REPLACE);
+            scan(tree.getOnReplace());
+        }
+    }
+
+    @Override
+    public void visitClassDeclaration(JFXClassDeclaration tree) {
+       // these start over in a class definition
+       boolean wasLHS = inLHS;
+       boolean wasInBindContext = inBindContext;
+       boolean wasInInitBlock = inInitBlock;
+       inInitBlock = false;
+       inLHS = false;
+       inBindContext = false;
+
+       super.visitClassDeclaration(tree);
+
+       inInitBlock = wasInInitBlock;
+       inBindContext = wasInBindContext;
+       inLHS = wasLHS;
+    }
+
+    @Override
+    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+       // these start over in a function definition
+       boolean wasLHS = inLHS;
+       boolean wasInBindContext = inBindContext;
+       boolean wasInInitBlock = inInitBlock;
+       inInitBlock = false;
+       inLHS = false;
+
+       inBindContext = tree.isBound();
+       super.visitFunctionDefinition(tree);
+
+       inInitBlock = wasInInitBlock;
+       inBindContext = wasInBindContext;
+       inLHS = wasLHS;
     }
    
     @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         boolean wasInBindContext = inBindContext;
-        inBindContext |= tree.isBound();
-        markVarUse(tree.sym);
-        tree.getExpression().accept(this);
+
+        inBindContext = tree.isBound();  // bind doesn't permiate object literals
+        markDefinition(tree.sym);
+        mark(tree.sym, VARUSE_OBJ_LIT_INIT);
+        scan(tree.getExpression());
+
         inBindContext = wasInBindContext;
+    }
+
+    @Override
+    public void visitInstanciate(JFXInstanciate tree) {
+        super.visitInstanciate(tree);
+
+        // Local vars of an object literal are effectively an inner accessed
+        for (JFXVar var : tree.getLocalvars()) {
+            mark(var.sym, VARUSE_INNER_ACCESS);
+        }
     }
 
     @Override
@@ -120,10 +204,56 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
+    public void visitAssignop(JFXAssignOp tree) {
+        boolean wasLHS = inLHS;
+        inLHS = true;
+        scan(tree.lhs);
+        inLHS = wasLHS;
+        scan(tree.rhs);
+    }
+
+    @Override
+    public void visitUnary(JFXUnary tree) {
+        boolean wasLHS = inLHS;
+        switch (tree.getFXTag()) {
+            case PREINC:
+            case PREDEC:
+            case POSTINC:
+            case POSTDEC:
+                inLHS = true;
+                break;
+        }
+        scan(tree.arg);
+        inLHS = wasLHS;
+    }
+
+    @Override
     public void visitIdent(JFXIdent tree) {
-        markVarUse(tree.sym);
+        markVarAccess(tree.sym);
     }
     
+    @Override
+    public void visitInitDefinition(JFXInitDefinition that) {
+        assert !inInitBlock : "cannot have nested init blocks without intervening class";
+        assert !inLHS : "cannot have init blocks on LHS";
+        assert !inBindContext : "cannot have init blocks on bind";
+
+        inInitBlock = true;
+        scan((JFXBlock)that.getBody());
+
+        inInitBlock = false;
+    }
+
+    @Override
+    public void visitInterpolateValue(final JFXInterpolateValue tree) {
+        boolean wasInBindContext = inBindContext;
+        inBindContext = true;
+
+        super.visitInterpolateValue(tree);
+
+        inBindContext = wasInBindContext;
+    }
+
     @Override
     public void visitSelect(JFXSelect tree) {
         // this may or may not be in a LHS but in either
@@ -133,12 +263,23 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         scan(tree.selected);
         inLHS = wasLHS;
         
-        markVarUse(tree.sym);
+        markVarAccess(tree.sym);
     }
-    
+
     @Override
-    public void visitBlockExpression(JFXBlock tree) {
-        scan(tree.stats);
-        scan(tree.value);
+    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
+        boolean wasLHS = inLHS;
+        inLHS = false;
+        super.visitSequenceIndexed(tree);
+        inLHS = wasLHS;
     }
+
+    @Override
+    public void visitSequenceSlice(JFXSequenceSlice tree) {
+        boolean wasLHS = inLHS;
+        inLHS = false;
+        super.visitSequenceSlice(tree);
+        inLHS = wasLHS;
+    }
+
 }
