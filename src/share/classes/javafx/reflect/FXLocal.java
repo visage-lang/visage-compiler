@@ -25,6 +25,7 @@ package javafx.reflect;
 
 import java.lang.reflect.*;
 import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.sun.javafx.functions.*;
@@ -347,11 +348,26 @@ public class FXLocal {
             }
         }
     
+        private Method[] filter(Method[] methods, Class declaringClass) {
+            List<Method> result = new ArrayList<Method>();
+            for (Method m : methods) {
+                if (m.getDeclaringClass() == declaringClass) {
+                    result.add(m);
+                }
+            }
+            return result.toArray(new Method[0]);
+        }
+
         protected void getFunctions(FXMemberFilter filter, SortedMemberArray<? super FXFunctionMember> result) {
             boolean isCompound = isCompoundClass();
             Class cls = /*isCompound ? refInterface :*/ refClass;
             Context context = getReflectionContext();
-            Method[] methods = cls.getDeclaredMethods();
+            Method[] methods;
+            try {
+                methods = cls.getDeclaredMethods();
+            } catch (SecurityException e) {
+                methods = filter(cls.getMethods(), cls);
+            }
             for (int i = 0;  i < methods.length;  i++) {
                 Method m = methods[i];
                 if (m.isSynthetic())
@@ -397,6 +413,16 @@ public class FXLocal {
             return new FXLocal.FunctionMember(m, this, type);
         }
     
+        private Field[] filter(Field[] fields, Class declaringClass) {
+            List<Field> result = new ArrayList<Field>();
+            for (Field f : fields) {
+                if (f.getDeclaringClass() == declaringClass) {
+                    result.add(f);
+                }
+            }
+            return result.toArray(new Field[0]);
+        }
+
         protected void getVariables(FXMemberFilter filter, SortedMemberArray<? super FXVarMember> result) {
             Context context = getReflectionContext();
             Class cls = refClass;
@@ -405,7 +431,12 @@ public class FXLocal {
             // FIXME possible optimization if requiredName != null
             // In that case we could use Class.getDeclaredField(String).
             // However, it's tricky because we need to try all possible renamings.
-            java.lang.reflect.Field[] fields = cls.getDeclaredFields();
+            java.lang.reflect.Field[] fields;
+            try {
+                fields = cls.getDeclaredFields();
+            } catch (SecurityException e) {
+                fields = filter(cls.getFields(), cls);
+            }
             for (int i = 0;  i < fields.length;  i++) {
                 java.lang.reflect.Field fld = fields[i];
                 if (fld.isSynthetic())
