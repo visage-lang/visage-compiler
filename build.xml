@@ -171,7 +171,7 @@
                 <path refid="antlr.class.path" />
             </classpath>
             <arg value="-f" />
-            <arg value="${antlr.grammarv4.file}" />
+            <arg value="${antlr.grammarv4p.file}" />
             <arg value="-sd" />
             <arg value="png" />
             <arg value="-o" />
