@@ -20,16 +20,13 @@ done
 # detect Darwin and Cygwin environments
 darwin=false;
 cygwin=false;
-separator=":"
 case "`uname`" in
   Darwin*) darwin=true;
            if [ -z "$JAVA_HOME" ] ; then
               JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Home
            fi
            ;;
-  CYGWIN*) cygwin=true;
-           separator=";"
-           ;;
+  CYGWIN*) cygwin=true;;
 esac
 
 if [ -n "$JAVA_HOME"  ] ; then
@@ -61,8 +58,8 @@ parse_args() {
 while [ $# -gt 0 ] ; do
     case "$1" in
         -J*) jopt=`expr "X-$1" : 'X--J\(.*\)'`; jargs="$jargs \"$jopt\"";;
-        -cp | -classpath) shift; classpath="$classpath$separator$1";;
-    -profile) shift; profile="$1";;
+        -cp | -classpath) shift; classpath="$classpath:$1";;
+        -profile) shift; profile="$1";;
         *) args="$args \"$1\"";;
     esac
     shift
@@ -78,12 +75,14 @@ parse_args "$@" # process arguments on the command line
 javafx_home=`dirname "$PRG"`/..
 
 if [ -f "${javafx_home}/profiles/${profile}.properties" ]; then
-    eval `cat "${javafx_home}/profiles/${profile}.properties" | tr ";" "$separator" | grep -v "^#" | sed 's/^\(.*\)$/\1;/'`
+    eval `cat "${javafx_home}/profiles/${profile}.properties" | tr ";" ":" | grep -v "^#" | sed 's/^\(.*\)$/\1;/'`
 else
     echo "The profile '${profile}' is not supported. Use one of these:"
     ls ${javafx_home}/profiles | sed "s/\.properties//"
     exit 1
 fi
+
+classpath="$classpath:$compile_classpath"
 
 # Under Cygwin, convert certain environment variables back to Windows format
 if $cygwin ; then
@@ -116,7 +115,7 @@ if [ -n "${compile_nativelibpath}" ]; then
     fi
     jargs="$jargs \"-Djava.library.path=${compile_nativelibpath}\""
 fi
-jargs="$jargs com.sun.tools.javafx.Main -classpath '"$classpath:$compile_classpath"'"
+jargs="$jargs com.sun.tools.javafx.Main -classpath '"$classpath"'"
 if [ -n "$args" ]; then
     jargs="$jargs $args"
 fi
