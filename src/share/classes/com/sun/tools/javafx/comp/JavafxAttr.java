@@ -91,7 +91,7 @@ public class JavafxAttr implements JavafxVisitor {
     private final Target target;
     private final JavafxTypes types;
     private final Annotate annotate;
-
+    
     /*
      * other instance information
      */
@@ -727,6 +727,10 @@ public class JavafxAttr implements JavafxVisitor {
                 // preserve identifier names through errors
                 return new ErrorType(name, site.tsym).tsym;
             case INT:
+            case LONG:
+            case SHORT:
+            case FLOAT:
+            case BYTE:
             case DOUBLE:
             case BOOLEAN:
                 if (pt.tag == METHOD || pt.tag == FORALL) {
@@ -945,7 +949,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
 
         }
-        warnOnStaticUse(tree.pos(), tree.getModifiers(), sym);
+        warnOnStaticUse(tree.pos(), tree.getModifiers(), sym);        
         // type is the type of the variable unless the variable is bound
         result = tree.isBound()? syms.voidType : tree.type;
     }
@@ -2905,7 +2909,7 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
-
+        
         // Note that this method can be reached legitimately if visitErroneous is
         // called and the error nodes contain an objectLiteralPart. Hence this
         // just sets the result to errType.
@@ -3183,7 +3187,7 @@ public class JavafxAttr implements JavafxVisitor {
 
             checkEnumInitializer(tree, env, v);
         }
-
+        
         /**
          * Check for illegal references to static members of enum.  In
          * an enum type, constructors and initializers may not
