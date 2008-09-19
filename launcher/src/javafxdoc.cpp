@@ -43,10 +43,24 @@ int main(int argc, char** argv) {
         cmd += config.vmargs + " ";
     }
     if (! config.profile_nativelibpath.empty()) {
-        cmd += "-Djava.library.path=\"" + config.profile_nativelibpath + "\" ";
+        cmd += "-Djava.library.path=\"" + util.evaluatePath(config.javafxpath, config.profile_nativelibpath) + "\" ";
     }
-    cmd += "\"-Xbootclasspath/p:" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath_prepend) + "\" ";
-    if (! config.classpath.empty()) {
+    if (! config.profile_bootclasspath_prepend.empty()) {
+        cmd += "\"-Xbootclasspath/p:" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath_prepend) + "\" ";
+    }
+    if (! config.profile_bootclasspath_append.empty()) {
+        cmd += "\"-Xbootclasspath/a:" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath_append) + "\" ";
+    }
+    if (! config.profile_bootclasspath.empty()) {
+        cmd += "\"-Xbootclasspath:" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath) + "\" ";
+    }
+    if (! config.profile_classpath.empty()) {
+        cmd += "-classpath \"" + util.evaluatePath(config.javafxpath, config.profile_classpath);
+        if (! config.classpath.empty()) {
+            cmd += ";" + config.classpath;
+        }
+        cmd += "\" ";
+    } else if (! config.classpath.empty()) {
         cmd += "-classpath \"" + config.classpath + "\" ";
     }
     cmd += "com.sun.tools.javafxdoc.Main ";
