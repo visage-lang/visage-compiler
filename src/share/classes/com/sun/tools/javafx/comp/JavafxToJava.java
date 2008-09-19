@@ -858,7 +858,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         JFXExpression init = olpart.getExpression();
                         VarSymbol vsym = (VarSymbol) olpart.sym;
                         VarMorphInfo vmi = toJava.typeMorpher.varMorphInfo(vsym);
-                        assert toJava.shouldMorph(vmi);
+                        assert toJava.requiresLocation(vmi);
 
                         // Lift JFXObjectLiteralPart if needed
                         if (types.isSequence(olpart.type)) {
@@ -1004,7 +1004,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCExpression tinit = toBound.translate(init, vmi.getRealType());
             return List.of(tinit);
         } else if (bindStatus.isBidiBind()) {
-            assert (shouldMorph(vmi));
+            assert (requiresLocation(vmi));
             // Bi-directional bind translate so it stays in a Location
             return List.<JCExpression>of( translate(init, Wrapped.InLocation) );
         } else {
@@ -1027,7 +1027,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         List<JCExpression> args = translateDefinitionalAssignmentToArgs(diagPos, init, bindStatus, vmi);
         if (bindStatus.isUnidiBind()) {
             return args.head;
-        } else if (shouldMorph(vmi)) {
+        } else if (requiresLocation(vmi)) {
             Name makeName = defs.makeMethodName;
             if (bindStatus.isBidiBind()) {
                 makeName = defs.makeBijectiveMethodName;
@@ -1041,7 +1041,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     private JCStatement translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
             Name instanceName, int milieu) {
-        if (init == null && vsym.owner.kind == Kinds.TYP && shouldMorph(vsym)) {
+        if (init == null && vsym.owner.kind == Kinds.TYP && requiresLocation(vsym)) {
             // this is a class variable with no explicit initializer, 
             // use setDefault() so that it is flagged as a default
             assert !bindStatus.isBound() : "cannot be bound and have no init expression";
@@ -1064,7 +1064,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         if (vsym.owner.kind == Kinds.TYP) {
             // if it is a class var
-            if (shouldMorph(vmi)) {
+            if (requiresLocation(vmi)) {
                 varRef = makeAttributeAccess(diagPos, vsym, instanceName);
             } else {
                 varRef = make.at(diagPos).Ident(attributeFieldName(vsym));
@@ -1074,7 +1074,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             // if it is a local variable  
             varRef = make.at(diagPos).Ident(vsym);
 
-            if (!shouldMorph(vmi)) {
+            if (!requiresLocation(vmi)) {
                 return make.at(diagPos).Assign(varRef, args.head);
             }
         }
@@ -1099,7 +1099,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         JFXVar var = tree.getVar();
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         assert vsym.owner.kind == Kinds.TYP : "this should just be for script-level variables";
-        assert shouldMorph(vmi) : "when we optimize this, this will change, but so should the code";
+        assert requiresLocation(vmi) : "when we optimize this, this will change, but so should the code";
         assert (modFlags & Flags.STATIC) != 0;
         assert (modFlags & JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC) != 0;
         assert !attrEnv.toplevel.isLibrary;
@@ -1122,7 +1122,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             modFlags |= Flags.FINAL;
         }
 
-        if (shouldMorph(vmi)) {
+        if (requiresLocation(vmi)) {
             // convert the type to the Location type
             if ((vsym.flags() & Flags.PARAMETER) != 0) {
                 type = vmi.getLocationType();
@@ -1146,7 +1146,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             result = make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
         } else {
             // create a blank variable declaration and move the declaration to the beginning of the block
-            if (!shouldMorph(vmi)) {
+            if (!requiresLocation(vmi)) {
                 optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), false);
                 if ((modFlags & Flags.FINAL) != 0) {
                     init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
@@ -1448,7 +1448,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCFieldAccess select = make.Select(seq, defs.replaceSliceMethodName);
             List<JCExpression> args = List.of(firstIndex, lastIndex, rhs);
             result = make.at(diagPos).Apply(null, select, args);
-        } else if (shouldMorph(vsym)) {
+        } else if (requiresLocation(vsym)) {
             // we are setting a var Location, call the set method
             JCExpression rhs = translate(tree.rhs, tree.lhs.type);  //TODO: use  type converted translate?            
             JCExpression lhs = translate(tree.lhs, Wrapped.InLocation);
@@ -1510,7 +1510,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCFieldAccess select = make.Select(seq, defs.setMethodName);
             List<JCExpression> args = List.of(index, combined);
             result = make.at(diagPos).Apply(null, select, args);
-        } else if (shouldMorph(vsym)) {
+        } else if (requiresLocation(vsym)) {
             // we are setting a var Location, call the set method
             JCExpression targetLHS = translate(tree.lhs, Wrapped.InLocation);
             JCFieldAccess setSelect = make.Select(targetLHS, defs.locationSetMethodName[typeMorpher.typeMorphInfo(vsym.type).getTypeKind()]);
@@ -2394,7 +2394,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         assert tree.clause.getIndexUsed() : "assert that index used is set correctly";
         JCExpression transIndex = make.at(diagPos).Ident(indexVarName(tree.fname));
         VarSymbol vsym = (VarSymbol)tree.clause.getVar().sym;
-        if (shouldMorph(vsym)) {
+        if (requiresLocation(vsym)) {
             // from inside the bind, its a Location, convert to value
             result = getLocationValue(diagPos, transIndex, TYPE_KIND_INT);
         } else {
@@ -2829,7 +2829,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     JFXSequenceIndexed si = (JFXSequenceIndexed) expr;
                     JCExpression index = translate(si.getIndex());
                     ret = callSetMethod( si.getSequence(), List.of(index, combined) );
-                } else if (shouldMorph(vsym)) {
+                } else if (requiresLocation(vsym)) {
                     // we are setting a var Location, call the set method
                     ret = callSetMethod( expr, List.of(combined) );
                 } else {
@@ -2950,19 +2950,19 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         return "jfx$";
     }
 
-    boolean shouldMorph(VarSymbol vsym) {
-        if (vsym == null) {
+    boolean requiresLocation(Symbol sym) {
+        if (sym == null) {
             return false;
         }
-        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        return shouldMorph(vmi);
+        if (typeMorpher.requiresLocation(sym)) {
+            return true;
+        } else {
+            return locallyBound != null ? locallyBound.contains(sym) : false;
+        }
     }
 
-    boolean shouldMorph(VarMorphInfo vmi) {
-        if ( vmi.mustMorph() )
-            return true;
-        else
-            return locallyBound != null ? locallyBound.contains(vmi.getSymbol()) : false;
+    boolean requiresLocation(VarMorphInfo vmi) {
+        return requiresLocation(vmi.getSymbol());
     }
 
     JCBlock translatedOnReplaceBody(JFXOnReplace onr) {
@@ -2979,7 +2979,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         if (sym instanceof VarSymbol) {
              VarSymbol vsym = (VarSymbol) sym;
             VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-            if (shouldMorph(vmi)) {
+            if (requiresLocation(vmi)) {
                 if (sym.owner.kind == Kinds.TYP) {
                     // this is a reference to an class variable
                     assert varRef.getTag() == JCTree.SELECT : "attribute must be accessed through receiver";

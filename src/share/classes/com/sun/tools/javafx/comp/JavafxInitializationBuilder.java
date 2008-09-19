@@ -699,7 +699,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                 List<JCExpression> arg = List.<JCExpression>of(make.at(diagPos).Ident(names._this));
                 JCStatement applyDefaultsCall = callStatement(diagPos, null, methodName, arg);
-                if (ai.getVMI().mustMorph()) {
+                if (typeMorpher.requiresLocation(ai.getSymbol())) {
                     JCExpression needsDefaultCond = callExpression(diagPos,
                             make.at(diagPos).Ident(attributeFieldName(ai.getSymbol())),
                             defs.needDefaultsMethodName);
@@ -812,7 +812,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 Type varType;
                 JCExpression varInit;
                 VarMorphInfo vmi = ai.getVMI();
-                if (vmi.mustMorph()) {
+                if (typeMorpher.requiresLocation(ai.getSymbol())) {
                     varType = ai.getVariableType();
                     varInit = makeLocationAttributeVariable(vmi, diagPos);
                     optStat.recordClassVar(sym, true);

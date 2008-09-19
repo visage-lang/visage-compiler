@@ -648,7 +648,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
     @Override
     public void visitIdent(JFXIdent tree)   {  //TODO: don't use toJava
-       // assert (tree.sym.flags() & Flags.PARAMETER) != 0 || tree.name == names._this || tree.sym.isStatic() || toJava.shouldMorph(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
+       // assert (tree.sym.flags() & Flags.PARAMETER) != 0 || tree.name == names._this || tree.sym.isStatic() || toJava.requiresLocation(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
         JCExpression transId = toJava.translate(tree, Wrapped.InLocation);
         result = convert(tree.type, transId );
     }
@@ -908,7 +908,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         assert tree.clause.getIndexUsed() : "assert that index used is set correctly";
         JCExpression transIndex = make.at(tree.pos()).Ident(indexVarName(tree.fname));
         VarSymbol vsym = (VarSymbol)tree.clause.getVar().sym;
-        if (toJava.shouldMorph(vsym)) {
+        if (toJava.requiresLocation(vsym)) {
             // from inside the bind, already a Location
             result = convert(tree.type, transIndex);
         } else {

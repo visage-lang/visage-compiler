@@ -87,64 +87,11 @@ public class JavafxTypeMorpher {
 
     public class VarMorphInfo extends TypeMorphInfo {
         private final Symbol sym;
-        private final boolean isMethod;
 
         VarMorphInfo(Symbol sym) {
             super((sym.kind == Kinds.MTH)? ((MethodType)sym.type).getReturnType() : sym.type);
             this.sym = sym;
-            this.isMethod = (sym.kind == Kinds.MTH);
         }
-
-        private void determineMorphability() {
-            if (!isMethod) {
-                Symbol owner = getSymbol().owner;
-                long flags = getSymbol().flags();
-                boolean gottaMorph = (flags & (VARUSE_BOUND_INIT | VARUSE_HAS_ON_REPLACE | VARUSE_USED_IN_BIND | VARUSE_SELF_REFERENCE)) != 0;
-                if (owner.kind == Kinds.MTH) {
-                    // local var
-
-                    // Variables are morphed if they are accessed within an inner class and have been assigned to
-                    if ((flags & VARUSE_INNER_ACCESS) != 0) {
-                        if ((flags & (VARUSE_INIT_ASSIGNED_TO | VARUSE_ASSIGNED_TO)) != 0) {
-                            markMustMorph();
-                        }
-                    }
-                    // non-parameter local vars are morphed if they are bound to or sequencea
-                    // (bound functions and their parameters are handled elsewhere)
-                    if ((gottaMorph || isSequence()) && (flags & Flags.PARAMETER) == 0) {
-                        markMustMorph();
-                    }
-                } else if (owner.kind == Kinds.TYP) {
-                    // class or script var
-
-                    //boolean externallyVisible = (flags & SCRIPT_PRIVATE) == 0 || (flags & (PUBLIC_READ | PUBLIC_INIT)) != 0;
-                    boolean externallyVisible = true;
-                    if (getSymbol() instanceof JavafxVarSymbol) {
-                        if (externallyVisible) {
-                            markMustMorph(); // we made it, and it is externally visible, so assume it is from a JavaFX class
-                        }
-                    } else if (sym.flatName() != names._super && sym.flatName() != names._this) {
-                        if (types.isJFXClass(owner)) {
-                            // this is an attribute: it is owned by a JavaFX class and it isn't 'this' or 'super'
-                            if (externallyVisible) {
-                                markMustMorph();
-                            }
-                        }
-                    }
-                }
-            }
-            markDeterminedMorphability();
-        }
-
-       public boolean mustMorph() {
-           if ((getSymbol().flags_field & VARUSE_NEED_LOCATION_DETERMINED) == 0) {
-               determineMorphability();
-           }
-           return (getSymbol().flags_field & VARUSE_NEED_LOCATION) != 0;
-       }
-
-        private void markMustMorph() { getSymbol().flags_field |= VARUSE_NEED_LOCATION; }
-        private void markDeterminedMorphability() { getSymbol().flags_field |= VARUSE_NEED_LOCATION_DETERMINED; }
 
         public Symbol getSymbol() {
             return sym;
@@ -268,6 +215,57 @@ public class JavafxTypeMorpher {
         defaultValueByKind[TYPE_KIND_BOOLEAN] = 0;
         defaultValueByKind[TYPE_KIND_INT] = 0;
         defaultValueByKind[TYPE_KIND_SEQUENCE] = null; //TODO: empty sequence
+    }
+
+    private boolean computeRequiresLocation(Symbol sym) {
+        if (sym.kind == Kinds.VAR) {
+            Symbol owner = sym.owner;
+            long flags = sym.flags();
+            boolean gottaMorph = (flags & (VARUSE_BOUND_INIT | VARUSE_HAS_ON_REPLACE | VARUSE_USED_IN_BIND | VARUSE_SELF_REFERENCE)) != 0;
+            if (owner.kind == Kinds.MTH) {
+                // local var
+
+                // Variables are morphed if they are accessed within an inner class and have been assigned to
+                if ((flags & VARUSE_INNER_ACCESS) != 0) {
+                    if ((flags & (VARUSE_INIT_ASSIGNED_TO | VARUSE_ASSIGNED_TO)) != 0) {
+                        return true;
+                    }
+                }
+                // non-parameter local vars are morphed if they are bound to or sequencea
+                // (bound functions and their parameters are handled elsewhere)
+                if ((gottaMorph || types.isSequence(sym.type)) && (flags & Flags.PARAMETER) == 0) {
+                    return true;
+                }
+            } else if (owner.kind == Kinds.TYP) {
+                // class or script var
+
+                //boolean externallyVisible = (flags & SCRIPT_PRIVATE) == 0 || (flags & (PUBLIC_READ | PUBLIC_INIT)) != 0;
+                boolean externallyVisible = true;
+                if (sym instanceof JavafxVarSymbol) {
+                    if (externallyVisible) {
+                        return true; // we made it, and it is externally visible, so assume it is from a JavaFX class
+                    }
+                } else if (sym.flatName() != names._super && sym.flatName() != names._this) {
+                    if (types.isJFXClass(owner)) {
+                        // this is an attribute: it is owned by a JavaFX class and it isn't 'this' or 'super'
+                        if (externallyVisible) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean requiresLocation(Symbol sym) {
+        if ((sym.flags_field & VARUSE_NEED_LOCATION_DETERMINED) == 0) {
+            if (computeRequiresLocation(sym)) {
+                sym.flags_field |= VARUSE_NEED_LOCATION;
+            }
+            sym.flags_field |= VARUSE_NEED_LOCATION_DETERMINED;
+        }
+        return (sym.flags_field & VARUSE_NEED_LOCATION) != 0;
     }
 
     Type variableType(int typeKind) {
