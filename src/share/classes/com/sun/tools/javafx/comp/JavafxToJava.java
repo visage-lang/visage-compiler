@@ -1110,43 +1110,38 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitVar(JFXVar tree) {
         DiagnosticPosition diagPos = tree.pos();
-        Type type = tree.type;
         JFXModifiers mods = tree.getModifiers();
-        long modFlags = mods.flags & ~Flags.FINAL;
         final VarSymbol vsym = tree.getSymbol();
         final VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         assert vsym.owner.kind != Kinds.TYP : "attributes are processed in the class and should never come here";
-
-        // Variables accessed from an inner class must be FINAL
-        if ((vsym.flags_field & JavafxFlags.VARUSE_INNER_ACCESS) != 0) {
-            modFlags |= Flags.FINAL;
-        }
-
-        if (requiresLocation(vmi)) {
-            // convert the type to the Location type
-            if ((vsym.flags() & Flags.PARAMETER) != 0) {
-                type = vmi.getLocationType();
-            } else {
-                type = vmi.getVariableType();
-            }
-
-            // Locations are never overwritten
-            modFlags |= Flags.FINAL;
-        }
-
-        JCModifiers tmods = make.at(diagPos).Modifiers(modFlags);
-        JCExpression typeExpression = makeTypeTree(diagPos, type, true);
+        final long flags = vsym.flags();
+        final boolean requiresLocation = requiresLocation(vsym);
+        final boolean isParameter = (flags & Flags.PARAMETER) != 0;
+        final boolean hasInnerAccess = (flags & JavafxFlags.VARUSE_INNER_ACCESS) != 0;
+        final long modFlags = (mods.flags & ~Flags.FINAL) | ((hasInnerAccess | requiresLocation)? Flags.FINAL : 0L);
+        final JCModifiers tmods = make.at(diagPos).Modifiers(modFlags);
+        final Type type =
+                requiresLocation?
+                    (isParameter?
+                        vmi.getLocationType() :
+                        vmi.getVariableType()) :
+                    tree.type;
+        final JCExpression typeExpression = makeTypeTree(diagPos, type, true);
 
         // for class vars, initialization happens during class init, so set to
         // default Location.  For local vars translate as definitional
         JCExpression init;
-        if ((vsym.flags() & Flags.PARAMETER) != 0) {
+        if (isParameter) {
             // parameters aren't initialized
             init = null;
             result = make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
         } else {
             // create a blank variable declaration and move the declaration to the beginning of the block
-            if (!requiresLocation(vmi)) {
+            if (requiresLocation) {
+                // location types: XXXVariable.make()
+                optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), true);
+                init = makeLocationAttributeVariable(vmi, diagPos);
+            } else {
                 optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), false);
                 if ((modFlags & Flags.FINAL) != 0) {
                     init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
@@ -1156,11 +1151,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 }
                 // non location types:
                 init = makeDefaultValue(diagPos, vmi);
-            } else {
-                // location types: XXXVariable.make()
-                optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), true);
-                init = makeLocationAttributeVariable(vmi, diagPos);
-            }
+            } 
             prependToStatements.append(make.at(Position.NOPOS).VarDef(tmods, tree.name, typeExpression, init));
 
             // create change Listener and append it to the beginning of the block after the blank variable declaration
