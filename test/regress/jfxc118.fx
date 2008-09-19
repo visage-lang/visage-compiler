@@ -17,9 +17,9 @@ abstract class X {
 
 var x = X {
     var q = 100;
-    public function givemec() : Integer { q * q }
-    public function f(x : Number) { x * q }
-    public function increment() : Void { ++q }
+    override function givemec() : Integer { q * q }
+    override function f(x : Number) { x * q }
+    override function increment() : Void { ++q }
     a: q
     b: q + 10
 }
