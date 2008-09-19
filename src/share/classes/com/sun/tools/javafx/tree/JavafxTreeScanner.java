@@ -174,9 +174,9 @@ public class JavafxTreeScanner implements JavafxVisitor {
     // Begin JavaFX trees
     
     @Override
-    public void visitClassDeclaration(JFXClassDeclaration that) {
-        scan(that.mods);
-        for (Tree member : that.getMembers()) {
+    public void visitClassDeclaration(JFXClassDeclaration tree) {
+        scan(tree.mods);
+        for (Tree member : tree.getMembers()) {
             scan((JFXTree)member);
         }
     }
@@ -298,22 +298,22 @@ public class JavafxTreeScanner implements JavafxVisitor {
     @Override
     public void visitVar(JFXVar tree) {
         scan(tree.getJFXType());
-	scan(tree.mods);
-	scan(tree.init);
+        scan(tree.mods);
+        scan(tree.init);
         scan(tree.getOnReplace());
     }
-    
+
     @Override
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         scan(tree.getId());
-	scan(tree.getInitializer());
+        scan(tree.getInitializer());
         scan(tree.getOnReplace());
     }
 
     @Override
     public void visitOnReplace(JFXOnReplace tree) {
         scan(tree.getFirstIndex());
-	scan(tree.getOldValue());  
+        scan(tree.getOldValue());
         scan(tree.getBody());
         scan(tree.getLastIndex());
         scan(tree.getNewElements());
