@@ -267,8 +267,8 @@ public class JavafxTreeScanner implements JavafxVisitor {
     }
     
     @Override
-    public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
-        scan(that.getExpression());
+    public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
+        scan(tree.getExpression());
     }  
     
     @Override
