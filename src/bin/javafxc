@@ -47,6 +47,9 @@ if [ -z "$CLASSPATH" ] ; then
   USER_CP="."
 else
   USER_CP="$CLASSPATH"
+  if $cygwin ; then
+    USER_CP=`cygpath --path --unix "$USER_CP"`
+  fi
 fi 
 
 classpath="$USER_CP"
