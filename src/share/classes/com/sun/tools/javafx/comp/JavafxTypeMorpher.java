@@ -40,6 +40,7 @@ import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.locationPackageNameString;
 import static com.sun.tools.javafx.comp.JavafxDefs.sequencePackageNameString;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
+import static com.sun.tools.javac.code.Flags.*;
 
 
 /**
@@ -253,6 +254,29 @@ public class JavafxTypeMorpher {
                 return true;
             }
             if (isClassVar) {  // class or script var
+                /*
+                To be able to elide member vars we need to know that
+                (1) the var will not be defined by a bound expression
+                (2) it will not have an 'on replace' on its definition/override
+                (3a) it will either never be used in a bind or
+                (3b) its value will not change after initialization.
+
+                For (1) and (2) the var must not, within the script, be defined by a bound expression or have an 'on replace'
+                and, so that these cannot occur outside the script, its base access must be script-private (it can be
+                public-read or public-init) or it must be a 'def'
+
+                Additionally, for (3), either (3a) must hold by virtue of it not being used in a bind within the script and
+                its access is script-private (no public-* either)
+                or, (3b) holds, the value isn't assigned by the script after initialization and the access prevents this
+                from occurring externally ('def' or script-private with optional public-read or public-init).
+
+                The first part of the (1) and (2) checks are handled by general checks (above).
+                 */
+                // (3a) check.  Not used in bind has already been checked (above).
+                // Check that it is not accessible outside the script
+                if ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS | PUBLIC_READ | PUBLIC_INIT)) == 0L) {
+////                    return false;
+                }
                 return true;  //TODO: conditionally elide
             }
         }

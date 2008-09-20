@@ -483,19 +483,26 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return members.toList();
     }
 
+    private JCMethodDecl makeGetterMethod(DiagnosticPosition diagPos, VarInfo ai, JCModifiers mods, JCBlock statBlock) {
+        final VarSymbol vsym = ai.getSymbol();
+        final Type returnType = typeMorpher.requiresLocation(vsym) ? ai.getVariableType() : ai.getRealType();
+        return make.at(diagPos).MethodDef(
+                        mods,
+                        attributeGetterName(vsym),
+                        makeTypeTree(diagPos, returnType),
+                        List.<JCTypeParameter>nil(),
+                        List.<JCVariableDecl>nil(),
+                        List.<JCExpression>nil(),
+                        statBlock,
+                        null);
+    }
+
     private List<JCTree> makeInterfaceAttributeGetterMethods(DiagnosticPosition diagPos, List<? extends VarInfo> attrInfos) {
         ListBuffer<JCTree> getters = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
             if (!ai.isStatic()) {
                 JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT);
-                getters.append(make.MethodDef(
-                        mods,
-                        attributeGetterName(ai.getSymbol()),
-                        makeTypeTree( null,ai.getVariableType()),
-                        List.<JCTypeParameter>nil(),
-                        List.<JCVariableDecl>nil(),
-                        List.<JCExpression>nil(),
-                        null, null));
+                getters.append(makeGetterMethod(diagPos, ai, mods, null));
             }
         }
         return getters.toList();
@@ -506,12 +513,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         for (VarInfo ai : attrInfos) {
             if (ai.needsCloning()) {
                 long flags = ai.getFlags();
-                DiagnosticPosition diagPos = ai.pos();
-                Name attribName = attributeFieldName(ai.getSymbol());
-                Name methodName = attributeGetterName(ai.getSymbol());
+                final DiagnosticPosition diagPos = ai.pos();
+                final VarSymbol vsym = ai.getSymbol();
 
                 // Add the return statement for the attribute
-                JCExpression value = make.Ident(attribName);
+                JCExpression value = make.Ident(attributeFieldName(vsym));
                 JCStatement returnStat = make.at(diagPos).Return(value);
                 JCBlock statBlock = make.at(diagPos).Block(0L, List.of(returnStat));
 
@@ -521,15 +527,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     mods = addAccessAnnotationModifiers(diagPos, flags, mods);
                 else
                     mods = addInheritedAnnotationModifiers(diagPos, flags, mods);
-                getters.append(make.at(diagPos).MethodDef(
-                        mods,
-                        methodName,
-                        makeTypeTree( null,ai.getVariableType()),
-                        List.<JCTypeParameter>nil(),
-                        List.<JCVariableDecl>nil(),
-                        List.<JCExpression>nil(),
-                        statBlock,
-                        null));
+
+                getters.append(makeGetterMethod(diagPos, ai, mods, statBlock));
+
                 optStat.recordProxyMethod();
             }
         }
@@ -664,10 +664,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
 
         // "InitHelper.finish(new[] { attribute, ... });
-        ListBuffer<JCExpression> attrs = ListBuffer.lb();
+        ListBuffer<JCExpression> finishAttrs = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
-            if (ai.needsCloning()) {
-                attrs.append(make.at(diagPos).Ident(attributeFieldName(ai.getSymbol())));
+            final VarSymbol vsym = ai.getSymbol();
+            if (ai.needsCloning() && typeMorpher.requiresLocation(vsym)) {
+                finishAttrs.append(make.at(diagPos).Ident(attributeFieldName(vsym)));
             }
         }                
 
@@ -675,7 +676,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 makeTypeTree(diagPos, initHelperType), 
                 "finish",
                 make.NewArray(makeTypeTree(diagPos, abstractVariableType), 
-                                List.<JCExpression>nil(), attrs.toList())));
+                                List.<JCExpression>nil(), finishAttrs.toList())));
 
         JCBlock initializeBlock = make.Block(0L, stmts.toList());
         return make.MethodDef(
@@ -794,36 +795,33 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCTree> fields = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
             if (ai.needsCloning()) {
-                DiagnosticPosition diagPos = ai.pos();
-                JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.FINAL | (ai.getFlags() & Flags.STATIC));
-                VarSymbol sym = ai.getSymbol();
-                Name fieldName = attributeFieldName(ai.getSymbol());
+                final DiagnosticPosition diagPos = ai.pos();
+                final VarSymbol sym = ai.getSymbol();
+                final boolean requiresLocation = typeMorpher.requiresLocation(sym);
+                final long modFlags = Flags.PUBLIC | (requiresLocation? Flags.FINAL : 0L) | (ai.getFlags() & Flags.STATIC);
+
+                JCModifiers mods = make.Modifiers(modFlags);
                 if (sym.owner == csym) {
-                    List<JCAnnotation> annotations;
-                    if (fieldName != sym.name) {
-                        annotations = List.<JCAnnotation>of(make.Annotation(makeIdentifier(diagPos, syms.sourceNameAnnotationClassNameString), List.<JCExpression>of(make.Literal(sym.name.toString()))));
-                    } else {
-                        annotations = List.<JCAnnotation>nil();
-                    }
+                    List<JCAnnotation> annotations = List.<JCAnnotation>of(make.Annotation(makeIdentifier(diagPos, syms.sourceNameAnnotationClassNameString), List.<JCExpression>of(make.Literal(sym.name.toString()))));
                     mods = addAccessAnnotationModifiers(diagPos, sym.flags(), mods, annotations);
                 } else {
                     mods = addInheritedAnnotationModifiers(diagPos, sym.flags(), mods);
                 }
+
                 Type varType;
                 JCExpression varInit;
                 VarMorphInfo vmi = ai.getVMI();
-                if (typeMorpher.requiresLocation(ai.getSymbol())) {
+                if (requiresLocation) {
                     varType = ai.getVariableType();
                     varInit = makeLocationAttributeVariable(vmi, diagPos);
-                    optStat.recordClassVar(sym, true);
                 } else {
                     varType = ai.getRealType();
                     varInit = makeDefaultValue(diagPos, vmi);
-                    optStat.recordClassVar(sym, false);
                 }
+                optStat.recordClassVar(sym, requiresLocation);
                 JCVariableDecl var = make.at(diagPos).VarDef(
                         mods,
-                        fieldName,
+                        attributeFieldName(sym),
                         makeTypeTree(diagPos, varType),
                         varInit);
                 fields.append(var);

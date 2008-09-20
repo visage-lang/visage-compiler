@@ -1062,21 +1062,30 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         List<JCExpression> args = translateDefinitionalAssignmentToArgs(diagPos, init, bindStatus, vmi);
         JCExpression varRef;
 
-        if (vsym.owner.kind == Kinds.TYP) {
-            // if it is a class var
-            if (requiresLocation(vmi)) {
-                varRef = makeAttributeAccess(diagPos, vsym, instanceName);
+        if (!requiresLocation(vsym)) {
+            if (vsym.owner.kind == Kinds.TYP) {
+                // It is a member variable
+                if (instanceName == null) {
+                    varRef = make.at(diagPos).Ident(attributeFieldName(vsym));
+                } else {
+                    assert false: "this is not implemented, we need setters";
+                    JCExpression classType = makeTypeTree(diagPos, vsym.owner.type, false);
+                    JCExpression casted = make.at(diagPos).TypeCast(classType, make.at(diagPos).Ident(instanceName));
+                    varRef = make.at(diagPos).Select(casted, attributeFieldName(vsym));
+                }
             } else {
-                varRef = make.at(diagPos).Ident(attributeFieldName(vsym));
-                return make.at(diagPos).Assign(varRef, args.head);
+                // It is a local variable
+                varRef = make.at(diagPos).Ident(vsym);
             }
-        } else {
-            // if it is a local variable  
-            varRef = make.at(diagPos).Ident(vsym);
+            return make.at(diagPos).Assign(varRef, args.head);
+        }
 
-            if (!requiresLocation(vmi)) {
-                return make.at(diagPos).Assign(varRef, args.head);
-            }
+        if (vsym.owner.kind == Kinds.TYP) {
+            // It is a member variable
+            varRef = makeAttributeAccess(diagPos, vsym, instanceName);
+        } else {
+            // It is a local variable
+            varRef = make.at(diagPos).Ident(vsym);
         }
 
         Name methName;
@@ -1097,9 +1106,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         long modFlags = mods.flags | Flags.FINAL;
         VarSymbol vsym = tree.getSymbol();
         JFXVar var = tree.getVar();
-        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         assert vsym.owner.kind == Kinds.TYP : "this should just be for script-level variables";
-        assert requiresLocation(vmi) : "when we optimize this, this will change, but so should the code";
         assert (modFlags & Flags.STATIC) != 0;
         assert (modFlags & JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC) != 0;
         assert !attrEnv.toplevel.isLibrary;
@@ -2968,26 +2975,26 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         boolean staticReference = sym.isStatic();
         if (sym instanceof VarSymbol) {
-            VarSymbol vsym = (VarSymbol) sym;
+            final VarSymbol vsym = (VarSymbol) sym;
+ 
+            if (sym.owner.kind == Kinds.TYP && types.isJFXClass(sym.owner)) {
+                // this is a reference to a JavaFX class variable
+                assert varRef.getTag() == JCTree.SELECT : "attribute must be accessed through receiver";
+                JCFieldAccess select = (JCFieldAccess) varRef;
+                if (staticReference) {
+                    // a script-level (static) variable, direct access with prefix
+                    Name attrAccessName = attributeFieldName(vsym);
+                    expr = make.at(diagPos).Select(select.getExpression(), attrAccessName);
+                } else {
+                    // an instance variable, use get$
+                    Name attrAccessName = attributeGetterName(vsym);
+                    select = make.at(diagPos).Select(select.getExpression(), attrAccessName);
+                    List<JCExpression> emptyArgs = List.nil();
+                    expr = make.at(diagPos).Apply(null, select, emptyArgs);
+                }
+            }
             VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
             if (requiresLocation(vsym)) {
-                if (sym.owner.kind == Kinds.TYP) {
-                    // this is a reference to an class variable
-                    assert varRef.getTag() == JCTree.SELECT : "attribute must be accessed through receiver";
-                    JCFieldAccess select = (JCFieldAccess) varRef;
-                    if (staticReference) {
-                        // a script-level (static) variable, direct access with prefix
-                        Name attrAccessName = attributeFieldName(vsym);
-                        expr = make.at(diagPos).Select(select.getExpression(), attrAccessName);
-                    } else {
-                        // an instance variable, use get$
-                        Name attrAccessName = attributeGetterName(vsym);
-                        select = make.at(diagPos).Select(select.getExpression(), attrAccessName);
-                        List<JCExpression> emptyArgs = List.nil();
-                        expr = make.at(diagPos).Apply(null, select, emptyArgs);
-                    }
-                }
-
                 if (wantLocation) {
                     // already in correct form-- leave it
                 } else {
@@ -3002,7 +3009,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
         } else if (sym instanceof MethodSymbol) {
             if (staticReference) {
-                Name name = functionName((MethodSymbol)sym);
+                Name name = functionName((MethodSymbol) sym);
                 if (expr.getTag() == JCTree.SELECT) {
                     JCFieldAccess select = (JCFieldAccess) expr;
                     expr = make.at(diagPos).Select(select.getExpression(), name);
