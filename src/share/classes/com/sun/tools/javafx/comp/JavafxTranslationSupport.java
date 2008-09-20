@@ -489,8 +489,11 @@ public abstract class JavafxTranslationSupport {
     }
 
     private Name prefixedAttributeName(Symbol sym, String prefix) {
-        String sname = sym.name.toString();
         Symbol owner = sym.owner;
+        if (!types.isJFXClass(owner)) {
+            return sym.name;
+        }
+        String sname = sym.name.toString();
         long privateAccess = sym.flags() & (Flags.PRIVATE | JavafxFlags.SCRIPT_PRIVATE);
         if ((sym.flags() & STATIC) == 0L
                 && privateAccess != 0L // private or script-private

@@ -2968,9 +2968,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         boolean staticReference = sym.isStatic();
         if (sym instanceof VarSymbol) {
-             VarSymbol vsym = (VarSymbol) sym;
+            VarSymbol vsym = (VarSymbol) sym;
             VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-            if (requiresLocation(vmi)) {
+            if (requiresLocation(vsym)) {
                 if (sym.owner.kind == Kinds.TYP) {
                     // this is a reference to an class variable
                     assert varRef.getTag() == JCTree.SELECT : "attribute must be accessed through receiver";

@@ -219,40 +219,40 @@ public class JavafxTypeMorpher {
 
     private boolean computeRequiresLocation(Symbol sym) {
         if (sym.kind == Kinds.VAR) {
-            Symbol owner = sym.owner;
-            long flags = sym.flags();
-            boolean gottaMorph = (flags & (VARUSE_BOUND_INIT | VARUSE_HAS_ON_REPLACE | VARUSE_USED_IN_BIND | VARUSE_SELF_REFERENCE)) != 0;
-            if (owner.kind == Kinds.MTH) {
-                // local var
+            final Symbol owner = sym.owner;
+            final long flags = sym.flags();
+            final boolean isClassVar = owner.kind == Kinds.TYP;
+            final boolean isAssignedTo = (flags & (VARUSE_INIT_ASSIGNED_TO | VARUSE_ASSIGNED_TO)) != 0;
 
-                // Variables are morphed if they are accessed within an inner class and have been assigned to
-                if ((flags & VARUSE_INNER_ACCESS) != 0) {
-                    if ((flags & (VARUSE_INIT_ASSIGNED_TO | VARUSE_ASSIGNED_TO)) != 0) {
-                        return true;
-                    }
-                }
-                // non-parameter local vars are morphed if they are bound to or sequencea
-                // (bound functions and their parameters are handled elsewhere)
-                if ((gottaMorph || types.isSequence(sym.type)) && (flags & Flags.PARAMETER) == 0) {
-                    return true;
-                }
-            } else if (owner.kind == Kinds.TYP) {
-                // class or script var
-
-                //boolean externallyVisible = (flags & SCRIPT_PRIVATE) == 0 || (flags & (PUBLIC_READ | PUBLIC_INIT)) != 0;
-                boolean externallyVisible = true;
-                if (sym instanceof JavafxVarSymbol) {
-                    if (externallyVisible) {
-                        return true; // we made it, and it is externally visible, so assume it is from a JavaFX class
-                    }
-                } else if (sym.flatName() != names._super && sym.flatName() != names._this) {
-                    if (types.isJFXClass(owner)) {
-                        // this is an attribute: it is owned by a JavaFX class and it isn't 'this' or 'super'
-                        if (externallyVisible) {
-                            return true;
-                        }
-                    }
-                }
+            if (sym.flatName() == names._super || sym.flatName() == names._this) {
+                // 'this' and 'super' can't be made into Locations
+                return false;
+            }
+            if (isClassVar && !types.isJFXClass(owner)) {
+                //TODO: should be handled by ClassReader setting *NEED_LOCATION* bits
+                return false;
+            }
+            if (isAssignedTo && !isClassVar && (flags & VARUSE_INNER_ACCESS) != 0) {
+                // Local variables must be Locations if they are accessed within an inner class and have been assigned to
+                return true;
+            }
+            if ((flags & Flags.PARAMETER) != 0) {
+                // Otherwise parameters are never Locations
+                return false;
+            }
+            if( (flags & (VARUSE_BOUND_INIT | VARUSE_HAS_ON_REPLACE | VARUSE_USED_IN_BIND | VARUSE_SELF_REFERENCE)) != 0 ) {
+                // vars which are defined by a bind or have an 'on replace' must be Locations
+                // vars which reference themselves in their init expression must be Locactions // TODO: maybe not needed for class vars
+                // vars which are used in a bind should be Locations (even if never changed) since otherwise they will dynamically be turned to Locations
+                return true;
+            }
+            if (types.isSequence(sym.type)) {
+                // for a sequence to be modified it must be a Location
+                //TODO: check for sequence variables which are never modifier (no insert, delete, assignment, etc)
+                return true;
+            }
+            if (isClassVar) {  // class or script var
+                return true;  //TODO: conditionally elide
             }
         }
         return false;
