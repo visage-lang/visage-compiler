@@ -483,7 +483,11 @@ public abstract class JavafxTranslationSupport {
     Name attributeGetterName(Symbol sym) {
         return prefixedAttributeName(sym, attributeGetMethodNamePrefix);
     }
-    
+
+    Name attributeSetterName(Symbol sym) {
+        return prefixedAttributeName(sym, attributeSetMethodNamePrefix);
+    }
+
     Name attributeApplyDefaultsName(Symbol sym) {
         return prefixedAttributeName(sym, attributeApplyDefaultsMethodNamePrefix);
     }

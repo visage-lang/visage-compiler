@@ -168,16 +168,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
         cDefinitions.appendList(makeAttributeFields(cDecl.sym, instanceAttributeInfos));
         cDefinitions.appendList(makeAttributeFields(cDecl.sym, analysis.staticAttributeInfos()));
-        cDefinitions.appendList(makeClassAttributeGetterMethods(cDecl, instanceAttributeInfos));
+        cDefinitions.appendList(makeMemberVariableAccessorMethods(cDecl, instanceAttributeInfos));
         cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
         cDefinitions.append(makeInitStaticAttributesBlock(cDecl, translatedAttrInfo));
         cDefinitions.append(makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
         if (outerTypeSym != null) {
-            cDefinitions.append(makeClassOuterAccessorField(diagPos, cDecl, outerTypeSym));
-            cDefinitions.append(makeClassOuterAccessorMethod(diagPos, cDecl, outerTypeSym));
+            cDefinitions.append(makeOuterAccessorField(diagPos, cDecl, outerTypeSym));
+            cDefinitions.append(makeOuterAccessorMethod(diagPos, cDecl, outerTypeSym));
         }
         cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, immediateFxSupertypeNames, translatedAttrInfo, translatedOverrideAttrInfo));
-        cDefinitions.appendList(makeClassFunctionProxyMethods(cDecl, analysis.needDispatch()));
+        cDefinitions.appendList(makeFunctionProxyMethods(cDecl, analysis.needDispatch()));
         if (outerTypeSym == null) {
             cDefinitions.append(makeJavaEntryConstructor(diagPos));
         }
@@ -185,9 +185,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         ListBuffer<JCTree> iDefinitions = ListBuffer.lb();
         if (!classOnly) {
-            iDefinitions.appendList(makeInterfaceAttributeGetterMethods(diagPos, translatedAttrInfo));
-            iDefinitions.appendList(makeInterfaceFunctionMethods(cDecl));
-            iDefinitions.appendList(makeInterfaceOuterAccessorMembers(cDecl));
+            iDefinitions.appendList(makeMemberVariableAccessorInterfaceMethods(diagPos, translatedAttrInfo));
+            iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
+            iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
         }
 
         Name interfaceName = classOnly ? null : interfaceName(cDecl);
@@ -250,7 +250,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return javaInterfacesBuff.toList();
     }
 
-    private List<JCTree> makeInterfaceFunctionMethods(JFXClassDeclaration cDecl) {
+    private List<JCTree> makeFunctionInterfaceMethods(JFXClassDeclaration cDecl) {
         ListBuffer<JCTree> methods = ListBuffer.lb();
         for (JFXTree def : cDecl.getMembers()) {
             if (def.getFXTag() == JavafxTag.FUNCTION_DEF) {
@@ -270,7 +270,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
      * @param needDispatch
      * @return
      */
-    private List<JCTree> makeClassFunctionProxyMethods(JFXClassDeclaration cDecl, List<MethodSymbol> needDispatch) {
+    private List<JCTree> makeFunctionProxyMethods(JFXClassDeclaration cDecl, List<MethodSymbol> needDispatch) {
         ListBuffer<JCTree> methods = ListBuffer.lb();
         for (MethodSymbol sym : needDispatch) {
             if ((sym.flags() & Flags.PRIVATE) == 0) {
@@ -442,13 +442,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
    }
     
     // Make the field for accessing the outer members
-    private JCTree makeClassOuterAccessorField(DiagnosticPosition diagPos, JFXClassDeclaration cdecl, ClassSymbol outerTypeSym) {
+    private JCTree makeOuterAccessorField(DiagnosticPosition diagPos, JFXClassDeclaration cdecl, ClassSymbol outerTypeSym) {
         // Create the field to store the outer instance reference
         return make.at(diagPos).VarDef(make.at(diagPos).Modifiers(Flags.PUBLIC), outerAccessorFieldName, make.Ident(outerTypeSym), null);
     }
 
     // Make the method for accessing the outer members
-    private JCTree makeClassOuterAccessorMethod(DiagnosticPosition diagPos, JFXClassDeclaration cdecl, ClassSymbol outerTypeSym) {
+    private JCTree makeOuterAccessorMethod(DiagnosticPosition diagPos, JFXClassDeclaration cdecl, ClassSymbol outerTypeSym) {
         make.at(diagPos);
         VarSymbol vs = new VarSymbol(Flags.PUBLIC, outerAccessorFieldName, outerTypeSym.type, cdecl.sym);
         JCIdent retIdent = make.Ident(vs);
@@ -459,7 +459,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     }
 
     // methods for accessing the outer members.
-    private List<JCTree> makeInterfaceOuterAccessorMembers(JFXClassDeclaration cdecl) {
+    private List<JCTree> makeOuterAccessorInterfaceMembers(JFXClassDeclaration cdecl) {
         ListBuffer<JCTree> members = ListBuffer.lb();
         if (cdecl.sym != null && toJava.hasOuters.contains(cdecl.sym)) {
             Symbol typeOwner = cdecl.sym.owner;
@@ -483,57 +483,86 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return members.toList();
     }
 
+    private Type morphedType(VarInfo ai) {
+        return typeMorpher.requiresLocation(ai.getSymbol()) ? ai.getVariableType() : ai.getRealType();
+    }
+
     private JCMethodDecl makeGetterMethod(DiagnosticPosition diagPos, VarInfo ai, JCModifiers mods, JCBlock statBlock) {
         final VarSymbol vsym = ai.getSymbol();
-        final Type returnType = typeMorpher.requiresLocation(vsym) ? ai.getVariableType() : ai.getRealType();
         return make.at(diagPos).MethodDef(
-                        mods,
-                        attributeGetterName(vsym),
-                        makeTypeTree(diagPos, returnType),
-                        List.<JCTypeParameter>nil(),
-                        List.<JCVariableDecl>nil(),
-                        List.<JCExpression>nil(),
-                        statBlock,
-                        null);
+                mods,
+                attributeGetterName(vsym),
+                makeTypeTree(diagPos, morphedType(ai)),
+                List.<JCTypeParameter>nil(),
+                List.<JCVariableDecl>nil(),
+                List.<JCExpression>nil(),
+                statBlock,
+                null);
     }
 
-    private List<JCTree> makeInterfaceAttributeGetterMethods(DiagnosticPosition diagPos, List<? extends VarInfo> attrInfos) {
-        ListBuffer<JCTree> getters = ListBuffer.lb();
+    private JCMethodDecl makeSetterMethod(DiagnosticPosition diagPos, VarInfo ai, JCModifiers mods, JCBlock block) {
+        final VarSymbol vsym = ai.getSymbol();
+        return make.at(diagPos).MethodDef(
+                mods,
+                attributeSetterName(vsym),
+                makeTypeTree(diagPos, ai.getRealType()),
+                List.<JCTypeParameter>nil(),
+                List.of(makeParam(diagPos, ai.getRealType(), null, defs.attributeSetMethodParamNameString)),
+                List.<JCExpression>nil(),
+                block,
+                null);
+    }
+
+    private List<JCTree> makeMemberVariableAccessorInterfaceMethods(DiagnosticPosition diagPos, List<? extends VarInfo> attrInfos) {
+        ListBuffer<JCTree> accessors = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
             if (!ai.isStatic()) {
-                JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT);
-                getters.append(makeGetterMethod(diagPos, ai, mods, null));
+                final VarSymbol vsym = ai.getSymbol();
+                accessors.append(makeGetterMethod(diagPos, ai, make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT), null));
+                if (!typeMorpher.requiresLocation(vsym)) {
+                    accessors.append(makeSetterMethod(diagPos, ai, make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT), null));
+                }
             }
         }
-        return getters.toList();
+        return accessors.toList();
     }
 
-    private List<JCTree> makeClassAttributeGetterMethods(JFXClassDeclaration cDecl, List<? extends VarInfo> attrInfos) {
-        ListBuffer<JCTree> getters = ListBuffer.lb();
+    private List<JCTree> makeMemberVariableAccessorMethods(JFXClassDeclaration cDecl, List<? extends VarInfo> attrInfos) {
+        ListBuffer<JCTree> accessors = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
             if (ai.needsCloning()) {
                 long flags = ai.getFlags();
                 final DiagnosticPosition diagPos = ai.pos();
                 final VarSymbol vsym = ai.getSymbol();
 
-                // Add the return statement for the attribute
-                JCExpression value = make.Ident(attributeFieldName(vsym));
-                JCStatement returnStat = make.at(diagPos).Return(value);
-                JCBlock statBlock = make.at(diagPos).Block(0L, List.of(returnStat));
+                {
+                    // Add the return statement for the attribute
+                    JCExpression value = make.Ident(attributeFieldName(vsym));
+                    JCStatement returnStat = make.at(diagPos).Return(value);
+                    JCBlock block = make.at(diagPos).Block(0L, List.of(returnStat));
 
-                // Add the method for this class' attributes
-                JCModifiers mods = make.Modifiers(Flags.PUBLIC);
-                if (ai.getSymbol().owner == cDecl.sym)
-                    mods = addAccessAnnotationModifiers(diagPos, flags, mods);
-                else
-                    mods = addInheritedAnnotationModifiers(diagPos, flags, mods);
-
-                getters.append(makeGetterMethod(diagPos, ai, mods, statBlock));
+                    // Add the method for this class' attributes
+                    JCModifiers mods = make.Modifiers(Flags.PUBLIC);
+                    if (ai.getSymbol().owner == cDecl.sym) {
+                        mods = addAccessAnnotationModifiers(diagPos, flags, mods);
+                    } else {
+                        mods = addInheritedAnnotationModifiers(diagPos, flags, mods);
+                    }
+                    accessors.append(makeGetterMethod(diagPos, ai, mods, block));
+                }
+                if (!typeMorpher.requiresLocation(vsym)) {
+                    JCExpression attr = make.Ident(attributeFieldName(vsym));
+                    JCExpression value = make.Ident(defs.attributeSetMethodParamName);
+                    JCExpression assign = make.at(diagPos).Assign(attr, value);
+                    JCStatement returnStat = make.at(diagPos).Return(assign);
+                    JCBlock block = make.at(diagPos).Block(0L, List.of(returnStat));
+                    accessors.append(makeSetterMethod(diagPos, ai, make.Modifiers(Flags.PUBLIC), block));
+                }
 
                 optStat.recordProxyMethod();
             }
         }
-        return getters.toList();
+        return accessors.toList();
     }
         
     private boolean isAttributeOriginClass(Symbol csym, Symbol attr) {

@@ -44,7 +44,9 @@ public class JavafxDefs {
     public static final String boundFunctionDollarSuffix = "$$bound$";
     public static final String implFunctionSuffix = "$impl";
     public static final String attributeGetMethodNamePrefix = "get$";
+    public static final String attributeSetMethodNamePrefix = "set$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
+    public static final String attributeSetMethodParamNameString = "value";
     public static final String interfaceSuffix = "$Intf";
     public static final String equalsMethodString = "com.sun.javafx.runtime.Checks.equals";
     public static final String isNullMethodString = "com.sun.javafx.runtime.Checks.isNull";
@@ -99,6 +101,7 @@ public class JavafxDefs {
     final Name receiverName;
     final Name initializeName;
     final Name getMethodName;
+    final Name attributeSetMethodParamName;
     final Name getSliceMethodName;
     final Name replaceSliceMethodName;
     final Name setMethodName;
@@ -182,6 +185,7 @@ public class JavafxDefs {
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);
         getMethodName = Name.fromString(names, getMethodNameString);
+        attributeSetMethodParamName = Name.fromString(names, attributeSetMethodParamNameString);
         getSliceMethodName = names.fromString("getSlice");
         replaceSliceMethodName = names.fromString("replaceSlice");
         setMethodName = Name.fromString(names, setMethodNameString);
