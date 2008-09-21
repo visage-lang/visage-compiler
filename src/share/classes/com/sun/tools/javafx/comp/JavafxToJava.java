@@ -1446,19 +1446,19 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCFieldAccess select = make.Select(seq, defs.replaceSliceMethodName);
             List<JCExpression> args = List.of(firstIndex, lastIndex, rhs);
             result = make.at(diagPos).Apply(null, select, args);
-        } else if (requiresLocation(vsym)) {
-            // we are setting a var Location, call the set method
-            JCExpression rhs = translate(tree.rhs, tree.lhs.type);  //TODO: use  type converted translate?            
-            JCExpression lhs = translate(tree.lhs, Wrapped.InLocation);
-            JCFieldAccess setSelect = make.Select(lhs, defs.locationSetMethodName[typeMorpher.typeMorphInfo(vsym.type).getTypeKind()]);
-            List<JCExpression> setArgs = List.of(rhs);
-            result = make.at(diagPos).Apply(null, setSelect, setArgs);
         } else {
-            // We are setting a "normal" non-Location, use normal assign
-            VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-            JCExpression rhs = translate(tree.rhs, vmi.getSymbol().type);
-            JCExpression lhs = translate(tree.lhs);
-            result = make.at(diagPos).Assign(lhs, rhs); // make a new one so we are non-destructive
+            JCExpression rhs = translate(tree.rhs, tree.type);
+            if (requiresLocation(vsym)) {
+                // we are setting a var Location, call the set method
+                JCExpression lhs = translate(tree.lhs, Wrapped.InLocation);
+                JCFieldAccess setSelect = make.Select(lhs, defs.locationSetMethodName[typeMorpher.typeMorphInfo(vsym.type).getTypeKind()]);
+                List<JCExpression> setArgs = List.of(rhs);
+                result = make.at(diagPos).Apply(null, setSelect, setArgs);
+            } else {
+                // We are setting a "normal" non-Location, use normal assign
+                JCExpression lhs = translate(tree.lhs);
+                result = make.at(diagPos).Assign(lhs, rhs); // make a new one so we are non-destructive
+            }
         }
     }
 
@@ -1469,7 +1469,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         Symbol sym = expressionSymbol(tree.lhs);
         VarSymbol vsym = (sym != null && (sym instanceof VarSymbol))? (VarSymbol)sym : null;
 
-        JCExpression rhs = translate(tree.rhs);
+        JCExpression rhs = translate(tree.rhs, tree.type);
         JCExpression lhs = translate(tree.lhs);
         int binaryOp;
         switch (tree.getFXTag()) {
