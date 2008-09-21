@@ -1420,23 +1420,32 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         prependToStatements = prevPrependToStatements;
     }
 
+    private JCExpression setVar(DiagnosticPosition diagPos, JFXExpression lhs, JCExpression rhsTranslated) {
+        if (lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
+            // set of a sequence element --  s[i]=8, call the sequence set method
+            JFXSequenceIndexed si = (JFXSequenceIndexed) lhs;
+            JCExpression seq = translate(si.getSequence(), Wrapped.InLocation);
+            JCExpression index = translate(si.getIndex());
+            JCFieldAccess select = make.at(diagPos).Select(seq, defs.setMethodName);
+            List<JCExpression> args = List.of(index, rhsTranslated);
+            return make.at(diagPos).Apply(null, select, args);
+        } else if (requiresLocation(expressionSymbol(lhs))) {
+            // we are setting a var Location, call the set method
+            JCExpression lhsTranslated = translate(lhs, Wrapped.InLocation);
+            JCFieldAccess setSelect = make.at(diagPos).Select(lhsTranslated, defs.locationSetMethodName[typeMorpher.typeMorphInfo(lhs.type).getTypeKind()]);
+            List<JCExpression> setArgs = List.of(rhsTranslated);
+            return make.at(diagPos).Apply(null, setSelect, setArgs);
+        } else {
+            // We are setting a "normal" non-Location non-getter/setter-accessed variable, use the generic approach of the caller
+            return null;
+        }
+    }
+
     @Override
     public void visitAssign(JFXAssign tree) {
         DiagnosticPosition diagPos = tree.pos();
 
-        Symbol sym = expressionSymbol(tree.lhs);
-        VarSymbol vsym = (sym != null && (sym instanceof VarSymbol))? (VarSymbol)sym : null;
-
-        if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
-            // assignment of a sequence element --  s[i]=8, call the sequence set method
-            JCExpression rhs = translate(tree.rhs, tree.type);
-            JFXSequenceIndexed si = (JFXSequenceIndexed)tree.lhs;
-            JCExpression seq = translate(si.getSequence(), Wrapped.InLocation);
-            JCExpression index = translate(si.getIndex());
-            JCFieldAccess select = make.Select(seq, defs.setMethodName);
-            List<JCExpression> args = List.of(index, rhs);
-            result = make.at(diagPos).Apply(null, select, args);
-        } else if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
+        if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
             // assignment of a sequence slice --  s[i..j]=8, call the sequence set method
             JFXSequenceSlice si = (JFXSequenceSlice)tree.lhs;
             JCExpression rhs = translate(tree.rhs, si.getSequence().type);
@@ -1447,17 +1456,14 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             List<JCExpression> args = List.of(firstIndex, lastIndex, rhs);
             result = make.at(diagPos).Apply(null, select, args);
         } else {
-            JCExpression rhs = translate(tree.rhs, tree.type);
-            if (requiresLocation(vsym)) {
-                // we are setting a var Location, call the set method
-                JCExpression lhs = translate(tree.lhs, Wrapped.InLocation);
-                JCFieldAccess setSelect = make.Select(lhs, defs.locationSetMethodName[typeMorpher.typeMorphInfo(vsym.type).getTypeKind()]);
-                List<JCExpression> setArgs = List.of(rhs);
-                result = make.at(diagPos).Apply(null, setSelect, setArgs);
+            JCExpression rhsTranslated = translate(tree.rhs, tree.type);
+            JCExpression setExpr = setVar(diagPos, tree.lhs, rhsTranslated);
+            if (setExpr != null) {
+                result = setExpr;
             } else {
-                // We are setting a "normal" non-Location, use normal assign
+                // We are setting a "normal" non-Location non-getter/setter-accessed variable, use normal assign
                 JCExpression lhs = translate(tree.lhs);
-                result = make.at(diagPos).Assign(lhs, rhs); // make a new one so we are non-destructive
+                result = make.at(diagPos).Assign(lhs, rhsTranslated); // make a new one so we are non-destructive
             }
         }
     }
@@ -1465,12 +1471,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitAssignop(JFXAssignOp tree) {
         DiagnosticPosition diagPos = tree.pos();
-
-        Symbol sym = expressionSymbol(tree.lhs);
-        VarSymbol vsym = (sym != null && (sym instanceof VarSymbol))? (VarSymbol)sym : null;
-
-        JCExpression rhs = translate(tree.rhs, tree.type);
-        JCExpression lhs = translate(tree.lhs);
+        JCExpression rhsTranslated = translate(tree.rhs, tree.type);
+        JCExpression lhsTranslated = translate(tree.lhs);
         int binaryOp;
         switch (tree.getFXTag()) {
             case PLUS_ASG:
@@ -1493,30 +1495,21 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 binaryOp = JCTree.PLUS;
                 break;
         }
-        JCExpression combined = make.at(diagPos).Binary(binaryOp, lhs, rhs);
+        JCExpression combined;
         if ((types.isSameType(tree.lhs.type, syms.javafx_DurationType) ||
                     types.isSameType(tree.rhs.type, syms.javafx_DurationType))) {
             JFXExpression method = fxmake.at(diagPos).Select(tree.lhs, tree.operator);
             JFXExpression operation = fxmake.at(diagPos).Apply(null, method, List.<JFXExpression>of(tree.rhs));
             combined = translate(operation);
-        }
-        if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
-            // assignment of a sequence element --  s[i]+=8, call the sequence set method
-            JFXSequenceIndexed si = (JFXSequenceIndexed)tree.lhs;
-            JCExpression seq = translate(si.getSequence(), Wrapped.InLocation);
-            JCExpression index = translate(si.getIndex());
-            JCFieldAccess select = make.Select(seq, defs.setMethodName);
-            List<JCExpression> args = List.of(index, combined);
-            result = make.at(diagPos).Apply(null, select, args);
-        } else if (requiresLocation(vsym)) {
-            // we are setting a var Location, call the set method
-            JCExpression targetLHS = translate(tree.lhs, Wrapped.InLocation);
-            JCFieldAccess setSelect = make.Select(targetLHS, defs.locationSetMethodName[typeMorpher.typeMorphInfo(vsym.type).getTypeKind()]);
-            List<JCExpression> setArgs = List.of(combined);
-            result = make.at(diagPos).Apply(null, setSelect, setArgs);        
         } else {
-            // We are setting a "normal" non-Location non-sequence-access, use normal assignop
-            result = make.at(diagPos).Assignop(tree.getOperatorTag(), lhs, rhs);
+            combined = make.at(diagPos).Binary(binaryOp, lhsTranslated, rhsTranslated);
+        }
+        JCExpression setExpr = setVar(diagPos, tree.lhs, combined);
+        if (setExpr != null) {
+            result = setExpr;
+        } else {
+            // We are setting a "normal" non-Location non-getter/setter-accessed variable, use normal assignop
+            result = make.at(diagPos).Assignop(tree.getOperatorTag(), lhsTranslated, rhsTranslated);
         }
     }
 
@@ -2806,40 +2799,22 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 return m().Unary(tree.getOperatorTag(), transExpr);
             }
 
-            private JCExpression callSetMethod(JFXExpression target, List<JCExpression> args) {
-                JCExpression transTarget = translate(target, Wrapped.InLocation); // must be Location
-                JCFieldAccess setSelect = m().Select(transTarget,
-                                                      args.size() == 1
-                                                              ? defs.locationSetMethodName[typeMorpher.typeMorphInfo(target.type).getTypeKind()]
-                                                              : defs.setMethodName);
-                return m().Apply(null, setSelect, args);
-            }
-
             private JCExpression doIncDec(int binaryOp, boolean postfix) {
-                final Symbol sym = expressionSymbol(expr);
-                final VarSymbol vsym = (sym != null && (sym instanceof VarSymbol)) ? (VarSymbol) sym : null;
                 final JCExpression one = m().Literal(1);
                 final JCExpression combined = m().Binary(binaryOp, transExpr, one);
-                JCExpression ret;
 
-                if (expr.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
-                    // assignment of a sequence element --  s[i]+=8, call the sequence set method
-                    JFXSequenceIndexed si = (JFXSequenceIndexed) expr;
-                    JCExpression index = translate(si.getIndex());
-                    ret = callSetMethod( si.getSequence(), List.of(index, combined) );
-                } else if (requiresLocation(vsym)) {
-                    // we are setting a var Location, call the set method
-                    ret = callSetMethod( expr, List.of(combined) );
+                JCExpression setExpr = setVar(diagPos, expr, combined);
+                if (setExpr != null) {
+                    if (postfix) {
+                        // this is a postfix operation, undo the value (not the variable) change
+                        return m().Binary(binaryOp, setExpr, m().Literal(-1));
+                    } else {
+                        // prefix operation
+                        return setExpr;
+                    }
                 } else {
-                    // We are setting a "normal" non-Location non-sequence-access, use normal operator
+                    // We are setting a "normal" non-Location non-getter/setter-accessed variable, use normal op
                     return doVanilla();
-                }
-                if (postfix) {
-                    // this is a postfix operation, undo the value (not the variable) change
-                    return m().Binary(binaryOp, ret, m().Literal(-1));
-                } else {
-                    // prefix operation
-                    return ret;
                 }
             }
 
