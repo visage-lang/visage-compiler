@@ -253,6 +253,10 @@ public class JavafxTypeMorpher {
                 //TODO: check for sequence variables which are never modifier (no insert, delete, assignment, etc)
                 return true;
             }
+            if (sym.type instanceof MethodType) {
+                // Function values have wierd behavior, we just don't want to go there
+                return true;
+            }
             if (isClassVar) {  // class or script var
                 /*
                 To be able to elide member vars we need to know that

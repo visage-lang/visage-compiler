@@ -1421,6 +1421,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     }
 
     private JCExpression setVar(DiagnosticPosition diagPos, JFXExpression lhs, JCExpression rhsTranslated) {
+        Symbol sym = expressionSymbol(lhs);
         if (lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
             // set of a sequence element --  s[i]=8, call the sequence set method
             JFXSequenceIndexed si = (JFXSequenceIndexed) lhs;
@@ -1429,12 +1430,34 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCFieldAccess select = make.at(diagPos).Select(seq, defs.setMethodName);
             List<JCExpression> args = List.of(index, rhsTranslated);
             return make.at(diagPos).Apply(null, select, args);
-        } else if (requiresLocation(expressionSymbol(lhs))) {
+        } else if (requiresLocation(sym)) {
             // we are setting a var Location, call the set method
             JCExpression lhsTranslated = translate(lhs, Wrapped.InLocation);
             JCFieldAccess setSelect = make.at(diagPos).Select(lhsTranslated, defs.locationSetMethodName[typeMorpher.typeMorphInfo(lhs.type).getTypeKind()]);
             List<JCExpression> setArgs = List.of(rhsTranslated);
             return make.at(diagPos).Apply(null, setSelect, setArgs);
+/***
+        } else if (sym.owner.kind == Kinds.TYP && !sym.isStatic()) {
+            // use setter method
+            -//TODO: turn select and ident into setter, be sure to check for null in select
+            if (lhs.getFXTag() == JavafxTag.SELECT) {
+                // select
+                Type exprType = lhs.type;
+
+                // this may or may not be in a LHS but in either
+                // event the selector is a value expression
+                JCExpression translatedSelected = translate(lhs, Wrapped.InNothing);
+
+                if (exprType != null && exprType.isPrimitive()) { // expr.type is null for package symbols.
+                    translatedSelected = makeBox(diagPos, translatedSelected, exprType);
+                }
+            } else {
+                // identifier
+                  JCExpression mRec = makeReceiver(diagPos, tree.sym, attrEnv.enclClass.sym);
+                return make.at(diagPos).Select(mRec, tree.name);
+
+            }
+***/
         } else {
             // We are setting a "normal" non-Location non-getter/setter-accessed variable, use the generic approach of the caller
             return null;
@@ -1463,7 +1486,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             } else {
                 // We are setting a "normal" non-Location non-getter/setter-accessed variable, use normal assign
                 JCExpression lhs = translate(tree.lhs);
-                result = make.at(diagPos).Assign(lhs, rhsTranslated); // make a new one so we are non-destructive
+                result = make.at(diagPos).Assign(lhs, rhsTranslated);
             }
         }
     }
@@ -1523,7 +1546,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         JCExpression translatedSelected = translate(expr, Wrapped.InNothing);
 
         if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
-            //TODO: this branch is never actually taken (in tests suite)
             MethodType mtype = (MethodType) tree.sym.type;
             JCVariableDecl selectedTmpDecl = makeTmpVar(diagPos, "tg", exprType, translatedSelected);
             JCExpression translated = make.at(diagPos).Select(make.Ident(selectedTmpDecl.name), tree.getIdentifier());
