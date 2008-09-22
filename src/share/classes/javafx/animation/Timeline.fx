@@ -90,7 +90,11 @@ public class Timeline {
      *
      * @profile common
      */
-    public var repeatCount: Number = 1.0;
+    public var repeatCount: Number = 1 on replace = newVal {
+        if (newVal < INDEFINITE) {
+            repeatCount = INDEFINITE;
+        }
+    }
 
 
     /**
