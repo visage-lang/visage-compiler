@@ -222,15 +222,6 @@ public class FX {
         }
     }
 
-    /**
-     * Retrieve Environment Property
-     * @param key Environment Property to be inquired
-     * @return the string value of the property                
-     */
-     public static String getProperty (String key) {
-         return SystemProperties.getProperty(key);
-     }
-
     /*
      * This inner help class is used to store the Action Data needed 
      * for exitActions, in the future there may me addition System 
