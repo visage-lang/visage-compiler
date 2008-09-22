@@ -80,7 +80,7 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
             @Override
             protected void done() {
                 try {
-                    Entry.deferTask(completionRunnable);
+                    Entry.deferAction(completionRunnable);
                 }
                 finally {
                     super.done();
@@ -108,7 +108,7 @@ public abstract class AbstractAsyncOperation<V> implements Callable<V> {
     protected void notifyProgress() {
         final int last = lastProgress;
         final int max = progressMax;
-        Entry.deferTask(new Runnable() {
+        Entry.deferAction(new Runnable() {
             public void run() {
                 listener.onProgress(last, max);
             }

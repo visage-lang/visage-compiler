@@ -31,11 +31,10 @@ import com.sun.javafx.api.JavaFXScriptEngine;
 import com.sun.javafx.runtime.location.BindableLocation;
 
 import java.util.Vector;
-import java.awt.Window;
+import java.util.Hashtable;
 import java.lang.ThreadDeath;
 import java.util.NoSuchElementException;
 import java.lang.ArrayIndexOutOfBoundsException;
-import sun.awt.AppContext;
 import com.sun.javafx.runtime.Entry;
 import com.sun.javafx.functions.Function0;
 
@@ -128,8 +127,12 @@ public class FX {
         }
     }
 
-    private static final String JAVAFX_EXIT_KEY = "JavaFX Exit Key";
-
+    /*
+     * This static will be unique to each applet, when we move
+     * to the FXME/Embedded this will need to be tied the AMS
+     * TODO: for Mobile Guys
+     */
+    private static FXSystemActionData exitData = new FXSystemActionData();
 
     /**
      * Exits the Script and causes any Shutdown Actions to be called
@@ -143,7 +146,6 @@ public class FX {
      * 
      */
     public static void exit() {
-        FXSystemActionData exitData = FXSystemActionData.getInstance(JAVAFX_EXIT_KEY);
         if (exitData.called) {
             throw new IllegalStateException("Can not call FX.exit() twice");
         } else {
@@ -155,15 +157,21 @@ public class FX {
         exitData.runActions();
 
         /*
-         * Clean up any open AWT Windows so that the runtime will exit cleanly.
-         * TODO: find a way to do better clean up.
+         * Call to Entry.java in order to get the RuntimeProvider
+         * to do additional cleanup as needed for that provider
          */
-        for(Window w : Window.getWindows()) {
-            // check for JFrame to not dispose of appletview window
-            if (w instanceof javax.swing.JFrame)
-                w.dispose();
-        }
+        Entry.exit();
+
+        /*
+         * Mark this as false for handling restarting from the
+         * same VM or Browser Context
+         */
         exitData.called = false;
+        
+        /*
+         * Use of ThreadDeath here is needed because the EDT
+         * will pass it along rather than catch and quit
+         */
         throw new ThreadDeath();
     }
 
@@ -172,14 +180,14 @@ public class FX {
      * This action will be added to the queue as a push stack, meaning that
      * they will be excuted in FILO ordering.
      *
-     * @param  action of type function():Void  that will be executed at FX.exit() time
+     * @param  action of type function():Void  that will be executed
+     * at FX.exit() time
      * @return Handle used to remove the action if needed, 0 means failure
      */
     public static int addShutdownAction(Function0<Void> action) {
         if (action == null) {
             throw new NullPointerException("Action function can not be null");
         } else {
-            FXSystemActionData exitData = FXSystemActionData.getInstance(JAVAFX_EXIT_KEY);
             return exitData.addAction(action);
         }
     }
@@ -187,13 +195,13 @@ public class FX {
     /**
      * Removes the action from the queue specified by the actionType parameter. 
      *
-     * @param  action of type function():Void that will be removed from the Shutdown Actio Stack
-     * @return a Boolean value signifing sucess or failure of removing the action
+     * @param  action of type function():Void that will be removed from
+     * the Shutdown Action Stack
+     * @return a Boolean value signifing sucess or failure of removing
+     * the action
      */
     public static boolean removeShutdownAction(int handle) {
-        FXSystemActionData exitData = FXSystemActionData.getInstance(JAVAFX_EXIT_KEY);
         return exitData.removeAction(handle);
-
     }
 
     /**
@@ -210,37 +218,34 @@ public class FX {
         if (action == null) {
             throw new NullPointerException("Action function can not be null");
         } else {
-            Entry.deferTask(action);
+            Entry.deferAction(action);
         }
     }
 
+    /**
+     * Retrieve Environment Property
+     * @param key Environment Property to be inquired
+     * @return the string value of the property                
+     */
+     public static String getProperty (String key) {
+         return SystemProperties.getProperty(key);
+     }
+
+    /*
+     * This inner help class is used to store the Action Data needed 
+     * for exitActions, in the future there may me addition System 
+     * Actions that will be required such as Low Resources or ...
+     */
     private static class FXSystemActionData {
         boolean called;
         Vector actions, handles;
-        AppContext appContext;
-        Object actionKey;
 
-        private FXSystemActionData(AppContext ac, Object key) {
+        private static FXSystemActionData singleton = null;
+
+        private FXSystemActionData() {
             called = false;
             actions = new Vector();
             handles = new Vector();
-            actionKey = key;
-            appContext = ac;
-        }
-        static synchronized FXSystemActionData getInstance(Object key) {
-            AppContext ac = java.security.AccessController.doPrivileged(
-                new java.security.PrivilegedAction<AppContext>() {
-                    public AppContext run() {
-                        return AppContext.getAppContext();
-                    }
-                }
-            );
-            Object sd = ac.get(key);
-            if (sd == null) {
-                sd = new FXSystemActionData(ac, key);
-                ac.put(key, sd);
-            }
-            return (FXSystemActionData) sd;
         }
 
         int addAction(Object action) {
@@ -268,7 +273,6 @@ public class FX {
         }
 
         void runActions() {
-
             if (actions == null) {
                 return;
             }
@@ -282,15 +286,14 @@ public class FX {
                          * TODO: add timer to kill long running Action
                          */
                         action.invoke();
+                    } catch (ThreadDeath td) {
+                        throw td;
                     } catch (Throwable t) {
-                        if (t instanceof ThreadDeath) {
-                            throw (ThreadDeath) t;
-                        }
+                        // Ignore all other Throwables
                     }
                 }
             }
             handles.removeAllElements();
-            appContext.remove(actionKey);
         }
     }
 }

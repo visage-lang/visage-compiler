@@ -67,19 +67,26 @@ public class Entry {
         }
     }
 
-    public static void deferTask(final Function0<Void> function) {
-        deferTask(new Runnable() {
+    public static void deferAction(final Function0<Void> function) {
+        deferAction(new Runnable() {
             public void run() {
                 function.invoke();
             }
         });
     }
 
-    public static void deferTask(Runnable function) {
+    public static void deferAction(Runnable function) {
         if (provider == null)
             provider = runtimeProviderLocator();
         assert provider != null;
-        provider.deferTask(function);
+        provider.deferAction(function);
+    }
+
+    public static void exit() {
+        if (provider == null) 
+            provider = runtimeProviderLocator();
+        assert provider != null;
+        provider.exit();
     }
 
     private static RuntimeProvider runtimeProviderLocator() {
@@ -148,7 +155,7 @@ public class Entry {
     public static String entryMethodName() {
         return "javafx$run$";
     }
-    
+
     private static class NoRuntimeDefault implements RuntimeProvider {
 
         public boolean usesRuntimeLibrary(Class application) {
@@ -163,8 +170,15 @@ public class Entry {
             }
         }
 
-        public void deferTask(Runnable task) {
-            java.awt.EventQueue.invokeLater(task);
+        public void deferAction(Runnable action) {
+            java.awt.EventQueue.invokeLater(action);
         }        
+
+        /*
+         * Do nothing in this case as there should be no 
+         * graphics displayed
+         */
+        public void exit() {
+        }
     }
 }

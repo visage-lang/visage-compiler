@@ -46,5 +46,13 @@ public interface RuntimeProvider {
      */
     Object run(Method entryPoint, String... args) throws Throwable;
 
-    void deferTask(Runnable task);
+    void deferAction(Runnable action);
+
+    /**
+     * Exit JavaFX Script application
+     * <p>
+     * Do any any nessecary cleanup here so the runtime
+     * can exit cleanly
+     */
+     void exit();
 }
