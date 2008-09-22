@@ -609,7 +609,6 @@ importId
 							// it is not singular - which one should it insert? However
 							// future improvements may make this happen, so code for it anyway
 							//
-							inError = true;		// Signal that this is malformed
 							log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
 						}
 						
@@ -660,7 +659,15 @@ importId
 				|	// Erroneous
 				
 					{
-						inError = true;		// Signal that this is malformed
+						// THis does not cause an errneous node, we just generate a missing
+						// qualifier.
+						//
+						Name missing = Name.fromString(names, "<missing>");
+						JFXExpression part = F.at(semiPos()).Ident(missing);
+						errNodes.append(part);
+						endPos(part);
+						$pid = F.at(pos($DOT)).Select($pid, missing);
+						endPos($pid);
 						log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_INCOMPLETE_QUAL);
 					}
 					
@@ -669,7 +676,8 @@ importId
         )*
         
         {
-        	// Was the seqeunce in error?
+        	// Was the seqeunce in error? Note that not all syntax errors
+        	// cause this. 
         	//
         	if	(inError) {
         		$pid=F.at(rPos).Erroneous(errNodes.elems);
