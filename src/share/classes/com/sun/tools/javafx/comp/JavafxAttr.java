@@ -1501,9 +1501,17 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-        MethodSymbol m = tree.sym;
-        m.complete();
-        warnOnStaticUse(tree.pos(), tree.getModifiers(), m);
+        
+        // Tree may come in paritally complete or in error from IDE and so we protect
+        // against it. Do nothing if the tree isn't properly attributed.
+        //
+        if  (tree.sym != null) {
+
+            MethodSymbol m = tree.sym;
+
+            m.complete();
+            warnOnStaticUse(tree.pos(), tree.getModifiers(), m);
+        }
 
     }
 
@@ -1605,13 +1613,28 @@ public class JavafxAttr implements JavafxVisitor {
             List<JFXVar> params = tree.getParameters();
             int paramCount = params.size();
             for (List<JFXVar> l = params; l.nonEmpty(); l = l.tail) {
+
                 JFXVar pvar = l.head;
+
+                // Don't try to deal with parameters that are Erroneous
+                // or missing, which can happen when the IDE is trying to
+                // make sense of a partially completed function definition
+                //
+                if  (       pvar == null                                    // Not even present
+                        ||  pvar.getJFXType() == null                       // There, but can't do anythign about typing it
+                        ||  pvar.getJFXType() instanceof JFXErroneousType   // There, but flagged as an erroneous type for some  syntactic reason
+                    ) 
+                        continue;   // Hence, we can't do anythign with this parameter definitionm skip it
+
+                
                 Type type;
+
                 if (pparam != null && pparam.nonEmpty()) {
                     type = pparam.head;
                     pparam = pparam.tail;
                 }
                 else {
+
                     type = syms.objectType;
                     if (pvar.getJFXType() instanceof JFXTypeUnknown) {
                         Type t = searchSupersForParamType (owner, m.name, paramCount, paramNum);
@@ -1626,6 +1649,7 @@ public class JavafxAttr implements JavafxVisitor {
                 argbuf.append(type);
                 paramNum++;
             }
+
             returnType = syms.unknownType;
             if (opVal.getJFXReturnType().getFXTag() != JavafxTag.TYPEUNKNOWN)
                 returnType = attribType(tree.getJFXReturnType(), localEnv);
@@ -1729,6 +1753,12 @@ public class JavafxAttr implements JavafxVisitor {
         List<VarSymbol> paramSyms = List.<VarSymbol>nil();
         List<Type> paramTypes = List.<Type>nil();
         for (JFXVar var : tree.getParameters()) {
+
+            // Skip erroneous parameters, which happens if the IDE is calling with a
+            // a paritally defined function.
+            //
+            if (var == null || var.type == null) continue;
+            
             paramSyms = paramSyms.append(var.sym);
             paramTypes = paramTypes.append(var.type);
         }
