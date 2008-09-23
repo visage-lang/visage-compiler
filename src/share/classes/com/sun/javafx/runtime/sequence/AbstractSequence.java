@@ -78,12 +78,14 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         return 0;
     }
 
-    public void toArray(Object[] array, int destOffset) {
-        final int length = size();
-        for (int i = 0; i < length; i++)
-            array[i + destOffset] = get(i);
-    }
+    public void toArray(int sourceOffset, int length, Object[] dest, int destOffset) {
+        if (sourceOffset < 0 || (length > 0 && sourceOffset + length > size()))
+            throw new ArrayIndexOutOfBoundsException();
 
+        for (int i = 0; i < length; i++)
+            dest[i + destOffset] = get(i + sourceOffset);
+    }
+    
     public Sequence<T> get(SequencePredicate<? super T> predicate) {
         return Sequences.filter(this, getBits(predicate));
     }

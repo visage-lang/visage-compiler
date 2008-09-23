@@ -26,6 +26,7 @@ import java.util.BitSet;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
 import com.sun.javafx.runtime.TypeInfo;
+import org.junit.Assert;
 
 /**
  * TestIntegerSequence
@@ -458,6 +459,138 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(Sequences.range(5, 2, -2), 5, 3);
         // [ 5..>2 STEP 2 ] => [ 5, 3 ]
         assertEquals(Sequences.rangeExclusive(5, 2, -2), 5, 3);
+    }
+
+    /**
+     * Test ranges, including skip ranges and backwards ranges
+     */
+    public void testRangeToArray() {
+        Object[] actuals = new Object[0];
+        // [ 0..-1 ] => [ ]
+        Sequences.range(0, -1).toArray(0, 0, actuals, 0);
+        Assert.assertArrayEquals(new Object[0], actuals);
+        // [ 0..<0 ] => [ ]
+        Sequences.rangeExclusive(0, 0).toArray(0, 0, actuals, 0);
+        Assert.assertArrayEquals(new Object[0], actuals);
+        // [ 0..<0 STEP 3 ] => [ ]
+        Sequences.rangeExclusive(0, 0, 3).toArray(0, 0, actuals, 0);
+        Assert.assertArrayEquals(new Object[0], actuals);
+
+        actuals = new Object[1];
+        // [ 0..0 ] => [ 0 ]
+        Sequences.range(0, 0).toArray(0, 1, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {0}, actuals);
+        // [ 0..0 STEP 3 ] => [ 0 ]
+        Sequences.range(0, 0, 3).toArray(0, 1, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {0}, actuals);
+        // [ 0..<1 ] => [ 0 ]
+        Sequences.rangeExclusive(0, 1).toArray(0, 1, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {0}, actuals);
+        // [ 0..1 STEP 2 ] => [ 0 ]
+        Sequences.range(0, 1, 2).toArray(0, 1, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {0}, actuals);
+        // [ 1..<3 STEP 2 ] => [ 1 ]
+        Sequences.rangeExclusive(1, 3, 2).toArray(0, 1, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {1}, actuals);
+        // [ 5..>3 STEP 2 ] => [ 5 ]
+        Sequences.rangeExclusive(5, 3, -2).toArray(0, 1, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {5}, actuals);
+
+        actuals = new Object[2];
+        // [ 0..-1 STEP -1 ] => [ 0, -1 ]
+        Sequences.range(0, -1, -1).toArray(0, 2, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {0, -1}, actuals);
+        // [ 0..1 ] => [ 0, 1 ]
+        Sequences.range(0, 1).toArray(0, 2, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {0, 1}, actuals);
+        // [ 1..3 STEP 2 ] => [ 1, 3 ]
+        Sequences.range(1, 3, 2).toArray(0, 2, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {1, 3}, actuals);
+        // [ 1..4 STEP 2 ] => [ 1, 3 ]
+        assertEquals(Sequences.range(1, 4, 2), 1, 3);
+        Sequences.range(1, 4, 2).toArray(0, 2, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {1, 3}, actuals);
+        // [ 1..<4 STEP 2 ] => [ 1, 3 ]
+        assertEquals(Sequences.rangeExclusive(1, 4, 2), 1, 3);
+        Sequences.rangeExclusive(1, 4, 2).toArray(0, 2, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {1, 3}, actuals);
+        // [ 5..>3 STEP -1] => [ 5, 4 ]
+        Sequences.rangeExclusive(5, 3, -1).toArray(0, 2, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {5, 4}, actuals);
+        // [ 5..3 STEP -2 ] => [ 5, 3 ]
+        Sequences.range(5, 3, -2).toArray(0, 2, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {5, 3}, actuals);
+        // [ 5..2 STEP 2 ] => [ 5, 3 ]
+        Sequences.range(5, 2, -2).toArray(0, 2, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {5, 3}, actuals);
+        // [ 5..>2 STEP 2 ] => [ 5, 3 ]
+        Sequences.rangeExclusive(5, 2, -2).toArray(0, 2, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {5, 3}, actuals);
+
+        actuals = new Object[3];
+        // [ 5..3 ] => [ 5, 4, 3 ]
+        Sequences.range(5, 3, -1).toArray(0, 3, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {5, 4, 3}, actuals);
+        
+        // source-offset
+        actuals = new Object[2];
+        Sequence<Integer> THREE_ELEMENTS = Sequences.range(1, 3);
+        THREE_ELEMENTS.toArray(0, 2, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {1, 2}, actuals);
+        THREE_ELEMENTS.toArray(1, 2, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {2, 3}, actuals);
+        
+        actuals = new Object[2];
+        try {
+            THREE_ELEMENTS.toArray(-1, 2, actuals, 0);
+            fail("Expected ArrayIndexOutOfBoundsException");
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            // ok
+        } catch (Exception ex) {
+            fail("Unexpected exception: " + ex.toString());
+        }
+        assertEquals(THREE_ELEMENTS, 1, 2, 3);
+
+        try {
+            THREE_ELEMENTS.toArray(2, 2, actuals, 0);
+            fail("Expected ArrayIndexOutOfBoundsException");
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            // ok
+        } catch (Exception ex) {
+            fail("Unexpected exception: " + ex.toString());
+        }
+        assertEquals(THREE_ELEMENTS, 1, 2, 3);
+
+        actuals = new Object[0];
+        THREE_ELEMENTS.toArray(3, 0, actuals, 0);
+        Assert.assertArrayEquals(new Object[0], actuals);
+        assertEquals(THREE_ELEMENTS, 1, 2, 3);
+
+        
+        // dest-offset
+        actuals = new Object[4];
+        actuals[0] = 2;
+        THREE_ELEMENTS.toArray(0, 3, actuals, 1);
+        Assert.assertArrayEquals(new Object[] {2, 1, 2, 3}, actuals);
+        assertEquals(THREE_ELEMENTS, 1, 2, 3);
+
+        actuals = new Object[3];
+        try {
+            THREE_ELEMENTS.toArray(0, 3, actuals, -1);
+            fail("Expected ArrayIndexOutOfBoundsException");
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            // ok
+        } catch (Exception ex) {
+            fail("Unexpected exception: " + ex.toString());
+        }
+        try {
+            THREE_ELEMENTS.toArray(0, 3, actuals, 1);
+            fail("Expected ArrayIndexOutOfBoundsException");
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            // ok
+        } catch (Exception ex) {
+            fail("Unexpected exception: " + ex.toString());
+        }
     }
 
     /**

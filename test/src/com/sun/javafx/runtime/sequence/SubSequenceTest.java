@@ -57,40 +57,75 @@ public class SubSequenceTest extends JavaFXTestCase {
     public void testToArray() {
         Object[] actuals = new Object[0];
         
-        SUBSEQUENCE_FROM_EMPTY_SEQUENCE.toArray(actuals, 0);
+        SUBSEQUENCE_FROM_EMPTY_SEQUENCE.toArray(0, 0, actuals, 0);
         Assert.assertArrayEquals(new Object[0], actuals);
         assertEquals(SUBSEQUENCE_FROM_EMPTY_SEQUENCE);
         
-        EMPTY_SUBSEQUENCE.toArray(actuals, 0);
+        EMPTY_SUBSEQUENCE.toArray(0, 0, actuals, 0);
         Assert.assertArrayEquals(new Object[0], actuals);
         assertEquals(EMPTY_SUBSEQUENCE);
         
         actuals = new Object[1];
-        SUBSEQUENCE_FROM_SINGLETON_SEQUENCE.toArray(actuals, 0);
+        SUBSEQUENCE_FROM_SINGLETON_SEQUENCE.toArray(0, 1, actuals, 0);
         Assert.assertArrayEquals(new Object[] {1}, actuals);
         assertEquals(SUBSEQUENCE_FROM_SINGLETON_SEQUENCE, 1);
 
-        SUBSEQUENCE_IN_MIDDLE.toArray(actuals, 0);
+        SUBSEQUENCE_IN_MIDDLE.toArray(0, 1, actuals, 0);
         Assert.assertArrayEquals(new Object[] {2}, actuals);
         assertEquals(SUBSEQUENCE_IN_MIDDLE, 2);
 
-        OVERLAPPING_SUBSEQUENCE.toArray(actuals, 0);
+        OVERLAPPING_SUBSEQUENCE.toArray(0, 1, actuals, 0);
         Assert.assertArrayEquals(new Object[] {2}, actuals);
         assertEquals(OVERLAPPING_SUBSEQUENCE, 2);
         
         actuals = new Object[2];
-        SUBSEQUENCE_AT_START.toArray(actuals, 0);
+        SUBSEQUENCE_AT_START.toArray(0, 2, actuals, 0);
         Assert.assertArrayEquals(new Object[] {1, 2}, actuals);
         assertEquals(SUBSEQUENCE_AT_START, 1, 2);
 
-        SUBSEQUENCE_AT_END.toArray(actuals, 0);
+        SUBSEQUENCE_AT_END.toArray(0, 2, actuals, 0);
         Assert.assertArrayEquals(new Object[] {2, 3}, actuals);
         assertEquals(SUBSEQUENCE_AT_END, 2, 3);
 
 
-        // test offset
+        // source-offset
+        actuals = new Object[1];
+        SUBSEQUENCE_AT_START.toArray(0, 1, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {1}, actuals);
+        assertEquals(SUBSEQUENCE_AT_START, 1, 2);
+        SUBSEQUENCE_AT_START.toArray(1, 1, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {2}, actuals);
+        assertEquals(SUBSEQUENCE_AT_START, 1, 2);
+        
+        actuals = new Object[2];
+        try {
+            SUBSEQUENCE_AT_START.toArray(-1, 2, actuals, 0);
+            fail("Expected ArrayIndexOutOfBoundsException");
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            // ok
+        } catch (Exception ex) {
+            fail("Unexpected exception: " + ex.toString());
+        }
+        assertEquals(SUBSEQUENCE_AT_START, 1, 2);
+
+        try {
+            SUBSEQUENCE_AT_START.toArray(1, 2, actuals, 0);
+            fail("Expected ArrayIndexOutOfBoundsException");
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            // ok
+        } catch (Exception ex) {
+            fail("Unexpected exception: " + ex.toString());
+        }
+        assertEquals(SUBSEQUENCE_AT_START, 1, 2);
+
+        actuals = new Object[0];
+        SUBSEQUENCE_AT_START.toArray(2, 0, actuals, 0);
+        Assert.assertArrayEquals(new Object[0], actuals);
+        assertEquals(SUBSEQUENCE_AT_START, 1, 2);
+        
+        // dest-offset
         actuals = new Object[] {2, 0};
-        SUBSEQUENCE_IN_MIDDLE.toArray(actuals, 1);
+        SUBSEQUENCE_IN_MIDDLE.toArray(0, 1, actuals, 1);
         Assert.assertArrayEquals(new Object[] {2, 2}, actuals);
         assertEquals(SUBSEQUENCE_IN_MIDDLE, 2);
     }

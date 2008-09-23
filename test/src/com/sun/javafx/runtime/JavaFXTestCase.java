@@ -68,8 +68,9 @@ public abstract class JavaFXTestCase extends TestCase {
             assertEquals(t, values[index++]);
         }
 
-        T[] array = Util.<T>newObjectArray(sequence.size());
-        sequence.toArray(array, 0);
+        final int length = sequence.size();
+        T[] array = Util.<T>newObjectArray(length);
+        sequence.toArray(0, length, array, 0);
         assertEquals(array.length, values.length);
         for (int i = 0; i < array.length; i++)
             assertEquals(array[i], values[i]);
@@ -79,6 +80,15 @@ public abstract class JavaFXTestCase extends TestCase {
         assertEquals(sequence.size(), values.length);
         int index = 0;
         for (Double t : sequence) {
+            Double value = values[index++];
+            assertTrue(value + " !~ " + t, Math.abs(t - value) < EPSILON);
+        }
+    }
+
+    protected void assertArrayEquals(Double[] expected, Double ... values) {
+        assertEquals(expected.length, values.length);
+        int index = 0;
+        for (Double t : expected) {
             Double value = values[index++];
             assertTrue(value + " !~ " + t, Math.abs(t - value) < EPSILON);
         }

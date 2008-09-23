@@ -81,8 +81,9 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
         this.array = Util.<T>newObjectArray(size);
         int next = 0;
         for (Sequence<? extends T> seq : sequences) {
-            seq.toArray(array, next);
-            next += seq.size();
+            final int l = seq.size();
+            seq.toArray(0, l, array, next);
+            next += l;
         }
         checkForNulls();
     }
@@ -118,8 +119,11 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
     }
 
     @Override
-    public void toArray(Object[] dest, int destOffset) {
-        System.arraycopy(array, 0, dest, destOffset, array.length);
+    public void toArray(int sourceOffset, int length, Object[] dest, int destOffset) {
+        if (sourceOffset < 0 || (length > 0 && sourceOffset + length > array.length))
+            throw new ArrayIndexOutOfBoundsException();
+
+        System.arraycopy(array, sourceOffset, dest, destOffset, length);
     }
 
     @Override

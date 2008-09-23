@@ -52,30 +52,66 @@ public class ReplacementSequenceTest extends JavaFXTestCase {
     
     public void testToArray() {
         Object[] actuals = new Object[1];
-        REPLACEMENT_FROM_SINGLETON_SEQUENCE.toArray(actuals, 0);
+        REPLACEMENT_FROM_SINGLETON_SEQUENCE.toArray(0, 1, actuals, 0);
         Assert.assertArrayEquals(new Object[] {2}, actuals);
         
         actuals = new Object[3];
-        REPLACEMENT_AT_START.toArray(actuals, 0);
+        REPLACEMENT_AT_START.toArray(0, 3, actuals, 0);
         Assert.assertArrayEquals(new Object[] {C, 2, 3}, actuals);
         assertEquals(REPLACEMENT_AT_START, C, 2, 3);
 
-        REPLACEMENT_IN_MIDDLE.toArray(actuals, 0);
+        REPLACEMENT_IN_MIDDLE.toArray(0, 3, actuals, 0);
         Assert.assertArrayEquals(new Object[] {1, C, 3}, actuals);
         assertEquals(REPLACEMENT_IN_MIDDLE, 1, C, 3);
 
-        REPLACEMENT_AT_END.toArray(actuals, 0);
+        REPLACEMENT_AT_END.toArray(0, 3, actuals, 0);
         Assert.assertArrayEquals(new Object[] {1, 2, C}, actuals);
         assertEquals(REPLACEMENT_AT_END, 1, 2, C);
 
-        OVERLAPPING_REPLACEMENT.toArray(actuals, 0);
+        OVERLAPPING_REPLACEMENT.toArray(0, 3, actuals, 0);
         Assert.assertArrayEquals(new Object[] {1, D, 3}, actuals);
         assertEquals(OVERLAPPING_REPLACEMENT, 1, D, 3);
 
-        // test offset
+        // source-offset
+        actuals = new Object[2];
+        REPLACEMENT_IN_MIDDLE.toArray(0, 2, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {1, C}, actuals);
+        assertEquals(REPLACEMENT_IN_MIDDLE, 1, C, 3);
+        REPLACEMENT_IN_MIDDLE.toArray(1, 2, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {C, 3}, actuals);
+        assertEquals(REPLACEMENT_IN_MIDDLE, 1, C, 3);
+        
+        actuals = new Object[2];
+        try {
+            REPLACEMENT_IN_MIDDLE.toArray(-1, 2, actuals, 0);
+            fail("Expected ArrayIndexOutOfBoundsException");
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            // ok
+        } catch (Exception ex) {
+            fail("Unexpected exception: " + ex.toString());
+        }
+        assertEquals(REPLACEMENT_IN_MIDDLE, 1, C, 3);
+
+        try {
+            REPLACEMENT_IN_MIDDLE.toArray(2, 2, actuals, 0);
+            fail("Expected ArrayIndexOutOfBoundsException");
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            // ok
+        } catch (Exception ex) {
+            fail("Unexpected exception: " + ex.toString());
+        }
+        assertEquals(REPLACEMENT_IN_MIDDLE, 1, C, 3);
+
+        actuals = new Object[0];
+        REPLACEMENT_IN_MIDDLE.toArray(3, 0, actuals, 0);
+        Assert.assertArrayEquals(new Object[0], actuals);
+        assertEquals(REPLACEMENT_IN_MIDDLE, 1, C, 3);
+        
+        
+        // dest-offset
         actuals = new Object[4];
         actuals[0] = D;
-        REPLACEMENT_IN_MIDDLE.toArray(actuals, 1);
+        REPLACEMENT_IN_MIDDLE.toArray(0, 3, actuals, 1);
         Assert.assertArrayEquals(new Object[] {D, 1, C, 3}, actuals);
         assertEquals(REPLACEMENT_IN_MIDDLE, 1, C, 3);
     }

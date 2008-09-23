@@ -84,9 +84,12 @@ class NumberRangeSequence extends AbstractSequence<Double> implements Sequence<D
     }
 
     @Override
-    public void toArray(Object[] array, int destOffset) {
+    public void toArray(int sourceOffset, int length, Object[] dest, int destOffset) {
+        if (sourceOffset < 0 || (length > 0 && sourceOffset + length > size))
+            throw new ArrayIndexOutOfBoundsException();
+
         int index = destOffset;
-        for (double value = start; index < destOffset+size; value += step, index++)
-            array[index] = value;
+        for (double value = start + sourceOffset*step; index < destOffset+length; value += step, index++)
+            dest[index] = value;
     }
 }

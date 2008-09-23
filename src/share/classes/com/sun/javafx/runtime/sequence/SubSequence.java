@@ -64,11 +64,10 @@ class SubSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     }
     
     @Override
-    public void toArray(Object[] dest, int destOffset) {
-        if (start <= end) {
-            Object[] array = Util.newObjectArray(sequence.size());
-            sequence.toArray(array, 0);
-            System.arraycopy(array, start, dest, destOffset, end-start);
-        }
+    public void toArray(int sourceOffset, int length, Object[] dest, int destOffset) {
+        if (sourceOffset < 0 || (length > 0 && sourceOffset + length > size()))
+            throw new ArrayIndexOutOfBoundsException();
+
+        sequence.toArray(start+sourceOffset, length, dest, destOffset);
     }
 }

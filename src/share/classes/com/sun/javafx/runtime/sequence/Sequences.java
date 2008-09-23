@@ -472,8 +472,9 @@ public final class Sequences {
     public static <T extends Comparable> int binarySearch (Sequence<? extends T> seq, T key) {
         if (seq.isEmpty())
             return -1;
-        T[] array = Util.newComparableArray(seq.size());
-        seq.toArray(array, 0);
+        final int length = seq.size();
+        T[] array = Util.newComparableArray(length);
+        seq.toArray(0, length, array, 0);
         return Arrays.binarySearch(array, key);
     }
     
@@ -503,8 +504,9 @@ public final class Sequences {
     public static <T> int binarySearch(Sequence<? extends T> seq,  T key,  Comparator<? super T> c) {
         if (seq.isEmpty())
             return -1;
-        T[] array = Util.<T>newObjectArray(seq.size());
-        seq.toArray(array, 0);
+        final int length = seq.size();
+        T[] array = Util.<T>newObjectArray(length);
+        seq.toArray(0, length, array, 0);
         return Arrays.binarySearch(array, (T)key, c);
     }
     
@@ -756,8 +758,9 @@ public final class Sequences {
     public static <T extends Comparable> Sequence<T> sort (Sequence<T> seq) {
         if (seq.isEmpty())
             return seq.getEmptySequence();
-        T[] array = Util.newComparableArray(seq.size());
-        seq.toArray(array, 0);
+        final int length = seq.size();
+        T[] array = Util.newComparableArray(length);
+        seq.toArray(0, length, array, 0);
         Arrays.sort(array);
         return Sequences.make(seq.getElementType(), array);
     }
@@ -789,8 +792,9 @@ public final class Sequences {
     public static <T> Sequence<T> sort (Sequence<T> seq, Comparator<? super T> c) {
         if (seq.isEmpty())
             return seq.getEmptySequence();
-        T[] array = Util.<T>newObjectArray(seq.size());
-        seq.toArray(array, 0);
+        final int length = seq.size();
+        T[] array = Util.<T>newObjectArray(length);
+        seq.toArray(0, length, array, 0);
         Arrays.sort(array, c);
         return Sequences.make(seq.getElementType(), array);
     }

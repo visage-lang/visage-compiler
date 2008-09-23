@@ -71,9 +71,10 @@ public class SequenceBuilder<T> {
 
     /** Add the contents of an existing sequence to the sequence */
     public void add(Sequence<? extends T> elements) {
-        ensureSize(size + elements.size());
-        elements.toArray(array, size);
-        size += elements.size();
+        final int length = elements.size();
+        ensureSize(size + length);
+        elements.toArray(0, length, array, size);
+        size += length;
     }
 
     /** Get the current size of the sequence being constructed */

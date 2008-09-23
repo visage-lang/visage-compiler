@@ -79,4 +79,22 @@ class CompositeSequence<T> extends AbstractSequence<T> implements Sequence<T> {
             ++chunk;
         return sequences[chunk].get(position - startPositions[chunk]);
     }
+
+    @Override
+    public void toArray(int sourceOffset, int length, Object[] dest, int destOffset) {
+        if (sourceOffset < 0 || (length > 0 && sourceOffset + length > size))
+            throw new ArrayIndexOutOfBoundsException();
+
+        int chunk_length;
+        for (int chunk=0; chunk < sequences.length && length > 0; chunk++) {
+            if (sourceOffset <= sequences[chunk].size()) {
+                chunk_length = Math.min(length, sequences[chunk].size() - sourceOffset); 
+                sequences[chunk].toArray(sourceOffset, chunk_length, dest, destOffset);
+                length -= chunk_length;
+                destOffset += chunk_length;
+            }
+            sourceOffset -= Math.min(sourceOffset, sequences[chunk].size());
+        }
+    }
+
 }

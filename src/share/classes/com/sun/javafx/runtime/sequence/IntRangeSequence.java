@@ -86,8 +86,11 @@ class IntRangeSequence extends AbstractSequence<Integer> implements Sequence<Int
     }
 
     @Override
-    public void toArray(Object[] array, int destOffset) {
-        for (int value = start, index = destOffset; index < destOffset+size; value += step, index++)
-            array[index] = value;
+    public void toArray(int sourceOffset, int length, Object[] dest, int destOffset) {
+        if (sourceOffset < 0 || (length > 0 && sourceOffset + length > size))
+            throw new ArrayIndexOutOfBoundsException();
+
+        for (int value = start + sourceOffset*step, index = destOffset; index < destOffset+length; value += step, index++)
+            dest[index] = value;
     }
 }

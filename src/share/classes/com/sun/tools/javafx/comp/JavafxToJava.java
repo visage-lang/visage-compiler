@@ -267,12 +267,14 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
             JCVariableDecl tmpVar = makeTmpVar(diagPos, sourceType, translated);
             stats.append(tmpVar);
+            JCVariableDecl sizeVar = makeTmpVar(diagPos, syms.intType, callExpression(diagPos, make.Ident(tmpVar.name), "size"));
+            stats.append(sizeVar);
             JCVariableDecl arrVar = makeTmpVar(diagPos, "arr", targetType,
                     make.NewArray(makeTypeTree(diagPos, elemType, true),
-                        List.<JCExpression>of(callExpression(diagPos, make.Ident(tmpVar.name), "size")), null));
+                        List.<JCExpression>of(make.Ident(sizeVar.name)), null));
             stats.append(arrVar);
             stats.append(callStatement(diagPos, make.Ident(tmpVar.name), "toArray",
-                            List.of(make.Ident(arrVar.name), make.Literal(TypeTags.INT, 0))));
+                            List.of(make.Literal(TypeTags.INT, 0), make.Ident(sizeVar.name), make.Ident(arrVar.name), make.Literal(TypeTags.INT, 0))));
             JCIdent ident2 = make.Ident(arrVar.name);
             return makeBlockExpression(diagPos, stats, ident2);
 

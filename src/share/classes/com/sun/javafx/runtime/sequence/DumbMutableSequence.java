@@ -98,8 +98,9 @@ public class DumbMutableSequence<T> implements Iterable<T> {
     }
 
     public Sequence<? extends T> replaceSlice(int startPos, int endPos, Sequence<? extends T> newElements) {
-        T[] temp = Util.<T>newObjectArray(Sequences.size(newElements));
-        newElements.toArray(temp, 0);
+        final int length = Sequences.size(newElements);
+        T[] temp = Util.<T>newObjectArray(length);
+        newElements.toArray(0, length, temp, 0);
         replaceSlice(startPos, endPos, temp);
         return newElements;
     }

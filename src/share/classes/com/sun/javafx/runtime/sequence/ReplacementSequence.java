@@ -43,8 +43,14 @@ class ReplacementSequence<T> extends DerivedSequence<T> implements Sequence<T> {
     }
     
     @Override
-    public void toArray(Object[] array, int destOffset) {
-        sequence.toArray(array, destOffset);
-        array[destOffset + newIndex] = newValue;
+    public void toArray(int sourceOffset, int length, Object[] dest, int destOffset) {
+        if (sourceOffset < 0 || (length > 0 && sourceOffset + length > size))
+            throw new ArrayIndexOutOfBoundsException();
+
+        sequence.toArray(sourceOffset, length, dest, destOffset);
+        final int position = destOffset + newIndex - sourceOffset;
+        if (position >= 0 && position < size) {
+            dest[position] = newValue;
+        }
     }
 }
