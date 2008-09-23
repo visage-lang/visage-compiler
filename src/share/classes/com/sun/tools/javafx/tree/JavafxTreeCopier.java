@@ -160,7 +160,7 @@ public class JavafxTreeCopier implements JavafxVisitor {
     }
 
     public void visitLiteral(JFXLiteral tree) {
-        result = maker.at(tree.pos).Literal(tree.getTag(), tree.value);
+        result = maker.at(tree.pos).Literal(tree.typetag, tree.value);
     }
 
     public void visitModifiers(JFXModifiers tree) {
