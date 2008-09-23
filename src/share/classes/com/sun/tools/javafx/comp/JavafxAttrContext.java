@@ -63,6 +63,8 @@ public class JavafxAttrContext {
     /** A record of the lint/SuppressWarnings currently in effect
      */
     public Lint lint;
+    
+    public boolean inSelect = false;
 
     /** Duplicate this context, replacing scope field and copying all others.
      */

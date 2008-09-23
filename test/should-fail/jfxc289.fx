@@ -1,0 +1,12 @@
+/*
+ * Regression test JFXC-289 : Compiler allows incompatible types with anonymous functions
+ *
+ * @test
+ * @compile/fail
+ */
+
+import java.lang.*;
+
+var ab = function (a:Integer, b:Integer) : Integer {3;};
+ab = function (a:Integer, b:Integer) : String { "" };
+ab(12,12)

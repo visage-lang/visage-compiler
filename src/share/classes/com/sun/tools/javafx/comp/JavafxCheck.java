@@ -670,7 +670,7 @@ public class JavafxCheck {
         }
     }
 
-    void checkBidiBind(JFXExpression init, JavafxBindStatus bindStatus, JavafxEnv<JavafxAttrContext> env) {
+    void checkBidiBind(JFXExpression init, JavafxBindStatus bindStatus, JavafxEnv<JavafxAttrContext> env, Type pt) {
         if (bindStatus.isBidiBind()) {
             Symbol initSym = null;
             JFXTree base = null;
@@ -691,6 +691,12 @@ public class JavafxCheck {
                 }
             }
             if (initSym instanceof VarSymbol) {
+                if (pt != null && bindStatus.isBidiBind() && !types.isSameType(pt, initSym.type)) {
+                    log.error(init.pos(), 
+                              MsgSym.MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND,
+                              types.toJavaFXString(initSym.type),
+                              types.toJavaFXString(pt));
+                }
                 checkAssignable(init.pos(), (VarSymbol) initSym, base, site, env, WriteKind.INIT_BIND);
             } else {
                 log.error(init.pos(), MsgSym.MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND);

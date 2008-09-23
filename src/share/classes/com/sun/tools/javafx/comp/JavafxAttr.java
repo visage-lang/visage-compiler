@@ -32,6 +32,7 @@ import javax.lang.model.element.ElementKind;
 import javax.tools.JavaFileObject;
 
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javac.code.*;
 import static com.sun.tools.javac.code.Flags.*;
@@ -532,7 +533,8 @@ public class JavafxAttr implements JavafxVisitor {
 
             // ..., evaluate its initializer, if it has one, and check for
             // illegal forward reference.
-            checkInit(tree, env, v, false);
+            checkInit(tree, env, v);
+            checkForward(tree, env, v);
 
             // If we are expecting a variable (as opposed to a value), check
             // that the variable is assignable in the current environment.
@@ -556,9 +558,11 @@ public class JavafxAttr implements JavafxVisitor {
             if ((pkind & TYP) != 0) skind = skind | TYP | PCK;
             if ((pkind & (VAL | MTH)) != 0) skind = skind | VAL | TYP;
         }
-
+        boolean inSelectPrev = env.info.inSelect;
+        env.info.inSelect = true;
         // Attribute the qualifier expression, and determine its symbol (if any).
         Type site = attribTree(tree.selected, env, skind, Infer.anyPoly);
+        env.info.inSelect = inSelectPrev;
         if ((pkind & (PCK | TYP)) == 0)
             site = capture(site); // Capture field access
 
@@ -582,7 +586,7 @@ public class JavafxAttr implements JavafxVisitor {
         env.info.selectSuper =
             sitesym != null &&
             sitesym.name == names._super;
-
+        
         // If selected expression is polymorphic, strip
         // type parameters and remember in env.info.tvars, so that
         // they can be added later (in Attr.checkId and Infer.instantiateMethod).
@@ -617,8 +621,8 @@ public class JavafxAttr implements JavafxVisitor {
 
             // ..., evaluate its initializer, if it has one, and check for
             // illegal forward reference.
-            checkInit(tree, env, v, true);
-
+            checkInit(tree, env, v);
+            
             // If we are expecting a variable (as opposed to a value), check
             // that the variable is assignable in the current environment.
             if (pkind == VAR)
@@ -823,7 +827,7 @@ public class JavafxAttr implements JavafxVisitor {
     }
 
     public void finishVar(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
-        VarSymbol v = tree.sym;
+        VarSymbol v = tree.sym;        
 
         // The info.lint field in the envs stored in enter.typeEnvs is deliberately uninitialized,
         // because the annotations were not available at the time the env was created. Therefore,
@@ -849,8 +853,11 @@ public class JavafxAttr implements JavafxVisitor {
             Type initType;
             if (tree.init == null && (tree.getModifiers().flags & JavafxFlags.IS_DEF) != 0) {
                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_DEF_MUST_HAVE_INIT, v);
-            }
+            }            
             if (tree.init != null) {
+                if (tree.init.getJavaFXKind() == JavaFXKind.INSTANTIATE_OBJECT_LITERAL &&
+                    (tree.getModifiers().flags & JavafxFlags.IS_DEF) != 0)                        
+                    v.flags_field |= JavafxFlags.OBJ_LIT_INIT;
                 // Attribute initializer in a new environment.
                 // Check that initializer conforms to variable's declared type.
                 Scope initScope = new Scope(new MethodSymbol(BLOCK, v.name, null, env.enclClass.sym));
@@ -888,7 +895,7 @@ public class JavafxAttr implements JavafxVisitor {
                     }
                     initType = types.sequenceType(initType);
                 }
-                chk.checkBidiBind(tree.init, tree.getBindStatus(), initEnv);
+                chk.checkBidiBind(tree.init, tree.getBindStatus(), initEnv, v.type);
             }
             else if (tree.type != null)
                 initType = tree.type;
@@ -1004,7 +1011,7 @@ public class JavafxAttr implements JavafxVisitor {
                 v.pos = Position.MAXPOS;
 
                 chk.checkNonVoid(init, attribExpr(init, initEnv, declType));
-                chk.checkBidiBind(tree.getInitializer(), tree.getBindStatus(), initEnv);
+                chk.checkBidiBind(tree.getInitializer(), tree.getBindStatus(), initEnv, v.type);
             }
         } finally {
             chk.setLint(prevLint);
@@ -1446,12 +1453,17 @@ public class JavafxAttr implements JavafxVisitor {
                 log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_INVALID_ASSIGNMENT);
                 memberType = Type.noType;
             }
-            attribExpr(part.getExpression(), localEnv, memberType);
+            Scope initScope = new Scope(new MethodSymbol(BLOCK, memberSym.name, null, env.enclClass.sym));
+            initScope.next = env.info.scope;
+            JavafxEnv<JavafxAttrContext> initEnv =
+                env.dup(localPt, env.info.dup(initScope));
+            initEnv.outer = localEnv;            
+            attribExpr(part.getExpression(), initEnv, memberType);
             if (memberSym instanceof VarSymbol) {
                 VarSymbol v = (VarSymbol) memberSym;
                 WriteKind kind = part.isBound() ? WriteKind.INIT_BIND : WriteKind.INIT_NON_BIND;
                 chk.checkAssignable(part.pos(), v, part, clazz.type, localEnv, kind);
-                chk.checkBidiBind(part.getExpression(), part.getBindStatus(), localEnv);
+                chk.checkBidiBind(part.getExpression(), part.getBindStatus(), localEnv, v.type);
             }
             part.type = memberType;
             part.sym = memberSym;
@@ -1484,7 +1496,7 @@ public class JavafxAttr implements JavafxVisitor {
         // m.flags_field = chk.checkFlags(def.pos(), def.mods.flags, m, def);
         def.sym = m;
         finishFunctionDefinition(def, env);
-        result = tree.type = syms.makeFunctionType((MethodType) def.type);
+        result = tree.type = check(tree, syms.makeFunctionType((MethodType) def.type), VAL, pkind, pt, pSequenceness);
     }
 
     @Override
@@ -3161,33 +3173,55 @@ public class JavafxAttr implements JavafxVisitor {
          */
         private void checkInit(JFXTree tree,
                                JavafxEnv<JavafxAttrContext> env,
-                               VarSymbol v,
-                               boolean onlyWarning) {
-//          System.err.println(v + " " + ((v.flags() & STATIC) != 0) + " " +
-//                             tree.pos + " " + v.pos + " " +
-//                             Resolve.isStatic(env));//DEBUG
-
-            // A forward reference is diagnosed if the declaration position
-            // of the variable is greater than the current tree position
-            // and the tree and variable definition occur in the same class
-            // definition.  Note that writes don't count as references.
-            // This check applies only to class and instance
-            // variables.  Local variables follow different scope rules,
-            // and are subject to definite assignment checking.
-            if (v.pos > tree.pos &&
-                v.owner.kind == TYP &&
-                canOwnInitializer(env.info.scope.owner) &&
-                v.owner == env.info.scope.owner.enclClass() &&
-                ((v.flags() & STATIC) != 0) == JavafxResolve.isStatic(env) &&
-                (env.tree.getFXTag() != JavafxTag.ASSIGN ||
-                 JavafxTreeInfo.skipParens(((JFXAssign) env.tree).lhs) != tree)) {
-        }
-
+                               VarSymbol v) {
             v.getConstValue(); // ensure initializer is evaluated
-
             checkEnumInitializer(tree, env, v);
         }
-        
+        private void checkForward(JFXTree tree,
+                               JavafxEnv<JavafxAttrContext> env,
+                               VarSymbol v
+                               ) {            
+            // A forward reference is diagnosed if the declaration position
+            // of the variable is greater than the current tree position
+            // and the tree and variable definition share the same enclosing 
+            // scope. A forward reference to a def variable whose initializer is
+            // an object literal is always allowed. Selection on such variables
+            // is only allowed when it occurs within bound/function/class context.
+            if (v.pos > tree.pos && (env.info.inSelect ?                
+                true : !isObjLiteralDef(v)) &&
+                !isForwardAcceptable(v, env))
+                log.warning(tree.pos(), MsgSym.MESSAGE_ILLEGAL_FORWARD_REF, Resolve.kindName(v.kind), v);            
+        }
+        //where
+        private boolean isObjLiteralDef(VarSymbol v) {
+            return (v.flags() & JavafxFlags.OBJ_LIT_INIT) != 0;         
+        }
+        //where
+        public boolean isForwardAcceptable(VarSymbol v, JavafxEnv<JavafxAttrContext> env) {
+            while (env != null) {
+                Symbol s = env.info.scope.owner;
+                if (v.owner == s) return false;
+                if (isBound(env) || isClassOrFuncDef(env))                    
+                    return true;
+                env = env.outer;
+            }
+            return true;
+        }
+        //where
+        private boolean isClassOrFuncDef(JavafxEnv<JavafxAttrContext> env) {
+            return env.tree.getJavaFXKind() == JavaFXKind.FUNCTION_DEFINITION || 
+                   env.tree.getJavaFXKind() == JavaFXKind.FUNCTION_VALUE ||                   
+                   env.tree.getJavaFXKind() == JavaFXKind.CLASS_DECLARATION ||
+                   (env.tree.getJavaFXKind() == JavaFXKind.VARIABLE &&
+                    ((JFXVar)env.tree).getOnReplace() != null);
+        }        
+        //where
+        private boolean isBound(JavafxEnv<JavafxAttrContext> env) {
+            return (env.tree.getJavaFXKind() == JavaFXKind.VARIABLE &&
+                    ((JFXVar)env.tree).isBound()) ||
+                    (env.tree.getJavaFXKind() == JavaFXKind.OBJECT_LITERAL_PART &&
+                    ((JFXObjectLiteralPart)env.tree).isBound());
+        }
         /**
          * Check for illegal references to static members of enum.  In
          * an enum type, constructors and initializers may not
