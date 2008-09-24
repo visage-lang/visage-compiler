@@ -11,6 +11,11 @@ public class Script {
     private static Map<String, Test> testMap = new HashMap<String, Test>();
     static {
         testMap.put("SE", new SequenceExerciser());
+        try {
+            testMap.put("JE", (Test)Class.forName("com.sun.javafx.runtime.sequences.JPEGEncoder").newInstance());
+        } catch (Exception ex) {
+            // ignore
+        }
     }
     
     public static Script readFromFile(String script) {
