@@ -16,6 +16,11 @@ public class Script {
         } catch (Exception ex) {
             // ignore
         }
+        try {
+            testMap.put("FM", (Test)Class.forName("com.sun.javafx.runtime.sequences.FractalMadness").newInstance());
+        } catch (Exception ex) {
+            // ignore
+        }
     }
     
     public static Script readFromFile(String script) {
