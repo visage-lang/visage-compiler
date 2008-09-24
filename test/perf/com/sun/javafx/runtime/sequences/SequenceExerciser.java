@@ -1,7 +1,7 @@
 package com.sun.javafx.runtime.sequences;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.*;
 
 import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.location.SequenceVariable;
@@ -12,7 +12,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
  *
  * @author Brian Goetz
  */
-public class SequenceExerciser {
+public class SequenceExerciser implements Test {
     private static Map<String, Class<? extends SequenceOpGenerator>> ops = new HashMap<String, Class<? extends SequenceOpGenerator>>();
     static int random = (int) System.nanoTime();
     static {
@@ -35,7 +35,24 @@ public class SequenceExerciser {
         return ret;
     }
 
-    public static void main(String[] args) throws IllegalAccessException, InstantiationException {
+    public TestResult start (String args) {
+        Pattern p = Pattern.compile("\"(.+?)\"");
+        Matcher m = p.matcher(args);
+        ArrayList<String> parts = new ArrayList<String>();
+        while (m.find()) {
+            parts.add(m.group(1));
+        }
+        try {
+            TestResult result = run(parts.toArray(new String[0]));
+            return result;
+        } catch (Exception ex) {
+            System.err.println(ex.getLocalizedMessage());
+            return TestResult.EMPTY;
+        }
+    }
+
+    public static TestResult run(String[] args) throws IllegalAccessException, InstantiationException {
+        long time = 0;
         int initialSize = Integer.parseInt(args[0]);
         SequenceLocation<Integer> seq = SequenceVariable.make(Integer.class, Sequences.range(1, initialSize));
         int sum = 0;
@@ -47,9 +64,15 @@ public class SequenceExerciser {
             gg.parseOptions(parts, 1);
             sum += gg.doOp(seq);
             long end = System.nanoTime();
+            time += (end-start);
             System.out.printf("Operation %s: time %d%n", args[i], (end-start));
             start = end;
         }
+        return new TestResult((int)(time/1000000));
+    }
+
+    public static void main(String[] args) throws IllegalAccessException, InstantiationException {
+        run(args);
     }
 }
 
