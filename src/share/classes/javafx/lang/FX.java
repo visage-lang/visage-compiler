@@ -37,6 +37,7 @@ import java.util.NoSuchElementException;
 import java.lang.ArrayIndexOutOfBoundsException;
 import com.sun.javafx.runtime.Entry;
 import com.sun.javafx.functions.Function0;
+import com.sun.javafx.runtime.SystemProperties;
 
 // factored out to avoid linkage error for javax.script.* on Java 1.5
 class Evaluator {
@@ -127,6 +128,28 @@ public class FX {
         }
     }
 
+    /**
+     * Retrieve System Property.
+     * System Properties in JavaFX environment can be classified into 3 types:
+     * 1. Runtime platform associated property. 
+     *    Those properties have an equivalent in current java runtime 
+     *    environment (SE/ME). The FX.getProperty() method retrieves
+     *    those properties by mapping specified key with runtime platform key. 
+     * </p>
+     * 2. JavaFX specific property. 
+     *    Those properties are specific to JavaFX environment therefore
+     *    value of the properties is specified in the JavaFX tree.
+     * </p>
+     * 3. The property has no association with current runtime platform 
+     *    nor is JavaFX specific, therefore those properties are not 
+     *    supported and null is returned.
+     * @param key Environment Property to be inquired
+     * @return the string value of the property
+     */
+    public static String getProperty (String key) {
+        return SystemProperties.getProperty(key);
+    }
+ 
     /*
      * This static will be unique to each applet, when we move
      * to the FXME/Embedded this will need to be tied the AMS
