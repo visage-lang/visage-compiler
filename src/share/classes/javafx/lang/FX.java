@@ -31,10 +31,6 @@ import com.sun.javafx.api.JavaFXScriptEngine;
 import com.sun.javafx.runtime.location.BindableLocation;
 
 import java.util.Vector;
-import java.util.Hashtable;
-import java.lang.ThreadDeath;
-import java.util.NoSuchElementException;
-import java.lang.ArrayIndexOutOfBoundsException;
 import com.sun.javafx.runtime.Entry;
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.SystemProperties;
