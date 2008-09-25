@@ -23,10 +23,9 @@
 
 package com.sun.javafx.runtime;
 
-import java.util.Properties;
+import java.util.Hashtable;
 
 public class  SystemProperties {
-	 
    /**
     * JavaFX System Properties table.
     * First column represents javafx property name with "javafx" prefix stripped off.
@@ -46,8 +45,8 @@ public class  SystemProperties {
     private static String[] jfxprop_table = {
     };
 
-    private static Properties sysprop_list = new Properties();  
-    private static Properties jfxprop_list = new Properties();
+    private static Hashtable sysprop_list = new Hashtable();  
+    private static Hashtable jfxprop_list = new Hashtable();
 
 
     static {
@@ -86,51 +85,51 @@ public class  SystemProperties {
     public static void addProperties (String[] table, boolean jfx_specific) {
         if (table == null)
             return;
-		         
-        Properties props;
-		            
+
+        Hashtable props;
+                            
         if (jfx_specific) {
             props = jfxprop_list;
         } else {
             props = sysprop_list;
         }
-			          
+                                  
         for (int i=0; i<table.length; i+=2) {
-            props.setProperty(table[i], table[i+1]);
+            props.put(table[i], table[i+1]);
         }
     } 
 
     public static String getProperty (String key) {
-	Properties props = sysprop_list;
-	final String prefix = "javafx.";
+        Hashtable props = sysprop_list;
+        final String prefix = "javafx.";
 
-	if (key == null)
-		return null;
+        if (key == null)
+                return null;
 
-	if (key.startsWith(prefix.toString())) {
+        if (key.startsWith(prefix.toString())) {
             key = key.substring(prefix.length());
         } else {
-	    return null;
+            return null;
         }
-	final String found = props.getProperty(key);
+        final String found = (String)props.get(key);
         if ((found == null) || (found.equals(""))) {
-	// No Java Runtime Environment property equivalent is found
-	    return null;
-	}			
+        // No Java Runtime Environment property equivalent is found
+            return null;
+        }                        
 
-		
-	// Now check if the property is JFX specific and has no association with Runtime Environment
-	if (found.equals("jfx_specific")) {
+                
+        // Now check if the property is JFX specific and has no association with Runtime Environment
+        if (found.equals("jfx_specific")) {
             props = jfxprop_list;
-            return props.getProperty(key);
-	} else {
+            return (String)props.get(key);
+        } else {
             String res = java.security.AccessController.doPrivileged(
-		                new java.security.PrivilegedAction<String>() {
+                                new java.security.PrivilegedAction<String>() {
                                     public String run() {
                                         return System.getProperty(found);
                                     }
-	                        });
-	    return res;
+                                });
+            return res;
         }
     }
 
@@ -139,30 +138,30 @@ public class  SystemProperties {
     * @param key JavaFX System Property name
     */
     public static void clearProperty (String key) {
-	if (key == null)
-		return;
+        if (key == null)
+                return;
 
-        Properties props = sysprop_list;
-	final String prefix = "javafx.";
+        Hashtable props = sysprop_list;
+        final String prefix = "javafx.";
         
-	// Remove "javafx." prefix from the key
-	if (key.startsWith(prefix.toString())) {
+        // Remove "javafx." prefix from the key
+        if (key.startsWith(prefix.toString())) {
             key = key.substring(prefix.length());
         } else {
-	    return;
+            return;
         }
 
-	String value = props.getProperty(key);
+        String value = (String)props.get(key);
         if (value == null)
             return;
 
         props.remove(key);
 
-	// Remove the prop from the JavaFX specific properties table if applicable
-	if (value.equals("jfx_specific")) {
-           props = jfxprop_list;		
-	    props.remove(key);
-	}
+        // Remove the prop from the JavaFX specific properties table if applicable
+        if (value.equals("jfx_specific")) {
+           props = jfxprop_list;                
+            props.remove(key);
+        }
     }
 
     /**
@@ -174,36 +173,37 @@ public class  SystemProperties {
      */
     public static void setProperty (String key, final String value, boolean jfx_specific) {
 
-	Properties props = sysprop_list;
+        Hashtable props = sysprop_list;
         final String prefix = "javafx.";
 
-	if ((key == null) || (value == null))
-		return;           
+        if ((key == null) || (value == null))
+                return;           
 
-	// Remove "javafx." prefix from the key
-	if (key.startsWith(prefix.toString())) {
+        // Remove "javafx." prefix from the key
+        if (key.startsWith(prefix.toString())) {
             key = key.substring(prefix.length());
         } else {
-	    return;
+            return;
         }
-	
-	// Change existing property value
-	if (jfx_specific) {
-            props.setProperty(key, "jfx_specific");
+        
+        // Change existing property value
+        if (jfx_specific) {
+            props.put(key, "jfx_specific");
             props = jfxprop_list;
-            props.setProperty(key, value); 
-	} else {
-            final String rt_prop = props.getProperty(key);
+            props.put(key, value); 
+        } else {
+            final String rt_prop = (String)props.get(key);
             if ((rt_prop == null) || (rt_prop.equals("")))
                 return;
 
             java.security.AccessController.doPrivileged(
                 new java.security.PrivilegedAction<Void>() {
-		    public Void run() {
+                    public Void run() {
                         System.setProperty(rt_prop, value);
                         return null;
                     }
-                });
-	}
+                }
+            );
+        }
     }
 }
