@@ -188,12 +188,14 @@ int Configuration::parseArgs(int argc, char** argv) {
             }
 
         } else if (0 == strncmp("-J", arg, 2)) {
-            vmargs += " ";
+            vmargs += " \"";
             vmargs += arg+2;    // skip first two characters "-J"
+            vmargs += "\"";
 
         } else {
-            fxargs += " ";
+            fxargs += " \"";
             fxargs += arg;
+            fxargs += "\"";
         }
     }
     return (EXIT_SUCCESS);
