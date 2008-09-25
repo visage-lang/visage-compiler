@@ -20,20 +20,20 @@ import java.awt.event.*;
 import java.util.concurrent.TimeUnit;
 
 function runLater(ms: Number, f: function(): Void): Void {
-	var timer = new Timer(ms, ActionListener {
-		public function actionPerformed(e: ActionEvent) {
-			f();
-		}
-	});
-	timer.setRepeats(false);
-	timer.start();
+    var timer = new Timer(ms, ActionListener {
+        public override function actionPerformed(e: ActionEvent) {
+            f();
+        }
+    });
+    timer.setRepeats(false);
+    timer.start();
 }
 
 var keepAlive : Timeline = Timeline {
-	repeatCount: Timeline.INDEFINITE
+    repeatCount: Timeline.INDEFINITE
     keyFrames: KeyFrame {
-		time: 100ms
-	}
+        time: 100ms
+    }
 };
 
 var ea: Integer = 0;
@@ -47,40 +47,40 @@ var target: Integer on replace {
 var t : Timeline = Timeline {
     repeatCount: 20
     keyFrames: [
-		KeyFrame {
-			time: 100ms
-			canSkip: false
-			action: function() {				
-				ea++;                
-                Thread.sleep(500);
-			}
-		},		
-		KeyFrame {
-			time: 200ms
-			canSkip: false
-            values: target => eb
-			action: function() {
-				eb++;
-			}
-		},
-		KeyFrame {
-			time: 300ms
-			canSkip: false
-			action: function() {				
-				ec++;
-			}
-		},
+    KeyFrame {
+        time: 100ms
+        canSkip: false
+        action: function() {				
+            ea++;                
+            Thread.sleep(500);
+        }
+    },		
+        KeyFrame {
+        time: 200ms
+        canSkip: false
+        values: target => eb
+        action: function() {
+            eb++;
+        }
+    },
+        KeyFrame {
+        time: 300ms
+        canSkip: false
+        action: function() {				
+            ec++;
+        }
+    },
 	]
 };
 
-keepAlive.start();
-t.start();
+keepAlive.play();
+t.play();
 runLater(500, change);
 function change() {
     t.pause();
     //System.out.println("t.paused = {t.paused}");
     t.keyFrames[1].canSkip = true;
-    t.resume();
+    t.play();
     //System.out.println("t.paused = {t.paused}");
     runLater(2500, check);
 }

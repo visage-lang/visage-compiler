@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 function runLater(ms: Number, f: function(): Void): Void {
 	var timer = new Timer(ms, ActionListener {
-		public function actionPerformed(e: ActionEvent) {
+		public override function actionPerformed(e: ActionEvent) {
 			f();
 		}
 	});
@@ -75,8 +75,8 @@ var t : Timeline = Timeline {
 	]
 };
 
-keepAlive.start();
-t.start();
+keepAlive.play();
+t.play();
 runLater(3000, check);
 
 function check(): Void {

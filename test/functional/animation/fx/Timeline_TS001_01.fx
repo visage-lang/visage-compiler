@@ -38,4 +38,4 @@ var t : Timeline = Timeline {
         }
 }
 
-t.start();
+t.play();

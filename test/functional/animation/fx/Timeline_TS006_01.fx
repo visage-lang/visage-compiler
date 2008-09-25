@@ -20,7 +20,7 @@ import java.awt.event.*;
 
 function runLater(ms: Number, f: function(): Void): Void {
 	var timer = new Timer(ms, ActionListener {
-		public function actionPerformed(e: ActionEvent) {
+		public override function actionPerformed(e: ActionEvent) {
 			f();
 		}
 	});
@@ -93,15 +93,15 @@ var t3 : Timeline = Timeline {
         }
 };
 
-t1.start();
+t1.play();
 runLater(1000, f1);
 
 function f1() {
 	count = 0;
-	t2.start();
+	t2.play();
 	runLater(1000, f2);
 }
 
 function f2() {
-	t3.start();
+	t3.play();
 }

@@ -19,13 +19,13 @@ import javax.swing.Timer;
 import java.awt.event.*;
 
 function runLater(ms: Number, f: function(): Void): Void {
-	var timer = new Timer(ms, ActionListener {
-		public function actionPerformed(e: ActionEvent) {
-			f();
-		}
-	});
-	timer.setRepeats(false);
-	timer.start();
+    var timer = new Timer(ms, ActionListener {
+        public override function actionPerformed(e: ActionEvent) {
+            f();
+        }
+    });
+    timer.setRepeats(false);
+    timer.start();
 }
 
 var images = [1..16];
@@ -37,14 +37,14 @@ var id: Integer = 0;
 var keepAlive: Timeline = Timeline {
     repeatCount: Timeline.INDEFINITE
     keyFrames: [
-        KeyFrame {
-            time: 100ms
-        }
+    KeyFrame {
+        time: 100ms
+    }
     ]
 };
 
 var t : Timeline = Timeline {
-	toggle: true
+    rate: 1
     repeatCount: 1
     keyFrames: for (image in images)
         KeyFrame {
@@ -59,14 +59,14 @@ var t : Timeline = Timeline {
         }
 }
 
-keepAlive.start();
-t.start();
+keepAlive.play();
+t.play();
 
 runLater(2000, resume);
 
 function resume() {
 	//System.out.println("t.paused = {t.paused}. Now will resume.");
-	t.resume();
+	t.play();
 	runLater(2000, check);
 }
 

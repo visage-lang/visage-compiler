@@ -106,5 +106,5 @@ var t : Timeline = Timeline {
 ////System.out.println("Boolean: {b}");
 ////System.out.println("Number: {n}");
 ////System.out.println("Duration: {d}\n");
-t.start();
+t.play();
 

@@ -40,7 +40,7 @@ var t : Timeline = Timeline {
 
 function runLater(ms: Number, f: function(): Void): Void {
 	var timer = new Timer(ms, ActionListener {
-		public function actionPerformed(e: ActionEvent) {
+		public override function actionPerformed(e: ActionEvent) {
 			f();
 		}
 	});
@@ -53,10 +53,10 @@ function pause() {
 }
 
 function resume() {
-	t.resume();
+	t.play();
 }
 
-t.start();
+t.play();
 
 var dummy = bind t.paused on replace {
 	//System.out.println("t.paused = {t.paused}");

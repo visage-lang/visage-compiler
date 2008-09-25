@@ -55,7 +55,7 @@ function log(t: Number, dv: Number) {
 			var dt = TimeUnit.NANOSECONDS.toMillis((t - s).longValue()) as Number;
 			var slope = (dv * 1000.0)/dt;
 			s = t;
-			
+
 			if(et < 100) {
 				if(avgBegin == 0) {
 					avgBegin = slope;
@@ -89,7 +89,7 @@ var n: Number = 0 on replace old = newValue {
 	}
 	//System.out.println("{%.1f newValue*100}");
 }
-var bpn = bind pf.make(n); 
+var bpn = bind pf.make(n);
 var pn = bpn.unwrap();
 
 var keyValue = KeyValue {
@@ -106,11 +106,11 @@ var t = Timeline {
 	]
 }
 
-keepAlive.start();
+keepAlive.play();
 
 //System.out.println("\n<Interpolator.DISCRETE>");
 keyValue.interpolate = Interpolator.DISCRETE;
-t.start();
+t.play();
 begin = System.nanoTime();
 runLater(2000, check);
 

@@ -62,17 +62,17 @@ var t = Timeline {
 
 //System.out.println("\nInterpolator.LINEAR:");
 keyValue.interpolate = Interpolator.LINEAR;
-keepAlive.start();
-t.start();
+keepAlive.play();
+t.play();
 runLater(2000, rerun1);
 
-function rerun1() {	
+function rerun1() {
 	//System.out.println("count = {count}");
         end();
 	//System.out.println("\nInterpolator.EASEIN:");
 	keyValue.interpolate = Interpolator.EASEIN;
 	count = 0;
-	t.start();
+	t.play();
 	runLater(2000, rerun2);
 }
 
@@ -82,7 +82,7 @@ function rerun2() {
 	//System.out.println("\nInterpolator.EASEOUT:");
 	keyValue.interpolate = Interpolator.EASEOUT;
 	count = 0;
-	t.start();
+	t.play();
 	runLater(2000, rerun3);
 }
 
@@ -92,7 +92,7 @@ function rerun3() {
 	//System.out.println("\nInterpolator.EASEBOTH:");
 	keyValue.interpolate = Interpolator.EASEBOTH;
 	count = 0;
-	t.start();
+	t.play();
 	runLater(2000, rerun4);
 }
 
@@ -102,7 +102,7 @@ function rerun4() {
 	//System.out.println("\nInterpolator.DISCRETE:");
 	keyValue.interpolate = Interpolator.DISCRETE;
 	count = 0;
-	t.start();
+	t.play();
 	runLater(2000, end);
 }
 

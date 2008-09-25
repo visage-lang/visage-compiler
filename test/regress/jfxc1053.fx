@@ -22,4 +22,4 @@ var t = Timeline {
     }
 }
 
-t.start();
+t.play();

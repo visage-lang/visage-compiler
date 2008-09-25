@@ -106,11 +106,11 @@ var t = Timeline {
 	]
 }
 
-keepAlive.start();
+keepAlive.play();
 
 //System.out.println("\n<Interpolator.DISCRETE>");
 keyValue.interpolate = Interpolator.DISCRETE;
-t.start();
+t.play();
 begin = System.nanoTime();
 runLater(2000, check);
 

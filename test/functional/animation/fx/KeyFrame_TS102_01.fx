@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 function runLater(ms: Number, f: function(): Void): Void {
 	var timer = new Timer(ms, ActionListener {
-		public function actionPerformed(e: ActionEvent) {
+		public override function actionPerformed(e: ActionEvent) {
 			f();
 		}
 	});
@@ -81,15 +81,15 @@ var t : Timeline = Timeline {
 	]
 };
 
-keepAlive.start();
+keepAlive.play();
 s1 = System.nanoTime();
-t.start();
+t.play();
 runLater(5000, check);
 
 function check() {
 	//System.out.println("checking");
 	keepAlive.stop();
-	
+
 	// undocumented behavior.
 	if(t0 > t1 or t0 > t2) {
 		throw new AssertionError("test failed");

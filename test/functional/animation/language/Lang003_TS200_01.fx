@@ -79,7 +79,7 @@ var t: Timeline = Timeline {
 }
 
 s1 = System.nanoTime();
-t.start();
+t.play();
 
 // check after 1m
 var timer = new Timer(60000, ActionListener {

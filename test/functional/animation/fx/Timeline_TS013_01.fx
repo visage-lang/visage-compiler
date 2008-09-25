@@ -21,11 +21,12 @@ import java.awt.event.*;
 var t: Timeline = Timeline {};
 
 //System.out.println("Default Timeline.autoReverse = {t.autoReverse}");
-//System.out.println("Default Timeline.keyFrames = " + t.keyFrames);
+//System.out.println("Default Timeline.keyFrames = {t.keyFrames}");
 //System.out.println("Default Timeline.paused = {t.paused}");
 //System.out.println("Default Timeline.repeatCount = {t.repeatCount}");
 //System.out.println("Default Timeline.running = {t.running}");
-//System.out.println("Default Timeline.toggle = {t.toggle}");
+//System.out.println("Default Timeline.currentRate = {t.currentRate}");
+//System.out.println("Default Timeline.rate = {t.rate}");
 
 if(t.autoReverse != false) {
 	throw new AssertionError("test failed: autoReverse should be 'false'");
@@ -47,6 +48,6 @@ if(t.running != false) {
 	throw new AssertionError("test failed: running should be 'false'");
 } 
 
-if(t.toggle != false) {
-	throw new AssertionError("test failed: toggle should be 'false'");
+if(t.rate <= 0) {
+	throw new AssertionError("test failed: toggle should be greater than 0");
 } 

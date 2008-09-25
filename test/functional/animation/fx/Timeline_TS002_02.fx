@@ -26,7 +26,7 @@ var keepalive: Timeline = Timeline {
         }
     ]
 }
-keepalive.start();
+keepalive.play();
 
 var images = [1..10];
 var golden = [0..9];
@@ -53,7 +53,7 @@ var t : Timeline = Timeline {
 
 function runLater(ms: Number, f: function(): Void): Void {
 	var timer = new Timer(ms, ActionListener {
-		public function actionPerformed(e: ActionEvent) {
+		public override function actionPerformed(e: ActionEvent) {
 			f();
 		}
 	});
@@ -62,7 +62,7 @@ function runLater(ms: Number, f: function(): Void): Void {
 }
 
 //System.out.println("1st run");
-t.start();
+t.play();
 
 // Anim runs 1s. Now let's stop it before it reaches the last frame.
 runLater(500, runAgain);	
@@ -74,7 +74,7 @@ function runAgain() {
 	
 	id = 0;
 	//System.out.println("2nd run");
-	t.start();
+	t.play();
 	runLater(2000, stop);
 }
 

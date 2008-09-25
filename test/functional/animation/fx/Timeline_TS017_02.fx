@@ -19,13 +19,13 @@ import javax.swing.Timer;
 import java.awt.event.*;
 
 function runLater(ms: Number, f: function(): Void): Void {
-	var timer = new Timer(ms, ActionListener {
-		public function actionPerformed(e: ActionEvent) {
-			f();
-		}
-	});
-	timer.setRepeats(false);
-	timer.start();
+    var timer = new Timer(ms, ActionListener {
+        public override function actionPerformed(e: ActionEvent) {
+            f();
+        }
+    });
+    timer.setRepeats(false);
+    timer.start();
 }
 
 var images = [1..16];
@@ -37,34 +37,35 @@ var id: Integer = 0;
 var keepAlive: Timeline = Timeline {
     repeatCount: Timeline.INDEFINITE
     keyFrames: [
-        KeyFrame {
-            time: 100ms
-        }
+    KeyFrame {
+        time: 100ms
+    }
     ]
 };
 
 var t : Timeline = Timeline {
-	toggle: true
+    rate: 1
     repeatCount: 1
     keyFrames: for (image in images)
         KeyFrame {
-            time: 100ms * indexof image
-            action: function() {
-				//System.out.println("=> {indexof image}");
-				insert indexof image into out;
-            }
+        time: 100ms * indexof image
+        action: function() {
+            //System.out.println("=> {indexof image}");
+            insert indexof image into out;
         }
+    }
 }
 
-keepAlive.start();
-t.start();
+keepAlive.play();
+t.play();
 
 runLater(2000, rerun);
 
 function rerun() {
-	//System.out.println("t.running = {t.running}. Now will start again.");
-	t.start();
-	runLater(2000, check);
+    //System.out.println("t.running = {t.running}. Now will play again.");
+    t.rate=-1;
+    t.play();
+    runLater(2000, check);
 }
 
 function check() {

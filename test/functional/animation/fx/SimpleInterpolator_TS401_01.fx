@@ -33,7 +33,7 @@ class GoldenData extends Interpolatable {
 	}
 
 	override function toString(): String {
-		value.toString();
+		 "{value}";
 	}
 }
 

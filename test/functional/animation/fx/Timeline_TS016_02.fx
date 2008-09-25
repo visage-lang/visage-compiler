@@ -35,11 +35,11 @@ function terminate(ms: String) {
     throw new AssertionError(ms);
 }
 
-t.start();
+t.play();
 
 // timeline should be ended after 1s. So check the running status is false.
 var timer = new Timer(1000, ActionListener {
-    public function actionPerformed(e: ActionEvent) {
+    public override function actionPerformed(e: ActionEvent) {
 		if(t.running != false) {
 			terminate("t.running = {t.running}: should false.");
 		}

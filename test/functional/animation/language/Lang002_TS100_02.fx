@@ -39,60 +39,60 @@ var t = Timeline {
     repeatCount: 1
     autoReverse: false
     keyFrames: [
-        KeyFrame {
-            time  : 1s
-            values: [
-				s => "def" tween Interpolator.EASEBOTH, 
-				i => 10 tween Interpolator.EASEBOTH, 
-				b => false tween Interpolator.EASEBOTH, 
-				n => 10 tween Interpolator.EASEBOTH, 
-				d => 10s tween Interpolator.EASEBOTH]
-            action: function() {
-                if(s != "def") {
-                    throw new AssertionError("=>String: failed");
-                }
-                if(i != 10) {
-                    throw new AssertionError("=>Integer: failed");
-                }
-                if(b != false) {
-                    throw new AssertionError("=>Boolean: failed");
-                }
-                if(n != 10) {
-                    throw new AssertionError("=>Number: failed");
-                }
-                if(d != 10s) {
-                    throw new AssertionError("=>Duration: failed");
-                }
+    KeyFrame {
+        time  : 1s
+        values: [
+        s => "def" tween Interpolator.EASEBOTH, 
+            i => 10 tween Interpolator.EASEBOTH, 
+            b => false tween Interpolator.EASEBOTH, 
+            n => 10 tween Interpolator.EASEBOTH, 
+            d => 10s tween Interpolator.EASEBOTH]
+        action: function() {
+            if(s != "def") {
+                throw new AssertionError("=>String: failed");
             }
-        },
-        KeyFrame{
-            time  : 2s
-            values: [
-				xyz.s => "def" tween Interpolator.EASEBOTH, 
-				xyz.i => 10 tween Interpolator.EASEBOTH, 
-				xyz.b => false tween Interpolator.EASEBOTH, 
-				xyz.n => 10 tween Interpolator.EASEBOTH,
-				//xyz.d => 10s
-				]
-            action: function() {
-                if(xyz.s != "def") {
-                    throw new AssertionError("=>String: failed");
-                }
-                if(xyz.i != 10) {
-                    throw new AssertionError("=>Integer: failed");
-                }
-                if(xyz.b != false) {
-                    throw new AssertionError("=>Boolean: failed");
-                }
-                if(xyz.n != 10) {
-                    throw new AssertionError("=>Number: failed");
-                }
-                if(xyz.d != 10s) {
-                    //throw new AssertionError("=>Duration: failed");
-                }
+            if(i != 10) {
+                throw new AssertionError("=>Integer: failed");
+            }
+            if(b != false) {
+                throw new AssertionError("=>Boolean: failed");
+            }
+            if(n != 10) {
+                throw new AssertionError("=>Number: failed");
+            }
+            if(d != 10s) {
+                throw new AssertionError("=>Duration: failed");
             }
         }
-   ]
+    },
+        KeyFrame{
+        time  : 2s
+        values: [
+        xyz.s => "def" tween Interpolator.EASEBOTH, 
+            xyz.i => 10 tween Interpolator.EASEBOTH, 
+            xyz.b => false tween Interpolator.EASEBOTH, 
+            xyz.n => 10 tween Interpolator.EASEBOTH,
+            //xyz.d => 10s
+            ]
+        action: function() {
+            if(xyz.s != "def") {
+                throw new AssertionError("=>String: failed");
+            }
+            if(xyz.i != 10) {
+                throw new AssertionError("=>Integer: failed");
+            }
+            if(xyz.b != false) {
+                throw new AssertionError("=>Boolean: failed");
+            }
+            if(xyz.n != 10) {
+                throw new AssertionError("=>Number: failed");
+            }
+            if(xyz.d != 10s) {
+                //throw new AssertionError("=>Duration: failed");
+            }
+        }
+    }
+    ]
 }
 
-t.start();
+t.play();
