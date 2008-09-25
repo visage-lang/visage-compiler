@@ -31,5 +31,16 @@ import java.lang.Object;
  * @profile common
  */
 public abstract class Interpolatable {
+    
+    /**
+     * The function calcuates an interpolated value along the {@code t} between
+     * {@code 0.0} and {@code 1.0}. When {@code t} = 1.0, {@code endVal} is returned.
+     *
+     * @param endValue  target value
+     * @param t fraction between {@code 0.0} and {@code 1.0}
+     * @return interpolated value
+     *
+     * @profile common
+     */
     public abstract function ofTheWay(endVal:Object, t:Number) : Object;
 }

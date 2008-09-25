@@ -31,6 +31,7 @@ import com.sun.javafx.runtime.Numerics;
  * or that extends java.lang.Number.
  *
  * @profile common
+ * @see Interpolator
  */
 public abstract class SimpleInterpolator extends Interpolator {
 
@@ -45,6 +46,12 @@ public abstract class SimpleInterpolator extends Interpolator {
     public abstract function curve(t: Number) : Number;
 
     /**
+     * This function takes {@code startValue} object and {@code endValue} object along with {@code faction} 
+     * between 0.0 and 1.0 and returns another object, between {@code startValue} and 
+     * {@code1 endValue}. The purpose of the function is to define how time 
+     * (represented as a (0.0 - 1.0) fraction of the duration of an animation) is altered 
+     * to derive different value calculations during an animation.
+     *
      * @profile common
      */      
     public override function interpolate(startValue:Object, endValue:Object, fraction:Number):Object {
@@ -67,6 +74,12 @@ public abstract class SimpleInterpolator extends Interpolator {
     }
 
     /**
+     * This function takes an numeric {@code startValue} and an numeric {@code endValue} along with {@code faction} 
+     * between 0.0 and 1.0 and returns another numeric value, between {@code startValue} and 
+     * {@code1 endValue}. The purpose of the function is to define how time 
+     * (represented as a (0.0 - 1.0) fraction of the duration of an animation) is altered 
+     * to derive different value calculations during an animation.
+     *
      * @profile common
      */      
     public function interpolate(startValue:Number, endValue:Number, fraction:Number):Number {
@@ -74,6 +87,12 @@ public abstract class SimpleInterpolator extends Interpolator {
     }
 
     /**
+     * This function takes an integer {@code startValue} and an integer {@code endValue} along with {@code faction} 
+     * between 0.0 and 1.0 and returns another integer value, between {@code startValue} and 
+     * {@code1 endValue}. The purpose of the function is to define how time 
+     * (represented as a (0.0 - 1.0) fraction of the duration of an animation) is altered 
+     * to derive different value calculations during an animation.
+     *
      * @profile common
      */      
     public function interpolate(startValue:Integer, endValue:Integer, fraction:Number):Integer {

@@ -26,21 +26,36 @@ package javafx.animation;
 import java.lang.Object;
 
 /**
+ * Defines a key value to be interpolated for a particular interval along
+ * the animation.
+ * <p>
+ * By default, {@code Interpolator.LINEAR} is used in the interval.
+ *
  * @profile common
+ * @see Interpolator
+ * @see KeyValueTarget
  */
 public class KeyValue {
     
     /**
+     * Target variable holds the key value.
+     *
      * @profile common
      */      
     public var target: KeyValueTarget;
     
     /**
+     * Target value
+     *
      * @profile common
      */      
     public var value: Object;
     
     /**
+     * {@code Interpolator} to be used for calculating the key value
+     * along the particular interval. By default, {@code Interpolator.LINEAR}
+     * is used.
+     *
      * @profile common
      */      
     public var interpolate: Interpolator = Interpolator.LINEAR;

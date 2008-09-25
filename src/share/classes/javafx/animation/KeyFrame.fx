@@ -28,7 +28,18 @@ import java.lang.Object;
 import javafx.lang.Duration;
 
 /**
+ * Defines a key timing and values that are interpolated along the {@code Timeline}.
+ *
+ * <p>
+ * The developer can control the timing and/or motion behavior
+ * for a particular interval by providing target values and {@code Interpolator}
+ * associated to each value. The values are interpolated along the particular
+ * interval and reach the target value at specified timing. Also, {@code action}
+ * function will be invoked at the particular timing.
+ *
  * @profile common
+ * @see Timeline
+ * @see Interpolator
  */
 public class KeyFrame extends Comparable {
     /**
@@ -96,6 +107,11 @@ public class KeyFrame extends Comparable {
      * A comparison function used to sort KeyFrames by their
      * specified reference time.
      * 
+     * @param o the {@code KeyFrame} to compare to
+     * @return  an Integer value<br>
+                > 0 if specified {@code KeyFrame} timing is ahead of this <br>
+                = 0 if they have the same timing<br>
+                < 0 if specified {@code KeyFrame} timing is behind this<br>
      * @profile common
      */
     public override function compareTo(o:Object):Integer {

@@ -28,36 +28,64 @@ import java.lang.Object;
 import com.sun.scenario.animation.Interpolators;
 
 /**
+ * Built-in interpolator that provides discrete time interpolation. 
+ * The return value of {@code interpolate()} is {@code endValue}
+ * only when the input {@code faction} is 1.0, and {@code startValue} otherwise.
+ *
  * @profile common
  */
 public def DISCRETE:Interpolator =
         CoreInterpolator { i: Interpolators.getDiscreteInstance(); };
 
 /**
+ * Built-in interpolator that provides linear time interpolation.
+ * The return value of {@code interpolate()} is 
+ * {@code startValue} + ({@code endValue} - {@code startValue}) * {@code faction}. 
+ *
  * @profile common
  */
 public def LINEAR:Interpolator =
         CoreInterpolator { i: Interpolators.getLinearInstance(); };
 
 /**
+ * Built-in interpolator instance that provides ease in/out behavior, using
+ * default values of 0.2 and 0.2 for the acceleration and deceleration
+ * factors, respectively.
+ *
  * @profile common
  */
 public def EASEBOTH:Interpolator =
         CoreInterpolator { i: Interpolators.getEasingInstance(); };
 
 /**
+ * Built-in interpolator instance that provides ease in behavior using value of 0.2
+ * for the acceleration factor.
+ *
  * @profile common
  */
 public def EASEIN:Interpolator =
         CoreInterpolator { i: Interpolators.getEasingInstance(new Float(0.2), new Float(0.0)); };
 
 /**
+ * Built-in interpolator instance that provides ease out behavior using value of 0.2
+ * for the deceleration factor.
+ *
  * @profile common
  */
 public def EASEOUT:Interpolator =
         CoreInterpolator { i: Interpolators.getEasingInstance(new Float(0.0), new Float(0.2)); };
 
 /**
+ * Built-in interpolator instance that is shaped using the spline control points defined 
+ * by ({@code x1}, {@code y1}) and ({@code x2}, {@code y2}).  The anchor points of the 
+ * spline are implicitly defined as ({@code 0.0}, {@code 0.0}) and ({@code 1.0}, {@code 1.0}).
+ *
+ * @param x1    x coordinate of the first control point
+ * @param y1    y coordinate of the first control point
+ * @param x2    x coordinate of the second control point
+ * @param y2    y coordinate of the second control point
+ * @return  A spline interpolator
+ *
  * @profile common
  */
 public function SPLINE(x1: Number, y1: Number, x2: Number, y2: Number):Interpolator {
@@ -65,12 +93,29 @@ public function SPLINE(x1: Number, y1: Number, x2: Number, y2: Number):Interpola
                                                               x2.floatValue(), y2.floatValue()); }
     }
 
+
 /**
+ * The abstract class defines the single {@code interpolate()} method,
+ * which is used to control the timing of an animation.  Various built-in
+ * implementations of this class are offered. Applications may choose to implement 
+ * their own Interpolator to get custom interpolation behavior.
+ *
  * @profile common
  */
 public abstract class Interpolator {
     
     /**
+     * This function takes {@code startValue} and {@code endValue} along with {@code faction} 
+     * between 0.0 and 1.0 and returns another value, between {@code startValue} and 
+     * {@code1 endValue}. The purpose of the function is to define how time 
+     * (represented as a (0.0 - 1.0) fraction of the duration of an animation) is altered 
+     * to derive different value calculations during an animation.
+     *
+     * @param startValue start value
+     * @param endValue   end value
+     * @param fraction   a value between 0.0 and 1.0
+     * @return interpolated value
+     *
      * @profile common
      */    
     public abstract function interpolate(startValue:Object, endValue:Object, fraction:Number):Object;
