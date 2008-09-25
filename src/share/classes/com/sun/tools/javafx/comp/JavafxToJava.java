@@ -160,6 +160,144 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     private static final Pattern EXTENDED_FORMAT_PATTERN = Pattern.compile("%[<$0-9]*[tT][guwxGUVWXE]");
 
+    private abstract class NullChecker {
+
+        private final DiagnosticPosition diagPos;
+        private final JFXExpression toCheck;
+        private final Type resultType;
+        private final boolean needNullCheck;
+        private boolean hasSideEffects;
+
+        NullChecker(DiagnosticPosition diagPos, JFXExpression toCheck, Type resultType, boolean knownNonNull) {
+            this.diagPos = diagPos;
+            this.toCheck = toCheck;
+             this.resultType = resultType;
+            this.needNullCheck = !toCheck.type.isPrimitive() && !knownNonNull && possiblyNull(toCheck);
+            this.hasSideEffects = needNullCheck && computeHasSideEffects(toCheck);
+        }
+
+        protected TreeMaker m() {
+            return make.at(diagPos);
+        }
+
+        private boolean possiblyNull(JFXExpression expr) {
+            if (expr == null) {
+                return true;
+            }
+            switch (expr.getFXTag()) {
+               case ASSIGN:
+                   return possiblyNull(((JFXAssign)expr).getExpression());
+               case BLOCK_EXPRESSION:
+                   return possiblyNull(((JFXBlock)expr).getValue());
+               case IDENT:
+                   return ((JFXIdent)expr).sym instanceof VarSymbol;
+               case CONDEXPR:
+                   return possiblyNull(((JFXIfExpression)expr).getTrueExpression()) || possiblyNull(((JFXIfExpression)expr).getFalseExpression());
+               case LITERAL:
+                   return expr.getJavaFXKind() == JavaFXKind.NULL_LITERAL;
+               case PARENS:
+                   return possiblyNull(((JFXParens)expr).getExpression());
+               case SELECT:
+                   return ((JFXSelect)expr).sym instanceof VarSymbol;
+               case VAR_DEF:
+                   return possiblyNull(((JFXVar)expr).getInitializer());
+                default:
+                    return false;
+            }
+        }
+
+        private boolean computeHasSideEffects(JFXExpression expr) {
+            new JavafxTreeScanner() {
+
+                private void markSideEffects() {
+                    hasSideEffects = true;
+                }
+
+                @Override
+                public void visitBlockExpression(JFXBlock tree) {
+                    markSideEffects(); // maybe doesn't but covers all statements
+                }
+
+                @Override
+                public void visitUnary(JFXUnary tree) {
+                    markSideEffects();
+                }
+
+                @Override
+                public void visitAssign(JFXAssign tree) {
+                    markSideEffects();
+                }
+
+                @Override
+                public void visitAssignop(JFXAssignOp tree) {
+                    markSideEffects();
+                }
+
+                @Override
+                public void visitInstanciate(JFXInstanciate tree) {
+                    markSideEffects();
+                }
+
+                @Override
+                public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+                    markSideEffects();
+                }
+            }.scan(expr);
+            return hasSideEffects;
+        }
+
+        abstract JCExpression fullExpression(JCExpression mungedToCheckTranslated);
+
+        abstract JCExpression translateToCheck(JFXExpression expr);
+
+        JCTree doit() {
+            JCExpression mungedToCheckTranslated = translateToCheck(toCheck);
+            JCVariableDecl tmpVar = null;
+            if (hasSideEffects) {
+                // if the toCheck sub-expression has side-effects, compute it and stash in a
+                // temp var so we don't invoke it twice.
+                tmpVar = makeTmpVar(diagPos, "toCheck", toCheck.type, mungedToCheckTranslated);
+                mungedToCheckTranslated = m().Ident(tmpVar);
+            }
+            JCExpression full = fullExpression(mungedToCheckTranslated);
+            if (!needNullCheck) {
+                return full;
+            }
+            // Do a null check
+            JCExpression toTest = hasSideEffects ? m().Ident(tmpVar) : translateToCheck(toCheck);
+            // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
+            JCExpression cond = m().Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
+            if (resultType == syms.voidType) {
+                // if this is a void expression, check it with an If-statement
+                JCStatement stmt = make.If(cond, make.Exec(full), null);
+                assert yield == Yield.ToExecStatement : "Yield from a void call should always be a statement";
+                // a statement is the desired result of the translation, return the If-statement
+                if (hasSideEffects) {
+                    // if the selector has side-effects, we created a temp var to hold it
+                    // so we need to make a block to include the temp var
+                    return m().Block(0L, List.<JCStatement>of(tmpVar, stmt));
+                } else {
+                    return stmt;
+                }
+            } else {
+                // it has a non-void return type, convert it to a conditional expression
+                // if it would dereference null, then the full expression instead yields the default value
+                TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(resultType);
+                JCExpression defaultExpr = makeDefaultValue(diagPos, returnTypeInfo);
+                if (wrap == Wrapped.InLocation) {
+                    defaultExpr = makeUnboundLocation(diagPos, returnTypeInfo, defaultExpr);
+                }
+                JCExpression result = m().Conditional(cond, full, defaultExpr);
+                if (hasSideEffects) {
+                    // if the selector has side-effects, we created a temp var to hold it
+                    // so we need to make a block-expression to include the temp var
+                    result = makeBlockExpression(diagPos, List.<JCStatement>of(tmpVar), result);
+                }
+                return result;
+            }
+        }
+    }
+
     public static JavafxToJava instance(Context context) {
         JavafxToJava instance = context.get(jfxToJavaKey);
         if (instance == null)
@@ -2696,6 +2834,89 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 }
                 return fresult;
             }
+
+            //TODO: the below uses the NullChecker general null-check mechanism and, in the process,
+            // fixes some bugs.  But it isn't finished and it is too risky to use now.
+/************
+            private final boolean magicIsInitializedFunction = (msym != null) &&
+                    (msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym) &&
+                    (JavafxTreeInfo.name(tree.meth) == defs.isInitializedName);
+
+            private Name funcName = null;
+
+            public JCTree doit() {
+                final Type returnType = tree.type;
+                JFXExpression toCheck;
+                boolean knownNonNull;
+
+                if (useInvoke) {
+                    // this is a function var call, check the whole expression for null
+                    toCheck = meth;
+                    funcName = null;
+                    knownNonNull = false;
+                } else if (selector == null) {
+                    // This is not an function var call and not a selector, so we assume it is a simple foo()
+                    if (meth.getFXTag() == JavafxTag.IDENT) {
+                        JFXIdent fr = fxm().Ident(functionName(msym, superToStatic, callBound));
+                        fr.type = meth.type;
+                        fr.sym = msym;
+                        toCheck = fr;
+                        funcName = null;
+                        knownNonNull = true;
+                    } else {
+                        // Should never get here
+                        assert false : meth;
+                        toCheck = meth;
+                        funcName = null;
+                        knownNonNull = true;
+                    }
+                } else {
+                    // Regular selector call  foo.bar() -- so, check the selector not the whole meth
+                    toCheck = selector;
+                    funcName = functionName(msym, superToStatic, callBound);
+                    knownNonNull =  selector.type.isPrimitive() || !selectorMutable;
+                }
+
+                return new NullChecker(diagPos, toCheck, returnType, knownNonNull) {
+
+                    JCExpression translateToCheck(JFXExpression expr) {
+                        JCExpression trans;
+                        if (renameToSuper) {
+                            trans = m().Select(makeTypeTree(diagPos, currentClass.sym.type, false), names._super);
+                        } else if (superToStatic) {
+                            trans = makeTypeTree(diagPos, msym.owner.type, false);
+                        } else {
+                            trans = translate(expr);
+                        }
+                        return trans;
+                    }
+
+                    @Override
+                    JCExpression fullExpression( JCExpression mungedToCheckTranslated) {
+                        JCExpression tc = mungedToCheckTranslated;
+                        if (funcName != null) {
+                            // add the selector name back
+                            tc = m().Select(tc, funcName);
+                        }
+                        JCMethodInvocation app = determineArgs(tc);
+                        JCExpression full = callBound ? makeBoundCall(app) : app;
+                        if (useInvoke) {
+                            if (tree.type.tag != TypeTags.VOID) {
+                                full = castFromObject(full, tree.type);
+                            }
+                        }
+                        // If we are to yield a Location, and this isn't going to happen as
+                        // a return of using a bound call (for example, if this is a Java call)
+                        // then convert into a Location
+                        if (wrap == Wrapped.InLocation && !callBound && msym != null) {
+                            TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(returnType);
+                            full = makeUnboundLocation(diagPos, returnTypeInfo, full);
+                        }
+                        return full;
+                    }
+                }.doit();
+            }
+***********/
 
             // compute the translated arguments.
             // if this is a bound call, use left-hand side references for arguments consisting
