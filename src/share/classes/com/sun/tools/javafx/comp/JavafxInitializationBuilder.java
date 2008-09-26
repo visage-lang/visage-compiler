@@ -763,7 +763,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (tai.getDefaultInitStatement() != null) {
                         stmts.append(tai.getDefaultInitStatement());
                     }
-                    stmts.append( callStatement(diagPos, make.at(diagPos).Ident(attributeFieldName(tai.getSymbol())), locationInitializeName));
+                    if (typeMorpher.requiresLocation(tai.getSymbol())) {
+                        // If the static variable is represented with a Location, initialize it
+                        stmts.append(callStatement(diagPos, make.at(diagPos).Ident(attributeFieldName(tai.getSymbol())), locationInitializeName));
+                    }
                 }
                 JCStatement stat = makeChangeListenerCall(tai);
                 if (stat != null) {

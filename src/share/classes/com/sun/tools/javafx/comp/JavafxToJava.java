@@ -172,7 +172,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             this.diagPos = diagPos;
             this.toCheck = toCheck;
              this.resultType = resultType;
-            this.needNullCheck = !toCheck.type.isPrimitive() && !knownNonNull && possiblyNull(toCheck);
+            this.needNullCheck = !knownNonNull && !toCheck.type.isPrimitive() && !knownNonNull && possiblyNull(toCheck);
             this.hasSideEffects = needNullCheck && computeHasSideEffects(toCheck);
         }
 
@@ -1210,13 +1210,14 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 if (instanceName == null) {
                     varRef = make.at(diagPos).Ident(attributeFieldName(vsym));
                 } else {
-                    JCExpression tc = makeReceiver(diagPos, vsym, attrEnv.enclClass.sym);
+                    JCExpression tc = make.at(diagPos).Ident(instanceName);
                     final Name setter = attributeSetterName(vsym);
                     JCExpression toApply = make.at(diagPos).Select(tc, setter);
                     return make.at(diagPos).Apply(null, toApply, List.of(valueArg));
                 }
             } else {
                 // It is a local variable
+                assert instanceName == null;
                 varRef = make.at(diagPos).Ident(vsym);
             }
             return make.at(diagPos).Assign(varRef, valueArg);
