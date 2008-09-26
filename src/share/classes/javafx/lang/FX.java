@@ -34,6 +34,7 @@ import java.util.Vector;
 import com.sun.javafx.runtime.Entry;
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.SystemProperties;
+import com.sun.javafx.runtime.FXExit;
 
 // factored out to avoid linkage error for javax.script.* on Java 1.5
 class Evaluator {
@@ -188,10 +189,10 @@ public class FX {
         exitData.called = false;
         
         /*
-         * Use of ThreadDeath here is needed because the EDT
+         * Use of FXExit here is needed because the EDT
          * will pass it along rather than catch and quit
          */
-        throw new ThreadDeath();
+        throw new FXExit();
     }
 
     /**
@@ -296,8 +297,8 @@ public class FX {
                          * TODO: add timer to kill long running Action
                          */
                         action.invoke();
-                    } catch (ThreadDeath td) {
-                        throw td;
+                    } catch (FXExit fe) {
+                        throw fe;
                     } catch (Throwable t) {
                         // Ignore all other Throwables
                     }
