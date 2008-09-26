@@ -1579,7 +1579,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCFieldAccess setSelect = make.at(diagPos).Select(lhsTranslated, defs.locationSetMethodName[typeMorpher.typeMorphInfo(lhs.type).getTypeKind()]);
             List<JCExpression> setArgs = List.of(rhsTranslated);
             return make.at(diagPos).Apply(null, setSelect, setArgs);
-        } else if (sym.owner.kind == Kinds.TYP && !sym.isStatic()) {
+        } else if (sym.owner.kind == Kinds.TYP && !sym.isStatic() && types.isJFXClass(sym)) {
             // use setter method
             JFXExpression toCheckOrNull;
             boolean knownNonNull;
