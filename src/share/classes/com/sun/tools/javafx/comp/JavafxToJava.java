@@ -1846,11 +1846,16 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             return;
         }
 
+        int kind = tree.sym.kind;
+        if (kind == Kinds.TYP) {
+            result = makeTypeTree( diagPos,tree.sym.type, false);
+            return;
+        }
+
        // if this is an instance reference to an attribute or function, it needs to go the the "receiver$" arg,
        // and possible outer access methods
         JCExpression convert;
         boolean isStatic = tree.sym.isStatic();
-        int kind = tree.sym.kind;
         if (isStatic) {
             // make class-based direct static reference:   Foo.x
             convert = make.at(diagPos).Select(makeTypeTree( diagPos,tree.sym.owner.type, false), tree.name);
@@ -2763,7 +2768,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
         result = (new FunctionCallTranslator( tree, this ) {
-
+/***/
             private final boolean hasSideEffects = selectorMutable && hasSideEffects(selector);
             private final boolean magicIsInitializedFunction = (msym != null) &&
                     (msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym) &&
@@ -2942,7 +2947,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     }
                 }.doit();
             }
-***********/
+/***********/
 
             // compute the translated arguments.
             // if this is a bound call, use left-hand side references for arguments consisting
