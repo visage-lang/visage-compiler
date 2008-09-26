@@ -1,0 +1,4 @@
+test\should-fail\jfxc1912.fx:8: abstract methods cannot have a body
+   abstract function bar() : String { "Here I am" }
+   ^
+1 error
