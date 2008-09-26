@@ -250,17 +250,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             Name instanceName, int milieu) {
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         JCExpression nonNullInit = (init == null)? makeDefaultValue(diagPos, vmi) : init;
-        List<JCExpression> args = List.<JCExpression>of( nonNullInit );
-        JCExpression localAttr = makeAttributeAccess(diagPos, vsym, instanceName);
-        Name methName;
-        if (bindStatus.isUnidiBind()) {
-            methName = defs.locationBindMilieuMethodName[milieu];
-        } else if (bindStatus.isBidiBind()) {
-            methName = defs.locationBijectiveBindMilieuMethodName[milieu];
-        } else {
-            methName = defs.locationSetMilieuMethodName[vmi.getTypeKind()][milieu];
-        }
-        return callExpression(diagPos, localAttr, methName, args);
+        return toJava.definitionalAssignmentToSetExpression(diagPos, nonNullInit, bindStatus, vsym, instanceName,
+                                                     vmi.getTypeKind(), milieu);
     }
 
     private abstract class ClosureTranslator extends Translator {
