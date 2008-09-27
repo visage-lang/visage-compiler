@@ -22,10 +22,10 @@ class Alpha {
 class Beta extends Alpha {}
 
 class ThreeGamma extends Two, Beta {
-    public function foo() {
+    override function foo() {
         "One: {Two.foo()} Alpha: {Beta.foo()}";
     }
-    public bound function boo() {
+    override bound function boo() {
         "Bone: {Two.boo()} Balpha: {Beta.boo()}";
     }
 }

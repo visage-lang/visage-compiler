@@ -14,7 +14,7 @@ class Foo {
    function fas() : String[] { ["peter", "paul", "mary"] }
    var next : Foo;
    function getNext() : Foo { next }
-   public function toString() : String { "Foo" }
+   override function toString() : String { "Foo" }
 
   var str : java.lang.Object; 
   function toStr() : Void {
