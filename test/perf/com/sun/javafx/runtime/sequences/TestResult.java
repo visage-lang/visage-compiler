@@ -46,7 +46,7 @@ public class TestResult {
         if (format.equalsIgnoreCase("time,")) {
             String[] parts = line.split(",", -1);
             for (String s : parts) {
-                if (s.isEmpty()) {
+                if (s.length() == 0) {
                     result.add(TestResult.EMPTY);
                 } else {
                     result.add(new TestResult(Integer.parseInt(s)));
