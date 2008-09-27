@@ -160,24 +160,19 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     private static final Pattern EXTENDED_FORMAT_PATTERN = Pattern.compile("%[<$0-9]*[tT][guwxGUVWXE]");
 
-    private abstract class NullChecker {
+    abstract class NullCheckTranslator extends Translator {
 
-        protected final DiagnosticPosition diagPos;
         protected final JFXExpression toCheck;
         protected final Type resultType;
         private final boolean needNullCheck;
         private boolean hasSideEffects;
 
-        NullChecker(DiagnosticPosition diagPos, JFXExpression toCheck, Type resultType, boolean knownNonNull) {
-            this.diagPos = diagPos;
+        NullCheckTranslator(DiagnosticPosition diagPos, JFXExpression toCheck, Type resultType, boolean knownNonNull) {
+            super(diagPos, JavafxToJava.this);
             this.toCheck = toCheck;
-             this.resultType = resultType;
+            this.resultType = resultType;
             this.needNullCheck = !knownNonNull && !toCheck.type.isPrimitive() && possiblyNull(toCheck);
             this.hasSideEffects = needNullCheck && computeHasSideEffects(toCheck);
-        }
-
-        protected TreeMaker m() {
-            return make.at(diagPos);
         }
 
         private boolean possiblyNull(JFXExpression expr) {
@@ -252,7 +247,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         abstract JCExpression translateToCheck(JFXExpression expr);
 
-        JCTree doit() {
+        protected JCTree doit() {
             JCExpression mungedToCheckTranslated = translateToCheck(toCheck);
             JCVariableDecl tmpVar = null;
             if (hasSideEffects) {
@@ -1600,7 +1595,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     throw new AssertionError("Should not reach here");
             }
 
-            return new NullChecker(diagPos, toCheckOrNull, lhs.type, knownNonNull) {
+            return new NullCheckTranslator(diagPos, toCheckOrNull, lhs.type, knownNonNull) {
 
                 @Override
                 JCExpression translateToCheck( JFXExpression expr) {
@@ -1719,7 +1714,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCVariableDecl selectedTmpDecl = makeTmpVar(diagPos, "tg", exprType, translatedSelected);
             JCExpression translated = make.at(diagPos).Select(make.Ident(selectedTmpDecl.name), tree.getIdentifier());
             translated = makeFunctionValue(translated, null, diagPos, mtype);
-            //result = make.LetExpr(selectedTmp, translated);
             result = makeBlockExpression(
                 diagPos,
                 List.<JCStatement>of(selectedTmpDecl),
@@ -2883,7 +2877,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             private Name funcName = null;
 
-            public JCTree doit() {
+            protected JCTree doit() {
                 JFXExpression toCheckOrNull;
                 boolean knownNonNull;
 
@@ -2915,7 +2909,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     knownNonNull =  selector.type.isPrimitive() || !selectorMutable;
                 }
 
-                return new NullChecker(diagPos, toCheckOrNull, returnType, knownNonNull) {
+                return new NullCheckTranslator(diagPos, toCheckOrNull, returnType, knownNonNull) {
 
                     JCExpression translateToCheck(JFXExpression expr) {
                         JCExpression trans;
