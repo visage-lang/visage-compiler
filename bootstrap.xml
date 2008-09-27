@@ -62,6 +62,8 @@
 
     <property name="svnstat.url" value="http://downloads.sourceforge.net/svnstat/SvnStat-${svnstat.ver}.zip"/>
     <property name="svnstat.zipfile" value="${bootstrap.dir}/svnstat-${svnstat.ver}.zip"/>
+    <property name="resolver.url" value="http://www.apache.org/dist/xml/commons/xml-commons-resolver-${resolver.ver}.zip"/>
+    <property name="resolver.zipfile" value="${bootstrap.dir}/xml-commons-resolver-${resolver.ver}.zip"/>
 
 
     <target name="prepare">
@@ -79,6 +81,7 @@
         <mkdir dir="${antlrworks.dir}"/>
         <mkdir dir="${cobertura.dir}"/>
         <mkdir dir="${svnstat.dir}"/>
+	<mkdir dir="${resolver.dir}"/>
     </target>
 
     <target name="clean">
@@ -95,10 +98,11 @@
         <delete dir="${antlrworks.dir}"/>
         <delete dir="${cobertura.dir}"/>
         <delete dir="${svnstat.dir}"/>
+	<delete dir="${resolver.dir}"/>
         <delete dir="${tools.dir}"/>
     </target>
 
-    <target name="all" depends="prepare,junit,ant,scenegraph,docbook,wysiwygdocbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura,svnstat"/>
+    <target name="all" depends="prepare,junit,ant,scenegraph,docbook,wysiwygdocbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura,svnstat,resolver"/>
  
     <target name="ant" depends="prepare">
         <get src="${ant.url}" dest="${ant.zipfile}" usetimestamp="true"/>
@@ -211,6 +215,14 @@
     <target name="svnstat" depends="prepare">
         <get src="${svnstat.url}" dest="${svnstat.zipfile}" usetimestamp="true"/>
         <unzip src="${svnstat.zipfile}" dest="${svnstat.dir}">
+            <patternset includes="**/*.jar"/>
+            <mapper type="flatten"/>
+        </unzip>
+    </target>
+
+    <target name="resolver" depends="prepare">
+        <get src="${resolver.url}" dest="${resolver.zipfile}" usetimestamp="true"/>
+        <unzip src="${resolver.zipfile}" dest="${resolver.dir}">
             <patternset includes="**/*.jar"/>
             <mapper type="flatten"/>
         </unzip>

@@ -42,6 +42,9 @@
     <property name="svnstat.ver" value="1.0" />
     <property name="svnstat.dir" value="${tools.dir}/svnstat-${svnstat.ver}" />
 
+    <property name="resolver.ver" value="1.2" />
+    <property name="resolver.dir" value="${tools.dir}/resolver-${resolver.ver}" />
+
     <path id="ant.class.path">
         <fileset dir="${ant.dir}" includes="**/*.jar" />
     </path>
@@ -86,4 +89,7 @@
         <fileset dir="${svnstat.dir}" includes="**/*.jar" />
     </path>
 
+    <path id="resolver.class.path">
+        <fileset dir="${resolver.dir}" includes="**/*.jar" />
+    </path>
 </project>
