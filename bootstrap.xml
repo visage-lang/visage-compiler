@@ -101,17 +101,16 @@
     <target name="all" depends="prepare,junit,ant,scenegraph,docbook,wysiwygdocbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura,svnstat"/>
  
     <target name="ant" depends="prepare">
-        <get src="${ant.url}" dest="${ant.zipfile}"/>
+        <get src="${ant.url}" dest="${ant.zipfile}" usetimestamp="true"/>
         <unzip src="${ant.zipfile}" dest="${ant.dir}">
             <patternset includes="**/ant.jar"/>
             <mapper type="flatten"/>
         </unzip>
-        <delete file="${ant.zipfile}" />
     </target>
 
     <target name="junit" depends="prepare">
         <mkdir dir="${junit.dir}"/>
-        <get src="${junit.url}" dest="${junit.file}"/>
+        <get src="${junit.url}" dest="${junit.file}" usetimestamp="true"/>
     </target>
 
     <target name="scenegraph" depends="fetch-scenegraph" unless="scenegraph-uptodate">
@@ -140,57 +139,52 @@
     </target>
 
     <target name="docbook" depends="prepare">
-        <get src="${docbook.url}" dest="${docbook.tgzfile}"/>
+        <get src="${docbook.url}" dest="${docbook.tgzfile}" usetimestamp="true"/>
         <gunzip src="${docbook.tgzfile}" dest="${bootstrap.dir}"/>
         <untar src="${docbook.tarfile}" dest="${docbook.dir}">
             <mapper type="glob" from="docbook-xsl-${docbook.ver}/*" to="*"/>
         </untar>
         <delete file="${docbook.tarfile}" />
-        <delete file="${docbook.tgzfile}" />
     </target>
 
     <target name="wysiwygdocbook" depends="prepare">
-        <get src="${wysiwygdocbook.url}" dest="${wysiwygdocbook.zipfile}"/>
+        <get src="${wysiwygdocbook.url}" dest="${wysiwygdocbook.zipfile}" usetimestamp="true"/>
         <unzip src="${wysiwygdocbook.zipfile}" dest="${wysiwygdocbook.dir}">
             <mapper type="glob" from="wysiwygdocbook${wysiwygdocbook.ver}/*" to="*"/>
         </unzip>
         <echo file="doc/langspec/docbook.css">@import "../../tools/${wysiwygdocbook.reldir}/driver.css";
 </echo>
-        <delete file="${wysiwygdocbook.zipfile}" />
     </target>
 
     <target name="findbugs" depends="prepare">
-        <get src="${findbugs.url}" dest="${findbugs.zipfile}"/>
+        <get src="${findbugs.url}" dest="${findbugs.zipfile}" usetimestamp="true"/>
         <unzip src="${findbugs.zipfile}" dest="${findbugs.dir}">
             <patternset includes="findbugs-${findbugs.ver}/**"/>
             <mapper type="glob" from="findbugs-${findbugs.ver}/*" to="*"/>
         </unzip>
-        <delete file="${findbugs.zipfile}" />
     </target>
 
     <target name="saxon" depends="prepare">
-        <get src="${saxon.url}" dest="${saxon.zipfile}"/>
+        <get src="${saxon.url}" dest="${saxon.zipfile}" usetimestamp="true"/>
         <unzip src="${saxon.zipfile}" dest="${saxon.dir}">
             <patternset includes="**/saxon.jar"/>
             <mapper type="flatten"/>
         </unzip>
-        <delete file="${saxon.zipfile}" />
     </target>
 
     <target name="xincluder" depends="prepare">
-        <get src="${xincluder.url}" dest="${xincluder.tgzfile}"/>
+        <get src="${xincluder.url}" dest="${xincluder.tgzfile}" usetimestamp="true"/>
         <gunzip src="${xincluder.tgzfile}" dest="${xincluder.tarfile}"/>
         <untar src="${xincluder.tarfile}" dest="${xincluder.dir}">
             <patternset includes="**/xincluder.jar"/>
             <mapper type="flatten"/>
         </untar>
         <delete file="${xincluder.tarfile}" />
-        <delete file="${xincluder.tgzfile}" />
     </target>
 
     <target name="antlr" depends="prepare">
         <mkdir dir="${antlr.dir}"/>
-        <get src="${antlr.url}" dest="${antlr.tgzfile}"/>
+        <get src="${antlr.url}" dest="${antlr.tgzfile}" usetimestamp="true"/>
         <gunzip src="${antlr.tgzfile}" dest="${antlr.tarfile}"/>
         <untar src="${antlr.tarfile}" dest="${antlr.dir}">
             <patternset>
@@ -199,32 +193,27 @@
             <mapper type="flatten"/>
         </untar>
         <delete file="${antlr.tarfile}" />
-        <delete file="${antlr.tgzfile}" />
     </target>
 
     <target name="antlrworks" depends="prepare">
         <mkdir dir="${antlrworks.dir}"/>
-        <get src="${antlrworks.url}" dest="${antlrworks.file}"/>
+        <get src="${antlrworks.url}" dest="${antlrworks.file}" usetimestamp="true"/>
     </target>
 
     <target name="cobertura" depends="prepare">
-        <get src="${cobertura.url}" dest="${cobertura.zipfile}"/>
+        <get src="${cobertura.url}" dest="${cobertura.zipfile}" usetimestamp="true"/>
         <unzip src="${cobertura.zipfile}" dest="${cobertura.dir}">
             <patternset includes="**/*.jar"/>
             <mapper type="flatten"/>
         </unzip>
-        <delete file="${cobertura.zipfile}" />
     </target>
 
     <target name="svnstat" depends="prepare">
-        <get src="${svnstat.url}" dest="${svnstat.zipfile}"/>
+        <get src="${svnstat.url}" dest="${svnstat.zipfile}" usetimestamp="true"/>
         <unzip src="${svnstat.zipfile}" dest="${svnstat.dir}">
             <patternset includes="**/*.jar"/>
             <mapper type="flatten"/>
         </unzip>
-        <delete file="${svnstat.zipfile}" />
     </target>
-
-
 
 </project>
