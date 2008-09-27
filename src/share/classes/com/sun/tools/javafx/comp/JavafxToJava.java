@@ -172,7 +172,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             this.diagPos = diagPos;
             this.toCheck = toCheck;
              this.resultType = resultType;
-            this.needNullCheck = !knownNonNull && !toCheck.type.isPrimitive() && !knownNonNull && possiblyNull(toCheck);
+            this.needNullCheck = !knownNonNull && !toCheck.type.isPrimitive() && possiblyNull(toCheck);
             this.hasSideEffects = needNullCheck && computeHasSideEffects(toCheck);
         }
 
@@ -187,6 +187,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             switch (expr.getFXTag()) {
                case ASSIGN:
                    return possiblyNull(((JFXAssign)expr).getExpression());
+               case APPLY:
+                   return true;
                case BLOCK_EXPRESSION:
                    return possiblyNull(((JFXBlock)expr).getValue());
                case IDENT:
@@ -257,14 +259,14 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 // if the toCheck sub-expression has side-effects, compute it and stash in a
                 // temp var so we don't invoke it twice.
                 tmpVar = makeTmpVar(diagPos, "toCheck", toCheck.type, mungedToCheckTranslated);
-                mungedToCheckTranslated = m().Ident(tmpVar);
+                mungedToCheckTranslated = m().Ident(tmpVar.name);
             }
             JCExpression full = fullExpression(mungedToCheckTranslated);
             if (!needNullCheck) {
                 return full;
             }
             // Do a null check
-            JCExpression toTest = hasSideEffects ? m().Ident(tmpVar) : translateToCheck(toCheck);
+            JCExpression toTest = hasSideEffects ? m().Ident(tmpVar.name) : translateToCheck(toCheck);
             // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
             JCExpression cond = m().Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
             if (resultType == syms.voidType) {
@@ -323,16 +325,16 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         TC ret;
         Yield prevYield = yield;
         yield = Yield.ToExpression; // reset to default
-	if (tree == null) {
-	    ret = null;
-	} else {
+        if (tree == null) {
+            ret = null;
+        } else {
             JFXTree prevWhere = attrEnv.where;
             attrEnv.where = tree;
-	    tree.accept(this);
+            tree.accept(this);
             attrEnv.where = prevWhere;
-	    ret = (TC)this.result;
-	    this.result = null;
-	}
+            ret = (TC) this.result;
+            this.result = null;
+        }
         yield = prevYield;
         return ret;
     }
@@ -1689,6 +1691,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     types.isSameType(tree.rhs.type, syms.javafx_DurationType))) {
             JFXExpression method = fxmake.at(diagPos).Select(tree.lhs, tree.operator);
             JFXExpression operation = fxmake.at(diagPos).Apply(null, method, List.<JFXExpression>of(tree.rhs));
+            operation.type = syms.javafx_DurationType;
             combined = translate(operation);
         } else {
             combined = make.at(diagPos).Binary(binaryOp, lhsTranslated, rhsTranslated);
@@ -1731,7 +1734,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         // determine if this is a static reference, eg.   MyClass.myAttribute
         boolean staticReference = tree.sym.isStatic();
         if (staticReference) {
-            translatedSelected = makeTypeTree( diagPos,types.erasure(tree.sym.owner.type), false);
+            translatedSelected = makeTypeTree(diagPos, types.erasure(tree.sym.owner.type), false);
         }
 
         boolean testForNull = generateNullChecks && !staticReference
@@ -1848,7 +1851,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         int kind = tree.sym.kind;
         if (kind == Kinds.TYP) {
-            result = makeTypeTree( diagPos,tree.sym.type, false);
+            // This is a class name, replace it with the full name (no generics)
+            result = makeTypeTree(diagPos, types.erasure(tree.sym.type), false);
             return;
         }
 
@@ -1858,7 +1862,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         boolean isStatic = tree.sym.isStatic();
         if (isStatic) {
             // make class-based direct static reference:   Foo.x
-            convert = make.at(diagPos).Select(makeTypeTree( diagPos,tree.sym.owner.type, false), tree.name);
+            convert = make.at(diagPos).Select(makeTypeTree(diagPos, tree.sym.owner.type, false), tree.name);
         } else {
             if ((kind == Kinds.VAR || kind == Kinds.MTH) && tree.sym.owner.kind == Kinds.TYP) {
                 // it is a non-static attribute or function class member
@@ -2915,7 +2919,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         if (renameToSuper) {
                             trans = m().Select(makeTypeTree(diagPos, currentClass.sym.type, false), names._super);
                         } else if (superToStatic) {
-                            trans = makeTypeTree(diagPos, msym.owner.type, false);
+                            trans = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
                         } else {
                             trans = translate(expr);
                             if (expr.type.isPrimitive()) {
@@ -3260,16 +3264,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 // not morphed
                 if (wantLocation) {
                     expr = makeUnboundLocation(diagPos, vmi, expr);
-                }
-            }
-        } else if (sym instanceof MethodSymbol) {
-            if (staticReference) {
-                Name name = functionName((MethodSymbol) sym);
-                if (expr.getTag() == JCTree.SELECT) {
-                    JCFieldAccess select = (JCFieldAccess) expr;
-                    expr = make.at(diagPos).Select(select.getExpression(), name);
-                } else if (expr.getTag() == JCTree.IDENT) {
-                    expr = make.at(diagPos).Ident(name);
                 }
             }
         }
