@@ -2,7 +2,7 @@
 
 <project default="spec" name="javafx-docs" basedir="..">
     <property name="build.dir" value="${basedir}/build"/>
-    <property name="tools.dir" value="${basedir}/tools" />
+    <property name="tools.dir" value="${basedir}/tools"/>
 
     <import file="../tools-defs.xml" />
 
@@ -21,6 +21,8 @@
     <path id="doc.build.class.path">
         <path refid="saxon.class.path" />
         <path refid="xincluder.class.path" />
+        <path refid="resolver.class.path"/>
+        <path location="${basedir}/doc"/>
     </path>
 
     <target name="langspec"
@@ -73,15 +75,19 @@
         <java classname="com.elharo.xml.xinclude.SAXXIncluder" fork="true" 
               dir="${doc.build.dir}/html" failonerror="true">
             <classpath refid="doc.build.class.path" />
+            <arg line="-r org.apache.xml.resolver.tools.CatalogResolver"/>
             <arg value="${doc.xml}"/>
-            <redirector output="${doc.build.dir}/tmp/${doc.name}-xi-tmp.xml" />
+            <redirector output="${doc.build.dir}/tmp/${doc.name}-xi-tmp.xml"/>
         </java>
 
         <java classname="com.icl.saxon.StyleSheet" fork="true"
               dir="${doc.build.dir}/html" failonerror="true">
             <classpath refid="doc.build.class.path"/>
+            <arg line="-x org.apache.xml.resolver.tools.ResolvingXMLReader"/>
+            <arg line="-y org.apache.xml.resolver.tools.ResolvingXMLReader"/>
+            <arg line="-r org.apache.xml.resolver.tools.CatalogResolver"/>
             <arg file="${doc.build.dir}/tmp/${doc.name}-xi-tmp.xml"/>
-            <arg value="${doc.src.dir}/langref.xsl"/>
+            <arg file="${doc.src.dir}/langref.xsl"/>
             <arg value="use.id.as.filename=1"/>
             <arg value="root.filename=${doc.name}"/>
             <arg value="chunk.section.depth=1"/>
@@ -89,7 +95,9 @@
             <arg value="draft.mode=yes"/>
 <!--         <arg value="navig.graphics=1"/>-->
         </java>
-	<copy file="doc/langspec/langref.css" tofile="${doc.build.dir}/html/langref.css"/>
+
+        <delete file="${doc.build.dir}/html/${doc.name}-xi-tmp.html" failonerror="no"/>
+        <copy file="doc/langspec/langref.css" tofile="${doc.build.dir}/html/langref.css"/>
     </target>
     
     <target name="man-pages" depends="javafx-man-page,javafxc-man-page,javafxdoc-man-page"
@@ -117,6 +125,9 @@
                 <java classname="com.icl.saxon.StyleSheet" fork="true"
                       dir="${doc.build.dir}/man" failonerror="true">
                     <classpath refid="doc.build.class.path"/>
+                    <arg line="-x org.apache.xml.resolver.tools.ResolvingXMLReader"/>
+                    <arg line="-y org.apache.xml.resolver.tools.ResolvingXMLReader"/>
+                    <arg line="-r org.apache.xml.resolver.tools.CatalogResolver"/>
                     <arg file="@{src}"/>
                     <arg value="${htmlpages.xsl.path}"/>
                     <arg value="use.id.as.filename=1"/>
@@ -126,6 +137,9 @@
                 <java classname="com.icl.saxon.StyleSheet" fork="true"
                       dir="${doc.build.dir}/man/man1" failonerror="true">
                     <classpath refid="doc.build.class.path"/>
+                    <arg line="-x org.apache.xml.resolver.tools.ResolvingXMLReader"/>
+                    <arg line="-y org.apache.xml.resolver.tools.ResolvingXMLReader"/>
+                    <arg line="-r org.apache.xml.resolver.tools.CatalogResolver"/>
                     <arg file="@{src}"/>
                     <arg value="${manpages.xsl.path}"/>
                 </java>         
