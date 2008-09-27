@@ -21,8 +21,8 @@
  CA 95054 USA or visit www.sun.com if you need additional information or
  have any questions.
 -->
-<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <refentry id="javafxdoc">
     <refmeta>
         <refentrytitle>javafxdoc</refentrytitle>
