@@ -46,7 +46,7 @@
     <property name="saxon.url" value="http://downloads.sourceforge.net/saxon/saxon6-5-5.zip"/>
     <property name="saxon.zipfile" value="${bootstrap.dir}/saxon-${saxon.ver}.zip"/>
 
-    <property name="xincluder.url" value="ftp://ftp.ibiblio.org/pub/languages/java/javafaq/xincluder-1.0d11.tar.gz"/>
+    <property name="xincluder.url" value="http://www.ibiblio.org/pub/languages/java/javafaq/xincluder-1.0d11.tar.gz"/>
     <property name="xincluder.tgzfile" value="${bootstrap.dir}/xincluder-${xincluder.ver}.tgz"/>
     <property name="xincluder.tarfile" value="${bootstrap.dir}/xincluder-${xincluder.ver}.tar"/>
 
