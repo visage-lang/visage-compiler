@@ -2726,10 +2726,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         protected final boolean useInvoke;
         protected final boolean selectorMutable;
         protected final boolean callBound;
+        protected final boolean magicIsInitializedFunction;
+        protected final Type returnType;
 
         FunctionCallTranslator(final JFXFunctionInvocation tree, JavafxToJava toJava) {
             super(tree.pos(), toJava);
             meth = tree.meth;
+            returnType = tree.type;
             JFXSelect fieldAccess = meth.getFXTag() == JavafxTag.SELECT ? (JFXSelect) meth : null;
             selector = fieldAccess != null ? fieldAccess.getExpression() : null;
             Symbol sym = toJava.expressionSymbol(meth);
@@ -2760,6 +2763,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     !thisCall && !renameToSuper;
             callBound = msym != null && !useInvoke &&
                   ((msym.flags() & JavafxFlags.BOUND) != 0);
+
+            magicIsInitializedFunction = (msym != null) &&
+                    (msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym) &&
+                    (JavafxTreeInfo.name(tree.meth) == defs.isInitializedName);
         }
     }
 
@@ -2774,9 +2781,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         result = (new FunctionCallTranslator( tree, this ) {
 /******/
             private final boolean hasSideEffects = selectorMutable && hasSideEffects(selector);
-            private final boolean magicIsInitializedFunction = (msym != null) &&
-                    (msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym) &&
-                    (JavafxTreeInfo.name(tree.meth) == defs.isInitializedName);
 
             public JCTree doit() {
                 JCVariableDecl selectorVar = null;
@@ -2880,7 +2884,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             private Name funcName = null;
 
             public JCTree doit() {
-                final Type returnType = tree.type;
                 JFXExpression toCheckOrNull;
                 boolean knownNonNull;
 
