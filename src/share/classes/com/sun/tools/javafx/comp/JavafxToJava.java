@@ -2768,7 +2768,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
         result = (new FunctionCallTranslator( tree, this ) {
-/***/
+/******/
             private final boolean hasSideEffects = selectorMutable && hasSideEffects(selector);
             private final boolean magicIsInitializedFunction = (msym != null) &&
                     (msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym) &&
@@ -2877,13 +2877,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             public JCTree doit() {
                 final Type returnType = tree.type;
-                JFXExpression toCheck;
+                JFXExpression toCheckOrNull;
                 boolean knownNonNull;
 
                 if (useInvoke) {
                     // this is a function var call, check the whole expression for null
-                    toCheck = meth;
-                    funcName = null;
+                    toCheckOrNull = meth;
+                    funcName = defs.invokeName;
                     knownNonNull = false;
                 } else if (selector == null) {
                     // This is not an function var call and not a selector, so we assume it is a simple foo()
@@ -2891,24 +2891,24 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         JFXIdent fr = fxm().Ident(functionName(msym, superToStatic, callBound));
                         fr.type = meth.type;
                         fr.sym = msym;
-                        toCheck = fr;
+                        toCheckOrNull = fr;
                         funcName = null;
                         knownNonNull = true;
                     } else {
                         // Should never get here
                         assert false : meth;
-                        toCheck = meth;
+                        toCheckOrNull = meth;
                         funcName = null;
                         knownNonNull = true;
                     }
                 } else {
                     // Regular selector call  foo.bar() -- so, check the selector not the whole meth
-                    toCheck = selector;
+                    toCheckOrNull = selector;
                     funcName = functionName(msym, superToStatic, callBound);
                     knownNonNull =  selector.type.isPrimitive() || !selectorMutable;
                 }
 
-                return new NullChecker(diagPos, toCheck, returnType, knownNonNull) {
+                return new NullChecker(diagPos, toCheckOrNull, returnType, knownNonNull) {
 
                     JCExpression translateToCheck(JFXExpression expr) {
                         JCExpression trans;
@@ -2918,6 +2918,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                             trans = makeTypeTree(diagPos, msym.owner.type, false);
                         } else {
                             trans = translate(expr);
+                            if (expr.type.isPrimitive()) {
+                                // Java doesn't allow calls directly on a primitive, wrap it
+                                trans = makeBox(diagPos, trans, expr.type);
+                            }
                         }
                         return trans;
                     }
