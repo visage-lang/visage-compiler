@@ -142,8 +142,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     /*
      * static information
      */
-    static final boolean generateNullChecks = true;
-
     private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
     private static final String sequencesRangeExclusiveString = "com.sun.javafx.runtime.sequence.Sequences.rangeExclusive";
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.SequenceBuilder";
@@ -1627,6 +1625,99 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }
     }
 
+    abstract class AssignTranslator extends Translator {
+
+        protected final JFXExpression lhs;
+        protected final JCExpression rhsTranslated;
+        protected final Symbol sym;
+
+        AssignTranslator(final DiagnosticPosition diagPos, final JFXExpression lhs, final JCExpression rhsTranslated) {
+            super(diagPos, JavafxToJava.this);
+            this.lhs = lhs;
+            this.rhsTranslated = rhsTranslated;
+            this.sym = expressionSymbol(lhs);
+        }
+
+        abstract JCTree defaultFullExpression(JCExpression lhsTranslated, JCExpression rhsTranslated);
+
+        /**
+         * Override to change result in the non-default case.
+          */
+        protected JCTree postProcess(JCTree built) {
+            return built;
+        }
+
+        private JCExpression buildSetter(JCExpression tc) {
+            final Name setter = attributeSetterName(sym);
+            JCExpression toApply = m().Select(tc, setter);
+            return m().Apply(null, toApply, List.of(rhsTranslated));
+        }
+
+        protected JCTree doit() {
+            if (lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
+                // set of a sequence element --  s[i]=8, call the sequence set method
+                JFXSequenceIndexed si = (JFXSequenceIndexed) lhs;
+                JCExpression seq = translate(si.getSequence(), Wrapped.InLocation);
+                JCExpression index = translate(si.getIndex());
+                JCFieldAccess select = make.at(diagPos).Select(seq, defs.setMethodName);
+                List<JCExpression> args = List.of(index, rhsTranslated);
+                return postProcess(make.at(diagPos).Apply(null, select, args));
+            } else if (requiresLocation(sym)) {
+                // we are setting a var Location, call the set method
+                JCExpression lhsTranslated = translate(lhs, Wrapped.InLocation);
+                JCFieldAccess setSelect = make.at(diagPos).Select(lhsTranslated, defs.locationSetMethodName[typeMorpher.typeMorphInfo(lhs.type).getTypeKind()]);
+                List<JCExpression> setArgs = List.of(rhsTranslated);
+                return postProcess(make.at(diagPos).Apply(null, setSelect, setArgs));
+            } else if (sym.owner.kind == Kinds.TYP && !sym.isStatic() && types.isJFXClass(sym)) {
+                // use setter method
+                JFXExpression toCheckOrNull;
+                boolean knownNonNull;
+
+                switch (lhs.getFXTag()) {
+                    case SELECT:
+                        JFXSelect select = (JFXSelect) lhs;
+                        toCheckOrNull = select.getExpression();
+                        knownNonNull = false;
+                        break;
+                    case IDENT:
+                        toCheckOrNull = null;
+                        knownNonNull = true;
+                        break;
+                    default:
+                        throw new AssertionError("Should not reach here");
+                }
+
+                return postProcess(new NullCheckTranslator(diagPos, toCheckOrNull, lhs.type, knownNonNull) {
+
+                    @Override
+                    JCExpression translateToCheck( JFXExpression expr) {
+                        if (expr == null) {
+                            return null;
+                        } else {
+                            return translate(expr, Wrapped.InNothing);
+                        }
+                    }
+
+                    @Override
+                    JCExpression fullExpression( JCExpression mungedToCheckTranslated) {
+                        JCExpression tc = mungedToCheckTranslated;
+                        if (tc == null) {
+                            tc = makeReceiver(diagPos, sym, attrEnv.enclClass.sym);
+                        } else {
+                            if (toCheck.type.isPrimitive()) {
+                                tc = makeBox(diagPos, tc, toCheck.type);
+                            }
+                        }
+                        return buildSetter(tc);
+                    }
+                }.doit());
+            } else {
+                // We are setting a "normal" non-Location non-getter/setter-accessed variable, use the generic approach of the caller
+                return defaultFullExpression(translate(lhs), rhsTranslated);
+            }
+        }
+    }
+
     @Override
     public void visitAssign(JFXAssign tree) {
         DiagnosticPosition diagPos = tree.pos();
@@ -1642,23 +1733,20 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             List<JCExpression> args = List.of(firstIndex, lastIndex, rhs);
             result = make.at(diagPos).Apply(null, select, args);
         } else {
-            JCExpression rhsTranslated = translate(tree.rhs, tree.type);
-            JCTree setExpr = setVarOrNull(diagPos, tree.lhs, rhsTranslated);
-            if (setExpr != null) {
-                result = setExpr;
-            } else {
-                // We are setting a "normal" non-Location non-getter/setter-accessed variable, use normal assign
-                JCExpression lhs = translate(tree.lhs);
-                result = make.at(diagPos).Assign(lhs, rhsTranslated);
-            }
+            result = new AssignTranslator(diagPos, tree.lhs, translate(tree.rhs, tree.type)) {
+
+                JCTree defaultFullExpression(JCExpression lhsTranslated, JCExpression rhsTranslated) {
+                    return make.at(diagPos).Assign(lhsTranslated, rhsTranslated);
+                }
+            }.doit();
         }
     }
 
     @Override
-    public void visitAssignop(JFXAssignOp tree) {
-        DiagnosticPosition diagPos = tree.pos();
-        JCExpression rhsTranslated = translate(tree.rhs, tree.type);
-        JCExpression lhsTranslated = translate(tree.lhs);
+    public void visitAssignop(final JFXAssignOp tree) {
+        final DiagnosticPosition diagPos = tree.pos();
+        final JCExpression rawRhsTranslated = translate(tree.rhs, tree.type);
+        final JCExpression lhsTranslated = translate(tree.lhs);
         int binaryOp;
         switch (tree.getFXTag()) {
             case PLUS_ASG:
@@ -1683,21 +1771,20 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }
         JCExpression combined;
         if ((types.isSameType(tree.lhs.type, syms.javafx_DurationType) ||
-                    types.isSameType(tree.rhs.type, syms.javafx_DurationType))) {
+                types.isSameType(tree.rhs.type, syms.javafx_DurationType))) {
             JFXExpression method = fxmake.at(diagPos).Select(tree.lhs, tree.operator);
             JFXExpression operation = fxmake.at(diagPos).Apply(null, method, List.<JFXExpression>of(tree.rhs));
             operation.type = syms.javafx_DurationType;
             combined = translate(operation);
         } else {
-            combined = make.at(diagPos).Binary(binaryOp, lhsTranslated, rhsTranslated);
+            combined = make.at(diagPos).Binary(binaryOp, lhsTranslated, rawRhsTranslated);
         }
-        JCTree setExpr = setVarOrNull(diagPos, tree.lhs, combined);
-        if (setExpr != null) {
-            result = setExpr;
-        } else {
-            // We are setting a "normal" non-Location non-getter/setter-accessed variable, use normal assignop
-            result = make.at(diagPos).Assignop(tree.getOperatorTag(), lhsTranslated, rhsTranslated);
-        }
+        result = new AssignTranslator(diagPos, tree.lhs, combined) {
+
+            JCTree defaultFullExpression(JCExpression lhsTranslated, JCExpression ignoredRhsTranslated) {
+                return make.at(diagPos).Assignop(tree.getOperatorTag(), lhsTranslated, rawRhsTranslated);
+            }
+        }.doit();
     }
 
     public void visitSelect(JFXSelect tree) {
@@ -1731,7 +1818,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             translatedSelected = makeTypeTree(diagPos, types.erasure(tree.sym.owner.type), false);
         }
 
-        boolean testForNull = generateNullChecks && !staticReference
+        boolean testForNull = !staticReference
                                            && (tree.sym instanceof VarSymbol)
                                            && types.isJFXClass(exprType.tsym);
         boolean hasSideEffects = testForNull && hasSideEffects(expr);
@@ -3080,23 +3167,28 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 return m().Unary(tree.getOperatorTag(), transExpr);
             }
 
-            private JCExpression doIncDec(int binaryOp, boolean postfix) {
+            private JCExpression doIncDec(final int binaryOp, final boolean postfix) {
                 final JCExpression one = m().Literal(1);
                 final JCExpression combined = m().Binary(binaryOp, transExpr, one);
 
-                JCExpression setExpr = (JCExpression)setVarOrNull(diagPos, expr, combined);
-                if (setExpr != null) {
-                    if (postfix) {
-                        // this is a postfix operation, undo the value (not the variable) change
-                        return m().Binary(binaryOp, setExpr, m().Literal(-1));
-                    } else {
-                        // prefix operation
-                        return setExpr;
+                return (JCExpression) new AssignTranslator(diagPos, expr, combined) {
+
+                    @Override
+                    JCTree defaultFullExpression( JCExpression lhsTranslated, JCExpression rhsTranslated) {
+                        return m().Unary(tree.getOperatorTag(), lhsTranslated);
                     }
-                } else {
-                    // We are setting a "normal" non-Location non-getter/setter-accessed variable, use normal op
-                    return doVanilla();
-                }
+
+                    @Override
+                    protected JCTree postProcess(JCTree built) {
+                        if (postfix) {
+                            // this is a postfix operation, undo the value (not the variable) change
+                            return m().Binary(binaryOp, (JCExpression) built, m().Literal(-1));
+                        } else {
+                            // prefix operation
+                            return built;
+                        }
+                    }
+                }.doit();
             }
 
             public JCTree doit() {
