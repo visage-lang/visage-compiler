@@ -40,8 +40,19 @@ import com.sun.javafx.runtime.sequence.Sequences;
  */
 public class Entry {
     private static RuntimeProvider provider;
+    
+    // FIXME: we really should avoid having this state be static, but
+    // right now there is no effective way of virtualizing it.
+    // Problems will occur with applets that are loaded by the same
+    // class loader, i.e., by the classic Java Plug-In.
+    private static String[] commandLineArgs;
+    private static NamedArgumentProvider namedArgProvider;
 
     public static void start(Class<?> app, String[] commandLineArgs) throws Throwable {
+        if (commandLineArgs != null) {
+            Entry.commandLineArgs = (String[]) commandLineArgs.clone();
+        }
+
         Method main = app.getMethod(entryMethodName(), Sequence.class);
         Object args = Sequences.make(TypeInfo.String, commandLineArgs);
         
@@ -87,6 +98,41 @@ public class Entry {
             provider = runtimeProviderLocator();
         assert provider != null;
         provider.exit();
+    }
+
+    public static void setNamedArgumentProvider(NamedArgumentProvider provider) {
+        namedArgProvider = provider;
+    }
+
+    public static int getNumArguments() {
+        String[] args = commandLineArgs;
+        if (args == null)
+            return 0;
+        return args.length;
+    }
+
+    public static Object getArgument(int argument) {
+        String[] args = commandLineArgs;
+        if (args == null)
+            return null;
+        if (argument < 0 || argument >= args.length)
+            return null;
+        return args[argument];
+    }
+
+    public static Object getNamedArgument(String name) {
+        NamedArgumentProvider provider = namedArgProvider;
+        Object val = null;
+        if (provider != null)
+            val = provider.get(name);
+        if (val == null) {
+            // Try the command line arguments
+            try {
+                return getArgument(Integer.parseInt(name));
+            } catch (NumberFormatException e) {
+            }
+        }
+        return val;
     }
 
     private static RuntimeProvider runtimeProviderLocator() {

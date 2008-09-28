@@ -242,6 +242,44 @@ public class FX {
         }
     }
 
+    /**
+     * For JavaFX Script applications that are started on the command
+     * line, queries the number of incoming arguments of the currently
+     * running application. Returns 0 if there were no incoming
+     * arguments or if this application was not invoked from the
+     * command line. Used in conjunction with {@link #getArgument
+     * getArgument}.
+     */
+    public static int getNumArguments() {
+        return Entry.getNumArguments();
+    }
+
+    /**
+     * For JavaFX Script applications that are started on the command
+     * line, returns the specified argument (0..{@link
+     * #getNumArguments getNumArguments} - 1). This usually returns a
+     * String, but some environments may return other kinds of
+     * values. Returns null if this application was not invoked from
+     * the command line, or if the index is out of bounds.
+     */
+    public static Object getArgument(int argument) {
+        return Entry.getArgument(argument);
+    }
+
+    /**
+     * Returns the named incoming argument for the current JavaFX
+     * Script program; this is used for certain environments (in
+     * particular, applets) where incoming arguments are represented
+     * as name/value pairs. This usually returns a String, but some
+     * environments may return other kinds of values. Accepts numbers
+     * in the form of Strings (e.g. {@code getNamedArgument("0")}) to
+     * provide unification with {@link #getArgument getArgument}.
+     * Returns null if the given named argument does not exist.
+     */
+    public static Object getNamedArgument(String name) {
+        return Entry.getNamedArgument(name);
+    }
+
     /*
      * This inner help class is used to store the Action Data needed 
      * for exitActions, in the future there may me addition System 
