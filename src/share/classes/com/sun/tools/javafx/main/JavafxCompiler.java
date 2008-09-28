@@ -663,7 +663,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         // as a JavaCompiler can only be used once, throw an exception if
         // it has been used before.
         if (hasBeenUsed)
-	    throw new AssertionError("attempt to reuse JavaCompiler");
+            throw new AssertionError("attempt to reuse JavaCompiler");
         hasBeenUsed = true;
 
         start_msec = now();

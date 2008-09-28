@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.tools.FileObject;
 
 import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.javafx.api.tree.SyntheticTree.SynthType;
 import com.sun.javafx.api.tree.TypeTree;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javac.code.Flags;
@@ -321,15 +322,24 @@ public class JavafxScriptClassBuilder {
                 }
             }
             JFXFunctionDefinition internalRunFunction = makeInternalRunFunction(commandLineArgs, stats.toList(), value);
+            internalRunFunction.setGenType(SynthType.SYNTHETIC);
             scriptClassDefs.prepend(internalRunFunction);
         }
 
         if (moduleClass == null) {
+
+            // Synthesize a Main class definition and flag it as
+            // such.
+            //
+            JFXModifiers cMods = fxmake.Modifiers(PUBLIC);
+            cMods.setGenType(SynthType.SYNTHETIC);
             moduleClass = fxmake.ClassDeclaration(
-                    fxmake.Modifiers(PUBLIC), //public access needed for applet initialization
+                    cMods, //public access needed for applet initialization
                     moduleClassName,
                     List.<JFXExpression>nil(), // no supertypes
                     scriptClassDefs.toList());
+            moduleClass.setGenType(SynthType.SYNTHETIC);
+
         } else {
             moduleClass.setMembers(scriptClassDefs.appendList(moduleClass.getMembers()).toList());
         }

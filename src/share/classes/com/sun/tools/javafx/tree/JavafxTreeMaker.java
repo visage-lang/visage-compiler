@@ -476,6 +476,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
                 declarations,
                 null);
         tree.pos = pos;
+
         return tree;
     }
 
