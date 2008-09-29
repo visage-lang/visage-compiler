@@ -69,11 +69,6 @@ public interface Sequence<T> extends Iterable<T> {
     /** Select elements from the sequence matching the specified predicate. */
     public Sequence<T> get(SequencePredicate<? super T> predicate);
 
-    /** Many sequences are represented as trees to reduce copying costs; if the current sequence has depth > 0,
-     * copy the elements into a new sequence of depth == 0.
-     */
-    public Sequence<T> flatten();
-
     /**
      * Returns the number of levels of sequence objects between this Sequence object and the deepest data.
      * Leaf classes (e.g., ArraySequence, IntRangeSequence) have a depth of zero; composite classes have a depth

@@ -148,17 +148,6 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
     }
 
 
-    public Sequence<T> flatten() {
-        if (getDepth() == 0)
-            return this;
-        else {
-            SequenceBuilder<T> sb = new SequenceBuilder<T>(getElementType(), size());
-            sb.add(this);
-            return sb.toSequence();
-        }
-    }
-
-
     // Allow sequences to be formatted - toString() is just for debugging
     // i.e
     // var seq = [1, 2];

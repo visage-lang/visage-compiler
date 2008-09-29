@@ -23,8 +23,6 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.Util;
-
 /**
  * Represents a portion of another sequence.  Subsequences should be created with the Sequences.subsequence() factory
  * method, rather than with the SubSequence constructor.  O(1) space and time construction costs.

@@ -78,6 +78,17 @@ public final class Sequences {
             return new ArraySequence<T>(ti, values);
     }
 
+    /** Many sequences are represented as trees to reduce copying costs; if the current sequence has depth > 0,
+-     * copy the elements into a new sequence of depth == 0.
+-     */
+    public static<T> Sequence<T> flatten(Sequence<T> seq) {
+        if (seq.getDepth() == 0) {
+            return seq;
+        } else {
+            return new ArraySequence(seq.getElementType(), seq);
+        }
+    }
+
     /** Concatenate two sequences into a new sequence.  */
     @SuppressWarnings("unchecked")
     public static<T> Sequence<T> concatenate(TypeInfo<T> ti, Sequence<? extends T> first, Sequence<? extends T> second) {
@@ -155,7 +166,7 @@ public final class Sequences {
             return seq;
         else if (bits.cardinality() == 0)
             return seq.getEmptySequence();
-        else
+        else 
             return new FilterSequence<T>(seq, bits);
     }
 

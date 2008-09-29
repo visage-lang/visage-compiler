@@ -42,7 +42,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
         };
         Sequence<Integer> doubled = Sequences.map(TypeInfo.Integer, five, doubler);
         assertEquals(doubled, 0, 2, 4, 6, 8, 10);
-        assertEquals(doubled, doubled.flatten());
+        assertEquals(doubled, Sequences.flatten(doubled));
     }
 
     /** select x from foo where x > 3

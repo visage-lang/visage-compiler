@@ -172,8 +172,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEmpty(Sequences.delete(seq, lastMatcher));
 
         assertEmpty(Sequences.reverse(seq));
-        assertEmpty(seq.flatten());
-        assertEquals(seq.flatten(), seq);
+        assertEmpty(Sequences.flatten(seq));
+        assertEquals(Sequences.flatten(seq), seq);
     }
 
     /**
@@ -204,8 +204,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertOneElement(Sequences.delete(seq, nullMatcher), value);
 
         assertEquals(Sequences.reverse(seq), value);
-        assertEquals(seq.flatten(), value);
-        assertDepth(0, seq.flatten());
+        assertEquals(Sequences.flatten(seq), value);
+        assertDepth(0, Sequences.flatten(seq));
     }
 
     private void twoElementHelper(Sequence<Integer> seq, Integer a, Integer b) {
@@ -266,8 +266,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(Sequences.insertBefore(seq, cc, allMatcher), C, C, a, C, C, b);
 
         assertTwoElements(Sequences.reverse(seq), b, a);
-        assertEquals(seq.flatten(), a, b);
-        assertDepth(0, seq.flatten());
+        assertEquals(Sequences.flatten(seq), a, b);
+        assertDepth(0, Sequences.flatten(seq));
     }
 
 

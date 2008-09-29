@@ -85,7 +85,6 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
             seq.toArray(0, l, array, next);
             next += l;
         }
-        checkForNulls();
     }
 
     private void checkForNulls() {
