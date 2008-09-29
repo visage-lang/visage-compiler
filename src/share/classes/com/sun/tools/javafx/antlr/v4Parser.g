@@ -631,20 +631,36 @@ importId
 						}
 					}
 
-				| 	(STAR)=>STAR
+				| 	(STAR)=>s1=STAR (s2=STAR)?
         	
         			{
-						$pid = F.at($n2.pos).Select($pid, names.asterisk);
+        				// Whether '*' || '**'
+        				//
+        				Name starBit;
+        				
+        				if	($s2 == null) {
+        				
+        					// Second star was not present
+        					//
+        				  	starBit = names.asterisk;
+        				} else {
+        				
+        					// Second star WAS present
+        					//
+        					starBit = names.fromString("**");
+        				}
+        				
+						$pid = F.at($n2.pos).Select($pid, starBit);
                 	  	endPos($pid);
 
                 	  	// Build up new node in case of error
 						//
-						starP = pos($STAR);
-						JFXExpression part = F.at(starP).Ident(names.asterisk);
+						starP = pos($s1);
+						JFXExpression part = F.at(starP).Ident(starBit);
 						errNodes.append(part);
 						endPos(part);
 						
-						// If we already had a '.*' part, then this makes no sense
+						// If we already had a '.*{*}' part, then this makes no sense
 						//
 						if	(haveStar) {
 						

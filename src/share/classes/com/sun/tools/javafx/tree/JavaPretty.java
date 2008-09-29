@@ -96,8 +96,13 @@ public class JavaPretty extends Pretty {
 			if (tree.qualid.getTag() == JCTree.SELECT)
 				importedPackages.add(TreeInfo.fullName(((JCFieldAccess) tree.qualid).selected));
 			else;
-		else
+		else if (name.contentEquals("**")) {
+
+            // TODO: Handle import of '**'
+            //
+        } else {
 			importedClasses.add(TreeInfo.fullName(tree.qualid));
+        }
     }
 
 	@Override

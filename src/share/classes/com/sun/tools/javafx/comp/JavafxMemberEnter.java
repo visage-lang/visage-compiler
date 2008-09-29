@@ -482,10 +482,30 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree);
 
         // Attribute qualifying package or class.
+        //
         boolean all = false;
-        if (imp instanceof JFXSelect && name == names.asterisk) {
-            all = true;
-            imp = ((JFXSelect) imp).getExpression();
+
+        // Attribute qualifying package or class and all descendants
+        //
+        boolean allAndSundry = false;
+
+        if (imp instanceof JFXSelect) {
+            
+            if  (name == names.asterisk) {
+
+                all = true;
+                imp = ((JFXSelect) imp).getExpression();
+
+            } else if (name.contentEquals("**")) {
+
+                allAndSundry = true;
+                
+                // TODO: Implement .**
+                // Just cause an assertion error so that we locate this code quickly
+                //
+                assert(allAndSundry == false);
+
+            }
         }
         if (all) {
             TypeSymbol p = attr.attribTree(imp,
