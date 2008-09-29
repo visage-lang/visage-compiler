@@ -290,6 +290,7 @@ scope errorStack;
         	//
         	$result.docComments 	= docComments;
         	$result.endPositions	= endPositions;
+
 		}
 
 		EOF 	// Forces parser to consume entire token stream or error out

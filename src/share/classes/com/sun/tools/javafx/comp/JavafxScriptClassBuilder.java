@@ -321,8 +321,9 @@ public class JavafxScriptClassBuilder {
                     }
                 }
             }
-            JFXFunctionDefinition internalRunFunction = makeInternalRunFunction(commandLineArgs, stats.toList(), value);
-            internalRunFunction.setGenType(SynthType.SYNTHETIC);
+            JFXFunctionDefinition internalRunFunction = makeInternalRunFunction(module, commandLineArgs, stats.toList(), value);
+            internalRunFunction.setGenType(SynthType.SYNTHETIC);    // Signal that we created this in the compiler, not from source
+            setEndPos(module, internalRunFunction, module);         // Use modlue endPos for synthesied run function
             scriptClassDefs.prepend(internalRunFunction);
         }
 
@@ -339,14 +340,18 @@ public class JavafxScriptClassBuilder {
                     List.<JFXExpression>nil(), // no supertypes
                     scriptClassDefs.toList());
             moduleClass.setGenType(SynthType.SYNTHETIC);
+            moduleClass.setPos(module.getStartPosition());
 
+            // Check endpos for IDE
+            //
+            setEndPos(module, moduleClass, module);
+        
         } else {
             moduleClass.setMembers(scriptClassDefs.appendList(moduleClass.getMembers()).toList());
         }
         
         moduleClass.isModuleClass = true;
         moduleClass.runMethod = userRunFunction;
-
         topLevelDefs.append(moduleClass);
         
         module.defs = topLevelDefs.toList();
@@ -356,6 +361,25 @@ public class JavafxScriptClassBuilder {
         reservedTopLevelNamesSet = null;
     }
     
+    /**
+     * Helper method that checks to see if we can/need to record the correct end
+     * position for any synthesized nodes, based upon the end position of some
+     * supplied node that makes sense to use the end position of.
+     * 
+     * @param module The top level script node
+     * @param built  The AST we are synthesizing
+     * @param copy   The AST we are copying information from
+     */
+    protected void setEndPos(final JFXScript module, final JFXTree build, final JFXTree copy)
+    {
+        // We can only calculate end position spans if we have an
+        // end position map, for debugging, or for the IDE.
+        //
+        if  (module.endPositions != null) {
+            module.endPositions.put(build, copy.getEndPosition(module.endPositions));
+        }
+    }
+
     private void debugPositions(final JFXScript module) {
         new JavafxTreeScanner() {
 
@@ -421,14 +445,19 @@ public class JavafxScriptClassBuilder {
         return fxmake.TypeClass(rettree, JFXType.Cardinality.SINGLETON);
     }
 
-    private JFXFunctionDefinition makeInternalRunFunction(Name argName, List<JFXExpression> stats, JFXExpression value) {
-        JFXBlock body = fxmake.Block(0, stats, value);
-        return fxmake.FunctionDefinition(
+    private JFXFunctionDefinition makeInternalRunFunction(JFXScript module, Name argName, List<JFXExpression> stats, JFXExpression value) {
+        JFXBlock body = fxmake.Block(module.getStartPosition(), stats, value);
+        setEndPos(module, body, module);
+        body.setGenType(SynthType.SYNTHETIC);
+        JFXFunctionDefinition func = fxmake.at(module.getStartPosition()).FunctionDefinition(
                 fxmake.Modifiers(PUBLIC | STATIC | SCRIPT_LEVEL_SYNTH_STATIC | SYNTHETIC),
                 defs.internalRunFunctionName,
                 makeRunFunctionType(),
                 makeRunFunctionArgs(argName),
-                body);        
+                body);
+        setEndPos(module, func, module);
+        func.setGenType(SynthType.SYNTHETIC);
+        return func;
     }
     
     private Name scriptName(JFXScript tree) {
