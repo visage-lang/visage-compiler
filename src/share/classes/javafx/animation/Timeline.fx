@@ -327,8 +327,7 @@ public class Timeline {
     
     function start() {
         reset(false);
-        setSubtimelineDirection(forward);
-        
+        setSubtimelineDirection(forward);        
         buildClip();
         clip.start();       
     }
@@ -352,6 +351,10 @@ public class Timeline {
      *          immediately.
      *      <li>It has no effect on sub timelines.
      *  </l>
+     *  <p>
+     *  Play a timline backward with {@code INDEFINITE} sub-timeline if not supported,
+     *  a <code>java.lang.UnsupportedOperationException</code> exception will be
+     *  thrown.
      *
      *  @profile common
      */
@@ -409,7 +412,10 @@ public class Timeline {
             cycleIndex = 0;
             lastElapsed = 0;
             frameIndex = 0;
-        } 
+        } else if(not valid) {
+            rebuildTargets();
+        }
+ 
         
         for (kv in initialKeyValues) {
             kv.target.set(kv.value);
@@ -446,6 +452,7 @@ public class Timeline {
                 if(sub.timeline.running) {
                     sub.timeline.stop();
                     sub.timeline.running = false;
+                    sub.timeline.currentRate = 0.0;
                 }
             }
 
@@ -519,7 +526,7 @@ public class Timeline {
     //   - KeyValue.value
     //   - KeyValue.interpolate
     //
-    function rebuildTargets():Void {
+    function rebuildTargets():Void {        
         initialKeyValues = [];
         targets.clear();
         subtimelines.clear();
@@ -543,6 +550,10 @@ public class Timeline {
             }
 
             if (keyFrame.timelines != null) {
+                if(subtimeline and keyFrame.timelines.size() > 0) {
+                    throw new UnsupportedOperationException("Sub timeline in a sub timeline is not supported");                    
+                }
+                
                 for (timeline in keyFrame.timelines) {
                     timeline.subtimeline = true;
                     var subDur = timeline.getTotalDur();
@@ -628,7 +639,11 @@ public class Timeline {
 
         // if position has been modified externally, reposition the playhead   
         var timeInMillis = time.toMillis();
+        var playheadUpdated: Boolean = false;
+        
         if(curPos != timeInMillis and not subtimeline) {
+            playheadUpdated = true;
+            
             if(totalDur < 0) {
                 totalElapsed = timeInMillis;
             } else {
@@ -666,6 +681,11 @@ public class Timeline {
             curT = totalElapsed mod dur;
             cycle = totalElapsed / dur as Integer;
         }
+        
+        if(playheadUpdated) {
+            updateSubtimelinePlayhead(curT);
+        }
+        
         // check if passed cycle boundary
         while(cycle > cycleIndex and 
             (repeatCount < 0 or cycleIndex < repeatCount)) {
@@ -678,6 +698,7 @@ public class Timeline {
             }
             cycleIndex ++;
         }
+        
         
         if((not needsStop) or cycleIndex < repeatCount) {
             if(not forward and not subtimeline) {
@@ -715,7 +736,7 @@ public class Timeline {
             }
         }    
     }
-        
+                
     function doInterpolate(curT: Number) {        
         if (interpolate) {
             // now handle the active interval for each target
@@ -779,23 +800,58 @@ public class Timeline {
             var startTime = sub.startTime.toMillis();
             var subCurT = curT - startTime;
             if(subTimeline.forward and subTimeline.running ) {
-                if(subDur < 0 or curT <= startTime + subDur) {
+                if(subDur < 0 or curT < startTime + subDur) {
                     subTimeline.process(subCurT);
                 } else {
                     subTimeline.process(subDur);
                     subTimeline.running = false;
+                    subTimeline.currentRate = 0.0;
                 }
             } else if(not subTimeline.forward) {
                 if(subTimeline.running) {
                     subTimeline.process(subCurT);
+                    if(subCurT <= 0) {
+                        subTimeline.running = false;
+                        subTimeline.currentRate = 0.0;
+                    }
                 } else if(subDur < 0 or (curT <= startTime + subDur and  curT > startTime)) {
                     subTimeline.running = true;
+                    subTimeline.currentRate = if(subTimeline.forward) Math.abs(rate) else - Math.abs(rate);
+                    
                     subTimeline.process(subCurT);
                 }
             }
         }        
     }
     
+    function updateSubtimelinePlayhead(curT: Number) { 
+        for(i in [0..<subtimelines.size()]) {
+            var sub = subtimelines.get(i) as SubTimeline;
+            var subTimeline = sub.timeline;
+            var subDur = subTimeline.getTotalDur();
+            var startTime = sub.startTime.toMillis();
+            
+            if(curT >= startTime and 
+               (curT <= startTime + subDur or subDur < 0)) {
+               if(not subTimeline.running) {
+                   subTimeline.running = true;
+                   subTimeline.currentRate = if(subTimeline.forward) Math.abs(rate) else -Math.abs(rate);
+               }
+            } else if(curT < startTime) {
+                if(subTimeline.running) {
+                    subTimeline.reset(true);
+                    subTimeline.running = false;
+                    subTimeline.currentRate = 0.0;
+                }            
+            } else if(curT > startTime + subDur)
+                if(subTimeline.running) {
+                    subTimeline.process(subDur);
+                    subTimeline.running = false;
+                    subTimeline.currentRate = 0.0;
+            }
+        }
+    }    
+
     /**
      * Parent timeline has altered its direction, sub timelines' direction
      * needs to be altered accordingly.
@@ -803,7 +859,12 @@ public class Timeline {
     function setSubtimelineDirection(forward: Boolean): Void {
         for (i in [0..<subtimelines.size()]) {
             var sub = subtimelines.get(i) as SubTimeline;
-            sub.timeline.forward = forward;
+            var subTimeline = sub.timeline;
+            if(forward) {
+                subTimeline.forward = if(subTimeline.rate > 0) true else false;
+            } else {
+                subTimeline.forward = if(subTimeline.rate < 0) true else false;
+            }
             sub.timeline.setSubtimelineDirection(forward);
         }
     }
@@ -860,8 +921,8 @@ public class Timeline {
             if(sub.timeline.running) {
                 sub.timeline.process(curT - sub.startTime.toMillis());
                 sub.timeline.running = false;
+                sub.timeline.currentRate = 0.0;
             }
-//            sub.timeline.reset(true);
         }
     }
     
@@ -873,6 +934,7 @@ public class Timeline {
         for(t: Timeline in kf.timelines) {
             t.reset(true);
             t.running = true;
+            t.currentRate = if(t.forward) Math.abs(rate) else -Math.abs(rate);
         }
     }
     
@@ -884,9 +946,11 @@ public class Timeline {
         for(t: Timeline in kf.timelines) {
             if(not t.running) {
                 t.running = true;
+                t.currentRate = if(t.forward) Math.abs(rate) else -Math.abs(rate);
             }
             t.process(t.getTotalDur());
             t.running = false;
+            t.currentRate = 0.0;
         }
     }
     
@@ -936,6 +1000,28 @@ public class Timeline {
         return true;
     }
 
+    
+    function pauseSubtimelines() {
+        for(i in [0..<subtimelines.size()]) {
+            var sub = subtimelines.get(i) as SubTimeline;
+            if(sub.timeline.running) {
+                sub.timeline.currentRate = 0.0;
+                sub.timeline.paused = true;
+            }
+        }
+    }
+    
+    function resumeSubtimelines() {
+        var speed = Math.abs(rate);
+        for(i in [0..<subtimelines.size()]) {
+            var sub = subtimelines.get(i) as SubTimeline;
+            if(sub.timeline.running) {
+                sub.timeline.currentRate = if(sub.timeline.forward) speed else -speed;
+                sub.timeline.paused = false;
+            }
+        }        
+    }
+    
     function createAdapter():TimingTarget {
         TimingTargetAdapter {
             override function begin() : Void {
@@ -968,11 +1054,13 @@ public class Timeline {
 
             override function pause() : Void {
                 paused = true;
+                pauseSubtimelines();
                 currentRate = 0.0;
             }
 
             override function resume() : Void {
                 paused = false;
+                resumeSubtimelines();
                 if(forward) {
                     currentRate = Math.abs(rate);
                 } else {

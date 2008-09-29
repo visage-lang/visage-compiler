@@ -66,6 +66,10 @@ public class KeyFrame extends Comparable {
     /**
      * A list of sub-timelines that will be started when the time cursor passes
      * the specified time of this {@code KeyFrame}.
+     * <p>
+     * Sub timelines inside another sub timeline is not supported, a 
+     * <code>java.lang.UnsupportedOperationException</code> will be thrown
+     * as the result.
      * 
      * @profile common
      */
