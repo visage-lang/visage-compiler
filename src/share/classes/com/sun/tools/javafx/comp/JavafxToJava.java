@@ -164,6 +164,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         protected final Type resultType;
         private final boolean needNullCheck;
         private boolean hasSideEffects;
+        private boolean hse;
         private ListBuffer<JCStatement> tmpVarList;
 
         NullCheckTranslator(DiagnosticPosition diagPos, JFXExpression toCheck, Type resultType, boolean knownNonNull) {
@@ -184,13 +185,17 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 // if there is going to be a null check (which thus could keep expr
                 // from being evaluated), and expr has side-effects, then eval
                 // it first and put it in a temp var.
-                JCVariableDecl tVar = makeTmpVar(diagPos, "pse", expr.type, trans);
-                tmpVarList.append(tVar);
-                return m().Ident(tVar.name);
+                return addTempVar(expr.type, trans);
             } else {
                 // no side-effects, just pass-through
                 return trans;
             }
+        }
+
+        protected JCExpression addTempVar(Type varType, JCExpression trans) {
+            JCVariableDecl tmpVar = makeTmpVar(diagPos, "pse", varType, trans);
+            tmpVarList.append(tmpVar);
+            return m().Ident(tmpVar.name);
         }
 
         private boolean possiblyNull(JFXExpression expr) {
@@ -222,10 +227,11 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }
 
         private boolean computeHasSideEffects(JFXExpression expr) {
+            hse = false;
             new JavafxTreeScanner() {
 
                 private void markSideEffects() {
-                    hasSideEffects = true;
+                    hse = true;
                 }
 
                 @Override
@@ -257,8 +263,15 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 public void visitFunctionInvocation(JFXFunctionInvocation tree) {
                     markSideEffects();
                 }
+
+                @Override
+                public void visitSelect(JFXSelect tree) {
+                    // Doesn't really have side-effects but the dupllicate null checking is aweful
+                    //TODO: do this in a cleaner way
+                    markSideEffects();
+                }
             }.scan(expr);
-            return hasSideEffects;
+            return hse;
         }
 
         protected JCTree doit() {
@@ -272,7 +285,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 mungedToCheckTranslated = m().Ident(tmpVar.name);
             }
             JCExpression full = fullExpression(mungedToCheckTranslated);
-            if (!needNullCheck) {
+            if (!needNullCheck && tmpVarList.isEmpty()) {
                 return full;
             }
             // Do a null check
@@ -281,7 +294,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCExpression cond = m().Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
             if (resultType == syms.voidType) {
                 // if this is a void expression, check it with an If-statement
-                JCStatement stmt = make.If(cond, make.Exec(full), null);
+                JCStatement stmt = m().Exec(full);
+                if (needNullCheck) {
+                    stmt = m().If(cond, stmt, null);
+                }
                 assert yield == Yield.ToExecStatement : "Yield from a void call should always be a statement";
                 // a statement is the desired result of the translation, return the If-statement
                 if (tmpVarList.nonEmpty()) {
@@ -292,20 +308,22 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     return stmt;
                 }
             } else {
-                // it has a non-void return type, convert it to a conditional expression
-                // if it would dereference null, then the full expression instead yields the default value
-                TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(resultType);
-                JCExpression defaultExpr = makeDefaultValue(diagPos, returnTypeInfo);
-                if (wrap == Wrapped.InLocation) {
-                    defaultExpr = makeUnboundLocation(diagPos, returnTypeInfo, defaultExpr);
+                if (needNullCheck) {
+                    // it has a non-void return type, convert it to a conditional expression
+                    // if it would dereference null, then the full expression instead yields the default value
+                    TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(resultType);
+                    JCExpression defaultExpr = makeDefaultValue(diagPos, returnTypeInfo);
+                    if (wrap == Wrapped.InLocation) {
+                        defaultExpr = makeUnboundLocation(diagPos, returnTypeInfo, defaultExpr);
+                    }
+                    full = m().Conditional(cond, full, defaultExpr);
                 }
-                JCExpression result = m().Conditional(cond, full, defaultExpr);
                 if (tmpVarList.nonEmpty()) {
                     // if the selector has side-effects, we created a temp var to hold it
                     // so we need to make a block-expression to include the temp var
-                    result = makeBlockExpression(diagPos, tmpVarList.toList(), result);
+                    full = makeBlockExpression(diagPos, tmpVarList.toList(), full);
                 }
-                return result;
+                return full;
             }
         }
     }
@@ -1794,121 +1812,61 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }.doit();
     }
 
-    public void visitSelect(JFXSelect tree) {
-        DiagnosticPosition diagPos = tree.pos();
-        JFXExpression expr = tree.getExpression();
-        Type exprType = expr.type;
+    class SelectTranslator extends NullCheckTranslator {
+        protected final Symbol sym;
+        protected final boolean isFunctionReference;
+        protected final boolean staticReference;
+        protected final Name name;
 
-        // this may or may not be in a LHS but in either
-        // event the selector is a value expression
-        JCExpression translatedSelected = translate(expr, Wrapped.InNothing);
-
-        if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
-            MethodType mtype = (MethodType) tree.sym.type;
-            JCVariableDecl selectedTmpDecl = makeTmpVar(diagPos, "tg", exprType, translatedSelected);
-            JCExpression translated = make.at(diagPos).Select(make.Ident(selectedTmpDecl.name), tree.getIdentifier());
-            translated = makeFunctionValue(translated, null, diagPos, mtype);
-            result = makeBlockExpression(
-                diagPos,
-                List.<JCStatement>of(selectedTmpDecl),
-                translated);
-           return;
+        protected SelectTranslator(JFXSelect tree) {
+            super(tree.pos(), tree.getExpression(), tree.type, tree.sym.isStatic());
+            sym = tree.sym;
+            isFunctionReference = tree.type instanceof FunctionType && tree.sym.type instanceof MethodType;
+            staticReference = tree.sym.isStatic();
+            name = tree.getIdentifier();
         }
 
-        if (exprType != null && exprType.isPrimitive()) { // expr.type is null for package symbols.
-            translatedSelected = makeBox(diagPos, translatedSelected, exprType);
-        }
+        @Override
+        protected JCExpression translateToCheck(JFXExpression expr) {
+            // this may or may not be in a LHS but in either
+            // event the selector is a value expression
+            JCExpression translatedSelected = translate(expr, Wrapped.InNothing);
 
-        // determine if this is a static reference, eg.   MyClass.myAttribute
-        boolean staticReference = tree.sym.isStatic();
-        if (staticReference) {
-            translatedSelected = makeTypeTree(diagPos, types.erasure(tree.sym.owner.type), false);
-        }
-
-        boolean testForNull = !staticReference && (tree.sym instanceof VarSymbol);
-        boolean hasSideEffects = testForNull && hasSideEffects(expr);
-        JCVariableDecl tmpVar = null;
-        if (hasSideEffects) {
-            tmpVar = makeTmpVar(diagPos, exprType, translatedSelected);
-            translatedSelected = make.at(diagPos).Ident(tmpVar.name);
-        }
-
-        JCFieldAccess translated = make.at(diagPos).Select(translatedSelected, tree.getIdentifier());
-
-        JCExpression ref = convertVariableReference(
-                diagPos,
-                translated,
-                tree.sym,
-                (wrap == Wrapped.InLocation));
-        if (testForNull) {
-            // we have a testable guard for null, wrap the attribute access  in it, return default value if null
-            TypeMorphInfo tmi = typeMorpher.typeMorphInfo(tree.type);
-            JCExpression defaultExpr = makeDefaultValue(diagPos, tmi);
-            if (wrap == Wrapped.InLocation) {
-                defaultExpr = makeUnboundLocation(diagPos, tmi, defaultExpr);
+            if (staticReference) {
+                translatedSelected = makeTypeTree(diagPos, types.erasure(sym.owner.type), false);
             }
 
-            JCExpression checkedExpr;
-            if (hasSideEffects) {
-                // we don't recreate (we've stuck it in a var)
-                checkedExpr = make.at(diagPos).Ident(tmpVar.name);
+            return translatedSelected;
+        }
+
+        @Override
+        protected JCExpression fullExpression(JCExpression mungedToCheckTranslated) {
+            if (isFunctionReference) {
+                MethodType mtype = (MethodType) sym.type;
+                JCExpression tc = staticReference?
+                    mungedToCheckTranslated :
+                    addTempVar(toCheck.type, mungedToCheckTranslated);
+                JCExpression translated = m().Select(tc, name);
+                return makeFunctionValue(translated, null, diagPos, mtype);
             } else {
-                // re-translate, we need two of them
-                checkedExpr = translate(expr, Wrapped.InNothing);
-            }
-            JCExpression cond = make.at(diagPos).Binary(
-                    JCTree.EQ,
-                    checkedExpr,
-                    make.Literal(TypeTags.BOT, null));
-            ref = make.at(diagPos).Conditional(cond, defaultExpr, ref);
-            if (hasSideEffects) {
-                // put the tmp var and the conditional in a block expression
-                List<JCStatement> stmts = List.<JCStatement>of(tmpVar);
-                ref = makeBlockExpression(diagPos, stmts, ref);
+                JCExpression tc = mungedToCheckTranslated;
+                if (toCheck.type != null && toCheck.type.isPrimitive()) {  // expr.type is null for package symbols.
+                    tc = makeBox(diagPos, tc, toCheck.type);
+                }
+                JCFieldAccess translated = make.at(diagPos).Select(tc, name);
+
+                return convertVariableReference(
+                        diagPos,
+                        translated,
+                        sym,
+                        (wrap == Wrapped.InLocation));
             }
         }
-        result = ref;
     }
-    //where
-    private boolean hasSideEffects(JFXExpression expr) {
-        final boolean[] hasSideEffectHolder = {false};
-        new JavafxTreeScanner() {
 
-            private void markSideEffects() {
-                hasSideEffectHolder[0] = true;
-            }
 
-            @Override
-            public void visitBlockExpression(JFXBlock tree) {
-                markSideEffects(); // maybe doesn't but covers all statements
-            }
-
-            @Override
-            public void visitUnary(JFXUnary tree) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitAssignop(JFXAssignOp tree) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitInstanciate(JFXInstanciate tree) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitAssign(JFXAssign tree) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitFunctionInvocation(JFXFunctionInvocation tree) {
-                markSideEffects();
-            }
-        }.scan(expr);
-        return hasSideEffectHolder[0];
+    public void visitSelect(JFXSelect tree) {
+        result = new SelectTranslator(tree).doit();
     }
 
     @Override
@@ -2865,107 +2823,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
         result = (new FunctionCallTranslator( tree, this ) {
-/******/
-            private final boolean hasSideEffects = selectorMutable && hasSideEffects(selector);
-
-            public JCTree doit() {
-                JCVariableDecl selectorVar = null;
-                JCExpression transMeth;
-                if (renameToSuper) {
-                    transMeth = make.at(selector).Select(make.Select(makeTypeTree( selector,currentClass.sym.type, false), names._super), msym);
-                } else {
-                    transMeth = translate(meth);
-                    if (hasSideEffects && !selector.type.isPrimitive() && transMeth.getTag() == JCTree.SELECT) {
-                        // still a select and presumed to still have side effects -- hold the selector in a temp var
-                        JCFieldAccess transMethFA = (JCFieldAccess) transMeth;
-                        selectorVar = makeTmpVar(diagPos, "select", selector.type, transMethFA.getExpression());
-                        transMeth = m().Select(m().Ident(selectorVar.name), transMethFA.name);
-                    }
-                }
-
-                // translate the method name -- e.g., foo  to foo$bound or foo$impl
-                //TODO: this is a paranoid cloning of the below -- integrate this
-                if (superToStatic) {
-                    Name name = functionName(msym, superToStatic, callBound);
-                    if (transMeth.getTag() == JCTree.IDENT) {
-                        transMeth = m().Ident(name);
-                    } else if (transMeth.getTag() == JCTree.SELECT) {
-                        transMeth = m().Select(makeTypeTree(diagPos, msym.owner.type, false), name);
-                    }
-                } else
-                if (callBound && ! renameToSuper) {
-                    Name name = functionName(msym, superToStatic, callBound);
-                    if (transMeth.getTag() == JCTree.IDENT) {
-                        transMeth = m().Ident(name);
-                    } else if (transMeth.getTag() == JCTree.SELECT) {
-                        JCFieldAccess faccess = (JCFieldAccess) transMeth;
-                        transMeth = m().Select(faccess.getExpression(), name);
-                    }
-                }
-                if (useInvoke) {
-                    transMeth = make.Select(transMeth, defs.invokeName);
-                }
-
-                JCMethodInvocation app = determineArgs(transMeth);
-                JCExpression fresult = app;
-                if (callBound) {
-                    fresult = makeBoundCall(app);
-                }
-                if (useInvoke) {
-                    if (tree.type.tag != TypeTags.VOID) {
-                        fresult = castFromObject(fresult, tree.type);
-                    }
-                }
-                // If we are to yield a Location, and this isn't going to happen as
-                // a return of using a bound call (for example, if this is a Java call)
-                // then convert into a Location
-                if (wrap == Wrapped.InLocation && !callBound && msym != null) {
-                    TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(msym.getReturnType());
-                    fresult = makeUnboundLocation(diagPos, returnTypeInfo, fresult);
-                }
-                if (selectorMutable && !selector.type.isPrimitive()) {  // if mutable (and not primitive), we need to test for null
-                    JCExpression toTest = hasSideEffects?
-                                             m().Ident(selectorVar.name) :
-                                             translate(selector);
-                    // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
-                    JCExpression cond = m().Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
-                    if (msym.getReturnType() == syms.voidType) {
-                        // if this is a void expression, check it with an If-statement
-                        JCStatement stmt = make.If(cond, make.Exec(fresult), null);
-                        assert yield == Yield.ToExecStatement : "Yield from a void call should always be a statement";
-                        // a statement is the desired result of the translation, return the If-statement
-                        if (hasSideEffects) {
-                            // if the selector has side-effects, we created a temp var to hold it
-                            // so we need to make a block to include the temp var
-                            return m().Block(0L, List.<JCStatement>of(selectorVar, stmt));
-                        } else {
-                            return stmt;
-                        }
-                    } else {
-                        // it has a non-void return type, convert it to a conditional expression
-                        // if it would dereference null, then instead give the default value
-                        TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(msym.getReturnType());
-                        JCExpression defaultExpr = makeDefaultValue(diagPos, returnTypeInfo);
-                        if (wrap == Wrapped.InLocation) {
-                            defaultExpr = makeUnboundLocation(diagPos, returnTypeInfo, defaultExpr);
-                        }
-                        fresult =  m().Conditional(cond, fresult, defaultExpr);
-                        if (hasSideEffects) {
-                            // if the selector has side-effects, we created a temp var to hold it
-                            // so we need to make a block-expression to include the temp var
-                            fresult = makeBlockExpression(diagPos, List.<JCStatement>of(selectorVar), fresult);
-                        }
-                    }
-                }
-                return fresult;
-            }
-
-            //TODO: the below uses the NullChecker general null-check mechanism and, in the process,
-            // fixes some bugs.  But it isn't finished and it is too risky to use now.
-/************
-            private final boolean magicIsInitializedFunction = (msym != null) &&
-                    (msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym) &&
-                    (JavafxTreeInfo.name(tree.meth) == defs.isInitializedName);
 
             private Name funcName = null;
 
@@ -3009,6 +2866,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                             trans = m().Select(makeTypeTree(diagPos, currentClass.sym.type, false), names._super);
                         } else if (superToStatic) {
                             trans = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
+                        } else if (selector!=null && !useInvoke && msym!=null && msym.isStatic()) {
+                            //TODO: clean this up -- handles referencing a static function via an instance
+                            trans = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
                         } else {
                             trans = translate(expr);
                             if (expr.type.isPrimitive()) {
@@ -3044,7 +2904,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     }
                 }.doit();
             }
-/***********/
 
             // compute the translated arguments.
             // if this is a bound call, use left-hand side references for arguments consisting
