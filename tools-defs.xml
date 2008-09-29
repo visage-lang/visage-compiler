@@ -17,6 +17,9 @@
     <property name="docbook.ver" value="1.73.1"/>
     <property name="docbook.dir" value="${tools.dir}/docbook-xsl-${docbook.ver}"/>
 
+    <property name="docbook-xml.ver" value="4.5"/>
+    <property name="docbook-xml.dir" value="${tools.dir}/docbook-xml-${docbook-xml.ver}"/>
+
     <property name="wysiwygdocbook.ver" value="1.02"/>
     <property name="wysiwygdocbook.reldir" value="wysiwygdocbook-${wysiwygdocbook.ver}"/>
     <property name="wysiwygdocbook.dir" value="${tools.dir}/${wysiwygdocbook.reldir}"/>

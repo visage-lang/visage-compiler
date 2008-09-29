@@ -36,6 +36,9 @@
     <property name="docbook.tgzfile" value="${bootstrap.dir}/docbook-xsl-${docbook.ver}.tar.gz"/>
     <property name="docbook.tarfile" value="${bootstrap.dir}/docbook-xsl-${docbook.ver}.tar"/>
 
+    <property name="docbook-xml.url" value="http://www.docbook.org/xml/4.5/docbook-xml-4.5.zip"/>
+    <property name="docbook-xml.zipfile" value="${bootstrap.dir}/docbook-xml-4.5.zip"/>
+
     <property name="wysiwygdocbook.url" value="http://www.informatik.fh-wiesbaden.de/~werntges/proj/dbkcss102/wysiwygdocbook1.02.zip"/>
     <property name="wysiwygdocbook.zipfile" value="${bootstrap.dir}/wysiwygdocbook${wysiwygdocbook.ver}.zip"/>
 
@@ -74,6 +77,7 @@
         <mkdir dir="${findbugs.dir}"/>
         <mkdir dir="${junit.dir}"/>
         <mkdir dir="${docbook.dir}"/>
+        <mkdir dir="${docbook-xml.dir}"/>
         <mkdir dir="${wysiwygdocbook.dir}"/>
         <mkdir dir="${saxon.dir}"/>
         <mkdir dir="${xincluder.dir}"/>
@@ -81,7 +85,7 @@
         <mkdir dir="${antlrworks.dir}"/>
         <mkdir dir="${cobertura.dir}"/>
         <mkdir dir="${svnstat.dir}"/>
-	<mkdir dir="${resolver.dir}"/>
+        <mkdir dir="${resolver.dir}"/>
     </target>
 
     <target name="clean">
@@ -91,6 +95,7 @@
         <delete dir="${findbugs.dir}"/>
         <delete dir="${junit.dir}"/>
         <delete dir="${docbook.dir}"/>
+        <delete dir="${docbook-xml.dir}"/>
         <delete dir="${wysiwygdocbook.dir}"/>
         <delete dir="${saxon.dir}"/>
         <delete dir="${xincluder.dir}"/>
@@ -98,11 +103,11 @@
         <delete dir="${antlrworks.dir}"/>
         <delete dir="${cobertura.dir}"/>
         <delete dir="${svnstat.dir}"/>
-	<delete dir="${resolver.dir}"/>
+        <delete dir="${resolver.dir}"/>
         <delete dir="${tools.dir}"/>
     </target>
 
-    <target name="all" depends="prepare,junit,ant,scenegraph,docbook,wysiwygdocbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura,svnstat,resolver"/>
+    <target name="all" depends="prepare,junit,ant,scenegraph,docbook,docbook-xml,wysiwygdocbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura,svnstat,resolver"/>
  
     <target name="ant" depends="prepare">
         <get src="${ant.url}" dest="${ant.zipfile}" usetimestamp="true"/>
@@ -149,6 +154,11 @@
             <mapper type="glob" from="docbook-xsl-${docbook.ver}/*" to="*"/>
         </untar>
         <delete file="${docbook.tarfile}" />
+    </target>
+
+    <target name="docbook-xml" depends="prepare">
+        <get src="${docbook-xml.url}" dest="${docbook-xml.zipfile}" usetimestamp="true"/>
+        <unzip src="${docbook-xml.zipfile}" dest="${docbook-xml.dir}"/>
     </target>
 
     <target name="wysiwygdocbook" depends="prepare">
