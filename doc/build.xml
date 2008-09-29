@@ -22,7 +22,7 @@
         <path refid="saxon.class.path" />
         <path refid="xincluder.class.path" />
         <path refid="resolver.class.path"/>
-        <path location="${basedir}/doc"/>
+        <path location="${doc.build.dir}/tmp"/>
     </path>
 
     <target name="langspec"
@@ -35,6 +35,14 @@
         <mkdir dir="${doc.build.dir}/html"/>
         <mkdir dir="${doc.build.dir}/tmp"/>
         <mkdir dir="${doc.build.dir}/man/man1"/>
+
+        <propertyfile file="${doc.build.dir}/tmp/CatalogManager.properties">
+            <entry key="catalogs" value="${docbook-xml.dir}/catalog.xml"/>
+            <entry key="relative-catalogs" value="false"/>
+            <entry key="static-catalog" value="yes"/>
+            <entry key="catalog-class-name" value="org.apache.xml.resolver.Resolver"/>
+            <entry key="verbosity" value="1"/>
+        </propertyfile>
     </target>
 
     <target name="spec"
