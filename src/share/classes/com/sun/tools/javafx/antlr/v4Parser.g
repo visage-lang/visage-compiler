@@ -1167,7 +1167,7 @@ functionDefinition [ JFXModifiers mods, int pos ]
 	
 		// The function block is optional if this is an abstract funtino definition
 		// but in that case a semi colon is required. If this is not an abstract function
-		// we let the attributioin function report that there is no function body defined
+		// we let the attribution function report that there is no function body defined
 		// as this may be coming from an IDE.
 		//
 		(	  (LBRACE)=>block [-1]
@@ -1178,7 +1178,7 @@ functionDefinition [ JFXModifiers mods, int pos ]
 					errNodes.append($block.value);
 				}
 			
-			| 	// This alt is selected only if the functino declaration is not abstract
+			| 	// This alt is selected only if the function declaration is not abstract
 				// and there was no function body. If there is a SEMI at this point, it does not
 				// matter as it will be eaten by the enclosing rule as if it were an empty statement.
 				//
@@ -1196,6 +1196,11 @@ functionDefinition [ JFXModifiers mods, int pos ]
 								$block.value
 							);
 							
+			// Ensure that the function value, manufactured within the FunctionDefinition() method
+			// call, receives and endPos() map
+			//
+			endPos(((JFXFunctionDefinition)($value)).operation);
+			
 			// Documentation comment (if any)
 			//
 			setDocComment($value, docComment);
@@ -1709,6 +1714,10 @@ scope errorStack;
 			}
 		  	$value = F.at(rPos).Block(0L, stats.toList(), resultType);
 	  		endPos($value);
+	  		
+	  		// Ensure that the result node is tracked in the endpos table
+	  		//
+	  		endPos(resultType);
 	  	}
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 

@@ -45,6 +45,10 @@ public class JFXFunctionValue extends JFXExpression implements FunctionValueTree
         this.rettype = rettype;
         this.funParams = params;
         this.bodyExpression = bodyExpression;
+
+        if  (bodyExpression != null) {
+            this.pos = bodyExpression.pos;
+        }
     }
 
     public JFXType getJFXReturnType() {

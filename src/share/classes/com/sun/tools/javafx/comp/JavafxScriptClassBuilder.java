@@ -457,6 +457,7 @@ public class JavafxScriptClassBuilder {
                 body);
         setEndPos(module, func, module);
         func.setGenType(SynthType.SYNTHETIC);
+        setEndPos(module, func.operation, body);
         return func;
     }
     
