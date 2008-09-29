@@ -174,7 +174,7 @@ public class JavafxPretty implements JavafxVisitor {
 //            println();
 //            print(posAsString(tree.getStartPosition()));
             this.prec = prec;
-            if (tree == null) {
+            if (tree == null || tree instanceof JFXErroneous) {
                 print("/*missing*/");
             } else {
                 tree.accept(this);
@@ -246,18 +246,15 @@ public class JavafxPretty implements JavafxVisitor {
         if (docComments != null) {
             String dc = docComments.get(tree);
             if (dc != null) {
-                print("/**"); println();
                 int pos = 0;
                 int endpos = lineEndPos(dc, pos);
                 while (pos < dc.length()) {
                     align();
-                    print(" *");
-                    if (pos < dc.length() && dc.charAt(pos) > ' ') print(" ");
-                    print(dc.substring(pos, endpos)); println();
+                    print(dc.substring(pos, endpos)); 
                     pos = endpos + 1;
+                    if (pos < dc.length()) println();
                     endpos = lineEndPos(dc, pos);
                 }
-                align(); print(" */"); println();
                 align();
             }
         }
@@ -773,7 +770,12 @@ public class JavafxPretty implements JavafxVisitor {
             }
             JFXBlock body = tree.getBodyExpression();
             if (body != null) {
-                pretty.printExpr(body);
+
+                if  (body instanceof JFXErroneousBlock) {
+                    pretty.print("<erroroneous>");
+                } else {
+                    pretty.printExpr(body);
+                }
             }
             pretty.println();
         } catch (IOException e) {
@@ -1213,22 +1215,59 @@ public class JavafxPretty implements JavafxVisitor {
             boolean first = true;
             print("for (");
             for (ForExpressionInClauseTree cl : tree.getInClauses()) {
+
+                // Don't try to examine erroneous in clauses. We don't wish to
+                // place the entire for expression into error nodes, just because
+                // one or more in clauses was in error, so we jsut skip any
+                // erroneous ones.
+                //
+                if  (cl == null || cl instanceof JFXErroneousForExpressionInClause) {
+                    continue;
+                }
+
                 JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
                 if (first) {
                     first = false;
                 } else {
                     print(", ");
                 }
-                print(clause.getVar().getName());
+                
+                JFXVar var = clause.getVar();
+
+                // Don't try to examine erroneous loop controls, such as
+                // when a variable was missing. Again, this is because the IDE may
+                // try to attribute a node that is mostly correct, but contains
+                // one or more components that are in error.
+                //
+                if  (var == null || var instanceof JFXErroneousVar) 
+                {
+                    print("<missing>)");
+                } else {
+                    print(var.getName());
+                }
                 print(" in ");
-                printExpr(clause.getSequenceExpression());
+
+                JFXExpression e1 = clause.getSequenceExpression();
+
+                if  (e1 == null || e1 instanceof JFXErroneous) {
+                   print("<error>");
+                } else {
+                    printExpr(e1);
+                }
                 if (clause.getWhereExpression() != null) {
                     print(" where ");
                     printExpr(clause.getWhereExpression());
                 }
             }
             print(") ");
-            printExpr(tree.getBodyExpression());
+
+            JFXExpression body = tree.getBodyExpression();
+
+            if  (body == null || body instanceof JFXErroneous) {
+                print(" {}\n");
+            } else {
+                printExpr(body);
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -1246,10 +1285,21 @@ public class JavafxPretty implements JavafxVisitor {
     @Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         try {
-            print(that.var);
+
+            if  (that == null || that.var == null || that.var instanceof JFXErroneousVar) {
+                print("<missing>");
+            } else {
+                print(that.var);
+            }
             print(" in ");
-            print(that.seqExpr);
-            if (that.whereExpr != null) {
+
+            if  (that == null || that.seqExpr == null || that.seqExpr instanceof JFXErroneous) {
+                print("<missing expr>");
+            } else {
+                print(that.seqExpr);
+            }
+            if (that.whereExpr == null || that.whereExpr instanceof JFXErroneous) {
+            } else {
                 print(" where ");
                 print(that.whereExpr);
             }
