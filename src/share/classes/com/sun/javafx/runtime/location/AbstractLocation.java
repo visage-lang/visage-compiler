@@ -35,6 +35,14 @@ import com.sun.javafx.runtime.ErrorHandler;
  */
 public abstract class AbstractLocation implements Location {
 
+    private static final byte INUSE_NOT = 0;
+    private static final byte INUSE_UNINFLATED = 1;
+    private static final byte INUSE_INFLATED = 2;
+
+    // Space is at a premium; FX classes use a *lot* of locations.
+    // We've got four byte-size fields here already; we rely on the VM packing byte-size fields together.  If we need
+    // to add more, we could compress isValid into a bit in state, and/or haveClearedDependencies into inUse.
+
     /** The isValid flag means that the location currently has an up-to-date value. This would be true if the value is
     already known, or if the location has a binding and the binding does not need recomputation. */
     private boolean isValid;
@@ -42,7 +50,17 @@ public abstract class AbstractLocation implements Location {
     /** For use by subclasses */
     protected byte state;
 
-    private boolean mustRemoveDependencies;
+    /** The inUse flag indicates that we are currently traversing our listener lists, and therefore need to defer
+     * modifying the lists until we're done traversing.  It serves as a two-bit reference count; if we "enter" the list
+     * more than once, we'll observe that the list is already in use, and lazily inflate a structure to hold the count
+     * and any pending modifications */
+    private byte inUse;
+
+    /** A bit that indicates that there exist one or more dependent locations that are cleared and that
+     * should be purged after inUse goes to _NOT */
+    private static boolean haveClearedDependencies;
+
+    private static final Map<Location, IterationData> iterationData = new HashMap<Location, IterationData>();
 
     // We separate listeners from dependent locations because updating of dependent locations is split into an
     // invalidation phase and an update phase (this is to support lazy locations.)  So there are times when we want
@@ -56,12 +74,6 @@ public abstract class AbstractLocation implements Location {
     // dynamic dependencies (unregister ourselves with any location with which we've registered as a dynamic dependency),
     // we clear() the weak reference and forget it, which will eventually cause those other locations to forget about us.
     private WeakReference<Location> weakMe;
-
-    // Dynamic dependencies introduce a problem; we register dependent locations from the update() method, while the
-    // list of dependencies is being iterated, causing CME.  So we defer adding anything to the list until we're done
-    // iterating
-    private int iterationDepth;
-    private List<WeakReference<Location>> deferredDependencies;
 
     public boolean isValid() {
         return isValid;
@@ -79,7 +91,7 @@ public abstract class AbstractLocation implements Location {
         boolean wasValid = isValid;
         isValid = false;
         if (wasValid)
-            doInvalidateDependencies();
+            invalidateDependencies();
     }
 
     public boolean hasDependencies() {
@@ -88,65 +100,10 @@ public abstract class AbstractLocation implements Location {
     }
     
     /**
-     * Notify change triggers that the value has changed.  This should be done automatically by mutative methods,
-     * and is also used at object initialization time to defer notification of changes until the values provided
-     * in the object literal are all set.
-     */
+     * Notify change triggers and dependencies that the value has changed. This should be done automatically by mutative
+     * methods, and is also used at object initialization time to defer notification of changes until the values
+     * provided in the object literal are all set. */
     protected void invalidateDependencies() {
-        doInvalidateDependencies();
-    }
-
-    private void purgeDeadDependencies() {
-        //System.out.println("purge: "+ Thread.currentThread());
-        if (dependentLocations != null) {
-            for (Iterator<WeakReference<Location>> iterator = dependentLocations.iterator(); iterator.hasNext();) {
-                WeakReference<Location> locationRef = iterator.next();
-                Location loc = locationRef.get();
-                if (loc == null)
-                    iterator.remove();
-            }
-        }
-    }
-
-    private void doInvalidateDependencies() {
-        notifyChangeListeners();
-        if (dependentLocations != null) {
-            //System.out.println("invalidate: "+ Thread.currentThread() + " " +dependentLocations.size());
-            try {
-                ++iterationDepth;
-                for (WeakReference<Location> locationRef : dependentLocations) {
-                    Location loc = locationRef.get();
-                    if (loc == null)
-                        mustRemoveDependencies = true;
-                    else {
-                        loc.invalidate();
-                        // Space optimization: try for early removal of dynamic dependencies, in the case that
-                        // the dependency is a "weakMe" reference for some object that has been cleared in update()
-                        if (locationRef.get() == null)
-                            mustRemoveDependencies = true;
-                    }
-                }
-            }
-            finally {
-                --iterationDepth;
-                if (iterationDepth == 0) {
-                    if (deferredDependencies != null && deferredDependencies.size() > 0) {
-                        // @@@ This is where we used to do the overly aggressive purge
-                        dependentLocations.addAll(deferredDependencies);
-                        deferredDependencies.clear();
-                    }
-                    if (mustRemoveDependencies) {
-                        purgeDeadDependencies();
-                        mustRemoveDependencies = false;
-                    }
-                }
-            }
-        }
-    }
-
-    // Change listeners are really invalidation listeners; triggers are managed by the higher-level XxxVariable classes.
-    // Ideally we should merge change listeners and dependencies so there's only way of expressing an invalidation dependency.
-    private void notifyChangeListeners() {
         if (listeners != null) {
             for (Iterator<ChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
                 ChangeListener listener = iterator.next();
@@ -159,19 +116,57 @@ public abstract class AbstractLocation implements Location {
                 }
             }
         }
+        if (dependentLocations != null) {
+            beginUpdate();
+            try {
+                for (WeakReference<Location> locationRef : dependentLocations) {
+                    Location loc = locationRef.get();
+                    if (loc == null)
+                        haveClearedDependencies = true;
+                    else {
+                        loc.invalidate();
+                        // Space optimization: try for early removal of dynamic dependencies, in the case that
+                        // the dependency is a "weakMe" reference for some object that has been cleared in update()
+                        if (locationRef.get() == null)
+                            haveClearedDependencies = true;
+                    }
+                }
+            }
+            finally {
+                endUpdate();
+            }
+        }
+    }
+
+    private void purgeDeadDependencies() {
+        if (dependentLocations != null) {
+            for (Iterator<WeakReference<Location>> iterator = dependentLocations.iterator(); iterator.hasNext();) {
+                WeakReference<Location> locationRef = iterator.next();
+                Location loc = locationRef.get();
+                if (loc == null)
+                    iterator.remove();
+            }
+        }
     }
 
     public void addDependentLocation(WeakReference<Location> locationRef) {
         if (dependentLocations == null)
             dependentLocations = new ArrayList<WeakReference<Location>>();
-        if (iterationDepth > 0) {
-            if (deferredDependencies == null)
-                deferredDependencies = new ArrayList<WeakReference<Location>>();
-            deferredDependencies.add(locationRef);
-        }
-        else {
-            // @@@ This is where we used to do the overly aggressive purge
-            dependentLocations.add(locationRef);
+        switch (inUse) {
+            case INUSE_NOT:
+                // @@@ This is where we used to do the overly aggressive purge
+                dependentLocations.add(locationRef);
+                break;
+
+            case INUSE_UNINFLATED:
+                IterationData id = inflateIterationData(1);
+                id.addDependency(locationRef);
+                break;
+
+            case INUSE_INFLATED:
+                id = iterationData.get(this);
+                id.addDependency(locationRef);
+                break;
         }
     }
 
@@ -179,21 +174,25 @@ public abstract class AbstractLocation implements Location {
         // @@@ Would be nice to get rid of raw change listeners, and stick with the type-specific versions (e.g.,
         // ObjectChangeListener), but for now Bijection relies on access to the raw listener because it needs to
         // be able to unregister itself when the weak references are cleared
+        // @@@ Should also defer adding listeners if the structures are in use
         if (listeners == null)
             listeners = new ArrayList<ChangeListener>();
         listeners.add(listener);
     }
 
     public void removeChangeListener(ChangeListener listener) {
+        // @@@ Should also defer removing listeners if the structures are in use
         if (listeners != null)
             listeners.remove(listener);
     }
 
     public void addWeakListener(ChangeListener listener) {
+        // @@@ Should also defer adding listeners if the structures are in use
         addChangeListener(new WeakListener(listener));
     }
 
     public void addDependencies(Location... dependencies) {
+        // @@@ Provide a one-arg version so autoboxing is not always used
         if (dependencies.length > 0) {
             WeakReference<Location> wr = new WeakReference<Location>(this);
             for (Location dep : dependencies)
@@ -239,6 +238,82 @@ public abstract class AbstractLocation implements Location {
         purgeDeadDependencies();
         return (listeners == null ? 0 : listeners.size())
                 + (dependentLocations == null ? 0 : dependentLocations.size());
+    }
+
+    private IterationData inflateIterationData(int count) {
+        inUse = INUSE_INFLATED;
+        IterationData id = new IterationData(count);
+        iterationData.put(this, id);
+        return id;
+    }
+    
+    private void beginUpdate() {
+        switch (inUse) {
+            case INUSE_NOT:
+                inUse = INUSE_UNINFLATED;
+                break;
+
+            case INUSE_UNINFLATED:
+                inflateIterationData(2);
+                break;
+
+            case INUSE_INFLATED:
+                IterationData id = iterationData.get(this);
+                ++id.iterationDepth;
+                break;
+        }
+    }
+
+    private void endUpdate() {
+        switch (inUse) {
+            case INUSE_NOT:
+                assert(false);
+                break;
+
+            case INUSE_UNINFLATED:
+                inUse = INUSE_NOT;
+                if (haveClearedDependencies) {
+                    purgeDeadDependencies();
+                    haveClearedDependencies = false;
+                }
+                break;
+
+            case INUSE_INFLATED:
+                IterationData id = iterationData.get(this);
+                --id.iterationDepth;
+                if (id.iterationDepth == 0) {
+                    inUse = INUSE_NOT;
+                    iterationData.remove(this);
+                    id.apply(this);
+                    if (haveClearedDependencies) {
+                        purgeDeadDependencies();
+                        haveClearedDependencies = false;
+                    }
+                }
+                break;
+        }
+    }
+
+    private static class IterationData {
+        public int iterationDepth;
+        public List<WeakReference<Location>> deferredDependencies;
+
+        public IterationData(int iterationDepth) {
+            this.iterationDepth = iterationDepth;
+        }
+
+        public void addDependency(WeakReference<Location> loc) {
+            if (deferredDependencies == null)
+                deferredDependencies = new ArrayList<WeakReference<Location>>();
+            deferredDependencies.add(loc);
+        }
+
+        public void apply(AbstractLocation target) {
+            if (deferredDependencies != null && deferredDependencies.size() > 0) {
+                // @@@ This is where we used to do the overly aggressive purge
+                target.dependentLocations.addAll(deferredDependencies);
+            }
+        }
     }
 }
 
