@@ -102,17 +102,12 @@ public class SequenceMutator {
             else if (startPos == 0)
                 result = Sequences.subsequence(target, endPos+1, size);
             else {
-                // @@@ OPT: Consider a range-delete sequence type
-                BitSet bits = new BitSet(size);
-                bits.set(0, size);
-                bits.clear(startPos, endPos+1);
-                result = Sequences.filter(target, bits);
+                result = new SliceReplacementSequence(target, startPos, endPos+1, elementType.emptySequence);
             }
         }
         else if (startPos <= endPos) {
-            // Replacement
             // @@@ OPT: Special-case for replacing leading or trailing slices
-            result = Sequences.concatenate(elementType, Sequences.subsequence(target, 0, startPos), newValues, Sequences.subsequence(target, endPos+1, size));
+            result = new SliceReplacementSequence(target, startPos, endPos+1, newValues);
         }
         else
             throw new IllegalArgumentException();

@@ -53,6 +53,7 @@ abstract class DerivedSequence<T> extends AbstractSequence<T> implements Sequenc
         return size;
     }
 
+    @Override
     public int getDepth() {
         return depth;
     }
