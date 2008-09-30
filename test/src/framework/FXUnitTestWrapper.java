@@ -11,6 +11,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.javafx.runtime.ErrorHandler;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -56,7 +57,14 @@ public class FXUnitTestWrapper extends TestCase {
         if (testMethod != null) {
             System.out.println("Test(fxunit): " + testFile + " - " + testMethod.getName());
             try {
-                testMethod.invoke(object);
+                boolean suppress = ErrorHandler.getSuppressBindingExceptions();
+                try {
+                    ErrorHandler.setSuppressBindingExceptions(true);
+                    testMethod.invoke(object);
+                }
+                finally {
+                    ErrorHandler.setSuppressBindingExceptions(suppress);
+                }
             }
             catch (InvocationTargetException e) {
                 throw e.getCause();

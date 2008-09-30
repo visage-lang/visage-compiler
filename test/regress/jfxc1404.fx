@@ -2,7 +2,7 @@
  * regression test: JFXC-1404 : Bound function returns null instead of empty string, if Exception is thrown.
  *
  * @test
- * @run
+ * @run/ignore-std-error
  */
 
 import java.lang.System;

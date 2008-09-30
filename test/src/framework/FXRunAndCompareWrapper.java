@@ -24,10 +24,7 @@
 package framework;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 
 import junit.framework.TestCase;
@@ -53,6 +50,7 @@ public class FXRunAndCompareWrapper extends TestCase {
     private final boolean expectRunFailure;
     private final boolean checkCompilerMsg;
     private final boolean compare;
+    private final boolean ignoreStdError;
     private final String className;
     private final String classpath;
     private final String outputFileName;
@@ -67,11 +65,7 @@ public class FXRunAndCompareWrapper extends TestCase {
     public FXRunAndCompareWrapper(File testFile,
                                   String name,
                                   List<String> compileArgs,
-                                  boolean expectCompileFailure,
-                                  boolean shouldRun,
-                                  boolean expectRunFailure,
-                                  boolean checkCompilerMsg,
-                                  boolean compare,
+                                  Map<String, String> options,
                                   Collection<String> auxFiles,
                                   Collection<String> separateFiles, 
                                   String runParam) {
@@ -79,16 +73,17 @@ public class FXRunAndCompareWrapper extends TestCase {
         this.name = name;
         this.testFile = testFile;
         this.buildDir = TestHelper.makeBuildDir(testFile);
-        this.shouldRun = shouldRun;
         this.compileArgs = compileArgs;
-        this.expectCompileFailure = expectCompileFailure;
-        this.expectRunFailure = expectRunFailure;
-        this.checkCompilerMsg = checkCompilerMsg;
-        this.compare = compare;
         this.auxFiles = new LinkedList<String>(auxFiles);
         this.separateFiles = new LinkedList<String>(separateFiles);
         this.className = testFile.getName();
         this.param = runParam;
+        expectCompileFailure = options.containsKey(FXCompilerTest.OPTIONS_EXPECT_COMPILE_FAIL);
+        shouldRun = options.containsKey(FXCompilerTest.OPTIONS_RUN);
+        expectRunFailure = options.containsKey(FXCompilerTest.OPTIONS_EXPECT_RUN_FAIL);
+        checkCompilerMsg = options.containsKey(FXCompilerTest.OPTIONS_CHECK_COMPILE_MSG);
+        ignoreStdError = options.containsKey(FXCompilerTest.OPTIONS_IGNORE_STD_ERROR);
+        compare = options.containsKey(FXCompilerTest.OPTIONS_COMPARE);
         outputFileName = buildDir + File.separator + className + ".OUTPUT";
         errorFileName = buildDir + File.separator + className + ".ERROR";
 		copyExpectedFileName = buildDir + File.separator + className + ".EXPECTED";
@@ -180,10 +175,12 @@ public class FXRunAndCompareWrapper extends TestCase {
             if (errorFileHandle.length() > 0) {
                 if (expectRunFailure)
                     return;
-                TestHelper.dumpFile(new FileInputStream(outputFileName), "Test Output", testFile.toString());
-                TestHelper.dumpFile(new FileInputStream(errorFileName), "Test Error", testFile.toString());
-                System.out.println("--");
-                fail("Output written to standard error");
+                if (!ignoreStdError) {
+                    TestHelper.dumpFile(new FileInputStream(outputFileName), "Test Output", testFile.toString());
+                    TestHelper.dumpFile(new FileInputStream(errorFileName), "Test Error", testFile.toString());
+                    System.out.println("--");
+                    fail("Output written to standard error");
+                }
             }
             if (compare)
                 compare(outputFileName, expectedFileName, false);

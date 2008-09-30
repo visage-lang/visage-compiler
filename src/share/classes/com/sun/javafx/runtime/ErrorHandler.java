@@ -31,7 +31,9 @@ import com.sun.javafx.runtime.sequence.Sequence;
  * @author Brian Goetz
  */
 public class ErrorHandler {
-    
+
+    private static boolean suppressBindingExceptions = false;
+
     private static boolean getBoolean(String property) {
         try {
             return Boolean.getBoolean(property);
@@ -44,6 +46,14 @@ public class ErrorHandler {
 
     public static boolean isDebug() {
         return debug;
+    }
+
+    public static boolean getSuppressBindingExceptions() {
+        return suppressBindingExceptions;
+    }
+
+    public static void setSuppressBindingExceptions(boolean suppressBindingExceptions) {
+        ErrorHandler.suppressBindingExceptions = suppressBindingExceptions;
     }
 
     /** Called when attempting to insert an element into a sequence at an out-of-bounds location */
@@ -72,13 +82,17 @@ public class ErrorHandler {
     }
 
     public static void bindException(RuntimeException e) {
-        if (debug)
+        if (debug || !suppressBindingExceptions) {
+            System.err.println("Exception in binding:");
             e.printStackTrace();
+        }
     }
 
     public static void triggerException(RuntimeException e) {
-        if (debug)
+        if (debug || !suppressBindingExceptions) {
+            System.err.println("Exception in trigger:");
             e.printStackTrace();
+        }
     }
 
     /** Called when attempting to coerce a null numeric or boolean value to a primitive */

@@ -37,6 +37,13 @@ import org.apache.tools.ant.DirectoryScanner;
  * @author tball
  */
 public class FXCompilerTest extends TestSuite {
+    public static final String OPTIONS_RUN = "run";
+    public static final String OPTIONS_EXPECT_COMPILE_FAIL = "expect-compile-fail";
+    public static final String OPTIONS_CHECK_COMPILE_MSG = "check-compile-msg";
+    public static final String OPTIONS_EXPECT_RUN_FAIL = "expect-run-fail";
+    public static final String OPTIONS_IGNORE_STD_ERROR = "ignore-std-error";
+    public static final String OPTIONS_COMPARE = "compare";
+
     private static final String[] TEST_ROOTS = {
             "test/features",
             "test/regress",
@@ -97,7 +104,8 @@ public class FXCompilerTest extends TestSuite {
                 findTests(f, tests, orphanFiles);
             else {
                 assert name.lastIndexOf(".fx") > 0 : "not a JavaFX script: " + name;
-                boolean isTest = false, isNotTest = false, isFxUnit = false, shouldRun = false, compileFailure = false, runFailure = false, checkCompilerMsg = false, noCompare = false;
+                boolean isTest = false, isNotTest = false, isFxUnit = false,
+                        shouldRun = false, compileFailure = false, runFailure = false, checkCompilerMsg = false, noCompare = false, ignoreStdError = true;
 
                 Scanner scanner = null;
                 List<String> auxFiles = new ArrayList<String>();
@@ -152,6 +160,10 @@ public class FXCompilerTest extends TestSuite {
                             shouldRun = true;
                             param = scanner.nextLine();
                         }
+                        else if (token.equals("@run/ignore-std-error")) {
+                            shouldRun = true;
+                            ignoreStdError = true;
+                        }
                         else if (token.equals("@compilearg")) {
                             compileArgs.add(scanner.next());
                         }
@@ -177,8 +189,22 @@ public class FXCompilerTest extends TestSuite {
                 if (isTest) {
                     if (isFxUnit)
                         tests.add(FXUnitTestWrapper.makeSuite(f, name));
-                    else
-                        tests.add(new FXRunAndCompareWrapper(f, name, compileArgs, compileFailure, shouldRun, runFailure, checkCompilerMsg, !noCompare, auxFiles, separateFiles, param));
+                    else {
+                        Map<String, String> options = new HashMap<String, String>();
+                        if (compileFailure)
+                            options.put(OPTIONS_EXPECT_COMPILE_FAIL, "true");
+                        if (shouldRun)
+                            options.put(OPTIONS_RUN, "true");
+                        if (runFailure)
+                            options.put(OPTIONS_EXPECT_RUN_FAIL, "true");
+                        if (checkCompilerMsg)
+                            options.put(OPTIONS_CHECK_COMPILE_MSG, "true");
+                        if (!noCompare)
+                            options.put(OPTIONS_COMPARE, "true");
+                        if (ignoreStdError)
+                            options.put(OPTIONS_IGNORE_STD_ERROR, "true");
+                        tests.add(new FXRunAndCompareWrapper(f, name, compileArgs, options, auxFiles, separateFiles, param));
+                    }
                 }
                 else if (!isNotTest)
                     orphanFiles.add(name);
