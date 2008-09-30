@@ -1775,11 +1775,15 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     public void visitAssignop(final JFXAssignOp tree) {
         result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
 
+            boolean useDurationOperations =
+                    //TODO: This seems wrong in that the call is with LHS as receiver
+                    (types.isSameType(lhs.type, syms.javafx_DurationType) ||
+                        types.isSameType(tree.rhs.type, syms.javafx_DurationType));
+
             @Override
-            JCExpression buildRHS( JCExpression rhsTranslated) {
+            JCExpression buildRHS(JCExpression rhsTranslated) {
                 final JCExpression lhsTranslated = translate(tree.lhs);
-                if ((types.isSameType(lhs.type, syms.javafx_DurationType) ||
-                        types.isSameType(tree.rhs.type, syms.javafx_DurationType))) {
+                if (useDurationOperations) {
                     JCExpression method = m().Select(lhsTranslated, tree.operator);
                     return m().Apply(null, method, List.<JCExpression>of(rhsTranslated));
                 } else {
@@ -1789,8 +1793,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             @Override
             JCExpression defaultFullExpression( JCExpression lhsTranslated, JCExpression rhsTranslated) {
-                final JCExpression rawRhsTranslated = translate(tree.rhs, tree.type);
-                return m().Assignop(tree.getOperatorTag(), lhsTranslated, rhsTranslated);
+                return useDurationOperations?
+                    m().Assign(lhsTranslated, buildRHS(rhsTranslated)) :
+                    m().Assignop(tree.getOperatorTag(), lhsTranslated, rhsTranslated);
             }
 
             private int getBinaryOp() {
