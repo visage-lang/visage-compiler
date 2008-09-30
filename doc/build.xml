@@ -104,7 +104,7 @@
 <!--         <arg value="navig.graphics=1"/>-->
         </java>
 
-        <delete file="${doc.build.dir}/html/${doc.name}-xi-tmp.html" failonerror="no"/>
+        <delete file="${doc.build.dir}/tmp/${doc.name}-xi-tmp.html" failonerror="no"/>
         <copy file="doc/langspec/langref.css" tofile="${doc.build.dir}/html/langref.css"/>
     </target>
     
