@@ -176,7 +176,9 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         boolean wasInBindContext = inBindContext;
 
-        inBindContext = tree.isBound();  // bind doesn't permiate object literals
+        // bind doesn't permiate object literals, but...
+        // Locations are needed for updating bound object literals
+        inBindContext |= tree.isBound();
         markDefinition(tree.sym);
         mark(tree.sym, VARUSE_OBJ_LIT_INIT);
         scan(tree.getExpression());
