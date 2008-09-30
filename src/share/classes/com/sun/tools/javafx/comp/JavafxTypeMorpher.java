@@ -274,18 +274,23 @@ public class JavafxTypeMorpher {
                 or, (3b) holds, the value isn't assigned by the script after initialization and the access prevents this
                 from occurring externally ('def' or script-private with optional public-read or public-init).
 
-                The first part of the (1) and (2) checks are handled by general checks (above).
-                 */
+                The (1) and (2) checks are handled by general checks (above).
+                */
                 // (3a) check.  Not used in bind has already been checked (above).
                 // Check that it is not accessible outside the script
                 if ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS | PUBLIC_READ | PUBLIC_INIT)) == 0L) {
-////                    return false;
+                    //TODO: this is overcautious -- and has to be better for (3b) public-init
+                    if ((flags & (VARUSE_OBJ_LIT_INIT | VARUSE_OVERRIDDEN)) == 0L) {
+                        return useLocationForAllMemberVarsTransitional;
+                    }
                 }
                 return true;  //TODO: conditionally elide
             }
         }
         return false;
     }
+
+    boolean useLocationForAllMemberVarsTransitional = true;
 
     public boolean requiresLocation(Symbol sym) {
         if ((sym.flags_field & VARUSE_NEED_LOCATION_DETERMINED) == 0) {

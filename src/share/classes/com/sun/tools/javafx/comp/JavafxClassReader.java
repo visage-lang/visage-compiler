@@ -530,6 +530,7 @@ public class JavafxClassReader extends ClassReader {
                             name == defs.addTriggersName ||
                             name == names.clinit ||
                             name.startsWith(defs.attributeGetPrefixName) ||
+                            name.startsWith(defs.attributeSetPrefixName) ||
                             name.startsWith(defs.applyDefaultsPrefixName) ||
                             name.endsWith(defs.implFunctionSuffixName)))
                         continue;

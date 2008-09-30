@@ -1707,7 +1707,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 List<JCExpression> setArgs = List.of(buildRHS(rhsTranslated));
                 return postProcess(m().Apply(null, setSelect, setArgs));
             } else {
-                final boolean useSetters = sym.owner.kind == Kinds.TYP && !sym.isStatic() && types.isJFXClass(sym);
+                final boolean useSetters = sym.owner.kind == Kinds.TYP && !sym.isStatic() && types.isJFXClass(sym.owner);
 
                 if (lhs.getFXTag() == JavafxTag.SELECT) {
                     final JFXSelect select = (JFXSelect) lhs;
@@ -1725,7 +1725,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                             if (useSetters) {
                                 return postProcess(buildSetter(mungedToCheckTranslated, rhsTranslatedPreserved));
                             } else {
-                                JCFieldAccess fa = m().Select(mungedToCheckTranslated, select.getIdentifier());
+                                //TODO: possibly should use, or be unified with convertVariableReference
+                                JCFieldAccess fa = m().Select(mungedToCheckTranslated, attributeFieldName(select.sym));
                                 return defaultFullExpression(fa, rhsTranslatedPreserved);
                             }
                         }
@@ -3217,7 +3218,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 }
             }
         }
-         return expr;
+        return expr;
     }
 
     /**

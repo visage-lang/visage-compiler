@@ -131,6 +131,7 @@ public class JavafxDefs {
     final Name userInitName;
     final Name postInitName;
     final Name attributeGetPrefixName;
+    final Name attributeSetPrefixName;
     final Name applyDefaultsPrefixName;
     final Name setDefaultMethodName;
     final Name[] locationGetMethodName;
@@ -216,6 +217,7 @@ public class JavafxDefs {
         postInitName = names.fromString("postInit$");
         implFunctionSuffixName = names.fromString(implFunctionSuffix);
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
+        attributeSetPrefixName = names.fromString(attributeSetMethodNamePrefix);
         applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
 		runtimePackageName = names.fromString(runtimePackageNameString);
 		annotationPackageName = names.fromString(annotationPackageNameString);

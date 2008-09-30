@@ -527,11 +527,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return accessors.toList();
     }
 
+    private JCModifiers proxyModifiers(VarInfo ai, JFXClassDeclaration cDecl) {
+        long flags = ai.getFlags();
+        JCModifiers mods = make.Modifiers(Flags.PUBLIC);
+        if (ai.getSymbol().owner == cDecl.sym) {
+            mods = addAccessAnnotationModifiers(ai.pos(), flags, mods);
+        } else {
+            mods = addInheritedAnnotationModifiers(ai.pos(), flags, mods);
+        }
+        return mods;
+    }
+
     private List<JCTree> makeMemberVariableAccessorMethods(JFXClassDeclaration cDecl, List<? extends VarInfo> attrInfos) {
         ListBuffer<JCTree> accessors = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
             if (ai.needsCloning()) {
-                long flags = ai.getFlags();
                 final DiagnosticPosition diagPos = ai.pos();
                 final VarSymbol vsym = ai.getSymbol();
 
@@ -542,13 +552,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     JCBlock block = make.at(diagPos).Block(0L, List.of(returnStat));
 
                     // Add the method for this class' attributes
-                    JCModifiers mods = make.Modifiers(Flags.PUBLIC);
-                    if (ai.getSymbol().owner == cDecl.sym) {
-                        mods = addAccessAnnotationModifiers(diagPos, flags, mods);
-                    } else {
-                        mods = addInheritedAnnotationModifiers(diagPos, flags, mods);
-                    }
-                    accessors.append(makeGetterMethod(diagPos, ai, mods, block));
+                    accessors.append(makeGetterMethod(diagPos, ai, proxyModifiers(ai, cDecl), block));
                 }
                 if (!typeMorpher.requiresLocation(vsym)) {
                     JCExpression attr = make.Ident(attributeFieldName(vsym));
@@ -556,7 +560,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     JCExpression assign = make.at(diagPos).Assign(attr, value);
                     JCStatement returnStat = make.at(diagPos).Return(assign);
                     JCBlock block = make.at(diagPos).Block(0L, List.of(returnStat));
-                    accessors.append(makeSetterMethod(diagPos, ai, make.Modifiers(Flags.PUBLIC), block));
+                    accessors.append(makeSetterMethod(diagPos, ai, proxyModifiers(ai, cDecl), block));
                 }
 
                 optStat.recordProxyMethod();
