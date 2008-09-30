@@ -40,8 +40,9 @@ public abstract class AbstractLocation implements Location {
     private static final byte INUSE_INFLATED = 2;
 
     // Space is at a premium; FX classes use a *lot* of locations.
-    // We've got four byte-size fields here already; we rely on the VM packing byte-size fields together.  If we need
-    // to add more, we could compress isValid into a bit in state, and/or haveClearedDependencies into inUse.
+    // We've currently got fewer than four byte-size fields here already; we rely on the VM packing byte-size fields
+    // together. If we need to add more, we could compress isValid into a bit in state, and/or haveClearedDependencies
+    // into inUse.
 
     /** The isValid flag means that the location currently has an up-to-date value. This would be true if the value is
     already known, or if the location has a binding and the binding does not need recomputation. */
@@ -55,10 +56,6 @@ public abstract class AbstractLocation implements Location {
      * more than once, we'll observe that the list is already in use, and lazily inflate a structure to hold the count
      * and any pending modifications */
     private byte inUse;
-
-    /** A bit that indicates that there exist one or more dependent locations that are cleared and that
-     * should be purged after inUse goes to _NOT */
-    private static boolean haveClearedDependencies;
 
     private static final Map<Location, IterationData> iterationData = new HashMap<Location, IterationData>();
 
@@ -119,16 +116,17 @@ public abstract class AbstractLocation implements Location {
         if (dependentLocations != null) {
             beginUpdate();
             try {
-                for (WeakReference<Location> locationRef : dependentLocations) {
+                for (Iterator<WeakReference<Location>> iterator = dependentLocations.iterator(); iterator.hasNext(); ) {
+                    WeakReference<Location> locationRef = iterator.next();
                     Location loc = locationRef.get();
                     if (loc == null)
-                        haveClearedDependencies = true;
+                        iterator.remove();
                     else {
                         loc.invalidate();
                         // Space optimization: try for early removal of dynamic dependencies, in the case that
                         // the dependency is a "weakMe" reference for some object that has been cleared in update()
                         if (locationRef.get() == null)
-                            haveClearedDependencies = true;
+                            iterator.remove();
                     }
                 }
             }
@@ -273,10 +271,6 @@ public abstract class AbstractLocation implements Location {
 
             case INUSE_UNINFLATED:
                 inUse = INUSE_NOT;
-                if (haveClearedDependencies) {
-                    purgeDeadDependencies();
-                    haveClearedDependencies = false;
-                }
                 break;
 
             case INUSE_INFLATED:
@@ -286,10 +280,6 @@ public abstract class AbstractLocation implements Location {
                     inUse = INUSE_NOT;
                     iterationData.remove(this);
                     id.apply(this);
-                    if (haveClearedDependencies) {
-                        purgeDeadDependencies();
-                        haveClearedDependencies = false;
-                    }
                 }
                 break;
         }

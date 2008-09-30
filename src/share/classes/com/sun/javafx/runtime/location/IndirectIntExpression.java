@@ -41,7 +41,6 @@ abstract class IndirectIntExpression extends IntVariable implements IndirectLoca
 
     public IndirectIntExpression(boolean lazy, Location... dependencies) {
         super();
-        // @@@ Do the rest of them this way too
         helper = IndirectLocationHelper.make(this, dependencies);
         bind(lazy, new IntBindingExpression() {
             public int computeValue() {

@@ -30,19 +30,21 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public class IndirectLocationHelper<T extends Location> extends ObjectVariable<T> implements ObjectLocation<T> {
+public class IndirectLocationHelper {
     public static<T extends Location> ObjectLocation<T> make(final IndirectLocation<T> helped, Location... dependencies) {
-        final ObjectVariable<T> ov = ObjectVariable.make();
-        ov.bind(false, new ObjectBindingExpression<T>() {
+        final ObjectVariable<T> ov = ObjectVariable.make(false, new ObjectBindingExpression<T>() {
             public T computeValue() {
-                // @@@ Should the clearDynamic / addDynamic be moved to a change listener, so as to avoid spurious clear/add cycles?
-                helped.clearDynamicDependencies();
-                T location = helped.computeLocation();
-                helped.addDynamicDependency(location);
-                return location;
+                return helped.computeLocation();
             }
         }, dependencies);
         helped.addDependencies(ov);
+        helped.addDynamicDependency(ov.get());
+        ov.addChangeListener(new ObjectChangeListener<T>() {
+            public void onChange(T oldValue, T newValue) {
+                helped.clearDynamicDependencies();
+                helped.addDynamicDependency(newValue);
+            }
+        });
         return ov;
     }
 }
