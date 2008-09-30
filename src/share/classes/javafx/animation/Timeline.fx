@@ -327,6 +327,9 @@ public class Timeline {
     
     function start() {
         reset(false);
+        if(not forward and duration < 0) {
+            throw new UnsupportedOperationException("backward-running INDEFINITE sub-timeline is not supported");
+        }
         setSubtimelineDirection(forward);        
         buildClip();
         clip.start();       
@@ -701,7 +704,7 @@ public class Timeline {
         
         
         if((not needsStop) or cycleIndex < repeatCount) {
-            if(not forward and not subtimeline) {
+            if(not forward) {
                 if(duration >= 0) {
                     var oldCurT = curT;
                     curT = dur - curT;
@@ -722,7 +725,7 @@ public class Timeline {
 
             doInterpolate(curT);
 
-            // look through all sub-timelines and recursively call process()
+            // look through all sub-timelines and call process()
             // on any active SubTimeline objects        
             processSubtimelines(curT);
         }
@@ -791,7 +794,6 @@ public class Timeline {
      * sub timelines' direction can be altered by parent timeline.
      */
     function processSubtimelines(curT: Number): Void {
-        
         for (i in [0..<subtimelines.size()]) {
             var sub = subtimelines.get(i) as SubTimeline;
             var subTimeline = sub.timeline;
@@ -809,6 +811,7 @@ public class Timeline {
                 }
             } else if(not subTimeline.forward) {
                 if(subTimeline.running) {
+                    subCurT = subDur - subCurT;
                     subTimeline.process(subCurT);
                     if(subCurT <= 0) {
                         subTimeline.running = false;
@@ -817,7 +820,9 @@ public class Timeline {
                 } else if(subDur < 0 or (curT <= startTime + subDur and  curT > startTime)) {
                     subTimeline.running = true;
                     subTimeline.currentRate = if(subTimeline.forward) Math.abs(rate) else - Math.abs(rate);
-                    
+                    if(subDur >= 0) {
+                        subCurT = subDur - subCurT;
+                    }
                     subTimeline.process(subCurT);
                 }
             }
@@ -860,12 +865,15 @@ public class Timeline {
         for (i in [0..<subtimelines.size()]) {
             var sub = subtimelines.get(i) as SubTimeline;
             var subTimeline = sub.timeline;
-            if(forward) {
-                subTimeline.forward = if(subTimeline.rate > 0) true else false;
-            } else {
-                subTimeline.forward = if(subTimeline.rate < 0) true else false;
+            var subRate = subTimeline.currentRate;
+            if(subRate == 0.0) {
+                subRate = subTimeline.rate;
             }
-            sub.timeline.setSubtimelineDirection(forward);
+            if(forward) {
+                subTimeline.forward = if(subRate >= 0) true else false;
+            } else {
+                subTimeline.forward = if(subRate <= 0) true else false;
+            }
         }
     }
     
