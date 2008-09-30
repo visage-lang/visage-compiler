@@ -383,6 +383,7 @@ public class FXLocal {
                     continue;
 
                 if (mname.startsWith(FXClassType.LOCATION_GETTER_PREFIX) ||
+                        mname.startsWith("set$") ||
                         mname.startsWith("applyDefaults$")) {
                     continue;
                 }

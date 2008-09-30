@@ -1723,7 +1723,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         @Override
                         JCExpression fullExpression( JCExpression mungedToCheckTranslated) {
                             if (useSetters) {
-                                return postProcess(buildSetter(mungedToCheckTranslated, rhsTranslatedPreserved));
+                                return postProcess(buildSetter(mungedToCheckTranslated, buildRHS(rhsTranslatedPreserved)));
                             } else {
                                 //TODO: possibly should use, or be unified with convertVariableReference
                                 JCFieldAccess fa = m().Select(mungedToCheckTranslated, attributeFieldName(select.sym));
