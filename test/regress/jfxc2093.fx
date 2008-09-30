@@ -2,7 +2,6 @@
  * @test
  * @compilefirst jfxc2093Foo.fx
  * @compilefirst jfxc2093Test.fx
- * @run
  */
 
 var t:jfxc2093Test = jfxc2093Test.getInstance();
