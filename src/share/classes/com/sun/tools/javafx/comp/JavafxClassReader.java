@@ -455,12 +455,12 @@ public class JavafxClassReader extends ClassReader {
                     Type itype = it.head;
                     if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName)
                         csym.flags_field |= JavafxFlags.FX_CLASS;
-                    else if (itype.tsym.name.endsWith(defs.interfaceSuffixName)) {
+                    else if ((csym.fullname.len + defs.interfaceSuffixName.len ==
+                             ((ClassSymbol) itype.tsym).fullname.len) &&
+                            ((ClassSymbol) itype.tsym).fullname.startsWith(csym.fullname) &&
+                            itype.tsym.name.endsWith(defs.interfaceSuffixName)) {
                         iface = itype;
                         iface.tsym.complete();
-                        assert (csym.fullname.len + defs.interfaceSuffixName.len ==
-                                ((ClassSymbol) itype.tsym).fullname.len) &&
-                               ((ClassSymbol) itype.tsym).fullname.startsWith(csym.fullname);
                         csym.flags_field |= JavafxFlags.COMPOUND_CLASS;
                     }
                     else {
