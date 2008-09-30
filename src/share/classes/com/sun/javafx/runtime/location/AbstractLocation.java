@@ -154,7 +154,8 @@ public abstract class AbstractLocation implements Location {
             dependentLocations = new LinkedList<WeakReference<Location>>();
         switch (inUse) {
             case INUSE_NOT:
-                // @@@ This is where we used to do the overly aggressive purge
+                // @@@ Hack: overly aggressive purge
+                purgeDeadDependencies();
                 dependentLocations.add(locationRef);
                 break;
 
@@ -310,7 +311,8 @@ public abstract class AbstractLocation implements Location {
 
         public void apply(AbstractLocation target) {
             if (deferredDependencies != null && deferredDependencies.size() > 0) {
-                // @@@ This is where we used to do the overly aggressive purge
+                // @@@ Hack: overly aggressive purge
+                target.purgeDeadDependencies();
                 target.dependentLocations.addAll(deferredDependencies);
             }
         }

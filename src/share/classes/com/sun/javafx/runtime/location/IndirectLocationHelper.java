@@ -35,6 +35,7 @@ public class IndirectLocationHelper<T extends Location> extends ObjectVariable<T
         final ObjectVariable<T> ov = ObjectVariable.make();
         ov.bind(false, new ObjectBindingExpression<T>() {
             public T computeValue() {
+                // @@@ Should the clearDynamic / addDynamic be moved to a change listener, so as to avoid spurious clear/add cycles?
                 helped.clearDynamicDependencies();
                 T location = helped.computeLocation();
                 helped.addDynamicDependency(location);
