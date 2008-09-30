@@ -102,12 +102,12 @@ public class SequenceMutator {
             else if (startPos == 0)
                 result = Sequences.subsequence(target, endPos+1, size);
             else {
-                result = new SliceReplacementSequence(target, startPos, endPos+1, elementType.emptySequence);
+                result = new SliceReplacementSequence<T>(target, startPos, endPos+1, elementType.emptySequence);
             }
         }
         else if (startPos <= endPos) {
             // @@@ OPT: Special-case for replacing leading or trailing slices
-            result = new SliceReplacementSequence(target, startPos, endPos+1, newValues);
+            result = new SliceReplacementSequence<T>(target, startPos, endPos+1, newValues);
         }
         else
             throw new IllegalArgumentException();

@@ -30,15 +30,15 @@ package com.sun.javafx.runtime.sequence;
  */
 class SliceReplacementSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     
-    protected final Sequence<? extends T> sequence;
+    protected final Sequence<T> sequence;
     protected final int size, depth;
 
     private final int gapPos;
     private final int gapSize;
-    private final Sequence<T> replacementSequence;
+    private final Sequence<? extends T> replacementSequence;
     private final int replacementSize;
 
-    public SliceReplacementSequence(Sequence<T> sequence, int gapStartPos, int gapEndPos, Sequence<T> replacementSequence) {
+    public SliceReplacementSequence(Sequence<T> sequence, int gapStartPos, int gapEndPos, Sequence<? extends T> replacementSequence) {
         super(sequence.getElementType());
         this.sequence = sequence;
         final int seqSize = sequence.size();
