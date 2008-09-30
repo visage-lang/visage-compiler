@@ -41,7 +41,10 @@ class SliceReplacementSequence<T> extends AbstractSequence<T> implements Sequenc
     public SliceReplacementSequence(Sequence<T> sequence, int gapStartPos, int gapEndPos, Sequence<T> replacementSequence) {
         super(sequence.getElementType());
         this.sequence = sequence;
-        this.gapPos = Math.max (0, gapStartPos);
+        final int seqSize = sequence.size();
+        gapStartPos = Math.min (Math.max (0, gapStartPos), seqSize);          // 0 <= gapStartPos <= size
+        gapEndPos = Math.min (Math.max (gapStartPos, gapEndPos), seqSize);    // gapStartPos <= gapEndPos <= size
+        this.gapPos = gapStartPos;
         this.gapSize = Math.min (sequence.size(), gapEndPos - gapStartPos);
         this.replacementSequence = replacementSequence;
         this.replacementSize = replacementSequence.size();
