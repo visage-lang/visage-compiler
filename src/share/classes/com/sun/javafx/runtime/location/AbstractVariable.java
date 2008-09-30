@@ -23,8 +23,8 @@
 
 package com.sun.javafx.runtime.location;
 
+import java.util.LinkedList;
 import java.util.List;
-import java.util.ArrayList;
 
 import com.sun.javafx.runtime.BindingException;
 
@@ -174,7 +174,7 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
 
     public void addChangeListener(T_LISTENER listener) {
         if (replaceListeners == null)
-            replaceListeners = new ArrayList<T_LISTENER>();
+            replaceListeners = new LinkedList<T_LISTENER>();
         replaceListeners.add(listener);
     }
 

@@ -24,10 +24,13 @@
 package com.sun.javafx.runtime.sequence;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.ArrayList;
 
-import com.sun.javafx.runtime.location.*;
+import com.sun.javafx.runtime.location.AbstractLocation;
+import com.sun.javafx.runtime.location.ObjectChangeListener;
+import com.sun.javafx.runtime.location.SequenceChangeListener;
+import com.sun.javafx.runtime.location.SequenceLocation;
 
 /**
  * Abstract base class for bound sequences.  Subclass constructors are expected to compute the initial value, set up
@@ -120,7 +123,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
 
     public void addChangeListener(SequenceChangeListener<T> listener) {
         if (changeListeners == null)
-            changeListeners = new ArrayList<SequenceChangeListener<T>>();
+            changeListeners = new LinkedList<SequenceChangeListener<T>>();
         changeListeners.add(listener);
     }
 

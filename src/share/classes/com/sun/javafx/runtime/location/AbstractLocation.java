@@ -151,7 +151,7 @@ public abstract class AbstractLocation implements Location {
 
     public void addDependentLocation(WeakReference<Location> locationRef) {
         if (dependentLocations == null)
-            dependentLocations = new ArrayList<WeakReference<Location>>();
+            dependentLocations = new LinkedList<WeakReference<Location>>();
         switch (inUse) {
             case INUSE_NOT:
                 // @@@ This is where we used to do the overly aggressive purge
@@ -176,7 +176,7 @@ public abstract class AbstractLocation implements Location {
         // be able to unregister itself when the weak references are cleared
         // @@@ Should also defer adding listeners if the structures are in use
         if (listeners == null)
-            listeners = new ArrayList<ChangeListener>();
+            listeners = new LinkedList<ChangeListener>();
         listeners.add(listener);
     }
 
@@ -304,7 +304,7 @@ public abstract class AbstractLocation implements Location {
 
         public void addDependency(WeakReference<Location> loc) {
             if (deferredDependencies == null)
-                deferredDependencies = new ArrayList<WeakReference<Location>>();
+                deferredDependencies = new LinkedList<WeakReference<Location>>();
             deferredDependencies.add(loc);
         }
 
