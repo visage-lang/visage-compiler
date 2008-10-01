@@ -431,15 +431,15 @@ public final class Sequences {
     }
 
     /** Convert a Sequence<Double> to a double array */
-    public static double[] toArray(Sequence<Double> seq) {
+    public static double[] toArray(Sequence<? extends java.lang.Number> seq) {
         double[] unboxed = new double[seq.size()];
         for (int i=0; i<unboxed.length; i++)
-            unboxed[i] = seq.get(i);
+            unboxed[i] = seq.get(i).doubleValue();
         return unboxed;
     }
 
     /** Convert a Sequence<Double> to a float array */
-    public static float[] toFloatArray(Sequence<Double> seq) {
+    public static float[] toFloatArray(Sequence<? extends java.lang.Number> seq) {
         float[] unboxed = new float[seq.size()];
         for (int i=0; i<unboxed.length; i++)
           unboxed[i] = seq.get(i).floatValue();

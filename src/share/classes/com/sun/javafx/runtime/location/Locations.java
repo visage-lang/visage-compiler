@@ -83,8 +83,8 @@ public class Locations {
         return new ObjectBooleanLocation(loc);
     }
 
-    public static DoubleLocation asDoubleLocation(ObjectLocation<Double> loc) {
-        return new ObjectDoubleLocation(loc);
+    public static <T extends Number> DoubleLocation asDoubleLocation(ObjectLocation<T> loc) {
+        return new ObjectDoubleLocation<T>(loc);
     }
 
     public static DoubleLocation asDoubleLocation(IntLocation loc) {
@@ -326,10 +326,10 @@ public class Locations {
         }
     }
 
-    private static class ObjectDoubleLocation extends LocationWrapper implements DoubleLocation, StaticViewLocation {
-        private final ObjectLocation<Double> location;
+    private static class ObjectDoubleLocation<T extends Number> extends LocationWrapper implements DoubleLocation, StaticViewLocation {
+        private final ObjectLocation<T> location;
 
-        private ObjectDoubleLocation(ObjectLocation<Double> location) {
+        private ObjectDoubleLocation(ObjectLocation<T> location) {
             this.location = location;
         }
 
@@ -338,8 +338,8 @@ public class Locations {
         }
 
         public double getAsDouble() {
-            Double val = location.get();
-            return val==null? 0.0 : val;
+            T val = location.get();
+            return val==null? 0.0 : val.doubleValue();
         }
 
         public double setAsDouble(double value) {
@@ -357,15 +357,23 @@ public class Locations {
         }
 
         public void addChangeListener(final DoubleChangeListener listener) {
-            location.addChangeListener(new ObjectChangeListener<Double>() {
-                public void onChange(Double oldValue, Double newValue) {
-                    listener.onChange(oldValue, newValue);
+            location.addChangeListener(new ObjectChangeListener<T>() {
+                public void onChange(T oldValue, T newValue) {
+                    listener.onChange(oldValue.doubleValue(), newValue.doubleValue());
                 }
             });
         }
 
         public Double get() {
             return getAsDouble();
+        }
+
+        public T set(T value) {
+            return location.set(value);
+        }
+
+        public T setFromLiteral(T value) {
+            return location.setFromLiteral(value);
         }
 
         public Double set(Double value) {
@@ -379,9 +387,9 @@ public class Locations {
         }
 
         public void addChangeListener(final ObjectChangeListener<Double> listener) {
-            location.addChangeListener(new ObjectChangeListener<Double>() {
-                public void onChange(Double oldValue, Double newValue) {
-                    listener.onChange(newValue, oldValue);
+            location.addChangeListener(new ObjectChangeListener<T>() {
+                public void onChange(T oldValue, T newValue) {
+                    listener.onChange(oldValue.doubleValue(), newValue.doubleValue());
                 }
             });
         }
