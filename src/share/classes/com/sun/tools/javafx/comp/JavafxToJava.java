@@ -217,6 +217,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                    return possiblyNull(((JFXParens)expr).getExpression());
                case SELECT:
                    return ((JFXSelect)expr).sym instanceof VarSymbol;
+                case TYPECAST:
+                   return possiblyNull(((JFXTypeCast)expr).getExpression());
                case VAR_DEF:
                    return possiblyNull(((JFXVar)expr).getInitializer());
                 default:
