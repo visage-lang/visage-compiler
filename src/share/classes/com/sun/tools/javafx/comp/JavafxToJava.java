@@ -2819,12 +2819,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }
     }
 
-    // fix me: there must be a better way...
-    private boolean isJavaLangObjectType(Type type) {
-        return type.toString().equals("java.lang.Object");
-    }
-
-
     @Override
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
         result = (new FunctionCallTranslator( tree, this ) {
@@ -2947,7 +2941,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                                 //TODO: never actually gets here
                                 if (arg.type.equals(formal.head) ||
                                     types.isSequence(formal.head) ||
-                                    isJavaLangObjectType(formal.head) // don't add conversion for parameter type of java.lang.Object: doing so breaks the Pointer trick to obtain the original location (JFC-826)
+                                    formal.head == syms.objectType // don't add conversion for parameter type of java.lang.Object: doing so breaks the Pointer trick to obtain the original location (JFC-826)
                                     ) {
                                     targs.append(translate(arg, Wrapped.InLocation));
                                     break;
