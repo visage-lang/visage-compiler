@@ -1,0 +1,7 @@
+test\should-fail\jfxc1413.fx:7: package java.lang.Math does not exist
+import java.lang.Math.**;
+^
+test\should-fail\jfxc1413.fx:10: package com.foobar does not exist
+import com.foobar.**;
+^
+2 errors

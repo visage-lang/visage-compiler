@@ -35,19 +35,24 @@ import java.net.URLClassLoader;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
 import com.sun.tools.javac.code.Source;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javafx.main.JavafxOption.Option;
 import com.sun.tools.javac.util.*;
+import com.sun.tools.javafx.code.JavafxPackageSymbol;
 import com.sun.tools.javafx.main.RecognizedOptions.OptionHelper;
 import com.sun.tools.javafx.util.JavafxFileManager;
 import com.sun.tools.javafx.util.PlatformPlugin;
 import com.sun.tools.javafx.util.MsgSym;
 import com.sun.tools.javafx.util.JavaVersionCheck;
+import java.util.Set;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.DiagnosticListener;
+import javax.tools.JavaFileManager.Location;
 
 /** This class provides a commandline interface to the GJC compiler.
  *
@@ -359,7 +364,40 @@ public class Main {
             JavafxFileManager.preRegister(backEndContext); 
         else
             backEndContext.put(JavaFileManager.class, currentFileManager);
-        
+                
+        ClassReader jreader = new ClassReader(backEndContext, true) {
+            @Override
+            protected PackageSymbol createPackageSymbol(Name name, Symbol owner) {
+                return new JavafxPackageSymbol(name, owner);
+            }
+
+            @Override
+            protected void fillIn(PackageSymbol p,
+                    Location location,
+                    Set<JavaFileObject.Kind> kinds)
+                    throws IOException {
+                super.fillIn(p, location, kinds);
+                String packageName = p.fullname.toString();
+                if (p != syms.unnamedPackage && p != syms.rootPackage &&
+                    p instanceof JavafxPackageSymbol) {
+                    JavafxPackageSymbol jps = (JavafxPackageSymbol) p;
+                    // for any non-empty, non-root packages, fill in sub-packages field
+                    Iterable<JavaFileObject> allFiles =
+                            fileManager.list(location,
+                            packageName,
+                            kinds,
+                            true);
+                    for (JavaFileObject fo : allFiles) {
+                        String binaryName = fileManager.inferBinaryName(location, fo);
+                        String subPkgName = binaryName.substring(0, binaryName.lastIndexOf('.'));
+                        if (packageName.length() != subPkgName.length()) {
+                            jps.addSubpackage(enterPackage(names.fromString(subPkgName)));
+                        }
+                    }
+                }
+            }
+        };
+
         // Sequencing requires that we get the name table from the fully initialized back-end
         // rather than send the completed one.
         JavafxJavaCompiler javafxJavaCompiler = JavafxJavaCompiler.instance(backEndContext);
@@ -373,7 +411,6 @@ public class Main {
         context.put(Options.optionsKey, (Options)null);  // remove any old value
         context.put(Options.optionsKey, backEndContext.get(Options.optionsKey));
 
-        ClassReader jreader = ClassReader.instance(backEndContext);
         com.sun.tools.javafx.comp.JavafxClassReader.preRegister(context, jreader);
 
         if (currentFileManager == null)

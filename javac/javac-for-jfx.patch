@@ -1,77 +1,778 @@
-Index: com/sun/tools/javac/code/Symtab.java
---- com/sun/tools/javac/code/Symtab.java Base (BASE)
-+++ com/sun/tools/javac/code/Symtab.java Locally Modified (Based On LOCAL)
-@@ -55,8 +55,10 @@
-     /** Get the symbol table instance. */
-     public static Symtab instance(Context context) {
-         Symtab instance = context.get(symtabKey);
--        if (instance == null)
-+        if (instance == null) {
-             instance = new Symtab(context);
-+            instance.enterOperators();
+Index: com/sun/tools/javac/jvm/Items.java
+===================================================================
+--- com/sun/tools/javac/jvm/Items.java	(revision 115)
++++ com/sun/tools/javac/jvm/Items.java	(working copy)
+@@ -185,7 +185,7 @@
+ 
+     /** The base class of all items, which implements default behavior.
+      */
+-    abstract class Item {
++    public abstract class Item {
+ 
+         /** The type code of values represented by this item.
+          */
+@@ -197,7 +197,7 @@
+ 
+         /** Generate code to load this item onto stack.
+          */
+-        Item load() {
++        public Item load() {
+             throw new AssertionError();
+         }
+ 
+@@ -281,7 +281,7 @@
+             super(typecode);
+         }
+ 
+-        Item load() {
++        public Item load() {
+             return this;
+         }
+ 
+@@ -315,7 +315,7 @@
+             super(Code.typecode(type));
+         }
+ 
+-        Item load() {
++        public Item load() {
+             code.emitop0(iaload + typecode);
+             return stackItem[typecode];
+         }
+@@ -358,7 +358,7 @@
+             this.isSuper = isSuper;
+         }
+ 
+-        Item load() {
++        public Item load() {
+             code.emitop0(aload_0);
+             return stackItem[typecode];
+         }
+@@ -370,7 +370,7 @@
+ 
+     /** An item representing a local variable.
+      */
+-    class LocalItem extends Item {
++    public class LocalItem extends Item {
+ 
+         /** The variable's register.
+          */
+@@ -387,7 +387,7 @@
+             this.reg = reg;
+         }
+ 
+-        Item load() {
++        public Item load() {
+             if (reg <= 3)
+                 code.emitop0(iload_0 + Code.truncate(typecode) * 4 + reg);
+             else
+@@ -438,7 +438,7 @@
+             this.member = member;
+         }
+ 
+-        Item load() {
++        public Item load() {
+             code.emitop2(getstatic, pool.put(member));
+             return stackItem[typecode];
+         }
+@@ -479,7 +479,7 @@
+             this.nonvirtual = nonvirtual;
+         }
+ 
+-        Item load() {
++        public Item load() {
+             code.emitop2(getfield, pool.put(member));
+             return stackItem[typecode];
+         }
+@@ -546,7 +546,7 @@
+             }
+         }
+ 
+-        Item load() {
++        public Item load() {
+             switch (typecode) {
+             case INTcode: case BYTEcode: case SHORTcode: case CHARcode:
+                 int ival = ((Number)value).intValue();
+@@ -666,7 +666,7 @@
+             this.lhs = lhs;
+         }
+ 
+-        Item load() {
++        public Item load() {
+             lhs.stash(typecode);
+             lhs.store();
+             return stackItem[typecode];
+@@ -724,7 +724,7 @@
+             this.falseJumps = falsejumps;
+         }
+ 
+-        Item load() {
++        public Item load() {
+             Chain trueChain = null;
+             Chain falseChain = jumpFalse();
+             if (!isFalse()) {
+Index: com/sun/tools/javac/jvm/ClassReader.java
+===================================================================
+--- com/sun/tools/javac/jvm/ClassReader.java	(revision 115)
++++ com/sun/tools/javac/jvm/ClassReader.java	(working copy)
+@@ -49,6 +49,7 @@
+ import static com.sun.tools.javac.code.Kinds.*;
+ import static com.sun.tools.javac.code.TypeTags.*;
+ import com.sun.tools.javac.jvm.ClassFile.NameAndType;
++import java.util.HashSet;
+ import javax.tools.JavaFileManager.Location;
+ import static javax.tools.StandardLocation.*;
+ 
+@@ -68,7 +69,7 @@
+     protected static final Context.Key<ClassReader> classReaderKey =
+         new Context.Key<ClassReader>();
+ 
+-    Annotate annotate;
++    protected Annotate annotate;
+ 
+     /** Switch: verbose output.
+      */
+@@ -113,15 +114,15 @@
+ 
+     /** The log to use for verbose output
+      */
+-    final Log log;
++    public final Log log;
+ 
+     /** The symbol table. */
+-    Symtab syms;
++    public Symtab syms;
+ 
+-    Types types;
++    public Types types;
+ 
+     /** The name table. */
+-    final Name.Table names;
++    protected final Name.Table names;
+ 
+     /** Force a completion failure on this name
+      */
+@@ -129,7 +130,7 @@
+ 
+     /** Access to files
+      */
+-    private final JavaFileManager fileManager;
++    protected final JavaFileManager fileManager;
+ 
+     /** Can be reassigned from outside:
+      *  the completer to be used for ".java" files. If this remains unassigned
+@@ -140,7 +141,7 @@
+     /** A hashtable containing the encountered top-level and member classes,
+      *  indexed by flat names. The table does not contain local classes.
+      */
+-    private Map<Name,ClassSymbol> classes;
++    protected Map<Name,ClassSymbol> classes;
+ 
+     /** A hashtable containing the encountered packages.
+      */
+@@ -152,7 +153,7 @@
+ 
+     /** The path name of the class file currently being read.
+      */
+-    protected JavaFileObject currentClassFile = null;
++    public JavaFileObject currentClassFile = null;
+ 
+     /** The class or method currently being read.
+      */
+@@ -281,7 +282,7 @@
+ 
+     /** Read a character.
+      */
+-    char nextChar() {
++    protected char nextChar() {
+         return (char)(((buf[bp++] & 0xFF) << 8) + (buf[bp++] & 0xFF));
+     }
+ 
+@@ -455,7 +456,7 @@
+ 
+     /** Read signature and convert to type.
+      */
+-    Type readType(int i) {
++    protected Type readType(int i) {
+         int index = poolIdx[i];
+         return sigToType(buf, index + 3, getChar(index + 1));
+     }
+@@ -491,7 +492,7 @@
+ 
+     /** Read name.
+      */
+-    Name readName(int i) {
++    protected Name readName(int i) {
+         return (Name) (readPool(i));
+     }
+ 
+@@ -502,8 +503,8 @@
+     /** The unread portion of the currently read type is
+      *  signature[sigp..siglimit-1].
+      */
+-    byte[] signature;
+-    int sigp;
++    protected byte[] signature;
++    protected int sigp;
+     int siglimit;
+     boolean sigEnterPhase = false;
+ 
+@@ -620,11 +621,11 @@
+         }
+     }
+ 
+-    byte[] signatureBuffer = new byte[0];
+-    int sbp = 0;
++    protected byte[] signatureBuffer = new byte[0];
++    protected int sbp = 0;
+     /** Convert class signature to type, where signature is implicit.
+      */
+-    Type classSigToType() {
++    protected Type classSigToType() {
+         if (signature[sigp] != 'L')
+             throw badClassFile("bad.class.signature",
+                                Convert.utf2string(signature, sigp, 10));
+@@ -723,7 +724,7 @@
+     /** Convert (implicit) signature to list of types
+      *  until `terminator' is encountered.
+      */
+-    List<Type> sigToTypes(char terminator) {
++    protected List<Type> sigToTypes(char terminator) {
+         List<Type> head = List.of(null);
+         List<Type> tail = head;
+         while (signature[sigp] != terminator)
+@@ -836,7 +837,7 @@
+ 
+     /** Read member attribute.
+      */
+-    void readMemberAttr(Symbol sym, Name attrName, int attrLen) {
++    protected void readMemberAttr(Symbol sym, Name attrName, int attrLen) {
+         //- System.err.println(" z " + sym + ", " + attrName + ", " + attrLen);
+         if (attrName == names.ConstantValue) {
+             Object v = readPool(nextChar());
+@@ -1033,7 +1034,7 @@
+ 
+     /** Read member attributes.
+      */
+-    void readMemberAttrs(Symbol sym) {
++    protected void readMemberAttrs(Symbol sym) {
+         char ac = nextChar();
+         for (int i = 0; i < ac; i++) {
+             Name attrName = readName(nextChar());
+@@ -1101,7 +1102,7 @@
+ 
+     /** Attach annotations.
+      */
+-    void attachAnnotations(final Symbol sym) {
++    protected void attachAnnotations(final Symbol sym) {
+         int numAttributes = nextChar();
+         if (numAttributes != 0) {
+             ListBuffer<CompoundAnnotationProxy> proxies =
+@@ -1113,7 +1114,7 @@
+                 else
+                     proxies.append(proxy);
+             }
+-            annotate.later(new AnnotationCompleter(sym, proxies.toList()));
++            annotate.later(new AnnotationCompleter(sym, proxies.toList(), this));
+         }
+     }
+ 
+@@ -1139,7 +1140,7 @@
+     void attachAnnotationDefault(final Symbol sym) {
+         final MethodSymbol meth = (MethodSymbol)sym; // only on methods
+         final Attribute value = readAttributeValue();
+-        annotate.later(new AnnotationDefaultCompleter(meth, value));
++        annotate.later(new AnnotationDefaultCompleter(meth, value, this));
+     }
+ 
+     Type readTypeOrClassSymbol(int i) {
+@@ -1157,7 +1158,7 @@
+         return readType(i);
+     }
+ 
+-    CompoundAnnotationProxy readCompoundAnnotation() {
++    protected CompoundAnnotationProxy readCompoundAnnotation() {
+         Type t = readTypeOrClassSymbol(nextChar());
+         int numFields = nextChar();
+         ListBuffer<Pair<Name,Attribute>> pairs =
+@@ -1243,7 +1244,7 @@
+ 
+     /** A temporary proxy representing a compound attribute.
+      */
+-    static class CompoundAnnotationProxy extends Attribute {
++    public static class CompoundAnnotationProxy extends Attribute {
+         final List<Pair<Name,Attribute>> values;
+         public CompoundAnnotationProxy(Type type,
+                                       List<Pair<Name,Attribute>> values) {
+@@ -1271,11 +1272,17 @@
+         }
+     }
+ 
+-    class AnnotationDeproxy implements ProxyVisitor {
+-        private ClassSymbol requestingOwner = currentOwner.kind == MTH
+-            ? currentOwner.enclClass() : (ClassSymbol)currentOwner;
++    static public class AnnotationDeproxy implements ProxyVisitor {
++        protected ClassReader classReader;
++        protected ClassSymbol requestingOwner;
+ 
+-        List<Attribute.Compound> deproxyCompoundList(List<CompoundAnnotationProxy> pl) {
++        public AnnotationDeproxy(ClassReader classReader) {
++            this.classReader = classReader;
++            requestingOwner = classReader.currentOwner.kind == MTH
++                ? classReader.currentOwner.enclClass() : (ClassSymbol)classReader.currentOwner;
 +        }
-         return instance;
++
++        protected List<Attribute.Compound> deproxyCompoundList(List<CompoundAnnotationProxy> pl) {
+             // also must fill in types!!!!
+             ListBuffer<Attribute.Compound> buf =
+                 new ListBuffer<Attribute.Compound>();
+@@ -1285,7 +1292,7 @@
+             return buf.toList();
+         }
+ 
+-        Attribute.Compound deproxyCompound(CompoundAnnotationProxy a) {
++        protected Attribute.Compound deproxyCompound(CompoundAnnotationProxy a) {
+             ListBuffer<Pair<Symbol.MethodSymbol,Attribute>> buf =
+                 new ListBuffer<Pair<Symbol.MethodSymbol,Attribute>>();
+             for (List<Pair<Name,Attribute>> l = a.values;
+@@ -1312,29 +1319,29 @@
+                 failure = ex;
+             }
+             // The method wasn't found: emit a warning and recover
+-            JavaFileObject prevSource = log.useSource(requestingOwner.classfile);
++            JavaFileObject prevSource = classReader.log.useSource(requestingOwner.classfile);
+             try {
+                 if (failure == null) {
+-                    log.warning("annotation.method.not.found",
++                    classReader.log.warning("annotation.method.not.found",
+                                 container,
+                                 name);
+                 } else {
+-                    log.warning("annotation.method.not.found.reason",
++                    classReader.log.warning("annotation.method.not.found.reason",
+                                 container,
+                                 name,
+                                 failure.getMessage());
+                 }
+             } finally {
+-                log.useSource(prevSource);
++                classReader.log.useSource(prevSource);
+             }
+             // Construct a new method type and symbol.  Use bottom
+             // type (typeof null) as return type because this type is
+             // a subtype of all reference types and can be converted
+             // to primitive types by unboxing.
+             MethodType mt = new MethodType(List.<Type>nil(),
+-                                           syms.botType,
++                                           classReader.syms.botType,
+                                            List.<Type>nil(),
+-                                           syms.methodClass);
++                                           classReader.syms.methodClass);
+             return new MethodSymbol(PUBLIC | ABSTRACT, name, mt, container.tsym);
+         }
+ 
+@@ -1391,8 +1398,8 @@
+                 }
+             }
+             if (enumerator == null) {
+-                log.error("unknown.enum.constant",
+-                          currentClassFile, enumTypeSym, proxy.enumerator);
++                classReader.log.error("unknown.enum.constant",
++                          classReader.currentClassFile, enumTypeSym, proxy.enumerator);
+                 result = new Attribute.Error(enumTypeSym.type);
+             } else {
+                 result = new Attribute.Enum(enumTypeSym.type, enumerator);
+@@ -1402,7 +1409,7 @@
+         public void visitArrayAttributeProxy(ArrayAttributeProxy proxy) {
+             int length = proxy.values.length();
+             Attribute[] ats = new Attribute[length];
+-            Type elemtype = types.elemtype(type);
++            Type elemtype = classReader.types.elemtype(type);
+             int i = 0;
+             for (List<Attribute> p = proxy.values; p.nonEmpty(); p = p.tail) {
+                 ats[i++] = deproxy(elemtype, p.head);
+@@ -1415,52 +1422,62 @@
+         }
      }
  
-@@ -219,7 +221,7 @@
-      *  @param res      The operation's result type.
-      *  @param opcode   The operation's bytecode instruction.
-      */
--    private void enterBinop(String name,
-+    protected void enterBinop(String name,
-                             Type left, Type right, Type res,
-                             int opcode) {
-         predefClass.members().enter(
-@@ -236,7 +238,7 @@
-      *  @param opcode1     First opcode.
-      *  @param opcode2     Second opcode.
-      */
--    private void enterBinop(String name,
-+    protected void enterBinop(String name,
-                             Type left, Type right, Type res,
-                             int opcode1, int opcode2) {
-         enterBinop(
-@@ -249,7 +251,7 @@
-      *  @param res      The operation's result type.
-      *  @param opcode   The operation's bytecode instruction.
-      */
--    private OperatorSymbol enterUnop(String name,
-+    protected OperatorSymbol enterUnop(String name,
-                                      Type arg,
-                                      Type res,
-                                      int opcode) {
-@@ -268,7 +270,7 @@
-     /** Enter a class into symbol table.
-      *  @param    The name of the class.
-      */
--    private Type enterClass(String s) {
-+    protected Type enterClass(String s) {
-         return reader.enterClass(names.fromString(s)).type;
+-    class AnnotationDefaultCompleter extends AnnotationDeproxy implements Annotate.Annotator {
++    static public class AnnotationDefaultCompleter extends AnnotationDeproxy implements Annotate.Annotator {
+         final MethodSymbol sym;
+         final Attribute value;
+-        final JavaFileObject classFile = currentClassFile;
++        final JavaFileObject classFile;
++        protected ClassReader classReader;
+         public String toString() {
+             return " ClassReader store default for " + sym.owner + "." + sym + " is " + value;
+         }
+-        AnnotationDefaultCompleter(MethodSymbol sym, Attribute value) {
++        AnnotationDefaultCompleter(MethodSymbol sym, Attribute value, ClassReader classReader) {
++            super(classReader);
++            this.classReader = classReader;
+             this.sym = sym;
+             this.value = value;
++            classFile = classReader.currentClassFile;
+         }
+         // implement Annotate.Annotator.enterAnnotation()
+         public void enterAnnotation() {
+-            JavaFileObject previousClassFile = currentClassFile;
++            JavaFileObject previousClassFile = classReader.currentClassFile;
+             try {
+-                currentClassFile = classFile;
++                classReader.currentClassFile = classFile;
+                 sym.defaultValue = deproxy(sym.type.getReturnType(), value);
+             } finally {
+-                currentClassFile = previousClassFile;
++                classReader.currentClassFile = previousClassFile;
+             }
+         }
      }
  
-@@ -420,6 +422,11 @@
-             arrayClass);
-         arrayClass.members().enter(arrayCloneMethod);
- 
-+        nullcheck = enterUnop("<*nullchk*>", objectType, objectType, nullchk);
-+     }
+-    class AnnotationCompleter extends AnnotationDeproxy implements Annotate.Annotator {
+-        final Symbol sym;
+-        final List<CompoundAnnotationProxy> l;
+-        final JavaFileObject classFile;
++    static public class AnnotationCompleter extends AnnotationDeproxy implements Annotate.Annotator {
++        protected final Symbol sym;
++        protected final List<CompoundAnnotationProxy> l;
++        protected final JavaFileObject classFile;
++        protected ClassReader classReader;
 +
-+    public void enterOperators() {
+         public String toString() {
+             return " ClassReader annotate " + sym.owner + "." + sym + " with " + l;
+         }
+-        AnnotationCompleter(Symbol sym, List<CompoundAnnotationProxy> l) {
 +
-         // Enter operators.
-         enterUnop("+", doubleType, doubleType, nop);
-         enterUnop("+", floatType, floatType, nop);
-@@ -451,7 +458,6 @@
-         enterUnop("--", byteType, byteType, isub);
++        public AnnotationCompleter(Symbol sym, List<CompoundAnnotationProxy> l, ClassReader classReader) {
++            super(classReader);
+             this.sym = sym;
+             this.l = l;
+-            this.classFile = currentClassFile;
++            this.classReader = classReader;
++            this.classFile = classReader.currentClassFile;
++            
+         }
+         // implement Annotate.Annotator.enterAnnotation()
+         public void enterAnnotation() {
+-            JavaFileObject previousClassFile = currentClassFile;
++            JavaFileObject previousClassFile = classReader.currentClassFile;
+             try {
+-                currentClassFile = classFile;
++                classReader.currentClassFile = classFile;
+                 List<Attribute.Compound> newList = deproxyCompoundList(l);
+                 sym.attributes_field = ((sym.attributes_field == null)
+                                         ? newList
+                                         : newList.prependList(sym.attributes_field));
+             } finally {
+-                currentClassFile = previousClassFile;
++                classReader.currentClassFile = previousClassFile;
+             }
+         }
+     }
+@@ -1483,7 +1500,7 @@
  
-         enterUnop("!", booleanType, booleanType, bool_not);
--        nullcheck = enterUnop("<*nullchk*>", objectType, objectType, nullchk);
+     /** Read a method.
+      */
+-    MethodSymbol readMethod() {
++    protected MethodSymbol readMethod() {
+         long flags = adjustMethodFlags(nextChar());
+         Name name = readName(nextChar());
+         Type type = readType(nextChar());
+@@ -1679,7 +1696,7 @@
+     long adjustFieldFlags(long flags) {
+         return flags;
+     }
+-    long adjustMethodFlags(long flags) {
++    protected long adjustMethodFlags(long flags) {
+         if ((flags & ACC_BRIDGE) != 0) {
+             flags &= ~ACC_BRIDGE;
+             flags |= BRIDGE;
+@@ -1987,7 +2004,7 @@
+         PackageSymbol p = packages.get(fullname);
+         if (p == null) {
+             assert !fullname.isEmpty() : "rootPackage missing!";
+-            p = new PackageSymbol(
++            p = createPackageSymbol(
+                 Convert.shortName(fullname),
+                 enterPackage(Convert.packagePart(fullname)));
+             p.completer = this;
+@@ -1995,6 +2012,10 @@
+         }
+         return p;
+     }
++    
++    protected PackageSymbol createPackageSymbol(Name name, Symbol owner) {
++        return new PackageSymbol(name, owner);
++    }
  
-         // string concatenation
-         enterBinop("+", stringType, objectType, stringType, string_add);
+     /** Make a package, given its unqualified name and enclosing package.
+      */
+@@ -2082,18 +2103,11 @@
+ 
+     /** Load directory of package into members scope.
+      */
+-    private void fillIn(PackageSymbol p) throws IOException {
++    protected void fillIn(PackageSymbol p) throws IOException {
+         if (p.members_field == null) p.members_field = new Scope(p);
+-        String packageName = p.fullname.toString();
+-
+         Set<JavaFileObject.Kind> kinds = getPackageFileKinds();
++        fillIn(p, PLATFORM_CLASS_PATH, EnumSet.of(JavaFileObject.Kind.CLASS));
+ 
+-        fillIn(p, PLATFORM_CLASS_PATH,
+-               fileManager.list(PLATFORM_CLASS_PATH,
+-                                packageName,
+-                                EnumSet.of(JavaFileObject.Kind.CLASS),
+-                                false));
+-
+         Set<JavaFileObject.Kind> classKinds = EnumSet.copyOf(kinds);
+         classKinds.remove(JavaFileObject.Kind.SOURCE);
+         boolean wantClassFiles = !classKinds.isEmpty();
+@@ -2134,32 +2148,33 @@
+         }
+ 
+         if (wantSourceFiles && !haveSourcePath) {
+-            fillIn(p, CLASS_PATH,
+-                   fileManager.list(CLASS_PATH,
+-                                    packageName,
+-                                    kinds,
+-                                    false));
++            fillIn(p, CLASS_PATH, kinds);
+         } else {
+             if (wantClassFiles)
+-                fillIn(p, CLASS_PATH,
+-                       fileManager.list(CLASS_PATH,
+-                                        packageName,
+-                                        classKinds,
+-                                        false));
++                fillIn(p, CLASS_PATH, classKinds);
+             if (wantSourceFiles)
+-                fillIn(p, SOURCE_PATH,
+-                       fileManager.list(SOURCE_PATH,
+-                                        packageName,
+-                                        sourceKinds,
+-                                        false));
++                fillIn(p, SOURCE_PATH, sourceKinds);
+         }
+         verbosePath = false;
+     }
+     // where
+-        private void fillIn(PackageSymbol p,
++        protected void fillIn(PackageSymbol p,
+                             Location location,
+-                            Iterable<JavaFileObject> files)
++                            Set<JavaFileObject.Kind> kinds)
++                            throws IOException
+         {
++            String packageName = p.fullname.toString();
++            Iterable<JavaFileObject> files = 
++                    fileManager.list(location,
++                                        packageName,
++                                        kinds,
++                                        false);
++            fillIn(p, location, files);
++        }
++        
++        protected void fillIn(PackageSymbol p,
++                            Location location,
++                            Iterable<JavaFileObject> files) {
+             currentLoc = location;
+             for (JavaFileObject fo : files) {
+                 switch (fo.getKind()) {
+Index: com/sun/tools/javac/jvm/Gen.java
+===================================================================
+--- com/sun/tools/javac/jvm/Gen.java	(revision 115)
++++ com/sun/tools/javac/jvm/Gen.java	(working copy)
+@@ -56,7 +56,7 @@
+     protected static final Context.Key<Gen> genKey =
+         new Context.Key<Gen>();
+ 
+-    private final Log log;
++    protected final Log log;
+     private final Symtab syms;
+     private final Check chk;
+     private final Resolve rs;
+@@ -172,7 +172,7 @@
+ 
+     /** Code buffer, set by genMethod.
+      */
+-    private Code code;
++    protected Code code;
+ 
+     /** Items structure, set by genMethod.
+      */
+@@ -188,7 +188,7 @@
+ 
+     /** The number of code-gen errors in this class.
+      */
+-    private int nerrs = 0;
++    protected int nerrs = 0;
+ 
+     /** A hash table mapping syntax trees to their ending source positions.
+      */
+@@ -657,15 +657,15 @@
+ 
+     /** Visitor argument: The current environment.
+      */
+-    Env<GenContext> env;
++    protected Env<GenContext> env;
+ 
+     /** Visitor argument: The expected type (prototype).
+      */
+-    Type pt;
++    protected Type pt;
+ 
+     /** Visitor result: The item representing the computed value.
+      */
+-    Item result;
++    protected Item result;
+ 
+     /** Visitor method: generate code for a definition, catching and reporting
+      *  any completion failures.
+@@ -2261,7 +2261,7 @@
+     /** code generation contexts,
+      *  to be used as type parameter for environments.
+      */
+-    static class GenContext {
++    public static class GenContext {
+ 
+         /** A chain for all unresolved jumps that exit the current environment.
+          */
+Index: com/sun/tools/javac/jvm/Code.java
+===================================================================
+--- com/sun/tools/javac/jvm/Code.java	(revision 115)
++++ com/sun/tools/javac/jvm/Code.java	(working copy)
+@@ -132,7 +132,7 @@
+ 
+     /** The current machine state (registers and stack).
+      */
+-    State state;
++    public State state;
+ 
+     /** Is it forbidden to compactify code, because something is
+      *  pointing to current location?
+@@ -153,7 +153,7 @@
+      *  We need this to emit line numbers lazily, which we need to do
+      *  because of jump-to-jump optimization.
+      */
+-    int pendingStatPos = Position.NOPOS;
++    public int pendingStatPos = Position.NOPOS;
+ 
+     /** Set true when a stackMap is needed at the current PC. */
+     boolean pendingStackMap = false;
+@@ -1423,7 +1423,6 @@
+         State newState = state;
+         for (; chain != null; chain = chain.next) {
+             assert state != chain.state;
+-            assert target > chain.pc || state.stacksize == 0;
+             if (target >= cp) {
+                 target = cp;
+             } else if (get1(target) == goto_) {
+@@ -1569,7 +1568,7 @@
+  * Simulated VM machine state
+  ****************************************************************************/
+ 
+-    class State implements Cloneable {
++    public class State implements Cloneable {
+         /** The set of registers containing values. */
+         Bits defined;
+ 
+@@ -1577,7 +1576,7 @@
+         Type[] stack;
+ 
+         /** The first stack position currently unused. */
+-        int stacksize;
++        public int stacksize;
+ 
+         /** The numbers of registers containing locked monitors. */
+         int[] locks;
+Index: com/sun/tools/javac/comp/Infer.java
+===================================================================
+--- com/sun/tools/javac/comp/Infer.java	(revision 115)
++++ com/sun/tools/javac/comp/Infer.java	(working copy)
+@@ -67,7 +67,7 @@
+     public static class NoInstanceException extends RuntimeException {
+         private static final long serialVersionUID = 0;
+ 
+-        boolean isAmbiguous; // exist several incomparable best instances?
++        public boolean isAmbiguous; // exist several incomparable best instances?
+ 
+         JCDiagnostic diagnostic;
+ 
+Index: com/sun/tools/javac/comp/MemberEnter.java
+===================================================================
+--- com/sun/tools/javac/comp/MemberEnter.java	(revision 115)
++++ com/sun/tools/javac/comp/MemberEnter.java	(working copy)
+@@ -65,7 +65,7 @@
+     private final Enter enter;
+     private final Log log;
+     private final Check chk;
+-    private final Attr attr;
++    protected final Attr attr;
+     private final Symtab syms;
+     private final TreeMaker make;
+     private final ClassReader reader;
+@@ -115,7 +115,7 @@
+      *  enter, as we only need to look up types.  This avoids
+      *  unnecessarily deep recursion.
+      */
+-    boolean completionEnabled = true;
++    protected boolean completionEnabled = true;
+ 
+     /* ---------- Processing import clauses ----------------
+      */
+@@ -126,7 +126,7 @@
+      *  @param toScope   The (import) scope in which imported classes
+      *               are entered.
+      */
+-    private void importAll(int pos,
++    protected void importAll(int pos,
+                            final TypeSymbol tsym,
+                            Env<AttrContext> env) {
+         // Check that packages imported from exist (JLS ???).
+@@ -414,7 +414,7 @@
+ 
+     /** Enter members for a class.
+      */
+-    void finishClass(JCClassDecl tree, Env<AttrContext> env) {
++    protected void finishClass(JCClassDecl tree, Env<AttrContext> env) {
+         if ((tree.mods.flags & Flags.ENUM) != 0 &&
+             (types.supertype(tree.sym.type).tsym.flags() & Flags.ENUM) == 0) {
+             addEnumMembers(tree, env);
+@@ -684,7 +684,7 @@
+  * Type completion
+  *********************************************************************/
+ 
+-    Type attribImportType(JCTree tree, Env<AttrContext> env) {
++    public Type attribImportType(JCTree tree, Env<AttrContext> env) {
+         assert completionEnabled;
+         try {
+             // To prevent deep recursion, suppress completion of some
+@@ -769,7 +769,7 @@
+     }
+ 
+     /** Queue processing of an attribute default value. */
+-    void annotateDefaultValueLater(final JCExpression defaultValue,
++    protected void annotateDefaultValueLater(final JCExpression defaultValue,
+                                    final Env<AttrContext> localEnv,
+                                    final MethodSymbol m) {
+         annotate.later(new Annotate.Annotator() {
+Index: com/sun/tools/javac/comp/Flow.java
+===================================================================
+--- com/sun/tools/javac/comp/Flow.java	(revision 115)
++++ com/sun/tools/javac/comp/Flow.java	(working copy)
+@@ -295,7 +295,7 @@
+ 
+     /** Complain that pending exceptions are not caught.
+      */
+-    void errorUncaught() {
++    protected void errorUncaught() {
+         for (PendingExit exit = pendingExits.next();
+              exit != null;
+              exit = pendingExits.next()) {
 Index: com/sun/tools/javac/comp/Attr.java
---- com/sun/tools/javac/comp/Attr.java Base (BASE)
-+++ com/sun/tools/javac/comp/Attr.java Locally Modified (Based On LOCAL)
+===================================================================
+--- com/sun/tools/javac/comp/Attr.java	(revision 115)
++++ com/sun/tools/javac/comp/Attr.java	(working copy)
 @@ -68,18 +68,18 @@
      protected static final Context.Key<Attr> attrKey =
          new Context.Key<Attr>();
@@ -231,64 +932,93 @@ Index: com/sun/tools/javac/comp/Attr.java
          return types.capture(type);
      }
  }
-Index: com/sun/tools/javac/comp/AttrContext.java
---- com/sun/tools/javac/comp/AttrContext.java Base (BASE)
-+++ com/sun/tools/javac/comp/AttrContext.java Locally Modified (Based On LOCAL)
-@@ -40,23 +40,23 @@
+Index: com/sun/tools/javac/comp/Enter.java
+===================================================================
+--- com/sun/tools/javac/comp/Enter.java	(revision 115)
++++ com/sun/tools/javac/comp/Enter.java	(working copy)
+@@ -95,11 +95,11 @@
  
-     /** The scope of local symbols.
+     Log log;
+     Symtab syms;
+-    Check chk;
+-    TreeMaker make;
+-    ClassReader reader;
++    protected Check chk;
++    protected TreeMaker make;
++    protected ClassReader reader;
+     Annotate annotate;
+-    MemberEnter memberEnter;
++    protected MemberEnter memberEnter;
+     Lint lint;
+     JavaFileManager fileManager;
+ 
+@@ -135,7 +135,7 @@
+     /** A hashtable mapping classes and packages to the environments current
+      *  at the points of their definitions.
       */
--    Scope scope = null;
-+    public Scope scope = null;
+-    Map<TypeSymbol,Env<AttrContext>> typeEnvs =
++    protected Map<TypeSymbol,Env<AttrContext>> typeEnvs =
+             new HashMap<TypeSymbol,Env<AttrContext>>();
  
-     /** The number of enclosing `static' modifiers.
+     /** Accessor for typeEnvs
+@@ -156,7 +156,7 @@
+     /** The queue of all classes that might still need to be completed;
+      *  saved and initialized by main().
       */
--    int staticLevel = 0;
-+    public int staticLevel = 0;
+-    ListBuffer<ClassSymbol> uncompleted;
++    protected ListBuffer<ClassSymbol> uncompleted;
  
-     /** Is this an environment for a this(...) or super(...) call?
+     /** A dummy class to serve as enclClass for toplevel environments.
       */
--    boolean isSelfCall = false;
-+    public boolean isSelfCall = false;
- 
-     /** Are we evaluating the selector of a `super' or type name?
+@@ -219,7 +219,7 @@
+      *  where the local scope is for type variables, and the this and super symbol
+      *  only, and members go into the class member scope.
       */
--    boolean selectSuper = false;
-+    public boolean selectSuper = false;
+-    Scope enterScope(Env<AttrContext> env) {
++    public Scope enterScope(Env<AttrContext> env) {
+         return (env.tree.getTag() == JCTree.CLASSDEF)
+             ? ((JCClassDecl) env.tree).sym.members_field
+             : env.info.scope;
+@@ -235,7 +235,7 @@
  
-     /** Are arguments to current function applications boxed into an array for varargs?
+     /** Visitor result: the computed type.
       */
--    boolean varArgs = false;
-+    public boolean varArgs = false;
+-    Type result;
++    protected Type result;
  
-     /** A list of type variables that are all-quantifed in current context.
+     /** Visitor method: enter all classes in given tree, catching any
+      *  completion failure exceptions. Return the tree's type.
+@@ -243,7 +243,7 @@
+      *  @param tree    The tree to be visited.
+      *  @param env     The environment visitor argument.
       */
-@@ -64,11 +64,11 @@
+-    Type classEnter(JCTree tree, Env<AttrContext> env) {
++    protected Type classEnter(JCTree tree, Env<AttrContext> env) {
+         Env<AttrContext> prevEnv = this.env;
+         try {
+             this.env = env;
+@@ -258,7 +258,7 @@
  
-     /** A record of the lint/SuppressWarnings currently in effect
+     /** Visitor method: enter classes of a list of trees, returning a list of types.
       */
--    Lint lint;
-+    public Lint lint;
- 
-     /** Duplicate this context, replacing scope field and copying all others.
-      */
--    AttrContext dup(Scope scope) {
-+    public AttrContext dup(Scope scope) {
-         AttrContext info = new AttrContext();
-         info.scope = scope;
-         info.staticLevel = staticLevel;
-@@ -82,7 +82,7 @@
- 
-     /** Duplicate this context, copying all fields.
-      */
--    AttrContext dup() {
-+    public AttrContext dup() {
-         return dup(scope);
-     }
- 
+-    <T extends JCTree> List<Type> classEnter(List<T> trees, Env<AttrContext> env) {
++    protected <T extends JCTree> List<Type> classEnter(List<T> trees, Env<AttrContext> env) {
+         ListBuffer<Type> ts = new ListBuffer<Type>();
+         for (List<T> l = trees; l.nonEmpty(); l = l.tail)
+             ts.append(classEnter(l.head, env));
+@@ -404,7 +404,7 @@
+     //where
+         /** Does class have the same name as the file it appears in?
+          */
+-        private static boolean classNameMatchesFileName(ClassSymbol c,
++        protected static boolean classNameMatchesFileName(ClassSymbol c,
+                                                         Env<AttrContext> env) {
+             return env.toplevel.sourcefile.isNameCompatible(c.name.toString(),
+                                                             JavaFileObject.Kind.SOURCE);
 Index: com/sun/tools/javac/comp/Check.java
---- com/sun/tools/javac/comp/Check.java Base (BASE)
-+++ com/sun/tools/javac/comp/Check.java Locally Modified (Based On LOCAL)
+===================================================================
+--- com/sun/tools/javac/comp/Check.java	(revision 115)
++++ com/sun/tools/javac/comp/Check.java	(working copy)
 @@ -56,13 +56,13 @@
      protected static final Context.Key<Check> checkKey =
          new Context.Key<Check>();
@@ -457,202 +1187,10 @@ Index: com/sun/tools/javac/comp/Check.java
          Map<Symbol,Symbol> callMap = new HashMap<Symbol, Symbol>();
  
          // enter each constructor this-call into the map
-Index: com/sun/tools/javac/comp/ConstFold.java
---- com/sun/tools/javac/comp/ConstFold.java Base (BASE)
-+++ com/sun/tools/javac/comp/ConstFold.java Locally Modified (Based On LOCAL)
-@@ -42,7 +42,7 @@
-  *  This code and its internal interfaces are subject to change or
-  *  deletion without notice.</b>
-  */
--strictfp class ConstFold {
-+    public strictfp class ConstFold {
-     protected static final Context.Key<ConstFold> constFoldKey =
-         new Context.Key<ConstFold>();
- 
-@@ -153,7 +153,7 @@
-      *  @param left      The type of the operation's left operand.
-      *  @param right     The type of the operation's right operand.
-      */
--    Type fold2(int opcode, Type left, Type right) {
-+    public Type fold2(int opcode, Type left, Type right) {
-         try {
-             if (opcode > ByteCodes.preMask) {
-                 // we are seeing a composite instruction of the form xcmp; ifxx.
-@@ -330,7 +330,7 @@
-      *                    ttype.
-      *  @param ttype      The target type of the coercion.
-      */
--     Type coerce(Type etype, Type ttype) {
-+    public Type coerce(Type etype, Type ttype) {
-          // WAS if (etype.baseType() == ttype.baseType())
-          if (etype.tsym.type == ttype.tsym.type)
-              return etype;
-Index: com/sun/tools/javac/comp/Enter.java
---- com/sun/tools/javac/comp/Enter.java Base (BASE)
-+++ com/sun/tools/javac/comp/Enter.java Locally Modified (Based On LOCAL)
-@@ -95,11 +95,11 @@
- 
-     Log log;
-     Symtab syms;
--    Check chk;
--    TreeMaker make;
--    ClassReader reader;
-+    protected Check chk;
-+    protected TreeMaker make;
-+    protected ClassReader reader;
-     Annotate annotate;
--    MemberEnter memberEnter;
-+    protected MemberEnter memberEnter;
-     Lint lint;
-     JavaFileManager fileManager;
- 
-@@ -135,7 +135,7 @@
-     /** A hashtable mapping classes and packages to the environments current
-      *  at the points of their definitions.
-      */
--    Map<TypeSymbol,Env<AttrContext>> typeEnvs =
-+    protected Map<TypeSymbol,Env<AttrContext>> typeEnvs =
-             new HashMap<TypeSymbol,Env<AttrContext>>();
- 
-     /** Accessor for typeEnvs
-@@ -156,7 +156,7 @@
-     /** The queue of all classes that might still need to be completed;
-      *  saved and initialized by main().
-      */
--    ListBuffer<ClassSymbol> uncompleted;
-+    protected ListBuffer<ClassSymbol> uncompleted;
- 
-     /** A dummy class to serve as enclClass for toplevel environments.
-      */
-@@ -219,7 +219,7 @@
-      *  where the local scope is for type variables, and the this and super symbol
-      *  only, and members go into the class member scope.
-      */
--    Scope enterScope(Env<AttrContext> env) {
-+    public Scope enterScope(Env<AttrContext> env) {
-         return (env.tree.getTag() == JCTree.CLASSDEF)
-             ? ((JCClassDecl) env.tree).sym.members_field
-             : env.info.scope;
-@@ -235,7 +235,7 @@
- 
-     /** Visitor result: the computed type.
-      */
--    Type result;
-+    protected Type result;
- 
-     /** Visitor method: enter all classes in given tree, catching any
-      *  completion failure exceptions. Return the tree's type.
-@@ -243,7 +243,7 @@
-      *  @param tree    The tree to be visited.
-      *  @param env     The environment visitor argument.
-      */
--    Type classEnter(JCTree tree, Env<AttrContext> env) {
-+    protected Type classEnter(JCTree tree, Env<AttrContext> env) {
-         Env<AttrContext> prevEnv = this.env;
-         try {
-             this.env = env;
-@@ -258,7 +258,7 @@
- 
-     /** Visitor method: enter classes of a list of trees, returning a list of types.
-      */
--    <T extends JCTree> List<Type> classEnter(List<T> trees, Env<AttrContext> env) {
-+    protected <T extends JCTree> List<Type> classEnter(List<T> trees, Env<AttrContext> env) {
-         ListBuffer<Type> ts = new ListBuffer<Type>();
-         for (List<T> l = trees; l.nonEmpty(); l = l.tail)
-             ts.append(classEnter(l.head, env));
-@@ -404,7 +404,7 @@
-     //where
-         /** Does class have the same name as the file it appears in?
-          */
--        private static boolean classNameMatchesFileName(ClassSymbol c,
-+        protected static boolean classNameMatchesFileName(ClassSymbol c,
-                                                         Env<AttrContext> env) {
-             return env.toplevel.sourcefile.isNameCompatible(c.name.toString(),
-                                                             JavaFileObject.Kind.SOURCE);
-Index: com/sun/tools/javac/comp/Flow.java
---- com/sun/tools/javac/comp/Flow.java Base (BASE)
-+++ com/sun/tools/javac/comp/Flow.java Locally Modified (Based On LOCAL)
-@@ -295,7 +295,7 @@
- 
-     /** Complain that pending exceptions are not caught.
-      */
--    void errorUncaught() {
-+    protected void errorUncaught() {
-         for (PendingExit exit = pendingExits.next();
-              exit != null;
-              exit = pendingExits.next()) {
-Index: com/sun/tools/javac/comp/Infer.java
---- com/sun/tools/javac/comp/Infer.java Base (BASE)
-+++ com/sun/tools/javac/comp/Infer.java Locally Modified (Based On LOCAL)
-@@ -67,7 +67,7 @@
-     public static class NoInstanceException extends RuntimeException {
-         private static final long serialVersionUID = 0;
- 
--        boolean isAmbiguous; // exist several incomparable best instances?
-+        public boolean isAmbiguous; // exist several incomparable best instances?
- 
-         JCDiagnostic diagnostic;
- 
-Index: com/sun/tools/javac/comp/MemberEnter.java
---- com/sun/tools/javac/comp/MemberEnter.java Base (BASE)
-+++ com/sun/tools/javac/comp/MemberEnter.java Locally Modified (Based On LOCAL)
-@@ -65,7 +65,7 @@
-     private final Enter enter;
-     private final Log log;
-     private final Check chk;
--    private final Attr attr;
-+    protected final Attr attr;
-     private final Symtab syms;
-     private final TreeMaker make;
-     private final ClassReader reader;
-@@ -115,7 +115,7 @@
-      *  enter, as we only need to look up types.  This avoids
-      *  unnecessarily deep recursion.
-      */
--    boolean completionEnabled = true;
-+    protected boolean completionEnabled = true;
- 
-     /* ---------- Processing import clauses ----------------
-      */
-@@ -126,7 +126,7 @@
-      *  @param toScope   The (import) scope in which imported classes
-      *               are entered.
-      */
--    private void importAll(int pos,
-+    protected void importAll(int pos,
-                            final TypeSymbol tsym,
-                            Env<AttrContext> env) {
-         // Check that packages imported from exist (JLS ???).
-@@ -414,7 +414,7 @@
- 
-     /** Enter members for a class.
-      */
--    void finishClass(JCClassDecl tree, Env<AttrContext> env) {
-+    protected void finishClass(JCClassDecl tree, Env<AttrContext> env) {
-         if ((tree.mods.flags & Flags.ENUM) != 0 &&
-             (types.supertype(tree.sym.type).tsym.flags() & Flags.ENUM) == 0) {
-             addEnumMembers(tree, env);
-@@ -684,7 +684,7 @@
-  * Type completion
-  *********************************************************************/
- 
--    Type attribImportType(JCTree tree, Env<AttrContext> env) {
-+    public Type attribImportType(JCTree tree, Env<AttrContext> env) {
-         assert completionEnabled;
-         try {
-             // To prevent deep recursion, suppress completion of some
-@@ -769,7 +769,7 @@
-     }
- 
-     /** Queue processing of an attribute default value. */
--    void annotateDefaultValueLater(final JCExpression defaultValue,
-+    protected void annotateDefaultValueLater(final JCExpression defaultValue,
-                                    final Env<AttrContext> localEnv,
-                                    final MethodSymbol m) {
-         annotate.later(new Annotate.Annotator() {
 Index: com/sun/tools/javac/comp/Resolve.java
---- com/sun/tools/javac/comp/Resolve.java Base (BASE)
-+++ com/sun/tools/javac/comp/Resolve.java Locally Modified (Based On LOCAL)
+===================================================================
+--- com/sun/tools/javac/comp/Resolve.java	(revision 115)
++++ com/sun/tools/javac/comp/Resolve.java	(working copy)
 @@ -52,8 +52,8 @@
          new Context.Key<Resolve>();
  
@@ -775,602 +1313,126 @@ Index: com/sun/tools/javac/comp/Resolve.java
                      List<Type> argtypes, List<Type> typeargtypes) {
              AmbiguityError pair = this;
              while (true) {
-Index: com/sun/tools/javac/jvm/ClassReader.java
---- com/sun/tools/javac/jvm/ClassReader.java Base (BASE)
-+++ com/sun/tools/javac/jvm/ClassReader.java Locally Modified (Based On LOCAL)
-@@ -68,7 +68,7 @@
-     protected static final Context.Key<ClassReader> classReaderKey =
-         new Context.Key<ClassReader>();
+Index: com/sun/tools/javac/comp/AttrContext.java
+===================================================================
+--- com/sun/tools/javac/comp/AttrContext.java	(revision 115)
++++ com/sun/tools/javac/comp/AttrContext.java	(working copy)
+@@ -40,23 +40,23 @@
  
--    Annotate annotate;
-+    protected Annotate annotate;
- 
-     /** Switch: verbose output.
+     /** The scope of local symbols.
       */
-@@ -113,15 +113,15 @@
+-    Scope scope = null;
++    public Scope scope = null;
  
-     /** The log to use for verbose output
+     /** The number of enclosing `static' modifiers.
       */
--    final Log log;
-+    public final Log log;
+-    int staticLevel = 0;
++    public int staticLevel = 0;
  
-     /** The symbol table. */
--    Symtab syms;
-+    public Symtab syms;
+     /** Is this an environment for a this(...) or super(...) call?
+      */
+-    boolean isSelfCall = false;
++    public boolean isSelfCall = false;
+ 
+     /** Are we evaluating the selector of a `super' or type name?
+      */
+-    boolean selectSuper = false;
++    public boolean selectSuper = false;
+ 
+     /** Are arguments to current function applications boxed into an array for varargs?
+      */
+-    boolean varArgs = false;
++    public boolean varArgs = false;
+ 
+     /** A list of type variables that are all-quantifed in current context.
+      */
+@@ -64,11 +64,11 @@
+ 
+     /** A record of the lint/SuppressWarnings currently in effect
+      */
+-    Lint lint;
++    public Lint lint;
+ 
+     /** Duplicate this context, replacing scope field and copying all others.
+      */
+-    AttrContext dup(Scope scope) {
++    public AttrContext dup(Scope scope) {
+         AttrContext info = new AttrContext();
+         info.scope = scope;
+         info.staticLevel = staticLevel;
+@@ -82,7 +82,7 @@
+ 
+     /** Duplicate this context, copying all fields.
+      */
+-    AttrContext dup() {
++    public AttrContext dup() {
+         return dup(scope);
+     }
+ 
+Index: com/sun/tools/javac/comp/ConstFold.java
+===================================================================
+--- com/sun/tools/javac/comp/ConstFold.java	(revision 115)
++++ com/sun/tools/javac/comp/ConstFold.java	(working copy)
+@@ -42,7 +42,7 @@
+  *  This code and its internal interfaces are subject to change or
+  *  deletion without notice.</b>
+  */
+-strictfp class ConstFold {
++    public strictfp class ConstFold {
+     protected static final Context.Key<ConstFold> constFoldKey =
+         new Context.Key<ConstFold>();
+ 
+@@ -153,7 +153,7 @@
+      *  @param left      The type of the operation's left operand.
+      *  @param right     The type of the operation's right operand.
+      */
+-    Type fold2(int opcode, Type left, Type right) {
++    public Type fold2(int opcode, Type left, Type right) {
+         try {
+             if (opcode > ByteCodes.preMask) {
+                 // we are seeing a composite instruction of the form xcmp; ifxx.
+@@ -330,7 +330,7 @@
+      *                    ttype.
+      *  @param ttype      The target type of the coercion.
+      */
+-     Type coerce(Type etype, Type ttype) {
++    public Type coerce(Type etype, Type ttype) {
+          // WAS if (etype.baseType() == ttype.baseType())
+          if (etype.tsym.type == ttype.tsym.type)
+              return etype;
+Index: com/sun/tools/javac/tree/TreeMaker.java
+===================================================================
+--- com/sun/tools/javac/tree/TreeMaker.java	(revision 115)
++++ com/sun/tools/javac/tree/TreeMaker.java	(working copy)
+@@ -67,12 +67,12 @@
+     public JCCompilationUnit toplevel;
+ 
+     /** The current name table. */
+-    Name.Table names;
++    protected Name.Table names;
  
 -    Types types;
-+    public Types types;
++    protected Types types;
  
-     /** The name table. */
--    final Name.Table names;
-+    protected final Name.Table names;
+     /** The current symbol table. */
+-    Symtab syms;
++    protected Symtab syms;
  
-     /** Force a completion failure on this name
+     /** Create a tree maker with null toplevel and NOPOS as initial position.
       */
-@@ -140,7 +140,7 @@
-     /** A hashtable containing the encountered top-level and member classes,
-      *  indexed by flat names. The table does not contain local classes.
+@@ -87,7 +87,7 @@
+ 
+     /** Create a tree maker with a given toplevel and FIRSTPOS as initial position.
       */
--    private Map<Name,ClassSymbol> classes;
-+    protected Map<Name,ClassSymbol> classes;
- 
-     /** A hashtable containing the encountered packages.
-      */
-@@ -152,7 +152,7 @@
- 
-     /** The path name of the class file currently being read.
-      */
--    protected JavaFileObject currentClassFile = null;
-+    public JavaFileObject currentClassFile = null;
- 
-     /** The class or method currently being read.
-      */
-@@ -281,7 +281,7 @@
- 
-     /** Read a character.
-      */
--    char nextChar() {
-+    protected char nextChar() {
-         return (char)(((buf[bp++] & 0xFF) << 8) + (buf[bp++] & 0xFF));
-     }
- 
-@@ -455,7 +455,7 @@
- 
-     /** Read signature and convert to type.
-      */
--    Type readType(int i) {
-+    protected Type readType(int i) {
-         int index = poolIdx[i];
-         return sigToType(buf, index + 3, getChar(index + 1));
-     }
-@@ -491,7 +491,7 @@
- 
-     /** Read name.
-      */
--    Name readName(int i) {
-+    protected Name readName(int i) {
-         return (Name) (readPool(i));
-     }
- 
-@@ -502,8 +502,8 @@
-     /** The unread portion of the currently read type is
-      *  signature[sigp..siglimit-1].
-      */
--    byte[] signature;
--    int sigp;
-+    protected byte[] signature;
-+    protected int sigp;
-     int siglimit;
-     boolean sigEnterPhase = false;
- 
-@@ -620,11 +620,11 @@
-         }
-     }
- 
--    byte[] signatureBuffer = new byte[0];
--    int sbp = 0;
-+    protected byte[] signatureBuffer = new byte[0];
-+    protected int sbp = 0;
-     /** Convert class signature to type, where signature is implicit.
-      */
--    Type classSigToType() {
-+    protected Type classSigToType() {
-         if (signature[sigp] != 'L')
-             throw badClassFile("bad.class.signature",
-                                Convert.utf2string(signature, sigp, 10));
-@@ -723,7 +723,7 @@
-     /** Convert (implicit) signature to list of types
-      *  until `terminator' is encountered.
-      */
--    List<Type> sigToTypes(char terminator) {
-+    protected List<Type> sigToTypes(char terminator) {
-         List<Type> head = List.of(null);
-         List<Type> tail = head;
-         while (signature[sigp] != terminator)
-@@ -836,7 +836,7 @@
- 
-     /** Read member attribute.
-      */
--    void readMemberAttr(Symbol sym, Name attrName, int attrLen) {
-+    protected void readMemberAttr(Symbol sym, Name attrName, int attrLen) {
-         //- System.err.println(" z " + sym + ", " + attrName + ", " + attrLen);
-         if (attrName == names.ConstantValue) {
-             Object v = readPool(nextChar());
-@@ -1033,7 +1033,7 @@
- 
-     /** Read member attributes.
-      */
--    void readMemberAttrs(Symbol sym) {
-+    protected void readMemberAttrs(Symbol sym) {
-         char ac = nextChar();
-         for (int i = 0; i < ac; i++) {
-             Name attrName = readName(nextChar());
-@@ -1101,7 +1101,7 @@
- 
-     /** Attach annotations.
-      */
--    void attachAnnotations(final Symbol sym) {
-+    protected void attachAnnotations(final Symbol sym) {
-         int numAttributes = nextChar();
-         if (numAttributes != 0) {
-             ListBuffer<CompoundAnnotationProxy> proxies =
-@@ -1113,7 +1113,7 @@
-                 else
-                     proxies.append(proxy);
-             }
--            annotate.later(new AnnotationCompleter(sym, proxies.toList()));
-+            annotate.later(new AnnotationCompleter(sym, proxies.toList(), this));
-         }
-     }
- 
-@@ -1139,7 +1139,7 @@
-     void attachAnnotationDefault(final Symbol sym) {
-         final MethodSymbol meth = (MethodSymbol)sym; // only on methods
-         final Attribute value = readAttributeValue();
--        annotate.later(new AnnotationDefaultCompleter(meth, value));
-+        annotate.later(new AnnotationDefaultCompleter(meth, value, this));
-     }
- 
-     Type readTypeOrClassSymbol(int i) {
-@@ -1157,7 +1157,7 @@
-         return readType(i);
-     }
- 
--    CompoundAnnotationProxy readCompoundAnnotation() {
-+    protected CompoundAnnotationProxy readCompoundAnnotation() {
-         Type t = readTypeOrClassSymbol(nextChar());
-         int numFields = nextChar();
-         ListBuffer<Pair<Name,Attribute>> pairs =
-@@ -1243,7 +1243,7 @@
- 
-     /** A temporary proxy representing a compound attribute.
-      */
--    static class CompoundAnnotationProxy extends Attribute {
-+    public static class CompoundAnnotationProxy extends Attribute {
-         final List<Pair<Name,Attribute>> values;
-         public CompoundAnnotationProxy(Type type,
-                                       List<Pair<Name,Attribute>> values) {
-@@ -1271,11 +1271,17 @@
-         }
-     }
- 
--    class AnnotationDeproxy implements ProxyVisitor {
--        private ClassSymbol requestingOwner = currentOwner.kind == MTH
--            ? currentOwner.enclClass() : (ClassSymbol)currentOwner;
-+    static public class AnnotationDeproxy implements ProxyVisitor {
-+        protected ClassReader classReader;
-+        protected ClassSymbol requestingOwner;
- 
--        List<Attribute.Compound> deproxyCompoundList(List<CompoundAnnotationProxy> pl) {
-+        public AnnotationDeproxy(ClassReader classReader) {
-+            this.classReader = classReader;
-+            requestingOwner = classReader.currentOwner.kind == MTH
-+                ? classReader.currentOwner.enclClass() : (ClassSymbol)classReader.currentOwner;
-+        }
-+
-+        protected List<Attribute.Compound> deproxyCompoundList(List<CompoundAnnotationProxy> pl) {
-             // also must fill in types!!!!
-             ListBuffer<Attribute.Compound> buf =
-                 new ListBuffer<Attribute.Compound>();
-@@ -1285,7 +1291,7 @@
-             return buf.toList();
-         }
- 
--        Attribute.Compound deproxyCompound(CompoundAnnotationProxy a) {
-+        protected Attribute.Compound deproxyCompound(CompoundAnnotationProxy a) {
-             ListBuffer<Pair<Symbol.MethodSymbol,Attribute>> buf =
-                 new ListBuffer<Pair<Symbol.MethodSymbol,Attribute>>();
-             for (List<Pair<Name,Attribute>> l = a.values;
-@@ -1312,29 +1318,29 @@
-                 failure = ex;
-             }
-             // The method wasn't found: emit a warning and recover
--            JavaFileObject prevSource = log.useSource(requestingOwner.classfile);
-+            JavaFileObject prevSource = classReader.log.useSource(requestingOwner.classfile);
-             try {
-                 if (failure == null) {
--                    log.warning("annotation.method.not.found",
-+                    classReader.log.warning("annotation.method.not.found",
-                                 container,
-                                 name);
-                 } else {
--                    log.warning("annotation.method.not.found.reason",
-+                    classReader.log.warning("annotation.method.not.found.reason",
-                                 container,
-                                 name,
-                                 failure.getMessage());
-                 }
-             } finally {
--                log.useSource(prevSource);
-+                classReader.log.useSource(prevSource);
-             }
-             // Construct a new method type and symbol.  Use bottom
-             // type (typeof null) as return type because this type is
-             // a subtype of all reference types and can be converted
-             // to primitive types by unboxing.
-             MethodType mt = new MethodType(List.<Type>nil(),
--                                           syms.botType,
-+                                           classReader.syms.botType,
-                                            List.<Type>nil(),
--                                           syms.methodClass);
-+                                           classReader.syms.methodClass);
-             return new MethodSymbol(PUBLIC | ABSTRACT, name, mt, container.tsym);
-         }
- 
-@@ -1391,8 +1397,8 @@
-                 }
-             }
-             if (enumerator == null) {
--                log.error("unknown.enum.constant",
--                          currentClassFile, enumTypeSym, proxy.enumerator);
-+                classReader.log.error("unknown.enum.constant",
-+                          classReader.currentClassFile, enumTypeSym, proxy.enumerator);
-                 result = new Attribute.Error(enumTypeSym.type);
-             } else {
-                 result = new Attribute.Enum(enumTypeSym.type, enumerator);
-@@ -1402,7 +1408,7 @@
-         public void visitArrayAttributeProxy(ArrayAttributeProxy proxy) {
-             int length = proxy.values.length();
-             Attribute[] ats = new Attribute[length];
--            Type elemtype = types.elemtype(type);
-+            Type elemtype = classReader.types.elemtype(type);
-             int i = 0;
-             for (List<Attribute> p = proxy.values; p.nonEmpty(); p = p.tail) {
-                 ats[i++] = deproxy(elemtype, p.head);
-@@ -1415,52 +1421,62 @@
-         }
-     }
- 
--    class AnnotationDefaultCompleter extends AnnotationDeproxy implements Annotate.Annotator {
-+    static public class AnnotationDefaultCompleter extends AnnotationDeproxy implements Annotate.Annotator {
-         final MethodSymbol sym;
-         final Attribute value;
--        final JavaFileObject classFile = currentClassFile;
-+        final JavaFileObject classFile;
-+        protected ClassReader classReader;
-         public String toString() {
-             return " ClassReader store default for " + sym.owner + "." + sym + " is " + value;
-         }
--        AnnotationDefaultCompleter(MethodSymbol sym, Attribute value) {
-+        AnnotationDefaultCompleter(MethodSymbol sym, Attribute value, ClassReader classReader) {
-+            super(classReader);
-+            this.classReader = classReader;
-             this.sym = sym;
-             this.value = value;
-+            classFile = classReader.currentClassFile;
-         }
-         // implement Annotate.Annotator.enterAnnotation()
-         public void enterAnnotation() {
--            JavaFileObject previousClassFile = currentClassFile;
-+            JavaFileObject previousClassFile = classReader.currentClassFile;
-             try {
--                currentClassFile = classFile;
-+                classReader.currentClassFile = classFile;
-                 sym.defaultValue = deproxy(sym.type.getReturnType(), value);
-             } finally {
--                currentClassFile = previousClassFile;
-+                classReader.currentClassFile = previousClassFile;
-             }
-         }
-     }
- 
--    class AnnotationCompleter extends AnnotationDeproxy implements Annotate.Annotator {
--        final Symbol sym;
--        final List<CompoundAnnotationProxy> l;
--        final JavaFileObject classFile;
-+    static public class AnnotationCompleter extends AnnotationDeproxy implements Annotate.Annotator {
-+        protected final Symbol sym;
-+        protected final List<CompoundAnnotationProxy> l;
-+        protected final JavaFileObject classFile;
-+        protected ClassReader classReader;
-+
-         public String toString() {
-             return " ClassReader annotate " + sym.owner + "." + sym + " with " + l;
-         }
--        AnnotationCompleter(Symbol sym, List<CompoundAnnotationProxy> l) {
-+
-+        public AnnotationCompleter(Symbol sym, List<CompoundAnnotationProxy> l, ClassReader classReader) {
-+            super(classReader);
-             this.sym = sym;
-             this.l = l;
--            this.classFile = currentClassFile;
-+            this.classReader = classReader;
-+            this.classFile = classReader.currentClassFile;
-+            
-         }
-         // implement Annotate.Annotator.enterAnnotation()
-         public void enterAnnotation() {
--            JavaFileObject previousClassFile = currentClassFile;
-+            JavaFileObject previousClassFile = classReader.currentClassFile;
-             try {
--                currentClassFile = classFile;
-+                classReader.currentClassFile = classFile;
-                 List<Attribute.Compound> newList = deproxyCompoundList(l);
-                 sym.attributes_field = ((sym.attributes_field == null)
-                                         ? newList
-                                         : newList.prependList(sym.attributes_field));
-             } finally {
--                currentClassFile = previousClassFile;
-+                classReader.currentClassFile = previousClassFile;
-             }
-         }
-     }
-@@ -1483,7 +1499,7 @@
- 
-     /** Read a method.
-      */
--    MethodSymbol readMethod() {
-+    protected MethodSymbol readMethod() {
-         long flags = adjustMethodFlags(nextChar());
-         Name name = readName(nextChar());
-         Type type = readType(nextChar());
-@@ -1679,7 +1695,7 @@
-     long adjustFieldFlags(long flags) {
-         return flags;
-     }
--    long adjustMethodFlags(long flags) {
-+    protected long adjustMethodFlags(long flags) {
-         if ((flags & ACC_BRIDGE) != 0) {
-             flags &= ~ACC_BRIDGE;
-             flags |= BRIDGE;
-Index: com/sun/tools/javac/jvm/Code.java
---- com/sun/tools/javac/jvm/Code.java Base (BASE)
-+++ com/sun/tools/javac/jvm/Code.java Locally Modified (Based On LOCAL)
-@@ -132,7 +132,7 @@
- 
-     /** The current machine state (registers and stack).
-      */
--    State state;
-+    public State state;
- 
-     /** Is it forbidden to compactify code, because something is
-      *  pointing to current location?
-@@ -153,7 +153,7 @@
-      *  We need this to emit line numbers lazily, which we need to do
-      *  because of jump-to-jump optimization.
-      */
--    int pendingStatPos = Position.NOPOS;
-+    public int pendingStatPos = Position.NOPOS;
- 
-     /** Set true when a stackMap is needed at the current PC. */
-     boolean pendingStackMap = false;
-@@ -1423,7 +1423,6 @@
-         State newState = state;
-         for (; chain != null; chain = chain.next) {
-             assert state != chain.state;
--            assert target > chain.pc || state.stacksize == 0;
-             if (target >= cp) {
-                 target = cp;
-             } else if (get1(target) == goto_) {
-@@ -1569,7 +1568,7 @@
-  * Simulated VM machine state
-  ****************************************************************************/
- 
--    class State implements Cloneable {
-+    public class State implements Cloneable {
-         /** The set of registers containing values. */
-         Bits defined;
- 
-@@ -1577,7 +1576,7 @@
-         Type[] stack;
- 
-         /** The first stack position currently unused. */
--        int stacksize;
-+        public int stacksize;
- 
-         /** The numbers of registers containing locked monitors. */
-         int[] locks;
-Index: com/sun/tools/javac/jvm/Gen.java
---- com/sun/tools/javac/jvm/Gen.java Base (BASE)
-+++ com/sun/tools/javac/jvm/Gen.java Locally Modified (Based On LOCAL)
-@@ -56,7 +56,7 @@
-     protected static final Context.Key<Gen> genKey =
-         new Context.Key<Gen>();
- 
--    private final Log log;
-+    protected final Log log;
-     private final Symtab syms;
-     private final Check chk;
-     private final Resolve rs;
-@@ -172,7 +172,7 @@
- 
-     /** Code buffer, set by genMethod.
-      */
--    private Code code;
-+    protected Code code;
- 
-     /** Items structure, set by genMethod.
-      */
-@@ -188,7 +188,7 @@
- 
-     /** The number of code-gen errors in this class.
-      */
--    private int nerrs = 0;
-+    protected int nerrs = 0;
- 
-     /** A hash table mapping syntax trees to their ending source positions.
-      */
-@@ -657,15 +657,15 @@
- 
-     /** Visitor argument: The current environment.
-      */
--    Env<GenContext> env;
-+    protected Env<GenContext> env;
- 
-     /** Visitor argument: The expected type (prototype).
-      */
--    Type pt;
-+    protected Type pt;
- 
-     /** Visitor result: The item representing the computed value.
-      */
--    Item result;
-+    protected Item result;
- 
-     /** Visitor method: generate code for a definition, catching and reporting
-      *  any completion failures.
-@@ -2261,7 +2261,7 @@
-     /** code generation contexts,
-      *  to be used as type parameter for environments.
-      */
--    static class GenContext {
-+    public static class GenContext {
- 
-         /** A chain for all unresolved jumps that exit the current environment.
-          */
-Index: com/sun/tools/javac/jvm/Items.java
---- com/sun/tools/javac/jvm/Items.java Base (BASE)
-+++ com/sun/tools/javac/jvm/Items.java Locally Modified (Based On LOCAL)
-@@ -185,7 +185,7 @@
- 
-     /** The base class of all items, which implements default behavior.
-      */
--    abstract class Item {
-+    public abstract class Item {
- 
-         /** The type code of values represented by this item.
-          */
-@@ -197,7 +197,7 @@
- 
-         /** Generate code to load this item onto stack.
-          */
--        Item load() {
-+        public Item load() {
-             throw new AssertionError();
-         }
- 
-@@ -281,7 +281,7 @@
-             super(typecode);
-         }
- 
--        Item load() {
-+        public Item load() {
-             return this;
-         }
- 
-@@ -315,7 +315,7 @@
-             super(Code.typecode(type));
-         }
- 
--        Item load() {
-+        public Item load() {
-             code.emitop0(iaload + typecode);
-             return stackItem[typecode];
-         }
-@@ -358,7 +358,7 @@
-             this.isSuper = isSuper;
-         }
- 
--        Item load() {
-+        public Item load() {
-             code.emitop0(aload_0);
-             return stackItem[typecode];
-         }
-@@ -370,7 +370,7 @@
- 
-     /** An item representing a local variable.
-      */
--    class LocalItem extends Item {
-+    public class LocalItem extends Item {
- 
-         /** The variable's register.
-          */
-@@ -387,7 +387,7 @@
-             this.reg = reg;
-         }
- 
--        Item load() {
-+        public Item load() {
-             if (reg <= 3)
-                 code.emitop0(iload_0 + Code.truncate(typecode) * 4 + reg);
-             else
-@@ -438,7 +438,7 @@
-             this.member = member;
-         }
- 
--        Item load() {
-+        public Item load() {
-             code.emitop2(getstatic, pool.put(member));
-             return stackItem[typecode];
-         }
-@@ -479,7 +479,7 @@
-             this.nonvirtual = nonvirtual;
-         }
- 
--        Item load() {
-+        public Item load() {
-             code.emitop2(getfield, pool.put(member));
-             return stackItem[typecode];
-         }
-@@ -546,7 +546,7 @@
-             }
-         }
- 
--        Item load() {
-+        public Item load() {
-             switch (typecode) {
-             case INTcode: case BYTEcode: case SHORTcode: case CHARcode:
-                 int ival = ((Number)value).intValue();
-@@ -666,7 +666,7 @@
-             this.lhs = lhs;
-         }
- 
--        Item load() {
-+        public Item load() {
-             lhs.stash(typecode);
-             lhs.store();
-             return stackItem[typecode];
-@@ -724,7 +724,7 @@
-             this.falseJumps = falsejumps;
-         }
- 
--        Item load() {
-+        public Item load() {
-             Chain trueChain = null;
-             Chain falseChain = jumpFalse();
-             if (!isFalse()) {
-Index: com/sun/tools/javac/resources/compiler.properties
---- com/sun/tools/javac/resources/compiler.properties Base (BASE)
-+++ com/sun/tools/javac/resources/compiler.properties Locally Modified (Based On LOCAL)
-@@ -614,6 +614,15 @@
- compiler.misc.resume.abort=\
-     R)esume, A)bort>
- 
-+compiler.misc.version.resource.missing=\
-+    Resource bundle missing for version {0}.
-+compiler.misc.version.unknown=\
-+    Unknown version {0}.
-+
-+## temporary message until try-catch-block in expression is implemented
-+compiler.err.catch.within.expression=\
-+    Sorry, currently not implemented: try-catch-block within expression.
-+
- #####
- 
- ##
+-    TreeMaker(JCCompilationUnit toplevel, Name.Table names, Types types, Symtab syms) {
++    protected TreeMaker(JCCompilationUnit toplevel, Name.Table names, Types types, Symtab syms) {
+         this.pos = Position.FIRSTPOS;
+         this.toplevel = toplevel;
+         this.names = names;
 Index: com/sun/tools/javac/tree/Pretty.java
---- com/sun/tools/javac/tree/Pretty.java Base (BASE)
-+++ com/sun/tools/javac/tree/Pretty.java Locally Modified (Based On LOCAL)
+===================================================================
+--- com/sun/tools/javac/tree/Pretty.java	(revision 115)
++++ com/sun/tools/javac/tree/Pretty.java	(working copy)
 @@ -56,7 +56,7 @@
       *  the output even though that detail would not be valid java
       *  soruce.
@@ -1423,52 +1485,10 @@ Index: com/sun/tools/javac/tree/Pretty.java
  
      /** Visitor method: print expression tree.
       *  @param prec  The current precedence level.
-Index: com/sun/tools/javac/tree/TreeInfo.java
---- com/sun/tools/javac/tree/TreeInfo.java Base (BASE)
-+++ com/sun/tools/javac/tree/TreeInfo.java Locally Modified (Based On LOCAL)
-@@ -57,9 +57,9 @@
- 
-     /** The names of all operators.
-      */
--    private Name[] opname = new Name[JCTree.MOD - JCTree.POS + 1];
-+    protected Name[] opname = new Name[JCTree.MOD - JCTree.POS + 1];
- 
--    private TreeInfo(Context context) {
-+    protected TreeInfo(Context context) {
-         context.put(treeInfoKey, this);
- 
-         Name.Table names = Name.Table.instance(context);
-Index: com/sun/tools/javac/tree/TreeMaker.java
---- com/sun/tools/javac/tree/TreeMaker.java Base (BASE)
-+++ com/sun/tools/javac/tree/TreeMaker.java Locally Modified (Based On LOCAL)
-@@ -67,12 +67,12 @@
-     public JCCompilationUnit toplevel;
- 
-     /** The current name table. */
--    Name.Table names;
-+    protected Name.Table names;
- 
--    Types types;
-+    protected Types types;
- 
-     /** The current symbol table. */
--    Symtab syms;
-+    protected Symtab syms;
- 
-     /** Create a tree maker with null toplevel and NOPOS as initial position.
-      */
-@@ -87,7 +87,7 @@
- 
-     /** Create a tree maker with a given toplevel and FIRSTPOS as initial position.
-      */
--    TreeMaker(JCCompilationUnit toplevel, Name.Table names, Types types, Symtab syms) {
-+    protected TreeMaker(JCCompilationUnit toplevel, Name.Table names, Types types, Symtab syms) {
-         this.pos = Position.FIRSTPOS;
-         this.toplevel = toplevel;
-         this.names = names;
 Index: com/sun/tools/javac/tree/TreeTranslator.java
---- com/sun/tools/javac/tree/TreeTranslator.java Base (BASE)
-+++ com/sun/tools/javac/tree/TreeTranslator.java Locally Modified (Based On LOCAL)
+===================================================================
+--- com/sun/tools/javac/tree/TreeTranslator.java	(revision 115)
++++ com/sun/tools/javac/tree/TreeTranslator.java	(working copy)
 @@ -46,7 +46,10 @@
  
      /** Visitor result field: a tree
@@ -1481,9 +1501,166 @@ Index: com/sun/tools/javac/tree/TreeTranslator.java
  
      /** Visitor method: Translate a single node.
       */
+Index: com/sun/tools/javac/tree/TreeInfo.java
+===================================================================
+--- com/sun/tools/javac/tree/TreeInfo.java	(revision 115)
++++ com/sun/tools/javac/tree/TreeInfo.java	(working copy)
+@@ -57,9 +57,9 @@
+ 
+     /** The names of all operators.
+      */
+-    private Name[] opname = new Name[JCTree.MOD - JCTree.POS + 1];
++    protected Name[] opname = new Name[JCTree.MOD - JCTree.POS + 1];
+ 
+-    private TreeInfo(Context context) {
++    protected TreeInfo(Context context) {
+         context.put(treeInfoKey, this);
+ 
+         Name.Table names = Name.Table.instance(context);
+Index: com/sun/tools/javac/resources/compiler.properties
+===================================================================
+--- com/sun/tools/javac/resources/compiler.properties	(revision 115)
++++ com/sun/tools/javac/resources/compiler.properties	(working copy)
+@@ -614,6 +614,15 @@
+ compiler.misc.resume.abort=\
+     R)esume, A)bort>
+ 
++compiler.misc.version.resource.missing=\
++    Resource bundle missing for version {0}.
++compiler.misc.version.unknown=\
++    Unknown version {0}.
++
++## temporary message until try-catch-block in expression is implemented
++compiler.err.catch.within.expression=\
++    Sorry, currently not implemented: try-catch-block within expression.
++
+ #####
+ 
+ ##
+Index: com/sun/tools/javac/code/Symtab.java
+===================================================================
+--- com/sun/tools/javac/code/Symtab.java	(revision 115)
++++ com/sun/tools/javac/code/Symtab.java	(working copy)
+@@ -55,8 +55,10 @@
+     /** Get the symbol table instance. */
+     public static Symtab instance(Context context) {
+         Symtab instance = context.get(symtabKey);
+-        if (instance == null)
++        if (instance == null) {
+             instance = new Symtab(context);
++            instance.enterOperators();
++        }
+         return instance;
+     }
+ 
+@@ -219,7 +221,7 @@
+      *  @param res      The operation's result type.
+      *  @param opcode   The operation's bytecode instruction.
+      */
+-    private void enterBinop(String name,
++    protected void enterBinop(String name,
+                             Type left, Type right, Type res,
+                             int opcode) {
+         predefClass.members().enter(
+@@ -236,7 +238,7 @@
+      *  @param opcode1     First opcode.
+      *  @param opcode2     Second opcode.
+      */
+-    private void enterBinop(String name,
++    protected void enterBinop(String name,
+                             Type left, Type right, Type res,
+                             int opcode1, int opcode2) {
+         enterBinop(
+@@ -249,7 +251,7 @@
+      *  @param res      The operation's result type.
+      *  @param opcode   The operation's bytecode instruction.
+      */
+-    private OperatorSymbol enterUnop(String name,
++    protected OperatorSymbol enterUnop(String name,
+                                      Type arg,
+                                      Type res,
+                                      int opcode) {
+@@ -268,7 +270,7 @@
+     /** Enter a class into symbol table.
+      *  @param    The name of the class.
+      */
+-    private Type enterClass(String s) {
++    protected Type enterClass(String s) {
+         return reader.enterClass(names.fromString(s)).type;
+     }
+ 
+@@ -420,6 +422,11 @@
+             arrayClass);
+         arrayClass.members().enter(arrayCloneMethod);
+ 
++        nullcheck = enterUnop("<*nullchk*>", objectType, objectType, nullchk);
++     }
++
++    public void enterOperators() {
++
+         // Enter operators.
+         enterUnop("+", doubleType, doubleType, nop);
+         enterUnop("+", floatType, floatType, nop);
+@@ -451,7 +458,6 @@
+         enterUnop("--", byteType, byteType, isub);
+ 
+         enterUnop("!", booleanType, booleanType, bool_not);
+-        nullcheck = enterUnop("<*nullchk*>", objectType, objectType, nullchk);
+ 
+         // string concatenation
+         enterBinop("+", stringType, objectType, stringType, string_add);
+Index: com/sun/tools/javac/util/Paths.java
+===================================================================
+--- com/sun/tools/javac/util/Paths.java	(revision 115)
++++ com/sun/tools/javac/util/Paths.java	(working copy)
+@@ -89,7 +89,7 @@
+ 
+     private static boolean NON_BATCH_MODE = System.getProperty("nonBatchMode") != null;// TODO: Use -XD compiler switch for this.
+     private static Map<File, PathEntry> pathExistanceCache = new ConcurrentHashMap<File, PathEntry>();
+-    private static Map<File, java.util.List<String>> manifestEntries = new ConcurrentHashMap<File, java.util.List<String>>();
++    private static Map<File, java.util.List<File>> manifestEntries = new ConcurrentHashMap<File, java.util.List<File>>();
+     private static Map<File, Boolean> isDirectory = new ConcurrentHashMap<File, Boolean>();
+     private static Lock lock = new ReentrantLock();
+ 
+@@ -369,13 +369,13 @@
+         // filenames, but if we do, we should redo all path-related code.
+         private void addJarClassPath(File jarFile, boolean warn) {
+             try {
+-                java.util.List<String> manifestsList = manifestEntries.get(jarFile);
++                java.util.List<File> manifestsList = manifestEntries.get(jarFile);
+                 if (!NON_BATCH_MODE) {
+                     lock.lock();
+                     try {
+                         if (manifestsList != null) {
+-                            for (String entr : manifestsList) {
+-                                addFile(new File(entr), warn);
++                            for (File entr : manifestsList) {
++                                addFile(entr, warn);
+                             }
+                             return;
+                         }
+@@ -386,7 +386,7 @@
+                 }
+ 
+                 if (!NON_BATCH_MODE) {
+-                    manifestsList = new ArrayList<String>();
++                    manifestsList = new ArrayList<File>();
+                     manifestEntries.put(jarFile, manifestsList);
+                 }
+ 
+@@ -412,7 +412,7 @@
+                         if (!NON_BATCH_MODE) {
+                             lock.lock();
+                             try {
+-                                manifestsList.add(elt);
++                                manifestsList.add(f);
+                             }
+                             finally {
+                                 lock.unlock();
 Index: com/sun/tools/javac/util/Log.java
---- com/sun/tools/javac/util/Log.java Base (BASE)
-+++ com/sun/tools/javac/util/Log.java Locally Modified (Based On LOCAL)
+===================================================================
+--- com/sun/tools/javac/util/Log.java	(revision 115)
++++ com/sun/tools/javac/util/Log.java	(working copy)
 @@ -203,6 +203,10 @@
       */
      private char[] buf = null;
@@ -1571,50 +1748,3 @@ Index: com/sun/tools/javac/util/Log.java
                      return 0;
                  if (buf[bp] == '\t')
                      column = (column / TabInc * TabInc) + TabInc;
-Index: com/sun/tools/javac/util/Paths.java
---- com/sun/tools/javac/util/Paths.java Base (BASE)
-+++ com/sun/tools/javac/util/Paths.java Locally Modified (Based On LOCAL)
-@@ -89,7 +89,7 @@
- 
-     private static boolean NON_BATCH_MODE = System.getProperty("nonBatchMode") != null;// TODO: Use -XD compiler switch for this.
-     private static Map<File, PathEntry> pathExistanceCache = new ConcurrentHashMap<File, PathEntry>();
--    private static Map<File, java.util.List<String>> manifestEntries = new ConcurrentHashMap<File, java.util.List<String>>();
-+    private static Map<File, java.util.List<File>> manifestEntries = new ConcurrentHashMap<File, java.util.List<File>>();
-     private static Map<File, Boolean> isDirectory = new ConcurrentHashMap<File, Boolean>();
-     private static Lock lock = new ReentrantLock();
- 
-@@ -369,13 +369,13 @@
-         // filenames, but if we do, we should redo all path-related code.
-         private void addJarClassPath(File jarFile, boolean warn) {
-             try {
--                java.util.List<String> manifestsList = manifestEntries.get(jarFile);
-+                java.util.List<File> manifestsList = manifestEntries.get(jarFile);
-                 if (!NON_BATCH_MODE) {
-                     lock.lock();
-                     try {
-                         if (manifestsList != null) {
--                            for (String entr : manifestsList) {
--                                addFile(new File(entr), warn);
-+                            for (File entr : manifestsList) {
-+                                addFile(entr, warn);
-                             }
-                             return;
-                         }
-@@ -386,7 +386,7 @@
-                 }
- 
-                 if (!NON_BATCH_MODE) {
--                    manifestsList = new ArrayList<String>();
-+                    manifestsList = new ArrayList<File>();
-                     manifestEntries.put(jarFile, manifestsList);
-                 }
- 
-@@ -412,7 +412,7 @@
-                         if (!NON_BATCH_MODE) {
-                             lock.lock();
-                             try {
--                                manifestsList.add(elt);
-+                                manifestsList.add(f);
-                             }
-                             finally {
-                                 lock.unlock();
