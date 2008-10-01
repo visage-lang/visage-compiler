@@ -1874,7 +1874,9 @@ returns [JFXExpression value] // All statements return an expression tree
 		}
 			possiblyOptSemi
 
-	| SEMI	// Empty statements are just ignored
+	| SEMI	// Empty statements are just ignored, but the type must not be lost
+	
+		{ $value = $val; }
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
