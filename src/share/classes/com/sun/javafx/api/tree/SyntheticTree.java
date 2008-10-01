@@ -53,7 +53,7 @@ public interface SyntheticTree {
     }
 
     /**
-     * Sets the generated type of the node, overriding the default of {@link SyntheticTree.COMPILED}
+     * Sets the generated type of the node, overriding the default of SynthType.COMPILED
      */
     void setGenType(SynthType getType);
 
