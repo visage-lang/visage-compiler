@@ -85,7 +85,7 @@ public final class Sequences {
         if (seq.getDepth() == 0) {
             return seq;
         } else {
-            return new ArraySequence(seq.getElementType(), seq);
+            return new ArraySequence<T>(seq.getElementType(), seq);
         }
     }
 
