@@ -171,6 +171,10 @@ public class FXLocal {
                     return getNumberType();
                 return makeTypeRef(typ);
             }
+            if (typ instanceof GenericArrayType) {
+                FXType elType = makeTypeRef(((GenericArrayType) typ).getGenericComponentType());
+                return new FXJavaArrayType(elType);
+            }
             if (typ instanceof TypeVariable) {
                 // KLUDGE
                 typ = Object.class;
