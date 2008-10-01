@@ -10,16 +10,16 @@ v = "{v} unterminated string
 test/should-fail/badstring.fx:9: Unterminated string literal - missing ' or ".
 v = '{v} unterminated string
     ^
-test/should-fail/badstring.fx:6: You have missed out a ';', which is needed to separate an expression from the next one.
+test/should-fail/badstring.fx:6: You have forgotten the ';', which is needed to separate one expression from the next.
 var v = "unterminated string
                             ^
-test/should-fail/badstring.fx:7: You have missed out a ';', which is needed to separate an expression from the next one.
+test/should-fail/badstring.fx:7: You have forgotten the ';', which is needed to separate one expression from the next.
 v = 'unterminated string
                         ^
-test/should-fail/badstring.fx:8: You have missed out a ';', which is needed to separate an expression from the next one.
+test/should-fail/badstring.fx:8: You have forgotten the ';', which is needed to separate one expression from the next.
 v = "{v} unterminated string
                             ^
-test/should-fail/badstring.fx:9: You have missed out a ';', which is needed to separate an expression from the next one.
+test/should-fail/badstring.fx:9: You have forgotten the ';', which is needed to separate one expression from the next.
 v = '{v} unterminated string
                             ^
 test/should-fail/badstring.fx:12: Sorry, I was trying to understand a compound string element but I got confused when I hit the end of the script..

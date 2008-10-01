@@ -1,25 +1,25 @@
-test/should-fail/requiredsemi.fx:9: You have missed out a ';', which is needed to separate an expression from the next one.
+test/should-fail/requiredsemi.fx:9: You have forgotten the ';', which is needed to separate one expression from the next.
 package pack.me.up  // Error
                   ^
-test/should-fail/requiredsemi.fx:14: You have missed out a ';', which is needed to separate an expression from the next one.
+test/should-fail/requiredsemi.fx:14: You have forgotten the ';', which is needed to separate one expression from the next.
 import something.we.relyon	// Error
                           ^
-test/should-fail/requiredsemi.fx:21: You have missed out a ';', which is needed to separate an expression from the next one.
+test/should-fail/requiredsemi.fx:21: You have forgotten the ';', which is needed to separate one expression from the next.
 	abstract function jim()		// Error
 	                       ^
-test/should-fail/requiredsemi.fx:37: You have missed out a ';', which is needed to separate an expression from the next one.
+test/should-fail/requiredsemi.fx:37: You have forgotten the ';', which is needed to separate one expression from the next.
 	override var t = 99		// Error
 	                   ^
-test/should-fail/requiredsemi.fx:45: You have missed out a ';', which is needed to separate an expression from the next one.
+test/should-fail/requiredsemi.fx:45: You have forgotten the ';', which is needed to separate one expression from the next.
   var x  // Error - requires SEMI
        ^
-test/should-fail/requiredsemi.fx:49: You have missed out a ';', which is needed to separate an expression from the next one.
+test/should-fail/requiredsemi.fx:49: You have forgotten the ';', which is needed to separate one expression from the next.
 if (a) b else c   // Error Requires SEMI
                ^
-test/should-fail/requiredsemi.fx:53: You have missed out a ';', which is needed to separate an expression from the next one.
+test/should-fail/requiredsemi.fx:53: You have forgotten the ';', which is needed to separate one expression from the next.
 g = 99 // Error
       ^
-test/should-fail/requiredsemi.fx:57: You have missed out a ';', which is needed to separate an expression from the next one.
+test/should-fail/requiredsemi.fx:57: You have forgotten the ';', which is needed to separate one expression from the next.
   var x  // Error - requires SEMI
        ^
 8 errors

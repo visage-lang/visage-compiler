@@ -2,7 +2,7 @@ test/should-fail/jfxc549a.fx:10: Sorry, I was trying to understand an identifier
  Perhaps you tried to use a keyword as the name of a variable.
     var insert: Number;
         ^
-test/should-fail/jfxc549a.fx:10: You have missed out a ';', which is needed to separate an expression from the next one.
+test/should-fail/jfxc549a.fx:10: You have forgotten the ';', which is needed to separate one expression from the next.
     var insert: Number;
        ^
 2 errors
