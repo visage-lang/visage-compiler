@@ -35,4 +35,15 @@
             <target name="test-single"/>
         </ant>
     </target>
+    <!-- TODO: edit the following target according to your needs -->
+    <!-- (more info: http://www.netbeans.org/kb/41/freeform-config.html#runsingle) -->
+    <target name="debug-selected-file-in-sandbox">
+        <fail unless="debug.class">Must set property 'debug.class'</fail>
+        <ant antfile="${ant.script}" inheritall="false">
+            <property name="javac.includes" value="${debug.class}"/>
+            <property name="test.includes" value="${debug.class}"/>
+            <property name="test.class" value="${debug.class}"/>
+            <target name="debug-test"/>
+        </ant>
+    </target>
 </project>
