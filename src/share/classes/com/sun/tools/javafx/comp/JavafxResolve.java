@@ -918,7 +918,7 @@ public class JavafxResolve {
                     // No argument list to disambiguate.
                     if (bestSoFar.kind == ABSENT_VAR || bestSoFar.kind == ABSENT_MTH)
                         bestSoFar = e.sym;
-                    else
+                    else if (e.sym != bestSoFar)
                         bestSoFar = new AmbiguityError(bestSoFar, e.sym);
                 }
                 else if (e.sym.kind == MTH) {
