@@ -165,6 +165,8 @@
 
     <target name="syntax-diagrams" depends="init">
         <mkdir dir="${syntax.diagrams.dir}"/>
+        <!-- ANTLRWorks cannot deal with separate lexer and parser files, don't do this for now.
+
         <java classname="org.antlr.works.Console" fork="true">
             <classpath>
                 <path refid="antlrworks.class.path" />
@@ -179,6 +181,9 @@
             <arg value="-verbose"/>
             <jvmarg value="-Xmx256m"/>
         </java>
+
+		-->
+
     </target>
     <target name="-do-compile" depends="init,generated-java,-pre-compile" if="have.sources">
         <pcompile srcdir="${src.classes.dir}/com"
