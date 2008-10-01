@@ -108,7 +108,7 @@ public class ObjectVariable<T>
 
     protected T replaceValue(T newValue) {
         T oldValue = $value;
-        if (preReplace(oldValue != newValue)) {
+        if (preReplace(!Util.isEqual(oldValue, newValue))) {
             boolean invalidateDependencies = isValid() || state == STATE_UNBOUND;
             $value = newValue;
             setValid();
