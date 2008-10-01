@@ -234,7 +234,9 @@ class JavafxAnalyzeClass {
             ClassSymbol cSym = (ClassSymbol) sym;
             addedBaseClasses.add(cSym);
             JFXClassDeclaration cDecl = types.getFxClass(cSym);
-            if (cSym != currentClassSym && (cSym.flags() & (JavafxFlags.COMPOUND_CLASS|Flags.INTERFACE)) == 0) {
+            if (cSym == currentClassSym)
+                process(types.superType(cDecl).tsym, false);
+            else if ((cSym.flags() & (JavafxFlags.COMPOUND_CLASS|Flags.INTERFACE)) == 0) {
                 // this class is non-compound AND not the current class
                 // needs to be recursively applied, non-compound in the chain blocks clonability
                 cloneVisible = false; 
@@ -245,12 +247,6 @@ class JavafxAnalyzeClass {
                 for (Type supertype : cSym.getInterfaces()) {
                     ClassSymbol iSym = (ClassSymbol) supertype.tsym;
                     process(iSym, cloneVisible);
-                    String iName = iSym.fullname.toString();
-                    if (iName.endsWith(JavafxDefs.interfaceSuffix)) {
-                        String sName = iName.substring(0, iName.length() - JavafxDefs.interfaceSuffix.length());
-                        ClassSymbol sSym = reader.enterClass(names.fromString(sName));
-                        process(sSym, cloneVisible);
-                    }
                 }
                 if ((cSym.flags_field & Flags.INTERFACE) == 0 && cSym.members() != null) {
                     /***

@@ -27,7 +27,6 @@ import com.sun.tools.javac.code.Scope.Entry;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.*;
@@ -155,7 +154,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
            List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo) {
         boolean classOnly = cDecl.generateClassOnly();
         DiagnosticPosition diagPos = cDecl.pos();
-        Type superType = superType(cDecl);
+        Type superType = types.superType(cDecl);
         ClassSymbol outerTypeSym = outerTypeSymbol(cDecl); // null unless inner class with outer reference
 
         JavafxAnalyzeClass analysis = new JavafxAnalyzeClass(diagPos,
@@ -200,24 +199,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 makeAdditionalImports(diagPos, cDecl, javaInterfaces),
                 superType);
     }
-   
-    private Type superType(JFXClassDeclaration cDecl) {
-        //TODO: this is in drastic need of cleaning up
-        Type superType = null;
-        if (cDecl.type instanceof ClassType &&
-                (superType = ((ClassType) cDecl.type).supertype_field) != null &&
-                superType.tsym instanceof ClassSymbol &&
-                (superType.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0) {
-        } else if ((cDecl.mods.flags & Flags.FINAL) != 0L && cDecl.getExtending().nonEmpty()) {
-            Symbol sym1 = JavafxTreeInfo.symbol(cDecl.getExtending().head);
-            if (sym1 != null &&
-                    (sym1.flags_field & JavafxFlags.COMPOUND_CLASS) == 0) {
-                superType = cDecl.getExtending().head.type;
-            }
-        }
-        return superType;
-    }
-   
+
     private List<ClassSymbol> immediateJavafxSupertypes(JFXClassDeclaration cDecl) {
         ListBuffer<ClassSymbol> javafxClassNamesBuff = ListBuffer.lb();
         for (JFXExpression stype : cDecl.getSupertypes()) {
@@ -240,7 +222,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 boolean isFXInterface = className.endsWith(interfaceSuffix);
 
                 if (!isFXInterface &&
-                        cSym.fullname != names.fromString(fxObjectString) &&
+                        cSym.fullname != defs.fxObjectName &&
                         (cSym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0 &&
                         cSym.type != null) {
                     javaInterfacesBuff.append(cSym);
@@ -386,8 +368,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
      * @return the constructor
      */
     private JCMethodDecl makeFXEntryConstructor(DiagnosticPosition diagPos, ClassSymbol outerTypeSym, boolean superIsFX) {    
+        Name dummyParamName = names.fromString("dummy");
         make.at(diagPos);     
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
+        if (superIsFX) {
+            // call the FX version of the constructor
+            stmts.append(make.Exec(make.Apply(null,
+                    make.Ident(names._super),
+                    List.<JCExpression>of(make.Ident(dummyParamName)))));
+        }
         ListBuffer<JCVariableDecl> params = ListBuffer.lb();
         if (outerTypeSym != null) {
                // add a parameter and a statement to constructor for the outer instance reference
@@ -396,18 +385,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 JCAssign assignStat = make.Assign(cSelect, make.Ident(outerAccessorFieldName));
                 stmts.append(make.Exec(assignStat));            
         }
-        Name dummyParamName = names.fromString("dummy");
         params.append( make.at(diagPos).VarDef(
                 make.Modifiers(Flags.PARAMETER),
                 dummyParamName,
                 makeTypeTree( diagPos,syms.booleanType),
                 null) );
-        if (superIsFX) {
-            // call the FX version of the constructor
-            stmts.append(make.Exec(make.Apply(null,
-                    make.Ident(names._super),
-                    List.<JCExpression>of(make.Ident(dummyParamName)))));
-        }
         return makeConstructor(diagPos, params.toList(), stmts.toList());
     }
     

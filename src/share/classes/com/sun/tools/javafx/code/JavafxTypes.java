@@ -154,6 +154,34 @@ public class JavafxTypes extends Types {
         }
         return super.asSuper(t, sym);
     }
+    
+    public Type superType(JFXClassDeclaration cDecl) {
+        //TODO: this is in drastic need of cleaning up
+        if (! (cDecl.type instanceof ClassType))
+            return null;
+        ClassType cType = (ClassType) cDecl.type;
+        Type superType = cType.supertype_field;
+        if (superType != null &&
+            superType.tsym instanceof ClassSymbol &&
+            (superType.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0) {
+            if (superType == syms.objectType &&
+                    (cType.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
+                // Pick first inherited compound class.
+                for (Type iface : cType.interfaces_field) {
+                    if ((iface.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
+                        return iface;
+                    }
+                }
+            }
+        } else if ((cDecl.mods.flags & Flags.FINAL) != 0L && cDecl.getExtending().nonEmpty()) {
+            Symbol sym1 = JavafxTreeInfo.symbol(cDecl.getExtending().head);
+            if (sym1 != null &&
+                    (sym1.flags_field & JavafxFlags.COMPOUND_CLASS) == 0) {
+                superType = cDecl.getExtending().head.type;
+            }
+        }
+        return superType;
+    }
 
     @Override
     public boolean isConvertible (Type t, Type s, Warner warn) {
