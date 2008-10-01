@@ -2815,8 +2815,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                   ((msym.flags() & JavafxFlags.BOUND) != 0);
 
             magicIsInitializedFunction = (msym != null) &&
-                    (msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym) &&
-                    (JavafxTreeInfo.name(tree.meth) == defs.isInitializedName);
+                    (msym.flags_field & JavafxFlags.FUNC_IS_INITIALIZED) != 0;
         }
     }
 

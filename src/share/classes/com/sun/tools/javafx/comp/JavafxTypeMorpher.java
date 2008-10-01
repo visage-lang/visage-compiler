@@ -257,6 +257,12 @@ public class JavafxTypeMorpher {
                 // Function values have wierd behavior, we just don't want to go there
                 return true;
             }
+            if( (flags & (VARUSE_SELF_REFERENCE | VARUSE_IS_INITIALIZED_USED)) != 0 ) {
+                // Reference to the var within its own initializer requires a Location.
+                // To be able to use isInitialized()  requires a Location.
+                return true;
+            }
+
             if (isClassVar) {  // class or script var
                 /*
                 To be able to elide member vars we need to know that

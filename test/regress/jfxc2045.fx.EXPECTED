@@ -1,0 +1,7 @@
+x init: false
+s init: false
+o init: false
+x run: true
+s run: true
+o run: true
+Done

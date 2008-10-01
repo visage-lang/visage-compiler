@@ -62,10 +62,16 @@ public class JavafxFlags {
     public static final long VARUSE_OVERRIDDEN       = FIRST_VARUSE_FLAG << 6;  // var overridden in a subclass
     public static final long VARUSE_INNER_ACCESS     = FIRST_VARUSE_FLAG << 7;  // var accessed within an inner class
     public static final long VARUSE_SELF_REFERENCE   = FIRST_VARUSE_FLAG << 8;  // the initializing expression references the var
-    public static final long VARUSE_TMP_IN_INIT_EXPR = FIRST_VARUSE_FLAG << 9;  // temp flag, set while inside var's initializing expression
-    public static final long VARUSE_NEED_LOCATION    = FIRST_VARUSE_FLAG << 10; // var should be represented by a Location
+    public static final long VARUSE_IS_INITIALIZED_USED
+                                                     = FIRST_VARUSE_FLAG << 9;  // the initializing expression references the var
+    public static final long VARUSE_TMP_IN_INIT_EXPR = FIRST_VARUSE_FLAG << 10; // temp flag, set while inside var's initializing expression
+    public static final long VARUSE_NEED_LOCATION    = FIRST_VARUSE_FLAG << 11; // var should be represented by a Location
     public static final long VARUSE_NEED_LOCATION_DETERMINED
-                                                     = FIRST_VARUSE_FLAG << 11; // NEED_LOCATION has been computed and set    
+                                                     = FIRST_VARUSE_FLAG << 12; // NEED_LOCATION has been computed and set
+
+    // Class flags -- reuse same bits as VARUSE* flags
+    private static final long FIRST_FX_FUNC_FLAG    = LAST_FX_MOD_FLAG << 1;
+    public static final long FUNC_IS_INITIALIZED    = FIRST_FX_FUNC_FLAG << 0;  // This is the special isInitialized() function
 
     // Class flags -- reuse same bits as VARUSE* flags
     private static final long FIRST_FX_CLASS_FLAG    = LAST_FX_MOD_FLAG << 1;

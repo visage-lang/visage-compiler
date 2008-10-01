@@ -25,6 +25,7 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.Context;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
@@ -173,6 +174,16 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
    
     @Override
+    public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+        super.visitFunctionInvocation(tree);
+        Symbol msym = expressionSymbol(tree.meth);
+        if (msym != null && msym instanceof MethodSymbol && (msym.flags_field & FUNC_IS_INITIALIZED) != 0) {
+            Symbol asym = expressionSymbol(tree.args.head);
+            asym.flags_field |= VARUSE_IS_INITIALIZED_USED;
+        }
+    }
+
+    @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         boolean wasInBindContext = inBindContext;
 
@@ -282,6 +293,18 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         inLHS = false;
         super.visitSequenceSlice(tree);
         inLHS = wasLHS;
+    }
+
+    //TODO: cloned from JavafxTranslationSupport, common locaion is needed
+    private Symbol expressionSymbol(JFXExpression tree) {
+        switch (tree.getFXTag()) {
+            case IDENT:
+                return ((JFXIdent) tree).sym;
+            case SELECT:
+                return ((JFXSelect) tree).sym;
+            default:
+                return null;
+        }
     }
 
 }
