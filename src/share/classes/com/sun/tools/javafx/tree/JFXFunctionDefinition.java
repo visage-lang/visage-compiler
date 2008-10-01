@@ -81,7 +81,7 @@ public class JFXFunctionDefinition extends JFXExpression implements FunctionDefi
         return operation.rettype;
     }
 
-    public List<JFXVar> getParameters() {
+    public List<JFXVar> getParams() {
         return operation.funParams;
     }
 

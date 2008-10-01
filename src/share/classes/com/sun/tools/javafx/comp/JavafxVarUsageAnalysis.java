@@ -158,21 +158,42 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
     @Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-       // these start over in a function definition
+        // these start over in a function definition
+        boolean wasLHS = inLHS;
+        boolean wasInBindContext = inBindContext;
+        boolean wasInInitBlock = inInitBlock;
+        inInitBlock = false;
+        inLHS = false;
+
+        inBindContext = tree.isBound();
+        // don't use super, since we don't want to cancel the inBindContext
+        for (JFXVar param : tree.getParams()) {
+            scan(param);
+        }
+        scan(tree.getBodyExpression());
+
+        inInitBlock = wasInInitBlock;
+        inBindContext = wasInBindContext;
+        inLHS = wasLHS;
+    }
+   
+    @Override
+    public void visitFunctionValue(JFXFunctionValue tree) {
+       // these start over in a function value
        boolean wasLHS = inLHS;
        boolean wasInBindContext = inBindContext;
        boolean wasInInitBlock = inInitBlock;
        inInitBlock = false;
        inLHS = false;
+       inBindContext = false;
 
-       inBindContext = tree.isBound();
-       super.visitFunctionDefinition(tree);
+       super.visitFunctionValue(tree);
 
        inInitBlock = wasInInitBlock;
        inBindContext = wasInBindContext;
        inLHS = wasLHS;
     }
-   
+
     @Override
     public void visitFunctionInvocation(JFXFunctionInvocation tree) {
         super.visitFunctionInvocation(tree);

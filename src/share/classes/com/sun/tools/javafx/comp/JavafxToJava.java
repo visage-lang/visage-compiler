@@ -154,8 +154,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     /** Class symbols for classes that need a reference to the outer class. */
     Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
 
-    private Set<VarSymbol> locallyBound = new HashSet<VarSymbol>();
-
     private static final Pattern EXTENDED_FORMAT_PATTERN = Pattern.compile("%[<$0-9]*[tT][guwxGUVWXE]");
 
     abstract class NullCheckTranslator extends Translator {
@@ -631,10 +629,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             default:
                 throw new RuntimeException("bad conversion");
         }
-    }
-
-    void setLocallyBound(VarSymbol vsym) {
-        locallyBound.add(vsym);
     }
 
     JCBlock asBlock(JCStatement stmt) {
@@ -1480,13 +1474,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             DiagnosticPosition diagPos = tree.pos();
             MethodType mtype = (MethodType)tree.type;
 
-            if (isBound) {
-                locallyBound = new HashSet<VarSymbol>();
-                for (JFXVar fxVar : tree.getParameters()) {
-                    setLocallyBound(fxVar.sym);
-                }
-            }
-
             // construct the body of the translated function
             JFXBlock bexpr = tree.getBodyExpression();
             JCBlock body;
@@ -1524,7 +1511,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     params.prepend(makeReceiverParam(currentClass));
                 }
             }
-            for (JFXVar fxVar : tree.getParameters()) {
+            for (JFXVar fxVar : tree.getParams()) {
                 JCVariableDecl var = (JCVariableDecl)translate(fxVar);
                 params.append(var);
             }
@@ -3160,11 +3147,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         if (sym == null) {
             return false;
         }
-        if (typeMorpher.requiresLocation(sym)) {
-            return true;
-        } else {
-            return locallyBound != null ? locallyBound.contains(sym) : false;
-        }
+        return typeMorpher.requiresLocation(sym);
     }
 
     boolean requiresLocation(VarMorphInfo vmi) {

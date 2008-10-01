@@ -224,7 +224,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         JCModifiers tmods = make.at(diagPos).Modifiers(modFlags);
 
         VarMorphInfo vmi = typeMorpher.varMorphInfo(tree.sym);
-        toJava.setLocallyBound(tree.sym); //TODO temporary until only one function is generated, and bound functions can be handled in var usage analysis (note: fragile, requires unbound version to be processed first).
         JCExpression typeExpression = makeTypeTree( diagPos,vmi.getLocationType(), true);
 
         //TODO: handle array initializers (but, really, shouldn't that be somewhere else?)
@@ -577,7 +576,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         DiagnosticPosition diagPos = tree.pos();
 
         Symbol owner = tree.sym.owner;
-        if (types.isJFXClass(owner)) {
+        if (types.isJFXClass(owner) && typeMorpher.requiresLocation(tree.sym)) {
             if (tree.sym.isStatic()) {
                 // if this is a static reference to an attribute, eg.   MyClass.myAttribute
                 JCExpression classRef = makeTypeTree( diagPos,types.erasure(tree.sym.owner.type), false);
@@ -877,12 +876,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
              */
             public JCExpression doit() {
                 List<JFXForExpressionInClause> clauses = tree.getForExpressionInClauses();
-                if (!isSimple) {
-                    // mark the params as morphed before any ranslation occurs
-                    for (JFXForExpressionInClause clause : clauses) {
-                        toJava.setLocallyBound(clause.getVar().sym);
-                    }
-                }
                 // make the body of loop
                 JCExpression expr = makeCore();
                 // then wrap it in the looping constructs

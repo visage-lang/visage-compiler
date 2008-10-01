@@ -184,7 +184,7 @@ public class JavafxTreeCopier implements JavafxVisitor {
         JFXModifiers mods = copy(tree.mods);
         Name name = tree.getName();
         JFXType restype = copy(tree.getJFXReturnType());
-        List<JFXVar> params = copy(tree.getParameters());
+        List<JFXVar> params = copy(tree.getParams());
         JFXBlock bodyExpression = copy(tree.getBodyExpression());
         result = maker.at(tree.pos).FunctionDefinition(mods, name, restype, params, bodyExpression);
     }

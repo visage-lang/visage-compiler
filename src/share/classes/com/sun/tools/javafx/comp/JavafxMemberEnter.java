@@ -560,7 +560,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     public JavafxEnv<JavafxAttrContext> getMethodEnv(JFXFunctionDefinition tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> mEnv = methodEnv(tree, env);
         mEnv.info.lint = mEnv.info.lint.augment(tree.sym.attributes_field, tree.sym.flags());
-         for (List<JFXVar> l = tree.getParameters(); l.nonEmpty(); l = l.tail)
+         for (List<JFXVar> l = tree.getParams(); l.nonEmpty(); l = l.tail)
             mEnv.info.scope.enterIfAbsent(l.head.sym);
         return mEnv;
     }

@@ -1612,7 +1612,7 @@ public class JavafxAttr implements JavafxVisitor {
                 pparam = mtype.getParameterTypes();
             }
             int paramNum = 0;
-            List<JFXVar> params = tree.getParameters();
+            List<JFXVar> params = tree.getParams();
             int paramCount = params.size();
             for (List<JFXVar> l = params; l.nonEmpty(); l = l.tail) {
 
@@ -1754,7 +1754,7 @@ public class JavafxAttr implements JavafxVisitor {
         // Set the inferred types in the MethodType.argtypes and in correct symbols in MethodSymbol
         List<VarSymbol> paramSyms = List.<VarSymbol>nil();
         List<Type> paramTypes = List.<Type>nil();
-        for (JFXVar var : tree.getParameters()) {
+        for (JFXVar var : tree.getParams()) {
 
             // Skip erroneous parameters, which happens if the IDE is calling with a
             // a paritally defined function.

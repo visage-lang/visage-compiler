@@ -799,7 +799,7 @@ public class JavafxPretty implements JavafxVisitor {
             pretty.print(tree.name);
             pretty.print("(");
             fxpretty.variableScope = SCOPE_PARAMS;
-            pretty.printExprs(tree.getParameters());
+            pretty.printExprs(tree.getParams());
             fxpretty.variableScope = SCOPE_METHOD;
             pretty.print(")");
             pretty.printExpr(tree.operation.rettype);

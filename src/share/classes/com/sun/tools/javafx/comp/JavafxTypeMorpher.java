@@ -239,8 +239,8 @@ public class JavafxTypeMorpher {
                 return true;
             }
             if ((flags & Flags.PARAMETER) != 0) {
-                // Otherwise parameters are never Locations
-                return false;
+                // Otherwise parameters are Locations only if in bound contexts, for-loops induction vars, bound function params
+                return (flags & VARUSE_BOUND_INIT) != 0;
             }
             if( (flags & (VARUSE_BOUND_INIT | VARUSE_HAS_ON_REPLACE | VARUSE_USED_IN_BIND | VARUSE_SELF_REFERENCE)) != 0 ) {
                 // vars which are defined by a bind or have an 'on replace' must be Locations
