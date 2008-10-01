@@ -1,0 +1,14 @@
+/**
+ * Regression test JFXC-2025 : Elide unbound script-private member vars
+ *
+ * @compilearg -XDoptstats="is"
+ * @test/warning
+ */
+
+var x = 1;
+def y = 2;
+
+public class Foo {
+  var a = 3;
+  def b = 4;
+}

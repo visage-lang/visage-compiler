@@ -6,11 +6,11 @@
  */
 
 public var x = 1;
-public def y = 2;
+public def y = bind x;
 
 public class Foo {
   public var a = 3;
-  public def b = 4;
+  public def b = bind a;
 
   function bar() {
      var k = 5;

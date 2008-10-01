@@ -48,3 +48,6 @@ var mySeq :String [] = {
     }
     arr;
 };
+
+var makeItALocation = bind b;
+

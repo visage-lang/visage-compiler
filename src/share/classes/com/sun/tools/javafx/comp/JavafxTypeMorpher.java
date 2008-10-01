@@ -282,13 +282,22 @@ public class JavafxTypeMorpher {
 
                 The (1) and (2) checks are handled by general checks (above).
                 */
+                //TODO: this is overcautious -- and has to be better for (3b) public-init -- JFXC-2103
+                if ((flags & (VARUSE_OBJ_LIT_INIT | VARUSE_OVERRIDDEN)) != 0L) {
+                    return true;
+                }
                 // (3a) check.  Not used in bind has already been checked (above).
-                // Check that it is not accessible outside the script
+                // Check that it is not accessible outside the script (so noone else can bind it).
                 if ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS | PUBLIC_READ | PUBLIC_INIT)) == 0L) {
-                    //TODO: this is overcautious -- and has to be better for (3b) public-init
-                    if ((flags & (VARUSE_OBJ_LIT_INIT | VARUSE_OVERRIDDEN)) == 0L) {
-                        return useLocationForAllMemberVarsTransitional;
-                    }
+                    return useLocationForAllMemberVarsTransitional;
+                }
+                // (3b) check.  No assignments (except in init{}) and
+                // permissions such that this can't be done externally, or it is a 'def'.
+                //TODO: JFXC-2103 -- allow public-int
+                if ((flags & VARUSE_ASSIGNED_TO) == 0L &&
+                        ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS | PUBLIC_INIT)) == 0L ||
+                         (flags & IS_DEF) != 0L)) {
+                    return useLocationForAllMemberVarsTransitional;
                 }
                 return true;  //TODO: conditionally elide
             }
@@ -296,7 +305,7 @@ public class JavafxTypeMorpher {
         return false;
     }
 
-    boolean useLocationForAllMemberVarsTransitional = true;
+    boolean useLocationForAllMemberVarsTransitional = false;
 
     public boolean requiresLocation(Symbol sym) {
         if ((sym.flags_field & VARUSE_NEED_LOCATION_DETERMINED) == 0) {
