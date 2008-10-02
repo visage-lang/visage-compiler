@@ -60,12 +60,18 @@ public def INDEFINITE = -1;
 public class Timeline {
 
     /**
-     * Defines the direction/rate at which the timeline is expected to
+     * Defines the direction/speed at which the timeline is expected to
      * be played.
      * <p>
-     * Rate {@code 1.0} is normal play, {@code -1.0} is backwards and 
-     * {@code 0.0} to stop running timeline. The default value is 1.0
-     *
+     * The absolute value of {@code rate} indicates the speed which the timeline
+     * is to be played, while the sign of {@code rate} indicates the direction
+     * in which the timelineis to be played. A postive value of {@code rate}
+     * indicates forward play, a negative value indicates backward play and {@code 0.0}
+     * to stop a running timeline. The default value is {@code 1.0}.
+     * <p>
+     * Rate {@code 1.0} is normal play, {@code 2.0} is 2 time normal,
+     * {@code -1.0} is backwards, etc...
+     * 
      * @profile common
      */
 
@@ -95,16 +101,14 @@ public class Timeline {
     }
     
     /**
-     * Read-only variable to indicate current direction/rate at which the 
+     * Read-only variable to indicate current direction/speed at which the 
      * timeline is being played.
-     * <p>
-     * {@code 1.0} is normal play, {@code -1.0} is backwards and 
-     * {@code 0.0} timeline is paused or stopped.
      * <p>
      * {@code currentRate} is not necessary equal to {@code rate}. {@code currentRate}
      * is set to {@code 0.0} when animation is paused or stopped. Also {@code currentRate}
      * may point to different direction during some repeat cycles when {@code autoReverse} is {@code true}
      *
+     * @see rate
      * @profile common
      */
     public-read var currentRate: Number = 0.0;
