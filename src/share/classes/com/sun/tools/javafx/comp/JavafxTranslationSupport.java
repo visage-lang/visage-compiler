@@ -582,9 +582,8 @@ public abstract class JavafxTranslationSupport {
             return primitiveTypeInfo(diagPos, names.fromString("Long"));
         } else if (types.isSameType(type, syms.javafx_DurationType)) {
             JCExpression fieldRef = make.at(diagPos).Select(makeTypeTree(diagPos, type), defs.defaultingTypeInfoFieldName);
-            if (typeMorpher.useLocationForAllMemberVarsTransitional) {
-                fieldRef = getLocationValue(diagPos, fieldRef, TYPE_KIND_OBJECT);
-            }
+            // If TYPE_INFO becomes a Location again, ad back this line
+            //    fieldRef = getLocationValue(diagPos, fieldRef, TYPE_KIND_OBJECT);
             return fieldRef;
         } else {
             if (type.isPrimitive()) {

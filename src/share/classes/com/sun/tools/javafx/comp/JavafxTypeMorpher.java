@@ -286,26 +286,29 @@ public class JavafxTypeMorpher {
                 if ((flags & (VARUSE_OBJ_LIT_INIT | VARUSE_OVERRIDDEN)) != 0L) {
                     return true;
                 }
+
                 // (3a) check.  Not used in bind has already been checked (above).
                 // Check that it is not accessible outside the script (so noone else can bind it).
                 if ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS | PUBLIC_READ | PUBLIC_INIT)) == 0L) {
-                    return useLocationForAllMemberVarsTransitional;
+                    return false;
                 }
+
                 // (3b) check.  No assignments (except in init{}) and
                 // permissions such that this can't be done externally, or it is a 'def'.
-                //TODO: JFXC-2103 -- allow public-int
-                if ((flags & VARUSE_ASSIGNED_TO) == 0L &&
-                        ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS | PUBLIC_INIT)) == 0L ||
-                         (flags & IS_DEF) != 0L)) {
-                    return useLocationForAllMemberVarsTransitional;
-                }
-                return true;  //TODO: conditionally elide
+                //TODO: JFXC-2026 : Elide unassigned and externally unassignable member vars
+                //    if ((flags & VARUSE_ASSIGNED_TO) == 0L &&
+                //            ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS | PUBLIC_INIT)) == 0L ||
+                //            (flags & IS_DEF) != 0L)) {
+                //        return true;
+                //    }
+
+                //TODO: JFXC-2103 -- allow public-init
+
+                return true; 
             }
         }
         return false;
     }
-
-    boolean useLocationForAllMemberVarsTransitional = false;
 
     public boolean requiresLocation(Symbol sym) {
         if ((sym.flags_field & VARUSE_NEED_LOCATION_DETERMINED) == 0) {
