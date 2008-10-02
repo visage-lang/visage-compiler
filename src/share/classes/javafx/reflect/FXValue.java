@@ -29,7 +29,12 @@ public abstract class FXValue {
     protected FXValue() {
     }
 
-    /** Get the run-time type of this value. */
+    /** Get the type of this value.
+     * This is depends on the value's "source", such as a variable's type.
+     * This may not be what you want - you might want
+     * {{@link FXClassType#getClassType instead.
+     * (Perhaps we should deprecate getType to avoid confusion.)
+     */
     public abstract FXType getType();
 
     public int getItemCount() { return isNull() ? 0 : 1; }

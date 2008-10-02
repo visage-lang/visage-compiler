@@ -33,6 +33,13 @@ public abstract class FXObjectValue extends FXValue {
 
     public abstract FXClassType getType();
 
+    /** Get the class of this instance.
+     * (This is different from getType, which gives something more like
+     * the compile-time type of the value - which may have limited usefulness.)
+     * @return the reflection of the run-time class
+     */
+    public abstract FXClassType getClassType();
+
     public FXContext getReflectionContext() {
         return getType().getReflectionContext();
     }

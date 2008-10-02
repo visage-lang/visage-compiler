@@ -68,8 +68,9 @@ public class FXLocal {
         }
 
         public FXValue mirrorOf(final Object val, final FXType type) {
-            if (type instanceof FXClassType)
-                return new FXLocal.ObjectValue(val, (FXClassType) type);
+            // FIXME Perhaps if val==null we should use MiscValue?
+            if (type instanceof ClassType)
+                return new FXLocal.ObjectValue(val, (ClassType) type);
             else if (type instanceof FXPrimitiveType) {
                 if (type == FXPrimitiveType.integerType)
                     return mirrorOf(((Integer) val).intValue());
@@ -212,7 +213,7 @@ public class FXLocal {
         }
 
         /** Create a reference to a given Class. */
-        public FXClassType makeClassRef(Class cls) {
+        public ClassType makeClassRef(Class cls) {
             int modifiers = 0;
             try {
                 String cname = cls.getName();
@@ -751,28 +752,44 @@ public class FXLocal {
             this.type = type;
         }
 
-        public String getValueString() { return val == null ? null : val.toString(); }
+        public String getValueString() { return val == null ? "(null)" : val.toString(); }
         public FXType getType() { return type; }
         public boolean isNull() { return val == null; }
         public Object asObject() { return val; }
     };
 
     public static class ObjectValue extends FXObjectValue implements FXLocal.Value {
+        // FIXME It might be cleaner to require obj!=null,
+        // and instead use MiscValue for null.
         Object obj;
-        FXClassType type;
+        ClassType type;
+        ClassType classType;
 
         public ObjectValue(Object obj, Context context) {
             type = context.makeClassRef(obj.getClass());
             this.obj = obj;
         }
 
-        public ObjectValue(Object obj, FXClassType type) {
-           this.type = type;
+        public ObjectValue(Object obj, ClassType type) {
+            this.type = type;
             this.obj = obj;
         }
 
         public FXClassType getType() {
             return type;
+        }
+        
+        public FXClassType getClassType() {
+            if (classType == null) {
+                if (obj == null)
+                    classType = type;
+                else {
+                    Class cls = obj.getClass();
+                    classType = type.getJavaImplementationClass() == cls ? type
+                            : type.getReflectionContext().makeClassRef(obj.getClass());
+                }
+            }
+            return classType;
         }
 
         public boolean isNull() {
