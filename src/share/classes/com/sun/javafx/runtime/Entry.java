@@ -187,7 +187,7 @@ public class Entry {
             throw new RuntimeException(t);
         }
         try {
-            return iterator.hasNext() ? (RuntimeProvider) iterator.next() : null;
+            return iterator.hasNext() ? (RuntimeProvider) iterator.next() : new NoRuntimeDefault();
         } catch (Error e) {
             // ServiceConfigurationError is in java.util in Java 6, sun.misc in Java 5,
             // so ignore its package
@@ -210,9 +210,24 @@ public class Entry {
 
         public Object run(Method entryPoint, String... args) throws Throwable {
             try {
-                return entryPoint.invoke(null, (Object)args);
-            } catch (InvocationTargetException e) {
-                throw e.getCause();
+                Object o = entryPoint.invoke(null, Sequences.make(TypeInfo.String, args));
+                if (java.awt.Toolkit.getDefaultToolkit().getSystemEventQueue().peekEvent() == null) {
+                    try {
+                        javafx.lang.FX.exit();
+                    } catch (FXExit fxExit) {
+                        return null;
+                    }
+                }
+                return o;
+            } catch (InvocationTargetException ite) {
+                Throwable cause = ite.getCause();
+                /*
+                 * Explicit Exit via FX.exit()
+                 */
+                if (cause instanceof FXExit) {
+                    return null;
+                }
+                throw cause;
             }
         }
 
