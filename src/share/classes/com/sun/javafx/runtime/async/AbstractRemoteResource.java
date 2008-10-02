@@ -24,6 +24,7 @@
 package com.sun.javafx.runtime.async;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -70,30 +71,38 @@ public abstract class AbstractRemoteResource<T> extends AbstractAsyncOperation<T
 
     public T call() throws IOException {
         URL u = new URL(url);
-        HttpURLConnection conn = (HttpURLConnection) u.openConnection();
-        conn.setRequestMethod(method);
-        conn.setDoInput(true);
+        InputStream stream = null;
+        if(!u.getProtocol().equals("file")) {
+            HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+            conn.setRequestMethod(method);
+            conn.setDoInput(true);
 
-        for (Map.Entry<String,String> entry : headers.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (value != null && !value.equals(""))
-                conn.setRequestProperty(key, value);
+            for (Map.Entry<String,String> entry : headers.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (value != null && !value.equals(""))
+                    conn.setRequestProperty(key, value);
+            }
+            if(outboundContent != null && method.equals("POST")) {
+                conn.setDoOutput(true);
+                byte[] outBytes = outboundContent.getBytes("utf-8");
+                conn.setRequestProperty("Content-Length", String.valueOf(outBytes.length));
+                OutputStream out = conn.getOutputStream();
+                out.write(outBytes);
+                out.close();
+            }        
+            conn.connect();
+            fileSize = conn.getContentLength();
+            setProgressMax(fileSize);
+            responseHeaders = conn.getHeaderFields();
+
+            stream = new ProgressInputStream(conn.getInputStream());
+        } else {
+            File file = new File(u.getPath());
+            setProgressMax((int)file.length());
+            stream = new ProgressInputStream(u.openStream());
         }
-        if(outboundContent != null && method.equals("POST")) {
-            conn.setDoOutput(true);
-            byte[] outBytes = outboundContent.getBytes("utf-8");
-            conn.setRequestProperty("Content-Length", String.valueOf(outBytes.length));
-            OutputStream out = conn.getOutputStream();
-            out.write(outBytes);
-            out.close();
-        }        
-        conn.connect();
-        fileSize = conn.getContentLength();
-        setProgressMax(fileSize);
-        responseHeaders = conn.getHeaderFields();
 
-        InputStream stream = new ProgressInputStream(conn.getInputStream());
         try {
             return processStream(stream);
         }
