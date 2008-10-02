@@ -39,7 +39,6 @@ import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxFlags;
 
-import com.sun.tools.javafx.code.JavafxPackageSymbol;
 import com.sun.tools.javafx.main.JavafxCompiler;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
@@ -90,7 +89,7 @@ public class JavafxClassReader extends ClassReader {
 	       }
         });
     }
-    
+
     public static JavafxClassReader instance(Context context) {
         JavafxClassReader instance = (JavafxClassReader) context.get(classReaderKey);
         if (instance == null)
@@ -151,8 +150,7 @@ public class JavafxClassReader extends ClassReader {
         c.completer = this;
         return c;
     }
-    
-     
+
     /* FIXME: The re-written class-reader doesn't translate annotations yet.
  
     protected void attachAnnotations(final Symbol sym) {
@@ -396,7 +394,7 @@ public class JavafxClassReader extends ClassReader {
     @Override
     public void complete(Symbol sym) throws CompletionFailure {
         if (jreader.sourceCompleter == null)
-            jreader.sourceCompleter = JavafxCompiler.instance(ctx);
+           jreader.sourceCompleter = JavafxCompiler.instance(ctx);
         if (sym instanceof PackageSymbol) {
             PackageSymbol psym = (PackageSymbol) sym;
             PackageSymbol jpackage;
@@ -417,10 +415,6 @@ public class JavafxClassReader extends ClassReader {
                      csym.classfile = jsym.classfile;
                      csym.jsymbol = jsym;
                  }
-            }
-            if (psym instanceof JavafxPackageSymbol) {
-                ((JavafxPackageSymbol)psym).setSubpackages( 
-                    ((JavafxPackageSymbol)jpackage).getSubpackages());
             }
             if (jpackage.exists())
                 psym.flags_field |= EXISTS;
@@ -575,11 +569,6 @@ public class JavafxClassReader extends ClassReader {
                 }
             }
         }
-    }
-    
-    @Override
-    protected PackageSymbol createPackageSymbol(Name name, Symbol owner) {
-        return new JavafxPackageSymbol(name, owner);
     }
     
     private long flagsFromAnnotationsAndFlags(Symbol sym) {

@@ -37,7 +37,6 @@ import static com.sun.tools.javac.code.TypeTags.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
-import com.sun.tools.javafx.code.JavafxPackageSymbol;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.util.MsgSym;
@@ -128,12 +127,10 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
      *  @param tsym          The class or package the members of which are imported.
      *  @param toScope   The (import) scope in which imported classes
      *               are entered.
-     *  @param recursive  Tells whether this is a deep-import (import **) or not.
      */
     void importAll(int pos,
                            final TypeSymbol tsym,
-                           JavafxEnv<JavafxAttrContext> env,
-                           boolean recursive) {
+                           JavafxEnv<JavafxAttrContext> env) {
         // Check that packages imported from exist (JLS ???).
         if (tsym.kind == PCK && tsym.members().elems == null && !tsym.exists()) {
             // If we can't find java.lang, exit immediately.
@@ -149,11 +146,6 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         for (Scope.Entry e = fromScope.elems; e != null; e = e.sibling) {
             if (e.sym.kind == TYP && !toScope.includes(e.sym))
                 toScope.enter(e.sym, fromScope);
-        }
-        if (recursive) {
-            if (tsym instanceof JavafxPackageSymbol) {
-                ((JavafxPackageSymbol)tsym).enterSubpackageMembers(toScope);
-            }
         }
     }
 
@@ -495,20 +487,24 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
         // Attribute qualifying package or class and all descendants
         //
+        boolean allAndSundry = false;
+
         if (imp instanceof JFXSelect) {
+            
             if  (name == names.asterisk) {
+
                 all = true;
                 imp = ((JFXSelect) imp).getExpression();
+
             } else if (name.contentEquals("**")) {
-                imp = ((JFXSelect) imp).getExpression();
-                TypeSymbol p = attr.attribTree(imp,
-                    localEnv,
-                    PCK,
-                    Type.noType).tsym;
-                // Import on demand.
-                chk.checkCanonical(imp);
-                importAll(tree.pos, p, env, true);
-                return;
+
+                allAndSundry = true;
+                
+                // TODO: Implement .**
+                // Just cause an assertion error so that we locate this code quickly
+                //
+                assert(allAndSundry == false);
+
             }
         }
         if (all) {
@@ -521,7 +517,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             if (p instanceof ClassSymbol) {
                 importStaticAll(tree.pos, p, env);
             } else {
-                importAll(tree.pos, p, env, false);
+                importAll(tree.pos, p, env);
             }
             return;
         } else if (imp instanceof JFXSelect) {
