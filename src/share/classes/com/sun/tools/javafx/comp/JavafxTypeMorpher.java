@@ -299,7 +299,7 @@ public class JavafxTypeMorpher {
                 //    if ((flags & VARUSE_ASSIGNED_TO) == 0L &&
                 //            ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS | PUBLIC_INIT)) == 0L ||
                 //            (flags & IS_DEF) != 0L)) {
-                //        return true;
+                //        return false;
                 //    }
 
                 //TODO: JFXC-2103 -- allow public-init
