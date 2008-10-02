@@ -24,7 +24,6 @@
 package com.sun.tools.javafx.script;
 
 import com.sun.tools.javafx.api.JavafxcTool;
-import com.sun.tools.javafx.util.JavaVersionCheck;
 import com.sun.javafx.api.*;
 import java.io.FileReader;
 import java.io.IOException;
@@ -117,7 +116,7 @@ public class JavaFXScriptCompiler {
             options.add(classPath);
         }
         options.add("-target");
-        options.add(JavaVersionCheck.isJava6() ? "1.6" : "1.5");
+        options.add("1.5");
         
         options.add("-XDdumpfx=/tmp");
         

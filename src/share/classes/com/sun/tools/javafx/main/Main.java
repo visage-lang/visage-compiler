@@ -43,7 +43,6 @@ import com.sun.tools.javafx.main.RecognizedOptions.OptionHelper;
 import com.sun.tools.javafx.util.JavafxFileManager;
 import com.sun.tools.javafx.util.PlatformPlugin;
 import com.sun.tools.javafx.util.MsgSym;
-import com.sun.tools.javafx.util.JavaVersionCheck;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -323,10 +322,9 @@ public class Main {
         // add -target flag to backEndContext, if specified
         options = Options.instance(backEndContext);
         
-        // if running on Java 5 set target
-        if (!JavaVersionCheck.isJava6()) {
-            options.put("-target", Target.JDK1_5.name);
-        }
+        // default target is Java 5
+        options.put("-target", Target.JDK1_5.name);
+
         try {
             String[] allArgs = CommandLine.parse(args);
             for (int i = 0; i < allArgs.length; i++) {
@@ -651,17 +649,6 @@ public class Main {
         return EXIT_OK;
     }
     
-    /** Check java-version (currently only JDK 1.6 supported).
-     */
-    private static boolean checkJavaVersion() {
-        try {
-            Class.forName("java.awt.LinearGradientPaint");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }
-
     /** Print a message reporting an internal error.
      */
     void bugMessage(Throwable ex) {
