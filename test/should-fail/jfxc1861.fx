@@ -4,8 +4,10 @@
  * @test/warning
  */
 
-public public-init var str : String;
+public public-init var str = "Radon";
+public public-read var obj : Object;
 
 class Foo {
   public public-init var bar : Integer;
+  public public-read var num = 2.2;
 }

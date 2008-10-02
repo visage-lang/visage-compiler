@@ -1,7 +1,13 @@
 test\should-fail\jfxc1861.fx:7: warning: The access modifier public includes the access of public-init.
-public public-init var str : String;
+public public-init var str = "Radon";
 ^
-test\should-fail\jfxc1861.fx:10: warning: The access modifier public includes the access of public-init.
+test\should-fail\jfxc1861.fx:8: warning: The access modifier public includes the access of public-read.
+public public-read var obj : Object;
+^
+test\should-fail\jfxc1861.fx:11: warning: The access modifier public includes the access of public-init.
   public public-init var bar : Integer;
   ^
-2 warnings
+test\should-fail\jfxc1861.fx:12: warning: The access modifier public includes the access of public-read.
+  public public-read var num = 2.2;
+  ^
+4 warnings
