@@ -518,14 +518,15 @@ public class JavafxAttr implements JavafxVisitor {
             (sym.flags() & STATIC) == 0) {
             chk.earlyRefError(tree.pos(), sym.kind == VAR ? sym : thisSym(tree.pos(), env));
         }
-	JavafxEnv<JavafxAttrContext> env1 = env;
-	if (sym.kind != ERR && sym.owner != null && sym.owner != env1.enclClass.sym) {
-	    // If the found symbol is inaccessible, then it is
-	    // accessed through an enclosing instance.  Locate this
-	    // enclosing instance:
-	    while (env1.outer != null && !rs.isAccessible(env, env1.enclClass.sym.type, sym))
-		env1 = env1.outer;
-	}
+
+    	JavafxEnv<JavafxAttrContext> env1 = env;
+        if (sym.kind != ERR && sym.owner != null && sym.owner != env1.enclClass.sym) {
+            // If the found symbol is inaccessible, then it is
+            // accessed through an enclosing instance.  Locate this
+            // enclosing instance:
+            while (env1.outer != null && !rs.isAccessible(env, env1.enclClass.sym.type, sym))
+                env1 = env1.outer;
+        }
 
         // If symbol is a variable, ...
         if (sym.kind == VAR) {
@@ -2877,8 +2878,12 @@ public class JavafxAttr implements JavafxVisitor {
     @Override
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {
         JFXExpression seq = tree.getSequence();
-        Type seqType = attribExpr(seq, env);
 
+        // Attribute as a tree so we can check that target is assignable
+        // when pkind is VAR
+        //
+        Type seqType = attribTree(seq, env, pkind, Type.noType, Sequenceness.PERMITTED);
+        
         attribExpr(tree.getIndex(), env, syms.javafx_IntegerType);
         Type owntype;
         if (seqType.tag == TypeTags.ARRAY) {
@@ -2888,6 +2893,7 @@ public class JavafxAttr implements JavafxVisitor {
             owntype = chk.checkSequenceElementType(seq, seqType);
         }
         result = check(tree, owntype, VAR, pkind, pt, pSequenceness);
+
     }
 
     @Override

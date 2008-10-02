@@ -1,7 +1,7 @@
-test/should-fail/jfxc1591assignParam.fx:8: Cannot assign to parameter 'x'
+test/should-fail/jfxc1591assignParam.fx:8: You cannot change the value(s) of 'x' because it is a parameter.
    x = 6;
    ^
-test/should-fail/jfxc1591assignParam.fx:9: Cannot assign to parameter 'x'
+test/should-fail/jfxc1591assignParam.fx:9: You cannot change the value(s) of 'x' because it is a parameter.
    ++x
      ^
 2 errors

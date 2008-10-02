@@ -1,4 +1,4 @@
-test/should-fail/jfxc1106.fx:10: Cannot assign to parameter 'initial'
+test/should-fail/jfxc1106.fx:10: You cannot change the value(s) of 'initial' because it is a parameter.
         initial = initial - amount;
         ^
 1 error

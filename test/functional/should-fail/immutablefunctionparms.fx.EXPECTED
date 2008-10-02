@@ -1,13 +1,13 @@
-test\functional\should-fail\immutablefunctionparms.fx:9: Cannot assign to parameter 'ps1'
+test/functional/should-fail/immutablefunctionparms.fx:9: You cannot change the value(s) of 'ps1' because it is a parameter.
 ps1 = [101,102,103];
 ^
-test\functional\should-fail\immutablefunctionparms.fx:10: Cannot assign to parameter 'ps2'
+test/functional/should-fail/immutablefunctionparms.fx:10: You cannot change the value(s) of 'ps2' because it is a parameter.
 ps2 = ["Cannot","assign", "to", "ps2"];
 ^
-test\functional\should-fail\immutablefunctionparms.fx:12: Cannot assign to parameter 'p1'
+test/functional/should-fail/immutablefunctionparms.fx:12: You cannot change the value(s) of 'p1' because it is a parameter.
 p1 = 5;
 ^
-test\functional\should-fail\immutablefunctionparms.fx:13: Cannot assign to parameter 'p2'
+test/functional/should-fail/immutablefunctionparms.fx:13: You cannot change the value(s) of 'p2' because it is a parameter.
 p2 = "Oops";
 ^
 4 errors

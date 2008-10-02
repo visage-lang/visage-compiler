@@ -3276,6 +3276,7 @@ assignmentOpExpression
            			// AST FOR Interpolation
            			//
            			$value = F.at(rPos).InterpolateValue($lhs.value, $such.value, $i.value);
+           			
            		}
            	
 	   		|	{ 
