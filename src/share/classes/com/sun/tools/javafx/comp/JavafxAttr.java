@@ -2854,7 +2854,7 @@ public class JavafxAttr implements JavafxVisitor {
                 else
                     elemType = unionType(tree, itemType, elemType);
             }
-        Type owntype = types.sequenceType(elemType);
+        Type owntype = elemType.tag == ERROR ? elemType : types.sequenceType(elemType);
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
         if (owntype == result && pt.tag != NONE && pt != syms.javafx_UnspecifiedType) {
             expected = types.sequenceType(expected);
