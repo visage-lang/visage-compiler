@@ -29,28 +29,15 @@ package com.sun.javafx.runtime.sequence;
  *
  * @author Brian Goetz
  */
-// @@@ Should extend DerivedSequence
-class SubSequence<T> extends AbstractSequence<T> implements Sequence<T> {
+class SubSequence<T> extends DerivedSequence<T> implements Sequence<T> {
 
-    private final Sequence<? extends T> sequence;
     private final int start;
     private final int end;
 
     public SubSequence(Sequence<T> sequence, int start, int end) {
-        super(sequence.getElementType());
-        this.sequence = sequence;
-        this.start = Math.max(start, 0);
-        this.end = Math.min(end, sequence.size());
-    }
-
-    @Override
-    public int size() {
-        return (start <= end) ? end - start : 0;
-    }
-
-    @Override
-    public int getDepth() {
-        return sequence.getDepth() + 1;
+        super(sequence.getElementType(), sequence, (start <= end) ? end - start : 0);
+        this.start = start;
+        this.end = end;
     }
 
     @Override

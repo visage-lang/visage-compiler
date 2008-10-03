@@ -27,6 +27,7 @@ import java.util.*;
 
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
+import com.sun.javafx.runtime.util.MathUtil;
 
 /**
  * Sequences -- static helper methods for constructing derived sequences. Implements heuristics for reducing time and
@@ -81,13 +82,23 @@ public final class Sequences {
     /** Many sequences are represented as trees to reduce copying costs; if the current sequence has depth > 0,
 -     * copy the elements into a new sequence of depth == 0.
 -     */
-    public static<T> Sequence<T> flatten(Sequence<T> seq) {
+    static<T> Sequence<T> flatten(Sequence<T> seq) {
         if (seq.getDepth() == 0) {
             return seq;
         } else {
             return new ArraySequence<T>(seq.getElementType(), seq);
         }
     }
+    
+    static<T> boolean shouldFlatten(Sequence<T> sequence) {
+        // If the sequence is short or if the sequence is is too thin,
+        // then copy it.
+        int size = size(sequence);
+        return ((0 < size) && (size <= FLATTENING_THRESHOLD))
+                || (sequence.getDepth() > MathUtil.log2(size));
+    }
+
+
 
     /** Concatenate two sequences into a new sequence.  */
     @SuppressWarnings("unchecked")
@@ -166,8 +177,14 @@ public final class Sequences {
             return seq;
         else if (bits.cardinality() == 0)
             return seq.getEmptySequence();
-        else 
-            return new FilterSequence<T>(seq, bits);
+        else {
+            Sequence<T> result = new FilterSequence<T>(seq, bits);
+            if (shouldFlatten(result)) {
+                return flatten(result);
+            } else {
+                return result;
+            }
+        }
     }
 
     /** Extract a subsequence from the specified sequence, starting as the specified start position, and up to but
@@ -179,8 +196,11 @@ public final class Sequences {
             return seq.getEmptySequence();
         else if (start <= 0 && end >= seq.size())
             return seq;
-        else
+        else {
+            start = Math.max(start, 0);
+            end = Math.min(end, seq.size());
             return new SubSequence<T>(seq, start, end);
+        }
     }
 
     /** Create a sequence containing a single element, the specified value */

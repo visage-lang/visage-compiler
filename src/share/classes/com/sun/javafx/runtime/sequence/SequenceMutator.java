@@ -26,7 +26,6 @@ package com.sun.javafx.runtime.sequence;
 import java.util.BitSet;
 
 import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.util.MathUtil;
 
 /**
  * Helper methods for modifying sequences and notifying sequence change listeners.  The helper methods only call the
@@ -111,7 +110,7 @@ public class SequenceMutator {
         else
             throw new IllegalArgumentException();
 
-        if (result != target && shouldFlatten(result))
+        if (result != target && Sequences.shouldFlatten(result))
             result = Sequences.flatten(result);
 
         if (result != target && listener != null)
@@ -136,7 +135,7 @@ public class SequenceMutator {
         } else {
             result = Sequences.replace(target, startPos, endPos+1, newValue);
         }
-        if (shouldFlatten(result))
+        if (Sequences.shouldFlatten(result))
             result = Sequences.flatten(result);
         if (listener != null) {
             listener.onReplaceElement(startPos, endPos, newValue, target, result);
@@ -345,14 +344,6 @@ public class SequenceMutator {
             nextValue = replaceSlice(nextValue, listener, curPos, curPos-1, values);
         }
         return nextValue;
-    }
-
-    private static<T> boolean shouldFlatten(Sequence<T> sequence) {
-        // If the sequence is short or if the sequence is is too thin,
-        // then copy it.
-        int size = Sequences.size(sequence);
-        return ((0 < size) && (size <= Sequences.FLATTENING_THRESHOLD))
-                || (sequence.getDepth() > MathUtil.log2(size));
     }
 
 }

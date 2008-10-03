@@ -45,16 +45,16 @@ class CompositeSequence<T> extends AbstractSequence<T> implements Sequence<T> {
         this.sequences = Util.newSequenceArray(sequences.length);
         System.arraycopy(sequences, 0, this.sequences, 0, sequences.length);
         this.startPositions = new int[sequences.length];
-        int size = 0;
-        int depth = 0;
+        int tmpSize = 0;
+        int tmpDepth = 0;
         for (int i = 0, offset = 0; i < sequences.length; i++) {
             startPositions[i] = offset;
-            size += sequences[i].size();
+            tmpSize += sequences[i].size();
             offset += sequences[i].size();
-            depth = Math.max(depth, sequences[i].getDepth());
+            tmpDepth = Math.max(tmpDepth, sequences[i].getDepth());
         }
-        this.size = size;
-        this.depth = depth + 1;
+        this.size = tmpSize;
+        this.depth = tmpDepth + 1;
     }
 
     @Override
