@@ -285,6 +285,7 @@ public class XHTMLProcessingUtils {
             javadocElement.appendChild(pkg);
         }
     }
+
     
     
 /*//keep this around for now.
@@ -547,39 +548,52 @@ public class XHTMLProcessingUtils {
         if(examples != null & examples.getLength() > 0) {
             for(int i=0; i<examples.getLength(); i++) {
                 Element example = (Element) examples.item(i);
-                //p(INFO, MessageFormat.format(getString("processing.example"), clazz.getAttribute("name")));
-                //p(INFO, example.getTextContent());
+                processExampleCode(example, packageDir, clazz, i, true);
+            }
+        }
+        NodeList highlights = clazz.getElementsByTagName("highlight");
+        if(highlights != null && highlights.getLength() > 0) {
+            for(int i=0; i<highlights.getLength(); i++) {
+                Element highlight = (Element) highlights.item(i);
+                processExampleCode(highlight, packageDir, clazz, i, false);
+            }
+        }
+    }
+    
+    private static void processExampleCode(Element example, File packageDir, Element clazz, int i, boolean renderScreenshot) throws DOMException {
+        //p(INFO, MessageFormat.format(getString("processing.example"), clazz.getAttribute("name")));
+        //p(INFO, example.getTextContent());
+        try {
+            //String script = "import javafx.gui.*; CubicCurve { x1: 0  y1: 50  ctrlX1: 25  ctrlY1: 0 ctrlX2: 75  ctrlY2: 100   x2: 100  y2: 50 fill:Color.RED }";
+            String script = example.getTextContent();
+            StringBuffer out = new StringBuffer();
+            out.append("<p>the code:</p>");
+            out.append("<pre class='example-code'><code>");
+            String styledScript = highlight(script);
+            out.append(styledScript);
+            out.append("</code></pre>");
+            if(renderScreenshot) {
                 try {
-                    //String script = "import javafx.gui.*; CubicCurve { x1: 0  y1: 50  ctrlX1: 25  ctrlY1: 0 ctrlX2: 75  ctrlY2: 100   x2: 100  y2: 50 fill:Color.RED }";
-                    String script = example.getTextContent();
-                    StringBuffer out = new StringBuffer();
-                    out.append("<p>the code:</p>");
-                    out.append("<pre class='example-code'><code>");
-                    String styledScript = highlight(script);
-                    out.append(styledScript);
-                    out.append("</code></pre>");
-                    try {
-                        File imgFile = new File(packageDir,clazz.getAttribute("name")+i+".png");
-                        renderScriptToImage(imgFile, script);
-                        out.append("<p>produces:</p>");
-                        out.append("<p>");
-                        out.append("<img class='example-screenshot' src='"+imgFile.getName()+"'/>");
-                        out.append("</p>");
-                    } catch (Exception ex) {
-                        System.out.println("error processing code: " + clazz.getAttribute("name"));
-                        System.out.println("error processing: " + example.getTextContent());
-                        ex.printStackTrace();
-                    }
-                    example.setTextContent(out.toString());
-                } catch (Exception ex) {
+                    File imgFile = new File(packageDir, clazz.getAttribute("name") + i + ".png");
+                    renderScriptToImage(imgFile, script);
+                    out.append("<p>produces:</p>");
+                    out.append("<p>");
+                    out.append("<img class='example-screenshot' src='" + imgFile.getName() + "'/>");
+                    out.append("</p>");
+                } catch (Throwable ex) {
                     System.out.println("error processing code: " + clazz.getAttribute("name"));
                     System.out.println("error processing: " + example.getTextContent());
                     ex.printStackTrace();
                 }
             }
+            example.setTextContent(out.toString());
+        } catch (Exception ex) {
+            System.out.println("error processing code: " + clazz.getAttribute("name"));
+            System.out.println("error processing: " + example.getTextContent());
+            ex.printStackTrace();
         }
     }
-    
+
     private static String highlight(String text) {
         //String pattern = "(/\\*)";
         //String replace = "<span class='comment'>/*";
