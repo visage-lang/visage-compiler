@@ -16,10 +16,23 @@ public class SequenceExerciser implements Test {
     private static Map<String, Class<? extends SequenceOpGenerator>> ops = new HashMap<String, Class<? extends SequenceOpGenerator>>();
     static int random = (int) System.nanoTime();
     static {
-        ops.put("rr", RandomReadGenerator.class);
+        ops.put("rr1", RandomReadGenerator1.class);
+        ops.put("rw1", RandomWriteGenerator1.class);
         ops.put("rw", RandomWriteGenerator.class);
+        ops.put("ra1", RandomAccessGenerator1.class);
         ops.put("ra", RandomAccessGenerator.class);
+        ops.put("rd1", RandomDeleteGenerator1.class);
+        ops.put("rd", RandomDeleteGenerator.class);
+        ops.put("ri1", RandomInsertGenerator1.class);
+        ops.put("ri", RandomInsertGenerator.class);
+        ops.put("rdi1", RandomInsertAndDeleteGenerator1.class);
+        ops.put("rdi", RandomInsertAndDeleteGenerator.class);
+        ops.put("stream1", SequenceAsStream1.class);
         ops.put("stream", SequenceAsStream.class);
+        ops.put("iterW1", IterationAfterWrite1.class);
+        ops.put("iterW", IterationAfterWrite.class);
+        ops.put("iterDI1", IterationAfterInsertAndDelete1.class);
+        ops.put("iterDI", IterationAfterInsertAndDelete.class);
     }
 
     public static int xorShift(int x) {
@@ -30,9 +43,8 @@ public class SequenceExerciser implements Test {
     }
 
     public static int nextRandom(int bound) {
-        int ret = random % bound;
         random = xorShift(random);
-        return ret;
+        return Math.abs(random % bound);
     }
 
     public TestResult start (String args) {
@@ -46,7 +58,7 @@ public class SequenceExerciser implements Test {
             TestResult result = run(parts.toArray(new String[0]));
             return result;
         } catch (Exception ex) {
-            System.err.println(ex.getLocalizedMessage());
+            System.err.println(ex);
             return TestResult.EMPTY;
         }
     }
@@ -81,7 +93,7 @@ interface SequenceOpGenerator {
     public int doOp(SequenceLocation<Integer> seq);
 }
 
-class RandomReadGenerator implements SequenceOpGenerator {
+class RandomReadGenerator1 implements SequenceOpGenerator {
     private int opCount;
 
     public void parseOptions(String[] options, int start) {
@@ -97,7 +109,7 @@ class RandomReadGenerator implements SequenceOpGenerator {
     }
 }
 
-class RandomWriteGenerator implements SequenceOpGenerator {
+class RandomWriteGenerator1 implements SequenceOpGenerator {
     private int opCount;
 
     public void parseOptions(String[] options, int start) {
@@ -116,7 +128,30 @@ class RandomWriteGenerator implements SequenceOpGenerator {
     }
 }
 
-class RandomAccessGenerator implements SequenceOpGenerator {
+class RandomWriteGenerator implements SequenceOpGenerator {
+    private int opCount;
+    private int maxChunkSize;
+
+    public void parseOptions(String[] options, int start) {
+        opCount = Integer.parseInt(options[start]);
+        maxChunkSize = Integer.parseInt(options[start+1]);
+    }
+
+    public int doOp(SequenceLocation<Integer> seq) {
+        int size = seq.get().size();
+        int sum = 0;
+        for (int i=0; i<opCount; i++) {
+            int pos = SequenceExerciser.nextRandom(size);
+            int chunkSize = SequenceExerciser.nextRandom(maxChunkSize) + 1;
+            int value = SequenceExerciser.nextRandom(10000);
+            sum += value;
+            seq.replaceSlice(pos, pos+chunkSize, Sequences.rangeExclusive(value, value+chunkSize));
+        }
+        return sum;
+    }
+}
+
+class RandomAccessGenerator1 implements SequenceOpGenerator {
     private int opCount;
     private int readPercentage;
 
@@ -143,7 +178,197 @@ class RandomAccessGenerator implements SequenceOpGenerator {
     }
 }
 
-class SequenceAsStream implements SequenceOpGenerator {
+class RandomAccessGenerator implements SequenceOpGenerator {
+    private int opCount;
+    private int readPercentage;
+    private int maxChunkSize;
+
+    public void parseOptions(String[] options, int start) {
+        opCount = Integer.parseInt(options[start]);
+        readPercentage = Integer.parseInt(options[start+1]);
+        maxChunkSize = Integer.parseInt(options[start+2]);
+    }
+
+    public int doOp(SequenceLocation<Integer> seq) {
+        int size = seq.get().size();
+        int sum = 0;
+        for (int i=0; i<opCount; i++) {
+            int pos = SequenceExerciser.nextRandom(size);
+            int chunkSize = SequenceExerciser.nextRandom(maxChunkSize) + 1;
+            int key = SequenceExerciser.nextRandom(100);
+            if (key < readPercentage) {
+                sum += seq.getSlice(pos, pos+chunkSize).get(0);
+            } else {
+                int value = SequenceExerciser.nextRandom(10000);
+                sum += value;
+                seq.replaceSlice(pos, pos+chunkSize, Sequences.rangeExclusive(value, value+chunkSize));
+            }
+        }
+        return sum;
+    }
+}
+
+class RandomDeleteGenerator1 implements SequenceOpGenerator {
+    private int opCount;
+    private int deletePercentage;
+
+    public void parseOptions(String[] options, int start) {
+        opCount = Integer.parseInt(options[start]);
+        deletePercentage = Integer.parseInt(options[start+1]);
+    }
+
+    public int doOp(SequenceLocation<Integer> seq) {
+        int size = seq.get().size();
+        int minSize = size * deletePercentage / 100;
+        int sum = 0;
+        for (int i=0; i<opCount; i++) {
+            SequenceLocation<Integer> localSeq = SequenceVariable.make(Integer.class, Sequences.range(1, size));
+            for (int curSize = size; curSize > minSize; ) {
+                int position = SequenceExerciser.nextRandom(curSize--);
+                sum += localSeq.get(position);
+                localSeq.delete(position);
+            }
+        }
+        return sum;
+    }
+}
+
+class RandomDeleteGenerator implements SequenceOpGenerator {
+    private int opCount;
+    private int deletePercentage;
+    private int maxChunkSize;
+
+    public void parseOptions(String[] options, int start) {
+        opCount = Integer.parseInt(options[start]);
+        deletePercentage = Integer.parseInt(options[start+1]);
+        maxChunkSize = Integer.parseInt(options[start+2]);
+    }
+
+    public int doOp(SequenceLocation<Integer> seq) {
+        int size = seq.get().size();
+        int minSize = size * deletePercentage / 100;
+        int sum = 0;
+        for (int i=0; i<opCount; i++) {
+            SequenceLocation<Integer> localSeq = SequenceVariable.make(Integer.class, Sequences.range(1, size));
+            for (int curSize = size+1; curSize > minSize; ) {
+                int chunkSize = SequenceExerciser.nextRandom(maxChunkSize);
+                curSize -= chunkSize;
+                int position = SequenceExerciser.nextRandom(curSize);
+                sum += localSeq.get(position);
+                localSeq.deleteSlice(position, position+chunkSize);
+            }
+        }
+        return sum;
+    }
+}
+
+class RandomInsertGenerator1 implements SequenceOpGenerator {
+    private int opCount;
+    private int insertPercentage;
+
+    public void parseOptions(String[] options, int start) {
+        opCount = Integer.parseInt(options[start]);
+        insertPercentage = 100 + Integer.parseInt(options[start+1]);
+    }
+
+    public int doOp(SequenceLocation<Integer> seq) {
+        int size = seq.get().size();
+        int maxSize = size * insertPercentage / 100;
+        int sum = 0;
+        for (int i=0; i<opCount; i++) {
+            SequenceLocation<Integer> localSeq = SequenceVariable.make(Integer.class, Sequences.range(1, size));
+            for (int curSize = size; curSize < maxSize; ) {
+                int value = SequenceExerciser.nextRandom(10000);
+                sum += value;
+                localSeq.insertBefore(value, SequenceExerciser.nextRandom(++curSize));
+            }
+        }
+        return sum;
+    }
+}
+
+class RandomInsertGenerator implements SequenceOpGenerator {
+    private int opCount;
+    private int insertPercentage;
+    private int maxChunkSize;
+
+    public void parseOptions(String[] options, int start) {
+        opCount = Integer.parseInt(options[start]);
+        insertPercentage = 100 + Integer.parseInt(options[start+1]);
+        maxChunkSize = Integer.parseInt(options[start+2]);
+    }
+
+    public int doOp(SequenceLocation<Integer> seq) {
+        int size = seq.get().size();
+        int maxSize = size * insertPercentage / 100;
+        int sum = 0;
+        for (int i=0; i<opCount; i++) {
+            SequenceLocation<Integer> localSeq = SequenceVariable.make(Integer.class, Sequences.range(1, size));
+            for (int curSize = size+1; curSize < maxSize; ) {
+                int value = SequenceExerciser.nextRandom(10000);
+                sum += value;
+                int position = SequenceExerciser.nextRandom(curSize);
+                int chunkSize = SequenceExerciser.nextRandom(maxChunkSize);
+                curSize += chunkSize;
+                localSeq.insertBefore(Sequences.range(value, value+chunkSize), position);
+            }
+        }
+        return sum;
+    }
+}
+
+class RandomInsertAndDeleteGenerator1 implements SequenceOpGenerator {
+    private int opCount;
+
+    public void parseOptions(String[] options, int start) {
+        opCount = Integer.parseInt(options[start]);
+    }
+
+    public int doOp(SequenceLocation<Integer> seq) {
+        int size = seq.get().size();
+        int sum = 0;
+        for (int i=0; i<opCount; i++) {
+            int position = SequenceExerciser.nextRandom(size);
+            sum += seq.get(position);
+            seq.delete(position);
+            
+            int value = SequenceExerciser.nextRandom(10000);
+            sum += value;
+            seq.insertBefore(value, SequenceExerciser.nextRandom(size));
+        }
+        return sum;
+    }
+}
+
+class RandomInsertAndDeleteGenerator implements SequenceOpGenerator {
+    private int opCount;
+    private int maxChunkSize;
+
+    public void parseOptions(String[] options, int start) {
+        opCount = Integer.parseInt(options[start]);
+        maxChunkSize = Integer.parseInt(options[start+1]);
+    }
+
+    public int doOp(SequenceLocation<Integer> seq) {
+        int size = seq.get().size();
+        int sum = 0;
+        for (int i=0; i<opCount; i++) {
+            int chunkSize = SequenceExerciser.nextRandom(maxChunkSize);
+
+            int position = SequenceExerciser.nextRandom(size);
+            sum += seq.get(position);
+            seq.deleteSlice(position, position+chunkSize);
+
+            int value = SequenceExerciser.nextRandom(10000);
+            sum += value;
+            position = SequenceExerciser.nextRandom(size + 1 - chunkSize);
+            seq.insertBefore(Sequences.range(value, value+chunkSize), position);
+        }
+        return sum;
+    }
+}
+
+class SequenceAsStream1 implements SequenceOpGenerator {
     private int opCount;
 
     public void parseOptions(String[] options, int start) {
@@ -161,3 +386,178 @@ class SequenceAsStream implements SequenceOpGenerator {
     }
 }
 
+class SequenceAsStream implements SequenceOpGenerator {
+    private int opCount;
+    private int maxChunkSize;
+
+    public void parseOptions(String[] options, int start) {
+        opCount = Integer.parseInt(options[start]);
+        maxChunkSize = Integer.parseInt(options[start+1]);
+    }
+
+    public int doOp(SequenceLocation<Integer> seq) {
+        int size = seq.get().size();
+        int minSize = size / 2;
+        int maxSize = (3*size) / 2;
+        int sum = 0;
+        
+        for (int i=0; i<opCount; i++) {
+            int chunkSize = SequenceExerciser.nextRandom(maxChunkSize);
+            if (size+chunkSize < maxSize) {
+                for (int j=0; j<chunkSize; j++)
+                    seq.insert(SequenceExerciser.nextRandom(10000));
+            }
+            chunkSize = SequenceExerciser.nextRandom(maxChunkSize);
+            if (size-chunkSize > minSize) {
+                for (int j=0; j<chunkSize; j++) {
+                    sum += seq.get(0);
+                    seq.delete(0);
+                }
+            }
+        }
+        return sum;
+    }
+}
+
+class IterationAfterWrite1 implements SequenceOpGenerator {
+    private int opCount;
+    private int maxWritePercentage;
+    private int itCount;
+
+    public void parseOptions(String[] options, int start) {
+        opCount = Integer.parseInt(options[start]);
+        maxWritePercentage = Integer.parseInt(options[start+1]);
+        itCount = Integer.parseInt(options[start+2]);
+    }
+
+    public int doOp(SequenceLocation<Integer> seq) {
+        int size = seq.get().size();
+        int maxWriteOps = size * maxWritePercentage / 100;
+        int sum = 0;
+        for (int i=0; i<opCount; i++) {
+            int writeCount = SequenceExerciser.nextRandom(maxWriteOps);
+            for (int j=0; j<writeCount; j++) {
+                seq.set(SequenceExerciser.nextRandom(size), SequenceExerciser.nextRandom(10000));
+            }
+            
+            for (int j=0; j<itCount; j++) {
+                Iterator<Integer> it = seq.get().iterator();
+                while (it.hasNext()) {
+                    sum += it.next();
+                }
+            }
+        }
+        return sum;
+    }
+}
+
+class IterationAfterWrite implements SequenceOpGenerator {
+    private int opCount;
+    private int maxWritePercentage;
+    private int itCount;
+    private int maxChunkSize;
+
+    public void parseOptions(String[] options, int start) {
+        opCount = Integer.parseInt(options[start]);
+        maxWritePercentage = Integer.parseInt(options[start+1]);
+        itCount = Integer.parseInt(options[start+2]);
+        maxChunkSize = Integer.parseInt(options[start+3]);
+    }
+
+    public int doOp(SequenceLocation<Integer> seq) {
+        int size = seq.get().size();
+        int maxWriteOps = size * maxWritePercentage / 100;
+        int sum = 0;
+        for (int i=0; i<opCount; i++) {
+            int writeCount = SequenceExerciser.nextRandom(maxWriteOps);
+            for (int j=0; j<writeCount; j++) {
+                int pos = SequenceExerciser.nextRandom(size);
+                int chunkSize = SequenceExerciser.nextRandom(maxChunkSize) + 1;
+                int value = SequenceExerciser.nextRandom(10000);
+                seq.replaceSlice(pos, pos+chunkSize, Sequences.rangeExclusive(value, value+chunkSize));
+            }
+            
+            for (int j=0; j<itCount; j++) {
+                Iterator<Integer> it = seq.get().iterator();
+                while (it.hasNext()) {
+                    sum += it.next();
+                }
+            }
+        }
+        return sum;
+    }
+}
+
+class IterationAfterInsertAndDelete1 implements SequenceOpGenerator {
+    private int opCount;
+    private int maxWritePercentage;
+    private int itCount;
+
+    public void parseOptions(String[] options, int start) {
+        opCount = Integer.parseInt(options[start]);
+        maxWritePercentage = Integer.parseInt(options[start+1]);
+        itCount = Integer.parseInt(options[start+2]);
+    }
+
+    public int doOp(SequenceLocation<Integer> seq) {
+        int size = seq.get().size();
+        int maxWriteOps = size * maxWritePercentage / 100;
+        int sum = 0;
+        for (int i=0; i<opCount; i++) {
+            int writeCount = SequenceExerciser.nextRandom(maxWriteOps);
+            for (int j=0; j<writeCount; j++) {
+                seq.delete(SequenceExerciser.nextRandom(size));
+                seq.insertBefore(SequenceExerciser.nextRandom(10000), SequenceExerciser.nextRandom(size));
+            }
+            
+            for (int j=0; j<itCount; j++) {
+                Iterator<Integer> it = seq.get().iterator();
+                while (it.hasNext()) {
+                    sum += it.next();
+                }
+            }
+        }
+        return sum;
+    }
+}
+
+class IterationAfterInsertAndDelete implements SequenceOpGenerator {
+    private int opCount;
+    private int maxWritePercentage;
+    private int itCount;
+    private int maxChunkSize;
+
+    public void parseOptions(String[] options, int start) {
+        opCount = Integer.parseInt(options[start]);
+        maxWritePercentage = Integer.parseInt(options[start+1]);
+        itCount = Integer.parseInt(options[start+2]);
+        maxChunkSize = Integer.parseInt(options[start+3]);
+    }
+
+    public int doOp(SequenceLocation<Integer> seq) {
+        int size = seq.get().size();
+        int maxWriteOps = size * maxWritePercentage / 100;
+        int sum = 0;
+        for (int i=0; i<opCount; i++) {
+            int writeCount = SequenceExerciser.nextRandom(maxWriteOps);
+            for (int j=0; j<writeCount; j++) {
+                int chunkSize = SequenceExerciser.nextRandom(maxChunkSize);
+
+                int position = SequenceExerciser.nextRandom(size);
+                seq.deleteSlice(position, position+chunkSize);
+
+                int value = SequenceExerciser.nextRandom(10000);
+                position = SequenceExerciser.nextRandom(size + 1 - chunkSize);
+                seq.insertBefore(Sequences.range(value, value+chunkSize), position);
+            }
+            
+            for (int j=0; j<itCount; j++) {
+                Iterator<Integer> it = seq.get().iterator();
+                while (it.hasNext()) {
+                    sum += it.next();
+                }
+            }
+        }
+        return sum;
+    }
+}

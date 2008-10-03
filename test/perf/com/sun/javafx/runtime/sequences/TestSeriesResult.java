@@ -6,7 +6,7 @@ public class TestSeriesResult {
     public String timestamp = "";
     public String description = "";
     
-    public Map<String, TestResult>data = new HashMap<String, TestResult>();
+    public Map<String, TestResult>data = new LinkedHashMap<String, TestResult>();
     
     public String toString(Iterator<String> tests) {
         StringBuilder sb = new StringBuilder();

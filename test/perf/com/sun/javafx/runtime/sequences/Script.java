@@ -4,20 +4,20 @@ import java.util.*;
 import java.io.*;
 
 public class Script {
-    public List<Test> tests = new ArrayList<Test>();
+    public List<Class<?>> tests = new ArrayList<Class<?>>();
     public List<String> commands = new ArrayList<String>();
     public List<String> args = new ArrayList<String>();
 
-    private static Map<String, Test> testMap = new HashMap<String, Test>();
+    private static Map<String, Class<?>> testMap = new HashMap<String, Class<?>>();
     static {
-        testMap.put("SE", new SequenceExerciser());
+        testMap.put("SE", SequenceExerciser.class);
         try {
-            testMap.put("JE", (Test)Class.forName("com.sun.javafx.runtime.sequences.JPEGEncoder").newInstance());
+            testMap.put("JE", Class.forName("com.sun.javafx.runtime.sequences.JPEGEncoder"));
         } catch (Exception ex) {
             // ignore
         }
         try {
-            testMap.put("FM", (Test)Class.forName("com.sun.javafx.runtime.sequences.FractalMadness").newInstance());
+            testMap.put("FM", Class.forName("com.sun.javafx.runtime.sequences.FractalMadness"));
         } catch (Exception ex) {
             // ignore
         }
@@ -29,7 +29,7 @@ public class Script {
             BufferedReader reader = new BufferedReader(new FileReader(script));
             String line;
             String[] parts;
-            Test test;
+            Class testClass;
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("#"))
                     continue;   // ignore comments
@@ -37,14 +37,14 @@ public class Script {
                     continue;  // ignore empty lines
 
                 parts = line.split(" ", 2);
-                test = testMap.get(parts[0]);
-                if (test == null) {
+                testClass = testMap.get(parts[0]);
+                if (testClass == null) {
                     System.err.println("Error while reading test-script");
                     System.err.println("Command not found: " + line);
                     reader.close();
                     return null;
                 }
-                result.tests.add(test);
+                result.tests.add(testClass);
                 result.commands.add(parts[0]);
                 result.args.add(parts[1]);
             }
