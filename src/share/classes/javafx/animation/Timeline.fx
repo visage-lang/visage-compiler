@@ -72,6 +72,10 @@ public class Timeline {
      * Rate {@code 1.0} is normal play, {@code 2.0} is 2 time normal,
      * {@code -1.0} is backwards, etc...
      * 
+     * <p>
+     * Inverse {@code rate} while timeline is running, timeline will be unwinded
+     * immediately.
+     *
      * @profile common
      */
 
@@ -340,13 +344,13 @@ public class Timeline {
     }
     
     /**
-     * Plays timeline from initial position in the direction indicated by
-     * {@code rate}.
+     * Plays timeline from initial position in forward direction.
      * <p>
      * It is equivalent to
      * <p>
      *  <code>
      *      timeline.stop();<br>
+     *      timeline.rate = Math.abs(timeline.rate); </br>
      *      timeline.time = 0.0s;<br>
      *      timeline.play();<br>
      *  </code>
@@ -359,27 +363,15 @@ public class Timeline {
      *      <li>It has no effect on sub timelines.
      *  </l>
      *  <p>
-     *  Play a timline backward with {@code INDEFINITE} sub-timeline if not supported,
-     *  a <code>java.lang.UnsupportedOperationException</code> exception will be
-     *  thrown.
      *
      *  @profile common
      */
     public function playFromStart() {
         if(not subtimeline and rate != 0.0) {
+            rate = Math.abs(rate);
             getTotalDur();
-            if(forward) {
-                curPos = 0.0;
-                time = 0.0ms;
-            } else {
-                if(duration < 0) {
-                        throw new UnsupportedOperationException("backward-running INDEFINITE sub-timeline is not supported");
-                } else {
-                    curPos = duration;
-                    time = makeDur(curPos);
-                }           
-            }
-            
+            curPos = 0.0;
+            time = 0.0ms;
             start();
         }
     }
