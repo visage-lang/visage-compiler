@@ -118,7 +118,7 @@ public class JavaFXScriptCompiler {
         options.add("-target");
         options.add("1.5");
         
-        options.add("-XDdumpfx=/tmp");
+        options.add("-XDdumpfx=" + System.getProperty("java.io.tmpdir"));
         
         // create a compilation task
         JavafxcTask task = tool.getTask(err, manager, diagnostics, options, compUnits);
