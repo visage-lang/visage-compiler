@@ -25,15 +25,6 @@ import java.lang.Exception;
 java.lang.System.out.println("deferAction Script");
 java.lang.System.out.println("Starting Script");
 
-/**
- * A void Function that takes no arguments will be run by the
- * JavaFX Script Runtime at a later time determined by the
- * implementation
- */
-deferAction(function() : Void {
-    java.lang.System.out.println("Running Deferred Action");
-});
-
 /*
  * Should throw an NPE here
  */
@@ -42,6 +33,15 @@ try {
 } catch (e: Exception) {
     java.lang.System.out.println("{e}");
 }
+
+/**
+ * A void Function that takes no arguments will be run by the
+ * JavaFX Script Runtime at a later time determined by the
+ * implementation
+ */
+deferAction(function() : Void {
+    java.lang.System.out.println("Running Deferred Action");
+});
 
 function action2(): Void {
     java.lang.System.out.println("Running Deferred Action2");
