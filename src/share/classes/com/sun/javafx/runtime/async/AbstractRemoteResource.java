@@ -31,6 +31,7 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -72,7 +73,8 @@ public abstract class AbstractRemoteResource<T> extends AbstractAsyncOperation<T
     public T call() throws IOException {
         URL u = new URL(url);
         InputStream stream = null;
-        if(!u.getProtocol().equals("file")) {
+        final String protocol = u.getProtocol();
+        if(protocol.equals("http") || protocol.equals("https")) {
             HttpURLConnection conn = (HttpURLConnection) u.openConnection();
             conn.setRequestMethod(method);
             conn.setDoInput(true);
@@ -97,10 +99,10 @@ public abstract class AbstractRemoteResource<T> extends AbstractAsyncOperation<T
             responseHeaders = conn.getHeaderFields();
 
             stream = new ProgressInputStream(conn.getInputStream());
-        } else {
-            File file = new File(u.getPath());
-            setProgressMax((int)file.length());
-            stream = new ProgressInputStream(u.openStream());
+        } else { // protocol is something other than http...
+            URLConnection con = u.openConnection();
+            setProgressMax(con.getContentLength());
+            stream = new ProgressInputStream(con.getInputStream());
         }
 
         try {
