@@ -1994,7 +1994,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     public void visitSequenceSlice(JFXSequenceSlice tree) {
         DiagnosticPosition diagPos = tree.pos();
         JCExpression seq = translate(tree.getSequence(), Wrapped.InLocation);
-        JCExpression firstIndex = translate(tree.getFirstIndex());
+        JCExpression firstIndex = translate(tree.getFirstIndex(), syms.intType);
         JCExpression lastIndex = makeSliceLastIndex(tree);
         JCFieldAccess select = make.at(diagPos).Select(seq, defs.getSliceMethodName);
         List<JCExpression> args = List.of(firstIndex, lastIndex);
@@ -2060,7 +2060,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 callExpression(tree,
                     translate(tree.getSequence()),
                     defs.sizeMethodName) :
-                translate(tree.getLastIndex());
+                translate(tree.getLastIndex(), syms.intType);
         int decr =
                 (tree.getEndKind() == SequenceSliceTree.END_EXCLUSIVE ? 1 : 0) +
                 (tree.getLastIndex() == null ? 1 : 0);
