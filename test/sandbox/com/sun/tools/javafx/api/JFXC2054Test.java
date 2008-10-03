@@ -67,6 +67,9 @@ public class JFXC2054Test {
     private static final String testSrc = System.getProperty("test.src.dir", "test/sandbox");
     private static final String testClasses = System.getProperty("build.test.classes.dir");
     private static JavafxcTask task;
+    private VariableTree node;
+    private VariableTree a;
+
     /**
      * Make sure we are able to at least analyze the test file. In other words it
      * should be compilable but this test mimics what the NetBeans editor does
@@ -91,6 +94,14 @@ public class JFXC2054Test {
         UnitTree t = result2.iterator().next();
         Visitor v = new Visitor();
         v.scan(t, t);
+        assertNotNull(node);
+        assertNotNull(a);
+        Element cls = getClassElement(t);
+        JavaFXTreePath ppp = JavaFXTreePath.getPath(t, node);
+        JavaFXTreePath p1 = JavaFXTreePath.getPath(t, a);
+        JavafxcTrees trees = JavafxcTrees.instance(task);
+        Element e = trees.getElement(ppp);
+        isAccessible(task, p1, cls.asType(), e);
     }
     
     
@@ -105,19 +116,17 @@ public class JFXC2054Test {
         }
     }
     
-    private static class Visitor extends JavaFXTreePathScanner<Void, UnitTree> {
+    private class Visitor extends JavaFXTreePathScanner<Void, UnitTree> {
 
         @Override
-        public Void visitVariable(VariableTree node, UnitTree t) {
-            if (node.toString().equals("public var attribute1: String;\n")) {
-                JavaFXTreePath root = new JavaFXTreePath(t);
-                Element cls = getClassElement(t);
-                JavaFXTreePath ppp = new JavaFXTreePath(root, node);
-                JavafxcTrees trees = JavafxcTrees.instance(task);
-                Element e = trees.getElement(ppp);
-                isAccessible(task, root, cls.asType(), e);
+        public Void visitVariable(VariableTree n, UnitTree t) {
+            if (n.toString().equals("public var attribute1: String;\n")) {
+                node = n;
+            } 
+            if (n.toString().equals("variable initialization for static script only (default) var a = Test {};\n")) {
+                a = n;
             }
-            return super.visitVariable(node, t);
+            return super.visitVariable(n, t);
         }
         
     }
