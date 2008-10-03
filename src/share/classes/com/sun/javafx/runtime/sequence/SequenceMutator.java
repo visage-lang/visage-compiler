@@ -39,7 +39,7 @@ public class SequenceMutator {
 
     public interface Listener<T> {
         public void onReplaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue);
-        public void onReplaceElement(int pos, T newElement, Sequence<T> oldValue, Sequence<T> newValue);
+        public void onReplaceElement(int startPos, int endPos, T newElement, Sequence<T> oldValue, Sequence<T> newValue);
     }
 
     // Inhibit instantiation
@@ -69,7 +69,7 @@ public class SequenceMutator {
                                                int startPos, int endPos, Sequence<? extends T> newValues) {
         Sequence<T> result;
         TypeInfo<T> elementType = target.getElementType();
-        int size = Sequences.size(target);
+        final int size = Sequences.size(target);
 
         if (startPos > size || startPos < 0)
             return target;
@@ -88,8 +88,7 @@ public class SequenceMutator {
             else if (startPos == size)
                 result = Sequences.concatenate(elementType, target, newValues);
             else
-                result = Sequences.concatenate(elementType,
-                        Sequences.subsequence(target, 0, startPos), newValues, Sequences.subsequence(target, startPos, size));
+                result = Sequences.replace(target, startPos, startPos, newValues);
         }
         else if (Sequences.size(newValues) == 0) {
             if (newValues == null)
@@ -102,12 +101,12 @@ public class SequenceMutator {
             else if (startPos == 0)
                 result = Sequences.subsequence(target, endPos+1, size);
             else {
-                result = new SliceReplacementSequence<T>(target, startPos, endPos+1, elementType.emptySequence);
+                result = Sequences.replace(target, startPos, endPos+1, elementType.emptySequence);
             }
         }
         else if (startPos <= endPos) {
             // @@@ OPT: Special-case for replacing leading or trailing slices
-            result = new SliceReplacementSequence<T>(target, startPos, endPos+1, newValues);
+            result = Sequences.replace(target, startPos, endPos+1, newValues);
         }
         else
             throw new IllegalArgumentException();
@@ -125,24 +124,22 @@ public class SequenceMutator {
      */
     public static <T> Sequence<T> replaceSlice(Sequence<T> target, Listener<T> listener,
                                                int startPos, int endPos, T newValue) {
-        int size = Sequences.size(target);
+        final int size = Sequences.size(target);
         if (startPos > size || startPos < 0 || endPos >= size)
             return target;
         if (newValue == null)
             return replaceSlice(target, listener, startPos, endPos, target.getEmptySequence());
 
         Sequence<T> result;
-
-        // @@@ OPT: Consider a single-element insert sequence type
         if (startPos == endPos) {
-            result = new ReplacementSequence<T>(target, startPos, newValue);
-            if (shouldFlatten(result))
-                result = Sequences.flatten(result);
-            if (listener != null) {
-                listener.onReplaceElement(startPos, newValue, target, result);
-            }
+            result = Sequences.replace(target, startPos, newValue);
         } else {
-            result = replaceSlice(target, listener, startPos, endPos, Sequences.singleton(target.getElementType(), newValue));
+            result = Sequences.replace(target, startPos, endPos+1, newValue);
+        }
+        if (shouldFlatten(result))
+            result = Sequences.flatten(result);
+        if (listener != null) {
+            listener.onReplaceElement(startPos, endPos, newValue, target, result);
         }
         return result;
     }

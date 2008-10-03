@@ -24,33 +24,31 @@
 package com.sun.javafx.runtime.sequence;
 
 /**
- * SliceReplacementSequence
+ * ReplacementSequence
  *
- * @author Michael Heinrichs
+ * @author Brian Goetz
  */
-class SliceReplacementSequence<T> extends DerivedSequence<T> implements Sequence<T> {
+class ElementReplacementSequence<T> extends DerivedSequence<T> implements Sequence<T> {
     
     private final int gapPos;
     private final int gapSize;
-    private final Sequence<? extends T> replacementSequence;
+    private final T newValue;
 
-    SliceReplacementSequence(Sequence<T> sequence, int gapStartPos, int gapEndPos, Sequence<? extends T> replacementSequence) {
-        super(sequence.getElementType(), sequence, Sequences.size(sequence) + Sequences.size(replacementSequence) - (gapEndPos - gapStartPos));
+    ElementReplacementSequence(Sequence<T> sequence, int gapStartPos, int gapEndPos, T newValue) {
+        super(sequence.getElementType(), sequence, Sequences.size(sequence) + 1 - (gapEndPos - gapStartPos));
         this.gapPos = gapStartPos;
         this.gapSize = gapEndPos - gapStartPos;
-        this.replacementSequence = replacementSequence;
+        this.newValue = newValue;
     }
 
     public T get(int position) {
         if (position < gapPos) {
             return sequence.get(position);
         }
-        final int replacementSize = Sequences.size(replacementSequence);
-        final int pos = position - gapPos;
-        if (pos < replacementSize) {
-            return replacementSequence.get(pos);
+        if (position == gapPos) {
+            return newValue;
         } else {
-            return sequence.get(position + gapSize - replacementSize);
+            return sequence.get(position + gapSize - 1);
         }
     }
     
@@ -64,15 +62,13 @@ class SliceReplacementSequence<T> extends DerivedSequence<T> implements Sequence
             lengthFirstSeq = Math.min(gapPos-sourceOffset, length);
             sequence.toArray(sourceOffset, lengthFirstSeq, dest, destOffset);
         }
-        final int replacementSize = Sequences.size(replacementSequence);
         int lengthReplacement = 0;
-        if (replacementSize > 0 && sourceOffset < gapPos + replacementSize && sourceOffset + length > gapPos) {
-            int startReplacement = Math.max(0, sourceOffset-gapPos);
-            lengthReplacement = Math.min(replacementSize-startReplacement, length-lengthFirstSeq);
-            replacementSequence.toArray(startReplacement, lengthReplacement, dest, destOffset + lengthFirstSeq);
+        if (sourceOffset <= gapPos && sourceOffset + length > gapPos) {
+            lengthReplacement = 1;
+            dest[destOffset+lengthFirstSeq] = newValue;
         }
-        if (sourceOffset+length > gapPos+replacementSize) {
-            int startSecondSeq = gapSize + Math.max(gapPos, sourceOffset - replacementSize);
+        if (sourceOffset+length > gapPos+1) {
+            int startSecondSeq = gapSize + Math.max(gapPos, sourceOffset - 1);
             int lengthSecondSeq = length - lengthFirstSeq - lengthReplacement;
             sequence.toArray(startSecondSeq, lengthSecondSeq, dest, destOffset + lengthFirstSeq + lengthReplacement);
         }

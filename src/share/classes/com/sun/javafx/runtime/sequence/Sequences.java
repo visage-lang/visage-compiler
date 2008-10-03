@@ -216,6 +216,24 @@ public final class Sequences {
         return new ArraySequence<T>(ti, (T[]) values.toArray());
     }
 
+    public static<T> Sequence<T> replace(Sequence<T> sequence, int startPos, int endPos, Sequence<? extends T> replacement) {
+        final int seqSize = Sequences.size(sequence);
+        startPos = Math.min (Math.max (0, startPos), seqSize);       // 0 <= startPos <= size
+        endPos = Math.min (Math.max (startPos, endPos), seqSize);    // startPos <= endPos <= size
+        return new SliceReplacementSequence<T>(sequence, startPos, endPos, replacement);
+    }
+
+    public static<T> Sequence<T> replace(Sequence<T> sequence, int startPos, int endPos, T value) {
+        final int seqSize = Sequences.size(sequence);
+        startPos = Math.min (Math.max (0, startPos), seqSize);       // 0 <= startPos <= size
+        endPos = Math.min (Math.max (startPos, endPos), seqSize);    // startPos <= endPos <= size
+        return new ElementReplacementSequence<T>(sequence, startPos, endPos, value);
+    }
+    
+    public static<T> Sequence<T> replace(Sequence<T> sequence, int startPos, T value) {
+        return new ReplacementSequence<T>(sequence, startPos, value);
+    }
+    
 
     /**********************************************/
     /* Utility methods for dealing with sequences */

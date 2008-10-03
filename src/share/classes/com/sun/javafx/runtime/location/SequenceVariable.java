@@ -80,8 +80,8 @@ public class SequenceVariable<T>
                 replaceSlice(startPos, endPos, newElements, newValue);
             }
 
-            public void onReplaceElement(int pos, T newElement, Sequence<T> oldValue, Sequence<T> newValue) {
-                replaceElement(pos, newElement, newValue);
+            public void onReplaceElement(int startPos, int endPos, T newElement, Sequence<T> oldValue, Sequence<T> newValue) {
+                replaceElement(startPos, endPos, newElement, newValue);
             }
         };
     }
@@ -140,7 +140,7 @@ public class SequenceVariable<T>
     /**
      * Optimized version, for single-element updates
      */
-    private Sequence<T> replaceElement(int pos, T newElement, Sequence<T> newValue) {
+    private Sequence<T> replaceElement(int startPos, int endPos, T newElement, Sequence<T> newValue) {
         assert (boundLocation == null);
         Sequence<T> oldValue = $value;
 
@@ -149,12 +149,12 @@ public class SequenceVariable<T>
             $value = newValue;
             setValid();
         }
-        else if (preReplace(!newElement.equals(oldValue.get(pos)))) {
+        else if (preReplace(startPos != endPos || !newElement.equals(oldValue.get(startPos)))) {
             boolean invalidateDependencies = isValid() || state == STATE_UNBOUND;
             $value = newValue;
             setValid();
             Sequence<T> newElements = Sequences.singleton(oldValue.getElementType(), newElement);
-            notifyListeners(pos, pos, newElements, oldValue, newValue, invalidateDependencies);
+            notifyListeners(startPos, endPos, newElements, oldValue, newValue, invalidateDependencies);
         }
         else
             setValid();
