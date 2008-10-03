@@ -72,7 +72,7 @@ public class BooleanVariable
     protected BooleanVariable(boolean lazy, BooleanBindingExpression binding, Location... dependencies) {
         this();
         bind(lazy, binding);
-        addDependencies(dependencies);
+        addDependency(dependencies);
     }
 
     protected boolean replaceValue(boolean newValue) {

@@ -37,7 +37,7 @@ public class AbstractBindingExpression {
         this.location = location;
         Location[] fixedDependents = getStaticDependents();
         if (fixedDependents != null) {
-            location.addDependencies(fixedDependents);
+            location.addDependency(fixedDependents);
         }
     }
 
@@ -55,7 +55,7 @@ public class AbstractBindingExpression {
     }
 
     protected <T extends Location> T addStaticDependent(T dep) {
-        location.addDependencies(dep);
+        location.addDependency(dep);
         return dep;
     }
 

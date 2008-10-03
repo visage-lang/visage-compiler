@@ -23,9 +23,6 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.lang.ref.WeakReference;
-import java.util.Collection;
-
 /**
  * A Location represents any value on which another variable may express a dependency, including binding dependency
  * and change triggers.  The location is assumed to have a value, whose type is determined by the subinterfaces
@@ -67,14 +64,17 @@ public interface Location {
      */
     public void removeChangeListener(ChangeListener listener);
 
-    /** Record a location as depending on this location */
-    public void addDependentLocation(WeakReference<Location> location);
+    /** Record a location as depending on this location -- for internal use only!  */
+    public void addDependentLocation(WeakLocation location);
 
     /** Return the collection of change listeners */
     public ChangeListener getListeners();
 
     /** Add this location as a dependency of zero or more other Locations */
-    public void addDependencies(Location... location);
+    public void addDependency(Location... location);
+
+    /** Add this location as a dependency of another Location */
+    public void addDependency(Location location);
 
     /** Add this location as a dynamic dependency of zero or more other Locations */
     public void addDynamicDependency(Location location);

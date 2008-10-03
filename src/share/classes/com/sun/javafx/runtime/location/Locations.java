@@ -23,7 +23,6 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.lang.ref.WeakReference;
 import java.util.Iterator;
 
 import com.sun.javafx.runtime.sequence.Sequence;
@@ -167,8 +166,12 @@ public class Locations {
             return getLocation().getListeners();
         }
 
-        public void addDependencies(Location... location) {
-            getLocation().addDependencies(location);
+        public void addDependency(Location... location) {
+            getLocation().addDependency(location);
+        }
+
+        public void addDependency(Location location) {
+            getLocation().addDependency(location);
         }
 
         public void addDynamicDependency(Location location) {
@@ -179,7 +182,7 @@ public class Locations {
             getLocation().clearDynamicDependencies();
         }
 
-        public void addDependentLocation(WeakReference<Location> location) {
+        public void addDependentLocation(WeakLocation location) {
             getLocation().addDependentLocation(location);
         }
     }

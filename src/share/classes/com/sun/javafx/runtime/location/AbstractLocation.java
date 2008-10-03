@@ -23,8 +23,10 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import com.sun.javafx.runtime.ErrorHandler;
 import com.sun.javafx.runtime.util.AbstractLinkable;
@@ -63,15 +65,15 @@ public abstract class AbstractLocation implements Location {
 
     // What we are calling change listeners are really invalidation listeners.  They are invoked the same time
     // dependent locations are invalidated; the two list heads could also be merged to save space.
-    protected ChangeListener listeners;
-    protected List<WeakReference<Location>> dependentLocations;
+    private ChangeListener listeners;
+    private WeakLocation dependentLocations;
 
     // The implementation of dynamic dependencies exploits the clearability of weak references.  When we register
     // ourselves as being dynamically dependent on another location for the first time, we create a weak reference
     // for ourselves that we remember and use for subsequence dynamic dependencies.  When we are asked to clear the
     // dynamic dependencies (unregister ourselves with any location with which we've registered as a dynamic dependency),
     // we clear() the weak reference and forget it, which will eventually cause those other locations to forget about us.
-    private WeakReference<Location> weakMe;
+    private WeakMeLocation weakMeHead;
 
     private static AbstractLinkable.HeadAccessor<ChangeListener, AbstractLocation> changeListenerList
             = new AbstractLinkable.HeadAccessor<ChangeListener, AbstractLocation>() {
@@ -81,6 +83,16 @@ public abstract class AbstractLocation implements Location {
 
         public void setHead(AbstractLocation host, ChangeListener newHead) {
             host.listeners = newHead;
+        }
+    };
+    private static AbstractLinkable.HeadAccessor<WeakLocation, AbstractLocation> dependentLocationList
+            = new AbstractLinkable.HeadAccessor<WeakLocation, AbstractLocation>() {
+        public WeakLocation getHead(AbstractLocation host) {
+            return host.dependentLocations;
+        }
+
+        public void setHead(AbstractLocation host, WeakLocation newHead) {
+            host.dependentLocations = newHead;
         }
     };
 
@@ -104,10 +116,10 @@ public abstract class AbstractLocation implements Location {
     }
 
     public boolean hasDependencies() {
-        return (dependentLocations != null && dependentLocations.size() > 0) || (listeners != null);
+        return (dependentLocations != null) || (listeners != null);
     }
 
-    private static AbstractLinkable.MutativeIterationClosure<ChangeListener, AbstractLocation> invalidationClosure
+    private static AbstractLinkable.MutativeIterationClosure<ChangeListener, AbstractLocation> CALL_LISTENER_CLOSURE
             = new AbstractLinkable.MutativeIterationClosure<ChangeListener, AbstractLocation>() {
         public boolean action(ChangeListener element) {
             try {
@@ -119,6 +131,22 @@ public abstract class AbstractLocation implements Location {
             }
         }
     };
+    private static AbstractLinkable.MutativeIterationClosure<WeakLocation, AbstractLocation> INVALIDATE_DEPENDENCY_CLOSURE
+            = new AbstractLinkable.MutativeIterationClosure<WeakLocation, AbstractLocation>() {
+        public boolean action(WeakLocation element) {
+            Location loc = element.get();
+            if (loc == null)
+                return false;
+            else {
+                loc.invalidate();
+                // Space optimization: try for early removal of dynamic dependencies, in the case that
+                // the dependency is a "weakMe" reference for some object that has been cleared in update()
+                if (element.get() == null)
+                    return false;
+            }
+            return true;
+        }
+    };
 
     /**
      * Notify change triggers and dependencies that the value has changed. This should be done automatically by mutative
@@ -126,24 +154,12 @@ public abstract class AbstractLocation implements Location {
      * provided in the object literal are all set. */
     protected void invalidateDependencies() {
         if (listeners != null) {
-            AbstractLinkable.iterate(changeListenerList, this, invalidationClosure);
+            AbstractLinkable.iterate(changeListenerList, this, CALL_LISTENER_CLOSURE);
         }
         if (dependentLocations != null) {
             beginUpdate();
             try {
-                for (Iterator<WeakReference<Location>> iterator = dependentLocations.iterator(); iterator.hasNext(); ) {
-                    WeakReference<Location> locationRef = iterator.next();
-                    Location loc = locationRef.get();
-                    if (loc == null)
-                        iterator.remove();
-                    else {
-                        loc.invalidate();
-                        // Space optimization: try for early removal of dynamic dependencies, in the case that
-                        // the dependency is a "weakMe" reference for some object that has been cleared in update()
-                        if (locationRef.get() == null)
-                            iterator.remove();
-                    }
-                }
+                AbstractLinkable.iterate(dependentLocationList, this, INVALIDATE_DEPENDENCY_CLOSURE);
             }
             finally {
                 endUpdate();
@@ -151,72 +167,63 @@ public abstract class AbstractLocation implements Location {
         }
     }
 
-    private void purgeDeadDependencies() {
-        if (dependentLocations != null) {
-            for (Iterator<WeakReference<Location>> iterator = dependentLocations.iterator(); iterator.hasNext();) {
-                WeakReference<Location> locationRef = iterator.next();
-                Location loc = locationRef.get();
-                if (loc == null)
-                    iterator.remove();
-            }
+    private static final Linkable.MutativeIterationClosure<WeakLocation,AbstractLocation> PURGE_LISTENER_CLOSURE
+            = new Linkable.MutativeIterationClosure<WeakLocation, AbstractLocation>() {
+        public boolean action(WeakLocation element) {
+            return (element.get() != null);
         }
+    };
+
+    private void purgeDeadDependencies() {
+        AbstractLinkable.iterate(dependentLocationList, this, PURGE_LISTENER_CLOSURE);
     }
 
-    public void addDependentLocation(WeakReference<Location> locationRef) {
-        if (dependentLocations == null)
-            dependentLocations = new LinkedList<WeakReference<Location>>();
-        switch (inUse) {
-            case INUSE_NOT:
-                // @@@ Hack: overly aggressive purge
-                purgeDeadDependencies();
-                dependentLocations.add(locationRef);
-                break;
-
-            case INUSE_UNINFLATED:
-                IterationData id = inflateIterationData(1);
-                id.addDependency(locationRef);
-                break;
-
-            case INUSE_INFLATED:
-                id = iterationData.get(this);
-                id.addDependency(locationRef);
-                break;
+    public void addDependentLocation(WeakLocation weakLocation) {
+        if (!inUse()) {
+            // @@@ Hack: overly aggressive purge
+            purgeDeadDependencies();
+            assert(AbstractLinkable.isUnused(weakLocation));
+            AbstractLinkable.addAtEnd(dependentLocationList, this, weakLocation);
         }
+        else
+            getInflated().addDependency(weakLocation);
     }
 
     public void addChangeListener(ChangeListener listener) {
         // @@@ Would be nice to merge lists for raw listeners with dependent location list
         // @@@ Should also defer adding listeners if the structures are in use
         assert(AbstractLinkable.isUnused(listener));
-        AbstractLinkable.<ChangeListener, AbstractLocation>addAtEnd(changeListenerList, this, listener);
+        AbstractLinkable.addAtEnd(changeListenerList, this, listener);
     }
 
     public void removeChangeListener(ChangeListener listener) {
         // @@@ Should also defer removing listeners if the structures are in use
         if (listeners != null)
-            AbstractLinkable.<ChangeListener, AbstractLocation>remove(changeListenerList, this, listener);
+            AbstractLinkable.remove(changeListenerList, this, listener);
     }
 
-    public void addDependencies(Location... dependencies) {
-        // @@@ Provide a one-arg version so autoboxing is not always used
+    public void addDependency(Location... dependencies) {
         if (dependencies.length > 0) {
-            WeakReference<Location> wr = new WeakReference<Location>(this);
             for (Location dep : dependencies)
-                dep.addDependentLocation(wr);
+                addDependency(dep);
         }
+    }
+
+    public void addDependency(Location location) {
+        location.addDependentLocation(new WeakLocation(this));
     }
 
     public void addDynamicDependency(Location location) {
-        if (weakMe == null)
-            weakMe = new WeakReference<Location>(this);
-        location.addDependentLocation(weakMe);
+        WeakMeLocation newWeakMe = new WeakMeLocation(this);
+        newWeakMe.nextWeakMe = weakMeHead;
+        weakMeHead = newWeakMe;
+        location.addDependentLocation(newWeakMe);
     }
 
     public void clearDynamicDependencies() {
-        if (weakMe != null) {
-            weakMe.clear();
-            weakMe = null;
-        }
+        for (WeakMeLocation wh = weakMeHead; wh != null; wh = wh.nextWeakMe)
+            wh.clear();
+        weakMeHead = null;
     }
 
     public <T extends Location> T addDynamicDependent(T dep) {
@@ -225,7 +232,7 @@ public abstract class AbstractLocation implements Location {
     }
 
     public <T extends Location> T addStaticDependent(T dep) {
-        addDependencies(dep);
+        addDependency(dep);
         return dep;
     }
 
@@ -239,7 +246,7 @@ public abstract class AbstractLocation implements Location {
     // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
     int getListenerCount() {
         purgeDeadDependencies();
-        return (AbstractLinkable.size(listeners)) + (dependentLocations == null ? 0 : dependentLocations.size());
+        return AbstractLinkable.size(listeners) + AbstractLinkable.size(dependentLocations);
     }
 
     private IterationData inflateIterationData(int count) {
@@ -263,6 +270,24 @@ public abstract class AbstractLocation implements Location {
                 IterationData id = iterationData.get(this);
                 ++id.iterationDepth;
                 break;
+        }
+    }
+
+    private boolean inUse() {
+        return inUse != INUSE_NOT;
+    }
+
+    private IterationData getInflated() {
+        switch (inUse) {
+            case INUSE_UNINFLATED:
+                return inflateIterationData(1);
+
+            case INUSE_INFLATED:
+                return iterationData.get(this);
+
+            default:
+                assert false : "Not inflated";
+                return null;
         }
     }
 
@@ -290,15 +315,15 @@ public abstract class AbstractLocation implements Location {
 
     private static class IterationData {
         public int iterationDepth;
-        public List<WeakReference<Location>> deferredDependencies;
+        public List<WeakLocation> deferredDependencies;
 
         public IterationData(int iterationDepth) {
             this.iterationDepth = iterationDepth;
         }
 
-        public void addDependency(WeakReference<Location> loc) {
+        public void addDependency(WeakLocation loc) {
             if (deferredDependencies == null)
-                deferredDependencies = new LinkedList<WeakReference<Location>>();
+                deferredDependencies = new LinkedList<WeakLocation>();
             deferredDependencies.add(loc);
         }
 
@@ -306,49 +331,11 @@ public abstract class AbstractLocation implements Location {
             if (deferredDependencies != null && deferredDependencies.size() > 0) {
                 // @@@ Hack: overly aggressive purge
                 target.purgeDeadDependencies();
-                target.dependentLocations.addAll(deferredDependencies);
+                // @@@ Ugh, O(n^2)
+                for (WeakLocation loc : deferredDependencies)
+                    AbstractLinkable.addAtEnd(dependentLocationList, target, loc);
             }
         }
     }
 }
 
-class WeakLink<T> extends WeakReference<T> implements Linkable<WeakLink<T>, AbstractLocation> {
-    WeakLink<T> next;
-    AbstractLocation host;
-
-    WeakLink(T referent) {
-        super(referent);
-    }
-
-    public WeakLink<T> getNext() {
-        return next;
-    }
-
-    public void setNext(WeakLink<T> next) {
-        this.next = next;
-    }
-
-    public AbstractLocation getHost() {
-        return host;
-    }
-
-    public void setHost(AbstractLocation host) {
-        this.host = host;
-    }
-}
-
-class WeakMeLink<T> extends WeakLink<T> {
-    WeakMeLink<T> nextWeakMe;
-
-    WeakMeLink(T referent) {
-        super(referent);
-    }
-
-    public WeakMeLink<T> getNextWeakMe() {
-        return nextWeakMe;
-    }
-
-    public void setNextWeakMe(WeakMeLink<T> nextWeakMe) {
-        this.nextWeakMe = nextWeakMe;
-    }
-}

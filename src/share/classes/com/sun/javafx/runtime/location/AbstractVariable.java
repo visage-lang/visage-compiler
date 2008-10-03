@@ -107,7 +107,7 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
         resetState(lazy ? STATE_UNI_BOUND_LAZY : STATE_UNI_BOUND);
         this.binding = binding;
         binding.setLocation(this);
-        addDependencies(dependencies);
+        addDependency(dependencies);
         if (!lazy)
             update();
     }

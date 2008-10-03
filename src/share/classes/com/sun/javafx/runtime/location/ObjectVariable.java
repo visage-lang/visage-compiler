@@ -89,7 +89,7 @@ public class ObjectVariable<T>
         this();
         $default = dflt;
         bind(lazy, binding);
-        addDependencies(dependencies);
+        addDependency(dependencies);
     }
 
     protected ObjectBindingExpression<T> makeBindingExpression(final ObjectLocation<T> otherLocation) {

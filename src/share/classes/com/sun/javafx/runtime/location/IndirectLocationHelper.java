@@ -37,7 +37,7 @@ public class IndirectLocationHelper {
                 return helped.computeLocation();
             }
         }, dependencies);
-        helped.addDependencies(ov);
+        helped.addDependency(ov);
         helped.addDynamicDependency(ov.get());
         ov.addChangeListener(new ObjectChangeListener<T>() {
             public void onChange(T oldValue, T newValue) {

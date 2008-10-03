@@ -7,7 +7,7 @@ package com.sun.javafx.runtime.util;
  */
 public abstract class AbstractLinkable<T, H> implements Linkable<T, H> {
 
-    public static<T, H> boolean isUnused(AbstractLinkable<T, H> element) {
+    public static<T, H> boolean isUnused(Linkable<T, H> element) {
         return element.getHost() == null && element.getNext() == null;
     }
 

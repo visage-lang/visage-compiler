@@ -74,7 +74,7 @@ public class DoubleVariable
     protected DoubleVariable(boolean lazy, DoubleBindingExpression binding, Location... dependencies) {
         this();
         bind(lazy, binding);
-        addDependencies(dependencies);
+        addDependency(dependencies);
     }
 
 

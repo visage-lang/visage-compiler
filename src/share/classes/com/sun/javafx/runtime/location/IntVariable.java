@@ -70,7 +70,7 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
     protected IntVariable(boolean lazy, IntBindingExpression binding, Location... dependencies) {
         this();
         bind(lazy, binding);
-        addDependencies(dependencies);
+        addDependency(dependencies);
     }
 
     public int getAsInt() {

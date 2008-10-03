@@ -96,7 +96,7 @@ public class SequenceVariable<T>
     protected SequenceVariable(Class clazz, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
         this(clazz);
         bind(lazy, binding);
-        addDependencies(dependencies);
+        addDependency(dependencies);
     }
 
     private void ensureValid() {

@@ -23,8 +23,6 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.lang.ref.WeakReference;
-
 /**
  * AbstractConstantLocation
  *
@@ -69,13 +67,15 @@ public abstract class AbstractConstantLocation<T> implements ObjectLocation<T> {
 
     public void removeChangeListener(ChangeListener listener) { }
 
-    public void addDependentLocation(WeakReference<Location> location) { }
+    public void addDependentLocation(WeakLocation location) { }
 
     public ChangeListener getListeners() {
         return null;
     }
 
-    public void addDependencies(Location... location) { }
+    public void addDependency(Location... location) { }
+
+    public void addDependency(Location location) { }
 
     public void addDynamicDependency(Location location) { }
 
