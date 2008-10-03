@@ -13,6 +13,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
 
 
 var context : FXLocal.Context = FXLocal.getContext();
+
 class Square extends MyRect {
    var atBlank : String;
    public var atPub : String;
@@ -128,3 +129,26 @@ System.out.println(" - apply(3,\"abc\") => {v3.getValueString()}");
 
 var str1 = clsString.newInstance();
 System.out.println("Allocated new String: {str1.getValueString()}.");
+
+// Covariance test from Kenneth Russell:
+class A {
+}
+class B extends A {
+}
+class Test {
+    var f : A = B {};
+    var s : A[] = [ B {} ];
+    var n : A;
+}
+var t = Test {};
+var objref = context.mirrorOf(t);
+var clazz = objref.getType();
+var ffref = clazz.getVariable("f");
+var val1ref = ffref.getValue(objref) as FXObjectValue;
+var sfref = clazz.getVariable("s");
+var val2ref = (sfref.getValue(objref) as FXSequenceValue).getItem(0) as FXObjectValue;
+var nfref = clazz.getVariable("n");
+var val3ref = nfref.getValue(objref);
+System.out.print("Covariance test:");
+System.out.print(" val1-type: {val1ref.getClassType().getName()}");
+System.out.println(" val2-type: {val2ref.getClassType().getName()}.");

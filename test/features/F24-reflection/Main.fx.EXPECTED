@@ -154,3 +154,4 @@ Allocated new MyRect: shapeInt:IntegerValue(20).
 After updating shapeFun1 to repeat:
  - apply(3,"abc") => 
 Allocated new String: .
+Covariance test: val1-type: Main.B val2-type: Main.B.
