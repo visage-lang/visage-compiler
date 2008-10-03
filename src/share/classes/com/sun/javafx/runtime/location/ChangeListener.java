@@ -23,18 +23,39 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.util.AbstractLinkable;
+
 /**
  * ChangeListeners are notified when a Location's value may have changed.
  *
  * @see Location
  * @author Brian Goetz
  */
-public interface ChangeListener {
+public abstract class ChangeListener extends AbstractLinkable<ChangeListener, AbstractLocation> {
+    ChangeListener next;
+    AbstractLocation host;
+
+    public ChangeListener getNext() {
+        return next;
+    }
+
+    public void setNext(ChangeListener next) {
+        this.next = next;
+    }
+
+    public AbstractLocation getHost() {
+        return host;
+    }
+
+    public void setHost(AbstractLocation host) {
+        this.host = host;
+    }
+
     /** Notifies the listener that the contents of the location may have changed.
      *
      * @return a boolean value indicating whether this listener is still valid.  Returning false will cause the
      * listener to be removed from the listener list.  For listeners that do their own weak reference management,
      * they should return false when the relevant weak references have been reported as cleared.
      */
-    public boolean onChange();
+    public abstract boolean onChange();
 }

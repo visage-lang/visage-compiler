@@ -67,17 +67,11 @@ public interface Location {
      */
     public void removeChangeListener(ChangeListener listener);
 
-    /** Register a change listener that will be notified whenever this location may have changed, but use a weak
-     * reference for the listener, so that the listener list does not pin the listener in memory after it otherwise
-     * could be collected.
-     */
-    public void addWeakListener(ChangeListener listener);
-
     /** Record a location as depending on this location */
     public void addDependentLocation(WeakReference<Location> location);
 
     /** Return the collection of change listeners */
-    public Collection<ChangeListener> getListeners();
+    public ChangeListener getListeners();
 
     /** Add this location as a dependency of zero or more other Locations */
     public void addDependencies(Location... location);

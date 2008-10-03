@@ -24,7 +24,6 @@
 package com.sun.javafx.runtime.location;
 
 import java.lang.ref.WeakReference;
-import java.util.Collection;
 import java.util.Iterator;
 
 import com.sun.javafx.runtime.sequence.Sequence;
@@ -164,11 +163,7 @@ public class Locations {
             getLocation().removeChangeListener(listener);
         }
 
-        public void addWeakListener(ChangeListener listener) {
-            getLocation().addWeakListener(listener);
-        }
-
-        public Collection<ChangeListener> getListeners() {
+        public ChangeListener getListeners() {
             return getLocation().getListeners();
         }
 

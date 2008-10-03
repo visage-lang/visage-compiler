@@ -27,6 +27,8 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 
 import com.sun.javafx.runtime.ErrorHandler;
+import com.sun.javafx.runtime.util.AbstractLinkable;
+import com.sun.javafx.runtime.util.Linkable;
 
 /**
  * AbstractLocation is a base class for Location implementations, handling change listener notification and lazy updates.
@@ -59,10 +61,9 @@ public abstract class AbstractLocation implements Location {
 
     private static final Map<Location, IterationData> iterationData = new HashMap<Location, IterationData>();
 
-    // We separate listeners from dependent locations because updating of dependent locations is split into an
-    // invalidation phase and an update phase (this is to support lazy locations.)  So there are times when we want
-    // to invalidate downstream locations but not yet invoke their change listeners.
-    protected List<ChangeListener> listeners;
+    // What we are calling change listeners are really invalidation listeners.  They are invoked the same time
+    // dependent locations are invalidated; the two list heads could also be merged to save space.
+    protected ChangeListener listeners;
     protected List<WeakReference<Location>> dependentLocations;
 
     // The implementation of dynamic dependencies exploits the clearability of weak references.  When we register
@@ -71,6 +72,17 @@ public abstract class AbstractLocation implements Location {
     // dynamic dependencies (unregister ourselves with any location with which we've registered as a dynamic dependency),
     // we clear() the weak reference and forget it, which will eventually cause those other locations to forget about us.
     private WeakReference<Location> weakMe;
+
+    private static AbstractLinkable.HeadAccessor<ChangeListener, AbstractLocation> changeListenerList
+            = new AbstractLinkable.HeadAccessor<ChangeListener, AbstractLocation>() {
+        public ChangeListener getHead(AbstractLocation host) {
+            return host.listeners;
+        }
+
+        public void setHead(AbstractLocation host, ChangeListener newHead) {
+            host.listeners = newHead;
+        }
+    };
 
     public boolean isValid() {
         return isValid;
@@ -92,26 +104,29 @@ public abstract class AbstractLocation implements Location {
     }
 
     public boolean hasDependencies() {
-        return (dependentLocations != null && dependentLocations.size() > 0)
-                || (listeners != null && listeners.size() > 0);
+        return (dependentLocations != null && dependentLocations.size() > 0) || (listeners != null);
     }
-    
+
+    private static AbstractLinkable.MutativeIterationClosure<ChangeListener, AbstractLocation> invalidationClosure
+            = new AbstractLinkable.MutativeIterationClosure<ChangeListener, AbstractLocation>() {
+        public boolean action(ChangeListener element) {
+            try {
+                return element.onChange();
+            }
+            catch (RuntimeException e) {
+                ErrorHandler.triggerException(e);
+                return true;
+            }
+        }
+    };
+
     /**
      * Notify change triggers and dependencies that the value has changed. This should be done automatically by mutative
      * methods, and is also used at object initialization time to defer notification of changes until the values
      * provided in the object literal are all set. */
     protected void invalidateDependencies() {
         if (listeners != null) {
-            for (Iterator<ChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
-                ChangeListener listener = iterator.next();
-                try {
-                    if (!listener.onChange())
-                        iterator.remove();
-                }
-                catch (RuntimeException e) {
-                    ErrorHandler.triggerException(e);
-                }
-            }
+            AbstractLinkable.iterate(changeListenerList, this, invalidationClosure);
         }
         if (dependentLocations != null) {
             beginUpdate();
@@ -170,24 +185,16 @@ public abstract class AbstractLocation implements Location {
     }
 
     public void addChangeListener(ChangeListener listener) {
-        // @@@ Would be nice to get rid of raw change listeners, and stick with the type-specific versions (e.g.,
-        // ObjectChangeListener), but for now Bijection relies on access to the raw listener because it needs to
-        // be able to unregister itself when the weak references are cleared
+        // @@@ Would be nice to merge lists for raw listeners with dependent location list
         // @@@ Should also defer adding listeners if the structures are in use
-        if (listeners == null)
-            listeners = new LinkedList<ChangeListener>();
-        listeners.add(listener);
+        assert(AbstractLinkable.isUnused(listener));
+        AbstractLinkable.<ChangeListener, AbstractLocation>addAtEnd(changeListenerList, this, listener);
     }
 
     public void removeChangeListener(ChangeListener listener) {
         // @@@ Should also defer removing listeners if the structures are in use
         if (listeners != null)
-            listeners.remove(listener);
-    }
-
-    public void addWeakListener(ChangeListener listener) {
-        // @@@ Should also defer adding listeners if the structures are in use
-        addChangeListener(new WeakListener(listener));
+            AbstractLinkable.<ChangeListener, AbstractLocation>remove(changeListenerList, this, listener);
     }
 
     public void addDependencies(Location... dependencies) {
@@ -222,11 +229,8 @@ public abstract class AbstractLocation implements Location {
         return dep;
     }
 
-    public Collection<ChangeListener> getListeners() {
-        if (listeners == null)
-            return Collections.emptySet();
-        else
-            return Collections.unmodifiableCollection(listeners);
+    public ChangeListener getListeners() {
+        return listeners;
     }
 
     public void update() {
@@ -235,8 +239,7 @@ public abstract class AbstractLocation implements Location {
     // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
     int getListenerCount() {
         purgeDeadDependencies();
-        return (listeners == null ? 0 : listeners.size())
-                + (dependentLocations == null ? 0 : dependentLocations.size());
+        return (AbstractLinkable.size(listeners)) + (dependentLocations == null ? 0 : dependentLocations.size());
     }
 
     private IterationData inflateIterationData(int count) {
@@ -309,14 +312,43 @@ public abstract class AbstractLocation implements Location {
     }
 }
 
-class WeakListener extends WeakReference<ChangeListener> implements ChangeListener {
-    public WeakListener(ChangeListener referent) {
+class WeakLink<T> extends WeakReference<T> implements Linkable<WeakLink<T>, AbstractLocation> {
+    WeakLink<T> next;
+    AbstractLocation host;
+
+    WeakLink(T referent) {
         super(referent);
     }
 
-    public boolean onChange() {
-        ChangeListener listener = get();
-        return listener == null ? false : listener.onChange();
+    public WeakLink<T> getNext() {
+        return next;
+    }
+
+    public void setNext(WeakLink<T> next) {
+        this.next = next;
+    }
+
+    public AbstractLocation getHost() {
+        return host;
+    }
+
+    public void setHost(AbstractLocation host) {
+        this.host = host;
     }
 }
 
+class WeakMeLink<T> extends WeakLink<T> {
+    WeakMeLink<T> nextWeakMe;
+
+    WeakMeLink(T referent) {
+        super(referent);
+    }
+
+    public WeakMeLink<T> getNextWeakMe() {
+        return nextWeakMe;
+    }
+
+    public void setNextWeakMe(WeakMeLink<T> nextWeakMe) {
+        this.nextWeakMe = nextWeakMe;
+    }
+}

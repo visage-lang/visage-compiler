@@ -28,6 +28,7 @@ import java.util.*;
 
 import com.sun.javafx.runtime.BindingException;
 import com.sun.javafx.runtime.CircularBindingException;
+import com.sun.javafx.runtime.util.AbstractLinkable;
 
 /**
  * Bindings -- helper class for setting up bijective bindings.
@@ -162,32 +163,38 @@ public class Bindings {
             });
         }
 
-        public static Collection<Location> getDirectPeers(Location loc) {
-            Set<Location> set = null;
-            for (ChangeListener cl : loc.getListeners()) {
-                if (cl instanceof BijectiveChangeListener) {
-                    BijectiveBinding<?, ?> bb = ((BijectiveChangeListener) cl).getBijectiveBinding();
-                    ObjectLocation<?> a = (ObjectLocation) bb.aRef.get();
-                    ObjectLocation<?> b = (ObjectLocation) bb.bRef.get();
-                    if (a != null && a != loc) {
-                        if (set == null)
-                            set = new HashSet<Location>();
-                        set.add(a);
-                    }
-                    if (b != null && b != loc) {
-                        if (set == null)
-                            set = new HashSet<Location>();
-                        set.add(b);
+        public static List<Location> getDirectPeers(final Location loc) {
+            class DirectPeerClosure implements AbstractLinkable.IterationClosure<ChangeListener> {
+                List<Location> list = null;
+
+                public void action(ChangeListener element) {
+                    if (element instanceof BijectiveChangeListener) {
+                        BijectiveBinding<?, ?> bb = ((BijectiveChangeListener) element).getBijectiveBinding();
+                        ObjectLocation<?> a = (ObjectLocation) bb.aRef.get();
+                        ObjectLocation<?> b = (ObjectLocation) bb.bRef.get();
+                        if (a != null && a != loc) {
+                            if (list == null)
+                                list = new ArrayList<Location>();
+                            list.add(a);
+                        }
+                        if (b != null && b != loc) {
+                            if (list == null)
+                                list = new ArrayList<Location>();
+                            list.add(b);
+                        }
                     }
                 }
             }
-            if (set != null)
-                return set;
+
+            DirectPeerClosure closure = new DirectPeerClosure();
+            AbstractLinkable.iterate(loc.getListeners(), closure);
+            if (closure.list != null)
+                return closure.list;
             else
-                return Collections.emptySet();
+                return Collections.emptyList();
         }
 
-        private interface BijectiveChangeListener extends ChangeListener {
+        private static abstract class BijectiveChangeListener extends ChangeListener {
             public abstract BijectiveBinding getBijectiveBinding();
         }
     }

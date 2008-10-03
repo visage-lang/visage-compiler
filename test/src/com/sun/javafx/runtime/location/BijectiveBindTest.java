@@ -22,9 +22,11 @@
  */
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.JavaFXTestCase;
-import com.sun.javafx.runtime.CircularBindingException;
+import java.util.HashSet;
+
 import com.sun.javafx.runtime.BindingException;
+import com.sun.javafx.runtime.CircularBindingException;
+import com.sun.javafx.runtime.JavaFXTestCase;
 
 /**
  * BijectiveBindTest
@@ -153,7 +155,7 @@ public class BijectiveBindTest extends JavaFXTestCase {
         i.setAsInt(3);
         assertEquals(0, ((AbstractLocation) i).getListenerCount());            
 
-        assertEquals(Bindings.getPeerLocations(i) /* empty */);
+        assertEquals(new HashSet<Location>(Bindings.getPeerLocations(i)) /* empty */);
     }
 
     public void testChainedBijection() {
