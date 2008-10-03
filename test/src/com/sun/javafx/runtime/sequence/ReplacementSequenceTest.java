@@ -81,6 +81,15 @@ public class ReplacementSequenceTest extends JavaFXTestCase {
         Assert.assertArrayEquals(new Object[] {C, 3}, actuals);
         assertEquals(REPLACEMENT_IN_MIDDLE, 1, C, 3);
         
+        // special cases where replacement is not part of the array
+        actuals = new Object[1];
+        REPLACEMENT_IN_MIDDLE.toArray(0, 1, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {1}, actuals);
+        assertEquals(REPLACEMENT_IN_MIDDLE, 1, C, 3);
+        REPLACEMENT_IN_MIDDLE.toArray(2, 1, actuals, 0);
+        Assert.assertArrayEquals(new Object[] {3}, actuals);
+        assertEquals(REPLACEMENT_IN_MIDDLE, 1, C, 3);
+                
         actuals = new Object[2];
         try {
             REPLACEMENT_IN_MIDDLE.toArray(-1, 2, actuals, 0);

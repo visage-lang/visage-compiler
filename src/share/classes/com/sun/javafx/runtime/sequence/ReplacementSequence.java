@@ -49,7 +49,7 @@ class ReplacementSequence<T> extends DerivedSequence<T> implements Sequence<T> {
 
         sequence.toArray(sourceOffset, length, dest, destOffset);
         final int position = destOffset + newIndex - sourceOffset;
-        if (position >= 0 && position < size) {
+        if (position >= 0 && position < length) {
             dest[position] = newValue;
         }
     }
