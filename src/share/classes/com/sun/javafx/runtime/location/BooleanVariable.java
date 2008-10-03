@@ -25,6 +25,8 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
+import com.sun.javafx.runtime.util.AbstractLinkable;
+import com.sun.javafx.runtime.util.Linkable;
 
 /**
  * BooleanVariable
@@ -167,17 +169,20 @@ public class BooleanVariable
         });
     }
 
-    private void notifyListeners(boolean oldValue, boolean newValue, boolean invalidateDependencies) {
+    private void notifyListeners(final boolean oldValue, final boolean newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
         if (replaceListeners != null) {
-            for (BooleanChangeListener listener : replaceListeners)
-                try {
-                    listener.onChange(oldValue, newValue);
+            AbstractLinkable.iterate(replaceListeners, new Linkable.IterationClosure<BooleanChangeListener>() {
+                public void action(BooleanChangeListener listener) {
+                    try {
+                        listener.onChange(oldValue, newValue);
+                    }
+                    catch (RuntimeException e) {
+                        ErrorHandler.triggerException(e);
+                    }
                 }
-                catch (RuntimeException e) {
-                    ErrorHandler.triggerException(e);
-                }
+            });
         }
     }
 

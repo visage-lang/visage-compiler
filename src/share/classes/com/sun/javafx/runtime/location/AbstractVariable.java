@@ -23,17 +23,21 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import com.sun.javafx.runtime.BindingException;
+import com.sun.javafx.runtime.util.AbstractLinkable;
+import com.sun.javafx.runtime.util.Linkable;
 
 /**
  * AbstractVariable
  *
  * @author Brian Goetz
  */
-public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocation<T_VALUE>, T_BINDING extends AbstractBindingExpression, T_LISTENER>
+public abstract class AbstractVariable<
+        T_VALUE,
+        T_LOCATION extends ObjectLocation<T_VALUE>,
+        T_BINDING extends AbstractBindingExpression,
+        T_LISTENER extends Linkable<T_LISTENER, AbstractVariable>
+        >
         extends AbstractLocation
         implements ObjectLocation<T_VALUE>, BindableLocation<T_VALUE, T_BINDING, T_LISTENER> {
 
@@ -47,7 +51,17 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
     protected T_BINDING binding;
 
     protected DeferredInitializer deferredLiteral;
-    protected List<T_LISTENER> replaceListeners;
+    protected T_LISTENER replaceListeners;
+
+    private static final Linkable.HeadAccessor<Linkable, AbstractVariable> LISTENER_LIST = new Linkable.HeadAccessor<Linkable, AbstractVariable>() {
+        public Linkable getHead(AbstractVariable host) {
+            return host.replaceListeners;
+        }
+
+        public void setHead(AbstractVariable host, Linkable newHead) {
+            host.replaceListeners = newHead;
+        }
+    };
 
     protected AbstractVariable() { }
 
@@ -173,19 +187,16 @@ public abstract class AbstractVariable<T_VALUE, T_LOCATION extends ObjectLocatio
     }
 
     public void addChangeListener(T_LISTENER listener) {
-        if (replaceListeners == null)
-            replaceListeners = new LinkedList<T_LISTENER>();
-        replaceListeners.add(listener);
+        assert(AbstractLinkable.isUnused(listener));
+        AbstractLinkable.addAtEnd(LISTENER_LIST, this, listener);
     }
 
     public void removeChangeListener(T_LISTENER listener) {
-        if (replaceListeners != null)
-            replaceListeners.remove(listener);
+        AbstractLinkable.remove(LISTENER_LIST, this, listener);
     }
 
     public boolean hasDependencies() {
-        return (replaceListeners != null && replaceListeners.size() > 0)
-                || super.hasDependencies();
+        return (replaceListeners != null) || super.hasDependencies();
     }
 
     /** Called from replaceValue(); updates state machine and computes whether triggers should fire */

@@ -23,12 +23,33 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.util.AbstractLinkable;
+
 /**
  * IntChangeListener
  *
  * @author Brian Goetz
  */
-public interface IntChangeListener {
+public abstract class IntChangeListener extends AbstractLinkable<IntChangeListener, AbstractVariable> {
+    private IntChangeListener next;
+    private AbstractVariable host;
+
+    public IntChangeListener getNext() {
+        return next;
+    }
+
+    public void setNext(IntChangeListener next) {
+        this.next = next;
+    }
+
+    public AbstractVariable getHost() {
+        return host;
+    }
+
+    public void setHost(AbstractVariable host) {
+        this.host = host;
+    }
+
     /** Notifies the listener that the contents of the location may have changed. */
-    public void onChange(int oldValue, int newValue);
+    public abstract void onChange(int oldValue, int newValue);
 }

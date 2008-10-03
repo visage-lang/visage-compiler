@@ -23,12 +23,33 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.util.Linkable;
+
 /**
  * BooleanChangeListener
  *
  * @author Brian Goetz
  */
-public interface BooleanChangeListener {
+public abstract class BooleanChangeListener implements Linkable<BooleanChangeListener, AbstractVariable> {
+    private BooleanChangeListener next;
+    private AbstractVariable host;
+
+    public BooleanChangeListener getNext() {
+        return next;
+    }
+
+    public void setNext(BooleanChangeListener next) {
+        this.next = next;
+    }
+
+    public AbstractVariable getHost() {
+        return host;
+    }
+
+    public void setHost(AbstractVariable host) {
+        this.host = host;
+    }
+
     /** Notifies the listener that the contents of the location may have changed. */
-    public void onChange(boolean oldValue, boolean newValue);
+    public abstract void onChange(boolean oldValue, boolean newValue);
 }

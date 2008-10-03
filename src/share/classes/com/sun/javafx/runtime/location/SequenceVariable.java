@@ -27,6 +27,8 @@ import java.util.Iterator;
 
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
+import com.sun.javafx.runtime.util.AbstractLinkable;
+import com.sun.javafx.runtime.util.Linkable;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequenceMutator;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
@@ -203,21 +205,23 @@ public class SequenceVariable<T>
         });
     }
 
-    protected void notifyListeners(int startPos, int endPos,
-                                   Sequence<? extends T> newElements,
-                                   Sequence<T> oldValue, Sequence<T> newValue,
+    protected void notifyListeners(final int startPos, final int endPos,
+                                   final Sequence<? extends T> newElements,
+                                   final Sequence<T> oldValue, final Sequence<T> newValue,
                                    boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (replaceListeners != null) {
-            for (SequenceChangeListener<T> listener : replaceListeners)
-                try {
-                    listener.onChange(startPos, endPos, newElements, oldValue, newValue);
+        if (replaceListeners != null)
+            AbstractLinkable.iterate(replaceListeners, new Linkable.IterationClosure<SequenceChangeListener<T>>() {
+                public void action(SequenceChangeListener<T> listener) {
+                    try {
+                        listener.onChange(startPos, endPos, newElements, oldValue, newValue);
+                    }
+                    catch (RuntimeException e) {
+                        ErrorHandler.triggerException(e);
+                    }
                 }
-                catch (RuntimeException e) {
-                    ErrorHandler.triggerException(e);
-                }
-        }
+            });
     }
 
     public void bind(SequenceLocation<T> otherLocation) {

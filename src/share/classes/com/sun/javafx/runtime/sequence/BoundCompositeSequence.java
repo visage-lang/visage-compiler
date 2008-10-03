@@ -44,7 +44,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             this.location = location;
         }
 
-        public void addListener(IndexListener listener) {
+        public void addListener(IndexListener<T> listener) {
             this.listener = listener;
             location.addChangeListener(this.listener);
         }
@@ -158,11 +158,11 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
 //        Assert.assertEquals(offset, value().size());
     }
 
-    private interface IndexListener<T> extends SequenceChangeListener<T> {
-        public void setIndex(int index);
+    private static abstract class IndexListener<T> extends SequenceChangeListener<T> {
+        public abstract void setIndex(int index);
     }
 
-    private class MyListener<V extends T> implements IndexListener<V> {
+    private class MyListener<V extends T> extends  IndexListener<V> {
         private int index;
 
         private MyListener(int index) {

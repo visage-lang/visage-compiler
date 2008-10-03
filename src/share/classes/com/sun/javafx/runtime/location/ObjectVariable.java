@@ -26,6 +26,8 @@ package com.sun.javafx.runtime.location;
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
 import com.sun.javafx.runtime.Util;
+import com.sun.javafx.runtime.util.AbstractLinkable;
+import com.sun.javafx.runtime.util.Linkable;
 
 /**
  * ObjectVariable
@@ -153,17 +155,19 @@ public class ObjectVariable<T>
         return $value == null;
     }
 
-    private void notifyListeners(T oldValue, T newValue, boolean invalidateDependencies) {
+    private void notifyListeners(final T oldValue, final T newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (replaceListeners != null) {
-            for (ObjectChangeListener<T> listener : replaceListeners)
-                try {
-                    listener.onChange(oldValue, newValue);
+        if (replaceListeners != null)
+            AbstractLinkable.iterate(replaceListeners, new Linkable.IterationClosure<ObjectChangeListener<T>>() {
+                public void action(ObjectChangeListener<T> listener) {
+                    try {
+                        listener.onChange(oldValue, newValue);
+                    }
+                    catch (RuntimeException e) {
+                        ErrorHandler.triggerException(e);
+                    }
                 }
-                catch (RuntimeException e) {
-                    ErrorHandler.triggerException(e);
-                }
-        }
+            });
     }
 }

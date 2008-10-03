@@ -25,6 +25,8 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
+import com.sun.javafx.runtime.util.AbstractLinkable;
+import com.sun.javafx.runtime.util.Linkable;
 
 /**
  * DoubleVariable
@@ -170,18 +172,20 @@ public class DoubleVariable
         });
     }
 
-    private void notifyListeners(double oldValue, double newValue, boolean invalidateDependencies) {
+    private void notifyListeners(final double oldValue, final double newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (replaceListeners != null) {
-            for (DoubleChangeListener listener : replaceListeners)
-                try {
-                    listener.onChange(oldValue, newValue);
+        if (replaceListeners != null)
+            AbstractLinkable.iterate(replaceListeners, new Linkable.IterationClosure<DoubleChangeListener>() {
+                public void action(DoubleChangeListener listener) {
+                    try {
+                        listener.onChange(oldValue, newValue);
+                    }
+                    catch (RuntimeException e) {
+                        ErrorHandler.triggerException(e);
+                    }
                 }
-                catch (RuntimeException e) {
-                    ErrorHandler.triggerException(e);
-                }
-        }
+            });
     }
 
 }

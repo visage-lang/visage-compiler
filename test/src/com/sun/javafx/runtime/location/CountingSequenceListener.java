@@ -31,7 +31,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
  *
  * @author Brian Goetz
  */
-class CountingSequenceListener implements SequenceChangeListener<Integer> {
+class CountingSequenceListener extends SequenceChangeListener<Integer> {
     int changeCount, insertCount, deleteCount, replaceCount;
     Sequence<Integer> inserted = TypeInfo.Integer.emptySequence;
     Sequence<Integer> deleted = TypeInfo.Integer.emptySequence;

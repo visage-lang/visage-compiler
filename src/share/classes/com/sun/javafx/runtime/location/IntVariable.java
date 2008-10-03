@@ -25,6 +25,8 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
+import com.sun.javafx.runtime.util.AbstractLinkable;
+import com.sun.javafx.runtime.util.Linkable;
 
 /**
  * IntVariable
@@ -165,18 +167,19 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
         });
     }
 
-    private void notifyListeners(int oldValue, int newValue, boolean invalidateDependencies) {
+    private void notifyListeners(final int oldValue, final int newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (replaceListeners != null) {
-            for (IntChangeListener listener : replaceListeners) {
-                try {
-                    listener.onChange(oldValue, newValue);
+        if (replaceListeners != null)
+            AbstractLinkable.iterate(replaceListeners, new Linkable.IterationClosure<IntChangeListener>() {
+                public void action(IntChangeListener listener) {
+                    try {
+                        listener.onChange(oldValue, newValue);
+                    }
+                    catch (RuntimeException e) {
+                        ErrorHandler.triggerException(e);
+                    }
                 }
-                catch (RuntimeException e) {
-                    ErrorHandler.triggerException(e);
-                }
-            }
-        }
+            });
     }
 }

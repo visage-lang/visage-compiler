@@ -50,7 +50,7 @@ class BoundSequenceElement<T> extends ObjectVariable<T> implements ObjectLocatio
         seq.addChangeListener(new MySequenceListener());
     }
 
-    private class MySequenceListener implements SequenceChangeListener<T> {
+    private class MySequenceListener extends SequenceChangeListener<T> {
         public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
             int deltaSize = (endPos-startPos+1) - Sequences.size(newElements);
             if (deltaSize != 0) {
