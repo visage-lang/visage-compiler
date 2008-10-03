@@ -77,6 +77,7 @@ public class JavafxFlags {
     private static final long FIRST_FX_CLASS_FLAG    = LAST_FX_MOD_FLAG << 1;
     public static final long COMPOUND_CLASS          = FIRST_FX_CLASS_FLAG << 0;  // class that gets translated to a class and an inteface (MI)
     public static final long FX_CLASS                = FIRST_FX_CLASS_FLAG << 1;  // has 'on replace' either in definition or override
+    public static final long CLASS_HAS_INIT_BLOCK    = FIRST_FX_CLASS_FLAG << 2;  // there is an init block on the class
 
     public static final long JavafxAccessFlags = PUBLIC | PROTECTED | PRIVATE | SCRIPT_PRIVATE;
     public static final long JavafxExplicitAccessFlags = PUBLIC | PROTECTED | PRIVATE | PACKAGE_ACCESS;

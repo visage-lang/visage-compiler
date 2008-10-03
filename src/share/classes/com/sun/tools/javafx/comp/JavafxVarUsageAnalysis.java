@@ -275,6 +275,8 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         inInitBlock = true;
         scan((JFXBlock)that.getBody());
 
+        that.sym.owner.flags_field |= CLASS_HAS_INIT_BLOCK;
+
         inInitBlock = false;
     }
 

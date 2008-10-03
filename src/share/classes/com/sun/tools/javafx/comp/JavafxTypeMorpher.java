@@ -283,7 +283,13 @@ public class JavafxTypeMorpher {
                 The (1) and (2) checks are handled by general checks (above).
                 */
                 //TODO: this is overcautious -- and has to be better for (3b) public-init -- JFXC-2103
+                // these all need Location for correct init
                 if ((flags & (VARUSE_OBJ_LIT_INIT | VARUSE_OVERRIDDEN)) != 0L) {
+                    return true;
+                }
+                if (((sym.owner.flags_field | CLASS_HAS_INIT_BLOCK) != 0L) &&
+                        (flags & (VARUSE_ASSIGNED_TO | VARUSE_INIT_ASSIGNED_TO)) != 0L) {
+                    // May have been written to by an init {}
                     return true;
                 }
 
