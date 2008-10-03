@@ -1138,7 +1138,7 @@ public class JavafxAttr implements JavafxVisitor {
             } else {
                 List<Type> iterableParams = base.allparams();
                 if (iterableParams.isEmpty()) {
-                    elemtype = syms.errType;
+                    elemtype = syms.objectType;
                 } else {
                     elemtype = types.upperBound(iterableParams.last());
                 }
