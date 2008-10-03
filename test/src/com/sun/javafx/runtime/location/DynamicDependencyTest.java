@@ -100,8 +100,8 @@ public class DynamicDependencyTest extends JavaFXTestCase {
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
     }
 
-    /** This test relies on System.gc() actually performing a collection to test that dead listeners are actually
-     * (lazily) removed from the listener list.
+    /** This test may on System.gc() actually performing a collection to test that dead listeners are actually
+     * (lazily) removed from the listener list when not using ReferenceQueue. 
      */
     public void testStaticAndDynamic() {
         final IntLocation a = IntVariable.make(1);
@@ -123,7 +123,7 @@ public class DynamicDependencyTest extends JavaFXTestCase {
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
 
-        System.gc();
+        /*[ System.gc(); ]*/
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
@@ -143,5 +143,72 @@ public class DynamicDependencyTest extends JavaFXTestCase {
         assertEquals(1, ((AbstractLocation) a).getListenerCount());
         assertEquals(1, ((AbstractLocation) b).getListenerCount());
         assertEquals(0, ((AbstractLocation) c).getListenerCount());
+    }
+
+    private void addStaticDep(final IntLocation a) {
+        int lc = ((AbstractLocation) a).getListenerCount();
+        final IntLocation d = IntVariable.make(new IntBindingExpression() {
+            public int computeValue() {
+                return a.getAsInt() + 1;
+            }
+        });
+        d.addDependency(a);
+        assertEquals(lc+1, ((AbstractLocation) a).getListenerCount());
+    }
+
+    private void addDynamicDep(final IntLocation a) {
+        int lc = ((AbstractLocation) a).getListenerCount();
+        final IntLocation d = IntVariable.make(new IntBindingExpression() {
+            public int computeValue() {
+                return a.getAsInt() + 1;
+            }
+        });
+        d.addDynamicDependency(a);
+        assertEquals(lc+1, ((AbstractLocation) a).getListenerCount());
+    }
+
+    public void testWeakLocation() {
+        final IntLocation a = IntVariable.make(1);
+        final IntLocation b = IntVariable.make(new IntBindingExpression() {
+            public int computeValue() {
+                return a.getAsInt() + 1;
+            }
+        });
+        final IntLocation c = IntVariable.make(new IntBindingExpression() {
+            public int computeValue() {
+                return a.getAsInt() + 2;
+            }
+        });
+
+        assertEquals(1, a.getAsInt());
+        assertEquals(2, b.getAsInt());
+        assertEquals(3, c.getAsInt());
+
+        a.set(2);
+        assertEquals(2, a.getAsInt());
+        assertEquals(2, b.getAsInt());
+        assertEquals(3, c.getAsInt());
+        assertEquals(0, ((AbstractLocation) a).getListenerCount());
+
+        b.addDynamicDependency(a);
+        c.addDynamicDependency(a);
+        assertEquals(2, ((AbstractLocation) a).getListenerCount());
+        a.set(3);
+        assertEquals(3, a.getAsInt());
+        assertEquals(4, b.getAsInt());
+        assertEquals(5, c.getAsInt());
+
+        b.clearDynamicDependencies();
+        assertEquals(1, ((AbstractLocation) a).getListenerCount());
+        c.clearDynamicDependencies();
+        assertEquals(0, ((AbstractLocation) a).getListenerCount());
+
+        addStaticDep(a);
+        System.gc();
+        assertEquals(0, ((AbstractLocation) a).getListenerCount());
+
+        addDynamicDep(a);
+        System.gc();
+        assertEquals(0, ((AbstractLocation) a).getListenerCount());
     }
 }

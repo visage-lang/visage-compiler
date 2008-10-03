@@ -174,14 +174,13 @@ public abstract class AbstractLocation implements Location {
         }
     };
 
-    private void purgeDeadDependencies() {
+    void purgeDeadDependencies() {
         AbstractLinkable.iterate(dependentLocationList, this, PURGE_LISTENER_CLOSURE);
     }
 
     public void addDependentLocation(WeakLocation weakLocation) {
         if (!inUse()) {
-            // @@@ Hack: overly aggressive purge
-            purgeDeadDependencies();
+            WeakLocation.purgeDeadLocations(this);
             assert(AbstractLinkable.isUnused(weakLocation));
             AbstractLinkable.addAtEnd(dependentLocationList, this, weakLocation);
         }
@@ -223,6 +222,8 @@ public abstract class AbstractLocation implements Location {
     public void clearDynamicDependencies() {
         for (WeakMeLocation wh = weakMeHead; wh != null; wh = wh.nextWeakMe)
             wh.clear();
+        // Hint to poll at reference queue
+        WeakLocation.purgeDeadLocations(null);
         weakMeHead = null;
     }
 
@@ -329,8 +330,7 @@ public abstract class AbstractLocation implements Location {
 
         public void apply(AbstractLocation target) {
             if (deferredDependencies != null && deferredDependencies.size() > 0) {
-                // @@@ Hack: overly aggressive purge
-                target.purgeDeadDependencies();
+                WeakLocation.purgeDeadLocations(target);
                 // @@@ Ugh, O(n^2)
                 for (WeakLocation loc : deferredDependencies)
                     AbstractLinkable.addAtEnd(dependentLocationList, target, loc);
