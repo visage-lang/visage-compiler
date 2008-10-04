@@ -53,12 +53,19 @@ public class Entry {
             Entry.commandLineArgs = (String[]) commandLineArgs.clone();
         }
 
-        Method main = app.getMethod(entryMethodName(), Sequence.class);
+        final Method main = app.getMethod(entryMethodName(), Sequence.class);
         Object args = Sequences.make(TypeInfo.String, commandLineArgs);
         
         try {
-            main.setAccessible(true);
-            provider = runtimeProviderLocator();
+            AccessController.doPrivileged(
+                new PrivilegedAction<Void>() {
+                    public Void run() {
+                        main.setAccessible(true);
+                        provider = runtimeProviderLocator();
+                        return null;
+                    }
+                }
+            ); 
             if (provider != null && provider.usesRuntimeLibrary(app)) {
                 provider.run(main, commandLineArgs);
             } else {
