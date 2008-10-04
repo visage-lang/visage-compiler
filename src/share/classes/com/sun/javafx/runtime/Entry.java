@@ -104,14 +104,11 @@ public class Entry {
         namedArgProvider = provider;
     }
 
-    public static int getNumArguments() {
-        String[] args = commandLineArgs;
-        if (args == null)
-            return 0;
-        return args.length;
+    public static Sequence<String> getArguments() {
+        return Sequences.make(TypeInfo.String, commandLineArgs);
     }
 
-    public static Object getArgument(int argument) {
+    private static Object getArgument(int argument) {
         String[] args = commandLineArgs;
         if (args == null)
             return null;
@@ -120,15 +117,15 @@ public class Entry {
         return args[argument];
     }
 
-    public static Object getNamedArgument(String name) {
+    public static Object getArgument(String key) {
         NamedArgumentProvider provider = namedArgProvider;
         Object val = null;
         if (provider != null)
-            val = provider.get(name);
+            val = provider.get(key);
         if (val == null) {
             // Try the command line arguments
             try {
-                return getArgument(Integer.parseInt(name));
+                return getArgument(Integer.parseInt(key));
             } catch (NumberFormatException e) {
             }
         }
@@ -240,6 +237,11 @@ public class Entry {
          * graphics displayed
          */
         public void exit() {
+            try {
+                System.exit(0);
+            } catch (Throwable ignored) {
+                throw new FXExit();
+            }
         }
     }
 }

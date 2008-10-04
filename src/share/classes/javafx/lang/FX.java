@@ -35,6 +35,7 @@ import com.sun.javafx.runtime.Entry;
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.SystemProperties;
 import com.sun.javafx.runtime.FXExit;
+import com.sun.javafx.runtime.sequence.Sequence;
 
 // factored out to avoid linkage error for javax.script.* on Java 1.5
 class Evaluator {
@@ -244,26 +245,12 @@ public class FX {
 
     /**
      * For JavaFX Script applications that are started on the command
-     * line, queries the number of incoming arguments of the currently
-     * running application. Returns 0 if there were no incoming
+     * line,running application. Returns null if there were no incoming
      * arguments or if this application was not invoked from the
-     * command line. Used in conjunction with {@link #getArgument
-     * getArgument}.
+     * command line. 
      */
-    public static int getNumArguments() {
-        return Entry.getNumArguments();
-    }
-
-    /**
-     * For JavaFX Script applications that are started on the command
-     * line, returns the specified argument (0..{@link
-     * #getNumArguments getNumArguments} - 1). This usually returns a
-     * String, but some environments may return other kinds of
-     * values. Returns null if this application was not invoked from
-     * the command line, or if the index is out of bounds.
-     */
-    public static Object getArgument(int argument) {
-        return Entry.getArgument(argument);
+    public static Sequence<String> getArguments() {
+        return Entry.getArguments();
     }
 
     /**
@@ -272,12 +259,12 @@ public class FX {
      * particular, applets) where incoming arguments are represented
      * as name/value pairs. This usually returns a String, but some
      * environments may return other kinds of values. Accepts numbers
-     * in the form of Strings (e.g. {@code getNamedArgument("0")}) to
-     * provide unification with {@link #getArgument getArgument}.
+     * in the form of Strings (e.g. {@code getArgument("0")}) to
+     * provide unification with {@link #getArguments getArguments}.
      * Returns null if the given named argument does not exist.
      */
-    public static Object getNamedArgument(String name) {
-        return Entry.getNamedArgument(name);
+    public static Object getArgument(String key) {
+        return Entry.getArgument(key);
     }
 
     /*
