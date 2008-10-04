@@ -789,7 +789,11 @@ modifierFlag
 	//TODO: deprecated -- remove these at some point
 	//                    For now, error about their deprecation
 	//
-	| PRIVATE			{ log.error(pos($PRIVATE), MsgSym.MESSAGE_JAVAFX_NOT_SUPPORTED_PRIVATE); }
+	| PRIVATE			{ 
+							JFXErroneous err = F.at(pos($PRIVATE)).Erroneous();
+							endPos(err);
+							log.error(err, MsgSym.MESSAGE_JAVAFX_NOT_SUPPORTED_PRIVATE); 
+						}
 	| STATIC			{ $flag = Flags.STATIC;      			}
 	;
 
@@ -2107,7 +2111,12 @@ variableLabel
 	
 	: VAR			{ $modifiers = 0L; $pos = pos($VAR); }
 	| DEF			{ $modifiers = JavafxFlags.IS_DEF; $pos = pos($DEF); }
-	| ATTRIBUTE     { $modifiers = 0L; $pos = pos($ATTRIBUTE); log.warning(pos($ATTRIBUTE), MsgSym.MESSAGE_JAVAFX_NOT_SUPPORTED_ATTRIBUTE); } 
+	| ATTRIBUTE     { 	$modifiers = 0L; 
+						$pos = pos($ATTRIBUTE); 
+						JFXErroneous err = F.at($pos).Erroneous();
+						endPos(err);
+						log.error(err, MsgSym.MESSAGE_JAVAFX_NOT_SUPPORTED_ATTRIBUTE); 
+					} 
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
