@@ -455,6 +455,9 @@ public class FXLocal {
                     name = sourceName.value();
                 if (requiredName != null && ! requiredName.equals(name))
                     continue;
+                if (name.endsWith("$needs_default$")) {
+                    continue;
+                }
                 java.lang.reflect.Type gtype = fld.getGenericType();
                 FXType tr = context.makeTypeRef(gtype);
                 VarMember ref = new VarMember(name, this, tr);

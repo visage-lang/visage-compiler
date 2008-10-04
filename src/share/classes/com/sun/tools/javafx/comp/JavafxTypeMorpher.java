@@ -282,16 +282,6 @@ public class JavafxTypeMorpher {
 
                 The (1) and (2) checks are handled by general checks (above).
                 */
-                //TODO: this is overcautious -- and has to be better for (3b) public-init -- JFXC-2103
-                // these all need Location for correct init
-                if ((flags & (VARUSE_OBJ_LIT_INIT | VARUSE_OVERRIDDEN)) != 0L) {
-                    return true;
-                }
-                if (((sym.owner.flags_field | CLASS_HAS_INIT_BLOCK) != 0L) &&
-                        (flags & (VARUSE_ASSIGNED_TO | VARUSE_INIT_ASSIGNED_TO)) != 0L) {
-                    // May have been written to by an init {}, simple set in initialize$() could smash it
-                    return true;
-                }
 
                 // (3a) check.  Not used in bind has already been checked (above).
                 // Check that it is not accessible outside the script (so noone else can bind it).
@@ -301,14 +291,16 @@ public class JavafxTypeMorpher {
 
                 // (3b) check.  No assignments (except in init{}) and
                 // permissions such that this can't be done externally, or it is a 'def'.
-                //TODO: JFXC-2026 : Elide unassigned and externally unassignable member vars
-                //    if ((flags & VARUSE_ASSIGNED_TO) == 0L &&
-                //            ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS | PUBLIC_INIT)) == 0L ||
-                //            (flags & IS_DEF) != 0L)) {
-                //        return false;
-                //    }
 
+                //TODO: JFXC-2026 : Elide unassigned and externally unassignable member vars
                 //TODO: JFXC-2103 -- allow public-init
+                /******
+                    if ((flags & VARUSE_ASSIGNED_TO) == 0L &&
+                            ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS)) == 0L ||
+                            (flags & IS_DEF) != 0L)) {
+                        return false;
+                    }
+**********/
 
                 return true; 
             }

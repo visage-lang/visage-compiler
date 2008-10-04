@@ -112,6 +112,10 @@ class JavafxAnalyzeClass {
             return (getFlags() & Flags.STATIC) != 0;
         }
 
+        public boolean isDef() {
+            return (getFlags() & JavafxFlags.IS_DEF) != 0;
+        }
+
         public VarMorphInfo getVMI() {
             return vmi;
         }

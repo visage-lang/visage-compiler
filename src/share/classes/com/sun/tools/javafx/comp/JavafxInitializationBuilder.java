@@ -61,7 +61,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final Name addChangeListenerName;
     private final Name locationInitializeName;;
     private final Name[] changeListenerInterfaceName;
-//    private final Name sequenceReplaceListenerInterfaceName;
     private final Name sequenceChangeListenerInterfaceName;
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
     private final Name onChangeArgName1, onChangeArgName2;
@@ -166,6 +165,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
         cDefinitions.appendList(makeAttributeFields(cDecl.sym, instanceAttributeInfos));
+        cDefinitions.appendList(makeNeedsDefaultFields(instanceAttributeInfos));
         cDefinitions.appendList(makeAttributeFields(cDecl.sym, analysis.staticAttributeInfos()));
         cDefinitions.appendList(makeMemberVariableAccessorMethods(cDecl, instanceAttributeInfos));
         cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
@@ -466,7 +466,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     }
 
     private Type morphedType(VarInfo ai) {
-        return typeMorpher.requiresLocation(ai.getSymbol()) ? ai.getVariableType() : ai.getRealType();
+        return requiresLocation(ai) ? ai.getVariableType() : ai.getRealType();
     }
 
     private JCMethodDecl makeGetterMethod(DiagnosticPosition diagPos, VarInfo ai, JCModifiers mods, JCBlock statBlock) {
@@ -499,9 +499,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCTree> accessors = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
             if (!ai.isStatic()) {
-                final VarSymbol vsym = ai.getSymbol();
                 accessors.append(makeGetterMethod(diagPos, ai, make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT), null));
-                if (!typeMorpher.requiresLocation(vsym)) {
+                if (!requiresLocation(ai)) {
                     accessors.append(makeSetterMethod(diagPos, ai, make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT), null));
                 }
             }
@@ -531,17 +530,30 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Add the return statement for the attribute
                     JCExpression value = make.Ident(attributeFieldName(vsym));
                     JCStatement returnStat = make.at(diagPos).Return(value);
-                    JCBlock block = make.at(diagPos).Block(0L, List.of(returnStat));
 
                     // Add the method for this class' attributes
+                    JCBlock block = make.at(diagPos).Block(0L, List.of(returnStat));
                     accessors.append(makeGetterMethod(diagPos, ai, proxyModifiers(ai, cDecl), block));
                 }
-                if (!typeMorpher.requiresLocation(vsym)) {
-                    JCExpression attr = make.Ident(attributeFieldName(vsym));
-                    JCExpression value = make.Ident(defs.attributeSetMethodParamName);
+                if (!requiresLocation(ai)) {
+                    // Add setter method
+                    ListBuffer<JCStatement> stmts = ListBuffer.lb();
+
+                    if (!ai.isDef()) {
+                        // Mark doesn't need default any more
+                        JCExpression needsDefaultField = make.at(diagPos).Ident(attributeNeedsDefaultFieldName(vsym));
+                        JCExpression mark = make.at(diagPos).Assign(needsDefaultField, make.at(diagPos).Literal(TypeTags.BOOLEAN, 0));
+                        stmts.append(make.at(diagPos).Exec(mark));
+                    }
+
+                    // Set value
+                    JCExpression attr = make.at(diagPos).Ident(attributeFieldName(vsym));
+                    JCExpression value = make.at(diagPos).Ident(defs.attributeSetMethodParamName);
                     JCExpression assign = make.at(diagPos).Assign(attr, value);
-                    JCStatement returnStat = make.at(diagPos).Return(assign);
-                    JCBlock block = make.at(diagPos).Block(0L, List.of(returnStat));
+                    stmts.append(make.at(diagPos).Return(assign));
+
+                    // Add setter method
+                    JCBlock block = make.at(diagPos).Block(0L, stmts.toList());
                     accessors.append(makeSetterMethod(diagPos, ai, proxyModifiers(ai, cDecl), block));
                 }
 
@@ -682,7 +694,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCExpression> finishAttrs = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
             final VarSymbol vsym = ai.getSymbol();
-            if (ai.needsCloning() && typeMorpher.requiresLocation(vsym)) {
+            if (ai.needsCloning() && requiresLocation(ai)) {
                 finishAttrs.append(make.at(diagPos).Ident(attributeFieldName(vsym)));
             }
         }                
@@ -704,26 +716,32 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 initializeBlock, null);
     }
     
-    // Add the initialization of this class' attributes
+    // Add the initialization of instance variables
     private List<JCStatement> makeInitAttributesCode(List<VarInfo> attrInfos,
             JFXClassDeclaration cDecl) {
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
-            if ((ai.getFlags() & Flags.STATIC) == 0) {
+            if (!ai.isStatic()) {
                 DiagnosticPosition diagPos = ai.pos();
-                Name methodName = attributeApplyDefaultsName(ai.getSymbol());
+                VarSymbol vsym = ai.getSymbol();
+                Name methodName = attributeApplyDefaultsName(vsym);
 
-                List<JCExpression> arg = List.<JCExpression>of(make.at(diagPos).Ident(names._this));
-                JCStatement applyDefaultsCall = callStatement(diagPos, null, methodName, arg);
-                if (typeMorpher.requiresLocation(ai.getSymbol())) {
-                    JCExpression needsDefaultCond = callExpression(diagPos,
-                            make.at(diagPos).Ident(attributeFieldName(ai.getSymbol())),
-                            defs.needDefaultsMethodName);
-                    JCStatement protectedCall = make.If(needsDefaultCond, applyDefaultsCall, null);
-                    stmts.append(protectedCall);
-                } else {
-                    stmts.append(applyDefaultsCall);
+                List<JCExpression> applyDefaultsArg = List.<JCExpression>of(make.at(diagPos).Ident(names._this));
+                JCStatement applyDefaultsCall = callStatement(diagPos, null, methodName, applyDefaultsArg);
+                if (!ai.isDef()) {
+                    JCExpression cond;
+                    if (requiresLocation(ai)) {
+                        Name fieldName = attributeFieldName(vsym);
+                        cond = callExpression(diagPos,
+                                make.at(diagPos).Ident(fieldName),
+                                defs.needDefaultsMethodName);
+                    } else {
+                        Name fieldName = attributeNeedsDefaultFieldName(vsym);
+                        cond = make.at(diagPos).Ident(fieldName);
+                    }
+                    applyDefaultsCall = make.If(cond, applyDefaultsCall, null);
                 }
+                stmts.append(applyDefaultsCall);
             }
         }
         return stmts.toList();
@@ -749,7 +767,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (tai.getDefaultInitStatement() != null) {
                         stmts.append(tai.getDefaultInitStatement());
                     }
-                    if (typeMorpher.requiresLocation(tai.getSymbol())) {
+                    if (requiresLocation(tai)) {
                         // If the static variable is represented with a Location, initialize it
                         stmts.append(callStatement(diagPos, make.at(diagPos).Ident(attributeFieldName(tai.getSymbol())), locationInitializeName));
                     }
@@ -815,7 +833,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (ai.needsCloning()) {
                 final DiagnosticPosition diagPos = ai.pos();
                 final VarSymbol sym = ai.getSymbol();
-                final boolean requiresLocation = typeMorpher.requiresLocation(sym);
+                final boolean requiresLocation = requiresLocation(ai);
                 final long modFlags = Flags.PUBLIC | (requiresLocation? Flags.FINAL : 0L) | (ai.getFlags() & Flags.STATIC);
 
                 JCModifiers mods = make.Modifiers(modFlags);
@@ -848,8 +866,34 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         return fields.toList();
     }
-    
-             
+
+    private Name attributeNeedsDefaultFieldName(VarSymbol vsym) {
+        Name aName = attributeFieldName(vsym);
+        String nameStr = aName.toString() + needsDefaultSuffix;
+        return names.fromString(nameStr);
+    }
+
+    // build a needs-default boolean field for each non-Location non-def instance member var (including inherited).
+    private List<JCTree> makeNeedsDefaultFields(List<? extends VarInfo> attrInfos) {
+        ListBuffer<JCTree> members = ListBuffer.lb();
+        for (VarInfo ai : attrInfos) {
+            if (ai.needsCloning() && !ai.isStatic() && !ai.isDef() && !requiresLocation(ai)) {
+                final DiagnosticPosition diagPos = ai.pos();
+                final VarSymbol vsym = ai.getSymbol();
+
+                // Make field
+                 JCVariableDecl var = make.at(diagPos).VarDef(
+                        make.Modifiers(Flags.PUBLIC),
+                        attributeNeedsDefaultFieldName(vsym),
+                        makeTypeTree(diagPos, syms.booleanType),
+                        make.at(diagPos).Literal(TypeTags.BOOLEAN, 1));
+                members.append(var);
+                optStat.recordConcreteField();
+            }
+        }
+        return members.toList();
+    }
+
     /**
      * Non-destructive creation of "on change" change listener set-up call.
      */
@@ -1030,6 +1074,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         JCExpression expr = callExpression(diagPos, receiver, functionName(mth, !isStatic, isBound), args);
         JCStatement statement = (mth.getReturnType() == syms.voidType) ? make.Exec(expr) : make.Return(expr);
         return make.at(diagPos).Block(0L, List.<JCStatement>of(statement));
+    }
+
+    private boolean requiresLocation(VarInfo ai) {
+        return typeMorpher.requiresLocation(ai.getSymbol());
     }
 
     protected String getSyntheticPrefix() {

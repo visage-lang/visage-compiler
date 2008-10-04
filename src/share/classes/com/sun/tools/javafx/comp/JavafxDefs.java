@@ -47,6 +47,7 @@ public class JavafxDefs {
     public static final String attributeSetMethodNamePrefix = "set$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
     public static final String attributeSetMethodParamNameString = "value";
+    public static final String needsDefaultSuffix = "$needs_default$";
     public static final String interfaceSuffix = "$Intf";
     public static final String equalsMethodString = "com.sun.javafx.runtime.Checks.equals";
     public static final String isNullMethodString = "com.sun.javafx.runtime.Checks.isNull";
@@ -149,6 +150,7 @@ public class JavafxDefs {
     public final Name[] locationVariableName;
     public final Name[] locationInterfaceName;
     public final Name implFunctionSuffixName;
+    public final Name needsDefaultSuffixName;
     
     public Type delocationize(Name flatname) {
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
@@ -216,6 +218,7 @@ public class JavafxDefs {
         userInitName = names.fromString("userInit$");
         postInitName = names.fromString("postInit$");
         implFunctionSuffixName = names.fromString(implFunctionSuffix);
+        needsDefaultSuffixName = names.fromString(needsDefaultSuffix);
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
         attributeSetPrefixName = names.fromString(attributeSetMethodNamePrefix);
         applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);

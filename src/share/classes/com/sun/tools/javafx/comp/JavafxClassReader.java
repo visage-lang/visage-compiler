@@ -549,6 +549,8 @@ public class JavafxClassReader extends ClassReader {
                     csym.members_field.enter(m);
                 }
                 else if (l.head instanceof VarSymbol) {
+                    if (name.endsWith(defs.needsDefaultSuffixName))
+                        continue;
                     Type otype = l.head.type;
                     if (otype.tag == CLASS) {
                         TypeSymbol tsym = otype.tsym;
