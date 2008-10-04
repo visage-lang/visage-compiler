@@ -787,9 +787,9 @@ modifierFlag
         
 	
 	//TODO: deprecated -- remove these at some point
-	//                    For now, warn about their deprecation
+	//                    For now, error about their deprecation
 	//
-	| PRIVATE			{ log.warning(pos($PRIVATE), "javafx.not.supported.private"); }
+	| PRIVATE			{ log.error(pos($PRIVATE), MsgSym.MESSAGE_JAVAFX_NOT_SUPPORTED_PRIVATE); }
 	| STATIC			{ $flag = Flags.STATIC;      			}
 	;
 
@@ -2107,7 +2107,7 @@ variableLabel
 	
 	: VAR			{ $modifiers = 0L; $pos = pos($VAR); }
 	| DEF			{ $modifiers = JavafxFlags.IS_DEF; $pos = pos($DEF); }
-	| ATTRIBUTE		{ $modifiers = 0L; $pos = pos($ATTRIBUTE); log.warning(pos($ATTRIBUTE), "javafx.not.supported.attribute"); }
+	| ATTRIBUTE     { $modifiers = 0L; $pos = pos($ATTRIBUTE); log.warning(pos($ATTRIBUTE), MsgSym.MESSAGE_JAVAFX_NOT_SUPPORTED_ATTRIBUTE); } 
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
@@ -3326,8 +3326,15 @@ assignOp
 	| SLASHEQ		{ $op = JavafxTag.DIV_ASG;				}
 	| PERCENTEQ
 		{ 
-			$op = JavafxTag.MOD_ASG;
-			log.warning(pos($PERCENTEQ), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The operator \%= will not be supported in the JavaFX 1.0 release" );
+			// Create an error node for a DiagnosticPosition
+			//
+			JFXErroneous err = F.at(pos($PERCENTEQ)).Erroneous();
+			endPos(err);
+			log.error(err, MsgSym.MESSAGE_JAVAFX_BAD_PERCENT);
+			
+			// Erroneous operator
+			//
+			$op = JavafxTag.ERRONEOUS;
 		}
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 
@@ -3574,8 +3581,10 @@ relOps
 	
 	: LTGT
 		{ 
+			JFXErroneous err = F.at(pos($LTGT)).Erroneous();
+			endPos(err);
 			$relOp = JavafxTag.NE;
-			log.warning(pos($LTGT), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The not-equal operator <> will be replaced by !=" );
+			log.error(err, MsgSym.MESSAGE_JAVAFX_NOT_NE);
 		}	
 			  		
 	| NOTEQ  { $relOp = JavafxTag.NE;	}
@@ -3742,8 +3751,10 @@ multOps
 	| PERCENT 	
 			
 		{
+			JFXErroneous err = F.at(pos($PERCENT)).Erroneous();
+			endPos(err);
 			$multOp = JavafxTag.MOD;
-			log.warning(pos($PERCENT), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The remainder operator \% will be replaced by mod" );
+			log.error(err, MsgSym.MESSAGE_JAVAFX_BAD_PERCENT);
 		}	
              
 	| MOD		{ $multOp = JavafxTag.MOD;	}
@@ -5753,9 +5764,13 @@ typeName
 			  {
 			  	// AST for generic
 			  	//
-			  	// TODO: Implement this?
+			  	JFXErroneous err = F.at(pos($LT)).Erroneous();
+				endPos(err);
+			  	log.error(err, MsgSym.MESSAGE_JAVAFX_GENERICS_UNSUPPORTED);
+			  	
+			  	// Ensure that the IDE plugin does not fall over
 			  	//
-			  	log.error(pos($LT), "javafx.generalerror", "Java generic type declarations are not currently supported");
+			  	$value = $qualname.value;
 			  }
 			  
 			|	// Non generic

@@ -176,22 +176,10 @@ public interface Tree {
         PREFIX_DECREMENT(UnaryTree.class),
 
         /**
-         * Used for instances of {@link UnaryTree} representing unary plus
-         * operator {@code +}.
-         */
-        UNARY_PLUS(UnaryTree.class),
-
-        /**
          * Used for instances of {@link UnaryTree} representing unary minus
          * operator {@code -}.
          */
         UNARY_MINUS(UnaryTree.class),
-
-        /**
-         * Used for instances of {@link UnaryTree} representing bitwise
-         * complement operator {@code ~}.
-         */
-        BITWISE_COMPLEMENT(UnaryTree.class),
 
         /**
          * Used for instances of {@link UnaryTree} representing logical
@@ -267,24 +255,6 @@ public interface Tree {
 
         /**
          * Used for instances of {@link BinaryTree} representing
-         * bitwise and logical "and" {@code &}.
-         */
-        AND(BinaryTree.class),
-
-        /**
-         * Used for instances of {@link BinaryTree} representing
-         * bitwise and logical "xor" {@code ^}.
-         */
-        XOR(BinaryTree.class),
-
-        /**
-         * Used for instances of {@link BinaryTree} representing
-         * bitwise and logical "or" {@code |}.
-         */
-        OR(BinaryTree.class),
-
-        /**
-         * Used for instances of {@link BinaryTree} representing
          * conditional-and {@code &&}.
          */
         CONDITIONAL_AND(BinaryTree.class),
@@ -309,12 +279,6 @@ public interface Tree {
 
         /**
          * Used for instances of {@link CompoundAssignmentTree} representing
-         * remainder assignment {@code %=}.
-         */
-        REMAINDER_ASSIGNMENT(CompoundAssignmentTree.class),
-
-        /**
-         * Used for instances of {@link CompoundAssignmentTree} representing
          * addition or string concatenation assignment {@code +=}.
          */
         PLUS_ASSIGNMENT(CompoundAssignmentTree.class),
@@ -326,34 +290,10 @@ public interface Tree {
         MINUS_ASSIGNMENT(CompoundAssignmentTree.class),
 
         /**
-         * Used for instances of {@link CompoundAssignmentTree} representing
-         * bitwise and logical "and" assignment {@code &=}.
-         */
-        AND_ASSIGNMENT(CompoundAssignmentTree.class),
-
-        /**
-         * Used for instances of {@link CompoundAssignmentTree} representing
-         * bitwise and logical "xor" assignment {@code ^=}.
-         */
-        XOR_ASSIGNMENT(CompoundAssignmentTree.class),
-
-        /**
-         * Used for instances of {@link CompoundAssignmentTree} representing
-         * bitwise and logical "or" assignment {@code |=}.
-         */
-        OR_ASSIGNMENT(CompoundAssignmentTree.class),
-
-        /**
          * Used for instances of {@link LiteralTree} representing
          * an integral literal expression of type {@code int}.
          */
         INT_LITERAL(LiteralTree.class),
-
-        /**
-         * Used for instances of {@link LiteralTree} representing
-         * an integral literal expression of type {@code long}.
-         */
-        LONG_LITERAL(LiteralTree.class),
 
         /**
          * Used for instances of {@link LiteralTree} representing
@@ -373,11 +313,6 @@ public interface Tree {
          */
         BOOLEAN_LITERAL(LiteralTree.class),
 
-        /**
-         * Used for instances of {@link LiteralTree} representing
-         * a character literal expression of type {@code char}.
-         */
-        CHAR_LITERAL(LiteralTree.class),
 
         /**
          * Used for instances of {@link LiteralTree} representing

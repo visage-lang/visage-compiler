@@ -1797,8 +1797,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         return JCTree.MUL;
                     case DIV_ASG:
                         return JCTree.DIV;
-                    case MOD_ASG:
-                        return JCTree.MOD;
                     default:
                         assert false : "unexpected assign op kind";
                         return JCTree.PLUS;

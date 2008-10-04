@@ -147,7 +147,6 @@ public enum JavafxTag {
     MINUS_ASG,
     MUL_ASG,
     DIV_ASG,
-    MOD_ASG,
 
     /** class declaration
      */
@@ -306,8 +305,6 @@ public enum JavafxTag {
                 return JCTree.MUL_ASG;
             case DIV_ASG:
                 return JCTree.DIV_ASG;
-            case MOD_ASG:
-                return JCTree.MOD_ASG;
             case OR:
                 return JCTree.OR;
             case AND:

@@ -1,7 +1,7 @@
-test/should-fail/jfxc34_paramTypes.fx:12: Java generic type declarations are not currently supported.
+test/should-fail/jfxc34_paramTypes.fx:12: Java style generics are not currently supported in JavaFX, so you cannot use them here.
 var keyMap : java.util.Map<java.lang.Integer, java.lang.String> = new  java.util.HashMap<java.lang.Integer, java.lang.String>;
                           ^
-test/should-fail/jfxc34_paramTypes.fx:12: Java generic type declarations are not currently supported.
+test/should-fail/jfxc34_paramTypes.fx:12: Java style generics are not currently supported in JavaFX, so you cannot use them here.
 var keyMap : java.util.Map<java.lang.Integer, java.lang.String> = new  java.util.HashMap<java.lang.Integer, java.lang.String>;
                                                                                         ^
 2 errors

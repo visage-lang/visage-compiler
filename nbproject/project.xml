@@ -184,7 +184,7 @@
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2">
             <compilation-unit>
                 <package-root>build/gensrc</package-root>
-                <classpath mode="compile">lib/javac.jar:build/classes:tools/antlr-3.1.1/antlr-3.1.1-runtime.jar</classpath>
+                <classpath mode="compile">lib/javac.jar:build/classes:tools/antlr-3.1.1/antlr-3.1.1-runtime.jar:tools/antlr-3.1.1/antlr-3.1.1.jar</classpath>
                 <source-level>1.5</source-level>
             </compilation-unit>
             <compilation-unit>

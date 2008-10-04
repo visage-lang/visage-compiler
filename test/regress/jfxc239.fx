@@ -8,6 +8,6 @@
 import java.lang.*;
 
 var rand = 21;
-var s = if (rand % 2 == 0) "s" else 1; 
+var s = if (rand mod  2 == 0) "s" else 1; 
 
 System.out.println("s: {s}");

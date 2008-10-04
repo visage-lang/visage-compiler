@@ -239,7 +239,6 @@ public class JavafxTreeInfo {
 	case MINUS_ASG:
 	case MUL_ASG:
 	case DIV_ASG:
-	case MOD_ASG: 
             return assignopPrec;
         case OR: 
         case XOR: 
@@ -340,8 +339,6 @@ public class JavafxTreeInfo {
             return Tree.JavaFXKind.MULTIPLY_ASSIGNMENT;
         case DIV_ASG:           // /=
             return Tree.JavaFXKind.DIVIDE_ASSIGNMENT;
-        case MOD_ASG:           // %=
-            return Tree.JavaFXKind.REMAINDER_ASSIGNMENT;
         case PLUS_ASG:          // +=
             return Tree.JavaFXKind.PLUS_ASSIGNMENT;
         case MINUS_ASG:         // -=
@@ -482,7 +479,6 @@ public class JavafxTreeInfo {
             case MINUS_ASG:
             case MUL_ASG:
             case DIV_ASG:
-            case MOD_ASG:
                 return getStartPos(((JFXAssignOp) tree).lhs);
 
             case OR:

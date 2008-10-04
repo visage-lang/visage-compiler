@@ -147,7 +147,6 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
     {
         tokenMap.put("ABSTRACT", "abstract");
         tokenMap.put("ASSERT", "assert");
-        tokenMap.put("ATTRIBUTE","attribute");
         tokenMap.put("BIND", "bind");
         tokenMap.put("BOUND", "bound");
         tokenMap.put("BREAK", "break");
@@ -526,7 +525,6 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         //
         tokenClassMap[v4Parser.ABSTRACT]            = TokenClassification.KEYWORD;
         tokenClassMap[v4Parser.ASSERT]              = TokenClassification.KEYWORD;
-        tokenClassMap[v4Parser.ATTRIBUTE]           = TokenClassification.KEYWORD;
         tokenClassMap[v4Parser.BIND]                = TokenClassification.KEYWORD;
         tokenClassMap[v4Parser.BOUND]               = TokenClassification.KEYWORD;
         tokenClassMap[v4Parser.BREAK]               = TokenClassification.KEYWORD;
@@ -1716,7 +1714,6 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         //
         follow.add(v4Parser.INIT);
         follow.add(v4Parser.ABSTRACT);
-        follow.add(v4Parser.ATTRIBUTE);
         follow.add(v4Parser.BOUND);
         follow.add(v4Parser.DEF);
         follow.add(v4Parser.FUNCTION);

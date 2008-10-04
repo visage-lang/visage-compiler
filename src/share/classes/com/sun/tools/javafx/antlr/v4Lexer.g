@@ -1016,7 +1016,7 @@ INVALIDC
 				
 			} else {
 			
-				log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_BAD_CHARACTER, "\\u" + Integer.toHexString( disp.charAt(0) ) );
+				log.error(getCharIndex()-1, MsgSym.MESSAGE_JAVAFX_BAD_CHARACTER, getCharErrorDisplay( disp.charAt(0) ) );
 			}
 		}
 	;

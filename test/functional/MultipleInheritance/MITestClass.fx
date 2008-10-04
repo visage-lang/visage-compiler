@@ -85,8 +85,11 @@ public class TestClass extends bc2,bc1b{
 }
 
 function run() {
+println("new class....");
  var tc = new TestClass();
+println("running test");
  tc.test();
+println("finished");
 
  println("PASSED: {tc.getPasses()}");
  println("FAILED: {tc.getFailures()}");

@@ -533,7 +533,6 @@ public class JavafxPretty implements JavafxVisitor {
             case MINUS_ASG:  return "-=";
             case MUL_ASG:    return "*=";
             case DIV_ASG:    return "/=";
-            case MOD_ASG:    return "%=";
             case REVERSE:    return "reverse";
             case INDEXOF:    return "indexof";
             case SIZEOF:     return "sizeof";

@@ -386,4 +386,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_GARBLED_DECLARATION = "javafx.garbled.declaration";
     public static final String MESSAGE_JAVAFX_OPTIMIZATION_STATISTIC = "javafx.optimization.statistic";
     public static final String MESSAGE_JAVAFX_BAD_DEF = "javafx.bad.def";
+    public static final String MESSAGE_JAVAFX_BAD_PERCENT = "javafx.bad.percent";
+    public static final String MESSAGE_JAVAFX_NOT_NE = "javafx.not.ne";
+    public static final String MESSAGE_JAVAFX_GENERICS_UNSUPPORTED = "javafx.generics.unsupported";
 }

@@ -87,8 +87,6 @@ c *= 2;
 // DIVIDE_ASSIGNMENT
 c /= 4;
 
-// REMAINDER_ASSIGNMENT
-//c %= 5;
 
 // PLUS_ASSIGNMENT
 c += 10;
@@ -97,15 +95,6 @@ c += 10;
 c -= 5;
 
 var b : Boolean = true;
-
-// AND_ASSIGNMENT
-// b &= true;
-
-// XOR_ASSIGNMENT
-// b ^= true;
-
-// OR_ASSIGNMENT
-// b |= true;
 
 // PREFIX_INCREMENT
 ++c;
@@ -119,20 +108,11 @@ c++;
 // POSTFIX_DECREMENT
 c--;
 
-// UNARY_PLUS
-//+c;
-
 // UNARY_MINUS
 -c;
 
-// BITWISE_COMPLEMENT
-//~c;
-
 // LOGICAL_COMPLEMENT
 not b;
-
-// AND
-//c & 7;
 
 // CONDITIONAL_AND
 b and true;
@@ -161,17 +141,12 @@ c - 5;
 // MULTIPLY
 c * 3;
 
-// OR
-//c|3;
-
 // PLUS
 c + 3;
 
 // REMAINDER
 c mod 5;
 
-// XOR
-//c ^ 3;
 
 /* no longer a tree type:  BIND_EXPRESSION */
 var bbb = bind c;
@@ -254,9 +229,6 @@ var tf : function () : String;
 // INT_LITERAL
 1;
 
-// LONG_LITERAL
-//100000000000000000000;
-
 // FLOAT_LITERAL
 1.;
 
@@ -267,8 +239,6 @@ var tf : function () : String;
 true;
 false;
 
-// CHAR_LITERAL
-'a';
 
 // STRING_LITERAL
 "asfdasfd";

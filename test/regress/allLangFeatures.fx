@@ -90,23 +90,12 @@ c = 2;
 c *= 2;
 // DIVIDE_ASSIGNMENT
 c /= 4;
-// REMAINDER_ASSIGNMENT
-//c %= 5;
 // PLUS_ASSIGNMENT
 c += 10;
 // MINUS_ASSIGNMENT
 c -= 5;
 
 var b : Boolean = true;
-
-// AND_ASSIGNMENT
-// b &= true;
-
-// XOR_ASSIGNMENT
-// b ^= true;
-
-// OR_ASSIGNMENT
-// b |= true;
 
 // PREFIX_INCREMENT
 ++c;
@@ -116,18 +105,12 @@ c++;
 --c;
 // POSTFIX_DECREMENT
 c--;
-// UNARY_PLUS
-//+c;
+
 // UNARY_MINUS
 -c;
-// BITWISE_COMPLEMENT
-//~c;
 
 // LOGICAL_COMPLEMENT
 not b;
-
-// AND
-//c & 7;
 
 // CONDITIONAL_AND
 b and true;
@@ -156,17 +139,11 @@ c - 5;
 // MULTIPLY
 c * 3;
 
-// OR
-//c|3;
-
 // PLUS
 c + 3;
 
 // REMAINDER
-// c % 5;
-
-// XOR
-//c ^ 3;
+ c mod 5;
 
 // BIND_EXPRESSION
 var bbb = bind c;
@@ -253,21 +230,17 @@ var tf : function () : String;
 function more() {
 // INT_LITERAL
 1;
-// LONG_LITERAL
-//100000000000000000000;
+
 
 // FLOAT_LITERAL
 1.;
 
-// DOUBLE_LITERAL
-//1.d;
 
 // BOOLEAN_LITERAL
 true;
 false;
 
-// CHAR_LITERAL
-'a';
+
 // STRING_LITERAL
 "asfdasfd";
 // NULL_LITERAL

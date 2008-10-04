@@ -13,7 +13,7 @@ var fail=0;
 
 // Different ways of creating sequence
 var a = [1,2,3,4];
-var b = { for(k in [1..10] where (k%2 == 0)) k };
+var b = { for(k in [1..10] where (k mod 2 == 0)) k };
 var c:Integer[] = [];  
 var d = [a,b,c];
 var e = [a,[b,d],c];

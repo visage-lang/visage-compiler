@@ -86,8 +86,6 @@ public class JFXAssignOp extends JFXExpression implements CompoundAssignmentTree
                 return JavafxTag.MUL;
             case DIV_ASG:
                 return JavafxTag.DIV;
-            case MOD_ASG:
-                return JavafxTag.MOD;
             default:
                 throw new RuntimeException("bad assign op tag: " + opcode);
         }
