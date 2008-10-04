@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -116,6 +117,9 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         tree.sym.flags_field |= VARUSE_TMP_IN_INIT_EXPR;
         scan(tree.getInitializer());
         tree.sym.flags_field &= ~VARUSE_TMP_IN_INIT_EXPR;
+        if (tree.getInitializer() != null && tree.getInitializer().getFXTag() != JavafxTag.LITERAL) {
+            mark(tree.sym, VARUSE_COMPLEX_INITIAL_VALUE);
+        }
         inBindContext = wasInBindContext;
         if (tree.getOnReplace() != null) {
             mark(tree.sym, VARUSE_HAS_ON_REPLACE);
@@ -158,23 +162,23 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
     @Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-        // these start over in a function definition
-        boolean wasLHS = inLHS;
-        boolean wasInBindContext = inBindContext;
-        boolean wasInInitBlock = inInitBlock;
-        inInitBlock = false;
-        inLHS = false;
+       // these start over in a function definition
+       boolean wasLHS = inLHS;
+       boolean wasInBindContext = inBindContext;
+       boolean wasInInitBlock = inInitBlock;
+       inInitBlock = false;
+       inLHS = false;
 
-        inBindContext = tree.isBound();
+       inBindContext = tree.isBound();
         // don't use super, since we don't want to cancel the inBindContext
         for (JFXVar param : tree.getParams()) {
             scan(param);
         }
         scan(tree.getBodyExpression());
 
-        inInitBlock = wasInInitBlock;
-        inBindContext = wasInBindContext;
-        inLHS = wasLHS;
+       inInitBlock = wasInInitBlock;
+       inBindContext = wasInBindContext;
+       inLHS = wasLHS;
     }
    
     @Override

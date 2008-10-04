@@ -289,7 +289,7 @@ public class JavafxTypeMorpher {
                 }
                 if (((sym.owner.flags_field | CLASS_HAS_INIT_BLOCK) != 0L) &&
                         (flags & (VARUSE_ASSIGNED_TO | VARUSE_INIT_ASSIGNED_TO)) != 0L) {
-                    // May have been written to by an init {}
+                    // May have been written to by an init {}, simple set in initialize$() could smash it
                     return true;
                 }
 
