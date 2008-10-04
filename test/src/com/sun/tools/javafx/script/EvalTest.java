@@ -23,7 +23,7 @@
 
 package com.sun.tools.javafx.script;
 
-import javafx.lang.FX;
+import javafx.util.FXEvaluator;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -34,24 +34,24 @@ import static org.junit.Assert.*;
 public class EvalTest {
     @Test
     public void basicEval() throws Exception {
-        FX.eval("1 + 1");
+        FXEvaluator.eval("1 + 1");
     }
 
     @Test
     public void basicEvalReturn() throws Exception {
-        Object n = FX.eval("1 + 1");
+        Object n = FXEvaluator.eval("1 + 1");
         assertTrue((Integer)n == 2);
     }
     
     @Test
     public void evalSumExpression() throws Exception {
-        Object n = FX.eval("{ var n; for (i in [1..5]) n += i; n }");
+        Object n = FXEvaluator.eval("{ var n; for (i in [1..5]) n += i; n }");
         assertTrue((Double)n == 15.0);
     }
     
     @Test
     public void evalEval() throws Exception {
-        Object n = FX.eval("javafx.lang.FX.eval(\"1 + 1\")");
+        Object n = FXEvaluator.eval("javafx.util.FXEvaluator.eval(\"1 + 1\")");
         assertTrue((Integer)n == 2);        
     }
 }

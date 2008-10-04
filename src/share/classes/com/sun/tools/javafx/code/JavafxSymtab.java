@@ -132,7 +132,7 @@ public class JavafxSymtab extends Symtab {
         javafx_BooleanType = booleanType;
         javafx_VoidType = voidType;
         javafx_DurationType = enterClass("javafx.lang.Duration");
-        javafx_AutoImportRuntimeType = enterClass("javafx.lang.FX");
+        javafx_AutoImportRuntimeType = enterClass("javafx.lang.Builtins");
         unreachableType = new Type(TypeTags.VOID, null);
         unreachableType.tsym = new TypeSymbol(0, names.fromString("<unreachable>"), Type.noType, rootPackage);
         javafx_java_lang_VoidType = types.boxedClass(voidType).type;

@@ -23,31 +23,13 @@
 
 package javafx.lang;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-
-import com.sun.javafx.api.JavaFXScriptEngine;
-import com.sun.javafx.runtime.location.BindableLocation;
-
 import java.util.Vector;
 import com.sun.javafx.runtime.Entry;
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.SystemProperties;
 import com.sun.javafx.runtime.FXExit;
-import com.sun.javafx.runtime.sequence.Sequence;
 
-// factored out to avoid linkage error for javax.script.* on Java 1.5
-class Evaluator {
-    static Object eval(String script) throws ScriptException {
-        ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine scrEng = manager.getEngineByExtension("javafx");
-        JavaFXScriptEngine engine = (JavaFXScriptEngine)scrEng;
-        if (engine == null)
-            throw new ScriptException("no scripting engine available");
-        return engine.eval(script);
-    }
-}
+import com.sun.javafx.runtime.sequence.Sequence;
 
 /**
  * FX, analogous to java.lang.System, is a place to store static utility methods.  
@@ -56,8 +38,9 @@ class Evaluator {
  * @author Saul Wold
  */
 public class FX {
+
     public static boolean isSameObject(Object a, Object b) {
-        return a == b;
+        return Builtins.isSameObject(a, b);
     }
 
     /**
@@ -66,13 +49,7 @@ public class FX {
      * @param val The Object to be printed
      */
     public static void print(Object val) {
-        if (val == null) {
-            System.out.print(val);
-        } else if (val instanceof String) {
-            System.out.print((String) val);
-        } else {
-            System.out.print(val.toString());
-        }
+        Builtins.print(val);
     }
 
     /**
@@ -81,13 +58,7 @@ public class FX {
      * @param val The Object to be printed
      */
     public static void println(Object val) {
-        if (val == null) {
-            System.out.println(val);
-        } else if (val instanceof String) {
-            System.out.println((String) val);
-        } else {
-            System.out.println(val.toString());
-        }
+        Builtins.println(val);
     }
 
     /**
@@ -96,34 +67,7 @@ public class FX {
      * @param varRef The variable to be tested.
      */
     public static boolean isInitialized(Object varRef) {
-        return ((BindableLocation) varRef).isInitialized();
-    }
-
-    /**
-     * Evaluates a JavaFX Script source string and returns its result, if any.
-     * For example, 
-     * <br/>
-     * This method depends upon the JavaFX Script compiler API being accessible
-     * by the application, such as including the <code>javafxc.jar</code> file
-     * in the application's classpath.
-     * <br/>
-     * Note:  this method provides only the simplest scripting functionality;
-     * the script is evaluated without any specified context state, nor can 
-     * any state it creates during evaluation be reused by other scripts.  For
-     * sophisticated scripting applications, use the Java Scripting API
-     * (<code>javax.scripting</code>).
-     * 
-     * @param script the JavaFX Script source to evaluate
-     * @return the results from evaluating the script, or null if no results
-     *         are returned by the script.
-     * @throws javax.script.ScriptException
-     */
-    public static Object eval(String script) {
-        try {
-            return Evaluator.eval(script);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return Builtins.isInitialized(varRef);
     }
 
     /**
