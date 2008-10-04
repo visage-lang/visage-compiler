@@ -29,7 +29,7 @@ java.lang.System.out.println("Starting Script");
  * Should throw an NPE here
  */
 try {
-    deferAction(null);
+    FX.deferAction(null);
 } catch (e: Exception) {
     java.lang.System.out.println("{e}");
 }
@@ -39,7 +39,7 @@ try {
  * JavaFX Script Runtime at a later time determined by the
  * implementation
  */
-deferAction(function() : Void {
+FX.deferAction(function() : Void {
     java.lang.System.out.println("Running Deferred Action");
 });
 
@@ -47,14 +47,14 @@ function action2(): Void {
     java.lang.System.out.println("Running Deferred Action2");
 }
 
-deferAction(action2);
+FX.deferAction(action2);
 
 /*
  * Nested DeferActions
  */
-deferAction(function() : Void {
+FX.deferAction(function() : Void {
     java.lang.System.out.println("Running Deferred Action with Nesting");
-    deferAction(function() : Void {
+    FX.deferAction(function() : Void {
         java.lang.System.out.println("Running Nested Deferred Action");
     });
 });
