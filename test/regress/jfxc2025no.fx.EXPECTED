@@ -1,0 +1,18 @@
+Note: Optimization statistic: Instance variable count: 3
+Note: Optimization statistic: Instance variable Location count: 3
+Note: Optimization statistic: Instance variable direct count: 0
+Note: Optimization statistic: Instance 'var' count: 2
+Note: Optimization statistic: Instance 'var' Location count: 2
+Note: Optimization statistic: Instance 'var' direct count: 0
+Note: Optimization statistic: Instance 'def' count: 1
+Note: Optimization statistic: Instance 'def' Location count: 1
+Note: Optimization statistic: Instance 'def' direct count: 0
+Note: Optimization statistic: Script variable count: 2
+Note: Optimization statistic: Script variable Location count: 2
+Note: Optimization statistic: Script variable direct count: 0
+Note: Optimization statistic: Script 'var' count: 1
+Note: Optimization statistic: Script 'var' Location count: 1
+Note: Optimization statistic: Script 'var' direct count: 0
+Note: Optimization statistic: Script 'def' count: 1
+Note: Optimization statistic: Script 'def' Location count: 1
+Note: Optimization statistic: Script 'def' direct count: 0

@@ -49,7 +49,8 @@ public abstract class FXClassType extends FXType implements FXMember {
             "com.sun.javafx.runtime.location.BooleanVariable";
     public static final String FUNCTION_CLASSNAME_PREFIX =
             "com.sun.javafx.functions.Function";
-    public static final String LOCATION_GETTER_PREFIX = "get$";
+    public static final String GETTER_PREFIX = "get$";
+    public static final String SETTER_PREFIX = "set$";
 
     protected FXClassType(FXContext context, int modifiers) {
         this.context = context;

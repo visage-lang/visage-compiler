@@ -387,8 +387,8 @@ public class FXLocal {
                 if (mname.endsWith("$impl"))
                     continue;
 
-                if (mname.startsWith(FXClassType.LOCATION_GETTER_PREFIX) ||
-                        mname.startsWith("set$") ||
+                if (    mname.startsWith(FXClassType.GETTER_PREFIX) ||
+                        mname.startsWith(FXClassType.SETTER_PREFIX) ||
                         mname.startsWith("applyDefaults$")) {
                     continue;
                 }
@@ -463,18 +463,36 @@ public class FXLocal {
                 VarMember ref = new VarMember(name, this, tr);
                 ref.fld = fld;
                 if (isCompoundClass()) {
-                    String getLocName = FXClassType.LOCATION_GETTER_PREFIX + name;
+                    String getterName = FXClassType.GETTER_PREFIX + name;
+                    Method getter = null;
                     try {
-                      Method getter = refInterface.getMethod(getLocName, noClasses);
+                      getter = refInterface.getMethod(getterName, noClasses);
                       ref.fld = null;
-                      ref.locationGetter = getter;
+                      ref.getter = getter;
                     } catch (NoSuchMethodException ex) {
                         try {
-                            getLocName = "get" + fld.getName();
-                            Method getter = refInterface.getMethod(getLocName, noClasses);
+                            getterName = "get" + fld.getName();
+                            getter = refInterface.getMethod(getterName, noClasses);
                             ref.fld = null;
-                            ref.locationGetter = getter;
+                            ref.getter = getter;
                         } catch (NoSuchMethodException ex2) {
+                        }
+                    }
+                    if (getter != null) {
+                        Class type = getter.getReturnType();
+                        String setName = FXClassType.SETTER_PREFIX + name;
+                        try {
+                            Method setter = refInterface.getMethod(setName, type);
+                            ref.fld = null;
+                            ref.setter = setter;
+                        } catch (NoSuchMethodException ex) {
+                            try {
+                                setName = "set" + fld.getName();
+                                Method setter = refInterface.getMethod(setName, type);
+                                ref.fld = null;
+                                ref.setter = setter;
+                            } catch (NoSuchMethodException ex2) {
+                            }
                         }
                     }
                 }
@@ -556,7 +574,8 @@ public class FXLocal {
     static class VarMember extends FXVarMember {
         Method accessMethod;
         Field fld;
-        Method locationGetter;
+        Method getter;
+        Method setter;
         FXType type;
         String name;
         FXClassType owner;
@@ -576,12 +595,12 @@ public class FXLocal {
         public FXValue getValue(FXObjectValue obj) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
             try {
-                if (fld != null || locationGetter != null) {
+                if (fld != null || getter != null) {
                     Context context =
                         (Context) owner.getReflectionContext();
                     Object val;
-                    if (locationGetter != null)
-                        val = locationGetter.invoke(robj, new Object[0]);
+                    if (getter != null)
+                        val = getter.invoke(robj, new Object[0]);
                     else
                         val = fld.get(robj);
                     if (val instanceof ObjectLocation)
@@ -609,8 +628,8 @@ public class FXLocal {
             try {
                 Object robj = ((ObjectValue) instance).obj;
                 Object loc;
-                if (locationGetter != null)
-                    loc = locationGetter.invoke(robj, noObjects);
+                if (getter != null)
+                    loc = getter.invoke(robj, noObjects);
                 else
                     loc = fld.get(robj);
                 if (loc instanceof IntVariable) {
@@ -642,19 +661,22 @@ public class FXLocal {
         public void setValue(FXObjectValue obj, FXValue newValue) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
             try {
-                if (fld != null || locationGetter != null) {
-                    Context context =
-                        (Context) owner.getReflectionContext();
-                    Object val;
-                    if (locationGetter != null)
-                        val = locationGetter.invoke(robj, noObjects);
-                    else
-                        val = fld.get(robj);
+                if (fld != null || getter != null || setter != null) {
                     Object newVal = ((Value) newValue).asObject();
-                    if (val instanceof ObjectLocation)
-                        ((ObjectLocation) val).set(newVal);
-                    else {
-                        fld.set(robj, newVal);
+                    if (setter != null) {
+                        setter.invoke(robj, newVal);
+                    } else {
+                        Object val;
+                        if (getter != null) {
+                            val = getter.invoke(robj, noObjects);
+                        } else {
+                            val = fld.get(robj);
+                        }
+                        if (val instanceof ObjectLocation) {
+                            ((ObjectLocation) val).set(newVal);
+                        } else if (fld != null) {
+                            fld.set(robj, newVal);
+                        }
                     }
                     return;
                 }
@@ -682,7 +704,7 @@ public class FXLocal {
         }
 
         public boolean isStatic() {
-            int mods = locationGetter != null ? locationGetter.getModifiers()
+            int mods = getter != null ? getter.getModifiers()
                     : fld.getModifiers();
             return (mods & Modifier.STATIC) != 0;
         }
@@ -930,8 +952,8 @@ public class FXLocal {
         public AbstractVariable getAbstractVariable(FXObjectValue obj) {
             try {
                 Object robj = obj == null ? null : ((ObjectValue) obj).obj;
-                if (var.locationGetter != null) {
-                    Object val = var.locationGetter.invoke(robj, new Object[0]);
+                if (var.getter != null) {
+                    Object val = var.getter.invoke(robj, new Object[0]);
                     if (val instanceof AbstractVariable)
                         return (AbstractVariable) val;
                 }
