@@ -43,6 +43,7 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
     private final List<JFXVar> localVars;
     public ClassSymbol sym;
     public Symbol constructor;
+    public Symbol varDefinedByThis;
 
     protected JFXInstanciate(JavaFXKind fxKind, JFXExpression clazz, JFXClassDeclaration def, List<JFXExpression> args,
             List<JFXObjectLiteralPart> parts, List<JFXVar> localVars, ClassSymbol sym) {

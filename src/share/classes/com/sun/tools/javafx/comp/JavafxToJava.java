@@ -13,7 +13,7 @@
  * accompanied this code).
  *
  * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
+ * 2 along with this work; if not, write to the Free Software Foundation,s
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
@@ -53,6 +53,8 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Translate JavaFX ASTs into Java ASTs
@@ -83,6 +85,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     private ListBuffer<JCStatement> prependToStatements = null;
 
     private ListBuffer<JCExpression> additionalImports = null;
+
+    private Map<Symbol, Name> substitutionMap = new HashMap<Symbol, Name>();
 
     public enum Wrapped {
         InLocation,
@@ -654,6 +658,26 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }
     }
 
+    private boolean substitute(Symbol sym) {
+        if (wrap == Wrapped.InLocation) {
+            return false;
+        }
+        Name name = substitutionMap.get(sym);
+        if (name == null) {
+            return false;
+        } else {
+            result = make.Ident(name);
+            return true;
+        }
+    }
+
+    private void setSubstitution(JFXTree target, Symbol sym) {
+        if (target instanceof JFXInstanciate) {
+            // Set up to substitute a reference to the this var within its definition
+            ((JFXInstanciate) target).varDefinedByThis = sym;
+        }
+    }
+
     public void toJava(JavafxEnv<JavafxAttrContext> attrEnv) {
         this.attrEnv = attrEnv;
 
@@ -1018,6 +1042,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     // it is a JavaFX class, initializa it properly
                     JCVariableDecl tmpVar = toJava.makeTmpVar(diagPos, "objlit", type, newClass);
                     stats.append(tmpVar);
+                    if (tree.varDefinedByThis != null) {
+                        toJava.substitutionMap.put(tree.varDefinedByThis, tmpVar.name);
+                    }
                     for (JFXObjectLiteralPart olpart : tree.getParts()) {
                         diagPos = olpart.pos(); // overwrite diagPos (must restore)
                         JavafxBindStatus bindStatus = olpart.getBindStatus();
@@ -1035,6 +1062,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         }
 
                         stats.append( translateAttributeSet(init, bindStatus, vsym, tmpVar.name) );
+                    }
+                    if (tree.varDefinedByThis != null) {
+                        toJava.substitutionMap.remove(tree.varDefinedByThis);
                     }
                     diagPos = tree.pos();
                     JCIdent ident3 = m().Ident(tmpVar.name);
@@ -1071,13 +1101,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 return toJava.translateDefinitionalAssignmentToSet(diagPos, init, bindStatus,
                         vsym, instanceName, FROM_LITERAL_MILIEU);
             }
-            }.doit();
+        }.doit();
 
-            if (result instanceof BlockExprJCBlockExpression) {
-                BlockExprJCBlockExpression blockExpr = (BlockExprJCBlockExpression)result;
-                blockExpr.stats = blockExpr.getStatements().prependList(prependToStatements.toList());
-            }
-            prependToStatements = prevPrependToStatements;
+        if (result instanceof BlockExprJCBlockExpression) {
+            BlockExprJCBlockExpression blockExpr = (BlockExprJCBlockExpression) result;
+            blockExpr.stats = blockExpr.getStatements().prependList(prependToStatements.toList());
+        } 
+        prependToStatements = prevPrependToStatements;
     }
 
     abstract static class StringExpressionTranslator extends Translator {
@@ -1219,6 +1249,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
             Name instanceName, int milieu) {
         assert( (vsym.flags() & Flags.PARAMETER) == 0): "Parameters are not initialized";
+        setSubstitution(init, vsym);
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         JCExpression valueArg = translateDefinitionalAssignmentToValueArg(diagPos, init, bindStatus, vmi);
         return definitionalAssignmentToSetExpression(diagPos, valueArg, bindStatus, vsym, instanceName,
@@ -1794,12 +1825,19 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
 
     public void visitSelect(JFXSelect tree) {
+        if (substitute(tree.sym)) {
+            return;
+        }
         result = new SelectTranslator(tree).doit();
     }
 
     @Override
-    public void visitIdent(JFXIdent tree)   {
-       DiagnosticPosition diagPos = tree.pos();
+    public void visitIdent(JFXIdent tree) {
+        DiagnosticPosition diagPos = tree.pos();
+        if (substitute(tree.sym)) {
+            return;
+        }
+
         if (tree.name == names._this) {
             // in the static implementation method, "this" becomes "receiver$"
             JCExpression rcvr = make.at(diagPos).Ident(defs.receiverName);
