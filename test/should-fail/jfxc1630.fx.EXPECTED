@@ -1,0 +1,6 @@
+test\should-fail\jfxc1630.fx:9: cannot find symbol
+symbol  : variable x
+location: class jfxc1630
+  override var x = 88;
+               ^
+1 error
