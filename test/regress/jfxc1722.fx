@@ -1,0 +1,12 @@
+/**
+ * Regression test JFXC-1722 : Compiler throws assertion error with certain bounded function declaration
+ *
+ * @test
+ * @run
+ */
+
+bound function fn():Integer{
+  var i:Integer=7;
+}
+
+println(fn())
