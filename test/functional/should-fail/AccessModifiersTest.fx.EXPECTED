@@ -1,4 +1,4 @@
-test\functional\should-fail\AccessModifiersTest.fx:35: modifier public-read not allowed here
+test\functional\should-fail\AccessModifiersTest.fx:35: modifier public-read not allowed on a function
 	public-read function subtract(a1:Number,a2:Integer):java.lang.Double{
 	^
 test\functional\should-fail\AccessModifiersTest.fx:42: s has package initialization access in pack1.AccessData
@@ -36,7 +36,7 @@ test\functional\should-fail\AccessModifiersTest.fx:76: fn() has protected access
 test\functional\should-fail\AccessModifiersTest.fx:79: x has protected access in pack1.AccessData
 	System.out.println(sup.x()); //  x has package access
 	                      ^
-test\functional\should-fail\AccessModifiersTest.fx:31: modifier public-read not allowed here
+test\functional\should-fail\AccessModifiersTest.fx:31: modifiers (in this case public-read) not allowed on a local var
 	  public-read var result=a1*a2;  
 	  ^
 13 errors

@@ -4,8 +4,8 @@
  * @test/compile-error
  */
 
-public-read public-init var a:Integer=10;
-public-read public-init package var ap:Integer=10;
+
+
 
 class Foo {
   public-init public-read var b:Integer=10;

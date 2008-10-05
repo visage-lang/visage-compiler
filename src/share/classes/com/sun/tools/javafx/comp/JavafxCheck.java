@@ -841,27 +841,46 @@ public class JavafxCheck {
      *  @param sym           The defined symbol.
      */
     long checkFlags(DiagnosticPosition pos, long flags, Symbol sym, JFXTree tree) {
-	long mask;
-	switch (sym.kind) {
-	case VAR:
-	    if (sym.owner.kind != TYP)
-		mask = JavafxLocalVarFlags;
-	    else if ((flags & IS_DEF) != 0)
-		mask = JavafxClassDefFlags;
-            else
-                mask = JavafxClassVarFlags;
-	    break;
-	case MTH:
-	    mask = JavafxFunctionFlags;
-	    break;
-	case TYP:
-	    // flags aren't currently different:  if (sym.isLocal()) ...
-            mask = JavafxClassFlags;
-	    break;
-	default:
-	    throw new AssertionError();
-	}
-	long illegal = flags & JavafxUserFlags & ~mask;
+        long mask;
+        String msg = MsgSym.MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON;
+        String thing;
+        boolean isScriptLevel = (flags & STATIC) != 0;
+        switch (sym.kind) {
+            case VAR:
+                boolean isDef = ((flags & IS_DEF) != 0);
+                thing = isDef? "def" : "var";
+                if (sym.owner.kind != TYP) {
+                    mask = JavafxLocalVarFlags;
+                    msg = MsgSym.MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON_LOCAL;
+                } else if (isDef) {
+                    mask = JavafxMemberDefFlags;
+                    msg = MsgSym.MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON;
+                } else if (isScriptLevel) {
+                    mask = JavafxScriptVarFlags;
+                    msg = MsgSym.MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON_SCRIPT;
+                } else {
+                    mask = JavafxInstanceVarFlags;
+                    msg = MsgSym.MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON_INSTANCE;
+                }
+                break;
+            case MTH:
+                if (isScriptLevel) {
+                    mask = JavafxScriptFunctionFlags;
+                    msg = MsgSym.MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON_SCRIPT;
+                } else {
+                    mask = JavafxFunctionFlags;
+                }
+                thing = "function";
+                break;
+            case TYP:
+                // flags aren't currently different:  if (sym.isLocal()) ...
+                mask = JavafxClassFlags;
+                thing = "class";
+                break;
+            default:
+                throw new AssertionError();
+        }
+        long illegal = flags & JavafxUserFlags & ~mask;
         /***
         System.err.println(sym);
         System.err.printf("%022o mask -- %s\n", mask, JavafxTreeInfo.flagNames(mask));
@@ -871,9 +890,8 @@ public class JavafxCheck {
         System.err.printf("%022o illegal -- %s\n", illegal, JavafxTreeInfo.flagNames(illegal));
         ***/
         if (illegal != 0) {
-	    		log.error(pos,
-			  MsgSym.MESSAGE_MOD_NOT_ALLOWED_HERE, JavafxTreeInfo.flagNames(illegal));
-	}
+            log.error(pos, msg, JavafxTreeInfo.flagNames(illegal), thing);
+        }
         else if ((sym.kind == TYP ||
 		  checkDisjoint(pos, flags,
 				ABSTRACT,

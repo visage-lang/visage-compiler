@@ -1,128 +1,70 @@
-test/should-fail/jfxc1250varInverseBind.fx:19: warning: The access modifier public includes the access of public-init.
-	public-init public var memHereIPub = 0;
-	^
-test/should-fail/jfxc1250varInverseBind.fx:24: warning: The access modifier public includes the access of public-read.
-	public-read public var memHereRPub = 0;
-	^
-test/should-fail/jfxc1250varInverseBind.fx:29: warning: The access modifier public includes the access of public-read.
-	public-init public-read public var memHereIRPub = 0;
-	^
-test/should-fail/jfxc1250varInverseBind.fx:30: warning: The access modifier public-init includes the access of public-read.
-	public-init public-read protected var memHereIRPro = 0;
-	^
-test/should-fail/jfxc1250varInverseBind.fx:31: warning: The access modifier public-init includes the access of public-read.
-	public-init public-read package var memHereIRPkg = 0;
-	^
-test/should-fail/jfxc1250varInverseBind.fx:32: warning: The access modifier public-init includes the access of public-read.
-	public-init public-read var memHereIRScr = 0;
-	^
-test/should-fail/jfxc1250varInverseBind.fx:41: warning: The access modifier public includes the access of public-init.
-	public-init public var fooIPub = 0;
-	^
-test/should-fail/jfxc1250varInverseBind.fx:46: warning: The access modifier public includes the access of public-read.
-	public-read public var fooRPub = 0;
-	^
-test/should-fail/jfxc1250varInverseBind.fx:51: warning: The access modifier public includes the access of public-read.
-	public-init public-read public var fooIRPub = 0;
-	^
-test/should-fail/jfxc1250varInverseBind.fx:52: warning: The access modifier public-init includes the access of public-read.
-	public-init public-read protected var fooIRPro = 0;
-	^
-test/should-fail/jfxc1250varInverseBind.fx:53: warning: The access modifier public-init includes the access of public-read.
-	public-init public-read package var fooIRPkg = 0;
-	^
-test/should-fail/jfxc1250varInverseBind.fx:54: warning: The access modifier public-init includes the access of public-read.
-	public-init public-read var fooIRScr = 0;
-	^
-test/should-fail/jfxc1250varInverseBind.fx:62: cannot find symbol
+test\should-fail\jfxc1250varInverseBind.fx:48: cannot find symbol
 symbol  : variable memScr
 location: class jfxc1250varInverseBind.Inh
 	{ var x = bind memScr with inverse };   // ERROR: inherited, same package
 	               ^
-test/should-fail/jfxc1250varInverseBind.fx:67: memIScr has script only (default) bind access in jfxc1250subFail
+test\should-fail\jfxc1250varInverseBind.fx:52: memIScr has script only (default) bind access in jfxc1250subFail
 	{ var x = bind memIScr with inverse };   // ERROR: inherited, same package
 	               ^
-test/should-fail/jfxc1250varInverseBind.fx:72: memRScr has script only (default) bind access in jfxc1250subFail
+test\should-fail\jfxc1250varInverseBind.fx:56: memRScr has script only (default) bind access in jfxc1250subFail
 	{ var x = bind memRScr with inverse };   // ERROR: inherited, same package
 	               ^
-test/should-fail/jfxc1250varInverseBind.fx:77: memIRScr has script only (default) bind access in jfxc1250subFail
-	{ var x = bind memIRScr with inverse };   // ERROR: inherited, same package
-	               ^
-test/should-fail/jfxc1250varInverseBind.fx:85: cannot find symbol
+test\should-fail\jfxc1250varInverseBind.fx:64: cannot find symbol
 symbol  : variable memPkg
 location: class jfxc1250varInverseBind.InhA
 	{ var x = bind memPkg with inverse };   // ERROR: inherited, different package
 	               ^
-test/should-fail/jfxc1250varInverseBind.fx:86: cannot find symbol
+test\should-fail\jfxc1250varInverseBind.fx:65: cannot find symbol
 symbol  : variable memScr
 location: class jfxc1250varInverseBind.InhA
 	{ var x = bind memScr with inverse };   // ERROR: inherited, different package
 	               ^
-test/should-fail/jfxc1250varInverseBind.fx:90: memIPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varInverseBind.fx:68: memIPkg has package bind access in jfxc1250.a.jfxc1250subFailA
 	{ var x = bind memIPkg with inverse };   // ERROR: inherited, different package
 	               ^
-test/should-fail/jfxc1250varInverseBind.fx:91: memIScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varInverseBind.fx:69: memIScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
 	{ var x = bind memIScr with inverse };   // ERROR: inherited, different package
 	               ^
-test/should-fail/jfxc1250varInverseBind.fx:95: memRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varInverseBind.fx:72: memRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
 	{ var x = bind memRPkg with inverse };   // ERROR: inherited, different package
 	               ^
-test/should-fail/jfxc1250varInverseBind.fx:96: memRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varInverseBind.fx:73: memRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
 	{ var x = bind memRScr with inverse };   // ERROR: inherited, different package
 	               ^
-test/should-fail/jfxc1250varInverseBind.fx:100: memIRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
-	{ var x = bind memIRPkg with inverse };   // ERROR: inherited, different package
-	               ^
-test/should-fail/jfxc1250varInverseBind.fx:101: memIRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
-	{ var x = bind memIRScr with inverse };   // ERROR: inherited, different package
-	               ^
-test/should-fail/jfxc1250varInverseBind.fx:166: memScr has script only (default) access in jfxc1250subFail
+test\should-fail\jfxc1250varInverseBind.fx:124: memScr has script only (default) access in jfxc1250subFail
 	{ var x = bind vf.memScr with inverse };   // ERROR: same package
 	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:171: memIScr has script only (default) bind access in jfxc1250subFail
+test\should-fail\jfxc1250varInverseBind.fx:128: memIScr has script only (default) bind access in jfxc1250subFail
 	{ var x = bind vf.memIScr with inverse };   // ERROR: same package
 	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:176: memRScr has script only (default) bind access in jfxc1250subFail
+test\should-fail\jfxc1250varInverseBind.fx:132: memRScr has script only (default) bind access in jfxc1250subFail
 	{ var x = bind vf.memRScr with inverse };   // ERROR: same package
 	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:181: memIRScr has script only (default) bind access in jfxc1250subFail
-	{ var x = bind vf.memIRScr with inverse };   // ERROR: same package
-	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:187: memPro has protected access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varInverseBind.fx:138: memPro has protected access in jfxc1250.a.jfxc1250subFailA
 	{ var x = bind vf.memPro with inverse };   // ERROR: different package
 	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:188: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+test\should-fail\jfxc1250varInverseBind.fx:139: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
 	{ var x = bind vf.memPkg with inverse };   // ERROR: different package
 	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:189: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varInverseBind.fx:140: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	{ var x = bind vf.memScr with inverse };   // ERROR: different package
 	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:192: memIPro has protected bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varInverseBind.fx:142: memIPro has protected bind access in jfxc1250.a.jfxc1250subFailA
 	{ var x = bind vf.memIPro with inverse };   // ERROR: different package
 	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:193: memIPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varInverseBind.fx:143: memIPkg has package bind access in jfxc1250.a.jfxc1250subFailA
 	{ var x = bind vf.memIPkg with inverse };   // ERROR: different package
 	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:194: memIScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varInverseBind.fx:144: memIScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
 	{ var x = bind vf.memIScr with inverse };   // ERROR: different package
 	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:197: memRPro has protected bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varInverseBind.fx:146: memRPro has protected bind access in jfxc1250.a.jfxc1250subFailA
 	{ var x = bind vf.memRPro with inverse };   // ERROR: different package
 	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:198: memRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varInverseBind.fx:147: memRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
 	{ var x = bind vf.memRPkg with inverse };   // ERROR: different package
 	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:199: memRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varInverseBind.fx:148: memRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
 	{ var x = bind vf.memRScr with inverse };   // ERROR: different package
 	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:202: memIRPro has protected bind access in jfxc1250.a.jfxc1250subFailA
-	{ var x = bind vf.memIRPro with inverse };   // ERROR: different package
-	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:203: memIRPkg has package bind access in jfxc1250.a.jfxc1250subFailA
-	{ var x = bind vf.memIRPkg with inverse };   // ERROR: different package
-	                 ^
-test/should-fail/jfxc1250varInverseBind.fx:204: memIRScr has script only (default) bind access in jfxc1250.a.jfxc1250subFailA
-	{ var x = bind vf.memIRScr with inverse };   // ERROR: different package
-	                 ^
-28 errors
-12 warnings
+21 errors

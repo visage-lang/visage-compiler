@@ -389,4 +389,8 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_BAD_PERCENT = "javafx.bad.percent";
     public static final String MESSAGE_JAVAFX_NOT_NE = "javafx.not.ne";
     public static final String MESSAGE_JAVAFX_GENERICS_UNSUPPORTED = "javafx.generics.unsupported";
+    public static final String MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON_LOCAL = "javafx.mod.not.allowed.on.local";
+    public static final String MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON_SCRIPT = "javafx.mod.not.allowed.on.script";
+    public static final String MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON_INSTANCE = "javafx.mod.not.allowed.on.instance";
+    public static final String MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON = "javafx.mod.not.allowed.on";
 }

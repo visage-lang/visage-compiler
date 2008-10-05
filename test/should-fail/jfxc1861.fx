@@ -4,7 +4,7 @@
  * @test/warning
  */
 
-public public-init var str = "Radon";
+
 public public-read var obj : Object;
 
 class Foo {

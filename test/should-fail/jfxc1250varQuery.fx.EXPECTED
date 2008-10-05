@@ -1,128 +1,70 @@
-test/should-fail/jfxc1250varQuery.fx:19: warning: The access modifier public includes the access of public-init.
-	public-init public var memHereIPub = 0;
-	^
-test/should-fail/jfxc1250varQuery.fx:24: warning: The access modifier public includes the access of public-read.
-	public-read public var memHereRPub = 0;
-	^
-test/should-fail/jfxc1250varQuery.fx:29: warning: The access modifier public includes the access of public-read.
-	public-init public-read public var memHereIRPub = 0;
-	^
-test/should-fail/jfxc1250varQuery.fx:30: warning: The access modifier public-init includes the access of public-read.
-	public-init public-read protected var memHereIRPro = 0;
-	^
-test/should-fail/jfxc1250varQuery.fx:31: warning: The access modifier public-init includes the access of public-read.
-	public-init public-read package var memHereIRPkg = 0;
-	^
-test/should-fail/jfxc1250varQuery.fx:32: warning: The access modifier public-init includes the access of public-read.
-	public-init public-read var memHereIRScr = 0;
-	^
-test/should-fail/jfxc1250varQuery.fx:41: warning: The access modifier public includes the access of public-init.
-	public-init public var fooIPub = 0;
-	^
-test/should-fail/jfxc1250varQuery.fx:46: warning: The access modifier public includes the access of public-read.
-	public-read public var fooRPub = 0;
-	^
-test/should-fail/jfxc1250varQuery.fx:51: warning: The access modifier public includes the access of public-read.
-	public-init public-read public var fooIRPub = 0;
-	^
-test/should-fail/jfxc1250varQuery.fx:52: warning: The access modifier public-init includes the access of public-read.
-	public-init public-read protected var fooIRPro = 0;
-	^
-test/should-fail/jfxc1250varQuery.fx:53: warning: The access modifier public-init includes the access of public-read.
-	public-init public-read package var fooIRPkg = 0;
-	^
-test/should-fail/jfxc1250varQuery.fx:54: warning: The access modifier public-init includes the access of public-read.
-	public-init public-read var fooIRScr = 0;
-	^
-test/should-fail/jfxc1250varQuery.fx:62: cannot find symbol
+test\should-fail\jfxc1250varQuery.fx:48: cannot find symbol
 symbol  : variable memScr
 location: class jfxc1250varQuery.Inh
 	isInitialized(memScr);   // ERROR: inherited, same package
 	              ^
-test/should-fail/jfxc1250varQuery.fx:67: memIScr has script only (default) isInitiailized() access in jfxc1250subFail
+test\should-fail\jfxc1250varQuery.fx:52: memIScr has script only (default) isInitiailized() access in jfxc1250subFail
 	isInitialized(memIScr);   // ERROR: inherited, same package
 	^
-test/should-fail/jfxc1250varQuery.fx:72: memRScr has script only (default) isInitiailized() access in jfxc1250subFail
+test\should-fail\jfxc1250varQuery.fx:56: memRScr has script only (default) isInitiailized() access in jfxc1250subFail
 	isInitialized(memRScr);   // ERROR: inherited, same package
 	^
-test/should-fail/jfxc1250varQuery.fx:77: memIRScr has script only (default) isInitiailized() access in jfxc1250subFail
-	isInitialized(memIRScr);   // ERROR: inherited, same package
-	^
-test/should-fail/jfxc1250varQuery.fx:85: cannot find symbol
+test\should-fail\jfxc1250varQuery.fx:64: cannot find symbol
 symbol  : variable memPkg
 location: class jfxc1250varQuery.InhA
 	isInitialized(memPkg);   // ERROR: inherited, different package
 	              ^
-test/should-fail/jfxc1250varQuery.fx:86: cannot find symbol
+test\should-fail\jfxc1250varQuery.fx:65: cannot find symbol
 symbol  : variable memScr
 location: class jfxc1250varQuery.InhA
 	isInitialized(memScr);   // ERROR: inherited, different package
 	              ^
-test/should-fail/jfxc1250varQuery.fx:90: memIPkg has package isInitiailized() access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varQuery.fx:68: memIPkg has package isInitiailized() access in jfxc1250.a.jfxc1250subFailA
 	isInitialized(memIPkg);   // ERROR: inherited, different package
 	^
-test/should-fail/jfxc1250varQuery.fx:91: memIScr has script only (default) isInitiailized() access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varQuery.fx:69: memIScr has script only (default) isInitiailized() access in jfxc1250.a.jfxc1250subFailA
 	isInitialized(memIScr);   // ERROR: inherited, different package
 	^
-test/should-fail/jfxc1250varQuery.fx:95: memRPkg has package isInitiailized() access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varQuery.fx:72: memRPkg has package isInitiailized() access in jfxc1250.a.jfxc1250subFailA
 	isInitialized(memRPkg);   // ERROR: inherited, different package
 	^
-test/should-fail/jfxc1250varQuery.fx:96: memRScr has script only (default) isInitiailized() access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varQuery.fx:73: memRScr has script only (default) isInitiailized() access in jfxc1250.a.jfxc1250subFailA
 	isInitialized(memRScr);   // ERROR: inherited, different package
 	^
-test/should-fail/jfxc1250varQuery.fx:100: memIRPkg has package isInitiailized() access in jfxc1250.a.jfxc1250subFailA
-	isInitialized(memIRPkg);   // ERROR: inherited, different package
-	^
-test/should-fail/jfxc1250varQuery.fx:101: memIRScr has script only (default) isInitiailized() access in jfxc1250.a.jfxc1250subFailA
-	isInitialized(memIRScr);   // ERROR: inherited, different package
-	^
-test/should-fail/jfxc1250varQuery.fx:166: memScr has script only (default) access in jfxc1250subFail
+test\should-fail\jfxc1250varQuery.fx:124: memScr has script only (default) access in jfxc1250subFail
 	isInitialized(vf.memScr);   // ERROR: same package
 	                ^
-test/should-fail/jfxc1250varQuery.fx:171: memIScr has script only (default) isInitiailized() access in jfxc1250subFail
+test\should-fail\jfxc1250varQuery.fx:128: memIScr has script only (default) isInitiailized() access in jfxc1250subFail
 	isInitialized(vf.memIScr);   // ERROR: same package
 	^
-test/should-fail/jfxc1250varQuery.fx:176: memRScr has script only (default) isInitiailized() access in jfxc1250subFail
+test\should-fail\jfxc1250varQuery.fx:132: memRScr has script only (default) isInitiailized() access in jfxc1250subFail
 	isInitialized(vf.memRScr);   // ERROR: same package
 	^
-test/should-fail/jfxc1250varQuery.fx:181: memIRScr has script only (default) isInitiailized() access in jfxc1250subFail
-	isInitialized(vf.memIRScr);   // ERROR: same package
-	^
-test/should-fail/jfxc1250varQuery.fx:187: memPro has protected access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varQuery.fx:138: memPro has protected access in jfxc1250.a.jfxc1250subFailA
 	isInitialized(vf.memPro);   // ERROR: different package
 	                ^
-test/should-fail/jfxc1250varQuery.fx:188: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
+test\should-fail\jfxc1250varQuery.fx:139: memPkg is not public in jfxc1250.a.jfxc1250subFailA; cannot be accessed from outside package
 	isInitialized(vf.memPkg);   // ERROR: different package
 	                ^
-test/should-fail/jfxc1250varQuery.fx:189: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varQuery.fx:140: memScr has script only (default) access in jfxc1250.a.jfxc1250subFailA
 	isInitialized(vf.memScr);   // ERROR: different package
 	                ^
-test/should-fail/jfxc1250varQuery.fx:192: memIPro has protected isInitiailized() access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varQuery.fx:142: memIPro has protected isInitiailized() access in jfxc1250.a.jfxc1250subFailA
 	isInitialized(vf.memIPro);   // ERROR: different package
 	^
-test/should-fail/jfxc1250varQuery.fx:193: memIPkg has package isInitiailized() access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varQuery.fx:143: memIPkg has package isInitiailized() access in jfxc1250.a.jfxc1250subFailA
 	isInitialized(vf.memIPkg);   // ERROR: different package
 	^
-test/should-fail/jfxc1250varQuery.fx:194: memIScr has script only (default) isInitiailized() access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varQuery.fx:144: memIScr has script only (default) isInitiailized() access in jfxc1250.a.jfxc1250subFailA
 	isInitialized(vf.memIScr);   // ERROR: different package
 	^
-test/should-fail/jfxc1250varQuery.fx:197: memRPro has protected isInitiailized() access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varQuery.fx:146: memRPro has protected isInitiailized() access in jfxc1250.a.jfxc1250subFailA
 	isInitialized(vf.memRPro);   // ERROR: different package
 	^
-test/should-fail/jfxc1250varQuery.fx:198: memRPkg has package isInitiailized() access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varQuery.fx:147: memRPkg has package isInitiailized() access in jfxc1250.a.jfxc1250subFailA
 	isInitialized(vf.memRPkg);   // ERROR: different package
 	^
-test/should-fail/jfxc1250varQuery.fx:199: memRScr has script only (default) isInitiailized() access in jfxc1250.a.jfxc1250subFailA
+test\should-fail\jfxc1250varQuery.fx:148: memRScr has script only (default) isInitiailized() access in jfxc1250.a.jfxc1250subFailA
 	isInitialized(vf.memRScr);   // ERROR: different package
 	^
-test/should-fail/jfxc1250varQuery.fx:202: memIRPro has protected isInitiailized() access in jfxc1250.a.jfxc1250subFailA
-	isInitialized(vf.memIRPro);   // ERROR: different package
-	^
-test/should-fail/jfxc1250varQuery.fx:203: memIRPkg has package isInitiailized() access in jfxc1250.a.jfxc1250subFailA
-	isInitialized(vf.memIRPkg);   // ERROR: different package
-	^
-test/should-fail/jfxc1250varQuery.fx:204: memIRScr has script only (default) isInitiailized() access in jfxc1250.a.jfxc1250subFailA
-	isInitialized(vf.memIRScr);   // ERROR: different package
-	^
-28 errors
-12 warnings
+21 errors

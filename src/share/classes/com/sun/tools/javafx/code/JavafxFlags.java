@@ -85,10 +85,12 @@ public class JavafxFlags {
     public static final long JavafxAccessFlags = PUBLIC | PROTECTED | PRIVATE | SCRIPT_PRIVATE;
     public static final long JavafxExplicitAccessFlags = PUBLIC | PROTECTED | PRIVATE | PACKAGE_ACCESS;
     
-    public static final long JavafxUserFlags     = JavafxExplicitAccessFlags | STATIC | ABSTRACT | BOUND | OVERRIDE | IS_DEF | PUBLIC_READ | PUBLIC_INIT;
-    public static final long JavafxLocalVarFlags = PARAMETER | IS_DEF;
-    public static final long JavafxClassVarFlags = JavafxExplicitAccessFlags | STATIC | PUBLIC_READ | PUBLIC_INIT;
-    public static final long JavafxClassDefFlags = JavafxExplicitAccessFlags | STATIC | IS_DEF | PUBLIC_READ;
-    public static final long JavafxFunctionFlags = JavafxExplicitAccessFlags | STATIC | ABSTRACT | BOUND | OVERRIDE;
-    public static final long JavafxClassFlags    = JavafxExplicitAccessFlags | STATIC | ABSTRACT;
+    public static final long JavafxUserFlags            = JavafxExplicitAccessFlags | STATIC | ABSTRACT | BOUND | OVERRIDE | PUBLIC_READ | PUBLIC_INIT;
+    public static final long JavafxLocalVarFlags        = PARAMETER;
+    public static final long JavafxInstanceVarFlags     = JavafxExplicitAccessFlags | PUBLIC_READ | PUBLIC_INIT;
+    public static final long JavafxScriptVarFlags       = JavafxExplicitAccessFlags | STATIC | PUBLIC_READ;
+    public static final long JavafxMemberDefFlags       = JavafxExplicitAccessFlags | STATIC | PUBLIC_READ;
+    public static final long JavafxFunctionFlags        = JavafxExplicitAccessFlags | ABSTRACT | BOUND | OVERRIDE;
+    public static final long JavafxScriptFunctionFlags  = JavafxExplicitAccessFlags | STATIC | BOUND;
+    public static final long JavafxClassFlags           = JavafxExplicitAccessFlags | STATIC | ABSTRACT;
 }

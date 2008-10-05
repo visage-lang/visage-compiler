@@ -13,7 +13,7 @@ test\functional\should-fail\AccessModifiersTest2.fx:19: illegal combination of m
 test\functional\should-fail\AccessModifiersTest2.fx:20: warning: The access modifier public-init includes the access of public-read.
    public-read public-init var greet:String="Good Morning friends";
    ^
-test\functional\should-fail\AccessModifiersTest2.fx:23: modifier public-init not allowed here
+test\functional\should-fail\AccessModifiersTest2.fx:23: modifier public-init not allowed on a def
    public-init def max=100;
    ^
 test\functional\should-fail\AccessModifiersTest2.fx:24: warning: The access modifier public includes the access of public-read.

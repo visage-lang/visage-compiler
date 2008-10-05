@@ -1,0 +1,7 @@
+test\should-fail\jfxc1891.fx:7: modifier public-init not allowed on a def
+public-init def max=100;
+^
+test\should-fail\jfxc1891.fx:11: modifier public-init not allowed on a def
+   public-init def min=1;
+   ^
+2 errors

@@ -12,13 +12,9 @@ import jfxc1250.a.jfxc1250subA;
 public var slPub = 3;
 package var slPkg = 3;
 var slScr = 3;
-public-init public var slNPub = 3;
-public-init package var slNPkg = 3;
-public-init var slNScr = 3;
+
 public-read package var slRPkg = 3;
 public-read var slRScr = 3;
-public-init public-read package var slNRPkg = 3;
-public-init public-read var slNRScr = 3;
 
 public function slFPub() { 3 }
 package function slFPkg() { 3 }
@@ -33,16 +29,14 @@ public class jfxc1250visBlank {
 	protected var memPro = 3;
 	package var memPkg = 3;
 	var memScr = 3;
-	public-init public var memNPub = 3;
+
 	public-init protected var memNPro = 3;
 	public-init package var memNPkg = 3;
 	public-init var memNScr = 3;
+
 	public-read protected var memRPro = 3;
 	public-read package var memRPkg = 3;
 	public-read var memRScr = 3;
-	public-init public-read protected var memNRPro = 3;
-	public-init public-read package var memNRPkg = 3;
-	public-init public-read var memNRScr = 3;
 
 	public function memFPub() { 3 }
 	protected function memFPro() { 3 }
@@ -55,16 +49,14 @@ class Foo {
 	protected var fooPro = 3;
 	package var fooPkg = 3;
 	var fooScr = 3;
-	public-init public var fooNPub = 3;
+
 	public-init protected var fooNPro = 3;
 	public-init package var fooNPkg = 3;
 	public-init var fooNScr = 3;
+
 	public-read protected var fooRPro = 3;
 	public-read package var fooRPkg = 3;
 	public-read var fooRScr = 3;
-	public-init public-read protected var fooNRPro = 3;
-	public-init public-read package var fooNRPkg = 3;
-	public-init public-read var fooNRScr = 3;
 
 	public function fooFPub() { 3 }
 	protected function fooFPro() { 3 }
@@ -79,43 +71,30 @@ var fv = Foo {};
 System.out.println(jfxc1250visBlank.slPub);
 System.out.println(jfxc1250visBlank.slPkg);
 System.out.println(jfxc1250visBlank.slScr);
-System.out.println(jfxc1250visBlank.slNPub);
-System.out.println(jfxc1250visBlank.slNPkg);
-System.out.println(jfxc1250visBlank.slNScr);
 System.out.println(jfxc1250visBlank.slRPkg);
 System.out.println(jfxc1250visBlank.slRScr);
-System.out.println(jfxc1250visBlank.slNRPkg);
-System.out.println(jfxc1250visBlank.slNRScr);
 
 System.out.println(sv.memPub);
 System.out.println(sv.memPkg);
 System.out.println(sv.memPro);
 System.out.println(sv.memScr);
-System.out.println(sv.memNPub);
 System.out.println(sv.memNPkg);
 System.out.println(sv.memNPro);
 System.out.println(sv.memNScr);
 System.out.println(sv.memRPro);
 System.out.println(sv.memRPkg);
 System.out.println(sv.memRScr);
-System.out.println(sv.memNRPro);
-System.out.println(sv.memNRPkg);
-System.out.println(sv.memNRScr);
 
 System.out.println(fv.fooPub);
 System.out.println(fv.fooPkg);
 System.out.println(fv.fooPro);
 System.out.println(fv.fooScr);
-System.out.println(fv.fooNPub);
 System.out.println(fv.fooNPkg);
 System.out.println(fv.fooNPro);
 System.out.println(fv.fooNScr);
 System.out.println(fv.fooRPro);
 System.out.println(fv.fooRPkg);
 System.out.println(fv.fooRScr);
-System.out.println(fv.fooNRPro);
-System.out.println(fv.fooNRPkg);
-System.out.println(fv.fooNRScr);
 
 System.out.println(jfxc1250visBlank.slFPub());
 System.out.println(jfxc1250visBlank.slFPkg());
@@ -133,21 +112,15 @@ var x3 = jfxc1250visBlank.cScr {};
 var s = jfxc1250subBlank {};
 System.out.println(jfxc1250subBlank.slPub);
 System.out.println(jfxc1250subBlank.slPkg);
-System.out.println(jfxc1250subBlank.slNPub);
-System.out.println(jfxc1250subBlank.slNPkg);
 System.out.println(jfxc1250subBlank.slRPkg);
 System.out.println(jfxc1250subBlank.slRScr);
-System.out.println(jfxc1250subBlank.slNRPkg);
-System.out.println(jfxc1250subBlank.slNRScr);
 
 System.out.println(s.memPub);
 System.out.println(s.memPkg);
-System.out.println(s.memNPub);
 System.out.println(s.memNPkg);
+System.out.println(s.memNScr);
 System.out.println(s.memRPkg);
 System.out.println(s.memRScr);
-System.out.println(s.memNRPkg);
-System.out.println(s.memNRScr);
 
 System.out.println(jfxc1250subBlank.slFPub());
 System.out.println(jfxc1250subBlank.slFPkg());
@@ -161,18 +134,12 @@ var z2 = jfxc1250subBlank.cPkg {};
 /////
 var sa = jfxc1250subA {};
 System.out.println(jfxc1250subA.slPub);
-System.out.println(jfxc1250subA.slNPub);
 System.out.println(jfxc1250subA.slRPkg);
 System.out.println(jfxc1250subA.slRScr);
-System.out.println(jfxc1250subA.slNRPkg);
-System.out.println(jfxc1250subA.slNRScr);
 
 System.out.println(sa.memPub);
-System.out.println(sa.memNPub);
 System.out.println(sa.memRPkg);
 System.out.println(sa.memRScr);
-System.out.println(sa.memNRPkg);
-System.out.println(sa.memNRScr);
 
 System.out.println(jfxc1250subA.slFPub());
 
