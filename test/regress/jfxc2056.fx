@@ -2,7 +2,7 @@
  * regression test for JFXC-2056 : Calling a variable of function type throws NPE if it is null
  *
  * @test
- * @run/fail
+ * @run
  */
 
 class Foo {
