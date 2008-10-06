@@ -682,6 +682,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         this.attrEnv = attrEnv;
 
         attrEnv.translatedToplevel = translate(attrEnv.toplevel);
+        attrEnv.translatedToplevel.endPositions = attrEnv.toplevel.endPositions;
     }
 
     @Override
