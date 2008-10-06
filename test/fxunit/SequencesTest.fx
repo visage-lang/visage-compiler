@@ -7,7 +7,7 @@
 // The tests for using a single element as input are deactivated until JFXC-833
 // is resolved.
  
-import javafx.lang.Sequences;
+import javafx.util.Sequences;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
 import java.util.Comparator;

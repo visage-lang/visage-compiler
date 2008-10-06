@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package javafx.lang;
+package javafx.util;
 
 /**
  *  Bit operations

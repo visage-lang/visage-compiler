@@ -28,7 +28,7 @@ import com.sun.scenario.animation.Interpolators;
 import com.sun.scenario.animation.TimingTarget;
 import com.sun.scenario.animation.TimingTargetAdapter;
 import javafx.lang.Duration;
-import javafx.lang.Sequences;
+import javafx.util.Sequences;
 import java.lang.Object;
 import java.util.ArrayList;
 import java.util.Map;

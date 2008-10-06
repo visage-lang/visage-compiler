@@ -21,7 +21,7 @@
  * have any questions.
  */
 
-package javafx.lang;
+package javafx.util;
 
 import java.lang.Object;
 import java.lang.Comparable;

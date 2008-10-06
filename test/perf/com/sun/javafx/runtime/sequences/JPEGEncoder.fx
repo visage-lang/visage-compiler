@@ -1,7 +1,7 @@
 package com.sun.javafx.runtime.sequences;
 
 import java.lang.Math;
-import javafx.lang.Bits;
+import javafx.util.Bits;
 import java.lang.System;
 
 public class BitmapData {

@@ -1,7 +1,7 @@
 package fxpad.gui; 
 
 import javax.swing.*;
-import javafx.lang.Sequences;
+import javafx.util.Sequences;
 import javafx.lang.FX;
 import javafx.ext.swing.*;
 

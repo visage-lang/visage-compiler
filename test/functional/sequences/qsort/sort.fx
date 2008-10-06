@@ -1,7 +1,7 @@
 import java.lang.System;
 import java.lang.Exception;
 import java.util.Random;
-import javafx.lang.Sequences;
+import javafx.util.Sequences;
 
 /**
   * Functional test : Function vs sequence
