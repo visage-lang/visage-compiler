@@ -1702,9 +1702,8 @@ scope errorStack;
 			// Eat up any garbled tokens, ready for another statement
 			//	
 			st2=syncBlock[resultType, stats] { resultType = $st2.value; }
-	   )*
+		)*
 	
-	  RBRACE
 	  
 	  	{
 	  		// If the result of the last element was erroneous, then
@@ -1723,6 +1722,8 @@ scope errorStack;
 	  		//
 	  		endPos(resultType);
 	  	}
+	  	
+	  RBRACE
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
