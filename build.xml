@@ -278,10 +278,29 @@
                  packagenames="javafx.reflect" sourcepath="${src.classes.dir}">
             <doclet name="com.sun.tools.xmldoclet.XMLDoclet"
                     path="${dist.javafxrdoc.jar}">
-               <param name="-o" value="${build.dir}/doc/javadoc.xml"/>
+               <param name="-o" value="${build.dir}/docs/javacode.xml"/>
                <param name="-nohtml"/>
             </doclet>
          </javadoc>
+         
+        <!-- generate fx class docs -->
+        <echo message="generating fx docs for ${javafxdoc.packages}"/>
+        <java  fork="true" failonerror="true" classname="com.sun.tools.javafxdoc.Main">
+            <classpath location="dist/lib/shared/javafxdoc.jar"/>
+            <classpath>
+                <path path="${build.classes.dir}:${javac.test.classpath}"/>
+            </classpath>
+            <jvmarg line="-Xbootclasspath/p:${bootjars}"/>
+            <jvmarg line="-Djava.awt.headless=true"/>
+            <jvmarg value="-Xmx256m"/>
+            <arg value="-o"/> <arg value="build/docs/fxcode.xml"/>
+            <arg value="-nohtml"/>
+            <arg value="-sourcepath"/> <arg value="${srcpathprop}"/>
+            <arg value="-classpath"/> <arg value="${clsjars}"/>
+            <arg line="${javafxdoc.packages}"/>
+        </java>
+        
+        
         <java  fork="true" failonerror="true" classname="com.sun.tools.javafxdoc.Main">
             <classpath location="dist/lib/shared/javafxdoc.jar"/>
             <classpath refid="clspath"/>
@@ -291,7 +310,7 @@
             <arg value="${srcpathprop}"/>
             <arg value="-classpath"/>
             <arg value="${clsjars}"/>
-        	<arg line="-i ${build.dir}/doc/javadoc.xml"/>
+        	<arg line="-i ${build.dir}/docs/javacode.xml"/>
             <classpath>
                 <path path="${build.classes.dir}:${javac.test.classpath}"/>
             </classpath>
