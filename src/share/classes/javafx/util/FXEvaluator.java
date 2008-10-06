@@ -55,6 +55,12 @@ public class FXEvaluator {
      * by the application, such as including the <code>javafxc.jar</code> file
      * in the application's classpath.
      * <br/>
+     * This method also depends upon the JSR-223 API classes being accessible
+     * by the application, such as including the <code>script-api.jar</code> 
+     * file in the application's classpath or the application must be run on 
+     * JDK 6+ where JSR-223 API classes are part of the platform API. For
+     * JDK 5, script-api.jar has to be in application's classpath.
+     * <br/>
      * Note:  this method provides only the simplest scripting functionality;
      * the script is evaluated without any specified context state, nor can 
      * any state it creates during evaluation be reused by other scripts.  For
