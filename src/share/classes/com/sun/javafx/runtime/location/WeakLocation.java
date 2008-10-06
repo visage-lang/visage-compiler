@@ -46,9 +46,10 @@ class WeakLocation extends WeakReference<Location> implements Linkable<WeakLocat
             WeakLocation wl = (WeakLocation) loc;
             AbstractLocation host = wl.host;
             // Minor optimization -- if we just purged a given host, don't do it again
-            if (host != lastHost)
+            if (host != null && host != lastHost) {
                 host.purgeDeadDependencies();
-            lastHost = host;
+                lastHost = host;
+            }
         }
         /*]*/
 
