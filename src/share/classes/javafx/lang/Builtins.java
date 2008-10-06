@@ -26,7 +26,6 @@ package javafx.lang;
 import com.sun.javafx.runtime.location.BindableLocation;
 
 import java.util.Vector;
-import com.sun.javafx.runtime.Entry;
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.SystemProperties;
 import com.sun.javafx.runtime.FXExit;
