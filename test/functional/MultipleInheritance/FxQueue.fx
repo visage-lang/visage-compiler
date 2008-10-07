@@ -10,7 +10,12 @@ public abstract function peek();
 public function clear(){
 	delete myQueue;
 }
-public function print(){
+/*
+ * 10/07/08
+ * Renamed this print for Mobile testing compatiblity, but it
+ * does not seem to affect MiTest.fx results???
+ */
+public function fqprint(){
 	var indx:Integer =0;
 	for(val in myQueue){	
 	   java.lang.System.out.print(val);
