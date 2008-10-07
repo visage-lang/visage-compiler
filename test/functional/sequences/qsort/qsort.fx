@@ -32,8 +32,8 @@ class qsort
 	 function length():Integer { return sizeof Int_sequence; }
 
     /** Print routines controlled by Boolean bPrint */
-     function println( msg: String ) { if (bPrint) System.out.println(msg); }
-     function print( msg: String  )  { if (bPrint) System.out.print(msg);   }
+     function bprintln( msg: String ) { if (bPrint) System.out.println(msg); }
+     function bprint( msg: String  )  { if (bPrint) System.out.print(msg);   }
 
     /** Print array preceded by message msg  */
     function printArray(msg: String)
@@ -123,7 +123,7 @@ var totalSortedItems = 0;
 var totalCompares = 0;
 var totalSwaps = 0;
 System.out.print("START...");
-println("----Integer array-----------------");
+bprintln("----Integer array-----------------");
 for( j in [0..arraysize-1]) {
    insert ((j*multiplier + 1)  mod modnum) into Int_sequence;
 }
