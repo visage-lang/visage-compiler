@@ -1,6 +1,6 @@
 /*
- * Unlike the Java programming language, JavaFX script is an expression language. 
- * All executable statements are expressions which consist of zero or more inputs and a single output. 
+ * Unlike the Java programming language, JavaFX script is an expression language.
+ * All executable statements are expressions which consist of zero or more inputs and a single output.
  * This includes conditionals, loops, and even blocks.
  * @test
  * @run
@@ -11,7 +11,7 @@ import java.lang.Exception;
 
 var pass = 0;
 var fail = 0;
-function print(msg:String) { System.out.println(msg); }
+//function print(msg:String) { System.out.println(msg); }
 function check(msg:String) { pass++; }
 function checkS(s1:String, s2:String,msg:String) { if(s1==s2){pass++; }else {fail++;print("FAILED: {msg} : {s1} != {s2}");} }
 function checkI(i1:Integer, i2:Integer,msg:String) { if(i1==i2){pass++; }else {fail++;print("FAILED: {msg} : {i1} != {i2}");} }
