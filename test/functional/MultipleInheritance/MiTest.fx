@@ -25,7 +25,7 @@ class Employee extends java.lang.Object,java.lang.Cloneable {  //Fx class extend
 	function getSalary():Integer{
 		this.salary;
 	}
-	function print():Void{
+	function emprint():Void{
 		java.lang.System.out.print("\t Name ==> {name},Experience==>{exprnce} yrs ,salary ==>{salary}");
 		java.lang.System.out.println("");
 	}
@@ -118,10 +118,10 @@ init{
 }
 function putDetails(empInfoArr:Employee[]):Void{
 	for(empInfo in empInfoArr){
-		empPQueue.put(empInfo);		
-		insert empInfo into employeeQueue;		
+		empPQueue.put(empInfo);
+		insert empInfo into employeeQueue;
 	}
-	
+
 }
 function selectEmpForLayOff():Employee{
 	java.lang.System.out.print("Select Employee for Layoff from db {
@@ -131,14 +131,14 @@ function selectEmpForLayOff():Employee{
 }
 function layOff():Employee  {
 	 java.lang.System.out.print("Layoff the employee ::");
-         var retVal:Employee= empPQueue.poll() as Employee;	  
+         var retVal:Employee= empPQueue.poll() as Employee;
 	 delete retVal from employeeQueue;
          return retVal ;
 }
-function print (){
+function emprint (){
 	java.lang.System.out.println("Employee details as of now::");
 	for (em in employeeQueue){
-		em.print();
+		em.emprint();
 	}
 }
 function clear(){
@@ -156,17 +156,17 @@ for (comp in compArr){
 	var emp4 = Employee{name:"Willy",salary:95000,exprnce:1};
 	var empArr : Employee[]=[emp1,emp2,emp3,emp4];
 	employeedb.putDetails(empArr);
-	employeedb.print();
-	employeedb.selectEmpForLayOff().print();
-	employeedb.layOff().print();
+	employeedb.emprint();
+	employeedb.selectEmpForLayOff().emprint();
+	employeedb.layOff().emprint();
 	java.lang.System.out.print("Insert a new Employee into DB::");
 	var newEmp = Employee{name:"XHill",salary:335000,exprnce:49};
-	newEmp.print();
+	newEmp.emprint();
 	employeedb.putDetails([newEmp]);
-	employeedb.print();
-	employeedb.selectEmpForLayOff().print();
-	employeedb.layOff().print();
-	employeedb.print();
+	employeedb.emprint();
+	employeedb.selectEmpForLayOff().emprint();
+	employeedb.layOff().emprint();
+	employeedb.emprint();
 	java.lang.System.out.println("Done,Clear the DataBase");
 	employeedb.clear();
 	java.lang.System.out.println("**************************************");
