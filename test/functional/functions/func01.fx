@@ -139,7 +139,6 @@ class TestIntStack {
 		}
     return pos;
   }
-  public function print() {		System.out.println(thestack);  }
 }
 
 function check( msg:String,f:Integer, ExpectedValue:Integer) {
