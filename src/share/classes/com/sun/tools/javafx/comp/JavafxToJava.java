@@ -182,12 +182,12 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         abstract JCExpression translateToCheck(JFXExpression expr);
 
-        protected JCExpression preserveSideEffects(JFXExpression expr, JCExpression trans) {
+        protected JCExpression preserveSideEffects(Type type, JFXExpression expr, JCExpression trans) {
             if (needNullCheck && expr!=null && computeHasSideEffects(expr)) {
                 // if there is going to be a null check (which thus could keep expr
                 // from being evaluated), and expr has side-effects, then eval
                 // it first and put it in a temp var.
-                return addTempVar(expr.type, trans);
+                return addTempVar(type, trans);
             } else {
                 // no side-effects, just pass-through
                 return trans;
@@ -1668,7 +1668,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     final JFXSelect select = (JFXSelect) lhs;
                     return new NullCheckTranslator(diagPos, select.getExpression(), lhs.type, false) {
 
-                        private final JCExpression rhsTranslatedPreserved = preserveSideEffects(rhs, rhsTranslated);
+                        private final JCExpression rhsTranslatedPreserved = preserveSideEffects(lhs.type, rhs, rhsTranslated);
 
                         @Override
                         JCExpression translateToCheck( JFXExpression expr) {
