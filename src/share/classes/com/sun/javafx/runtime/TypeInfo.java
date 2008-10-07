@@ -34,6 +34,7 @@ public class TypeInfo<T> {
     public static final TypeInfo<Integer> Integer = new TypeInfo<Integer>(0);
     public static final TypeInfo<Boolean> Boolean = new TypeInfo<Boolean>(false);
     public static final TypeInfo<Double> Double = new TypeInfo<Double>(0.0);
+    public static final TypeInfo<Float> Float = new TypeInfo<Float>(0.0f);
     public static final TypeInfo<String> String = new TypeInfo<String>("");
     public static final TypeInfo<Object> Object = new TypeInfo<Object>(null);
 
@@ -44,6 +45,7 @@ public class TypeInfo<T> {
         map.put(Long.class, Long);
         map.put(Boolean.class, Boolean);
         map.put(Double.class, Double);
+        map.put(Float.class, Float);
         map.put(String.class, String);
     }
 
