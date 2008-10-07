@@ -15,7 +15,7 @@ public class TestUtils  {
    public var replacements = [ "REPLACEMENTS:" ];
    public function Replacements() {System.out.println( replacements ); }
    public function printSequence( seq : Integer[] ) { System.out.println( seq ); }
-   public function print(msg:String) { System.out.println(msg); }
+//   public function print(msg:String) { System.out.println(msg); }
 	/* Increment output if used as comparison line for .EXPECTED file. This way golden file test checks can be accounted for. */
    public function addGFT( n:Integer){ GFT+=n; }
    public function check(description:String) {GFT++; System.out.println("CHECK: {description}");	}
