@@ -7,7 +7,6 @@ import java.util.Date;
  */
 
 var TU = new TestUtils;
-function print(msg:String) { System.out.println( msg ); }
 /*
  * String Literals and String Expressions
  * 
