@@ -73,7 +73,7 @@ class RangeTest {
     }
 }
 
-function print(foos : Hold[]) {
+function myprint(foos : Hold[]) {
     for (oo in foos) {
         oo.show();
     }
@@ -81,17 +81,17 @@ function print(foos : Hold[]) {
 }
 
 var rt = RangeTest {};
-print( rt.numOfIntervals0() );
-print( rt.numOfIntervals1() );
-print( rt.numOfIntervals2() );
-print( rt.numOfIntervals3() );
-print( rt.numOfIntervals4() );
-print( rt.numOfIntervals5() );
-print( rt.numOfIntervals6() );
-print( rt.numOfIntervals7() );
-print( rt.numOfIntervalsA() );
-print( rt.numOfIntervalsB() );
-print( rt.numOfIntervalsC() );
+myprint( rt.numOfIntervals0() );
+myprint( rt.numOfIntervals1() );
+myprint( rt.numOfIntervals2() );
+myprint( rt.numOfIntervals3() );
+myprint( rt.numOfIntervals4() );
+myprint( rt.numOfIntervals5() );
+myprint( rt.numOfIntervals6() );
+myprint( rt.numOfIntervals7() );
+myprint( rt.numOfIntervalsA() );
+myprint( rt.numOfIntervalsB() );
+myprint( rt.numOfIntervalsC() );
 
 
 
