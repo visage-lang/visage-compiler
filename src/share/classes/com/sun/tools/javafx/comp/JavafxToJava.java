@@ -13,7 +13,7 @@
  * accompanied this code).
  *
  * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,s
+ * 2 along with this work; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
@@ -490,12 +490,17 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
         }
 
-        if (sourceType == syms.javafx_IntegerType ||
-                targetType == syms.javafx_IntegerType) {
-            if (sourceType != targetType && sourceType != syms.unreachableType && targetType.isPrimitive()) {
-                translated = make.at(diagPos).TypeCast(targetType, translated);
+        Type unboxedTargetType = targetType.isPrimitive() ? targetType :
+            types.unboxedType(targetType);
+        if (unboxedTargetType != Type.noType) {
+            Type unboxedSourceType = sourceType.isPrimitive() ? sourceType
+                    : types.unboxedType(sourceType);
+            if (unboxedSourceType != Type.noType &&
+                    unboxedSourceType != unboxedTargetType) {
+                 translated = make.at(diagPos).TypeCast(unboxedTargetType, translated);
             }
         }
+
         if (sourceType.isCompound()) {
             translated = make.at(diagPos).TypeCast(makeTypeTree(diagPos, types.erasure(targetType), true), translated);
         }
@@ -1978,9 +1983,11 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         DiagnosticPosition diagPos = tree.pos();
         JCExpression seqLoc = translate(tree.getSequence(), Wrapped.InLocation);
         JCExpression elem = translate( tree.getElement() );
-        if (types.isArray(tree.getElement().type)) {
-            elem = convertTranslated(elem, diagPos, tree.getElement().type, tree.getSequence().type);
-        }
+        Type elemType = tree.getElement().type;
+        if (types.isArray(elemType) || types.isSequence(elemType))
+            elem = convertTranslated(elem, diagPos, elemType, tree.getSequence().type);
+        else
+            elem = convertTranslated(elem, diagPos, elemType, elementType(tree.getSequence().type));
         if (tree.getPosition() == null) {
             result = callStatement(diagPos, seqLoc, "insert", elem);
         } else {
@@ -2206,21 +2213,11 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         JCStatement makeAdd(JCExpression expr, Type exprType) {
             if (exprType != elemType) {
-                if (types.isArray(exprType)) {
+                if (types.isArray(exprType) || types.isSequence(exprType)) {
                     expr = convertTranslated(expr, diagPos, exprType, types.sequenceType(elemType));
                 }
                 else {
-                    Type unboxedElemType = types.unboxedType(elemType);
-                    if (unboxedElemType != Type.noType) {
-                        Type unboxedExprType = types.unboxedType(exprType);
-                        if (unboxedExprType != Type.noType) {
-                                expr = make.at(diagPos).TypeCast(unboxedExprType, expr);
-                                exprType = unboxedExprType;
-                        }
-                        if (exprType.tag == TypeTags.INT && unboxedElemType.tag == TypeTags.DOUBLE) {
-                            expr = make.at(diagPos).TypeCast(unboxedElemType, expr);
-                        }
-                    }
+                    expr = convertTranslated(expr, diagPos, exprType, elemType);
                 }
              }
             JCMethodInvocation addCall = make.Apply(
