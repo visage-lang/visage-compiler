@@ -25,6 +25,7 @@ package com.sun.javafx.runtime.location;
 
 import java.util.Iterator;
 
+import com.sun.javafx.runtime.Numerics;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 
@@ -81,7 +82,8 @@ public class Locations {
         return new ObjectBooleanLocation(loc);
     }
 
-    public static <T extends Number> DoubleLocation asDoubleLocation(ObjectLocation<T> loc) {
+    // Was <T extends Number>; assumes T is Number
+    public static <T> DoubleLocation asDoubleLocation(ObjectLocation<T> loc) {
         return new ObjectDoubleLocation<T>(loc);
     }
 
@@ -324,7 +326,8 @@ public class Locations {
         }
     }
 
-    private static class ObjectDoubleLocation<T extends Number> extends LocationWrapper implements DoubleLocation, StaticViewLocation {
+    // Was <T extends Number>; assumes T is Number
+    private static class ObjectDoubleLocation<T> extends LocationWrapper implements DoubleLocation, StaticViewLocation {
         private final ObjectLocation<T> location;
 
         private ObjectDoubleLocation(ObjectLocation<T> location) {
@@ -337,7 +340,7 @@ public class Locations {
 
         public double getAsDouble() {
             T val = location.get();
-            return val==null? 0.0 : val.doubleValue();
+            return val==null? 0.0 : Numerics.toDouble(val);
         }
 
         public double setAsDouble(double value) {
@@ -357,21 +360,13 @@ public class Locations {
         public void addChangeListener(final DoubleChangeListener listener) {
             location.addChangeListener(new ObjectChangeListener<T>() {
                 public void onChange(T oldValue, T newValue) {
-                    listener.onChange(oldValue.doubleValue(), newValue.doubleValue());
+                    listener.onChange(Numerics.toDouble(oldValue), Numerics.toDouble(newValue));
                 }
             });
         }
 
         public Double get() {
             return getAsDouble();
-        }
-
-        public T set(T value) {
-            return location.set(value);
-        }
-
-        public T setFromLiteral(T value) {
-            return location.setFromLiteral(value);
         }
 
         public Double set(Double value) {
@@ -387,7 +382,7 @@ public class Locations {
         public void addChangeListener(final ObjectChangeListener<Double> listener) {
             location.addChangeListener(new ObjectChangeListener<T>() {
                 public void onChange(T oldValue, T newValue) {
-                    listener.onChange(oldValue.doubleValue(), newValue.doubleValue());
+                    listener.onChange(Numerics.toDouble(oldValue), Numerics.toDouble(newValue));
                 }
             });
         }
