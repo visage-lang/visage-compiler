@@ -101,12 +101,21 @@ public class FX {
 
     /**
      * Exits the Script and causes any Shutdown Actions to be called
-     * This map cause the Runtime to exit as System.exit() depending on
-     * the underlying implementation.
-     *
-     * The behavoir is similar to the POSIX 'C' exit() with the
-     * Shutdown Action Stack similar to atexit()/on_exit() functionality
-     *
+     * This may cause the Runtime to exit as @code{System.exit()} 
+     * depending on the underlying implementation.
+     * </p><p> 
+     * Any Shutdown Actions that were previously added using the 
+     * @code{addShutdownAction()} function will be exectued at this time
+     * in LIFO ordering.
+     * </p><p>
+     * A second call to @code{FX.exit()} once @code{FX.exit()} has 
+     * started will result a @code{IllegalStateException} to be thrown,
+     * this can occur if a @code{Timeline} calls @code{FX.exit()} while
+     * FX.exit is started.
+     * If a call to @code{FX.exit()} occurs in a Shutdown Action, that
+     * action's function will simply exit without completing the rest of
+     * its operation and the next Shutdown Action, if any, will run.
+     * 
      * This function will not normally return to the calling Script
      * 
      */
@@ -143,11 +152,15 @@ public class FX {
     /**
      * Adds an action to the queue to be executed at FX.exit() time
      * This action will be added to the queue as a push stack, meaning that
-     * they will be excuted in FILO ordering.
-     *
+     * they will be excuted in FILO ordering. Duplicate actions are
+     * not allowed and will cause the orignal Handle to be returned with
+     * no reordering.
+     * 
      * @param  action of type function():Void  that will be executed
-     * at FX.exit() time
-     * @return Handle used to remove the action if needed, 0 means failure
+     * at FX.exit() time. Only one copy of an action can be in the queue,
+     * an attempt to add the same action a second time will return the 
+     * previous Handle without any reodering.
+     * @return Handle used to remove the action if needed.
      */
     public static int addShutdownAction(Function0<Void> action) {
         if (action == null) {
@@ -230,6 +243,13 @@ public class FX {
 
         int addAction(Object action) {
             int hash = action.hashCode();
+
+            // Check for action already in Vector
+            int index = handles.indexOf(hash);
+            if (index != -1) {
+                // Return the hash without reorder
+                return hash;
+            }
             actions.addElement(action);
             handles.addElement(hash);
             return hash;
@@ -258,18 +278,17 @@ public class FX {
             }
             while (!actions.isEmpty()) {
                 Function0<Void> action = null;
+                // Execute LIFO Action
                 action = (Function0<Void>) actions.lastElement();
-                actions.removeElement(action);
+                actions.remove(actions.lastIndexOf(action));
                 if (action != null) {
                     try {
                         /*
                          * TODO: add timer to kill long running Action
                          */
                         action.invoke();
-                    } catch (FXExit fe) {
-                        throw fe;
-                    } catch (Throwable t) {
-                        // Ignore all other Throwables
+                    } catch (Throwable ignore) {
+                        // Ignore all Throwables
                     }
                 }
             }
