@@ -139,6 +139,18 @@
                     </context>
                 </action>
             </ide-actions>
+            <export>
+                <type>folder</type>
+                <location>build/classes</location>
+                <script>${ant.script}</script>
+                <build-target>jar</build-target>
+            </export>
+            <export>
+                <type>folder</type>
+                <location>build/classes</location>
+                <script>${ant.script}</script>
+                <build-target>jar</build-target>
+            </export>
             <view>
                 <items>
                     <source-folder style="packages">
@@ -185,6 +197,7 @@
             <compilation-unit>
                 <package-root>build/gensrc</package-root>
                 <classpath mode="compile">lib/javac.jar:build/classes:tools/antlr-3.1.1/antlr-3.1.1-runtime.jar:tools/antlr-3.1.1/antlr-3.1.1.jar</classpath>
+                <built-to>build/classes</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>
             <compilation-unit>
@@ -195,6 +208,7 @@
             <compilation-unit>
                 <package-root>src/share/classes</package-root>
                 <classpath mode="compile">lib/javac.jar;lib/javadoc.jar;lib/jmc.jar;lib/org-netbeans-modules-java-j2seproject-copylibstask.jar;lib/Pack200Task.jar;lib/script-api.jar;tools/ant-1.7.0/ant.jar;build/classes;tools/antlr-3.1/antlr-runtime-3.1.jar</classpath>
+                <built-to>build/classes</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>
             <compilation-unit>
