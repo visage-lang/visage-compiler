@@ -82,8 +82,10 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         if (sourceOffset < 0 || (length > 0 && sourceOffset + length > size()))
             throw new ArrayIndexOutOfBoundsException();
 
-        for (int i = 0; i < length; i++)
-            dest[i + destOffset] = get(i + sourceOffset);
+        int i=0;
+        for (Iterator<T> it = iterator(sourceOffset, sourceOffset+length-1); it.hasNext(); i++) {
+            dest[i + destOffset] = it.next();
+        }
     }
     
     public Sequence<T> get(SequencePredicate<? super T> predicate) {
@@ -92,19 +94,49 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
 
 
     public Iterator<T> iterator() {
+        return iterator(0, size()-1);
+    }
+    
+    public Iterator<T> iterator(final int startPos, final int endPos) {
         return new Iterator<T>() {
-            private int next = 0;
-            final private int length = size();
+            private int cur = Math.min(Math.max(0, startPos), size());          // 0 <= cur <= size()
+            final private int last = Math.min(Math.max(cur, endPos+1), size()); // cur <= last <= size()
 
             public boolean hasNext() {
-                return next < length;
+                return cur < last;
             }
 
             public T next() {
-                if (next >= length)
+                if (cur >= last)
                     throw new NoSuchElementException();
                 else
-                    return get(next++);
+                    return get(cur++);
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
+    }
+    
+    public Iterator<T> reverseIterator() {
+        return reverseIterator(size()-1, 0);
+    }
+    
+    public Iterator<T> reverseIterator(final int startPos, final int endPos) {
+        return new Iterator<T>() {
+            private int cur = Math.min(Math.max(0, startPos+1), size());    // 0 <= cur <= size()
+            final private int last = Math.min(Math.max(0, endPos), cur);    // 0 <= last <= cur
+
+            public boolean hasNext() {
+                return cur > last;
+            }
+
+            public T next() {
+                if (cur <= last)
+                    throw new NoSuchElementException();
+                else
+                    return get(--cur);
             }
 
             public void remove() {
@@ -122,9 +154,7 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
     @Override
     public int hashCode() {
         int hash = 0;
-        final int length = size();
-        for (int i = 0; i < length; i++) {
-            T val = get(i);
+        for (T val : this) {
             hash = 31 * hash + (val != null ? val.hashCode() : 0);
         }
         return hash;
@@ -137,11 +167,13 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
             return "[ ]";
         StringBuilder sb = new StringBuilder();
         sb.append("[ ");
-        final int length = size();
-        for (int i = 0; i < length; i++) {
-            if (i > 0)
-                sb.append(", ");
-            sb.append(get(i));
+        for (T val : this) {
+            sb.append(val);
+            sb.append(", ");
+        }
+        final int length = sb.length();
+        if (length > 1) {
+            sb.delete(length-2, length);
         }
         sb.append(" ]");
         return sb.toString();
@@ -159,9 +191,8 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
                          int width, 
                          int precision) {
         // TBD handle flags, width, and precision
-        final int length = size();
-        for (int i = 0; i < length; i++) {
-            formatter.format("%s", get(i));
+        for (T val : this) {
+            formatter.format("%s", val);
         }
     }
 }

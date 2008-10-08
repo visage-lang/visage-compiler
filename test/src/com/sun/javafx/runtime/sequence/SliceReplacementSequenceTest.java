@@ -22,6 +22,8 @@
  */
 package com.sun.javafx.runtime.sequence;
 
+import java.util.Iterator;
+
 import com.sun.javafx.runtime.JavaFXTestCase;
 import com.sun.javafx.runtime.TypeInfo;
 import org.junit.Assert;
@@ -117,8 +119,9 @@ public class SliceReplacementSequenceTest extends JavaFXTestCase {
     
     private void testGetHelper (Sequence<Integer> seq, Integer... values) {
         assertEquals(values.length, seq.size());
-        for (int i=0; i<values.length; i++) {
-            assertEquals(values[i], seq.get(i));
+        int i = 0;
+        for (Integer val : seq) {
+            assertEquals(values[i++], val);
         }
         assertEquals(Integer.valueOf(0), seq.get(-1));
         assertEquals(Integer.valueOf(0), seq.get(values.length));

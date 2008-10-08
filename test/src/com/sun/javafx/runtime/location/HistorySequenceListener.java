@@ -24,6 +24,7 @@ package com.sun.javafx.runtime.location;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
 
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
@@ -41,8 +42,9 @@ public class HistorySequenceListener<T> extends SequenceChangeListener<T> {
             elements.add(String.format("r-%d-%s-%s", startPos, oldValue.get(startPos).toString(), newValue.get(startPos).toString()));
         }
         else {
-            for (int i=endPos; i >= startPos; i--) {
-                elements.add(String.format("d-%d-%s", i, oldValue.get(i).toString()));
+            int i = endPos;
+            for (Iterator<T> it = Sequences.reverseIterator(oldValue, endPos, startPos); it.hasNext(); i--) {
+                elements.add(String.format("d-%d-%s", i, it.next().toString()));
             }
             int index = startPos;
             for (T t : newElements) {

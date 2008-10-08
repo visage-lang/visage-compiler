@@ -376,6 +376,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         final List<String> list = new ArrayList<String>();
 
         final FXObjectFactory<Foo> fooFactory = new FXObjectFactory<Foo>(Foo.class, new String[]{"x"}) {
+            @Override
             public void postInit(Foo receiver) {
                 list.add(receiver.get$x().getAsSequence().get(0));
             }
@@ -387,6 +388,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         ObjectVariable.make(false, new ObjectBindingExpression<Foo>() {
             private SequenceLocation<String> xform$attr;
 
+            @Override
             protected Location[] getStaticDependents() {
                 return new Location[]{xform$attr};
             }
@@ -413,6 +415,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         final List<String> list = new ArrayList<String>();
 
         final FXObjectFactory<Foo> fooFactory = new FXObjectFactory<Foo>(Foo.class, new String[]{"x"}) {
+            @Override
             public void postInit(Foo receiver) {
                 list.add(receiver.get$x().getAsSequence().get(0));
             }
@@ -426,6 +429,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
                                                 ObjectVariable.make(false, new ObjectBindingExpression<Foo>() {
                                                     private SequenceLocation<String> xform$attr;
 
+                                                    @Override
                                                     protected Location[] getStaticDependents() {
                                                         return new Location[]{xform$attr};
                                                     }

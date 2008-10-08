@@ -62,7 +62,7 @@ public interface Sequence<T> extends Iterable<T> {
      * the element type is returned; either null, zero for Integer or Double sequences, or false for Boolean
      * sequences.  */
     public T get(int position);
-
+    
     /** Extract a slice of the sequence */
     public Sequence<T> getSlice(int startPos, int endPos);
 
@@ -84,6 +84,9 @@ public interface Sequence<T> extends Iterable<T> {
     public BitSet getBits(SequencePredicate<? super T> predicate);
 
     public Iterator<T> iterator();
+    public Iterator<T> iterator(int startPos, int endPos);
+    public Iterator<T> reverseIterator();
+    public Iterator<T> reverseIterator(int startPos, int endPos);
 
     T getDefaultValue();
 

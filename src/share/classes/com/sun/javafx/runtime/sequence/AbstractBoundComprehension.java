@@ -23,6 +23,8 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import java.util.Iterator;
+
 import com.sun.javafx.runtime.Util;
 import com.sun.javafx.runtime.location.*;
 
@@ -121,8 +123,10 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
                 int deletedCount = endPos - startPos + 1;
                 int netAdded = insertedCount - deletedCount;
                 if (netAdded == 0) {
-                    for (int i = startPos; i <= endPos; i++)
-                        state.get(i).element.set(newElements.get(i - startPos));
+                    int i = startPos;
+                    for (Iterator<? extends T> it = Sequences.iterator(newElements); it.hasNext(); i++) {
+                        state.get(i).element.set(it.next());
+                    }
                 }
                 else {
                     SequenceLocation<V>[] locationsArray = Util.newSequenceLocationArray(newElements.size());

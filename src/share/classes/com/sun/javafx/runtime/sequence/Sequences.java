@@ -273,8 +273,9 @@ public final class Sequences {
         }
         int length = seq.size();
         Double[] dArray = Util.<Double>newObjectArray(length);
-        for (int i = 0; i < length; i++) {
-            dArray[i] = (double) (seq.get(i));
+        int i=0;
+        for (Integer val : seq) {
+            dArray[i++] = (double) (val);
         }
         return new ArraySequence<Double>(TypeInfo.Double, dArray, length);
     }
@@ -290,6 +291,26 @@ public final class Sequences {
     /** How large is this sequence?  */
     public static int size(Sequence seq) {
         return (seq == null) ? 0 : seq.size();
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static<T> Iterator<T> iterator(Sequence<T> seq) {
+        return (seq == null)? (Iterator<T>) TypeInfo.Object.emptySequence.iterator() : seq.iterator();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static<T> Iterator<T> iterator(Sequence<T> seq, int startPos, int endPos) {
+        return (seq == null)? (Iterator<T>) TypeInfo.Object.emptySequence.iterator() : seq.iterator(startPos, endPos);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static<T> Iterator<T> reverseIterator(Sequence<T> seq) {
+        return (seq == null)? (Iterator<T>) TypeInfo.Object.emptySequence.iterator() : seq.reverseIterator();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static<T> Iterator<T> reverseIterator(Sequence<T> seq, int startPos, int endPos) {
+        return (seq == null)? (Iterator<T>) TypeInfo.Object.emptySequence.iterator() : seq.reverseIterator(startPos, endPos);
     }
 
     public static<T> boolean isEqual(Sequence<?> one, Sequence<?> other) {
@@ -330,9 +351,12 @@ public final class Sequences {
     public static<T> boolean sliceEqual(Sequence<T> seq, int startPos, int endPos, Sequence<? extends T> slice) {
         if (endPos - startPos + 1 != size(slice))
             return false;
-        for (int i=startPos; i<=endPos; i++)
-            if (!seq.get(i).equals(slice.get(i-startPos)))
+        Iterator<T> seqIterator = iterator(seq, startPos, endPos);
+        for (Iterator<? extends T> sliceIterator = iterator(slice); sliceIterator.hasNext(); ) {
+            if (!seqIterator.next().equals(sliceIterator.next())) {
                 return false;
+            }
+        }
         return true;
     }     
 
@@ -447,48 +471,60 @@ public final class Sequences {
     /** Convert a Sequence<T> to an array */
     public static<T> T[] toArray(Sequence<T> seq) {
         T[] unboxed = Util.<T>newObjectArray(seq.size());
-        for (int i=0; i<unboxed.length; i++)
-            unboxed[i] = seq.get(i);
+        int i=0;
+        for (T val : seq) {
+            unboxed[i++] = val;
+        }
         return unboxed;
     }
 
     /** Convert a Sequence<Long> to an array */
     public static long[] toArray(Sequence<Long> seq) {
         long[] unboxed = new long[seq.size()];
-        for (int i=0; i<unboxed.length; i++)
-            unboxed[i] = seq.get(i);
+        int i=0;
+        for (Long val : seq) {
+            unboxed[i++] = val;
+        }
         return unboxed;
     }
 
     /** Convert a Sequence<Integer> to an array */
     public static int[] toArray(Sequence<Integer> seq) {
         int[] unboxed = new int[seq.size()];
-        for (int i=0; i<unboxed.length; i++)
-            unboxed[i] = seq.get(i);
+        int i=0;
+        for (Integer val : seq) {
+            unboxed[i++] = val;
+        }
         return unboxed;
     }
 
     /** Convert a Sequence<Double> to a double array */
     public static double[] toArray(Sequence<? extends java.lang.Number> seq) {
         double[] unboxed = new double[seq.size()];
-        for (int i=0; i<unboxed.length; i++)
-            unboxed[i] = seq.get(i).doubleValue();
+        int i=0;
+        for (java.lang.Number val : seq) {
+            unboxed[i++] = val.doubleValue();
+        }
         return unboxed;
     }
 
     /** Convert a Sequence<Double> to a float array */
     public static float[] toFloatArray(Sequence<? extends java.lang.Number> seq) {
         float[] unboxed = new float[seq.size()];
-        for (int i=0; i<unboxed.length; i++)
-          unboxed[i] = seq.get(i).floatValue();
+        int i=0;
+        for (java.lang.Number val : seq) {
+            unboxed[i++] = val.floatValue();
+        }
         return unboxed;
     }
 
     /** Convert a Sequence<Boolean> to an array */
     public static boolean[] toArray(Sequence<Boolean> seq) {
         boolean[] unboxed = new boolean[seq.size()];
-        for (int i=0; i<unboxed.length; i++)
-            unboxed[i] = seq.get(i);
+        int i=0;
+        for (Boolean val : seq) {
+            unboxed[i++] = val;
+        }
         return unboxed;
     }
 
@@ -616,12 +652,11 @@ public final class Sequences {
         if (seq == null || seq.isEmpty())
             throw new IllegalArgumentException("empty sequence passed to Sequences.max");
         
-        Iterator<T> it = seq.iterator();
-        T result = it.next();
-        T current;
-        while (it.hasNext()) {
-            if ((current = it.next()).compareTo(result) > 0)
-                result = current;
+        T result = seq.get(0);
+        for (T val : seq) {
+            if (result.compareTo(val) < 0) {
+                result = val;
+            }
         }
         return result;
     }
@@ -650,11 +685,11 @@ public final class Sequences {
             return (T)max((Sequence<Comparable>)seq);
         
         Iterator<T> it = seq.iterator();
-        T result = it.next();
-        T current;
-        while (it.hasNext()) {
-            if (c.compare(current = it.next(), result) > 0)
-                result = current;
+        T result = seq.get(0);
+        for (T val : seq) {
+            if (c.compare(result, val) < 0) {
+                result = val;
+            }
         }
         return result;
     }
@@ -679,11 +714,11 @@ public final class Sequences {
             throw new IllegalArgumentException("empty sequence passed to Sequences.min");
         
         Iterator<T> it = seq.iterator();
-        T result = it.next();
-        T current;
-        while (it.hasNext()) {
-            if ((current = it.next()).compareTo(result) < 0)
-                result = current;
+        T result = seq.get(0);
+        for (T val : seq) {
+            if (result.compareTo(val) > 0) {
+                result = val;
+            }
         }
         return result;
     }
@@ -711,12 +746,10 @@ public final class Sequences {
         if (c == null)
             return (T)min((Sequence<Comparable>)seq);
         
-        Iterator<T> it = seq.iterator();
-        T result = it.next();
-        T current;
-        while (it.hasNext()) {
-            if (c.compare(current = it.next(), result) < 0)
-                result = current;
+        T result = seq.get(0);
+        for (T val : seq) {
+            if (c.compare(result, val) > 0)
+                result = val;
         }
         return result;
     }
