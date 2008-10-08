@@ -73,8 +73,9 @@ public class Timeline {
      * {@code -1.0} is backwards, etc...
      * 
      * <p>
-     * Inverse {@code rate} while timeline is running, timeline will be unwinded
-     * immediately.
+     * Inverting the rate of a running timeline will cause the {@code Timeline}
+     * to reverse direction in place and play back over the portion of the 
+     * {@code Timeline} that has alreay elapsed.
      *
      * @profile common
      */
@@ -87,7 +88,7 @@ public class Timeline {
             if (old != 0) {
                 // figure out if there is a direction change
                 if(old * rate < 0) {
-                    toggleDirection();
+                    toggle();
                 }
             } else {
                 forward = rate > 0;
@@ -251,10 +252,11 @@ public class Timeline {
     
     
     /**
-     * If timeline reverses direction in place, time needs to 
-     * be adjusted since timeline's total duration can be changed.
+     * Randomly seeking a {@code Timeline} may affect {@code Timeline}'s
+     * duration. {@code durOffset} tracks the duration changes and
+     * compensates it accordingly.
      */
-    var offsetT: Number = 0.0;
+    var durOffset: Number = 0.0;
     
     
     /**
@@ -272,7 +274,17 @@ public class Timeline {
      */
     var curElapsed: Number = 0.0;
     
+    /**
+     * {@code Timeline} can be inverted in place, the inversion point needs to be
+     * recorded.
+     */
+    var invertOffsetValid: Boolean = true;
+    var invertOffsetT: Number = 0.0;
     
+    /**
+     * {@code isReverse} is true, {@code Timeline} needs to be unwinded.
+     */
+    var isReverse: Boolean = false;
     
     /**
      * Indicates if it is a sub timeline
@@ -310,7 +322,20 @@ public class Timeline {
     /**
      * Plays timeline from current position in the direction indicated
      * by {@code rate}. If the timeline is running, it has no effect.
-     *
+     * <p>
+     * When {@code rate} > 0 (forward play), if a timeline is already
+     * positioned at the end, the first cycle will not be played, it is 
+     * considered to have already finished. This also applies to a
+     * backward ({@code rate} < 0) cycle if a timeline is positioned at the 
+     * beginning. However, if the timeline has {@code repeatCount} > 1, 
+     * following cycle(s) will be played as usual.
+     * <p>
+     * To play a {@code Timeline} backwards from the end:<br>
+     * <code>
+     *  timeline.rate = negative rate<br>
+     *  timeline.time = overall duration of timeline<br>
+     *  timeline.play()<br>
+     * </code>
      * <p>
      * Note:
      *  <l>
@@ -376,31 +401,27 @@ public class Timeline {
         }
     }
     
-    
-    function toggleDirection() {
+    /**
+     * Toggle the {@code Timeline}.
+     * If the {@code Timeline} is running, the {@code Timeline} will be unwound in place,
+     * meaning the {@code Timeline} will reverse its direction and run backwards from
+     * current position back to the original position. If the running {@code Timeline}
+     * is toggled a second time, the {@code Timeline} will again reverse direction and
+     * run forwards from the current position.
+     * <p>
+     * If the {@code timeline} is not running, it simply sets up the {@code Timeline}
+     * to run in opposite direction in next {@code play()} call.
+     */
+    function toggle() {
         if(not subtimeline) {
             forward = not forward;
-            if(running) {                
-                // adjust timing
-                if(duration >= 0) {
-                    var dur = Math.max(duration, 1);
-                    var cycleCurT = lastElapsed mod dur;
-                    // we need to compensate or substract total 
-                    // timeline duration, since change timeline
-                    // direction can total timeline duration.
-                    if(forward) {
-                        offsetT = duration - 2 * cycleCurT;
-                    } else {
-                        offsetT = 2 * cycleCurT - duration;
-                    }
-                    if(forward) {
-                        cycleCurT = dur - cycleCurT;
-                    }
-                }
-                
-                frameIndex = sortedFrames.size() - frameIndex -1 ;
+            if(running) {
+                // Timeline is reversed in place, offset needs to be recorded.
+                invertOffsetValid = false;
+                isReverse = not isReverse;
                 setSubtimelineDirection(forward);                
-            }
+                frameIndex = sortedFrames.size() - frameIndex -1 ;
+            } 
         }
     }
     
@@ -456,7 +477,6 @@ public class Timeline {
             }
 
             forward = rate >= 0;
-            offsetT = 0.0;
        }
     }
 
@@ -627,7 +647,7 @@ public class Timeline {
                             speedChangePos;            
         }
         
-        totalElapsed -= offsetT;
+        totalElapsed -= durOffset;
         var needsStop = false;
         var totalDur = getTotalDur();
 	// enforce minimum duration of 1 ms
@@ -657,20 +677,35 @@ public class Timeline {
                     totalElapsed = cycle * dur + timeInMillis;
                 }
                 
-                offsetT += savedElapsed - totalElapsed;
+                durOffset += savedElapsed - totalElapsed;
                 
             }
             updateFrameIndex(totalElapsed);
         }
 
-        lastElapsed = totalElapsed;
-
-
-        if(totalDur >= 0 and totalElapsed >= totalDur) {
-            totalElapsed = totalDur;
-            needsStop = true;
+        if(totalDur >= 0) {
+            // needs to adjust offset if timeline is reversed.
+            if(not invertOffsetValid) {
+                invertOffsetT = if(isReverse) totalElapsed + lastElapsed else totalElapsed - lastElapsed;
+                invertOffsetValid = true;
+            }
+            
+            totalElapsed = if(isReverse) invertOffsetT - totalElapsed else totalElapsed - invertOffsetT;
+            
+            if(isReverse) {
+                if(totalElapsed <= 0) {
+                    totalElapsed = 0;
+                    needsStop = true;
+                }
+            } else {
+                if(totalElapsed >= totalDur) {
+                    totalElapsed = totalDur;
+                    needsStop = true;
+                }
+            }
+            lastElapsed = totalElapsed;
         }
-
+        
         if (duration < 0) {
             // indefinite duration (e.g. will occur when a sub-timeline
             // has indefinite repeatCount); always stay on zero cycle
@@ -686,23 +721,36 @@ public class Timeline {
         }
         
         // check if passed cycle boundary
-        while(cycle > cycleIndex and 
-            (repeatCount < 0 or cycleIndex < repeatCount)) {
-            visitCycle(cycleIndex < cycle-1);
-            if(autoReverse) {
-                forward = not forward;
-                setSubtimelineDirection(forward);
-            } else if(not subtimeline and not needsStop){
-                reset(false);
+        if(isReverse) {
+            while(cycle < cycleIndex and 
+            (repeatCount < 0 or cycleIndex >= 0)) {
+                visitCycle(cycleIndex > cycle+1);
+                if(autoReverse) {
+                    forward = not forward;
+                    setSubtimelineDirection(forward);
+                } else if(not subtimeline and not needsStop){
+                    reset(false);
+                }
+                cycleIndex --;
             }
-            cycleIndex ++;
+        } else {        
+            while(cycle > cycleIndex and 
+                (repeatCount < 0 or cycleIndex < repeatCount)) {
+                visitCycle(cycleIndex < cycle-1);
+                if(autoReverse) {
+                    forward = not forward;
+                    setSubtimelineDirection(forward);
+                } else if(not subtimeline and not needsStop){
+                    reset(false);
+                }
+                cycleIndex ++;
+            }
         }
-        
+        var cycleForward = if(isReverse) not forward else forward;
         
         if((not needsStop) or cycleIndex < repeatCount) {
-            if(not forward) {
+            if(not cycleForward) {
                 if(duration >= 0) {
-                    var oldCurT = curT;
                     curT = dur - curT;
                     curPos = curT;
                     time = makeDur(curT);
@@ -797,7 +845,7 @@ public class Timeline {
                         
             var startTime = sub.startTime.toMillis();
             var subCurT = curT - startTime;
-            if(subTimeline.forward and subTimeline.running ) {
+            if(forward and subTimeline.running ) {
                 if(subDur < 0 or curT < startTime + subDur) {
                     subTimeline.process(subCurT);
                 } else {
@@ -805,7 +853,7 @@ public class Timeline {
                     subTimeline.running = false;
                     subTimeline.currentRate = 0.0;
                 }
-            } else if(not subTimeline.forward) {
+            } else if(not forward) {
                 if(subTimeline.running) {
                     subCurT = subDur - subCurT;
                     subTimeline.process(subCurT);
@@ -1032,16 +1080,50 @@ public class Timeline {
                 running = true;
                 paused = false;
 
+                invertOffsetValid = true;
+                isReverse = false;
+                invertOffsetT = 0.0;
+                durOffset = 0.0;
+
                 cycleIndex = 0;
-                offsetT = 0;
+                durOffset = 0;
                 forward = (rate >= 0);
                 speedChangePos = 0.0;
                 speedChangeElapsedPos = 0.0;
-                
+                var totalDur = getTotalDur();
+                        
                 if(forward) {
                     lastElapsed = 0;
+                    /**
+                     * If timeline already reaches the end before it even starts, 
+                     * and intends to move forward, treat it as a completed
+                     * forward cycle.
+                     */
+                    if(time.toMillis() == duration) {
+                        durOffset = -duration;
+                        curPos = duration;
+                        cycleIndex ++;
+                        if(autoReverse) {
+                            forward = not forward;
+                        }
+                    }
                 } else {
-                    lastElapsed = getTotalDur();
+                    lastElapsed = totalDur;
+                    /**
+                     * If timeline is at initial position and intends to move backward, 
+                     * treat it as a completed backward cycle.
+                     */
+                    if(time == 0ms) {
+                        cycleIndex ++;
+                        durOffset = -duration;
+                        if(autoReverse) {
+                            forward = not forward;
+                        }
+                    } else if(time.toMillis() == duration) {
+                        // play backward from the end of timeline
+                        curPos = 0.0;
+                        time = 0.0ms;
+                    }
                 }
                 
                 frameIndex = 0;
@@ -1076,6 +1158,14 @@ public class Timeline {
                 running = false;
                 paused = false;
                 currentRate = 0.0;
+
+                invertOffsetValid = true;
+                isReverse = false;
+                invertOffsetT = 0.0;
+                durOffset = 0.0;
+        
+                curPos = 0.0;
+                time = 0ms;
             }
         }
     }
