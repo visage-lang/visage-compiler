@@ -364,11 +364,6 @@ public interface Tree {
         INIT_DEFINITION(InitDefinitionTree.class),
         
         /**
-         * Used for instances of {@link InterpolateTree}.
-         */
-        INTERPOLATE(InterpolateTree.class),
-        
-        /**
          * Used for instances of {@link InterpolateValueTree}.
          */
         INTERPOLATE_VALUE(InterpolateValueTree.class), 

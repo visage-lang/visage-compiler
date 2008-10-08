@@ -168,10 +168,6 @@ AllTrees{
     attrN: 400
 };
 
-// INTERPOLATE
-// what is this? Is it the part after tween keyword?
-
-
 // KEYFRAME_LITERAL
 // TIME_LITERAL
 at (1s) {

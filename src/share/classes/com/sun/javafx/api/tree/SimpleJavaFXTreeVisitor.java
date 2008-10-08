@@ -260,10 +260,6 @@ public class SimpleJavaFXTreeVisitor <R,P> implements JavaFXTreeVisitor<R,P> {
         return defaultAction(node, p);
     }
 
-    public R visitInterpolate(InterpolateTree node, P p) {
-        return defaultAction(node, p);
-    }
-
     public R visitInterpolateValue(InterpolateValueTree node, P p) {
         return defaultAction(node, p);
     }
