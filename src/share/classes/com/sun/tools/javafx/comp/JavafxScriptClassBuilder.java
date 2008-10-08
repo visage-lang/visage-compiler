@@ -474,7 +474,7 @@ public class JavafxScriptClassBuilder {
             fileObjName = fileObjName.substring(0, lastDotIdx);
         }
 
-        return Name.fromString(names, fileObjName);
+        return names.fromString(fileObjName);
     }
 
     private void checkName(int pos, Name name) {

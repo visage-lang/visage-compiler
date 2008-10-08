@@ -1148,7 +1148,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         types.isSameType(exp.type, syms.javafx_DurationType)) {
                     texp = m().Apply(null,
                             m().Select(translateArg(exp),
-                            Name.fromString(toJava.names, "toDate")),
+                            toJava.names.fromString("toDate")),
                             List.<JCExpression>nil());
                     sb.append(format.length() == 0 ? "%tQms" : format);
                 } else {
@@ -2070,12 +2070,12 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }
             List<JCVariableDecl> paramList = List.nil();
             paramList = paramList.append(make.at(diagPos).VarDef(make.Modifiers(0),
-                    Name.fromString(names, "args"),
-                    make.at(diagPos).TypeArray(make.Ident(Name.fromString(names, "String"))),
+                    names.fromString("args"),
+                    make.at(diagPos).TypeArray(make.Ident(names.fromString("String"))),
                     null));
             JCBlock body = make.Block(0, mainStats);
             return make.at(diagPos).MethodDef(make.Modifiers(Flags.PUBLIC | Flags.STATIC),
-                    Name.fromString(names, "main"),
+                    names.fromString("main"),
                     make.at(diagPos).TypeIdent(TypeTags.VOID),
                     List.<JCTypeParameter>nil(),
                     paramList,
@@ -2224,7 +2224,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     List.<JCExpression>nil(),
                     make.at(diagPos).Select(
                         makeBuilderVarAccess(),
-                        Name.fromString(names, "add")),
+                        names.fromString("add")),
                     List.<JCExpression>of(expr));
             return make.at(diagPos).Exec(addCall);
         }
@@ -2234,7 +2234,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 List.<JCExpression>nil(), // type arguments
                 make.at(diagPos).Select(
                     makeBuilderVarAccess(),
-                    Name.fromString(names, toSequenceString)),
+                    names.fromString(toSequenceString)),
                 List.<JCExpression>nil() // arguments
                 );
         }
@@ -2375,16 +2375,16 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         switch (tree.getFXTag()) {
                         case PLUS:
                             return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "add")), List.<JCExpression>of(translate(r)));
+                                                          make.at(diagPos).Select(translate(l), names.fromString("add")), List.<JCExpression>of(translate(r)));
                             // lhs.add(rhs);
                         case MINUS:
                             // lhs.sub(rhs);
                             return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "sub")), List.<JCExpression>of(translate(r)));
+                                                          make.at(diagPos).Select(translate(l), names.fromString("sub")), List.<JCExpression>of(translate(r)));
                         case DIV:
                             // lhs.div(rhs);
                             return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "div")), List.<JCExpression>of(translate(r)));
+                                                          make.at(diagPos).Select(translate(l), names.fromString("div")), List.<JCExpression>of(translate(r)));
                         case MUL:
                             // lhs.mul(rhs);
                             if (!types.isSameType(l.type, syms.javafx_DurationType)) {
@@ -2395,19 +2395,19 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                                 l = tree.rhs;
                             }
                             return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "mul")), List.<JCExpression>of(translate(r)));
+                                                          make.at(diagPos).Select(translate(l), names.fromString("mul")), List.<JCExpression>of(translate(r)));
                         case LT:
                             return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "lt")), List.<JCExpression>of(translate(r)));
+                                                          make.at(diagPos).Select(translate(l), names.fromString("lt")), List.<JCExpression>of(translate(r)));
                         case LE:
                             return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "le")), List.<JCExpression>of(translate(r)));
+                                                          make.at(diagPos).Select(translate(l), names.fromString("le")), List.<JCExpression>of(translate(r)));
                         case GT:
                             return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "gt")), List.<JCExpression>of(translate(r)));
+                                                          make.at(diagPos).Select(translate(l), names.fromString("gt")), List.<JCExpression>of(translate(r)));
                         case GE:
                             return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), Name.fromString(names, "ge")), List.<JCExpression>of(translate(r)));
+                                                          make.at(diagPos).Select(translate(l), names.fromString("ge")), List.<JCExpression>of(translate(r)));
                         }
                     }
                     final JCExpression lhs = translate(tree.lhs);
@@ -3030,7 +3030,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         return doIncDec(JCTree.MINUS, true);
                     case NEG:
                         if (types.isSameType(tree.type, syms.javafx_DurationType)) {
-                            return m().Apply(null, m().Select(translate(tree.arg), Name.fromString(names, "negate")), List.<JCExpression>nil());
+                            return m().Apply(null, m().Select(translate(tree.arg), names.fromString("negate")), List.<JCExpression>nil());
                         }
                     default:
                         return m().Unary(tree.getOperatorTag(), transExpr);

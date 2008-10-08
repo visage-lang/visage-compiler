@@ -80,7 +80,7 @@ public class JavafxTypeMorpher {
             this(locationPackageNameString, which);
         }
         private LocationNameSymType(String pkg, String which) {
-            this(Name.fromString(names, pkg + "." + which));
+            this(names.fromString(pkg + "." + which));
         }
     }
 

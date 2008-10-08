@@ -1267,7 +1267,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             case NEG:
                 if (types.isSameType(tree.type, syms.javafx_DurationType)) {   //TODO
                     res = make.at(diagPos).Apply(null,
-                            make.at(diagPos).Select(translate(tree.arg), Name.fromString(names, "negate")), List.<JCExpression>nil());
+                            make.at(diagPos).Select(translate(tree.arg), names.fromString("negate")), List.<JCExpression>nil());
                 } else {
                     res = runtime(diagPos, cBoundOperators, "negate_"+typeCode, List.of(transExpr));
                 }

@@ -145,7 +145,7 @@ public abstract class JavafxTranslationSupport {
                 endInx = inx;
             }
             String part = str.substring(lastInx, endInx);
-            Name partName = Name.fromString(names, part);
+            Name partName = names.fromString(part);
             tree = tree == null?
                 make.at(diagPos).Ident(partName) :
                 make.at(diagPos).Select(tree, partName);
@@ -184,7 +184,7 @@ public abstract class JavafxTranslationSupport {
                 endInx = inx;
             }
             String part = str.substring(lastInx, endInx);
-            Name partName = Name.fromString(names, part);
+            Name partName = names.fromString(part);
             tree = tree == null?
                 make.at(diagPos).Ident(partName) :
                 make.at(diagPos).Select(tree, partName);
@@ -597,7 +597,7 @@ public abstract class JavafxTranslationSupport {
     protected abstract String getSyntheticPrefix();
 
     Name getSyntheticName(String kind) {
-        return Name.fromString(names, getSyntheticPrefix() + syntheticNameCounter++ + kind);
+        return names.fromString(getSyntheticPrefix() + syntheticNameCounter++ + kind);
     }
 
     public Name indexVarName(JFXForExpressionInClause clause) {

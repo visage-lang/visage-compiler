@@ -82,7 +82,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         this.names = Name.Table.instance(context);
         this.syms = (JavafxSymtab)JavafxSymtab.instance(context);
         this.types = Types.instance(context);
-        this.missingIdent = Name.fromString(names, "<missing IDENTIFIER>");
+        this.missingIdent = names.fromString("<missing IDENTIFIER>");
     }
 
     /** Create a tree maker with a given toplevel and FIRSTPOS as initial position.
@@ -838,7 +838,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
                 endInx = inx;
             }
             String part = str.substring(lastInx, endInx);
-            Name partName = Name.fromString(names, part);
+            Name partName = names.fromString(part);
             tree = tree == null?
                 Ident(partName) :
                 Select(tree, partName);
@@ -919,7 +919,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     private int syntheticClassNumber = 0;
 
     Name syntheticClassName(Name superclass) {
-        return Name.fromString(names, superclass.toString() + "$anon" + ++syntheticClassNumber);
+        return names.fromString(superclass.toString() + "$anon" + ++syntheticClassNumber);
     }
 
     /**

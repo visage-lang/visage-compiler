@@ -100,12 +100,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         outerAccessorFieldName = names.fromString("accessOuterField$");
         
         {
-            Name name = Name.fromString(names, initHelperClassName);
+            Name name = names.fromString(initHelperClassName);
             ClassSymbol sym = reader.enterClass(name);
             initHelperType = sym.type;
         }
         {
-            Name name = Name.fromString(names, locationPackageNameString + ".AbstractVariable");
+            Name name = names.fromString(locationPackageNameString + ".AbstractVariable");
             ClassSymbol sym = reader.enterClass(name);
             abstractVariableType = types.erasure( sym.type );
         }
