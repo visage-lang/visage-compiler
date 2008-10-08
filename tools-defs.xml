@@ -36,7 +36,7 @@
     <property name="antlr.ver" value="3.1.1"/>
     <property name="antlr.dir" value="${tools.dir}/antlr-${antlr.ver}"/>
 
-    <property name="antlrworks.ver" value="1.2"/>
+    <property name="antlrworks.ver" value="1.2.1"/>
     <property name="antlrworks.dir" value="${tools.dir}/antlrworks-${antlrworks.ver}"/>
 
     <property name="cobertura.ver" value="1.9" />
