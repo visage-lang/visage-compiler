@@ -922,16 +922,13 @@ public class JavafxResolve {
                         bestSoFar = new AmbiguityError(bestSoFar, e.sym);
                 }
                 else if (e.sym.kind == MTH) {
+                    if (isExactMatch(mtype, e.sym))
+                        return e.sym;
                     bestSoFar = selectBest(env, site, mtype,
                                            e.sym, bestSoFar,
                                            allowBoxing,
                                            useVarargs,
                                            operator);
-                    if (bestSoFar != null && bestSoFar.kind < AMBIGUOUS) {
-                        if (isExactMatch(mtype, bestSoFar)) {
-                            return bestSoFar;
-                        }
-                    }
                 }
                 else if ((e.sym.kind & (VAR|MTH)) != 0 && bestSoFar == methodNotFound) {
                     // FIXME duplicates logic in findVar.
