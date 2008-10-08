@@ -3697,18 +3697,6 @@ public class JavafxAttr implements JavafxVisitor {
         result = check(tree, syms.javafx_DurationType, VAL, pkind, pt, pSequenceness);
     }
 
-    public void visitInterpolate(JFXInterpolate tree) {
-        throw new NotImplementedException();
-        /*
-        tree.getVariable().accept(this);
-        for (InterpolateValueTree t : tree.getInterpolateValues()) {
-            checkInterpolationValue((JFXInterpolateValue)t, tree.getVariable());
-        }
-        Type owntype = tree.getVariable().type;
-        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
-        */
-    }
-
     public void visitInterpolateValue(JFXInterpolateValue tree) {
         attribExpr(tree.attribute, env);
         attribExpr(tree.value, env, tree.attribute.type);

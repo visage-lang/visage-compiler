@@ -1370,10 +1370,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
      *
      */
 
-    public void visitInterpolate(JFXInterpolate tree) {
-        assert false : "not yet implemented";
-    }
-
     @Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         assert false : "should be processed by parent tree";

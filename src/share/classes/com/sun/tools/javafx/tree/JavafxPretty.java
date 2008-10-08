@@ -1331,26 +1331,6 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    public void visitInterpolate(JFXInterpolate tree) {
-        try {
-            print(tree.getVariable());
-            print(" => ");
-            boolean isBlock = tree.getInterpolateValues().size() > 1;
-            if (isBlock)
-                print('{');
-            Iterator<InterpolateValueTree> values = tree.getInterpolateValues().iterator();
-            while (values.hasNext()) {
-                printInterpolateValue((JFXInterpolateValue)values.next());
-                if (values.hasNext())
-                    print(", ");
-            }
-            if (isBlock)
-                print('}');
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     public void visitInterpolateValue(JFXInterpolateValue tree) {
         printInterpolateValue(tree);
     }

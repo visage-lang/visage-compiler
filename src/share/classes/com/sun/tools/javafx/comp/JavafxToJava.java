@@ -3319,10 +3319,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         visitFunctionInvocation(duration); // sets result
    }
 
-    public void visitInterpolate(JFXInterpolate tree) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
     public void visitInterpolateValue(final JFXInterpolateValue tree) {
         DiagnosticPosition diagPos = tree.pos();
         JFXExpression clsname = fxmake.at(diagPos).Type(syms.javafx_KeyValueType);

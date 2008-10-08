@@ -281,13 +281,11 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
         return scanAndReduce(node.getLiteralParts(), p, r);
     }
 
-    public R visitInterpolate(InterpolateTree node, P p) {
-        R r = scan(node.getVariable(), p);
-        return scanAndReduce(node.getInterpolateValues(), p, r);
-    }
-
     public R visitInterpolateValue(InterpolateValueTree node, P p) {
         R r = scan(node.getAttribute(), p);
+        if (node.getInterpolation() != null) {
+            r = scanAndReduce(node.getInterpolation(), p, r);
+        }
         return scanAndReduce(node.getValue(), p, r);
     }
 

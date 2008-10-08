@@ -847,12 +847,6 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXInterpolate Interpolate(JFXExpression var, List<JFXInterpolateValue> values) {
-        JFXInterpolate tree = new JFXInterpolate(var, values);
-        tree.pos = pos;
-        return tree;
-    }
-
     public JFXInterpolateValue InterpolateValue(JFXExpression attr, JFXExpression v, JFXExpression interp) {
         JFXInterpolateValue tree = new JFXInterpolateValue(attr, v, interp);
         tree.pos = pos;

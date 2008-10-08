@@ -353,14 +353,12 @@ public class JavafxTreeScanner implements JavafxVisitor {
     public void visitTimeLiteral(JFXTimeLiteral tree) {
     }
 
-    public void visitInterpolate(JFXInterpolate that) {
-        scan(that.var);
-        scan(that.values);
-    }
-
     public void visitInterpolateValue(JFXInterpolateValue that) {
         scan(that.attribute);
         scan(that.value);
+        if  (that.interpolation != null) {
+            scan(that.interpolation);
+        }
     }
     
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral that) {

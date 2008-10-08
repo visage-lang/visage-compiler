@@ -344,12 +344,6 @@ public class JavafxTreeCopier implements JavafxVisitor {
         result = maker.at(tree.pos).OverrideClassVar(expr, initializer, tree.getBindStatus(), onr);
     }
 
-    public void visitInterpolate(JFXInterpolate tree) {
-        JFXExpression var = copy(tree.var);
-        List<JFXInterpolateValue> values = copy(tree.values);
-        result = maker.at(tree.pos).Interpolate(var, values);
-    }
-
     public void visitInterpolateValue(JFXInterpolateValue tree) {
         JFXExpression attr = copy(tree.attribute);
         JFXExpression value = copy(tree.value);
