@@ -105,7 +105,7 @@ public class FXCompilerTest extends TestSuite {
             else {
                 assert name.lastIndexOf(".fx") > 0 : "not a JavaFX script: " + name;
                 boolean isTest = false, isNotTest = false, isFxUnit = false,
-                        shouldRun = false, compileFailure = false, runFailure = false, checkCompilerMsg = false, noCompare = false, ignoreStdError = true;
+                        shouldRun = false, compileFailure = false, runFailure = false, checkCompilerMsg = false, noCompare = false, ignoreStdError = false;
 
                 Scanner scanner = null;
                 List<String> auxFiles = new ArrayList<String>();

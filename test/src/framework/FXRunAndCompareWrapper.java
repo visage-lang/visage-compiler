@@ -175,7 +175,7 @@ public class FXRunAndCompareWrapper extends TestCase {
             if (errorFileHandle.length() > 0) {
                 if (expectRunFailure)
                     return;
-                if (!ignoreStdError) {
+                if (!ignoreStdError && !checkForMacOSJavaBug(errorFileHandle)) {
                     TestHelper.dumpFile(new FileInputStream(outputFileName), "Test Output", testFile.toString());
                     TestHelper.dumpFile(new FileInputStream(errorFileName), "Test Error", testFile.toString());
                     System.out.println("--");
@@ -191,20 +191,39 @@ public class FXRunAndCompareWrapper extends TestCase {
             // else success
         }
     }
+    
+    // This checks for output written to System.err because of a bug in Java implementation on MacOS.
+    // See JFXC-2002 and http://developer.apple.com/releasenotes/Java/Java50Release4RN/OutstandingIssues/chapter_4_section_3.html
+    private static boolean checkForMacOSJavaBug(File errorFileHandle) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(errorFileHandle)));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (line.length() > 0) {
+                if (line.indexOf("CFMessagePort: bootstrap_register(): failed 1103") < 0
+                        && line.indexOf("CFMessagePortCreateLocal(): failed to name Mach port (java.ServiceProvider)") < 0) {
+                    return false;
+                }
+                if (line.indexOf("CFMessagePort: bootstrap_register(): failed 1103") >= 0) {
+                    reader.readLine();
+                }
+            }
+        }
+        return true;
+    }
 
     private void compare(String outputFileName, String expectedFileName, boolean compareCompilerMsg) throws IOException {
         File expectedFile = new File(expectedFileName);
 		
-		BufferedReader expected;
-		if (expectedFile.exists()) {
-			expected = new BufferedReader(new InputStreamReader(new FileInputStream(expectedFileName)));
-			// copy expected file overwriting existing file and preserving last modified time of source
-			try {
-				FileUtils.getFileUtils().copyFile(expectedFileName, copyExpectedFileName, null, true, true);
-			} catch (IOException ex)
-			{}
-		} else
-			expected = new BufferedReader(new StringReader(""));
+        BufferedReader expected;
+        if (expectedFile.exists()) {
+            expected = new BufferedReader(new InputStreamReader(new FileInputStream(expectedFileName)));
+            // copy expected file overwriting existing file and preserving last modified time of source
+            try {
+                    FileUtils.getFileUtils().copyFile(expectedFileName, copyExpectedFileName, null, true, true);
+            } catch (IOException ex)
+            {}
+        } else
+            expected = new BufferedReader(new StringReader(""));
 		
         BufferedReader actual = new BufferedReader(new InputStreamReader(new FileInputStream(outputFileName)));
 
