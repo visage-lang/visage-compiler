@@ -277,10 +277,6 @@ public enum JavafxTag {
      */
     TIME_LITERAL,
     
-    /** interpolation expression
-     */
-    INTERPOLATION_EXPR,
-    
     /** value clause in an interpolation
      */
     INTERPOLATION_VALUE,
