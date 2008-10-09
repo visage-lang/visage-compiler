@@ -22,8 +22,6 @@
  */
 package com.sun.javafx.runtime.location;
 
-import java.util.Iterator;
-
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
@@ -44,10 +42,10 @@ class CountingSequenceListener extends SequenceChangeListener<Integer> {
             ++changeCount;
         }
         else {
-            for (Iterator<Integer> it = Sequences.reverseIterator(oldValue, endPos, startPos); it.hasNext(); ) {
+            for (int i=endPos; i >= startPos; i--) {
                 ++deleteCount;
                 ++changeCount;
-                deleted = Sequences.insert(deleted, it.next());
+                deleted = Sequences.insert(deleted, oldValue.get(i));
             }
             for (Integer t : newElements) {
                 ++insertCount;

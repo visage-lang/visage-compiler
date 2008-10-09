@@ -303,16 +303,6 @@ public final class Sequences {
         return (seq == null)? (Iterator<T>) TypeInfo.Object.emptySequence.iterator() : seq.iterator(startPos, endPos);
     }
 
-    @SuppressWarnings("unchecked")
-    public static<T> Iterator<T> reverseIterator(Sequence<T> seq) {
-        return (seq == null)? (Iterator<T>) TypeInfo.Object.emptySequence.iterator() : seq.reverseIterator();
-    }
-
-    @SuppressWarnings("unchecked")
-    public static<T> Iterator<T> reverseIterator(Sequence<T> seq, int startPos, int endPos) {
-        return (seq == null)? (Iterator<T>) TypeInfo.Object.emptySequence.iterator() : seq.reverseIterator(startPos, endPos);
-    }
-
     public static<T> boolean isEqual(Sequence<?> one, Sequence<?> other) {
         int oneSize = size(one);
         int otherSize = size(other);

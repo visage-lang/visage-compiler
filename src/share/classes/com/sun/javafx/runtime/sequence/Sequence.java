@@ -85,8 +85,6 @@ public interface Sequence<T> extends Iterable<T> {
 
     public Iterator<T> iterator();
     public Iterator<T> iterator(int startPos, int endPos);
-    public Iterator<T> reverseIterator();
-    public Iterator<T> reverseIterator(int startPos, int endPos);
 
     T getDefaultValue();
 

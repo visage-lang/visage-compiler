@@ -119,32 +119,6 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         };
     }
     
-    public Iterator<T> reverseIterator() {
-        return reverseIterator(size()-1, 0);
-    }
-    
-    public Iterator<T> reverseIterator(final int startPos, final int endPos) {
-        return new Iterator<T>() {
-            private int cur = Math.min(Math.max(0, startPos+1), size());    // 0 <= cur <= size()
-            final private int last = Math.min(Math.max(0, endPos), cur);    // 0 <= last <= cur
-
-            public boolean hasNext() {
-                return cur > last;
-            }
-
-            public T next() {
-                if (cur <= last)
-                    throw new NoSuchElementException();
-                else
-                    return get(--cur);
-            }
-
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        };
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public boolean equals(Object obj) {

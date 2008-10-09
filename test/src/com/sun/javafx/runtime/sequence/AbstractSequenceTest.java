@@ -110,39 +110,6 @@ public class AbstractSequenceTest extends JavaFXTestCase {
         testIteratorHelper (THREE_ELEMENTS.iterator(3, 3));
     }
 
-    public void testReverseIterator() {
-        testIteratorHelper (EMPTY_SEQUENCE.reverseIterator());
-        testIteratorHelper (SINGLETON_SEQUENCE.reverseIterator(), 1);
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(), 3, 2, 1);
-        
-        testIteratorHelper (EMPTY_SEQUENCE.reverseIterator(0, -1));
-        testIteratorHelper (EMPTY_SEQUENCE.reverseIterator(0, 0));
-        testIteratorHelper (EMPTY_SEQUENCE.reverseIterator(1, 0));
-
-        testIteratorHelper (SINGLETON_SEQUENCE.reverseIterator(-1, -1));
-        testIteratorHelper (SINGLETON_SEQUENCE.reverseIterator(0, -1), 1);
-        testIteratorHelper (SINGLETON_SEQUENCE.reverseIterator(1, -1), 1);
-        testIteratorHelper (SINGLETON_SEQUENCE.reverseIterator(-1, 0));
-        testIteratorHelper (SINGLETON_SEQUENCE.reverseIterator(0, 0), 1);
-        testIteratorHelper (SINGLETON_SEQUENCE.reverseIterator(1, 0), 1);
-        testIteratorHelper (SINGLETON_SEQUENCE.reverseIterator(1, 1));
-
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(-1, -1));
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(0, -1), 1);
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(1, -1), 2, 1);
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(-1, 0));
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(0, 0), 1);
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(1, 0), 2, 1);
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(2, 0), 3, 2, 1);
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(2, 0), 3, 2, 1);
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(1, 1), 2);
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(2, 1), 3, 2);
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(3, 1), 3, 2);
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(2, 2), 3);
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(3, 2), 3);
-        testIteratorHelper (THREE_ELEMENTS.reverseIterator(3, 3));
-    }
-
     public void testToArray() {
         Object[] actuals = new Object[0];
         
