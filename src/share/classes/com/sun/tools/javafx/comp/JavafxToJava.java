@@ -2817,13 +2817,15 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
                 return new NullCheckTranslator(diagPos, toCheckOrNull, returnType, knownNonNull) {
 
+                    List<JCExpression> args = determineArgs();
+
                     JCExpression translateToCheck(JFXExpression expr) {
                         JCExpression trans;
                         if (renameToSuper) {
                             trans = m().Select(makeTypeTree(diagPos, currentClass.sym.type, false), names._super);
                         } else if (superToStatic) {
                             trans = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
-                        } else if (selector!=null && !useInvoke && msym!=null && msym.isStatic()) {
+                        } else if (selector != null && !useInvoke && msym != null && msym.isStatic()) {
                             //TODO: clean this up -- handles referencing a static function via an instance
                             trans = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
                         } else {
@@ -2843,7 +2845,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                             // add the selector name back
                             tc = m().Select(tc, funcName);
                         }
-                        JCMethodInvocation app = determineArgs(tc);
+                        JCMethodInvocation app =  m().Apply(translateExpressions(tree.typeargs), tc, args);
+
                         JCExpression full = callBound ? makeBoundCall(app) : app;
                         if (useInvoke) {
                             if (tree.type.tag != TypeTags.VOID) {
@@ -2859,88 +2862,86 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         }
                         return full;
                     }
+
+                    /**
+                     * Compute the translated arguments.
+                     */
+                    List<JCExpression> determineArgs() {
+                        ListBuffer<JCExpression> targs = ListBuffer.lb();
+                        // if this is a super.foo(x) call, "super" will be translated to referenced class,
+                        // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
+                        if (superToStatic) {
+                            targs.append(make.Ident(defs.receiverName));
+                        }
+
+                        if (callBound) {
+                            //TODO: this code looks completely messed-up
+                            /**
+                             * If this is a bound call, use left-hand side references for arguments consisting
+                             * solely of a  var or attribute reference, or function call, otherwise, wrap it
+                             * in an expression location
+                             */
+                            List<Type> formal = formals;
+                            for (JFXExpression arg : tree.args) {
+                                switch (arg.getFXTag()) {
+                                    case IDENT:
+                                    case SELECT:
+                                    case APPLY:
+                                        // This arg expression is one that will translate into a Location;
+                                        // since that is needed for a this into Location, do so.
+                                        // However, if the types need to by changed (subclass), this won't
+                                        // directly work.
+                                        // Also, if this is a mismatched sequence type, we will need
+                                        // to do some different
+                                        //TODO: never actually gets here
+                                        if (arg.type.equals(formal.head) ||
+                                                types.isSequence(formal.head) ||
+                                                formal.head == syms.objectType // don't add conversion for parameter type of java.lang.Object: doing so breaks the Pointer trick to obtain the original location (JFC-826)
+                                                ) {
+                                            targs.append(translate(arg, Wrapped.InLocation));
+                                            break;
+                                        }
+                                    //TODO: handle sequence subclasses
+                                    //TODO: use more efficient mechanism (use currently apears rare)
+                                    //System.err.println("Not match: " + arg.type + " vs " + formal.head);
+                                    // Otherwise, fall-through, presumably a conversion will work.
+                                    default: {
+                                        targs.append(makeUnboundLocation(
+                                                arg.pos(),
+                                                typeMorpher.typeMorphInfo(formal.head),
+                                                translate(arg, arg.type)));
+                                    }
+                                }
+                                formal = formal.tail;
+                            }
+                        } else {
+                            boolean handlingVarargs = false;
+                            Type formal = null;
+                            List<Type> t = formals;
+                            for (List<JFXExpression> l = tree.args; l.nonEmpty(); l = l.tail) {
+                                if (!handlingVarargs) {
+                                    formal = t.head;
+                                    t = t.tail;
+                                    if (usesVarArgs && t.isEmpty()) {
+                                        formal = types.elemtype(formal);
+                                        handlingVarargs = true;
+                                    }
+                                }
+                                JCExpression targ;
+                                if (magicIsInitializedFunction) {
+                                    //TODO: in theory, this could have side-effects (but only in theory)
+                                    targ = translate(l.head, Wrapped.InLocation);
+                                } else {
+                                    targ = preserveSideEffects(formal, l.head, translate(l.head, formal));
+                                }
+                                targs.append(targ);
+                            }
+                        }
+                        return targs.toList();
+                    }
                 }.doit();
             }
 
-            // compute the translated arguments.
-            // if this is a bound call, use left-hand side references for arguments consisting
-            // solely of a  var or attribute reference, or function call, otherwise, wrap it
-            // in an expression location
-            JCMethodInvocation determineArgs(JCExpression transMeth) {
-                ListBuffer<JCExpression> targs = ListBuffer.lb();
-               // if this is a super.foo(x) call, "super" will be translated to referenced class,
-                // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
-                if (superToStatic) {
-                    targs.append(make.Ident(defs.receiverName));
-                }
-
-                if (msym != null &&
-                    (msym.flags() & (Flags.PRIVATE|Flags.STATIC)) == Flags.PRIVATE &&
-                    types.isCompoundClass(msym.owner) &&
-                    transMeth instanceof JCFieldAccess) {
-                  JCFieldAccess selectTr = (JCFieldAccess) transMeth;
-                  JCExpression receiverType = makeTypeTree(diagPos, msym.owner.type, false);
-                  transMeth = make.at(transMeth).Select(receiverType, functionName(msym, true, callBound));
-                  targs.append(selectTr.getExpression());
-                }
-                if (callBound) {
-                    List<Type> formal = formals;
-                    for (JFXExpression arg : tree.args) {
-                        switch (arg.getFXTag()) {
-                            case IDENT:
-                            case SELECT:
-                            case APPLY:
-                                // This arg expression is one that will translate into a Location;
-                                // since that is needed for a this into Location, do so.
-                                // However, if the types need to by changed (subclass), this won't
-                                // directly work.
-                                // Also, if this is a mismatched sequence type, we will need
-                                // to do some different
-                                //TODO: never actually gets here
-                                if (arg.type.equals(formal.head) ||
-                                    types.isSequence(formal.head) ||
-                                    formal.head == syms.objectType // don't add conversion for parameter type of java.lang.Object: doing so breaks the Pointer trick to obtain the original location (JFC-826)
-                                    ) {
-                                    targs.append(translate(arg, Wrapped.InLocation));
-                                    break;
-                                }
-                                //TODO: handle sequence subclasses
-                                //TODO: use more efficient mechanism (use currently apears rare)
-                                //System.err.println("Not match: " + arg.type + " vs " + formal.head);
-                                // Otherwise, fall-through, presumably a conversion will work.
-                            default:
-                            {
-                                targs.append(makeUnboundLocation(
-                                        arg.pos(),
-                                        typeMorpher.typeMorphInfo(formal.head),
-                                        translate(arg, arg.type)));
-                            }
-                        }
-                        formal = formal.tail;
-                    }
-                } else {
-                    boolean handlingVarargs = false;
-                    Type formal = null;
-                    List<Type> t = formals;
-	            for (List<JFXExpression> l = tree.args; l.nonEmpty();  l = l.tail) {
-                        if (! handlingVarargs) {
-                            formal = t.head;
-                            t = t.tail;
-                            if (usesVarArgs && t.isEmpty()) {
-                                formal = types.elemtype(formal);
-                                handlingVarargs = true;
-                            }
-                        }
-                        JCExpression targ;
-                        if (magicIsInitializedFunction)
-                            targ = translate(l.head, Wrapped.InLocation);
-                        else 
-                            targ = translate(l.head, formal);
-                        targs.append( targ );
-                    }
-                }
-                return m().Apply( translateExpressions(tree.typeargs), transMeth, targs.toList());
-            }
 
             // This is for calls from non-bound contexts (code for true bound calls is in JavafxToBound)
             JCExpression makeBoundCall(JCExpression applyExpression) {
