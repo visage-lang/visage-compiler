@@ -152,3 +152,16 @@ var val3ref = nfref.getValue(objref);
 System.out.print("Covariance test:");
 System.out.print(" val1-type: {val1ref.getClassType().getName()}");
 System.out.println(" val2-type: {val2ref.getClassType().getName()}.");
+
+// Anonymous class:
+var myAnonRect = MyRect {
+    override var shapeNum = 2.5
+};
+var myAnonRectRef = context.mirrorOf(myAnonRect);
+System.out.println("myAnonRectRef.getType: {myAnonRectRef.getType()}");
+var myAnonRectClass = myAnonRectRef.getClassType();
+System.out.println("myAnonRectRef.getClassType: {myAnonRectClass}");
+System.out.println("myAnonRectRef.super: {myAnonRectClass.getSuperClasses(false)}");
+System.out.println("myAnonRectRef.super (inherited also):");
+for (cls in myAnonRectClass.getSuperClasses(true))
+    System.out.println("  {cls}");

@@ -155,3 +155,12 @@ After updating shapeFun1 to repeat:
  - apply(3,"abc") => 
 Allocated new String: .
 Covariance test: val1-type: Main.B val2-type: Main.B.
+myAnonRectRef.getType: class <anonymous>
+myAnonRectRef.getClassType: class <anonymous>
+myAnonRectRef.super: [class MyRect, class java.lang.Object]
+myAnonRectRef.super (inherited also):
+  class <anonymous>
+  class MyCanvasItem
+  class MyRect
+  class MyShape
+  class java.lang.Object
