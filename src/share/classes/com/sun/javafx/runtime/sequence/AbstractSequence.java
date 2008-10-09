@@ -78,6 +78,10 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         return 0;
     }
 
+    public void toArray(Object[] dest, int destOffset) {
+        toArray(0, size(), dest, destOffset);
+    }
+    
     public void toArray(int sourceOffset, int length, Object[] dest, int destOffset) {
         if (sourceOffset < 0 || (length > 0 && sourceOffset + length > size()))
             throw new ArrayIndexOutOfBoundsException();

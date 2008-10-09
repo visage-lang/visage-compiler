@@ -56,6 +56,7 @@ public interface Sequence<T> extends Iterable<T> {
     public TypeInfo<T> getElementType();
 
     /** Copy the contents of this sequence to an array, at a specified offset within the destination array */
+    public void toArray(Object[] array, int destOffset);
     public void toArray(int sourceOffset, int length, Object[] array, int destOffset);
 
     /** Extract the element at the specified position.  If the position is out of range, the default value for
