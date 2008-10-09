@@ -62,7 +62,10 @@ public abstract class FXClassType extends FXType implements FXMember {
     }
     
     public String toString() {
-        return "class "+getName();
+        String n = getName();
+        if (n == null)
+            n = "<anonymous>";
+        return "class "+n;
     }
 
     public boolean equals (FXClassType other) {

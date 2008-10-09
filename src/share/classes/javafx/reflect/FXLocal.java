@@ -549,7 +549,10 @@ public class FXLocal {
             int i = 0;
             for (; i < sz; i++) {
                 ClassType c = buffer[i];
-                int cmp = c.getName().compareTo(clname);
+                String cname = c.getName();
+                int cmp = cname == clname ? 0
+                        : cname == null ? -1 : cname == null ? 1
+                        : cname.compareTo(clname);
                 if (cmp > 0)
                     break;
                 if (cmp == 0) {
