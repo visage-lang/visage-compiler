@@ -27,3 +27,6 @@ var t: Timeline = Timeline {
 };
 
 t.play();
+
+java.lang.Thread.sleep(100);
+

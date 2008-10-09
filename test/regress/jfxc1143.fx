@@ -2,7 +2,7 @@
   * Checks timeline toggle var
   *
   * @test
-  * @run/fail
+  * @run
   */
 
 import javafx.animation.*;
@@ -26,4 +26,6 @@ var t : Timeline = Timeline {
         }
 };
 t.play();
-//Thread.sleep(3000);
+
+java.lang.Thread.sleep(3500);
+

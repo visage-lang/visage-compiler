@@ -23,3 +23,6 @@ var t = Timeline {
 }
 
 t.play();
+
+java.lang.Thread.sleep(200);
+
