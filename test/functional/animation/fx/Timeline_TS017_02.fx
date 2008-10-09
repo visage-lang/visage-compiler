@@ -63,6 +63,7 @@ runLater(2000, rerun);
 
 function rerun() {
     //System.out.println("t.running = {t.running}. Now will play again.");
+    t.time=1500ms;//change in timeline RT-879
     t.rate=-1;
     t.play();
     runLater(2000, check);
