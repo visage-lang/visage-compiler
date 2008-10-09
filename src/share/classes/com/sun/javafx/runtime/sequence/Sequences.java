@@ -674,7 +674,6 @@ public final class Sequences {
         if (c == null)
             return (T)max((Sequence<Comparable>)seq);
         
-        Iterator<T> it = seq.iterator();
         T result = seq.get(0);
         for (T val : seq) {
             if (c.compare(result, val) < 0) {
@@ -703,7 +702,6 @@ public final class Sequences {
         if (seq == null || seq.isEmpty())
             throw new IllegalArgumentException("empty sequence passed to Sequences.min");
         
-        Iterator<T> it = seq.iterator();
         T result = seq.get(0);
         for (T val : seq) {
             if (result.compareTo(val) > 0) {
