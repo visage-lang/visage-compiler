@@ -22,8 +22,6 @@
  */
 package com.sun.javafx.runtime.sequence;
 
-import java.util.Iterator;
-
 import com.sun.javafx.runtime.JavaFXTestCase;
 import com.sun.javafx.runtime.TypeInfo;
 import org.junit.Assert;
@@ -163,6 +161,13 @@ public class SliceReplacementSequenceTest extends JavaFXTestCase {
         testGetHelper(THREE_ELEMENT_REPLACES_LAST_THREE_ELEMENT, 1, 2, 21, 22, 23);
         testGetHelper(THREE_ELEMENT_REPLACES_ALL_THREE_ELEMENT, 21, 22, 23);
         testGetHelper(THREE_ELEMENT_APPENDED_THREE_ELEMENT, 1, 2, 3, 21, 22, 23);
+    }
+    
+    public void testGetDepth() {
+        assertEquals(1, SINGLETON_REPLACES_SINGLETON.getDepth());
+        assertEquals(0, TypeInfo.Integer.emptySequence.getDepth());
+        assertEquals(2, new SliceReplacementSequence(SINGLETON_REPLACES_SINGLETON, 0, 1, TypeInfo.Integer.emptySequence).getDepth());
+        assertEquals(2, new SliceReplacementSequence(TypeInfo.Integer.emptySequence, 0, 0, SINGLETON_REPLACES_SINGLETON).getDepth());
     }
     
     public void testToArray() {

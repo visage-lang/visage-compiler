@@ -41,19 +41,25 @@ public class CartesianProduct<T> extends AbstractSequence<T> implements Sequence
     private final Sequence<?>[] sequences;
     private final Mapper<T> mapper;
     private final int size;
+    private final int depth;
     private final int[] sizes;
 
     public CartesianProduct(TypeInfo<T> ti, Mapper<T> mapper, Sequence<?>... sequences) {
         super(ti);
         this.sequences = sequences;
         this.mapper = mapper;
-        if (sequences.length == 0)
+        if (sequences.length == 0) {
             size = 0;
-        else {
-            int depth = 1;
-            for (Sequence<?> seq : sequences)
-                depth = depth * seq.size();
-            size = depth;
+            depth = 0;
+        } else {
+            int tmpSize = 1;
+            int tmpDepth = 0;
+            for (Sequence<?> seq : sequences) {
+                tmpSize = tmpSize * seq.size();
+                tmpDepth = Math.max(tmpDepth, seq.getDepth());
+            }
+            size = tmpSize;
+            depth = tmpDepth + 1;
         }
         sizes = new int[sequences.length];
         for (int i=0; i<sequences.length; i++) {
@@ -64,11 +70,9 @@ public class CartesianProduct<T> extends AbstractSequence<T> implements Sequence
         }
     }
 
+    @Override
     public int getDepth() {
-        int depth = 0;
-        for (Sequence<?> seq : sequences)
-            depth = Math.max(depth, seq.getDepth());
-        return depth + 1;
+        return depth;
     }
 
     public int size() {

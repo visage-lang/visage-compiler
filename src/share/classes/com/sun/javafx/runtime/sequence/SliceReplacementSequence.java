@@ -35,7 +35,7 @@ class SliceReplacementSequence<T> extends DerivedSequence<T> implements Sequence
     private final Sequence<? extends T> replacementSequence;
 
     SliceReplacementSequence(Sequence<T> sequence, int gapStartPos, int gapEndPos, Sequence<? extends T> replacementSequence) {
-        super(sequence.getElementType(), sequence, Sequences.size(sequence) + Sequences.size(replacementSequence) - (gapEndPos - gapStartPos));
+        super(sequence.getElementType(), sequence, Sequences.size(sequence) + Sequences.size(replacementSequence) - (gapEndPos - gapStartPos), Math.max(sequence.getDepth(), replacementSequence.getDepth()) + 1);
         this.gapPos = gapStartPos;
         this.gapSize = gapEndPos - gapStartPos;
         this.replacementSequence = replacementSequence;

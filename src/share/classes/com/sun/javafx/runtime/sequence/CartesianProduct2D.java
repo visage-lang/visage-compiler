@@ -49,6 +49,7 @@ public class CartesianProduct2D<T, U, V> extends AbstractSequence<T> implements 
         this.mapper = mapper;
     }
 
+    @Override
     public int getDepth() {
         return Math.max(seq1.getDepth(), seq2.getDepth()) + 1;
     }
