@@ -189,6 +189,11 @@ public class JavafxScriptClassBuilder {
         JFXFunctionDefinition userRunFunction = null;
         final long EXTERNALIZING_FLAGS = Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.PACKAGE_ACCESS | JavafxFlags.PUBLIC_READ | JavafxFlags.PUBLIC_INIT;
         for (JFXTree tree : scriptTops) {
+
+            // Protect against erroneous scripts being attributed by IDE plugin
+            //
+            if (tree == null ) continue;
+
             switch (tree.getFXTag()) {
                 case CLASS_DEF: {
                     JFXClassDeclaration decl = (JFXClassDeclaration) tree;
@@ -234,6 +239,11 @@ public class JavafxScriptClassBuilder {
         JFXClassDeclaration moduleClass = null;
         boolean looseExpressionErrorShown = false;
         for (JFXTree tree : scriptTops) {
+            
+            // Protect against errneous script trees being attributed by
+            // IDE plugins.
+            //
+            if (tree == null) continue;
             if (value != null) {
                 stats.append(value);
                 value = null;
