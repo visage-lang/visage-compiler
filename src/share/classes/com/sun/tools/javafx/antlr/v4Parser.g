@@ -643,11 +643,26 @@ importId
         					// Second star was not present
         					//
         				  	starBit = names.asterisk;
+        				  	
+  
+        				  	
         				} else {
         				
         					// Second star WAS present
         					//
         					starBit = names.fromString("**");
+        					
+        					// Note that ** has been reverted from the runtime, so we just
+        					// replace it with single star for the moment, and issue an error
+        					// Delete this comment and the next two lines when the runtime supports 
+        					// this again.
+        					//
+        				  	inError = true;		// Signal that this is malformed
+        				  	starBit = names.asterisk;
+        				  	JFXExpression part = F.at(starP).Ident(starBit);
+							endPos(part);
+        				  	log.error(part, MsgSym.MESSAGE_JAVAFX_IMPORT_BAD_STAR);
+        				  	
         				}
         				
 						$pid = F.at($n2.pos).Select($pid, starBit);
@@ -667,6 +682,7 @@ importId
 							inError = true;		// Signal that this is malformed
 							log.error(part, MsgSym.MESSAGE_JAVAFX_IMPORT_BAD_STAR);
 						}
+						
 						
 						// Signal that we have a star now
 						//
