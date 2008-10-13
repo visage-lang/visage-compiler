@@ -2,13 +2,33 @@
  * Regression test for JFXC-1044: KeyFrame.action functions are not invoked in proper time
  *   (for one cycle only)
  *
- * @test
+ * @test/nocompare
  * @run
  */
 
 import javafx.animation.*;
 import javafx.lang.Duration;
 import java.lang.System;
+import java.lang.AssertionError;
+
+function runLater(ms: Duration, f: function(): Void): Void {
+    Timeline {
+        keyFrames: KeyFrame {
+            time: ms
+            action: f
+        }
+    }.play();
+}
+
+var keepAlive : Timeline = Timeline {
+    repeatCount: Timeline.INDEFINITE
+    keyFrames: KeyFrame {
+        time: 100ms
+    }
+};
+
+var golden: Number[] = [[0.0..20.0], 25.0];
+var out: Number[];
 
 class CLS {
     public var a:Number = -1;
@@ -21,7 +41,8 @@ function makeKF(n:Number):KeyFrame {
         time: Duration.valueOf(n)
         values: cls.a => n
         action: function() {
-            System.out.println("timeline tick {n}ms - {cls.a}");
+            insert cls.a into out;
+            //System.out.println("timeline tick {n}ms - {cls.a}");
         }
     }
 }
@@ -33,13 +54,26 @@ var t: Timeline = Timeline {
             time: 25ms
             values: cls.a => 25.0
             action: function() {
-                System.out.println("timeline finished - {cls.a}");
+                insert cls.a into out;
+                //System.out.println("timeline finished - {cls.a}");
             }
         }
     ]
 };
 
+keepAlive.play();
 t.play();
 
-java.lang.Thread.sleep(100);
+runLater(1s, check);
+function check() {    
+    keepAlive.stop();
+    if(t.running) {
+        t.stop();
+        throw new AssertionError("test failed: t is still running");
+    }
 
+    if(out != golden) {
+        throw new AssertionError("test failed: {out} != {golden}");
+    }
+    System.out.println("pass");
+}

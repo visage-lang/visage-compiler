@@ -22,6 +22,13 @@ function runLater(ms: Duration, f: function(): Void): Void {
     }.play();
 }
 
+var keepAlive : Timeline = Timeline {
+    repeatCount: Timeline.INDEFINITE
+    keyFrames: KeyFrame {
+        time: 100ms
+    }
+};
+
 var t : Timeline = Timeline {
     repeatCount: 1
     keyFrames: [for (id in ids)
@@ -37,16 +44,20 @@ var t : Timeline = Timeline {
         },
     ]
 };
+
+keepAlive.play();
 t.play();
 
 runLater(2000ms, check);
 function check() {
+    keepAlive.stop();
     if(t.running) {
         t.stop();
-        throw new AssertionError("test failed");
+        throw new AssertionError("test failed: t is still running");
     }
+
     if(out != golden) {
-        throw new AssertionError("test failed");
+        throw new AssertionError("test failed: {out} != {golden}");
     }
     System.out.println("pass");
 }
