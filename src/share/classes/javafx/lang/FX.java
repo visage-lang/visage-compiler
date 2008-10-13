@@ -36,6 +36,8 @@ import com.sun.javafx.runtime.sequence.Sequence;
  *
  * @author Brian Goetz
  * @author Saul Wold
+ * 
+ * @profile common
  */
 public class FX {
 
@@ -87,6 +89,8 @@ public class FX {
      *    supported and null is returned.
      * @param key Environment Property to be inquired
      * @return the string value of the property
+     *
+     * @profile common
      */
     public static String getProperty (String key) {
         return SystemProperties.getProperty(key);
@@ -117,7 +121,8 @@ public class FX {
      * its operation and the next Shutdown Action, if any, will run.
      * 
      * This function will not normally return to the calling Script
-     * 
+     *
+     * @profile common
      */
     public static void exit() {
         if (exitData.called) {
@@ -161,6 +166,8 @@ public class FX {
      * an attempt to add the same action a second time will return the 
      * previous Handle without any reodering.
      * @return Handle used to remove the action if needed.
+     *
+     * @profile common
      */
     public static int addShutdownAction(Function0<Void> action) {
         if (action == null) {
@@ -177,6 +184,8 @@ public class FX {
      * the Shutdown Action Stack
      * @return a Boolean value signifing sucess or failure of removing
      * the action
+     *
+     * @profile common
      */
     public static boolean removeShutdownAction(int handle) {
         return exitData.removeAction(handle);
@@ -205,6 +214,8 @@ public class FX {
      * line,running application. Returns null if there were no incoming
      * arguments or if this application was not invoked from the
      * command line. 
+     *
+     * @profile common
      */
     public static Sequence<String> getArguments() {
         return Entry.getArguments();
@@ -219,6 +230,8 @@ public class FX {
      * in the form of Strings (e.g. {@code getArgument("0")}) to
      * provide unification with {@link #getArguments getArguments}.
      * Returns null if the given named argument does not exist.
+     *
+     * @profile common
      */
     public static Object getArgument(String key) {
         return Entry.getArgument(key);
