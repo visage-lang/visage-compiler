@@ -94,13 +94,6 @@ public class JavafxSyntacticAnalysis {
             }
         }
 
-// DEBUG DEVELOPMENT ONLY - Will be deleted
-
-		if ( (System.getenv("TREE_ME") != null && unit != null)) {
-
-			System.out.println("Printing AST\n");
-			System.out.println(unit.toString());
-		}
         return unit;
     }
 

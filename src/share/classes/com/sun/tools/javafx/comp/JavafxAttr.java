@@ -1447,7 +1447,13 @@ public class JavafxAttr implements JavafxVisitor {
         }
 
         for (JFXObjectLiteralPart localPt : tree.getParts()) {
+            
+            // Protect against erroneous nodes
+            //
+            if (localPt == null) continue;
+
             JFXObjectLiteralPart part = (JFXObjectLiteralPart)localPt;
+
             Symbol memberSym = rs.findIdentInType(env, clazz.type, part.name, VAR);
             memberSym = rs.access(memberSym, localPt.pos(), clazz.type, part.name, true);
             memberSym.complete();
@@ -1460,8 +1466,13 @@ public class JavafxAttr implements JavafxVisitor {
             initScope.next = env.info.scope;
             JavafxEnv<JavafxAttrContext> initEnv =
                 env.dup(localPt, env.info.dup(initScope));
-            initEnv.outer = localEnv;            
-            attribExpr(part.getExpression(), initEnv, memberType);
+            initEnv.outer = localEnv;
+
+            // Protect against erroneous tress called for attribution from the IDE
+            //
+            if  (part.getExpression() != null) {
+                attribExpr(part.getExpression(), initEnv, memberType);
+            }
             if (memberSym instanceof VarSymbol) {
                 VarSymbol v = (VarSymbol) memberSym;
                 WriteKind kind = part.isBound() ? WriteKind.INIT_BIND : WriteKind.INIT_NON_BIND;
