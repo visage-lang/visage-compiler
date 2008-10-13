@@ -110,6 +110,10 @@ public class Duration extends com.sun.javafx.runtime.Duration {
      * @profile common
      */     
     public function div(n:Number):Duration {
+        if (n == 0) {
+            throw new java.lang.ArithmeticException("/ by zero");
+        }
+        
         return valueOf(millis / n);
     }
 
