@@ -26,7 +26,11 @@
             <xsl:text>private</xsl:text>
         </xsl:if>
     </xsl:template>
-
+    <xsl:template name="extra-class">
+        <xsl:if test="docComment/tags/treatasprivate">
+            <xsl:text>private</xsl:text>
+        </xsl:if>
+    </xsl:template>
     
     <xsl:template name="extra-attribute-column-header">
         <th><a class="tooltip" title="Indicates the variable can be read">Can Read</a></th>
@@ -229,7 +233,6 @@ var myTips = new Tips('.tooltip', {
                     <script src="{$root-path}{$extra-js}"></script>
                 </xsl:if>
                 <xsl:call-template name="head-post"/>
-
             </head>
             <body>
                 <xsl:call-template name="header-pre"/>
@@ -242,7 +245,8 @@ var myTips = new Tips('.tooltip', {
                                 <xsl:for-each select="class">
                                     <li>
                                         <xsl:attribute name="class">
-                                            <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
+                                            <xsl:call-template name="profile-class"/>
+                                            <xsl:call-template name="extra-class"/>
                                         </xsl:attribute>
                                         <a>
                                         <xsl:attribute name="href">

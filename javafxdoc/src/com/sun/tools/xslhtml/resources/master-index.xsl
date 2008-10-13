@@ -27,7 +27,14 @@
                 <ul id="master-list"><!-- |//class | //function-->
                     <xsl:for-each select="//attribute | //function | //class">
                         <xsl:sort select="@name"/>
-                        <li><xsl:apply-templates select="."/></li>
+                        <li>
+                            <xsl:if test="docComment/tags/treatasprivate">
+                                <xsl:attribute name="class">
+                                    <xsl:text>private</xsl:text>
+                                </xsl:attribute>
+                            </xsl:if>
+                            <xsl:apply-templates select="."/>
+                        </li>
                     </xsl:for-each>
                 </ul>
             </body>

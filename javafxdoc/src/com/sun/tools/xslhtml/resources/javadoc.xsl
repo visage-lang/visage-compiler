@@ -146,7 +146,8 @@
                                         <xsl:value-of select="text()"/>
                                         <xsl:text> </xsl:text>
                                     </xsl:for-each>
-                                    <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
+                                    <xsl:call-template name="profile-class"/>
+                                    <xsl:call-template name="extra-class"/>
                                 </xsl:attribute>
                                 <xsl:value-of select="@name"/>
                             </a>
@@ -202,7 +203,8 @@
                             <xsl:sort select="@name"/>
                             <li>
                                 <xsl:attribute name="class">
-                                    <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
+                                    <xsl:call-template name="profile-class"/>
+                                    <xsl:call-template name="extra-class"/>
                                     <xsl:if test="@qualifiedName = $target-class">
                                         <xsl:text> selected-class</xsl:text>
                                     </xsl:if>
@@ -704,7 +706,7 @@
                         <xsl:value-of select="text()"/>
                         <xsl:text> </xsl:text>
                     </xsl:for-each>
-                    <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
+                    <xsl:call-template name="profile-class"/>
                     <xsl:call-template name="extra-attribute"/>
                     <xsl:call-template name="extra-attribute-toc"/>
                 </xsl:attribute>
@@ -817,7 +819,7 @@
                     <xsl:value-of select="text()"/>
                     <xsl:text> </xsl:text>
                 </xsl:for-each>
-                <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
+                <xsl:call-template name="profile-class"/>
                 <xsl:call-template name="extra-attribute"/>
                 <xsl:call-template name="extra-attribute-full"/>
             </xsl:attribute>
@@ -872,7 +874,7 @@
                 <xsl:if test="docComment/tags/advanced">
                     <xsl:text>advanced</xsl:text>
                 </xsl:if>
-                <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
+                <xsl:call-template name="profile-class"/>
                 <xsl:call-template name="extra-method"/>
                 <xsl:call-template name="extra-method-toc"/>
             </xsl:attribute>
@@ -884,7 +886,7 @@
                 <xsl:if test="docComment/tags/advanced">
                     <xsl:text>advanced</xsl:text>
                 </xsl:if>
-                <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
+                <xsl:call-template name="profile-class"/>
                 <xsl:call-template name="extra-method"/>
                 <xsl:call-template name="extra-method-toc"/>
             </xsl:attribute>
@@ -921,7 +923,7 @@
                     <xsl:value-of select="text()"/>
                     <xsl:text> </xsl:text>
                 </xsl:for-each>
-                <xsl:text>profile-<xsl:value-of select="docComment/tags/profile/text()"/></xsl:text>
+                <xsl:call-template name="profile-class"/>
                 <xsl:call-template name="extra-method"/>
                 <xsl:call-template name="extra-method-full"/>
             </xsl:attribute>
@@ -971,6 +973,15 @@
             
     </xsl:template>
     
+    <xsl:template name="profile-class">
+        <xsl:variable name="profile-name" select="docComment/tags/profile/text()"/>
+        <xsl:if test="$profile-name!=''">
+            <xsl:text>profile-</xsl:text>
+            <xsl:value-of select="$profile-name"/>
+            <xsl:text> </xsl:text>
+        </xsl:if>
+    </xsl:template>
+    <xsl:template name="extra-class"></xsl:template>
     <xsl:template name="extra-method"></xsl:template>
     <xsl:template name="extra-method-full"></xsl:template>
     <xsl:template name="extra-method-toc"></xsl:template>
