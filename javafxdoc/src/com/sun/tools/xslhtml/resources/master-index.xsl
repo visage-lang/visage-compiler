@@ -28,11 +28,12 @@
                     <xsl:for-each select="//attribute | //function | //class">
                         <xsl:sort select="@name"/>
                         <li>
-                            <xsl:if test="docComment/tags/treatasprivate">
-                                <xsl:attribute name="class">
+                            <xsl:attribute name="class">
+                                <xsl:call-template name="profile-class"/>    
+                                <xsl:if test="docComment/tags/treatasprivate">
                                     <xsl:text>private</xsl:text>
-                                </xsl:attribute>
-                            </xsl:if>
+                                </xsl:if>
+                            </xsl:attribute>
                             <xsl:apply-templates select="."/>
                         </li>
                     </xsl:for-each>

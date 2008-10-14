@@ -126,6 +126,9 @@ function switchToDesktop() {
     $('select-desktop-profile').setStyle('background-color','white');
     $('select-common-profile').setStyle('background-color','black');
     $$('li.profile-desktop').setStyle('display','block');
+    $$('dt.profile-desktop').setStyle('display', 'block');
+    $$('dd.profile-desktop').setStyle('display', 'block');
+    $$('tr.profile-desktop').setStyle('display', '');  
     $$('li.profile-').setStyle('display','block');
     sessvars.currentProfile="desktop";
 }
@@ -133,6 +136,9 @@ function switchToCommon() {
     $('select-desktop-profile').setStyle('background-color','black');
     $('select-common-profile').setStyle('background-color','white');
     $$('li.profile-desktop').setStyle('display','none');  
+    $$('dt.profile-desktop').setStyle('display', 'none');
+    $$('dd.profile-desktop').setStyle('display', 'none');
+    $$('tr.profile-desktop').setStyle('display', 'none');
     $$('li.profile-').setStyle('display','none');  
     sessvars.currentProfile="common";
 }
