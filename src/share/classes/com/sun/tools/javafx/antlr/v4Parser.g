@@ -5405,7 +5405,7 @@ expressionListOpt
 type
 
 	returns [JFXType rtype]
-
+	
 @init
 {
     // Work out current position in the input stream
@@ -5805,7 +5805,13 @@ typeName
 						$value = $qualname.value;
 				}
 		)
+	| LPAREN typeparens RPAREN	// Allows cardinality coherence, using nested paren parsing trick
+	
+		{ $value = $typeparens.value; }
 	;
+	
+
+	
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.
 //
@@ -5823,6 +5829,23 @@ catch [RecognitionException re] {
 	endPos($value);
 	
 }
+
+// When a programmer accidentally c=ecloses the type in two or more
+// sets of prens, we do't want to change the type, but just treat extra
+// parens as superfluous precedence, hence this rule.
+//
+typeparens
+
+	returns [JFXExpression value]
+	
+	: (LPAREN)=>LPAREN t=typeparens RPAREN
+	
+		{ $value = $t.value; }
+		
+	| type
+	
+		{ $value = $type.rtype; }
+	;
 
 genericArgument
 
