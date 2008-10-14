@@ -206,4 +206,36 @@ public class  SystemProperties {
             );
         }
     }
+    
+    
+    /**
+     * Adds a new JavaFX specific property or modifyies existing property value.
+     * Note that there is no method in this class to set underlying platform 
+     * property as MIDP doesn't support System.setProperty() method.
+     * @param key JavaFX Property name
+     * @param value Property value
+     * @throws NullPointerException if key or value is null
+     */
+    public static void setFXProperty (String key, final String value) {
+        
+        Hashtable props = sysprop_list;
+        final String prefix = "javafx."; 
+        
+        // Remove "javafx." prefix from the key
+        if (key.startsWith(prefix)) {
+            key = key.substring(prefix.length());
+       
+           String k = (String)props.get(key);
+	   // Add new property to the list
+           if (k == null) {
+               props.put(key, "jfx_specific");
+               props = jfxprop_list;
+               props.put(key, value);
+	   } else if (k.equals("jfx_specific")) {
+               // Change existing property value
+               props = jfxprop_list;
+               props.put(key, value);
+	   }
+	} 
+    }    
 }
