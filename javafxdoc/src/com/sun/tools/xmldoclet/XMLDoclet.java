@@ -396,6 +396,9 @@ public class XMLDoclet {
             generateExecutableMember(meth, fxClass ? "function" : "method");
         for (FieldDoc field : cls.fields())
             generateField(field, fxClass ? "attribute" : "field");
+        for (FieldDoc field : cls.enumConstants())
+            generateField(field, fxClass ? "attribute" : "field");
+        
         hd.endElement("", "", "class");
     }
     

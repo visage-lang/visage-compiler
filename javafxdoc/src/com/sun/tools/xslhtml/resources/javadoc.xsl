@@ -524,8 +524,8 @@
             
             <xsl:if test="count(field) > 0">
                 <a id="fields-summary"><h3>Field Summary</h3></a>
-                <table class="fields-summary">
-                    <tr><th>public</th><th>name</th><th>type</th></tr>
+                <table class="fields-summary fields">
+                    <tr><th>access</th><th>name</th><th>type</th><th>description</th></tr>
                     <xsl:for-each select="field">
                         <xsl:sort select="@name" order="ascending"/>
                         <xsl:apply-templates select="." mode="toc"/>
@@ -697,7 +697,7 @@
     
     <!-- summary line -->
 <!--    <xsl:template match="$foo and attribute[]" mode="toc"><tr><td>skipping because it's a common one</td></tr></xsl:template>-->
-    <xsl:template match="attribute" mode="toc">
+    <xsl:template match="field | attribute" mode="toc">
         <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
             <tr>
                 <xsl:attribute name="class">
@@ -727,7 +727,9 @@
                         <i class="type"><xsl:value-of select="type/@simpleTypeName"/><xsl:value-of select="type/@dimension"/></i>
                     </a>
                 </td>
-                <xsl:call-template name="extra-attribute-column-data"/>
+                <xsl:if test="name(.)='attribute'">
+                    <xsl:call-template name="extra-attribute-column-data"/>
+                </xsl:if>
                 <td class="description">
                     <xsl:apply-templates select="docComment/firstSentenceTags"/>
                     <xsl:if test="$inline-descriptions='true'">
@@ -745,7 +747,7 @@
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="attribute/type | parameter/type" mode="href">
+    <xsl:template match="field/type | attribute/type | parameter/type" mode="href">
         <!--<xsl:variable name="atype" select="@qualifiedTypeName"/>-->
         <xsl:variable name="type-package" select="@packageName"/>
         <xsl:variable name="type-name" select="@simpleTypeName"/>
@@ -760,7 +762,7 @@
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="attribute/type | parameter/type" mode="linkname">
+    <xsl:template match="field/type | attribute/type | parameter/type" mode="linkname">
         <xsl:variable name="type-package" select="@packageName"/>
         <xsl:variable name="type-name" select="@simpleTypeName"/>
         <xsl:variable name="atype" select="@qualifiedTypeName"/>
@@ -774,7 +776,7 @@
         </xsl:choose>
     </xsl:template>
     
-    <xsl:template match="attribute" mode="href">
+    <xsl:template match="field | attribute" mode="href">
         <xsl:attribute name="href">
             <xsl:text><xsl:value-of select="$root-path"/></xsl:text>
             <xsl:value-of select="../@packageName"/>
@@ -808,7 +810,7 @@
     </xsl:template>
     
     <!-- full description -->
-    <xsl:template match="attribute">
+    <xsl:template match="field | attribute">
         <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
         <div>
             
