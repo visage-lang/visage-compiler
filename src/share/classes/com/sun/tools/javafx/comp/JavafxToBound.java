@@ -1193,57 +1193,69 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         DiagnosticPosition diagPos = tree.pos();
         final JFXExpression l = tree.lhs;
         final JFXExpression r = tree.rhs;
-        final JCExpression lhs = translate(l);
-        final JCExpression rhs = translate(r);
-        final String typeCode = typeCode(l.type) + typeCode(r.type);
         JCExpression res;
 
         switch (tree.getFXTag()) {
             case PLUS:
-                res = runtime(diagPos, cBoundOperators, "plus_" + typeCode, List.of(lhs, rhs));
+                res = makeBinaryOperator(diagPos, "plus_", l, r);
                 break;
             case MINUS:
-                res = runtime(diagPos, cBoundOperators, "minus_" + typeCode, List.of(lhs, rhs));
+                res = makeBinaryOperator(diagPos, "minus_", l, r);
                 break;
             case DIV:
-                res = runtime(diagPos, cBoundOperators, "divide_" + typeCode, List.of(lhs, rhs));
+                res = makeBinaryOperator(diagPos, "divide_", l, r);
                 break;
             case MUL:
-                res = runtime(diagPos, cBoundOperators, "times_" + typeCode, List.of(lhs, rhs));
+                res = makeBinaryOperator(diagPos, "times_", l, r);
                 break;
             case MOD:
-                res = runtime(diagPos, cBoundOperators, "modulo_" + typeCode, List.of(lhs, rhs));
+                res = makeBinaryOperator(diagPos, "modulo_", l, r);
                 break;
             case EQ:
-                res = runtime(diagPos, cBoundOperators, "eq_" + typeCode, List.of(lhs, rhs));
+                res = makeBinaryOperator(diagPos, "eq_", l, r);
                 break;
             case NE:
-                res = runtime(diagPos, cBoundOperators, "ne_" + typeCode, List.of(lhs, rhs));
+                res = makeBinaryOperator(diagPos, "ne_", l, r);
                 break;
             case LT:
-                res = runtime(diagPos, cBoundOperators, "lt_" + typeCode, List.of(lhs, rhs));
+                res = makeBinaryOperator(diagPos, "lt_", l, r);
                 break;
             case LE:
-                res = runtime(diagPos, cBoundOperators, "le_" + typeCode, List.of(lhs, rhs));
+                res = makeBinaryOperator(diagPos, "le_", l, r);
                 break;
             case GT:
-                res = runtime(diagPos, cBoundOperators, "gt_" + typeCode, List.of(lhs, rhs));
+                res = makeBinaryOperator(diagPos, "gt_", l, r);
                 break;
             case GE:
-                res = runtime(diagPos, cBoundOperators, "ge_" + typeCode, List.of(lhs, rhs));
+                res = makeBinaryOperator(diagPos, "ge_", l, r);
                 break;
             case AND:
-                res = runtime(diagPos, cBoundOperators, "and_" + typeCode, List.of(lhs, rhs));
+                res = makeBoundConditional(diagPos,
+                        syms.booleanType,
+                        translate(r, syms.booleanType),
+                        makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0)),
+                        translate(l, syms.booleanType));
                 break;
             case OR:
-                res = runtime(diagPos, cBoundOperators, "or_" + typeCode, List.of(lhs, rhs));
+                res = makeBoundConditional(diagPos,
+                        syms.booleanType,
+                        makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 1)),
+                        translate(r, syms.booleanType),
+                        translate(l, syms.booleanType));
                 break;
             default:
                 assert false : "unhandled binary operator";
-                res = lhs;
+                res = translate(l);
                 break;
         }
         result = convert(tree.type, res);
+    }
+    //where
+    private JCExpression makeBinaryOperator(DiagnosticPosition diagPos, String prefix, JFXExpression l, JFXExpression r) {
+        final JCExpression lhs = translate(l);
+        final JCExpression rhs = translate(r);
+        final String typeCode = typeCode(l.type) + typeCode(r.type);
+        return runtime(diagPos, cBoundOperators, prefix + typeCode, List.of(lhs, rhs));
     }
 
     @Override

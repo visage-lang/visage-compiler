@@ -172,8 +172,6 @@ comparison_numeric(`lt', `<')
 comparison_numeric(`gt', `>')
 unary_numeric(`negate', `-')
 
-binary_boolean(`or', `||')
-binary_boolean(`and', `&&')
 comparison_boolean(`eq', `==')
 comparison_boolean(`ne', `!=')
 unary_boolean(`not', `!')
