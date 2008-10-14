@@ -1285,22 +1285,25 @@ public class JavafxPretty implements JavafxVisitor {
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         try {
 
-            if  (that == null || that.var == null || that.var instanceof JFXErroneousVar) {
-                print("<missing>");
+            if (that.var == null || that.var instanceof JFXErroneousVar) {
+                print("<missing var>");
             } else {
                 print(that.var);
             }
             print(" in ");
 
-            if  (that == null || that.seqExpr == null || that.seqExpr instanceof JFXErroneous) {
+            if (that.seqExpr == null || that.seqExpr instanceof JFXErroneous) {
                 print("<missing expr>");
             } else {
                 print(that.seqExpr);
             }
-            if (that.whereExpr == null || that.whereExpr instanceof JFXErroneous) {
-            } else {
+            if (that.whereExpr != null) {
                 print(" where ");
-                print(that.whereExpr);
+                if (that.whereExpr instanceof JFXErroneous) {
+                    print("<erroreous where>");
+                } else {
+                    print(that.whereExpr);
+                }
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);

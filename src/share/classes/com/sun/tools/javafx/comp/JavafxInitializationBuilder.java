@@ -763,7 +763,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 DiagnosticPosition diagPos = tai.pos();
                 // don't put variable initialization in the static initializer if this is a simple-form
                 // script (where variable initialization is done in the run method).
-                if (tai.isDirectOwner() && (isLibrary || (tai.getFlags() | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC) == 0)) {
+                if (tai.isDirectOwner() && isLibrary) {
                     if (tai.getDefaultInitStatement() != null) {
                         stmts.append(tai.getDefaultInitStatement());
                     }
