@@ -50,10 +50,22 @@
             <xsl:if test="modifiers/protected">subclass</xsl:if>
         </td>
         <td class="caninit">
-            <xsl:if test="modifiers/public"><img src="{$root-path}/images/JFX_highlight_dot.png"/></xsl:if>
+            <xsl:if test="modifiers/public">
+                <xsl:choose>
+                    <xsl:when test="modifiers/read-only"></xsl:when>
+                    <xsl:otherwise>
+                        <img src="{$root-path}/images/JFX_highlight_dot.png"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:if>
             <xsl:if test="modifiers/public-init"><img src="{$root-path}/images/JFX_highlight_dot.png"/></xsl:if>
             <xsl:if test="modifiers/public-read"></xsl:if>
-            <xsl:if test="modifiers/protected">subclass</xsl:if>
+            <xsl:if test="modifiers/protected">
+                <xsl:choose>
+                    <xsl:when test="modifiers/read-only"></xsl:when>
+                    <xsl:otherwise>subclass</xsl:otherwise>
+                </xsl:choose>
+            </xsl:if>
         </td>
         <td class="canwrite">
             <xsl:if test='modifiers/public'>
@@ -67,7 +79,12 @@
             
             <xsl:if test="modifiers/public-init"></xsl:if>
             <xsl:if test="modifiers/public-read"></xsl:if>
-            <xsl:if test="modifiers/protected">subclass</xsl:if>
+            <xsl:if test="modifiers/protected">
+                <xsl:choose>
+                    <xsl:when test="modifiers/read-only"></xsl:when>
+                    <xsl:otherwise>subclass</xsl:otherwise>
+                </xsl:choose>
+            </xsl:if>
         </td>
         <td class="defaultvalue">
             <xsl:value-of select="docComment/tags/defaultvalue"/>
