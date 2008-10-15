@@ -538,7 +538,7 @@
             <h3>Inherited Variables</h3>
             <xsl:for-each select="hierarchy/super">
                 <xsl:variable name="super-package" select="@packageName"/>
-                <xsl:variable name="super-name" select="@simpleTypeName"/>
+                <xsl:variable name="super-name" select="@typeName"/>
                 <xsl:apply-templates select="/javadoc/package[@name=$super-package]/class[@name=$super-name]" mode="inherited-field"/>
             </xsl:for-each>
 
@@ -590,7 +590,7 @@
             <h3>Inherited Functions</h3>
             <xsl:for-each select="hierarchy/super">
                 <xsl:variable name="super-package" select="@packageName"/>
-                <xsl:variable name="super-name" select="@simpleTypeName"/>
+                <xsl:variable name="super-name" select="@typeName"/>
                 <xsl:apply-templates select="/javadoc/package[@name=$super-package]/class[@name=$super-name]" mode="inherited-method"/>
             </xsl:for-each>
         </div>
