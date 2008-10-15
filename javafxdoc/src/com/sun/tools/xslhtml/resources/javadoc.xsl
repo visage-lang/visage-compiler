@@ -336,7 +336,7 @@
         </p>
     </xsl:template>
     
-    <xsl:template match="seeTags/see">
+    <xsl:template match="see">
         <a>
             <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
             <xsl:choose>
@@ -347,7 +347,8 @@
                     <xsl:text><xsl:value-of select="text()"/></xsl:text>
                 </xsl:otherwise>
             </xsl:choose>
-        </a>,
+        </a>
+        <xsl:if test="position()!=last()"><xsl:text>, </xsl:text></xsl:if>
     </xsl:template>
     
     <xsl:template match="code"><code><xsl:value-of select="." disable-output-escaping="yes"/></code></xsl:template>

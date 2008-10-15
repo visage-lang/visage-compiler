@@ -625,8 +625,8 @@ public class XMLDoclet {
             }
             attrs.clear();
             attrs.addAttribute("", "", "name", "CDATA", t.name());
-            //process link tags specially
-            if("@link".equals(t.name())) {
+            //process see, link tags specially
+            if("@see".equals(t.name()) || "@link".equals(t.name())) {
                 String href = t.text();
                 if(t instanceof SeeTag) {
                     SeeTag see = (SeeTag) t;
