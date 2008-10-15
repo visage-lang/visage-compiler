@@ -258,6 +258,7 @@
                 <xsl:if test="$extra-js"><script src="../{$extra-js}"></script></xsl:if>
                 <xsl:if test="$extra-js2"><script src="../{$extra-js2}"></script></xsl:if>
                 <xsl:call-template name="head-post"/>
+                <title><xsl:value-of select="@name"/> (<xsl:value-of select="$std.doctitle"/>)</title>
             </head>
             <body>
                 <xsl:call-template name="header-pre"/>

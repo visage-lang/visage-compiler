@@ -21,6 +21,7 @@
                     <script src="{$root-path}{$extra-js}"></script>
                 </xsl:if>
                 <xsl:call-template name="head-post"/>
+                <title>A-Index (<xsl:value-of select="$std.doctitle"/>)</title>
             </head>
             <body>
                 <xsl:call-template name="header-pre"/>
