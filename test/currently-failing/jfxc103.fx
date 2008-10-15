@@ -8,6 +8,9 @@
  true
  true
  */
+// Importing java.lang.* does not seem to change behaviour.
+//import java.lang.*;
+
 
 var b = true;
 println(b instanceof Boolean);
