@@ -159,50 +159,6 @@ public class  SystemProperties {
     }
 
     /**
-     * Adds a new property or modifyies existing property value.
-     * @param key JavaFX Property name
-     * @param value Property value
-     * @param jfx_specific Speicifies whether the property is JavaFX specific or Runtime Pleatform associated.
-     * Runtime platform associated properties are set through System.setProperty() taken access security into an account.
-     */
-    public static void setProperty (String key, final String value, boolean jfx_specific) {
-
-        Hashtable props = sysprop_list;
-        final String prefix = "javafx.";
-
-        if ((key == null) || (value == null))
-                return;           
-
-        // Remove "javafx." prefix from the key
-        if (key.startsWith(prefix.toString())) {
-            key = key.substring(prefix.length());
-        } else {
-            return;
-        }
-        
-        // Change existing property value
-        if (jfx_specific) {
-            props.put(key, "jfx_specific");
-            props = jfxprop_list;
-            props.put(key, value); 
-        } else {
-            final String rt_prop = (String)props.get(key);
-            if ((rt_prop == null) || (rt_prop.equals("")))
-                return;
-
-            java.security.AccessController.doPrivileged(
-                new java.security.PrivilegedAction<Void>() {
-                    public Void run() {
-                        System.setProperty(rt_prop, value);
-                        return null;
-                    }
-                }
-            );
-        }
-    }
-    
-    
-    /**
      * Adds a new JavaFX specific property or modifyies existing property value.
      * Note that there is no method in this class to set underlying platform 
      * property as MIDP doesn't support System.setProperty() method.
