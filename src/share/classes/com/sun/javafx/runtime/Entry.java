@@ -28,6 +28,9 @@ import java.security.AccessControlException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Queue;
+import java.lang.Thread;
 
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.sequence.Sequence;
@@ -206,23 +209,65 @@ public class Entry {
         return "javafx$run$";
     }
 
-    private static class NoRuntimeDefault implements RuntimeProvider {
+    private static class NoRuntimeDefault extends Thread implements RuntimeProvider {
+
+        private final Queue<Runnable> taskQueue = new ConcurrentLinkedQueue<Runnable>();
 
         public boolean usesRuntimeLibrary(Class application) {
             return true;
         }
 
-        public Object run(Method entryPoint, String... args) throws Throwable {
-            try {
-                Object o = entryPoint.invoke(null, Sequences.make(TypeInfo.String, args));
-                if (java.awt.Toolkit.getDefaultToolkit().getSystemEventQueue().peekEvent() == null) {
+        public Object run(final Method entryPoint, final String... args) throws Throwable {
+            /*
+             * Add the Script invokation to the Queue
+             */
+            taskQueue.add(new Runnable() {
+                public void run() {
                     try {
-                        javafx.lang.FX.exit();
-                    } catch (FXExit fxExit) {
-                        return null;
+                        main(entryPoint, args);
+                    } catch (Throwable t) {
+                        t.printStackTrace();
                     }
                 }
-                return o;
+            });
+            this.start();
+            return null;
+        }
+
+        public void run() {
+            Runnable task;
+            /*
+             * Replace this with something that looks at the timeline
+             * code directly so we do not pull in all the junk
+             * The peekEvent will be replaced with 
+             * scenario.animation.Util.hasActiveAnimation() 
+             * when it is available
+             */
+            try {
+                while ((task = taskQueue.poll()) != null ||
+                  com.sun.scenario.animation.Util.hasActiveAnimation()) {
+                        if (task != null) {
+                            task.run();
+                        } else {
+                            try {
+                                java.lang.Thread.sleep(1000);
+                            } catch (java.lang.InterruptedException ie) {
+                                break;
+                            }
+                        }
+                }
+                /*
+                 * Implicit Exit after Timelines complete
+                 */
+                javafx.lang.FX.exit();
+            } catch (FXExit fxExit) {
+                return;
+            }
+        }
+
+        private Object main(Method entryPoint, String... args) throws Throwable {
+            try {
+                return entryPoint.invoke(null, Sequences.make(TypeInfo.String, args));
             } catch (InvocationTargetException ite) {
                 Throwable cause = ite.getCause();
                 /*
@@ -235,8 +280,8 @@ public class Entry {
             }
         }
 
-        public void deferAction(Runnable action) {
-            java.awt.EventQueue.invokeLater(action);
+        public void deferAction(Runnable r) {
+            taskQueue.add(r);
         }        
 
         /*
