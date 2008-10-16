@@ -22,16 +22,21 @@
  */
 package com.sun.tools.javafx.comp;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.lang.model.type.TypeKind;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SequenceSliceTree;
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.javac.code.*;
 import static com.sun.tools.javac.code.Flags.*;
-import com.sun.tools.javac.code.Type.*;
+import com.sun.tools.javac.code.Type.ClassType;
+import com.sun.tools.javac.code.Type.MethodType;
+import com.sun.tools.javac.code.Type.WildcardType;
 import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
@@ -45,16 +50,13 @@ import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideClassVarInfo;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedVarInfo;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.JavafxClassModel;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedVarInfo;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideClassVarInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
-import com.sun.javafx.api.tree.Tree.JavaFXKind;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Translate JavaFX ASTs into Java ASTs
@@ -434,6 +436,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 String mname = "toArray";
                 if (elemType == syms.floatType)
                     mname = "toFloatArray";
+                else if (elemType == syms.doubleType)
+                    mname = "toDoubleArray";
                 return callExpression(diagPos, makeTypeTree( diagPos,syms.javafx_SequencesType, false),
                        mname, translated);
             }
