@@ -22,6 +22,7 @@
  */
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol;
@@ -111,6 +112,25 @@ public abstract class JavafxTranslationSupport {
         if (elemType instanceof WildcardType)
             elemType = ((WildcardType) elemType).type;
         return elemType;
+    }
+
+    protected JCExpression convertNullability(final DiagnosticPosition diagPos, final JCExpression expr, final JFXExpression inExpr, final Type outType) {
+        if (outType == syms.stringType || outType == syms.javafx_DurationType) {
+            final Type inType = inExpr.type;
+            if (inType == syms.botType || inExpr.getJavaFXKind() == JavaFXKind.NULL_LITERAL) {
+                return makeDefaultValue(diagPos, outType);
+            } else if (!types.isSameType(inType, outType)) {
+                JCVariableDecl daVar = makeTmpVar(diagPos, outType, expr);
+                JCExpression toTest = make.at(diagPos).Ident(daVar.name);
+                JCExpression cond = make.at(diagPos).Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
+                JCExpression ret = make.at(diagPos).Conditional(
+                        cond,
+                        make.at(diagPos).Ident(daVar.name),
+                        makeDefaultValue(diagPos, outType));
+                return makeBlockExpression(diagPos, List.<JCStatement>of(daVar), ret);
+            }
+        }
+        return expr; // no-op
     }
 
     /**
@@ -310,6 +330,10 @@ public abstract class JavafxTranslationSupport {
             tmi.getRealType() == syms.javafx_DurationType ?
                 makeTimeDefaultValue(diagPos) :
                 makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
+    }
+
+    JCExpression makeDefaultValue(DiagnosticPosition diagPos, Type type) {
+        return makeDefaultValue(diagPos, typeMorpher.typeMorphInfo(type));
     }
 
     JCExpression makeTimeDefaultValue(DiagnosticPosition diagPos) {

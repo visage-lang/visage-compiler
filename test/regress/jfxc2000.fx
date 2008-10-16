@@ -2,8 +2,8 @@
  * @run
  */
 
-var a : String = null;
-var aa = [ "yada", "yada" ];
+var a : Object = null;
+var aa : Object[] = [ "yada", "yada" ];
 println(aa);
 insert a into aa;
 println(aa);

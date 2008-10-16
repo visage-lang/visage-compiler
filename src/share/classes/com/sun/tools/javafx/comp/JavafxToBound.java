@@ -599,10 +599,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             }
         } else {
             if (tree.sym.isStatic()) {
-                // if this is a static reference to a Java member e.g. System.out -- do unbound translation, then wrap
+                // This is a static reference to a Java member or elided member e.g. System.out -- do unbound translation, then wrap
                 result = this.makeUnboundLocation(diagPos, targetType(tree.type), toJava.translate(tree, Wrapped.InNothing));
             } else {
-                // dynamic reference to a Java member
+                // This is a dynamic reference to a Java member or elided member
                 result = (new BindingExpressionClosureTranslator(diagPos, tree.type) {
 
                     private JFXExpression selector = tree.getExpression();

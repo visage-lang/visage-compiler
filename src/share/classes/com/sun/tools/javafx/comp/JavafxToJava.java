@@ -1213,7 +1213,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 return makeDefaultValue(diagPos, vmi);
             } else {
                 // do a vanilla translation of the expression
-                return translate(init, vmi.getSymbol().type);
+                Type resultType = vmi.getSymbol().type;
+                JCExpression trans = translate(init, resultType);
+                return convertNullability(diagPos, trans, init, resultType);
             }
         }
     }
@@ -1254,7 +1256,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     private JCExpression translateDefinitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
             Name instanceName, int milieu) {
-        assert( (vsym.flags() & Flags.PARAMETER) == 0): "Parameters are not initialized";
+        assert( (vsym.flags() & Flags.PARAMETER) == 0L): "Parameters are not initialized";
         setSubstitution(init, vsym);
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         JCExpression valueArg = translateDefinitionalAssignmentToValueArg(diagPos, init, bindStatus, vmi);
@@ -1630,7 +1632,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             super(diagPos, JavafxToJava.this);
             this.lhs = lhs;
             this.rhs = rhs;
-            this.rhsTranslated = translate(rhs, lhs.type);
+            this.rhsTranslated = convertNullability(diagPos, translate(rhs, lhs.type), rhs, lhs.type);
             this.sym = expressionSymbol(lhs);
         }
 
@@ -1925,7 +1927,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         UseSequenceBuilder builder = useSequenceBuilder(tree.pos(), elemType);
         stmts.append(builder.makeBuilderVar());
         for (JFXExpression item : tree.getItems()) {
-            stmts.append(builder.makeAdd( item ) );
+            if (item.getJavaFXKind() != JavaFXKind.NULL_LITERAL) {
+                // Insert all non-null elements
+                stmts.append(builder.makeAdd(item));
+            }
         }
         result = makeBlockExpression(tree.pos(), stmts, builder.makeToSequence());
     }
@@ -2709,7 +2714,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     @Override
     public void visitTypeCast(final JFXTypeCast tree) {
-        result = makeTypeCast(tree.pos(), tree.clazz.type, tree.expr.type, translate(tree.expr));
+        final DiagnosticPosition diagPos = tree.pos();
+        JCExpression ret = makeTypeCast(diagPos, tree.clazz.type, tree.expr.type, translate(tree.expr));
+        result = convertNullability(diagPos, ret, tree.expr, tree.clazz.type);
     }
 
     @Override
@@ -2717,9 +2724,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
             Type elemType = elementType(tree.type);
             result = makeEmptySequenceCreator(tree.pos(), elemType);
-        }
-        else
+        } else {
             result = make.at(tree.pos).Literal(tree.typetag, tree.value);
+        }
     }
 
     abstract static class FunctionCallTranslator extends Translator {
