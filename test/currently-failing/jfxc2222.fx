@@ -1,0 +1,9 @@
+/**
+ * Regression test JFXC-2222 : No automatic upcast for array argument
+ *
+ * @test/fail
+ */
+
+import java.util.Arrays;
+
+println(Arrays.binarySearch(12, 12))
