@@ -123,13 +123,7 @@ public class  SystemProperties {
             props = jfxprop_list;
             return (String)props.get(key);
         } else {
-            String res = java.security.AccessController.doPrivileged(
-                                new java.security.PrivilegedAction<String>() {
-                                    public String run() {
-                                        return System.getProperty(found);
-                                    }
-                                });
-            return res;
+            return System.getProperty(found);
         }
     }
 

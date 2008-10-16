@@ -88,8 +88,9 @@ public class FX {
      *    nor is JavaFX specific, therefore those properties are not 
      *    supported and null is returned.
      * @param key Environment Property to be inquired
-     * @return the string value of the property
-     *
+     * @return The string value of the property
+     * @throws SecurityException if a security manager exists and its checkPropertyAccess method doesn't allow access to the specified system property. 
+     * @throws NullPointerException if key is null. 
      * @profile common
      */
     public static String getProperty (String key) {
