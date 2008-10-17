@@ -71,6 +71,10 @@ public abstract class FXContext {
         return FXPrimitiveType.numberType;
     }
 
+    public FXClassType getStringType() {
+        return findClass("java.lang.String");
+    }
+
     /** Get the run-time representation of the JavaFX {@code Void} type. */
     public FXPrimitiveType getVoidType() {
         return FXPrimitiveType.voidType;

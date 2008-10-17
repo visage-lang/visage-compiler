@@ -164,3 +164,4 @@ myAnonRectRef.super (inherited also):
   class MyRect
   class MyShape
   class java.lang.Object
+Main.getFunction("repeat"): function Main.repeat(Integer,java.lang.String):java.lang.String

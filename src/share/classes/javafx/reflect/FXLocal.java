@@ -342,7 +342,20 @@ public class FXLocal {
                 ctypes[i] = Context.asClass(argType[i]);
             }
             try {
-                Method meth = (isCompoundClass() ? refInterface : refClass).getMethod(name, ctypes);
+                Method meth;
+                try {
+                    meth = refClass.getMethod(name, ctypes);
+                } catch (NoSuchMethodException ex) {
+                    if (isCompoundClass())
+                        meth = null;
+                    else
+                        throw ex;
+                }
+                if (isCompoundClass())
+                    if (meth == null ||
+                            (meth.getModifiers() &  Modifier.STATIC) == 0) {
+                    meth = refInterface.getMethod(name, ctypes);
+                }
                 return asFunctionMember(meth, getReflectionContext());
             }
             catch (RuntimeException ex) {

@@ -165,3 +165,6 @@ System.out.println("myAnonRectRef.super: {myAnonRectClass.getSuperClasses(false)
 System.out.println("myAnonRectRef.super (inherited also):");
 for (cls in myAnonRectClass.getSuperClasses(true))
     System.out.println("  {cls}");
+
+var clsMain = context.findClass("Main");
+System.out.println("Main.getFunction(\"repeat\"): {clsMain.getFunction("repeat", context.getIntegerType(), context.getStringType())}");
