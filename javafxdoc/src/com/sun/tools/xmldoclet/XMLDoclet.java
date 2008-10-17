@@ -644,8 +644,14 @@ public class XMLDoclet {
                                 +see.referencedClass().containingPackage().name()
                                 +"/"
                                 +see.referencedClassName()+".html";
-                        if(see.referencedMemberName() != null) {
-                            href += "#"+see.referencedMemberName();
+                        MemberDoc referencedMember = see.referencedMember();
+                        if (referencedMember != null) {
+                            if (referencedMember instanceof ExecutableMemberDoc) {
+                                ExecutableMemberDoc execMember =(ExecutableMemberDoc)referencedMember;
+                                href += "#" + execMember.name() + execMember.signature();                                
+                            } else {
+                                href += "#"+ see.referencedMemberName();
+                            }
                         }
                     }
                 }

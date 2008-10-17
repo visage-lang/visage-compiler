@@ -703,6 +703,12 @@
 <!--    <xsl:template match="$foo and attribute[]" mode="toc"><tr><td>skipping because it's a common one</td></tr></xsl:template>-->
     <xsl:template match="field | attribute" mode="toc">
         <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
+            <!-- anchor for this field -->
+            <xsl:if test="$inline-descriptions='true'">
+            <a>
+                <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
+            </a>
+            </xsl:if>
             <tr>
                 <xsl:attribute name="class">
                     <xsl:text>var </xsl:text>
@@ -874,6 +880,12 @@
     <!-- summary line -->
     <xsl:template name="method-like-toc">
         <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
+        <!-- signature anchor point -->
+        <xsl:if test="$inline-descriptions='true'">
+        <a>
+            <xsl:attribute name="id"><xsl:apply-templates select="." mode="anchor-signature"/></xsl:attribute>
+        </a>
+        </xsl:if>
         <dt>
             <xsl:attribute name="class">
                 <xsl:text>method </xsl:text>
@@ -1001,10 +1013,10 @@
         <xsl:value-of select="@name"/>
         <xsl:text>(</xsl:text>
         <xsl:for-each select="parameters/parameter">
-            <xsl:value-of select="@name"/>
-            <xsl:text>:</xsl:text>
             <xsl:value-of select="type/@toString"/>
-            <xsl:text>,</xsl:text>
+            <xsl:if test="position()!=last()">
+                <xsl:text>,</xsl:text>
+            </xsl:if>
         </xsl:for-each>
         <xsl:text>)</xsl:text>
     </xsl:template>
