@@ -1092,9 +1092,6 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * To find where we should report we need to search backwards in the input stream for
      * the first non-hidden token before the current one, then position after the end of
      * the text that that token represents.
-     * 
-     * Note that if we have a semi colon missing, then we cannot reach the beginning
-     * of the input stream as we must find a token that was not hidden before that point.
      */
     protected int semiPos() {
         
@@ -1105,6 +1102,20 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         //
         tok = (CommonToken)(input.LT(-1));
         
+        // If the source consists of just one token, say 'function' then
+        // we can actually end up positioned at first token, we get null back if this
+        // happens and use the current token instead.
+        //
+        if (tok == null) {
+          
+            tok = (CommonToken)(input.LT(1));
+        }
+        
+        // Just in case somethign goes wrong getting ANY token, check for null
+        //
+        if  (tok == null) {
+            return 0;
+        }
         // Now, all we need to do is position after the last character of the
         // text that this token represents.
         //
@@ -1362,11 +1373,13 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         //
         Token prevToken = input.LT(-1);
         
-        if  (      prevToken.getType() == v4Parser.RBRACE
+        if  (      prevToken == null
+                || prevToken.getType() == v4Parser.RBRACE
                 || prevToken.getType() == v4Parser.SEMI
             )
         {
-            // We don't require a SEMI after a '}' or after a prior SEMI
+            // We don't require a SEMI after a '}' or after a prior SEMI or if
+            // this error occurred on the first token (in whcih case prevToken is null)
             //
             return;
         }
