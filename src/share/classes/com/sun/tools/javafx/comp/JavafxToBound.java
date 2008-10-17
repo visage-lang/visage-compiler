@@ -106,16 +106,16 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         TypeMorphInfo tmiPrevTarget = tmiTarget;
         this.tmiTarget = tmi;
         TC ret;
-	if (tree == null) {
-	    ret = null;
-	} else {
+        if (tree == null) {
+            ret = null;
+        } else {
             JFXTree prevWhere = toJava.attrEnv.where;
             toJava.attrEnv.where = tree;
-	    tree.accept(this);
+            tree.accept(this);
             toJava.attrEnv.where = prevWhere;
-	    ret = (TC)this.result;
-	    this.result = null;
-	}
+            ret = (TC) this.result;
+            this.result = null;
+        }
         this.tmiTarget = tmiPrevTarget;
         return ret;
     }
@@ -423,8 +423,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
                     @Override
                     protected List<JCExpression> translatedConstructorArgs() {
-                        if (tree.getArgs().size() > 0) {
-                            buildArgFields(translate(tree.getArgs(), tree.constructor.type, false), false);
+                        List<JFXExpression> args = tree.getArgs();
+                        if (args != null && args.size() > 0) {
+                            assert tree.constructor != null : "args passed on instanciation of class without constructor";
+                            boolean usesVarArgs = (tree.constructor.flags() & Flags.VARARGS) != 0L;
+                            buildArgFields(translate(args, tree.constructor.type, usesVarArgs), false);
                             return callArgs.toList();
                         } else {
                             return List.<JCExpression>nil();
