@@ -316,18 +316,37 @@ public class JavafxScriptClassBuilder {
             Name commandLineArgs = defaultRunArgName;
             if (userRunFunction != null) {
                 List<JFXVar> params = userRunFunction.operation.getParams();
-                if (params.size() == 1) {
+                
+                // Protect IDE plugin against partially typed run function
+                // returning null for the parameters, statements or body, by
+                // null checking for each of those elements.
+                //
+                if (params != null && params.size() == 1) {
                     commandLineArgs = params.head.getName();
                 }
-                // a run function was specified, start the statement
+                // a run function was specified, start the statement, protecting
+                // against IDE generated errors.
+                //
                 JFXBlock body = userRunFunction.getBodyExpression();
-                if (body.getStmts().size() > 0 || body.getValue() != null) {
-                    if (value != null) {
-                        stats.append(value);
-                    }
-                    stats.appendList(body.getStmts());
-                    if (body.getValue() != null) {
-                        value = body.getValue();
+                if (body != null) {
+
+                    int sSize = 0;
+                    List<JFXExpression> statements = body.getStmts();
+
+                    if (statements != null) sSize = statements.size();
+                    if (sSize > 0 || body.getValue() != null) {
+                        
+                        if (value != null) {
+                            stats.append(value);
+                        }
+
+                        if (sSize > 0) {
+                            stats.appendList(body.getStmts());
+                        }
+                    
+                        if (body.getValue() != null) {
+                            value = body.getValue();
+                        }
                     }
                 }
             }
