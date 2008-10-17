@@ -356,6 +356,15 @@ public class XMLDoclet {
     }
 
     private void generateClass(ClassDoc cls) throws SAXException {
+        /**
+         * JavaFX generates class for modules too. So, a "package-info.fx" will 
+         * result in a class. Because we have captured package level doc comment
+         * we can ignore this class. Without this "package-info" will appear in
+         * classes list!
+         */
+        if (cls.simpleTypeName().equals("package-info")) {
+            return;
+        }
         boolean fxClass = isJFXClass(cls);
         String classType = 
                 cls.isAnnotationType() ? "annotation" :

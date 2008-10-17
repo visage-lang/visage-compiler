@@ -73,7 +73,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -347,7 +346,6 @@ public class XHTMLProcessingUtils {
         trans.setParameter("root-path", "../");
         trans.transform(new DOMSource(classes_doc), new StreamResult(new File(packageDir,"package-summary.html")));
     }
-
     
     private static void processClass(Element clazz, Element class_list, XPath xpath, Transformer trans, File packageDir) throws TransformerException, IOException, XPathExpressionException {
         String qualifiedName = clazz.getAttribute("qualifiedName");
@@ -405,13 +403,27 @@ public class XHTMLProcessingUtils {
     }
     
     private static void copyDocComment(Element pkg, Element package_elem) {
-        Element docComment = (Element) pkg.getElementsByTagName("docComment").item(0);
+        Element docComment = getFirstChildNamed(pkg, "docComment");
         if (docComment != null) {
             Node copy = package_elem.getOwnerDocument().importNode(docComment, true);
             package_elem.appendChild(copy);
         }
     }
     
+    // return the first child element of the given name, if not found return null
+    private static Element getFirstChildNamed(Element elem, String childName) {
+        NodeList children = elem.getChildNodes();
+        final int length = children.getLength();
+        for (int index = 0; index < length; index++) {
+            Node node =  children.item(index);
+            if ((node instanceof Element) && 
+                ((Element)node).getTagName().equals(childName)){
+                return (Element)node;
+            }
+        }
+        return null;    
+    }
+            
     private static List<Element> sort(NodeList classesNodeList) {
         List<Element> nodes = new ArrayList<Element>();
         for(int i=0; i<classesNodeList.getLength(); i++) {

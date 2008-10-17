@@ -95,9 +95,10 @@
                 <xsl:if test="$extra-js">
                     <script src="{$root-path}{$extra-js}"></script>
                 </xsl:if>
+                <title>Overview (<xsl:value-of select="$std.doctitle"/>)</title>
             </head>
             <body>
-                <h3>JavaFX API</h3>
+                <h3>Overview (<xsl:value-of select="$std.doctitle"/>)</h3>
                 <table>
                     <tr><th></th></tr>
                     <xsl:for-each select="package">
@@ -168,11 +169,12 @@
                 <xsl:if test="$extra-js">
                     <script src="${root-path}{$extra-js}"></script>
                 </xsl:if>
+                <title><xsl:value-of select="@packageName"/> (<xsl:value-of select="$std.doctitle"/>)</title>
             </head>
             <body>
-                <p><b><xsl:value-of select="@packageName"/></b></p>
+                <h3>Package <xsl:value-of select="@packageName"/></h3>
                 <table id="classList">
-                    <tr><th>This is a summary</th></tr>
+                    <tr><th></th></tr>
                     <xsl:for-each select="class">
                         <tr>
                             <td>
@@ -182,7 +184,7 @@
                                 </a>
                             </td>
                             <td>
-                                <xsl:value-of select="firstSentenceTags"/>
+                                <xsl:apply-templates select="firstSentenceTags"/>
                             </td>
                          </tr>
                      </xsl:for-each>

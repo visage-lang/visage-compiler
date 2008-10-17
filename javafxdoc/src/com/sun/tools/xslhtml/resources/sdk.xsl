@@ -264,6 +264,14 @@ var myTips = new Tips('.tooltip', {
                     <xsl:for-each select="package">
                         <xsl:sort select="@name"/>
                         <li>
+                            <!-- class attribute -->
+                            <xsl:attribute name="class">
+                                <xsl:for-each select="docComment/tags/cssclass">
+                                    <xsl:value-of select="text()"/>
+                                    <xsl:text> </xsl:text>
+                                </xsl:for-each>
+                                <xsl:call-template name="profile-class"/>
+                            </xsl:attribute>
                             <h4 class='header'><a href="#"><xsl:value-of select="@name"/></a></h4>
                             <ul class='content'>
                                 <xsl:for-each select="class">
@@ -313,15 +321,34 @@ var myTips = new Tips('.tooltip', {
                         <xsl:for-each select="package">
                             <xsl:sort select="@name"/>
                             <tr>
+                                <!-- class attribute -->
+                                <xsl:attribute name="class">
+                                    <xsl:for-each select="docComment/tags/cssclass">
+                                        <xsl:value-of select="text()"/>
+                                        <xsl:text> </xsl:text>
+                                    </xsl:for-each>
+                                    <xsl:call-template name="profile-class"/>
+                                </xsl:attribute>
                                 <td class="name">
-                                    <b><!--
-                                        <xsl:attribute name="href"><xsl:value-of select="@name"/>/package-summary.html</xsl:attribute>
-                                        -->
+                                    <b>
+                                        <!-- <a><xsl:attribute name="href"><xsl:value-of select="@name"/>/package-summary.html</xsl:attribute></a> -->
                                         <xsl:value-of select="@name"/>
                                     </b>
                                 </td>
                                 <td class="description">
                                     <xsl:apply-templates select="docComment/firstSentenceTags"/>
+                                    <xsl:if test="$inline-descriptions='true'">
+                                        <xsl:if test="docComment/inlineTags | docComment/seeTags | docComment/needsReview">
+                                            <a href="#" class="long-desc-open"><img src="images/JFX_arrow_right.png"/></a>
+                                            <div class="long-desc">
+                                                <!-- the rest of the docs -->
+                                                <xsl:apply-templates select="docComment/inlineTags"/>
+                                                <xsl:apply-templates select="docComment/seeTags"/>
+                                                <xsl:apply-templates select="docComment/tags/needsreview"/>
+                                                &amp;nbsp;
+                                            </div>
+                                        </xsl:if>
+                                    </xsl:if>
                                 </td>
                             </tr>
                         </xsl:for-each>
@@ -329,5 +356,5 @@ var myTips = new Tips('.tooltip', {
                 </div>
             </body>
         </html>
-    </xsl:template>    
+    </xsl:template>
 </xsl:stylesheet>
