@@ -53,6 +53,10 @@ public def INDEFINITE = -1;
 
 /**
  * Represents an animation, defined by one or more {@code KeyFrame}s.
+ * <p>
+ * An animation is animated by associated properties, such as size, location
+ * and color, etc. {@code Timeline} provides the capability to update
+ * the property values along the progression of time.
  *
  * @profile common
  */
@@ -67,7 +71,7 @@ public class Timeline {
      * is to be played, while the sign of {@code rate} indicates the direction
      * in which the timelineis to be played. A postive value of {@code rate}
      * indicates forward play, a negative value indicates backward play and {@code 0.0}
-     * to stop a running timeline. The default value is {@code 1.0}.
+     * to stop a running timeline. 
      * <p>
      * Rate {@code 1.0} is normal play, {@code 2.0} is 2 time normal,
      * {@code -1.0} is backwards, etc...
@@ -78,6 +82,7 @@ public class Timeline {
      * {@code Timeline} that has alreay elapsed.
      *
      * @profile common
+     * @defaultvalue 1.0
      */
 
     public var rate: Number = 1.0 on replace old {
@@ -139,15 +144,17 @@ public class Timeline {
      * <p> 
      *  Changes {@code time} on sub timelines are ignored.
      * 
-     *  @profile common
+     * @profile common
+     * @defaultvalue 0.0ms
      *
      */
     public var time: Duration = 0.0ms;
     
     /**
-     * Enable/disable interpolation. The default value is {@code true}
+     * Enable/disable interpolation. 
      *
      * @profile common
+     * @defaultvalue true
      */
 
     public var interpolate: Boolean = true;
@@ -173,11 +180,11 @@ public class Timeline {
      * cycles.
      * If {@code true}, the animation will proceed forward on
      * the first cycle, then reverses on the second cycle, and so on.
-     * The default value is {@code false}, indicating that the
-     * animation will loop such that each cycle proceeds
+     * Otherwise, animation will loop such that each cycle proceeds
      * forward from the initial {@code KeyFrame}.
      *
      * @profile common
+     * @defaultvalue false
      */
     public var autoReverse: Boolean = false;
 
@@ -244,8 +251,8 @@ public class Timeline {
     }
     
     /**
-     * {@code curTime} tracks current play head position internally, so 
-     * {@code Timeline} can distinguish if {@code time} has been 
+     * {@code curPos} tracks current play head position internally, so 
+     * {@code Timeline} can distinguish whether {@code time} has been 
      * modified externally.
      */
     var curPos: Number = 0.0;
@@ -329,6 +336,9 @@ public class Timeline {
      * backward ({@code rate} < 0) cycle if a timeline is positioned at the 
      * beginning. However, if the timeline has {@code repeatCount} > 1, 
      * following cycle(s) will be played as usual.
+     * <p>
+     * When {@code Timeline} reaches the end, {@code Timeline} is stopped
+     * and playhead remains at the end position. 
      * <p>
      * To play a {@code Timeline} backwards from the end:<br>
      * <code>
@@ -448,8 +458,8 @@ public class Timeline {
     }
 
     /**
-     * Stops the animation.  If the animation is not currently running,
-     * this method has no effect.
+     * Stops the animation and resets timeline playhead to initial position.  
+     * If the animation is not currently running, this method has no effect.
      * <p>
      * Note:
      *  <l>
@@ -477,6 +487,11 @@ public class Timeline {
             }
 
             forward = rate >= 0;
+            
+            if(not running) {
+                curPos = 0.0;
+                time = 0.0ms;
+            }
        }
     }
 
@@ -1091,7 +1106,7 @@ public class Timeline {
                 speedChangePos = 0.0;
                 speedChangeElapsedPos = 0.0;
                 var totalDur = getTotalDur();
-                        
+                
                 if(forward) {
                     lastElapsed = 0;
                     /**
@@ -1163,9 +1178,14 @@ public class Timeline {
                 isReverse = false;
                 invertOffsetT = 0.0;
                 durOffset = 0.0;
-        
-                curPos = 0.0;
-                time = 0ms;
+
+                var dur = getTotalDur();
+                if(time.toMillis() != dur or
+                /* INDEFINITE duration timeline can never reach to the end, must be explicit stop */
+                   dur < 0) {
+                    curPos = 0.0;
+                    time = 0ms;
+                }
             }
         }
     }
