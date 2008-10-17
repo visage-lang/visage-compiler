@@ -429,33 +429,51 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             Type sourceType, Type targetType) {
         boolean sourceIsSequence = types.isSequence(sourceType);
         boolean targetIsSequence = types.isSequence(targetType);
-        if (sourceIsSequence && types.isArray(targetType)) {
-            ListBuffer<JCStatement> stats = ListBuffer.lb();
+        boolean sourceIsArray = sourceType==null? false : types.isArray(sourceType);
+        boolean targetIsArray = targetType==null? false : types.isArray(targetType);
+        if (targetIsArray) {
             Type elemType = types.elemtype(targetType);
-            if (elemType.isPrimitive()) {
-                String mname = "toArray";
-                if (elemType == syms.floatType)
-                    mname = "toFloatArray";
-                else if (elemType == syms.doubleType)
-                    mname = "toDoubleArray";
-                return callExpression(diagPos, makeTypeTree( diagPos,syms.javafx_SequencesType, false),
-                       mname, translated);
+            if (sourceIsSequence) {
+                if (elemType.isPrimitive()) {
+                    String mname = "toArray";
+                    if (elemType == syms.floatType) {
+                        mname = "toFloatArray";
+                    } else if (elemType == syms.doubleType) {
+                        mname = "toDoubleArray";
+                    }
+                    return callExpression(diagPos, makeTypeTree(diagPos, syms.javafx_SequencesType, false),
+                            mname, translated);
+                }
+                ListBuffer<JCStatement> stats = ListBuffer.lb();
+                JCVariableDecl tmpVar = makeTmpVar(diagPos, sourceType, translated);
+                stats.append(tmpVar);
+                JCVariableDecl sizeVar = makeTmpVar(diagPos, syms.intType, callExpression(diagPos, make.at(diagPos).Ident(tmpVar.name), "size"));
+                stats.append(sizeVar);
+                JCVariableDecl arrVar = makeTmpVar(diagPos, "arr", targetType, make.at(diagPos).NewArray(
+                        makeTypeTree(diagPos, elemType, true),
+                        List.<JCExpression>of(make.at(diagPos).Ident(sizeVar.name)),
+                        null));
+                stats.append(arrVar);
+                stats.append(callStatement(diagPos, make.at(diagPos).Ident(tmpVar.name), "toArray", List.of(
+                        make.Literal(TypeTags.INT, 0),
+                        make.at(diagPos).Ident(sizeVar.name),
+                        make.at(diagPos).Ident(arrVar.name),
+                        make.at(diagPos).Literal(TypeTags.INT, 0))));
+                JCIdent ident2 = make.at(diagPos).Ident(arrVar.name);
+                return makeBlockExpression(diagPos, stats, ident2);
+            } else if (sourceIsArray) {
+                // Source and target are both arrays
+                //TODO: conversion may be needed here, but this is better than what we had
+                return translated;
+            } else {
+                //TODO: Untested since attribution currently throws this case out
+                return make.at(diagPos).NewArray(
+                        makeTypeTree(diagPos, elemType, true),
+                        List.<JCExpression>of(make.at(diagPos).Literal(TypeTags.INT, 1)),
+                        List.<JCExpression>of(translated));
             }
-            JCVariableDecl tmpVar = makeTmpVar(diagPos, sourceType, translated);
-            stats.append(tmpVar);
-            JCVariableDecl sizeVar = makeTmpVar(diagPos, syms.intType, callExpression(diagPos, make.Ident(tmpVar.name), "size"));
-            stats.append(sizeVar);
-            JCVariableDecl arrVar = makeTmpVar(diagPos, "arr", targetType,
-                    make.NewArray(makeTypeTree(diagPos, elemType, true),
-                        List.<JCExpression>of(make.Ident(sizeVar.name)), null));
-            stats.append(arrVar);
-            stats.append(callStatement(diagPos, make.Ident(tmpVar.name), "toArray",
-                            List.of(make.Literal(TypeTags.INT, 0), make.Ident(sizeVar.name), make.Ident(arrVar.name), make.Literal(TypeTags.INT, 0))));
-            JCIdent ident2 = make.Ident(arrVar.name);
-            return makeBlockExpression(diagPos, stats, ident2);
-
         }
-        if (types.isArray(sourceType) && targetIsSequence) {
+        if (sourceIsArray && targetIsSequence) {
             Type sourceElemType = types.elemtype(sourceType);
             List<JCExpression> args;
             if (sourceElemType.isPrimitive()) {
@@ -515,35 +533,24 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
      */
     private <TFX extends JFXTree, TC extends JCTree> List<TC> translateGeneric(List<TFX> trees) {
         ListBuffer<TC> translated = ListBuffer.lb();
-	if (trees == null) return null;
-	for (List<TFX> l = trees; l.nonEmpty();  l = l.tail) {
+        if (trees == null) {
+            return null;
+        }
+        for (List<TFX> l = trees; l.nonEmpty(); l = l.tail) {
             TC tree = translateGeneric(l.head);
             if (tree != null) {
-                translated.append( tree );
+                translated.append(tree);
             }
         }
-	return translated.toList();
+        return translated.toList();
     }
 
     public List<JCExpression> translateExpressions(List<JFXExpression> trees) {
-	return translateGeneric(trees);
+        return translateGeneric(trees);
     }
 
     public List<JCCatch> translateCatchers(List<JFXCatch> trees) {
-	return translateGeneric(trees);
-    }
-
-     public List<JCExpression> translate(List<JFXExpression> trees, List<Type> types) {
-        ListBuffer<JCExpression> translated = ListBuffer.lb();
-	if (trees == null) return null;
-        List<Type> t = types;
-	for (List<JFXExpression> l = trees; l.nonEmpty();  l = l.tail, t = t.tail) {
-            JCExpression tree = translate(l.head, t.head);
-            if (tree != null) {
-                translated.append( tree );
-            }
-        }
-	return translated.toList();
+        return translateGeneric(trees);
     }
 
     //// Translation with wrap transition
@@ -998,11 +1005,37 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         abstract protected void processLocalVar(JFXVar var);
 
         protected List<JCExpression> translatedConstructorArgs() {
-            if (tree.constructor != null && tree.constructor.type != null) {
-                List<Type> ptypes = tree.constructor.type.asMethodType().getParameterTypes();
-                return toJava.translate(tree.getArgs(), ptypes);
+            List<JFXExpression> args = tree.getArgs();
+            if (args == null) {
+                return null;
+            }
+            Symbol sym = tree.constructor;
+            if (sym != null && sym.type != null) {
+                List<Type> formals = sym.type.asMethodType().getParameterTypes();
+                boolean usesVarArgs = (sym.flags() & VARARGS) != 0L &&
+                        (formals.size() != args.size() ||
+                        types.isConvertible(args.last().type, types.elemtype(formals.last())));
+                ListBuffer<JCExpression> translated = ListBuffer.lb();
+                boolean handlingVarargs = false;
+                Type formal = null;
+                List<Type> t = formals;
+                for (List<JFXExpression> l = args; l.nonEmpty(); l = l.tail) {
+                    if (!handlingVarargs) {
+                        formal = t.head;
+                        t = t.tail;
+                        if (usesVarArgs && t.isEmpty()) {
+                            formal = types.elemtype(formal);
+                            handlingVarargs = true;
+                        }
+                    }
+                    JCExpression targ = toJava.translate(l.head, formal);
+                    if (targ != null) {
+                        translated.append(targ);
+                    }
+                }
+                return translated.toList();
             } else {
-                return toJava.translateExpressions(tree.getArgs());
+                return toJava.translateExpressions(args);
             }
         }
 
