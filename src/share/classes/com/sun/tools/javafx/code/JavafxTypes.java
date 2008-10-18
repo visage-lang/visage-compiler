@@ -426,6 +426,8 @@ public class JavafxTypes extends Types {
         } else if (isJavaFXUnknown(type)) {
             // Is this right?
             buffer.append("Object");
+        } else if (type == Type.noType) {
+            buffer.append("<unknown>");
         } else if (isJavaFXSequence(type)) {
             sequenceToJavaFXString(type, buffer);
         } else if (isJavaFXMethod(type)) {

@@ -1,0 +1,6 @@
+test/should-fail/jfxc2199.fx:4: incompatible types
+found   : String
+required: function():<unknown>
+function(){"abc"} () ();
+^
+1 error
