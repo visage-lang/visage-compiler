@@ -1,7 +1,7 @@
 /*
  * Interpolator_TS304_01.fx
  *
- * @test
+ * @test/nocompare
  * @run
  */
 
@@ -60,7 +60,7 @@ var t = Timeline {
    ]
 }
 
-//System.out.println("\nInterpolator.LINEAR:");
+System.out.println("\nInterpolator.LINEAR:");
 keyValue.interpolate = Interpolator.LINEAR;
 keepAlive.play();
 t.play();
@@ -68,50 +68,63 @@ runLater(2000, rerun1);
 
 function rerun1() {	
 	//System.out.println("count = {count}");
-        end();
-	//System.out.println("\nInterpolator.EASEIN:");
+    check();
+	System.out.println("\nInterpolator.EASEIN:");
 	keyValue.interpolate = Interpolator.EASEIN;
+
 	count = 0;
+    t.stop();
 	t.play();
 	runLater(2000, rerun2);
 }
 
 function rerun2() {
 	//System.out.println("count = {count}");
-         end();
-	//System.out.println("\nInterpolator.EASEOUT:");
+     check();
+	System.out.println("\nInterpolator.EASEOUT:");
 	keyValue.interpolate = Interpolator.EASEOUT;
+
 	count = 0;
+    t.stop();
 	t.play();
 	runLater(2000, rerun3);
 }
 
 function rerun3() {
 	//System.out.println("count = {count}");
-         end();
-	//System.out.println("\nInterpolator.EASEBOTH:");
+     check();
+	System.out.println("\nInterpolator.EASEBOTH:");
 	keyValue.interpolate = Interpolator.EASEBOTH;
+
 	count = 0;
+    t.stop();
 	t.play();
 	runLater(2000, rerun4);
 }
 
 function rerun4() {
 	//System.out.println("count = {count}");
-
-          end();
-
-	//System.out.println("\nInterpolator.DISCRETE:");
+    check();
+	System.out.println("\nInterpolator.DISCRETE:");
 	keyValue.interpolate = Interpolator.DISCRETE;
+
 	count = 0;
+    t.stop();
 	t.play();
 	runLater(2000, end);
 }
 
 function end() {
-	keepAlive.stop();
-	//System.out.println("count = {count}");
+    //System.out.println("count = {count}");
+    check();
+
+    keepAlive.stop();
+}
+
+function check() {
+	System.out.println("CHECK: count = {count}");
 	if(count != 2) {
+        keepAlive.stop();
 		throw new AssertionError("test failed");
 	}
 }
