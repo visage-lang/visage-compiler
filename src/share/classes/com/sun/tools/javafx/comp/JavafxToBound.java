@@ -320,7 +320,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             }
             return typeParams.isEmpty()? clazz : m().TypeApply(clazz, typeParams.toList());
         }
-
+        
         protected abstract List<JCExpression> makeConstructorArgs();
 
         protected JCExpression buildClosure() {
@@ -1096,10 +1096,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 } else {
                     // call to Java method or unbound JavaFX function
                     //TODO: varargs
-                    if (selectorMutable) {
+                    if (selectorMutable || useInvoke) {
                         return (new BindingExpressionClosureTranslator(diagPos, tree.type) {
 
-                            private TypeMorphInfo tmiSelector = typeMorpher.typeMorphInfo(selector.type);
+                            private JFXExpression check = useInvoke? meth : selector;
+                            private TypeMorphInfo tmiSelector = typeMorpher.typeMorphInfo(check.type);
                             private Name selectorName = getSyntheticName("selector");
 
                             protected JCExpression resultValue() {
@@ -1107,8 +1108,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                 // selectors are always Objects
                                 JCExpression transSelector = makeGetField(selectorName, TYPE_KIND_OBJECT);
 
-                                // construct the actuall method invocation
-                                Name methName = ((JFXSelect) tree.meth).name;
+                                // construct the actual method invocation
+                                Name methName = useInvoke? defs.invokeName : ((JFXSelect) tree.meth).name;
                                 JCExpression callMeth = m().Select(transSelector, methName);
                                 JCExpression call = m().Apply(typeArgs, callMeth, callArgs.toList());
 
@@ -1132,7 +1133,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
                                 // translate the method selector into a Location field of the BindingExpression
                                 // XxxLocation selector$ = ...;
-                                buildArgField(translate(selector), selector.type, selectorName.toString());
+                                buildArgField(translate(check), check.type, selectorName.toString());
                             }
                         }).doit();
                     } else {
@@ -1167,6 +1168,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             }
 
             public JCExpression transMeth() {
+                assert !useInvoke;
                 JCExpression transMeth;
                 if (renameToSuper) {
                     transMeth = m().Select(m().Select(makeTypeTree(selector, toJava.attrEnv.enclClass.sym.type, false), names._super), msym);
@@ -1182,9 +1184,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                             transMeth = m().Select(expr, name);
                         }
                     }
-                }
-                if (useInvoke) {
-                    transMeth = make.Select(transMeth, defs.invokeName);
                 }
                 return transMeth;
             }

@@ -1,8 +1,8 @@
 /*
+ * Regression test JFXC-1779 : Result of a bound function is not re-evaluated when a function dependency changes
  *
- * JFXC-1779: Result of a bound function is not re-evaluated when a function dependency changes
  * @test
- * @run/fail
+ * @run
  *
  *
  */

@@ -2794,11 +2794,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             boolean superCall = selectorIdName == toJava.names._super;
             ClassSymbol csym = toJava.attrEnv.enclClass.sym;
 
+            useInvoke = meth.type instanceof FunctionType;
+            Symbol selectorSym = selector != null? toJava.expressionSymbol(selector) : null;
             boolean namedSuperCall =
-                    selector != null && msym != null && !msym.isStatic() &&
-                    toJava.expressionSymbol(selector) instanceof ClassSymbol &&
+                    msym != null && !msym.isStatic() &&
+                    selectorSym instanceof ClassSymbol &&
                     // FIXME should also allow other enclosing classes:
-                    types.isSuperType(toJava.expressionSymbol(selector).type, csym);
+                    types.isSuperType(selectorSym.type, csym);
             renameToSuper = namedSuperCall && !types.isCompoundClass(csym);
             superToStatic = (superCall || namedSuperCall) && !renameToSuper;
             formals = meth.type.getParameterTypes();
@@ -2809,7 +2811,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                              types.isConvertible(tree.args.last().type,
                                  types.elemtype(formals.last())));
 
-            useInvoke = meth.type instanceof FunctionType;
             selectorMutable = msym != null &&
                     !sym.isStatic() && selector != null && !superCall && !namedSuperCall &&
                     !thisCall && !renameToSuper;
