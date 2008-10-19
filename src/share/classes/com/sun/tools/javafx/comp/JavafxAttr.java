@@ -175,7 +175,7 @@ public class JavafxAttr implements JavafxVisitor {
      *  If check fails, store errType in tree and return it.
      *  No checks are performed if the prototype is a method type.
      *  Its not necessary in this case since we know that kind and type
-     *  are correct.
+     *  are correct.  WRONG - see JFXC-2199.
      *
      *  @param tree     The tree whose kind and type is checked
      *  @param owntype  The computed type of the tree
