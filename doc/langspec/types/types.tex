@@ -96,7 +96,11 @@ We do not yet treat Java primitives in this section; we assume only
 the existence of the ground types \<Int32>, \<Float64>, and
 \<Boolean>.  The basic syntax for defining types in the abstract type
 system is shown in figure \ref{basic-type-syntax}, and the basic
-typing rules are shown in figure \ref{basic-type-rules}.
+typing rules are shown in figure \ref{basic-type-rules}.  The
+metafunction $fields$ is defined as in Featherweight Java; it is a set
+of $(name, type)$ pairs describing the instance variables of a class.
+Similarly, the metafunction $methods$ describes the methods of a
+class.  (TODO: Provide formal definitions.)
 
 It is also desirable to be able to take a type and convert it to
 another cardinality.  The type operator \<optof> yields a type that is
@@ -133,8 +137,22 @@ of the same ground type but with an optional cardinality, as follows:
 }
 \]
 
-%% Need T-Field, fields() definitions
-%% ref and opt versions
+\[
+  \inference[\textsc{T-Field}]{
+    \Gamma |- e_0 : \req C_0 &
+    \mathit{fields}(C_0) = \bar{C} \; \bar{f}
+  }{
+    \Gamma |- e_0.f_i : C_i
+  }
+\]
+\[
+  \inference[\textsc{T-Field-Opt}]{
+    \Gamma |- e_0 : \opt C_0 &
+    \mathit{fields}(C_0) = \bar{C} \; \bar{f}
+  }{
+    \Gamma |- e_0.f_i : \optof C_i
+  }
+\]
 
 \begin{eqnarray*}
 \sizeof x &:& \<Int32> \\
