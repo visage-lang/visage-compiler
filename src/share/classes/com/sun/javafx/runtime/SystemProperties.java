@@ -187,5 +187,7 @@ public class  SystemProperties {
                props.put(key, value);
 	   }
 	} 
-    }    
+    }
+
+    public static final String codebase = "javafx.application.codebase";
 }
