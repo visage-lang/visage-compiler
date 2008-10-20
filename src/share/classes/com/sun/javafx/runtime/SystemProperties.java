@@ -34,6 +34,7 @@ public class  SystemProperties {
     * Empty string in   the runtime platform equivalent field indicates thete is no equivalent property for given platform.
     */
     private static String[] sysprop_table = {
+        /*"javafx.*/"application.codebase", "jfx_specific",
     };
 
 
@@ -43,6 +44,7 @@ public class  SystemProperties {
      * Second column represents value of the property 
     */
     private static String[] jfxprop_table = {
+        /*"javafx.*/"application.codebase", "",
     };
 
     private static Hashtable sysprop_list = new Hashtable();  
