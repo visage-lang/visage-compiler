@@ -45,8 +45,10 @@ public class FXFunctionType extends FXType {
      */
     public int minArgs() { return minArgs; }
 
-    /** Was this method declarfed to take a variable number of arguments?
-     * Note that varArgs aren't yet supported in JavaFX. */
+    /** Was this method declared to take a variable number of arguments?
+     * This is a place-holder for future functionality.  (JavaFX doesn't yet
+     * support var-args, and we don't set it properly for Java methods either.)
+     */
     public boolean isVarArgs() { return varArgs; }
 
     public FXType getArgumentType(int i) {
