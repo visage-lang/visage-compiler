@@ -267,6 +267,10 @@ public class JavafxAttr implements JavafxVisitor {
             if (tree != null )tree.accept(this);
             if (tree == breakTree)
                 throw new BreakAttr(env);
+            if (pSequenceness == Sequenceness.REQUIRED && result.tag != ERROR
+                    && ! types.isSequence(result)) {
+                result = chk.typeTagError(tree, types.sequenceType(syms.unknownType), result);
+            }
             return result;
         } catch (CompletionFailure ex) {
             tree.type = syms.errType;
@@ -291,9 +295,9 @@ public class JavafxAttr implements JavafxVisitor {
      */
     public Type attribExpr(JFXTree tree, JavafxEnv<JavafxAttrContext> env, Type pt) {
         return attribTree(tree, env, VAL, pt.tag != ERROR ? pt : Type.noType,
-                (pt.tag == ERROR || pt == Type.noType)?
+                (pt.tag == ERROR || pt == Type.noType || types.isSequence(pt))?
                         Sequenceness.PERMITTED :
-                        types.isSequence(pt)? Sequenceness.REQUIRED : Sequenceness.DISALLOWED);
+                        Sequenceness.DISALLOWED);
     }
 
     /** Derived visitor method: attribute an expression tree with
@@ -562,7 +566,8 @@ public class JavafxAttr implements JavafxVisitor {
         boolean inSelectPrev = env.info.inSelect;
         env.info.inSelect = true;
         // Attribute the qualifier expression, and determine its symbol (if any).
-        Type site = attribTree(tree.selected, env, skind, Infer.anyPoly);
+        Type site = attribTree(tree.selected, env, skind,
+                Infer.anyPoly, Sequenceness.PERMITTED);
         env.info.inSelect = inSelectPrev;
         if ((pkind & (PCK | TYP)) == 0)
             site = capture(site); // Capture field access
