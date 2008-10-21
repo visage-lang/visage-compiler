@@ -1669,13 +1669,20 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             super(diagPos, JavafxToJava.this);
             this.lhs = lhs;
             this.rhs = rhs;
-            this.rhsTranslated = convertNullability(diagPos, translate(rhs, lhs.type), rhs, lhs.type);
+            this.rhsTranslated = convertNullability(diagPos, translate(rhs, rhsType()), rhs, rhsType());
             this.sym = expressionSymbol(lhs);
         }
 
         abstract JCExpression defaultFullExpression(JCExpression lhsTranslated, JCExpression rhsTranslated);
 
         abstract JCExpression buildRHS(JCExpression rhsTranslated);
+
+        /**
+         * Override to change the translation type of the right-hand side
+         */
+        protected Type rhsType() {
+            return lhs.type;
+        }
 
         /**
          * Override to change result in the non-default case.
@@ -1775,19 +1782,33 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     public void visitAssignop(final JFXAssignOp tree) {
         result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
 
-            boolean useDurationOperations =
-                    //TODO: This seems wrong in that the call is with LHS as receiver
-                    (types.isSameType(lhs.type, syms.javafx_DurationType) ||
-                        types.isSameType(tree.rhs.type, syms.javafx_DurationType));
+            boolean useDurationOperations = types.isSameType(lhs.type, syms.javafx_DurationType);
 
             @Override
             JCExpression buildRHS(JCExpression rhsTranslated) {
-                final JCExpression lhsTranslated = translate(tree.lhs);
+                final JCExpression lhsTranslated = translate(lhs);
                 if (useDurationOperations) {
                     JCExpression method = m().Select(lhsTranslated, tree.operator);
                     return m().Apply(null, method, List.<JCExpression>of(rhsTranslated));
                 } else {
-                    return m().Binary(getBinaryOp(), lhsTranslated, rhsTranslated);
+                    JCExpression ret = m().Binary(getBinaryOp(), lhsTranslated, rhsTranslated);
+                    if (!types.isSameType(rhsType(), lhs.type)) {
+                        // Because the RHS is a different type than the LHS, a cast may be needed
+                        ret = m().TypeCast(lhs.type, ret);
+                    }
+                    return ret;
+                }
+            }
+
+            @Override
+            protected Type rhsType() {
+                switch (tree.getFXTag()) {
+                    case MUL_ASG:
+                    case DIV_ASG:
+                        // Allow for cases like 'k *= 0.5' where k is an Integer or Duration
+                        return rhs.type;
+                    default:
+                        return lhs.type;
                 }
             }
 
