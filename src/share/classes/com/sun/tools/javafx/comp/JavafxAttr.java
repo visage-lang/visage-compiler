@@ -2813,8 +2813,12 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         boolean isSeq = false;
         if (pt.tag != NONE && pt != syms.javafx_UnspecifiedType && !(isSeq = types.isSequence(pt)) && pSequenceness == Sequenceness.DISALLOWED) {
-            log.error(tree.pos(), MsgSym.MESSAGE_ARRAY_REQ_BUT_FOUND, pt); //TODO: msg
+
+            // Cannot use an empty sequence here
+            //
+            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_BAD_EMPTY_SEQUENCE, types.toJavaFXString(pt));
             result = syms.errType;
+            
         } else {
             Type owntype = pt.tag == NONE || pt.tag == UNKNOWN ? syms.botType :
                     isSeq ? pt : types.sequenceType(pt);

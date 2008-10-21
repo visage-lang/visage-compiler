@@ -408,7 +408,8 @@ public class JavafxCheck {
             if (pSequenceness != Sequenceness.DISALLOWED) {
                 found = types.isSequence(found) ? types.elementType(found) : types.elemtype(found);
             } else {
-                return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
+                log.error(pos, MsgSym.MESSAGE_JAVAFX_BAD_SEQUENCE, types.toJavaFXString(req));
+                return syms.errType;
             }
         }
 	if (types.isAssignable(found, req, convertWarner(pos, found, req))) {

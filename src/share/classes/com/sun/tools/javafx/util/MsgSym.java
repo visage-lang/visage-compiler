@@ -393,4 +393,6 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON_SCRIPT = "javafx.mod.not.allowed.on.script";
     public static final String MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON_INSTANCE = "javafx.mod.not.allowed.on.instance";
     public static final String MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON = "javafx.mod.not.allowed.on";
+    public static final String MESSAGE_JAVAFX_BAD_EMPTY_SEQUENCE = "javafx.bad.empty.sequence";
+    public static final String MESSAGE_JAVAFX_BAD_SEQUENCE = "javafx.bad.sequence";
 }
