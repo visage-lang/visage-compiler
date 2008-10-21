@@ -25,6 +25,7 @@
 
 package com.sun.tools.xslhtml;
 
+import com.sun.tools.xmldoclet.Util;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -107,8 +108,8 @@ public class XHTMLProcessingUtils {
      * @param xsltStream the XSLT to implement the transformation, as an input stream.
      * @throws java.lang.Exception
      */
-     public static void process(List<String> xmlInputs, InputStream xsltStream, File docsdir,
-            Map<String,String> parameters
+     public static void process(List<String> xmlInputs, InputStream xsltStream, 
+            String sourcePath, File docsdir, Map<String,String> parameters
             ) throws Exception {
         if (xmlInputs == null || xmlInputs.size() == 0)
             throw new IllegalArgumentException("no XML input file(s)");
@@ -221,6 +222,8 @@ public class XHTMLProcessingUtils {
         NodeList packages = (NodeList) xpath.evaluate("//package", unified, XPathConstants.NODESET); 
         p(INFO, MessageFormat.format(getString("creating.packages"), packages.getLength()));
 
+        // collect all package names in this array 
+        String[] pkgNames = new String[packages.getLength()];
         //for each package, generate the package itself and append to package list doc
         for (int i = 0; i < packages.getLength(); i++) {
             Element pkg = ((Element) packages.item(i));
@@ -233,6 +236,7 @@ public class XHTMLProcessingUtils {
             first_line.appendChild(packages_doc.createTextNode("first line comment"));
             package_elem.appendChild(first_line);
             processPackage(name, pkg, xpath, docsdir, trans, package_elem);
+            pkgNames[i] = name;
         }
         //}
 
@@ -244,6 +248,9 @@ public class XHTMLProcessingUtils {
         Transformer indexTrans = transFact.newTransformer(new StreamSource(XHTMLProcessingUtils.class.getResourceAsStream("resources/master-index.xsl")));
         indexTrans.setParameter("root-path", "./");
         indexTrans.transform(new DOMSource(unified), new StreamResult(new File(docsdir,"master-index.html")));
+        
+        // copy "doc-files" for all packages to output
+        Util.copyDocFiles(pkgNames, sourcePath, docsdir);
         p(INFO,getString("finished"));
     }
 
@@ -525,7 +532,7 @@ public class XHTMLProcessingUtils {
     public static void main(String[] args) throws Exception {
         List<String> inputs = new ArrayList<String>();
         inputs.add("javadoc.xml");
-        process(inputs, null, new File("fxdocs_test"), new HashMap<String, String>());
+        process(inputs, null, ".", new File("fxdocs_test"), new HashMap<String, String>());
     }
 
     private static class MainErrorListener implements ErrorListener {

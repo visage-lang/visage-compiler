@@ -62,6 +62,8 @@ public class XMLDoclet {
     // option values
     private static String outFileName = null;
     private static List<String> xmlFiles = new ArrayList<String>();
+    // paths from which we would load soure files and "doc-files" to copy
+    private static String sourcePath;
     private static File outDocsDir = new File("fxdocs");
     private static boolean includeAuthorTags = false;
     private static boolean includeDeprecatedTags = true;
@@ -106,10 +108,21 @@ public class XMLDoclet {
             if(processXSLT) {
                 FileInputStream xsltStream = xsltFileName != null ? 
                     new FileInputStream(xsltFileName) : null;
-                
-                XHTMLProcessingUtils.process(xmlFiles, xsltStream, outDocsDir, params);
+                XHTMLProcessingUtils.process(xmlFiles, xsltStream, sourcePath, outDocsDir, params);
+            } else {
+                /*
+                 * We are just generating XML files. But, we would still like to copy
+                 * "doc-files" subdirectories in location where we generate intermediate
+                 * XML files. In a subsequent run where XML files are specified as inputs
+                 * we can copy "doc-files" to right place along with output HTMLs.
+                 */
+                PackageDoc[] pkgs = doclet.packagesToProcess(root);
+                String[] pkgNames = new String[pkgs.length];
+                for (int index = 0; index < pkgs.length; index++) {
+                    pkgNames[index] = pkgs[index].name();
+                }
+                Util.copyDocFiles(pkgNames, sourcePath, new File(outFileName).getParentFile());
             }
-            
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -162,7 +175,9 @@ public class XMLDoclet {
         }
         List<String> otherInputs = new ArrayList<String>();
         for (String[] option : options) {
-            if (option[0].equals("-o"))
+            if (option[0].equals("-sourcepath")) {
+                sourcePath = option[1];
+            } else if (option[0].equals("-o"))
                 outFileName = option[1];
             else if (option[0].equals("-i"))
                 otherInputs.add(option[1]);
@@ -210,6 +225,21 @@ public class XMLDoclet {
         }
         xmlFiles.add(outFileName);
         xmlFiles.addAll(otherInputs);
+        if (sourcePath == null) {
+            Set<String> inputDirs = new HashSet<String>();
+            for (String in : otherInputs) {
+                inputDirs.add(new File(in).getParent());
+            }
+            StringBuilder buf = new StringBuilder();
+            for (String in : inputDirs) {
+                buf.append(in);
+                buf.append(File.pathSeparatorChar);
+            }
+            sourcePath = buf.toString();
+            if (sourcePath.length() == 0) {
+                sourcePath = ".";
+            }
+        }
         return true;
     }
 
