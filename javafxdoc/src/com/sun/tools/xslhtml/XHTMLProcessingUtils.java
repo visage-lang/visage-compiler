@@ -659,7 +659,7 @@ public class XHTMLProcessingUtils {
             drawObject = component;
             paintMethod = drawObject.getClass().getMethod("paint",Graphics.class);
         } catch (NoSuchMethodException ex) {
-            Method method = fxclass.getMethod("impl_getSGNode");
+            Method method = fxclass.getMethod("impl_getFXNode");
             drawObject = method.invoke(ret);
             Method getBounds = drawObject.getClass().getMethod("getBounds");
             bounds = (Rectangle2D) getBounds.invoke(drawObject);
