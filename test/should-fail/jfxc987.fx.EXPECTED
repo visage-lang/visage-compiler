@@ -1,6 +1,4 @@
-test/should-fail/jfxc987.fx:10: incompatible types
-found   : Object[]
-required: Object
+test/should-fail/jfxc987.fx:10: A sequence is not a valid expression for this operation, I am looking for an expression that yields 'Object'
 var seq:Object = [a,b];
                  ^
 1 error
