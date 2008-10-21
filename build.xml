@@ -275,7 +275,8 @@
         -->
     	<mkdir dir="${build.dir}/doc"/>
         <javadoc destdir="${dist.javadoc.dir}" failonerror="true" version="${javadoc.version}" private="${javadoc.private}" source="${javac.source}"
-                 packagenames="javafx.reflect" sourcepath="${src.classes.dir}">
+	    packagenames="javafx.animation,javafx.lang,javafx.reflect,javafx.util" 
+	    sourcepath="${src.classes.dir}">
             <doclet name="com.sun.tools.xmldoclet.XMLDoclet"
                     path="${dist.javafxrdoc.jar}">
                <param name="-o" value="${build.dir}/docs/javacode.xml"/>
