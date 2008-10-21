@@ -93,6 +93,16 @@ public class BlockExprResolve extends Resolve {
                 !Type.isErroneous(argtypes) &&
                 (typeargtypes==null || !Type.isErroneous(typeargtypes)))
                 if (!(memberEnter.resolvingImport && name.toString().endsWith(interfaceNameSuffix))) {
+
+                    // TODO: This causes a call to the javac error message processor which reports
+                    //       a static access error (when sym is ResolveError$StaticError) which makes
+                    //       little sense to Javafx programmers. We either need to intercept this error
+                    //       and report our own, or override the whole thing :-(. As the classes involved
+                    //       are hidden inner classes, thre is no way to detect the StaticError other than
+                    //       to getSimpleName() and look for the class name, which is a huge hack.
+                    //       Needs consultation...
+                    //       See JFXC-936
+                    //
                     ((ResolveError)sym).report(log, pos, site, name, argtypes, typeargtypes);
                 }
             do {
