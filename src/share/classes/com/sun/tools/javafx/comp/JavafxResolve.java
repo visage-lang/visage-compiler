@@ -960,6 +960,8 @@ public class JavafxResolve {
                 concrete.kind < ERR  && bestSoFar.kind < ERR &&
                 types.isSubSignature(concrete.type, bestSoFar.type))
                 bestSoFar = concrete;
+            if (name == names.init)
+                return bestSoFar;
         }
 
         // We failed to find the field in the single Java class supertype of the 
@@ -987,7 +989,7 @@ public class JavafxResolve {
             if (actuals != null && formals != null) {
                 if (actuals.size() == formals.size()) {
                     for (Type actual : actuals) {
-                        if (actual != formals.head) {
+                        if (! types.isSameType(actual, formals.head)) {
                             return false;
                         }
 
