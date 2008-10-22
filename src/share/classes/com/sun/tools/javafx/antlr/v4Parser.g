@@ -1720,8 +1720,7 @@ scope errorStack;
 			st2=syncBlock[resultType, stats] { resultType = $st2.value; }
 		)*
 	
-	  
-	  	{
+	  	{	
 	  		// If the result of the last element was erroneous, then
 			// make the result of the block be void, which means the
 			// result of the block will never be Erroneous, as the tree walkers
@@ -1731,15 +1730,18 @@ scope errorStack;
 				stats.append(resultType);
 				resultType = null;
 			}
-		  	$value = F.at(rPos).Block(0L, stats.toList(), resultType);
-	  		endPos($value);
-	  		
 	  		// Ensure that the result node is tracked in the endpos table
 	  		//
 	  		endPos(resultType);
 	  	}
 	  	
 	  RBRACE
+	  	
+	  	{
+	  		
+		  	$value = F.at(rPos).Block(0L, stats.toList(), resultType);
+	  		endPos($value);
+	  	}
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 
 // up to wherever we made sense of the input.

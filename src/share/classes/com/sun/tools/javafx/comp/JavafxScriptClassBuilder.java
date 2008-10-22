@@ -313,10 +313,21 @@ public class JavafxScriptClassBuilder {
         {
             // Create the internal run function, take as much as
             // possible from the user run function (if it exists)
+            //
+            // If there was no user supplied run function then we mark the
+            // funcitonas synthetic and make sense of the start and endpos
+            // for the node. If the user supplied a run function, then
+            // we use the information it gives us and neither flag it as
+            // synthetic nor change the node postions.
+            //
+            SynthType               sType                   = SynthType.SYNTHETIC;
+            JFXFunctionDefinition   internalRunFunction     = null;
+
             Name commandLineArgs = defaultRunArgName;
             if (userRunFunction != null) {
+
                 List<JFXVar> params = userRunFunction.operation.getParams();
-                
+
                 // Protect IDE plugin against partially typed run function
                 // returning null for the parameters, statements or body, by
                 // null checking for each of those elements.
@@ -333,9 +344,11 @@ public class JavafxScriptClassBuilder {
                     int sSize = 0;
                     List<JFXExpression> statements = body.getStmts();
 
-                    if (statements != null) sSize = statements.size();
+                    if (statements != null) {
+                        sSize = statements.size();
+                    }
                     if (sSize > 0 || body.getValue() != null) {
-                        
+
                         if (value != null) {
                             stats.append(value);
                         }
@@ -343,16 +356,26 @@ public class JavafxScriptClassBuilder {
                         if (sSize > 0) {
                             stats.appendList(body.getStmts());
                         }
-                    
+
                         if (body.getValue() != null) {
                             value = body.getValue();
                         }
                     }
                 }
+
+                // We are reusing the user's function, so fix the run function
+                // with respect to the supplied function
+                //
+                internalRunFunction = makeInternalRunFunction(module, commandLineArgs, userRunFunction, stats.toList(), value);
+
+            } else {
+
+                // We are making it up ourselves, flag it as synthetic and make up the
+                // source code positions.
+                //
+                internalRunFunction = makeInternalRunFunction(module, commandLineArgs, null, stats.toList(), value);
+
             }
-            JFXFunctionDefinition internalRunFunction = makeInternalRunFunction(module, commandLineArgs, stats.toList(), value);
-            internalRunFunction.setGenType(SynthType.SYNTHETIC);    // Signal that we created this in the compiler, not from source
-            setEndPos(module, internalRunFunction, module);         // Use modlue endPos for synthesied run function
             scriptClassDefs.prepend(internalRunFunction);
         }
 
@@ -379,8 +402,8 @@ public class JavafxScriptClassBuilder {
             moduleClass.setMembers(scriptClassDefs.appendList(moduleClass.getMembers()).toList());
         }
         
-        moduleClass.isModuleClass = true;
-        moduleClass.runMethod = userRunFunction;
+        moduleClass.isModuleClass   = true;
+        moduleClass.runMethod       = userRunFunction;
         topLevelDefs.append(moduleClass);
         
         module.defs = topLevelDefs.toList();
@@ -474,22 +497,85 @@ public class JavafxScriptClassBuilder {
         return fxmake.TypeClass(rettree, JFXType.Cardinality.SINGLETON);
     }
 
-    private JFXFunctionDefinition makeInternalRunFunction(JFXScript module, Name argName, List<JFXExpression> stats, JFXExpression value) {
+    /**
+     * Constructs the internal static run function when the user ahs explicitly supplied a
+     * declaration and body for that function.
+     *
+     * TODO: Review whether the caller even needs to copy the statements from the existing
+     *       body into stats, or can just use it. This change to code positions was done as
+     *       an emergency patch (JFXC-2291) for release 1.0 and I thought
+     *       it best to perform minimal surgery on the exsting mechanism - Jim Idle.
+     *
+     * @param module           The Script level node
+     * @param argName          The symbol table name of the args array
+     * @param userRunFunction  The user written run function (if there is one)
+     * @param value            The value of the function
+     * @return                 The run function we have constructed
+     */
+    private JFXFunctionDefinition makeInternalRunFunction(JFXScript module, Name argName, JFXFunctionDefinition userRunFunction, List<JFXExpression> stats, JFXExpression value) {
+
+        JFXBlock existingBody = null;
         JFXBlock body = fxmake.Block(module.getStartPosition(), stats, value);
+        int sPos = module.getStartPosition();
+
+        // First assume that this is synthetic
+        //
         setEndPos(module, body, module);
         body.setGenType(SynthType.SYNTHETIC);
-        JFXFunctionDefinition func = fxmake.at(module.getStartPosition()).FunctionDefinition(
+
+        // Now, override if it is not synthetic and there is a function body
+        //  - there will only not be a body if this is coming from the IDE and the
+        // script is in error at this point.
+        //
+        if  (userRunFunction != null) {
+
+            existingBody = userRunFunction.getBodyExpression();
+            body.setGenType(SynthType.COMPILED);
+
+            if  (existingBody != null) {
+
+                body.setPos(existingBody.getStartPosition());
+                setEndPos(module, body, existingBody);
+                sPos = userRunFunction.getStartPosition();
+
+            }
+        }
+
+        // Make the static run function
+        //
+        JFXFunctionDefinition func = fxmake.at(sPos).FunctionDefinition(
                 fxmake.Modifiers(PUBLIC | STATIC | SCRIPT_LEVEL_SYNTH_STATIC | SYNTHETIC),
                 defs.internalRunFunctionName,
                 makeRunFunctionType(),
                 makeRunFunctionArgs(argName),
                 body);
-        setEndPos(module, func, module);
-        func.setGenType(SynthType.SYNTHETIC);
+
+        // Construct the source code end position from either the existing
+        // function, or the module level.
+        //
+        if  (userRunFunction != null) {
+
+            setEndPos(module, func, userRunFunction);
+            func.operation.setPos(body.getStartPosition());
+            JFXVar param = func.getParams().head;
+            JFXVar existingParam = userRunFunction.getParams().head;
+
+            if  (existingParam != null) {
+
+                param.setPos(existingParam.getStartPosition());
+                setEndPos(module, param, existingParam);
+            }
+
+        } else {
+
+            setEndPos(module, func, module);
+            func.setGenType(SynthType.SYNTHETIC);
+        }
+
         setEndPos(module, func.operation, body);
         return func;
     }
-    
+
     private Name scriptName(JFXScript tree) {
         String fileObjName = null;
 
