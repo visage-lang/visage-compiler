@@ -165,3 +165,4 @@ myAnonRectRef.super (inherited also):
   class MyShape
   class java.lang.Object
 Main.getFunction("repeat"): function Main.repeat(Integer,java.lang.String):java.lang.String
+Bar.getFunctions(false): [function Bar.convert(JavaArray<java.lang.Object>):JavaArray<java.lang.Object>]

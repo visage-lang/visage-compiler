@@ -1,6 +1,7 @@
 /* Feature test #24-- reflection
  *
  * @test
+ * @compilefirst Bar.java
  * @compile MyShape.fx
  * @compile MyCanvasItem.fx
  * @compile MyRect.fx
@@ -168,3 +169,6 @@ for (cls in myAnonRectClass.getSuperClasses(true))
 
 var clsMain = context.findClass("Main");
 System.out.println("Main.getFunction(\"repeat\"): {clsMain.getFunction("repeat", context.getIntegerType(), context.getStringType())}");
+
+var clsBar = context.findClass("Bar");
+System.out.println("Bar.getFunctions(false): {clsBar.getFunctions(false)}");
