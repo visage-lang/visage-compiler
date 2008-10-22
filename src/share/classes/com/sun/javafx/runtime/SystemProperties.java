@@ -34,6 +34,7 @@ public class  SystemProperties {
     * Empty string in   the runtime platform equivalent field indicates thete is no equivalent property for given platform.
     */
     private static String[] sysprop_table = {
+        /*"javafx.*/"version",              "jfx_specific", 
         /*"javafx.*/"application.codebase", "jfx_specific",
     };
 
@@ -44,6 +45,7 @@ public class  SystemProperties {
      * Second column represents value of the property 
     */
     private static String[] jfxprop_table = {
+        /*"javafx.*/"version",              "1.0", // TODO: Make the property retieved from the build
         /*"javafx.*/"application.codebase", "",
     };
 
