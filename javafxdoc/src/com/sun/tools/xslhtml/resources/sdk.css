@@ -67,6 +67,9 @@ body {
     float: left;
 }
 
+#top-header #profile-switcher {
+    color : white;
+}
 
 
 
