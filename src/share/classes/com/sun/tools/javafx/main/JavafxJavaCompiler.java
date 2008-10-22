@@ -29,6 +29,7 @@ import com.sun.tools.javac.main.*;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.*;
+import com.sun.tools.javafx.util.JavafxBackendLog;
 import java.io.IOException;
 import javax.annotation.processing.Processor;
 import javax.tools.JavaFileObject;
@@ -44,6 +45,8 @@ public class JavafxJavaCompiler extends JavaCompiler {
     
     List<JCCompilationUnit> modules; // Current compilation
 
+    final JavafxBackendLog beLog;
+
     /** Get the JavaCompiler instance for this context. */
     public static JavafxJavaCompiler instance(Context context) {
         JavafxJavaCompiler instance = context.get(javafxJavaCompilerKey);
@@ -54,6 +57,8 @@ public class JavafxJavaCompiler extends JavaCompiler {
 
     protected JavafxJavaCompiler(Context context) {
         super(context);
+        Log log = Log.instance(context);
+        beLog = (log instanceof JavafxBackendLog)? (JavafxBackendLog)log : null;
     }
 
     @Override
@@ -72,6 +77,19 @@ public class JavafxJavaCompiler extends JavaCompiler {
         return names;
     }
     
+    public Env<AttrContext> attribute(Env<AttrContext> env) {
+        try {
+            if (beLog != null) {
+                beLog.env = env;
+            }
+            super.attribute(env);
+        } finally {
+            if (beLog != null) {
+                beLog.env = null;
+            }
+        }
+        return env;
+    }
     /**
      * Override of JavaCompiler.generate() to catch list of generated class files.
      * Do not call directly.

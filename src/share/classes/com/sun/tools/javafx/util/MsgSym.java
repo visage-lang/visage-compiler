@@ -24,7 +24,8 @@
 package com.sun.tools.javafx.util;
 
 public class MsgSym {
-    public static final String MESSAGE_JAVAFX_MSG_BUG = "javafx.msg.bug"; 
+    public static final String MESSAGE_JAVAFX_MSG_BUG = "javafx.msg.bug";
+    public static final String MESSAGE_JAVAFX_NOTE_INTERNAL_ERROR = "javafx.internal.error";
     public static final String MESSAGE_JAVAFX_OPT_ARG_NAME = "javafx.opt.arg.name"; 
     public static final String MESSAGE_JAVAFX_OPT_PLATFORM = "javafx.opt.platform"; 
 

@@ -342,6 +342,7 @@ public class Main {
         options = null;
         filenames = null;
         
+        com.sun.tools.javafx.util.JavafxBackendLog.preRegister(backEndContext, context);
         com.sun.tools.javafx.comp.JavafxFlow.preRegister(backEndContext);
         com.sun.tools.javafx.code.JavafxLint.preRegister(backEndContext);
         com.sun.tools.javafx.code.BlockExprSymtab.preRegister(backEndContext);
@@ -543,7 +544,7 @@ public class Main {
                        Context context,
                        List<JavaFileObject> fileObjects)
     {
-        registerServices(context, args);
+      registerServices(context, args);
         if (options == null)
             options = Options.instance(context); // creates a new one
 
@@ -649,7 +650,7 @@ public class Main {
         return EXIT_OK;
     }
     
-    /** Print a message reporting an internal error.
+    /** Print a message reporting an internal exception.
      */
     void bugMessage(Throwable ex) {
         Log.printLines(out, getJavafxLocalizedString(MsgSym.MESSAGE_JAVAFX_MSG_BUG,
