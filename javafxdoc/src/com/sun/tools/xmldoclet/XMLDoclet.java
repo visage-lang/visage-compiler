@@ -406,6 +406,10 @@ public class XMLDoclet {
         attrs.addAttribute("", "", "name", "CDATA", cls.name());
         attrs.addAttribute("", "", "qualifiedName", "CDATA", cls.qualifiedName());
         attrs.addAttribute("", "", "packageName", "CDATA", cls.containingPackage().name());
+        ClassDoc containingClass = cls.containingClass();
+        if (containingClass != null) {
+            attrs.addAttribute("", "", "outerClass", "CDATA", containingClass.qualifiedName());
+        }
         attrs.addAttribute("", "", "language", "CDATA", fxClass ? "javafx" : "java");
         attrs.addAttribute("", "", "classType","CDATA",classType);
         hd.startElement("", "", "class", attrs);
@@ -425,8 +429,6 @@ public class XMLDoclet {
         hd.endElement("", "", "interfaces");
         generateFullHierarchy(cls);
         if (!fxClass) {
-        for (ClassDoc inner : cls.innerClasses())
-            generateClass(inner);
         for (ConstructorDoc cons : cls.constructors())
             generateExecutableMember(cons, "constructor");
         }
