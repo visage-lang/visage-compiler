@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.sun.javafx.api.JavafxCompiler;
+import javax.tools.Tool;
+import javax.tools.JavaCompiler;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.CommandlineJava;
 import org.apache.tools.ant.types.Path;
@@ -17,7 +19,8 @@ import org.apache.tools.ant.types.Path;
  * @author Brian Goetz
  */
 public abstract class TestHelper {
-    private static final JavafxCompiler compiler = compilerLocator();
+    private static final JavafxCompiler javafxc = javafxcLocator();
+    private static final JavaCompiler javac = javacLocator();
 
     public static final String TEST_ROOT = "test";
     public static final String BUILD_ROOT = "build/test";
@@ -44,12 +47,41 @@ public abstract class TestHelper {
         args.add(dir);
         args.add("-cp");
         args.add(classpath);
-        for (String f : files)
+        Tool compiler = null;
+        for (String f : files) {
+            Tool ftool;
+            if (f.endsWith(".fx"))
+                ftool = javafxc;
+            else if (f.endsWith(".java"))
+                ftool = javac;
+            else
+                ftool = null;
+            if (compiler != null && ftool != null && ftool != compiler) {
+                throw new IllegalArgumentException("cannot compile both .java and .fx with same compiler");
+            }
+            compiler = ftool;
             args.add(f);
+        }
+        if (compiler == null)
+          compiler = javafxc;
         return compiler.run(null, out, err, args.toArray(new String[args.size()]));
     }
 
-    protected static JavafxCompiler compilerLocator() {
+    protected static JavafxCompiler javafxcLocator() {
+        Object tool = compilerLocator(JavafxCompiler.class);
+        if (tool == null)
+            throw new IllegalStateException("No JavaFX Script compiler found");
+        return (JavafxCompiler) tool;
+    }
+
+    protected static JavaCompiler javacLocator() {
+        Object tool = compilerLocator(JavaCompiler.class);
+        if (tool == null)
+            throw new IllegalStateException("No Java compiler found");
+        return (JavaCompiler) tool;
+    }
+
+    protected static Object compilerLocator(Class compilerClass) {
         Iterator<?> iterator;
         Class<?> loaderClass;
         String loadMethodName;
@@ -75,7 +107,7 @@ public abstract class TestHelper {
                     Class.class,
                     ClassLoader.class);
             ClassLoader cl = TestHelper.class.getClassLoader();
-            Object result = loadMethod.invoke(null, JavafxCompiler.class, cl);
+            Object result = loadMethod.invoke(null, compilerClass, cl);
 
             // For java.util.ServiceLoader, we have to call another
             // method to get the iterator.
@@ -91,9 +123,9 @@ public abstract class TestHelper {
         }
 
         if (!iterator.hasNext())
-            throw new IllegalStateException("No JavaFX Script compiler found");
+            return null;
 
-        return (JavafxCompiler) iterator.next();
+        return iterator.next();
     }
 
     protected static void dumpFile(InputStream file, String header, String testName) throws IOException {
