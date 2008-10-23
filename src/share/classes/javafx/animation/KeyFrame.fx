@@ -28,14 +28,14 @@ import java.lang.Object;
 import javafx.lang.Duration;
 
 /**
- * Defines a key timing and values that are interpolated along the {@code Timeline}.
+ * Defines a key timing and values that can be interpolated along the {@link Timeline}.
  *
  * <p>
  * The developer can control the timing and/or motion behavior
- * for a particular interval by providing target values and {@code Interpolator}
+ * for a particular interval by providing target values and {@link Interpolator}
  * associated to each value. The values are interpolated along the particular
- * interval and reach the target value at specified timing. Also, {@code action}
- * function will be invoked at the particular timing.
+ * interval and reach the target value at specified timing. Also, {@link #action}
+ * function is invoked at the particular timing if provided.
  *
  * @profile common
  * @see Timeline
@@ -45,9 +45,10 @@ public class KeyFrame extends Comparable {
     /**
      * Defines the reference elapsed time offset within a single cycle
      * of a Timeline at which the associated values will be set and at
-     * which the {@code action()} function will be called.
+     * which the {@link #action()} function will be called.
      * 
      * @profile common
+     * @defaultvalue 0s
      */
     public var time: Duration on replace {
 	if(owner != null) {
@@ -60,6 +61,7 @@ public class KeyFrame extends Comparable {
      * interpolate at the specified time of this {@code KeyFrame}.
      * 
      * @profile common
+     * @defaultvalue null
      */
     public var values: KeyValue[];
 
@@ -72,6 +74,7 @@ public class KeyFrame extends Comparable {
      * as the result.
      * 
      * @profile common
+     * @defaultvalue null
      */
     public var timelines: Timeline[];
 
@@ -83,20 +86,22 @@ public class KeyFrame extends Comparable {
      * time value exactly.
      * 
      * @profile common
+     * @defaultvalue null
      */
     public var action: function();
 
     /**
-     * Defines whether or not the {@code action()} function
+     * Defines whether or not the {@link #action()} function
      * can be skipped if the master timer gets behind and
      * more than one {@link Timeline} cycles are skipped
      * between time pulses.
-     * If {@code true}, only one call to the {@code action()}
+     * If {@code true}, only one call to the {@link #action()}
      * function will occur for each time pulse, regardless of
      * how many cycles have occured since the last time pulse
      * was processed.
      * 
      * @profile common
+     * @defaultvalue false
      */
     public var canSkip: Boolean = false;
 

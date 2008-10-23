@@ -41,6 +41,7 @@ public class KeyValue {
      * Target variable holds the key value.
      *
      * @profile common
+     * @defaultvalue null
      */      
     public var target: KeyValueTarget;
     
@@ -48,15 +49,17 @@ public class KeyValue {
      * Target value
      *
      * @profile common
+     * @defaultvalue null
      */      
     public var value: Object;
     
     /**
-     * {@code Interpolator} to be used for calculating the key value
-     * along the particular interval. By default, {@code Interpolator.LINEAR}
+     * {@link Interpolator} to be used for calculating the key value
+     * along the particular interval. By default, {@link Interpolator.LINEAR}
      * is used.
      *
      * @profile common
+     * @defaultvalue Interpolator.LINEAR
      */      
     public var interpolate: Interpolator = Interpolator.LINEAR;
 }

@@ -48,7 +48,7 @@ public def LINEAR:Interpolator =
         CoreInterpolator { i: Interpolators.getLinearInstance(); };
 
 /**
- * Built-in interpolator instance that provides ease in/out behavior, using
+ * Built-in interpolator instance that provides ease in/out behavior. It uses
  * default values of 0.2 and 0.2 for the acceleration and deceleration
  * factors, respectively.
  *
@@ -58,7 +58,7 @@ public def EASEBOTH:Interpolator =
         CoreInterpolator { i: Interpolators.getEasingInstance(); };
 
 /**
- * Built-in interpolator instance that provides ease in behavior using value of 0.2
+ * Built-in interpolator instance that provides ease in behavior. It uses value of 0.2
  * for the acceleration factor.
  *
  * @profile common
@@ -67,7 +67,7 @@ public def EASEIN:Interpolator =
         CoreInterpolator { i: Interpolators.getEasingInstance(new Float(0.2), new Float(0.0)); };
 
 /**
- * Built-in interpolator instance that provides ease out behavior using value of 0.2
+ * Built-in interpolator instance that provides ease out behavior. It uses value of 0.2
  * for the deceleration factor.
  *
  * @profile common
@@ -95,8 +95,8 @@ public function SPLINE(x1: Number, y1: Number, x2: Number, y2: Number):Interpola
 
 
 /**
- * The abstract class defines the single {@code interpolate()} method,
- * which is used to control the timing of an animation.  Various built-in
+ * The abstract class defines the single {@link #interpolate()} method,
+ * which is used to calculate interpolated values.  Various built-in
  * implementations of this class are offered. Applications may choose to implement 
  * their own Interpolator to get custom interpolation behavior.
  *

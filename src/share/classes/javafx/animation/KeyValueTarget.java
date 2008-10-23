@@ -24,7 +24,7 @@
 package javafx.animation;
 
 /**
- * Interface to KeyValue targets, which are variables a KeyValue
+ * Interface to KeyValue targets, which are variables of KeyValue
  * targets.
  * 
  * @author Tom Ball
@@ -36,6 +36,8 @@ public interface KeyValueTarget {
 
     /**
      * The types of KeyValue targets.
+     *  
+     * @profile common
      */
     public enum Type {
         INTEGER, DOUBLE, BOOLEAN, SEQUENCE, OBJECT
@@ -43,32 +45,55 @@ public interface KeyValueTarget {
 
     /**
      * Returns the value of this KeyValue target.
+     * @return  value of the variable
+     * 
+     * @profile common
      */
     Object get();
 
     /**
      * Returns the type of KeyValue target.
+     * 
+     * @return variable type
+     * 
+     * @profile common
      */
     Type getType();
 
     /**
      * Returns the value of this KeyValue target (equivalent to get()).
+     * 
+     * @return value of the variable
+     * 
+     * @profile common
      */
     Object getValue();
 
     /**
      * Sets the value of the variable the KeyValue targets.
+     * @param value new value of the target variable
+     * 
+     * @profile common
      */
     void set(Object value);
 
     /**
      * Sets the value of the variable the KeyValue targets (equivalent to set()).
+     * 
+     * @param o new value of the target variable
+     * 
+     * @profile common
      */
     void setValue(Object o);
 
     /**
      * If the target of the KeyValue is another KeyValueTarget, return that
      * target; otherwise, return this instance.
+     * 
+     * @return o another {@code KeyValueTarget} if it is wrapped inside the instance's {@code KeyValue}
+     *           otherwise, return this instance.
+     * 
+     * @profile common
      */
     KeyValueTarget unwrap();
 }

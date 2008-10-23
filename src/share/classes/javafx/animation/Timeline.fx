@@ -52,32 +52,63 @@ class CurrentKeyValue extends KeyValue {
 public def INDEFINITE = -1;
 
 /**
- * Represents an animation, defined by one or more {@code KeyFrame}s.
- * <p>
- * An animation is animated by associated properties, such as size, location
+ * An animation is driven by its associated properties, such as size, location
  * and color, etc. {@code Timeline} provides the capability to update
  * the property values along the progression of time.
+ * <p>
+ * A {@code Timeline}, defined by one or more {@link KeyFrame}s, processes 
+ * individual {@link KeyFrame} sequentially, in the order specified by
+ * {@code KeyFrame.time}. The animated properties, defined as key
+ * values in {@code KeyFrame.values}, are interpolated (when interpolation is enabled)
+ * to/from the targeted key values at the specified time of the {@link KeyFrame} to
+ * {@code Timeline}'s initial position, depends on {@code Timeline}'s direction.
+ * <p>
+ * {@code Timeline} processes individual {@code KeyFrame} at or after specified
+ * time interval elapsed, it does not guarantee the timing when {@code KeyFrame}
+ * is processed.
+ * <p>
+ * Call {@link #play()} or {@link #playFromStart()} to play a {@code Timeline}.
+ * The {@code Timeline} progresses in the direction and speed specified by
+ * {@link #rate}, and stops when its duration is elasped. {@code Timeline}
+ * with indefinite duration, defined as a {@code Timeline} has {@link #repeatCount}
+ * = {@link #INDEFINITE} or a {@code Timeline} contains such sub timeline, runs
+ * forever, until explicit {@link #stop()} is called, which will stop the running
+ * {@code Timeline} and reset its playhead to initial position.
+ * <p>
+ * {@code Timeline} can be paused by calling {@link #pause()}, and next {@link play()}
+ * call will resume the {@code Timeline} from where it was paused.
+ * <p> 
+ * {@code Timeline}'s playhead can be randomly positioned, no matter it is running or
+ * not. If the {@code Timeline} is running, the playhead jumps to the specified 
+ * position immediately and continues playing from new position. If the {@code Timeline}
+ * is not running, the next {@link #play()} will start the {@code Timeline} from the
+ * specified position.
+ * <p>
+ * Invert the value of {@link #rate} can invert {@code Timeline} play direction. Inverting
+ * a running {@code Timeline} causes it to reverse direction in play and play back
+ * over the portion it has elapsed.
  *
  * @profile common
+ * @see KeyFrame
+ *
  */
 
 public class Timeline {
 
     /**
-     * Defines the direction/speed at which the timeline is expected to
+     * Defines the direction/speed at which the {@code Timeline} is expected to
      * be played.
      * <p>
-     * The absolute value of {@code rate} indicates the speed which the timeline
-     * is to be played, while the sign of {@code rate} indicates the direction
-     * in which the timelineis to be played. A postive value of {@code rate}
-     * indicates forward play, a negative value indicates backward play and {@code 0.0}
-     * to stop a running timeline. 
+     * The absolute value of {@code rate} indicates the speed which the {@code Timeline}
+     * is to be played, while the sign of {@code rate} indicates the direction. 
+     * A postive value of {@code rate} indicates forward play, a negative value 
+     * indicates backward play and {@code 0.0} to stop a running timeline. 
      * <p>
      * Rate {@code 1.0} is normal play, {@code 2.0} is 2 time normal,
      * {@code -1.0} is backwards, etc...
      * 
      * <p>
-     * Inverting the rate of a running timeline will cause the {@code Timeline}
+     * Inverting the rate of a running {@code Timeline} will cause the {@code Timeline}
      * to reverse direction in place and play back over the portion of the 
      * {@code Timeline} that has alreay elapsed.
      *
@@ -112,22 +143,23 @@ public class Timeline {
     
     /**
      * Read-only variable to indicate current direction/speed at which the 
-     * timeline is being played.
+     * {@code Timeline} is being played.
      * <p>
-     * {@code currentRate} is not necessary equal to {@code rate}. {@code currentRate}
-     * is set to {@code 0.0} when animation is paused or stopped. Also {@code currentRate}
-     * may point to different direction during some repeat cycles when {@code autoReverse} is {@code true}
+     * {@code currentRate} is not necessary equal to {@code rate}. 
+     * {@code currentRate} is set to {@code 0.0} when animation is paused 
+     * or stopped. {@code currentRate} may also point to different direction 
+     * during reverse cycles when {@code autoReverse} is {@code true}
      *
-     * @see rate
      * @profile common
+     * @defaultvalue 0.0
      */
     public-read var currentRate: Number = 0.0;
    
     /**
-     * Defines timline's play head position.
+     * Defines {@code Timeline}'s play head position.
      * <p>
-     * If timeline is running, it jumps to the specified position immediately.
-     * If it is not running, the {@code time} indicates from where the timeline
+     * If {@code Timeline} is running, it jumps to the specified position immediately.
+     * If it is not running, the {@code time} indicates from where the {@code Timeline}
      * to start when next {@code play()} is called.
      * <p>
      * If user wants to bind the variable and update it simultaneously, bidirectional
@@ -142,7 +174,7 @@ public class Timeline {
      *  </code>
      *
      * <p> 
-     *  Changes {@code time} on sub timelines are ignored.
+     *  Changes {@code time} to sub timelines are ignored.
      * 
      * @profile common
      * @defaultvalue 0.0ms
@@ -150,13 +182,12 @@ public class Timeline {
      */
     public var time: Duration = 0.0ms;
     
-    /**
-     * Enable/disable interpolation. 
-     *
-     * @profile common
-     * @defaultvalue true
-     */
-
+   /**
+    * Enable/disable interpolation. 
+    *
+    * @profile common
+    * @defaultvalue true
+    */
     public var interpolate: Boolean = true;
         
 
@@ -164,9 +195,10 @@ public class Timeline {
      * Defines the number of cycles in this animation.
      * The {@code repeatCount} may be {@code INDEFINITE}
      * for animations that repeat indefinitely, but must otherwise be >= 0.
-     * The default value is 1.
      *
      * @profile common
+     * @defaultvalue 1.0
+     *
      */
     public var repeatCount: Number = 1 on replace = newVal {
         if (newVal < INDEFINITE) {
@@ -193,7 +225,8 @@ public class Timeline {
      * Defines the sequence of {@code KeyFrame}s in this animation.
      * If a {@code KeyFrame} is not provided for the {@code time==0s}
      * instant, one will be synthesized using the target values
-     * that are current at the time {@code start()} is called.
+     * that are current at the time {@link #play()} or {@link #playFromStart()} 
+     * is called.
      *
      * @profile common
      */
@@ -237,8 +270,8 @@ public class Timeline {
     public-read var paused: Boolean = false;
         
     /**
-     * {@code forward} indicates whether the timeline is moving
-     * forward or backward.
+     * {@code forward} indicates whether the timeline is on
+     * forward cycle.
      * <p>
      * This value is initially {@code true}, which indicates the timeline
      * is moving forward when animation is started by default.
@@ -289,7 +322,7 @@ public class Timeline {
     var invertOffsetT: Number = 0.0;
     
     /**
-     * {@code isReverse} is true, {@code Timeline} needs to be unwinded.
+     * {@code isReverse} is true, {@code Timeline} is unwinding.
      */
     var isReverse: Boolean = false;
     
@@ -327,18 +360,18 @@ public class Timeline {
 
 
     /**
-     * Plays timeline from current position in the direction indicated
+     * Plays {@code Timeline} from current position in the direction indicated
      * by {@code rate}. If the timeline is running, it has no effect.
      * <p>
-     * When {@code rate} > 0 (forward play), if a timeline is already
+     * When {@code rate} > 0 (forward play), if a {@code Timeline} is already
      * positioned at the end, the first cycle will not be played, it is 
      * considered to have already finished. This also applies to a
      * backward ({@code rate} < 0) cycle if a timeline is positioned at the 
-     * beginning. However, if the timeline has {@code repeatCount} > 1, 
+     * beginning. However, if the {@code Timeline} has {@code repeatCount} > 1, 
      * following cycle(s) will be played as usual.
      * <p>
      * When {@code Timeline} reaches the end, {@code Timeline} is stopped
-     * and playhead remains at the end position. 
+     * and playhead remains at the end. 
      * <p>
      * To play a {@code Timeline} backwards from the end:<br>
      * <code>
@@ -349,7 +382,7 @@ public class Timeline {
      * <p>
      * Note:
      *  <l>
-     *      <li>{@code play()} is an asynchronous call, timeline may not start
+     *      <li>{@code play()} is an asynchronous call, {@code Timeline} may not start
      *          immediately.
      *      <li>It has no effect on sub timelines.
      *  </l>
@@ -393,7 +426,7 @@ public class Timeline {
      * <p>
      * Note:
      *  <l>
-     *      <li>{@code playFromStart()} is an asynchronous call, timeline may not start
+     *      <li>{@code playFromStart()} is an asynchronous call, {@code Timeline} may not start
      *          immediately.
      *      <li>It has no effect on sub timelines.
      *  </l>
@@ -458,7 +491,7 @@ public class Timeline {
     }
 
     /**
-     * Stops the animation and resets timeline playhead to initial position.  
+     * Stops the animation and resets playhead to initial position.  
      * If the animation is not currently running, this method has no effect.
      * <p>
      * Note:
@@ -519,7 +552,6 @@ public class Timeline {
      * not currently running or not currently paused, this method has
      * no effect.
      *
-     * @profile common
      */
     function resume() {
         if(clip != null) {
@@ -645,8 +677,8 @@ public class Timeline {
      * handled by process_backward_indefinitely().
      */
     function process(totalElapsedArg:Number):Void {
-        // 1. calculate totalDur
-        // 2. modify totalElapsed depending on direction
+        // 1. calculate totalDur, takes speed and duration offset into account.
+        // 2. modify totalElapsed if play head has been moved
         // 3. clamp totalElapsed and set needsStop if necessary
         // 4. calculate curT and cycle based on totalElapsed
         // 5. decide whether to increment or decrement cycle/frame index, depending on direction
@@ -654,6 +686,7 @@ public class Timeline {
         // 7. do interpolation between active key frames
         // 8. visit subtimelines
         // 9. stop clip if needsStop
+        
         curElapsed = totalElapsedArg;
 
         var totalElapsed = totalElapsedArg;

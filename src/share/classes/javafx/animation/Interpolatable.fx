@@ -27,6 +27,8 @@ import java.lang.Object;
 
 /**
  * A value that can be interpolated.
+ * It defines single {@link #ofTheWay()} method, which returns interpolated 
+ * value of given fraction.
  *
  * @profile common
  */
