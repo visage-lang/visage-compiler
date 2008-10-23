@@ -117,7 +117,24 @@ public class JavafxTypes extends Types {
             }
         }
     }
-    
+
+    public List<Type> supertypes(Symbol clazz) {
+        return supertypes(clazz, null);
+    }
+
+    public List<Type> supertypes(Symbol clazz, Type includeOrNull) {
+        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
+        Set<Type> superSet = new HashSet<Type>();
+        if (includeOrNull != null) {
+            supertypes.append(includeOrNull);
+            superSet.add(includeOrNull);
+        }
+
+        getSupertypes(clazz, supertypes, superSet);
+
+        return supertypes.toList();
+    }
+
     public boolean isSuperType (Type maybeSuper, ClassSymbol sym) {
         ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
         Set superSet = new HashSet<Type>();

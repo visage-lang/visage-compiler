@@ -424,14 +424,7 @@ public class JavafxCheck {
        }
 
         // use the JavafxClassSymbol's supertypes to see if req is in the supertypes of found.
-        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-        Set<Type> superSet = new HashSet<Type>();
-        supertypes.append(found);
-        superSet.add(found);
-
-        types.getSupertypes(found.tsym, supertypes, superSet);
-
-        for (Type baseType : supertypes) {
+        for (Type baseType : types.supertypes(found.tsym, found)) {
             if (types.isAssignable(baseType, req, convertWarner(pos, found, req)))
                 return realFound;
         }
@@ -501,27 +494,14 @@ public class JavafxCheck {
         }
         // use the JavafxClassSymbol's supertypes to see if req is in the supertypes of found.
         else if (found.tsym != null && found.tsym instanceof JavafxClassSymbol) {
-            ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-            Set<Type> superSet = new HashSet<Type>();
-            supertypes.append(found);
-            superSet.add(found);
-
-            types.getSupertypes(found.tsym, supertypes, superSet);
-
-            for (Type baseType : supertypes) {
+            for (Type baseType : types.supertypes(found.tsym, found)) {
                 if (types.isCastable(baseType, req, castWarner(pos, found, req)))
                     return req;
             }
         }
 
         if (req.tsym != null && req.tsym instanceof JavafxClassSymbol) {
-            ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-            Set<Type> superSet = new HashSet<Type>();
-            supertypes.append(req);
-            superSet.add(req);
-
-            types.getSupertypes(req.tsym, supertypes, superSet);
-            for (Type baseType : supertypes) {
+            for (Type baseType : types.supertypes(req.tsym, req)) {
                 if (types.isCastable(baseType, found, castWarner(pos, found, req)))
                     return req;
             }
@@ -1541,7 +1521,7 @@ public class JavafxCheck {
      *  @param m            The overriding method.
      */
     void checkOverride(JFXTree tree, MethodSymbol m) {
-	ClassSymbol origin = (ClassSymbol)m.owner;
+        ClassSymbol origin = (ClassSymbol) m.owner;
         boolean doesOverride = false;
         if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name)) {
             if (m.overrides(syms.enumFinalFinalize, origin, types, false)) {
@@ -1549,11 +1529,7 @@ public class JavafxCheck {
                 return;
             }
         }
-        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-        Set<Type> superSet = new HashSet<Type>();
-        types.getSupertypes(origin, supertypes, superSet);
-
-        for (Type t : supertypes) {
+        for (Type t : types.supertypes(origin)) {
             if (t.tag == CLASS) {
                 TypeSymbol c = t.tsym;
                 Scope.Entry e = c.members().lookup(m.name);
@@ -1566,7 +1542,7 @@ public class JavafxCheck {
                     e = e.next();
                 }
             }
-	}
+        }
         boolean declaredOverride = (m.flags() & OVERRIDE) != 0;
         if (doesOverride) {
             if (!declaredOverride && (m.flags() & (Flags.SYNTHETIC|Flags.STATIC)) == 0) {
@@ -1879,23 +1855,27 @@ public class JavafxCheck {
      *	@param s	     The scope.
      */
     boolean checkUnique(DiagnosticPosition pos, Symbol sym, Scope s) {
-        if (sym.type != null && sym.type.isErroneous())
-	    return true;
-	if (sym.owner.name == names.any) return false;
-	for (Scope.Entry e = s.lookup(sym.name); e.scope == s; e = e.next()) {
+        if (sym.type != null && sym.type.isErroneous()) {
+            return true;
+        }
+        if (sym.owner.name == names.any) {
+            return false;
+        }
+        for (Scope.Entry e = s.lookup(sym.name); e.scope == s; e = e.next()) {
             sym.complete();
-	    if (sym != e.sym &&
-		sym.kind == e.sym.kind &&
-		sym.name != names.error &&
-                (sym.kind != MTH || types.overrideEquivalent(sym.type, e.sym.type))) {
-                    if ((sym.flags() & VARARGS) != (e.sym.flags() & VARARGS))
-		    varargsDuplicateError(pos, sym, e.sym);
-		else 
-		    duplicateError(pos, e.sym);
-		return false;
-	    }
-	}
-	return true;
+            if (sym != e.sym &&
+                    sym.kind == e.sym.kind &&
+                    sym.name != names.error &&
+                    (sym.kind != MTH || types.overrideEquivalent(sym.type, e.sym.type))) {
+                if ((sym.flags() & VARARGS) != (e.sym.flags() & VARARGS)) {
+                    varargsDuplicateError(pos, sym, e.sym);
+                } else {
+                    duplicateError(pos, e.sym);
+                }
+                return false;
+            }
+        }
+        return true;
     }
 
     /** Check that single-type import is not already imported or top-level defined,

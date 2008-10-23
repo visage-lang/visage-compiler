@@ -937,7 +937,7 @@ public class JavafxAttr implements JavafxVisitor {
         JFXOnReplace onReplace = tree.getOnReplace();
         if (onReplace != null) {
             JFXVar oldValue = onReplace.getOldValue();
-	    if (oldValue != null && oldValue.type == null) {
+            if (oldValue != null && oldValue.type == null) {
                     oldValue.type =  tree.type;
             }
 
@@ -2489,13 +2489,7 @@ public class JavafxAttr implements JavafxVisitor {
                     if (!types.isCastable(left, right, new Warner(tree.pos()))) {
                         boolean isError = true;
                         if (right.tsym != null && right.tsym instanceof JavafxClassSymbol) {
-                            ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-                            Set superSet = new HashSet<Type>();
-                            supertypes.append(right);
-                            superSet.add(right);
-
-                            types.getSupertypes(right.tsym, supertypes, superSet);
-                            for (Type baseType : supertypes) {
+                            for (Type baseType : types.supertypes(right.tsym, right)) {
                                 if (types.isCastable(left, baseType, new Warner(tree.pos()))){
                                     isError = false;
                                     break;
@@ -3619,30 +3613,29 @@ public class JavafxAttr implements JavafxVisitor {
     }
 
     private void fixOverride(JFXFunctionDefinition tree, MethodSymbol m) {
-	ClassSymbol origin = (ClassSymbol)m.owner;
-	if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name))
-	    if (m.overrides(syms.enumFinalFinalize, origin, types, false)) {
-		log.error(tree.pos(), MsgSym.MESSAGE_ENUM_NO_FINALIZE);
-		return;
-	    }
+        ClassSymbol origin = (ClassSymbol) m.owner;
+        if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name)) {
+            if (m.overrides(syms.enumFinalFinalize, origin, types, false)) {
+                log.error(tree.pos(), MsgSym.MESSAGE_ENUM_NO_FINALIZE);
+                return;
+            }
+        }
 
-        ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-        Set superSet = new HashSet<Type>();
-        types.getSupertypes(origin, supertypes, superSet);
-
-        for (Type t : supertypes) {
+        for (Type t : types.supertypes(origin)) {
             if (t.tag == CLASS) {
                 TypeSymbol c = t.tsym;
                 Scope.Entry e = c.members().lookup(m.name);
                 while (e.scope != null) {
                     e.sym.complete();
-                    if (m.overrides(e.sym, origin, types, false))
-                        if (fixOverride(tree, m, (MethodSymbol)e.sym, origin))
+                    if (m.overrides(e.sym, origin, types, false)) {
+                        if (fixOverride(tree, m, (MethodSymbol) e.sym, origin)) {
                             break;
+                        }
+                    }
                     e = e.next();
                 }
             }
-	}
+        }
     }
 
     public boolean fixOverride(JFXFunctionDefinition tree,

@@ -2116,16 +2116,8 @@ public class JavafxResolve {
                 //return sym.owner == clazz;
             };
             // 'package' access
-            ListBuffer<Type> supertypes = ListBuffer.<Type>lb();
-            Set superSet = new HashSet<Type>();
-            if (clazz.type != null) {
-                supertypes.append(clazz.type);
-                superSet.add(clazz.type);
-            }
-            types.getSupertypes(clazz, supertypes, superSet);
-
             boolean foundInherited = false;
-            for (Type supType : supertypes.toList()) {
+            for (Type supType : types.supertypes(clazz, clazz.type)) {
                 if (supType.tsym == sym.owner) {
                     foundInherited = true;
                     break;
