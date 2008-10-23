@@ -323,7 +323,6 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_FUNC_TYPE_INFER_CYCLE = "javafx.function.type.infer.cycle";
     public static final String MESSAGE_JAVAFX_VOID_SEQUENCE_NOT_ALLOWED = "javafx.void.sequence.not.allowed";
     public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_JAVA_CLASS_ALLOWED = "javafx.only.one.base.java.class.allowed"; 
-    public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEFAULT_INITIALIZER = "javafx.cannot.override.default.initializer"; 
     public static final String MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT = "javafx.not.allowed.in.bind.context";
     public static final String MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND = "javafx.expr.unsupported.for.bidi.bind";
     public static final String MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND = "javafx.wrong.type.for.bidi.bind";
@@ -349,6 +348,8 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_DEF_MUST_HAVE_INIT = "javafx.def.must.have.init";
     public static final String MESSAGE_JAVAFX_DECLARED_OVERRIDE_DOES_NOT = "javafx.function.declared.overrride.does.not.override";
     public static final String MESSAGE_JAVAFX_SHOULD_BE_DECLARED_OVERRIDE = "javafx.function.overrides.another.should.be.declared.override";
+    public static final String MESSAGE_JAVAFX_VAR_OVERRIDES_MEMBER = "javafx.var.overrides.member";
+    public static final String MESSAGE_JAVAFX_DEF_OVERRIDES_MEMBER = "javafx.def.overrides.member";
     public static final String MESSAGE_JAVAFX_STATIC_DEPRECATED = "javafx.static.deprecated";
     public static final String MESSAGE_JAVAFX_REDUNDANT_ACCESS_MODIFIERS = "javafx.redundant.access.modifiers";
     public static final String MESSAGE_JAVAFX_VAR_NOT_SUPPORTED_HERE = "javafx.var.not.supported.here";

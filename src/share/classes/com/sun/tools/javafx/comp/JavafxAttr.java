@@ -932,7 +932,12 @@ public class JavafxAttr implements JavafxVisitor {
             return;
         }
         sym.complete();
+        
         boolean isClassVar = env.info.scope.owner.kind == TYP;
+        if (isClassVar && (flags & STATIC) == 0L) {
+            // Check that instance variables don't override
+            chk.checkVarOverride(tree, (VarSymbol)sym);
+        }
         
         JFXOnReplace onReplace = tree.getOnReplace();
         if (onReplace != null) {

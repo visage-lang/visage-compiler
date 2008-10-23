@@ -67,6 +67,9 @@ public class JavafxTypeMorpher {
 
     private final Object[] defaultValueByKind;
 
+    private boolean elideInternal = true;
+    private boolean elideExternal = false;
+
     public class LocationNameSymType {
         public final Name name;
         public final ClassSymbol sym;
@@ -216,6 +219,25 @@ public class JavafxTypeMorpher {
         defaultValueByKind[TYPE_KIND_BOOLEAN] = 0;
         defaultValueByKind[TYPE_KIND_INT] = 0;
         defaultValueByKind[TYPE_KIND_SEQUENCE] = null; //TODO: empty sequence
+
+        try {
+            String elide = System.getenv("FXELIDE");
+            if (elide == null) {
+                // no-op
+            } else if (elide.equals("all")) {
+                elideInternal = true;
+                elideExternal = true;
+            } else if (elide.equals("internal")) {
+                elideInternal = true;
+                elideExternal = false;
+            } else if (elide.equals("none")) {
+                elideInternal = false;
+                elideExternal = false;
+            } else {
+                System.err.println("Bad FXELIDE option: " + elide);
+            }
+        } catch (Throwable ex) {
+        }
     }
 
     private boolean computeRequiresLocation(Symbol sym) {
@@ -291,16 +313,15 @@ public class JavafxTypeMorpher {
 
                 // (3b) check.  No assignments (except in init{}) and
                 // permissions such that this can't be done externally, or it is a 'def'.
-
-                //TODO: JFXC-2026 : Elide unassigned and externally unassignable member vars
-                //TODO: JFXC-2103 -- allow public-init
-                /******
+                //JFXC-2026 : Elide unassigned and externally unassignable member vars
+                //JFXC-2103 -- allow public-init
+                if (false) {
                     if ((flags & VARUSE_ASSIGNED_TO) == 0L &&
                             ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS)) == 0L ||
                             (flags & IS_DEF) != 0L)) {
                         return false;
                     }
-**********/
+                }
 
                 return true; 
             }

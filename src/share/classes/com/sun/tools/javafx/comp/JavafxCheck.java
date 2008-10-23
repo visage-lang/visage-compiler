@@ -1555,6 +1555,34 @@ public class JavafxCheck {
         }
     }
 
+    /** Check that vaar/def does not override (unless it is hidden by being script private)
+     */
+    void checkVarOverride(DiagnosticPosition diagPos, VarSymbol vsym) {
+        ClassSymbol origin = (ClassSymbol) vsym.owner;
+        for (Type t : types.supertypes(origin)) {
+            if (t.tag == CLASS) {
+                TypeSymbol c = t.tsym;
+                Scope.Entry e = c.members().lookup(vsym.name);
+                while (e.scope != null) {
+                    e.sym.complete();
+                    if ( e.sym.owner instanceof ClassSymbol &&
+                            ((e.sym.flags_field & JavafxFlags.SCRIPT_PRIVATE) == 0L ||
+                            origin.outermostClass() == ((ClassSymbol) e.sym.owner).outermostClass()))  {
+                        // We have a name clash, the variable name is the name of a member
+                        // which is visible outside the script or which is in the same script
+                        log.error(diagPos, (vsym.flags_field & JavafxFlags.IS_DEF) == 0L?
+                               MsgSym.MESSAGE_JAVAFX_VAR_OVERRIDES_MEMBER :
+                               MsgSym.MESSAGE_JAVAFX_DEF_OVERRIDES_MEMBER,
+                            e.sym,
+                            e.sym.owner);
+                        return;
+                    }
+                    e = e.next();
+                }
+            }
+        }
+    }
+
     /** Check that all abstract members of given class have definitions.
      *  @param pos          Position to be used for error reporting.
      *  @param c            The class.

@@ -13,14 +13,12 @@ import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javafx.util.MsgSym;
 
 import static com.sun.tools.javac.code.Flags.*;
 
@@ -39,7 +37,6 @@ class JavafxAnalyzeClass {
     private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
     private final Set<Symbol> addedBaseClasses = new HashSet<Symbol>();
     private final List<TranslatedVarInfo> translatedAttrInfo;
-    private final Log log;
     private final Name.Table names;
     private final JavafxTypes types;
     private final JavafxClassReader reader;
@@ -185,12 +182,10 @@ class JavafxAnalyzeClass {
             ClassSymbol currentClassSym,
             List<TranslatedVarInfo> translatedAttrInfo,
             List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo,
-            Log log,
             Name.Table names,
             JavafxTypes types,
             JavafxClassReader reader,
             JavafxTypeMorpher typeMorpher) {
-        this.log = log;
         this.names = names;
         this.types = types;
         this.reader = reader;
@@ -319,12 +314,9 @@ class JavafxAnalyzeClass {
     private void processAttribute(VarSymbol var, ClassSymbol cSym, boolean cloneVisible) {
         if (var.owner.kind == Kinds.TYP && (var.flags() & Flags.STATIC) == 0) {
             Name attrName = var.name;
-            if (visitedAttributes.containsKey(attrName)) {
-                log.error(MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEFAULT_INITIALIZER, attrName, cSym.name, visitedAttributes.get(attrName));
-            } else {
-                VarInfo ai = addAttribute(attrName, var, cloneVisible);
-                if ((var.flags() & PRIVATE) == 0)
-                    visitedAttributes.put(attrName, ai);
+            VarInfo ai = addAttribute(attrName, var, cloneVisible);
+            if ((var.flags() & PRIVATE) == 0) {
+                visitedAttributes.put(attrName, ai);
             }
         }
     }

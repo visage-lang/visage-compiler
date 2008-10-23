@@ -32,6 +32,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
@@ -39,7 +40,6 @@ import com.sun.tools.javafx.comp.JavafxAnalyzeClass.VarInfo;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedVarInfo;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideClassVarInfo;
 import com.sun.tools.javafx.tree.*;
-import static com.sun.tools.javac.code.Flags.PRIVATE;
 
 /**
  * Build the representation(s) of a JavaFX class.  Includes class initialization, attribute and function proxies.
@@ -158,7 +158,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         JavafxAnalyzeClass analysis = new JavafxAnalyzeClass(diagPos,
                 cDecl.sym, translatedAttrInfo, translatedOverrideAttrInfo,
-                log, names, types, reader, typeMorpher);
+                names, types, reader, typeMorpher);
         List<VarInfo> instanceAttributeInfos = analysis.instanceAttributeInfos();
         List<ClassSymbol> javaInterfaces = immediateJavaInterfaceNames(cDecl);
         List<ClassSymbol> immediateFxSupertypeNames = immediateJavafxSupertypes(cDecl);
@@ -563,29 +563,35 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return accessors.toList();
     }
         
-    private boolean isAttributeOriginClass(Symbol csym, Symbol attr) {
+    /**
+     * Look for overrides of the instance var, otherwise\
+     * @param currentScript Script containing the class we are building
+     * @param csym class we are currently looking in
+     * @param attr instance var for which we are looking
+     * @return if found in class or subclasses
+     */
+    private boolean isAttributeOriginClass(Symbol currentScript, Symbol csym, Symbol attr) {
         if (types.isJFXClass(csym)) {
             ClassSymbol supertypeSym = (ClassSymbol) csym;
             for (Entry e = supertypeSym.members().elems; e != null && e.sym != null; e = e.sibling) {
                 if (attr.owner == csym)
                     return true;
-                if ((attr.flags() & PRIVATE) != 0)
-                    return false;
-                if ((e.sym.kind == Kinds.VAR && e.sym.name == attr.name)) {
-                    // Needed to handle override.
+                if ( ((e.sym.flags() & JavafxFlags.SCRIPT_PRIVATE) == 0L || e.sym.outermostClass() == currentScript) &&
+                     ((e.sym.kind == Kinds.VAR && e.sym.name == attr.name)) ) {
+                    // Found a visible override
                     return true;
                 }
             }
             // not directly in this class, try in the superclass
             for (Type supertype : supertypeSym.getInterfaces()) {
-                if (isAttributeOriginClass(supertype.tsym, attr) ) {
+                if (isAttributeOriginClass(currentScript, supertype.tsym, attr) ) {
                     return true;
                 }
             }
         }
         return false;
     }
-        
+
     /**
      * Construct the applyDefaults method
      */
@@ -602,19 +608,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // a default exists, either on the direct attribute or on an override
                     stmts.append(ai.getDefaultInitStatement());
                 } else {
-                    // no default, look for the supertype which defines it, and defer to it
+                    // No default, look for the supertype which directly or indirectly
+                    // defines it, and defer to it
                     ClassSymbol attrParent = null;
-                    //Name getterName = attributeName(ai.getSymbol(), attributeGetMethodNamePrefix);
                     for (JFXExpression supertype : cDecl.getSupertypes()) {
                         Symbol sym = supertype.type.tsym;
-                        if (isAttributeOriginClass(sym, ai.getSymbol()) ) {
+                        if (isAttributeOriginClass(cDecl.sym.outermostClass(), sym, ai.getSymbol()) ) {
                             attrParent = (ClassSymbol) sym;
                             break;
                         }
                     }
                     assert attrParent != null : "Parent supertype for attribute " + ai.getNameString() + " not found";
                     if (attrParent != null) {
-                        stmts.append( makeSuperCall(diagPos, attrParent, methodName) );
+                        stmts.append(makeSuperCall(diagPos, attrParent, methodName));
                     }
                 }
                 JCBlock statBlock = make.at(diagPos).Block(0L, stmts.toList());
@@ -838,7 +844,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                 JCModifiers mods = make.Modifiers(modFlags);
                 if (sym.owner == csym) {
-                    List<JCAnnotation> annotations = List.<JCAnnotation>of(make.Annotation(makeIdentifier(diagPos, syms.sourceNameAnnotationClassNameString), List.<JCExpression>of(make.Literal(sym.name.toString()))));
+                    List<JCAnnotation> annotations = List.<JCAnnotation>of(make.Annotation(
+                            makeIdentifier(diagPos, JavafxSymtab.sourceNameAnnotationClassNameString),
+                            List.<JCExpression>of(make.Literal(sym.name.toString()))));
                     mods = addAccessAnnotationModifiers(diagPos, sym.flags(), mods, annotations);
                 } else {
                     mods = addInheritedAnnotationModifiers(diagPos, sym.flags(), mods);

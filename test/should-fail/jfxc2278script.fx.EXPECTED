@@ -1,0 +1,7 @@
+test\should-fail\jfxc2278script.fx:13: 'var' overrides member x in jfxc2278script.A; use 'override'.
+  var x;
+  ^
+test\should-fail\jfxc2278script.fx:14: 'def' overrides member y() in jfxc2278script.A.
+  def y = 6;
+  ^
+2 errors
