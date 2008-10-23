@@ -106,22 +106,23 @@ public class FX {
 
     /**
      * Exits the Script and causes any Shutdown Actions to be called
-     * This may cause the Runtime to exit as @code{System.exit()} 
+     * This may cause the Runtime to exit as {@code System.exit()} 
      * depending on the underlying implementation.
      * </p><p> 
      * Any Shutdown Actions that were previously added using the 
-     * @code{addShutdownAction()} function will be exectued at this time
+     * {@code addShutdownAction()} function will be exectued at this time
      * in LIFO ordering.
      * </p><p>
-     * A second call to @code{FX.exit()} once @code{FX.exit()} has 
-     * started will result a @code{IllegalStateException} to be thrown,
-     * this can occur if a @code{Timeline} calls @code{FX.exit()} while
+     * A second call to {@code FX.exit()} once {@code FX.exit()} has 
+     * started will result a {@code IllegalStateException} to be thrown,
+     * this can occur if a {@code Timeline} calls {@code FX.exit()} while
      * FX.exit is started.
-     * If a call to @code{FX.exit()} occurs in a Shutdown Action, that
+     * If a call to {@code FX.exit()} occurs in a Shutdown Action, that
      * action's function will simply exit without completing the rest of
      * its operation and the next Shutdown Action, if any, will run.
-     * 
-     * This function will not normally return to the calling Script
+     * </p><p>
+     * This function will not normally return to the calling Script.
+     * </p>
      *
      * @profile common
      */
@@ -156,16 +157,16 @@ public class FX {
     }
 
     /**
-     * Adds an action to the queue to be executed at FX.exit() time
+     * Adds an action to the queue to be executed at {@code FX.exit()} time
      * This action will be added to the queue as a push stack, meaning that
      * they will be excuted in FILO ordering. Duplicate actions are
      * not allowed and will cause the orignal Handle to be returned with
      * no reordering.
      * 
-     * @param  action of type function():Void  that will be executed
-     * at FX.exit() time. Only one copy of an action can be in the queue,
-     * an attempt to add the same action a second time will return the 
-     * previous Handle without any reodering.
+     * @param  action of type {@code function():Void} that will be executed
+     * at {@code FX.exit()} time. Only one copy of an action can be in 
+     * the queue, an attempt to add the same action a second time will
+     * return the previous Handle without any reodering.
      * @return Handle used to remove the action if needed.
      *
      * @profile common
@@ -181,8 +182,8 @@ public class FX {
     /**
      * Removes the action from the queue specified by the actionType parameter. 
      *
-     * @param  action of type function():Void that will be removed from
-     * the Shutdown Action Stack
+     * @param  action of type {@code function():Void} that will be removed
+     * from the Shutdown Action Stack
      * @return a Boolean value signifing sucess or failure of removing
      * the action
      *
@@ -200,6 +201,9 @@ public class FX {
      * {@code deferAction} generally means putting it on the event queue
      * for later processing.
      *
+     * @param  action of type {@code function():Void} that will be executed
+     * later based on the implementation.
+     * 
      * @profile common
      */
     public static void deferAction(Function0<Void> action) {
