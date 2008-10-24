@@ -23,6 +23,7 @@
 
 package com.sun.tools.xslhtml;
 
+import com.sun.tools.javafx.script.JavaFXScriptEngineFactory;
 import com.sun.tools.xmldoclet.Util;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -52,7 +53,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
+import javax.script.ScriptEngineFactory;
 import javax.script.ScriptException;
 import javax.swing.JComponent;
 import javax.xml.parsers.DocumentBuilder;
@@ -635,8 +636,8 @@ public class XHTMLProcessingUtils {
     
     @SuppressWarnings("unchecked")
     private static void renderScriptToImage(File imgFile, String script) throws ScriptException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, ClassNotFoundException {
-        ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine scrEng = manager.getEngineByExtension("javafx");
+        ScriptEngineFactory factory = new JavaFXScriptEngineFactory();
+        ScriptEngine scrEng = factory.getScriptEngine();
         PrintWriter pw = new PrintWriter(System.err);
         scrEng.getContext().setErrorWriter(pw);
         //p(INFO, getString("processing.example") + '\n' + script);
