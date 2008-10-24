@@ -648,7 +648,10 @@ public class Timeline {
                     // get current value and attach it to zero frame
                     var kv = KeyValue {
                         target: keyValue.target;
-                        value: keyValue.target.get();
+                        value: if (zeroFrame == sortedFrames[0])
+                                    keyValue.value
+                                    else keyValue.target.get();
+
                     }
                         
                     insert kv into initialKeyValues;
