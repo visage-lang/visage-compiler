@@ -2,7 +2,6 @@
  * Regression test: returning assignment
  *
  * @test
- * @run
  */
 
 import java.awt.Dimension;

@@ -1,7 +1,6 @@
 /* JFXC-211: jfxc211b test -- Cannot locate var declared in a super class with Mulitple Inheritence
  *
  * @test
- * @run
  */
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;

@@ -31,4 +31,6 @@ public class Four extends Three {
     } 
 } 
 
-var x = Four{} 
+function run() {
+    var x = Four{} 
+}

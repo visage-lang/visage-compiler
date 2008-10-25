@@ -1,7 +1,6 @@
 /**
  * regression test: If statement with void then and else part are attributed correctly.
  * @test
- * @run
  */
 import java.awt.font.TextLayout; 
 import java.lang.Object;

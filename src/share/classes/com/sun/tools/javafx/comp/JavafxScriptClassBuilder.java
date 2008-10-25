@@ -237,7 +237,7 @@ public class JavafxScriptClassBuilder {
         // Divide module defs between internsl run function body, Java compilation unit, and module class
         ListBuffer<JFXTree> topLevelDefs = new ListBuffer<JFXTree>();
         JFXClassDeclaration moduleClass = null;
-        boolean looseExpressionErrorShown = false;
+        boolean looseExpressionsSeen = false;
         for (JFXTree tree : scriptTops) {
             
             // Protect against errneous script trees being attributed by
@@ -300,10 +300,10 @@ public class JavafxScriptClassBuilder {
                 }
                 default: {
                     // loose expressions, if allowed, get added to the statements/value
-                    if (isLibrary && !looseExpressionErrorShown) {
+                    if (isLibrary && !looseExpressionsSeen) {
                         log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_LOOSE_EXPRESSIONS);
-                        looseExpressionErrorShown = true;
                     }
+                    looseExpressionsSeen = true;
                     value = (JFXExpression) tree;
                     break;
                 }
@@ -362,21 +362,15 @@ public class JavafxScriptClassBuilder {
                         }
                     }
                 }
-
-                // We are reusing the user's function, so fix the run function
-                // with respect to the supplied function
-                //
-                internalRunFunction = makeInternalRunFunction(module, commandLineArgs, userRunFunction, stats.toList(), value);
-
-            } else {
-
-                // We are making it up ourselves, flag it as synthetic and make up the
-                // source code positions.
-                //
-                internalRunFunction = makeInternalRunFunction(module, commandLineArgs, null, stats.toList(), value);
-
             }
-            scriptClassDefs.prepend(internalRunFunction);
+            // If there is a user supplied run function, use content and position from it.
+            // Otherwise, unless this is a pure library, create a run function from the loose expressions, 
+            // with no position.
+            if (userRunFunction != null || !isLibrary || looseExpressionsSeen) {
+                internalRunFunction = makeInternalRunFunction(module, commandLineArgs, userRunFunction, stats.toList(), value);
+                scriptClassDefs.prepend(internalRunFunction);
+                module.isRunnable = true;
+            }
         }
 
         if (moduleClass == null) {

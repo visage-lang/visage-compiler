@@ -2,7 +2,6 @@
  * Regression test: jfxc159
  *
  * @test
- * @run
  */
 
 public class Foo { 

@@ -2116,8 +2116,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     JCMethodDecl makeMainMethod(DiagnosticPosition diagPos, Name className) {
         List<JCStatement> mainStats;
-        if (false && attrEnv.toplevel.isLibrary) {
-            //TODO: decide if we want this, and under what conditions
+        if (!attrEnv.toplevel.isRunnable) {
             List<JCExpression> newClassArgs = List.<JCExpression>of(make.at(diagPos).Literal(TypeTags.CLASS, className.toString()));
             mainStats = List.<JCStatement>of(make.at(diagPos).Throw(make.at(diagPos).NewClass(null, null, makeIdentifier(diagPos, noMainExceptionString), newClassArgs, null)));
         } else {

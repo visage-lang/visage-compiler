@@ -9,5 +9,8 @@ public class Foo {
     }
 }
 
-var x = Foo{bar: false}
-var y = Foo{bar: true}
+function run() {
+    var x = Foo{bar: false}
+    var y = Foo{bar: true}
+}
+

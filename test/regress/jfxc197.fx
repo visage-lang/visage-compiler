@@ -1,6 +1,5 @@
 /* JFXC-197:  Make sure onChanges list of JFXVar is visited in base JavafxTreeScanner visitor.
  * @test
- * @run
  */
 public class ConfirmDialog {
     public var visible: Boolean = false on replace {

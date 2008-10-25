@@ -2,7 +2,6 @@
  * Regression test: JFXC-222: Invoke superclass methods with super.foo()
  *
  * @test
- * @run
  */
 import javax.swing.JButton; 
 

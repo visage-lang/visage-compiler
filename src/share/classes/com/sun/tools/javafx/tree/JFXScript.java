@@ -62,6 +62,7 @@ public class JFXScript extends JFXTree implements UnitTree {
     public Scope starImportScope;
     public long flags;
     public boolean isLibrary = false;
+    public boolean isRunnable = false;
     public Position.LineMap lineMap = null;
     public Map<JCTree, String> docComments = null;
     public Map<JCTree, Integer> endPositions = null;

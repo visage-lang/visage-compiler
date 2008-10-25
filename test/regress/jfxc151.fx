@@ -15,6 +15,8 @@ public class T {
   } 
 } 
 
-var t = T { 
-  x: 100 
-}; 
+function run() {
+  var t = T { 
+    x: 100 
+  }; 
+}

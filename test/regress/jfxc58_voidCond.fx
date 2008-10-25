@@ -2,7 +2,6 @@
  * Regression test: assertion failure: void conditionals & block expressions
  *
  * @test
- * @run
  */
 
 import java.lang.System;

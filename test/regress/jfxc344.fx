@@ -2,7 +2,6 @@
  * Regression test: assign op, e.g., +=
  *
  * @test
- * @run
  */
 
 public class jfxc344 { 

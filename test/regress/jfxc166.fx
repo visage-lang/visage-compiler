@@ -1,7 +1,6 @@
 /**
  * regression test:  unary operators don't destroy the type of a variable.
  * @test
- * @run
  */
 
 import java.awt.event.ActionEvent; 

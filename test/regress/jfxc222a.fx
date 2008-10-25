@@ -1,6 +1,5 @@
 /* JFXC-222:  support for extending a single Java class from a JFX class
  * @test
- * @run
  */
 import javax.swing.JButton; 
 
