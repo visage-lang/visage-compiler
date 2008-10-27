@@ -444,7 +444,6 @@ public class JavafxScriptClassBuilder {
             boolean usesFile, boolean usesDir) {
         ListBuffer<JFXTree> pseudoDefs = ListBuffer.<JFXTree>lb();
         if (usesFile || usesDir) {
-            // java.net.URL __FILE__ = Util.get__FILE__(moduleClass);
             JFXExpression moduleClassFQN = module.pid != null ?
                 fxmake.at(diagPos).Select(module.pid, moduleClassName) : fxmake.at(diagPos).Ident(moduleClassName);
             JFXExpression getFile = fxmake.at(diagPos).Identifier("com.sun.javafx.runtime.PseudoVariables.get__FILE__");
@@ -454,18 +453,17 @@ public class JavafxScriptClassBuilder {
             args = List.<JFXExpression>of(loaderCall);
             JFXExpression getFileURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getFile, args);
             JFXExpression fileVar =
-                fxmake.at(diagPos).Var(pseudoFile, getURLType(diagPos),
+                fxmake.at(diagPos).Var(pseudoFile, getPseudoVarType(diagPos),
                          fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC),
                          getFileURL, JavafxBindStatus.UNBOUND, null);
             pseudoDefs.append(fileVar);
 
-            // java.net.URL __DIR__;
             if (usesDir) {
                 JFXExpression getDir = fxmake.at(diagPos).Identifier("com.sun.javafx.runtime.PseudoVariables.get__DIR__");
                 args = List.<JFXExpression>of(fxmake.at(diagPos).Ident(pseudoFile));
                 JFXExpression getDirURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getDir, args);
                 pseudoDefs.append(
-                    fxmake.at(diagPos).Var(pseudoDir, getURLType(diagPos),
+                    fxmake.at(diagPos).Var(pseudoDir, getPseudoVarType(diagPos),
                              fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC),
                              getDirURL, JavafxBindStatus.UNBOUND, null));
             }
@@ -473,9 +471,9 @@ public class JavafxScriptClassBuilder {
         return pseudoDefs.toList();
     }
     
-    private JFXType getURLType(DiagnosticPosition diagPos) {
-        JFXExpression urlFQN = fxmake.at(diagPos).Identifier("java.net.URL");
-        return fxmake.at(diagPos).TypeClass(urlFQN, TypeTree.Cardinality.SINGLETON);
+    private JFXType getPseudoVarType(DiagnosticPosition diagPos) {
+        JFXExpression fqn = fxmake.at(diagPos).Identifier("java.lang.String");
+        return fxmake.at(diagPos).TypeClass(fqn, TypeTree.Cardinality.SINGLETON);
     }
 
     private List<JFXVar> makeRunFunctionArgs(Name argName) {

@@ -6,8 +6,8 @@
 import java.lang.System;
 import java.net.URL;
 
-var dirURL = __DIR__.toString();
-var fileURL = __FILE__.toString();
-var ok = dirURL.endsWith("/test/regress/") and
-         fileURL.endsWith("/test/regress/jfxc694.class");
+var dir = __DIR__;
+var file = __FILE__;
+var ok = dir.endsWith("/test/regress/") and
+         file.endsWith("/test/regress/jfxc694.class");
 System.out.println(if (ok) "PASS!" else "FAIL!");

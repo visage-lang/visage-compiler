@@ -36,12 +36,12 @@ public class PseudoVariables {
      * Returns the __FILE__ pseudo-variable for a module.
      *
      * @param moduleClass the fully-qualified name of the module class
-     * @return the resource URL to the module's class
+     * @return the resource URL to the module's class as a String
      */
-    public static URL get__FILE__(Class<?> moduleClass) {
+    public static String get__FILE__(Class<?> moduleClass) {
         try {
             String resource = moduleClass.getName().replace(".", "/") + ".class";
-            return moduleClass.getClassLoader().getResource(resource);
+            return moduleClass.getClassLoader().getResource(resource).toString();
         } catch (Throwable t) {
             return null;
         }
@@ -49,12 +49,12 @@ public class PseudoVariables {
 
     /**
      * Returns the __DIR__ pseudo-variable for a module.
-     * @param __FILE__ the module's __FILE__ pseudo-variable
-     * @return the module's __DIR__ URL
+     * @param __FILE__ the module's __FILE__ pseudo-variable as a String
+     * @return the module's __DIR__ URL as a String
      */
-    public static URL get__DIR__(URL __FILE__) {
+    public static String get__DIR__(String __FILE__) {
         try {
-            return __FILE__ == null ? null : new URL(__FILE__, ".");
+            return __FILE__ == null ? null : new URL(new URL(__FILE__), ".").toString();
         } catch (MalformedURLException ex) {
             return null;
         }

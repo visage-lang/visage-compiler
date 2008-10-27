@@ -8,7 +8,7 @@
 import java.lang.NullPointerException;
 import java.net.URL;
 
-var readurl = new java.net.URL(__DIR__, "../components/images/foo.png");
+var readurl = new URL(new URL(__DIR__), "../components/images/foo.png");
 if (readurl == null) {
     throw new NullPointerException("URL not created");
 }
