@@ -31,6 +31,7 @@ import java.security.PrivilegedAction;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Queue;
+import java.util.Properties;
 import java.lang.Thread;
 
 import com.sun.javafx.functions.Function0;
@@ -54,7 +55,9 @@ public class Entry {
 
     public static void start(Class<?> app, String[] commandLineArgs) throws Throwable {
         if (commandLineArgs != null) {
-            Entry.commandLineArgs = (String[]) commandLineArgs.clone();
+            setNamedArgumentProvider(NamedArgumentProviderDefault.getInstance(commandLineArgs));
+            if (namedArgProvider == null)
+                Entry.commandLineArgs = (String[]) commandLineArgs.clone();
         }
 
         final Method main = app.getMethod(entryMethodName(), Sequence.class);
@@ -297,4 +300,36 @@ public class Entry {
             }
         }
     }
+
+    private static class NamedArgumentProviderDefault implements NamedArgumentProvider {
+
+        private static final char DELIMITER = '=';
+
+        private Properties namedArguments;	
+
+        private NamedArgumentProviderDefault(Properties namedArguments) {
+            this.namedArguments= namedArguments;
+	}
+
+        /**
+         * Returns the given named argument, or null if the given argument
+         * is not present. This usually returns a String, but some
+         * environments may return some other kinds of values.
+         */
+        public Object get(String name) {
+            return namedArguments.getProperty(name);
+        }
+
+        static NamedArgumentProvider getInstance(String [] commandline) {
+            Properties namedArguments= new Properties();
+            for(String arg : commandline) {
+                int index = arg.indexOf(DELIMITER);
+                if (index<=0)
+                    return null;
+                namedArguments.setProperty(arg.substring(0, index), arg.substring(index+1));
+            }	
+            return new NamedArgumentProviderDefault(namedArguments);
+        }
+    }
+
 }
