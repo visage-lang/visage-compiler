@@ -24,6 +24,7 @@
 package com.sun.javafx.runtime;
 
 import java.util.Hashtable;
+import java.lang.reflect.Method;
 
 public class  SystemProperties {
    /**
@@ -45,17 +46,31 @@ public class  SystemProperties {
      * Second column represents value of the property 
     */
     private static String[] jfxprop_table = {
-        /*"javafx.*/"version",              "1.0", // TODO: Make the property retieved from the build
         /*"javafx.*/"application.codebase", "",
     };
 
     private static Hashtable sysprop_list = new Hashtable();  
     private static Hashtable jfxprop_list = new Hashtable();
 
+    private static final String versionRBName = "com.sun.javafx.runtime.version";
+    
 
     static {
         addProperties (sysprop_table, false);
         addProperties (jfxprop_table, true);
+    
+        /* read in the version info from version.properties and set it */
+        /* TODO: Should not be using reflection since the later is not supported on mobile */
+   	try {
+            Class c = Class.forName("java.util.ResourceBundle");
+            Method m = c.getMethod("getBundle", String.class);
+            Object o = m.invoke(null, versionRBName);
+            m = c.getMethod("getString", String.class);
+            String s = (String)m.invoke(o, "release");
+            jfxprop_list.put("version", s);
+        } catch (Exception e) {
+            jfxprop_list.put("version", "unknown");
+        }
     }
 
 
