@@ -734,28 +734,27 @@ public class Timeline {
             updateFrameIndex(totalElapsed);
         }
 
-        if(totalDur >= 0) {
-            // needs to adjust offset if timeline is reversed.
-            if(not invertOffsetValid) {
-                invertOffsetT = if(isReverse) totalElapsed + lastElapsed else totalElapsed - lastElapsed;
-                invertOffsetValid = true;
-            }
-            
-            totalElapsed = if(isReverse) invertOffsetT - totalElapsed else totalElapsed - invertOffsetT;
-            
-            if(isReverse) {
-                if(totalElapsed <= 0) {
-                    totalElapsed = 0;
-                    needsStop = true;
-                }
-            } else {
-                if(totalElapsed >= totalDur) {
-                    totalElapsed = totalDur;
-                    needsStop = true;
-                }
-            }
-            lastElapsed = totalElapsed;
+        // needs to adjust offset if timeline is reversed.
+        if(not invertOffsetValid) {
+            invertOffsetT = if(isReverse) totalElapsed + lastElapsed else totalElapsed - lastElapsed;
+            invertOffsetValid = true;
         }
+            
+        totalElapsed = if(isReverse) invertOffsetT - totalElapsed else totalElapsed - invertOffsetT;
+            
+        if(isReverse) {
+            if(totalElapsed <= 0) {
+                totalElapsed = 0;
+                needsStop = true;
+            }
+        } else {
+            if(totalElapsed >= totalDur and totalDur >= 0) {
+                totalElapsed = totalDur;
+                    needsStop = true;
+            }
+        }
+            
+        lastElapsed = totalElapsed;
         
         if (duration < 0) {
             // indefinite duration (e.g. will occur when a sub-timeline
