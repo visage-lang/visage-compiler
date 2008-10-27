@@ -75,18 +75,72 @@ public class FX {
     /**
      * Retrieve System Property.
      * System Properties in JavaFX environment can be classified into 3 types:
+     * <p>
      * 1. Runtime platform associated property. 
      *    Those properties have an equivalent in current java runtime 
      *    environment (SE/ME). The FX.getProperty() method retrieves
      *    those properties by mapping specified key with runtime platform key. 
-     * </p>
+     * </p><p>
      * 2. JavaFX specific property. 
      *    Those properties are specific to JavaFX environment therefore
      *    value of the properties is specified in the JavaFX tree.
-     * </p>
+     * </p><p>
      * 3. The property has no association with current runtime platform 
      *    nor is JavaFX specific, therefore those properties are not 
      *    supported and null is returned.
+     * </p>
+     *
+     * </p><p>
+     * This set of system properties always includes values for the following keys: <p>
+     * 
+     * <table summary="Shows property keys and associated values">
+     * <tr><td>Key</td>
+     *     <td>Description of Associated Value</td>
+     * <tr><td><code>javafx.version</code></td>
+     *     <td>JavaFX  release version - javafx specific property</td></tr>
+     * <tr><td><code>javafx.application.codebase</code></td>
+     *     <td>Application codebase - javafx specific property</td></tr>  
+     * <tr><td><code>javafx.screen.width</code></td>
+     *     <td>Screen width (pixels) - javafx specific property</td></tr>  
+     * <tr><td><code>javafx.screen.height</code></td>
+     *     <td>Screen height (pixels) - javafx specific property</td></tr>  
+     * <tr><td><code>javafx.java.version</code></td>
+     *     <td>Java Runtime Environment version</td></tr>
+     * <tr><td><code>javafx.java.vendor</code></td>
+     *     <td>Java Runtime Environment vendor</td></tr
+     * <tr><td><code>javafx.java.vendor.url</code></td>
+     *     <td>Java vendor URL</td></tr>
+     * <tr><td><code>javafx.java.io.tmpdir</code></td>
+     *     <td>Default temp file path</td></tr>
+     * <tr><td><code>javafx.java.ext.dirs</code></td>
+     *     <td>Path of extension directory or directories</td></tr>
+     * <tr><td><code>javafx.os.name</code></td>
+     *     <td>Operating system name</td></tr>
+     * <tr><td><code>javafx.os.arch</code></td>
+     *     <td>Operating system architecture</td></tr>
+     * <tr><td><code>javafx.os.version</code></td>
+     *     <td>Operating system version</td></tr>
+     * <tr><td><code>javafx.file.separator</code></td>
+     *     <td>File separator</td></tr>
+     * <tr><td><code>javafx.path.separator</code></td>
+     *     <td>Path separator</td></tr>
+     * <tr><td><code>javafx.line.separator</code></td>
+     *     <td>Line separator</td></tr>
+     * <tr><td><code>javafx.user.home</code></td>
+     *     <td>User's home directory</td></tr>
+     * <tr><td><code>javafx.user.dir</code></td>
+     *     <td>User's current working directory</td></tr>
+     * <tr><td><code>javafx.timezone</code></td>
+     *     <td>User's timezone</td></tr>
+     * <tr><td><code>javafx.language</code></td>
+     *     <td>User's language</td></tr>
+     * <tr><td><code>javafx.region</code></td>
+     *     <td>User's region</td></tr>    
+     * <tr><td><code>javafx.encoding</code></td>
+     *     <td>User's encoding</td></tr>     
+     * </table>
+     * <p>
+     *
      * @param key Environment Property to be inquired
      * @return The string value of the property
      * @throws SecurityException if a security manager exists and its checkPropertyAccess method doesn't allow access to the specified system property. 
