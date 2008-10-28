@@ -22,7 +22,7 @@ public class LinkableTest extends JavaFXTestCase {
 
     private int sum(Holder h) {
         final int[] sum = new int[1];
-        AbstractLinkable.iterate(h.nodes, new Linkable.IterationClosure<Node>() {
+        Linkables.iterate(h.nodes, new Linkable.IterationClosure<Node>() {
             public void action(Node element) {
                 sum[0] += element.value;
             }
@@ -32,8 +32,8 @@ public class LinkableTest extends JavaFXTestCase {
 
     private void assertEquals(Holder h, Integer... values) {
         final SequenceLocation<Integer> a = SequenceVariable.make(Integer.class);
-        assertEquals(values.length, AbstractLinkable.size(h.nodes));
-        AbstractLinkable.iterate(h.nodes, new Linkable.IterationClosure<Node>() {
+        assertEquals(values.length, Linkables.size(h.nodes));
+        Linkables.iterate(h.nodes, new Linkable.IterationClosure<Node>() {
             public void action(Node element) {
                 a.insert(element.value);
             }
@@ -46,12 +46,12 @@ public class LinkableTest extends JavaFXTestCase {
         Node node = new Node(1);
         Node equalNode = new Node(1);
 
-        assertEquals(0, AbstractLinkable.size(h.nodes));
-        assertTrue(AbstractLinkable.isUnused(node));
+        assertEquals(0, Linkables.size(h.nodes));
+        assertTrue(Linkables.isUnused(node));
 
         final SequenceLocation<Integer> a = SequenceVariable.make(Integer.class);
 
-        AbstractLinkable.iterate(head, h, new Linkable.MutativeIterationClosure<Node, Holder>() {
+        Linkables.iterate(head, h, new Linkable.MutativeIterationClosure<Node, Holder>() {
             public boolean action(Node element) {
                 a.insert(element.value);
                 return true;
@@ -59,23 +59,23 @@ public class LinkableTest extends JavaFXTestCase {
         });
         assertEquals(a);
 
-        AbstractLinkable.iterate(h.nodes, new Linkable.IterationClosure<Node>() {
+        Linkables.iterate(h.nodes, new Linkable.IterationClosure<Node>() {
             public void action(Node element) {
                 a.insert(element.value);
             }
         });
         assertEquals(a);
 
-        AbstractLinkable.remove(head, h, node);
+        Linkables.remove(head, h, node);
 
-        AbstractLinkable.addAtEnd(head, h, node);
-        assertEquals(1, AbstractLinkable.size(h.nodes));
-        assertTrue(!AbstractLinkable.isUnused(node));
+        Linkables.addAtEnd(head, h, node);
+        assertEquals(1, Linkables.size(h.nodes));
+        assertTrue(!Linkables.isUnused(node));
         assertEquals(node, h.nodes);
         assertTrue(node.next == null);
         assertTrue(node.host == h);
 
-        AbstractLinkable.iterate(head, h, new Linkable.MutativeIterationClosure<Node, Holder>() {
+        Linkables.iterate(head, h, new Linkable.MutativeIterationClosure<Node, Holder>() {
             public boolean action(Node element) {
                 a.insert(element.value);
                 return true;
@@ -83,16 +83,16 @@ public class LinkableTest extends JavaFXTestCase {
         });
         assertEquals(a, 1);
 
-        AbstractLinkable.iterate(h.nodes, new Linkable.IterationClosure<Node>() {
+        Linkables.iterate(h.nodes, new Linkable.IterationClosure<Node>() {
             public void action(Node element) {
                 a.insert(element.value);
             }
         });
         assertEquals(a, 1, 1);
 
-        AbstractLinkable.remove(head, h, equalNode);
+        Linkables.remove(head, h, equalNode);
         assertEquals(h, new Integer[] { 1 });
-        AbstractLinkable.remove(head, h, node);
+        Linkables.remove(head, h, node);
         assertEquals(h);
     }
 
@@ -104,54 +104,54 @@ public class LinkableTest extends JavaFXTestCase {
         Node node4 = new Node(4);
 
         assertEquals(h);
-        AbstractLinkable.addAtEnd(head, h, node1);
+        Linkables.addAtEnd(head, h, node1);
         assertEquals(h, new Integer[] { 1 });
-        AbstractLinkable.addAtEnd(head, h, node2);
+        Linkables.addAtEnd(head, h, node2);
         assertEquals(h, 1, 2);
-        AbstractLinkable.addAtEnd(head, h, node3);
+        Linkables.addAtEnd(head, h, node3);
         assertEquals(h, 1, 2, 3);
-        AbstractLinkable.addAtEnd(head, h, node4);
+        Linkables.addAtEnd(head, h, node4);
         assertEquals(h, 1, 2, 3, 4);
 
-        AbstractLinkable.remove(head, h, node3);
+        Linkables.remove(head, h, node3);
         assertEquals(h, 1, 2, 4);
-        AbstractLinkable.remove(head, h, node3);
+        Linkables.remove(head, h, node3);
         assertEquals(h, 1, 2, 4);
-        AbstractLinkable.remove(head, h, node1);
+        Linkables.remove(head, h, node1);
         assertEquals(h, 2, 4);
-        AbstractLinkable.remove(head, h, node4);
+        Linkables.remove(head, h, node4);
         assertEquals(h, new Integer[] { 2 });
-        AbstractLinkable.remove(head, h, node2);
+        Linkables.remove(head, h, node2);
         assertEquals(h);
 
-        AbstractLinkable.addAtEnd(head, h, node1);
-        AbstractLinkable.addAtEnd(head, h, node2);
-        AbstractLinkable.addAtEnd(head, h, node3);
-        AbstractLinkable.addAtEnd(head, h, node4);
+        Linkables.addAtEnd(head, h, node1);
+        Linkables.addAtEnd(head, h, node2);
+        Linkables.addAtEnd(head, h, node3);
+        Linkables.addAtEnd(head, h, node4);
         assertEquals(h, 1, 2, 3, 4);
 
-        AbstractLinkable.remove(head, h, node4);
+        Linkables.remove(head, h, node4);
         assertEquals(h, 1, 2, 3);
-        AbstractLinkable.remove(head, h, node3);
+        Linkables.remove(head, h, node3);
         assertEquals(h, 1, 2);
-        AbstractLinkable.remove(head, h, node2);
+        Linkables.remove(head, h, node2);
         assertEquals(h, new Integer[] { 1 });
-        AbstractLinkable.remove(head, h, node1);
+        Linkables.remove(head, h, node1);
         assertEquals(h);
 
-        AbstractLinkable.addAtEnd(head, h, node1);
-        AbstractLinkable.addAtEnd(head, h, node2);
-        AbstractLinkable.addAtEnd(head, h, node3);
-        AbstractLinkable.addAtEnd(head, h, node4);
+        Linkables.addAtEnd(head, h, node1);
+        Linkables.addAtEnd(head, h, node2);
+        Linkables.addAtEnd(head, h, node3);
+        Linkables.addAtEnd(head, h, node4);
         assertEquals(h, 1, 2, 3, 4);
 
-        AbstractLinkable.remove(head, h, node1);
+        Linkables.remove(head, h, node1);
         assertEquals(h, 2, 3, 4);
-        AbstractLinkable.remove(head, h, node2);
+        Linkables.remove(head, h, node2);
         assertEquals(h, 3, 4);
-        AbstractLinkable.remove(head, h, node3);
+        Linkables.remove(head, h, node3);
         assertEquals(h, new Integer[] { 4 });
-        AbstractLinkable.remove(head, h, node4);
+        Linkables.remove(head, h, node4);
         assertEquals(h);
     }
 
@@ -163,20 +163,20 @@ public class LinkableTest extends JavaFXTestCase {
             Node node3 = new Node(3);
             Node node4 = new Node(4);
 
-            AbstractLinkable.addAtEnd(head, h, node1);
-            AbstractLinkable.addAtEnd(head, h, node2);
-            AbstractLinkable.addAtEnd(head, h, node3);
-            AbstractLinkable.addAtEnd(head, h, node4);
+            Linkables.addAtEnd(head, h, node1);
+            Linkables.addAtEnd(head, h, node2);
+            Linkables.addAtEnd(head, h, node3);
+            Linkables.addAtEnd(head, h, node4);
             assertEquals(h, 1, 2, 3, 4);
-            assertEquals(4, AbstractLinkable.size(h.nodes));
+            assertEquals(4, Linkables.size(h.nodes));
             assertEquals(10, sum(h));
             final int iCopy = i;
-            AbstractLinkable.iterate(head, h, new Linkable.MutativeIterationClosure<Node, Holder>() {
+            Linkables.iterate(head, h, new Linkable.MutativeIterationClosure<Node, Holder>() {
                 public boolean action(Node element) {
                     return element.value != iCopy+1;
                 }
             });
-            assertEquals(3, AbstractLinkable.size(h.nodes));
+            assertEquals(3, Linkables.size(h.nodes));
             assertEquals(10-(i+1), sum(h));
         }
 
@@ -186,12 +186,12 @@ public class LinkableTest extends JavaFXTestCase {
         Node node3 = new Node(3);
         Node node4 = new Node(4);
 
-        AbstractLinkable.addAtEnd(head, h, node1);
-        AbstractLinkable.addAtEnd(head, h, node2);
-        AbstractLinkable.addAtEnd(head, h, node3);
-        AbstractLinkable.addAtEnd(head, h, node4);
+        Linkables.addAtEnd(head, h, node1);
+        Linkables.addAtEnd(head, h, node2);
+        Linkables.addAtEnd(head, h, node3);
+        Linkables.addAtEnd(head, h, node4);
         assertEquals(h, 1, 2, 3, 4);
-        AbstractLinkable.iterate(head, h, new Linkable.MutativeIterationClosure<Node, Holder>() {
+        Linkables.iterate(head, h, new Linkable.MutativeIterationClosure<Node, Holder>() {
             public boolean action(Node element) {
                 return element.value <= 2;
             }
@@ -203,12 +203,12 @@ public class LinkableTest extends JavaFXTestCase {
         node2 = new Node(2);
         node3 = new Node(3);
         node4 = new Node(4);
-        AbstractLinkable.addAtEnd(head, h, node1);
-        AbstractLinkable.addAtEnd(head, h, node2);
-        AbstractLinkable.addAtEnd(head, h, node3);
-        AbstractLinkable.addAtEnd(head, h, node4);
+        Linkables.addAtEnd(head, h, node1);
+        Linkables.addAtEnd(head, h, node2);
+        Linkables.addAtEnd(head, h, node3);
+        Linkables.addAtEnd(head, h, node4);
         assertEquals(h, 1, 2, 3, 4);
-        AbstractLinkable.iterate(head, h, new Linkable.MutativeIterationClosure<Node, Holder>() {
+        Linkables.iterate(head, h, new Linkable.MutativeIterationClosure<Node, Holder>() {
             public boolean action(Node element) {
                 return element.value > 2;
             }
@@ -220,12 +220,12 @@ public class LinkableTest extends JavaFXTestCase {
         node2 = new Node(2);
         node3 = new Node(3);
         node4 = new Node(4);
-        AbstractLinkable.addAtEnd(head, h, node1);
-        AbstractLinkable.addAtEnd(head, h, node2);
-        AbstractLinkable.addAtEnd(head, h, node3);
-        AbstractLinkable.addAtEnd(head, h, node4);
+        Linkables.addAtEnd(head, h, node1);
+        Linkables.addAtEnd(head, h, node2);
+        Linkables.addAtEnd(head, h, node3);
+        Linkables.addAtEnd(head, h, node4);
         assertEquals(h, 1, 2, 3, 4);
-        AbstractLinkable.iterate(head, h, new Linkable.MutativeIterationClosure<Node, Holder>() {
+        Linkables.iterate(head, h, new Linkable.MutativeIterationClosure<Node, Holder>() {
             public boolean action(Node element) {
                 return element.value % 2 == 1;
             }
@@ -237,12 +237,12 @@ public class LinkableTest extends JavaFXTestCase {
         node2 = new Node(2);
         node3 = new Node(3);
         node4 = new Node(4);
-        AbstractLinkable.addAtEnd(head, h, node1);
-        AbstractLinkable.addAtEnd(head, h, node2);
-        AbstractLinkable.addAtEnd(head, h, node3);
-        AbstractLinkable.addAtEnd(head, h, node4);
+        Linkables.addAtEnd(head, h, node1);
+        Linkables.addAtEnd(head, h, node2);
+        Linkables.addAtEnd(head, h, node3);
+        Linkables.addAtEnd(head, h, node4);
         assertEquals(h, 1, 2, 3, 4);
-        AbstractLinkable.iterate(head, h, new Linkable.MutativeIterationClosure<Node, Holder>() {
+        Linkables.iterate(head, h, new Linkable.MutativeIterationClosure<Node, Holder>() {
             public boolean action(Node element) {
                 return element.value % 2 == 0;
             }
@@ -255,7 +255,7 @@ class Holder {
     Node nodes;
 }
 
-class Node extends AbstractLinkable<Node, Holder> {
+class Node implements Linkable<Node, Holder> {
     Node next;
     Holder host;
     int value;

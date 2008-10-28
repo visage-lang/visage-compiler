@@ -27,7 +27,7 @@ import java.util.Iterator;
 
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
-import com.sun.javafx.runtime.util.AbstractLinkable;
+import com.sun.javafx.runtime.util.Linkables;
 import com.sun.javafx.runtime.util.Linkable;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequenceMutator;
@@ -212,7 +212,7 @@ public class SequenceVariable<T>
         if (invalidateDependencies)
             invalidateDependencies();
         if (replaceListeners != null)
-            AbstractLinkable.iterate(replaceListeners, new Linkable.IterationClosure<SequenceChangeListener<T>>() {
+            Linkables.iterate(replaceListeners, new Linkable.IterationClosure<SequenceChangeListener<T>>() {
                 public void action(SequenceChangeListener<T> listener) {
                     try {
                         listener.onChange(startPos, endPos, newElements, oldValue, newValue);

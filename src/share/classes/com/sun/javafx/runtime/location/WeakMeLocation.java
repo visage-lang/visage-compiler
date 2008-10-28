@@ -36,6 +36,10 @@ class WeakMeLocation extends WeakLocation {
         super(referent);
     }
 
+    public int getDependencyKind() {
+        return AbstractLocation.DEPENDENCY_KIND_WEAK_ME_LOCATION;
+    }
+
     public WeakMeLocation getNextWeakMe() {
         return nextWeakMe;
     }

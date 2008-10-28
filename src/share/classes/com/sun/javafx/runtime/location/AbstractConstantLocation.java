@@ -23,6 +23,8 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.util.Linkable;
+
 /**
  * AbstractConstantLocation
  *
@@ -69,9 +71,7 @@ public abstract class AbstractConstantLocation<T> implements ObjectLocation<T> {
 
     public void addDependentLocation(WeakLocation location) { }
 
-    public ChangeListener getListeners() {
-        return null;
-    }
+    public void iterateChangeListeners(Linkable.IterationClosure<ChangeListener> closure) { }
 
     public void addDependency(Location... location) { }
 

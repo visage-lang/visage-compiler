@@ -24,7 +24,7 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.BindingException;
-import com.sun.javafx.runtime.util.AbstractLinkable;
+import com.sun.javafx.runtime.util.Linkables;
 import com.sun.javafx.runtime.util.Linkable;
 
 /**
@@ -187,12 +187,12 @@ public abstract class AbstractVariable<
     }
 
     public void addChangeListener(T_LISTENER listener) {
-        assert(AbstractLinkable.isUnused(listener));
-        AbstractLinkable.addAtEnd(LISTENER_LIST, this, listener);
+        assert(Linkables.isUnused(listener));
+        Linkables.addAtEnd(LISTENER_LIST, this, listener);
     }
 
     public void removeChangeListener(T_LISTENER listener) {
-        AbstractLinkable.remove(LISTENER_LIST, this, listener);
+        Linkables.remove(LISTENER_LIST, this, listener);
     }
 
     public boolean hasDependencies() {

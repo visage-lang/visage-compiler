@@ -23,14 +23,14 @@
 
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.util.AbstractLinkable;
+import com.sun.javafx.runtime.util.Linkable;
 
 /**
  * IntChangeListener
  *
  * @author Brian Goetz
  */
-public abstract class IntChangeListener extends AbstractLinkable<IntChangeListener, AbstractVariable> {
+public abstract class IntChangeListener implements Linkable<IntChangeListener, AbstractVariable> {
     private IntChangeListener next;
     private AbstractVariable host;
 

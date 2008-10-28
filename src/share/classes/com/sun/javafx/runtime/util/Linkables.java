@@ -28,13 +28,13 @@ package com.sun.javafx.runtime.util;
  *
  * @author Brian Goetz
  */
-public abstract class AbstractLinkable<T, H> implements Linkable<T, H> {
+public abstract class Linkables {
 
     public static<T, H> boolean isUnused(Linkable<T, H> element) {
         return element.getHost() == null && element.getNext() == null;
     }
 
-    public static<T extends Linkable<T, H>, H> void addAtEnd(HeadAccessor<T, H> ha, H host, T element) {
+    public static<T extends Linkable<T, H>, H> void addAtEnd(Linkable.HeadAccessor<T, H> ha, H host, T element) {
         T head = ha.getHead(host);
         assert (element.getNext() == null);
         assert (element.getHost() == null);
@@ -50,7 +50,7 @@ public abstract class AbstractLinkable<T, H> implements Linkable<T, H> {
         }
     }
 
-    public static<T extends Linkable<T, H>, H> void remove(HeadAccessor<T, H> ha, H host, T element) {
+    public static<T extends Linkable<T, H>, H> void remove(Linkable.HeadAccessor<T, H> ha, H host, T element) {
         T head = ha.getHead(host);
         if (head == element)
             ha.setHead(host, element.getNext());
@@ -73,12 +73,12 @@ public abstract class AbstractLinkable<T, H> implements Linkable<T, H> {
         return size;
     }
 
-    public static<T extends Linkable<T, ?>> void iterate(T head, IterationClosure<T> closure) {
+    public static<T extends Linkable<T, ?>> void iterate(T head, Linkable.IterationClosure<T> closure) {
         for (T cur = head; cur != null; cur = cur.getNext())
             closure.action(cur);
     }
 
-    public static<T extends Linkable<T, H>, H> void iterate(HeadAccessor<T, H> ha, H host, MutativeIterationClosure<T, H> closure) {
+    public static<T extends Linkable<T, H>, H> void iterate(Linkable.HeadAccessor<T, H> ha, H host, Linkable.MutativeIterationClosure<T, H> closure) {
         T cur = ha.getHead(host);
         while (cur != null && !closure.action(cur)) {
             T next = cur.getNext();

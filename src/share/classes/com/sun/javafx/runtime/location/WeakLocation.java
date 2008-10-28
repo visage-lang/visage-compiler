@@ -23,20 +23,16 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
-/*[*/
 import java.lang.ref.ReferenceQueue;
-/*]*/
-
-import com.sun.javafx.runtime.util.Linkable;
+import java.lang.ref.WeakReference;
 
 /**
  * WeakLink
  *
  * @author Brian Goetz
  */
-class WeakLocation extends WeakReference<Location> implements Linkable<WeakLocation, AbstractLocation> {
+class WeakLocation extends WeakReference<Location> implements LocationDependency<WeakLocation> {
     /*[*/ static ReferenceQueue<Location> refQ = new ReferenceQueue<Location>(); /*]*/
     WeakLocation next;
     AbstractLocation host;
@@ -59,6 +55,10 @@ class WeakLocation extends WeakReference<Location> implements Linkable<WeakLocat
 
     public void setHost(AbstractLocation host) {
         this.host = host;
+    }
+
+    public int getDependencyKind() {
+        return AbstractLocation.DEPENDENCY_KIND_WEAK_LOCATION;
     }
 
     static void purgeDeadLocations(AbstractLocation fallback) {
