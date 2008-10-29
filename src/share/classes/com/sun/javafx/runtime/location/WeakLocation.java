@@ -23,63 +23,11 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
-
 /**
  * WeakLink
  *
  * @author Brian Goetz
  */
-class WeakLocation extends WeakReference<Location> implements LocationDependency {
-    /*[*/ static ReferenceQueue<Location> refQ = new ReferenceQueue<Location>(); /*]*/
-    LocationDependency next;
-    AbstractLocation host;
-
-    WeakLocation(Location referent) {
-        super(referent /*[*/ , refQ /*]*/ );
-    }
-
-    public LocationDependency getNext() {
-        return next;
-    }
-
-    public void setNext(LocationDependency next) {
-        this.next = next;
-    }
-
-    public AbstractLocation getHost() {
-        return host;
-    }
-
-    public void setHost(AbstractLocation host) {
-        this.host = host;
-    }
-
-    public int getDependencyKind() {
-        return AbstractLocation.DEPENDENCY_KIND_WEAK_LOCATION;
-    }
-
-    static void purgeDeadLocations(AbstractLocation fallback) {
-        /*[*/
-        Reference<? extends Location> loc;
-        AbstractLocation lastHost = null;
-        while ((loc = refQ.poll()) != null) {
-            WeakLocation wl = (WeakLocation) loc;
-            AbstractLocation host = wl.host;
-            // Minor optimization -- if we just purged a given host, don't do it again
-            if (host != null && host != lastHost) {
-                host.purgeDeadDependencies();
-                lastHost = host;
-            }
-        }
-        /*]*/
-
-        /* [
-            // Fallback strategy is an aggressive purge
-            if (fallback != null)
-                fallback.purgeDeadDependencies();
-        ] */
-    }
+interface WeakLocation extends LocationDependency {
+    public Location get();
 }

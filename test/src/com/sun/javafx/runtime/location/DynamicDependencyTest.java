@@ -199,16 +199,22 @@ public class DynamicDependencyTest extends JavaFXTestCase {
         assertEquals(5, c.getAsInt());
 
         b.clearDynamicDependencies();
-        assertEquals(1, ((AbstractLocation) a).getListenerCount());
+        assertEquals(2, ((AbstractLocation) a).getListenerCount());
+        assertEquals(1, ((AbstractLocation) a).purgeAndGetListenerCount());
         c.clearDynamicDependencies();
-        assertEquals(0, ((AbstractLocation) a).getListenerCount());
+        assertEquals(1, ((AbstractLocation) a).getListenerCount());
+        assertEquals(0, ((AbstractLocation) a).purgeAndGetListenerCount());
 
         addStaticDep(a);
+        assertEquals(1, ((AbstractLocation) a).getListenerCount());
         System.gc();
-        assertEquals(0, ((AbstractLocation) a).getListenerCount());
+        assertEquals(1, ((AbstractLocation) a).getListenerCount());
+        assertEquals(0, ((AbstractLocation) a).purgeAndGetListenerCount());
 
         addDynamicDep(a);
+        assertEquals(1, ((AbstractLocation) a).getListenerCount());
         System.gc();
-        assertEquals(0, ((AbstractLocation) a).getListenerCount());
+        assertEquals(1, ((AbstractLocation) a).getListenerCount());
+        assertEquals(0, ((AbstractLocation) a).purgeAndGetListenerCount());
     }
 }

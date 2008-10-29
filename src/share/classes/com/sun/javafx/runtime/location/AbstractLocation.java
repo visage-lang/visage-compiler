@@ -23,6 +23,7 @@
 
 package com.sun.javafx.runtime.location;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,7 +79,7 @@ public abstract class AbstractLocation implements Location {
     // for ourselves that we remember and use for subsequence dynamic dependencies.  When we are asked to clear the
     // dynamic dependencies (unregister ourselves with any location with which we've registered as a dynamic dependency),
     // we clear() the weak reference and forget it, which will eventually cause those other locations to forget about us.
-    private WeakMeLocation weakMeHead;
+    private WeakReference<Location> weakMe;
 
     private static Linkable.HeadAccessor<LocationDependency, AbstractLocation> listHead
             = new Linkable.HeadAccessor<LocationDependency, AbstractLocation>() {
@@ -166,10 +167,10 @@ public abstract class AbstractLocation implements Location {
      * methods, and is also used at object initialization time to defer notification of changes until the values
      * provided in the object literal are all set. */
     protected void invalidateDependencies() {
-        // @@@ We're iterating twice, this is to preserve listener ordering for now
         if (dependencies != null) {
             beginUpdate();
             try {
+                // @@@ We're iterating twice, this is to preserve listener ordering for now
                 Linkables.iterate(listHead, this, CALL_LISTENER_CLOSURE);
                 Linkables.iterate(listHead, this, INVALIDATE_DEPENDENCY_CLOSURE);
             }
@@ -194,7 +195,7 @@ public abstract class AbstractLocation implements Location {
     protected void addDependency(LocationDependency dep) {
         assert(Linkables.isUnused(dep));
         if (!inUse()) {
-            WeakLocation.purgeDeadLocations(this);
+            StaticDependentLocation.purgeDeadLocations(this);
             Linkables.addAtEnd(listHead, this, dep);
         }
         else
@@ -231,22 +232,25 @@ public abstract class AbstractLocation implements Location {
     }
 
     public void addDependency(Location location) {
-        location.addDependentLocation(new WeakLocation(this));
+        location.addDependentLocation(new StaticDependentLocation(this));
     }
 
     public void addDynamicDependency(Location location) {
-        WeakMeLocation newWeakMe = new WeakMeLocation(this);
-        newWeakMe.nextWeakMe = weakMeHead;
-        weakMeHead = newWeakMe;
-        location.addDependentLocation(newWeakMe);
+        if (weakMe == null)
+            weakMe = StaticDependentLocation.makeWeakReference(this);
+        // Good time to clear dead dependencies
+        if (location instanceof AbstractLocation)
+            ((AbstractLocation) location).purgeDeadDependencies();
+        location.addDependentLocation(new DynamicDependentLocation(weakMe));
     }
 
     public void clearDynamicDependencies() {
-        for (WeakMeLocation wh = weakMeHead; wh != null; wh = wh.nextWeakMe)
-            wh.clear();
-        // Hint to poll at reference queue
-        WeakLocation.purgeDeadLocations(null);
-        weakMeHead = null;
+        if (weakMe != null) {
+            weakMe.clear();
+            // Hint to poll at reference queue
+            StaticDependentLocation.purgeDeadLocations(null);
+            weakMe = null;
+        }
     }
 
     public <T extends Location> T addDynamicDependent(T dep) {
@@ -264,8 +268,13 @@ public abstract class AbstractLocation implements Location {
 
     // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
     int getListenerCount() {
-        purgeDeadDependencies();
         return Linkables.size(dependencies);
+    }
+
+    // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
+    int purgeAndGetListenerCount() {
+        purgeDeadDependencies();
+        return getListenerCount();
     }
 
     private IterationData inflateIterationData(int count) {
@@ -348,7 +357,7 @@ public abstract class AbstractLocation implements Location {
 
         public void apply(AbstractLocation target) {
             if (deferredDependencies != null && deferredDependencies.size() > 0) {
-                WeakLocation.purgeDeadLocations(target);
+                StaticDependentLocation.purgeDeadLocations(target);
                 // @@@ Ugh, O(n^2)
                 for (LocationDependency loc : deferredDependencies)
                     Linkables.addAtEnd(listHead, target, loc);

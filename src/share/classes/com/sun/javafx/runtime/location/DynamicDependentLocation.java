@@ -23,24 +23,25 @@
 
 package com.sun.javafx.runtime.location;
 
+import java.lang.ref.WeakReference;
+
 /**
  * WeakMeLocation
  *
  * @author Brian Goetz
  */
-class WeakMeLocation extends WeakLocation {
-    // Simple linked list; no need to add at end, just push the new one at the head
-    WeakMeLocation nextWeakMe;
+class DynamicDependentLocation extends AbstractLocationDependency implements WeakLocation {
+    private final WeakReference<Location> weakRef;
 
-    WeakMeLocation(Location referent) {
-        super(referent);
+    DynamicDependentLocation(WeakReference<Location> weakRef) {
+        this.weakRef = weakRef;
     }
 
-    public WeakMeLocation getNextWeakMe() {
-        return nextWeakMe;
+    public int getDependencyKind() {
+        return AbstractLocation.DEPENDENCY_KIND_WEAK_LOCATION;
     }
 
-    public void setNextWeakMe(WeakMeLocation nextWeakMe) {
-        this.nextWeakMe = nextWeakMe;
+    public Location get() {
+        return weakRef.get();
     }
 }
