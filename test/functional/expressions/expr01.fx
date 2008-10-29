@@ -6,12 +6,10 @@
  * @run
  */
 import java.lang.System;
-import java.lang.Math;
 import java.lang.Exception;
 
 var pass = 0;
 var fail = 0;
-//function print(msg:String) { System.out.println(msg); }
 function check(msg:String) { pass++; }
 function checkS(s1:String, s2:String,msg:String) { if(s1==s2){pass++; }else {fail++;print("FAILED: {msg} : {s1} != {s2}");} }
 function checkI(i1:Integer, i2:Integer,msg:String) { if(i1==i2){pass++; }else {fail++;print("FAILED: {msg} : {i1} != {i2}");} }
@@ -20,18 +18,21 @@ function checkSs(s1s:String[], s2s:String[],msg:String) { if(s1s==s2s){pass++; }
 function checkB(b:Boolean,msg:String) { if(b){pass++;} else{fail++;print("FAILED: {msg}");}}
 function checknotB(b:Boolean,msg:String) { if(b){fail++;print("FAILED: {msg}");}else{pass++;} }
 function report() { System.out.println("tests: {pass + fail}  passed: {pass}  failed: {fail}"); }
-var rand = (Math.random() * 100).intValue();
+
+var numbase:Integer = 11;
+var num = bind function():Integer { return numbase++; }
 var s:String = null;
-if (rand mod 2 == 0) {
-     s = "rand is even";
-    checkS(s,"rand is even","Check random number");
+if (num() mod 2 == 0) {
+     s = "num is even";
+    checkS(s,"num is even","var assigned function call");
 } else {
-     s = "rand is odd";
-     checkS(s,"rand is odd","Check random number");
+     s = "num is odd";
+     checkS(s,"num is odd","Check random number");
 }
 
+
 /*
- * In the above example the then and else clauses of the conditional "if" are expressions in their own right, 
+ * In the above example the then and else clauses of the conditional "if" are expressions in their own right,
  * namely block expressions [to-do, link to block expressions section below]
  */
 
@@ -172,7 +173,7 @@ Examples:
 */
        function foo() {
 		     var seq:Integer[];
-          for (i in [0..10]) 
+          for (i in [0..10])
 			 {
               if (i > 5) {  break; }
               if (i mod 2 == 0) { continue;  }
@@ -185,8 +186,8 @@ Examples:
        function bar() {
            var i = 0;
 			  var seq:Integer[];
-           while (i < 10) 
-			  {  
+           while (i < 10)
+			  {
                if (i > 5)      { break;     } //step when i gets larger than 5
                if (i mod 2 == 0) { i++; continue;  } //goto to top of while i is even, ie. go on if i is odd
 					insert i into seq;
@@ -203,24 +204,23 @@ A block expression consists of a list of statements (which can be declarations o
 So, the above example from the top of this section could also be written as follows:
 */
 
-rand = (Math.random() * 100).intValue();
-s = if (rand mod 2 == 0) {
-     "rand is even";
+s = if (num() mod 2 == 0) {
+     "num is even";
 } else {
-     "rand is odd";
+     "num is odd";
 };
-if (s == "rand is even") { checkS(s,"rand is even", "check block expression using Math.random"); }
-else {checkS(s,"rand is odd", "check block expression using Math.random");}
+if (s == "num is even") { checkS(s,"num is even", "check block expression using Math.random"); }
+else {checkS(s,"num is odd", "check block expression using Math.random");}
 //System.out.println(s);
+
 
 /*
  * Alternatively the braces can be omitted:
  */
 
-rand = (Math.random() * 100).intValue();
-s = if (rand mod 2 == 0) "rand is even" else "rand is odd";
-if (s == "rand is even") { checkS(s,"rand is even", "check block expression using Math.random"); }
-else {checkS(s,"rand is odd", "check block expression using Math.random");}
+s = if (num() mod 2 == 0) "num is even" else "num is odd";
+if (s == "num is even") { checkS(s,"num is even", "check block expression using Math.random"); }
+else {checkS(s,"num is odd", "check block expression using Math.random");}
 
 /*
 The Java programming language contains both an "if" statement, and a conditional expression, e.g, a < b ? a : b.
@@ -239,8 +239,8 @@ Example:
 var nums = [0..3];
 checkIs(nums,[0,1,2,3],"declaration of sequence"); // prints true
 /*
-By default the interval between the values is 1 but 
-it's also possible to specify a different interval by including the next number in the sequence after number1 separated by a comma. 
+By default the interval between the values is 1 but
+it's also possible to specify a different interval by including the next number in the sequence after number1 separated by a comma.
 For example, the following expression defines an sequence consisting of the odd numbers between 1 and 10:
 
 [1,3..10]
@@ -259,7 +259,7 @@ checknotB(nums==[3,2,1,0],"check descending sequence declared with positive step
 nums = [3..0 step -1];
 checkIs(nums,[3,2,1,0],"check descending sequence");  //this should work!
 
-/* 
+/*
 NOTES:
 
 1. step seqences must be specified with the 'step' keyword
