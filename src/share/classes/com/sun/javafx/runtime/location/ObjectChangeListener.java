@@ -23,33 +23,17 @@
 
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.util.Linkable;
-
 /**
  * ObjectChangeListener
  *
  * @author Brian Goetz
  */
-public abstract class ObjectChangeListener<T> implements Linkable<ObjectChangeListener<T>, AbstractVariable> {
-    private ObjectChangeListener<T> next;
-    private AbstractVariable host;
-
-    public ObjectChangeListener<T> getNext() {
-        return next;
-    }
-
-    public void setNext(ObjectChangeListener<T> next) {
-        this.next = next;
-    }
-
-    public AbstractVariable getHost() {
-        return host;
-    }
-
-    public void setHost(AbstractVariable host) {
-        this.host = host;
-    }
+public abstract class ObjectChangeListener<T> extends AbstractLocationDependency {
 
     /** Notifies the listener that the contents of the location may have changed. */
     public abstract void onChange(T oldValue, T newValue);
+
+    public int getDependencyKind() {
+        return AbstractLocation.DEPENDENCY_KIND_TRIGGER;
+    }
 }

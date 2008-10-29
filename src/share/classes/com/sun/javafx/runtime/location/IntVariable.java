@@ -25,8 +25,6 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
-import com.sun.javafx.runtime.util.Linkables;
-import com.sun.javafx.runtime.util.Linkable;
 
 /**
  * IntVariable
@@ -170,9 +168,10 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
     private void notifyListeners(final int oldValue, final int newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (replaceListeners != null)
-            Linkables.iterate(replaceListeners, new Linkable.IterationClosure<IntChangeListener>() {
-                public void action(IntChangeListener listener) {
+        // @@@ Would like a finer-grained test -- not any dependencies, but triggers
+        if (hasDependencies())
+            iterateChangeListeners(new DependencyIterator<IntChangeListener>(AbstractLocation.DEPENDENCY_KIND_TRIGGER) {
+                public void onAction(IntChangeListener listener) {
                     try {
                         listener.onChange(oldValue, newValue);
                     }

@@ -26,7 +26,6 @@ package com.sun.javafx.runtime.location;
 import java.util.Iterator;
 
 import com.sun.javafx.runtime.Numerics;
-import com.sun.javafx.runtime.util.Linkable;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 
@@ -165,7 +164,7 @@ public class Locations {
             getLocation().removeChangeListener(listener);
         }
 
-        public void iterateChangeListeners(Linkable.IterationClosure<ChangeListener> closure) {
+        public void iterateChangeListeners(DependencyIterator<? extends LocationDependency> closure) {
             getLocation().iterateChangeListeners(closure);
         }
 

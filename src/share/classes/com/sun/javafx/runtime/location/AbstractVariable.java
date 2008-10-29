@@ -24,8 +24,6 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.BindingException;
-import com.sun.javafx.runtime.util.Linkables;
-import com.sun.javafx.runtime.util.Linkable;
 
 /**
  * AbstractVariable
@@ -36,7 +34,7 @@ public abstract class AbstractVariable<
         T_VALUE,
         T_LOCATION extends ObjectLocation<T_VALUE>,
         T_BINDING extends AbstractBindingExpression,
-        T_LISTENER extends Linkable<T_LISTENER, AbstractVariable>
+        T_LISTENER extends LocationDependency
         >
         extends AbstractLocation
         implements ObjectLocation<T_VALUE>, BindableLocation<T_VALUE, T_BINDING, T_LISTENER> {
@@ -49,19 +47,7 @@ public abstract class AbstractVariable<
     protected static final byte STATE_BIDI_BOUND = 5;
 
     protected T_BINDING binding;
-
     protected DeferredInitializer deferredLiteral;
-    protected T_LISTENER replaceListeners;
-
-    private static final Linkable.HeadAccessor<Linkable, AbstractVariable> LISTENER_LIST = new Linkable.HeadAccessor<Linkable, AbstractVariable>() {
-        public Linkable getHead(AbstractVariable host) {
-            return host.replaceListeners;
-        }
-
-        public void setHead(AbstractVariable host, Linkable newHead) {
-            host.replaceListeners = newHead;
-        }
-    };
 
     protected AbstractVariable() { }
 
@@ -187,16 +173,11 @@ public abstract class AbstractVariable<
     }
 
     public void addChangeListener(T_LISTENER listener) {
-        assert(Linkables.isUnused(listener));
-        Linkables.addAtEnd(LISTENER_LIST, this, listener);
+        addDependency(listener);
     }
 
     public void removeChangeListener(T_LISTENER listener) {
-        Linkables.remove(LISTENER_LIST, this, listener);
-    }
-
-    public boolean hasDependencies() {
-        return (replaceListeners != null) || super.hasDependencies();
+        removeDependency(listener);
     }
 
     /** Called from replaceValue(); updates state machine and computes whether triggers should fire */

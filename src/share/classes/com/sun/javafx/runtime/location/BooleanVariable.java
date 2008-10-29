@@ -25,8 +25,6 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
-import com.sun.javafx.runtime.util.Linkables;
-import com.sun.javafx.runtime.util.Linkable;
 
 /**
  * BooleanVariable
@@ -56,7 +54,9 @@ public class BooleanVariable
         return new BooleanVariable(false, binding, dependencies);
     }
 
-    /** Create a bijectively bound variable */
+    /**
+     * Create a bijectively bound variable
+     */
     public static BooleanVariable makeBijective(ObjectVariable<Boolean> other) {
         BooleanVariable me = BooleanVariable.make();
         me.bijectiveBind(other);
@@ -172,9 +172,10 @@ public class BooleanVariable
     private void notifyListeners(final boolean oldValue, final boolean newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (replaceListeners != null) {
-            Linkables.iterate(replaceListeners, new Linkable.IterationClosure<BooleanChangeListener>() {
-                public void action(BooleanChangeListener listener) {
+        // @@@ Would like a finer-grained test -- not any dependencies, but triggers
+        if (hasDependencies())
+            iterateChangeListeners(new DependencyIterator<BooleanChangeListener>(AbstractLocation.DEPENDENCY_KIND_TRIGGER) {
+                public void onAction(BooleanChangeListener listener) {
                     try {
                         listener.onChange(oldValue, newValue);
                     }
@@ -183,7 +184,5 @@ public class BooleanVariable
                     }
                 }
             });
-        }
     }
-
 }

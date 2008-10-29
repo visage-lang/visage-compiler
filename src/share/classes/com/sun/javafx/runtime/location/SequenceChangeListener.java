@@ -24,32 +24,17 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.util.Linkable;
 
 /**
  * Sequence-specific notification methods 
  *
  * @author Brian Goetz
  */
-public abstract class SequenceChangeListener<T> implements Linkable<SequenceChangeListener<T>, AbstractVariable> {
-    private SequenceChangeListener<T> next;
-    private AbstractVariable host;
-
-    public SequenceChangeListener<T> getNext() {
-        return next;
-    }
-
-    public void setNext(SequenceChangeListener<T> next) {
-        this.next = next;
-    }
-
-    public AbstractVariable getHost() {
-        return host;
-    }
-
-    public void setHost(AbstractVariable host) {
-        this.host = host;
-    }
+public abstract class SequenceChangeListener<T> extends AbstractLocationDependency {
 
     public abstract void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue);
+
+    public int getDependencyKind() {
+        return AbstractLocation.DEPENDENCY_KIND_TRIGGER;
+    }
 }

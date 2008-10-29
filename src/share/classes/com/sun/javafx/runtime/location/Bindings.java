@@ -28,7 +28,6 @@ import java.util.*;
 
 import com.sun.javafx.runtime.BindingException;
 import com.sun.javafx.runtime.CircularBindingException;
-import com.sun.javafx.runtime.util.Linkable;
 
 /**
  * Bindings -- helper class for setting up bijective bindings.
@@ -164,10 +163,14 @@ public class Bindings {
         }
 
         public static List<Location> getDirectPeers(final Location loc) {
-            class DirectPeerClosure implements Linkable.IterationClosure<ChangeListener> {
+            class DirectPeerClosure extends DependencyIterator<ChangeListener> {
                 List<Location> list = null;
 
-                public void action(ChangeListener element) {
+                public DirectPeerClosure() {
+                    super(AbstractLocation.DEPENDENCY_KIND_CHANGE_LISTENER);
+                }
+
+                public void onAction(ChangeListener element) {
                     if (element instanceof BijectiveChangeListener) {
                         BijectiveBinding<?, ?> bb = ((BijectiveChangeListener) element).getBijectiveBinding();
                         ObjectLocation<?> a = (ObjectLocation) bb.aRef.get();

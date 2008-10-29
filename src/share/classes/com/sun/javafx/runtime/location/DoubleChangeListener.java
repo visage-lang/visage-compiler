@@ -23,33 +23,17 @@
 
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.util.Linkable;
-
 /**
  * DoubleChangeListener
  *
  * @author Brian Goetz
  */
-public abstract class DoubleChangeListener implements Linkable<DoubleChangeListener, AbstractVariable> {
-    private DoubleChangeListener next;
-    private AbstractVariable host;
-
-    public DoubleChangeListener getNext() {
-        return next;
-    }
-
-    public void setNext(DoubleChangeListener next) {
-        this.next = next;
-    }
-
-    public AbstractVariable getHost() {
-        return host;
-    }
-
-    public void setHost(AbstractVariable host) {
-        this.host = host;
-    }
+public abstract class DoubleChangeListener extends AbstractLocationDependency {
 
     /** Notifies the listener that the contents of the location may have changed. */
     public abstract void onChange(double oldValue, double newValue);
+
+    public int getDependencyKind() {
+        return AbstractLocation.DEPENDENCY_KIND_TRIGGER;
+    }
 }

@@ -26,8 +26,6 @@ package com.sun.javafx.runtime.location;
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
 import com.sun.javafx.runtime.Util;
-import com.sun.javafx.runtime.util.Linkables;
-import com.sun.javafx.runtime.util.Linkable;
 
 /**
  * ObjectVariable
@@ -158,9 +156,10 @@ public class ObjectVariable<T>
     private void notifyListeners(final T oldValue, final T newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (replaceListeners != null)
-            Linkables.iterate(replaceListeners, new Linkable.IterationClosure<ObjectChangeListener<T>>() {
-                public void action(ObjectChangeListener<T> listener) {
+        // @@@ Would like a finer-grained test -- not any dependencies, but triggers
+        if (hasDependencies())
+            iterateChangeListeners(new DependencyIterator<ObjectChangeListener<T>>(AbstractLocation.DEPENDENCY_KIND_TRIGGER) {
+                public void onAction(ObjectChangeListener<T> listener) {
                     try {
                         listener.onChange(oldValue, newValue);
                     }

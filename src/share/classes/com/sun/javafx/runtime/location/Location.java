@@ -23,8 +23,6 @@
 
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.util.Linkable;
-
 /**
  * A Location represents any value on which another variable may express a dependency, including binding dependency
  * and change triggers.  The location is assumed to have a value, whose type is determined by the subinterfaces
@@ -70,7 +68,7 @@ public interface Location {
     public void addDependentLocation(WeakLocation location);
 
     /** Return the collection of change listeners */
-    public void iterateChangeListeners(Linkable.IterationClosure<ChangeListener> closure);
+    public void iterateChangeListeners(DependencyIterator<? extends LocationDependency> closure);
 
     /** Add this location as a dependency of zero or more other Locations */
     public void addDependency(Location... location);

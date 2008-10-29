@@ -32,20 +32,20 @@ import java.lang.ref.WeakReference;
  *
  * @author Brian Goetz
  */
-class WeakLocation extends WeakReference<Location> implements LocationDependency<WeakLocation> {
+class WeakLocation extends WeakReference<Location> implements LocationDependency {
     /*[*/ static ReferenceQueue<Location> refQ = new ReferenceQueue<Location>(); /*]*/
-    WeakLocation next;
+    LocationDependency next;
     AbstractLocation host;
 
     WeakLocation(Location referent) {
         super(referent /*[*/ , refQ /*]*/ );
     }
 
-    public WeakLocation getNext() {
+    public LocationDependency getNext() {
         return next;
     }
 
-    public void setNext(WeakLocation next) {
+    public void setNext(LocationDependency next) {
         this.next = next;
     }
 

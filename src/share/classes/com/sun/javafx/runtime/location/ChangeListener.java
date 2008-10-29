@@ -29,26 +29,7 @@ package com.sun.javafx.runtime.location;
  * @see Location
  * @author Brian Goetz
  */
-public abstract class ChangeListener implements LocationDependency<ChangeListener> {
-    ChangeListener next;
-    AbstractLocation host;
-
-    public ChangeListener getNext() {
-        return next;
-    }
-
-    public void setNext(ChangeListener next) {
-        this.next = next;
-    }
-
-    public AbstractLocation getHost() {
-        return host;
-    }
-
-    public void setHost(AbstractLocation host) {
-        this.host = host;
-    }
-
+public abstract class ChangeListener extends AbstractLocationDependency {
     /** Notifies the listener that the contents of the location may have changed.
      *
      * @return a boolean value indicating whether this listener is still valid.  Returning false will cause the

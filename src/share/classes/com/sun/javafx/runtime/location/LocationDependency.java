@@ -23,17 +23,13 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.util.Linkable;
+
 /**
- * BooleanChangeListener
+ * LocationDependency
  *
  * @author Brian Goetz
  */
-public abstract class BooleanChangeListener extends AbstractLocationDependency {
-
-    /** Notifies the listener that the contents of the location may have changed. */
-    public abstract void onChange(boolean oldValue, boolean newValue);
-
-    public int getDependencyKind() {
-        return AbstractLocation.DEPENDENCY_KIND_TRIGGER;
-    }
+public interface LocationDependency extends Linkable<LocationDependency, AbstractLocation> {
+    int getDependencyKind();
 }
