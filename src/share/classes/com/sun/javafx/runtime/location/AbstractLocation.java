@@ -44,9 +44,9 @@ public abstract class AbstractLocation implements Location {
     private static final byte INUSE_UNINFLATED = 1;
     private static final byte INUSE_INFLATED = 2;
 
-    static final int DEPENDENCY_KIND_CHANGE_LISTENER = 0;
-    static final int DEPENDENCY_KIND_WEAK_LOCATION = 1;
-    static final int DEPENDENCY_KIND_TRIGGER = 2;
+    static final int DEPENDENCY_KIND_CHANGE_LISTENER = 1;
+    static final int DEPENDENCY_KIND_WEAK_LOCATION = 2;
+    static final int DEPENDENCY_KIND_TRIGGER = 4;
 
     // Space is at a premium; FX classes use a *lot* of locations.
     // We've currently got fewer than four byte-size fields here already; we rely on the VM packing byte-size fields
@@ -65,6 +65,11 @@ public abstract class AbstractLocation implements Location {
      * more than once, we'll observe that the list is already in use, and lazily inflate a structure to hold the count
      * and any pending modifications */
     private byte inUse;
+
+    /** As we add and remove dependencies, we maintain a mask of the kinds of things on the dependency list, so we can
+     * quickly answer questions like "do we have any X's"
+     */
+    private byte dependencyKindMask;
 
     private static final Map<Location, IterationData> iterationData = new HashMap<Location, IterationData>();
 
@@ -111,8 +116,43 @@ public abstract class AbstractLocation implements Location {
             invalidateDependencies();
     }
 
+    protected void recalculateDependencyMask() {
+        int mask = 0;
+        for (LocationDependency cur = dependencies; cur != null; cur = cur.getNext())
+            mask |= cur.getDependencyKind();
+        dependencyKindMask = (byte) mask;
+    }
+
+    protected void orDependencyMask(int newKinds) {
+        dependencyKindMask |= newKinds;
+    }
+
+    protected boolean hasDependencies(int kindMask) {
+        return (dependencyKindMask | kindMask) != 0;
+    }
+
     public boolean hasDependencies() {
         return (dependencies != null);
+    }
+
+    private void enqueueDependency(LocationDependency dep) {
+        Linkables.addAtEnd(listHead, this, dep);
+        orDependencyMask(dep.getDependencyKind());
+    }
+
+    private void dequeueDependency(LocationDependency dep) {
+        if (dependencies != null && Linkables.remove(listHead, this, dep))
+            recalculateDependencyMask();
+    }
+
+    private void iterateDependencies(MutativeDependencyIterator<? extends LocationDependency> closure) {
+        if (hasDependencies(closure.kind))
+            Linkables.iterate(listHead, this, closure);
+    }
+
+    private void iterateDependencies(DependencyIterator<? extends LocationDependency> closure) {
+        if (hasDependencies(closure.kind))
+            Linkables.iterate(dependencies, closure);
     }
 
     static abstract class MutativeDependencyIterator<T extends LocationDependency>
@@ -125,6 +165,7 @@ public abstract class AbstractLocation implements Location {
 
         public abstract boolean onAction(T element);
 
+        @SuppressWarnings("unchecked")
         public boolean action(LocationDependency element) {
             if (element.getDependencyKind() == kind)
                 return onAction((T) element);
@@ -167,12 +208,12 @@ public abstract class AbstractLocation implements Location {
      * methods, and is also used at object initialization time to defer notification of changes until the values
      * provided in the object literal are all set. */
     protected void invalidateDependencies() {
-        if (dependencies != null) {
+        if (hasDependencies(DEPENDENCY_KIND_CHANGE_LISTENER | DEPENDENCY_KIND_WEAK_LOCATION)) {
             beginUpdate();
             try {
                 // @@@ We're iterating twice, this is to preserve listener ordering for now
-                Linkables.iterate(listHead, this, CALL_LISTENER_CLOSURE);
-                Linkables.iterate(listHead, this, INVALIDATE_DEPENDENCY_CLOSURE);
+                iterateDependencies(CALL_LISTENER_CLOSURE);
+                iterateDependencies(INVALIDATE_DEPENDENCY_CLOSURE);
             }
             finally {
                 endUpdate();
@@ -189,14 +230,14 @@ public abstract class AbstractLocation implements Location {
 
     void purgeDeadDependencies() {
         // @@@ Defer this if in use?
-        Linkables.iterate(listHead, this, PURGE_LISTENER_CLOSURE);
+        iterateDependencies(PURGE_LISTENER_CLOSURE);
     }
 
     protected void addDependency(LocationDependency dep) {
         assert(Linkables.isUnused(dep));
         if (!inUse()) {
             StaticDependentLocation.purgeDeadLocations(this);
-            Linkables.addAtEnd(listHead, this, dep);
+            enqueueDependency(dep);
         }
         else
             getInflated().addDependency(dep);
@@ -204,8 +245,7 @@ public abstract class AbstractLocation implements Location {
 
     protected void removeDependency(LocationDependency dep) {
         // @@@ Also defer removing listeners if the structures are in use?
-        if (dependencies != null)
-            Linkables.remove(listHead, this, dep);
+        dequeueDependency(dep);
     }
 
     public void addDependentLocation(WeakLocation weakLocation) {
@@ -213,7 +253,7 @@ public abstract class AbstractLocation implements Location {
     }
 
     public void iterateChangeListeners(DependencyIterator<? extends LocationDependency> closure) {
-        Linkables.iterate(dependencies, closure);
+        iterateDependencies(closure);
     }
 
     public void addChangeListener(ChangeListener listener) {
@@ -268,6 +308,7 @@ public abstract class AbstractLocation implements Location {
 
     // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
     int getListenerCount() {
+        // @@@ Add version of size that takes a mask
         return Linkables.size(dependencies);
     }
 
@@ -360,7 +401,7 @@ public abstract class AbstractLocation implements Location {
                 StaticDependentLocation.purgeDeadLocations(target);
                 // @@@ Ugh, O(n^2)
                 for (LocationDependency loc : deferredDependencies)
-                    Linkables.addAtEnd(listHead, target, loc);
+                    target.enqueueDependency(loc);
             }
         }
     }
@@ -388,7 +429,7 @@ abstract class AbstractLocationDependency implements LocationDependency {
 }
 
 abstract class DependencyIterator<T extends LocationDependency> implements Linkable.IterationClosure<LocationDependency> {
-    private final int kind;
+    final int kind;
 
     public DependencyIterator(int kind) {
         this.kind = kind;
@@ -396,6 +437,7 @@ abstract class DependencyIterator<T extends LocationDependency> implements Linka
 
     public abstract void onAction(T element);
 
+    @SuppressWarnings("unchecked")
     public void action(LocationDependency element) {
         if (element.getDependencyKind() == kind)
             onAction((T) element);

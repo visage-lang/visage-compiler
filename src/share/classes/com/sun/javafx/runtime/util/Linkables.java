@@ -50,20 +50,28 @@ public abstract class Linkables {
         }
     }
 
-    public static<T extends Linkable<T, H>, H> void remove(Linkable.HeadAccessor<T, H> ha, H host, T element) {
+    public static<T extends Linkable<T, H>, H> boolean remove(Linkable.HeadAccessor<T, H> ha, H host, T element) {
+        boolean removed = false;
         T head = ha.getHead(host);
-        if (head == element)
+        if (head == element) {
             ha.setHead(host, element.getNext());
+            removed = true;
+        }
         else {
             T cur = head;
             T nextPtr;
             while (cur != null && (nextPtr = cur.getNext()) != element)
                 cur = nextPtr;
-            if (cur != null)
+            if (cur != null) {
                 cur.setNext(element.getNext());
+                removed = true;
+            }
         }
-        element.setNext(null);
-        element.setHost(null);
+        if (removed) {
+            element.setNext(null);
+            element.setHost(null);
+        }
+        return removed;
     }
 
     public static<T extends Linkable<T, ?>> int size(T head) {
