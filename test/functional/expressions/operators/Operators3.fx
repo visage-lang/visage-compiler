@@ -9,9 +9,20 @@ import java.lang.Math;
 function isPrime(n:Integer):Boolean {
     	return (sizeof (for(i in [2 .. Math.sqrt(n)] where n mod i == 0) i) == 0);
 }
+function pow(b:Number, P:Integer):Number {
+    var inv = false;
+    var p = P;
+    if( p ==0){ return 1;}
+    if( p < 0){ inv = true; p=p*(-1); }
+    var b2 = b;
+    for ( i in [ 1..p-1]) {       b2 = b2*b;    }
+    if(inv){return 1.0/b2; }
+    return b2;
+}
+
 function roundMe(src:Number, digits:Integer) {
-	var bigSrc = src * Math.pow(10,digits);
-	return Math.round(bigSrc)/Math.pow(10,digits);
+	var bigSrc = src * pow(10,digits);
+	return Math.round(bigSrc)/pow(10,digits);
 }
 function factors(n:Integer) {
     return for(i in [1 .. n/2] where n  mod  i == 0) i;
@@ -24,7 +35,7 @@ function isArmstrong(num:Integer) {
 	var flag:Integer=0;
 	var n = num;
 	while(n > 0) {
-		flag += Math.pow(n mod 10,3);
+		flag += pow(n mod 10,3);
 		n /= 10;
 	}
 	return (flag==num);
