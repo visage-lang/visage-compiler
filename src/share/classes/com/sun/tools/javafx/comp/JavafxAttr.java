@@ -1045,7 +1045,6 @@ public class JavafxAttr implements JavafxVisitor {
         Symbol sym = id.sym;
 
         if (onr != null) {
-            attribDecl(onr, localEnv);
             JFXVar oldValue = onr.getOldValue();
             if (oldValue != null && oldValue.type == null) {
                 oldValue.type = type;
@@ -1054,6 +1053,7 @@ public class JavafxAttr implements JavafxVisitor {
             if (newElements != null && newElements.type == null) {
                 newElements.type = type;
             }
+            attribDecl(onr, localEnv);
         }
 
         // Must reference an attribute
