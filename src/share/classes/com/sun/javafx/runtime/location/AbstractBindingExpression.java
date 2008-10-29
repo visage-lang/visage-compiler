@@ -28,8 +28,12 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public class AbstractBindingExpression {
+public class AbstractBindingExpression extends AbstractLocationDependency {
     private Location location;
+
+    public int getDependencyKind() {
+        return AbstractLocation.DEPENDENCY_KIND_BINDING_EXPRESSION;
+    }
 
     public void setLocation(Location location) {
         if (this.location != null)

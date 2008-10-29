@@ -47,6 +47,9 @@ public abstract class AbstractLocation implements Location {
     static final int DEPENDENCY_KIND_CHANGE_LISTENER = 1;
     static final int DEPENDENCY_KIND_WEAK_LOCATION = 2;
     static final int DEPENDENCY_KIND_TRIGGER = 4;
+    static final int DEPENDENCY_KIND_BINDING_EXPRESSION = 8;
+    static final int DEPENDENCY_KIND_LITERAL_INITIALIZER = 16;
+    static final int DEPENDENCY_KIND_WEAK_ME_HOLDER = 32;
 
     // Space is at a premium; FX classes use a *lot* of locations.
     // We've currently got fewer than four byte-size fields here already; we rely on the VM packing byte-size fields
@@ -71,20 +74,21 @@ public abstract class AbstractLocation implements Location {
      */
     private byte dependencyKindMask;
 
-    private static final Map<Location, IterationData> iterationData = new HashMap<Location, IterationData>();
-
-    // This list contains three kinds of dependencies; change listeners (really invalidation listeners), dependent
-    // locations, and value triggers.  The first two are invoked the same time dependent locations are invalidated.
-    // Value triggers are invoked when the new value is known (which might not happen at the same time, as with lazy
-    // binding.)  They are differentiated by their dependency kind.  
+    // This list contains several kinds of dependencies, plus some other things:
+    //   Change listeners (really invalidation listeners): called when this location is invalidated
+    //   Dependent locations: invalidated when this location is invalidated
+    //   Value triggers: invoked when the new value is known (might not happen at invalidation time, as with lazy
+    //                   binding.)
+    //   WeakMeHolder: holder for weakMe reference, used in dyanamic dependencies.
+    //     The implementation of dynamic dependencies exploits the clearability of weak references.  When we register
+    //     ourselves as being dynamically dependent on another location for the first time, we create a weak reference
+    //     for ourselves that we remember and use for subsequence dynamic dependencies.  When we are asked to clear the
+    //     dynamic dependencies (unregister ourselves with any location with which we've registered as a dynamic dependency),
+    //     we clear() the weak reference and forget it, which will eventually cause those other locations to forget about us.
+    // Elements are differentiated by their dependency kind.
     private LocationDependency dependencies;
 
-    // The implementation of dynamic dependencies exploits the clearability of weak references.  When we register
-    // ourselves as being dynamically dependent on another location for the first time, we create a weak reference
-    // for ourselves that we remember and use for subsequence dynamic dependencies.  When we are asked to clear the
-    // dynamic dependencies (unregister ourselves with any location with which we've registered as a dynamic dependency),
-    // we clear() the weak reference and forget it, which will eventually cause those other locations to forget about us.
-    private WeakReference<Location> weakMe;
+    private static final Map<Location, IterationData> iterationData = new HashMap<Location, IterationData>();
 
     private static Linkable.HeadAccessor<LocationDependency, AbstractLocation> listHead
             = new Linkable.HeadAccessor<LocationDependency, AbstractLocation>() {
@@ -123,26 +127,41 @@ public abstract class AbstractLocation implements Location {
         dependencyKindMask = (byte) mask;
     }
 
+    protected int countDependencies(int mask) {
+        int count = 0;
+        for (LocationDependency cur = dependencies; cur != null; cur = cur.getNext())
+            if ((mask & cur.getDependencyKind()) != 0)
+                ++count;
+        return count;
+    }
+
     protected void orDependencyMask(int newKinds) {
         dependencyKindMask |= newKinds;
     }
 
     protected boolean hasDependencies(int kindMask) {
-        return (dependencyKindMask | kindMask) != 0;
+        return (dependencyKindMask & kindMask) != 0;
     }
 
-    public boolean hasDependencies() {
-        return (dependencies != null);
+    protected boolean hasDependencies() {
+        return hasDependencies(DEPENDENCY_KIND_WEAK_LOCATION | DEPENDENCY_KIND_CHANGE_LISTENER | DEPENDENCY_KIND_TRIGGER);
     }
 
-    private void enqueueDependency(LocationDependency dep) {
+    protected void enqueueDependency(LocationDependency dep) {
         Linkables.addAtEnd(listHead, this, dep);
         orDependencyMask(dep.getDependencyKind());
     }
 
-    private void dequeueDependency(LocationDependency dep) {
+    protected void dequeueDependency(LocationDependency dep) {
         if (dependencies != null && Linkables.remove(listHead, this, dep))
             recalculateDependencyMask();
+    }
+
+    protected LocationDependency findDependencyByKind(int kind) {
+        for (LocationDependency cur = dependencies; cur != null; cur = cur.getNext())
+            if (cur.getDependencyKind() == kind)
+                return cur;
+        return null;
     }
 
     private void iterateDependencies(MutativeDependencyIterator<? extends LocationDependency> closure) {
@@ -276,20 +295,24 @@ public abstract class AbstractLocation implements Location {
     }
 
     public void addDynamicDependency(Location location) {
-        if (weakMe == null)
-            weakMe = StaticDependentLocation.makeWeakReference(this);
+        WeakMeHolder weakMeHolder = (WeakMeHolder) findDependencyByKind(DEPENDENCY_KIND_WEAK_ME_HOLDER);
+        if (weakMeHolder == null) {
+            weakMeHolder = new WeakMeHolder(this);
+            enqueueDependency(weakMeHolder);
+        }
         // Good time to clear dead dependencies
         if (location instanceof AbstractLocation)
             ((AbstractLocation) location).purgeDeadDependencies();
-        location.addDependentLocation(new DynamicDependentLocation(weakMe));
+        location.addDependentLocation(new DynamicDependentLocation(weakMeHolder.weakMe));
     }
 
     public void clearDynamicDependencies() {
-        if (weakMe != null) {
-            weakMe.clear();
+        WeakMeHolder weakMeHolder = (WeakMeHolder) findDependencyByKind(DEPENDENCY_KIND_WEAK_ME_HOLDER);
+        if (weakMeHolder != null) {
+            weakMeHolder.weakMe.clear();
             // Hint to poll at reference queue
             StaticDependentLocation.purgeDeadLocations(null);
-            weakMe = null;
+            dequeueDependency(weakMeHolder);
         }
     }
 
@@ -308,8 +331,7 @@ public abstract class AbstractLocation implements Location {
 
     // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
     int getListenerCount() {
-        // @@@ Add version of size that takes a mask
-        return Linkables.size(dependencies);
+        return countDependencies(DEPENDENCY_KIND_WEAK_LOCATION | DEPENDENCY_KIND_CHANGE_LISTENER | DEPENDENCY_KIND_TRIGGER);
     }
 
     // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
@@ -403,6 +425,18 @@ public abstract class AbstractLocation implements Location {
                 for (LocationDependency loc : deferredDependencies)
                     target.enqueueDependency(loc);
             }
+        }
+    }
+
+    private static class WeakMeHolder extends AbstractLocationDependency {
+        final WeakReference<Location> weakMe;
+
+        WeakMeHolder(Location loc) {
+            this.weakMe = StaticDependentLocation.makeWeakReference(loc);
+        }
+
+        public int getDependencyKind() {
+            return DEPENDENCY_KIND_WEAK_ME_HOLDER;
         }
     }
 }

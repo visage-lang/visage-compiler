@@ -116,11 +116,11 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
     }
 
     public int setAsIntFromLiteral(final int value) {
-        deferredLiteral = new DeferredInitializer() {
+        setDeferredLiteral(new DeferredInitializer() {
             public void apply() {
                 setAsInt(value);
             }
-        };
+        });
         return value;
     }
 
@@ -148,7 +148,7 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
     public void update() {
         try {
             if (isUnidirectionallyBound() && !isValid())
-                replaceValue(binding.computeValue());
+                replaceValue(getBindingExpression().computeValue());
         }
         catch (RuntimeException e) {
             ErrorHandler.bindException(e);
@@ -168,9 +168,8 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
     private void notifyListeners(final int oldValue, final int newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        // @@@ Would like a finer-grained test -- not any dependencies, but triggers
-        if (hasDependencies())
-            iterateChangeListeners(new DependencyIterator<IntChangeListener>(AbstractLocation.DEPENDENCY_KIND_TRIGGER) {
+        if (hasDependencies(DEPENDENCY_KIND_TRIGGER))
+            iterateChangeListeners(new DependencyIterator<IntChangeListener>(DEPENDENCY_KIND_TRIGGER) {
                 public void onAction(IntChangeListener listener) {
                     try {
                         listener.onChange(oldValue, newValue);

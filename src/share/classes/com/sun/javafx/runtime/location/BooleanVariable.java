@@ -112,11 +112,11 @@ public class BooleanVariable
     }
 
     public boolean setAsBooleanFromLiteral(final boolean value) {
-        deferredLiteral = new DeferredInitializer() {
+        setDeferredLiteral(new DeferredInitializer() {
             public void apply() {
                 setAsBoolean(value);
             }
-        };
+        });
         return value;
     }
 
@@ -144,7 +144,7 @@ public class BooleanVariable
     public void update() {
         try {
             if (isUnidirectionallyBound() && !isValid())
-                replaceValue(binding.computeValue());
+                replaceValue(getBindingExpression().computeValue());
         }
         catch (RuntimeException e) {
             ErrorHandler.bindException(e);
@@ -172,9 +172,8 @@ public class BooleanVariable
     private void notifyListeners(final boolean oldValue, final boolean newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        // @@@ Would like a finer-grained test -- not any dependencies, but triggers
-        if (hasDependencies())
-            iterateChangeListeners(new DependencyIterator<BooleanChangeListener>(AbstractLocation.DEPENDENCY_KIND_TRIGGER) {
+        if (hasDependencies(DEPENDENCY_KIND_TRIGGER))
+            iterateChangeListeners(new DependencyIterator<BooleanChangeListener>(DEPENDENCY_KIND_TRIGGER) {
                 public void onAction(BooleanChangeListener listener) {
                     try {
                         listener.onChange(oldValue, newValue);

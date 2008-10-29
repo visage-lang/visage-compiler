@@ -57,10 +57,6 @@ public abstract class AbstractConstantLocation<T> implements ObjectLocation<T> {
         throw new UnsupportedOperationException();
     }
 
-    public boolean hasDependencies() {
-        return false;
-    }
-
     public void update() { }
 
     public void addChangeListener(ChangeListener listener) { }

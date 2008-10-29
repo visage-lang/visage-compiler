@@ -209,8 +209,8 @@ public class SequenceVariable<T>
                                    boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (hasDependencies())
-            iterateChangeListeners(new DependencyIterator<SequenceChangeListener<T>>(AbstractLocation.DEPENDENCY_KIND_TRIGGER) {
+        if (hasDependencies(DEPENDENCY_KIND_TRIGGER))
+            iterateChangeListeners(new DependencyIterator<SequenceChangeListener<T>>(DEPENDENCY_KIND_TRIGGER) {
                 public void onAction(SequenceChangeListener<T> listener) {
                     try {
                         listener.onChange(startPos, endPos, newElements, oldValue, newValue);
@@ -255,7 +255,7 @@ public class SequenceVariable<T>
     public void update() {
         try {
             if (isUnidirectionallyBound() && !isValid() && boundLocation == null) {
-                replaceValue(Sequences.upcast(binding.computeValue()));
+                replaceValue(Sequences.upcast(getBindingExpression().computeValue()));
             }
         }
         catch (RuntimeException e) {
@@ -301,11 +301,11 @@ public class SequenceVariable<T>
     }
 
     public Sequence<T> setAsSequenceFromLiteral(final Sequence<? extends T> value) {
-        deferredLiteral = new DeferredInitializer() {
+        setDeferredLiteral(new DeferredInitializer() {
             public void apply() {
                 setAsSequence(value);
             }
-        };
+        });
         return Sequences.upcast(value);
     }
 

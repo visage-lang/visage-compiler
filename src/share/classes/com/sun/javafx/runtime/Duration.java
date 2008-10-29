@@ -30,6 +30,18 @@ package com.sun.javafx.runtime;
  */
 public class Duration implements Comparable {
     protected double millis;
+    private static Duration ZERO;
+    private static Duration ONE;
+
+    static {
+        try {
+            ZERO = (Duration) realMake(0);
+            ONE = (Duration) realMake(1);
+        }
+        catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+    }
     
     protected void setMillis(double millis) {
         this.millis = millis;
@@ -37,6 +49,17 @@ public class Duration implements Comparable {
     
     /** hack to workaround issue with static functions in FX that invoke an instance of their class. */
     protected static Object make(double ms) throws Exception {
+        if (ms == 0)
+            return ZERO;
+        else if (ms == 1)
+            return ONE;
+        else {
+            return realMake(ms);
+        }
+    }
+
+    private static Object realMake(double ms) throws Exception {
+        // @@@ Need a better way to do this
         Class<?> fxClass = Class.forName("javafx.lang.Duration");
         Duration dur = (Duration)fxClass.newInstance();
         dur.millis = ms;

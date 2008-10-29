@@ -23,11 +23,13 @@
 
 package com.sun.javafx.runtime;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
-import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.AbstractSequence;
+import com.sun.javafx.runtime.sequence.Sequence;
 
 /**
  * TypeInfo
@@ -38,6 +40,20 @@ public class TypeInfo<T> {
     public final T defaultValue;
     public final Sequence<T> emptySequence;
 
+    static Iterator<?> emptyIterator = new Iterator() {
+        public boolean hasNext() {
+            return false;
+        }
+
+        public Object next() {
+            throw new NoSuchElementException();
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+    };
+    
     private TypeInfo(T defaultValue) {
         // This is a fragile pattern; we are passing this to a superclass ctor before this is fully initialized.
         // Relying on the superclass ctor to not do anything other than copy the reference.
@@ -49,6 +65,11 @@ public class TypeInfo<T> {
 
             public T get(int position) {
                 return TypeInfo.this.defaultValue;
+            }
+
+            @SuppressWarnings("unchecked")
+            public Iterator<T> iterator() {
+                return (Iterator<T>) emptyIterator;
             }
         };
     }

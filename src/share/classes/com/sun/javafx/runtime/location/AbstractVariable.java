@@ -46,9 +46,6 @@ public abstract class AbstractVariable<
     protected static final byte STATE_UNI_BOUND_LAZY = 4;
     protected static final byte STATE_BIDI_BOUND = 5;
 
-    protected T_BINDING binding;
-    protected DeferredInitializer deferredLiteral;
-
     protected AbstractVariable() { }
 
     protected AbstractVariable(byte state) {
@@ -80,32 +77,41 @@ public abstract class AbstractVariable<
         Bindings.bijectiveBind(this, other);
     }
 
+    protected void setDeferredLiteral(DeferredInitializer initializer) {
+        enqueueDependency(initializer);
+    }
+
     public void bijectiveBindFromLiteral(final ObjectLocation<T_VALUE> other) {
-        deferredLiteral = new DeferredInitializer() {
+        setDeferredLiteral(new DeferredInitializer() {
             public void apply() {
                 bijectiveBind(other);
             }
-        };
+        });
     }
 
     protected abstract T_BINDING makeBindingExpression(T_LOCATION location);
+
+    @SuppressWarnings("unchecked")
+    protected T_BINDING getBindingExpression() {
+        return (T_BINDING) findDependencyByKind(DEPENDENCY_KIND_BINDING_EXPRESSION);
+    }
 
     public void bind(T_LOCATION otherLocation) {
         bind(false, makeBindingExpression(otherLocation), otherLocation);
     }
 
     public void bindFromLiteral(final T_LOCATION otherLocation) {
-        deferredLiteral = new DeferredInitializer() {
+        setDeferredLiteral(new DeferredInitializer() {
             public void apply() {
                 bind(otherLocation);
             }
-        };
+        });
     }
 
     public void bind(boolean lazy, T_BINDING binding, Location... dependencies) {
         ensureBindable();
         resetState(lazy ? STATE_UNI_BOUND_LAZY : STATE_UNI_BOUND);
-        this.binding = binding;
+        enqueueDependency(binding);
         binding.setLocation(this);
         addDependency(dependencies);
         if (!lazy)
@@ -113,19 +119,19 @@ public abstract class AbstractVariable<
     }
 
     public void bindFromLiteral(final boolean lazy, final T_BINDING binding, final Location... dependencies) {
-        deferredLiteral = new DeferredInitializer() {
+        setDeferredLiteral(new DeferredInitializer() {
             public void apply() {
                 bind(lazy, binding, dependencies);
             }
-        };
+        });
     }
 
     public T_VALUE setFromLiteral(final T_VALUE value) {
-        deferredLiteral = new DeferredInitializer() {
+        setDeferredLiteral(new DeferredInitializer() {
             public void apply() {
                 set(value);
             }
-        };
+        });
         return value;
     }
 
@@ -140,9 +146,10 @@ public abstract class AbstractVariable<
     /** Returns true if this instance needs a default value.  Warning: this method has side effects; when called,
      * it will try and apply any deferred values from the object literal, if there is one.  */
     public boolean needDefault() {
+        DeferredInitializer deferredLiteral = (DeferredInitializer) findDependencyByKind(DEPENDENCY_KIND_LITERAL_INITIALIZER);
         if (deferredLiteral != null) {
             deferredLiteral.apply();
-            deferredLiteral = null;
+            dequeueDependency(deferredLiteral);
             return false;
         }
         else
@@ -151,8 +158,6 @@ public abstract class AbstractVariable<
 
     public void initialize() {
         // This is where we used to do fireInitialTriggers when we were deferring triggers
-        assert(deferredLiteral == null);
-        deferredLiteral = null;
         if (isUnidirectionallyBound() && !isLazilyBound())
             update();
     }
@@ -204,6 +209,10 @@ public abstract class AbstractVariable<
     }
 }
 
-interface DeferredInitializer {
-    public void apply();
+abstract class DeferredInitializer extends AbstractLocationDependency {
+    public int getDependencyKind() {
+        return AbstractLocation.DEPENDENCY_KIND_LITERAL_INITIALIZER;
+    }
+
+    public abstract void apply();
 }
