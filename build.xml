@@ -291,8 +291,8 @@
             <classpath>
                 <path path="${build.classes.dir}:${javac.test.classpath}"/>
             </classpath>
-            <jvmarg line="-Xbootclasspath/p:${bootjars}"/>
-            <jvmarg line="-Djava.awt.headless=true"/>
+            <jvmarg value="-Xbootclasspath/p:${bootjars}"/>
+            <jvmarg value="-Djava.awt.headless=true"/>
             <jvmarg value="-Xmx256m"/>
             <arg value="-o"/> <arg value="build/docs/fxcode.xml"/>
             <arg value="-nohtml"/>
@@ -315,8 +315,8 @@
             <classpath>
                 <path path="${build.classes.dir}:${javac.test.classpath}"/>
             </classpath>
-            <jvmarg line="-Xbootclasspath/p:${bootjars}"/>
-            <jvmarg line="-Djava.awt.headless=true"/>
+            <jvmarg value="-Xbootclasspath/p:${bootjars}"/>
+            <jvmarg value="-Djava.awt.headless=true"/>
             <jvmarg value="-Xmx256m"/>
             <arg line="${javafxdoc.packages}"/>
         </java>
@@ -816,7 +816,7 @@
     <target depends="init,compile" name="-debug-start-debuggee">
         <input addproperty="application.args" message="(Set the property application.args to skip this prompt). Your work dir is ${work.dir}. Arguments: "/>
         <java classname="${main.class}" dir="${work.dir}" fork="true">
-            <jvmarg line="-Xdebug"/>
+            <jvmarg value="-Xdebug"/>
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
             <jvmarg line="${run.jvmargs}"/>
             <arg line="${application.args}"/>
@@ -1000,7 +1000,7 @@
             <arg value="showoutput=true"/>
             <arg value="formatter=org.apache.tools.ant.taskdefs.optional.junit.BriefJUnitResultFormatter"/>
             <arg value="formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,${test.report.file}"/>
-            <jvmarg line="-Xdebug"/>
+            <jvmarg value="-Xdebug"/>
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
             <jvmarg line="${run.jvmargs}"/>
             <classpath>
