@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE book PUBLIC "-//Sun Microsystems//DTD SolBook-XML 3.5//EN"
+"xsolbook.dtd">
+<book id="bookid" label="alpha" lang="en">
+  <title>JavaFX Language Reference</title>
+
+  <bookinfo role="none">
+    <authorgroup>
+      <author>
+        <firstname>Robert Field</firstname>
+
+        <surname></surname>
+      </author>
+    </authorgroup>
+
+    <pubsnumber></pubsnumber>
+
+    <releaseinfo></releaseinfo>
+
+    <pubdate></pubdate>
+
+    <publisher>
+      <publishername></publishername>
+    </publisher>
+
+    <copyright>
+      <year></year>
+
+      <holder></holder>
+    </copyright>
+
+    <abstract>
+      <para></para>
+    </abstract>
+
+    <legalnotice>
+      <para></para>
+    </legalnotice>
+  </bookinfo>
+
+  <chapter id="chapterid">
+    <title>Introduction</title>
+
+    <highlights>
+      <para>Discusses the what and why of JavaFX Script, and then provides
+      examples to give you an overview.</para>
+    </highlights>
+
+    <sect1 id="sectionid">
+      <title>Why JavaFX Script?</title>
+
+      <para>There are thousands of programming languages, why use JavaFX? Two
+      reasons: ubiquitous delivery and rapid development of graphical
+      applications. JavaFX is built on the Java platform which is available on
+      everything from cell phones to supercomputers. JavaFX is designed so
+      that the developer can express their desired results succinctly and
+      simply. Much can be expressed declaratively, including the interactive
+      relationships between components, greatly easing development
+      complexity.</para>
+    </sect1>
+
+    <sect1>
+      <title>What is JavaFX Script?</title>
+
+      <para>JavaFX Script is a scripting language which means it provides fast
+      and easy development with less of the armor provided by conventional
+      languages. It is thus tailored to moderately sized interactive graphical
+      applications rather than programming in the large. It does, however,
+      have one of the most important advantages of compile-time typing. That
+      is, before your program even runs, it is checked for incompatible
+      relationships between data.</para>
+    </sect1>
+
+    <sect1>
+      <title>A Taste of JavaFX Script</title>
+
+      <para>But the best way to get the idea of JavaFX Script is to see some
+      examples. Don't worry if some of these don't make sense, the rest of
+      this Reference will provide the details.</para>
+
+      <para>JavaFX Script programs are written as one or more
+      <emphasis>scripts</emphasis>. A script consists of expressions and
+      declarations, typically in a file. The following is an expression and
+      thus a valid script:</para>
+
+      <programlisting>4</programlisting>
+
+      <para>But it doesn't do anything. So, we could print it using the
+      built-in function 'println':</para>
+
+      <programlisting>println(4)</programlisting>
+
+      <para>Which makes it irresistible to show the Hello World script:</para>
+
+      <programlisting>println("Hello, World")</programlisting>
+
+      <para>Which really isn't in the spirit of JavaFX since it isn't
+      graphical. Refer to the graphics tutorial for that.</para>
+
+      <para>You can, of course, have more complex expressions:</para>
+
+      <programlisting>println("Circumference is { 2*3.1415*7 } ")</programlisting>
+
+      <para>Note that the expression enclosed in braces is computed at runtime
+      and inserted into the string. But this would be more interesting if we
+      used variables:</para>
+
+      <programlisting>def PI = 3.14159265; 
+var r = 7; 
+println("Circumference is { 2 * PI * r } ")</programlisting>
+
+      <para>You can define a function:</para>
+
+      <programlisting>def PI = 3.14159265; 
+function circumference(r) { 2 * PI * r }
+println("Circumference is { circumference(7) } ")</programlisting>
+
+      <para>Note that JavaFX Script uses type inference to figure out the type
+      of variables and function. Without type inference, this would be
+      written:</para>
+
+      <programlisting>def PI : Number = 3.14159265; 
+function circumference(r : Number) : Number {
+   2 * PI * r 
+} 
+println("Circumference is { circumference(7) }")</programlisting>
+
+      <para>You can define a class to represent a real or abstract entity. In
+      this case, a point:</para>
+
+      <programlisting>class Point { 
+   var x : Number; 
+   var y : Number; 
+   function show() {
+      println("Point {x}, {y}")
+   } 
+} </programlisting>
+
+      <para>This class defines the x and y coordinates and a function to
+      display the Point.</para>
+
+      <para>We can create an instance of the Point and assign it to a variable
+      like this:</para>
+
+      <programlisting>var myPoint = Point { 
+   x: 12.5 
+   y: 6.2 
+}</programlisting>
+
+      <para>Note that the x and y instance variables are set during
+      creation.</para>
+
+      <para>Finally we can ask the point to show itself.</para>
+
+      <programlisting>myPoint.show()</programlisting>
+
+      <para>For an example-based introduction to JavaFX see the JavaFX Script
+      Tutorial.</para>
+
+      <para></para>
+    </sect1>
+  </chapter>
+
+  <chapter>
+    <title>Types and Values</title>
+
+    <highlights>
+      <para>Covers the data types and values which can be represented and
+      manipulated in JavaFX Script</para>
+    </highlights>
+
+    <sect1>
+      <title>Data Types</title>
+
+      <para>Data types in JavaFX include object types, sequence types,
+      function types, and Void.</para>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Type Chart</title>
+
+      <para></para>
+
+      <table>
+        <title></title>
+
+        <tgroup cols="6">
+          <colspec colname="t1" />
+
+          <colspec colname="t2" />
+
+          <colspec colname="decl" />
+
+          <colspec colname="dflt" />
+
+          <colspec colname="card" />
+
+          <colspec colname="lit" />
+
+          <thead>
+            <row>
+              <entry align="center">
+                <para></para>
+              </entry>
+
+              <entry align="center">
+                <para>Type</para>
+              </entry>
+
+              <entry align="center">
+                <para>Declaration</para>
+              </entry>
+
+              <entry align="center">
+                <para>Default Value</para>
+              </entry>
+
+              <entry align="center">
+                <para>Cardinality</para>
+              </entry>
+
+              <entry align="center">
+                <para>Literal or Creation Examples</para>
+              </entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry morerows="6">
+                <para>object types</para>
+              </entry>
+
+              <entry>
+                <para><literal>Object</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>: Object</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>null</literal></para>
+              </entry>
+
+              <entry>
+                <para>0-1</para>
+              </entry>
+
+              <entry>
+                <para><literal>new Object</literal></para>
+              </entry>
+            </row>
+
+            <row>
+              <entry>
+                <para><literal>String</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>: String</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>""</literal></para>
+              </entry>
+
+              <entry>
+                <para>1</para>
+              </entry>
+
+              <entry>
+                <para><literal>"Brownian"</literal></para>
+              </entry>
+            </row>
+
+            <row>
+              <entry>
+                <para><literal>Integer</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>: Integer</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>0</literal></para>
+              </entry>
+
+              <entry>
+                <para>1</para>
+              </entry>
+
+              <entry>
+                <para><literal>1956</literal></para>
+              </entry>
+            </row>
+
+            <row>
+              <entry>
+                <para><literal>Number</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>: Number</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>0.0</literal></para>
+              </entry>
+
+              <entry>
+                <para>1</para>
+              </entry>
+
+              <entry>
+                <para><literal>1.4142</literal></para>
+              </entry>
+            </row>
+
+            <row>
+              <entry>
+                <para><literal>Boolean</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>: Boolean</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>false</literal></para>
+              </entry>
+
+              <entry>
+                <para>1</para>
+              </entry>
+
+              <entry>
+                <para><literal>true</literal></para>
+              </entry>
+            </row>
+
+            <row>
+              <entry>
+                <para><literal>Duration</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>: Duration</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>0ms</literal></para>
+              </entry>
+
+              <entry>
+                <para>1</para>
+              </entry>
+
+              <entry>
+                <para><literal>47s</literal></para>
+              </entry>
+            </row>
+
+            <row>
+              <entry>
+                <para><emphasis>other object types</emphasis></para>
+              </entry>
+
+              <entry>
+                <para><literal>:
+                </literal><emphasis>ClassName</emphasis></para>
+              </entry>
+
+              <entry>
+                <para><literal>null</literal></para>
+              </entry>
+
+              <entry>
+                <para>0-1</para>
+              </entry>
+
+              <entry>
+                <para><literal>Point {x: 3 y: 9}</literal></para>
+              </entry>
+            </row>
+
+            <row>
+              <entry nameend="t2" namest="t1">
+                <para>function types</para>
+              </entry>
+
+              <entry>
+                <para><literal>:
+                function(</literal><emphasis>name</emphasis><literal> :
+                </literal><emphasis>ParamType</emphasis><literal>,
+                </literal><emphasis>...</emphasis><literal>) : </literal>
+                <emphasis>ReturnType</emphasis></para>
+              </entry>
+
+              <entry>
+                <para><literal>null</literal></para>
+              </entry>
+
+              <entry>
+                <para>0-1</para>
+              </entry>
+
+              <entry>
+                <para><literal>function(x:Integer):String {" {x}
+                "}</literal></para>
+              </entry>
+            </row>
+
+            <row>
+              <entry nameend="t2" namest="t1">
+                <para>sequence types</para>
+              </entry>
+
+              <entry>
+                <para><literal>:
+                </literal><emphasis>ElementType</emphasis><literal>[]</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>[]</literal></para>
+              </entry>
+
+              <entry>
+                <para>0-n</para>
+              </entry>
+
+              <entry>
+                <para><literal>[9, 14, 21, 4]</literal></para>
+              </entry>
+            </row>
+
+            <row>
+              <entry>
+                <para></para>
+              </entry>
+
+              <entry>
+                <para><literal>Void</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>: Void</literal></para>
+              </entry>
+
+              <entry>
+                <para><emphasis>n/a</emphasis></para>
+              </entry>
+
+              <entry>
+                <para><emphasis>n/a</emphasis></para>
+              </entry>
+
+              <entry>
+                <para><emphasis>n/a</emphasis></para>
+              </entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <para></para>
+
+      <para></para>
+
+      <para></para>
+
+      <para></para>
+    </sect1>
+  </chapter>
+</book>
