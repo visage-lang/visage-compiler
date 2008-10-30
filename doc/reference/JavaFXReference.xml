@@ -284,6 +284,56 @@ println(k);</programlisting>
 
       <para>Will print zero since k has not been set and the default value for
       Integer is 0.</para>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Built-in Types</title>
+
+      <para></para>
+
+      <sect2>
+        <title>String</title>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>Integer</title>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>Number</title>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>Boolean</title>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>Duration</title>
+
+        <para></para>
+      </sect2>
+    </sect1>
+
+    <sect1>
+      <title>Sequence Types</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Function Types</title>
+
+      <para></para>
     </sect1>
 
     <sect1>
@@ -584,6 +634,128 @@ println(k);</programlisting>
       </table>
 
       <para></para>
+
+      <para></para>
+    </sect1>
+  </chapter>
+
+  <chapter>
+    <title>Expressions</title>
+
+    <highlights>
+      <para>The miriad ways that expressions can be form are described.</para>
+    </highlights>
+
+    <sect1>
+      <title>Operators</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Function Invocation</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Member Access</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>String Expressions</title>
+
+      <para></para>
+
+      <sect2>
+        <title>Translation Keys</title>
+
+        <para></para>
+      </sect2>
+    </sect1>
+
+    <sect1>
+      <title>Object Literals</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Sequence Creation</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>This</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Blocks</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>If</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>While</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Return</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Break</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Continue</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Try-Catch-Finally</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>For</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Sequence Access</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Sequence Modification</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Timelines</title>
 
       <para></para>
     </sect1>
