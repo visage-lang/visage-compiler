@@ -112,25 +112,27 @@ println("Circumference is { 2 * PI * r } ")</programlisting>
       <para>You can define a function:</para>
 
       <programlisting>def PI = 3.14159265; 
-function circumference(r) { 2 * PI * r }
-println("Circumference is { circumference(7) } ")</programlisting>
+var r = 7; 
+function circumference(radius) { 2 * PI * radius }
+println("Circumference is { circumference(r) } ")</programlisting>
 
       <para>Note that JavaFX Script uses type inference to figure out the type
       of variables and function. Without type inference, this would be
       written:</para>
 
-      <programlisting>def PI : Number = 3.14159265; 
-function circumference(r : Number) : Number {
-   2 * PI * r 
+      <programlisting>def PI : Number = 3.14159265;  
+var r : Number = 7; 
+function circumference(radius : Number) : Number {
+   2 * PI * radius 
 } 
-println("Circumference is { circumference(7) }")</programlisting>
+println("Circumference is { circumference(r) }")</programlisting>
 
       <para>You can define a class to represent a real or abstract entity. In
       this case, a point:</para>
 
       <programlisting>class Point { 
-   var x : Number; 
-   var y : Number; 
+   var x : Integer; 
+   var y : Integer; 
    function show() {
       println("Point {x}, {y}")
    } 
@@ -143,8 +145,8 @@ println("Circumference is { circumference(7) }")</programlisting>
       like this:</para>
 
       <programlisting>var myPoint = Point { 
-   x: 12.5 
-   y: 6.2 
+   x: 12
+   y: 9
 }</programlisting>
 
       <para>Note that the x and y instance variables are set during
@@ -170,12 +172,126 @@ println("Circumference is { circumference(7) }")</programlisting>
     </highlights>
 
     <sect1>
-      <title>Data Types</title>
+      <title>JavaFX Script Data Types</title>
 
-      <para>Data types in JavaFX include object types, sequence types,
-      function types, and Void.</para>
+      <para>The Void type is an odd duck that is only used to indicate that a
+      function does not return a value, expect for the section on Void, this
+      chapter does not address Void.</para>
+
+      <para>JavaFX Script Data Types, hereafter called JavaFX Types , consist
+      of an <emphasis>element specifier</emphasis> and a
+      <emphasis>cardinality</emphasis>. The element specifier determines what
+      the type holds and the cardinality determines how many of them can be
+      held. </para>
 
       <para></para>
+
+      <sect2>
+        <title>Element Specifier</title>
+
+        <para>Element specifiers are classes or function signatures. Classes
+        include both JavaFX classes and Java classes. A function signature
+        consists of the parameter types and return type -- function signatures
+        are unnamed and are not tied to particular functions which might
+        implement the signature.</para>
+
+        <para>[In formal type systems this would be called the
+        <emphasis>ground type</emphasis>]</para>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>Cardinality</title>
+
+        <para>The cardinality of a type determines how many elements can be
+        held in a JavaFX type. The three cardinalities are
+        <emphasis>optional</emphasis>, <emphasis>required</emphasis>, and
+        <emphasis>sequence</emphasis>.</para>
+
+        <para></para>
+
+        <sect3>
+          <title>Cardinality: Optional (0 or 1)</title>
+
+          <para>Optional cardinality means there can be one element or no
+          elements. This is the cardinality associated with most types,
+          currently including all user defined classes. If you define a class
+          Foo, then the JavaFX type "Foo" has class Foo as its element
+          specifier and optional as its cardinality. For example:</para>
+
+          <para>var x : Foo;</para>
+
+          <para>Says that x can hold an instance of Foo (one element) or can
+          hold null, the nonexistent value (no elements).</para>
+
+          <para></para>
+        </sect3>
+
+        <sect3>
+          <title>Cardinality: Required (1)</title>
+
+          <para>Required cardinality means there must be one element. This is
+          the cardinality associated with the built-in types String, Integer,
+          Number, Boolean, and Duration. For example:</para>
+
+          <para>var k : Integer;</para>
+
+          <para>Says that k holds one Integer. </para>
+
+          <para>The nonexistent value, null, is not a permitted value for
+          types with required cardinality. Attempts to assign null to a type
+          with required cardinality will be converted to the default value
+          (see below). Attempts to convert null to a type with required
+          cardinality will also be converted to the default value.</para>
+
+          <para></para>
+        </sect3>
+
+        <sect3>
+          <title>Cardinality: Sequence (0-n)</title>
+
+          <para>Sequence cardinality means there can be any number of
+          elements, including zero. This is the cardinality associated with
+          explicitly declared sequences. For example:</para>
+
+          <para>var seq : Integer[];</para>
+
+          <para>Says that seq can hold any number of Integers.</para>
+
+          <para></para>
+        </sect3>
+      </sect2>
+    </sect1>
+
+    <sect1>
+      <title>Default Values</title>
+
+      <para>Each JavaFX type has an associated default value. The default
+      variable is the value of a variable before it is set. It is also the
+      value of an expression of that type if an error is encountered For types
+      with optional cardinality their default value is null. For
+      example:</para>
+
+      <para>var x : Foo; println(x);</para>
+
+      <para>Will print "null" since x has not been set. </para>
+
+      <para>For types with sequence cardinality their default value is the
+      empty sequence of their element specifier. For example:</para>
+
+      <para>var seq : Integer[]; println(sizeof seq);</para>
+
+      <para>Will print zero since seq has not been set and its initial value
+      will be an empty sequence of Integer. </para>
+
+      <para>Each required type has its own default value, as shown in the
+      table below. For example:</para>
+
+      <para>var k : Integer; println(k);</para>
+
+      <para>Will print zero since k has not been set and the default value for
+      Integer is 0.</para>
     </sect1>
 
     <sect1>
