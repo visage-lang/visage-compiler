@@ -175,16 +175,14 @@ println("Circumference is { circumference(r) }")</programlisting>
       <title>JavaFX Script Data Types</title>
 
       <para>The Void type is an odd duck that is only used to indicate that a
-      function does not return a value, expect for the section on Void, this
-      chapter does not address Void.</para>
+      function does not return a value, the remainder of this chapter excludes
+      Void.</para>
 
       <para>JavaFX Script Data Types, hereafter called JavaFX Types , consist
       of an <emphasis>element specifier</emphasis> and a
       <emphasis>cardinality</emphasis>. The element specifier determines what
       the type holds and the cardinality determines how many of them can be
-      held. </para>
-
-      <para></para>
+      held.</para>
 
       <sect2>
         <title>Element Specifier</title>
@@ -193,12 +191,11 @@ println("Circumference is { circumference(r) }")</programlisting>
         include both JavaFX classes and Java classes. A function signature
         consists of the parameter types and return type -- function signatures
         are unnamed and are not tied to particular functions which might
-        implement the signature.</para>
+        implement the signature. All element specifiers are subtypes of
+        java.lang.Object.</para>
 
         <para>[In formal type systems this would be called the
         <emphasis>ground type</emphasis>]</para>
-
-        <para></para>
       </sect2>
 
       <sect2>
@@ -209,8 +206,6 @@ println("Circumference is { circumference(r) }")</programlisting>
         <emphasis>optional</emphasis>, <emphasis>required</emphasis>, and
         <emphasis>sequence</emphasis>.</para>
 
-        <para></para>
-
         <sect3>
           <title>Cardinality: Optional (0 or 1)</title>
 
@@ -220,12 +215,10 @@ println("Circumference is { circumference(r) }")</programlisting>
           Foo, then the JavaFX type "Foo" has class Foo as its element
           specifier and optional as its cardinality. For example:</para>
 
-          <para>var x : Foo;</para>
+          <programlisting>var x : Foo;</programlisting>
 
           <para>Says that x can hold an instance of Foo (one element) or can
           hold null, the nonexistent value (no elements).</para>
-
-          <para></para>
         </sect3>
 
         <sect3>
@@ -235,17 +228,15 @@ println("Circumference is { circumference(r) }")</programlisting>
           the cardinality associated with the built-in types String, Integer,
           Number, Boolean, and Duration. For example:</para>
 
-          <para>var k : Integer;</para>
+          <programlisting>var k : Integer;</programlisting>
 
-          <para>Says that k holds one Integer. </para>
+          <para>Says that k holds one Integer.</para>
 
           <para>The nonexistent value, null, is not a permitted value for
           types with required cardinality. Attempts to assign null to a type
           with required cardinality will be converted to the default value
           (see below). Attempts to convert null to a type with required
           cardinality will also be converted to the default value.</para>
-
-          <para></para>
         </sect3>
 
         <sect3>
@@ -255,11 +246,9 @@ println("Circumference is { circumference(r) }")</programlisting>
           elements, including zero. This is the cardinality associated with
           explicitly declared sequences. For example:</para>
 
-          <para>var seq : Integer[];</para>
+          <programlisting>var seq : Integer[];</programlisting>
 
           <para>Says that seq can hold any number of Integers.</para>
-
-          <para></para>
         </sect3>
       </sect2>
     </sect1>
@@ -273,22 +262,25 @@ println("Circumference is { circumference(r) }")</programlisting>
       with optional cardinality their default value is null. For
       example:</para>
 
-      <para>var x : Foo; println(x);</para>
+      <programlisting>var x : Foo; 
+println(x);</programlisting>
 
-      <para>Will print "null" since x has not been set. </para>
+      <para>Will print null since x has not been set.</para>
 
       <para>For types with sequence cardinality their default value is the
       empty sequence of their element specifier. For example:</para>
 
-      <para>var seq : Integer[]; println(sizeof seq);</para>
+      <programlisting>var seq : Integer[]; 
+println(sizeof seq);</programlisting>
 
-      <para>Will print zero since seq has not been set and its initial value
-      will be an empty sequence of Integer. </para>
+      <para>Will print zero as the size of seq since seq has not been set and
+      its initial value will be an empty sequence of Integer.</para>
 
       <para>Each required type has its own default value, as shown in the
-      table below. For example:</para>
+      table below.</para>
 
-      <para>var k : Integer; println(k);</para>
+      <programlisting>var k : Integer; 
+println(k);</programlisting>
 
       <para>Will print zero since k has not been set and the default value for
       Integer is 0.</para>
@@ -303,13 +295,13 @@ println("Circumference is { circumference(r) }")</programlisting>
         <title></title>
 
         <tgroup cols="6">
-          <colspec colname="t1" />
-
           <colspec colname="t2" />
 
           <colspec colname="decl" />
 
           <colspec colname="dflt" />
+
+          <colspec colname="element" />
 
           <colspec colname="card" />
 
@@ -317,10 +309,6 @@ println("Circumference is { circumference(r) }")</programlisting>
 
           <thead>
             <row>
-              <entry align="center">
-                <para></para>
-              </entry>
-
               <entry align="center">
                 <para>Type</para>
               </entry>
@@ -331,6 +319,10 @@ println("Circumference is { circumference(r) }")</programlisting>
 
               <entry align="center">
                 <para>Default Value</para>
+              </entry>
+
+              <entry align="center">
+                <para>Element Specifier</para>
               </entry>
 
               <entry align="center">
@@ -345,10 +337,6 @@ println("Circumference is { circumference(r) }")</programlisting>
 
           <tbody>
             <row>
-              <entry morerows="6">
-                <para>object types</para>
-              </entry>
-
               <entry>
                 <para><literal>Object</literal></para>
               </entry>
@@ -362,7 +350,11 @@ println("Circumference is { circumference(r) }")</programlisting>
               </entry>
 
               <entry>
-                <para>0-1</para>
+                <para><literal>java.lang.Object</literal></para>
+              </entry>
+
+              <entry>
+                <para>0-1 Optional</para>
               </entry>
 
               <entry>
@@ -384,7 +376,11 @@ println("Circumference is { circumference(r) }")</programlisting>
               </entry>
 
               <entry>
-                <para>1</para>
+                <para><literal>java.lang.String</literal></para>
+              </entry>
+
+              <entry>
+                <para>1 Required</para>
               </entry>
 
               <entry>
@@ -402,11 +398,15 @@ println("Circumference is { circumference(r) }")</programlisting>
               </entry>
 
               <entry>
-                <para><literal>0</literal></para>
+                <para>0</para>
               </entry>
 
               <entry>
-                <para>1</para>
+                <para><literal>java.lang.Integer</literal></para>
+              </entry>
+
+              <entry>
+                <para><literal>1 Required</literal></para>
               </entry>
 
               <entry>
@@ -428,7 +428,11 @@ println("Circumference is { circumference(r) }")</programlisting>
               </entry>
 
               <entry>
-                <para>1</para>
+                <para><literal>java.lang.Double</literal></para>
+              </entry>
+
+              <entry>
+                <para>1 Required</para>
               </entry>
 
               <entry>
@@ -450,7 +454,11 @@ println("Circumference is { circumference(r) }")</programlisting>
               </entry>
 
               <entry>
-                <para>1</para>
+                <para><literal>java.lang.Boolean</literal></para>
+              </entry>
+
+              <entry>
+                <para>1 Required</para>
               </entry>
 
               <entry>
@@ -472,7 +480,11 @@ println("Circumference is { circumference(r) }")</programlisting>
               </entry>
 
               <entry>
-                <para>1</para>
+                <para><literal>javafx.lang.Duration</literal></para>
+              </entry>
+
+              <entry>
+                <para>1 Required</para>
               </entry>
 
               <entry>
@@ -482,7 +494,7 @@ println("Circumference is { circumference(r) }")</programlisting>
 
             <row>
               <entry>
-                <para><emphasis>other object types</emphasis></para>
+                <para><emphasis>other class types</emphasis></para>
               </entry>
 
               <entry>
@@ -495,7 +507,11 @@ println("Circumference is { circumference(r) }")</programlisting>
               </entry>
 
               <entry>
-                <para>0-1</para>
+                <para><emphasis>ClassName</emphasis></para>
+              </entry>
+
+              <entry>
+                <para>0-1 Optional</para>
               </entry>
 
               <entry>
@@ -504,8 +520,8 @@ println("Circumference is { circumference(r) }")</programlisting>
             </row>
 
             <row>
-              <entry nameend="t2" namest="t1">
-                <para>function types</para>
+              <entry>
+                <para><emphasis>function types</emphasis></para>
               </entry>
 
               <entry>
@@ -521,7 +537,14 @@ println("Circumference is { circumference(r) }")</programlisting>
               </entry>
 
               <entry>
-                <para>0-1</para>
+                <para><literal>function(</literal><emphasis>name</emphasis><literal>
+                : </literal><emphasis>ParamType</emphasis><literal>,
+                </literal><emphasis>...</emphasis><literal>) : </literal>
+                <emphasis>ReturnType</emphasis></para>
+              </entry>
+
+              <entry>
+                <para>0-1 Optional</para>
               </entry>
 
               <entry>
@@ -531,13 +554,13 @@ println("Circumference is { circumference(r) }")</programlisting>
             </row>
 
             <row>
-              <entry nameend="t2" namest="t1">
-                <para>sequence types</para>
+              <entry>
+                <para><emphasis>sequence types</emphasis></para>
               </entry>
 
               <entry>
                 <para><literal>:
-                </literal><emphasis>ElementType</emphasis><literal>[]</literal></para>
+                </literal><emphasis>ElementSpec</emphasis><literal>[]</literal></para>
               </entry>
 
               <entry>
@@ -545,46 +568,20 @@ println("Circumference is { circumference(r) }")</programlisting>
               </entry>
 
               <entry>
-                <para>0-n</para>
+                <para><emphasis>ElementSpec</emphasis></para>
+              </entry>
+
+              <entry>
+                <para>0-n Sequence</para>
               </entry>
 
               <entry>
                 <para><literal>[9, 14, 21, 4]</literal></para>
               </entry>
             </row>
-
-            <row>
-              <entry>
-                <para></para>
-              </entry>
-
-              <entry>
-                <para><literal>Void</literal></para>
-              </entry>
-
-              <entry>
-                <para><literal>: Void</literal></para>
-              </entry>
-
-              <entry>
-                <para><emphasis>n/a</emphasis></para>
-              </entry>
-
-              <entry>
-                <para><emphasis>n/a</emphasis></para>
-              </entry>
-
-              <entry>
-                <para><emphasis>n/a</emphasis></para>
-              </entry>
-            </row>
           </tbody>
         </tgroup>
       </table>
-
-      <para></para>
-
-      <para></para>
 
       <para></para>
 
