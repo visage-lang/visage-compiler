@@ -165,6 +165,10 @@ public class FXRunAndCompareWrapper extends TestCase {
         if (param != null)
             commandLine.createArgument().setLine(param);
 
+        // set locale to en_US (required to make test-output reproduceable)
+        commandLine.createVmArgument().setValue("-Duser.language=en");
+        commandLine.createVmArgument().setValue("-Duser.country=US");
+
         PumpStreamHandler sh = new PumpStreamHandler(new FileOutputStream(outputFileName), new FileOutputStream(errorFileName));
         Execute exe = new Execute(sh);
         String[] strings = commandLine.getCommandline();
