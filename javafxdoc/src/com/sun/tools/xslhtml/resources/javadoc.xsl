@@ -991,14 +991,57 @@
             
     </xsl:template>
     
-    <xsl:template name="profile-class">
+    <xsl:template name="class-profile-class">
         <xsl:variable name="profile-name" select="docComment/tags/profile/text()"/>
-        <xsl:if test="$profile-name!=''">
-            <xsl:text>profile-</xsl:text>
-            <xsl:value-of select="$profile-name"/>
-            <xsl:text> </xsl:text>
-        </xsl:if>
+        <xsl:choose>
+            <xsl:when test="$profile-name!=''">
+                <xsl:text>profile-</xsl:text>
+                <xsl:value-of select="$profile-name"/>
+                <xsl:text> </xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:message>WARNING: no profile for <xsl:value-of select="@qualifiedName"/></xsl:message>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
+    
+    <xsl:template name="member-profile-class">
+        <xsl:variable name="profile-name" select="docComment/tags/profile/text()"/>
+        <xsl:variable name="class-profile-name" select="../docComment/tags/profile/text()"/>
+        <xsl:choose>
+            <xsl:when test="$profile-name!=''">
+                <xsl:if test="$class-profile-name='desktop' and $profile-name='common'">
+<xsl:message>WARNING: common profile member in a desktop profile class : <xsl:value-of select="../@qualifiedName"/>.<xsl:value-of select="@name"/>
+</xsl:message>
+                </xsl:if>
+                <xsl:text>profile-</xsl:text>
+                <xsl:value-of select="$profile-name"/>
+                <xsl:text> </xsl:text>
+            </xsl:when>
+            <!-- no profile specified, inherit profile of the class of this member -->
+            <xsl:when test="$class-profile-name!=''">
+                <xsl:text>profile-</xsl:text>
+                <xsl:value-of select="$class-profile-name"/>
+                <xsl:text> </xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+<xsl:message>WARNING: no profile specified for member : <xsl:value-of select="../@qualifiedName"/>.<xsl:value-of select="@name"/>
+</xsl:message>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    
+    <xsl:template name="profile-class">
+        <xsl:choose>
+            <xsl:when test="name()='class'">
+                <xsl:call-template name="class-profile-class"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:call-template name="member-profile-class"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    
     <xsl:template name="extra-class"></xsl:template>
     <xsl:template name="extra-method"></xsl:template>
     <xsl:template name="extra-method-full"></xsl:template>

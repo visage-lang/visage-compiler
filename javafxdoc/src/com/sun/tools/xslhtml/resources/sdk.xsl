@@ -168,7 +168,6 @@ function switchToDesktop() {
     $$('dt.profile-desktop').setStyle('display', 'block');
     $$('dd.profile-desktop').setStyle('display', 'block');
     $$('tr.profile-desktop').setStyle('display', '');  
-    $$('li.profile-').setStyle('display','block');
     sessvars.currentProfile="desktop";
 }
 function switchToCommon() {
@@ -178,7 +177,6 @@ function switchToCommon() {
     $$('dt.profile-desktop').setStyle('display', 'none');
     $$('dd.profile-desktop').setStyle('display', 'none');
     $$('tr.profile-desktop').setStyle('display', 'none');
-    $$('li.profile-').setStyle('display','none');  
     sessvars.currentProfile="common";
 }
 
@@ -289,14 +287,6 @@ var myTips = new Tips('.tooltip', {
                     <xsl:for-each select="package">
                         <xsl:sort select="@name"/>
                         <li>
-                            <!-- class attribute -->
-                            <xsl:attribute name="class">
-                                <xsl:for-each select="docComment/tags/cssclass">
-                                    <xsl:value-of select="text()"/>
-                                    <xsl:text> </xsl:text>
-                                </xsl:for-each>
-                                <xsl:call-template name="profile-class"/>
-                            </xsl:attribute>
                             <h4 class='header'><a href="#"><xsl:value-of select="@name"/></a></h4>
                             <ul class='content'>
                                 <xsl:for-each select="class">
@@ -346,14 +336,6 @@ var myTips = new Tips('.tooltip', {
                         <xsl:for-each select="package">
                             <xsl:sort select="@name"/>
                             <tr>
-                                <!-- class attribute -->
-                                <xsl:attribute name="class">
-                                    <xsl:for-each select="docComment/tags/cssclass">
-                                        <xsl:value-of select="text()"/>
-                                        <xsl:text> </xsl:text>
-                                    </xsl:for-each>
-                                    <xsl:call-template name="profile-class"/>
-                                </xsl:attribute>
                                 <td class="name">
                                     <b>
                                         <!-- <a><xsl:attribute name="href"><xsl:value-of select="@name"/>/package-summary.html</xsl:attribute></a> -->
