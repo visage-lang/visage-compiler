@@ -173,8 +173,8 @@ public class DoubleVariable
     private void notifyListeners(final double oldValue, final double newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (hasDependencies(DEPENDENCY_KIND_TRIGGER))
-            iterateChangeListeners(new DependencyIterator<DoubleChangeListener>(DEPENDENCY_KIND_TRIGGER) {
+        if (hasChildren(CHILD_KIND_TRIGGER))
+            iterateChildren(new DependencyIterator<DoubleChangeListener>(CHILD_KIND_TRIGGER) {
                 public void onAction(DoubleChangeListener listener) {
                     try {
                         listener.onChange(oldValue, newValue);

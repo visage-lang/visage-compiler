@@ -160,8 +160,8 @@ public class Locations {
             getLocation().removeChangeListener(listener);
         }
 
-        public void iterateChangeListeners(DependencyIterator<? extends LocationDependency> closure) {
-            getLocation().iterateChangeListeners(closure);
+        public void iterateChildren(DependencyIterator<? extends LocationDependency> closure) {
+            getLocation().iterateChildren(closure);
         }
 
         public void addDependency(Location... location) {

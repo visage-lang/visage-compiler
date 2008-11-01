@@ -156,8 +156,8 @@ public class ObjectVariable<T>
     private void notifyListeners(final T oldValue, final T newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (hasDependencies(DEPENDENCY_KIND_TRIGGER))
-            iterateChangeListeners(new DependencyIterator<ObjectChangeListener<T>>(DEPENDENCY_KIND_TRIGGER) {
+        if (hasChildren(CHILD_KIND_TRIGGER))
+            iterateChildren(new DependencyIterator<ObjectChangeListener<T>>(CHILD_KIND_TRIGGER) {
                 public void onAction(ObjectChangeListener<T> listener) {
                     try {
                         listener.onChange(oldValue, newValue);

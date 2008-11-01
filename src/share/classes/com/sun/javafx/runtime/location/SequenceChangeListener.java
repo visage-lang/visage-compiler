@@ -35,6 +35,6 @@ public abstract class SequenceChangeListener<T> extends AbstractLocationDependen
     public abstract void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue);
 
     public int getDependencyKind() {
-        return AbstractLocation.DEPENDENCY_KIND_TRIGGER;
+        return AbstractLocation.CHILD_KIND_TRIGGER;
     }
 }

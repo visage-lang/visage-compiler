@@ -172,8 +172,8 @@ public class BooleanVariable
     private void notifyListeners(final boolean oldValue, final boolean newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (hasDependencies(DEPENDENCY_KIND_TRIGGER))
-            iterateChangeListeners(new DependencyIterator<BooleanChangeListener>(DEPENDENCY_KIND_TRIGGER) {
+        if (hasChildren(CHILD_KIND_TRIGGER))
+            iterateChildren(new DependencyIterator<BooleanChangeListener>(CHILD_KIND_TRIGGER) {
                 public void onAction(BooleanChangeListener listener) {
                     try {
                         listener.onChange(oldValue, newValue);

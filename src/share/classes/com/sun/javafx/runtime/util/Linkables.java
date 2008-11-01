@@ -24,93 +24,70 @@
 package com.sun.javafx.runtime.util;
 
 /**
- * Linkable
+ * Linkables -- methods for manipulating linked lists.
  *
  * @author Brian Goetz
  */
 public abstract class Linkables {
 
-    public static<T, H> boolean isUnused(Linkable<T, H> element) {
-        return element.getHost() == null && element.getNext() == null;
+    public static<T extends Linkable<T>> boolean isUnused(T element) {
+        return element.getPrev() == null && element.getNext() == null;
     }
 
-    public static<T extends Linkable<T, H>, H> void addAtEnd(Linkable.HeadAccessor<T, H> ha, H host, T element) {
-        T head = ha.getHead(host);
-        assert (element.getNext() == null);
-        assert (element.getHost() == null);
-        element.setHost(host);
-        if (head == null)
-            ha.setHead(host, element);
-        else {
-            T cur = head;
-            T nextPtr;
-            while ((nextPtr = cur.getNext()) != null)
-                cur = nextPtr;
-            cur.setNext(element);
-        }
+    public static<T extends Linkable<T>> Linkable<T> findLast(Linkable<T> host) {
+        Linkable<T> cur = host;
+        T next;
+        while ((next = cur.getNext()) != null)
+            cur = next;
+        return cur;
     }
 
-    public static<T extends Linkable<T, H>, H> boolean remove(Linkable.HeadAccessor<T, H> ha, H host, T element) {
-        boolean removed = false;
-        T head = ha.getHead(host);
-        if (head == element) {
-            ha.setHead(host, element.getNext());
-            removed = true;
-        }
+    public static<T extends Linkable<T>> void addAfter(Linkable<T> existing, T element) {
+        assert(existing.getNext() == null);
+        assert(element.getPrev() == null);
+        assert(element.getNext() == null);
+        existing.setNext(element);
+        element.setPrev(existing);
+    }
+
+    public static<T extends Linkable<T>> void addAtEnd(Linkable<T> host, T element) {
+        addAfter(findLast(host), element);
+    }
+
+    public static<T extends Linkable<T>> boolean remove(T element) {
+        T next = element.getNext();
+        Linkable<T> prev = element.getPrev();
+        if (next == null && prev == null)
+            return false;
         else {
-            T cur = head;
-            T nextPtr;
-            while (cur != null && (nextPtr = cur.getNext()) != element)
-                cur = nextPtr;
-            if (cur != null) {
-                cur.setNext(element.getNext());
-                removed = true;
-            }
-        }
-        if (removed) {
+            if (prev != null)
+                prev.setNext(next);
+            if (next != null)
+                next.setPrev(prev);
             element.setNext(null);
-            element.setHost(null);
+            element.setPrev(null);
+            return true;
         }
-        return removed;
     }
 
-    public static<T extends Linkable<T, ?>> int size(T head) {
+    public static<T extends Linkable<T>> int size(Linkable<T> first) {
         int size = 0;
-        for (T cur = head; cur != null; cur = cur.getNext())
+        for (Linkable<T> cur = first; cur != null; cur = cur.getNext())
             ++size;
         return size;
     }
 
-    public static<T extends Linkable<T, ?>> void iterate(T head, Linkable.IterationClosure<T> closure) {
-        for (T cur = head; cur != null; cur = cur.getNext())
+    public static<T extends Linkable<T>> void iterate(T first, Linkable.IterationClosure<T> closure) {
+        for (T cur = first; cur != null; cur = cur.getNext())
             closure.action(cur);
     }
 
-    public static<T extends Linkable<T, H>, H> void iterate(Linkable.HeadAccessor<T, H> ha, H host, Linkable.MutativeIterationClosure<T, H> closure) {
-        T cur = ha.getHead(host);
-        while (cur != null && !closure.action(cur)) {
+    public static<T extends Linkable<T>> void iterate(T first, Linkable.MutativeIterationClosure<T> closure) {
+        for (T cur = first; cur != null; ) {
             T next = cur.getNext();
-            cur.setNext(null);
-            cur.setHost(null);
+            if (!closure.action(cur))
+                remove(cur);
             cur = next;
-            ha.setHead(host, cur);
-        }
-        if (cur == null)
-            return;
-        T prev = cur;
-        cur = cur.getNext();
-        while (cur != null) {
-            if (!closure.action(cur)) {
-                T next = cur.getNext();
-                cur.setNext(null);
-                cur.setHost(null);
-                cur = next;
-                prev.setNext(cur);
-            }
-            else {
-                prev = cur;
-                cur = cur.getNext();
-            }
         }
     }
 }

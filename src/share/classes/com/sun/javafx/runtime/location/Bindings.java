@@ -167,7 +167,7 @@ public class Bindings {
                 List<Location> list = null;
 
                 public DirectPeerClosure() {
-                    super(AbstractLocation.DEPENDENCY_KIND_CHANGE_LISTENER);
+                    super(AbstractLocation.CHILD_KIND_CHANGE_LISTENER);
                 }
 
                 public void onAction(ChangeListener element) {
@@ -190,7 +190,7 @@ public class Bindings {
             }
 
             DirectPeerClosure closure = new DirectPeerClosure();
-            loc.iterateChangeListeners(closure);
+            loc.iterateChildren(closure);
             if (closure.list != null)
                 return closure.list;
             else

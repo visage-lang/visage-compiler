@@ -65,7 +65,7 @@ public abstract class AbstractConstantLocation<T> implements ObjectLocation<T> {
 
     public void addDependentLocation(WeakLocation location) { }
 
-    public void iterateChangeListeners(DependencyIterator<? extends LocationDependency> closure) { }
+    public void iterateChildren(DependencyIterator<? extends LocationDependency> closure) { }
 
     public void addDependency(Location... location) { }
 

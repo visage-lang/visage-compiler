@@ -39,6 +39,6 @@ public abstract class ChangeListener extends AbstractLocationDependency {
     public abstract boolean onChange();
 
     public int getDependencyKind() {
-        return AbstractLocation.DEPENDENCY_KIND_CHANGE_LISTENER;
+        return AbstractLocation.CHILD_KIND_CHANGE_LISTENER;
     }
 }

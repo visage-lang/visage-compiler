@@ -34,6 +34,6 @@ public abstract class BooleanChangeListener extends AbstractLocationDependency {
     public abstract void onChange(boolean oldValue, boolean newValue);
 
     public int getDependencyKind() {
-        return AbstractLocation.DEPENDENCY_KIND_TRIGGER;
+        return AbstractLocation.CHILD_KIND_TRIGGER;
     }
 }

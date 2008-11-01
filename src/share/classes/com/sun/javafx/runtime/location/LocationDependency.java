@@ -30,6 +30,6 @@ import com.sun.javafx.runtime.util.Linkable;
  *
  * @author Brian Goetz
  */
-public interface LocationDependency extends Linkable<LocationDependency, AbstractLocation> {
+public interface LocationDependency extends Linkable<LocationDependency> {
     int getDependencyKind();
 }

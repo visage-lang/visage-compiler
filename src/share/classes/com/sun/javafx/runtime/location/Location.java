@@ -67,8 +67,8 @@ public interface Location {
     /** Record a location as depending on this location -- for internal use only!  */
     public void addDependentLocation(WeakLocation location);
 
-    /** Return the collection of change listeners */
-    public void iterateChangeListeners(DependencyIterator<? extends LocationDependency> closure);
+    /** Iterate over the dependent objects, including change listeners, dependencies, triggers, etc */
+    public void iterateChildren(DependencyIterator<? extends LocationDependency> closure);
 
     /** Add this location as a dependency of zero or more other Locations */
     public void addDependency(Location... location);

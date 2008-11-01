@@ -209,8 +209,8 @@ public class SequenceVariable<T>
                                    boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (hasDependencies(DEPENDENCY_KIND_TRIGGER))
-            iterateChangeListeners(new DependencyIterator<SequenceChangeListener<T>>(DEPENDENCY_KIND_TRIGGER) {
+        if (hasChildren(CHILD_KIND_TRIGGER))
+            iterateChildren(new DependencyIterator<SequenceChangeListener<T>>(CHILD_KIND_TRIGGER) {
                 public void onAction(SequenceChangeListener<T> listener) {
                     try {
                         listener.onChange(startPos, endPos, newElements, oldValue, newValue);

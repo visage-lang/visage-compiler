@@ -78,7 +78,7 @@ public abstract class AbstractVariable<
     }
 
     protected void setDeferredLiteral(DeferredInitializer initializer) {
-        enqueueDependency(initializer);
+        enqueueChild(initializer);
     }
 
     public void bijectiveBindFromLiteral(final ObjectLocation<T_VALUE> other) {
@@ -93,7 +93,7 @@ public abstract class AbstractVariable<
 
     @SuppressWarnings("unchecked")
     protected T_BINDING getBindingExpression() {
-        return (T_BINDING) findDependencyByKind(DEPENDENCY_KIND_BINDING_EXPRESSION);
+        return (T_BINDING) findChildByKind(CHILD_KIND_BINDING_EXPRESSION);
     }
 
     public void bind(T_LOCATION otherLocation) {
@@ -111,7 +111,7 @@ public abstract class AbstractVariable<
     public void bind(boolean lazy, T_BINDING binding, Location... dependencies) {
         ensureBindable();
         resetState(lazy ? STATE_UNI_BOUND_LAZY : STATE_UNI_BOUND);
-        enqueueDependency(binding);
+        enqueueChild(binding);
         binding.setLocation(this);
         addDependency(dependencies);
         if (!lazy)
@@ -146,10 +146,10 @@ public abstract class AbstractVariable<
     /** Returns true if this instance needs a default value.  Warning: this method has side effects; when called,
      * it will try and apply any deferred values from the object literal, if there is one.  */
     public boolean needDefault() {
-        DeferredInitializer deferredLiteral = (DeferredInitializer) findDependencyByKind(DEPENDENCY_KIND_LITERAL_INITIALIZER);
+        DeferredInitializer deferredLiteral = (DeferredInitializer) findChildByKind(CHILD_KIND_LITERAL_INITIALIZER);
         if (deferredLiteral != null) {
             deferredLiteral.apply();
-            dequeueDependency(deferredLiteral);
+            dequeueChild(deferredLiteral);
             return false;
         }
         else
@@ -178,11 +178,11 @@ public abstract class AbstractVariable<
     }
 
     public void addChangeListener(T_LISTENER listener) {
-        addDependency(listener);
+        addChild(listener);
     }
 
     public void removeChangeListener(T_LISTENER listener) {
-        removeDependency(listener);
+        removeChild(listener);
     }
 
     /** Called from replaceValue(); updates state machine and computes whether triggers should fire */
@@ -211,7 +211,7 @@ public abstract class AbstractVariable<
 
 abstract class DeferredInitializer extends AbstractLocationDependency {
     public int getDependencyKind() {
-        return AbstractLocation.DEPENDENCY_KIND_LITERAL_INITIALIZER;
+        return AbstractLocation.CHILD_KIND_LITERAL_INITIALIZER;
     }
 
     public abstract void apply();

@@ -34,6 +34,6 @@ public abstract class IntChangeListener extends AbstractLocationDependency {
     public abstract void onChange(int oldValue, int newValue);
 
     public int getDependencyKind() {
-        return AbstractLocation.DEPENDENCY_KIND_TRIGGER;
+        return AbstractLocation.CHILD_KIND_TRIGGER;
     }
 }

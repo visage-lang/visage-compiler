@@ -38,7 +38,7 @@ class DynamicDependentLocation extends AbstractLocationDependency implements Wea
     }
 
     public int getDependencyKind() {
-        return AbstractLocation.DEPENDENCY_KIND_WEAK_LOCATION;
+        return AbstractLocation.CHILD_KIND_WEAK_LOCATION;
     }
 
     public Location get() {

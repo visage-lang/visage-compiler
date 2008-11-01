@@ -23,9 +23,12 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.lang.ref.ReferenceQueue;
 import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+
+import com.sun.javafx.runtime.util.Linkable;
+import com.sun.javafx.runtime.util.Linkables;
 
 /**
  * WeakLocationImpl
@@ -35,7 +38,7 @@ import java.lang.ref.WeakReference;
 public class StaticDependentLocation extends WeakReference<Location> implements WeakLocation {
     /*[*/ static ReferenceQueue<Location> refQ = new ReferenceQueue<Location>(); /*]*/
     LocationDependency next;
-    AbstractLocation host;
+    Linkable<LocationDependency> prev;
 
     StaticDependentLocation(Location referent) {
         super(referent /*[*/ , refQ /*]*/ );
@@ -49,16 +52,16 @@ public class StaticDependentLocation extends WeakReference<Location> implements 
         this.next = next;
     }
 
-    public AbstractLocation getHost() {
-        return host;
+    public Linkable<LocationDependency> getPrev() {
+        return prev;
     }
 
-    public void setHost(AbstractLocation host) {
-        this.host = host;
+    public void setPrev(Linkable<LocationDependency> prev) {
+        this.prev = prev;
     }
 
     public int getDependencyKind() {
-        return AbstractLocation.DEPENDENCY_KIND_WEAK_LOCATION;
+        return AbstractLocation.CHILD_KIND_WEAK_LOCATION;
     }
 
     static WeakReference<Location> makeWeakReference(Location loc) {
@@ -68,18 +71,15 @@ public class StaticDependentLocation extends WeakReference<Location> implements 
     static void purgeDeadLocations(AbstractLocation fallback) {
         /*[*/
         Reference<? extends Location> loc;
-        AbstractLocation lastHost = null, host;
+        boolean purgedFallback = false;
         while ((loc = refQ.poll()) != null) {
             if (loc instanceof StaticDependentLocation) {
                 StaticDependentLocation wl = (StaticDependentLocation) loc;
-                host = wl.getHost();
+                Linkables.<LocationDependency>remove(wl);
             }
-            else
-                host = fallback;
-            // Minor optimization -- if we just purged a given host, don't do it again
-            if (host != null && host != lastHost) {
-                host.purgeDeadDependencies();
-                lastHost = host;
+            else if (fallback != null && !purgedFallback) {
+                fallback.purgeDeadDependencies();
+                purgedFallback = true;
             }
         }
         /*]*/

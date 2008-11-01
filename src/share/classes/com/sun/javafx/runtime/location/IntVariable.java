@@ -168,8 +168,8 @@ public class IntVariable extends AbstractVariable<Integer, IntLocation, IntBindi
     private void notifyListeners(final int oldValue, final int newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (hasDependencies(DEPENDENCY_KIND_TRIGGER))
-            iterateChangeListeners(new DependencyIterator<IntChangeListener>(DEPENDENCY_KIND_TRIGGER) {
+        if (hasChildren(CHILD_KIND_TRIGGER))
+            iterateChildren(new DependencyIterator<IntChangeListener>(CHILD_KIND_TRIGGER) {
                 public void onAction(IntChangeListener listener) {
                     try {
                         listener.onChange(oldValue, newValue);

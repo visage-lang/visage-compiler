@@ -34,6 +34,6 @@ public abstract class DoubleChangeListener extends AbstractLocationDependency {
     public abstract void onChange(double oldValue, double newValue);
 
     public int getDependencyKind() {
-        return AbstractLocation.DEPENDENCY_KIND_TRIGGER;
+        return AbstractLocation.CHILD_KIND_TRIGGER;
     }
 }
