@@ -719,12 +719,18 @@ println(k);</programlisting>
       </sect2>
 
       <sect2>
-        <title>Parameters and induction variables</title>
+        <title>Parameters, Induction Variables, and other Expression
+        Parameters</title>
 
         <para>Function parameters are visible only within the function body.
         For-expression induction variables are visible only within the
-        for-expression body. They must not be assigned to. See Function and
-        the For section of expressions for syntax.</para>
+        for-expression body. The scope of other expression parameters is their
+        expression.</para>
+
+        <para>They must not be assigned to.</para>
+
+        <para>See Function, the For section of expressions, and On Replace
+        (below) for syntax.</para>
 
         <para></para>
       </sect2>
@@ -732,14 +738,6 @@ println(k);</programlisting>
 
     <sect1>
       <title>Syntax of Variable Declarations</title>
-
-      <para>When <command>bind</command> is specified in the
-      <emphasis>initializingExpression</emphasis> the variable is kept updated
-      to the value of the <emphasis>expression</emphasis>. When <command>with
-      inverse</command> is specified, the <emphasis>expression</emphasis> must
-      be a simple variable reference and that variable is kept updated when
-      the variable being declared is changed. See the Binding chapter for
-      details.</para>
 
       <para></para>
 
@@ -774,12 +772,163 @@ println(k);</programlisting>
           </imageobject>
         </mediaobject>
       </figure>
+
+      <para></para>
+
+      <figure>
+        <title>onReplaceClause</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="onReplaceClause.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>While syntactically optional, an
+      <emphasis>initializingExpression</emphasis> is required with
+      <command>def</command>.</para>
+
+      <para>When <command>bind</command> is specified in the
+      <emphasis>initializingExpression</emphasis> the variable is kept updated
+      to the value of the <emphasis>expression</emphasis>. When <command>with
+      inverse</command> is specified, the <emphasis>expression</emphasis> must
+      be a simple variable reference and that variable is kept updated when
+      the variable being declared is changed. See the Binding chapter for
+      details.</para>
+
+      <para></para>
     </sect1>
 
     <sect1>
-      <title></title>
+      <title>On Replace</title>
+
+      <para>The <emphasis>onReplaceClause</emphasis>, if present, causes the
+      block to be executed each time the value of the variable changes --
+      including the assignment of its initial value.</para>
+
+      <para>The optional parameters provide information about what is changed:
+      <command>on replace</command> <emphasis>oldValue</emphasis>
+      <command>[</command> <emphasis>firstIndex</emphasis>
+      <command>..</command> <emphasis>lastIndex</emphasis><command> ]
+      =</command> <emphasis>newElements</emphasis> <command>{</command> ...
+      <command>}</command></para>
+
+      <para>But these parameters are all optional, in the simplest form none
+      of these are present:</para>
+
+      <para><programlisting>var x = 0 on replace { println("x is now: {x}") }</programlisting></para>
+
+      <para>The <emphasis>oldValue</emphasis> parameter provides the previous
+      value.</para>
+
+      <para><programlisting>var x = 0 on replace oldValue { println("x was {oldValue} and is now: {x}") }</programlisting></para>
+
+      <para>The remaining parameters are useful with sequences.</para>
+
+      <para><programlisting>var seq = ['A', 'B', 'C', 'D', 'E', 'F'] on replace oldValue[firstIdx .. lastIdx] = newElements { 
+    println("replaced {oldValue}[{firstIdx}..{lastIdx}] by {newElements} yielding {seq}") 
+} 
+seq[3] = '$'; 
+insert '#' into seq; 
+delete '$' from seq; 
+delete seq[2]; 
+seq[1..4] = ['X', 'Y']; 
+delete seq; </programlisting></para>
+
+      <para>Which prints:</para>
+
+      <screen>replaced [0..-1] by ABCDEF yielding ABCDEF
+replaced ABCDEF[3..3] by $ yielding ABC$EF
+replaced ABC$EF[6..5] by # yielding ABC$EF#
+replaced ABC$EF#[3..3] by  yielding ABCEF#
+replaced ABCEF#[2..2] by  yielding ABEF#
+replaced ABEF#[1..4] by XY yielding AXY
+replaced AXY[0..2] by  yielding</screen>
+
+      <para>Note that <emphasis>firstIndex</emphasis>,
+      <emphasis>lastIndex</emphasis> and <emphasis>newElements</emphasis>
+      refer only to the portion of the sequence which has changed,</para>
 
       <para></para>
+
+      <para></para>
+    </sect1>
+  </chapter>
+
+  <chapter>
+    <title>Functions</title>
+
+    <para></para>
+
+    <para></para>
+
+    <sect1>
+      <title>Function Syntax</title>
+
+      <para></para>
+
+      <figure>
+        <title>functionDefinition</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="functionDefinition.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+
+      <figure>
+        <title>formalParameters</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="formalParameters.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+
+      <figure>
+        <title>formalParameter</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="formalParameter.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+
+      <figure>
+        <title>typeSpecifier</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="typeSpecifier.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect1>
+
+    <sect1>
+      <title>Function Scope</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Type Inference</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Bound Functions</title>
 
       <para></para>
     </sect1>
