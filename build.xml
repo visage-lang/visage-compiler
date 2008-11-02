@@ -418,6 +418,13 @@
         </copy>
     </target>
 
+    <target name="ref" description="Build JavaFX Script Reference.">
+        <ant antfile="doc/refbuild.xml" target="ref" inheritAll="false"/>
+        <copy todir="dist/doc/langreference">
+            <fileset dir="build/doc/reference"/>
+        </copy>
+    </target>
+
     <target name="findbugs" depends="compile">
         <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
                  classpathref="findbugs.class.path" />
