@@ -967,26 +967,52 @@ println( square(7) )</programlisting></para>
    function transform(x : Number) : Number { factor * x } 
 } 
 var tf = Scale { factor: 25.0 } 
-println(tf.transform(10.0))</programlisting></para>
+println(tf.transform(10.0)</programlisting></para>
       </sect2>
     </sect1>
 
     <sect1>
-      <title>Parameter passing</title>
-
-      <para></para>
+      <para />
     </sect1>
 
     <sect1>
       <title>Type Inference</title>
 
-      <para></para>
+      <para>Type inferencing can generally determine the return type of a
+      function. In most cases the parameter types can be determined by type
+      inference as well. </para>
+
+      <para>However, functions which, by virtue of their access modifiers, are
+      visible outside the script should be explicitly typed.</para>
     </sect1>
 
     <sect1>
       <title>Bound Functions</title>
 
+      <para>The modifier <command>bound</command> is only allowed on
+      functions, such functions are called <emphasis>bound
+      functions</emphasis>. Bound functions are covered in the Binding
+      chapter.</para>
+
       <para></para>
     </sect1>
+
+    <sect1>
+      <title>Parameter passing</title>
+
+      <para>When called in a bound context, the parameters of a bound function
+      are passed by reference and the return value is by reference as well. In
+      all other cases, non-bound functions and bound functions called form
+      non-bound contexts, parameters are passed by value and the the return
+      value is by value.</para>
+
+      <para></para>
+    </sect1>
+  </chapter>
+
+  <chapter>
+    <title>Classes</title>
+
+    <para></para>
   </chapter>
 </book>
