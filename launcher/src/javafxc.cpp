@@ -50,8 +50,9 @@ int main(int argc, char** argv) {
     if (! config.profile_bootclasspath_append.empty()) {
         cmd += "\"-Xbootclasspath/a:" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath_append) + "\" ";
     }
+    cmd += "com.sun.tools.javafx.Main ";
     if (! config.profile_bootclasspath.empty()) {
-        cmd += "\"-Xbootclasspath:" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath) + "\" ";
+        cmd += "-bootclasspath \"" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath) + "\" ";
     }
     if (! config.profile_classpath.empty()) {
         cmd += "-classpath \"" + util.evaluatePath(config.javafxpath, config.profile_classpath);
@@ -62,7 +63,6 @@ int main(int argc, char** argv) {
     } else if (! config.classpath.empty()) {
         cmd += "-classpath \"" + config.classpath + "\" ";
     }
-    cmd += "com.sun.tools.javafx.Main ";
     cmd += config.fxargs;
     
     return util.createProcess (cmd);

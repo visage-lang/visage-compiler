@@ -90,16 +90,9 @@ classpath="$classpath:$compile_classpath"
 # Under Cygwin, convert certain environment variables back to Windows format
 if $cygwin ; then
   classpath=`cygpath --path --windows "$classpath"`
-  compile_classpath=`cygpath --path --windows "$compile_classpath"`
   JAVA_CMD=`cygpath --unix "$JAVA_CMD"`
 fi
 
-if [ -n "${compile_bootclasspath}" ]; then
-    if $cygwin ; then
-        compile_bootclasspath=`cygpath --path --windows "$compile_bootclasspath"`
-    fi
-    jargs="$jargs \"-Xbootclasspath:${compile_bootclasspath}\""
-fi
 if [ -n "${compile_bootclasspath_prepend}" ]; then
     if $cygwin ; then
         compile_bootclasspath_prepend=`cygpath --path --windows "$compile_bootclasspath_prepend"`
@@ -119,6 +112,12 @@ if [ -n "${compile_nativelibpath}" ]; then
     jargs="$jargs \"-Djava.library.path=${compile_nativelibpath}\""
 fi
 jargs="$jargs com.sun.tools.javafx.Main -classpath '"$classpath"'"
+if [ -n "${compile_bootclasspath}" ]; then
+    if $cygwin ; then
+        compile_bootclasspath=`cygpath --path --windows "$compile_bootclasspath"`
+    fi
+    jargs="$jargs -bootclasspath \"${compile_bootclasspath}\""
+fi
 if [ -n "$args" ]; then
     jargs="$jargs $args"
 fi
