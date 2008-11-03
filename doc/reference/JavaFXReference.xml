@@ -1004,6 +1004,14 @@ println(tf.transform(10.0)</programlisting></para>
 
       <para></para>
     </sect1>
+
+    <sect1>
+      <title>Overriding Functions</title>
+
+      <para></para>
+
+      <para></para>
+    </sect1>
   </chapter>
 
   <chapter>
@@ -1071,14 +1079,14 @@ println(tf.transform(10.0)</programlisting></para>
       <para></para>
 
       <sect2>
-        <title><command>init</command> Definitions</title>
+        <title><command>init</command> Block</title>
 
         <para></para>
 
         <para></para>
 
         <figure>
-          <title>initDefinition</title>
+          <title>initBlock</title>
 
           <mediaobject>
             <imageobject>
@@ -1087,18 +1095,19 @@ println(tf.transform(10.0)</programlisting></para>
           </mediaobject>
         </figure>
 
-        <para></para>
+        <para>The <emphasis>initBlock</emphasis> is an optional block of code
+        which is executed as the final step of class initialization.</para>
       </sect2>
 
       <sect2>
-        <title><command>postinit</command> Definitions</title>
+        <title><command>postinit</command> Block</title>
 
         <para></para>
 
         <para></para>
 
         <figure>
-          <title>postinitDefinition</title>
+          <title>postinitBlock</title>
 
           <mediaobject>
             <imageobject>
@@ -1108,10 +1117,16 @@ println(tf.transform(10.0)</programlisting></para>
         </figure>
 
         <para></para>
+
+        <para>The <emphasis>postInitBlock</emphasis> is an optional block of
+        code which is executed after class initialization has
+        completed.</para>
+
+        <para></para>
       </sect2>
 
       <sect2>
-        <title>Variable Override Declarations</title>
+        <title>Variable Override Declaration</title>
 
         <para></para>
 
@@ -1129,6 +1144,19 @@ println(tf.transform(10.0)</programlisting></para>
 
         <para></para>
 
+        <para>A <emphasis>variableOverrideDeclaration</emphasis> allows
+        changing the default value of a subclass' instance
+        <command>var</command> and/or adding an
+        <emphasis>onReplaceClause</emphasis> for that <command>var</command>.
+        Either an <emphasis>initializingExpression</emphasis> or an
+        <emphasis>onReplaceClause</emphasis> or both must be present. Note
+        that while an <emphasis>initializingExpression</emphasis> overrides
+        the default value, an <emphasis>onReplaceClause</emphasis> adds a
+        block to be executed on update -- any
+        <emphasis>onReplaceClause</emphasis> defined in a subclass is also
+        executed on change to the variable -- this is critical for maintaining
+        subclass invariants..</para>
+
         <para></para>
       </sect2>
     </sect1>
@@ -1136,13 +1164,115 @@ println(tf.transform(10.0)</programlisting></para>
     <sect1>
       <title>Inheritance</title>
 
-      <para></para>
+      <para>JavaFX classes may inherit from other JavaFX classes, from Java
+      interfaces, and from Java classes. Multiple inheritance, inheriting from
+      more than one class, is allowed, but with the restriction described
+      below.</para>
+
+      <para>Define an <emphasis>impure class</emphasis> as a Java class or a
+      JavaFX class which inherits, directly or indirectly, from a Java class.
+      Define a <emphasis>pure class</emphasis> a JavaFX class which only
+      inherits from Java interfaces or pure classes (a JavaFX class with no
+      supertypes is thus a pure class).</para>
+
+      <para>A JavaFX class may inherit from any number of Java interfaces, any
+      number of pure classes, and no more than one impure class.</para>
+
+      <para>.</para>
     </sect1>
 
     <sect1>
       <title>Instance Variable Initialization</title>
 
       <para></para>
+
+      <para></para>
+
+      <sect2>
+        <title>Instance Variable Initialization Avenues</title>
+
+        <para></para>
+
+        <para>The value of an instance variable at the end of initialization
+        can be set in any of several ways: value provided in the object
+        literal, the initial value specified in the variable declaration, an
+        <emphasis>initializingExpression</emphasis> on a variable override
+        declaration, or an assignment in an <emphasis>initBlock</emphasis>.
+        These avenues are discussed below.</para>
+
+        <para>Class instances are created with object literal expression (a
+        newExpression can be considered, for these purposes as equivalent to
+        an object literal that sets no instance variables). For
+        example:</para>
+
+        <para><programlisting>var fu = Foo { x: 14 }</programlisting></para>
+
+        <para>Here the instance variable x in Foo is set in the object literal
+        to 14 (note: x may be declared in a subclass of Foo).</para>
+
+        <para>The declaration of an instance variable explicitly or implicitly
+        sets a default value for the variable. For example it could be set
+        explicitly:</para>
+
+        <para><programlisting>class Foo {
+   var x = 99;
+}</programlisting></para>
+
+        <para>Here x has an <emphasis>initializingExpression</emphasis>.
+        </para>
+
+        <para>If no <emphasis>initializingExpression</emphasis> is provided,
+        the default value for the type is the default value of of the instance
+        variable -- see the Types and Values chapter. For example:</para>
+
+        <para><programlisting>class Answers {
+   var ungulate : Boolean;
+}</programlisting></para>
+
+        <para>Since false is the default value for the Boolean type, the
+        default value of ungulate is false.</para>
+
+        <para>A <emphasis>variableOverrideDeclaration</emphasis> can override
+        the default value. For example:</para>
+
+        <programlisting>class Shed {
+   var siding = "aluminum";
+}
+
+class FancyShed extends Shed {
+   override var siding = "copper";
+}</programlisting>
+
+        <para>Here FancyShed overrides the default value of siding. Note that
+        a <emphasis>variableOverrideDeclaration</emphasis> that does not have
+        an <emphasis>initializingExpression</emphasis> will not override the
+        default value.</para>
+
+        <para>Exactly one of the above will set the initial value. If the
+        value is provided in the object literal, that will be used. Otherwise,
+        if an override for the variable provides an
+        <emphasis>initializingExpression</emphasis> it will be used. If it is
+        not overridden, an explicit
+        <emphasis>initializingExpression</emphasis> will supply the initial
+        value. Failing all that, the default value for the type will be used.
+        </para>
+
+        <para>After one of the above has set the instance variable, the
+        <emphasis>initBlock</emphasis>, if present, is executed. This block
+        can reset the instance variable.</para>
+
+        <para></para>
+
+        <para></para>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>Initialization Order</title>
+
+        <para></para>
+      </sect2>
 
       <sect2>
         <title><command>isInitialized()</command> Built-In Function</title>
