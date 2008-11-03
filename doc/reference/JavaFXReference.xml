@@ -972,15 +972,11 @@ println(tf.transform(10.0)</programlisting></para>
     </sect1>
 
     <sect1>
-      <para />
-    </sect1>
-
-    <sect1>
       <title>Type Inference</title>
 
       <para>Type inferencing can generally determine the return type of a
       function. In most cases the parameter types can be determined by type
-      inference as well. </para>
+      inference as well.</para>
 
       <para>However, functions which, by virtue of their access modifiers, are
       visible outside the script should be explicitly typed.</para>
@@ -1014,5 +1010,145 @@ println(tf.transform(10.0)</programlisting></para>
     <title>Classes</title>
 
     <para></para>
+
+    <para></para>
+
+    <sect1>
+      <title>Syntax of Class Definition</title>
+
+      <para></para>
+
+      <figure>
+        <title>classDefinition</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="classDefinition.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>superclasses</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="superclasses.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Class Members</title>
+
+      <para></para>
+
+      <figure>
+        <title>classMember</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="classMember.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+
+      <para><emphasis>functionDefinition</emphasis> and
+      <emphasis>variableDeclaration</emphasis> are covered in their respective
+      chapters. The remaining class members are covered below.</para>
+
+      <para></para>
+
+      <sect2>
+        <title><command>init</command> Definitions</title>
+
+        <para></para>
+
+        <para></para>
+
+        <figure>
+          <title>initDefinition</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="initDefinition.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title><command>postinit</command> Definitions</title>
+
+        <para></para>
+
+        <para></para>
+
+        <figure>
+          <title>postinitDefinition</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="postinitDefinition.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>Variable Override Declarations</title>
+
+        <para></para>
+
+        <para></para>
+
+        <figure>
+          <title>variableOverrideDeclaration</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="variableOverrideDeclaration.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+
+        <para></para>
+      </sect2>
+    </sect1>
+
+    <sect1>
+      <title>Inheritance</title>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Instance Variable Initialization</title>
+
+      <para></para>
+
+      <sect2>
+        <title><command>isInitialized()</command> Built-In Function</title>
+
+        <para></para>
+      </sect2>
+    </sect1>
   </chapter>
 </book>
