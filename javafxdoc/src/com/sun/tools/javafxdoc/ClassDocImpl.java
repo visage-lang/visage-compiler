@@ -365,12 +365,7 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
      * Return an empty array if there are none.
      */
     public TypeVariable[] typeParameters() {
-        if (env.legacyDoclet) {
-            return new TypeVariable[0];
-        }
-        TypeVariable res[] = new TypeVariable[type.getTypeArguments().length()];
-        TypeMaker.getTypes(env, type.getTypeArguments(), res);
-        return res;
+        return new TypeVariable[0];
     }
 
     /**
