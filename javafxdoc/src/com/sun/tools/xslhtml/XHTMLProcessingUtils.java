@@ -218,7 +218,7 @@ public class XHTMLProcessingUtils {
         
         // print out packages list
         XPath xpath = XPathFactory.newInstance().newXPath();
-        NodeList packages = (NodeList) xpath.evaluate("//package", unified, XPathConstants.NODESET); 
+        NodeList packages = (NodeList) xpath.evaluate("/javadoc/package", unified, XPathConstants.NODESET); 
         p(INFO, MessageFormat.format(getString("creating.packages"), packages.getLength()));
 
         // collect all package names in this array 
@@ -263,7 +263,7 @@ public class XHTMLProcessingUtils {
             p(FINE, "exists: " + file.exists());
             Document doc = builder.parse(file);
             XPath xpath = XPathFactory.newInstance().newXPath();
-            NodeList packages = (NodeList) xpath.evaluate("//package", doc, XPathConstants.NODESET);
+            NodeList packages = (NodeList) xpath.evaluate("/javadoc/package", doc, XPathConstants.NODESET);
             p(INFO,"found " + packages.getLength()+" packages");
             for (int i = 0; i < packages.getLength(); i++) {
                 Element copy = (Element) unified.importNode(packages.item(i), true);
