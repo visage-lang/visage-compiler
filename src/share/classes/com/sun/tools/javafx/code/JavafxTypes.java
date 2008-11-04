@@ -271,6 +271,7 @@ public class JavafxTypes extends Types {
      *  but modified to handle multiple inheritance.
      */
     public MethodSymbol implementation(MethodSymbol msym, TypeSymbol origin, boolean checkResult) {
+        msym.complete();
         if (origin instanceof JavafxClassSymbol && isCompoundClass(origin)) {
             JavafxClassSymbol c = (JavafxClassSymbol) origin;
             for (Scope.Entry e = c.members().lookup(msym.name);
