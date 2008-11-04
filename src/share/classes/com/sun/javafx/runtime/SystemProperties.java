@@ -24,7 +24,8 @@
 package com.sun.javafx.runtime;
 
 import java.util.Hashtable;
-import java.lang.reflect.Method;
+import java.lang.Class;
+import java.io.InputStream;
 
 public class  SystemProperties {
    /**
@@ -35,7 +36,6 @@ public class  SystemProperties {
     * Empty string in   the runtime platform equivalent field indicates thete is no equivalent property for given platform.
     */
     private static String[] sysprop_table = {
-        /*"javafx.*/"version",              "jfx_specific", 
         /*"javafx.*/"application.codebase", "jfx_specific",
     };
 
@@ -59,21 +59,29 @@ public class  SystemProperties {
         addProperties (sysprop_table, false);
         addProperties (jfxprop_table, true);
     
-        /* read in the version info from version.properties and set it */
-        /* TODO: Should not be using reflection since the later is not supported on mobile */
-   	try {
-            Class c = Class.forName("java.util.ResourceBundle");
-            Method m = c.getMethod("getBundle", String.class);
-            Object o = m.invoke(null, versionRBName);
-            m = c.getMethod("getString", String.class);
-            String s = (String)m.invoke(o, "release");
-            jfxprop_list.put("version", s);
-        } catch (Exception e) {
-            jfxprop_list.put("version", "unknown");
-        }
+        /* read in the version info from version.txt and set the property */
+        SystemProperties.setFXProperty("javafx.version", getVersion());
     }
 
-
+    
+    private static String getVersion () {
+        int size;
+        
+        String release_version = "unknown";
+        InputStream is = SystemProperties.class.getResourceAsStream("/com/sun/javafx/runtime/version.txt");
+        try  {
+            size = is.available();
+        
+            byte[] b = new byte[size];
+            int n;
+            n = is.read(b);            
+            release_version = new String(b, "utf-8");
+        } catch (Exception ignore) {
+        }
+        
+        return release_version;
+    }
+    
     /** 
      * Registers a statically allocated System Properties table 
      * Once registered properties listed in the table are availabe for inquiry through FX.getProperty().
@@ -210,3 +218,4 @@ public class  SystemProperties {
 
     public static final String codebase = "javafx.application.codebase";
 }
+

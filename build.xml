@@ -129,6 +129,9 @@
                 <exclude name="com/sun/tools/javafx/**"/>
                 <exclude name="com/sun/javafx/api/**"/>
             </fileset>
+            <fileset dir="${build.generated.dir}" >
+                <include name="com/sun/javafx/runtime/version.txt" />
+            </fileset>
         </jar>
     </target>
 
@@ -192,6 +195,14 @@
         <copy todir="${build.generated.dir}">
             <fileset dir="${src.classes.dir}" includes="${includes}"/>
             <globmapper from="*.properties-template" to="*.properties"/>
+            <filterset begintoken="$(" endtoken=")">
+                <filter token="RELEASE" value="${release}"/>
+                <filter token="FULL_VERSION" value="${full.version}"/>
+            </filterset>
+        </copy>
+        <copy todir="${build.generated.dir}">
+            <fileset dir="${src.classes.dir}" includes="${includes}"/>
+            <globmapper from="*.txt" to="*.txt"/>
             <filterset begintoken="$(" endtoken=")">
                 <filter token="RELEASE" value="${release}"/>
                 <filter token="FULL_VERSION" value="${full.version}"/>
