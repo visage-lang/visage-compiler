@@ -511,7 +511,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         if (all) {
             TypeSymbol p = attr.attribTree(imp,
                     localEnv,
-                    (imp instanceof JFXIdent) ? TYP : (TYP | PCK),
+                    TYP | PCK,
                     Type.noType).tsym;
             // Import on demand.
             chk.checkCanonical(imp);
