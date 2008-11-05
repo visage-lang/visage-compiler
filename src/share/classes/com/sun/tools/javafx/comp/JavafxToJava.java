@@ -462,16 +462,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         make.at(diagPos).Literal(TypeTags.INT, 0))));
                 JCIdent ident2 = make.at(diagPos).Ident(arrVar.name);
                 return makeBlockExpression(diagPos, stats, ident2);
-            } else if (sourceIsArray) {
-                // Source and target are both arrays
+            } else {
                 //TODO: conversion may be needed here, but this is better than what we had
                 return translated;
-            } else {
-                //TODO: Untested since attribution currently throws this case out
-                return make.at(diagPos).NewArray(
-                        makeTypeTree(diagPos, elemType, true),
-                        List.<JCExpression>of(make.at(diagPos).Literal(TypeTags.INT, 1)),
-                        List.<JCExpression>of(translated));
             }
         }
         if (sourceIsArray && targetIsSequence) {
