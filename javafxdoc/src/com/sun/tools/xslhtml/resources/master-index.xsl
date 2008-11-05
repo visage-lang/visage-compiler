@@ -33,6 +33,9 @@
     <xsl:output method="html"/>
     <xsl:import href="sdk.xsl"/>
     <xsl:template match="/">
+        <xsl:text disable-output-escaping="yes">
+            <![CDATA[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">]]>
+        </xsl:text>
         <html>
             <head>
                 <link href="{$root-path}{$master-css}" rel="stylesheet"/>

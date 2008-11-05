@@ -149,111 +149,10 @@
     
     
     <xsl:template name="head-post">
-        <link href="{$root-path}general.css" rel="stylesheet"/>
         <link href="{$root-path}sdk.css" rel="stylesheet"/>
-        <script type="text/javascript" src="{$root-path}core.js"/>
-        <script type="text/javascript" src="{$root-path}more.js"/>
+        <script type="text/javascript" src="{$root-path}mootools-1.2.1-yui.js"/>
         <script type="text/javascript" src="{$root-path}sessvars.js"/>
-
-<!-- basic setup -->
-<script>
-function isdefined( variable)
-{
-    return (typeof(window[variable]) == "undefined")?  false: true;
-}
-function switchToDesktop() {
-    $('select-desktop-profile').setStyle('background-color','white');
-    $('select-common-profile').setStyle('background-color','black');
-    $$('li.profile-desktop').setStyle('display','block');
-    $$('dt.profile-desktop').setStyle('display', 'block');
-    $$('dd.profile-desktop').setStyle('display', 'block');
-    $$('tr.profile-desktop').setStyle('display', '');  
-    sessvars.currentProfile="desktop";
-}
-function switchToCommon() {
-    $('select-desktop-profile').setStyle('background-color','black');
-    $('select-common-profile').setStyle('background-color','white');
-    $$('li.profile-desktop').setStyle('display','none');  
-    $$('dt.profile-desktop').setStyle('display', 'none');
-    $$('dd.profile-desktop').setStyle('display', 'none');
-    $$('tr.profile-desktop').setStyle('display', 'none');
-    sessvars.currentProfile="common";
-}
-
-window.addEvent('domready', function(){
-
-
-var sliders = $$('.long-desc').map(function(target) {
-	//window.alert("found function");
-	return new Fx.Slide(target, {
-		duration: 'short'
-	}).hide();
-});
-
-$$('.long-desc-open').each(function(lnk,index) {
-    //window.alert("found desc short index " + sliders[index]);
-
-    lnk.addEvent('click', function(e) { 
-        //window.alert("in click");
-        e = new Event(e);
-        sliders[index].toggle();
-        e.stop();
-        var im = lnk.getElement('img');
-        // from "index.html" page, "images" dir is at same level. For class
-        // level docs "images" directory is at ".."
-        var imageDirPrefix = (im.get('src').indexOf('../') == 0)? '../' : '';
-        if(im.get('rel') == 'open') {
-            im.set('src', imageDirPrefix + 'images/JFX_arrow_right.png').set('rel','close');
-        } else {
-            im.set('src', imageDirPrefix + 'images/JFX_arrow_down.png').set('rel','open');
-        }
-    });
-});
-
-
-//profile switchers
-$('select-desktop-profile').addEvent('click', function(e) {
-    switchToDesktop();
-});
-$('select-common-profile').addEvent('click', function(e) {
-    switchToCommon();
-});
-
-
-//setup initial profile
-if(sessvars.currentProfile == undefined) {
-    sessvars.currentProfile = "desktop";
-}
-if(sessvars.currentProfile=="desktop") {
-    switchToDesktop();
-} else {
-    switchToCommon();
-}
-
-//setup initial package
-if(sessvars.currentPackageIndex == undefined) {
-    sessvars.currentPackageIndex = 0;
-}
-
-var myAccordion2 = new Accordion($$('h4.header'), $$('ul.content'), {
-	show: sessvars.currentPackageIndex,
-	alwaysHide: true,
-	opacity: false,
-	duration: 'short'
-});
-
-$$('h4.header').each(function(lnk,index) {
-	lnk.addEvent('click', function(e) { 
-        sessvars.currentPackageIndex = index;
-	});
-});
-
-
-var myTips = new Tips('.tooltip', {
-    fixed: true
-});
-
-});</script>
+        <script type="text/javascript" src="{$root-path}sdk.js"/>
     </xsl:template>
     
     
@@ -269,6 +168,9 @@ var myTips = new Tips('.tooltip', {
     
     <!-- new index / overview page -->
     <xsl:template match="/packageList[@mode='overview-summary']">
+        <xsl:text disable-output-escaping="yes">
+            <![CDATA[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">]]>
+        </xsl:text>
         <html>
             <head>
                 <link href="{$root-path}{$master-css}" rel="stylesheet"/>

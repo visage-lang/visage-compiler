@@ -162,8 +162,8 @@ public class XHTMLProcessingUtils {
         copyResource(docsdir,"empty.html");
         copyResource(docsdir,"general.css");
         copyResource(docsdir,"sdk.css");
-        copyResource(docsdir,"core.js");
-        copyResource(docsdir,"more.js");
+        copyResource(docsdir,"mootools-1.2.1-yui.js");
+        copyResource(docsdir,"sdk.js");
         copyResource(docsdir,"sessvars.js");
         File images = new File(docsdir,"images");
         images.mkdir();
