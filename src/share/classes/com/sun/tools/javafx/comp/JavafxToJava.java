@@ -2017,11 +2017,17 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitSequenceIndexed(final JFXSequenceIndexed tree) {
         DiagnosticPosition diagPos = tree.pos();
-        JCExpression seq = translate(tree.getSequence(), Wrapped.InNothing);
+        JFXExpression seq = tree.getSequence();
+        JCExpression tseq = translate(seq, Wrapped.InNothing);
         JCExpression index = makeTypeCast(diagPos, syms.intType, tree.getIndex().type, translate(tree.getIndex()));
-        JCFieldAccess select = make.at(diagPos).Select(seq, defs.getMethodName);
-        List<JCExpression> args = List.of(index);
-        result = make.at(diagPos).Apply(null, select, args);
+        if (seq.type.tag == TypeTags.ARRAY) {
+            result = make.at(diagPos).Indexed(tseq, index);
+        }
+        else {
+            JCFieldAccess select = make.at(diagPos).Select(tseq, defs.getMethodName);
+            List<JCExpression> args = List.of(index);
+            result = make.at(diagPos).Apply(null, select, args);
+        }
     }
 
     @Override
