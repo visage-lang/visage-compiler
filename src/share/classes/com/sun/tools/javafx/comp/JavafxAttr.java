@@ -650,6 +650,20 @@ public class JavafxAttr implements JavafxVisitor {
                     chk.earlyRefError(tree.pos(), sym);
                 }
             }
+            else if (! sym.isStatic()) {
+                for (JavafxEnv<JavafxAttrContext> env1 = env; ; env1 = env1.outer) {
+                    if (env1 == null) {
+                        rs.access(rs.new StaticError(sym),
+                                tree.pos(), site, sym.name, true);
+                        break;
+                    }
+                    if (env1.tree instanceof JFXClassDeclaration &&
+                            types.isSubtype(((JFXClassDeclaration) env1.tree).sym.type, site)) {
+                        break;
+                    }
+                }
+            }
+
         }
 
         // If we are selecting an instance member via a `super', ...

@@ -1,0 +1,4 @@
+test/should-fail/jfxc2355.fx:5: non-static method getRGBComponents(float[]) cannot be referenced from a static context
+Color.getRGBComponents(null);
+     ^
+1 error
