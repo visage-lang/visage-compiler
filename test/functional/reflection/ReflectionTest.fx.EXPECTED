@@ -7,6 +7,7 @@ Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference,
  Type of fnAttr2 is inferred as function(Number,java.lang.String):Void
  Type of fnAttr3 is inferred as function(Number,java.lang.String):Integer
  Type of fnAttr4 is inferred as function():function():Void
+ Type of funAttr2 is inferred as function():function():Void
  Type of intAttr1 is inferred as Integer
  Type of intAttr2 is inferred as Integer
  Type of intAttr3 is inferred as Integer

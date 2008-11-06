@@ -59,6 +59,7 @@ MEMBERS of class ReflectionTest02.TestClass
    fbFunc7  isStatic=false; Declaring class: ReflectionTest02.BaseTestClass 
    fbFunc8  isStatic=false; Declaring class: ReflectionTest02.BaseTestClass 
    fbFunc9  isStatic=false; Declaring class: ReflectionTest02.BaseTestClass 
+   funAttr2  isStatic=false; Declaring class: ReflectionTest02.BaseTestClass 
    func0$$bound$int  isStatic=false; Declaring class: ReflectionTest02.BaseTestClass 
    func0$impl$$bound$int  isStatic=true; Declaring class: ReflectionTest02.BaseTestClass 
    vattr1  isStatic=false; Declaring class: ReflectionTest02.TestClass 
@@ -92,6 +93,7 @@ VARIABLES of class ReflectionTest02.TestClass
   fbFnAttr2 type:null  static=false; Decl.class: ReflectionTest02.BaseTestClass 
   fbFnAttr3 type:null  static=false; Decl.class: ReflectionTest02.BaseTestClass 
   fbFnAttr4 type:null  static=false; Decl.class: ReflectionTest02.BaseTestClass 
+  funAttr2 type:null  static=false; Decl.class: ReflectionTest02.BaseTestClass 
   vattr1 type:java.lang.Object  static=false; Decl.class: ReflectionTest02.TestClass   value=[null], itemcount=0
   vb type:Boolean  static=false; Decl.class: ReflectionTest02.TestClass   value=[true], itemcount=1
   vB_attr1 type:java.lang.Object  static=false; Decl.class: ReflectionTest02.BaseTestClass   value=[null], itemcount=0

@@ -19,7 +19,7 @@ class TypeInference  {
    var fnAttr1= function(t:Integer,r:Integer) {r + t};  // Result type of function var inferred to Integer
    var fnAttr2 : function(:Number,:String)= function(v:Number,w:String){if(true){ new java.lang.Integer(5) } else if(false) {2}else {4}};
    var fnAttr3 : function(:Number,:String):Integer;
-   //   var funAttr2: function():function(); //Bug JFXC-1425
+   var funAttr2: function():function(); //Bug JFXC-1425
    var fnAttr4 = function():function() {function(){}};
    
    var attr1 on replace {};
