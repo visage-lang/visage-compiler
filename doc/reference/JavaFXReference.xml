@@ -152,9 +152,10 @@ println("Circumference is { circumference(r) }")</programlisting>
     <sect1>
       <title>JavaFX Script Data Types</title>
 
-      <para>The Void type is an odd duck that is only used to indicate that a
-      function does not return a value, the remainder of this chapter excludes
-      Void.</para>
+      <para>The Void type is an odd duck that is only used to indicate that an
+      expression does not have a value (examples of such expressions are the
+      <command>while</command>-expression and calls to functions which have no
+      return value), the remainder of this chapter excludes Void.</para>
 
       <para>JavaFX Script Data Types, hereafter called JavaFX Types , consist
       of an <emphasis>element specifier</emphasis> and a
@@ -1218,8 +1219,8 @@ println(tf.transform(10.0)</programlisting></para>
    var x = 99;
 }</programlisting></para>
 
-        <para>Here x has an <emphasis>initializingExpression</emphasis>.
-        </para>
+        <para>Here x has an
+        <emphasis>initializingExpression</emphasis>.</para>
 
         <para>If no <emphasis>initializingExpression</emphasis> is provided,
         the default value for the type is the default value of of the instance
@@ -1254,8 +1255,8 @@ class FancyShed extends Shed {
         <emphasis>initializingExpression</emphasis> it will be used. If it is
         not overridden, an explicit
         <emphasis>initializingExpression</emphasis> will supply the initial
-        value. Failing all that, the default value for the type will be used.
-        </para>
+        value. Failing all that, the default value for the type will be
+        used.</para>
 
         <para>After one of the above has set the instance variable, the
         <emphasis>initBlock</emphasis>, if present, is executed. This block
@@ -1299,9 +1300,9 @@ class FancyShed extends Shed {
       <para></para>
 
       <sect2>
-        <title>What does "bind" mean? </title>
+        <title>What does "bind" mean?</title>
 
-        <para>When you write a bound expression: </para>
+        <para>When you write a bound expression:</para>
 
         <para><programlisting>def x = bind <emphasis>someExpression</emphasis>; </programlisting></para>
 
@@ -1310,27 +1311,27 @@ class FancyShed extends Shed {
         need know. But in some cases you need to know how exactly the update
         occurs and in some cases, what is meant by
         <emphasis>someExpression</emphasis> changing. This is what is
-        discussed below. </para>
+        discussed below.</para>
 
         <para></para>
       </sect2>
 
       <sect2>
-        <title>What is recalculated on update? </title>
+        <title>What is recalculated on update?</title>
 
         <para>Within a bind, the minimal recalculation is done -- this only
         matters in limited circumstances, for example when object creation is
         done in a bind and if, because of object identity, it matters if a new
-        object is created or not. </para>
+        object is created or not.</para>
 
-        <para>Let's look at an example of bind: </para>
+        <para>Let's look at an example of bind:</para>
 
         <para><programlisting>def sum = bind <emphasis>expr1</emphasis> + <emphasis><emphasis><emphasis>expr2</emphasis></emphasis></emphasis>; </programlisting></para>
 
         <para>if <emphasis>expr2</emphasis> changes (more precisely, when its
         dependencies change -- more on that later) then the addition is redone
         but <emphasis>expr1</emphasis> is not recalculated, its value has been
-        stored and it is simply re-fetched. </para>
+        stored and it is simply re-fetched.</para>
 
         <para>Let's make this concrete:</para>
 
@@ -1344,7 +1345,7 @@ println(sum);
 y = 7; 
 println(sum); </programlisting></para>
 
-        <para>This prints: </para>
+        <para>This prints:</para>
 
         <para><computeroutput>Called ten</computeroutput></para>
 
@@ -1355,7 +1356,7 @@ println(sum); </programlisting></para>
         <para>Note that the function ten() is called to compute the initial
         value of sum, but when y is set to 7, the function ten() is not called
         again (since it didn't change), its value has been remembered and
-        reused. </para>
+        reused.</para>
 
         <para></para>
 
@@ -1396,6 +1397,186 @@ println(sum); </programlisting></para>
         rule, if expr uses indexof elem then those elements whose index
         changed will need to be updated, but again, corresponding to the
         minimal update rules. For example:</para>
+
+        <programlisting>    var min = 0;
+    var max = 5;
+    function square(x : Integer) : Integer { x*x }
+    def values = bind for (x in [min..max]) square(x);
+    println(values);
+    max = 10;
+    println(values);
+    min = 1;
+    println(values);
+    max = 10;
+    println(values);
+    min = 0;
+    println(values);
+</programlisting>
+
+        <para>The output is:</para>
+
+        <para><computeroutput>[ 0, 1, 4, 9 ]</computeroutput></para>
+
+        <para><computeroutput>[ 0, 1, 4, 9, 16, 25 ]</computeroutput></para>
+
+        <para><computeroutput>[ 1, 4, 9, 16, 25 ]</computeroutput></para>
+
+        <para><computeroutput>[ 0, 1, 4, 9, 16, 25 ]</computeroutput></para>
+
+        <para>But what about recalculations? First the squares of 0 through 3
+        are calculated, then the squares of 4 and 5 (0 through 3 are not
+        recalculated when the max changes). Then the square of zero is deleted
+        (without recalculating any values), and then the square of zero is
+        added back (this does require it to be recalculated). The behavior is
+        the same if insert and delete are used.</para>
+
+        <para></para>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>Block Expressions</title>
+
+        <para>A block expression is a list of expressions enclosing in curly
+        braces. And having the value of the final expression. Within a bind,
+        the only expressions which can occur in the non-final position of a
+        block-expression are variable declarations. Note that assignment
+        (including increment and decrement) are prohibited within bind. Thus a
+        bound block-expression has the form:</para>
+
+        <para><programlisting>bind { 
+   def a = expr;  
+   def b = expr;  
+   def c = expr;  
+   expr 
+} </programlisting></para>
+
+        <para>Because any changes to the bound expression cause an update, and
+        because that update is minimal, it is easy to see that the variables
+        are effectively bound. Note also that <command>while</command>,
+        <command>insert</command>, <command>delete</command>, etc cannot occur
+        in a bound block expression since they are not variable declarations
+        and thus cannot occur in the non-final positions, and they have Void
+        type, thus have no value and cannot be bound; cannot be in the final
+        posiiton.</para>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>Function and Method Calls</title>
+
+        <para><programlisting>def val = bind foo(a, b);</programlisting></para>
+
+        <para>A non-bound function is one that is not proceeded with the bound
+        keyword. For calls to Java<superscript>TM</superscript> methods or
+        non-bound JavaFX<superscript>TM</superscript> functions, the function
+        is re-invoked if any of the arguments change. But the body of a
+        function is a black-box, dependencies it might have beyond the
+        parameters do not cause a recalculation. For example:</para>
+
+        <programlisting>class Point {
+  var x : Number;
+  var y : Number;
+}
+
+var scale = 1.0;
+function makePoint(x0 : Number, y0 : Number) : Point {
+  Point {
+    x: x0 * scale
+    y: y0 * scale
+  }
+}
+
+var myX = 3.0;
+var myY = 3.0;
+def pt = bind makePoint(myX, myY);
+println(pt.x);
+myX = 10.0;
+println(pt.x);
+scale = 2.0;
+println(pt.x);</programlisting>
+
+        <para>Will print:</para>
+
+        <para><computeroutput>3.0 </computeroutput></para>
+
+        <para><computeroutput>10.0 </computeroutput></para>
+
+        <para><computeroutput>10.0</computeroutput></para>
+
+        <para>Changing the argument myX causes makePoint to be called again.
+        But, the function makePoint is a black-box. The change to scale won't
+        cause an update. That's where bound functions come in.</para>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>Bound Functions</title>
+
+        <para>Bound functions have as their body a block-expression which is
+        bound (it thus has the above restrictions on bound block-expressions).
+        When binding to a bound function, changes besides the arguments causes
+        update, and argument changes are seen by the function. So, if the
+        above function makePoint were instead a bound function:</para>
+
+        <para><programlisting>bound function makePoint(x0 : Number, y0 : Number) : Point {</programlisting></para>
+
+        <para>The scale change would cause an update (20.0). Note also, that
+        if myX changed only x0 * scale would be recalculated, not y0 * scale.
+        </para>
+
+        <para>Calling a bound function from outside a bind is just like
+        calling a non-bound function.</para>
+
+        <para></para>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>Object Literals</title>
+
+        <para>Object literals behave like simple operators (+, etc) and
+        non-bound functions. That is, if one of the arguments to the object
+        literal changes then it is re-executed (a new instance is
+        created).</para>
+
+        <para><programlisting>def pt = bind Point { 
+   x: myX
+   y: myY  
+}</programlisting></para>
+
+        <para>if myX changes a new Point object is built -- this is exactly
+        what you want for immutable objects. </para>
+
+        <para>What if you want the value of x to track the value of myX,
+        without creating a new Point? Then you bind the instance variable
+        initializers:</para>
+
+        <programlisting>def pt = bind Point { 
+   x: bind myX
+   y: myY  
+}</programlisting>
+
+        <para>Now if myX changes, the x attribute of point will be updated,
+        but the object literal's instance variable initializer hasn't changed
+        (x is still, and will always be, bound to myX). Changes to myY will
+        still cause a new Point to be created. </para>
+
+        <para>So, what you would actually want for this example would
+        be:</para>
+
+        <programlisting>def pt = Point { 
+   x: bind myX
+   y: bind myY  
+}</programlisting>
+
+        <para>Here pt would always remain the same Point instance. Note that
+        there is no longer a need for <command>bind</command> on the
+        initializing expression of pt since there are no dependencies.</para>
 
         <para></para>
       </sect2>
