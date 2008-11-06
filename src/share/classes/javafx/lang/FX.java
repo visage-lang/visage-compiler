@@ -73,71 +73,68 @@ public class FX {
     }
 
     /**
-     * Retrieve System Property.
-     * System Properties in JavaFX environment can be classified into 3 types:
+     * Gets the system property indicated by the specified key.
+     * <p></p>
+     * System Properties in JavaFX environment can be classified into 2 types:
      * <p>
      * 1. Runtime platform associated property. 
      *    Those properties have an equivalent in current java runtime 
      *    environment (SE/ME). The FX.getProperty() method retrieves
-     *    those properties by mapping specified key with runtime platform key. 
+     *    those properties by mapping specified key with runtime platform key.<br>
+     *    If there is a security manager, property access permission is checked. This may result in a SecurityException.  
      * </p><p>
      * 2. JavaFX specific property. 
      *    Those properties are specific to JavaFX environment therefore
      *    value of the properties is specified in the JavaFX tree.
-     * </p><p>
-     * 3. The property has no association with current runtime platform 
-     *    nor is JavaFX specific, therefore those properties are not 
-     *    supported and null is returned.
      * </p>
-     *
-     * </p><p>
+     * <br>
      * This set of system properties always includes values for the following keys: <p>
      * 
      * <table summary="Shows property keys and associated values">
-     * <tr><td>Key</td>
-     *     <td>Description of Associated Value</td>
+     * <tr><th>Key</th>
+     *     <th>Description of Associated Value</th>
      * <tr><td><code>javafx.version</code></td>
-     *     <td>JavaFX  release version - javafx specific property</td></tr>
+     *     <td><code>JavaFX  release version - javafx specific property</code></td></tr>
      * <tr><td><code>javafx.application.codebase</code></td>
-     *     <td>Application codebase - javafx specific property</td></tr>  
+     *     <td><code>Application codebase - javafx specific property</code></td></tr>  
      * <tr><td><code>javafx.screen.width</code></td>
-     *     <td>Screen width (pixels) - javafx specific property</td></tr>  
+     *     <td><code>Screen width (pixels) - javafx specific property</code></td></tr>  
      * <tr><td><code>javafx.screen.height</code></td>
-     *     <td>Screen height (pixels) - javafx specific property</td></tr>  
+     *     <td><code>Screen height (pixels) - javafx specific property</code></td></tr>  
      * <tr><td><code>javafx.java.version</code></td>
-     *     <td>Java Runtime Environment version</td></tr>
+     *     <td><code>Java Runtime Environment version</code></td></tr>
      * <tr><td><code>javafx.java.vendor</code></td>
-     *     <td>Java Runtime Environment vendor</td></tr
+     *     <td><code>Java Runtime Environment vendor</code></td></tr
      * <tr><td><code>javafx.java.vendor.url</code></td>
-     *     <td>Java vendor URL</td></tr>
+     *     <td><code>Java vendor URL</code></td></tr>
      * <tr><td><code>javafx.java.io.tmpdir</code></td>
-     *     <td>Default temp file path</td></tr>
+     *     <td><code>Default temp file path</code></td></tr>
      * <tr><td><code>javafx.java.ext.dirs</code></td>
-     *     <td>Path of extension directory or directories</td></tr>
+     *     <td><code>Path of extension directory or directories</code></td></tr>
      * <tr><td><code>javafx.os.name</code></td>
-     *     <td>Operating system name</td></tr>
+     *     <td><code>Operating system name</code></td></tr>
      * <tr><td><code>javafx.os.arch</code></td>
-     *     <td>Operating system architecture</td></tr>
+     *     <td><code>Operating system architecture</code></td></tr>
      * <tr><td><code>javafx.os.version</code></td>
-     *     <td>Operating system version</td></tr>
+     *     <td><code>Operating system version</code></td></tr>
      * <tr><td><code>javafx.file.separator</code></td>
-     *     <td>File separator</td></tr>
+     *     <td><code>File separator</code></td></tr>
      * <tr><td><code>javafx.path.separator</code></td>
-     *     <td>Path separator</td></tr>
+     *     <td><code>Path separator</code></td></tr>
      * <tr><td><code>javafx.line.separator</code></td>
-     *     <td>Line separator</td></tr>
+     *     <td><code>Line separator</code></td></tr>
      * <tr><td><code>javafx.user.home</code></td>
-     *     <td>User's home directory</td></tr>
+     *     <td><code>User's home directory</code></td></tr>
      * <tr><td><code>javafx.user.dir</code></td>
-     *     <td>User's current working directory</td></tr>
+     *     <td><code>User's current working directory</code></td></tr>
      * <tr><td><code>javafx.timezone</code></td>
-     *     <td>User's timezone</td></tr>
+     *     <td><code>User's timezone</code></td></tr>
      * <tr><td><code>javafx.language</code></td>
-     *     <td>User's language</td></tr>
+     *     <td><code>User's language</code></td></tr>
      * <tr><td><code>javafx.region</code></td>
-     *     <td>User's region</td></tr>    
+     *     <td><code>User's region</code></td></tr>    
      * <tr><td><code>javafx.encoding</code></td>
-     *     <td>User's encoding</td></tr>     
+     *     <td><code>User's encoding</code></td></tr>     
      * </table>
      * <p>
      *
