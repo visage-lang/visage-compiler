@@ -1535,7 +1535,7 @@ public class JavafxCheck {
                 Scope.Entry e = c.members().lookup(m.name);
                 while (e.scope != null) {
                     e.sym.complete();
-                    if (m.overrides(e.sym, origin, types, false)) {
+                    if (types.overrides(m, e.sym, origin, false)) {
                         checkOverride(tree, m, (MethodSymbol)e.sym, origin);
                         doesOverride = true;
                     }

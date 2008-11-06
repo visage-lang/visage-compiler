@@ -297,6 +297,21 @@ public class JavafxTypes extends Types {
             return msym.implementation(origin, this, checkResult);
     }
 
+    /** A replacement for MethodSymbol.overrides. */
+    public boolean overrides(Symbol sym, Symbol _other, TypeSymbol origin, boolean checkResult) {
+        if (sym.isConstructor() || _other.kind != MTH) return false;
+
+        if (sym == _other) return true;
+        MethodSymbol other = (MethodSymbol)_other;
+
+        // assert types.asSuper(origin.type, other.owner) != null;
+        Type mt = this.memberType(origin.type, sym);
+        Type ot = this.memberType(origin.type, other);
+        return
+            this.isSubSignature(mt, ot) &&
+            (!checkResult || this.resultSubtype(mt, ot, Warner.noWarnings));
+    }
+
     public void clearCaches() {
         fxClasses = null;
     }

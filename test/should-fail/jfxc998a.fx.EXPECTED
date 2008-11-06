@@ -1,0 +1,8 @@
+test/should-fail/jfxc998a.fx:11: warning: Function x() overrides another, it should be declared 'override'.
+  function x() : Void { // Warning: Missing override
+  ^
+test/should-fail/jfxc998a.fx:14: Function y() declared 'override' but does not override another function.
+  override function y() : Void { // Error: doesn't override.
+  ^
+1 error
+1 warning
