@@ -1281,4 +1281,142 @@ class FancyShed extends Shed {
       </sect2>
     </sect1>
   </chapter>
+
+  <chapter>
+    <title>Scripts</title>
+
+    <para></para>
+  </chapter>
+
+  <chapter>
+    <title>Binding</title>
+
+    <para></para>
+
+    <sect1>
+      <title>Bind Update</title>
+
+      <para></para>
+
+      <sect2>
+        <title>What does "bind" mean? </title>
+
+        <para>When you write a bound expression: </para>
+
+        <para><programlisting>def x = bind <emphasis>someExpression</emphasis>; </programlisting></para>
+
+        <para>it means that when <emphasis>someExpression</emphasis> changes,
+        x will be updated to match. That's it. In most cases that is all you
+        need know. But in some cases you need to know how exactly the update
+        occurs and in some cases, what is meant by
+        <emphasis>someExpression</emphasis> changing. This is what is
+        discussed below. </para>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>What is recalculated on update? </title>
+
+        <para>Within a bind, the minimal recalculation is done -- this only
+        matters in limited circumstances, for example when object creation is
+        done in a bind and if, because of object identity, it matters if a new
+        object is created or not. </para>
+
+        <para>Let's look at an example of bind: </para>
+
+        <para><programlisting>def sum = bind <emphasis>expr1</emphasis> + <emphasis><emphasis><emphasis>expr2</emphasis></emphasis></emphasis>; </programlisting></para>
+
+        <para>if <emphasis>expr2</emphasis> changes (more precisely, when its
+        dependencies change -- more on that later) then the addition is redone
+        but <emphasis>expr1</emphasis> is not recalculated, its value has been
+        stored and it is simply re-fetched. </para>
+
+        <para>Let's make this concrete:</para>
+
+        <para><programlisting>var y = 3; 
+function ten() : Integer { 
+   println("Called ten");
+   10 
+} 
+def sum = bind ten() + y; 
+println(sum); 
+y = 7; 
+println(sum); </programlisting></para>
+
+        <para>This prints: </para>
+
+        <para><computeroutput>Called ten</computeroutput></para>
+
+        <para><computeroutput>13 </computeroutput></para>
+
+        <para><computeroutput>17 </computeroutput></para>
+
+        <para>Note that the function ten() is called to compute the initial
+        value of sum, but when y is set to 7, the function ten() is not called
+        again (since it didn't change), its value has been remembered and
+        reused. </para>
+
+        <para></para>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>Conditional Expressions</title>
+
+        <para><programlisting>def x = bind if (<emphasis>condExpr</emphasis>) <emphasis>expr1</emphasis> else <emphasis>expr2</emphasis>;</programlisting></para>
+
+        <para>if the value of <emphasis>condExpr</emphasis> changes, this
+        switches which branch of the if-statement is to be evaluated thus
+        causing a recalculation each time the value of
+        <emphasis>condExpr</emphasis> changes (the previous value of a branch
+        is not stored). If <emphasis>condExpr</emphasis> is true, a change to
+        the dependencies of <emphasis>expr1</emphasis> will cause it to be
+        recalculated but this will not cause a calculation of
+        <emphasis>expr2</emphasis> nor will changes to the dependencies of
+        <emphasis>expr2</emphasis>. Specifically, if
+        <emphasis>condExpr</emphasis> is true, only <emphasis>expr1</emphasis>
+        will calculated; <emphasis>expr2</emphasis> will not be. The inverse
+        is, of course, also true.</para>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>For Expressions</title>
+
+        <para><programlisting>def newSeq = bind for (elem in seq) <emphasis>expr</emphasis>;</programlisting></para>
+
+        <para>If seq changes, the elements in newSeq which corresponded to
+        elements still in seq are not recalculated. That is, if an element is
+        inserted into seq, the result of applying expr to that element are
+        inserted into newSeq at the corresponding position and the other
+        elements are not recalculated. Well, OK, there is an exception to that
+        rule, if expr uses indexof elem then those elements whose index
+        changed will need to be updated, but again, corresponding to the
+        minimal update rules. For example:</para>
+
+        <para></para>
+      </sect2>
+    </sect1>
+  </chapter>
+
+  <chapter>
+    <title>Error Handling and Exceptions</title>
+
+    <para></para>
+  </chapter>
+
+  <chapter>
+    <title>Conversions</title>
+
+    <para></para>
+  </chapter>
+
+  <chapter>
+    <title>Access Modifiers</title>
+
+    <para></para>
+  </chapter>
 </book>
