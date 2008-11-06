@@ -23,6 +23,7 @@ class Square extends MyRect {
 
 class Simple extends Square, java.lang.Object {
    public var at1;
+   public var func : function(:String) : function();
 };
 
 //function run( ) {

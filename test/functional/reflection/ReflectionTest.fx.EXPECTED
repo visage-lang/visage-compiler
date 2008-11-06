@@ -4,9 +4,9 @@ Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference,
  Type of attr1 is inferred as class java.lang.Object
  Type of booleanAttr1 is inferred as Boolean
  Type of fnAttr1 is inferred as function(java.lang.Integer,java.lang.Integer):java.lang.Integer
- Type of fnAttr2 is inferred as function(Number,java.lang.String):java.lang.Void
+ Type of fnAttr2 is inferred as function(Number,java.lang.String):Void
  Type of fnAttr3 is inferred as function(Number,java.lang.String):Integer
- Type of fnAttr4 is inferred as function():function():java.lang.Void
+ Type of fnAttr4 is inferred as function():function():Void
  Type of intAttr1 is inferred as Integer
  Type of intAttr2 is inferred as Integer
  Type of intAttr3 is inferred as Integer

@@ -151,7 +151,12 @@ public class FXLocal {
                         FXType[] prtypes = new FXType[targs.length-1];
                         for (int i = prtypes.length;  --i >= 0; )
                             prtypes[i] = makeTypeRef(targs[i+1]);
-                        return new FXFunctionType(prtypes, makeTypeRef(targs[0]));
+                        FXType rettype;
+                        if (targs[0] == java.lang.Void.class)
+                            rettype = FXPrimitiveType.voidType;
+                        else
+                            rettype = makeTypeRef(targs[0]);
+                        return new FXFunctionType(prtypes, rettype);
                     }
                 }
                            
@@ -162,14 +167,18 @@ public class FXLocal {
                 Type[] upper = wtyp.getUpperBounds();
                 Type[] lower = wtyp.getLowerBounds();
                 typ = lower.length > 0 ? lower[0] : wtyp.getUpperBounds()[0];
-                String rawName = ((Class) typ).getName();
-                // Kludge
-                if (rawName.equals("java.lang.Boolean"))
-                    return getBooleanType();
-                if (rawName.equals("java.lang.Integer"))
-                    return getIntegerType();
-                if (rawName.equals("java.lang.Double"))
-                    return getNumberType();
+                if (typ instanceof Class) {
+                    String rawName = ((Class) typ).getName();
+                    // Kludge, because generics don't handle primitive types.
+                    if (rawName.equals("java.lang.Boolean"))
+                        return getBooleanType();
+                    if (rawName.equals("java.lang.Integer"))
+                        return getIntegerType();
+                    if (rawName.equals("java.lang.Double"))
+                        return getNumberType();
+                    if (rawName.equals("java.lang.Void"))
+                        return FXPrimitiveType.voidType;
+                }
                 return makeTypeRef(typ);
             }
             if (typ instanceof GenericArrayType) {

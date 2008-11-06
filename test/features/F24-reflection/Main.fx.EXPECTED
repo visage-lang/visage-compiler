@@ -135,6 +135,7 @@ Square attributes (only):
   atPub : class java.lang.String
 Simple attributes (only):
   at1 : class java.lang.Object
+  func : function(java.lang.String):function():Void
 MyRect methods:
   function MyRect.corners():java.awt.geom.Point2D[]
   function MyCanvasItem.main(JavaArray<java.lang.String>):Void
