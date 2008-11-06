@@ -1579,7 +1579,97 @@ println(pt.x);</programlisting>
         initializing expression of pt since there are no dependencies.</para>
 
         <para></para>
+
+        <para></para>
       </sect2>
+    </sect1>
+
+    <sect1>
+      <title>Bind Definitions</title>
+
+      <para>A bound expression is an expression whose value updates when its
+      dependencies change. Dependencies, the update mechanism, and the
+      creation of bound expressions are discussed below. </para>
+
+      <para>Bound expressions are evaluated in bind context; all other
+      evaluation is in a normal context. A bound expression may not contain
+      assignment or iteration. Assignment includes increment and decrement.
+      Iteration is the <command>while</command>-loop (not
+      <command>for</command>-expression). </para>
+
+      <para>A variable (instance, script, or local variable) can be bound to
+      an expression. That expression, of course, is a bound expression.
+      </para>
+
+      <para>A local variable definition with an initializing expression
+      creates a binding from the local variable to the expression if the
+      definition is explicitly bound: </para>
+
+      <para><programlisting>def <emphasis>varName</emphasis> = bind <emphasis>expression</emphasis></programlisting></para>
+
+      <para>or if the definition is in a bind context. </para>
+
+      <para>A script variable definition with an initializing expression
+      creates a binding from the instance variable to the expression if the
+      definition is explicitly bound.</para>
+
+      <para>An instance variable definition with an initializing expression
+      creates a binding from the instance variable to the expression if the
+      definition is explicitly bound and is not overriden or superceded by an
+      object literal initializing expression. Class definitions are not
+      evaluated and thus do not have bind contexts, so instance variable
+      initialization without an explicit <command>bind</command> cannot create
+      a binding. An object literal component creates a binding from the
+      instance variable to the expression if the component is explicitly
+      bound:</para>
+
+      <para><programlisting><emphasis>className</emphasis> { <emphasis>instanceVariableName</emphasis>: bind <emphasis>expression</emphasis> } </programlisting></para>
+
+      <para>A binding between a variable and an expression means intuitively
+      that the variable maintains the value of the expression. Specifically,
+      this means the variable is updated when the dependencies of the
+      expression change. </para>
+
+      <para><remark>This paragraph needs to be revamped:</remark> A bound
+      function has, as its body, an expression which may be bound. The body of
+      a bound function invoked from a bind context is a bound expression, as
+      is the value of a bound block expression. The dependencies of a bound
+      expression are as follows: The dependencies of a variable reference is
+      the variable. A literal has no dependencies. An object literal has its
+      referenced unbound instance variables. The dependencies of an arithmetic
+      or Boolean operation is the union of the dependencies of its components.
+      For example, the dependencies of: a + b are the union of the
+      dependencies of "a" and the dependencies of "b". The dependencies of a
+      conditional are the union of the dependencies of its components
+      (condition, true-part, and false-part). For example, the dependencies
+      of: if (cond) a else b are the union of the dependencies of "cond", the
+      dependencies of "a" and the dependencies of "b". It may or may not be
+      desirable to optimize this to a conditional dynamic dependency. The
+      dependencies of foreach aren't addressed here. The dependencies of a
+      block expression are the dependencies of its value. Where its value is
+      the terminal expression or the value of the terminal return statement.
+      The dependencies of a bound function invocation are the dependencies of
+      the body of the function (the body of a function is a block expression).
+      That is, when invoking a function in a bind context, the body of the
+      function (along with its arguments) is a bound expression -- the
+      invocation's dependencies are the dependencies of the bound body. Note
+      that the dependencies of the arguments are not directly dependencies of
+      the invocation, but they will be included in the dependencies of the
+      body unless the result of the function does not depend on the
+      corresponding parameter. </para>
+
+      <para>The dependencies of a non-bound function invocation are the
+      dependencies of the arguments. When a bound expression is updated,
+      expression evaluation is identical to normal expression evaluation for
+      literals, variable references, arithmetic and Boolean operators,
+      conditional expressions, and non-bound function invocation. An update
+      does not cause the re-evaluation of a bound function invocation, rather
+      the current value of this bound expression is used. Note that the update
+      may occur in the opposite direction, that is, a change to the
+      dependencies of a bound function body will trigger an update to the
+      invoking bound expression. </para>
+
+      <para></para>
     </sect1>
   </chapter>
 
