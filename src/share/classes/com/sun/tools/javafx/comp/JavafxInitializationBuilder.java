@@ -1012,7 +1012,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     make.at(diagPos).VarDef(
                         make.Modifiers(0L), 
                         oldValue.getName(), 
-                        makeTypeTree( diagPos, vmi.getRealType(),types.isJFXClass(vmi.getRealType().tsym)),
+                        makeTypeTree( diagPos, vmi.getRealType()),
                         makeIdentifier(diagPos, onChangeArgName1)));
         }
         if (onReplace != null && onReplace.getNewElements() != null) {
@@ -1024,7 +1024,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     make.at(diagPos).VarDef(
                         make.Modifiers(0L), 
                         newValue.getName(), 
-                        makeTypeTree( diagPos, vmi.getRealType(),types.isJFXClass(vmi.getRealType().tsym)),
+                        makeTypeTree( diagPos, vmi.getRealType()),
                         makeIdentifier(diagPos, onChangeArgName2)));
         }
         return makeChangeListenerMethod(diagPos, onReplace, onReplaceTranslatedBody, setUpStmts, "onChange", onChangeArgs, TypeTags.VOID);
