@@ -270,12 +270,89 @@ println(k);</programlisting>
     <sect1>
       <title>Built-in Types</title>
 
-      <para></para>
+      <para>The built-in types -- String, Integer, Number, Boolean, and
+      Duration -- have the following characteristics:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>are all immutable -- they do not have internal state that can
+          be changed (for example, you can't change the characters in a
+          String)</para>
+        </listitem>
+      </itemizedlist>
+
+      <itemizedlist>
+        <listitem>
+          <para>all have required cardinality (and thus are subclasses of
+          java.lang.Object)</para>
+        </listitem>
+      </itemizedlist>
+
+      <itemizedlist>
+        <listitem>
+          <para>all have default value different from null</para>
+        </listitem>
+      </itemizedlist>
+
+      <itemizedlist>
+        <listitem>
+          <para>all have a built-in literal format</para>
+        </listitem>
+      </itemizedlist>
+
+      <itemizedlist>
+        <listitem>
+          <para>all, but Duration, have built-in operations that return values
+          of the type</para>
+        </listitem>
+      </itemizedlist>
+
+      <itemizedlist>
+        <listitem>
+          <para></para>
+        </listitem>
+      </itemizedlist>
+
+      <itemizedlist>
+        <listitem>
+          <para></para>
+        </listitem>
+      </itemizedlist>
 
       <sect2>
         <title>String</title>
 
+        <para>String represents character strings. </para>
+
         <para></para>
+
+        <sect3>
+          <title>String Literal Syntax</title>
+
+          <para>Literals are bracketed in either single or double quotes. That
+          is, a double quote followed by a sequence of characters (here
+          "sequence" does not refer to the cardinality) and ending with a
+          double quote. Or a single quote followed by a sequence of characters
+          and ending with a single quote. If the sequence of characters
+          includes braces ('{' or '}') it is a string-expression (which is
+          covered in the Expressions chapter). Any character may be escaped
+          with the backslash character ('\') -- this is useful for including
+          the brace, quote, and backslash characters. Note that single quotes
+          may be included in double quoted strings without being escaped, and
+          visa versa. The sequence of characters must not include
+          carriage-return or linefeed. Two adjacent strings are automatically
+          merged -- this is convenient for making multiple line strings.
+          Thus:</para>
+
+          <programlisting>"Hello "
+'t\here'</programlisting>
+
+          <para>Is equivalent to:</para>
+
+          <para>"Hello there"</para>
+
+          <para></para>
+        </sect3>
       </sect2>
 
       <sect2>
