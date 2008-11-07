@@ -322,24 +322,34 @@ println(k);</programlisting>
       <sect2>
         <title>String</title>
 
-        <para>String represents character strings. </para>
+        <para>String represents character strings. The default value for the
+        String type is the empty string ("").</para>
 
         <para></para>
 
         <sect3>
           <title>String Literal Syntax</title>
 
-          <para></para>
+          <para><programlisting>    StringLiteral:
+            " DoubleQuoteStringCharacters<subscript>opt</subscript> "
+            ' SingleQuoteStringCharacters<subscript>opt</subscript> '
 
-          <figure>
-            <title>stringLiteral</title>
+    DoubleQuoteStringCharacters:
+            DoubleQuoteStringCharacter
+            DoubleQuoteStringCharacters DoubleQuoteStringCharacter
 
-            <mediaobject>
-              <imageobject>
-                <imagedata fileref="stringLiteral.png"></imagedata>
-              </imageobject>
-            </mediaobject>
-          </figure>
+    DoubleQuoteStringCharacter:
+            InputCharacter but not ", {, } or \
+            \ InputCharacter
+
+    SingleQuoteStringCharacters:
+            SingleQuoteStringCharacter
+            SingleQuoteStringCharacters SingleQuoteStringCharacter
+
+    SingleQuoteStringCharacter:
+            InputCharacter but not ', {, } or \
+            \ InputCharacter
+</programlisting></para>
 
           <para>Literals are bracketed in either single or double quotes. That
           is, a double quote followed by a sequence of characters (here
@@ -369,7 +379,7 @@ println(k);</programlisting>
         </sect3>
 
         <sect3>
-          <title>Operations Returning String</title>
+          <title>Operations over String</title>
 
           <para>String-expressions are of String type -- see the Expressions
           chapter</para>
@@ -381,13 +391,132 @@ println(k);</programlisting>
       <sect2>
         <title>Integer</title>
 
+        <para><programlisting>    IntegerLiteral:
+            DecimalIntegerLiteral
+            HexIntegerLiteral       
+            OctalIntegerLiteral
+
+    DecimalIntegerLiteral:
+            0
+            NonZeroDigit Digitsopt
+
+    Digits:
+            Digit
+            Digits Digit
+
+    Digit:
+            0
+            NonZeroDigit
+
+    NonZeroDigit: one of
+            1 2 3 4 5 6 7 8 9
+
+
+    HexIntegerLiteral:
+            0 x HexDigits
+            0 X HexDigits
+
+    HexDigits:
+            HexDigit
+            HexDigit HexDigits
+
+    HexDigit: one of
+            0 1 2 3 4 5 6 7 8 9 a b c d e f A B C D E F
+
+
+    OctalIntegerLiteral:
+            0 OctalDigits
+
+    OctalDigits:
+            OctalDigit
+            OctalDigit OctalDigits
+
+    OctalDigit: one of
+            0 1 2 3 4 5 6 7
+</programlisting></para>
+
+        <para>The Integer type represents integers in the range -2147483648 to
+        2147483647, inclusive. The default value for the Integer type is zero
+        (0).</para>
+
         <para></para>
+
+        <sect3>
+          <title>Integer Literal Syntax. </title>
+
+          <para>Integers may be represented in decimal, octal, or hexidecimal
+          formats. Decimal format is the digit 1 through 9 followed by digits
+          in the range 0 through 9, or simply 0 by itself. Octal format is the
+          digit 0 followed by digits in the range 0 through 7. Hexidecimal
+          format is the digit 0 following by 'x' or 'X' then followed by
+          digits in the range 0 through 9 or A through F (upper or lower
+          case). </para>
+
+          <para></para>
+        </sect3>
+
+        <sect3>
+          <title>Operations over Integer</title>
+
+          <para>Arithmetic operators (+, -, *, /, and <command>mod</command>)
+          operate over and return Integer. Comparison operators (==, &lt;,
+          &gt;=, etc) operate over Integer. The <command>sizeof</command>
+          operator returns Integer.</para>
+        </sect3>
       </sect2>
 
       <sect2>
         <title>Number</title>
 
+        <para>The Number type represents floating-point numbers.</para>
+
+        <para>The Number type is conceptually associated with the
+        double-precision 64-bit format IEEE 754 values and operations as
+        specified in IEEE Standard for Binary Floating-Point Arithmetic,
+        ANSI/IEEE Standard 754-1985 (IEEE, New York). </para>
+
+        <para>The IEEE 754 standard includes not only positive and negative
+        numbers that consist of a sign and magnitude, but also positive and
+        negative zeros, positive and negative infinities, and special
+        Not-a-Number values (hereafter abbreviated NaN). A NaN value is used
+        to represent the result of certain invalid operations such as dividing
+        zero by zero. The double-extended-exponent value set may, under
+        certain circumstances, be used instead of the standard value sets to
+        represent the values of expressions of type Number.</para>
+
         <para></para>
+
+        <sect3>
+          <title>Number Literal Syntax</title>
+
+          <para><programlisting>NumberLiteral:
+      Digits . Digits<subscript>opt</subscript> ExponentPart<subscript>opt</subscript> 
+      . Digits ExponentPart<subscript>opt</subscript> 
+      Digits ExponentPart<subscript>opt</subscript> 
+
+ExponentPart:
+        ExponentIndicator SignedInteger
+
+ExponentIndicator: one of
+        e E
+
+SignedInteger:
+        Sign<subscript>opt</subscript> Digits
+
+Sign: one of
+        + -
+</programlisting></para>
+
+          <para></para>
+        </sect3>
+
+        <sect3>
+          <title>Operations over Number</title>
+
+          <para>Arithmetic operators (+, -, *, and /) operate over and return
+          Number. Comparison operators (==, &lt;, &gt;=, etc) operate over
+          Number. </para>
+        </sect3>
       </sect2>
 
       <sect2>
