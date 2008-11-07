@@ -7,6 +7,7 @@
     <import file="../tools-defs.xml" />
 
     <property name="doc.build.dir" value="${build.dir}/doc"/>
+    <property name="doc.dest.dir" value="${doc.build.dir}/html/orig"/>
     <property name="doc.src.dir" value="${basedir}/doc/langspec"/>
     <property name="html.style" value="${docbook.dir}/html/chunkfast.xsl"/>
     <property name="xhtml.style" value="${docbook.dir}/xhtml/chunkfast.xsl"/>
@@ -32,7 +33,7 @@
 
     <target name="prepare" depends="-init-macrodef-manpage">
         <mkdir dir="${doc.build.dir}"/>
-        <mkdir dir="${doc.build.dir}/html"/>
+        <mkdir dir="${doc.dest.dir}"/>
         <mkdir dir="${doc.build.dir}/tmp"/>
         <mkdir dir="${doc.build.dir}/man/man1"/>
 
@@ -81,7 +82,7 @@
     <target name="chunk-html" depends="prepare,langref.xsl">
         <makeurl property="doc.xml" file="${doc.src.dir}/${doc.name}.xml"/>
         <java classname="com.elharo.xml.xinclude.SAXXIncluder" fork="true" 
-              dir="${doc.build.dir}/html" failonerror="true">
+              dir="${doc.dest.dir}" failonerror="true">
             <classpath refid="doc.build.class.path" />
             <arg line="-r org.apache.xml.resolver.tools.CatalogResolver"/>
             <arg value="${doc.xml}"/>
@@ -89,7 +90,7 @@
         </java>
 
         <java classname="com.icl.saxon.StyleSheet" fork="true"
-              dir="${doc.build.dir}/html" failonerror="true">
+              dir="${doc.dest.dir}" failonerror="true">
             <classpath refid="doc.build.class.path"/>
             <arg line="-x org.apache.xml.resolver.tools.ResolvingXMLReader"/>
             <arg line="-y org.apache.xml.resolver.tools.ResolvingXMLReader"/>
@@ -105,7 +106,7 @@
         </java>
 
         <delete file="${doc.build.dir}/tmp/${doc.name}-xi-tmp.html" failonerror="no"/>
-        <copy file="doc/langspec/langref.css" tofile="${doc.build.dir}/html/langref.css"/>
+        <copy file="doc/langspec/langref.css" tofile="${doc.dest.dir}/langref.css"/>
     </target>
     
     <target name="man-pages" depends="javafx-man-page,javafxc-man-page,javafxdoc-man-page"
@@ -192,7 +193,7 @@
     </target>
     
     <target name="copy-figures">
-        <copy todir="${doc.build.dir}/html" failonerror="true">
+        <copy todir="${doc.dest.dir}" failonerror="true">
             <fileset dir="${doc.src.dir}" includes="*.png"/>
         </copy>
     </target>

@@ -7,6 +7,7 @@
     <import file="../tools-defs.xml" />
 
     <property name="doc.build.dir" value="${build.dir}/doc"/>
+    <property name="doc.dest.dir" value="${doc.build.dir}/html"/>
     <property name="doc.src.dir" value="${basedir}/doc/reference"/>
     <property name="html.style" value="${docbook.dir}/html/chunk.xsl"/>
     <property name="xhtml.style" value="${docbook.dir}/xhtml/chunkfast.xsl"/>
@@ -29,7 +30,7 @@
 
     <target name="prepare">
         <mkdir dir="${doc.build.dir}"/>
-        <mkdir dir="${doc.build.dir}/reference"/>
+        <mkdir dir="${doc.dest.dir}"/>
         <mkdir dir="${doc.build.dir}/tmp"/>
 
         <propertyfile file="${doc.build.dir}/tmp/CatalogManager.properties">
@@ -65,7 +66,7 @@
     <target name="chunk-html" depends="prepare,langref.xsl">
         <makeurl property="doc.xml" file="${doc.src.dir}/${doc.name}.xml"/>
         <java classname="com.elharo.xml.xinclude.SAXXIncluder" fork="true" 
-              dir="${doc.build.dir}/reference" failonerror="true">
+              dir="${doc.dest.dir}" failonerror="true">
             <classpath refid="doc.build.class.path" />
             <arg line="-r org.apache.xml.resolver.tools.CatalogResolver"/>
             <arg value="${doc.xml}"/>
@@ -73,7 +74,7 @@
         </java>
 
         <java classname="com.icl.saxon.StyleSheet" fork="true"
-              dir="${doc.build.dir}/reference" failonerror="true">
+              dir="${doc.dest.dir}" failonerror="true">
             <classpath refid="doc.build.class.path"/>
             <arg line="-x org.apache.xml.resolver.tools.ResolvingXMLReader"/>
             <arg line="-y org.apache.xml.resolver.tools.ResolvingXMLReader"/>
@@ -89,7 +90,7 @@
         </java>
 
         <delete file="${doc.build.dir}/tmp/${doc.name}-xi-tmp.html" failonerror="no"/>
-        <copy file="doc/reference/langref.css" tofile="${doc.build.dir}/reference/langref.css"/>
+        <copy file="doc/reference/langref.css" tofile="${doc.dest.dir}/langref.css"/>
     </target>
         
     <available property="ant.jar" value="${ant.home}/lib/ant.jar" file="${ant.home}/lib/ant.jar"/>
@@ -129,7 +130,7 @@
     </target>
     
     <target name="copy-figures">
-        <copy todir="${doc.build.dir}/reference" failonerror="true">
+        <copy todir="${doc.dest.dir}" failonerror="true">
             <fileset dir="${doc.src.dir}" includes="*.png"/>
         </copy>
     </target>
