@@ -8,7 +8,7 @@
 
     <property name="doc.build.dir" value="${build.dir}/doc"/>
     <property name="doc.src.dir" value="${basedir}/doc/reference"/>
-    <property name="html.style" value="${docbook.dir}/html/chunkfast.xsl"/>
+    <property name="html.style" value="${docbook.dir}/html/chunk.xsl"/>
     <property name="xhtml.style" value="${docbook.dir}/xhtml/chunkfast.xsl"/>
     <property name="doc.name" value="JavaFXReference"/>
 

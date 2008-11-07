@@ -279,43 +279,19 @@ println(k);</programlisting>
           be changed (for example, you can't change the characters in a
           String)</para>
         </listitem>
-      </itemizedlist>
-
-      <itemizedlist>
         <listitem>
           <para>all have required cardinality (and thus are subclasses of
           java.lang.Object)</para>
         </listitem>
-      </itemizedlist>
-
-      <itemizedlist>
         <listitem>
           <para>all have default value different from null</para>
         </listitem>
-      </itemizedlist>
-
-      <itemizedlist>
         <listitem>
           <para>all have a built-in literal format</para>
         </listitem>
-      </itemizedlist>
-
-      <itemizedlist>
         <listitem>
           <para>all, but Duration, have built-in operations that return values
           of the type</para>
-        </listitem>
-      </itemizedlist>
-
-      <itemizedlist>
-        <listitem>
-          <para></para>
-        </listitem>
-      </itemizedlist>
-
-      <itemizedlist>
-        <listitem>
-          <para></para>
         </listitem>
       </itemizedlist>
 
@@ -331,6 +307,10 @@ println(k);</programlisting>
           <title>String Literal Syntax</title>
 
           <para><programlisting>    StringLiteral:
+            OneStringLiteral
+            StringLiteral OneStringLiteral
+
+    OneStringLiteral:
             " DoubleQuoteStringCharacters<subscript>opt</subscript> "
             ' SingleQuoteStringCharacters<subscript>opt</subscript> '
 
@@ -372,8 +352,6 @@ println(k);</programlisting>
           <para>Is equivalent to:</para>
 
           <para>"Hello there"</para>
-
-          <para></para>
 
           <para></para>
         </sect3>
