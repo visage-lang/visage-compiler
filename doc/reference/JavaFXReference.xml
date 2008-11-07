@@ -329,6 +329,18 @@ println(k);</programlisting>
         <sect3>
           <title>String Literal Syntax</title>
 
+          <para></para>
+
+          <figure>
+            <title>stringLiteral</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="stringLiteral.png"></imagedata>
+              </imageobject>
+            </mediaobject>
+          </figure>
+
           <para>Literals are bracketed in either single or double quotes. That
           is, a double quote followed by a sequence of characters (here
           "sequence" does not refer to the cardinality) and ending with a
@@ -350,6 +362,17 @@ println(k);</programlisting>
           <para>Is equivalent to:</para>
 
           <para>"Hello there"</para>
+
+          <para></para>
+
+          <para></para>
+        </sect3>
+
+        <sect3>
+          <title>Operations Returning String</title>
+
+          <para>String-expressions are of String type -- see the Expressions
+          chapter</para>
 
           <para></para>
         </sect3>
