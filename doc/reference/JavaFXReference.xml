@@ -74,6 +74,10 @@
 
       <programlisting>println("Hello, World")</programlisting>
 
+      <para>This script will print:</para>
+
+      <para><computeroutput>Hello, World</computeroutput></para>
+
       <para>Which really isn't in the spirit of JavaFX since it isn't
       graphical. Refer to the graphics tutorial for that.</para>
 
@@ -81,15 +85,20 @@
 
       <programlisting>println("Circumference is { 2*3.1415*7 } ")</programlisting>
 
+      <para>This script will print:</para>
+
+      <para><computeroutput>Circumference is 43.981</computeroutput></para>
+
       <para>Note that the expression enclosed in braces is computed at runtime
-      and inserted into the string. But this would be more interesting if we
-      used variables:</para>
+      and inserted into the string. </para>
+
+      <para>This script would be more interesting if we used variables:</para>
 
       <programlisting>def PI = 3.14159265; 
 var r = 7; 
 println("Circumference is { 2 * PI * r } ")</programlisting>
 
-      <para>You can define a function:</para>
+      <para>You could also define a function:</para>
 
       <programlisting>def PI = 3.14159265; 
 var r = 7; 
@@ -132,9 +141,14 @@ println("Circumference is { circumference(r) }")</programlisting>
       <para>Note that the x and y instance variables are set during
       creation.</para>
 
-      <para>Finally we can ask the point to show itself.</para>
+      <para>Finally we can ask the point to print itself by calling the show()
+      function defined in the Point class (above).</para>
 
       <programlisting>myPoint.show()</programlisting>
+
+      <para>This will print:</para>
+
+      <para><computeroutput>Point 12, 9</computeroutput></para>
 
       <para>For an example-based introduction to JavaFX see the JavaFX Script
       Tutorial.</para>
@@ -1157,6 +1171,7 @@ Sign: one of
 
       <para>Note: for relational and equality operators, when comparing
       Integer to Number, the Integer will first be converted to Number.</para>
+
       <para></para>
 
       <para></para>
@@ -1238,7 +1253,6 @@ Sign: one of
           </tbody>
         </tgroup>
       </table>
-
 
       <para>TO DO: assign, assign op, incr/decr, type, reverse, sizeof</para>
     </sect1>
@@ -1700,7 +1714,7 @@ println( square(7) )</programlisting></para>
    function transform(x : Number) : Number { factor * x } 
 } 
 var tf = Scale { factor: 25.0 } 
-println(tf.transform(10.0)</programlisting></para>
+println(tf.transform(10.0))</programlisting></para>
       </sect2>
     </sect1>
 
