@@ -30,7 +30,7 @@ import com.sun.javafx.runtime.location.SequenceLocation;
 /**
  * Helper classes for building bound sequences of the form bind [ a, b, c], much like StringBuilder assists in building
  * Strings. BoundSequenceBuilder stores the locations building built in an array, which is automatically resized as
- * needed. It can be converted to a Sequence by calling toSequence().
+ * needed. It can be converted to a SequenceLocation by calling toSequence().
  *
  * @author Brian Goetz
  */
