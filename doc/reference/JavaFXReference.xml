@@ -943,9 +943,7 @@ Sign: one of
         </tgroup>
       </table>
 
-      <para>These Operators operate over Integer and Number. If either
-      operator is Number, the result is Number. Otherwise, the result is
-      Integer. Note: + does not operate over String.</para>
+      <para>Note: + does not operate over String.</para>
 
       <para></para>
 
@@ -2582,14 +2580,14 @@ println(pt.x);</programlisting>
           <row>
             <entry>protected def x = bind z;</entry>
 
-            <entry> Define x which is readable from the package or
+            <entry>Define x which is readable from the package or
             subclasses.</entry>
           </row>
 
           <row>
             <entry>package var x;</entry>
 
-            <entry> Declare a variable accessible from the package.</entry>
+            <entry>Declare a variable accessible from the package.</entry>
           </row>
 
           <row>
@@ -2601,63 +2599,34 @@ println(pt.x);</programlisting>
           <row>
             <entry>public-read var x;</entry>
 
-            <entry> A variable which can be read anywhere, but can only be
+            <entry>A variable which can be read anywhere, but can only be
             initialized or written (assigned or bound) within the script
             (since script access is the default).</entry>
           </row>
 
           <row>
-            <entry></entry>
+            <entry>public-read package var x;</entry>
 
-            <entry></entry>
+            <entry>A variable which can be read anywhere, but can only be
+            initialized or written (assigned or bound) within the
+            package.</entry>
           </row>
 
           <row>
-            <entry></entry>
+            <entry>public-init var x;</entry>
 
-            <entry></entry>
+            <entry>A variable which can be initialized (by an object literal)
+            or read anywhere, but can only be written (assigned or bound)
+            within the script (since script only access is the
+            default).</entry>
           </row>
 
           <row>
-            <entry></entry>
+            <entry>public-init package var x;</entry>
 
-            <entry></entry>
-          </row>
-
-          <row>
-            <entry></entry>
-
-            <entry></entry>
-          </row>
-
-          <row>
-            <entry></entry>
-
-            <entry></entry>
-          </row>
-
-          <row>
-            <entry></entry>
-
-            <entry></entry>
-          </row>
-
-          <row>
-            <entry></entry>
-
-            <entry></entry>
-          </row>
-
-          <row>
-            <entry></entry>
-
-            <entry></entry>
-          </row>
-
-          <row>
-            <entry></entry>
-
-            <entry></entry>
+            <entry>A variable which can be initialized (by an object literal)
+            or read anywhere, but can only be written (assigned or bound)
+            within the package.</entry>
           </row>
         </tbody>
       </tgroup>
