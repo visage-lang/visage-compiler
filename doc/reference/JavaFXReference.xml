@@ -138,8 +138,6 @@ println("Circumference is { circumference(r) }")</programlisting>
 
       <para>For an example-based introduction to JavaFX see the JavaFX Script
       Tutorial.</para>
-
-      <para></para>
     </sect1>
   </chapter>
 
@@ -263,8 +261,6 @@ println(k);</programlisting>
 
       <para>Will print zero since k has not been set and the default value for
       Integer is 0.</para>
-
-      <para></para>
     </sect1>
 
     <sect1>
@@ -279,16 +275,20 @@ println(k);</programlisting>
           be changed (for example, you can't change the characters in a
           String)</para>
         </listitem>
+
         <listitem>
           <para>all have required cardinality (and thus are subclasses of
           java.lang.Object)</para>
         </listitem>
+
         <listitem>
           <para>all have default value different from null</para>
         </listitem>
+
         <listitem>
           <para>all have a built-in literal format</para>
         </listitem>
+
         <listitem>
           <para>all, but Duration, have built-in operations that return values
           of the type</para>
@@ -301,8 +301,6 @@ println(k);</programlisting>
         <para>String represents character strings. The default value for the
         String type is the empty string ("").</para>
 
-        <para></para>
-
         <sect3>
           <title>String Literal Syntax</title>
 
@@ -311,24 +309,24 @@ println(k);</programlisting>
             StringLiteral OneStringLiteral
 
     OneStringLiteral:
-            " DoubleQuoteStringCharacters<subscript>opt</subscript> "
-            ' SingleQuoteStringCharacters<subscript>opt</subscript> '
+            <command>"</command> DoubleQuoteStringCharacters<subscript>opt</subscript> <command>"</command>
+            <command>'</command> SingleQuoteStringCharacters<subscript>opt</subscript> <command>'</command>
 
     DoubleQuoteStringCharacters:
             DoubleQuoteStringCharacter
             DoubleQuoteStringCharacters DoubleQuoteStringCharacter
 
     DoubleQuoteStringCharacter:
-            InputCharacter but not ", {, } or \
-            \ InputCharacter
+            InputCharacter but not <command>"</command>, <command>{</command>, <command>}</command> or <command>\</command>
+            <command>\</command> InputCharacter
 
     SingleQuoteStringCharacters:
             SingleQuoteStringCharacter
             SingleQuoteStringCharacters SingleQuoteStringCharacter
 
     SingleQuoteStringCharacter:
-            InputCharacter but not ', {, } or \
-            \ InputCharacter
+            InputCharacter but not <command>'</command>, <command>{</command>, <command>}</command> or <command>\</command>
+            <command>\</command> InputCharacter
 </programlisting></para>
 
           <para>Literals are bracketed in either single or double quotes. That
@@ -352,8 +350,6 @@ println(k);</programlisting>
           <para>Is equivalent to:</para>
 
           <para>"Hello there"</para>
-
-          <para></para>
         </sect3>
 
         <sect3>
@@ -361,8 +357,6 @@ println(k);</programlisting>
 
           <para>String-expressions are of String type -- see the Expressions
           chapter</para>
-
-          <para></para>
         </sect3>
       </sect2>
 
@@ -375,7 +369,7 @@ println(k);</programlisting>
             OctalIntegerLiteral
 
     DecimalIntegerLiteral:
-            0
+            <command>0</command>
             NonZeroDigit Digitsopt
 
     Digits:
@@ -383,44 +377,42 @@ println(k);</programlisting>
             Digits Digit
 
     Digit:
-            0
+            <command>0</command>
             NonZeroDigit
 
     NonZeroDigit: one of
-            1 2 3 4 5 6 7 8 9
+            <command>1 2 3 4 5 6 7 8 9</command>
 
 
     HexIntegerLiteral:
-            0 x HexDigits
-            0 X HexDigits
+            <command>0 x</command> HexDigits
+            <command>0 X</command> HexDigits
 
     HexDigits:
             HexDigit
             HexDigit HexDigits
 
     HexDigit: one of
-            0 1 2 3 4 5 6 7 8 9 a b c d e f A B C D E F
+            <command>0 1 2 3 4 5 6 7 8 9 a b c d e f A B C D E F</command>
 
 
     OctalIntegerLiteral:
-            0 OctalDigits
+            <command>0</command> OctalDigits
 
     OctalDigits:
             OctalDigit
             OctalDigit OctalDigits
 
     OctalDigit: one of
-            0 1 2 3 4 5 6 7
+            <command>0 1 2 3 4 5 6 7</command>
 </programlisting></para>
 
         <para>The Integer type represents integers in the range -2147483648 to
         2147483647, inclusive. The default value for the Integer type is zero
         (0).</para>
 
-        <para></para>
-
         <sect3>
-          <title>Integer Literal Syntax. </title>
+          <title>Integer Literal Syntax.</title>
 
           <para>Integers may be represented in decimal, octal, or hexidecimal
           formats. Decimal format is the digit 1 through 9 followed by digits
@@ -428,9 +420,7 @@ println(k);</programlisting>
           digit 0 followed by digits in the range 0 through 7. Hexidecimal
           format is the digit 0 following by 'x' or 'X' then followed by
           digits in the range 0 through 9 or A through F (upper or lower
-          case). </para>
-
-          <para></para>
+          case).</para>
         </sect3>
 
         <sect3>
@@ -451,7 +441,7 @@ println(k);</programlisting>
         <para>The Number type is conceptually associated with the
         double-precision 64-bit format IEEE 754 values and operations as
         specified in IEEE Standard for Binary Floating-Point Arithmetic,
-        ANSI/IEEE Standard 754-1985 (IEEE, New York). </para>
+        ANSI/IEEE Standard 754-1985 (IEEE, New York).</para>
 
         <para>The IEEE 754 standard includes not only positive and negative
         numbers that consist of a sign and magnitude, but also positive and
@@ -462,27 +452,25 @@ println(k);</programlisting>
         certain circumstances, be used instead of the standard value sets to
         represent the values of expressions of type Number.</para>
 
-        <para></para>
-
         <sect3>
           <title>Number Literal Syntax</title>
 
           <para><programlisting>NumberLiteral:
       Digits . Digits<subscript>opt</subscript> ExponentPart<subscript>opt</subscript> 
-      . Digits ExponentPart<subscript>opt</subscript> 
+      <command>.</command> Digits ExponentPart<subscript>opt</subscript> 
       Digits ExponentPart<subscript>opt</subscript> 
 
 ExponentPart:
         ExponentIndicator SignedInteger
 
 ExponentIndicator: one of
-        e E
+        <command>e E</command>
 
 SignedInteger:
         Sign<subscript>opt</subscript> Digits
 
 Sign: one of
-        + -
+        <command>+ -</command>
 </programlisting></para>
 
           <para></para>
@@ -492,28 +480,57 @@ Sign: one of
           <title>Operations over Number</title>
 
           <para>Arithmetic operators (+, -, *, and /) operate over and return
-          Number. Comparison operators (==, &lt;, &gt;=, etc) operate over
-          Number. </para>
+          Number. The comparison operators (==, &lt;, &gt;=, etc) operate over
+          Number.</para>
         </sect3>
       </sect2>
 
       <sect2>
         <title>Boolean</title>
 
-        <para></para>
+        <para>Boolean represents the values true and false.</para>
+
+        <sect3>
+          <title>Boolean Literal Syntax</title>
+
+          <programlisting>    BooleanLiteral: one of
+            <command>true false</command>
+</programlisting>
+
+          <para></para>
+        </sect3>
+
+        <sect3>
+          <title>Operations over Boolean</title>
+
+          <para>The <command>not</command>, <command>and</command>, and
+          <command>or</command> operators operate over and return Boolean. The
+          comparison operators (==, &lt;, &gt;=, etc) return Boolean. The
+          <command>if</command>-expression and
+          <command>while</command>-expression take Boolean as their
+          condition.</para>
+        </sect3>
       </sect2>
 
       <sect2>
         <title>Duration</title>
 
-        <para></para>
+        <para>Duration represents an amount of time.</para>
+
+        <sect3>
+          <title>Duration Literal Syntax</title>
+
+          <programlisting>    DurationLiteral:
+        IntegerLiteral TimeUnit
+        NumberLiteral TimeUnit
+
+    TimeUnit: one of
+        <command>ms  s  h</command></programlisting>
+
+          <para>For example: 10s is ten seconds, 4ms is four milliseconds, and
+          0.5h is half an hour.</para>
+        </sect3>
       </sect2>
-    </sect1>
-
-    <sect1>
-      <title>Sequence Types</title>
-
-      <para></para>
     </sect1>
 
     <sect1>
@@ -1732,8 +1749,8 @@ println(pt.x);</programlisting>
         <para><programlisting>bound function makePoint(x0 : Number, y0 : Number) : Point {</programlisting></para>
 
         <para>The scale change would cause an update (20.0). Note also, that
-        if myX changed only x0 * scale would be recalculated, not y0 * scale.
-        </para>
+        if myX changed only x0 * scale would be recalculated, not y0 *
+        scale.</para>
 
         <para>Calling a bound function from outside a bind is just like
         calling a non-bound function.</para>
@@ -1757,7 +1774,7 @@ println(pt.x);</programlisting>
 }</programlisting></para>
 
         <para>if myX changes a new Point object is built -- this is exactly
-        what you want for immutable objects. </para>
+        what you want for immutable objects.</para>
 
         <para>What if you want the value of x to track the value of myX,
         without creating a new Point? Then you bind the instance variable
@@ -1771,7 +1788,7 @@ println(pt.x);</programlisting>
         <para>Now if myX changes, the x attribute of point will be updated,
         but the object literal's instance variable initializer hasn't changed
         (x is still, and will always be, bound to myX). Changes to myY will
-        still cause a new Point to be created. </para>
+        still cause a new Point to be created.</para>
 
         <para>So, what you would actually want for this example would
         be:</para>
@@ -1796,25 +1813,24 @@ println(pt.x);</programlisting>
 
       <para>A bound expression is an expression whose value updates when its
       dependencies change. Dependencies, the update mechanism, and the
-      creation of bound expressions are discussed below. </para>
+      creation of bound expressions are discussed below.</para>
 
       <para>Bound expressions are evaluated in bind context; all other
       evaluation is in a normal context. A bound expression may not contain
       assignment or iteration. Assignment includes increment and decrement.
       Iteration is the <command>while</command>-loop (not
-      <command>for</command>-expression). </para>
+      <command>for</command>-expression).</para>
 
       <para>A variable (instance, script, or local variable) can be bound to
-      an expression. That expression, of course, is a bound expression.
-      </para>
+      an expression. That expression, of course, is a bound expression.</para>
 
       <para>A local variable definition with an initializing expression
       creates a binding from the local variable to the expression if the
-      definition is explicitly bound: </para>
+      definition is explicitly bound:</para>
 
       <para><programlisting>def <emphasis>varName</emphasis> = bind <emphasis>expression</emphasis></programlisting></para>
 
-      <para>or if the definition is in a bind context. </para>
+      <para>or if the definition is in a bind context.</para>
 
       <para>A script variable definition with an initializing expression
       creates a binding from the instance variable to the expression if the
@@ -1835,7 +1851,7 @@ println(pt.x);</programlisting>
       <para>A binding between a variable and an expression means intuitively
       that the variable maintains the value of the expression. Specifically,
       this means the variable is updated when the dependencies of the
-      expression change. </para>
+      expression change.</para>
 
       <para><remark>This paragraph needs to be revamped:</remark> A bound
       function has, as its body, an expression which may be bound. The body of
@@ -1863,7 +1879,7 @@ println(pt.x);</programlisting>
       that the dependencies of the arguments are not directly dependencies of
       the invocation, but they will be included in the dependencies of the
       body unless the result of the function does not depend on the
-      corresponding parameter. </para>
+      corresponding parameter.</para>
 
       <para>The dependencies of a non-bound function invocation are the
       dependencies of the arguments. When a bound expression is updated,
@@ -1874,7 +1890,7 @@ println(pt.x);</programlisting>
       the current value of this bound expression is used. Note that the update
       may occur in the opposite direction, that is, a change to the
       dependencies of a bound function body will trigger an update to the
-      invoking bound expression. </para>
+      invoking bound expression.</para>
 
       <para></para>
     </sect1>
