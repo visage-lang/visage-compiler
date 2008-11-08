@@ -653,42 +653,7 @@ FLOATING_POINT_LITERAL
     						}
     				)+
     				
-    				{
-    					// Always set the type to octal, so the parser does not see
-    					// a lexing error, even though the compiler knows there is an
-    					// error.
-    					//
-    					$type = OCTAL_LITERAL;
-    					
-    					if	(rangeError)
-    					{
-    						log.error(sPos, MsgSym.MESSAGE_JAVAFX_OCTAL_MALFORMED);
-    						setText("0");
-    					}
-    					else
-    					{
-    						if	(! checkIntLiteralRange(getText(), getCharIndex(), 8, negative))
-    						{
-    							setText("0");
-    						}
-    					}
-    				}
-    				 (
-    				 		// Octal numbers cannot be floating point, but catch this here
-    			  	  		// rather than mismatch it.
-    			  	  		//
-    			  	  		{ input.LA(2) != '.'}?=> 
-    			  	  		
-    			  	  		{ sPos = getCharIndex(); }
-    			  	  		
-    			  	  		'.' Digits?	
-    			  	  		
-    			  	  			{ 
-    			  	  				log.error(sPos, MsgSym.MESSAGE_JAVAFX_OCTAL_FLOAT);
-    			  	  				setText("0");
-    			  	  			}
-    			  	  	|
-    			  	  )
+    				//Octal
     			  	  
     			|	// Time sequence specifier means this was 0 length time
     				// in whatever units.
@@ -721,16 +686,7 @@ FLOATING_POINT_LITERAL
     							{ $type = FLOATING_POINT_LITERAL; }
     					)
     				
-    			|	// If there were no following digits or adornments or range follows
-    				// then this was just Zero
-    				//
-    				{ 
-    					$type = DECIMAL_LITERAL;
-    					if	(! checkIntLiteralRange(getText(), getCharIndex(), 10, negative))
-    					{
-    						setText("0");
-    					}
-    				}  			
+    			|	// Decimal	
     		)
     
     |	// Leading non zero digits can only be base 10, but might
