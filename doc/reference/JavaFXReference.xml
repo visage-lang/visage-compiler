@@ -1157,8 +1157,90 @@ Sign: one of
 
       <para>Note: for relational and equality operators, when comparing
       Integer to Number, the Integer will first be converted to Number.</para>
+      <para></para>
 
       <para></para>
+
+      <table>
+        <title>Binary Logical Operators</title>
+
+        <tgroup cols="4">
+          <colspec align="center" />
+
+          <thead>
+            <row>
+              <entry align="center"> Operator</entry>
+
+              <entry align="center">Meaning </entry>
+
+              <entry align="center">Operand Types</entry>
+
+              <entry align="center">Result Type</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry><command>and</command></entry>
+
+              <entry>Logical and</entry>
+
+              <entry>Boolean and Boolean</entry>
+
+              <entry>Boolean</entry>
+            </row>
+
+            <row>
+              <entry><command>or</command></entry>
+
+              <entry>Logical or</entry>
+
+              <entry>Boolean or Boolean</entry>
+
+              <entry>Boolean</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <para></para>
+
+      <para></para>
+
+      <table>
+        <title>Unary Logical Operator</title>
+
+        <tgroup cols="4">
+          <colspec align="center" />
+
+          <thead>
+            <row>
+              <entry align="center"> Operator</entry>
+
+              <entry align="center">Meaning </entry>
+
+              <entry align="center">Operand Types</entry>
+
+              <entry align="center">Result Type</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry><command>not</command></entry>
+
+              <entry>Logical not</entry>
+
+              <entry>not Boolean</entry>
+
+              <entry>Boolean</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+
+      <para>TO DO: assign, assign op, incr/decr, type, reverse, sizeof</para>
     </sect1>
 
     <sect1>

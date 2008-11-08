@@ -1349,15 +1349,7 @@ relationalExpression
 //
 relOps
 
-	returns [JavafxTag relOp]	// Returns the JFX operator type
-	
-	: LTGT
-		{ 
-			$relOp = JavafxTag.NE;
-			log.warning(pos($LTGT), MsgSym.MESSAGE_JAVAFX_GENERALWARNING, "The not-equal operator <> will be replaced by !=" );
-		}	
-			  		
-	| NOTEQ  { $relOp = JavafxTag.NE;	}
+	: NOTEQ  { $relOp = JavafxTag.NE;	}
 	| EQEQ   { $relOp = JavafxTag.EQ;	}
 	| LTEQ   { $relOp = JavafxTag.LE;	}
 	| GTEQ   { $relOp = JavafxTag.GE;	}
@@ -1370,15 +1362,6 @@ relOps
 // LL(k) precedence.
 //	
 additiveExpression 
-
-	returns [JFXExpression value] 	// Expression tree for additive expressions
-		
-@init
-{
-	// Work out current position in the input stream
-	//
-	int	rPos = pos();
-}
 	: m1=multiplicativeExpression	
 		{ 
 			$value = $m1.value; 
@@ -1391,11 +1374,6 @@ additiveExpression
 		    	{ rPos = pos(); }	// Use operator as position for AST
 		    	
 		    	arithOps   m2=multiplicativeExpression
-
-			{
-				$value = F.at(rPos).Binary($arithOps.arithOp , $value, $m2.value);
-				endPos($value);
-			}
 		)* 
 	;
 
@@ -1403,9 +1381,6 @@ additiveExpression
 // Arithmetic operators
 //
 arithOps
-
-	returns [JavafxTag arithOp]	// Returns the JFX operator type
-	
 	: PLUS		{ $arithOp = JavafxTag.PLUS; 	}
 	| SUB		{ $arithOp = JavafxTag.MINUS;	}
 	;
@@ -1415,15 +1390,6 @@ arithOps
 // LL(k) precedence emboides all operators at the same precednce as MUL
 //	
 multiplicativeExpression
-
-	returns [JFXExpression value] 	// Expression tree for additive expressions
-		
-@init
-{
-	// Work out current position in the input stream
-	//
-	int	rPos = pos();
-}
 	: u1=unaryExpression	{ $value = $u1.value; }
 		(
 			{ rPos = pos(); }	// Use operator as position for AST
