@@ -92,7 +92,6 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
     }
 
     public void replaceSlice(int startPos, int endPos, SequenceLocation<? extends T>[] newValues) {
-        Info<T>[] newInfos = newInfoArray(newValues.length);
         Sequence<? extends T>[] sequences = Util.newSequenceArray(newValues.length);
         int affectedStart, affectedEnd;
         if (startPos < infos.length) {
@@ -103,44 +102,37 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             affectedStart = getRawValue().size();
             affectedEnd = affectedStart - 1;
         }
-        int offset = affectedStart;
-        for (int i = 0; i < newInfos.length; i++) {
-            newInfos[i] = new Info<T>(newValues[i]);
-            sequences[i] = newInfos[i].location.getAsSequence();
-            newInfos[i].startPosition = offset;
-            newInfos[i].size = sequences[i].size();
-            offset += sequences[i].size();
-            newInfos[i].addListener(new MyListener(i + startPos));
-        }
-        Sequence<T> newSlice = Sequences.concatenate(TypeInfo.getTypeInfo(getClazz()), sequences);
-        int deltaElements = newSlice.size() - (affectedEnd - affectedStart + 1);
-        int deltaLocations = newValues.length - (endPos - startPos + 1);
-        for (int i = endPos + 1; i < infos.length; i++) {
-            infos[i].startPosition += deltaElements;
-            infos[i].listener.setIndex(i + deltaLocations);
-        }
         for (int i = startPos; i <= endPos; i++)
             infos[i].removeListener();
-        infos = replaceSlice(infos, startPos, endPos, newInfos);
-        updateSlice(affectedStart, affectedEnd, newSlice);
-    }
-
-    private Info<T>[] replaceSlice(Info<T>[] array, int startPos, int endPos, Info<T>[] newElements) {
-        int insertedCount = newElements.length;
+        int insertedCount = newValues.length;
         int deletedCount = endPos - startPos + 1;
-        int netAdded = insertedCount - deletedCount;
-        if (netAdded == 0) {
-            System.arraycopy(newElements, 0, array, startPos, insertedCount);
-            return array;
-        }
-        else {
+        int deltaLocations = insertedCount - deletedCount;
+        if (deltaLocations != 0) {
             @SuppressWarnings("unchecked")
-            Info<T>[] temp = (Info<T>[]) new Info[array.length + netAdded];
-            System.arraycopy(array, 0, temp, 0, startPos);
-            System.arraycopy(newElements, 0, temp, startPos, insertedCount);
-            System.arraycopy(array, endPos + 1, temp, startPos + insertedCount, array.length - (endPos + 1));
-            return temp;
+            Info<T>[] temp = (Info<T>[]) new Info[infos.length + deltaLocations];
+            System.arraycopy(infos, 0, temp, 0, startPos);
+            System.arraycopy(infos, endPos + 1, temp, startPos + insertedCount, infos.length - (endPos + 1));
+            infos = temp;
         }
+        int offset = affectedStart;
+        int newSize = 0;
+        for (int i = 0; i < insertedCount; i++) {
+            infos[i + startPos] = new Info<T>(newValues[i]);
+            sequences[i] = newValues[i].getAsSequence();
+            infos[i + startPos].startPosition = offset;
+            int sz = sequences[i].size();
+            infos[i + startPos].size = sz;
+            offset += sz;
+            newSize += sz;
+            infos[i + startPos].addListener(new MyListener(i + startPos));
+        }
+        Sequence<T> newSlice = Sequences.concatenate(TypeInfo.getTypeInfo(getClazz()), sequences);
+        int deltaElements = newSize - (affectedEnd - affectedStart + 1);
+        for (int i = endPos + deltaLocations + 1; i < infos.length; i++) {
+            infos[i].startPosition += deltaElements;
+            infos[i].listener.setIndex(i);
+        }
+        updateSlice(affectedStart, affectedEnd, newSlice);
     }
 
     public void validate() {
