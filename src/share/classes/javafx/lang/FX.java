@@ -286,6 +286,30 @@ public class FX {
      * in the form of Strings (e.g. {@code getArgument("0")}) to
      * provide unification with {@link #getArguments getArguments}.
      * Returns null if the given named argument does not exist.
+     * </p><p> 
+     * getArgument("javafx.applet") will return the underlying applet that is
+     * used to run the JavaFX script application inside the browser. This is 
+     * an experimental facility, that may be changed in future versions.
+     * </p><p> 
+     * This can be used as follows:
+     * </p><p> 
+     * var applet = FX.getArgument("javafx.applet") as java.applet.Applet;
+     * </p><p> 
+     * Once the applet is obtained, there are 4 suggested ways to use it
+     * <ol><li>
+     * to invoke AppletContext's showDocument() method(s)
+     * </li><li>
+     * to invoke AppletContext's showStatus() method
+     * </li><li>
+     * to retrieve the JSObject to interact with JavaScript in the page
+     * </li><li>
+     * to retrieve the DOM object using bootstrapping mechanism in the new plugin
+     * </li></ol>
+     * </p><p> 
+     * getArgument("javafx.applet") will return null if not running as an applet
+     * </p><p> 
+     * @return a string representing the value for named or numeric argument,
+     * or null if given name does not exist.
      *
      * @profile common
      */
