@@ -525,10 +525,10 @@ Sign: one of
         NumberLiteral TimeUnit
 
     TimeUnit: one of
-        <command>ms  s  h</command></programlisting>
+        <command>ms  s  m  h</command></programlisting>
 
-          <para>For example: 10s is ten seconds, 4ms is four milliseconds, and
-          0.5h is half an hour.</para>
+          <para>For example: 10s is ten seconds, 4ms is four milliseconds,
+          010m is eight minutes, and 0.5h is half an hour.</para>
         </sect3>
       </sect2>
     </sect1>
@@ -727,10 +727,436 @@ Sign: one of
   <chapter>
     <title>Expressions</title>
 
-    <para>The miriad ways that expressions can be form are described.</para>
+    <para>The miriad ways that expressions can be formed are described.</para>
 
     <sect1>
       <title>Operators</title>
+
+      <para></para>
+
+      <para></para>
+
+      <table>
+        <title>Binary Arithmetic Operators</title>
+
+        <tgroup cols="4">
+          <colspec align="center" />
+
+          <thead>
+            <row>
+              <entry align="center"> Operator</entry>
+
+              <entry align="center">Meaning </entry>
+
+              <entry align="center">Operand Types</entry>
+
+              <entry align="center">Result Type</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry morerows="4"><command>+</command></entry>
+
+              <entry morerows="4">Add</entry>
+
+              <entry>Integer + Integer</entry>
+
+              <entry>Integer</entry>
+            </row>
+
+            <row>
+              <entry>Integer + Number</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry>Number + Integer</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry>Number + Number</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry>Duration + Duration</entry>
+
+              <entry>Duration</entry>
+            </row>
+
+            <row>
+              <entry morerows="4"><command>-</command></entry>
+
+              <entry morerows="4">Subtract</entry>
+
+              <entry>Integer - Integer</entry>
+
+              <entry>Integer</entry>
+            </row>
+
+            <row>
+              <entry>Integer - Number</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry>Number - Integer</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry>Number - Number</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry>Duration - Duration</entry>
+
+              <entry>Duration</entry>
+            </row>
+
+            <row>
+              <entry morerows="7"><command>*</command></entry>
+
+              <entry morerows="7">Multiply</entry>
+
+              <entry>Integer * Integer</entry>
+
+              <entry>Integer</entry>
+            </row>
+
+            <row>
+              <entry>Integer * Number</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry>Number * Integer</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry>Number * Number</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry>Integer * Duration</entry>
+
+              <entry>Duration</entry>
+            </row>
+
+            <row>
+              <entry>Number * Duration</entry>
+
+              <entry>Duration</entry>
+            </row>
+
+            <row>
+              <entry>Duration * Integer</entry>
+
+              <entry>Duration</entry>
+            </row>
+
+            <row>
+              <entry>Duration * Number</entry>
+
+              <entry>Duration</entry>
+            </row>
+
+            <row>
+              <entry morerows="5"><command>/</command></entry>
+
+              <entry morerows="5">Divide</entry>
+
+              <entry>Integer / Integer</entry>
+
+              <entry>??? (under discussion -- see JFXC-1381)</entry>
+            </row>
+
+            <row>
+              <entry>Integer / Number</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry>Number / Integer</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry>Number / Number</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry>Duration / Integer</entry>
+
+              <entry>Duration</entry>
+            </row>
+
+            <row>
+              <entry>Duration / Number</entry>
+
+              <entry>Duration</entry>
+            </row>
+
+            <row>
+              <entry><command>mod</command></entry>
+
+              <entry>Modulo (sign of result not defined for negative
+              operands)</entry>
+
+              <entry>Integer mod Integer</entry>
+
+              <entry>Integer</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <para>These Operators operate over Integer and Number. If either
+      operator is Number, the result is Number. Otherwise, the result is
+      Integer. Note: + does not operate over String.</para>
+
+      <para></para>
+
+      <table>
+        <title>Unary Arithmetic Operator</title>
+
+        <tgroup cols="4">
+          <colspec align="center" />
+
+          <thead>
+            <row>
+              <entry align="center">Operator</entry>
+
+              <entry align="center">Meaning</entry>
+
+              <entry align="center">Operand Type</entry>
+
+              <entry align="center">Result Type</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry morerows="2"><command>-</command></entry>
+
+              <entry morerows="2">Negation</entry>
+
+              <entry>- Integer</entry>
+
+              <entry>Integer</entry>
+            </row>
+
+            <row>
+              <entry>- Number</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry>- Duration</entry>
+
+              <entry>Duration</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <para></para>
+
+      <para></para>
+
+      <table>
+        <title>Relational Operators</title>
+
+        <tgroup cols="4">
+          <colspec align="center" />
+
+          <thead>
+            <row>
+              <entry align="center">Operator</entry>
+
+              <entry align="center">Meaning</entry>
+
+              <entry align="center">Operand Types</entry>
+
+              <entry align="center">Result Type</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry morerows="4"><command>&lt;</command></entry>
+
+              <entry morerows="4">Less than</entry>
+
+              <entry>Integer &lt; Integer</entry>
+
+              <entry morerows="4">Boolean</entry>
+            </row>
+
+            <row>
+              <entry>Integer &lt; Number</entry>
+            </row>
+
+            <row>
+              <entry>Number &lt; Integer</entry>
+            </row>
+
+            <row>
+              <entry>Number &lt; Number</entry>
+            </row>
+
+            <row>
+              <entry>Duration &lt; Duration</entry>
+            </row>
+
+            <row>
+              <entry morerows="4"><command>&lt;=</command></entry>
+
+              <entry morerows="4">Less than or equal</entry>
+
+              <entry>Integer &lt;= Integer</entry>
+
+              <entry morerows="4">Boolean</entry>
+            </row>
+
+            <row>
+              <entry>Integer &lt;= Number</entry>
+            </row>
+
+            <row>
+              <entry>Number &lt;= Integer</entry>
+            </row>
+
+            <row>
+              <entry>Number &lt;= Number</entry>
+            </row>
+
+            <row>
+              <entry>Duration &lt;= Duration</entry>
+            </row>
+
+            <row>
+              <entry morerows="4"><command>&gt;</command></entry>
+
+              <entry morerows="4">Greater than</entry>
+
+              <entry>Integer &gt; Integer</entry>
+
+              <entry morerows="4">Boolean</entry>
+            </row>
+
+            <row>
+              <entry>Integer &gt; Number</entry>
+            </row>
+
+            <row>
+              <entry>Number &gt; Integer</entry>
+            </row>
+
+            <row>
+              <entry>Number &gt; Number</entry>
+            </row>
+
+            <row>
+              <entry>Duration &gt; Duration</entry>
+            </row>
+
+            <row>
+              <entry morerows="4"><command>&gt;=</command></entry>
+
+              <entry morerows="4">Greater than or equal</entry>
+
+              <entry>Integer &gt;= Integer</entry>
+
+              <entry morerows="4">Boolean</entry>
+            </row>
+
+            <row>
+              <entry>Integer &gt;= Number</entry>
+            </row>
+
+            <row>
+              <entry>Number &gt;= Integer</entry>
+            </row>
+
+            <row>
+              <entry>Number &gt;= Number</entry>
+            </row>
+
+            <row>
+              <entry>Duration &gt;= Duration</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <para></para>
+
+      <para></para>
+
+      <table>
+        <title>Equality Operators</title>
+
+        <tgroup cols="4">
+          <colspec align="center" />
+
+          <thead>
+            <row>
+              <entry align="center"> Operator</entry>
+
+              <entry align="center">Meaning </entry>
+
+              <entry align="center">Operand Types</entry>
+
+              <entry align="center">Result Type</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry><command>==</command></entry>
+
+              <entry>Equals</entry>
+
+              <entry>Object == Object</entry>
+
+              <entry>Boolean</entry>
+            </row>
+
+            <row>
+              <entry><command>!=</command></entry>
+
+              <entry>Equals</entry>
+
+              <entry>Object != Object</entry>
+
+              <entry>Boolean</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <para>Note: for relational and equality operators, when comparing
+      Integer to Number, the Integer will first be converted to Number.</para>
 
       <para></para>
     </sect1>
