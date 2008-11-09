@@ -1283,6 +1283,7 @@ Sign: one of
 
               <entry>Boolean</entry>
             </row>
+
             <row>
               <entry morerows="4"><command>&lt;</command></entry>
 
@@ -1392,132 +1393,37 @@ Sign: one of
 
       <para></para>
 
-      <para>Note: for relational operators, when comparing
-      Integer to Number, the Integer will first be converted to Number.</para>
+      <para>Note: for relational operators, when comparing Integer to Number,
+      the Integer will first be converted to Number.</para>
 
       <para></para>
     </sect1>
 
     <sect1>
-      <title>Function Invocation</title>
+      <title>additiveExpression multiplicativeExpression (Two Argument
+      Arithmetic Operations)</title>
 
       <para></para>
 
       <figure>
-        <title>postfixExpression</title>
+        <title>additiveExpression</title>
 
         <mediaobject>
           <imageobject>
-            <imagedata fileref="postfixExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-
-      <figure>
-        <title>expressionList</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="expressionList.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-    </sect1>
-
-    <sect1>
-      <title>Member Access</title>
-
-      <para>See postfixExpression (in the Function Invocation section).</para>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>String Expressions</title>
-
-      <para></para>
-
-      <para></para>
-
-      <figure>
-        <title>simplfied StringExpression</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="stringExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para>Where the two QUOTE tokens are matching single or double
-      quote.</para>
-
-      <para>Like string literals, adjacent string expressions (and string
-      literals) are automatically concatenated at compile time.</para>
-    </sect1>
-
-    <sect1>
-      <title>Object Literal</title>
-
-      <para></para>
-
-      <para></para>
-
-      <figure>
-        <title>objectLiteral</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="objectLiteral.png"></imagedata>
+            <imagedata fileref="additiveExpression.png"></imagedata>
           </imageobject>
         </mediaobject>
       </figure>
 
       <figure>
-        <title>objectLiteralPart</title>
+        <title>multiplicativeExpression</title>
 
         <mediaobject>
           <imageobject>
-            <imagedata fileref="objectLiteralPart.png"></imagedata>
+            <imagedata fileref="multiplicativeExpression.png"></imagedata>
           </imageobject>
         </mediaobject>
       </figure>
-
-      <figure>
-        <title>objectLiteralInit</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="objectLiteralInit.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-    </sect1>
-
-    <sect1>
-      <title>Block</title>
-
-      <para></para>
-
-      <para></para>
-
-      <figure>
-        <title>block</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="block.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-    </sect1>
-
-    <sect1>
-      <title>Operators</title>
-
-      <para></para>
 
       <para></para>
 
@@ -1715,6 +1621,130 @@ Sign: one of
       </table>
 
       <para>Note: + does not operate over String.</para>
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>Function Invocation</title>
+
+      <para></para>
+
+      <figure>
+        <title>postfixExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="postfixExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+
+      <figure>
+        <title>expressionList</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="expressionList.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect1>
+
+    <sect1>
+      <title>Member Access</title>
+
+      <para>See postfixExpression (in the Function Invocation section).</para>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>String Expressions</title>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>simplfied StringExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="stringExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>Where the two QUOTE tokens are matching single or double
+      quote.</para>
+
+      <para>Like string literals, adjacent string expressions (and string
+      literals) are automatically concatenated at compile time.</para>
+    </sect1>
+
+    <sect1>
+      <title>Object Literal</title>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>objectLiteral</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="objectLiteral.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure>
+        <title>objectLiteralPart</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="objectLiteralPart.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure>
+        <title>objectLiteralInit</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="objectLiteralInit.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect1>
+
+    <sect1>
+      <title>Block</title>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>block</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="block.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect1>
+
+    <sect1>
+      <title>Operators</title>
+
+      <para></para>
+
 
       <para></para>
 
