@@ -864,7 +864,17 @@ Sign: one of
       <sect2>
         <title>throw</title>
 
-        <para></para>
+        <para>A throw expression causes an Exception to be thrown.</para>
+
+        <figure>
+          <title>throw</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="throw.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
 
         <para></para>
       </sect2>
@@ -872,7 +882,8 @@ Sign: one of
       <sect2>
         <title>return</title>
 
-        <para></para>
+        <para>A return expression causes return from a function, optionally
+        with the value of the function.</para>
 
         <figure>
           <title>return</title>
@@ -951,7 +962,7 @@ Sign: one of
         <title>ifExpression</title>
 
         <para>The <emphasis>ifExpression</emphasis> is used to selectively
-        execute code and return its value. </para>
+        execute code and return its value.</para>
 
         <figure>
           <title>ifExpression</title>
@@ -1098,6 +1109,48 @@ Sign: one of
 
       <para></para>
 
+      <table>
+        <title>Binary Logical Operators</title>
+
+        <tgroup cols="4">
+          <colspec align="center" />
+
+          <thead>
+            <row>
+              <entry align="center"> Operator</entry>
+
+              <entry align="center">Meaning </entry>
+
+              <entry align="center">Operand Types</entry>
+
+              <entry align="center">Result Type</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry><command>and</command></entry>
+
+              <entry>Logical and</entry>
+
+              <entry>Boolean and Boolean</entry>
+
+              <entry>Boolean</entry>
+            </row>
+
+            <row>
+              <entry><command>or</command></entry>
+
+              <entry>Logical or</entry>
+
+              <entry>Boolean or Boolean</entry>
+
+              <entry>Boolean</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
       <para></para>
     </sect1>
 
@@ -1115,6 +1168,52 @@ Sign: one of
           </imageobject>
         </mediaobject>
       </figure>
+
+      <para></para>
+
+      <table>
+        <title>Binary Logical Operators</title>
+
+        <tgroup cols="4">
+          <colspec align="center" />
+
+          <thead>
+            <row>
+              <entry align="center"> Operator</entry>
+
+              <entry align="center">Meaning </entry>
+
+              <entry align="center">Operand Types</entry>
+
+              <entry align="center">Result Type</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry><command>instanceof</command></entry>
+
+              <entry>Is this object of the specified type</entry>
+
+              <entry>Object instanceof Type</entry>
+
+              <entry>Boolean</entry>
+            </row>
+
+            <row>
+              <entry><command>as</command></entry>
+
+              <entry>Convert this object to the specified type</entry>
+
+              <entry>Object as Type</entry>
+
+              <entry>Object (of type Type)</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <para></para>
 
       <para></para>
     </sect1>
@@ -1143,6 +1242,185 @@ Sign: one of
           </imageobject>
         </mediaobject>
       </figure>
+
+      <para></para>
+
+      <table>
+        <title>Relational Operators</title>
+
+        <tgroup cols="4">
+          <colspec align="center" />
+
+          <thead>
+            <row>
+              <entry align="center">Operator</entry>
+
+              <entry align="center">Meaning</entry>
+
+              <entry align="center">Operand Types</entry>
+
+              <entry align="center">Result Type</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry morerows="4"><command>&lt;</command></entry>
+
+              <entry morerows="4">Less than</entry>
+
+              <entry>Integer &lt; Integer</entry>
+
+              <entry morerows="4">Boolean</entry>
+            </row>
+
+            <row>
+              <entry>Integer &lt; Number</entry>
+            </row>
+
+            <row>
+              <entry>Number &lt; Integer</entry>
+            </row>
+
+            <row>
+              <entry>Number &lt; Number</entry>
+            </row>
+
+            <row>
+              <entry>Duration &lt; Duration</entry>
+            </row>
+
+            <row>
+              <entry morerows="4"><command>&lt;=</command></entry>
+
+              <entry morerows="4">Less than or equal</entry>
+
+              <entry>Integer &lt;= Integer</entry>
+
+              <entry morerows="4">Boolean</entry>
+            </row>
+
+            <row>
+              <entry>Integer &lt;= Number</entry>
+            </row>
+
+            <row>
+              <entry>Number &lt;= Integer</entry>
+            </row>
+
+            <row>
+              <entry>Number &lt;= Number</entry>
+            </row>
+
+            <row>
+              <entry>Duration &lt;= Duration</entry>
+            </row>
+
+            <row>
+              <entry morerows="4"><command>&gt;</command></entry>
+
+              <entry morerows="4">Greater than</entry>
+
+              <entry>Integer &gt; Integer</entry>
+
+              <entry morerows="4">Boolean</entry>
+            </row>
+
+            <row>
+              <entry>Integer &gt; Number</entry>
+            </row>
+
+            <row>
+              <entry>Number &gt; Integer</entry>
+            </row>
+
+            <row>
+              <entry>Number &gt; Number</entry>
+            </row>
+
+            <row>
+              <entry>Duration &gt; Duration</entry>
+            </row>
+
+            <row>
+              <entry morerows="4"><command>&gt;=</command></entry>
+
+              <entry morerows="4">Greater than or equal</entry>
+
+              <entry>Integer &gt;= Integer</entry>
+
+              <entry morerows="4">Boolean</entry>
+            </row>
+
+            <row>
+              <entry>Integer &gt;= Number</entry>
+            </row>
+
+            <row>
+              <entry>Number &gt;= Integer</entry>
+            </row>
+
+            <row>
+              <entry>Number &gt;= Number</entry>
+            </row>
+
+            <row>
+              <entry>Duration &gt;= Duration</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <para></para>
+
+      <para></para>
+
+      <table>
+        <title>Equality Operators</title>
+
+        <tgroup cols="4">
+          <colspec align="center" />
+
+          <thead>
+            <row>
+              <entry align="center"> Operator</entry>
+
+              <entry align="center">Meaning </entry>
+
+              <entry align="center">Operand Types</entry>
+
+              <entry align="center">Result Type</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry><command>==</command></entry>
+
+              <entry>Equals</entry>
+
+              <entry>Object == Object</entry>
+
+              <entry>Boolean</entry>
+            </row>
+
+            <row>
+              <entry><command>!=</command></entry>
+
+              <entry>Equals</entry>
+
+              <entry>Object != Object</entry>
+
+              <entry>Boolean</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <para>Note: for relational and equality operators, when comparing
+      Integer to Number, the Integer will first be converted to Number.</para>
+
+      <para></para>
 
       <para></para>
     </sect1>
@@ -1506,231 +1784,6 @@ Sign: one of
               <entry>- Duration</entry>
 
               <entry>Duration</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-
-      <para></para>
-
-      <para></para>
-
-      <table>
-        <title>Relational Operators</title>
-
-        <tgroup cols="4">
-          <colspec align="center" />
-
-          <thead>
-            <row>
-              <entry align="center">Operator</entry>
-
-              <entry align="center">Meaning</entry>
-
-              <entry align="center">Operand Types</entry>
-
-              <entry align="center">Result Type</entry>
-            </row>
-          </thead>
-
-          <tbody>
-            <row>
-              <entry morerows="4"><command>&lt;</command></entry>
-
-              <entry morerows="4">Less than</entry>
-
-              <entry>Integer &lt; Integer</entry>
-
-              <entry morerows="4">Boolean</entry>
-            </row>
-
-            <row>
-              <entry>Integer &lt; Number</entry>
-            </row>
-
-            <row>
-              <entry>Number &lt; Integer</entry>
-            </row>
-
-            <row>
-              <entry>Number &lt; Number</entry>
-            </row>
-
-            <row>
-              <entry>Duration &lt; Duration</entry>
-            </row>
-
-            <row>
-              <entry morerows="4"><command>&lt;=</command></entry>
-
-              <entry morerows="4">Less than or equal</entry>
-
-              <entry>Integer &lt;= Integer</entry>
-
-              <entry morerows="4">Boolean</entry>
-            </row>
-
-            <row>
-              <entry>Integer &lt;= Number</entry>
-            </row>
-
-            <row>
-              <entry>Number &lt;= Integer</entry>
-            </row>
-
-            <row>
-              <entry>Number &lt;= Number</entry>
-            </row>
-
-            <row>
-              <entry>Duration &lt;= Duration</entry>
-            </row>
-
-            <row>
-              <entry morerows="4"><command>&gt;</command></entry>
-
-              <entry morerows="4">Greater than</entry>
-
-              <entry>Integer &gt; Integer</entry>
-
-              <entry morerows="4">Boolean</entry>
-            </row>
-
-            <row>
-              <entry>Integer &gt; Number</entry>
-            </row>
-
-            <row>
-              <entry>Number &gt; Integer</entry>
-            </row>
-
-            <row>
-              <entry>Number &gt; Number</entry>
-            </row>
-
-            <row>
-              <entry>Duration &gt; Duration</entry>
-            </row>
-
-            <row>
-              <entry morerows="4"><command>&gt;=</command></entry>
-
-              <entry morerows="4">Greater than or equal</entry>
-
-              <entry>Integer &gt;= Integer</entry>
-
-              <entry morerows="4">Boolean</entry>
-            </row>
-
-            <row>
-              <entry>Integer &gt;= Number</entry>
-            </row>
-
-            <row>
-              <entry>Number &gt;= Integer</entry>
-            </row>
-
-            <row>
-              <entry>Number &gt;= Number</entry>
-            </row>
-
-            <row>
-              <entry>Duration &gt;= Duration</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-
-      <para></para>
-
-      <para></para>
-
-      <table>
-        <title>Equality Operators</title>
-
-        <tgroup cols="4">
-          <colspec align="center" />
-
-          <thead>
-            <row>
-              <entry align="center"> Operator</entry>
-
-              <entry align="center">Meaning </entry>
-
-              <entry align="center">Operand Types</entry>
-
-              <entry align="center">Result Type</entry>
-            </row>
-          </thead>
-
-          <tbody>
-            <row>
-              <entry><command>==</command></entry>
-
-              <entry>Equals</entry>
-
-              <entry>Object == Object</entry>
-
-              <entry>Boolean</entry>
-            </row>
-
-            <row>
-              <entry><command>!=</command></entry>
-
-              <entry>Equals</entry>
-
-              <entry>Object != Object</entry>
-
-              <entry>Boolean</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-
-      <para>Note: for relational and equality operators, when comparing
-      Integer to Number, the Integer will first be converted to Number.</para>
-
-      <para></para>
-
-      <para></para>
-
-      <table>
-        <title>Binary Logical Operators</title>
-
-        <tgroup cols="4">
-          <colspec align="center" />
-
-          <thead>
-            <row>
-              <entry align="center"> Operator</entry>
-
-              <entry align="center">Meaning </entry>
-
-              <entry align="center">Operand Types</entry>
-
-              <entry align="center">Result Type</entry>
-            </row>
-          </thead>
-
-          <tbody>
-            <row>
-              <entry><command>and</command></entry>
-
-              <entry>Logical and</entry>
-
-              <entry>Boolean and Boolean</entry>
-
-              <entry>Boolean</entry>
-            </row>
-
-            <row>
-              <entry><command>or</command></entry>
-
-              <entry>Logical or</entry>
-
-              <entry>Boolean or Boolean</entry>
-
-              <entry>Boolean</entry>
             </row>
           </tbody>
         </tgroup>
