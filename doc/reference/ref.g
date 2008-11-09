@@ -1510,140 +1510,48 @@ suffixedExpression
 		)
 	;
 	
-// ------------------------
-// Postfix-able expressions
-// LL(k) precedence
-//
+postfixExpressionPartialFunctionInvocation
+	: pe=primaryExpression	
+	
+		(  ( '(' expressionList ')' )
+	   	)
+	;
+	
+otherPostfixExpressionForms
+	:
+	;
+
 postfixExpression 
-
-	returns [JFXExpression value] 	// Expression tree for suffix expressions
-
-@init
-{
-	// Work out current position in the input stream
-	//
-	int	rPos = pos();
-	int	sPos = rPos;
-
-	// Position for pipe epxression
-	//
-	int pPos;
-	
-	// Indicates if we had the LT token
-	//
-	int clusiveType = SequenceSliceTree.END_INCLUSIVE;
-	
-	// Last element of sequence (if present)
-	//
-	JFXExpression	lastExpr = null;
-}
-
-	: pe=primaryExpression	{ $value = $pe.value; }
-	
+	: pe=primaryExpression	
 		( 
-			  DOT 
+			  '.' 
 				( 
 					  n1=name
-					  
-					  {
-							$value = F.at(pos($DOT)).Select($value, $n1.value);
-							endPos($value);
-					  }
-					  
-					//TODO:		 | CLASS 
 	         	)
+			| '('  expressionList ')'
+			| sequenceSelect
+	   	)* 
+	;
 
-			| (LPAREN)=>LPAREN 
-
-					expressionList RPAREN
-			
-				{
-					$value = F.at(pos($LPAREN)).Apply(null, $value, $expressionList.args.toList());
-					endPos($value);
-				}
-				
-			| (LBRACKET)=>l1=LBRACKET
-			
-				{
-					// INit our flags
-					//
-					clusiveType = SequenceSliceTree.END_INCLUSIVE;
-					lastExpr 	= null;
-				}
-	
+sequenceSelect
+	: LBRACKET
 				(
 					  n2=name PIPE 
-					  
-					  { rPos = pos(); }	// Use expression as position for AST
-					  
 					  e1=expression r3=RBRACKET
-					  
-					  {
-					  	// Build a list of clauses as AST builder expects this
-					  	//
-					  	ListBuffer<JFXForExpressionInClause> clauses = ListBuffer.lb();
-                  		
-                  		// Build a var reference
-                  		//
-                  		JFXVar var = F.at($n2.pos).Param($n2.value, F.TypeUnknown());
-                  		
-                  		// Set up the in clause
-                  		//
-	          			clauses.append(F.at(pos($l1)).InClause(var, $value, $e1.value));
-	          			
-	          			// Predicate needs identifier AST
-	          			//
-                  		$value = F.at(pos($PIPE)).Predicate(clauses.toList(), F.at($n2.pos).Ident($n2.value));
-                  		
-                  		// Tree span
-                  		//
-                  		endPos($value, pos($r3));
-					  }
-					  
 					| first=expression
-                            
 						(
 							  r1=RBRACKET
-							  
-							  	{
-							  		// Use left bracket as AST start pos
-							  		//
-							  		$value = F.at(sPos).SequenceIndexed($value, $first.value);
-							  		
-							  		// Use right bracket as AST end pos
-							  		//
-							  		endPos($value);
-							  	}
-							  	
 	                    	| DOTDOT 
 	                    		(
-									  (LT { clusiveType = SequenceSliceTree.END_EXCLUSIVE; } )? 
+									  (LT  )? 
 									  	(
 									  		last=expression
-									  		{
-									  			lastExpr = $last.value;
-									  		}
 									  	)?
 									  	
 								)
-								
 	                      	  r2=RBRACKET
-	                      	  
-	                      	  {
-	                      	  	// If we have LT, then this is an exclusive slice
-	                      	  	//
-	                      	  	$value = F.at(sPos).SequenceSlice
-	                      	  									(
-	                      	  										$value,
-	                      	  										$first.value,
-	                      	  										lastExpr,
-	                                                            	clusiveType
-	                                                            );
-								endPos($value);
-	                      	  }
                     	)
              	)
-	   	)* 
 	;
 
 // -------------------
@@ -1652,32 +1560,12 @@ postfixExpression
 // than to atoms.
 //	
 primaryExpression  
-
-	returns [JFXExpression value] 	// Expression tree for primary expressions
-
-@init
-{
-	// Work out current position in the input stream
-	//
-	int	rPos = pos();
-	
-	// Use to build a list of objectLiteral parts.
-	//
-	ListBuffer<JFXTree> parts = ListBuffer.<JFXTree>lb();
-
-    // Used to construct time literal expression
-    //
-    JFXExpression sVal = null;
-	
-}
 	: qualname
 		{
 			$value = $qualname.value;
 		}
 		(
-			(LBRACE)=>LBRACE  
-			  	
-					o1=objectLiteral
+			LBRACE   objectLiteral
 						
 			RBRACE
 	              
@@ -2248,20 +2136,6 @@ stringExpressionInner [ ListBuffer<JFXExpression> strexp]
 
 	: rlsl=RBRACE_LBRACE_STRING_LITERAL 
 	
-		{
-			// Construct a new literal for the leading literal
-			//
-			JFXExpression rb = F.at(pos($rlsl)).Literal(TypeTags.CLASS, $rlsl.text);
-			
-			// Record the span
-			//
-			endPos(rb);
-			
-			// Add the literal to the list
-			//
-			strexp.append(rb);
-			
-		}
 		
 		// Deal with the string format
 		//
@@ -2270,10 +2144,6 @@ stringExpressionInner [ ListBuffer<JFXExpression> strexp]
 		// Expression to evaluate at runtime
 		//
 		expression
-		
-		{
-			strexp.append($expression.value);
-		}
 	;
 	
 // --------------------
@@ -2386,23 +2256,11 @@ bracketExpression
 // Comma separated list of expressions.
 //
 expressionList
-
-	returns [ListBuffer<JFXExpression> args = new ListBuffer<JFXExpression>()]	// List of expressions we pcik up
-
 	: e1=expression
-		
-		{
-			args.append($e1.value);
-		}
-		
 		(
-			COMMA 	(
+			',' 	(
 						e2=expression
-						
-						{
-							args.append($e2.value);
-						}
-					)?
+					)
 		)*
 	|
 	;
@@ -2412,9 +2270,6 @@ expressionList
 // For the moment this is only used by New....
 //
 expressionListOpt
-	
-	returns [ListBuffer<JFXExpression> args = new ListBuffer<JFXExpression>()]	// List of expressions we pcik up
-
 	: (LPAREN)=>LPAREN expressionList RPAREN
 		{
 			$args = $expressionList.args;

@@ -1259,10 +1259,34 @@ Sign: one of
       <title>Function Invocation</title>
 
       <para></para>
+
+      <figure>
+        <title>postfixExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="postfixExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+
+      <figure>
+        <title>expressionList</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="expressionList.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
     </sect1>
 
     <sect1>
       <title>Member Access</title>
+
+      <para>See postfixExpression (in the Function Invocation section).</para>
 
       <para></para>
     </sect1>
@@ -1272,11 +1296,19 @@ Sign: one of
 
       <para></para>
 
-      <sect2>
-        <title>Translation Keys</title>
+      <para></para>
 
-        <para></para>
-      </sect2>
+      <figure>
+        <title>simplfied StringExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="stringExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
     </sect1>
 
     <sect1>
