@@ -1621,6 +1621,143 @@ Sign: one of
       </table>
 
       <para>Note: + does not operate over String.</para>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>unaryExpression</title>
+
+      <para></para>
+
+      <figure>
+        <title>unaryExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="unaryExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <table>
+        <title>Unary Arithmetic Operator</title>
+
+        <tgroup cols="4">
+          <colspec align="center" />
+
+          <thead>
+            <row>
+              <entry align="center">Operator</entry>
+
+              <entry align="center">Meaning</entry>
+
+              <entry align="center">Operand Type</entry>
+
+              <entry align="center">Result Type</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry morerows="2"><command>-</command></entry>
+
+              <entry morerows="2">Negation</entry>
+
+              <entry><command>-</command> Integer</entry>
+
+              <entry>Integer</entry>
+            </row>
+
+            <row>
+              <entry><command>-</command> Number</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry><command>-</command> Duration</entry>
+
+              <entry>Duration</entry>
+            </row>
+
+            <row>
+              <entry><command>not</command></entry>
+
+              <entry>Logical not</entry>
+
+              <entry><command>not</command> Boolean</entry>
+
+              <entry>Boolean</entry>
+            </row>
+
+            <row>
+              <entry><command>sizeof</command></entry>
+
+              <entry>Number of elements in a sequence</entry>
+
+              <entry><command>sizeof</command> Object</entry>
+
+              <entry>Integer</entry>
+            </row>
+
+            <row>
+              <entry><command>reverse</command></entry>
+
+              <entry>Reverse the elements in a sequence</entry>
+
+              <entry><command>reverse</command> Object</entry>
+
+              <entry>Object</entry>
+            </row>
+
+            <row>
+              <entry morerows="1"><command>++</command></entry>
+
+              <entry morerows="1">Add one to the value of the operand, value
+              is updated value</entry>
+
+              <entry><command>++</command> Integer</entry>
+
+              <entry>Integer</entry>
+            </row>
+
+            <row>
+              <entry><command>++</command> Number</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry morerows="1"><command>--</command></entry>
+
+              <entry morerows="1">Subtract one from the value of the operand,
+              value is updated value</entry>
+
+              <entry><command>--</command> Integer</entry>
+
+              <entry>Integer</entry>
+            </row>
+
+            <row>
+              <entry><command>--</command> Number</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry><command>indexof</command></entry>
+
+              <entry>Current position in the sequence being iterated</entry>
+
+              <entry>n/a</entry>
+
+              <entry>Integer</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
       <para></para>
     </sect1>
 
@@ -1738,97 +1875,6 @@ Sign: one of
           </imageobject>
         </mediaobject>
       </figure>
-    </sect1>
-
-    <sect1>
-      <title>Operators</title>
-
-      <para></para>
-
-
-      <para></para>
-
-      <table>
-        <title>Unary Arithmetic Operator</title>
-
-        <tgroup cols="4">
-          <colspec align="center" />
-
-          <thead>
-            <row>
-              <entry align="center">Operator</entry>
-
-              <entry align="center">Meaning</entry>
-
-              <entry align="center">Operand Type</entry>
-
-              <entry align="center">Result Type</entry>
-            </row>
-          </thead>
-
-          <tbody>
-            <row>
-              <entry morerows="2"><command>-</command></entry>
-
-              <entry morerows="2">Negation</entry>
-
-              <entry>- Integer</entry>
-
-              <entry>Integer</entry>
-            </row>
-
-            <row>
-              <entry>- Number</entry>
-
-              <entry>Number</entry>
-            </row>
-
-            <row>
-              <entry>- Duration</entry>
-
-              <entry>Duration</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-
-      <para></para>
-
-      <para></para>
-
-      <table>
-        <title>Unary Logical Operator</title>
-
-        <tgroup cols="4">
-          <colspec align="center" />
-
-          <thead>
-            <row>
-              <entry align="center"> Operator</entry>
-
-              <entry align="center">Meaning </entry>
-
-              <entry align="center">Operand Types</entry>
-
-              <entry align="center">Result Type</entry>
-            </row>
-          </thead>
-
-          <tbody>
-            <row>
-              <entry><command>not</command></entry>
-
-              <entry>Logical not</entry>
-
-              <entry>not Boolean</entry>
-
-              <entry>Boolean</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-
-      <para>TO DO: assign, assign op, incr/decr, type, reverse, sizeof</para>
     </sect1>
   </chapter>
 
