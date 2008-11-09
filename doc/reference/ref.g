@@ -549,71 +549,18 @@ while
 // Parse the insert statement and produce the relevant AST
 //
 insert  
-	
-	returns [JFXExpression value]	// All steatemetns return a JFX expression tree
-
-	: INSERT elem=valueExpression
+	: 'insert' elem=valueExpression
 		(
-			  INTO eseq=valueExpression
-			  
-			  	{
-			  		// Form 1, INTO
-			  		//
-					$value = F.at(pos($INSERT)).SequenceInsert($eseq.value, $elem.value, null, false);
-			  	}
-			  	
-			| BEFORE isfi=indexedSequenceForInsert
-			
-				{
-					// Form 2, BEFORE
-					//
-					$value = F.at(pos($INSERT)).SequenceInsert($isfi.seq, $elem.value, $isfi.idx, false);
-				}
-				
-			| AFTER isfi=indexedSequenceForInsert
-			
-				{
-					// Form 3, AFTER
-					//
-					$value = F.at(pos($INSERT)).SequenceInsert($isfi.seq, $elem.value, $isfi.idx, true);
-				}
-		)
-
-		{
-			// Tree span
-			//
-			endPos($value);
-		}	    
-	    
-	    ((SEMI)=>SEMI)?
-	    
+			  'into' eseq=valueExpression
+			| 'before' isfi=indexedSequenceForInsert
+			| 'after' isfi=indexedSequenceForInsert
+		)	    
+	    (';')?
 	;
 	
-// ----------------
-// Insert seqeunce.
-// Parse the syntax for an insert sequence specified by the 
-// INSERT BEFORE and INSERT AFTER variants.
-//
 indexedSequenceForInsert
-
-	returns [JFXExpression seq, JFXExpression idx]
-
 	: primaryExpression 			
-	
-		{
-			// Sequence expression
-			//
-			$seq = $primaryExpression.value;
-		}
-		
-	  LBRACKET valueExpression RBRACKET
-	  
-	  	{
-	  		// Index expressions
-	  		//
-	  		$idx = $valueExpression.value;
-	  	}
-	  		
+	  '[' valueExpression ']'	
  	;
  
 // -----------------	
@@ -621,32 +568,12 @@ indexedSequenceForInsert
 // Parse the DELETE statement forms and return the appropriate AST
 //
 delete  
-
-	returns [JFXExpression value]	// Delete returns a JFX Expression tree
-
-	: DELETE e1=valueExpression
-
+	: 'delete' e1=valueExpression
 	   ( 
-	   		  (FROM)=>FROM e2=valueExpression
-	   		  	
-	   		  	{
-	   		  		$value = F.at(pos($DELETE)).SequenceDelete($e2.value,$e1.value);
-	   		  	}
-	   		  	
-	   		| /* indexed and whole cases */
-	   		
-	   			{
-	   				$value = F.at(pos($DELETE)).SequenceDelete($e1.value);
-	   			}
-	   			
+	   		  'from' valueExpression	
+	   		| /* indexed and whole cases */	
 	   )
-	   
-	   {
-	   		// Tree span
-	   		//
-	   		endPos($value);
-	   }
-	   ((SEMI)=>SEMI)?
+	   (';')?
 	;
 
 // -----------------
@@ -724,58 +651,19 @@ initializingExpression
 // General expression parse and AST build.
 //
 valueExpression
-	: if	
-	| for   	
-
-		{
-			$value = $for.value;
-		}
-		
-	| newExpression
-
-		{
-			$value = $newExpression.value;
-		}
-		
-	| assignmentExpression
-
-		{
-			$value = $assignmentExpression.value;
-		}
-		
+	: ifExpression	
+	| forExpression   			
+	| newExpression	
 	| // Expressions can only declare local variables, hence we
-	  // we parse any we find, but throw them out as a semantic
-	  // error
-	  {
-	  	ePos = pos();
-	  }
-	  m=modifiers 
-	  
-	  	{
-	  		if	($m.mods.flags != 0)
-	  		{
-	  			// Ignore the modifiers
-	  			//
-	  			$m.mods.flags = 0;
-	  			
-	  			// Issue the error
-	  			//
-	  			log.error(ePos, "javafx.cannot.modify.localvar");
-	  			
-	  		}
-	  	}
-	  	
-	  	variableDeclaration [$m.mods]
-	
-		{
-			$value = $variableDeclaration.value;
-		}
+	  	variableDeclaration 
+
+	| assignmentExpression		
 	;
 
 // ------------------------
 // FOR statement/expression
 //
-for
+forExpression
 	: 'for' 
 		'(' 
 		
@@ -813,7 +701,7 @@ inClause
 // -----------------------
 // If Then Else expression
 //
-if 
+ifExpression 
 	: 'if' '(' valueExpression  ')' 
 	
 		'then'?  expression 			
@@ -1331,12 +1219,7 @@ functionExpression
 // NEW
 //
 newExpression
-	: NEW typeName expressionListOpt
-	
-		{
-			$value = F.at(pos($NEW)).InstanciateNew($typeName.value, $expressionListOpt.args.toList());
-			endPos($value);
-		}
+	: 'new' typeName ('(' expressionList ')')?
 	;
 
 // ---------------
@@ -1547,20 +1430,6 @@ expressionList
 		)*
 	|
 	;
-
-// ------------------------
-// Optional expression list
-// For the moment this is only used by New....
-//
-expressionListOpt
-	: (LPAREN)=>LPAREN expressionList RPAREN
-		{
-			$args = $expressionList.args;
-		}
-		
-	|	// Was not present
-	;
-
 
 // -----
 // Types

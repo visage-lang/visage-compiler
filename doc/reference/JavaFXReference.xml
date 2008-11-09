@@ -741,7 +741,395 @@ Sign: one of
   <chapter>
     <title>Expressions</title>
 
-    <para>The miriad ways that expressions can be formed are described.</para>
+    <para>All executable code in JavaFX Script is expressions. This chapter
+    describes the syntax, meaning, and use of expressions.</para>
+
+    <para>This chapter is organized by the syntactic structure of JavaFX
+    expressions.</para>
+
+    <para></para>
+
+    <sect1>
+      <title>expression</title>
+
+      <para>At the top level of expression syntax are the expressions that
+      stand alone and have no value.</para>
+
+      <para></para>
+
+      <figure>
+        <title>expression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="expression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+
+      <sect2>
+        <title>insert</title>
+
+        <para>The <command>insert</command> expression is used to insert a
+        value into a sequence.</para>
+
+        <figure>
+          <title>insert</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="insert.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+      </sect2>
+
+      <sect2>
+        <title>delete</title>
+
+        <para>The delete expression is used to delete an element or elements
+        from a sequence.</para>
+
+        <para></para>
+
+        <figure>
+          <title>delete</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="delete.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>while</title>
+
+        <para></para>
+
+        <figure>
+          <title>while</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="while.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>break</title>
+
+        <para></para>
+
+        <figure>
+          <title>break</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="break.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>continue</title>
+
+        <para></para>
+
+        <figure>
+          <title>continue</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="continue.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>throw</title>
+
+        <para></para>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>return</title>
+
+        <para></para>
+
+        <figure>
+          <title>return</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="return.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>try</title>
+
+        <para></para>
+
+        <figure>
+          <title>try</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="try.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+
+        <figure>
+          <title>catchClause</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="catchClause.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <figure>
+          <title>finallyClause</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="finallyClause.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+
+        <para></para>
+      </sect2>
+    </sect1>
+
+    <sect1>
+      <title>valueExpression</title>
+
+      <para></para>
+
+      <figure>
+        <title>valueExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="valueExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+
+      <sect2>
+        <title>ifExpression</title>
+
+        <para></para>
+
+        <figure>
+          <title>ifExpression</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="if.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>forExpression</title>
+
+        <para></para>
+
+        <figure>
+          <title>forExpression</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="for.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <figure>
+          <title>inClause</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="inClause.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>newExpression</title>
+
+        <para>A newExpression can be used to create an instance of a Java
+        class. It allows the arguments to a Java constructor to be provided.
+        It can also be used to create an instance of a JavaFX class, but
+        objectLiteral is generally used for that purpose.</para>
+
+        <figure>
+          <title>newExpression</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="newExpression.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+    </sect1>
+
+    <sect1>
+      <title>Function Invocation</title>
+
+      <para></para>
+
+      <figure>
+        <title>postfixExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="postfixExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+
+      <figure>
+        <title>expressionList</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="expressionList.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect1>
+
+    <sect1>
+      <title>Member Access</title>
+
+      <para>See postfixExpression (in the Function Invocation section).</para>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>String Expressions</title>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>simplfied StringExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="stringExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>Where the two QUOTE tokens are matching single or double
+      quote.</para>
+
+      <para>Like string literals, adjacent string expressions (and string
+      literals) are automatically concatenated at compile time.</para>
+    </sect1>
+
+    <sect1>
+      <title>Object Literal</title>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>objectLiteral</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="objectLiteral.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure>
+        <title>objectLiteralPart</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="objectLiteralPart.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure>
+        <title>objectLiteralInit</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="objectLiteralInit.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect1>
+
+    <sect1>
+      <title>Block</title>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>block</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="block.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect1>
 
     <sect1>
       <title>Operators</title>
@@ -1253,342 +1641,6 @@ Sign: one of
       </table>
 
       <para>TO DO: assign, assign op, incr/decr, type, reverse, sizeof</para>
-    </sect1>
-
-    <sect1>
-      <title>Function Invocation</title>
-
-      <para></para>
-
-      <figure>
-        <title>postfixExpression</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="postfixExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-
-      <figure>
-        <title>expressionList</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="expressionList.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-    </sect1>
-
-    <sect1>
-      <title>Member Access</title>
-
-      <para>See postfixExpression (in the Function Invocation section).</para>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>String Expressions</title>
-
-      <para></para>
-
-      <para></para>
-
-      <figure>
-        <title>simplfied StringExpression</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="stringExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para>Where the two QUOTE tokens are matching single or double quote.
-      </para>
-
-      <para>Like string literals, adjacent string expressions (and string
-      literals) are automatically concatenated at compile time.</para>
-    </sect1>
-
-    <sect1>
-      <title>Object Literal</title>
-
-      <para></para>
-
-      <para></para>
-
-      <figure>
-        <title>objectLiteral</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="objectLiteral.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <figure>
-        <title>objectLiteralPart</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="objectLiteralPart.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <figure>
-        <title>objectLiteralInit</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="objectLiteralInit.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>Sequence Creation</title>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>This</title>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>Block</title>
-
-      <para></para>
-
-      <para></para>
-
-      <figure>
-        <title>block</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="block.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>If</title>
-
-      <para></para>
-
-      <para></para>
-
-      <figure>
-        <title>if</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="if.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>While</title>
-
-      <para></para>
-
-      <para></para>
-
-      <figure>
-        <title>while</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="while.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>Return</title>
-
-      <para></para>
-
-      <para></para>
-
-      <figure>
-        <title>return</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="return.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>Break</title>
-
-      <para></para>
-
-      <para></para>
-
-      <figure>
-        <title>break</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="break.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>Continue</title>
-
-      <para></para>
-
-      <para></para>
-
-      <figure>
-        <title>continue</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="continue.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>Try-Catch-Finally</title>
-
-      <para></para>
-
-      <para></para>
-
-      <figure>
-        <title>try</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="try.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-
-      <figure>
-        <title>catchClause</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="catchClause.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <figure>
-        <title>finallyClause</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="finallyClause.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>For</title>
-
-      <para></para>
-
-      <para></para>
-
-      <figure>
-        <title>for</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="for.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-
-      <figure>
-        <title>inClause</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="inClause.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>Sequence Access</title>
-
-      <para></para>
-
-      <para></para>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>Sequence Modification</title>
-
-      <para></para>
-
-      <para></para>
-
-      <para></para>
-    </sect1>
-
-    <sect1>
-      <title>Timelines</title>
-
-      <para></para>
-
-      <para></para>
-
-      <para></para>
     </sect1>
   </chapter>
 
@@ -2758,7 +2810,7 @@ println(pt.x);</programlisting>
       <tgroup cols="2">
         <tbody>
           <row>
-            <entry>var x; </entry>
+            <entry>var x;</entry>
 
             <entry>Declare a variable. The variable can be initialized (in an
             object literal), can be overridden (in a subclass), can be read,
