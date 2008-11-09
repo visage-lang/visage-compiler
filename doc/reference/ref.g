@@ -720,48 +720,14 @@ ifExpression
 // an assignment, but it might be just a straight expression.
 //
 assignmentExpression  
-
-	returns [JFXExpression value]	// The expression tree that represents the assignment expression
-
-@init
-{
-	// Work out current position in the input stream
-	//
-	int	rPos = pos();
-}
 	: lhs=assignmentOpExpression 
 		(     
-			  (EQ)=> EQ rhs=valueExpression
-			  
-			  	{
-			  		// This is actually an assign
-			  		//
-			  		$value = F.at(rPos).Assign($lhs.value, $rhs.value);
-			  		
-			  		// Tree span
-			  		//
-			  		endPos($value);
-			  	}
-			  	
+			  '=' valueExpression
 			|	// Just an expression without an assignment
-				//
-				{
-					$value = $lhs.value;
-				}
 		)
 	;
 	
 assignmentOpExpression
-
-	returns [JFXExpression value]	// The expression tree that represents the assignment expression
-
-@init
-{
-	// Work out current position in the input stream
-	//
-	int	rPos = pos();
-}
-
 	: lhs=andExpression					
 	  
 		(     assignOp rhs=valueExpression

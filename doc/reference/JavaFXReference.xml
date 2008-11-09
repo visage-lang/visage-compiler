@@ -950,7 +950,8 @@ Sign: one of
       <sect2>
         <title>ifExpression</title>
 
-        <para></para>
+        <para>The <emphasis>ifExpression</emphasis> is used to selectively
+        execute code and return its value. </para>
 
         <figure>
           <title>ifExpression</title>
@@ -962,13 +963,27 @@ Sign: one of
           </mediaobject>
         </figure>
 
-        <para></para>
+        <para>If the <command>else</command> part is present and neither of
+        the <emphasis>expression</emphasis>s is of Void type, then the
+        <emphasis>ifExpression</emphasis> has a value. That value is the value
+        of the first <emphasis>expression</emphasis> if
+        <emphasis>valueExpression</emphasis> is true, and otherwise the value
+        of the second <emphasis>expression</emphasis>.</para>
+
+        <para>If there is no <command>else</command> part or either
+        <emphasis>expression</emphasis> is of Void type, then the
+        <emphasis>ifExpression</emphasis> has Void type.</para>
       </sect2>
 
       <sect2>
         <title>forExpression</title>
 
-        <para></para>
+        <para>The <emphasis>forExpression</emphasis> iterates over one or more
+        sequences. The expression is called the body of the
+        <emphasis>forExpression</emphasis>. If the body is of Void type, then
+        the <emphasis>forExpression</emphasis> has Void. Otherwise the value
+        of the <emphasis>forExpression</emphasis> is a sequence consisting of
+        each body value.</para>
 
         <figure>
           <title>forExpression</title>
@@ -1013,6 +1028,123 @@ Sign: one of
 
         <para></para>
       </sect2>
+    </sect1>
+
+    <sect1>
+      <title>assignmentExpression</title>
+
+      <para></para>
+
+      <figure>
+        <title>assignmentExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="assignmentExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure>
+        <title>assignmentOpExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="assignOpExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure>
+        <title>assignmentOperator</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="assignmentOperator.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>andExpression orExpression (Two Argument Boolean
+      Operations)</title>
+
+      <para></para>
+
+      <figure>
+        <title>andExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="andExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure>
+        <title>orExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="orExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+
+      <para></para>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>typeExpression</title>
+
+      <para></para>
+
+      <figure>
+        <title>typeExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="typeExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+    </sect1>
+
+    <sect1>
+      <title>relationalExpression</title>
+
+      <para></para>
+
+      <figure>
+        <title>relationalExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="relationalExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure>
+        <title>relationalOperator</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="relationalOperator.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
     </sect1>
 
     <sect1>
