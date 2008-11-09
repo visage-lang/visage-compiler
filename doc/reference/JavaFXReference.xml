@@ -1308,11 +1308,49 @@ Sign: one of
         </mediaobject>
       </figure>
 
-      <para></para>
+      <para>Where the two QUOTE tokens are matching single or double quote.
+      </para>
+
+      <para>Like string literals, adjacent string expressions (and string
+      literals) are automatically concatenated at compile time.</para>
     </sect1>
 
     <sect1>
-      <title>Object Literals</title>
+      <title>Object Literal</title>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>objectLiteral</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="objectLiteral.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure>
+        <title>objectLiteralPart</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="objectLiteralPart.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure>
+        <title>objectLiteralInit</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="objectLiteralInit.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
       <para></para>
     </sect1>
@@ -1330,7 +1368,21 @@ Sign: one of
     </sect1>
 
     <sect1>
-      <title>Blocks</title>
+      <title>Block</title>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>block</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="block.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
       <para></para>
     </sect1>
@@ -1339,10 +1391,38 @@ Sign: one of
       <title>If</title>
 
       <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>if</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="if.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
     </sect1>
 
     <sect1>
       <title>While</title>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>while</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="while.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
       <para></para>
     </sect1>
@@ -1351,10 +1431,38 @@ Sign: one of
       <title>Return</title>
 
       <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>return</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="return.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
     </sect1>
 
     <sect1>
       <title>Break</title>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>break</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="break.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
       <para></para>
     </sect1>
@@ -1363,10 +1471,60 @@ Sign: one of
       <title>Continue</title>
 
       <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>continue</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="continue.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
     </sect1>
 
     <sect1>
       <title>Try-Catch-Finally</title>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>try</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="try.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+
+      <figure>
+        <title>catchClause</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="catchClause.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure>
+        <title>finallyClause</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="finallyClause.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
       <para></para>
     </sect1>
@@ -1375,10 +1533,40 @@ Sign: one of
       <title>For</title>
 
       <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>for</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="for.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+
+      <figure>
+        <title>inClause</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="inClause.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
     </sect1>
 
     <sect1>
       <title>Sequence Access</title>
+
+      <para></para>
+
+      <para></para>
 
       <para></para>
     </sect1>
@@ -1387,10 +1575,18 @@ Sign: one of
       <title>Sequence Modification</title>
 
       <para></para>
+
+      <para></para>
+
+      <para></para>
     </sect1>
 
     <sect1>
       <title>Timelines</title>
+
+      <para></para>
+
+      <para></para>
 
       <para></para>
     </sect1>
