@@ -1265,6 +1265,25 @@ Sign: one of
 
           <tbody>
             <row>
+              <entry><command>==</command></entry>
+
+              <entry>Equals</entry>
+
+              <entry>Object == Object</entry>
+
+              <entry>Boolean</entry>
+            </row>
+
+            <row>
+              <entry><command>!=</command></entry>
+
+              <entry>Not equals</entry>
+
+              <entry>Object != Object</entry>
+
+              <entry>Boolean</entry>
+            </row>
+            <row>
               <entry morerows="4"><command>&lt;</command></entry>
 
               <entry morerows="4">Less than</entry>
@@ -1373,54 +1392,8 @@ Sign: one of
 
       <para></para>
 
-      <para></para>
-
-      <table>
-        <title>Equality Operators</title>
-
-        <tgroup cols="4">
-          <colspec align="center" />
-
-          <thead>
-            <row>
-              <entry align="center"> Operator</entry>
-
-              <entry align="center">Meaning </entry>
-
-              <entry align="center">Operand Types</entry>
-
-              <entry align="center">Result Type</entry>
-            </row>
-          </thead>
-
-          <tbody>
-            <row>
-              <entry><command>==</command></entry>
-
-              <entry>Equals</entry>
-
-              <entry>Object == Object</entry>
-
-              <entry>Boolean</entry>
-            </row>
-
-            <row>
-              <entry><command>!=</command></entry>
-
-              <entry>Equals</entry>
-
-              <entry>Object != Object</entry>
-
-              <entry>Boolean</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-
-      <para>Note: for relational and equality operators, when comparing
+      <para>Note: for relational operators, when comparing
       Integer to Number, the Integer will first be converted to Number.</para>
-
-      <para></para>
 
       <para></para>
     </sect1>
