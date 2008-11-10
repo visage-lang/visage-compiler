@@ -32,14 +32,16 @@ public class Duration implements Comparable {
     protected double millis;
     private static Duration ZERO;
     private static Duration ONE;
+    private static Class<?> fxClass;
 
     static {
         try {
+            fxClass = Class.forName("javafx.lang.Duration");
             ZERO = (Duration) realMake(0);
             ONE = (Duration) realMake(1);
         }
         catch (Exception e) {
-            e.printStackTrace(System.err);
+            e.printStackTrace();
         }
     }
     
@@ -59,8 +61,6 @@ public class Duration implements Comparable {
     }
 
     private static Object realMake(double ms) throws Exception {
-        // @@@ Need a better way to do this
-        Class<?> fxClass = Class.forName("javafx.lang.Duration");
         Duration dur = (Duration)fxClass.newInstance();
         dur.millis = ms;
         return dur;
