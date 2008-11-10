@@ -1846,6 +1846,8 @@ Sign: one of
 
       <para></para>
 
+      <para></para>
+
       <figure>
         <title>postfixExpression</title>
 
@@ -1858,20 +1860,22 @@ Sign: one of
 
       <para></para>
 
-      <figure>
-        <title>expressionList</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="expressionList.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-
       <sect2>
         <title>Member Access</title>
+
+        <para></para>
+
+        <para></para>
+
+        <figure>
+          <title>postfixExpression [Member Access clause]</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="memberAccess.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
 
         <para></para>
       </sect2>
@@ -1880,93 +1884,363 @@ Sign: one of
         <title>Function Invocation</title>
 
         <para></para>
+
+        <para></para>
+
+        <figure>
+          <title>postfixExpression [Function Invocation clause]</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="functionInvocation.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <figure>
+          <title></title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="expressionList.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
       </sect2>
 
       <sect2>
         <title>Sequence Select</title>
 
         <para></para>
+
+        <para></para>
+
+        <para></para>
+
+        <figure>
+          <title>postfixExpression [Sequence Select clause]</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="sequenceSelect.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>Sequence Indexing</title>
+
+        <para></para>
+
+        <para></para>
+
+        <figure>
+          <title>postfixExpression [Index clause]</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="index.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>Sequence Slice</title>
+
+        <para></para>
+
+        <para></para>
+
+        <figure>
+          <title>postfixExpression [Slice clause]</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="slice.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
       </sect2>
     </sect1>
 
     <sect1>
-      <title>String Expressions</title>
+      <title>primaryExpression</title>
 
       <para></para>
 
       <para></para>
 
       <figure>
-        <title>simplfied StringExpression</title>
+        <title>primaryExpression</title>
 
         <mediaobject>
           <imageobject>
-            <imagedata fileref="stringExpression.png"></imagedata>
+            <imagedata fileref="primaryExpression.png"></imagedata>
           </imageobject>
         </mediaobject>
       </figure>
 
-      <para>Where the two QUOTE tokens are matching single or double
-      quote.</para>
-
-      <para>Like string literals, adjacent string expressions (and string
-      literals) are automatically concatenated at compile time.</para>
-    </sect1>
-
-    <sect1>
-      <title>Object Literal</title>
-
       <para></para>
 
       <para></para>
 
-      <figure>
+      <sect2>
+        <title>qualifiedName</title>
+
+        <para></para>
+
+        <para></para>
+
+        <figure>
+          <title>qualifiedName</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="qualifiedName.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
         <title>objectLiteral</title>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="objectLiteral.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+        <para></para>
 
-      <figure>
-        <title>objectLiteralPart</title>
+        <para></para>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="objectLiteralPart.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+        <figure>
+          <title>objectLiteral</title>
 
-      <figure>
-        <title>objectLiteralInit</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="objectLiteral.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="objectLiteralInit.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-    </sect1>
+        <figure>
+          <title>objectLiteralPart</title>
 
-    <sect1>
-      <title>Block</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="objectLiteralPart.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
 
-      <para></para>
+        <figure>
+          <title>objectLiteralInit</title>
 
-      <para></para>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="objectLiteralInit.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
 
-      <figure>
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title><command>this</command></title>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>stringExpression</title>
+
+        <para></para>
+
+        <para></para>
+
+        <figure>
+          <title>simplfied StringExpression</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="stringExpression.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para>Where the two QUOTE tokens are matching single or double
+        quote.</para>
+
+        <para>Like string literals, adjacent string expressions (and string
+        literals) are automatically concatenated at compile time.</para>
+
+        <para></para>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>explicitSequenceExpression</title>
+
+        <para>Creates a sequence by explicitly listing the elements of the
+        sequence.</para>
+
+        <para></para>
+
+        <figure>
+          <title>explicitSequenceExpression</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="explicitSequenceExpression.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>rangeExpression</title>
+
+        <para>Creates a sequence which is a range of Integer or Number
+        values.</para>
+
+        <para></para>
+
+        <figure>
+          <title>rangeExpression</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="rangeExpression.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
         <title>block</title>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="block.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+        <para></para>
+
+        <para></para>
+
+        <figure>
+          <title>block</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="block.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>literal</title>
+
+        <para></para>
+
+        <para></para>
+
+        <figure>
+          <title>literal</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="literal.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>functionExpression</title>
+
+        <para></para>
+
+        <para></para>
+
+        <figure>
+          <title>functionExpression</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="functionExpression.jpeg"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <figure>
+          <title>formalParameters</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="formalParameters.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <figure>
+          <title>formalParameter</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="formalParameter.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
+
+      <sect2>
+        <title>timelineExpression</title>
+
+        <para></para>
+
+        <para></para>
+
+        <figure>
+          <title>timelineExpression</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="timelineExpression.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <figure>
+          <title>keyFrameLiteralPart</title>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="keyFrameLiteralPart.png"></imagedata>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+        <para></para>
+      </sect2>
     </sect1>
   </chapter>
 

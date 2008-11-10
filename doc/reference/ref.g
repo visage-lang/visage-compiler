@@ -1064,36 +1064,61 @@ otherPostfixExpressionForms
 	;
 
 postfixExpression 
-	: pe=primaryExpression	
+	: primaryExpression	
 		( 
-			  '.' 
-				( 
-					  n1=name
-	         	)
+			  '.' name
 			| '('  expressionList ')'
-			| sequenceSelect
-	   	)* 
-	;
-
-sequenceSelect
-	: LBRACKET
-				(
-					  n2=name PIPE 
-					  e1=valueExpression r3=RBRACKET
-					| first=valueExpression
+			| '[' name '|'  valueExpression  ']'
+			| '[' valueExpression  ']'
+			| '[' (
+					 valueExpression
 						(
-							  r1=RBRACKET
-	                    	| DOTDOT 
+	                    	 '..' 
 	                    		(
-									  (LT  )? 
+									  ('<'  )? 
 									  	(
 									  		last=valueExpression
 									  	)?
 									  	
 								)
-	                      	  r2=RBRACKET
                     	)
              	)
+             	']'
+	   	)* 
+	;
+
+memberAccess
+	:	'.' name
+	;
+
+functionInvocation
+	:	'('  expressionList ')'
+	;
+
+sequenceSelect
+	:	'[' name '|'  valueExpression  ']'
+	;
+
+index
+	: '[' valueExpression  ']'
+	;
+	
+
+slice
+	: '[' (
+					 valueExpression
+						(
+	                    	 '..' 
+	                    		(
+									  ('<'  )? 
+									  	(
+									  		last=valueExpression
+									  	)?
+									  	
+								)
+                    	)
+             	)
+             	']'
 	;
 
 // -------------------
@@ -1105,9 +1130,9 @@ primaryExpression
 	: qualifiedName
 	| objectLiteral
 	| 'this'
-	| 'super'
 	| stringExpression
-	| bracketExpression		
+	| explicitSequenceExpression		
+	| rangeExpression
 	| block
 	| literal		
 	| functionExpression
@@ -1128,40 +1153,18 @@ timelineExpression
 // Frame values
 //  
 keyFrameLiteralPart
-
-	returns [ListBuffer<JFXExpression> exprs = new ListBuffer<JFXExpression>(); ]	// Gathers a list of expressions representing frame values
-
-	: k1=valueExpression 			{ exprs.append($k1.value);	}
-	
-		(SEMI+
+	: k1=valueExpression 	
+		(';'
 		
-			k2=valueExpression		{ exprs.append($k2.value);	}
-		)* SEMI*
+			k2=valueExpression		
+		)* ';'?
     ;
 
 // -------------------
 // Anonymous functions
 //
 functionExpression
-
-	returns [JFXExpression value] 	// Expression tree for anonymous function
-
-	: FUNCTION formalParameters typeSpecifier block
-	
-		{
-			// JFX AST
-			//
-			$value = F.at(pos($FUNCTION)).FunctionValue
-								(
-									$typeSpecifier.rtype, 
-									$formalParameters.params.toList(),
-									$block.value
-								);
-								
-			// Tree span
-			//
-			endPos($value);
-		}
+	: 'function' formalParameters typeSpecifier block
 	;
 	
 // ---
@@ -1315,55 +1318,27 @@ formattedExpression
 	: FORMAT_STRING_LITERAL? valueExpression
 	;
 	
-// ---------------------------
-// Sequence
-// Which is a [] enclosed expression list
-//
-bracketExpression
-	: LBRACKET   
-	
+explicitSequenceExpression
+	: '['   
 		( 	e1=valueExpression
-				{
-					seqexp.append($e1.value);
-				}
-		     	(
-		     		COMMA*
-		     		  (
-		     			
-		     				(
-		     					e2=valueExpression
-		     						{
-		     							seqexp.append($e2.value);
-		     						}
-		     				)
-		     				COMMA*
+		     		(','
+		     		  valueExpression
 		     		  )*
-	                    
-	                    {
-	                    	// Explicit sequence detected
-	                    	//
-	                    	$value = F.at(rPos).ExplicitSequence(seqexp.toList());
-	                    	endPos($value);
-	                    }
-	                    
-		     		| DOTDOT
-		     			(LT { haveLT = true; })? 
-		     			dd=valueExpression
-		     	    	( STEP st=valueExpression { stepEx = $st.value; } )?
-		     	    	
-		     	    	{
-		     	    		$value = F.at(pos($DOTDOT)).RangeSequence($e1.value, $dd.value, stepEx, haveLT);
-		     	    		endPos($value);
-		     	    	}
-		     	)
-		     	
+		     				','?
 		     |  // Empty sequence 
-		     	{
-		     		 $value = F.at(rPos).EmptySequence();
-		     		 endPos($value);
-		     	}
 	    )
-	  RBRACKET
+	  ']'
+	;
+
+rangeExpression
+	: '['   
+		( 	e1=valueExpression
+		     	 '..'
+		     			('<' )? 
+		     			dd=valueExpression
+		     	    	( 'step' st=valueExpression  )?
+	    )
+	  ']'
 	;
 
 // ----------------
@@ -1533,15 +1508,6 @@ typeName
 	;
 	
 genericArgument
-
-	returns [JFXExpression value]
-
-@init 
-{
-	BoundKind 		bk 		= BoundKind.UNBOUND;
-	JFXExpression 	texpr 	= null; 
-}
-
 	: typeName	{ $value = $typeName.value; }
 	
 	| QUES 
@@ -1552,10 +1518,6 @@ genericArgument
 		  	) 
 		 	typeName			{ texpr = $typeName.value; }
 		)?
-		
-		{
-			// TODO: NYI - Remove or implement?
-		}
 	;
 
 // --------
@@ -1564,93 +1526,24 @@ genericArgument
 // in the stringExpression rule
 //
 literal
-
-	returns [JFXExpression value]
-	
-@init
-{
-    // Work out current position in the input stream
-	//
-	int	rPos = pos();
-}
 	: 
-		(
-			 DECIMAL_LITERAL
-			
-				{
-					$value = F.at(rPos).Literal(TypeTags.INT, (int)Convert.string2long($DECIMAL_LITERAL.text, 10));
-				}
-				
-			| OCTAL_LITERAL
-			
-				{
-					$value = F.at(rPos).Literal(TypeTags.INT, (int)Convert.string2long($OCTAL_LITERAL.text, 8));
-				}
-			
-			| HEX_LITERAL
-			
-				{
-					$value = F.at(rPos).Literal(TypeTags.INT, (int)Convert.string2long($HEX_LITERAL.text, 16));
-				}
-				
-		    | TIME_LITERAL
-		    
-		    	{
-		    		$value = F.at(rPos).TimeLiteral($TIME_LITERAL.text);
-		    	}
-		    	
-			| FLOATING_POINT_LITERAL
-			
-				{
-					$value = F.at(rPos).Literal(TypeTags.DOUBLE, Double.valueOf($FLOATING_POINT_LITERAL.text));
-				}
-				
-			| TRUE
-			
-				{
-					$value = F.at(rPos).Literal(TypeTags.BOOLEAN, 1);
-				}
-				
-			| FALSE
-			
-				{
-					$value = F.at(rPos).Literal(TypeTags.BOOLEAN, 0);
-				}
-				
-			| NULL
-			
-				{
-					$value = F.at(rPos).Literal(TypeTags.BOT, null);
-				}
-		)
-		
-		{
-			// Tree span
-			//
-			endPos($value);
-		}
+			 (DECIMAL_LITERAL	)	
+			| (OCTAL_LITERAL	)	
+			| (HEX_LITERAL		)	
+		    | (TIME_LITERAL	)	
+			| (FLOATING_POINT_LITERAL	)		
+			| ('true'	)	
+			| ('false'	)	
+			| ('null'	)	
 	;
 
 // -------------------------	
 // Qualified (possibly) name
 //
 qualifiedName
-
-	returns [JFXExpression value]
-	
-	: n1=name
-		{
-			$value = F.at($n1.pos).Ident($n1.value);
-			endPos($value, $n1.pos + $n1.value.length());
-		}
+	: name
 		( 
-			(DOT)=> DOT n2=name
-			
-				{
-					$value = F.at(pos($DOT)).Select($value, $n2.value);
-					endPos($value); 
-				}
-			
+			'.' name
 		)*  
 	;
 
