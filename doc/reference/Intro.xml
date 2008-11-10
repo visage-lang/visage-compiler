@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:svg="http://www.w3.org/2000/svg"
+         xmlns:m="http://www.w3.org/1998/Math/MathML"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:db="http://docbook.org/ns/docbook">
+    <title>Introduction</title>
+
+    <para>Discusses the what and why of JavaFX Script, and then provides
+    examples to give you an overview.</para>
+
+    <sect1>
+      <title>Why JavaFX Script?</title>
+
+      <para>There are thousands of programming languages, why use JavaFX? Two
+      reasons: ubiquitous delivery and rapid development of graphical
+      applications. JavaFX is built on the Java platform which is available on
+      everything from cell phones to supercomputers. JavaFX is designed so
+      that the developer can express their desired results succinctly and
+      simply. Much can be expressed declaratively, including the interactive
+      relationships between components, greatly easing development
+      complexity.</para>
+    </sect1>
+
+    <sect1>
+      <title>What is JavaFX Script?</title>
+
+      <para>JavaFX Script is a scripting language which means it provides fast
+      and easy development with less of the armor provided by conventional
+      languages. It is thus tailored to moderately sized interactive graphical
+      applications rather than programming in the large. It does, however,
+      have one of the most important advantages of compile-time typing. That
+      is, before your program even runs, it is checked for incompatible
+      relationships between data.</para>
+    </sect1>
+
+    <sect1>
+      <title>A Taste of JavaFX Script</title>
+
+      <para>But the best way to get the idea of JavaFX Script is to see some
+      examples. Don't worry if some of these don't make sense, the rest of
+      this Reference will provide the details.</para>
+
+      <para>JavaFX Script programs are written as one or more
+      <emphasis>scripts</emphasis>. A script consists of expressions and
+      declarations, typically in a file. The following is an expression and
+      thus a valid script:</para>
+
+      <programlisting>4</programlisting>
+
+      <para>But it doesn't do anything. So, we could print it using the
+      built-in function 'println':</para>
+
+      <programlisting>println(4)</programlisting>
+
+      <para>Which makes it irresistible to show the Hello World script:</para>
+
+      <programlisting>println("Hello, World")</programlisting>
+
+      <para>This script will print:</para>
+
+      <para><computeroutput>Hello, World</computeroutput></para>
+
+      <para>Which really isn't in the spirit of JavaFX since it isn't
+      graphical. Refer to the graphics tutorial for that.</para>
+
+      <para>You can, of course, have more complex expressions:</para>
+
+      <programlisting>println("Circumference is { 2*3.1415*7 } ")</programlisting>
+
+      <para>This script will print:</para>
+
+      <para><computeroutput>Circumference is 43.981</computeroutput></para>
+
+      <para>Note that the expression enclosed in braces is computed at runtime
+      and inserted into the string.</para>
+
+      <para>This script would be more interesting if we used variables:</para>
+
+      <programlisting>def PI = 3.14159265; 
+var r = 7; 
+println("Circumference is { 2 * PI * r } ")</programlisting>
+
+      <para>You could also define a function:</para>
+
+      <programlisting>def PI = 3.14159265; 
+var r = 7; 
+function circumference(radius) { 2 * PI * radius }
+println("Circumference is { circumference(r) } ")</programlisting>
+
+      <para>Note that JavaFX Script uses type inference to figure out the type
+      of variables and function. Without type inference, this would be
+      written:</para>
+
+      <programlisting>def PI : Number = 3.14159265;  
+var r : Number = 7; 
+function circumference(radius : Number) : Number {
+   2 * PI * radius 
+} 
+println("Circumference is { circumference(r) }")</programlisting>
+
+      <para>You can define a class to represent a real or abstract entity. In
+      this case, a point:</para>
+
+      <programlisting>class Point { 
+   var x : Integer; 
+   var y : Integer; 
+   function show() {
+      println("Point {x}, {y}")
+   } 
+} </programlisting>
+
+      <para>This class defines the x and y coordinates and a function to
+      display the Point.</para>
+
+      <para>We can create an instance of the Point and assign it to a variable
+      like this:</para>
+
+      <programlisting>var myPoint = Point { 
+   x: 12
+   y: 9
+}</programlisting>
+
+      <para>Note that the x and y instance variables are set during
+      creation.</para>
+
+      <para>Finally we can ask the point to print itself by calling the show()
+      function defined in the Point class (above).</para>
+
+      <programlisting>myPoint.show()</programlisting>
+
+      <para>This will print:</para>
+
+      <para><computeroutput>Point 12, 9</computeroutput></para>
+
+      <para>For an example-based introduction to JavaFX see the JavaFX Script
+      Tutorial.</para>
+    </sect1>
+  </chapter>
+
