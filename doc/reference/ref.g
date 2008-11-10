@@ -1042,33 +1042,13 @@ unaryOps
 // LL(k) precedence
 //
 suffixedExpression 
-
-	returns [JFXExpression value] 	// Expression tree for suffix expressions
-
-@init
-{
-	// Work out current position in the input stream
-	//
-	int	rPos = pos();
-}
-
-	: pe=postfixExpression
+	: postfixExpression
 		( 
-			  { input.LT(-1).getType() != RBRACE }?=> PLUSPLUS
-			  
-			  	{
-			  		$value = F.at(rPos).Unary(JavafxTag.POSTINC, $pe.value);
-			  		endPos($value);
-			  	}
+			  '++'
 			  	
-			| { input.LT(-1).getType() != RBRACE }?=> SUBSUB
-			
-				{
-					$value = F.at(rPos).Unary(JavafxTag.POSTDEC, $pe.value);
-					endPos($value);
-				}
+			| '--'
 				
-			| { $value = $pe.value; }
+			| 
 		)
 	;
 	
@@ -1124,23 +1104,26 @@ sequenceSelect
 primaryExpression  
 	: qualifiedName
 	| objectLiteral
-	| THIS
-	| SUPER
-	| se=stringExpression
-	| be=bracketExpression		
+	| 'this'
+	| 'super'
+	| stringExpression
+	| bracketExpression		
 	| block
 	| literal		
-	| fe=functionExpression
-	| LPAREN e=valueExpression RPAREN
-	| AT 
-		LPAREN 
-			TIME_LITERAL
-		RPAREN 
-		LBRACE 
-			k=keyFrameLiteralPart 
-		RBRACE
+	| functionExpression
+	| '(' valueExpression ')'
+	| timelineExpression
 	;
 	
+timelineExpression
+	:	'at' 
+		'(' 
+			TIME_LITERAL
+		')' 
+		'{' 
+			k=keyFrameLiteralPart 
+		'}'
+		;
 // ------------
 // Frame values
 //  
