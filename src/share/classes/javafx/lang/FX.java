@@ -175,6 +175,8 @@ public class FX {
      * This function will not normally return to the calling Script.
      * </p>
      *
+     * @throws IllegalStateException when called during the process of exiting.
+     *
      * @profile common
      */
     public static void exit() {
@@ -220,6 +222,7 @@ public class FX {
      * return the previous Handle without any reodering.
      * @return Handle used to remove the action if needed.
      *
+     * @throws NullPointerException if the action if null
      * @profile common
      */
     public static int addShutdownAction(Function0<Void> action) {
@@ -255,6 +258,7 @@ public class FX {
      * @param  action of type {@code function():Void} that will be executed
      * later based on the implementation.
      * 
+     * @throws NullPointerException if the action if null
      * @profile common
      */
     public static void deferAction(Function0<Void> action) {
@@ -267,10 +271,14 @@ public class FX {
 
     /**
      * For JavaFX Script applications that are started on the command
-     * line,running application. Returns null if there were no incoming
-     * arguments or if this application was not invoked from the
-     * command line. 
+     * line,running application. This will return Unamed Arguments
      *
+     * @return Sequence of commandline args as strings, this will return
+     * null under the following conditions:
+     * <ul>
+     * <li>No Incoming arguments on Command line</li>
+     * <li>Only Name, Value pairs on the Command line</li>
+     * </ul>
      * @profile common
      */
     public static Sequence<String> getArguments() {
@@ -313,8 +321,8 @@ public class FX {
      *
      * @profile common
      */
-    public static Object getArgument(String key) {
-        return Entry.getArgument(key);
+    public static Object getArgument(String name) {
+        return Entry.getArgument(name);
     }
 
     /*
