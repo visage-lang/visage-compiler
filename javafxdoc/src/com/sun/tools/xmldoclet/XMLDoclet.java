@@ -693,16 +693,34 @@ public class XMLDoclet {
                 }
                 attrs.addAttribute("", "", "label", "CDATA", label);
             }
+            boolean isThrows = false;
+            if ("@throws".equals(t.name())) {
+                isThrows = true;
+                ThrowsTag tt = (ThrowsTag)t;
+                attrs.addAttribute("", "", "exceptionName", "CDATA", tt.exceptionName());  
+            }
             hd.startElement("", "", kind, attrs);
+            if (isThrows) {
+                ThrowsTag tt = (ThrowsTag)t;
+                generateTypeRef(tt.exceptionType(), "exception", null);
+                hd.startElement("", "", "comment", null);
+                String comment = tt.exceptionComment();
+                hd.characters(comment.toCharArray(), 0, comment.length());
+                hd.endElement("", "", "comment");
+            }
             Tag[] inlineTags = t.inlineTags();
             if (inlineTags.length <= 1) {
-                String text = t.text();
-                hd.characters(text.toCharArray(), 0, text.length());
+                // for @throws we have already collected everything..
+                if (! isThrows) {
+                    String text = t.text();
+                    hd.characters(text.toCharArray(), 0, text.length());
+                }
             } else {
                 generateTags(inlineTags, "inlineTags");
             }
             hd.endElement("", "", kind);
         }
+        
         hd.endElement("", "", tagKind);
     }
     

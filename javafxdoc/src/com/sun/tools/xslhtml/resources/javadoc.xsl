@@ -1000,6 +1000,20 @@
                 </dl>
             </xsl:if>
             
+            <!-- full exceptions desc -->
+            <xsl:if test="docComment/tags/throws">
+                <dl class="returns">
+                    Throws
+                    <xsl:for-each select="docComment/tags/throws">
+                        <dd>
+                            <xsl:apply-templates select="exception" mode="signature"/>
+                            <xsl:text> </xsl:text>
+                            <xsl:apply-templates select="comment"/>
+                        </dd>
+                    </xsl:for-each>
+                </dl>
+            </xsl:if>
+            
             
             <!-- profile comment -->
             <xsl:apply-templates select="docComment/tags/profile"/>
@@ -1144,6 +1158,46 @@
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
+    
+    <xsl:template name="throws-clause">
+        <xsl:if test="thrownExceptions">
+            <xsl:text> throws </xsl:text>
+            <xsl:for-each select="thrownExceptions/exception">
+                <xsl:apply-templates select="." mode="signature"/>
+                <xsl:if test="position()!=last()">
+                    <xsl:text>, </xsl:text>
+                </xsl:if>
+            </xsl:for-each>
+        </xsl:if>
+    </xsl:template>
+    
+    <xsl:template match="exception" mode="signature">
+        <a>
+           <xsl:apply-templates select="." mode="href"/>
+           <i><xsl:apply-templates select="." mode="linkname"/></i>
+        </a>
+    </xsl:template>
+    
+    <xsl:template match="exception" mode="href">
+        <xsl:variable name="type-package" select="@packageName"/>
+        <xsl:variable name="type-name" select="@simpleTypeName"/>
+        <xsl:if test="/javadoc/package[@name=$type-package]/class[@name=$type-name]">
+            <xsl:attribute name="href">../<xsl:value-of select="@packageName"/>/<xsl:value-of select="@qualifiedTypeName"/>.html</xsl:attribute>
+        </xsl:if>
+    </xsl:template>
+    
+    <xsl:template match="exception" mode="linkname">
+        <xsl:variable name="type-package" select="@packageName"/>
+        <xsl:variable name="type-name" select="@simpleTypeName"/>
+        <xsl:choose>
+            <xsl:when test="/javadoc/package[@name=$type-package]/class[@name=$type-name]">
+                <xsl:value-of select="@simpleTypeName"/>    
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="@qualifiedTypeName"/>    
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
 
     <xsl:template match="function | method | constructor" mode="toc-signature">
         <xsl:apply-templates select="modifiers"/>
@@ -1168,6 +1222,7 @@
             <xsl:text> </xsl:text>
             <b><xsl:value-of select="@name"/></b>
             <xsl:apply-templates select="parameters" mode="signature"/>
+            <xsl:call-template name="throws-clause"/>
         </xsl:if>
             
     </xsl:template>
@@ -1192,6 +1247,7 @@
             <xsl:text> </xsl:text>
             <b><xsl:value-of select="@name"/></b>
             <xsl:apply-templates select="parameters" mode="signature"/>
+            <xsl:call-template name="throws-clause"/>
         </xsl:if>
             
     </xsl:template>

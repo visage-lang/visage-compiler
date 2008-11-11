@@ -143,6 +143,7 @@
             <xsl:text> </xsl:text>
             <b><xsl:value-of select="@name"/></b>
             <xsl:apply-templates select="parameters" mode="signature"/>
+            <xsl:call-template name="throws-clause"/>
         </xsl:if>
             
     </xsl:template>
