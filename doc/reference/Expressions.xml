@@ -6,1253 +6,1413 @@
          xmlns:m="http://www.w3.org/1998/Math/MathML"
          xmlns:html="http://www.w3.org/1999/xhtml"
          xmlns:db="http://docbook.org/ns/docbook">
-    <title>Expressions</title>
+  <title>Expressions</title>
 
-    <para>All executable code in JavaFX Script is expressions. This chapter
-    describes the syntax, meaning, and use of expressions.</para>
+  <para>All executable code in JavaFX Script is expressions. This chapter
+  describes the syntax, meaning, and use of expressions.</para>
 
-    <para>This chapter is organized by the syntactic structure of JavaFX
-    expressions.</para>
+  <para>This chapter is organized by the syntactic structure of JavaFX
+  expressions.</para>
+
+  <para><remark>[To do: add semantics, typing, and examples. Possibly add an
+  introductory section in a conceptual rather than syntactic
+  order]</remark></para>
+
+  <sect1>
+    <title>expression</title>
+
+    <para>At the top level of expression syntax are the expressions that stand
+    alone and have no value.</para>
 
     <para></para>
 
-    <sect1>
+    <figure>
       <title>expression</title>
 
-      <para>At the top level of expression syntax are the expressions that
-      stand alone and have no value.</para>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="expression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
-      <para></para>
+    <para></para>
+
+    <sect2>
+      <title>insert</title>
+
+      <para>The <command>insert</command> expression is used to insert a value
+      into a sequence.</para>
 
       <figure>
-        <title>expression</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="expression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-
-      <sect2>
         <title>insert</title>
 
-        <para>The <command>insert</command> expression is used to insert a
-        value into a sequence.</para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="insert.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </sect2>
 
-        <figure>
-          <title>insert</title>
+    <sect2>
+      <title>delete</title>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="insert.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
-      </sect2>
+      <para>The delete expression is used to delete an element or elements
+      from a sequence.</para>
 
-      <sect2>
+      <para></para>
+
+      <figure>
         <title>delete</title>
 
-        <para>The delete expression is used to delete an element or elements
-        from a sequence.</para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="delete.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <para></para>
+      <para></para>
+    </sect2>
 
-        <figure>
-          <title>delete</title>
+    <sect2>
+      <title>while</title>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="delete.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+      <para></para>
 
-        <para></para>
-      </sect2>
-
-      <sect2>
+      <figure>
         <title>while</title>
 
-        <para></para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="while.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <figure>
-          <title>while</title>
+      <para></para>
+    </sect2>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="while.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+    <sect2>
+      <title>break</title>
 
-        <para></para>
-      </sect2>
+      <para></para>
 
-      <sect2>
+      <figure>
         <title>break</title>
 
-        <para></para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="break.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <figure>
-          <title>break</title>
+      <para></para>
+    </sect2>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="break.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+    <sect2>
+      <title>continue</title>
 
-        <para></para>
-      </sect2>
+      <para></para>
 
-      <sect2>
+      <figure>
         <title>continue</title>
 
-        <para></para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="continue.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <figure>
-          <title>continue</title>
+      <para></para>
+    </sect2>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="continue.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+    <sect2>
+      <title>throw</title>
 
-        <para></para>
-      </sect2>
+      <para>A throw expression causes an Exception to be thrown.</para>
 
-      <sect2>
+      <figure>
         <title>throw</title>
 
-        <para>A throw expression causes an Exception to be thrown.</para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="throw.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <figure>
-          <title>throw</title>
+      <para></para>
+    </sect2>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="throw.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+    <sect2>
+      <title>return</title>
 
-        <para></para>
-      </sect2>
+      <para>A return expression causes return from a function, optionally with
+      the value of the function.</para>
 
-      <sect2>
+      <figure>
         <title>return</title>
 
-        <para>A return expression causes return from a function, optionally
-        with the value of the function.</para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="return.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <figure>
-          <title>return</title>
+      <para></para>
+    </sect2>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="return.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+    <sect2>
+      <title>try</title>
 
-        <para></para>
-      </sect2>
+      <para></para>
 
-      <sect2>
+      <figure>
         <title>try</title>
 
-        <para></para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="try.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <figure>
-          <title>try</title>
+      <para></para>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="try.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+      <figure>
+        <title>catchClause</title>
 
-        <para></para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="catchClause.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <figure>
-          <title>catchClause</title>
+      <figure>
+        <title>finallyClause</title>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="catchClause.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="finallyClause.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <figure>
-          <title>finallyClause</title>
+      <para></para>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="finallyClause.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+      <para></para>
+    </sect2>
+  </sect1>
 
-        <para></para>
+  <sect1>
+    <title>valueExpression</title>
 
-        <para></para>
-      </sect2>
-    </sect1>
+    <para></para>
 
-    <sect1>
+    <figure>
       <title>valueExpression</title>
 
-      <para></para>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="valueExpression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <para></para>
+
+    <sect2>
+      <title>ifExpression</title>
+
+      <para>The <emphasis>ifExpression</emphasis> is used to selectively
+      evaluate code.</para>
 
       <figure>
-        <title>valueExpression</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="valueExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-
-      <sect2>
         <title>ifExpression</title>
 
-        <para>The <emphasis>ifExpression</emphasis> is used to selectively
-        execute code and return its value.</para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="if.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <figure>
-          <title>ifExpression</title>
+      <para>If the <command>else</command> part is present and neither of the
+      <emphasis>expression</emphasis>s is of Void type, then the
+      <emphasis>ifExpression</emphasis> has a value. That value is the value
+      of the first <emphasis>expression</emphasis> if
+      <emphasis>valueExpression</emphasis> is true, and otherwise the value of
+      the second <emphasis>expression</emphasis>.</para>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="if.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+      <para>If there is no <command>else</command> part or either
+      <emphasis>expression</emphasis> is of Void type, then the
+      <emphasis>ifExpression</emphasis> has Void type.</para>
+    </sect2>
 
-        <para>If the <command>else</command> part is present and neither of
-        the <emphasis>expression</emphasis>s is of Void type, then the
-        <emphasis>ifExpression</emphasis> has a value. That value is the value
-        of the first <emphasis>expression</emphasis> if
-        <emphasis>valueExpression</emphasis> is true, and otherwise the value
-        of the second <emphasis>expression</emphasis>.</para>
+    <sect2>
+      <title>forExpression</title>
 
-        <para>If there is no <command>else</command> part or either
-        <emphasis>expression</emphasis> is of Void type, then the
-        <emphasis>ifExpression</emphasis> has Void type.</para>
-      </sect2>
+      <para>The <emphasis>forExpression</emphasis> iterates over one or more
+      sequences. The expression is called the body of the
+      <emphasis>forExpression</emphasis>. If the body is of Void type, then
+      the <emphasis>forExpression</emphasis> has Void. Otherwise the value of
+      the <emphasis>forExpression</emphasis> is a sequence consisting of each
+      body value.</para>
 
-      <sect2>
+      <figure>
         <title>forExpression</title>
 
-        <para>The <emphasis>forExpression</emphasis> iterates over one or more
-        sequences. The expression is called the body of the
-        <emphasis>forExpression</emphasis>. If the body is of Void type, then
-        the <emphasis>forExpression</emphasis> has Void. Otherwise the value
-        of the <emphasis>forExpression</emphasis> is a sequence consisting of
-        each body value.</para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="for.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <figure>
-          <title>forExpression</title>
+      <figure>
+        <title>inClause</title>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="for.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="inClause.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <figure>
-          <title>inClause</title>
+      <para></para>
+    </sect2>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="inClause.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+    <sect2>
+      <title>newExpression</title>
 
-        <para></para>
-      </sect2>
+      <para>A newExpression can be used to create an instance of a Java class.
+      It allows the arguments to a Java constructor to be provided. It can
+      also be used to create an instance of a JavaFX class, but objectLiteral
+      is generally used for that purpose.</para>
 
-      <sect2>
+      <figure>
         <title>newExpression</title>
 
-        <para>A newExpression can be used to create an instance of a Java
-        class. It allows the arguments to a Java constructor to be provided.
-        It can also be used to create an instance of a JavaFX class, but
-        objectLiteral is generally used for that purpose.</para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="newExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <figure>
-          <title>newExpression</title>
+      <para></para>
+    </sect2>
+  </sect1>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="newExpression.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+  <sect1>
+    <title>assignmentExpression</title>
 
-        <para></para>
-      </sect2>
-    </sect1>
+    <para></para>
 
-    <sect1>
+    <figure>
       <title>assignmentExpression</title>
 
-      <para></para>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="assignmentExpression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
-      <figure>
-        <title>assignmentExpression</title>
+    <figure>
+      <title>assignmentOpExpression</title>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="assignmentExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="assignOpExpression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
-      <figure>
-        <title>assignmentOpExpression</title>
+    <figure>
+      <title>assignmentOperator</title>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="assignOpExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="assignmentOperator.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
-      <figure>
-        <title>assignmentOperator</title>
+    <para></para>
+  </sect1>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="assignmentOperator.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+  <sect1>
+    <title>andExpression orExpression (Two Argument Boolean
+    Operations)</title>
 
-      <para></para>
-    </sect1>
+    <para></para>
 
-    <sect1>
-      <title>andExpression orExpression (Two Argument Boolean
-      Operations)</title>
+    <figure>
+      <title>andExpression</title>
 
-      <para></para>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="andExpression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
-      <figure>
-        <title>andExpression</title>
+    <figure>
+      <title>orExpression</title>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="andExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="orExpression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
-      <figure>
-        <title>orExpression</title>
+    <para></para>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="orExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+    <para></para>
 
-      <para></para>
+    <table>
+      <title>Binary Logical Operators</title>
 
-      <para></para>
+      <tgroup cols="4">
+        <colspec align="center" />
 
-      <table>
-        <title>Binary Logical Operators</title>
+        <thead>
+          <row>
+            <entry align="center"> Operator</entry>
 
-        <tgroup cols="4">
-          <colspec align="center" />
+            <entry align="center">Meaning </entry>
 
-          <thead>
-            <row>
-              <entry align="center"> Operator</entry>
+            <entry align="center">Operand Types</entry>
 
-              <entry align="center">Meaning </entry>
+            <entry align="center">Result Type</entry>
+          </row>
+        </thead>
 
-              <entry align="center">Operand Types</entry>
+        <tbody>
+          <row>
+            <entry><command>and</command></entry>
 
-              <entry align="center">Result Type</entry>
-            </row>
-          </thead>
+            <entry>Logical and</entry>
 
-          <tbody>
-            <row>
-              <entry><command>and</command></entry>
+            <entry>Boolean and Boolean</entry>
 
-              <entry>Logical and</entry>
+            <entry>Boolean</entry>
+          </row>
 
-              <entry>Boolean and Boolean</entry>
+          <row>
+            <entry><command>or</command></entry>
 
-              <entry>Boolean</entry>
-            </row>
+            <entry>Logical or</entry>
 
-            <row>
-              <entry><command>or</command></entry>
+            <entry>Boolean or Boolean</entry>
 
-              <entry>Logical or</entry>
+            <entry>Boolean</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
 
-              <entry>Boolean or Boolean</entry>
+    <para></para>
+  </sect1>
 
-              <entry>Boolean</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
+  <sect1>
+    <title>typeExpression</title>
 
-      <para></para>
-    </sect1>
+    <para></para>
 
-    <sect1>
+    <figure>
       <title>typeExpression</title>
 
-      <para></para>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="typeExpression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
-      <figure>
-        <title>typeExpression</title>
+    <para></para>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="typeExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+    <table>
+      <title>Binary Logical Operators</title>
 
-      <para></para>
+      <tgroup cols="4">
+        <colspec align="center" />
 
-      <table>
-        <title>Binary Logical Operators</title>
+        <thead>
+          <row>
+            <entry align="center"> Operator</entry>
 
-        <tgroup cols="4">
-          <colspec align="center" />
+            <entry align="center">Meaning </entry>
 
-          <thead>
-            <row>
-              <entry align="center"> Operator</entry>
+            <entry align="center">Operand Types</entry>
 
-              <entry align="center">Meaning </entry>
+            <entry align="center">Result Type</entry>
+          </row>
+        </thead>
 
-              <entry align="center">Operand Types</entry>
+        <tbody>
+          <row>
+            <entry><command>instanceof</command></entry>
 
-              <entry align="center">Result Type</entry>
-            </row>
-          </thead>
+            <entry>Is this object of the specified type</entry>
 
-          <tbody>
-            <row>
-              <entry><command>instanceof</command></entry>
+            <entry>Object instanceof Type</entry>
 
-              <entry>Is this object of the specified type</entry>
+            <entry>Boolean</entry>
+          </row>
 
-              <entry>Object instanceof Type</entry>
+          <row>
+            <entry><command>as</command></entry>
 
-              <entry>Boolean</entry>
-            </row>
+            <entry>Convert this object to the specified type</entry>
 
-            <row>
-              <entry><command>as</command></entry>
+            <entry>Object as Type</entry>
 
-              <entry>Convert this object to the specified type</entry>
+            <entry>Object (of type Type)</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
 
-              <entry>Object as Type</entry>
+    <para></para>
 
-              <entry>Object (of type Type)</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
+    <para></para>
+  </sect1>
 
-      <para></para>
+  <sect1>
+    <title>relationalExpression</title>
 
-      <para></para>
-    </sect1>
+    <para></para>
 
-    <sect1>
+    <figure>
       <title>relationalExpression</title>
 
-      <para></para>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="relationalExpression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
-      <figure>
-        <title>relationalExpression</title>
+    <figure>
+      <title>relationalOperator</title>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="relationalExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="relationalOperator.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
-      <figure>
-        <title>relationalOperator</title>
+    <para></para>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="relationalOperator.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+    <table>
+      <title>Relational Operators</title>
 
-      <para></para>
+      <tgroup cols="4">
+        <colspec align="center" />
 
-      <table>
-        <title>Relational Operators</title>
+        <thead>
+          <row>
+            <entry align="center">Operator</entry>
 
-        <tgroup cols="4">
-          <colspec align="center" />
+            <entry align="center">Meaning</entry>
 
-          <thead>
-            <row>
-              <entry align="center">Operator</entry>
+            <entry align="center">Operand Types</entry>
 
-              <entry align="center">Meaning</entry>
+            <entry align="center">Result Type</entry>
+          </row>
+        </thead>
 
-              <entry align="center">Operand Types</entry>
+        <tbody>
+          <row>
+            <entry><command>==</command></entry>
 
-              <entry align="center">Result Type</entry>
-            </row>
-          </thead>
+            <entry>Equals</entry>
 
-          <tbody>
-            <row>
-              <entry><command>==</command></entry>
+            <entry>Object == Object</entry>
 
-              <entry>Equals</entry>
+            <entry>Boolean</entry>
+          </row>
 
-              <entry>Object == Object</entry>
+          <row>
+            <entry><command>!=</command></entry>
 
-              <entry>Boolean</entry>
-            </row>
+            <entry>Not equals</entry>
 
-            <row>
-              <entry><command>!=</command></entry>
+            <entry>Object != Object</entry>
 
-              <entry>Not equals</entry>
+            <entry>Boolean</entry>
+          </row>
 
-              <entry>Object != Object</entry>
+          <row>
+            <entry morerows="4"><command>&lt;</command></entry>
 
-              <entry>Boolean</entry>
-            </row>
+            <entry morerows="4">Less than</entry>
 
-            <row>
-              <entry morerows="4"><command>&lt;</command></entry>
+            <entry>Integer &lt; Integer</entry>
 
-              <entry morerows="4">Less than</entry>
+            <entry morerows="4">Boolean</entry>
+          </row>
 
-              <entry>Integer &lt; Integer</entry>
+          <row>
+            <entry>Integer &lt; Number</entry>
+          </row>
 
-              <entry morerows="4">Boolean</entry>
-            </row>
+          <row>
+            <entry>Number &lt; Integer</entry>
+          </row>
 
-            <row>
-              <entry>Integer &lt; Number</entry>
-            </row>
+          <row>
+            <entry>Number &lt; Number</entry>
+          </row>
 
-            <row>
-              <entry>Number &lt; Integer</entry>
-            </row>
+          <row>
+            <entry>Duration &lt; Duration</entry>
+          </row>
 
-            <row>
-              <entry>Number &lt; Number</entry>
-            </row>
+          <row>
+            <entry morerows="4"><command>&lt;=</command></entry>
 
-            <row>
-              <entry>Duration &lt; Duration</entry>
-            </row>
+            <entry morerows="4">Less than or equal</entry>
 
-            <row>
-              <entry morerows="4"><command>&lt;=</command></entry>
+            <entry>Integer &lt;= Integer</entry>
 
-              <entry morerows="4">Less than or equal</entry>
+            <entry morerows="4">Boolean</entry>
+          </row>
 
-              <entry>Integer &lt;= Integer</entry>
+          <row>
+            <entry>Integer &lt;= Number</entry>
+          </row>
 
-              <entry morerows="4">Boolean</entry>
-            </row>
+          <row>
+            <entry>Number &lt;= Integer</entry>
+          </row>
 
-            <row>
-              <entry>Integer &lt;= Number</entry>
-            </row>
+          <row>
+            <entry>Number &lt;= Number</entry>
+          </row>
 
-            <row>
-              <entry>Number &lt;= Integer</entry>
-            </row>
+          <row>
+            <entry>Duration &lt;= Duration</entry>
+          </row>
 
-            <row>
-              <entry>Number &lt;= Number</entry>
-            </row>
+          <row>
+            <entry morerows="4"><command>&gt;</command></entry>
 
-            <row>
-              <entry>Duration &lt;= Duration</entry>
-            </row>
+            <entry morerows="4">Greater than</entry>
 
-            <row>
-              <entry morerows="4"><command>&gt;</command></entry>
+            <entry>Integer &gt; Integer</entry>
 
-              <entry morerows="4">Greater than</entry>
+            <entry morerows="4">Boolean</entry>
+          </row>
 
-              <entry>Integer &gt; Integer</entry>
+          <row>
+            <entry>Integer &gt; Number</entry>
+          </row>
 
-              <entry morerows="4">Boolean</entry>
-            </row>
+          <row>
+            <entry>Number &gt; Integer</entry>
+          </row>
 
-            <row>
-              <entry>Integer &gt; Number</entry>
-            </row>
+          <row>
+            <entry>Number &gt; Number</entry>
+          </row>
 
-            <row>
-              <entry>Number &gt; Integer</entry>
-            </row>
+          <row>
+            <entry>Duration &gt; Duration</entry>
+          </row>
 
-            <row>
-              <entry>Number &gt; Number</entry>
-            </row>
+          <row>
+            <entry morerows="4"><command>&gt;=</command></entry>
 
-            <row>
-              <entry>Duration &gt; Duration</entry>
-            </row>
+            <entry morerows="4">Greater than or equal</entry>
 
-            <row>
-              <entry morerows="4"><command>&gt;=</command></entry>
+            <entry>Integer &gt;= Integer</entry>
 
-              <entry morerows="4">Greater than or equal</entry>
+            <entry morerows="4">Boolean</entry>
+          </row>
 
-              <entry>Integer &gt;= Integer</entry>
+          <row>
+            <entry>Integer &gt;= Number</entry>
+          </row>
 
-              <entry morerows="4">Boolean</entry>
-            </row>
+          <row>
+            <entry>Number &gt;= Integer</entry>
+          </row>
 
-            <row>
-              <entry>Integer &gt;= Number</entry>
-            </row>
+          <row>
+            <entry>Number &gt;= Number</entry>
+          </row>
 
-            <row>
-              <entry>Number &gt;= Integer</entry>
-            </row>
+          <row>
+            <entry>Duration &gt;= Duration</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
 
-            <row>
-              <entry>Number &gt;= Number</entry>
-            </row>
+    <para></para>
 
-            <row>
-              <entry>Duration &gt;= Duration</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
+    <para>Note: for relational operators, when comparing Integer to Number,
+    the Integer will first be converted to Number.</para>
 
-      <para></para>
+    <para></para>
+  </sect1>
 
-      <para>Note: for relational operators, when comparing Integer to Number,
-      the Integer will first be converted to Number.</para>
+  <sect1>
+    <title>additiveExpression multiplicativeExpression (Two Argument
+    Arithmetic Operations)</title>
 
-      <para></para>
-    </sect1>
+    <para></para>
 
-    <sect1>
-      <title>additiveExpression multiplicativeExpression (Two Argument
-      Arithmetic Operations)</title>
+    <figure>
+      <title>additiveExpression</title>
 
-      <para></para>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="additiveExpression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
-      <figure>
-        <title>additiveExpression</title>
+    <figure>
+      <title>multiplicativeExpression</title>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="additiveExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="multiplicativeExpression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
-      <figure>
-        <title>multiplicativeExpression</title>
+    <para></para>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="multiplicativeExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+    <table>
+      <title>Binary Arithmetic Operators</title>
 
-      <para></para>
+      <tgroup cols="4">
+        <colspec align="center" />
 
-      <table>
-        <title>Binary Arithmetic Operators</title>
+        <thead>
+          <row>
+            <entry align="center"> Operator</entry>
 
-        <tgroup cols="4">
-          <colspec align="center" />
+            <entry align="center">Meaning </entry>
 
-          <thead>
-            <row>
-              <entry align="center"> Operator</entry>
+            <entry align="center">Operand Types</entry>
 
-              <entry align="center">Meaning </entry>
+            <entry align="center">Result Type</entry>
+          </row>
+        </thead>
 
-              <entry align="center">Operand Types</entry>
+        <tbody>
+          <row>
+            <entry morerows="4"><command>+</command></entry>
 
-              <entry align="center">Result Type</entry>
-            </row>
-          </thead>
+            <entry morerows="4">Add</entry>
 
-          <tbody>
-            <row>
-              <entry morerows="4"><command>+</command></entry>
+            <entry>Integer + Integer</entry>
 
-              <entry morerows="4">Add</entry>
+            <entry>Integer</entry>
+          </row>
 
-              <entry>Integer + Integer</entry>
+          <row>
+            <entry>Integer + Number</entry>
 
-              <entry>Integer</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry>Integer + Number</entry>
+          <row>
+            <entry>Number + Integer</entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry>Number + Integer</entry>
+          <row>
+            <entry>Number + Number</entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry>Number + Number</entry>
+          <row>
+            <entry>Duration + Duration</entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry>Duration</entry>
+          </row>
 
-            <row>
-              <entry>Duration + Duration</entry>
+          <row>
+            <entry morerows="4"><command>-</command></entry>
 
-              <entry>Duration</entry>
-            </row>
+            <entry morerows="4">Subtract</entry>
 
-            <row>
-              <entry morerows="4"><command>-</command></entry>
+            <entry>Integer - Integer</entry>
 
-              <entry morerows="4">Subtract</entry>
+            <entry>Integer</entry>
+          </row>
 
-              <entry>Integer - Integer</entry>
+          <row>
+            <entry>Integer - Number</entry>
 
-              <entry>Integer</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry>Integer - Number</entry>
+          <row>
+            <entry>Number - Integer</entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry>Number - Integer</entry>
+          <row>
+            <entry>Number - Number</entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry>Number - Number</entry>
+          <row>
+            <entry>Duration - Duration</entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry>Duration</entry>
+          </row>
 
-            <row>
-              <entry>Duration - Duration</entry>
+          <row>
+            <entry morerows="7"><command>*</command></entry>
 
-              <entry>Duration</entry>
-            </row>
+            <entry morerows="7">Multiply</entry>
 
-            <row>
-              <entry morerows="7"><command>*</command></entry>
+            <entry>Integer * Integer</entry>
 
-              <entry morerows="7">Multiply</entry>
+            <entry>Integer</entry>
+          </row>
 
-              <entry>Integer * Integer</entry>
+          <row>
+            <entry>Integer * Number</entry>
 
-              <entry>Integer</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry>Integer * Number</entry>
+          <row>
+            <entry>Number * Integer</entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry>Number * Integer</entry>
+          <row>
+            <entry>Number * Number</entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry>Number * Number</entry>
+          <row>
+            <entry>Integer * Duration</entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry>Duration</entry>
+          </row>
 
-            <row>
-              <entry>Integer * Duration</entry>
+          <row>
+            <entry>Number * Duration</entry>
 
-              <entry>Duration</entry>
-            </row>
+            <entry>Duration</entry>
+          </row>
 
-            <row>
-              <entry>Number * Duration</entry>
+          <row>
+            <entry>Duration * Integer</entry>
 
-              <entry>Duration</entry>
-            </row>
+            <entry>Duration</entry>
+          </row>
 
-            <row>
-              <entry>Duration * Integer</entry>
+          <row>
+            <entry>Duration * Number</entry>
 
-              <entry>Duration</entry>
-            </row>
+            <entry>Duration</entry>
+          </row>
 
-            <row>
-              <entry>Duration * Number</entry>
+          <row>
+            <entry morerows="5"><command>/</command></entry>
 
-              <entry>Duration</entry>
-            </row>
+            <entry morerows="5">Divide</entry>
 
-            <row>
-              <entry morerows="5"><command>/</command></entry>
+            <entry>Integer / Integer</entry>
 
-              <entry morerows="5">Divide</entry>
+            <entry>??? (under discussion -- see JFXC-1381)</entry>
+          </row>
 
-              <entry>Integer / Integer</entry>
+          <row>
+            <entry>Integer / Number</entry>
 
-              <entry>??? (under discussion -- see JFXC-1381)</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry>Integer / Number</entry>
+          <row>
+            <entry>Number / Integer</entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry>Number / Integer</entry>
+          <row>
+            <entry>Number / Number</entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry>Number / Number</entry>
+          <row>
+            <entry>Duration / Integer</entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry>Duration</entry>
+          </row>
 
-            <row>
-              <entry>Duration / Integer</entry>
+          <row>
+            <entry>Duration / Number</entry>
 
-              <entry>Duration</entry>
-            </row>
+            <entry>Duration</entry>
+          </row>
 
-            <row>
-              <entry>Duration / Number</entry>
+          <row>
+            <entry><command>mod</command></entry>
 
-              <entry>Duration</entry>
-            </row>
+            <entry>Modulo (sign of result not defined for negative
+            operands)</entry>
 
-            <row>
-              <entry><command>mod</command></entry>
+            <entry>Integer mod Integer</entry>
 
-              <entry>Modulo (sign of result not defined for negative
-              operands)</entry>
+            <entry>Integer</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
 
-              <entry>Integer mod Integer</entry>
+    <para>Note: + does not operate over String.</para>
 
-              <entry>Integer</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
+    <para></para>
+  </sect1>
 
-      <para>Note: + does not operate over String.</para>
+  <sect1>
+    <title>unaryExpression</title>
 
-      <para></para>
-    </sect1>
+    <para></para>
 
-    <sect1>
+    <figure>
       <title>unaryExpression</title>
 
-      <para></para>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="unaryExpression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
-      <figure>
-        <title>unaryExpression</title>
+    <table>
+      <title>Prefix Unary Operator</title>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="unaryExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+      <tgroup cols="4">
+        <colspec align="center" />
 
-      <table>
-        <title>Prefix Unary Operator</title>
+        <thead>
+          <row>
+            <entry align="center">Operator</entry>
 
-        <tgroup cols="4">
-          <colspec align="center" />
+            <entry align="center">Meaning</entry>
 
-          <thead>
-            <row>
-              <entry align="center">Operator</entry>
+            <entry align="center">Operand Type</entry>
 
-              <entry align="center">Meaning</entry>
+            <entry align="center">Result Type</entry>
+          </row>
+        </thead>
 
-              <entry align="center">Operand Type</entry>
+        <tbody>
+          <row>
+            <entry morerows="2"><command>-</command></entry>
 
-              <entry align="center">Result Type</entry>
-            </row>
-          </thead>
+            <entry morerows="2">Negation</entry>
 
-          <tbody>
-            <row>
-              <entry morerows="2"><command>-</command></entry>
+            <entry><command>-</command> Integer</entry>
 
-              <entry morerows="2">Negation</entry>
+            <entry>Integer</entry>
+          </row>
 
-              <entry><command>-</command> Integer</entry>
+          <row>
+            <entry><command>-</command> Number</entry>
 
-              <entry>Integer</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry><command>-</command> Number</entry>
+          <row>
+            <entry><command>-</command> Duration</entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry>Duration</entry>
+          </row>
 
-            <row>
-              <entry><command>-</command> Duration</entry>
+          <row>
+            <entry><command>not</command></entry>
 
-              <entry>Duration</entry>
-            </row>
+            <entry>Logical not</entry>
 
-            <row>
-              <entry><command>not</command></entry>
+            <entry><command>not</command> Boolean</entry>
 
-              <entry>Logical not</entry>
+            <entry>Boolean</entry>
+          </row>
 
-              <entry><command>not</command> Boolean</entry>
+          <row>
+            <entry><command>sizeof</command></entry>
 
-              <entry>Boolean</entry>
-            </row>
+            <entry>Number of elements in a sequence</entry>
 
-            <row>
-              <entry><command>sizeof</command></entry>
+            <entry><command>sizeof</command> Object</entry>
 
-              <entry>Number of elements in a sequence</entry>
+            <entry>Integer</entry>
+          </row>
 
-              <entry><command>sizeof</command> Object</entry>
+          <row>
+            <entry><command>reverse</command></entry>
 
-              <entry>Integer</entry>
-            </row>
+            <entry>Reverse the elements in a sequence</entry>
 
-            <row>
-              <entry><command>reverse</command></entry>
+            <entry><command>reverse</command> Object</entry>
 
-              <entry>Reverse the elements in a sequence</entry>
+            <entry>Object</entry>
+          </row>
 
-              <entry><command>reverse</command> Object</entry>
+          <row>
+            <entry morerows="1"><command>++</command></entry>
 
-              <entry>Object</entry>
-            </row>
+            <entry morerows="1">Add one to the value of the operand, value is
+            updated value</entry>
 
-            <row>
-              <entry morerows="1"><command>++</command></entry>
+            <entry><command>++</command> Integer</entry>
 
-              <entry morerows="1">Add one to the value of the operand, value
-              is updated value</entry>
+            <entry>Integer</entry>
+          </row>
 
-              <entry><command>++</command> Integer</entry>
+          <row>
+            <entry><command>++</command> Number</entry>
 
-              <entry>Integer</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry><command>++</command> Number</entry>
+          <row>
+            <entry morerows="1"><command>--</command></entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry morerows="1">Subtract one from the value of the operand,
+            value is updated value</entry>
 
-            <row>
-              <entry morerows="1"><command>--</command></entry>
+            <entry><command>--</command> Integer</entry>
 
-              <entry morerows="1">Subtract one from the value of the operand,
-              value is updated value</entry>
+            <entry>Integer</entry>
+          </row>
 
-              <entry><command>--</command> Integer</entry>
+          <row>
+            <entry><command>--</command> Number</entry>
 
-              <entry>Integer</entry>
-            </row>
+            <entry>Number</entry>
+          </row>
 
-            <row>
-              <entry><command>--</command> Number</entry>
+          <row>
+            <entry><command>indexof</command></entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry>Current position in the sequence being iterated</entry>
 
-            <row>
-              <entry><command>indexof</command></entry>
+            <entry>n/a</entry>
 
-              <entry>Current position in the sequence being iterated</entry>
+            <entry>Integer</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
 
-              <entry>n/a</entry>
+    <para></para>
 
-              <entry>Integer</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
+    <para></para>
+  </sect1>
 
-      <para></para>
+  <sect1>
+    <title>suffixedExpression</title>
 
-      <para></para>
-    </sect1>
+    <para></para>
 
-    <sect1>
+    <para></para>
+
+    <figure>
       <title>suffixedExpression</title>
 
-      <para></para>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="suffixedExpression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
-      <para></para>
+    <para></para>
 
-      <figure>
-        <title>suffixedExpression</title>
+    <table>
+      <title>Postfix Increment/Decrement Operators</title>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="suffixedExpression.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
+      <tgroup cols="4">
+        <colspec align="center" />
 
-      <para></para>
+        <thead>
+          <row>
+            <entry align="center">Operator</entry>
 
-      <table>
-        <title>Postfix Increment/Decrement Operators</title>
+            <entry align="center">Meaning</entry>
 
-        <tgroup cols="4">
-          <colspec align="center" />
+            <entry align="center">Operand Type</entry>
 
-          <thead>
-            <row>
-              <entry align="center">Operator</entry>
+            <entry align="center">Result Type</entry>
+          </row>
+        </thead>
 
-              <entry align="center">Meaning</entry>
+        <tbody>
+          <row>
+            <entry morerows="1"><command>++</command></entry>
 
-              <entry align="center">Operand Type</entry>
+            <entry morerows="1">Add one to the value of the operand, value is
+            the previous value</entry>
 
-              <entry align="center">Result Type</entry>
-            </row>
-          </thead>
+            <entry><command>++</command> Integer</entry>
 
-          <tbody>
-            <row>
-              <entry morerows="1"><command>++</command></entry>
+            <entry>Integer</entry>
+          </row>
 
-              <entry morerows="1">Add one to the value of the operand, value
-              is the previous value</entry>
+          <row>
+            <entry><command>++</command> Number</entry>
 
-              <entry><command>++</command> Integer</entry>
+            <entry>Number</entry>
+          </row>
 
-              <entry>Integer</entry>
-            </row>
+          <row>
+            <entry morerows="1"><command>--</command></entry>
 
-            <row>
-              <entry><command>++</command> Number</entry>
+            <entry morerows="1">Subtract one from the value of the operand,
+            value is the previous value</entry>
 
-              <entry>Number</entry>
-            </row>
+            <entry><command>--</command> Integer</entry>
 
-            <row>
-              <entry morerows="1"><command>--</command></entry>
+            <entry>Integer</entry>
+          </row>
 
-              <entry morerows="1">Subtract one from the value of the operand,
-              value is the previous value</entry>
+          <row>
+            <entry><command>--</command> Number</entry>
 
-              <entry><command>--</command> Integer</entry>
+            <entry>Number</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
 
-              <entry>Integer</entry>
-            </row>
+    <para></para>
+  </sect1>
 
-            <row>
-              <entry><command>--</command> Number</entry>
+  <sect1>
+    <title>postfixExpression</title>
 
-              <entry>Number</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
+    <para></para>
 
-      <para></para>
-    </sect1>
+    <para></para>
 
-    <sect1>
+    <figure>
       <title>postfixExpression</title>
 
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="postfixExpression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <para></para>
+
+    <sect2>
+      <title>Member Access</title>
+
       <para></para>
 
       <para></para>
 
       <figure>
-        <title>postfixExpression</title>
+        <title>postfixExpression [Member Access clause]</title>
 
         <mediaobject>
           <imageobject>
-            <imagedata fileref="postfixExpression.png"></imagedata>
+            <imagedata fileref="memberAccess.png"></imagedata>
           </imageobject>
         </mediaobject>
       </figure>
 
       <para></para>
+    </sect2>
 
-      <sect2>
-        <title>Member Access</title>
+    <sect2>
+      <title>Function Invocation</title>
 
-        <para></para>
+      <para></para>
 
-        <para></para>
+      <para></para>
 
-        <figure>
-          <title>postfixExpression [Member Access clause]</title>
+      <figure>
+        <title>postfixExpression [Function Invocation clause]</title>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="memberAccess.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="functionInvocation.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <para></para>
-      </sect2>
+      <figure>
+        <title></title>
 
-      <sect2>
-        <title>Function Invocation</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="expressionList.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <para></para>
+      <para></para>
+    </sect2>
 
-        <para></para>
+    <sect2>
+      <title>Sequence Select</title>
 
-        <figure>
-          <title>postfixExpression [Function Invocation clause]</title>
+      <para></para>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="functionInvocation.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+      <para></para>
 
-        <figure>
-          <title></title>
+      <para></para>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="expressionList.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+      <figure>
+        <title>postfixExpression [Sequence Select clause]</title>
 
-        <para></para>
-      </sect2>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="sequenceSelect.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-      <sect2>
-        <title>Sequence Select</title>
+      <para></para>
+    </sect2>
 
-        <para></para>
+    <sect2>
+      <title>Sequence Indexing</title>
 
-        <para></para>
+      <para></para>
 
-        <para></para>
+      <para></para>
 
-        <figure>
-          <title>postfixExpression [Sequence Select clause]</title>
+      <figure>
+        <title>postfixExpression [Index clause]</title>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="sequenceSelect.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="index.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <para></para>
-      </sect2>
+      <para></para>
+    </sect2>
 
-      <sect2>
-        <title>Sequence Indexing</title>
+    <sect2>
+      <title>Sequence Slice</title>
 
-        <para></para>
+      <para></para>
 
-        <para></para>
+      <para></para>
 
-        <figure>
-          <title>postfixExpression [Index clause]</title>
+      <figure>
+        <title>postfixExpression [Slice clause]</title>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="index.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="slice.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <para></para>
-      </sect2>
+      <para></para>
+    </sect2>
+  </sect1>
 
-      <sect2>
-        <title>Sequence Slice</title>
+  <sect1>
+    <title>primaryExpression</title>
 
-        <para></para>
+    <para></para>
 
-        <para></para>
+    <para></para>
 
-        <figure>
-          <title>postfixExpression [Slice clause]</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="slice.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <para></para>
-      </sect2>
-    </sect1>
-
-    <sect1>
+    <figure>
       <title>primaryExpression</title>
 
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="primaryExpression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <para></para>
+
+    <para></para>
+
+    <sect2>
+      <title>qualifiedName</title>
+
       <para></para>
 
       <para></para>
 
       <figure>
-        <title>primaryExpression</title>
+        <title>qualifiedName</title>
 
         <mediaobject>
           <imageobject>
-            <imagedata fileref="primaryExpression.png"></imagedata>
+            <imagedata fileref="qualifiedName.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+    </sect2>
+
+    <sect2>
+      <title>objectLiteral</title>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>objectLiteral</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="objectLiteral.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure>
+        <title>objectLiteralPart</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="objectLiteralPart.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <figure>
+        <title>objectLiteralInit</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="objectLiteralInit.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+    </sect2>
+
+    <sect2>
+      <title><command>this</command></title>
+
+      <para></para>
+    </sect2>
+
+    <sect2>
+      <title>stringExpression</title>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>simplfied StringExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="stringExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>Where the two QUOTE tokens are matching single or double
+      quote.</para>
+
+      <para>Like string literals, adjacent string expressions (and string
+      literals) are automatically concatenated at compile time.</para>
+
+      <para><remark>[To do: describe portable Formatter that handles the
+      common subset]</remark></para>
+
+      <para></para>
+    </sect2>
+
+    <sect2>
+      <title>explicitSequenceExpression</title>
+
+      <para>Creates a sequence by explicitly listing the elements of the
+      sequence.</para>
+
+      <para></para>
+
+      <figure>
+        <title>explicitSequenceExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="explicitSequenceExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+    </sect2>
+
+    <sect2>
+      <title>rangeExpression</title>
+
+      <para>Creates a sequence which is a range of Integer or Number
+      values.</para>
+
+      <para></para>
+
+      <figure>
+        <title>rangeExpression</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="rangeExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+    </sect2>
+
+    <sect2>
+      <title>block</title>
+
+      <para></para>
+
+      <para></para>
+
+      <figure>
+        <title>block</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="block.png"></imagedata>
           </imageobject>
         </mediaobject>
       </figure>
@@ -1260,254 +1420,96 @@
       <para></para>
 
       <para></para>
+    </sect2>
 
-      <sect2>
-        <title>qualifiedName</title>
+    <sect2>
+      <title>literal</title>
 
-        <para></para>
+      <para></para>
 
-        <para></para>
+      <para></para>
 
-        <figure>
-          <title>qualifiedName</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="qualifiedName.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <para></para>
-      </sect2>
-
-      <sect2>
-        <title>objectLiteral</title>
-
-        <para></para>
-
-        <para></para>
-
-        <figure>
-          <title>objectLiteral</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="objectLiteral.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <figure>
-          <title>objectLiteralPart</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="objectLiteralPart.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <figure>
-          <title>objectLiteralInit</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="objectLiteralInit.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <para></para>
-      </sect2>
-
-      <sect2>
-        <title><command>this</command></title>
-
-        <para></para>
-      </sect2>
-
-      <sect2>
-        <title>stringExpression</title>
-
-        <para></para>
-
-        <para></para>
-
-        <figure>
-          <title>simplfied StringExpression</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="stringExpression.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <para>Where the two QUOTE tokens are matching single or double
-        quote.</para>
-
-        <para>Like string literals, adjacent string expressions (and string
-        literals) are automatically concatenated at compile time.</para>
-
-        <para></para>
-
-        <para></para>
-      </sect2>
-
-      <sect2>
-        <title>explicitSequenceExpression</title>
-
-        <para>Creates a sequence by explicitly listing the elements of the
-        sequence.</para>
-
-        <para></para>
-
-        <figure>
-          <title>explicitSequenceExpression</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="explicitSequenceExpression.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <para></para>
-      </sect2>
-
-      <sect2>
-        <title>rangeExpression</title>
-
-        <para>Creates a sequence which is a range of Integer or Number
-        values.</para>
-
-        <para></para>
-
-        <figure>
-          <title>rangeExpression</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="rangeExpression.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <para></para>
-      </sect2>
-
-      <sect2>
-        <title>block</title>
-
-        <para></para>
-
-        <para></para>
-
-        <figure>
-          <title>block</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="block.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <para></para>
-
-        <para></para>
-      </sect2>
-
-      <sect2>
+      <figure>
         <title>literal</title>
 
-        <para></para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="literal.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <para></para>
+      <para></para>
+    </sect2>
 
-        <figure>
-          <title>literal</title>
+    <sect2>
+      <title>functionExpression</title>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="literal.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+      <para></para>
 
-        <para></para>
-      </sect2>
+      <para></para>
 
-      <sect2>
+      <figure>
         <title>functionExpression</title>
 
-        <para></para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="functionExpression.jpeg"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <para></para>
+      <figure>
+        <title>formalParameters</title>
 
-        <figure>
-          <title>functionExpression</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="formalParameters.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="functionExpression.jpeg"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+      <figure>
+        <title>formalParameter</title>
 
-        <figure>
-          <title>formalParameters</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="formalParameter.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="formalParameters.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+      <para></para>
+    </sect2>
 
-        <figure>
-          <title>formalParameter</title>
+    <sect2>
+      <title>timelineExpression</title>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="formalParameter.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
+      <para></para>
 
-        <para></para>
-      </sect2>
+      <para></para>
 
-      <sect2>
+      <figure>
         <title>timelineExpression</title>
 
-        <para></para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="timelineExpression.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-        <para></para>
+      <figure>
+        <title>keyFrameLiteralPart</title>
 
-        <figure>
-          <title>timelineExpression</title>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="keyFrameLiteralPart.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="timelineExpression.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <figure>
-          <title>keyFrameLiteralPart</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="keyFrameLiteralPart.png"></imagedata>
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <para></para>
-      </sect2>
-    </sect1>
-  </chapter>
-
+      <para></para>
+    </sect2>
+  </sect1>
+</chapter>
