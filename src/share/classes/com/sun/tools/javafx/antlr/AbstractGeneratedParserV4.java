@@ -1185,7 +1185,9 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                  
                  //TODO: deprecated -- remove this at some point
                  //
-                 || type == v4Parser.STATIC) {
+                 || type == v4Parser.STATIC
+                 || type == v4Parser.LINE_COMMENT
+                 || type == v4Parser.COMMENT) {
                 
                 --index;
                 
@@ -1196,33 +1198,17 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         }
 
         // Assuming that we have found a valid token (not reached the
-        // the token stream start, check to see if that token is a COMMENT
+        // the token stream start, check to see if that token is a DOC_COMMENT
         // and return null if it is not.
         //
-        if (index < 0 || input.get(index).getType() != v4Parser.COMMENT) {
+        if (index < 0 || input.get(index).getType() != v4Parser.DOC_COMMENT) {
 
             return null;
         }
 
-        // We have a valid token, see if it is a documentation
-        // comment, rather than just a normal comment.
+        // We have documentation comment, rather than just a normal comment.
         //
-        CommonToken token = (CommonToken) (input.get(index));
-        if (token.getText().startsWith("/**")) {
-
-            // It was a documentation comment so change its type
-            // to reflect this, then return it.
-            //
-            // TODO: JI - Move this type changing into the lexer 
-            //
-            token.setType(v4Parser.DOC_COMMENT);
-            return token;
-        }
-
-        // The token was either not a comment or was not a documentation
-        // comment.
-        //
-        return null;
+        return (CommonToken) (input.get(index));
     }
 
     /**

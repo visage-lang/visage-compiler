@@ -977,6 +977,9 @@ COMMENT
     :   '/*' ( options {greedy=false;} : . )* '*/' 
     
     	{
+                if (getText().startsWith("/**")) {
+                    $type = DOC_COMMENT;
+                }
     		$channel=HIDDEN;
     	}
     ;
