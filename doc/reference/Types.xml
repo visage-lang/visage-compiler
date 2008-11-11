@@ -6,169 +6,181 @@
          xmlns:m="http://www.w3.org/1998/Math/MathML"
          xmlns:html="http://www.w3.org/1999/xhtml"
          xmlns:db="http://docbook.org/ns/docbook">
-    <title>Types and Values</title>
+  <title>Types and Values</title>
 
-    <para>Covers the data types and values which can be represented and
-    manipulated in JavaFX Script</para>
+  <para>Covers the data types and values which can be represented and
+  manipulated in JavaFX Script.</para>
 
-    <sect1>
-      <title>JavaFX Script Data Types</title>
+  <para><remark>[To do: add more examples of types, add examples of literal,
+  links to expression type tables, use docbook EBNF for lexical
+  rules]</remark></para>
 
-      <para>The Void type is an odd duck that is only used to indicate that an
-      expression does not have a value (examples of such expressions are the
-      <command>while</command>-expression and calls to functions which have no
-      return value), the remainder of this chapter excludes Void.</para>
+  <sect1>
+    <title>JavaFX Script Data Types</title>
 
-      <para>JavaFX Script Data Types, hereafter called JavaFX Types , consist
-      of an <emphasis>element specifier</emphasis> and a
-      <emphasis>cardinality</emphasis>. The element specifier determines what
-      the type holds and the cardinality determines how many of them can be
-      held.</para>
+    <para>The Void type is an odd duck that is only used to indicate that an
+    expression does not have a value (examples of such expressions are the
+    <command>while</command>-expression and calls to functions which have no
+    return value), the remainder of this chapter excludes Void.</para>
 
-      <sect2>
-        <title>Element Specifier</title>
+    <para>JavaFX Script Data Types, hereafter called JavaFX Types , consist of
+    an <emphasis>element specifier</emphasis> and a
+    <emphasis>cardinality</emphasis>. The element specifier determines what
+    the type holds and the cardinality determines how many of them can be
+    held.</para>
 
-        <para>Element specifiers are classes or function signatures. Classes
-        include both JavaFX classes and Java classes. A function signature
-        consists of the parameter types and return type -- function signatures
-        are unnamed and are not tied to particular functions which might
-        implement the signature. All element specifiers are subtypes of
-        java.lang.Object.</para>
+    <sect2>
+      <title>Element Specifier</title>
 
-        <para>[In formal type systems this would be called the
-        <emphasis>ground type</emphasis>]</para>
-      </sect2>
+      <para>Element specifiers are classes or function signatures. Classes
+      include both JavaFX classes and Java classes. A function signature
+      consists of the parameter types and return type -- function signatures
+      are unnamed and are not tied to particular functions which might
+      implement the signature. All element specifiers are subtypes of
+      java.lang.Object.</para>
 
-      <sect2>
-        <title>Cardinality</title>
+      <para>[In formal type systems this would be called the <emphasis>ground
+      type</emphasis>]</para>
+    </sect2>
 
-        <para>The cardinality of a type determines how many elements can be
-        held in a JavaFX type. The three cardinalities are
-        <emphasis>optional</emphasis>, <emphasis>required</emphasis>, and
-        <emphasis>sequence</emphasis>.</para>
+    <sect2>
+      <title>Cardinality</title>
 
-        <sect3>
-          <title>Cardinality: Optional (0 or 1)</title>
+      <para>The cardinality of a type determines how many elements can be held
+      in a JavaFX type. The three cardinalities are
+      <emphasis>optional</emphasis>, <emphasis>required</emphasis>, and
+      <emphasis>sequence</emphasis>.</para>
 
-          <para>Optional cardinality means there can be one element or no
-          elements. This is the cardinality associated with most types,
-          currently including all user defined classes. If you define a class
-          Foo, then the JavaFX type "Foo" has class Foo as its element
-          specifier and optional as its cardinality. For example:</para>
+      <sect3>
+        <title>Cardinality: Optional (0 or 1)</title>
 
-          <programlisting>var x : Foo;</programlisting>
+        <para>Optional cardinality means there can be one element or no
+        elements. This is the cardinality associated with most types,
+        currently including all user defined classes. If you define a class
+        Foo, then the JavaFX type "Foo" has class Foo as its element specifier
+        and optional as its cardinality. For example:</para>
 
-          <para>Says that x can hold an instance of Foo (one element) or can
-          hold null, the nonexistent value (no elements).</para>
-        </sect3>
+        <programlisting>var x : Foo;</programlisting>
 
-        <sect3>
-          <title>Cardinality: Required (1)</title>
+        <para>Says that x can hold an instance of Foo (one element) or can
+        hold null, the nonexistent value (no elements).</para>
+      </sect3>
 
-          <para>Required cardinality means there must be one element. This is
-          the cardinality associated with the built-in types String, Integer,
-          Number, Boolean, and Duration. For example:</para>
+      <sect3>
+        <title>Cardinality: Required (1)</title>
 
-          <programlisting>var k : Integer;</programlisting>
+        <para>Required cardinality means there must be one element. This is
+        the cardinality associated with the built-in types String, Integer,
+        Number, Boolean, and Duration. For example:</para>
 
-          <para>Says that k holds one Integer.</para>
+        <programlisting>var k : Integer;</programlisting>
 
-          <para>The nonexistent value, null, is not a permitted value for
-          types with required cardinality. Attempts to assign null to a type
-          with required cardinality will be converted to the default value
-          (see below). Attempts to convert null to a type with required
-          cardinality will also be converted to the default value.</para>
-        </sect3>
+        <para>Says that k holds one Integer.</para>
 
-        <sect3>
-          <title>Cardinality: Sequence (0-n)</title>
+        <para>The nonexistent value, null, is not a permitted value for types
+        with required cardinality. Attempts to assign null to a type with
+        required cardinality will be converted to the default value (see
+        below). Attempts to convert null to a type with required cardinality
+        will also be converted to the default value.</para>
+      </sect3>
 
-          <para>Sequence cardinality means there can be any number of
-          elements, including zero. This is the cardinality associated with
-          explicitly declared sequences. For example:</para>
+      <sect3>
+        <title>Cardinality: Sequence (0-n)</title>
 
-          <programlisting>var seq : Integer[];</programlisting>
+        <para>Sequence cardinality means there can be any number of elements,
+        including zero. This is the cardinality associated with explicitly
+        declared sequences. For example:</para>
 
-          <para>Says that seq can hold any number of Integers.</para>
-        </sect3>
-      </sect2>
-    </sect1>
+        <programlisting>var seq : Integer[];</programlisting>
 
-    <sect1>
-      <title>Default Values</title>
+        <para>Says that seq can hold any number of Integers.</para>
+      </sect3>
+    </sect2>
+  </sect1>
 
-      <para>Each JavaFX type has an associated default value. The default
-      variable is the value of a variable before it is set. It is also the
-      value of an expression of that type if an error is encountered For types
-      with optional cardinality their default value is null. For
-      example:</para>
+  <sect1>
+    <title>Default Values</title>
 
-      <programlisting>var x : Foo; 
+    <para>Each JavaFX type has an associated default value. The default
+    variable is the value of a variable before it is set. It is also the value
+    of an expression of that type if an error is encountered For types with
+    optional cardinality their default value is null. For example:</para>
+
+    <programlisting>var x : Foo; 
 println(x);</programlisting>
 
-      <para>Will print null since x has not been set.</para>
+    <para>Will print null since x has not been set.</para>
 
-      <para>For types with sequence cardinality their default value is the
-      empty sequence of their element specifier. For example:</para>
+    <para>For types with sequence cardinality their default value is the empty
+    sequence of their element specifier. For example:</para>
 
-      <programlisting>var seq : Integer[]; 
+    <programlisting>var seq : Integer[]; 
 println(sizeof seq);</programlisting>
 
-      <para>Will print zero as the size of seq since seq has not been set and
-      its initial value will be an empty sequence of Integer.</para>
+    <para>Will print zero as the size of seq since seq has not been set and
+    its initial value will be an empty sequence of Integer.</para>
 
-      <para>Each required type has its own default value, as shown in the
-      table below.</para>
+    <para>Each required type has its own default value, as shown in the Type
+    Chart <remark>[link to chart near bottom of chapter]</remark>.</para>
 
-      <programlisting>var k : Integer; 
+    <programlisting>var k : Integer; 
 println(k);</programlisting>
 
-      <para>Will print zero since k has not been set and the default value for
-      Integer is 0.</para>
-    </sect1>
+    <para>Will print zero since k has not been set and the default value for
+    Integer is 0.</para>
+  </sect1>
 
-    <sect1>
-      <title>Built-in Types</title>
+  <sect1>
+    <title>Value Types</title>
 
-      <para>The built-in types -- String, Integer, Number, Boolean, and
-      Duration -- have the following characteristics:</para>
+    <para>Some types are <emphasis>value types</emphasis>. Value types have
+    the following characteristics:</para>
 
-      <itemizedlist>
-        <listitem>
-          <para>are all immutable -- they do not have internal state that can
-          be changed (for example, you can't change the characters in a
-          String)</para>
-        </listitem>
+    <itemizedlist>
+      <listitem>
+        <para>they are immutable -- they do not have internal state that can
+        be changed (for example, you can't change the characters in a
+        String)</para>
+      </listitem>
 
-        <listitem>
-          <para>all have required cardinality (and thus are subclasses of
-          java.lang.Object)</para>
-        </listitem>
+      <listitem>
+        <para>they have required cardinality (and thus are subclasses of
+        java.lang.Object)</para>
+      </listitem>
 
-        <listitem>
-          <para>all have default value different from null</para>
-        </listitem>
+      <listitem>
+        <para>they have a default value different from null</para>
+      </listitem>
+    </itemizedlist>
 
-        <listitem>
-          <para>all have a built-in literal format</para>
-        </listitem>
+    <para>Currently, the only value types are String, Integer, Number,
+    Boolean, and Duration. These types have built-in support in the
+    language:</para>
 
-        <listitem>
-          <para>all, but Duration, have built-in operations that return values
-          of the type</para>
-        </listitem>
-      </itemizedlist>
+    <itemizedlist>
+      <listitem>
+        <para>they have a built-in literal format</para>
+      </listitem>
 
-      <sect2>
-        <title>String</title>
+      <listitem>
+        <para>they, with the exception of Duration, have built-in operations
+        that return values of the type</para>
+      </listitem>
+    </itemizedlist>
 
-        <para>String represents character strings. The default value for the
-        String type is the empty string ("").</para>
+    <para>String, Integer, Number, Boolean, and Duration are discussed in this
+    section.</para>
 
-        <sect3>
-          <title>String Literal Syntax</title>
+    <sect2>
+      <title>String</title>
 
-          <para><programlisting>    StringLiteral:
+      <para>String represents character strings. The default value for the
+      String type is the empty string ("").</para>
+
+      <sect3>
+        <title>String Literal Syntax</title>
+
+        <para><programlisting>    StringLiteral:
             OneStringLiteral
             StringLiteral OneStringLiteral
 
@@ -193,41 +205,40 @@ println(k);</programlisting>
             <command>\</command> InputCharacter
 </programlisting></para>
 
-          <para>Literals are bracketed in either single or double quotes. That
-          is, a double quote followed by a sequence of characters (here
-          "sequence" does not refer to the cardinality) and ending with a
-          double quote. Or a single quote followed by a sequence of characters
-          and ending with a single quote. If the sequence of characters
-          includes braces ('{' or '}') it is a string-expression (which is
-          covered in the Expressions chapter). Any character may be escaped
-          with the backslash character ('\') -- this is useful for including
-          the brace, quote, and backslash characters. Note that single quotes
-          may be included in double quoted strings without being escaped, and
-          visa versa. The sequence of characters must not include
-          carriage-return or linefeed. Two adjacent strings are automatically
-          merged -- this is convenient for making multiple line strings.
-          Thus:</para>
+        <para>Literals are bracketed in either single or double quotes. That
+        is, a double quote followed by a sequence of characters (here
+        "sequence" does not refer to the cardinality) and ending with a double
+        quote. Or a single quote followed by a sequence of characters and
+        ending with a single quote. If the sequence of characters includes
+        braces ('{' or '}') it is a string-expression (which is covered in the
+        Expressions chapter). Any character may be escaped with the backslash
+        character ('\') -- this is useful for including the brace, quote, and
+        backslash characters. Note that single quotes may be included in
+        double quoted strings without being escaped, and visa versa. The
+        sequence of characters must not include carriage-return or linefeed.
+        Two adjacent strings are automatically merged at compile-time -- this
+        is convenient for making multiple line strings. Thus:</para>
 
-          <programlisting>"Hello "
+        <programlisting>"Hello "
 't\here'</programlisting>
 
-          <para>Is equivalent to:</para>
+        <para>Is equivalent to:</para>
 
-          <para>"Hello there"</para>
-        </sect3>
+        <para>"Hello there"</para>
+      </sect3>
 
-        <sect3>
-          <title>Operations over String</title>
+      <sect3>
+        <title>Operations over String</title>
 
-          <para>String-expressions are of String type -- see the Expressions
-          chapter</para>
-        </sect3>
-      </sect2>
+        <para>String-expressions are of String type -- see the Expressions
+        chapter</para>
+      </sect3>
+    </sect2>
 
-      <sect2>
-        <title>Integer</title>
+    <sect2>
+      <title>Integer</title>
 
-        <para><programlisting>    IntegerLiteral:
+      <para><programlisting>    IntegerLiteral:
             DecimalIntegerLiteral
             HexIntegerLiteral       
             OctalIntegerLiteral
@@ -271,55 +282,57 @@ println(k);</programlisting>
             <command>0 1 2 3 4 5 6 7</command>
 </programlisting></para>
 
-        <para>The Integer type represents integers in the range -2147483648 to
-        2147483647, inclusive. The default value for the Integer type is zero
-        (0).</para>
+      <para>The Integer type represents integers in the range -2147483648 to
+      2147483647, inclusive. The default value for the Integer type is zero
+      (0).</para>
 
-        <sect3>
-          <title>Integer Literal Syntax.</title>
+      <sect3>
+        <title>Integer Literal Syntax.</title>
 
-          <para>Integers may be represented in decimal, octal, or hexidecimal
-          formats. Decimal format is the digit 1 through 9 followed by digits
-          in the range 0 through 9, or simply 0 by itself. Octal format is the
-          digit 0 followed by digits in the range 0 through 7. Hexidecimal
-          format is the digit 0 following by 'x' or 'X' then followed by
-          digits in the range 0 through 9 or A through F (upper or lower
-          case).</para>
-        </sect3>
+        <para>Integers may be represented in decimal, octal, or hexidecimal
+        formats. Decimal format is the digit 1 through 9 followed by digits in
+        the range 0 through 9, or simply 0 by itself. Octal format is the
+        digit 0 followed by digits in the range 0 through 7. Hexidecimal
+        format is the digit 0 following by 'x' or 'X' then followed by digits
+        in the range 0 through 9 or A through F (upper or lower case).</para>
+      </sect3>
 
-        <sect3>
-          <title>Operations over Integer</title>
+      <sect3>
+        <title>Operations over Integer</title>
 
-          <para>Arithmetic operators (+, -, *, /, and <command>mod</command>)
-          operate over and return Integer. Comparison operators (==, &lt;,
-          &gt;=, etc) operate over Integer. The <command>sizeof</command>
-          operator returns Integer.</para>
-        </sect3>
-      </sect2>
+        <para>Arithmetic operators (+, -, *, /, and <command>mod</command>)
+        operate over and return Integer. Comparison operators (==, &lt;,
+        &gt;=, etc) operate over Integer. The <command>sizeof</command>
+        operator returns Integer.</para>
+      </sect3>
+    </sect2>
 
-      <sect2>
-        <title>Number</title>
+    <sect2>
+      <title>Number</title>
 
-        <para>The Number type represents floating-point numbers.</para>
+      <para>The Number type represents floating-point numbers.</para>
 
-        <para>The Number type is conceptually associated with the
-        double-precision 64-bit format IEEE 754 values and operations as
-        specified in IEEE Standard for Binary Floating-Point Arithmetic,
-        ANSI/IEEE Standard 754-1985 (IEEE, New York).</para>
+      <para>The Number type is conceptually associated with the
+      double-precision 64-bit format IEEE 754 values and operations as
+      specified in IEEE Standard for Binary Floating-Point Arithmetic,
+      ANSI/IEEE Standard 754-1985 (IEEE, New York).</para>
 
-        <para>The IEEE 754 standard includes not only positive and negative
-        numbers that consist of a sign and magnitude, but also positive and
-        negative zeros, positive and negative infinities, and special
-        Not-a-Number values (hereafter abbreviated NaN). A NaN value is used
-        to represent the result of certain invalid operations such as dividing
-        zero by zero. The double-extended-exponent value set may, under
-        certain circumstances, be used instead of the standard value sets to
-        represent the values of expressions of type Number.</para>
+      <para>The IEEE 754 standard includes not only positive and negative
+      numbers that consist of a sign and magnitude, but also positive and
+      negative zeros, positive and negative infinities, and special
+      Not-a-Number values (hereafter abbreviated NaN). A NaN value is used to
+      represent the result of certain invalid operations such as dividing zero
+      by zero. The double-extended-exponent value set may, under certain
+      circumstances, be used instead of the standard value sets to represent
+      the values of expressions of type Number.</para>
 
-        <sect3>
-          <title>Number Literal Syntax</title>
+      <para>Note that all Integer values can be represented exactly as Number
+      values.</para>
 
-          <para><programlisting>NumberLiteral:
+      <sect3>
+        <title>Number Literal Syntax</title>
+
+        <para><programlisting>NumberLiteral:
       Digits . Digits<subscript>opt</subscript> ExponentPart<subscript>opt</subscript> 
       <command>.</command> Digits ExponentPart<subscript>opt</subscript> 
       Digits ExponentPart<subscript>opt</subscript> 
@@ -337,253 +350,262 @@ Sign: one of
         <command>+ -</command>
 </programlisting></para>
 
-          <para></para>
-        </sect3>
+        <para></para>
+      </sect3>
 
-        <sect3>
-          <title>Operations over Number</title>
+      <sect3>
+        <title>Operations over Number</title>
 
-          <para>Arithmetic operators (+, -, *, and /) operate over and return
-          Number. The comparison operators (==, &lt;, &gt;=, etc) operate over
-          Number.</para>
-        </sect3>
-      </sect2>
+        <para>Arithmetic operators (+, -, *, and /) operate over and return
+        Number. The comparison operators (==, &lt;, &gt;=, etc) operate over
+        Number.</para>
+      </sect3>
+    </sect2>
 
-      <sect2>
-        <title>Boolean</title>
+    <sect2>
+      <title>Boolean</title>
 
-        <para>Boolean represents the values true and false.</para>
+      <para>Boolean represents the values true and false.</para>
 
-        <sect3>
-          <title>Boolean Literal Syntax</title>
+      <sect3>
+        <title>Boolean Literal Syntax</title>
 
-          <programlisting>    BooleanLiteral: one of
+        <programlisting>    BooleanLiteral: one of
             <command>true false</command>
 </programlisting>
 
-          <para></para>
-        </sect3>
+        <para></para>
+      </sect3>
 
-        <sect3>
-          <title>Operations over Boolean</title>
+      <sect3>
+        <title>Operations over Boolean</title>
 
-          <para>The <command>not</command>, <command>and</command>, and
-          <command>or</command> operators operate over and return Boolean. The
-          comparison operators (==, &lt;, &gt;=, etc) return Boolean. The
-          <command>if</command>-expression and
-          <command>while</command>-expression take Boolean as their
-          condition.</para>
-        </sect3>
-      </sect2>
+        <para>The <command>not</command>, <command>and</command>, and
+        <command>or</command> operators operate over and return Boolean. The
+        comparison operators (==, &lt;, &gt;=, etc) return Boolean. The
+        <command>if</command>-expression and
+        <command>while</command>-expression take Boolean as their
+        condition.</para>
+      </sect3>
+    </sect2>
 
-      <sect2>
-        <title>Duration</title>
+    <sect2>
+      <title>Duration</title>
 
-        <para>Duration represents an amount of time.</para>
+      <para>Duration represents an amount of time.</para>
 
-        <sect3>
-          <title>Duration Literal Syntax</title>
+      <sect3>
+        <title>Duration Literal Syntax</title>
 
-          <programlisting>    DurationLiteral:
+        <programlisting>    DurationLiteral:
         IntegerLiteral TimeUnit
         NumberLiteral TimeUnit
 
     TimeUnit: one of
         <command>ms  s  m  h</command></programlisting>
 
-          <para>For example: 10s is ten seconds, 4ms is four milliseconds,
-          010m is eight minutes, and 0.5h is half an hour.</para>
-        </sect3>
-      </sect2>
-    </sect1>
+        <para>For example: 10s is ten seconds, 4ms is four milliseconds, 010m
+        is eight minutes, and 0.5h is half an hour.</para>
+      </sect3>
+    </sect2>
+  </sect1>
 
-    <sect1>
-      <title>Function Types</title>
+  <sect1>
+    <title>Function Types</title>
 
-      <para></para>
-    </sect1>
+    <para></para>
+  </sect1>
 
-    <sect1>
-      <title>Type Chart</title>
+  <sect1>
+    <title>Type Chart</title>
 
-      <para></para>
+    <para></para>
 
-      <table>
-        <title></title>
+    <table>
+      <title></title>
 
-        <tgroup cols="6">
-          <colspec colname="t2" />
+      <tgroup cols="6">
+        <colspec colname="t2" />
 
-          <colspec colname="decl" />
+        <colspec colname="decl" />
 
-          <colspec colname="dflt" />
+        <colspec colname="dflt" />
 
-          <colspec colname="element" />
+        <colspec colname="element" />
 
-          <colspec colname="card" />
+        <colspec colname="card" />
 
-          <colspec colname="lit" />
+        <colspec colname="lit" />
 
-          <thead>
-            <row>
-              <entry align="center"><para>Type</para></entry>
+        <thead>
+          <row>
+            <entry align="center"><para>Type</para></entry>
 
-              <entry align="center"><para>Declaration</para></entry>
+            <entry align="center"><para>Declaration</para></entry>
 
-              <entry align="center"><para>Default Value</para></entry>
+            <entry align="center"><para>Default Value</para></entry>
 
-              <entry align="center"><para>Element Specifier</para></entry>
+            <entry align="center"><para>Element Specifier</para></entry>
 
-              <entry align="center"><para>Cardinality</para></entry>
+            <entry align="center"><para>Cardinality</para></entry>
 
-              <entry align="center"><para>Literal or Creation
-              Examples</para></entry>
-            </row>
-          </thead>
+            <entry align="center"><para>Literal or Creation
+            Examples</para></entry>
+          </row>
+        </thead>
 
-          <tbody>
-            <row>
-              <entry><para><literal>Object</literal></para></entry>
+        <tbody>
+          <row>
+            <entry><para><literal>String</literal></para></entry>
 
-              <entry><para><literal>: Object</literal></para></entry>
+            <entry><para><literal>: String</literal></para></entry>
 
-              <entry><para><literal>null</literal></para></entry>
+            <entry><para><literal>""</literal></para></entry>
 
-              <entry><para><literal>java.lang.Object</literal></para></entry>
+            <entry><para><literal>java.lang.String</literal></para></entry>
 
-              <entry><para>0-1 Optional</para></entry>
+            <entry><para>1 Required</para></entry>
 
-              <entry><para><literal>new Object</literal></para></entry>
-            </row>
+            <entry><para><literal>"Brownian"</literal></para></entry>
+          </row>
 
-            <row>
-              <entry><para><literal>String</literal></para></entry>
+          <row>
+            <entry><para><literal>Integer</literal></para></entry>
 
-              <entry><para><literal>: String</literal></para></entry>
+            <entry><para><literal>: Integer</literal></para></entry>
 
-              <entry><para><literal>""</literal></para></entry>
+            <entry><para>0</para></entry>
 
-              <entry><para><literal>java.lang.String</literal></para></entry>
+            <entry><para><literal>java.lang.Integer</literal></para></entry>
 
-              <entry><para>1 Required</para></entry>
+            <entry><para><literal>1 Required</literal></para></entry>
 
-              <entry><para><literal>"Brownian"</literal></para></entry>
-            </row>
+            <entry><para><literal>1956</literal></para></entry>
+          </row>
 
-            <row>
-              <entry><para><literal>Integer</literal></para></entry>
+          <row>
+            <entry><para><literal>Number</literal></para></entry>
 
-              <entry><para><literal>: Integer</literal></para></entry>
+            <entry><para><literal>: Number</literal></para></entry>
 
-              <entry><para>0</para></entry>
+            <entry><para><literal>0.0</literal></para></entry>
 
-              <entry><para><literal>java.lang.Integer</literal></para></entry>
+            <entry><para><literal>java.lang.Double</literal></para></entry>
 
-              <entry><para><literal>1 Required</literal></para></entry>
+            <entry><para>1 Required</para></entry>
 
-              <entry><para><literal>1956</literal></para></entry>
-            </row>
+            <entry><para><literal>1.4142</literal></para></entry>
+          </row>
 
-            <row>
-              <entry><para><literal>Number</literal></para></entry>
+          <row>
+            <entry><para><literal>Boolean</literal></para></entry>
 
-              <entry><para><literal>: Number</literal></para></entry>
+            <entry><para><literal>: Boolean</literal></para></entry>
 
-              <entry><para><literal>0.0</literal></para></entry>
+            <entry><para><literal>false</literal></para></entry>
 
-              <entry><para><literal>java.lang.Double</literal></para></entry>
+            <entry><para><literal>java.lang.Boolean</literal></para></entry>
 
-              <entry><para>1 Required</para></entry>
+            <entry><para>1 Required</para></entry>
 
-              <entry><para><literal>1.4142</literal></para></entry>
-            </row>
+            <entry><para><literal>true</literal></para></entry>
+          </row>
 
-            <row>
-              <entry><para><literal>Boolean</literal></para></entry>
+          <row>
+            <entry><para><literal>Duration</literal></para></entry>
 
-              <entry><para><literal>: Boolean</literal></para></entry>
+            <entry><para><literal>: Duration</literal></para></entry>
 
-              <entry><para><literal>false</literal></para></entry>
+            <entry><para><literal>0ms</literal></para></entry>
 
-              <entry><para><literal>java.lang.Boolean</literal></para></entry>
+            <entry><para><literal>javafx.lang.Duration</literal></para></entry>
 
-              <entry><para>1 Required</para></entry>
+            <entry><para>1 Required</para></entry>
 
-              <entry><para><literal>true</literal></para></entry>
-            </row>
+            <entry><para><literal>47s</literal></para></entry>
+          </row>
 
-            <row>
-              <entry><para><literal>Duration</literal></para></entry>
+          <row>
+            <entry><para><literal>Object</literal></para></entry>
 
-              <entry><para><literal>: Duration</literal></para></entry>
+            <entry><para><literal>: Object</literal></para></entry>
 
-              <entry><para><literal>0ms</literal></para></entry>
+            <entry><para><literal>null</literal></para></entry>
 
-              <entry><para><literal>javafx.lang.Duration</literal></para></entry>
+            <entry><para><literal>java.lang.Object</literal></para></entry>
 
-              <entry><para>1 Required</para></entry>
+            <entry><para>0-1 Optional</para></entry>
 
-              <entry><para><literal>47s</literal></para></entry>
-            </row>
+            <entry><para><literal>new Object</literal></para></entry>
+          </row>
 
-            <row>
-              <entry><para><emphasis>other class
-              types</emphasis></para></entry>
+          <row>
+            <entry><para><emphasis>other class types</emphasis></para></entry>
 
-              <entry><para><literal>:
-              </literal><emphasis>ClassName</emphasis></para></entry>
+            <entry><para><literal>:
+            </literal><emphasis>ClassName</emphasis></para></entry>
 
-              <entry><para><literal>null</literal></para></entry>
+            <entry><para><literal>null</literal></para></entry>
 
-              <entry><para><emphasis>ClassName</emphasis></para></entry>
+            <entry><para><emphasis>ClassName</emphasis></para></entry>
 
-              <entry><para>0-1 Optional</para></entry>
+            <entry><para>0-1 Optional</para></entry>
 
-              <entry><para><literal>Point {x: 3 y: 9}</literal></para></entry>
-            </row>
+            <entry><para><literal>Point {x: 3 y: 9}</literal></para></entry>
+          </row>
 
-            <row>
-              <entry><para><emphasis>function types</emphasis></para></entry>
+          <row>
+            <entry><para><emphasis>function types</emphasis></para></entry>
 
-              <entry><para><literal>:
-              function(</literal><emphasis>name</emphasis><literal> :
-              </literal><emphasis>ParamType</emphasis><literal>,
-              </literal><emphasis>...</emphasis><literal>) : </literal>
-              <emphasis>ReturnType</emphasis></para></entry>
+            <entry><para><literal>:
+            function(</literal><emphasis>name</emphasis><literal> :
+            </literal><emphasis>ParamType</emphasis><literal>,
+            </literal><emphasis>...</emphasis><literal>) : </literal>
+            <emphasis>ReturnType</emphasis></para></entry>
 
-              <entry><para><literal>null</literal></para></entry>
+            <entry><para><literal>null</literal></para></entry>
 
-              <entry><para><literal>function(</literal><emphasis>name</emphasis><literal>
-              : </literal><emphasis>ParamType</emphasis><literal>,
-              </literal><emphasis>...</emphasis><literal>) : </literal>
-              <emphasis>ReturnType</emphasis></para></entry>
+            <entry><para><literal>function(</literal><emphasis>name</emphasis><literal>
+            : </literal><emphasis>ParamType</emphasis><literal>,
+            </literal><emphasis>...</emphasis><literal>) : </literal>
+            <emphasis>ReturnType</emphasis></para></entry>
 
-              <entry><para>0-1 Optional</para></entry>
+            <entry><para>0-1 Optional</para></entry>
 
-              <entry><para><literal>function(x:Integer):String {" {x}
-              "}</literal></para></entry>
-            </row>
+            <entry><para><literal>function(x:Integer):String {" {x}
+            "}</literal></para></entry>
+          </row>
 
-            <row>
-              <entry><para><emphasis>sequence types</emphasis></para></entry>
+          <row>
+            <entry><para><emphasis>sequence types</emphasis></para></entry>
 
-              <entry><para><literal>:
-              </literal><emphasis>ElementSpec</emphasis><literal>[]</literal></para></entry>
+            <entry><para><literal>:
+            </literal><emphasis>ElementSpec</emphasis><literal>[]</literal></para></entry>
 
-              <entry><para><literal>[]</literal></para></entry>
+            <entry><para><literal>[]</literal></para></entry>
 
-              <entry><para><emphasis>ElementSpec</emphasis></para></entry>
+            <entry><para><emphasis>ElementSpec</emphasis></para></entry>
 
-              <entry><para>0-n Sequence</para></entry>
+            <entry><para>0-n Sequence</para></entry>
 
-              <entry><para><literal>[9, 14, 21, 4]</literal></para></entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
+            <entry><para><literal>[9, 14, 21, 4]</literal></para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
 
-      <para></para>
+    <para></para>
 
-      <para></para>
-    </sect1>
-  </chapter>
+    <para></para>
+  </sect1>
+
+  <sect1>
+    <title>Putting it Together -- Type Examples</title>
+
+    <para><remark>[To do: Add examples Integer, Integer[], Foo, Foo[],
+    etc].</remark></para>
+
+    <para><remark>[To do: Sequence of functions example (with
+    parenthesis)]</remark></para>
+  </sect1>
+</chapter>
