@@ -10,6 +10,13 @@
 
   <para>The declaration, use and scope of variables.</para>
 
+  <para><remark>[To do: Explain a little more about the weird entire-block
+  scoping rules (and their motivation) for locals. Explain concept of trigger
+  some more, explain why it is generally inferior to binding. You're stuck
+  either explaining slices here, or referring to a later section. But you can
+  at least explain the canonical forms of on replace: on replace { ... }, on
+  replace (x) { ... }, on replace x[a..b] = y { ... } ]</remark></para>
+
   <sect1>
     <title>def and var</title>
 
@@ -65,7 +72,9 @@ class A {
       <para>Without an added access modifer, script variables are not visible
       outside the script. If access modifiers are added which make the script
       variable visible outside the script, they may be accessed as members of
-      the script. For example, if this is script Foo.fx:</para>
+      the script. Access modifiers for variables are: public, protected,
+      package, public-read, and public-init -- see the Access Modifier
+      chapter. For example, if this is script Foo.fx:</para>
 
       <para><programlisting>public def bohr = 0.529177e-10</programlisting></para>
 
@@ -96,7 +105,8 @@ class B {
 }</programlisting></para>
 
       <para>Access modifiers control the visiblity of instance variables. If
-      no access modifersXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</para>
+      no access modifers are provided, instance variables are visible only
+      within the script.</para>
 
       <para>The lifetime of an instance variable is the lifetime of the class
       instance.</para>
