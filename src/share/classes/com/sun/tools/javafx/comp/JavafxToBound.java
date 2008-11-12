@@ -651,7 +651,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     public void visitSequenceExplicit(JFXSequenceExplicit tree) { //done
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         Type elemType = elementType(targetType(tree.type));
-        UseSequenceBuilder builder = toJava.useBoundSequenceBuilder(tree.pos(), elemType);
+        UseSequenceBuilder builder = toJava.useBoundSequenceBuilder(tree.pos(), elemType, tree.getItems().length());
         stmts.append(builder.makeBuilderVar());
         for (JFXExpression item : tree.getItems()) {
             stmts.append(builder.makeAdd( item ) );

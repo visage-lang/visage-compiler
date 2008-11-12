@@ -1976,7 +1976,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         */
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         Type elemType = elementType(tree.type);
-        UseSequenceBuilder builder = useSequenceBuilder(tree.pos(), elemType);
+        UseSequenceBuilder builder = useSequenceBuilder(tree.pos(), elemType, tree.getItems().length());
         stmts.append(builder.makeBuilderVar());
         for (JFXExpression item : tree.getItems()) {
             if (item.getJavaFXKind() != JavaFXKind.NULL_LITERAL) {
@@ -2195,7 +2195,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         return List.of(makeQualifiedTree(diagPos, methodThrowsString));
     }
 
-    UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType) {
+    UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType, final int initLength) {
 
         return new UseSequenceBuilder(diagPos, elemType, sequenceBuilderString) {
 
@@ -2208,11 +2208,19 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCExpression makeConstructorArg() {
                 return makeTypeInfo(diagPos, elemType);
             }
+            
+            JCExpression makeInitialLengthArg() {
+                return (initLength != -1)? make.at(diagPos).Literal(Integer.valueOf(initLength)) : null;
+            }
         };
     }
+    
+    UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType) {
+        return useSequenceBuilder(diagPos, elemType, -1);
+    }
 
-    UseSequenceBuilder useBoundSequenceBuilder(DiagnosticPosition diagPos, Type elemType) {
 
+    UseSequenceBuilder useBoundSequenceBuilder(DiagnosticPosition diagPos, Type elemType, final int initLength) {
         return new UseSequenceBuilder(diagPos, elemType, boundSequenceBuilderString) {
 
             JCStatement makeAdd(JFXExpression exprToAdd) {
@@ -2224,9 +2232,17 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCExpression makeConstructorArg() {
                 return makeElementClassObject(diagPos, elemType);
             }
+            
+            JCExpression makeInitialLengthArg() {
+                return (initLength != -1)? make.at(diagPos).Literal(Integer.valueOf(initLength)) : null;
+            }
         };
     }
-
+    
+    UseSequenceBuilder useBoundSequenceBuilder(DiagnosticPosition diagPos, Type elemType) {
+        return useBoundSequenceBuilder(diagPos, elemType, -1);
+    }
+    
     abstract class UseSequenceBuilder {
         final DiagnosticPosition diagPos;
         final Type elemType;
@@ -2248,6 +2264,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             // Sequence builder temp var name "sb"
             sbName = getSyntheticName("sb");
 
+            JCExpression initialLengthArg = makeInitialLengthArg();
             // Build "sb" initializing expression -- new SequenceBuilder<T>(clazz)
             JCExpression newExpr = make.at(diagPos).NewClass(
                 null,                               // enclosing
@@ -2255,7 +2272,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 make.at(diagPos).TypeApply(         // class name -- SequenceBuilder<elemType>
                      makeQualifiedTree(diagPos, seqBuilder),
                      List.<JCExpression>of(makeTypeTree(diagPos, elemType))),
-                List.<JCExpression>of(makeConstructorArg()),  // args
+                     initialLengthArg == null?
+                         List.<JCExpression>of(makeConstructorArg()) :
+                         List.<JCExpression>of(makeConstructorArg(), initialLengthArg),  // args
                 null                                // empty body
                 );
 
@@ -2272,6 +2291,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         abstract JCStatement makeAdd(JFXExpression expr);
 
         abstract JCExpression makeConstructorArg();
+        
+        JCExpression makeInitialLengthArg() {
+            return null;
+        }
 
         JCStatement makeAdd(JCExpression expr, Type exprType) {
             if (exprType != elemType) {
