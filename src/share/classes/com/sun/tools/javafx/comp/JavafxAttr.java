@@ -1825,7 +1825,7 @@ public class JavafxAttr implements JavafxVisitor {
             if (c == null) continue;    // Don't try to handle erroneous catch blocks
 
             JavafxEnv<JavafxAttrContext> catchEnv = newLocalEnv(c);
-            memberEnter.memberEnter(c.param, env);
+            memberEnter.memberEnter(c.param, catchEnv);
 
             if (c.param == null) continue;    // Don't try to handle erroneous catch blocks
 
