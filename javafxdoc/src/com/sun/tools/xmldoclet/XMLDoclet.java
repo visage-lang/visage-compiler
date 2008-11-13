@@ -664,6 +664,7 @@ public class XMLDoclet {
             }
             attrs.clear();
             attrs.addAttribute("", "", "name", "CDATA", t.name());
+            String label = null;
             //process see, link tags specially
             if("@see".equals(t.name()) || "@link".equals(t.name())) {
                 String href = t.text();
@@ -684,10 +685,14 @@ public class XMLDoclet {
                             }
                         }
                     }
+                    label = see.label();
+                } 
+                
+                if (label == null || label.length() == 0) {
+                    label = t.text();
                 }
                 //p("final href = " + href);
                 attrs.addAttribute("", "", "href", "CDATA", href);
-                String label = t.text();
                 if(label.startsWith("#")) {
                     label = label.substring(1);
                 }
