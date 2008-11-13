@@ -6,52 +6,51 @@
          xmlns:m="http://www.w3.org/1998/Math/MathML"
          xmlns:html="http://www.w3.org/1999/xhtml"
          xmlns:db="http://docbook.org/ns/docbook">
-    <title>Binding</title>
+  <title>Binding</title>
+
+  <para></para>
+
+  <sect1>
+    <title>Bind Update</title>
 
     <para></para>
 
-    <sect1>
-      <title>Bind Update</title>
+    <sect2>
+      <title>What does "bind" mean?</title>
+
+      <para>When you write a bound expression:</para>
+
+      <para><programlisting>def x = bind <emphasis>someExpression</emphasis>; </programlisting></para>
+
+      <para>it means that when <emphasis>someExpression</emphasis> changes, x
+      will be updated to match. That's it. In most cases that is all you need
+      know. But in some cases you need to know how exactly the update occurs
+      and in some cases, what is meant by <emphasis>someExpression</emphasis>
+      changing. This is what is discussed below.</para>
 
       <para></para>
+    </sect2>
 
-      <sect2>
-        <title>What does "bind" mean?</title>
+    <sect2>
+      <title>What is recalculated on update?</title>
 
-        <para>When you write a bound expression:</para>
+      <para>Within a bind, the minimal recalculation is done -- this only
+      matters in limited circumstances, for example when object creation is
+      done in a bind and if, because of object identity, it matters if a new
+      object is created or not.</para>
 
-        <para><programlisting>def x = bind <emphasis>someExpression</emphasis>; </programlisting></para>
+      <para>Let's look at an example of bind:</para>
 
-        <para>it means that when <emphasis>someExpression</emphasis> changes,
-        x will be updated to match. That's it. In most cases that is all you
-        need know. But in some cases you need to know how exactly the update
-        occurs and in some cases, what is meant by
-        <emphasis>someExpression</emphasis> changing. This is what is
-        discussed below.</para>
+      <para><programlisting>def sum = bind <emphasis>expr1</emphasis> + <emphasis><emphasis><emphasis>expr2</emphasis></emphasis></emphasis>; </programlisting></para>
 
-        <para></para>
-      </sect2>
+      <para>if <emphasis>expr2</emphasis> changes (more precisely, when its
+      dependencies change -- more on that later) then the addition is redone
+      but <emphasis>expr1</emphasis> is not recalculated, its value has been
+      stored and it is simply re-fetched.</para>
 
-      <sect2>
-        <title>What is recalculated on update?</title>
+      <para>Let's make this concrete:</para>
 
-        <para>Within a bind, the minimal recalculation is done -- this only
-        matters in limited circumstances, for example when object creation is
-        done in a bind and if, because of object identity, it matters if a new
-        object is created or not.</para>
-
-        <para>Let's look at an example of bind:</para>
-
-        <para><programlisting>def sum = bind <emphasis>expr1</emphasis> + <emphasis><emphasis><emphasis>expr2</emphasis></emphasis></emphasis>; </programlisting></para>
-
-        <para>if <emphasis>expr2</emphasis> changes (more precisely, when its
-        dependencies change -- more on that later) then the addition is redone
-        but <emphasis>expr1</emphasis> is not recalculated, its value has been
-        stored and it is simply re-fetched.</para>
-
-        <para>Let's make this concrete:</para>
-
-        <para><programlisting>var y = 3; 
+      <para><programlisting>var y = 3; 
 function ten() : Integer { 
    println("Called ten");
    10 
@@ -61,60 +60,60 @@ println(sum);
 y = 7; 
 println(sum); </programlisting></para>
 
-        <para>This prints:</para>
+      <para>This prints:</para>
 
-        <para><computeroutput>Called ten</computeroutput></para>
+      <para><computeroutput>Called ten</computeroutput></para>
 
-        <para><computeroutput>13 </computeroutput></para>
+      <para><computeroutput>13 </computeroutput></para>
 
-        <para><computeroutput>17 </computeroutput></para>
+      <para><computeroutput>17 </computeroutput></para>
 
-        <para>Note that the function ten() is called to compute the initial
-        value of sum, but when y is set to 7, the function ten() is not called
-        again (since it didn't change), its value has been remembered and
-        reused.</para>
+      <para>Note that the function ten() is called to compute the initial
+      value of sum, but when y is set to 7, the function ten() is not called
+      again (since it didn't change), its value has been remembered and
+      reused.</para>
 
-        <para></para>
+      <para></para>
 
-        <para></para>
-      </sect2>
+      <para></para>
+    </sect2>
 
-      <sect2>
-        <title>Conditional Expressions</title>
+    <sect2>
+      <title>Conditional Expressions</title>
 
-        <para><programlisting>def x = bind if (<emphasis>condExpr</emphasis>) <emphasis>expr1</emphasis> else <emphasis>expr2</emphasis>;</programlisting></para>
+      <para><programlisting>def x = bind if (<emphasis>condExpr</emphasis>) <emphasis>expr1</emphasis> else <emphasis>expr2</emphasis>;</programlisting></para>
 
-        <para>if the value of <emphasis>condExpr</emphasis> changes, this
-        switches which branch of the if-statement is to be evaluated thus
-        causing a recalculation each time the value of
-        <emphasis>condExpr</emphasis> changes (the previous value of a branch
-        is not stored). If <emphasis>condExpr</emphasis> is true, a change to
-        the dependencies of <emphasis>expr1</emphasis> will cause it to be
-        recalculated but this will not cause a calculation of
-        <emphasis>expr2</emphasis> nor will changes to the dependencies of
-        <emphasis>expr2</emphasis>. Specifically, if
-        <emphasis>condExpr</emphasis> is true, only <emphasis>expr1</emphasis>
-        will calculated; <emphasis>expr2</emphasis> will not be. The inverse
-        is, of course, also true.</para>
+      <para>if the value of <emphasis>condExpr</emphasis> changes, this
+      switches which branch of the if-statement is to be evaluated thus
+      causing a recalculation each time the value of
+      <emphasis>condExpr</emphasis> changes (the previous value of a branch is
+      not stored). If <emphasis>condExpr</emphasis> is true, a change to the
+      dependencies of <emphasis>expr1</emphasis> will cause it to be
+      recalculated but this will not cause a calculation of
+      <emphasis>expr2</emphasis> nor will changes to the dependencies of
+      <emphasis>expr2</emphasis>. Specifically, if
+      <emphasis>condExpr</emphasis> is true, only <emphasis>expr1</emphasis>
+      will calculated; <emphasis>expr2</emphasis> will not be. The inverse is,
+      of course, also true.</para>
 
-        <para></para>
-      </sect2>
+      <para></para>
+    </sect2>
 
-      <sect2>
-        <title>For Expressions</title>
+    <sect2>
+      <title>For Expressions</title>
 
-        <para><programlisting>def newSeq = bind for (elem in seq) <emphasis>expr</emphasis>;</programlisting></para>
+      <para><programlisting>def newSeq = bind for (elem in seq) <emphasis>expr</emphasis>;</programlisting></para>
 
-        <para>If seq changes, the elements in newSeq which corresponded to
-        elements still in seq are not recalculated. That is, if an element is
-        inserted into seq, the result of applying expr to that element are
-        inserted into newSeq at the corresponding position and the other
-        elements are not recalculated. Well, OK, there is an exception to that
-        rule, if expr uses indexof elem then those elements whose index
-        changed will need to be updated, but again, corresponding to the
-        minimal update rules. For example:</para>
+      <para>If seq changes, the elements in newSeq which corresponded to
+      elements still in seq are not recalculated. That is, if an element is
+      inserted into seq, the result of applying expr to that element are
+      inserted into newSeq at the corresponding position and the other
+      elements are not recalculated. Well, OK, there is an exception to that
+      rule, if expr uses indexof elem then those elements whose index changed
+      will need to be updated, but again, corresponding to the minimal update
+      rules. For example:</para>
 
-        <programlisting>    var min = 0;
+      <programlisting>    var min = 0;
     var max = 5;
     function square(x : Integer) : Integer { x*x }
     def values = bind for (x in [min..max]) square(x);
@@ -129,70 +128,70 @@ println(sum); </programlisting></para>
     println(values);
 </programlisting>
 
-        <para>The output is:</para>
+      <para>The output is:</para>
 
-        <para><computeroutput>[ 0, 1, 4, 9 ]</computeroutput></para>
+      <para><computeroutput>[ 0, 1, 4, 9 ]</computeroutput></para>
 
-        <para><computeroutput>[ 0, 1, 4, 9, 16, 25 ]</computeroutput></para>
+      <para><computeroutput>[ 0, 1, 4, 9, 16, 25 ]</computeroutput></para>
 
-        <para><computeroutput>[ 1, 4, 9, 16, 25 ]</computeroutput></para>
+      <para><computeroutput>[ 1, 4, 9, 16, 25 ]</computeroutput></para>
 
-        <para><computeroutput>[ 0, 1, 4, 9, 16, 25 ]</computeroutput></para>
+      <para><computeroutput>[ 0, 1, 4, 9, 16, 25 ]</computeroutput></para>
 
-        <para>But what about recalculations? First the squares of 0 through 3
-        are calculated, then the squares of 4 and 5 (0 through 3 are not
-        recalculated when the max changes). Then the square of zero is deleted
-        (without recalculating any values), and then the square of zero is
-        added back (this does require it to be recalculated). The behavior is
-        the same if insert and delete are used.</para>
+      <para>But what about recalculations? First the squares of 0 through 3
+      are calculated, then the squares of 4 and 5 (0 through 3 are not
+      recalculated when the max changes). Then the square of zero is deleted
+      (without recalculating any values), and then the square of zero is added
+      back (this does require it to be recalculated). The behavior is the same
+      if insert and delete are used.</para>
 
-        <para></para>
+      <para><remark>[To do: add on-replace clause example]</remark></para>
+    </sect2>
 
-        <para></para>
-      </sect2>
+    <sect2>
+      <title>Block Expressions</title>
 
-      <sect2>
-        <title>Block Expressions</title>
+      <para>A block expression is a list of expressions enclosing in curly
+      braces. And having the value of the final expression. Within a bind, the
+      only expressions which can occur in the non-final position of a
+      block-expression are variable definitions (<command>def</command>).
+      Note: some early version of the language may allow
+      <command>var</command> but that this will be disallowed. Note that
+      assignment (including increment and decrement) are prohibited within
+      bind. Thus a bound block-expression has the form:</para>
 
-        <para>A block expression is a list of expressions enclosing in curly
-        braces. And having the value of the final expression. Within a bind,
-        the only expressions which can occur in the non-final position of a
-        block-expression are variable declarations. Note that assignment
-        (including increment and decrement) are prohibited within bind. Thus a
-        bound block-expression has the form:</para>
-
-        <para><programlisting>bind { 
+      <para><programlisting>bind { 
    def a = expr;  
    def b = expr;  
    def c = expr;  
    expr 
 } </programlisting></para>
 
-        <para>Because any changes to the bound expression cause an update, and
-        because that update is minimal, it is easy to see that the variables
-        are effectively bound. Note also that <command>while</command>,
-        <command>insert</command>, <command>delete</command>, etc cannot occur
-        in a bound block expression since they are not variable declarations
-        and thus cannot occur in the non-final positions, and they have Void
-        type, thus have no value and cannot be bound; cannot be in the final
-        posiiton.</para>
+      <para>Because any changes to the bound expression cause an update, and
+      because that update is minimal, it is easy to see that the variables are
+      effectively bound. Note also that <command>while</command>,
+      <command>insert</command>, <command>delete</command>, etc cannot occur
+      in a bound block expression since they are not variable declarations and
+      thus cannot occur in the non-final positions, and they have Void type,
+      thus have no value and cannot be bound; cannot be in the final
+      posiiton.</para>
 
-        <para></para>
-      </sect2>
+      <para></para>
+    </sect2>
 
-      <sect2>
-        <title>Function and Method Calls</title>
+    <sect2>
+      <title>Function and Method Calls</title>
 
-        <para><programlisting>def val = bind foo(a, b);</programlisting></para>
+      <para><programlisting>def val = bind foo(a, b);</programlisting></para>
 
-        <para>A non-bound function is one that is not proceeded with the bound
-        keyword. For calls to Java<superscript>TM</superscript> methods or
-        non-bound JavaFX<superscript>TM</superscript> functions, the function
-        is re-invoked if any of the arguments change. But the body of a
-        function is a black-box, dependencies it might have beyond the
-        parameters do not cause a recalculation. For example:</para>
+      <para>A non-bound function is one that is not proceeded with the bound
+      keyword. For calls to Java<superscript>TM</superscript> methods or
+      non-bound JavaFX<superscript>TM</superscript> functions, the function is
+      re-invoked if any of the arguments change. But the body of a function is
+      a black-box, dependencies it might have beyond the parameters do not
+      cause a recalculation. For example:</para>
 
-        <programlisting>class Point {
+      <programlisting>class Point {
   var x : Number;
   var y : Number;
 }
@@ -214,176 +213,173 @@ println(pt.x);
 scale = 2.0;
 println(pt.x);</programlisting>
 
-        <para>Will print:</para>
+      <para>Will print:</para>
 
-        <para><computeroutput>3.0 </computeroutput></para>
+      <para><computeroutput>3.0 </computeroutput></para>
 
-        <para><computeroutput>10.0 </computeroutput></para>
+      <para><computeroutput>10.0 </computeroutput></para>
 
-        <para><computeroutput>10.0</computeroutput></para>
+      <para><computeroutput>10.0</computeroutput></para>
 
-        <para>Changing the argument myX causes makePoint to be called again.
-        But, the function makePoint is a black-box. The change to scale won't
-        cause an update. That's where bound functions come in.</para>
+      <para>Changing the argument myX causes makePoint to be called again.
+      But, the function makePoint is a black-box. The change to scale won't
+      cause an update. That's where bound functions come in.</para>
 
-        <para></para>
-      </sect2>
+      <para></para>
+    </sect2>
 
-      <sect2>
-        <title>Bound Functions</title>
+    <sect2>
+      <title>Bound Functions</title>
 
-        <para>Bound functions have as their body a block-expression which is
-        bound (it thus has the above restrictions on bound block-expressions).
-        When binding to a bound function, changes besides the arguments causes
-        update, and argument changes are seen by the function. So, if the
-        above function makePoint were instead a bound function:</para>
+      <para>Bound functions have as their body a block-expression which is
+      bound (it thus has the above restrictions on bound block-expressions).
+      When binding to a bound function, changes besides the arguments causes
+      update, and argument changes are seen by the function. So, if the above
+      function makePoint were instead a bound function:</para>
 
-        <para><programlisting>bound function makePoint(x0 : Number, y0 : Number) : Point {</programlisting></para>
+      <para><programlisting>bound function makePoint(x0 : Number, y0 : Number) : Point {</programlisting></para>
 
-        <para>The scale change would cause an update (20.0). Note also, that
-        if myX changed only x0 * scale would be recalculated, not y0 *
-        scale.</para>
+      <para>The scale change would cause an update (20.0). Note also, that if
+      myX changed only x0 * scale would be recalculated, not y0 *
+      scale.</para>
 
-        <para>Calling a bound function from outside a bind is just like
-        calling a non-bound function.</para>
+      <para>Calling a bound function from outside a bind is just like calling
+      a non-bound function.</para>
 
-        <para></para>
+      <para></para>
 
-        <para></para>
-      </sect2>
+      <para></para>
+    </sect2>
 
-      <sect2>
-        <title>Object Literals</title>
+    <sect2>
+      <title>Object Literals</title>
 
-        <para>Object literals behave like simple operators (+, etc) and
-        non-bound functions. That is, if one of the arguments to the object
-        literal changes then it is re-executed (a new instance is
-        created).</para>
+      <para>Object literals behave like simple operators (+, etc) and
+      non-bound functions. That is, if one of the arguments to the object
+      literal changes then it is re-executed (a new instance is
+      created).</para>
 
-        <para><programlisting>def pt = bind Point { 
+      <para><programlisting>def pt = bind Point { 
    x: myX
    y: myY  
 }</programlisting></para>
 
-        <para>if myX changes a new Point object is built -- this is exactly
-        what you want for immutable objects.</para>
+      <para>if myX changes a new Point object is built -- this is exactly what
+      you want for immutable objects.</para>
 
-        <para>What if you want the value of x to track the value of myX,
-        without creating a new Point? Then you bind the instance variable
-        initializers:</para>
+      <para>What if you want the value of x to track the value of myX, without
+      creating a new Point? Then you bind the instance variable
+      initializers:</para>
 
-        <programlisting>def pt = bind Point { 
+      <programlisting>def pt = bind Point { 
    x: bind myX
    y: myY  
 }</programlisting>
 
-        <para>Now if myX changes, the x attribute of point will be updated,
-        but the object literal's instance variable initializer hasn't changed
-        (x is still, and will always be, bound to myX). Changes to myY will
-        still cause a new Point to be created.</para>
+      <para>Now if myX changes, the x attribute of point will be updated, but
+      the object literal's instance variable initializer hasn't changed (x is
+      still, and will always be, bound to myX). Changes to myY will still
+      cause a new Point to be created.</para>
 
-        <para>So, what you would actually want for this example would
-        be:</para>
+      <para>So, what you would actually want for this example would be:</para>
 
-        <programlisting>def pt = Point { 
+      <programlisting>def pt = Point { 
    x: bind myX
    y: bind myY  
 }</programlisting>
 
-        <para>Here pt would always remain the same Point instance. Note that
-        there is no longer a need for <command>bind</command> on the
-        initializing expression of pt since there are no dependencies.</para>
-
-        <para></para>
-
-        <para></para>
-      </sect2>
-    </sect1>
-
-    <sect1>
-      <title>Bind Definitions</title>
-
-      <para>A bound expression is an expression whose value updates when its
-      dependencies change. Dependencies, the update mechanism, and the
-      creation of bound expressions are discussed below.</para>
-
-      <para>Bound expressions are evaluated in bind context; all other
-      evaluation is in a normal context. A bound expression may not contain
-      assignment or iteration. Assignment includes increment and decrement.
-      Iteration is the <command>while</command>-loop (not
-      <command>for</command>-expression).</para>
-
-      <para>A variable (instance, script, or local variable) can be bound to
-      an expression. That expression, of course, is a bound expression.</para>
-
-      <para>A local variable definition with an initializing expression
-      creates a binding from the local variable to the expression if the
-      definition is explicitly bound:</para>
-
-      <para><programlisting>def <emphasis>varName</emphasis> = bind <emphasis>expression</emphasis></programlisting></para>
-
-      <para>or if the definition is in a bind context.</para>
-
-      <para>A script variable definition with an initializing expression
-      creates a binding from the instance variable to the expression if the
-      definition is explicitly bound.</para>
-
-      <para>An instance variable definition with an initializing expression
-      creates a binding from the instance variable to the expression if the
-      definition is explicitly bound and is not overriden or superceded by an
-      object literal initializing expression. Class definitions are not
-      evaluated and thus do not have bind contexts, so instance variable
-      initialization without an explicit <command>bind</command> cannot create
-      a binding. An object literal component creates a binding from the
-      instance variable to the expression if the component is explicitly
-      bound:</para>
-
-      <para><programlisting><emphasis>className</emphasis> { <emphasis>instanceVariableName</emphasis>: bind <emphasis>expression</emphasis> } </programlisting></para>
-
-      <para>A binding between a variable and an expression means intuitively
-      that the variable maintains the value of the expression. Specifically,
-      this means the variable is updated when the dependencies of the
-      expression change.</para>
-
-      <para><remark>This paragraph needs to be revamped:</remark> A bound
-      function has, as its body, an expression which may be bound. The body of
-      a bound function invoked from a bind context is a bound expression, as
-      is the value of a bound block expression. The dependencies of a bound
-      expression are as follows: The dependencies of a variable reference is
-      the variable. A literal has no dependencies. An object literal has its
-      referenced unbound instance variables. The dependencies of an arithmetic
-      or Boolean operation is the union of the dependencies of its components.
-      For example, the dependencies of: a + b are the union of the
-      dependencies of "a" and the dependencies of "b". The dependencies of a
-      conditional are the union of the dependencies of its components
-      (condition, true-part, and false-part). For example, the dependencies
-      of: if (cond) a else b are the union of the dependencies of "cond", the
-      dependencies of "a" and the dependencies of "b". It may or may not be
-      desirable to optimize this to a conditional dynamic dependency. The
-      dependencies of foreach aren't addressed here. The dependencies of a
-      block expression are the dependencies of its value. Where its value is
-      the terminal expression or the value of the terminal return statement.
-      The dependencies of a bound function invocation are the dependencies of
-      the body of the function (the body of a function is a block expression).
-      That is, when invoking a function in a bind context, the body of the
-      function (along with its arguments) is a bound expression -- the
-      invocation's dependencies are the dependencies of the bound body. Note
-      that the dependencies of the arguments are not directly dependencies of
-      the invocation, but they will be included in the dependencies of the
-      body unless the result of the function does not depend on the
-      corresponding parameter.</para>
-
-      <para>The dependencies of a non-bound function invocation are the
-      dependencies of the arguments. When a bound expression is updated,
-      expression evaluation is identical to normal expression evaluation for
-      literals, variable references, arithmetic and Boolean operators,
-      conditional expressions, and non-bound function invocation. An update
-      does not cause the re-evaluation of a bound function invocation, rather
-      the current value of this bound expression is used. Note that the update
-      may occur in the opposite direction, that is, a change to the
-      dependencies of a bound function body will trigger an update to the
-      invoking bound expression.</para>
+      <para>Here pt would always remain the same Point instance. Note that
+      there is no longer a need for <command>bind</command> on the
+      initializing expression of pt since there are no dependencies.</para>
 
       <para></para>
-    </sect1>
-  </chapter>
+
+      <para></para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Bind Definitions</title>
+
+    <para>A bound expression is an expression whose value updates when its
+    dependencies change. Dependencies, the update mechanism, and the creation
+    of bound expressions are discussed below.</para>
+
+    <para>Bound expressions are evaluated in bind context; all other
+    evaluation is in a normal context. A bound expression may not contain
+    assignment or iteration. Assignment includes increment and decrement.
+    Iteration is the <command>while</command>-loop (not
+    <command>for</command>-expression).</para>
+
+    <para>A variable (instance, script, or local variable) can be bound to an
+    expression. That expression, of course, is a bound expression.</para>
+
+    <para>A local variable definition with an initializing expression creates
+    a binding from the local variable to the expression if the definition is
+    explicitly bound:</para>
+
+    <para><programlisting>def <emphasis>varName</emphasis> = bind <emphasis>expression</emphasis></programlisting></para>
+
+    <para>or if the definition is in a bind context.</para>
+
+    <para>A script variable definition with an initializing expression creates
+    a binding from the instance variable to the expression if the definition
+    is explicitly bound.</para>
+
+    <para>An instance variable definition with an initializing expression
+    creates a binding from the instance variable to the expression if the
+    definition is explicitly bound and is not overriden or superceded by an
+    object literal initializing expression. Class definitions are not
+    evaluated and thus do not have bind contexts, so instance variable
+    initialization without an explicit <command>bind</command> cannot create a
+    binding. An object literal component creates a binding from the instance
+    variable to the expression if the component is explicitly bound:</para>
+
+    <para><programlisting><emphasis>className</emphasis> { <emphasis>instanceVariableName</emphasis>: bind <emphasis>expression</emphasis> } </programlisting></para>
+
+    <para>A binding between a variable and an expression means intuitively
+    that the variable maintains the value of the expression. Specifically,
+    this means the variable is updated when the dependencies of the expression
+    change.</para>
+
+    <para><remark>This paragraph needs to be revamped:</remark> A bound
+    function has, as its body, an expression which may be bound. The body of a
+    bound function invoked from a bind context is a bound expression, as is
+    the value of a bound block expression. The dependencies of a bound
+    expression are as follows: The dependencies of a variable reference is the
+    variable. A literal has no dependencies. An object literal has its
+    referenced unbound instance variables. The dependencies of an arithmetic
+    or Boolean operation is the union of the dependencies of its components.
+    For example, the dependencies of: a + b are the union of the dependencies
+    of "a" and the dependencies of "b". The dependencies of a conditional are
+    the union of the dependencies of its components (condition, true-part, and
+    false-part). For example, the dependencies of: if (cond) a else b are the
+    union of the dependencies of "cond", the dependencies of "a" and the
+    dependencies of "b". It may or may not be desirable to optimize this to a
+    conditional dynamic dependency. The dependencies of foreach aren't
+    addressed here. The dependencies of a block expression are the
+    dependencies of its value. Where its value is the terminal expression or
+    the value of the terminal return statement. The dependencies of a bound
+    function invocation are the dependencies of the body of the function (the
+    body of a function is a block expression). That is, when invoking a
+    function in a bind context, the body of the function (along with its
+    arguments) is a bound expression -- the invocation's dependencies are the
+    dependencies of the bound body. Note that the dependencies of the
+    arguments are not directly dependencies of the invocation, but they will
+    be included in the dependencies of the body unless the result of the
+    function does not depend on the corresponding parameter.</para>
+
+    <para>The dependencies of a non-bound function invocation are the
+    dependencies of the arguments. When a bound expression is updated,
+    expression evaluation is identical to normal expression evaluation for
+    literals, variable references, arithmetic and Boolean operators,
+    conditional expressions, and non-bound function invocation. An update does
+    not cause the re-evaluation of a bound function invocation, rather the
+    current value of this bound expression is used. Note that the update may
+    occur in the opposite direction, that is, a change to the dependencies of
+    a bound function body will trigger an update to the invoking bound
+    expression.</para>
+
+    <para></para>
+  </sect1>
+</chapter>
