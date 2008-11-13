@@ -115,6 +115,12 @@ public class FXDelegate implements InvocationDelegate {
                                     boolean isStatic,
                                     boolean objectIsApplet,
                                     boolean[] result) {
+        if (objectIsApplet) {
+            if (name.equalsIgnoreCase("script")) {
+                result[0] = true;
+                return true;
+            }
+        }
         Object[] box = new Object[] { receiver };
         InvocationDelegate delegate = getDelegate(box, isStatic, objectIsApplet);
         if (delegate == null)
