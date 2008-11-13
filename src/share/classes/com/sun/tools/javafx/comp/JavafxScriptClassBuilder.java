@@ -454,7 +454,7 @@ public class JavafxScriptClassBuilder {
             JFXExpression getFileURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getFile, args);
             JFXExpression fileVar =
                 fxmake.at(diagPos).Var(pseudoFile, getPseudoVarType(diagPos),
-                         fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC),
+                         fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
                          getFileURL, JavafxBindStatus.UNBOUND, null);
             pseudoDefs.append(fileVar);
 
@@ -464,7 +464,7 @@ public class JavafxScriptClassBuilder {
                 JFXExpression getDirURL = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getDir, args);
                 pseudoDefs.append(
                     fxmake.at(diagPos).Var(pseudoDir, getPseudoVarType(diagPos),
-                             fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC),
+                             fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
                              getDirURL, JavafxBindStatus.UNBOUND, null));
             }
         }
