@@ -117,6 +117,19 @@ public class Duration extends com.sun.javafx.runtime.Duration {
         return valueOf(millis / n);
     }
 
+    /** Divide this instance by another Duration to return the ratio.
+     *  This function does not change the value of called Duration instance. 
+     *
+     * @profile common
+     */     
+    public function div(other:Duration):Number {
+        if (other.millis == 0) {
+            throw new java.lang.ArithmeticException("/ by zero");
+        }
+        
+        return millis / other.millis;
+    }
+
     /** 
      * Return a new Duration instance which has a negative number of milliseconds
      * from this instance.  For example, <code>(50ms).negate()</code> returns
