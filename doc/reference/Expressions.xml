@@ -836,9 +836,9 @@
           </row>
 
           <row>
-            <entry morerows="5"><command>/</command></entry>
+            <entry morerows="6"><command>/</command></entry>
 
-            <entry morerows="5">Divide</entry>
+            <entry morerows="6">Divide</entry>
 
             <entry>Integer / Integer</entry>
 
@@ -876,6 +876,12 @@
           </row>
 
           <row>
+            <entry>Duration / Duration</entry>
+
+            <entry>Number</entry>
+          </row>
+
+          <row>
             <entry><command>mod</command></entry>
 
             <entry>Modulo (sign of result not defined for negative
@@ -890,6 +896,7 @@
     </table>
 
     <para>Note: + does not operate over String.</para>
+    <para>Note: Duration / Duration is not supported in V1.0</para>
 
     <para></para>
   </sect1>
