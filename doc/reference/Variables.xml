@@ -122,6 +122,9 @@ class B {
       not applicable to local variables. Access modifiers must not be applied
       to local variable declarations.</para>
 
+      <para><remark>[To do: explain why the whole-block scoping rule, and give
+      example]</remark></para>
+
       <para>The lifetime of a local variable ends when the block is
       exited.</para>
 
@@ -263,8 +266,10 @@ replaced AXY[0..2] by  yielding</screen>
     <emphasis>lastIndex</emphasis> and <emphasis>newElements</emphasis> refer
     only to the portion of the sequence which has changed,</para>
 
-    <para></para>
+    <para><remark>[To do: explain concept more. Note that it is inferior to
+    binding]</remark></para>
 
-    <para></para>
+    <para><remark>[To do: brief intro to slices, plus
+    cross-reference]</remark></para>
   </sect1>
 </chapter>

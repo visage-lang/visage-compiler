@@ -42,7 +42,7 @@
       <title>insert</title>
 
       <para>The <command>insert</command> expression is used to insert a value
-      into a sequence.</para>
+      (which may be a sequence) into a sequence.</para>
 
       <figure>
         <title>insert</title>
@@ -53,6 +53,46 @@
           </imageobject>
         </mediaobject>
       </figure>
+
+      <figure>
+        <title>indexedSequenceForInsert</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="indexedSequenceForInsert.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para><command>insert-into</command> inserts into the sequence at the
+      end. The other forms allow you to specify where in the sequence the
+      value should be inserted by using an indexed expression.
+      <command>insert-before</command> inserts before the indexed element;
+      <command>insert-after</command> inserts after the indexed element. For
+      example:</para>
+
+      <programlisting>var names = ['Evelyn', 'Will'];
+insert 'Marsha' into names;
+println(names);
+insert ['Ron', 'Melissa'] before names[1];
+println(names);
+insert 'Daz' after names[3];
+println(names);</programlisting>
+
+      <para>Will print:</para>
+
+      <para><computeroutput>[ Evelyn, Will, Marsha ] </computeroutput></para>
+
+      <para><computeroutput>[ Evelyn, Ron, Melissa, Will, Marsha ]
+      </computeroutput></para>
+
+      <para><computeroutput>[ Evelyn, Ron, Melissa, Will, Daz, Marsha ]
+      </computeroutput></para>
+
+      <para>Note that inserting a sequence inserts the elements of the
+      sequence -- sequences are never nested.</para>
+
+      <para>An insert expression has no value, it is of Void type.</para>
     </sect2>
 
     <sect2>
@@ -60,8 +100,6 @@
 
       <para>The delete expression is used to delete an element or elements
       from a sequence.</para>
-
-      <para></para>
 
       <figure>
         <title>delete</title>
@@ -73,13 +111,92 @@
         </mediaobject>
       </figure>
 
-      <para></para>
+      <para>Delete has four forms:</para>
+
+      <table>
+        <title>Form of Delete</title>
+
+        <tgroup cols="2">
+          <tbody>
+            <row>
+              <entry><command>delete</command>
+              <emphasis>sequence</emphasis>[<emphasis>index</emphasis>]</entry>
+
+              <entry>Delete from <emphasis>sequence</emphasis> the element at
+              <emphasis>index</emphasis>. If there is no element at that
+              <emphasis>index</emphasis>, ignore the delete.</entry>
+            </row>
+
+            <row>
+              <entry><command>delete</command>
+              <emphasis>sequence</emphasis>[<emphasis>begin..end</emphasis>]</entry>
+
+              <entry>Delete from <emphasis>sequence</emphasis> the elements
+              from indices <emphasis>begin</emphasis> to
+              <emphasis>end</emphasis> inclusive. If there is no element at
+              some of these indices, those indices are ignored. Note that,
+              more generally, this allows full slice syntax. See
+              slices.</entry>
+            </row>
+
+            <row>
+              <entry><command>delete</command> <emphasis>value</emphasis>
+              <command>from</command>
+              <emphasis>sequence</emphasis><emphasis></emphasis></entry>
+
+              <entry>Delete the value, if present, from the sequence.
+              Otherwise, ignore.</entry>
+            </row>
+
+            <row>
+              <entry><command>delete</command>
+              <emphasis>sequence</emphasis><emphasis></emphasis></entry>
+
+              <entry>Delete all elements from the sequence -- but not the
+              sequence itself.</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <para>For example:</para>
+
+      <programlisting>var names = [ 'Donna', 'Barb', 'Ron', 'Melissa', 'Will', 'Daz', 'Jim' ] ;
+println(names);
+delete 'Will' from names;
+println(names);
+delete names[1..3];
+println(names);
+delete names[0];
+println(names);
+delete names;
+println(names);
+</programlisting>
+
+      <para>Will print:</para>
+
+      <para><computeroutput>[ Donna, Barb, Ron, Melissa, Will, Daz, Jim ]
+      </computeroutput></para>
+
+      <para><computeroutput>[ Donna, Barb, Ron, Melissa, Daz, Jim ]
+      </computeroutput></para>
+
+      <para><computeroutput>[ Donna, Daz, Jim ] </computeroutput></para>
+
+      <para><computeroutput>[ Daz, Jim ] </computeroutput></para>
+
+      <para><computeroutput>[ ]</computeroutput></para>
+
+      <para>A delete expression has no value, it is of Void type.</para>
     </sect2>
 
     <sect2>
       <title>while</title>
 
-      <para></para>
+      <para>The while expression evaluates its body (the expression after the
+      close-parenthesis) repeatedly as long as the Boolean condition (the
+      <emphasis>valueExpression</emphasis>) is true. Basically the same as a
+      while-loop in most languages.</para>
 
       <figure>
         <title>while</title>
@@ -91,13 +208,15 @@
         </mediaobject>
       </figure>
 
-      <para></para>
+      <para>A while expression has no value, it is of Void type.</para>
     </sect2>
 
     <sect2>
       <title>break</title>
 
-      <para></para>
+      <para>Evaluating a break causes the loop in which it is lexically
+      contained to terminate. Where a loop is either a
+      <command>while</command> or <command>for</command>-exapression.</para>
 
       <figure>
         <title>break</title>
@@ -109,13 +228,16 @@
         </mediaobject>
       </figure>
 
-      <para></para>
+      <para>A break always completes abruptly and thus has no value.</para>
     </sect2>
 
     <sect2>
       <title>continue</title>
 
-      <para></para>
+      <para>Evaluating a continue causes the loop it is lexically contained to
+      immediately complete the iteration currently executing and attempt the
+      next iteration. Where a loop is either a <command>while</command> or
+      <command>for</command>-exapression.</para>
 
       <figure>
         <title>continue</title>
@@ -127,13 +249,15 @@
         </mediaobject>
       </figure>
 
-      <para></para>
+      <para>A break expression always completes abruptly and thus has no
+      value.</para>
     </sect2>
 
     <sect2>
       <title>throw</title>
 
-      <para>A throw expression causes an Exception to be thrown.</para>
+      <para>A throw expression causes an Exception to be thrown. See the Error
+      Handling chapter.</para>
 
       <figure>
         <title>throw</title>
@@ -145,7 +269,8 @@
         </mediaobject>
       </figure>
 
-      <para></para>
+      <para>A throw expression always completes abruptly and thus has no
+      value.</para>
     </sect2>
 
     <sect2>
@@ -896,6 +1021,7 @@
     </table>
 
     <para>Note: + does not operate over String.</para>
+
     <para>Note: Duration / Duration is not supported in V1.0</para>
 
     <para></para>
