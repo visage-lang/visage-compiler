@@ -295,6 +295,8 @@ println(names);
     <sect2>
       <title>try</title>
 
+      <para><remark>[To do: describe]</remark></para>
+
       <para></para>
 
       <figure>
@@ -331,7 +333,7 @@ println(names);
 
       <para></para>
 
-      <para></para>
+      <para>A try expression has no value, it is of Void type.</para>
     </sect2>
   </sect1>
 
@@ -373,11 +375,29 @@ println(names);
       <emphasis>ifExpression</emphasis> has a value. That value is the value
       of the first <emphasis>expression</emphasis> if
       <emphasis>valueExpression</emphasis> is true, and otherwise the value of
-      the second <emphasis>expression</emphasis>.</para>
+      the second <emphasis>expression</emphasis>. The type of such an
+      <emphasis>ifExpression</emphasis> is the most specific type that has the
+      type of the first <emphasis>expression</emphasis>. as a subtype and also
+      has the type of the second <emphasis>expression</emphasis> as a subtype.
+      For example:</para>
+
+      <programlisting>var x = if (bip) "Fern" else 2.68;</programlisting>
+
+      <para>Here, bip must be a Boolean variable. If bip is true the value of
+      x is "Fern". If bip is false the value of x is 2.68. The type of x is
+      Object as there is no more specific type that has String and Number as
+      subtypes.</para>
 
       <para>If there is no <command>else</command> part or either
       <emphasis>expression</emphasis> is of Void type, then the
-      <emphasis>ifExpression</emphasis> has Void type.</para>
+      <emphasis>ifExpression</emphasis> has Void type. For example:</para>
+
+      <programlisting>if (temp &gt; 1000) {
+   println("Reactor breach!")
+}</programlisting>
+
+      <para>Here the println will be executed if the temp is greater than
+      1000.</para>
     </sect2>
 
     <sect2>
@@ -430,6 +450,10 @@ println(names);
           </imageobject>
         </mediaobject>
       </figure>
+
+      <para>For example:</para>
+
+      <programlisting>var stream = new java.io.FileInputStream("myBuddies.gif");</programlisting>
 
       <para></para>
     </sect2>
