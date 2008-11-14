@@ -78,7 +78,10 @@ public class SequenceMutator {
         else if (endPos > size)
             endPos = size;
 
-        if (startPos == endPos + 1) {
+        if (startPos == 0 && endPos == size-1) {
+            result = (newValues != null) ? Sequences.upcast(newValues) : target.getEmptySequence();
+        }
+        else if (startPos == endPos + 1) {
             // Insertion at startPos
             if (Sequences.size(newValues) == 0)
                 result = target;
