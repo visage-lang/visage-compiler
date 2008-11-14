@@ -569,7 +569,13 @@ println(names);
       </tgroup>
     </table>
 
-    <para></para>
+    <para>For example:</para>
+
+    <programlisting>var inRange : Boolean = (x &gt;= 0) and (x &lt;= 100);
+var done : Boolean = (timeRemaining &lt;= 0ms) or cancelled;</programlisting>
+
+    <para>Because of type inference, these variables don't need to be
+    explicitly declared as Boolean.</para>
   </sect1>
 
   <sect1>
@@ -631,9 +637,18 @@ println(names);
       </tgroup>
     </table>
 
-    <para></para>
+    <para>For example:</para>
 
-    <para></para>
+    <programlisting>function toString(val : Object) : String {
+   if (val instanceof String) 
+      val as String 
+   else 
+      "Not a String"
+}</programlisting>
+
+    <para>This example function uses <command>instanceof</command> to check is
+    the input is a String, and if it is, it changes the type of the expression
+    to String using the <command>as</command> operator. </para>
   </sect1>
 
   <sect1>
@@ -685,7 +700,7 @@ println(names);
           <row>
             <entry><command>==</command></entry>
 
-            <entry>Equals</entry>
+            <entry>Equals (value)</entry>
 
             <entry>Object == Object</entry>
 
@@ -695,7 +710,7 @@ println(names);
           <row>
             <entry><command>!=</command></entry>
 
-            <entry>Not equals</entry>
+            <entry>Not equals (value)</entry>
 
             <entry>Object != Object</entry>
 
@@ -809,10 +824,23 @@ println(names);
       </tgroup>
     </table>
 
-    <para></para>
-
     <para>Note: for relational operators, when comparing Integer to Number,
     the Integer will first be converted to Number.</para>
+
+    <para>For example:</para>
+
+    <programlisting>var x : Number = tonnage(current);
+if (x &gt; 20) {
+   println("It is big");
+}</programlisting>
+
+    <para>Note that, unlike Java, == and != are value comparisons, not
+    identity comparisons. So, the following will work:</para>
+
+    <programlisting>def input : String = userInput();
+if (input == "dabnabit") {
+   println("Censored");
+}</programlisting>
 
     <para></para>
   </sect1>
@@ -1184,7 +1212,35 @@ println(names);
       </tgroup>
     </table>
 
-    <para></para>
+    <para>This example demonstrates the three sequence operators:</para>
+
+    <programlisting>def endangered = ['Caribou', 'Ocelot', 'Puma', 'Sei'];
+println( endangered );
+def flipped = reverse endangered;
+println( flipped );
+println( sizeof endangered );
+for (mammal in endangered) {
+   println( 'Mammal #{ indexof mammal } is { mammal }' );
+}
+</programlisting>
+
+    <para>The console shows the following:</para>
+
+    <para><computeroutput>[ Caribou, Ocelot, Puma, Sei ]
+    </computeroutput></para>
+
+    <para><computeroutput>[ Sei, Puma, Ocelot, Caribou ]
+    </computeroutput></para>
+
+    <para><computeroutput>4 </computeroutput></para>
+
+    <para><computeroutput>Mammal #0 is Caribou </computeroutput></para>
+
+    <para><computeroutput>Mammal #1 is Ocelot </computeroutput></para>
+
+    <para><computeroutput>Mammal #2 is Puma </computeroutput></para>
+
+    <para><computeroutput>Mammal #3 is Sei</computeroutput></para>
 
     <para></para>
   </sect1>
@@ -1264,6 +1320,25 @@ println(names);
       </tgroup>
     </table>
 
+    <para>This example contrasts these postfix increment/decrement operators
+    with the prefix operators in unaryExpression:</para>
+
+    <programlisting>var x = 0;
+println( x++ );
+println( ++x );
+println( x-- );
+println( --x );</programlisting>
+
+    <para>The following is printed on the console:</para>
+
+    <para><computeroutput>0 </computeroutput></para>
+
+    <para><computeroutput>2 </computeroutput></para>
+
+    <para><computeroutput>2 </computeroutput></para>
+
+    <para><computeroutput>0</computeroutput></para>
+
     <para></para>
   </sect1>
 
@@ -1289,9 +1364,7 @@ println(names);
     <sect2>
       <title>Member Access</title>
 
-      <para></para>
-
-      <para></para>
+      <para>Access a member (variable or function) of a class instance.</para>
 
       <figure>
         <title>postfixExpression [Member Access clause]</title>
@@ -1302,6 +1375,34 @@ println(names);
           </imageobject>
         </mediaobject>
       </figure>
+
+      <para>This example shows member selection of both a variable
+      (<command>aPair.good</command>) and a instance function
+      (<command>aPair.topsy()</command>):</para>
+
+      <programlisting>class Pair {
+   var good : String;
+   var bad : String;
+   function topsy() {
+      def tmp = good;
+      good = bad;
+      bad = tmp;
+   }
+}
+def aPair = Pair {
+   good: 'Sunflower Sprouts'
+   bad: 'Lard'
+}
+println( aPair.good );
+aPair.topsy();
+println( aPair.good );
+</programlisting>
+
+      <para>It will print:</para>
+
+      <para><computeroutput>Sunflower Sprouts </computeroutput></para>
+
+      <para><computeroutput>Lard</computeroutput></para>
 
       <para></para>
     </sect2>
