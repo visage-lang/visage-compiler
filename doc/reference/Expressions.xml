@@ -727,7 +727,12 @@ println( food );
     <title>andExpression orExpression (Two Argument Boolean
     Operations)</title>
 
-    <para></para>
+    <para>These provide the logical <command>and</command> and the logical
+    <command>or</command> operators. Both are cut-off operations, that is:
+    with <command>and</command>, if the left-hand-side is false then the value
+    is known to be false, so the right-hand-side is not evaluated; with
+    <command>or</command>, if the left-hand-side is true then the value is
+    known to be true, so the right-hand-side is not evaluated</para>
 
     <figure>
       <title>andExpression</title>
