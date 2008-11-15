@@ -514,13 +514,19 @@ println( food );
     <para><computeroutput>[ spinach, brocolli, apples, eggplant, tomatoes
     ]</computeroutput></para>
 
-    <para></para>
+    <para>The value of the assignment expression is the value of the variable,
+    element, or slice after the assignment. The type of the assignment
+    expression is the type of the variable, element, or slice.</para>
   </sect1>
 
   <sect1>
     <title>assignmentOpExpression</title>
 
-    <para></para>
+    <para><remark>[To do: break out tween expression]</remark></para>
+
+    <para>An assignmentOpExpression performs an arithmetic operation, then
+    assigns the result to the variable or sequence element referenced on the
+    left-hand-side.</para>
 
     <figure>
       <title>assignmentOpExpression</title>
@@ -541,6 +547,178 @@ println( food );
         </imageobject>
       </mediaobject>
     </figure>
+
+    <para></para>
+
+    <table>
+      <title>Assignment Operators</title>
+
+      <tgroup cols="4">
+        <colspec align="center" />
+
+        <thead>
+          <row>
+            <entry align="center"> Operator</entry>
+
+            <entry align="center">Meaning </entry>
+
+            <entry align="center">Operand Types</entry>
+
+            <entry align="center">Result Type</entry>
+          </row>
+        </thead>
+
+        <tbody>
+          <row>
+            <entry morerows="4"><command>+=</command></entry>
+
+            <entry morerows="4">Add then assign</entry>
+
+            <entry>Integer += Integer</entry>
+
+            <entry>Integer</entry>
+          </row>
+
+          <row>
+            <entry>Integer += Number</entry>
+
+            <entry>Integer</entry>
+          </row>
+
+          <row>
+            <entry>Number += Integer</entry>
+
+            <entry>Number</entry>
+          </row>
+
+          <row>
+            <entry>Number += Number</entry>
+
+            <entry>Number</entry>
+          </row>
+
+          <row>
+            <entry>Duration += Duration</entry>
+
+            <entry>Duration</entry>
+          </row>
+
+          <row>
+            <entry morerows="4"><command>-=</command></entry>
+
+            <entry morerows="4">Subtract then assign</entry>
+
+            <entry>Integer -= Integer</entry>
+
+            <entry>Integer</entry>
+          </row>
+
+          <row>
+            <entry>Integer -= Number</entry>
+
+            <entry>Integer</entry>
+          </row>
+
+          <row>
+            <entry>Number -= Integer</entry>
+
+            <entry>Number</entry>
+          </row>
+
+          <row>
+            <entry>Number -= Number</entry>
+
+            <entry>Number</entry>
+          </row>
+
+          <row>
+            <entry>Duration -= Duration</entry>
+
+            <entry>Duration</entry>
+          </row>
+
+          <row>
+            <entry morerows="5"><command>*=</command></entry>
+
+            <entry morerows="5">Multiply then assign</entry>
+
+            <entry>Integer *= Integer</entry>
+
+            <entry>Integer</entry>
+          </row>
+
+          <row>
+            <entry>Integer *= Number</entry>
+
+            <entry>Integer (computed using Number)</entry>
+          </row>
+
+          <row>
+            <entry>Number *= Integer</entry>
+
+            <entry>Number</entry>
+          </row>
+
+          <row>
+            <entry>Number *= Number</entry>
+
+            <entry>Number</entry>
+          </row>
+
+          <row>
+            <entry>Duration *= Integer</entry>
+
+            <entry>Duration</entry>
+          </row>
+
+          <row>
+            <entry>Duration *= Number</entry>
+
+            <entry>Duration</entry>
+          </row>
+
+          <row>
+            <entry morerows="5"><command>/=</command></entry>
+
+            <entry morerows="5">Divide then assign</entry>
+
+            <entry>Integer /= Integer</entry>
+
+            <entry>Integer</entry>
+          </row>
+
+          <row>
+            <entry>Integer /= Number</entry>
+
+            <entry>Integer (computed using Number)</entry>
+          </row>
+
+          <row>
+            <entry>Number /= Integer</entry>
+
+            <entry>Number</entry>
+          </row>
+
+          <row>
+            <entry>Number /= Number</entry>
+
+            <entry>Number</entry>
+          </row>
+
+          <row>
+            <entry>Duration /= Integer</entry>
+
+            <entry>Duration</entry>
+          </row>
+
+          <row>
+            <entry>Duration /= Number</entry>
+
+            <entry>Duration</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
 
     <para></para>
   </sect1>
