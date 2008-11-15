@@ -462,7 +462,9 @@ println(names);
   <sect1>
     <title>assignmentExpression</title>
 
-    <para></para>
+    <para>An assignmentExpression assigns the value of the right-hand-side
+    (<emphasis>valueExpression</emphasis>) to the variable, sequence element,
+    or sequence slice referenced on the left-hand-side.</para>
 
     <figure>
       <title>assignmentExpression</title>
@@ -473,6 +475,52 @@ println(names);
         </imageobject>
       </mediaobject>
     </figure>
+
+    <para>This example demonstrates sequence element, or sequence slice
+    assignment:</para>
+
+    <programlisting>var food = ['cheese', 'soda', 'fries', 'cupcake'];
+println( food );
+food[2] = 'eggplant';
+println( food );
+food[4] = 'measles';
+println( food );
+food[0..1] = ['spinach', 'brocolli', 'apples'];
+println( food );
+food[4..20] = 'tomatoes';
+println( food );
+</programlisting>
+
+    <para>Note that assignments to out of range indicies (the attempt to
+    assign 'measles' at index 4) are ignored; as is also the case for
+    out-of-range portions of slice assignments (4..20). That the size of the
+    slice being assigned need not match the size of the assigned sequence.
+    Note: as in all cases where sequences are required, singletons are
+    automatically converted ('tomatoes'). As a result, the follwoing is
+    printed on the console:</para>
+
+    <para><computeroutput>[ cheese, soda, fries, cupcake ]
+    </computeroutput></para>
+
+    <para><computeroutput>[ cheese, soda, eggplant, cupcake ]
+    </computeroutput></para>
+
+    <para><computeroutput>[ cheese, soda, eggplant, cupcake ]
+    </computeroutput></para>
+
+    <para><computeroutput>[ spinach, brocolli, apples, eggplant, cupcake ]
+    </computeroutput></para>
+
+    <para><computeroutput>[ spinach, brocolli, apples, eggplant, tomatoes
+    ]</computeroutput></para>
+
+    <para></para>
+  </sect1>
+
+  <sect1>
+    <title>assignmentOpExpression</title>
+
+    <para></para>
 
     <figure>
       <title>assignmentOpExpression</title>
@@ -648,7 +696,7 @@ var done : Boolean = (timeRemaining &lt;= 0ms) or cancelled;</programlisting>
 
     <para>This example function uses <command>instanceof</command> to check is
     the input is a String, and if it is, it changes the type of the expression
-    to String using the <command>as</command> operator. </para>
+    to String using the <command>as</command> operator.</para>
   </sect1>
 
   <sect1>
@@ -1489,7 +1537,7 @@ println( selected );</programlisting>
       <para>A sequece indexing expression accesses a single element of a
       sequence at the supplied index. If no element exists at that index, the
       sequece indexing expression will evaluate to the default value for the
-      elemebt specifier of the sequence. </para>
+      elemebt specifier of the sequence.</para>
 
       <figure>
         <title>postfixExpression [Index clause]</title>
@@ -1527,8 +1575,8 @@ println( seq[-1] );</programlisting>
       <title>Sequence Slice</title>
 
       <para>A sequence slice expression evaluates to a sequence a portion of
-      another sequence. Those elements by specifying a range of indicies.
-      </para>
+      another sequence. Those elements by specifying a range of
+      indicies.</para>
 
       <figure>
         <title>postfixExpression [Slice clause]</title>
@@ -1593,9 +1641,8 @@ println( usprez[3..&lt;] );
     <sect2>
       <title>qualifiedName</title>
 
-      <para></para>
-
-      <para></para>
+      <para>A qualified name is a reference to a package or class by a dot
+      separated list of package and subpackage names.</para>
 
       <figure>
         <title>qualifiedName</title>
@@ -1607,15 +1654,25 @@ println( usprez[3..&lt;] );
         </mediaobject>
       </figure>
 
+      <para><command>java.lang.Object</command> is a qualified name
+      referencing the Object class in the lang subpackage of the java package.
+      These are some ways that qualified names are used:</para>
+
+      <programlisting>import java.util.GregorianCalendar;
+class FooWriter extends java.io.PrintWriter {}
+var baseFile = new java.io.File("base.txt");
+</programlisting>
+
       <para></para>
     </sect2>
 
     <sect2>
       <title>objectLiteral</title>
 
-      <para></para>
-
-      <para></para>
+      <para>An object literal is the primary way that new instances of a class
+      are created in JavaFX Script. They also allow adding new functionality
+      to the instance including functions and additional on-replace clauses on
+      instance variables.</para>
 
       <figure>
         <title>objectLiteral</title>
