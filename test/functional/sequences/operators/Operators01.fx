@@ -22,12 +22,6 @@ var h = [0..9];
 var i = g[0..<];
 var j = f[n|indexof n>2];
 
-var seq = [a as Object, b as Object,
-	   c as Object, d as Object,
-	   e as Object, f as Object,
-	   g as Object, h as Object,
-	   i as Object, j as Object];
-
 function checkAfter(arg:Integer[]) {
 		var x = arg;
 		var y = [x, x];
