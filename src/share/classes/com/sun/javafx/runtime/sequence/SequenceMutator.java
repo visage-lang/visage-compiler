@@ -195,11 +195,14 @@ public class SequenceMutator {
      */
     public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
                                                T value, int position) {
-        // Extra validity check needed for insertBefore
-        if (position > target.size())
-            return target;
-        else
-            return replaceSlice(target, listener, position, position-1, value);
+        if (position < 0)
+            position = 0;
+        else {
+            int size = target.size();
+            if (position > size)
+                position = size;
+        }
+        return replaceSlice(target, listener, position, position-1, value);
     }
 
     /**
@@ -208,11 +211,14 @@ public class SequenceMutator {
      */
     public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
                                                Sequence<? extends T> values, int position) {
-        // Extra validity check needed for insertBefore
-        if (position > target.size())
-            return target;
-        else
-            return replaceSlice(target, listener, position, position-1, values);
+        if (position < 0)
+            position = 0;
+        else {
+            int size = target.size();
+            if (position > size)
+                position = size;
+        }
+        return replaceSlice(target, listener, position, position-1, values);
     }
 
     /**
@@ -221,10 +227,7 @@ public class SequenceMutator {
      */
     public static <T> Sequence<T> insertAfter(Sequence<T> target, Listener<T> listener,
                                               T value, int position) {
-        if (position < 0 || position >= target.size())
-            return target;
-        else
-            return replaceSlice(target, listener, position+1, position, value);
+        return insertBefore(target, listener, value, position+1);
     }
 
     /**
@@ -233,7 +236,7 @@ public class SequenceMutator {
      */
     public static <T> Sequence<T> insertAfter(Sequence<T> target, Listener<T> listener,
                                               Sequence<? extends T> values, int position) {
-        return replaceSlice(target, listener, position+1, position, values);
+        return insertBefore(target, listener, values, position+1);
     }
 
     /**

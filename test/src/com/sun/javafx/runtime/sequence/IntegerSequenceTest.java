@@ -233,8 +233,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(Sequences.insert(seq, cc), a, b, C, C);
         assertEquals(Sequences.insertFirst(seq, C), C, a, b);
         assertEquals(Sequences.insertFirst(seq, cc), C, C, a, b);
-        assertEquals(Sequences.insertBefore(seq, C, -10), a, b);
-        assertEquals(Sequences.insertBefore(seq, cc, -10), a, b);
+        assertEquals(Sequences.insertBefore(seq, C, -10), C, a, b);
+        assertEquals(Sequences.insertBefore(seq, cc, -10), C, C, a, b);
         assertEquals(Sequences.insertBefore(seq, C, 0), C, a, b);
         assertEquals(Sequences.insertBefore(seq, cc, 0), C, C, a, b);
         assertEquals(Sequences.insertBefore(seq, C, 1), a, C, b);
@@ -243,8 +243,8 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(Sequences.insertAfter(seq, cc, 0), a, C, C, b);
         assertEquals(Sequences.insertAfter(seq, C, 1), a, b, C);
         assertEquals(Sequences.insertAfter(seq, cc, 1), a, b, C, C);
-        assertEquals(Sequences.insertAfter(seq, C, 100), a, b);
-        assertEquals(Sequences.insertAfter(seq, cc, 100), a, b);
+        assertEquals(Sequences.insertAfter(seq, C, 100), a, b, C);
+        assertEquals(Sequences.insertAfter(seq, cc, 100), a, b, C, C);
 
         // Test predicate insertion 
         assertEquals(Sequences.insertAfter(seq, C, nullMatcher), seq);
@@ -609,12 +609,12 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         Sequence<Integer> three = Sequences.range(1, 3);
         assertEquals(Sequences.insert(three, 4), 1, 2, 3, 4);
         assertEquals(Sequences.insertFirst(three, 0), 0, 1, 2, 3);
-        assertEquals(Sequences.insertAfter(three, 0, -1), 1, 2, 3);
+        assertEquals(Sequences.insertAfter(three, 0, -1), 0, 1, 2, 3);
         assertEquals(Sequences.insertAfter(three, 0, 0), 1, 0, 2, 3);
         assertEquals(Sequences.insertAfter(three, 0, 1), 1, 2, 0, 3);
         assertEquals(Sequences.insertAfter(three, 0, 2), 1, 2, 3, 0);
-        assertEquals(Sequences.insertAfter(three, 0, 3), 1, 2, 3);
-        assertEquals(Sequences.insertBefore(three, 0, -1), 1, 2, 3);
+        assertEquals(Sequences.insertAfter(three, 0, 3), 1, 2, 3, 0);
+        assertEquals(Sequences.insertBefore(three, 0, -1), 0, 1, 2, 3);
         assertEquals(Sequences.insertBefore(three, 0, 0), 0, 1, 2, 3);
         assertEquals(Sequences.insertBefore(three, 0, 1), 1, 0, 2, 3);
         assertEquals(Sequences.insertBefore(three, 0, 2), 1, 2, 0, 3);
