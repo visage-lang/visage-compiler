@@ -1890,7 +1890,117 @@ var baseFile = new java.io.File("base.txt");
         </mediaobject>
       </figure>
 
-      <para></para>
+      <para>The <emphasis>qualifiedName</emphasis> must reference a JavaFX
+      Script class.</para>
+
+      <para>For these examples assume a Point class defined like this:</para>
+
+      <programlisting>class Point {
+   var x : Number;
+   var y : Number;
+}
+</programlisting>
+
+      <para>An object literal creates an instance of the class and sets the
+      initial values of instance variables:</para>
+
+      <programlisting>def somewhere = Point {
+   x: 3.2
+   y: 7.8
+}
+</programlisting>
+
+      <para>Note that the instance variable initializers may be written in any
+      order and that the initializing expressions are evaluated in the order
+      wriitten. </para>
+
+      <para>An object literal need not provide initializers for instance
+      variables, though some classes may require certain instance variables to
+      be initialized for proper functioning of an instance. Thus these are
+      valid:</para>
+
+      <programlisting>def default = Point {}
+def high = Point {
+   y: 92.1
+}</programlisting>
+
+      <para>See the classes chapter for more information on instance variable
+      initialization.</para>
+
+      <para>Variables and functions local to the object literal may be
+      supplied to assist in its construction. Here, the local variable radius
+      is defined.</para>
+
+      <programlisting>def location = Point {
+   var radius = 10.3;
+   x: radius * 2
+   y: radius * 5
+}
+</programlisting>
+
+      <para>Often local variables are used in the construction of nested
+      object literals to allow cross-referencing.</para>
+
+      <para>Additional on-replace clauses may added by overriding an instance
+      variable:</para>
+
+      <programlisting>def current = Point {
+   override var x on replace { println( "Changed x to {x}" ) }
+   override var y on replace { println( "Changed y to {y}" ) }
+   x: 66.6
+   y: 33.3
+}
+current.x = 99.9;</programlisting>
+
+      <para>This will print:</para>
+
+      <para><computeroutput>Changed x to 66.6 </computeroutput></para>
+
+      <para><computeroutput>Changed y to 33.3 </computeroutput></para>
+
+      <para><computeroutput>Changed x to 99.9</computeroutput></para>
+
+      <para>The instance variable initiailizer can be a unidirectionally or
+      bidirectionally bound expression, as this object literal (which keeps
+      its Point on a circle) demonstrates:</para>
+
+      <programlisting>import java.lang.Math.*;
+var angle = 0.0;
+def onCircle = Point {
+   x: bind cos(angle)
+   y: bind sin(angle)
+   override function toString() : String { "Point({%4.1f x}, {%4.1f y})" }
+}
+println( onCircle );
+angle = 0.5 * PI;
+println( onCircle );
+angle = PI;
+println( onCircle );
+angle = 1.5 * PI;
+println( onCircle );
+angle = 2 * PI;
+println( onCircle );
+</programlisting>
+
+      <para>The x instance variable of onCircle will be maintained as the
+      cosine of the angle, while y will be maintained as the sine. The
+      toString() function (defined on Object) has been overridden in the
+      object literal to provide a better output format. This is what is
+      printed to the console:</para>
+
+      <para><computeroutput>Point( 1.0, 0.0) </computeroutput></para>
+
+      <para><computeroutput>Point( 0.0, 1.0) </computeroutput></para>
+
+      <para><computeroutput>Point(-1.0, 0.0) </computeroutput></para>
+
+      <para><computeroutput>Point(-0.0, -1.0) </computeroutput></para>
+
+      <para><computeroutput>Point( 1.0, -0.0)</computeroutput></para>
+
+      <para>The value of an object literal is the new instance. The type of an
+      object literal is the class given in the
+      <emphasis>qualifiedName</emphasis>.</para>
     </sect2>
 
     <sect2>
