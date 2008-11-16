@@ -812,7 +812,7 @@ var done : Boolean = (timeRemaining &lt;= 0ms) or cancelled;</programlisting>
   <sect1>
     <title>typeExpression</title>
 
-    <para></para>
+    <para>Two operators over data type.</para>
 
     <figure>
       <title>typeExpression</title>
@@ -885,7 +885,8 @@ var done : Boolean = (timeRemaining &lt;= 0ms) or cancelled;</programlisting>
   <sect1>
     <title>relationalExpression</title>
 
-    <para></para>
+    <para>A relational expression is a comparison between two values. The
+    result is Boolean: true or false.</para>
 
     <figure>
       <title>relationalExpression</title>
@@ -1080,7 +1081,7 @@ if (input == "dabnabit") {
     <title>additiveExpression multiplicativeExpression (Two Argument
     Arithmetic Operations)</title>
 
-    <para></para>
+    <para>These are arithmetic operations which take two operarands.</para>
 
     <figure>
       <title>additiveExpression</title>
@@ -1751,7 +1752,8 @@ println( seq[-1] );</programlisting>
 
       <para><computeroutput>0</computeroutput></para>
 
-      <para></para>
+      <para>The type of a sequece indexing expression is that of the indexed
+      sequence's element specifier (the element type).</para>
     </sect2>
 
     <sect2>
@@ -1796,7 +1798,8 @@ println( usprez[3..&lt;] );
 
       <para><computeroutput>[ Madison ]</computeroutput></para>
 
-      <para></para>
+      <para>The type of a sequence slice expression is the type of the
+      sequence to which the slice clause is applied.</para>
     </sect2>
   </sect1>
 
@@ -1951,8 +1954,6 @@ var baseFile = new java.io.File("base.txt");
 
       <para>Creates a sequence which is a range of Integer or Number
       values.</para>
-
-      <para></para>
 
       <figure>
         <title>rangeExpression</title>
