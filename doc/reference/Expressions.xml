@@ -2092,9 +2092,8 @@ println( onCircle );
     <sect2>
       <title>block</title>
 
-      <para></para>
-
-      <para></para>
+      <para>A block is a list of expressions. A block forms a scope. The value
+      of a block is the value of the last expression in the block.</para>
 
       <figure>
         <title>block</title>
@@ -2114,9 +2113,8 @@ println( onCircle );
     <sect2>
       <title>literal</title>
 
-      <para></para>
-
-      <para></para>
+      <para>Literal values are discussed in the Types and Values
+      chapter.</para>
 
       <figure>
         <title>literal</title>
