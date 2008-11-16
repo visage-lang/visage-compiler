@@ -92,6 +92,11 @@ println(names);</programlisting>
       <para>Note that inserting a sequence inserts the elements of the
       sequence -- sequences are never nested.</para>
 
+      <para>Inserting before or after a negative index inserts at the
+      beginning of the sequence. Inserting before or after an index beyond the
+      end of the sequence inserts at the end of the sequence. Though neither
+      of these cases is implemented in V1.0 of the language.</para>
+
       <para>An insert expression has no value, it is of Void type.</para>
     </sect2>
 
@@ -1983,10 +1988,10 @@ println( onCircle );
 </programlisting>
 
       <para>The x instance variable of onCircle will be maintained as the
-      cosine of the angle, while y will be maintained as the sine. The
-      toString() function (defined on Object) has been overridden in the
-      object literal to provide a better output format. This is what is
-      printed to the console:</para>
+      cosine of the angle, while y will be maintained as the sine. See the
+      Binding chapter for more information of bind. The toString() function
+      (defined on Object) has been overridden in the object literal to provide
+      a better output format. This is what is printed to the console:</para>
 
       <para><computeroutput>Point( 1.0, 0.0) </computeroutput></para>
 
@@ -2005,6 +2010,12 @@ println( onCircle );
 
     <sect2>
       <title><command>this</command></title>
+
+      <para>The <command>this</command> expression is a reference to the
+      current instance.</para>
+
+      <para><remark>[To do: add examples, syntax diagram,
+      description]</remark></para>
 
       <para></para>
     </sect2>
