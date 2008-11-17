@@ -1917,7 +1917,7 @@ var baseFile = new java.io.File("base.txt");
 
       <para>Note that the instance variable initializers may be written in any
       order and that the initializing expressions are evaluated in the order
-      wriitten. </para>
+      wriitten.</para>
 
       <para>An object literal need not provide initializers for instance
       variables, though some classes may require certain instance variables to
@@ -2086,6 +2086,124 @@ println( onCircle );
         </mediaobject>
       </figure>
 
+      <para>The three <emphasis>valueExpressions</emphasis> that give the
+      beginning, ending and step of the sequence must either be of type
+      Integer or Number. If any of these are of type Number, the
+      <emphasis>rangeExpression</emphasis> is of type sequence of Number,
+      otherwise it is of type sequence of Integer.</para>
+
+      <para>The step <emphasis>valueExpression</emphasis> if absent, defaults
+      to one. The step may be negative. The values in the sequence are all
+      value between the beginning <emphasis>valueExpression</emphasis> and the
+      ending <emphasis>valueExpression</emphasis> where the values step by the
+      step <emphasis>valueExpression</emphasis>. The beginning
+      <emphasis>valueExpression</emphasis> is inclusive. The ending
+      <emphasis>valueExpression</emphasis> is inclusive unless the
+      <command>..&lt;</command> form is used.</para>
+
+      <para>Here are some range expressions, and their corresponding
+      values:</para>
+
+      <para></para>
+
+      <table>
+        <title>Range Expression Values</title>
+
+        <tgroup cols="3">
+          <thead>
+            <row>
+              <entry align="center">Range Expression</entry>
+
+              <entry align="center">Value</entry>
+
+              <entry align="center">Discussion</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry>[1..5]</entry>
+
+              <entry>[ 1, 2, 3, 4, 5 ]</entry>
+
+              <entry>No explicit step is provided, so the default of one is
+              used. Beginning and ending <emphasis>valueExpressions</emphasis>
+              are of Integer type so the sequence elements are of Integer
+              type.</entry>
+            </row>
+
+            <row>
+              <entry>[1..&lt;5]</entry>
+
+              <entry>[ 1, 2, 3, 4 ]</entry>
+
+              <entry>The less-than sign indicates one (inclusive) through five
+              (exclusive).</entry>
+            </row>
+
+            <row>
+              <entry>[1 .. 5.0]</entry>
+
+              <entry>[ 1.0, 2.0, 3.0, 4.0, 5.0 ]</entry>
+
+              <entry>The ending <emphasis>valueExpression</emphasis> is of
+              Number type so the sequence elements are of Number type.</entry>
+            </row>
+
+            <row>
+              <entry>[8.6 .. 12]</entry>
+
+              <entry>[ 8.6, 9.6, 10.6, 11.6 ]</entry>
+
+              <entry>8.6, the 1 + 8.6, etc</entry>
+            </row>
+
+            <row>
+              <entry>[1..9 step 2]</entry>
+
+              <entry>[ 1, 3, 5, 7, 9 ]</entry>
+
+              <entry>Explicit step of two: 1, 2 + 1, etc</entry>
+            </row>
+
+            <row>
+              <entry>[100..90 step -3]</entry>
+
+              <entry>[ 100, 97, 94, 91 ]</entry>
+
+              <entry>Negative step, values are decreasing.</entry>
+            </row>
+
+            <row>
+              <entry>[0..1 step 0.25]</entry>
+
+              <entry>[ 0.0, 0.25, 0.5, 0.75, 1.0 ]</entry>
+
+              <entry>Fractional step</entry>
+            </row>
+
+            <row>
+              <entry>[0..&lt;1 step 0.25]</entry>
+
+              <entry>[ 0.0, 0.25, 0.5, 0.75 ]</entry>
+
+              <entry>Exclusive of the ending.</entry>
+            </row>
+
+            <row>
+              <entry>[5..1]</entry>
+
+              <entry>[ ]</entry>
+
+              <entry>There are no values between five and one when stepping by
+              one, the the resulting sequence is empty. Since the beginning
+              and ending values are literals, this can be detected by the
+              compiler, which prints a warning.</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
       <para></para>
     </sect2>
 
@@ -2105,9 +2223,8 @@ println( onCircle );
         </mediaobject>
       </figure>
 
-      <para></para>
-
-      <para></para>
+      <para>The type of a block is the type of the final expression in the
+      block.</para>
     </sect2>
 
     <sect2>
@@ -2133,7 +2250,7 @@ println( onCircle );
       <title>functionExpression</title>
 
       <para>A function expression allows you to express a function definition
-      as a value. </para>
+      as a value.</para>
 
       <figure>
         <title>functionExpression</title>
@@ -2183,7 +2300,7 @@ println( func(7) );
 
       <para>Instance variable initializers are used to configure the inital
       state of an instance. With instance variables of function type, function
-      expressions are used to configure actions for the instance. </para>
+      expressions are used to configure actions for the instance.</para>
 
       <para>This class builds a series of Strings based on an initial value
       and a next function:</para>
@@ -2204,7 +2321,7 @@ println( func(7) );
 
 def aba = SeriesBuilder {
    initial: 'X'
-   next: function(curr : String) { "{curr}-{curr}" }
+   next: function(curr : String) { "{curr}o{curr}" }
 }
 
 def shorten = SeriesBuilder {
@@ -2226,8 +2343,8 @@ println( bop.series(5) );
       three different initial value and next function pairs. The following is
       printed:</para>
 
-      <para><computeroutput>[ X, X-X, X-X-X-X, X-X-X-X-X-X-X-X,
-      X-X-X-X-X-X-X-X-X-X-X-X-X-X-X-X ] </computeroutput></para>
+      <para><computeroutput>[ X, XoX, XoXoXoX, XoXoXoXoXoXoXoX,
+      XoXoXoXoXoXoXoXoXoXoXoXoXoXoXoX ] </computeroutput></para>
 
       <para><computeroutput>[ lambda, ambda, mbda, bda, da, a ]
       </computeroutput></para>
