@@ -137,9 +137,9 @@ println(names);</programlisting>
               <emphasis>sequence</emphasis>[<emphasis>begin..end</emphasis>]</entry>
 
               <entry>Delete from <emphasis>sequence</emphasis> the elements
-              from indices <emphasis>begin</emphasis> to
+              from indicies <emphasis>begin</emphasis> to
               <emphasis>end</emphasis> inclusive. If there is no element at
-              some of these indices, those indices are ignored. Note that,
+              some of these indicies, those indicies are ignored. Note that,
               more generally, this allows full slice syntax. See
               slices.</entry>
             </row>
@@ -221,7 +221,7 @@ println(names);
 
       <para>Evaluating a break causes the loop in which it is lexically
       contained to terminate. Where a loop is either a
-      <command>while</command> or <command>for</command>-exapression.</para>
+      <command>while</command> or <command>for</command>-expression.</para>
 
       <figure>
         <title>break</title>
@@ -242,7 +242,7 @@ println(names);
       <para>Evaluating a continue causes the loop it is lexically contained to
       immediately complete the iteration currently executing and attempt the
       next iteration. Where a loop is either a <command>while</command> or
-      <command>for</command>-exapression.</para>
+      <command>for</command>-expression.</para>
 
       <figure>
         <title>continue</title>
@@ -382,7 +382,7 @@ println(names);
       <emphasis>valueExpression</emphasis> is true, and otherwise the value of
       the second <emphasis>expression</emphasis>. The type of such an
       <emphasis>ifExpression</emphasis> is the most specific type that has the
-      type of the first <emphasis>expression</emphasis>. as a subtype and also
+      type of the first <emphasis>expression</emphasis> as a subtype and also
       has the type of the second <emphasis>expression</emphasis> as a subtype.
       For example:</para>
 
@@ -496,13 +496,12 @@ food[4..20] = 'tomatoes';
 println( food );
 </programlisting>
 
-    <para>Note that assignments to out of range indicies (the attempt to
-    assign 'measles' at index 4) are ignored; as is also the case for
-    out-of-range portions of slice assignments (4..20). That the size of the
-    slice being assigned need not match the size of the assigned sequence.
-    Note: as in all cases where sequences are required, singletons are
-    automatically converted ('tomatoes'). As a result, the follwoing is
-    printed on the console:</para>
+    <para>Note that assignments to out of range indices (the attempt to assign
+    'measles' at index 4) are ignored; as is also the case for out-of-range
+    portions of slice assignments (4..20). That the size of the slice being
+    assigned need not match the size of the assigned sequence. Note: as in all
+    cases where sequences are required, singletons are automatically converted
+    ('tomatoes'). As a result, the following is printed on the console:</para>
 
     <para><computeroutput>[ cheese, soda, fries, cupcake ]
     </computeroutput></para>
@@ -513,10 +512,10 @@ println( food );
     <para><computeroutput>[ cheese, soda, eggplant, cupcake ]
     </computeroutput></para>
 
-    <para><computeroutput>[ spinach, brocolli, apples, eggplant, cupcake ]
+    <para><computeroutput>[ spinach, broccoli, apples, eggplant, cupcake ]
     </computeroutput></para>
 
-    <para><computeroutput>[ spinach, brocolli, apples, eggplant, tomatoes
+    <para><computeroutput>[ spinach, broccoli, apples, eggplant, tomatoes
     ]</computeroutput></para>
 
     <para>The value of the assignment expression is the value of the variable,
@@ -1086,7 +1085,7 @@ if (input == "dabnabit") {
     <title>additiveExpression multiplicativeExpression (Two Argument
     Arithmetic Operations)</title>
 
-    <para>These are arithmetic operations which take two operarands.</para>
+    <para>These are arithmetic operations which take two operands.</para>
 
     <figure>
       <title>additiveExpression</title>
@@ -1723,10 +1722,10 @@ println( selected );</programlisting>
     <sect2>
       <title>Sequence Indexing</title>
 
-      <para>A sequece indexing expression accesses a single element of a
+      <para>A sequence indexing expression accesses a single element of a
       sequence at the supplied index. If no element exists at that index, the
-      sequece indexing expression will evaluate to the default value for the
-      elemebt specifier of the sequence.</para>
+      sequence indexing expression will evaluate to the default value for the
+      element specifier of the sequence.</para>
 
       <figure>
         <title>postfixExpression [Index clause]</title>
@@ -1757,7 +1756,7 @@ println( seq[-1] );</programlisting>
 
       <para><computeroutput>0</computeroutput></para>
 
-      <para>The type of a sequece indexing expression is that of the indexed
+      <para>The type of a sequence indexing expression is that of the indexed
       sequence's element specifier (the element type).</para>
     </sect2>
 
@@ -1766,7 +1765,7 @@ println( seq[-1] );</programlisting>
 
       <para>A sequence slice expression evaluates to a sequence a portion of
       another sequence. Those elements by specifying a range of
-      indicies.</para>
+      indices.</para>
 
       <figure>
         <title>postfixExpression [Slice clause]</title>
@@ -1917,7 +1916,7 @@ var baseFile = new java.io.File("base.txt");
 
       <para>Note that the instance variable initializers may be written in any
       order and that the initializing expressions are evaluated in the order
-      wriitten.</para>
+      written.</para>
 
       <para>An object literal need not provide initializers for instance
       variables, though some classes may require certain instance variables to
@@ -1965,7 +1964,7 @@ current.x = 99.9;</programlisting>
 
       <para><computeroutput>Changed x to 99.9</computeroutput></para>
 
-      <para>The instance variable initiailizer can be a unidirectionally or
+      <para>The instance variable initializer can be a unidirectionally or
       bidirectionally bound expression, as this object literal (which keeps
       its Point on a circle) demonstrates:</para>
 
@@ -2028,7 +2027,7 @@ println( onCircle );
       <para></para>
 
       <figure>
-        <title>simplfied StringExpression</title>
+        <title>simplified StringExpression</title>
 
         <mediaobject>
           <imageobject>
@@ -2196,8 +2195,8 @@ println( onCircle );
               <entry>[ ]</entry>
 
               <entry>There are no values between five and one when stepping by
-              one, the the resulting sequence is empty. Since the beginning
-              and ending values are literals, this can be detected by the
+              one, the resulting sequence is empty. Since the beginning and
+              ending values are literals, this can be detected by the
               compiler, which prints a warning.</entry>
             </row>
           </tbody>
@@ -2298,7 +2297,7 @@ println( func(7) );
       to a new function definition which squares the incoming Integer; this
       time, func(7) is <computeroutput>49</computeroutput>.</para>
 
-      <para>Instance variable initializers are used to configure the inital
+      <para>Instance variable initializers are used to configure the initial
       state of an instance. With instance variables of function type, function
       expressions are used to configure actions for the instance.</para>
 
