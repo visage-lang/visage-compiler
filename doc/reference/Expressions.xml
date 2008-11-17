@@ -2054,8 +2054,6 @@ println( onCircle );
       <para>Creates a sequence by explicitly listing the elements of the
       sequence.</para>
 
-      <para></para>
-
       <figure>
         <title>explicitSequenceExpression</title>
 
@@ -2065,6 +2063,67 @@ println( onCircle );
           </imageobject>
         </mediaobject>
       </figure>
+
+      <para><table>
+          <title>Explicit Sequence Expression Values</title>
+
+          <tgroup cols="3">
+            <thead>
+              <row>
+                <entry align="center">Explicit Sequence Expression</entry>
+
+                <entry align="center">Value</entry>
+
+                <entry align="center">Discussion</entry>
+              </row>
+            </thead>
+
+            <tbody>
+              <row>
+                <entry>['One', 'Two', 'Buckle', 'My', 'Shoe']</entry>
+
+                <entry>[ 'One', 'Two', 'Buckle', 'My', 'Shoe' ]</entry>
+
+                <entry>An explicit sequence of String</entry>
+              </row>
+
+              <row>
+                <entry>[4, 7, [9, 3], 2]</entry>
+
+                <entry>[ 4, 7, 9, 3, 2 ]</entry>
+
+                <entry>Sequences do not nest, so embedded sequences are
+                flattenned</entry>
+              </row>
+
+              <row>
+                <entry>var x = 32; [x, 4, x]</entry>
+
+                <entry>[ 32, 4, 32 ]</entry>
+
+                <entry>The explicit sequence component are
+                <emphasis>valueExpressions</emphasis>.</entry>
+              </row>
+
+              <row>
+                <entry>var seq = ['bop', 'a']; ['be', seq, 'lulu']</entry>
+
+                <entry>[ 'be', 'bop', 'a', 'lulu' ]</entry>
+
+                <entry>Again, sequences flatten</entry>
+              </row>
+
+              <row>
+                <entry>var nada = null; ['be', nada, 'lulu']</entry>
+
+                <entry>[ 'be', 'lulu' ]</entry>
+
+                <entry>null, is the absence of value, thus equivalent to the
+                empty sequence, which just flattens away.</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table></para>
 
       <para></para>
     </sect2>
@@ -2102,8 +2161,6 @@ println( onCircle );
 
       <para>Here are some range expressions, and their corresponding
       values:</para>
-
-      <para></para>
 
       <table>
         <title>Range Expression Values</title>
@@ -2203,7 +2260,8 @@ println( onCircle );
         </tgroup>
       </table>
 
-      <para></para>
+      <para>The beginning, ending and step need not be literal values, but can
+      be arbitrary <emphasis>valueExpressions</emphasis>.</para>
     </sect2>
 
     <sect2>
