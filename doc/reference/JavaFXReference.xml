@@ -38,6 +38,8 @@
 
 <xi:include href="ErrorHandling.xml"  parse="xml"/> 
 
+<xi:include href="Animation.xml"  parse="xml"/> 
+
 
 </book>
 
