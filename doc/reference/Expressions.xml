@@ -526,12 +526,6 @@ println( food );
   <sect1>
     <title>assignmentOpExpression</title>
 
-    <para><remark>[To do: break out tween expression]</remark></para>
-
-    <para>An assignmentOpExpression performs an arithmetic operation, then
-    assigns the result to the variable or sequence element referenced on the
-    left-hand-side.</para>
-
     <figure>
       <title>assignmentOpExpression</title>
 
@@ -542,189 +536,218 @@ println( food );
       </mediaobject>
     </figure>
 
-    <figure>
-      <title>assignmentOperator</title>
-
-      <mediaobject>
-        <imageobject>
-          <imagedata fileref="assignmentOperator.png"></imagedata>
-        </imageobject>
-      </mediaobject>
-    </figure>
-
-    <para></para>
-
-    <table>
+    <sect2>
       <title>Assignment Operators</title>
 
-      <tgroup cols="4">
-        <colspec align="center" />
+      <para>An assignmentOpExpression performs an arithmetic operation, then
+      assigns the result to the variable or sequence element referenced on the
+      left-hand-side.</para>
 
-        <thead>
-          <row>
-            <entry align="center"> Operator</entry>
+      <para></para>
 
-            <entry align="center">Meaning </entry>
+      <figure>
+        <title>assignmentOpExpression (Assignment Operator subset)</title>
 
-            <entry align="center">Operand Types</entry>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="assignOpExpressionAssign.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
 
-            <entry align="center">Result Type</entry>
-          </row>
-        </thead>
+      <para></para>
 
-        <tbody>
-          <row>
-            <entry morerows="4"><command>+=</command></entry>
+      <table>
+        <title>Assignment Operators</title>
 
-            <entry morerows="4">Add then assign</entry>
+        <tgroup cols="4">
+          <colspec align="center" />
 
-            <entry>Integer += Integer</entry>
+          <thead>
+            <row>
+              <entry align="center"> Operator</entry>
 
-            <entry>Integer</entry>
-          </row>
+              <entry align="center">Meaning </entry>
 
-          <row>
-            <entry>Integer += Number</entry>
+              <entry align="center">Operand Types</entry>
 
-            <entry>Integer</entry>
-          </row>
+              <entry align="center">Result Type</entry>
+            </row>
+          </thead>
 
-          <row>
-            <entry>Number += Integer</entry>
+          <tbody>
+            <row>
+              <entry morerows="4"><command>+=</command></entry>
 
-            <entry>Number</entry>
-          </row>
+              <entry morerows="4">Add then assign</entry>
 
-          <row>
-            <entry>Number += Number</entry>
+              <entry>Integer += Integer</entry>
 
-            <entry>Number</entry>
-          </row>
+              <entry>Integer</entry>
+            </row>
 
-          <row>
-            <entry>Duration += Duration</entry>
+            <row>
+              <entry>Integer += Number</entry>
 
-            <entry>Duration</entry>
-          </row>
+              <entry>Integer</entry>
+            </row>
 
-          <row>
-            <entry morerows="4"><command>-=</command></entry>
+            <row>
+              <entry>Number += Integer</entry>
 
-            <entry morerows="4">Subtract then assign</entry>
+              <entry>Number</entry>
+            </row>
 
-            <entry>Integer -= Integer</entry>
+            <row>
+              <entry>Number += Number</entry>
 
-            <entry>Integer</entry>
-          </row>
+              <entry>Number</entry>
+            </row>
 
-          <row>
-            <entry>Integer -= Number</entry>
+            <row>
+              <entry>Duration += Duration</entry>
 
-            <entry>Integer</entry>
-          </row>
+              <entry>Duration</entry>
+            </row>
 
-          <row>
-            <entry>Number -= Integer</entry>
+            <row>
+              <entry morerows="4"><command>-=</command></entry>
 
-            <entry>Number</entry>
-          </row>
+              <entry morerows="4">Subtract then assign</entry>
 
-          <row>
-            <entry>Number -= Number</entry>
+              <entry>Integer -= Integer</entry>
 
-            <entry>Number</entry>
-          </row>
+              <entry>Integer</entry>
+            </row>
 
-          <row>
-            <entry>Duration -= Duration</entry>
+            <row>
+              <entry>Integer -= Number</entry>
 
-            <entry>Duration</entry>
-          </row>
+              <entry>Integer</entry>
+            </row>
 
-          <row>
-            <entry morerows="5"><command>*=</command></entry>
+            <row>
+              <entry>Number -= Integer</entry>
 
-            <entry morerows="5">Multiply then assign</entry>
+              <entry>Number</entry>
+            </row>
 
-            <entry>Integer *= Integer</entry>
+            <row>
+              <entry>Number -= Number</entry>
 
-            <entry>Integer</entry>
-          </row>
+              <entry>Number</entry>
+            </row>
 
-          <row>
-            <entry>Integer *= Number</entry>
+            <row>
+              <entry>Duration -= Duration</entry>
 
-            <entry>Integer (computed using Number)</entry>
-          </row>
+              <entry>Duration</entry>
+            </row>
 
-          <row>
-            <entry>Number *= Integer</entry>
+            <row>
+              <entry morerows="5"><command>*=</command></entry>
 
-            <entry>Number</entry>
-          </row>
+              <entry morerows="5">Multiply then assign</entry>
 
-          <row>
-            <entry>Number *= Number</entry>
+              <entry>Integer *= Integer</entry>
 
-            <entry>Number</entry>
-          </row>
+              <entry>Integer</entry>
+            </row>
 
-          <row>
-            <entry>Duration *= Integer</entry>
+            <row>
+              <entry>Integer *= Number</entry>
 
-            <entry>Duration</entry>
-          </row>
+              <entry>Integer (computed using Number)</entry>
+            </row>
 
-          <row>
-            <entry>Duration *= Number</entry>
+            <row>
+              <entry>Number *= Integer</entry>
 
-            <entry>Duration</entry>
-          </row>
+              <entry>Number</entry>
+            </row>
 
-          <row>
-            <entry morerows="5"><command>/=</command></entry>
+            <row>
+              <entry>Number *= Number</entry>
 
-            <entry morerows="5">Divide then assign</entry>
+              <entry>Number</entry>
+            </row>
 
-            <entry>Integer /= Integer</entry>
+            <row>
+              <entry>Duration *= Integer</entry>
 
-            <entry>Integer</entry>
-          </row>
+              <entry>Duration</entry>
+            </row>
 
-          <row>
-            <entry>Integer /= Number</entry>
+            <row>
+              <entry>Duration *= Number</entry>
 
-            <entry>Integer (computed using Number)</entry>
-          </row>
+              <entry>Duration</entry>
+            </row>
 
-          <row>
-            <entry>Number /= Integer</entry>
+            <row>
+              <entry morerows="5"><command>/=</command></entry>
 
-            <entry>Number</entry>
-          </row>
+              <entry morerows="5">Divide then assign</entry>
 
-          <row>
-            <entry>Number /= Number</entry>
+              <entry>Integer /= Integer</entry>
 
-            <entry>Number</entry>
-          </row>
+              <entry>Integer</entry>
+            </row>
 
-          <row>
-            <entry>Duration /= Integer</entry>
+            <row>
+              <entry>Integer /= Number</entry>
 
-            <entry>Duration</entry>
-          </row>
+              <entry>Integer (computed using Number)</entry>
+            </row>
 
-          <row>
-            <entry>Duration /= Number</entry>
+            <row>
+              <entry>Number /= Integer</entry>
 
-            <entry>Duration</entry>
-          </row>
-        </tbody>
-      </tgroup>
-    </table>
+              <entry>Number</entry>
+            </row>
 
-    <para></para>
+            <row>
+              <entry>Number /= Number</entry>
+
+              <entry>Number</entry>
+            </row>
+
+            <row>
+              <entry>Duration /= Integer</entry>
+
+              <entry>Duration</entry>
+            </row>
+
+            <row>
+              <entry>Duration /= Number</entry>
+
+              <entry>Duration</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <para></para>
+    </sect2>
+
+    <sect2>
+      <title>Tween Expressions</title>
+
+      <para>Tween expressions are used in animation, see the Animation
+      chapter.</para>
+
+      <figure>
+        <title>assignmentOpExpression (Tween expression subset)</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="assignOpExpressionTween.png"></imagedata>
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para></para>
+    </sect2>
   </sect1>
 
   <sect1>
@@ -2415,9 +2438,8 @@ println( bop.series(5) );
     <sect2>
       <title>timelineExpression</title>
 
-      <para></para>
-
-      <para></para>
+      <para><emphasis>timelineExpression</emphasis> is used in animation. See
+      the Animation chapter.</para>
 
       <figure>
         <title>timelineExpression</title>

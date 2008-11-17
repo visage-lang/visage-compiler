@@ -728,36 +728,20 @@ assignmentExpression
 	;
 	
 assignmentOpExpression
-	: lhs=andExpression					
+	: andExpression					
 	  
-		(     assignOp rhs=valueExpression
-		
-				{
-					// AST for assignement
-					//
-					$value = F.at(rPos).Assignop($assignOp.op, $lhs.value, $rhs.value);
-				}
-				
-           	| SUCHTHAT such=andExpression (TWEEN i=andExpression)?
-           	
-           		{
-           			// AST FOR Interpolation
-           			//
-           			$value = F.at(rPos).InterpolateValue($lhs.value, $such.value, $i.value);
-           		}
-           	
-	   		|	{ 
-	   				// AST for expressions
-	   				//
-	   				$value = $lhs.value; 
-	   			}	
+		(     assignOp valueExpression
+           	| '=>' such=andExpression ('tween' andExpression)?
+	   		|
 	   )
-	   
-	   {
-	   		// AST Span
-	   		//
-	   		endPos($value);
-	   }
+	;
+
+assignmentOpExpressionAssign
+	: andExpression	 (('+=') | ('-=') | ('*=') | ('/=')) valueExpression
+	;
+
+assignmentOpExpressionTween
+	: andExpression	 '=>' such=andExpression ('tween' andExpression)?
 	;
 
 // -----------------
