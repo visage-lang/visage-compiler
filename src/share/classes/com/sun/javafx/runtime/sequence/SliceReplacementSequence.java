@@ -53,28 +53,31 @@ class SliceReplacementSequence<T> extends DerivedSequence<T> implements Sequence
             return sequence.get(position + gapSize - replacementSize);
         }
     }
-    
+
     @Override
     public void toArray(int sourceOffset, int length, Object[] dest, int destOffset) {
         if (sourceOffset < 0 || (length > 0 && sourceOffset + length > size))
             throw new ArrayIndexOutOfBoundsException();
-
-        int lengthFirstSeq = 0;
         if (sourceOffset < gapPos) {
-            lengthFirstSeq = Math.min(gapPos-sourceOffset, length);
+            int lengthFirstSeq = Math.min(gapPos-sourceOffset, length);
             sequence.toArray(sourceOffset, lengthFirstSeq, dest, destOffset);
+            destOffset += lengthFirstSeq;
+            length -= lengthFirstSeq;
+            sourceOffset += lengthFirstSeq;
         }
         final int replacementSize = Sequences.size(replacementSequence);
         int lengthReplacement = 0;
-        if (replacementSize > 0 && sourceOffset < gapPos + replacementSize && sourceOffset + length > gapPos) {
-            int startReplacement = Math.max(0, sourceOffset-gapPos);
-            lengthReplacement = Math.min(replacementSize-startReplacement, length-lengthFirstSeq);
-            replacementSequence.toArray(startReplacement, lengthReplacement, dest, destOffset + lengthFirstSeq);
+        int startReplacement = sourceOffset-gapPos;
+        if (startReplacement >= 0 && startReplacement < replacementSize) {
+            lengthReplacement = Math.min(replacementSize-startReplacement, length);
+            replacementSequence.toArray(startReplacement, lengthReplacement, dest, destOffset);
+            destOffset += lengthReplacement;
+            length -= lengthReplacement;
         }
-        if (sourceOffset+length > gapPos+replacementSize) {
+
+        if (length > 0) {
             int startSecondSeq = gapSize + Math.max(gapPos, sourceOffset - replacementSize);
-            int lengthSecondSeq = length - lengthFirstSeq - lengthReplacement;
-            sequence.toArray(startSecondSeq, lengthSecondSeq, dest, destOffset + lengthFirstSeq + lengthReplacement);
+            sequence.toArray(startSecondSeq, length, dest, destOffset);
         }
     }
 }
