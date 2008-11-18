@@ -103,7 +103,7 @@
 
     <para>Each JavaFX type has an associated default value. The default
     variable is the value of a variable before it is set. It is also the value
-    of an expression of that type if an error is encountered For types with
+    of an expression of that type if an error is encountered. For types with
     optional cardinality their default value is null. For example:</para>
 
     <programlisting>var x : Foo; 
@@ -413,6 +413,8 @@ Sign: one of
   <sect1>
     <title>Function Types</title>
 
+    <para><remark>[To do: write this section]</remark></para>
+
     <para></para>
   </sect1>
 
@@ -474,11 +476,11 @@ Sign: one of
 
             <entry><para><literal>: Integer</literal></para></entry>
 
-            <entry><para>0</para></entry>
+            <entry><para><literal>0</literal></para></entry>
 
             <entry><para><literal>java.lang.Integer</literal></para></entry>
 
-            <entry><para><literal>1 Required</literal></para></entry>
+            <entry><para>1 Required</para></entry>
 
             <entry><para><literal>1956</literal></para></entry>
           </row>

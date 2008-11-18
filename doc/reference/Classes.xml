@@ -24,7 +24,7 @@ def rubySlipper = Shoe {
    style: "slipper"
 }</programlisting></para>
 
-  <para> Here the class Shoe represents a kind of thing, and the instance
+  <para>Here the class Shoe represents a kind of thing, and the instance
   stored in rubySlipper is a representation of a concrete thing. Note that
   there are instance variables that store the state of the instance.</para>
 
@@ -46,10 +46,10 @@ def rubySlipper = Shoe {
 }   </programlisting>
 
   <para>It extends two other classes (CustomNode and Resizable), therefore
-  including their including their instance variables and instance functions.
-  CheckBox adds three more instance variables, including skin which has an
-  on-replace clause to maintain a relationship between the skin and the
-  CheckBox. It also adds an instance function requestFocus.</para>
+  including their instance variables and instance functions. CheckBox adds
+  three more instance variables, including skin which has an on-replace clause
+  to maintain a relationship between the skin and the CheckBox. It also adds
+  an instance function requestFocus.</para>
 
   <para><remark>[To do: add a section on instance initialization (before the
   instance variable initialization section). Then clean up the instance
@@ -130,7 +130,7 @@ def rubySlipper = Shoe {
       </figure>
 
       <para>The <emphasis>initBlock</emphasis> is an optional block of code
-      which is executed as the final step of class initialization.</para>
+      which is executed as the final step of instance initialization.</para>
     </sect2>
 
     <sect2>
@@ -153,7 +153,8 @@ def rubySlipper = Shoe {
       <para></para>
 
       <para>The <emphasis>postInitBlock</emphasis> is an optional block of
-      code which is executed after class initialization has completed.</para>
+      code which is executed after instance initialization has
+      completed.</para>
 
       <para></para>
     </sect2>
@@ -201,7 +202,7 @@ def rubySlipper = Shoe {
     more than one class, is allowed, but with the restriction described
     below.</para>
 
-    <para>Define an <emphasis>Java-derived class</emphasis> as a Java class or
+    <para>Define a <emphasis>Java-derived class</emphasis> as a Java class or
     a JavaFX class which, directly or indirectly, extends a Java class. Note:
     a JavaFX class with no supertypes is thus a non-Java-derived class. Note
     also that extending from a Java interface does not make a class
@@ -240,7 +241,7 @@ def rubySlipper = Shoe {
       <para><programlisting>var fu = Foo { x: 14 }</programlisting></para>
 
       <para>Here the instance variable x in Foo is set by the object literal
-      to be 14 (note: x may be declared in a superclass of Foo).</para>
+      to be 14 (note: x may have been declared in a superclass of Foo).</para>
 
       <para>The declaration of an instance variable explicitly or implicitly
       sets a default value for the variable. For example it could be set

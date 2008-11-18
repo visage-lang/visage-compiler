@@ -89,8 +89,10 @@
     <para>Note the expression enclosed in braces. What is being printed is a
     <emphasis>string expression</emphasis>. A string representation of the
     expression in braces is evaluated at runtime. The value of the string
-    expression is the string with the string representation replacing the
-    expression in braces</para>
+    expression is the string with that string representation replacing the
+    expression in braces. That is { 2*3.1415*7 } is replaced in the string by
+    <computeroutput>43.981</computeroutput> which is the runtime value of {
+    2*3.1415*7 }.</para>
 
     <para>Better programming style would encourage us to use named variables
     instead of "magic numbers" in our calculation, which is easy to do:</para>
@@ -99,7 +101,8 @@
 var r = 7; 
 println("Circumference is { 2 * PI * r } ")</programlisting>
 
-    <para>We could also define a function to compute the circumference:</para>
+    <para>Even better, we could also define a function to compute the
+    circumference:</para>
 
     <programlisting>def PI = 3.14159265; 
 var r = 7; 
