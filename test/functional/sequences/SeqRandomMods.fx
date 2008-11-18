@@ -31,6 +31,7 @@ function checksum() : Integer {
     sum += i*arr[i];
   return sum;
 }
+// def startTime = System.nanoTime(); // DEBUGGING
 def size = 1000;
 def iterations = 10*size;
 for (i in [0 ..< size])
@@ -68,4 +69,5 @@ for (i in [0 ..< iterations]) {
   }
 }
 var sum = checksum();
+// System.out.println("Time used: {(System.nanoTime()-startTime)*0.000001}ms."); // DEBUGGING
 System.out.println("Final array length {sizeof arr} check-sum: {sum}.");
