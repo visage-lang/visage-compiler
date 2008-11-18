@@ -31,6 +31,9 @@ package javafx.reflect;
  * example) for remote reflection you could have an implementation
  * based on JDI.
  * Corresponds to {@code com.sun.jdi.VirtualMachine}.
+ *
+ * @author Per Bothner
+ * @profile desktop
  */
 
 public abstract class FXContext {

@@ -23,6 +23,11 @@
 
 package javafx.reflect;
 
+/** Represent a JVM primitive type.
+ *
+ * @author Per Bothner
+ * @profile desktop
+ */
 public class FXPrimitiveType extends FXType {
     Class clas;
     String name;

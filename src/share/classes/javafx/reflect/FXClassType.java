@@ -26,6 +26,9 @@ import java.util.*;
 
 /** A run-time representation of a JavaFX class.
  * Corresponds to {@code java.lang.Class}.
+ *
+ * @author Per Bothner
+ * @profile desktop
  */
 
 public abstract class FXClassType extends FXType implements FXMember {
@@ -188,7 +191,7 @@ public abstract class FXClassType extends FXType implements FXMember {
         return allocate().initialize();
     }
 
-    protected static class SortedMemberArray<T extends FXMember> extends AbstractList<T> {
+    static class SortedMemberArray<T extends FXMember> extends AbstractList<T> {
         FXMember[] buffer = new FXMember[4];
         int sz;
         public T get(int index) {

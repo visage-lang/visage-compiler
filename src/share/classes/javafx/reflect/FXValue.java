@@ -23,7 +23,11 @@
 
 package javafx.reflect;
 
-/** A proxy/mirror for a run-time value. */
+/** A proxy/mirror for a run-time value.
+ *
+ * @author Per Bothner
+ * @profile desktop
+ */
 
 public abstract class FXValue {
     protected FXValue() {
@@ -32,7 +36,7 @@ public abstract class FXValue {
     /** Get the type of this value.
      * This is depends on the value's "source", such as a variable's type.
      * This may not be what you want - you might want
-     * {{@link FXClassType#getClassType instead.
+     * {{@link FXLocal.ObjectValue#getClassType} instead.
      * (Perhaps we should deprecate getType to avoid confusion.)
      */
     public abstract FXType getType();

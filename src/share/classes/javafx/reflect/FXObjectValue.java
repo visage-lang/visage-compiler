@@ -25,6 +25,9 @@ package javafx.reflect;
 
 
 /** A handle/proxy for an {@code Object} reference.
+ *
+ * @author Per Bothner
+ * @profile desktop
  */
 
 public abstract class FXObjectValue extends FXValue {

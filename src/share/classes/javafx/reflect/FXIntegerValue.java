@@ -24,6 +24,9 @@
 package javafx.reflect;
 
 /** A handle/proxy for an {@code Integer} value
+ *
+ * @author Per Bothner
+ * @profile desktop
  */
 
 public class FXIntegerValue extends FXValue implements FXLocal.Value {

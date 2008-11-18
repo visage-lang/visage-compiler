@@ -28,7 +28,8 @@ import com.sun.javafx.runtime.location.*;
 /** 
  * A reference to a specific attribute in a specific object. 
  *
- *@treatAsPrivate implementation detail
+ * @author Per Bothner
+ * @profile desktop
  */
 public class FXVarMemberLocation extends FXLocation {
     FXObjectValue object;

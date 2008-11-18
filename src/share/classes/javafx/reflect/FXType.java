@@ -25,6 +25,9 @@ package javafx.reflect;
 
 /** A run-time representation of a JavaFX type.
  * Corresponds to {@code java.lang.reflect.Type}.
+ *
+ * @author Per Bothner
+ * @profile desktop
  */
 
 public abstract class FXType {

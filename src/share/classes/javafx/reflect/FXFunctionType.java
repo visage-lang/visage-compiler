@@ -23,7 +23,11 @@
 
 package javafx.reflect;
 
-/** A run-time representation of a JavaFX function type. */
+/** A run-time representation of a JavaFX function type.
+ *
+ * @author Per Bothner
+ * @profile desktop
+ */
 
 public class FXFunctionType extends FXType {
     protected int minArgs;

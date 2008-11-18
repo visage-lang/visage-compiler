@@ -33,6 +33,9 @@ package javafx.reflect;
  * builder.append(...);
  * FXValue seq = builder.getSequence();
  * </pre></blockquote>
+ *
+ * @author Per Bothner
+ * @profile desktop
  */
 
 public class FXSequenceBuilder {

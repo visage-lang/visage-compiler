@@ -26,6 +26,9 @@ package javafx.reflect;
 /** A run-time represention of a JavaFX attribute in a class.
  * Corresponds to {@code java.lang.reflect.Field},
  * and {@code com.sun.jdi.Field}, respectively.
+ *
+ * @author Per Bothner
+ * @profile desktop
  */
 public abstract class FXVarMember implements FXMember {
     protected FXVarMember() {

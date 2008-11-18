@@ -42,6 +42,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
  * in the same VM that is doing the reflection.
  *
  * @author Per Bothner
+ * @profile desktop
  */
 public class FXLocal {
     public static Context getContext() { return Context.instance; }
@@ -51,6 +52,8 @@ public class FXLocal {
      * Normally, this is a singleton, though in the future there might
      * be variants with different class search paths (similar to
      * {@code com.sun.jdi.PathSearchingVirtualMachine}).
+     *
+     * @profile desktop
      */
 
     public static class Context extends FXContext {
@@ -271,7 +274,7 @@ public class FXLocal {
         }
     }
 
-    public static class JavaArrayType extends FXJavaArrayType {
+    static class JavaArrayType extends FXJavaArrayType {
         Class cls;
         JavaArrayType(FXType componentType, Class cls) {
             super(componentType);
@@ -281,6 +284,9 @@ public class FXLocal {
         public Class getJavaClass() { return cls; }
     }
 
+    /** A mirror of a {@code Class} in the current JVM.
+     * @profile desktop
+     */
     public static class ClassType extends FXClassType {
         Class refClass;
         Class refInterface;
@@ -790,6 +796,10 @@ public class FXLocal {
         }
     }
 
+    /** A value in the current JVM.
+     *
+     * @profile desktop
+     */
     public static interface Value {
         public Object asObject();
     }
@@ -808,6 +818,10 @@ public class FXLocal {
         public Object asObject() { return val; }
     };
 
+    /** A mirror of an {@code Object} in the current JVM.
+     *
+     * @profile desktop
+     */
     public static class ObjectValue extends FXObjectValue implements FXLocal.Value {
         // FIXME It might be cleaner to require obj!=null,
         // and instead use MiscValue for null.
@@ -902,6 +916,10 @@ public class FXLocal {
         }
     }
 
+    /** Mirror a {@code Function} value in the current JVM.
+     *
+     * @profile desktop
+     */
     public static class FunctionValue extends FXFunctionValue implements FXLocal.Value {
         Function val;
         FXFunctionType ftype;
@@ -966,7 +984,7 @@ public class FXLocal {
         public Function asObject() { return val; }
     }
 
-    public static class VarMemberLocation extends FXVarMemberLocation {
+    static class VarMemberLocation extends FXVarMemberLocation {
         VarMember var;
 
         public VarMemberLocation(FXObjectValue object, VarMember var) {

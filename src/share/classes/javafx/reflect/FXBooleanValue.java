@@ -23,9 +23,10 @@
 
 package javafx.reflect;
 
-/**
+/** Mirroring of a JavaFX Boolean value.
  *
- * @author bothner
+ * @author Per Bothner
+ * @profile desktop
  */
 public class FXBooleanValue  extends FXValue implements FXLocal.Value {
     boolean value;

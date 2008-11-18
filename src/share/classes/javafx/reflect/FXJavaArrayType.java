@@ -27,6 +27,7 @@ package javafx.reflect;
  * An encapsulation of a Java array type.
  *
  * @author Per Bothner
+ * @profile desktop
  */
 public class FXJavaArrayType extends FXType {
 FXType componentType;

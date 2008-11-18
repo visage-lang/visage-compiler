@@ -26,6 +26,9 @@ package javafx.reflect;
 /** A reference to a function in a class.
  * Corresponds to {@code java.lang.reflect.Method}, or
  * {@code com.sun.jdi.Methods}, respectively.
+ *
+ * @author Per Bothner
+ * @profile desktop
  */
 
 public abstract class FXFunctionMember implements FXMember {

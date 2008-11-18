@@ -26,6 +26,9 @@ package javafx.reflect;
 /** A run-time represention of a JavaFX member of a class.
  * Corresponds to {@code java.lang.reflect.Member},
  * and {@code com.sun.jdi.TypeComponent}, respectively.
+ *
+ * @author Per Bothner
+ * @profile desktop
  */
 
 public interface FXMember {

@@ -24,6 +24,9 @@
 package javafx.reflect;
 
 /** A handle/proxy for a {@code Number} reference.
+ *
+ * @author Per Bothner
+ * @profile desktop
  */
 
 public class FXNumberValue extends FXValue implements FXLocal.Value {

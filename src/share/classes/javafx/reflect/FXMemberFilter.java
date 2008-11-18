@@ -23,7 +23,11 @@
 
 package javafx.reflect;
 
-/** Call-back object for use when iterating over a set of members. */
+/** Call-back object for use when iterating over a set of members.
+ *
+ * @author Per Bothner
+ * @profile desktop
+ */
 
 public class FXMemberFilter {
     String requiredName;

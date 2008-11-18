@@ -23,7 +23,11 @@
 
 package javafx.reflect;
 
-/** A reference to a specific location (var or attribute). */
+/** A reference to a specific location (var or attribute).
+ *
+ * @author Per Bothner
+ * @profile desktop
+ */
 
 public abstract class FXLocation {
     protected FXLocation() {

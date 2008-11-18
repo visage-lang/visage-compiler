@@ -23,7 +23,11 @@
 
 package javafx.reflect;
 
-/** A mirror of a function value. */
+/** A mirror of a function value.
+ *
+ * @author Per Bothner
+ * @profile desktop
+ */
 
 public abstract class FXFunctionValue extends FXValue {
     protected FXFunctionValue() {

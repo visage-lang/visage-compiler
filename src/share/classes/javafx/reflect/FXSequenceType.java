@@ -23,7 +23,11 @@
 
 package javafx.reflect;
 
-/** A run-time representation of a JavaFX sequence type. */
+/** A run-time representation of a JavaFX sequence type.
+ *
+ * @author Per Bothner
+ * @profile desktop
+ */
 
 public final class FXSequenceType extends FXType {
     FXType componentType;
