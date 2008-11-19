@@ -225,7 +225,8 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                 try {
                     // parse script to find any package statement
                     JavafxcTool tool = JavafxcTool.create();
-                    MemoryFileManager manager = new MemoryFileManager(tool.getStandardFileManager(diagnostics, null, null), parentClassLoader);
+                    MemoryFileManager manager = new MemoryFileManager(tool.getStandardFileManager(diagnostics, null, null), parentClassLoader,
+                            new HashMap<String, List<String>>());
                     List<JavaFileObject> compUnits = new ArrayList<JavaFileObject>(1);
                     compUnits.add(manager.makeStringSource(fileName, script));
                     JavafxcTask task = tool.getTask(null, manager, diagnostics, null, compUnits);

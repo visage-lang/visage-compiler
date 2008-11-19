@@ -123,9 +123,40 @@
                 <attribute name="Main-Class" value="${main.class}"/>
             </manifest>
         </jar>
+        <!-- make CLASS.LIST file using "jar tf" command -->
+        <exec executable="jar" 
+              output="${build.classes.dir}/META-INF/CLASS.LIST">
+            <arg value="tf"/>
+            <arg value="${dist.jar}"/>
+        </exec>
+        <jar compress="${jar.compress}" destfile="${dist.jar}" manifest="${manifest.file}">
+            <fileset dir="${build.classes.dir}"/>
+            <zipfileset src="${file.reference.javac.jar}" excludes="META-INF/**/,javax/annotation/**/,com/sun/tools/javac/processing"/>
+            <zipfileset src="${antlr-runtime.class.path}" excludes="META-INF/**/,org/antlr/runtime/debug/**/,org/antlr/runtime/misc/**/"/>
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+            </manifest>
+        </jar>
         <jar compress="${jar.compress}" destfile="${dist.javafxrt.jar}" >
             <fileset dir="${build.classes.dir}" >
                 <include name="**/*.class" />
+                <exclude name="com/sun/tools/javafx/**"/>
+                <exclude name="com/sun/javafx/api/**"/>
+            </fileset>
+            <fileset dir="${build.generated.dir}" >
+                <include name="com/sun/javafx/runtime/version.txt" />
+            </fileset>
+        </jar>
+        <!-- make CLASS.LIST file using "jar tf" command -->
+        <exec executable="jar" 
+              output="${build.classes.dir}/META-INF/CLASS.LIST">
+            <arg value="tf"/>
+            <arg value="${dist.javafxrt.jar}"/>
+        </exec>
+        <jar compress="${jar.compress}" destfile="${dist.javafxrt.jar}" >
+            <fileset dir="${build.classes.dir}"> 
+                <include name="**/*.class" />
+                <include name="**/CLASS.LIST" />
                 <exclude name="com/sun/tools/javafx/**"/>
                 <exclude name="com/sun/javafx/api/**"/>
             </fileset>

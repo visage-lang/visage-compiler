@@ -25,12 +25,18 @@ package com.sun.tools.javafx.script;
 
 import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.javafx.api.*;
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Writer;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.tools.*;
@@ -42,10 +48,20 @@ public class JavaFXScriptCompiler {
     private JavafxcTool tool;
     private StandardJavaFileManager stdManager;
     private ClassLoader parentClassLoader;
+    // a map in which the key is package name and the value is list of
+    // classes in that package.
+    private Map<String, List<String>> packageMap;
 
     public JavaFXScriptCompiler(ClassLoader parent) {
 	parentClassLoader = parent;
         tool = JavafxcTool.create();
+        packageMap = new HashMap<String, List<String>>();
+        try {
+            // fill package-class-list map from parent class loader
+            fillPackageMap(parentClassLoader, packageMap);
+        } catch (IOException exp) {
+            exp.printStackTrace();
+        }
     }
 
     public Map<String, byte[]> compile(String filename, String source) {
@@ -96,7 +112,8 @@ public class JavaFXScriptCompiler {
 	if (stdManager == null) {
 	    stdManager = tool.getStandardFileManager(diagnostics, null, null);
 	}
-        MemoryFileManager manager = new MemoryFileManager(stdManager, parentClassLoader);
+        MemoryFileManager manager = new MemoryFileManager(stdManager, 
+                parentClassLoader, packageMap);
 
         // prepare the compilation unit
         List<JavaFileObject> compUnits = new ArrayList<JavaFileObject>(1);
@@ -131,7 +148,7 @@ public class JavaFXScriptCompiler {
             }
             return null;
         }
-
+        
         Map<String, byte[]> classBytes = manager.getClassBytes();
         try {
             manager.close();
@@ -169,6 +186,54 @@ public class JavaFXScriptCompiler {
     private static class RedirectedLog extends com.sun.tools.javac.util.Log {
         RedirectedLog(com.sun.tools.javac.util.Context context, PrintWriter writer) {
             super(context, writer);
+        }
+    }
+
+    /*
+     * javac needs list of classes of a given package to resolve imports.
+     * Refer to JavacFileManager.list() method. We want to get list of classes
+     * for each package that is visible to our parent class loader. We do that by
+     * looking for resource files that lists all the .class files for each package.
+     * The format of the file is same as the output of "jar tf <jar-file>". Each
+     * line lists a package directory or a .class file entry with full package 
+     * directory.
+     */
+    private static final String CLASS_LIST_RESOURCE = "META-INF/CLASS.LIST";
+    
+    // Look for class list resources from the given class loader and fill
+    // in class list for each package seen.
+    private static void fillPackageMap(ClassLoader loader, 
+            Map<String, List<String>> packageMap) throws IOException {
+        Enumeration<URL> urls = loader.getResources(CLASS_LIST_RESOURCE);
+        while (urls.hasMoreElements()) {
+            URL url = urls.nextElement();
+            InputStream stream = url.openStream();
+            fillPackageMap(stream, packageMap);
+        }
+    }
+
+    // Given an input stream of a resource that lists .class entries, fill
+    // in the package to classes list map.
+    private static void fillPackageMap(InputStream stream, 
+            Map<String, List<String>> packageMap) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+        String line = null;      
+        while ((line = br.readLine()) != null) {
+            if (line.endsWith(".class")) {
+                int lastSlash = line.lastIndexOf('/');
+                String dir = (lastSlash == -1)? "" : line.substring(0, lastSlash);
+                String file = (lastSlash == -1)? line : line.substring(lastSlash + 1);
+
+                List<String> classList;
+                String pkgName = dir.replace('/', '.');
+                if (! packageMap.containsKey(pkgName)) {
+                    classList = new ArrayList<String>();
+                    packageMap.put(pkgName, classList);
+                } else {
+                    classList = packageMap.get(pkgName);
+                }
+                classList.add(file.substring(0, file.indexOf(".class")));
+            }
         }
     }
 }
