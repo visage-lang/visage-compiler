@@ -984,7 +984,11 @@ public class FXLocal {
         public Function asObject() { return val; }
     }
 
-    static class VarMemberLocation extends FXVarMemberLocation {
+    /**
+     *
+     * @profile desktop
+     */
+    public static class VarMemberLocation extends FXVarMemberLocation {
         VarMember var;
 
         public VarMemberLocation(FXObjectValue object, VarMember var) {
