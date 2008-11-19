@@ -75,7 +75,7 @@ def rubySlipper = Shoe {
     <para></para>
 
     <figure>
-      <title>superclasses</title>
+      <title>extendsClause</title>
 
       <mediaobject>
         <imageobject>
@@ -198,27 +198,16 @@ def rubySlipper = Shoe {
     <title>Inheritance</title>
 
     <para>JavaFX classes may inherit from other JavaFX classes, from Java
-    interfaces, and from Java classes. Multiple inheritance, inheriting from
-    more than one class, is allowed, but with the restriction described
-    below.</para>
+    interfaces, and from Java classes -- the <command>extends</command> clause
+    of the class definition lists these classes and interfaces.</para>
 
-    <para>Define a <emphasis>Java-derived class</emphasis> as a Java class or
-    a JavaFX class which, directly or indirectly, extends a Java class. Note:
-    a JavaFX class with no supertypes is thus a non-Java-derived class. Note
-    also that extending from a Java interface does not make a class
-    Java-derived.</para>
-
-    <para>A JavaFX class may inherit from any number of Java interfaces, any
-    number of non-Java-derived classes, and no more than one Java-derived
-    class.</para>
-
-    <para>.</para>
+    <para>A JavaFX class may inherit from one (JavaFX or Java) class, any
+    number of Java interfaces, and any number of certain (to be specified)
+    kinds of JavaFX classes.</para>
   </sect1>
 
   <sect1>
     <title>Instance Variable Initialization</title>
-
-    <para></para>
 
     <para></para>
 
