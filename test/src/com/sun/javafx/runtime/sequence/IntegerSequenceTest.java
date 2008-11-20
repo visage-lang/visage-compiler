@@ -38,9 +38,9 @@ public class IntegerSequenceTest extends JavaFXTestCase {
     private static final int A = 3;
     private static final int B = 5;
     private static final int C = 7;
-    private final Sequence<Integer> EMPTY_SEQUENCE = TypeInfo.Integer.emptySequence;
-    private final Sequence<Integer> ONE_SEQUENCE = new ArraySequence<Integer>(TypeInfo.Integer, A);
-    private final Sequence<Integer> TWO_SEQUENCE = new ArraySequence<Integer>(TypeInfo.Integer, A, B);
+  private final Sequence<Integer> EMPTY_SEQUENCE = TypeInfo.Integer.emptySequence;
+    private final Sequence<Integer> ONE_SEQUENCE = new ArraySequence<Integer>(TypeInfo.Integer, A).noteShared();
+    private final Sequence<Integer> TWO_SEQUENCE = new ArraySequence<Integer>(TypeInfo.Integer, A, B).noteShared();
 
     private final SequencePredicate<Integer> nullMatcher = new SequencePredicate<Integer>() {
         public boolean matches(Sequence<? extends Integer> sequence, int index, Integer value) {
@@ -131,6 +131,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
      * Assert various properties of a supposedly two-element sequence
      */
     private void assertTwoElements(final Sequence<? extends Integer> seq, Integer a, Integer b) {
+        Sequences.noteShared(seq);
         assertEquals(2, seq.size());
         assertFalse(seq.isEmpty());
         assertEquals(seq, seq);
@@ -153,6 +154,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
      * Helper method that tests mutation methods of supposedly empty sequences
      */
     private void emptyHelper(final Sequence<Integer> seq) {
+        Sequences.noteShared(seq);
         assertEmpty(seq);
         assertEmpty(seq.get(allMatcher));
 
@@ -209,6 +211,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
     }
 
     private void twoElementHelper(Sequence<Integer> seq, Integer a, Integer b) {
+        Sequences.noteShared(seq);
         assertTwoElements(seq, a, b);
 
         // Test bulk extraction
@@ -228,7 +231,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertOneElement(Sequences.delete(seq, lastMatcher), a);
 
         // Test positional insertion
-        Sequence<Integer> cc = new ArraySequence<Integer>(TypeInfo.Integer, C, C);
+        Sequence<Integer> cc = new ArraySequence<Integer>(TypeInfo.Integer, C, C).noteShared();
         assertEquals(Sequences.insert(seq, C), a, b, C);
         assertEquals(Sequences.insert(seq, cc), a, b, C, C);
         assertEquals(Sequences.insertFirst(seq, C), C, a, b);
@@ -270,13 +273,12 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertDepth(0, Sequences.flatten(seq));
     }
 
-
     /**
      * Generate empty sequences as many ways as we can think of and test their emptiness
      */
     public void testEmptySequence() {
-        emptyHelper(new ArraySequence<Integer>(TypeInfo.Integer, EMPTY_SEQUENCE));
-        emptyHelper(new ArraySequence<Integer>(TypeInfo.Integer, new Integer[0]));
+        emptyHelper(new ArraySequence<Integer>(TypeInfo.Integer, EMPTY_SEQUENCE).noteShared());
+        emptyHelper(new ArraySequence<Integer>(TypeInfo.Integer, new Integer[0]).noteShared());
 
         emptyHelper(Sequences.rangeExclusive(0, 0));
 
@@ -297,7 +299,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
      * Generate single-element sequences as many ways as we can think of and test their singularity
      */
     public void testOneElementSequence() {
-        oneElementHelper(new ArraySequence<Integer>(TypeInfo.Integer, 1), 1);
+        oneElementHelper(new ArraySequence<Integer>(TypeInfo.Integer, 1).noteShared(), 1);
 
         oneElementHelper(new SingletonSequence<Integer>(TypeInfo.Integer, 3), 3);
 

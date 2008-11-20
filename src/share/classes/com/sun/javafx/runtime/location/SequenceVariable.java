@@ -171,10 +171,17 @@ public class SequenceVariable<T>
     }
 
     public T get(int position) {
-        return getAsSequence().get(position);
+        return getAsSequenceRaw().get(position);
     }
 
     public Sequence<T> getAsSequence() {
+        ensureValid();
+        Sequences.noteShared($value);
+        return $value;
+    }
+
+    /** Same as getAsSequence, but don't call noteShared. */
+    public Sequence<T> getAsSequenceRaw() {
         ensureValid();
         return $value;
     }
@@ -244,11 +251,11 @@ public class SequenceVariable<T>
 
     @Override
     public String toString() {
-        return getAsSequence().toString();
+        return getAsSequenceRaw().toString();
     }
 
     public Iterator<T> iterator() {
-        return getAsSequence().iterator();
+        return getAsSequenceRaw().iterator();
     }
 
     @Override
@@ -268,6 +275,9 @@ public class SequenceVariable<T>
     private void ensureNotBound() {
         if (isUnidirectionallyBound())
             throw new AssignToBoundException("Cannot mutate bound sequence");
+        if (hasDependencies())
+            Sequences.noteShared($value);
+
     }
 
     public Sequence<T> set(Sequence<T> value) {
