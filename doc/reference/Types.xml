@@ -6,7 +6,7 @@
          xmlns:m="http://www.w3.org/1998/Math/MathML"
          xmlns:html="http://www.w3.org/1999/xhtml"
          xmlns:db="http://docbook.org/ns/docbook">
-  <title>Types and Values</title>
+  <title>and Values</title>
 
   <para>Covers the data types and values which can be represented and
   manipulated in JavaFX Script.</para>
@@ -413,7 +413,44 @@ Sign: one of
   <sect1>
     <title>Function Types</title>
 
-    <para><remark>[To do: write this section]</remark></para>
+    <para>A function type represents the set of function definitions with a
+    given signature -- that is, the functions which have the given parameter
+    types and return type.</para>
+
+    <para>For example, the variable myFunc is declared as being of a function
+    type:</para>
+
+    <programlisting>var myFunc : function(:Object,:Integer):String;</programlisting>
+
+    <para>The variable myFunc can hold function definitions which take an
+    Object and an Integer as parameters and returns a String.</para>
+
+    <para>Function types have <command>null</command> as their default value.
+    So, myFunc is initially <command>null</command>, we can give it a value by
+    assignment or initialization. This would be a valid assignment to
+    myFunc:</para>
+
+    <programlisting>myFunc = function(obj : Object, k : Integer) { "Here is the Object: {obj}, and the Integer: {k}" }</programlisting>
+
+    <para>The function definition currently held in myFunc can be called like
+    any other function:</para>
+
+    <programlisting>println( myFunc(4s, 777) );
+println( myFunc(null, 1234) );
+</programlisting>
+
+    <para>Which would print:</para>
+
+    <para><computeroutput>Here is the Object: 4000.0ms, and the Integer: 777
+    </computeroutput></para>
+
+    <para><computeroutput>Here is the Object: null, and the Integer:
+    1234</computeroutput></para>
+
+    <para>The variable, of course, can be reassigned to any function with
+    those parameters and return type:</para>
+
+    <programlisting>myFunc = function(obj : Object, k : Integer) { "So!" }</programlisting>
 
     <para></para>
   </sect1>
@@ -604,10 +641,38 @@ Sign: one of
   <sect1>
     <title>Putting it Together -- Type Examples</title>
 
-    <para><remark>[To do: Add examples Integer, Integer[], Foo, Foo[],
-    etc].</remark></para>
+    <para>Here are some definitions and uses of variables of required types:
+    Integer, Number, Boolean, and String</para>
 
-    <para><remark>[To do: Sequence of functions example (with
-    parenthesis)]</remark></para>
+    <programlisting>var x : Number;       // x initially 0.0
+var m : Integer;      // m initially 0
+var isBig : Boolean;  // isBig initially false
+var word : String;    // word initially ""
+m = 42;
+x = 0.25 * m + 2.1e4;
+isBig = x &gt; 1000;
+word = if (isBig) "Big" else "Small";
+</programlisting>
+
+    <para>Here is a definition and use of a variable of optional type:</para>
+
+    <programlisting>class Foo {
+  var zing : Integer;
+}
+var fu : foo;         // fu initially null
+fu = Foo {zing: 17}</programlisting>
+
+    <para>And a definition and use of a sequence type:</para>
+
+    <programlisting>var names : String[];        // names initially []
+names = ['Olof', 'Ellen', 'Steve', 'Claire'];
+insert 'Bonnie' into names;  // add 'Bonnie' to the end of names sequence
+name[1] = 'Donna';           // set the element at 1 (previously 'Ellen') to 'Donna'
+</programlisting>
+
+    <para>Note that sequences are immutable, so technically, each line above
+    assigns a new sequence to names.</para>
+
+    <para></para>
   </sect1>
 </chapter>
