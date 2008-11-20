@@ -184,7 +184,8 @@
                     <script src="{$root-path}{$extra-js}"></script>
                 </xsl:if>
                 <xsl:call-template name="head-post"/>
-                <title>Overview (<xsl:value-of select="$std.doctitle"/>)</title>
+                <xsl:call-template name="add-meta-tags"/>
+                <title><xsl:value-of select="$std.doctitle.prefix"/> Overview <xsl:value-of select="$std.doctitle.suffix"/></title>
             </head>
             <body>
                 <xsl:call-template name="header-pre"/>
@@ -217,7 +218,7 @@
                 </ul>
 
                 <div id="content">
-                    <h3><xsl:value-of select="$std.doctitle"/> Overview</h3>
+                    <h3><xsl:value-of select="$std.doctitle.prefix"/> Overview <xsl:value-of select="$std.doctitle.suffix"/></h3>
                     
                     <xsl:if test="$sdk-overview='true'">
                         <p>The JavaFX <sup>tm</sup> Platform is a rich client platform for cross-screen rich internet applications (RIA) and content. It consists of common elements (2D graphics, Animation, Text and Media) and device specific elements for desktop, mobile and TV.  The JavaFX common set of APIs allow source level portability of the common set of functionalities across all platforms supported by JavaFX.

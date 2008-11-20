@@ -46,7 +46,8 @@
                     <script src="{$root-path}{$extra-js}"></script>
                 </xsl:if>
                 <xsl:call-template name="head-post"/>
-                <title>A-Index (<xsl:value-of select="$std.doctitle"/>)</title>
+                <xsl:call-template name="add-meta-tags"/>
+                <title><xsl:value-of select="$std.doctitle.prefix"/> A-Index <xsl:value-of select="$std.doctitle.suffix"/></title>
             </head>
             <body>
                 <xsl:call-template name="header-pre"/>

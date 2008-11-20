@@ -36,8 +36,13 @@
     <xsl:param name="inline-classlist">false</xsl:param>
     <xsl:param name="inline-descriptions">false</xsl:param>
     <xsl:param name="root-path">../</xsl:param>
-    <xsl:param name="std.doctitle">JavaFX API</xsl:param>
+    <xsl:param name="std.doctitle.prefix">JavaFX 1.0 API | </xsl:param>
+    <xsl:param name="std.doctitle.suffix"> | Java FX</xsl:param>
     
+    <xsl:template name="add-meta-tags">
+        <meta name="collection" content="api"/>
+        <meta name="keywords" content="JavaFX, Java FX"/>
+    </xsl:template>
     
 <!-- starter template -->    
     <xsl:template match="/">
@@ -72,6 +77,7 @@
                 <xsl:if test="$extra-js">
                     <script src="{$extra-js}"></script>
                 </xsl:if>
+                <xsl:call-template name="add-meta-tags"/> 
             </head>
             <body>
                 <ul id="packageList">
@@ -101,10 +107,11 @@
                 <xsl:if test="$extra-js">
                     <script src="{$root-path}{$extra-js}"></script>
                 </xsl:if>
-                <title>Overview (<xsl:value-of select="$std.doctitle"/>)</title>
+                <xsl:call-template name="add-meta-tags"/>
+                <title><xsl:value-of select="$std.doctitle.prefix"/> Overview <xsl:value-of select="$std.doctitle.suffix"/></title>
             </head>
             <body>
-                <h3>Overview (<xsl:value-of select="$std.doctitle"/>)</h3>
+                <h3><xsl:value-of select="$std.doctitle.prefix"/> Overview <xsl:value-of select="$std.doctitle.suffix"/></h3>
                 <table>
                     <tr><th></th></tr>
                     <xsl:for-each select="package">
@@ -141,6 +148,7 @@
                 <xsl:if test="$extra-js">
                     <script src="${root-path}{$extra-js}"></script>
                 </xsl:if>
+                <xsl:call-template name="add-meta-tags"/>
             </head>
             <body>
                 <p><b>
@@ -181,7 +189,8 @@
                 <xsl:if test="$extra-js">
                     <script src="${root-path}{$extra-js}"></script>
                 </xsl:if>
-                <title><xsl:value-of select="@packageName"/> (<xsl:value-of select="$std.doctitle"/>)</title>
+                <xsl:call-template name="add-meta-tags"/>
+                <title><xsl:value-of select="$std.doctitle.prefix"/> <xsl:value-of select="@packageName"/> <xsl:value-of select="$std.doctitle.suffix"/></title>
             </head>
             <body>
                 <h3>Package <xsl:value-of select="@packageName"/></h3>
@@ -275,7 +284,8 @@
                 <xsl:if test="$extra-js"><script src="../{$extra-js}"></script></xsl:if>
                 <xsl:if test="$extra-js2"><script src="../{$extra-js2}"></script></xsl:if>
                 <xsl:call-template name="head-post"/>
-                <title><xsl:value-of select="@name"/> (<xsl:value-of select="$std.doctitle"/>)</title>
+                <xsl:call-template name="add-meta-tags"/>
+                <title><xsl:value-of select="$std.doctitle.prefix"/> <xsl:value-of select="@qualifiedName"/> <xsl:value-of select="$std.doctitle.suffix"/></title>
             </head>
             <body>
                 <xsl:call-template name="header-pre"/>
