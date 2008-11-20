@@ -207,14 +207,67 @@ def rubySlipper = Shoe {
   </sect1>
 
   <sect1>
-    <title>Instance Variable Initialization</title>
+    <title>Instance Initialization</title>
 
     <para></para>
 
     <sect2>
-      <title>Instance Variable Initialization Avenues</title>
+      <title>Initialization Order</title>
 
-      <para></para>
+      <para>A new JavaFX class instance is initialized in this order:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>The object is created.</para>
+        </listitem>
+      </itemizedlist>
+
+      <itemizedlist>
+        <listitem>
+          <para>The Java superclass default constructor, if any, is
+          executed.</para>
+        </listitem>
+      </itemizedlist>
+
+      <itemizedlist>
+        <listitem>
+          <para>The values of the object literal's instance variable
+          initializers are computed (but not set)</para>
+        </listitem>
+      </itemizedlist>
+
+      <itemizedlist>
+        <listitem>
+          <para>The instance variables of JavaFX superclasses are set</para>
+        </listitem>
+      </itemizedlist>
+
+      <itemizedlist>
+        <listitem>
+          <para>The instance variables of this class are set, in lexical
+          order. </para>
+        </listitem>
+      </itemizedlist>
+
+      <itemizedlist>
+        <listitem>
+          <para>The <command>init</command> block, if any, is evaluated. The
+          instance is now initialized.</para>
+        </listitem>
+      </itemizedlist>
+
+      <itemizedlist>
+        <listitem>
+          <para>The <command>postinit</command> block, if any, is evaluated.
+          </para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The next section will cover how instance variables are set.</para>
+    </sect2>
+
+    <sect2>
+      <title>Instance Variable Initialization Avenues</title>
 
       <para>The value of an instance variable at the end of initialization can
       be set in any of several ways: value provided in the object literal, the
@@ -224,8 +277,9 @@ def rubySlipper = Shoe {
       These avenues are discussed below.</para>
 
       <para>Class instances are created with object literal expression (a
-      newExpression can be considered, for these purposes as equivalent to an
-      object literal that sets no instance variables). For example:</para>
+      <emphasis>newExpression</emphasis> can be considered, for these purposes
+      as equivalent to an object literal that sets no instance variables). For
+      example:</para>
 
       <para><programlisting>var fu = Foo { x: 14 }</programlisting></para>
 
@@ -243,8 +297,9 @@ def rubySlipper = Shoe {
       <para>Here x has an <emphasis>initializingExpression</emphasis>.</para>
 
       <para>If no <emphasis>initializingExpression</emphasis> is provided, the
-      default value for the type is the default value of of the instance
-      variable -- see the Types and Values chapter. For example:</para>
+      default value for the type is the default value of the type of the
+      instance variable -- see the Types and Values chapter. For
+      example:</para>
 
       <para><programlisting>class Answers {
    var ungulate : Boolean;
@@ -280,24 +335,6 @@ class FancyShed extends Shed {
       <para>After one of the above has set the instance variable, the
       <emphasis>initBlock</emphasis>, if present, is executed. This block can
       reset the instance variable.</para>
-
-      <para></para>
-
-      <para></para>
-
-      <para></para>
-    </sect2>
-
-    <sect2>
-      <title>Initialization Order</title>
-
-      <para></para>
-    </sect2>
-
-    <sect2>
-      <title><command>isInitialized()</command> Built-In Function</title>
-
-      <para></para>
     </sect2>
   </sect1>
 </chapter>
