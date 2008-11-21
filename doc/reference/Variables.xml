@@ -27,7 +27,7 @@
     <para><programlisting>def Z0 = 376.730313;</programlisting></para>
 
     <para>Note that a bound variable (without inverse) is defined once and can
-    never be assigned. It to should be declared with
+    never be assigned. It should also be declared with
     <command>def</command>:</para>
 
     <para><programlisting>def x = bind y + z;</programlisting></para>
@@ -277,5 +277,13 @@ replaced AXY[0..2] by  yielding</screen>
 
     <para><remark>[To do: brief intro to slices, plus
     cross-reference]</remark></para>
+  </sect1>
+
+  <sect1>
+    <title><command>isInitialized</command> Built-In Function</title>
+
+    <para><remark>[To do: write section]</remark></para>
+
+    <para></para>
   </sect1>
 </chapter>
