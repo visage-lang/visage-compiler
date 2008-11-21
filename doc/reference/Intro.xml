@@ -8,7 +8,7 @@
          xmlns:db="http://docbook.org/ns/docbook">
   <title>Introduction</title>
 
-  <para>This chapter discussed the what and why of JavaFX Script, and provides
+  <para>This chapter discusses the what and why of JavaFX Script, and provides
   some simple examples to give you an overview of the language.</para>
 
   <sect1>
@@ -24,23 +24,27 @@
     (tell me <emphasis>how</emphasis> to achieve the effect you want), JavaFX
     Script allows you to instead express many things
     <emphasis>declaratively</emphasis> (tell me <emphasis>what</emphasis> you
-    want, and I'll figure out how to make it happen), such as the interactive
-    relationships between components, greatly simplifing the code and the
-    development process.</para>
+    want, and I'll figure out how to make it happen). Declarative programming
+    is particularly powerful in expressing the interactive relationships
+    between components, greatly simplifing the code and the development
+    process.</para>
   </sect1>
 
   <sect1>
     <title>What is JavaFX Script?</title>
 
-    <para>JavaFX Script gets its heritage from both scripting languages, which
-    offer fast and easy development with less of the armor provided by
-    conventional languages, and object-oriented languages like Java, which
-    offer the ability to build robust reusable components. It is aimed at
-    moderately sized interactive graphical applications, rather than
-    programming in the large. It does, however, have one feature that is more
-    common in "bigger" languages: static (compile-time) typing. That is,
-    before your program even runs, it is checked for incompatible
-    relationships between data, helping you to find errors earlier.</para>
+    <para>JavaFX Script is a compilable scripting language which allows you to
+    quickly and easily write interactive graphical applications (also known as
+    Rich Internet Appllications, or RIAs). JavaFX Script gets its heritage
+    from both scripting languages, which offer fast and easy development with
+    less of the armor provided by conventional languages, and object-oriented
+    languages like Java, which offer the ability to build robust reusable
+    components. It is aimed at moderately sized interactive graphical
+    applications, rather than programming in the large. It does, however, have
+    one feature that is more common in "bigger" languages: static
+    (compile-time) typing. That is, before your program even runs, it is
+    checked for incompatible relationships between data, helping you to find
+    errors earlier.</para>
   </sect1>
 
   <sect1>
