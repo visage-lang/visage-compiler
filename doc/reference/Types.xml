@@ -39,8 +39,8 @@
       implement the signature. All element specifiers are subtypes of
       java.lang.Object.</para>
 
-      <para>[In formal type systems this would be called the <emphasis>ground
-      type</emphasis>]</para>
+      <para>[In formal type systems the element specifier would be called the
+      <emphasis>ground type</emphasis>]</para>
     </sect2>
 
     <sect2>
@@ -79,9 +79,10 @@
 
         <para>The nonexistent value, null, is not a permitted value for types
         with required cardinality. Attempts to assign null to a type with
-        required cardinality will be converted to the default value (see
-        below). Attempts to convert null to a type with required cardinality
-        will also be converted to the default value.</para>
+        required cardinality will be converted to the default value (see the
+        Default Values section). Attempts to convert null to a type with
+        required cardinality will also be converted to the default
+        value.</para>
       </sect3>
 
       <sect3>
@@ -219,12 +220,15 @@ println(k);</programlisting>
         Two adjacent strings are automatically merged at compile-time -- this
         is convenient for making multiple line strings. Thus:</para>
 
-        <programlisting>"Hello "
-'t\here'</programlisting>
+        <programlisting>def greeting = "Hello "
+'there';
+println( greeting );</programlisting>
 
-        <para>Is equivalent to:</para>
+        <para>will print:</para>
 
-        <para>"Hello there"</para>
+        <para><computeroutput>Hello there</computeroutput></para>
+
+        <para></para>
       </sect3>
 
       <sect3>
@@ -667,7 +671,7 @@ fu = Foo {zing: 17}</programlisting>
     <programlisting>var names : String[];        // names initially []
 names = ['Olof', 'Ellen', 'Steve', 'Claire'];
 insert 'Bonnie' into names;  // add 'Bonnie' to the end of names sequence
-name[1] = 'Donna';           // set the element at 1 (previously 'Ellen') to 'Donna'
+names[1] = 'Donna';           // set the element at 1 (previously 'Ellen') to 'Donna'
 </programlisting>
 
     <para>Note that sequences are immutable, so technically, each line above
