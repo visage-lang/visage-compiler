@@ -215,8 +215,11 @@
                             </ul>
                         </li>
                     </xsl:for-each>
+                    <li id="copyright">
+                        <xsl:call-template name="add-copyright-link"/>
+                    </li>
                 </ul>
-
+                
                 <div id="content">
                     <h3><xsl:value-of select="$std.doctitle.prefix"/> Overview <xsl:value-of select="$std.doctitle.suffix"/></h3>
                     

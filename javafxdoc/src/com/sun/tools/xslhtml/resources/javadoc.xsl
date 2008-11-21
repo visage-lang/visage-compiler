@@ -44,6 +44,12 @@
         <meta name="keywords" content="JavaFX, Java FX"/>
     </xsl:template>
     
+    <xsl:template name="add-copyright-link">
+        <i>Copyright 2008</i><br/>
+        <i>Sun Microsystems, Inc.</i><br/>
+        <i>Use is subject to <a href="http://java.sun.com/javafx/1/docs/apis/license.html">license terms</a>.</i><br/>
+    </xsl:template>
+    
 <!-- starter template -->    
     <xsl:template match="/">
         
@@ -246,6 +252,9 @@
                     </ul>
                 </li>
             </xsl:for-each>
+            <li id="copyright">
+                <xsl:call-template name="add-copyright-link"/>
+            </li>
         </ul>
     </xsl:template>
     
