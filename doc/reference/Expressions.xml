@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+<chapter xml:id='Expressions' version="5.0" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:svg="http://www.w3.org/2000/svg"
@@ -141,7 +141,7 @@ println(names);</programlisting>
               <emphasis>end</emphasis> inclusive. If there is no element at
               some of these indicies, those indicies are ignored. Note that,
               more generally, this allows full slice syntax. See
-              slices.</entry>
+              <link linkend='slice'>slices</link>.</entry>
             </row>
 
             <row>
@@ -261,8 +261,8 @@ println(names);
     <sect2>
       <title>throw</title>
 
-      <para>A throw expression causes an Exception to be thrown. See the Error
-      Handling chapter.</para>
+      <para>A throw expression causes an Exception to be thrown. See the <link linkend='ErrorHandling'>Error
+      Handling chapter</link>.</para>
 
       <figure>
         <title>throw</title>
@@ -406,7 +406,7 @@ println(names);
     </sect2>
 
     <sect2>
-      <title>forExpression</title>
+      <title xml:id='forExpression'>forExpression</title>
 
       <para>The <emphasis>forExpression</emphasis> iterates over one or more
       sequences. The expression is called the body of the
@@ -733,8 +733,8 @@ println( food );
     <sect2>
       <title>Tween Expressions</title>
 
-      <para>Tween expressions are used in animation, see the Animation
-      chapter.</para>
+      <para>Tween expressions are used in animation, see the <link linkend='Animation'>Animation
+      chapter</link>.</para>
 
       <figure>
         <title>assignmentOpExpression (Tween expression subset)</title>
@@ -1620,7 +1620,7 @@ println( --x );</programlisting>
 
     <para></para>
 
-    <sect2>
+    <sect2 xml:id='MemberAccess'>
       <title>Member Access</title>
 
       <para>Access a member (variable or function) of a class instance.</para>
@@ -1694,8 +1694,8 @@ println( aPair.good );
         </mediaobject>
       </figure>
 
-      <para>This is an example of calling a script function, see the Member
-      Access section (above) for an example of calling an instance
+      <para>This is an example of calling a script function, see the <link linkend='MemberAccess'>Member
+      Access section</link> for an example of calling an instance
       function:</para>
 
       <programlisting>function squared(x : Number) : Number { x * x }
@@ -1783,10 +1783,10 @@ println( seq[-1] );</programlisting>
       sequence's element specifier (the element type).</para>
     </sect2>
 
-    <sect2>
+    <sect2 xml:id='slice'>
       <title>Sequence Slice</title>
 
-      <para>A sequence slice expression evaluates to a sequence a portion of
+      <para>A sequence slice expression evaluates to a sequence which is a portion of
       another sequence. Those elements by specifying a range of
       indices.</para>
 
@@ -1951,7 +1951,7 @@ def high = Point {
    y: 92.1
 }</programlisting>
 
-      <para>See the classes chapter for more information on instance variable
+      <para>See the <link linkend='Classes'>Classes chapter</link> for more information on instance variable
       initialization.</para>
 
       <para>Variables and functions local to the object literal may be
@@ -2011,7 +2011,7 @@ println( onCircle );
 
       <para>The x instance variable of onCircle will be maintained as the
       cosine of the angle, while y will be maintained as the sine. See the
-      Binding chapter for more information of bind. The toString() function
+      <link linkend='Binding'>Binding chapter</link> for more information of bind. The toString() function
       (defined on Object) has been overridden in the object literal to provide
       a better output format. This is what is printed to the console:</para>
 
@@ -2439,7 +2439,7 @@ println( bop.series(5) );
       <title>timelineExpression</title>
 
       <para><emphasis>timelineExpression</emphasis> is used in animation. See
-      the Animation chapter.</para>
+      the <link linkend='Animation'>Animation chapter</link>Animation chapter.</para>
 
       <figure>
         <title>timelineExpression</title>

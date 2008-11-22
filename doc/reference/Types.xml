@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+<chapter xml:id='Types'
+  version="5.0" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:svg="http://www.w3.org/2000/svg"
          xmlns:m="http://www.w3.org/1998/Math/MathML"
          xmlns:html="http://www.w3.org/1999/xhtml"
          xmlns:db="http://docbook.org/ns/docbook">
-  <title>and Values</title>
+  <title xml:id='Types.title'>Types and Values</title>
 
   <para>Covers the data types and values which can be represented and
   manipulated in JavaFX Script.</para>
@@ -80,7 +81,7 @@
         <para>The nonexistent value, null, is not a permitted value for types
         with required cardinality. Attempts to assign null to a type with
         required cardinality will be converted to the default value (see the
-        Default Values section). Attempts to convert null to a type with
+        <link linkend='DefaultValues'>Default Values section</link>). Attempts to convert null to a type with
         required cardinality will also be converted to the default
         value.</para>
       </sect3>
@@ -99,8 +100,8 @@
     </sect2>
   </sect1>
 
-  <sect1>
-    <title>Default Values</title>
+  <sect1 xml:id='DefaultValues'>
+    <title xml:id='DefaultValues.title'>Default Values</title>
 
     <para>Each JavaFX type has an associated default value. The default
     variable is the value of a variable before it is set. It is also the value
@@ -234,8 +235,8 @@ println( greeting );</programlisting>
       <sect3>
         <title>Operations over String</title>
 
-        <para>String-expressions are of String type -- see the Expressions
-        chapter</para>
+        <para>String-expressions are of String type -- see the <link linkend='Expressions'>Expressions chapter</link>
+        </para>
       </sect3>
     </sect2>
 

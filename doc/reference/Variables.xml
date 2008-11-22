@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+<chapter xml:id='Variables' version="5.0" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:svg="http://www.w3.org/2000/svg"
          xmlns:m="http://www.w3.org/1998/Math/MathML"
          xmlns:html="http://www.w3.org/1999/xhtml"
          xmlns:db="http://docbook.org/ns/docbook">
-  <title>Variables</title>
+  <title xml:id='Variables.title'>Variables</title>
 
   <para>The declaration, use and scope of variables.</para>
 
@@ -32,7 +32,7 @@
 
     <para><programlisting>def x = bind y + z;</programlisting></para>
 
-    <para>See the Binding chapter.</para>
+    <para>See the <link linkend='Binding'>Binding chapter</link>.</para>
 
     <para>Variables that will or can be assigned-to should be declared with
     <command>var</command>:</para>
@@ -74,7 +74,7 @@ class A {
       the script. Access modifiers for variables are:
       <command>public</command>, <command>protected</command>,
       <command>package</command>, <command>public-read</command>, and
-      <command>public-init</command> -- see the Access Modifier chapter. For
+      <command>public-init</command> -- see the <link linkend='Modifiers'>Access Modifiers chapter</link>. For
       example, if this is script Foo.fx:</para>
 
       <para><programlisting>public def bohr = 0.529177e-10</programlisting></para>
@@ -87,7 +87,7 @@ class A {
       loaded until the end of program execution.</para>
     </sect2>
 
-    <sect2>
+    <sect2 xml:id='InstanceVariables'>
       <title>Instance Variables</title>
 
       <para>Instance variables are declared at the top-level of a class.
@@ -151,8 +151,7 @@ class B {
 
       <para>They must not be assigned to.</para>
 
-      <para>See Function, the For section of expressions, and On Replace
-      (below) for syntax.</para>
+      <para>See <link linkend='Functions'>the Functions chapter</link>, the <link linkend='forExpression'>for-expression</link>, and <link linkend='onReplaceClause'>on replace</link> for syntax.</para>
 
       <para></para>
     </sect2>
@@ -216,13 +215,13 @@ class B {
     to the value of the <emphasis>expression</emphasis>. When <command>with
     inverse</command> is specified, the <emphasis>expression</emphasis> must
     be a simple variable reference and that variable is kept updated when the
-    variable being declared is changed. See the Binding chapter for
+    variable being declared is changed. See <link linkend='Binding'>the Binding chapter</link> for
     details.</para>
 
     <para></para>
   </sect1>
 
-  <sect1>
+  <sect1 xml:id='onReplaceClause'>
     <title>On Replace</title>
 
     <para>The <emphasis>onReplaceClause</emphasis>, if present, causes the
