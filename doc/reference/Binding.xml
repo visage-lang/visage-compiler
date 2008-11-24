@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xml:id='Binding' version="5.0" xmlns="http://docbook.org/ns/docbook"
+<chapter version="5.0" xml:id="Binding" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:svg="http://www.w3.org/2000/svg"
@@ -31,8 +31,6 @@
       know. But in some cases you need to know how exactly the update occurs
       and in some cases, what is meant by <emphasis>someExpression</emphasis>
       changing. This is what is discussed below.</para>
-
-      <para></para>
     </sect2>
 
     <sect2>
@@ -47,10 +45,9 @@
 
       <para><programlisting>def sum = bind <emphasis>expr1</emphasis> + <emphasis><emphasis><emphasis>expr2</emphasis></emphasis></emphasis>; </programlisting></para>
 
-      <para>if <emphasis>expr2</emphasis> changes (more precisely, when its
-      dependencies change -- more on that later) then the addition is redone
-      but <emphasis>expr1</emphasis> is not recalculated, its value has been
-      stored and it is simply re-fetched.</para>
+      <para>if the value of <emphasis>expr2</emphasis> changes then the
+      addition is redone but <emphasis>expr1</emphasis> is not recalculated,
+      its value has been stored and it is simply re-fetched.</para>
 
       <para>Let's make this concrete:</para>
 
@@ -76,10 +73,6 @@ println(sum); </programlisting></para>
       value of sum, but when y is set to 7, the function ten() is not called
       again (since it didn't change), its value has been remembered and
       reused.</para>
-
-      <para></para>
-
-      <para></para>
     </sect2>
 
     <sect2>
@@ -88,8 +81,8 @@ println(sum); </programlisting></para>
       <para><programlisting>def x = bind if (<emphasis>condExpr</emphasis>) <emphasis>expr1</emphasis> else <emphasis>expr2</emphasis>;</programlisting></para>
 
       <para>if the value of <emphasis>condExpr</emphasis> changes, this
-      switches which branch of the if-statement is to be evaluated thus
-      causing a recalculation each time the value of
+      switches which branch of the <command>if</command>-statement is to be
+      evaluated thus causing a recalculation each time the value of
       <emphasis>condExpr</emphasis> changes (the previous value of a branch is
       not stored). If <emphasis>condExpr</emphasis> is true, a change to the
       dependencies of <emphasis>expr1</emphasis> will cause it to be
@@ -110,12 +103,12 @@ println(sum); </programlisting></para>
 
       <para>If seq changes, the elements in newSeq which corresponded to
       elements still in seq are not recalculated. That is, if an element is
-      inserted into seq, the result of applying expr to that element are
-      inserted into newSeq at the corresponding position and the other
-      elements are not recalculated. Well, OK, there is an exception to that
-      rule, if expr uses indexof elem then those elements whose index changed
-      will need to be updated, but again, corresponding to the minimal update
-      rules. For example:</para>
+      inserted into seq, the result of applying <emphasis>expr</emphasis> to
+      that element are inserted into newSeq at the corresponding position and
+      the other elements are not recalculated. Well, OK, there is an exception
+      to that rule, if expr uses indexof elem then those elements whose index
+      changed will need to be updated, but again, corresponding to the minimal
+      update rules. For example:</para>
 
       <programlisting>    var min = 0;
     var max = 5;
@@ -149,6 +142,8 @@ println(sum); </programlisting></para>
       back (this does require it to be recalculated). The behavior is the same
       if insert and delete are used.</para>
 
+      <para><remark>[To do: indexof]</remark></para>
+
       <para><remark>[To do: add on-replace clause example]</remark></para>
     </sect2>
 
@@ -178,9 +173,7 @@ println(sum); </programlisting></para>
       in a bound block expression since they are not variable declarations and
       thus cannot occur in the non-final positions, and they have Void type,
       thus have no value and cannot be bound; cannot be in the final
-      posiiton.</para>
-
-      <para></para>
+      position.</para>
     </sect2>
 
     <sect2>
@@ -228,8 +221,6 @@ println(pt.x);</programlisting>
       <para>Changing the argument myX causes makePoint to be called again.
       But, the function makePoint is a black-box. The change to scale won't
       cause an update. That's where bound functions come in.</para>
-
-      <para></para>
     </sect2>
 
     <sect2>
@@ -237,11 +228,12 @@ println(pt.x);</programlisting>
 
       <para>Bound functions have as their body a block-expression which is
       bound (it thus has the above restrictions on bound block-expressions).
-      When binding to a bound function, changes besides the arguments causes
-      update, and argument changes are seen by the function. So, if the above
-      function makePoint were instead a bound function:</para>
+      When binding to a bound function, changes to values in the body
+      expression, not limited to the arguments, cause update, and argument
+      changes are seen by the function. So, if the above function makePoint
+      were instead a bound function:</para>
 
-      <para><programlisting>bound function makePoint(x0 : Number, y0 : Number) : Point {</programlisting></para>
+      <para><programlisting>bound function makePoint(x0 : Number, y0 : Number) : Point { ...</programlisting></para>
 
       <para>The scale change would cause an update (20.0). Note also, that if
       myX changed only x0 * scale would be recalculated, not y0 *
@@ -249,10 +241,6 @@ println(pt.x);</programlisting>
 
       <para>Calling a bound function from outside a bind is just like calling
       a non-bound function.</para>
-
-      <para></para>
-
-      <para></para>
     </sect2>
 
     <sect2>
@@ -281,11 +269,13 @@ println(pt.x);</programlisting>
 }</programlisting>
 
       <para>Now if myX changes, the x attribute of point will be updated, but
-      the object literal's instance variable initializer hasn't changed (x is
-      still, and will always be, bound to myX). Changes to myY will still
-      cause a new Point to be created.</para>
+      a new Point will not be created because the object literal's instance
+      variable initializer hasn't changed (x is still, and will always be,
+      bound to myX). Changes to myY will still cause a new Point to be
+      created.</para>
 
-      <para>So, what you would actually want for this example would be:</para>
+      <para>So, what you would probably want for this example would be for the
+      point to track myX and myY:</para>
 
       <programlisting>def pt = Point { 
    x: bind myX
@@ -295,10 +285,6 @@ println(pt.x);</programlisting>
       <para>Here pt would always remain the same Point instance. Note that
       there is no longer a need for <command>bind</command> on the
       initializing expression of pt since there are no dependencies.</para>
-
-      <para></para>
-
-      <para></para>
     </sect2>
   </sect1>
 
@@ -332,7 +318,7 @@ println(pt.x);</programlisting>
 
     <para>An instance variable definition with an initializing expression
     creates a binding from the instance variable to the expression if the
-    definition is explicitly bound and is not overriden or superceded by an
+    definition is explicitly bound and is not overridden or superseded by an
     object literal initializing expression. Class definitions are not
     evaluated and thus do not have bind contexts, so instance variable
     initialization without an explicit <command>bind</command> cannot create a
@@ -360,7 +346,7 @@ println(pt.x);</programlisting>
     false-part). For example, the dependencies of: if (cond) a else b are the
     union of the dependencies of "cond", the dependencies of "a" and the
     dependencies of "b". It may or may not be desirable to optimize this to a
-    conditional dynamic dependency. The dependencies of foreach aren't
+    conditional dynamic dependency. The dependencies of for-expression aren't
     addressed here. The dependencies of a block expression are the
     dependencies of its value. Where its value is the terminal expression or
     the value of the terminal return statement. The dependencies of a bound
