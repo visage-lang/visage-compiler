@@ -131,8 +131,6 @@ class B {
       are expressions, that is, they have type and value. Their type is the
       type of the variable and their value is the value of the
       variable.</para>
-
-      <para></para>
     </sect2>
 
     <sect2>
@@ -149,8 +147,6 @@ class B {
       <para>See <link linkend="Functions">the Functions chapter</link>, the
       <link linkend="forExpression">for-expression</link>, and <link
       linkend="onReplaceClause">on replace</link> for syntax.</para>
-
-      <para></para>
     </sect2>
   </sect1>
 
@@ -214,8 +210,6 @@ class B {
     be a simple variable reference and that variable is kept updated when the
     variable being declared is changed. See <link linkend="Binding">the
     Binding chapter</link> for details.</para>
-
-    <para></para>
   </sect1>
 
   <sect1 xml:id="onReplaceClause">
@@ -232,8 +226,8 @@ class B {
     <emphasis>newElements</emphasis> <command>{</command> ...
     <command>}</command></para>
 
-    <para>But these parameters are all optional, in the simplest form none of
-    these are present:</para>
+    <para>But these parameters are all optional, and in the simplest form none
+    of these are present:</para>
 
     <para><programlisting>var x = 0 on replace { println("x is now: {x}") }</programlisting></para>
 
