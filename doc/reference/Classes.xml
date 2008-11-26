@@ -206,7 +206,7 @@ def rubySlipper = Shoe {
     kinds of JavaFX classes.</para>
   </sect1>
 
-  <sect1>
+  <sect1 xml:id="InstanceInitialization">
     <title>Instance Initialization</title>
 
     <para></para>
@@ -216,50 +216,32 @@ def rubySlipper = Shoe {
 
       <para>A new JavaFX class instance is initialized in this order:</para>
 
-      <itemizedlist>
+      <itemizedlist spacing="compact">
         <listitem>
-          <para>The object is created.</para>
+          <simpara>The object is created.</simpara>
         </listitem>
-      </itemizedlist>
-
-      <itemizedlist>
         <listitem>
-          <para>The Java superclass default constructor, if any, is
-          executed.</para>
+          <simpara>The Java superclass default constructor, if any, is
+          executed.</simpara>
         </listitem>
-      </itemizedlist>
-
-      <itemizedlist>
         <listitem>
-          <para>The values of the object literal's instance variable
-          initializers are computed (but not set)</para>
+          <simpara>The values of the object literal's instance variable
+          initializers are computed (but not set).</simpara>
         </listitem>
-      </itemizedlist>
-
-      <itemizedlist>
         <listitem>
-          <para>The instance variables of JavaFX superclasses are set</para>
+          <simpara>The instance variables of JavaFX superclasses are set.</simpara>
         </listitem>
-      </itemizedlist>
-
-      <itemizedlist>
         <listitem>
-          <para>The instance variables of this class are set, in lexical
-          order. </para>
+          <simpara>The instance variables of this class are set, in lexical
+          order. </simpara>
         </listitem>
-      </itemizedlist>
-
-      <itemizedlist>
         <listitem>
-          <para>The <command>init</command> block, if any, is evaluated. The
-          instance is now initialized.</para>
+          <simpara>The <command>init</command> block, if any, is evaluated. The
+          instance is now initialized.</simpara>
         </listitem>
-      </itemizedlist>
-
-      <itemizedlist>
         <listitem>
-          <para>The <command>postinit</command> block, if any, is evaluated.
-          </para>
+          <simpara>The <command>postinit</command> block, if any, is evaluated.
+          </simpara>
         </listitem>
       </itemizedlist>
 
