@@ -46,11 +46,11 @@ function doit(n:Integer) {
 	var harmonicSeries:Number[];
 	for(i in [2..n]) {
 		if(isPrime(i)){ insert i into primes; }
-		 else{ System.out.println("Factorts for {i} : {factors(i).toString()}"); }
+		 else{ System.out.println("Factors for {i} : {factors(i).toString()}"); }
 		if(isArmstrong(i)){ insert i into armstrongs; }
 		insert harmonics(i) into  harmonicSeries;
 	}
-	System.out.println("Pime numbers : {primes.toString()}");	
+	System.out.println("Prime numbers : {primes.toString()}");
 	System.out.println("Armstrongs numbers : {armstrongs.toString()}");
 	System.out.println("Harmonic Serious : {harmonicSeries.toString()}");
 }
