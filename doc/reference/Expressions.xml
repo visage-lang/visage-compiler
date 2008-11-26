@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xml:id='Expressions' version="5.0" xmlns="http://docbook.org/ns/docbook"
+<chapter version="5.0" xml:id="Expressions"
+         xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:svg="http://www.w3.org/2000/svg"
@@ -8,8 +9,9 @@
          xmlns:db="http://docbook.org/ns/docbook">
   <title>Expressions</title>
 
-  <para>All executable code in JavaFX Script is expressions. This chapter
-  describes the syntax, meaning, and use of expressions.</para>
+  <para>JavaFX Script code consists of definitions and executable code; all
+  executable code is in the form of expressions. This chapter describes the
+  syntax, meaning, and use of expressions.</para>
 
   <para>This chapter is organized by the syntactic structure of JavaFX
   expressions.</para>
@@ -22,9 +24,8 @@
     <title>expression</title>
 
     <para>At the top level of expression syntax are the expressions that stand
-    alone and have no value.</para>
-
-    <para></para>
+    alone and, with the exception of <emphasis>valueExpression</emphasis>,
+    have no value (are of Void type).</para>
 
     <figure>
       <title>expression</title>
@@ -140,8 +141,8 @@ println(names);</programlisting>
               from indicies <emphasis>begin</emphasis> to
               <emphasis>end</emphasis> inclusive. If there is no element at
               some of these indicies, those indicies are ignored. Note that,
-              more generally, this allows full slice syntax. See
-              <link linkend='slice'>slices</link>.</entry>
+              more generally, this allows full slice syntax. See <link
+              linkend="slice">slices</link>.</entry>
             </row>
 
             <row>
@@ -149,8 +150,9 @@ println(names);</programlisting>
               <command>from</command>
               <emphasis>sequence</emphasis><emphasis></emphasis></entry>
 
-              <entry>Delete the value, if present, from the sequence.
-              Otherwise, ignore.</entry>
+              <entry>Delete all occurrances of the value from the sequence. If
+              there are no occurrances of the value, no action is
+              taken.</entry>
             </row>
 
             <row>
@@ -219,8 +221,8 @@ println(names);
     <sect2>
       <title>break</title>
 
-      <para>Evaluating a break causes the loop in which it is lexically
-      contained to terminate. Where a loop is either a
+      <para>Evaluating a <command>break</command> causes the loop in which it
+      is lexically contained to terminate. Where a loop is either a
       <command>while</command> or <command>for</command>-expression.</para>
 
       <figure>
@@ -233,16 +235,17 @@ println(names);
         </mediaobject>
       </figure>
 
-      <para>A break always completes abruptly and thus has no value.</para>
+      <para>A <command>break</command> always completes abruptly and thus has
+      no value.</para>
     </sect2>
 
     <sect2>
       <title>continue</title>
 
-      <para>Evaluating a continue causes the loop it is lexically contained to
-      immediately complete the iteration currently executing and attempt the
-      next iteration. Where a loop is either a <command>while</command> or
-      <command>for</command>-expression.</para>
+      <para>Evaluating a <command>continue</command> causes the loop it is
+      lexically contained to immediately complete the iteration currently
+      executing and attempt the next iteration. Where a loop is either a
+      <command>while</command> or <command>for</command>-expression.</para>
 
       <figure>
         <title>continue</title>
@@ -254,15 +257,15 @@ println(names);
         </mediaobject>
       </figure>
 
-      <para>A break expression always completes abruptly and thus has no
-      value.</para>
+      <para>A <command>continue</command> always completes abruptly and thus
+      has no value.</para>
     </sect2>
 
     <sect2>
       <title>throw</title>
 
-      <para>A throw expression causes an Exception to be thrown. See the <link linkend='ErrorHandling'>Error
-      Handling chapter</link>.</para>
+      <para>A throw expression causes an Exception to be thrown. See the <link
+      linkend="ErrorHandling">Error Handling chapter</link>.</para>
 
       <figure>
         <title>throw</title>
@@ -406,10 +409,10 @@ println(names);
     </sect2>
 
     <sect2>
-      <title xml:id='forExpression'>forExpression</title>
+      <title xml:id="forExpression">forExpression</title>
 
       <para>The <emphasis>forExpression</emphasis> iterates over one or more
-      sequences. The expression is called the body of the
+      sequences. The <emphasis>expression</emphasis> is called the body of the
       <emphasis>forExpression</emphasis>. If the body is of Void type, then
       the <emphasis>forExpression</emphasis> has Void. Otherwise the value of
       the <emphasis>forExpression</emphasis> is a sequence consisting of each
@@ -434,6 +437,43 @@ println(names);
           </imageobject>
         </mediaobject>
       </figure>
+
+      <para>This example shows a simple <command>for</command>-expression
+      whose value is a sequence:</para>
+
+      <programlisting>var squares : Integer[] = for (x in [1..10]) x*x;
+</programlisting>
+
+      <para>The values of squares is <computeroutput>[ 1, 4, 9, 16, 25, 36,
+      49, 64, 81, 100 ]</computeroutput>. Note that the type of squares is
+      explicitly declared for illustrative purposes, type inference would
+      correctly determine that the type is Integer[].</para>
+
+      <para>This <command>for</command>-expression is of Void type. It is used
+      simply to initerate over the block:</para>
+
+      <programlisting>for (counter in [1..3]) {
+   println( "Help!" );
+}
+</programlisting>
+
+      <para>If there are multiple <emphasis>inClauses</emphasis>, the
+      right-most <emphasis>inClause</emphasis> is the inner-most loop, the
+      body is only evaluated for cases where the where-clause is true.
+      Thus:</para>
+
+      <programlisting>var words = for (length in [3..6], word in ['moose', 'wolf', 'turkey', 'bee'] where word.length() &gt;= length) word;
+</programlisting>
+
+      <para>Thus the value of words is:</para>
+
+      <para><computeroutput>[ moose, wolf, turkey, bee, moose, wolf, turkey,
+      moose, turkey, turkey ]</computeroutput></para>
+
+      <para>Because of sequence flattenning and because null is never added to
+      a sequence, this is equivalent to:</para>
+
+      <programlisting>var words = for (length in [3..6]) for (word in ['moose', 'wolf', 'turkey', 'bee']) if (word.length() &gt;= length) word else null;</programlisting>
 
       <para></para>
     </sect2>
@@ -733,8 +773,8 @@ println( food );
     <sect2>
       <title>Tween Expressions</title>
 
-      <para>Tween expressions are used in animation, see the <link linkend='Animation'>Animation
-      chapter</link>.</para>
+      <para>Tween expressions are used in animation, see the <link
+      linkend="Animation">Animation chapter</link>.</para>
 
       <figure>
         <title>assignmentOpExpression (Tween expression subset)</title>
@@ -1620,7 +1660,7 @@ println( --x );</programlisting>
 
     <para></para>
 
-    <sect2 xml:id='MemberAccess'>
+    <sect2 xml:id="MemberAccess">
       <title>Member Access</title>
 
       <para>Access a member (variable or function) of a class instance.</para>
@@ -1694,9 +1734,9 @@ println( aPair.good );
         </mediaobject>
       </figure>
 
-      <para>This is an example of calling a script function, see the <link linkend='MemberAccess'>Member
-      Access section</link> for an example of calling an instance
-      function:</para>
+      <para>This is an example of calling a script function, see the <link
+      linkend="MemberAccess">Member Access section</link> for an example of
+      calling an instance function:</para>
 
       <programlisting>function squared(x : Number) : Number { x * x }
 println( squared(14,2) );</programlisting>
@@ -1783,12 +1823,12 @@ println( seq[-1] );</programlisting>
       sequence's element specifier (the element type).</para>
     </sect2>
 
-    <sect2 xml:id='slice'>
+    <sect2 xml:id="slice">
       <title>Sequence Slice</title>
 
-      <para>A sequence slice expression evaluates to a sequence which is a portion of
-      another sequence. Those elements by specifying a range of
-      indices.</para>
+      <para>A sequence slice expression evaluates to a sequence which is a
+      portion of another sequence. The elements which make up the portion are
+      specified by a range of indices.</para>
 
       <figure>
         <title>postfixExpression [Slice clause]</title>
@@ -1951,8 +1991,8 @@ def high = Point {
    y: 92.1
 }</programlisting>
 
-      <para>See the <link linkend='Classes'>Classes chapter</link> for more information on instance variable
-      initialization.</para>
+      <para>See the <link linkend="Classes">Classes chapter</link> for more
+      information on instance variable initialization.</para>
 
       <para>Variables and functions local to the object literal may be
       supplied to assist in its construction. Here, the local variable radius
@@ -2011,9 +2051,10 @@ println( onCircle );
 
       <para>The x instance variable of onCircle will be maintained as the
       cosine of the angle, while y will be maintained as the sine. See the
-      <link linkend='Binding'>Binding chapter</link> for more information of bind. The toString() function
-      (defined on Object) has been overridden in the object literal to provide
-      a better output format. This is what is printed to the console:</para>
+      <link linkend="Binding">Binding chapter</link> for more information of
+      bind. The toString() function (defined on Object) has been overridden in
+      the object literal to provide a better output format. This is what is
+      printed to the console:</para>
 
       <para><computeroutput>Point( 1.0, 0.0) </computeroutput></para>
 
@@ -2439,7 +2480,8 @@ println( bop.series(5) );
       <title>timelineExpression</title>
 
       <para><emphasis>timelineExpression</emphasis> is used in animation. See
-      the <link linkend='Animation'>Animation chapter</link>Animation chapter.</para>
+      the <link linkend="Animation">Animation chapter</link>Animation
+      chapter.</para>
 
       <figure>
         <title>timelineExpression</title>
