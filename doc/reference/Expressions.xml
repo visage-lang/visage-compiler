@@ -14,7 +14,12 @@
   syntax, meaning, and use of expressions.</para>
 
   <para>This chapter is organized by the syntactic structure of JavaFX
-  expressions.</para>
+  expressions. Because the hierarchy of the syntax determines the precedence
+  of operators, the syntax of an expression may be expressed in terms of other
+  expression non-terminals which are unrelated (except by operator
+  precedence). For example, <link linkend="andExpression">orExpression</link>
+  is syntactically defined in terms of
+  <emphasis>typeExpression</emphasis>.</para>
 
   <para><remark>[To do: add semantics, typing, and examples. Possibly add an
   introductory section in a conceptual rather than syntactic
@@ -483,8 +488,9 @@ println(names);
 
       <para>A newExpression can be used to create an instance of a Java class.
       It allows the arguments to a Java constructor to be provided. It can
-      also be used to create an instance of a JavaFX class, but objectLiteral
-      is generally used for that purpose.</para>
+      also be used to create an instance of a JavaFX class, but <link
+      linkend="objectLiteral">objectLiteral</link> is generally used for that
+      purpose.</para>
 
       <figure>
         <title>newExpression</title>
@@ -790,7 +796,7 @@ println( food );
     </sect2>
   </sect1>
 
-  <sect1>
+  <sect1 xml:id="andExpression">
     <title>andExpression orExpression (Two Argument Boolean
     Operations)</title>
 
@@ -944,7 +950,7 @@ var done : Boolean = (timeRemaining &lt;= 0ms) or cancelled;</programlisting>
       "Not a String"
 }</programlisting>
 
-    <para>This example function uses <command>instanceof</command> to check is
+    <para>This example function uses <command>instanceof</command> to check if
     the input is a String, and if it is, it changes the type of the expression
     to String using the <command>as</command> operator.</para>
   </sect1>
@@ -1894,8 +1900,9 @@ println( usprez[3..&lt;] );
     <sect2>
       <title>qualifiedName</title>
 
-      <para>A qualified name is a reference to a package or class by a dot
-      separated list of package and subpackage names.</para>
+      <para>A qualified name is a reference to a package or class. The
+      reference is specified by a dot separated list of package and subpackage
+      names.</para>
 
       <figure>
         <title>qualifiedName</title>
@@ -1919,7 +1926,7 @@ var baseFile = new java.io.File("base.txt");
       <para></para>
     </sect2>
 
-    <sect2>
+    <sect2 xml:id="objectLiteral">
       <title>objectLiteral</title>
 
       <para>An object literal is the primary way that new instances of a class
@@ -1999,17 +2006,66 @@ def high = Point {
       is defined.</para>
 
       <programlisting>def location = Point {
-   var radius = 10.3;
+   def radius = 10.3;
    x: radius * 2
    y: radius * 5
 }
 </programlisting>
 
       <para>Often local variables are used in the construction of nested
-      object literals to allow cross-referencing.</para>
+      object literals to allow cross-referencing. For example:</para>
 
-      <para>Additional on-replace clauses may added by overriding an instance
-      variable:</para>
+      <programlisting>class Tree {
+   var value : String;
+   var children : Tree[];
+   var previousSibling : Tree;
+   function format(indent : String) : String {
+      "{indent}{value} "
+      "{if (previousSibling != null) '(prev:{previousSibling.value})' else ''}"
+      "\n"
+      "{for (kid in children) kid.format('   {indent}')}"
+   }
+}
+
+def root = Tree {
+   def tunicates = Tree {
+      value: 'Urochordata'
+   }
+   def skulledBeasts = Tree {
+      def hagfish = Tree {
+         value: 'Hyperotreti' 
+      }
+      def us = Tree {
+         value: 'Vertebrata'
+         previousSibling: hagfish
+      }
+      value: 'Craniata'
+      children: [ hagfish, us ]
+      previousSibling: tunicates
+   }
+   value: 'Chordata'
+   children: [ tunicates, skulledBeasts]
+}
+
+println( root.format("") );</programlisting>
+
+      <para>Which uses local <command>def</command>s within nested object
+      literals to build sibling relationships. Its output is:</para>
+
+      <para><computeroutput>Chordata</computeroutput></para>
+
+      <para><computeroutput> Urochordata</computeroutput></para>
+
+      <para><computeroutput> Craniata
+      (prev:Urochordata)</computeroutput></para>
+
+      <para><computeroutput> Hyperotreti</computeroutput></para>
+
+      <para><computeroutput> Vertebrata
+      (prev:Hyperotreti)</computeroutput></para>
+
+      <para>Additional on-replace clauses may be added to the Point example by
+      overriding an instance variable:</para>
 
       <programlisting>def current = Point {
    override var x on replace { println( "Changed x to {x}" ) }
@@ -2275,7 +2331,7 @@ println( onCircle );
 
               <entry>[ 8.6, 9.6, 10.6, 11.6 ]</entry>
 
-              <entry>8.6, the 1 + 8.6, etc</entry>
+              <entry>8.6, then 1 + 8.6, etc</entry>
             </row>
 
             <row>
@@ -2331,8 +2387,7 @@ println( onCircle );
     <sect2>
       <title>block</title>
 
-      <para>A block is a list of expressions. A block forms a scope. The value
-      of a block is the value of the last expression in the block.</para>
+      <para>A block is a list of expressions. A block forms a scope. </para>
 
       <figure>
         <title>block</title>
@@ -2345,7 +2400,20 @@ println( onCircle );
       </figure>
 
       <para>The type of a block is the type of the final expression in the
-      block.</para>
+      block. The value of a block is the value of the last expression in the
+      block. For example:</para>
+
+      <programlisting>println( {
+   var sum = 0;
+   var counter = 10;
+   while (counter &gt; 0) {
+      sum += counter;
+      --counter;
+   }
+   "Sum is {sum}"
+} )</programlisting>
+
+      <para>The block printed by the println is </para>
     </sect2>
 
     <sect2>
