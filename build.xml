@@ -459,6 +459,9 @@
         <copy todir="dist/doc/reference">
             <fileset dir="build/doc/html"/>
         </copy>
+        <copy todir="dist/doc/reference/images/callouts">
+            <fileset dir="doc/callouts"/>
+        </copy>
     </target>
 
     <target name="findbugs" depends="compile">

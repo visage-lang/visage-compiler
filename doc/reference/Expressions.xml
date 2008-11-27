@@ -523,26 +523,35 @@ println(names);
 println( food );
 food[2] = 'eggplant';
 println( food );
-food[4] = 'measles';
+food[4] = 'measles';   <co id="cfo1" linkends="lfo1"/>
 println( food );
-food[0..1] = ['spinach', 'brocolli', 'apples'];
+food[0..1] = ['spinach', 'brocolli', 'apples'];   <co id="cfo2" linkends="lfo2"/>
 println( food );
-food[4..20] = 'tomatoes';
+food[4..20] = 'tomatoes';   <co id="cfo3" linkends="lfo3"/>
 println( food );
 </programlisting>
 
-    <para>Note that assignments to out of range indices (the attempt to assign
-    'measles' at index 4) are ignored; as is also the case for out-of-range
-    portions of slice assignments (4..20). That the size of the slice being
-    assigned need not match the size of the assigned sequence. Note: as in all
+  <calloutlist>
+    <callout arearefs="cfo1" id="lfo1">
+      assignments to out of range indices are ignored
+    </callout>
+    <callout arearefs="cfo2" id="lfo2">
+      the size of the slice being
+    assigned need not match the size of the assigned sequence
+    </callout>
+    <callout arearefs="cfo3" id="lfo3">
+      out-of-range portions of slice assignments are ignored.  as in all
     cases where sequences are required, singletons are automatically converted
-    ('tomatoes'). As a result, the following is printed on the console:</para>
+    </callout>
+  </calloutlist>
+
+    <para>As a result, the following is printed on the console:</para>
 
     <screen>[ cheese, soda, fries, cupcake ]
 [ cheese, soda, eggplant, cupcake ]
-[ cheese, soda, eggplant, cupcake ]
-[ spinach, broccoli, apples, eggplant, cupcake ]
-[ spinach, broccoli, apples, eggplant, tomatoes ]</screen>
+[ cheese, soda, eggplant, cupcake ]   <co id="fo1" linkends="lfo1"/>
+[ spinach, broccoli, apples, eggplant, cupcake ]   <co id="fo2" linkends="lfo2"/>
+[ spinach, broccoli, apples, eggplant, tomatoes ]   <co id="fo3" linkends="lfo3"/></screen>
 
     <para>The value of the assignment expression is the value of the variable,
     element, or slice after the assignment. The type of the assignment
