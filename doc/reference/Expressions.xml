@@ -2483,7 +2483,7 @@ println( func(7) );
       <para>Here func is a variable declared to be of function type. func then
       gets assigned a function which takes an Integer and adds one thousand to
       it. The function stored in the variable can then be called, in this case
-      printing <computeroutput>1007</computeroutput>, Then func is reassigned
+      printing <computeroutput>1007</computeroutput>. Then func is reassigned
       to a new function definition which squares the incoming Integer; this
       time, func(7) is <computeroutput>49</computeroutput>.</para>
 
@@ -2548,8 +2548,7 @@ println( bop.series(5) );
       <title>timelineExpression</title>
 
       <para><emphasis>timelineExpression</emphasis> is used in animation. See
-      the <link linkend="Animation">Animation chapter</link>Animation
-      chapter.</para>
+      the <link linkend="Animation">Animation chapter</link>.</para>
 
       <figure>
         <title>timelineExpression</title>
