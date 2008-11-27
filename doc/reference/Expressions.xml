@@ -2387,7 +2387,7 @@ println( onCircle );
     <sect2>
       <title>block</title>
 
-      <para>A block is a list of expressions. A block forms a scope. </para>
+      <para>A block is a list of expressions. A block forms a scope.</para>
 
       <figure>
         <title>block</title>
@@ -2413,14 +2413,14 @@ println( onCircle );
    "Sum is {sum}"
 } )</programlisting>
 
-      <para>The block printed by the println is </para>
+      <para>The block printed by the println is</para>
     </sect2>
 
     <sect2>
       <title>literal</title>
 
-      <para>Literal values are discussed in the Types and Values
-      chapter.</para>
+      <para>Literal values are discussed in the <link linkend="Types">Types
+      and Values chapter</link>.</para>
 
       <figure>
         <title>literal</title>
@@ -2446,7 +2446,7 @@ println( onCircle );
 
         <mediaobject>
           <imageobject>
-            <imagedata fileref="functionExpression.jpeg"></imagedata>
+            <imagedata fileref="functionExpression.png"></imagedata>
           </imageobject>
         </mediaobject>
       </figure>
