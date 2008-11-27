@@ -75,7 +75,7 @@
 
     <para>This script will, of course, print:</para>
 
-    <para><computeroutput>Hello, World</computeroutput></para>
+    <screen>Hello, World</screen>
 
     <para>While it was certainly easy to write Hello World in JavaFX Script,
     this isn't really in the spirit of the language, since it isn't graphical.
@@ -88,7 +88,7 @@
 
     <para>This script will print:</para>
 
-    <para><computeroutput>Circumference is 43.981</computeroutput></para>
+    <screen>Circumference is 43.981</screen>
 
     <para>Note the expression enclosed in braces. What is being printed is a
     <emphasis>string expression</emphasis>. A string representation of the
@@ -163,7 +163,7 @@ println("Circumference is { circumference(r) }")</programlisting>
 
     <para>This will print:</para>
 
-    <para><computeroutput>Point 12, 9</computeroutput></para>
+    <screen>Point 12, 9</screen>
 
     <para>For an example-based introduction to JavaFX, see the JavaFX Script
     Tutorial.</para>

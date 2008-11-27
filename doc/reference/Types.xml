@@ -140,18 +140,18 @@ println(k);</programlisting>
 
     <itemizedlist>
       <listitem>
-        <para>they are immutable -- they do not have internal state that can
+        <simpara>they are immutable -- they do not have internal state that can
         be changed (for example, you can't change the characters in a
-        String)</para>
+        String)</simpara>
       </listitem>
 
       <listitem>
-        <para>they have required cardinality (and thus are subclasses of
-        java.lang.Object)</para>
+        <simpara>they have required cardinality (and thus are subclasses of
+        java.lang.Object)</simpara>
       </listitem>
 
       <listitem>
-        <para>they have a default value different from null</para>
+        <simpara>they have a default value different from null</simpara>
       </listitem>
     </itemizedlist>
 
@@ -161,12 +161,12 @@ println(k);</programlisting>
 
     <itemizedlist>
       <listitem>
-        <para>they have a built-in literal format</para>
+        <simpara>they have a built-in literal format</simpara>
       </listitem>
 
       <listitem>
-        <para>they, with the exception of Duration, have built-in operations
-        that return values of the type</para>
+        <simpara>they, with the exception of Duration, have built-in operations
+        that return values of the type</simpara>
       </listitem>
     </itemizedlist>
 
@@ -227,7 +227,7 @@ println( greeting );</programlisting>
 
         <para>will print:</para>
 
-        <para><computeroutput>Hello there</computeroutput></para>
+        <screen>Hello there</screen>
 
         <para></para>
       </sect3>
@@ -446,11 +446,8 @@ println( myFunc(null, 1234) );
 
     <para>Which would print:</para>
 
-    <para><computeroutput>Here is the Object: 4000.0ms, and the Integer: 777
-    </computeroutput></para>
-
-    <para><computeroutput>Here is the Object: null, and the Integer:
-    1234</computeroutput></para>
+    <screen>Here is the Object: 4000.0ms, and the Integer: 777
+Here is the Object: null, and the Integer: 1234</screen>
 
     <para>The variable, of course, can be reassigned to any function with
     those parameters and return type:</para>

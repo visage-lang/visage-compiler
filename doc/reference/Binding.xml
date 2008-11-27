@@ -63,11 +63,9 @@ println(sum); </programlisting></para>
 
       <para>This prints:</para>
 
-      <para><computeroutput>Called ten</computeroutput></para>
-
-      <para><computeroutput>13 </computeroutput></para>
-
-      <para><computeroutput>17 </computeroutput></para>
+      <screen>Called ten
+13 
+17 </screen>
 
       <para>Note that the function ten() is called to compute the initial
       value of sum, but when y is set to 7, the function ten() is not called
@@ -110,30 +108,24 @@ println(sum); </programlisting></para>
       changed will need to be updated, but again, corresponding to the minimal
       update rules. For example:</para>
 
-      <programlisting>    var min = 0;
-    var max = 5;
-    function square(x : Integer) : Integer { x*x }
-    def values = bind for (x in [min..max]) square(x);
-    println(values);
-    max = 10;
-    println(values);
-    min = 1;
-    println(values);
-    max = 10;
-    println(values);
-    min = 0;
-    println(values);
-</programlisting>
+      <programlisting>var min = 0;
+var max = 3;
+function square(x : Integer) : Integer { x*x }
+def values = bind for (x in [min..max]) square(x);
+println(values);
+max = 5;
+println(values);
+min = 1;
+println(values);
+min = 0;
+println(values);</programlisting>
 
       <para>The output is:</para>
 
-      <para><computeroutput>[ 0, 1, 4, 9 ]</computeroutput></para>
-
-      <para><computeroutput>[ 0, 1, 4, 9, 16, 25 ]</computeroutput></para>
-
-      <para><computeroutput>[ 1, 4, 9, 16, 25 ]</computeroutput></para>
-
-      <para><computeroutput>[ 0, 1, 4, 9, 16, 25 ]</computeroutput></para>
+      <screen>[ 0, 1, 4, 9 ]
+[ 0, 1, 4, 9, 16, 25 ]
+[ 1, 4, 9, 16, 25 ]
+[ 0, 1, 4, 9, 16, 25 ]</screen>
 
       <para>But what about recalculations? First the squares of 0 through 3
       are calculated, then the squares of 4 and 5 (0 through 3 are not
@@ -212,11 +204,9 @@ println(pt.x);</programlisting>
 
       <para>Will print:</para>
 
-      <para><computeroutput>3.0 </computeroutput></para>
-
-      <para><computeroutput>10.0 </computeroutput></para>
-
-      <para><computeroutput>10.0</computeroutput></para>
+      <screen>3.0 
+10.0 
+10.0</screen>
 
       <para>Changing the argument myX causes makePoint to be called again.
       But, the function makePoint is a black-box. The change to scale won't

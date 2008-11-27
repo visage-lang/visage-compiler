@@ -87,13 +87,9 @@ println(names);</programlisting>
 
       <para>Will print:</para>
 
-      <para><computeroutput>[ Evelyn, Will, Marsha ] </computeroutput></para>
-
-      <para><computeroutput>[ Evelyn, Ron, Melissa, Will, Marsha ]
-      </computeroutput></para>
-
-      <para><computeroutput>[ Evelyn, Ron, Melissa, Will, Daz, Marsha ]
-      </computeroutput></para>
+      <screen>[ Evelyn, Will, Marsha ]
+[ Evelyn, Ron, Melissa, Will, Marsha ]
+[ Evelyn, Ron, Melissa, Will, Daz, Marsha ]</screen>
 
       <para>Note that inserting a sequence inserts the elements of the
       sequence -- sequences are never nested.</para>
@@ -187,17 +183,11 @@ println(names);
 
       <para>Will print:</para>
 
-      <para><computeroutput>[ Donna, Barb, Ron, Melissa, Will, Daz, Jim ]
-      </computeroutput></para>
-
-      <para><computeroutput>[ Donna, Barb, Ron, Melissa, Daz, Jim ]
-      </computeroutput></para>
-
-      <para><computeroutput>[ Donna, Daz, Jim ] </computeroutput></para>
-
-      <para><computeroutput>[ Daz, Jim ] </computeroutput></para>
-
-      <para><computeroutput>[ ]</computeroutput></para>
+      <screen>[ Donna, Barb, Ron, Melissa, Will, Daz, Jim ]
+[ Donna, Barb, Ron, Melissa, Daz, Jim ]
+[ Donna, Daz, Jim ]
+[ Daz, Jim ]
+[ ]</screen>
 
       <para>A delete expression has no value, it is of Void type.</para>
     </sect2>
@@ -472,8 +462,7 @@ println(names);
 
       <para>Thus the value of words is:</para>
 
-      <para><computeroutput>[ moose, wolf, turkey, bee, moose, wolf, turkey,
-      moose, turkey, turkey ]</computeroutput></para>
+      <screen>[ moose, wolf, turkey, bee, moose, wolf, turkey, moose, turkey, turkey ]</screen>
 
       <para>Because of sequence flattenning and because null is never added to
       a sequence, this is equivalent to:</para>
@@ -549,20 +538,11 @@ println( food );
     cases where sequences are required, singletons are automatically converted
     ('tomatoes'). As a result, the following is printed on the console:</para>
 
-    <para><computeroutput>[ cheese, soda, fries, cupcake ]
-    </computeroutput></para>
-
-    <para><computeroutput>[ cheese, soda, eggplant, cupcake ]
-    </computeroutput></para>
-
-    <para><computeroutput>[ cheese, soda, eggplant, cupcake ]
-    </computeroutput></para>
-
-    <para><computeroutput>[ spinach, broccoli, apples, eggplant, cupcake ]
-    </computeroutput></para>
-
-    <para><computeroutput>[ spinach, broccoli, apples, eggplant, tomatoes
-    ]</computeroutput></para>
+    <screen>[ cheese, soda, fries, cupcake ]
+[ cheese, soda, eggplant, cupcake ]
+[ cheese, soda, eggplant, cupcake ]
+[ spinach, broccoli, apples, eggplant, cupcake ]
+[ spinach, broccoli, apples, eggplant, tomatoes ]</screen>
 
     <para>The value of the assignment expression is the value of the variable,
     element, or slice after the assignment. The type of the assignment
@@ -1531,21 +1511,13 @@ for (mammal in endangered) {
 
     <para>The console shows the following:</para>
 
-    <para><computeroutput>[ Caribou, Ocelot, Puma, Sei ]
-    </computeroutput></para>
-
-    <para><computeroutput>[ Sei, Puma, Ocelot, Caribou ]
-    </computeroutput></para>
-
-    <para><computeroutput>4 </computeroutput></para>
-
-    <para><computeroutput>Mammal #0 is Caribou </computeroutput></para>
-
-    <para><computeroutput>Mammal #1 is Ocelot </computeroutput></para>
-
-    <para><computeroutput>Mammal #2 is Puma </computeroutput></para>
-
-    <para><computeroutput>Mammal #3 is Sei</computeroutput></para>
+    <screen>[ Caribou, Ocelot, Puma, Sei ]
+[ Sei, Puma, Ocelot, Caribou ]
+4 
+Mammal #0 is Caribou 
+Mammal #1 is Ocelot 
+Mammal #2 is Puma 
+Mammal #3 is Sei</screen>
 
     <para></para>
   </sect1>
@@ -1636,13 +1608,10 @@ println( --x );</programlisting>
 
     <para>The following is printed on the console:</para>
 
-    <para><computeroutput>0 </computeroutput></para>
-
-    <para><computeroutput>2 </computeroutput></para>
-
-    <para><computeroutput>2 </computeroutput></para>
-
-    <para><computeroutput>0</computeroutput></para>
+    <screen>0 
+2 
+2 
+0</screen>
 
     <para></para>
   </sect1>
@@ -1705,9 +1674,8 @@ println( aPair.good );
 
       <para>It will print:</para>
 
-      <para><computeroutput>Sunflower Sprouts </computeroutput></para>
-
-      <para><computeroutput>Lard</computeroutput></para>
+      <screen>Sunflower Sprouts 
+Lard</screen>
 
       <para></para>
     </sect2>
@@ -1778,7 +1746,7 @@ println( selected );</programlisting>
       <para>The selected elements of seq are those whose square is less than
       20. So the following is printed:</para>
 
-      <para><computeroutput>[ 1, 2, 3, 4 ]</computeroutput></para>
+      <screen>[ 1, 2, 3, 4 ]</screen>
 
       <para>Note that this selection could also have been done with the
       equivalent <command>for</command>-expression:</para>
@@ -1817,13 +1785,10 @@ println( seq[-1] );</programlisting>
       <para>Here the element specifier of seq is Integer, so the following is
       printed -- since zero is the default value of Integer:</para>
 
-      <para><computeroutput>100 </computeroutput></para>
-
-      <para><computeroutput>103 </computeroutput></para>
-
-      <para><computeroutput>0 </computeroutput></para>
-
-      <para><computeroutput>0</computeroutput></para>
+      <screen>100 
+103 
+0 
+0</screen>
 
       <para>The type of a sequence indexing expression is that of the indexed
       sequence's element specifier (the element type).</para>
@@ -1862,14 +1827,10 @@ println( usprez[3..&lt;] );
 
       <para>Will print to the console:</para>
 
-      <para><computeroutput>[ Adams, Jefferson, Madison ]
-      </computeroutput></para>
-
-      <para><computeroutput>[ Adams, Jefferson ] </computeroutput></para>
-
-      <para><computeroutput>[ Madison, Monroe ] </computeroutput></para>
-
-      <para><computeroutput>[ Madison ]</computeroutput></para>
+      <screen>[ Adams, Jefferson, Madison ]
+[ Adams, Jefferson ] 
+[ Madison, Monroe ] 
+[ Madison ]</screen>
 
       <para>The type of a sequence slice expression is the type of the
       sequence to which the slice clause is applied.</para>
@@ -2052,17 +2013,11 @@ println( root.format("") );</programlisting>
       <para>Which uses local <command>def</command>s within nested object
       literals to build sibling relationships. Its output is:</para>
 
-      <para><computeroutput>Chordata</computeroutput></para>
-
-      <para><computeroutput> Urochordata</computeroutput></para>
-
-      <para><computeroutput> Craniata
-      (prev:Urochordata)</computeroutput></para>
-
-      <para><computeroutput> Hyperotreti</computeroutput></para>
-
-      <para><computeroutput> Vertebrata
-      (prev:Hyperotreti)</computeroutput></para>
+      <screen>Chordata
+   Urochordata
+   Craniata (prev:Urochordata)
+      Hyperotreti
+      Vertebrata (prev:Hyperotreti)</screen>
 
       <para>Additional on-replace clauses may be added to the Point example by
       overriding an instance variable:</para>
@@ -2077,11 +2032,9 @@ current.x = 99.9;</programlisting>
 
       <para>This will print:</para>
 
-      <para><computeroutput>Changed x to 66.6 </computeroutput></para>
-
-      <para><computeroutput>Changed y to 33.3 </computeroutput></para>
-
-      <para><computeroutput>Changed x to 99.9</computeroutput></para>
+      <screen>Changed x to 66.6 
+Changed y to 33.3 
+Changed x to 99.9</screen>
 
       <para>The instance variable initializer can be a unidirectionally or
       bidirectionally bound expression, as this object literal (which keeps
@@ -2112,15 +2065,10 @@ println( onCircle );
       the object literal to provide a better output format. This is what is
       printed to the console:</para>
 
-      <para><computeroutput>Point( 1.0, 0.0) </computeroutput></para>
-
-      <para><computeroutput>Point( 0.0, 1.0) </computeroutput></para>
-
-      <para><computeroutput>Point(-1.0, 0.0) </computeroutput></para>
-
-      <para><computeroutput>Point(-0.0, -1.0) </computeroutput></para>
-
-      <para><computeroutput>Point( 1.0, -0.0)</computeroutput></para>
+      <screen>Point( 1.0, 0.0) Point( 0.0, 1.0) 
+Point(-1.0, 0.0) 
+Point(-0.0, -1.0) 
+Point( 1.0, -0.0)</screen>
 
       <para>The value of an object literal is the new instance. The type of an
       object literal is the class given in the
@@ -2532,14 +2480,9 @@ println( bop.series(5) );
       three different initial value and next function pairs. The following is
       printed:</para>
 
-      <para><computeroutput>[ X, XoX, XoXoXoX, XoXoXoXoXoXoXoX,
-      XoXoXoXoXoXoXoXoXoXoXoXoXoXoXoX ] </computeroutput></para>
-
-      <para><computeroutput>[ lambda, ambda, mbda, bda, da, a ]
-      </computeroutput></para>
-
-      <para><computeroutput>[ Lake, Mountains, Beach, Desert, Beach, Desert
-      ]</computeroutput></para>
+      <screen>[ X, XoX, XoXoXoX, XoXoXoXoXoXoXoX, XoXoXoXoXoXoXoXoXoXoXoXoXoXoXoX ] 
+[ lambda, ambda, mbda, bda, da, a ]
+[ Lake, Mountains, Beach, Desert, Beach, Desert ]</screen>
 
       <para></para>
     </sect2>
