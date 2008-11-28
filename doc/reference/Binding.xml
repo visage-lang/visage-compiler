@@ -111,38 +111,38 @@ println(sum); </programlisting></para>
       <programlisting>var min = 0;
 var max = 3;
 function square(x : Integer) : Integer { x*x }
-def values = bind for (x in [min..max]) square(x);  <co id="csq1" linkends="lsq1"/>
+def values = bind for (x in [min..max]) square(x);  <co xml:id="csq1" linkends="lsq1"/>
 println(values);
-max = 5;  <co id="csq2" linkends="lsq2"/>
+max = 5;  <co xml:id="csq2" linkends="lsq2"/>
 println(values);
-min = 1;  <co id="csq3" linkends="lsq3"/>
+min = 1;  <co xml:id="csq3" linkends="lsq3"/>
 println(values);
-min = 0;  <co id="csq4" linkends="lsq4"/>
+min = 0;  <co xml:id="csq4" linkends="lsq4"/>
 println(values);</programlisting>
 
       <para>The output is:</para>
 
-      <screen>[ 0, 1, 4, 9 ]  <co id="sq1" linkends="lsq1"/>
-[ 0, 1, 4, 9, 16, 25 ]  <co id="sq2" linkends="lsq2"/>
-[ 1, 4, 9, 16, 25 ]  <co id="sq3" linkends="lsq3"/>
-[ 0, 1, 4, 9, 16, 25 ]  <co id="sq4" linkends="lsq4"/></screen>
+      <screen>[ 0, 1, 4, 9 ]  <co xml:id="sq1" linkends="lsq1"/>
+[ 0, 1, 4, 9, 16, 25 ]  <co xml:id="sq2" linkends="lsq2"/>
+[ 1, 4, 9, 16, 25 ]  <co xml:id="sq3" linkends="lsq3"/>
+[ 0, 1, 4, 9, 16, 25 ]  <co xml:id="sq4" linkends="lsq4"/></screen>
 <para>But what about recalculations? </para>
   <calloutlist>
-    <callout arearefs="sq1" id="lsq1">
-      first the squares of 0 through 3
-      are calculated
+    <callout arearefs="sq1" xml:id="lsq1">
+      <simpara>first the squares of 0 through 3
+      are calculated</simpara>
     </callout>
-    <callout arearefs="sq2" id="lsq2">
-       then the squares of 4 and 5 (0 through 3 are not
-      recalculated when the max changes)
+    <callout arearefs="sq2" xml:id="lsq2">
+       <simpara>then the squares of 4 and 5 (0 through 3 are not
+      recalculated when the max changes)</simpara>
     </callout>
-    <callout arearefs="sq3" id="lsq3">
-      then the square of zero is deleted
-      (without recalculating any values)
+    <callout arearefs="sq3" xml:id="lsq3">
+      <simpara>then the square of zero is deleted
+      (without recalculating any values)</simpara>
     </callout>
-    <callout arearefs="sq4" id="lsq4">
-       and then the square of zero is added
-      back (this does require it to be recalculated)
+    <callout arearefs="sq4" xml:id="lsq4">
+       <simpara>and then the square of zero is added
+      back (this does require it to be recalculated)</simpara>
     </callout>
   </calloutlist>
 
@@ -212,24 +212,24 @@ var myX = 3.0;
 var myY = 3.0;
 def pt = bind makePoint(myX, myY);
 println(pt.x);
-myX = 10.0;   <co id="cmp1" linkends="lmp1"/>
+myX = 10.0;   <co xml:id="cmp1" linkends="lmp1"/>
 println(pt.x);
-scale = 2.0;  <co id="cmp2" linkends="lmp2"/>
+scale = 2.0;  <co xml:id="cmp2" linkends="lmp2"/>
 println(pt.x);</programlisting>
 
       <para>Will print:</para>
 
       <screen>3.0 
-10.0   <co id="mp1" linkends="1mp1"/>
-10.0   <co id="mp2" linkends="lmp2"/></screen>
+10.0   <co xml:id="mp1" linkends="lmp1"/>
+10.0   <co xml:id="mp2" linkends="lmp2"/></screen>
 
   <calloutlist>
-    <callout arearefs="mp1" id="lmp1">
-      Changing the argument myX causes makePoint to be called again.
+    <callout arearefs="mp1" xml:id="lmp1">
+      <simpara>Changing the argument myX causes makePoint to be called again.</simpara>
     </callout>
-    <callout arearefs="mp2" id="lmp2">
-      But, the function makePoint is a black-box. The change to scale won't
-      cause an update. That's where bound functions come in.
+    <callout arearefs="mp2" xml:id="lmp2">
+      <simpara>But, the function makePoint is a black-box. The change to scale won't
+      cause an update. That's where bound functions come in.</simpara>
     </callout>
   </calloutlist>
 
