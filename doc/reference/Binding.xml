@@ -111,43 +111,47 @@ println(sum); </programlisting></para>
       <programlisting>var min = 0;
 var max = 3;
 function square(x : Integer) : Integer { x*x }
-def values = bind for (x in [min..max]) square(x);  <co xml:id="csq1" linkends="lsq1"/>
+def values = bind for (x in [min..max]) square(x);  <co linkends="lsq1"
+          xml:id="csq1" />
 println(values);
-max = 5;  <co xml:id="csq2" linkends="lsq2"/>
+max = 5;  <co linkends="lsq2" xml:id="csq2" />
 println(values);
-min = 1;  <co xml:id="csq3" linkends="lsq3"/>
+min = 1;  <co linkends="lsq3" xml:id="csq3" />
 println(values);
-min = 0;  <co xml:id="csq4" linkends="lsq4"/>
+min = 0;  <co linkends="lsq4" xml:id="csq4" />
 println(values);</programlisting>
 
       <para>The output is:</para>
 
-      <screen>[ 0, 1, 4, 9 ]  <co xml:id="sq1" linkends="lsq1"/>
-[ 0, 1, 4, 9, 16, 25 ]  <co xml:id="sq2" linkends="lsq2"/>
-[ 1, 4, 9, 16, 25 ]  <co xml:id="sq3" linkends="lsq3"/>
-[ 0, 1, 4, 9, 16, 25 ]  <co xml:id="sq4" linkends="lsq4"/></screen>
-<para>But what about recalculations? </para>
-  <calloutlist>
-    <callout arearefs="sq1" xml:id="lsq1">
-      <simpara>first the squares of 0 through 3
-      are calculated</simpara>
-    </callout>
-    <callout arearefs="sq2" xml:id="lsq2">
-       <simpara>then the squares of 4 and 5 (0 through 3 are not
-      recalculated when the max changes)</simpara>
-    </callout>
-    <callout arearefs="sq3" xml:id="lsq3">
-      <simpara>then the square of zero is deleted
-      (without recalculating any values)</simpara>
-    </callout>
-    <callout arearefs="sq4" xml:id="lsq4">
-       <simpara>and then the square of zero is added
-      back (this does require it to be recalculated)</simpara>
-    </callout>
-  </calloutlist>
+      <screen>[ 0, 1, 4, 9 ]  <co linkends="lsq1" xml:id="sq1" />
+[ 0, 1, 4, 9, 16, 25 ]  <co linkends="lsq2" xml:id="sq2" />
+[ 1, 4, 9, 16, 25 ]  <co linkends="lsq3" xml:id="sq3" />
+[ 0, 1, 4, 9, 16, 25 ]  <co linkends="lsq4" xml:id="sq4" /></screen>
 
-      <para>The behavior is the same
-      if insert and delete are used.</para>
+      <para>But what about recalculations?</para>
+
+      <calloutlist>
+        <callout arearefs="sq1" xml:id="lsq1">
+          <simpara>first the squares of 0 through 3 are calculated</simpara>
+        </callout>
+
+        <callout arearefs="sq2" xml:id="lsq2">
+          <simpara>then the squares of 4 and 5 (0 through 3 are not
+          recalculated when the max changes)</simpara>
+        </callout>
+
+        <callout arearefs="sq3" xml:id="lsq3">
+          <simpara>then the square of zero is deleted (without recalculating
+          any values)</simpara>
+        </callout>
+
+        <callout arearefs="sq4" xml:id="lsq4">
+          <simpara>and then the square of zero is added back (this does
+          require it to be recalculated)</simpara>
+        </callout>
+      </calloutlist>
+
+      <para>The behavior is the same if insert and delete are used.</para>
 
       <para><remark>[To do: indexof]</remark></para>
 
@@ -212,27 +216,29 @@ var myX = 3.0;
 var myY = 3.0;
 def pt = bind makePoint(myX, myY);
 println(pt.x);
-myX = 10.0;   <co xml:id="cmp1" linkends="lmp1"/>
+myX = 10.0;   <co linkends="lmp1" xml:id="cmp1" />
 println(pt.x);
-scale = 2.0;  <co xml:id="cmp2" linkends="lmp2"/>
+scale = 2.0;  <co linkends="lmp2" xml:id="cmp2" />
 println(pt.x);</programlisting>
 
       <para>Will print:</para>
 
       <screen>3.0 
-10.0   <co xml:id="mp1" linkends="lmp1"/>
-10.0   <co xml:id="mp2" linkends="lmp2"/></screen>
+10.0   <co linkends="lmp1" xml:id="mp1" />
+10.0   <co linkends="lmp2" xml:id="mp2" /></screen>
 
-  <calloutlist>
-    <callout arearefs="mp1" xml:id="lmp1">
-      <simpara>Changing the argument myX causes makePoint to be called again.</simpara>
-    </callout>
-    <callout arearefs="mp2" xml:id="lmp2">
-      <simpara>But, the function makePoint is a black-box. The change to scale won't
-      cause an update. That's where bound functions come in.</simpara>
-    </callout>
-  </calloutlist>
+      <calloutlist>
+        <callout arearefs="mp1" xml:id="lmp1">
+          <simpara>Changing the argument myX causes makePoint to be called
+          again.</simpara>
+        </callout>
 
+        <callout arearefs="mp2" xml:id="lmp2">
+          <simpara>But, the function makePoint is a black-box. The change to
+          scale won't cause an update. That's where bound functions come
+          in.</simpara>
+        </callout>
+      </calloutlist>
     </sect2>
 
     <sect2>
@@ -343,45 +349,5 @@ println(pt.x);</programlisting>
     that the variable maintains the value of the expression. Specifically,
     this means the variable is updated when the dependencies of the expression
     change.</para>
-
-    <para><remark>This paragraph needs to be revamped:</remark> A bound
-    function has, as its body, an expression which may be bound. The body of a
-    bound function invoked from a bind context is a bound expression, as is
-    the value of a bound block expression. The dependencies of a bound
-    expression are as follows: The dependencies of a variable reference is the
-    variable. A literal has no dependencies. An object literal has its
-    referenced unbound instance variables. The dependencies of an arithmetic
-    or Boolean operation is the union of the dependencies of its components.
-    For example, the dependencies of: a + b are the union of the dependencies
-    of "a" and the dependencies of "b". The dependencies of a conditional are
-    the union of the dependencies of its components (condition, true-part, and
-    false-part). For example, the dependencies of: if (cond) a else b are the
-    union of the dependencies of "cond", the dependencies of "a" and the
-    dependencies of "b". It may or may not be desirable to optimize this to a
-    conditional dynamic dependency. The dependencies of for-expression aren't
-    addressed here. The dependencies of a block expression are the
-    dependencies of its value. Where its value is the terminal expression or
-    the value of the terminal return statement. The dependencies of a bound
-    function invocation are the dependencies of the body of the function (the
-    body of a function is a block expression). That is, when invoking a
-    function in a bind context, the body of the function (along with its
-    arguments) is a bound expression -- the invocation's dependencies are the
-    dependencies of the bound body. Note that the dependencies of the
-    arguments are not directly dependencies of the invocation, but they will
-    be included in the dependencies of the body unless the result of the
-    function does not depend on the corresponding parameter.</para>
-
-    <para>The dependencies of a non-bound function invocation are the
-    dependencies of the arguments. When a bound expression is updated,
-    expression evaluation is identical to normal expression evaluation for
-    literals, variable references, arithmetic and Boolean operators,
-    conditional expressions, and non-bound function invocation. An update does
-    not cause the re-evaluation of a bound function invocation, rather the
-    current value of this bound expression is used. Note that the update may
-    occur in the opposite direction, that is, a change to the dependencies of
-    a bound function body will trigger an update to the invoking bound
-    expression.</para>
-
-    <para></para>
   </sect1>
 </chapter>
