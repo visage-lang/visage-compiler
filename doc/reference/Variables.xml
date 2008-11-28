@@ -267,10 +267,6 @@ replaced AXY[0..2] by  yielding</screen>
 
     <para><remark>[To do: brief intro to slices, plus
     cross-reference]</remark></para>
-
-    <para><remark>[To do: Explain concept of trigger some more. But you can at
-    least explain the canonical forms of on replace: on replace { ... }, on
-    replace (x) { ... }, on replace x[a..b] = y { ... } ]</remark></para>
   </sect1>
 
   <sect1>
