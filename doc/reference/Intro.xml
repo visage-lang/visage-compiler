@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xml:id='Intro' version="5.0" xmlns="http://docbook.org/ns/docbook"
+<chapter version="5.0" xml:id="Intro" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:svg="http://www.w3.org/2000/svg"
@@ -26,8 +26,8 @@
     <emphasis>declaratively</emphasis> (tell me <emphasis>what</emphasis> you
     want, and I'll figure out how to make it happen). Declarative programming
     is particularly powerful in expressing the interactive relationships
-    between components, greatly simplifing the code and the development
-    process.</para>
+    between graphical components, greatly simplifing the code and the
+    development process.</para>
   </sect1>
 
   <sect1>
@@ -93,10 +93,10 @@
     <para>Note the expression enclosed in braces. What is being printed is a
     <emphasis>string expression</emphasis>. A string representation of the
     expression in braces is evaluated at runtime. The value of the string
-    expression is the string with that string representation replacing the
-    expression in braces. That is { 2*3.1415*7 } is replaced in the string by
-    <computeroutput>43.981</computeroutput> which is the runtime value of {
-    2*3.1415*7 }.</para>
+    expression is the whole string with that string representation replacing
+    the expression in braces. That is <command>{ 2*3.1415*7 }</command> is
+    replaced in the string by <computeroutput>43.981</computeroutput> which is
+    the runtime value of { 2*3.1415*7 }.</para>
 
     <para>Better programming style would encourage us to use named variables
     instead of "magic numbers" in our calculation, which is easy to do:</para>
@@ -105,13 +105,21 @@
 var r = 7; 
 println("Circumference is { 2 * PI * r } ")</programlisting>
 
-    <para>Even better, we could also define a function to compute the
-    circumference:</para>
+    <para>Here <command>PI</command> is defined to always be 3.14159265, while
+    the variable <command>r</command> starts out as 7, but can be
+    changed.</para>
+
+    <para>To improve our little script even more, we could also define a
+    function to compute the circumference:</para>
 
     <programlisting>def PI = 3.14159265; 
 var r = 7; 
 function circumference(radius) { 2 * PI * radius }
 println("Circumference is { circumference(r) } ")</programlisting>
+
+    <para>The function <command>circumference</command> takes a Number
+    <command>radius</command> as input, and returns the value of the
+    expression <command>2 * PI * radius</command>.</para>
 
     <para>Note that JavaFX Script uses <emphasis>type inference</emphasis> to
     figure out the type of variables and function. Type inference means that
@@ -153,11 +161,12 @@ println("Circumference is { circumference(r) }")</programlisting>
    y: 9
 }</programlisting>
 
-    <para>This will create a Point whose x and y values are 12 and 9,
-    respectively.</para>
+    <para>This will create a Point whose <command>x</command> and
+    <command>y</command> values are 12 and 9, respectively.</para>
 
-    <para>Finally we can ask the point to print itself by calling its show()
-    function (defined, above, in the Point class).</para>
+    <para>Finally we can ask the point to print itself by calling its
+    <command>show()</command> function (defined, above, in the Point
+    class).</para>
 
     <programlisting>myPoint.show()</programlisting>
 
