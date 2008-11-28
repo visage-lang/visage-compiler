@@ -523,25 +523,25 @@ println(names);
 println( food );
 food[2] = 'eggplant';
 println( food );
-food[4] = 'measles';   <co id="cfo1" linkends="lfo1"/>
+food[4] = 'measles';   <co xml:id="cfo1" linkends="lfo1"/>
 println( food );
-food[0..1] = ['spinach', 'brocolli', 'apples'];   <co id="cfo2" linkends="lfo2"/>
+food[0..1] = ['spinach', 'brocolli', 'apples'];   <co xml:id="cfo2" linkends="lfo2"/>
 println( food );
-food[4..20] = 'tomatoes';   <co id="cfo3" linkends="lfo3"/>
+food[4..20] = 'tomatoes';   <co xml:id="cfo3" linkends="lfo3"/>
 println( food );
 </programlisting>
 
   <calloutlist>
-    <callout arearefs="cfo1" id="lfo1">
-      assignments to out of range indices are ignored
+    <callout arearefs="cfo1" xml:id="lfo1">
+      <simpara>assignments to out of range indices are ignored</simpara>
     </callout>
-    <callout arearefs="cfo2" id="lfo2">
-      the size of the slice being
-    assigned need not match the size of the assigned sequence
+    <callout arearefs="cfo2" xml:id="lfo2">
+     <simpara>the size of the slice being
+    assigned need not match the size of the assigned sequence</simpara>
     </callout>
-    <callout arearefs="cfo3" id="lfo3">
-      out-of-range portions of slice assignments are ignored.  as in all
-    cases where sequences are required, singletons are automatically converted
+    <callout arearefs="cfo3" xml:id="lfo3">
+     <simpara>out-of-range portions of slice assignments are ignored.  as in all
+    cases where sequences are required, singletons are automatically converted</simpara>
     </callout>
   </calloutlist>
 
@@ -549,9 +549,9 @@ println( food );
 
     <screen>[ cheese, soda, fries, cupcake ]
 [ cheese, soda, eggplant, cupcake ]
-[ cheese, soda, eggplant, cupcake ]   <co id="fo1" linkends="lfo1"/>
-[ spinach, broccoli, apples, eggplant, cupcake ]   <co id="fo2" linkends="lfo2"/>
-[ spinach, broccoli, apples, eggplant, tomatoes ]   <co id="fo3" linkends="lfo3"/></screen>
+[ cheese, soda, eggplant, cupcake ]   <co xml:id="fo1" linkends="lfo1"/>
+[ spinach, broccoli, apples, eggplant, cupcake ]   <co xml:id="fo2" linkends="lfo2"/>
+[ spinach, broccoli, apples, eggplant, tomatoes ]   <co xml:id="fo3" linkends="lfo3"/></screen>
 
     <para>The value of the assignment expression is the value of the variable,
     element, or slice after the assignment. The type of the assignment
