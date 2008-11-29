@@ -34,11 +34,29 @@
       <title>Element Specifier</title>
 
       <para>Element specifiers are classes or function signatures. Classes
-      include both JavaFX classes and Java classes. A function signature
-      consists of the parameter types and return type -- function signatures
-      are unnamed and are not tied to particular functions which might
-      implement the signature. All element specifiers are subtypes of
-      java.lang.Object.</para>
+      include both JavaFX classes and Java classes. These are some example
+      representations of element specifiers which are classes:</para>
+
+      <programlisting>MyClass
+java.util.Map
+Duration
+javafx.animation.Timeline
+Integer</programlisting>
+
+      <para>A function signature consists of the parameter types and return
+      type -- function signatures are unnamed and are not tied to particular
+      functions which might implement the signature. These are some example
+      representations of element specifiers which are function
+      signatures:</para>
+
+      <programlisting>function(:Number):Boolean
+function(:Integer,:Integer):SplotchedBall
+function():Integer</programlisting>
+
+      <para>See <link linkend="FunctionTypes">Function Types</link> for more
+      information.</para>
+
+      <para>All element specifiers are subtypes of java.lang.Object.</para>
 
       <para>[In formal type systems the element specifier would be called the
       <emphasis>ground type</emphasis>]</para>
@@ -122,8 +140,8 @@ println(sizeof seq);</programlisting>
     <para>Will print zero as the size of seq since seq has not been set and
     its initial value will be an empty sequence of Integer.</para>
 
-    <para>Each required type has its own default value, as shown in the Type
-    Chart <remark>[link to chart near bottom of chapter]</remark>.</para>
+    <para>Each required type has its own default value, as shown in the <link
+    linkend="TypeChart">Type Chart</link>.</para>
 
     <programlisting>var k : Integer; 
 println(k);</programlisting>
@@ -210,16 +228,28 @@ println(k);</programlisting>
         <para>Literals are bracketed in either single or double quotes. That
         is, a double quote followed by a sequence of characters (here
         "sequence" does not refer to the cardinality) and ending with a double
-        quote. Or a single quote followed by a sequence of characters and
-        ending with a single quote. If the sequence of characters includes
-        braces ('{' or '}') it is a string-expression (which is covered in the
-        Expressions chapter). Any character may be escaped with the backslash
-        character ('\') -- this is useful for including the brace, quote, and
-        backslash characters. Note that single quotes may be included in
-        double quoted strings without being escaped, and visa versa. The
-        sequence of characters must not include carriage-return or linefeed.
-        Two adjacent strings are automatically merged at compile-time -- this
-        is convenient for making multiple line strings. Thus:</para>
+        quote. For example:</para>
+
+        <programlisting>"brown cow"</programlisting>
+
+        <para>Or a single quote followed by a sequence of characters and
+        ending with a single quote. For example:</para>
+
+        <programlisting>'This is so %#@*^ exciting!'</programlisting>
+
+        <para>If the sequence of characters includes braces ('{' or '}') it is
+        a string-expression (which is covered in the Expressions chapter). Any
+        character may be escaped with the backslash character ('\') -- this is
+        useful for including the brace, quote, and backslash characters. Note
+        that single quotes may be included in double quoted strings without
+        being escaped, and visa versa. For example:</para>
+
+        <programlisting>"Then she said 'shazam', and abruptly left"</programlisting>
+
+        <para>The sequence of characters must not include carriage-return or
+        linefeed. Two adjacent strings are automatically merged at
+        compile-time -- this is convenient for making multiple line strings.
+        Thus:</para>
 
         <programlisting>def greeting = "Hello "
 'there';
@@ -299,7 +329,13 @@ println( greeting );</programlisting>
         the range 0 through 9, or simply 0 by itself. Octal format is the
         digit 0 followed by digits in the range 0 through 7. Hexidecimal
         format is the digit 0 following by 'x' or 'X' then followed by digits
-        in the range 0 through 9 or A through F (upper or lower case).</para>
+        in the range 0 through 9 or A through F (upper or lower case). These
+        are all valid Integer literals:</para>
+
+        <programlisting>145
+0
+012
+0xFF</programlisting>
       </sect3>
 
       <sect3>
@@ -415,7 +451,7 @@ Sign: one of
     </sect2>
   </sect1>
 
-  <sect1>
+  <sect1 xml:id="FunctionTypes">
     <title>Function Types</title>
 
     <para>A function type represents the set of function definitions with a
@@ -457,7 +493,7 @@ Here is the Object: null, and the Integer: 1234</screen>
     <para></para>
   </sect1>
 
-  <sect1>
+  <sect1 xml:id="TypeChart">
     <title>Type Chart</title>
 
     <para></para>
