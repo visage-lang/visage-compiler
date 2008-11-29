@@ -24,7 +24,7 @@
     the type holds and the cardinality determines how many of them can be
     held.</para>
 
-    <para><remark>[To do: add more examples of types, add examples of literal,
+    <para><remark>[To do: add more examples of types, 
     links to expression type tables, use docbook EBNF for lexical
     rules]</remark></para>
 
@@ -353,19 +353,21 @@ println( greeting );</programlisting>
 
       <para>The Number type represents floating-point numbers.</para>
 
-      <para>The Number type is conceptually associated with the
-      double-precision 64-bit format IEEE 754 values and operations as
-      specified in IEEE Standard for Binary Floating-Point Arithmetic,
-      ANSI/IEEE Standard 754-1985 (IEEE, New York).</para>
+      <blockquote>
+        <para>The Number type is conceptually associated with the
+        double-precision 64-bit format IEEE 754 values and operations as
+        specified in IEEE Standard for Binary Floating-Point Arithmetic,
+        ANSI/IEEE Standard 754-1985 (IEEE, New York).</para>
 
-      <para>The IEEE 754 standard includes not only positive and negative
-      numbers that consist of a sign and magnitude, but also positive and
-      negative zeros, positive and negative infinities, and special
-      Not-a-Number values (hereafter abbreviated NaN). A NaN value is used to
-      represent the result of certain invalid operations such as dividing zero
-      by zero. The double-extended-exponent value set may, under certain
-      circumstances, be used instead of the standard value sets to represent
-      the values of expressions of type Number.</para>
+        <para>The IEEE 754 standard includes not only positive and negative
+        numbers that consist of a sign and magnitude, but also positive and
+        negative zeros, positive and negative infinities, and special
+        Not-a-Number values (hereafter abbreviated NaN). A NaN value is used
+        to represent the result of certain invalid operations such as dividing
+        zero by zero. The double-extended-exponent value set may, under
+        certain circumstances, be used instead of the standard value sets to
+        represent the values of expressions of type Number.</para>
+      </blockquote>
 
       <para>Note that all Integer values can be represented exactly as Number
       values.</para>
@@ -391,6 +393,13 @@ Sign: one of
         <command>+ -</command>
 </programlisting></para>
 
+        <para>The following are valid Number literals:</para>
+
+        <programlisting>12.3
+0.629
+3.9e4
+1.7662E-34</programlisting>
+
         <para></para>
       </sect3>
 
@@ -414,6 +423,11 @@ Sign: one of
         <programlisting>    BooleanLiteral: one of
             <command>true false</command>
 </programlisting>
+
+        <para>That is, the two, and only, Boolean literals are:</para>
+
+        <programlisting>true
+false</programlisting>
 
         <para></para>
       </sect3>
@@ -445,8 +459,14 @@ Sign: one of
     TimeUnit: one of
         <command>ms  s  m  h</command></programlisting>
 
-        <para>For example: 10s is ten seconds, 4ms is four milliseconds, 010m
-        is eight minutes, and 0.5h is half an hour.</para>
+        <para>For example: </para>
+
+        <programlisting>10s
+4ms
+0.5h</programlisting>
+
+        <para>Where 10s is ten seconds, 4ms is four milliseconds, 010m is
+        eight minutes, and 0.5h is half an hour.</para>
       </sect3>
     </sect2>
   </sect1>
