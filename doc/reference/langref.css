@@ -67,9 +67,15 @@ caption {font-family:arial; font-style:italic; font-weight: bold; color: #224488
        
 .style1 {font-family: "Courier New", Courier, monospace}
 
-pre.red {color: red; }
-
 pre.screen  {background-color: lightgrey; }
+
+blockquote pre.programlisting  {
+     background-color: #ffe8e8;
+     font-family:times;
+     font-size: smaller;
+}
+
+pre.red {color: red; }
 
 .red {color: red; }
 

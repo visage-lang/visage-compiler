@@ -200,7 +200,7 @@ println(k);</programlisting>
       <sect3>
         <title>String Literal Syntax</title>
 
-        <para><programlisting>    StringLiteral:
+        <blockquote><programlisting>    StringLiteral:
             OneStringLiteral
             StringLiteral OneStringLiteral
 
@@ -223,7 +223,7 @@ println(k);</programlisting>
     SingleQuoteStringCharacter:
             InputCharacter but not <command>'</command>, <command>{</command>, <command>}</command> or <command>\</command>
             <command>\</command> InputCharacter
-</programlisting></para>
+</programlisting></blockquote>
 
         <para>Literals are bracketed in either single or double quotes. That
         is, a double quote followed by a sequence of characters (here
@@ -273,7 +273,7 @@ println( greeting );</programlisting>
     <sect2>
       <title>Integer</title>
 
-      <para><programlisting>    IntegerLiteral:
+      <blockquote><programlisting>    IntegerLiteral:
             DecimalIntegerLiteral
             HexIntegerLiteral       
             OctalIntegerLiteral
@@ -315,7 +315,7 @@ println( greeting );</programlisting>
 
     OctalDigit: one of
             <command>0 1 2 3 4 5 6 7</command>
-</programlisting></para>
+</programlisting></blockquote>
 
       <para>The Integer type represents integers in the range -2147483648 to
       2147483647, inclusive. The default value for the Integer type is zero
@@ -375,7 +375,7 @@ println( greeting );</programlisting>
       <sect3>
         <title>Number Literal Syntax</title>
 
-        <para><programlisting>NumberLiteral:
+        <blockquote><programlisting>NumberLiteral:
       Digits . Digits<subscript>opt</subscript> ExponentPart<subscript>opt</subscript> 
       <command>.</command> Digits ExponentPart<subscript>opt</subscript> 
       Digits ExponentPart<subscript>opt</subscript> 
@@ -391,7 +391,7 @@ SignedInteger:
 
 Sign: one of
         <command>+ -</command>
-</programlisting></para>
+</programlisting></blockquote>
 
         <para>The following are valid Number literals:</para>
 
@@ -420,9 +420,9 @@ Sign: one of
       <sect3>
         <title>Boolean Literal Syntax</title>
 
-        <programlisting>    BooleanLiteral: one of
+        <blockquote><programlisting>    BooleanLiteral: one of
             <command>true false</command>
-</programlisting>
+</programlisting></blockquote>
 
         <para>That is, the two, and only, Boolean literals are:</para>
 
@@ -452,12 +452,12 @@ false</programlisting>
       <sect3>
         <title>Duration Literal Syntax</title>
 
-        <programlisting>    DurationLiteral:
+        <blockquote><programlisting>    DurationLiteral:
         IntegerLiteral TimeUnit
         NumberLiteral TimeUnit
 
     TimeUnit: one of
-        <command>ms  s  m  h</command></programlisting>
+        <command>ms  s  m  h</command></programlisting></blockquote>
 
         <para>For example: </para>
 
