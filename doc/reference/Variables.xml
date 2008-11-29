@@ -187,18 +187,6 @@ class B {
       </mediaobject>
     </figure>
 
-    <para></para>
-
-    <figure>
-      <title>onReplaceClause</title>
-
-      <mediaobject>
-        <imageobject>
-          <imagedata fileref="onReplaceClause.png"></imagedata>
-        </imageobject>
-      </mediaobject>
-    </figure>
-
     <para>While syntactically optional, an
     <emphasis>initializingExpression</emphasis> is required with
     <command>def</command>.</para>
@@ -213,7 +201,19 @@ class B {
   </sect1>
 
   <sect1 xml:id="onReplaceClause">
-    <title>On Replace</title>
+    <title><command>on replace</command> Clause</title>
+
+    <para></para>
+
+    <figure>
+      <title>onReplaceClause</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="onReplaceClause.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
     <para>The <emphasis>onReplaceClause</emphasis>, if present, causes the
     block to be executed each time the value of the variable changes --
@@ -272,9 +272,56 @@ replaced AXY[0..2] by  yielding</screen>
   <sect1>
     <title><command>isInitialized</command> Built-In Function</title>
 
-    <para><remark>[To do: write section]</remark></para>
+    <para>The built-in <command>isInitialized</command> function takes a
+    variable reference as its argument, and returns true if it has ever been
+    set. Note that only explicit sets are considered, if the variable starts out
+    with the <link linkend="DefaultValues">default value of the
+    type</link> this is not considered being set. One typical usage is to set up
+    uninitialized instance variables in the <link
+    linkend="initBlock"><command>init</command> block</link>:</para>
 
-    <para></para>
+    <programlisting>class Temperature {
+   var fahrenheit : Number;
+   var celcius : Number;
+   function show() { println( "Fahrenheit: {fahrenheit},  Celcius: {celcius}" ) }
+   init {
+      if (not isInitialized(fahrenheit)) {
+         fahrenheit = celcius * 9 / 5 + 32
+      } else {
+         celcius = (fahrenheit - 32) * 5 / 9
+      }
+   }
+}
+Temperature{fahrenheit: 98.6}.show();
+Temperature{celcius: 100}.show();
+</programlisting>
+
+    <para>This will print:</para>
+
+    <screen>Fahrenheit: 98.6,  Celcius: 37.0
+Fahrenheit: 212.0,  Celcius: 100.0</screen>
+
+    <para>If update is wanted any time the set occurs, then
+    <command>isInitialized</command> can be used in the <emphasis><link
+    linkend="onReplaceClause">onReplaceClause</link></emphasis>:</para>
+
+    <programlisting>class Temperature {
+   var fahrenheit : Number on replace {
+      if (isInitialized(fahrenheit)) {
+         celcius = (fahrenheit - 32) * 5 / 9
+      }
+   }
+   var celcius : Number on replace {
+      if (isInitialized(celcius)) {
+         fahrenheit = celcius * 9 / 5 + 32
+      }
+   }
+   function show() { println( "Fahrenheit: {fahrenheit},  Celcius: {celcius}" ) }
+}
+</programlisting>
+
+    <para>Note the <command>isInitialized</command> prevents the update
+    when the instance variables are initially set to the default value.</para>
   </sect1>
 
   <sect1>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xml:id='Classes' version="5.0" xmlns="http://docbook.org/ns/docbook"
+<chapter version="5.0" xml:id="Classes" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:svg="http://www.w3.org/2000/svg"
@@ -72,8 +72,6 @@ def rubySlipper = Shoe {
 
     <para></para>
 
-    <para></para>
-
     <figure>
       <title>extendsClause</title>
 
@@ -83,8 +81,6 @@ def rubySlipper = Shoe {
         </imageobject>
       </mediaobject>
     </figure>
-
-    <para></para>
 
     <para></para>
   </sect1>
@@ -110,12 +106,8 @@ def rubySlipper = Shoe {
     <emphasis>variableDeclaration</emphasis> are covered in their respective
     chapters. The remaining class members are covered below.</para>
 
-    <para></para>
-
-    <sect2>
+    <sect2 xml:id="initBlock">
       <title><command>init</command> Block</title>
-
-      <para></para>
 
       <para></para>
 
@@ -133,10 +125,8 @@ def rubySlipper = Shoe {
       which is executed as the final step of instance initialization.</para>
     </sect2>
 
-    <sect2>
+    <sect2 xml:id="postinitBlock">
       <title><command>postinit</command> Block</title>
-
-      <para></para>
 
       <para></para>
 
@@ -155,14 +145,10 @@ def rubySlipper = Shoe {
       <para>The <emphasis>postInitBlock</emphasis> is an optional block of
       code which is executed after instance initialization has
       completed.</para>
-
-      <para></para>
     </sect2>
 
     <sect2>
       <title>Variable Override Declaration</title>
-
-      <para></para>
 
       <para></para>
 
@@ -189,8 +175,6 @@ def rubySlipper = Shoe {
       be executed on update -- any <emphasis>onReplaceClause</emphasis>
       defined in a subclass is also executed on change to the variable -- this
       is critical for maintaining subclass invariants..</para>
-
-      <para></para>
     </sect2>
   </sect1>
 
@@ -220,28 +204,35 @@ def rubySlipper = Shoe {
         <listitem>
           <simpara>The object is created.</simpara>
         </listitem>
+
         <listitem>
           <simpara>The Java superclass default constructor, if any, is
           executed.</simpara>
         </listitem>
+
         <listitem>
           <simpara>The values of the object literal's instance variable
           initializers are computed (but not set).</simpara>
         </listitem>
+
         <listitem>
-          <simpara>The instance variables of JavaFX superclasses are set.</simpara>
+          <simpara>The instance variables of JavaFX superclasses are
+          set.</simpara>
         </listitem>
+
         <listitem>
           <simpara>The instance variables of this class are set, in lexical
-          order. </simpara>
+          order.</simpara>
         </listitem>
+
         <listitem>
-          <simpara>The <command>init</command> block, if any, is evaluated. The
-          instance is now initialized.</simpara>
+          <simpara>The <command>init</command> block, if any, is evaluated.
+          The instance is now initialized.</simpara>
         </listitem>
+
         <listitem>
-          <simpara>The <command>postinit</command> block, if any, is evaluated.
-          </simpara>
+          <simpara>The <command>postinit</command> block, if any, is
+          evaluated.</simpara>
         </listitem>
       </itemizedlist>
 
@@ -280,8 +271,8 @@ def rubySlipper = Shoe {
 
       <para>If no <emphasis>initializingExpression</emphasis> is provided, the
       default value for the type is the default value of the type of the
-      instance variable -- see the <link linkend='Types'>Types and Values chapter</link>. For
-      example:</para>
+      instance variable -- see the <link linkend="Types">Types and Values
+      chapter</link>. For example:</para>
 
       <para><programlisting>class Answers {
    var ungulate : Boolean;
