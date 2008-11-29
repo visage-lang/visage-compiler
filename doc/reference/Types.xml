@@ -1,34 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xml:id='Types'
-  version="5.0" xmlns="http://docbook.org/ns/docbook"
+<chapter version="5.0" xml:id="Types" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:svg="http://www.w3.org/2000/svg"
          xmlns:m="http://www.w3.org/1998/Math/MathML"
          xmlns:html="http://www.w3.org/1999/xhtml"
          xmlns:db="http://docbook.org/ns/docbook">
-  <title xml:id='Types.title'>Types and Values</title>
+  <title xml:id="Types.title">Types and Values</title>
 
   <para>Covers the data types and values which can be represented and
-  manipulated in JavaFX Script.</para>
-
-  <para><remark>[To do: add more examples of types, add examples of literal,
-  links to expression type tables, use docbook EBNF for lexical
-  rules]</remark></para>
+  manipulated in JavaFX Script.<remark></remark></para>
 
   <sect1>
     <title>JavaFX Script Data Types</title>
 
-    <para>The Void type is an odd duck that is only used to indicate that an
-    expression does not have a value (examples of such expressions are the
-    <command>while</command>-expression and calls to functions which have no
-    return value), the remainder of this chapter excludes Void.</para>
-
-    <para>JavaFX Script Data Types, hereafter called JavaFX Types , consist of
-    an <emphasis>element specifier</emphasis> and a
+    <para>JavaFX Script data types, hereafter called JavaFX types, describe
+    the kinds of values a JavaFX expression can have. JavaFX variables can
+    explicitly declare their type; a function can explicitly declare the types
+    of its parameters and the type of its return value. JavaFX types (with the
+    exception of <link linkend="Void">Void</link>) consist of an
+    <emphasis>element specifier</emphasis> and a
     <emphasis>cardinality</emphasis>. The element specifier determines what
     the type holds and the cardinality determines how many of them can be
     held.</para>
+
+    <para><remark>[To do: add more examples of types, add examples of literal,
+    links to expression type tables, use docbook EBNF for lexical
+    rules]</remark></para>
+
+    <para></para>
 
     <sect2>
       <title>Element Specifier</title>
@@ -81,9 +81,9 @@
         <para>The nonexistent value, null, is not a permitted value for types
         with required cardinality. Attempts to assign null to a type with
         required cardinality will be converted to the default value (see the
-        <link linkend='DefaultValues'>Default Values section</link>). Attempts to convert null to a type with
-        required cardinality will also be converted to the default
-        value.</para>
+        <link linkend="DefaultValues">Default Values section</link>). Attempts
+        to convert null to a type with required cardinality will also be
+        converted to the default value.</para>
       </sect3>
 
       <sect3>
@@ -100,8 +100,8 @@
     </sect2>
   </sect1>
 
-  <sect1 xml:id='DefaultValues'>
-    <title xml:id='DefaultValues.title'>Default Values</title>
+  <sect1 xml:id="DefaultValues">
+    <title xml:id="DefaultValues.title">Default Values</title>
 
     <para>Each JavaFX type has an associated default value. The default
     variable is the value of a variable before it is set. It is also the value
@@ -140,8 +140,8 @@ println(k);</programlisting>
 
     <itemizedlist>
       <listitem>
-        <simpara>they are immutable -- they do not have internal state that can
-        be changed (for example, you can't change the characters in a
+        <simpara>they are immutable -- they do not have internal state that
+        can be changed (for example, you can't change the characters in a
         String)</simpara>
       </listitem>
 
@@ -165,8 +165,8 @@ println(k);</programlisting>
       </listitem>
 
       <listitem>
-        <simpara>they, with the exception of Duration, have built-in operations
-        that return values of the type</simpara>
+        <simpara>they, with the exception of Duration, have built-in
+        operations that return values of the type</simpara>
       </listitem>
     </itemizedlist>
 
@@ -235,8 +235,8 @@ println( greeting );</programlisting>
       <sect3>
         <title>Operations over String</title>
 
-        <para>String-expressions are of String type -- see the <link linkend='Expressions'>Expressions chapter</link>
-        </para>
+        <para>String-expressions are of String type -- see the <link
+        linkend="Expressions">Expressions chapter</link></para>
       </sect3>
     </sect2>
 
@@ -674,6 +674,26 @@ names[1] = 'Donna';           // set the element at 1 (previously 'Ellen') to 'D
 
     <para>Note that sequences are immutable, so technically, each line above
     assigns a new sequence to names.</para>
+
+    <para></para>
+  </sect1>
+
+  <sect1 xml:id="Void">
+    <title>Void Type</title>
+
+    <para>Void type is an odd duck that is only used to indicate that an
+    expression does not have a value. Examples of expressions of Void type are
+    the while-expression and calls to functions which have no return value.
+    The only time Void can be used to explicitly declare a type is to declare
+    the return type of a function which does not return a value:</para>
+
+    <programlisting>function gab(val : Number) : Void {
+   var remains = val;
+   while (remains &gt; 1.0) {
+      println( remains );
+      remains = remains / 2;
+   }
+}</programlisting>
 
     <para></para>
   </sect1>
