@@ -333,9 +333,44 @@ public class SliceReplacementSequenceTest extends JavaFXTestCase {
         assertEquals(THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT, 1, 21, 22, 23, 3);
         
         // dest-offset
+        actuals = new Object[] {2, 0, 0, 0, 0, 0};
+        THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT.toArray(0, 5, actuals, 1);
+        Assert.assertArrayEquals(new Object[] {2, 1, 21, 22, 23, 3}, actuals);
+        assertEquals(THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT, 1, 21, 22, 23, 3);
+
+        actuals = new Object[] {2, 0};
+        THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT.toArray(0, 1, actuals, 1);
+        Assert.assertArrayEquals(new Object[] {2, 1}, actuals);
+        assertEquals(THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT, 1, 21, 22, 23, 3);
+
         actuals = new Object[] {2, 0, 0};
         THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT.toArray(0, 2, actuals, 1);
         Assert.assertArrayEquals(new Object[] {2, 1, 21}, actuals);
+        assertEquals(THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT, 1, 21, 22, 23, 3);
+
+        actuals = new Object[] {2, 0, 0, 0, 0};
+        THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT.toArray(0, 4, actuals, 1);
+        Assert.assertArrayEquals(new Object[] {2, 1, 21, 22, 23}, actuals);
+        assertEquals(THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT, 1, 21, 22, 23, 3);
+
+        actuals = new Object[] {2, 0, 0, 0};
+        THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT.toArray(1, 3, actuals, 1);
+        Assert.assertArrayEquals(new Object[] {2, 21, 22, 23}, actuals);
+        assertEquals(THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT, 1, 21, 22, 23, 3);
+
+        actuals = new Object[] {2, 0, 0, 0, 0};
+        THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT.toArray(1, 4, actuals, 1);
+        Assert.assertArrayEquals(new Object[] {2, 21, 22, 23, 3}, actuals);
+        assertEquals(THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT, 1, 21, 22, 23, 3);
+
+        actuals = new Object[] {2, 0, 0};
+        THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT.toArray(3, 2, actuals, 1);
+        Assert.assertArrayEquals(new Object[] {2, 23, 3}, actuals);
+        assertEquals(THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT, 1, 21, 22, 23, 3);
+
+        actuals = new Object[] {2, 0};
+        THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT.toArray(4, 1, actuals, 1);
+        Assert.assertArrayEquals(new Object[] {2, 3}, actuals);
         assertEquals(THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT, 1, 21, 22, 23, 3);
     }
     
