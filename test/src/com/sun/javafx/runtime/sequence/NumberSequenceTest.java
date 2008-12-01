@@ -33,7 +33,7 @@ import com.sun.javafx.runtime.TypeInfo;
  */
 public class NumberSequenceTest extends JavaFXTestCase {
     private final Sequence<Double> EMPTY_SEQUENCE = TypeInfo.Double.emptySequence;
-    private final Sequence<Double> ZERO_SEQUENCE = new ArraySequence<Double>(TypeInfo.Double, 0.0).noteShared();
+    private final Sequence<Double> ZERO_SEQUENCE = new ArraySequence<Double>(TypeInfo.Double, 0.0);
 
     /** Test ranges, including skip ranges and backwards ranges */
     public void testRange() {
@@ -243,10 +243,9 @@ public class NumberSequenceTest extends JavaFXTestCase {
     public void testMixedConcat () {
         TypeInfo<Number> NumberTypeInfo = TypeInfo.<Number>makeTypeInfo(0);
 
-        Sequence<Integer> sI1 = new ArraySequence<Integer>(TypeInfo.Integer, 1, 2).noteShared();
-        Sequence<Double> sD1 = new ArraySequence<Double>(TypeInfo.Double, 1.5, 2.5).noteShared();
+        Sequence<Integer> sI1 = new ArraySequence<Integer>(TypeInfo.Integer, 1, 2);
+        Sequence<Double> sD1 = new ArraySequence<Double>(TypeInfo.Double, 1.5, 2.5);
         Sequence<Number> sN1 = Sequences.concatenate(NumberTypeInfo, sI1, sD1);
-        Sequences.noteShared(sN1);
         assertEquals(sN1, 1, 2, 1.5, 2.5);
         assertEquals(Sequences.concatenate(TypeInfo.Integer, sI1, sI1), 1, 2, 1, 2);
 

@@ -123,13 +123,7 @@ public class SequenceMutator {
 
     /**
      * Optimized version of replaceSlice where sizeof newValues == 1.
-     * @param target The sequence in which the slice is being replaced
-     * @param listener A sequence listener which will be notified, may be null
-     * @param startPos Starting position of the slice, inclusive, may be 0..size
-     * @param endPos Ending position of the slice, inclusive, may be start-1..size-1
-     * @param newValue The single replement value - null is treated like deletion
-     * @return The new sequence.
-       */
+     */
     public static <T> Sequence<T> replaceSlice(Sequence<T> target, Listener<T> listener,
                                                int startPos, int endPos, T newValue) {
         final int size = Sequences.size(target);
@@ -171,16 +165,14 @@ public class SequenceMutator {
      * Insert the specified value at the end of the sequence
      */
     public static <T> Sequence<T> insert(Sequence<T> target, Listener<T> listener, T value) {
-        int tsize = target.size();
-        return replaceSlice(target, listener, tsize, tsize-1, value);
+        return replaceSlice(target, listener, target.size(), target.size()-1, value);
     }
 
     /**
      * Insert the specified values at the end of the sequence
      */
     public static <T> Sequence<T> insert(Sequence<T> target, Listener<T> listener, Sequence<? extends T> values) {
-        int tsize = target.size();
-        return replaceSlice(target, listener, tsize, tsize-1, values);
+        return replaceSlice(target, listener, target.size(), target.size()-1, values);
     }
 
     /**

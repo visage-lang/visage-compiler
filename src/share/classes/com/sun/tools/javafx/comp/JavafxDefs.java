@@ -135,8 +135,6 @@ public class JavafxDefs {
     final Name attributeSetPrefixName;
     final Name applyDefaultsPrefixName;
     final Name setDefaultMethodName;
-    final Name noteSharedMethodName;
-    final Name getAsSequenceRawMethodName;
     final Name[] locationGetMethodName;
     final Name[] locationSetMethodName;
     final Name[][] locationSetMilieuMethodName;
@@ -193,7 +191,6 @@ public class JavafxDefs {
         attributeSetMethodParamName = names.fromString(attributeSetMethodParamNameString);
         getSliceMethodName = names.fromString("getSlice");
         replaceSliceMethodName = names.fromString("replaceSlice");
-        getAsSequenceRawMethodName = names.fromString("getAsSequenceRaw");
         setMethodName = names.fromString(setMethodNameString);
         sizeMethodName = names.fromString(sizeMethodNameString);
         defaultingTypeInfoFieldName = names.fromString("$TYPE_INFO");
@@ -220,7 +217,6 @@ public class JavafxDefs {
         addTriggersName = names.fromString("addTriggers$");
         userInitName = names.fromString("userInit$");
         postInitName = names.fromString("postInit$");
-        noteSharedMethodName = names.fromString("noteShared");
         implFunctionSuffixName = names.fromString(implFunctionSuffix);
         needsDefaultSuffixName = names.fromString(needsDefaultSuffix);
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
