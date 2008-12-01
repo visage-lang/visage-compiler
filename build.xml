@@ -219,6 +219,19 @@
 		-->
 
     </target>
+
+    <target name="generate-templates" depends="-pre-compile">
+        <java classname="com.sun.javafx.tools.stringtemplate.ExpandXxxTemplate">
+            <arg value="com/sun/javafx/runtime/location/XxxBindingExpression" />
+            <arg value="${build.generated.dir}" />
+            <classpath>
+                <pathelement location="${build.buildtools.dir}"/>
+                <path refid="antlr.class.path" />
+                <pathelement location="${src.classes.dir}" />
+            </classpath>
+        </java>
+    </target>
+
     <target name="-do-compile" depends="init,generated-java,-pre-compile" if="have.sources">
         <pcompile srcdir="${src.classes.dir}/com"
                   destdir="${build.generated.dir}/com"
@@ -367,11 +380,14 @@
     
     <target name="-def-pcompile">
         <mkdir dir="${build.buildtools.dir}"/>
-        <javac srcdir="${src.buildtools.dir}/CompileProperties"
-               destdir="${build.buildtools.dir}/"
-               classpath="${ant.home}/lib/ant.jar"/>
+        <javac srcdir="${src.buildtools.dir}" destdir="${build.buildtools.dir}" classpath="${ant.home}/lib/ant.jar">
+            <classpath>
+                <path refid="ant.class.path" />
+                <path refid="antlr.class.path" />
+            </classpath>
+        </javac>
         <taskdef name="pcompile"
-                 classname="CompilePropertiesTask" 
+                 classname="com.sun.javafx.tools.compileproperties.CompilePropertiesTask"
                  classpath="${build.buildtools.dir}/"/>
     </target>
     
