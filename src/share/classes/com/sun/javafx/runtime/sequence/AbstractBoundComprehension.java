@@ -26,6 +26,7 @@ package com.sun.javafx.runtime.sequence;
 import java.util.Iterator;
 
 import com.sun.javafx.runtime.Util;
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.location.*;
 
 /**
@@ -46,19 +47,19 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
     private DumbMutableSequence<State<T, L, V>> state;
     private BoundCompositeSequence<V> underlying;
 
-    public AbstractBoundComprehension(Class<V> clazz,
+    public AbstractBoundComprehension(TypeInfo<V> typeInfo,
                                       SequenceLocation<T> sequenceLocation,
                                       boolean useIndex) {
-        super(clazz);
+        super(typeInfo);
         this.sequenceLocation = sequenceLocation;
         this.useIndex = useIndex;
         setInitialValue(computeValue());
         addTriggers();
     }
 
-    public AbstractBoundComprehension(Class<V> clazz,
+    public AbstractBoundComprehension(TypeInfo<V> typeInfo,
                               SequenceLocation<T> sequenceLocation) {
-        this(clazz, sequenceLocation, false);
+        this(typeInfo, sequenceLocation, false);
     }
 
     protected static class State<T, L extends ObjectLocation<T>, V> {
@@ -86,7 +87,7 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
         State<T, L, V>[] newStates = State.newArray(sequence.size());
         fillInNewValues(sequence, newStates, locationsArray, 0);
         state.replaceSlice(0, -1, newStates);
-        underlying = new BoundCompositeSequence<V>(getClazz(), locationsArray);
+        underlying = new BoundCompositeSequence<V>(getElementType(), locationsArray);
         return underlying.getAsSequence();
     }
 

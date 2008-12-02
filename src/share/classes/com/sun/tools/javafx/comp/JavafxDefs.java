@@ -118,6 +118,7 @@ public class JavafxDefs {
     final Name makeBijectiveMethodName;
     final Name invokeName;
     final Name lambdaName;
+    final Name emptySequenceFieldString;
     final Name isInitializedName;
     final Name computeValueName;
     final Name computeElementName;
@@ -204,6 +205,7 @@ public class JavafxDefs {
         makeBijectiveMethodName = names.fromString(makeBijectiveMethodNameString);
         invokeName = names.fromString(invokeNameString);
         lambdaName = names.fromString(lambdaNameString);
+        emptySequenceFieldString = names.fromString("emptySequence");
         isInitializedName = names.fromString(isInitializedNameString);
         computeValueName = names.fromString("computeValue");
         computeElementName = names.fromString("computeElement$");

@@ -1,0 +1,6 @@
+/*
+ * JFXC-2402 : declaring sequence of functions crashes compiler
+ * 
+ * @test
+ */
+var funcs : (function(:Number):Number)[]; 

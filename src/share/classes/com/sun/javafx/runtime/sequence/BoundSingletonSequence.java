@@ -36,21 +36,21 @@ import com.sun.javafx.runtime.location.SequenceLocation;
 class BoundSingletonSequence<T, V extends T> extends AbstractBoundSequence<T> implements SequenceLocation<T> {
     private final ObjectLocation<V> location;
 
-    public BoundSingletonSequence(Class<T> clazz, ObjectLocation<V> location) {
-        super(clazz);
+    public BoundSingletonSequence(TypeInfo<T> typeInfo, ObjectLocation<V> location) {
+        super(typeInfo);
         this.location = location;
         setInitialValue(computeValue());
         addTriggers();
     }
 
     private Sequence<T> computeValue() {
-        return Sequences.singleton(TypeInfo.getTypeInfo(getClazz()), location.get());
+        return Sequences.singleton(getElementType(), location.get());
     }
 
     private void addTriggers() {
         location.addChangeListener(new ObjectChangeListener<V>() {
             public void onChange(V oldValue, V newValue) {
-                updateSlice(0, getRawValue().size() - 1, Sequences.singleton(TypeInfo.getTypeInfo(getClazz()), newValue));
+                updateSlice(0, getRawValue().size() - 1, Sequences.singleton(getElementType(), newValue));
             }
         });
     }

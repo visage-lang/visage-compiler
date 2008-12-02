@@ -1972,7 +1972,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         ListBuffer<JCExpression> args = ListBuffer.<JCExpression>lb();
         List<JCExpression> typeArgs = List.<JCExpression>of(makeTypeTree(elemType, diagPos));
         // type name .class
-        args.append(makeElementClassObject(diagPos, elemType));
+        args.append(makeTypeInfo(diagPos, elemType));
         args.appendList( translate( tree.getItems() ) );
         result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
         */
@@ -2010,7 +2010,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         if (types.isSequence(tree.type)) {
             Type elemType = elementType(tree.type);
-            result = makeEmptySequenceCreator(tree.pos(), elemType);
+            result = accessEmptySequence(tree.pos(), elemType);
         }
         else
             result = make.at(tree.pos).Literal(TypeTags.BOT, null);
@@ -2232,7 +2232,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
             
             JCExpression makeConstructorArg() {
-                return makeElementClassObject(diagPos, elemType);
+                return makeTypeInfo(diagPos, elemType);
             }
             
             JCExpression makeInitialLengthArg() {
@@ -2621,7 +2621,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 JCExpression seq = callExpression(diagPos,
                     makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
                     "forceNonNull",
-                    List.of(makeElementClassObject(diagPos, var.type),
+                    List.of(makeTypeInfo(diagPos, var.type),
                         translate(clause.seqExpr)));
                 stmt = make.at(clause).ForeachLoop(
                     // loop variable is synthetic should not be bound
@@ -2805,7 +2805,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     public void visitLiteral(JFXLiteral tree) {
         if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
             Type elemType = elementType(tree.type);
-            result = makeEmptySequenceCreator(tree.pos(), elemType);
+            result = accessEmptySequence(tree.pos(), elemType);
         } else {
             result = make.at(tree.pos).Literal(tree.typetag, tree.value);
         }

@@ -33,6 +33,7 @@ import java.util.Map;
 
 import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.InitHelper;
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.location.*;
 
 /**
@@ -75,7 +76,7 @@ public abstract class FXObjectFactory<T extends FXObject> {
             else if (returnType.equals("ObjectLocation"))
                 locs.put(name, ObjectVariable.make());
             else if (returnType.equals("SequenceLocation"))
-                locs.put(name, SequenceVariable.make(Object.class));
+                locs.put(name, SequenceVariable.make(TypeInfo.Object));
             else
                 throw new IllegalStateException("Unknown location type " + fqReturnType);
         }

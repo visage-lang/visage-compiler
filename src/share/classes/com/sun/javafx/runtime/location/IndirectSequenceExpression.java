@@ -23,6 +23,8 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.TypeInfo;
+
 /**
  * Indirect locations are used to express bindings that respond nonuniformly with respect to dependencies. For example,
  * bind a.b will change when a changes or when a.b changes, but the response to changes is different. If a.b changes but
@@ -39,8 +41,8 @@ public abstract class IndirectSequenceExpression<T> extends SequenceVariable<T> 
 
     protected final ObjectLocation<SequenceLocation<T>> helper;
 
-    public IndirectSequenceExpression(Class<T> clazz, boolean lazy, Location... dependencies) {
-        super(clazz);
+    public IndirectSequenceExpression(TypeInfo<T> typeInfo, boolean lazy, Location... dependencies) {
+        super(typeInfo);
         helper = IndirectLocationHelper.make(this, dependencies);
         bind(helper.get());
         // @@@ Downside of this approach: we get two change events, one when the dependencies change, and another when

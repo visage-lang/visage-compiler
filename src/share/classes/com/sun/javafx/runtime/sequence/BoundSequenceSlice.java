@@ -27,6 +27,7 @@ import com.sun.javafx.runtime.location.IntLocation;
 import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.location.SequenceChangeListener;
 import com.sun.javafx.runtime.location.IntChangeListener;
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * BoundSequenceSlice
@@ -42,8 +43,8 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
     private int lower, upper;
     private int size;
 
-    BoundSequenceSlice(Class<T> clazz, SequenceLocation<T> sequenceLoc, IntLocation lowerLoc, IntLocation upperLoc, boolean isExclusive) {
-        super(clazz);
+    BoundSequenceSlice(TypeInfo<T> typeInfo, SequenceLocation<T> sequenceLoc, IntLocation lowerLoc, IntLocation upperLoc, boolean isExclusive) {
+        super(typeInfo);
         this.sequenceLoc = sequenceLoc;
         this.lowerLoc = lowerLoc;
         this.upperLoc = upperLoc;

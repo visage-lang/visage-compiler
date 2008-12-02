@@ -24,6 +24,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.location.*;
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * BoundSequences
@@ -37,8 +38,8 @@ public class BoundSequences {
      * where a, b, ..., are sequence locations.
      *  
      */
-    public static <T> SequenceLocation<T> concatenate(Class<T> clazz, SequenceLocation<? extends T>... locations) {
-        return new BoundCompositeSequence<T>(clazz, locations);
+    public static <T> SequenceLocation<T> concatenate(TypeInfo<T> typeInfo, SequenceLocation<? extends T>... locations) {
+        return new BoundCompositeSequence<T>(typeInfo, locations);
     }
 
     /**
@@ -47,8 +48,8 @@ public class BoundSequences {
      * where a, b, ..., are sequence locations.
      *
      */
-    public static <T> SequenceLocation<T> concatenate(Class<T> clazz, SequenceLocation<? extends T>[] locations, int size) {
-        return new BoundCompositeSequence<T>(clazz, locations, size);
+    public static <T> SequenceLocation<T> concatenate(TypeInfo<T> typeInfo, SequenceLocation<? extends T>[] locations, int size) {
+        return new BoundCompositeSequence<T>(typeInfo, locations, size);
     }
 
     /**
@@ -57,13 +58,8 @@ public class BoundSequences {
      * where a is a sequence location of a subtype of the desired element type
      *
      */
-    @SuppressWarnings("unchecked")
-    public static <T, V extends T> SequenceLocation<T> upcast(Class<T> clazz, SequenceLocation<V> location) {
-        Class<V> vClass = location.getElementType();
-        if (clazz == vClass)
-            return (SequenceLocation<T>) location;
-        else
-            return new BoundUpcastSequence<T, V>(clazz, location);
+    public static <T, V extends T> SequenceLocation<T> upcast(TypeInfo<T> typeInfo, SequenceLocation<V> location) {
+        return new BoundUpcastSequence<T, V>(typeInfo, location);
     }
 
     /** Construct a bound sequence of the form
@@ -78,8 +74,8 @@ public class BoundSequences {
      *   bind [ x ]
      * where x is an instance.
      */
-    public static<T, V extends T> SequenceLocation<T> singleton(Class<T> clazz, ObjectLocation<V> location) {
-        return new BoundSingletonSequence<T, V>(clazz, location);
+    public static<T, V extends T> SequenceLocation<T> singleton(TypeInfo<T> typeInfo, ObjectLocation<V> location) {
+        return new BoundSingletonSequence<T, V>(typeInfo, location);
     }
 
     /** Construct a bound sequence of the form
@@ -87,12 +83,12 @@ public class BoundSequences {
      * where x is an Integer instance.
      */
     public static<T> SequenceLocation<Integer> singleton(IntLocation location) {
-        return new BoundSingletonSequence<Integer, Integer>(Integer.class, location);
+        return new BoundSingletonSequence<Integer, Integer>(TypeInfo.Integer, location);
     }
 
-    public static<T> SequenceLocation<T> empty(final Class<T> clazz) {
-        return new AbstractBoundSequence<T>(clazz) {
-            { setInitialValue(Sequences.emptySequence(clazz)); }
+    public static<T> SequenceLocation<T> empty(final TypeInfo<T> typeInfo) {
+        return new AbstractBoundSequence<T>(typeInfo) {
+            { setInitialValue(typeInfo.emptySequence); }
         };
     }
 
@@ -161,12 +157,12 @@ public class BoundSequences {
         return new BoundNumberRangeSequence(a, b, step, exclusive);
     }
     
-    public static<T> SequenceLocation<T> slice(Class<T> clazz, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {
-        return new BoundSequenceSlice<T>(clazz, sequence, a, b, false);
+    public static<T> SequenceLocation<T> slice(TypeInfo<T> typeInfo, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {
+        return new BoundSequenceSlice<T>(typeInfo, sequence, a, b, false);
     }
     
-    public static<T> SequenceLocation<T> sliceExclusive(Class<T> clazz, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {
-        return new BoundSequenceSlice<T>(clazz, sequence, a, b, true);
+    public static<T> SequenceLocation<T> sliceExclusive(TypeInfo<T> typeInfo, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {
+        return new BoundSequenceSlice<T>(typeInfo, sequence, a, b, true);
     }
     
     public interface ObjectSimpleBoundComprehensionCallback<T, V> {
@@ -185,44 +181,44 @@ public class BoundSequences {
         V computeElement$(boolean element, int index);
     }
 
-    public static<T, V> SequenceLocation<V> makeSimpleBoundComprehension(Class<V> clazz,
+    public static<T, V> SequenceLocation<V> makeSimpleBoundComprehension(TypeInfo<V> typeInfo,
                                                                          SequenceLocation<T> seq,
                                                                          boolean useIndex,
                                                                          final ObjectSimpleBoundComprehensionCallback<T, V> callback) {
-        return new SimpleBoundComprehension<T, V>(clazz, seq, useIndex) {
+        return new SimpleBoundComprehension<T, V>(typeInfo, seq, useIndex) {
             protected V computeElement$(T element, int index) {
                 return callback.computeElement$(element, index);
             }
         };
     }
 
-    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(Class<V> clazz,
+    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(TypeInfo<V> typeInfo,
                                                                       SequenceLocation<Integer> seq,
                                                                       boolean useIndex,
                                                                       final IntSimpleBoundComprehensionCallback<V> callback) {
-        return new SimpleBoundComprehension<Integer, V>(clazz, seq, useIndex) {
+        return new SimpleBoundComprehension<Integer, V>(typeInfo, seq, useIndex) {
             protected V computeElement$(Integer element, int index) {
                 return callback.computeElement$(element, index);
             }
         };
     }
 
-    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(Class<V> clazz,
+    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(TypeInfo<V> typeInfo,
                                                                       SequenceLocation<Double> seq,
                                                                       boolean useIndex,
                                                                       final DoubleSimpleBoundComprehensionCallback<V> callback) {
-        return new SimpleBoundComprehension<Double, V>(clazz, seq, useIndex) {
+        return new SimpleBoundComprehension<Double, V>(typeInfo, seq, useIndex) {
             protected V computeElement$(Double element, int index) {
                 return callback.computeElement$(element, index);
             }
         };
     }
 
-    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(Class<V> clazz,
+    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(TypeInfo<V> typeInfo,
                                                                       SequenceLocation<Boolean> seq,
                                                                       boolean useIndex,
                                                                       final BooleanSimpleBoundComprehensionCallback<V> callback) {
-        return new SimpleBoundComprehension<Boolean, V>(clazz, seq, useIndex) {
+        return new SimpleBoundComprehension<Boolean, V>(typeInfo, seq, useIndex) {
             protected V computeElement$(Boolean element, int index) {
                 return callback.computeElement$(element, index);
             }
@@ -245,11 +241,11 @@ public class BoundSequences {
          SequenceLocation<T> computeElements$(BooleanLocation elementLocation, IntLocation indexLocation);
     }
 
-    public static<T, V> SequenceLocation<V> makeBoundComprehension(Class<V> clazz,
+    public static<T, V> SequenceLocation<V> makeBoundComprehension(TypeInfo<V> typeInfo,
                                                                    SequenceLocation<T> sequenceLocation,
                                                                    boolean useIndex,
                                                                    final ObjectBoundComprehensionCallback<T, V> callback) {
-        return new AbstractBoundComprehension<T, ObjectLocation<T>, V>(clazz, sequenceLocation, useIndex) {
+        return new AbstractBoundComprehension<T, ObjectLocation<T>, V>(typeInfo, sequenceLocation, useIndex) {
             protected ObjectLocation<T> makeInductionLocation(T value) {
                 return ObjectVariable.<T>make(value);
             }
@@ -260,11 +256,11 @@ public class BoundSequences {
         };
     }
 
-    public static<V> SequenceLocation<V> makeBoundComprehension(Class<V> clazz,
+    public static<V> SequenceLocation<V> makeBoundComprehension(TypeInfo<V> typeInfo,
                                                                    SequenceLocation<Integer> sequenceLocation,
                                                                    boolean useIndex,
                                                                    final IntBoundComprehensionCallback<V> callback) {
-        return new AbstractBoundComprehension<Integer, IntLocation, V>(clazz, sequenceLocation, useIndex) {
+        return new AbstractBoundComprehension<Integer, IntLocation, V>(typeInfo, sequenceLocation, useIndex) {
             protected IntLocation makeInductionLocation(Integer value) {
                 return IntVariable.make(value);
             }
@@ -275,11 +271,11 @@ public class BoundSequences {
         };
     }
 
-    public static<V> SequenceLocation<V> makeBoundComprehension(Class<V> clazz,
+    public static<V> SequenceLocation<V> makeBoundComprehension(TypeInfo<V> typeInfo,
                                                                 SequenceLocation<Double> sequenceLocation,
                                                                 boolean useIndex,
                                                                 final DoubleBoundComprehensionCallback<V> callback) {
-        return new AbstractBoundComprehension<Double, DoubleLocation, V>(clazz, sequenceLocation, useIndex) {
+        return new AbstractBoundComprehension<Double, DoubleLocation, V>(typeInfo, sequenceLocation, useIndex) {
             protected DoubleLocation makeInductionLocation(Double value) {
                 return DoubleVariable.make(value);
             }
@@ -290,11 +286,11 @@ public class BoundSequences {
         };
     }
 
-    public static<V> SequenceLocation<V> makeBoundComprehension(Class<V> clazz,
+    public static<V> SequenceLocation<V> makeBoundComprehension(TypeInfo<V> typeInfo,
                                                                 SequenceLocation<Boolean> sequenceLocation,
                                                                 boolean useIndex,
                                                                 final BooleanBoundComprehensionCallback<V> callback) {
-        return new AbstractBoundComprehension<Boolean, BooleanLocation, V>(clazz, sequenceLocation, useIndex) {
+        return new AbstractBoundComprehension<Boolean, BooleanLocation, V>(typeInfo, sequenceLocation, useIndex) {
             protected BooleanLocation makeInductionLocation(Boolean value) {
                 return BooleanVariable.make(value);
             }

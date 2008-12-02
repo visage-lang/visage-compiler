@@ -46,7 +46,7 @@ public class InstanceTriggerTest extends JavaFXTestCase {
     }
 
     public void testSequenceChangeTrigger() {
-        final SequenceLocation<Integer> v = SequenceVariable.make(Integer.class, Sequences.make(TypeInfo.Integer, 1, 2, 3));
+        final SequenceLocation<Integer> v = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 1, 2, 3));
         Sequence<Integer> otherSeq = Sequences.make(TypeInfo.Integer, 1, 2, 3, 5);
         Sequence<Integer> otherButEqualSeq = Sequences.make(TypeInfo.Integer, 1, 2, 3, 5);
         CountingListener cl = new CountingListener();

@@ -45,22 +45,22 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
      * iteration contributes exactly one value.  For each input element, the computeElement() method will be called to
      * calculate the corresponding output element.
      *
-     * @param clazz The Class of the resulting sequence element type
+     * @param typeInfo
      * @param sequenceLocation The input sequence
      * @param dependsOnIndex Whether or not the computeElement$ makes use of the indexof operator
      */
-    public SimpleBoundComprehension(Class<V> clazz,
+    public SimpleBoundComprehension(TypeInfo<V> typeInfo,
                                     SequenceLocation<T> sequenceLocation,
                                     boolean dependsOnIndex) {
-        super(clazz);
+        super(typeInfo);
         this.sequenceLocation = sequenceLocation;
         this.dependsOnIndex = dependsOnIndex;
         setInitialValue(computeValue());
         addTriggers();
     }
 
-    public SimpleBoundComprehension(Class<V> clazz, SequenceLocation<T> sequenceLocation) {
-        this(clazz, sequenceLocation, false);
+    public SimpleBoundComprehension(TypeInfo<V> typeInfo, SequenceLocation<T> sequenceLocation) {
+        this(typeInfo, sequenceLocation, false);
     }
 
     protected abstract V computeElement$(T element, int index);
@@ -73,7 +73,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
             intermediateResults[i] = computeElement$(val, i);
             i++;
         }
-        return Sequences.make(TypeInfo.getTypeInfo(getClazz()), intermediateResults);
+        return Sequences.make(getElementType(), intermediateResults);
     }
 
     private void addTriggers() {
@@ -105,7 +105,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
                             = computeElement$(it.next(), indirectlyAffectedStart + i + elementsAdded);
                 }
 
-                Sequence<V> vSequence = Sequences.make(TypeInfo.getTypeInfo(getClazz()), ourNewElements);
+                Sequence<V> vSequence = Sequences.make(getElementType(), ourNewElements);
                 updateSlice(startPos, updateTrailingElements ? indirectlyAffectedEnd : endPos, vSequence);
             }
         });

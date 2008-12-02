@@ -1,6 +1,7 @@
 package com.sun.javafx.runtime.util;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.location.SequenceVariable;
 
@@ -21,7 +22,7 @@ public class LinkableTest extends JavaFXTestCase {
     }
 
     private void assertEquals(Holder h, Integer... values) {
-        final SequenceLocation<Integer> a = SequenceVariable.make(Integer.class);
+        final SequenceLocation<Integer> a = SequenceVariable.make(TypeInfo.Integer);
         assertEquals(values.length, Linkables.size(h.nodes));
         Linkables.iterate(h.nodes, new Linkable.IterationClosure<Node>() {
             public void action(Node element) {
@@ -39,7 +40,7 @@ public class LinkableTest extends JavaFXTestCase {
         assertEquals(0, Linkables.size(h.nodes));
         assertTrue(Linkables.isUnused(node));
 
-        final SequenceLocation<Integer> a = SequenceVariable.make(Integer.class);
+        final SequenceLocation<Integer> a = SequenceVariable.make(TypeInfo.Integer);
 
         Linkables.iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
             public boolean action(Node element) {

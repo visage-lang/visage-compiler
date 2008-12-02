@@ -6,6 +6,7 @@ import java.util.regex.*;
 import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.location.SequenceVariable;
 import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * SequenceExerciser
@@ -66,7 +67,7 @@ public class SequenceExerciser implements Test {
     public static TestResult run(String[] args) throws IllegalAccessException, InstantiationException {
         long time = 0;
         int initialSize = Integer.parseInt(args[0]);
-        SequenceLocation<Integer> seq = SequenceVariable.make(Integer.class, Sequences.range(1, initialSize));
+        SequenceLocation<Integer> seq = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, initialSize));
         int sum = 0;
         long start = System.nanoTime();
         for (int i=1; i<args.length; i++) {
@@ -222,7 +223,7 @@ class RandomDeleteGenerator1 implements SequenceOpGenerator {
         int minSize = size * (100-deletePercentage) / 100;
         int sum = 0;
         for (int i=0; i<opCount; i++) {
-            SequenceLocation<Integer> localSeq = SequenceVariable.make(Integer.class, Sequences.range(1, size));
+            SequenceLocation<Integer> localSeq = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, size));
             for (int curSize = size; curSize > minSize; ) {
                 int position = SequenceExerciser.nextRandom(curSize--);
                 sum += localSeq.get(position);
@@ -249,7 +250,7 @@ class RandomDeleteGenerator implements SequenceOpGenerator {
         int minSize = size * (100-deletePercentage) / 100;
         int sum = 0;
         for (int i=0; i<opCount; i++) {
-            SequenceLocation<Integer> localSeq = SequenceVariable.make(Integer.class, Sequences.range(1, size));
+            SequenceLocation<Integer> localSeq = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, size));
             for (int curSize = size+1; curSize > minSize; ) {
                 int chunkSize = SequenceExerciser.nextRandom(maxChunkSize);
                 curSize -= chunkSize;
@@ -276,7 +277,7 @@ class RandomInsertGenerator1 implements SequenceOpGenerator {
         int maxSize = size * insertPercentage / 100;
         int sum = 0;
         for (int i=0; i<opCount; i++) {
-            SequenceLocation<Integer> localSeq = SequenceVariable.make(Integer.class, Sequences.range(1, size));
+            SequenceLocation<Integer> localSeq = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, size));
             for (int curSize = size; curSize < maxSize; ) {
                 int value = SequenceExerciser.nextRandom(10000);
                 sum += value;
@@ -303,7 +304,7 @@ class RandomInsertGenerator implements SequenceOpGenerator {
         int maxSize = size * insertPercentage / 100;
         int sum = 0;
         for (int i=0; i<opCount; i++) {
-            SequenceLocation<Integer> localSeq = SequenceVariable.make(Integer.class, Sequences.range(1, size));
+            SequenceLocation<Integer> localSeq = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, size));
             for (int curSize = size+1; curSize < maxSize; ) {
                 int value = SequenceExerciser.nextRandom(10000);
                 sum += value;

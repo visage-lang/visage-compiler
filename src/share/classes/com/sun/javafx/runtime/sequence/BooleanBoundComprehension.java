@@ -24,6 +24,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.location.*;
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * Support for a for-loop with a Boolean induction variable.
@@ -33,10 +34,10 @@ import com.sun.javafx.runtime.location.*;
  */
 public abstract class BooleanBoundComprehension<V> extends AbstractBoundComprehension<Boolean, BooleanLocation, V> {
 
-    public BooleanBoundComprehension(Class<V> clazz,
+    public BooleanBoundComprehension(TypeInfo<V> typeInfo,
                               SequenceLocation<Boolean> sequenceLocation,
                               boolean useIndex) {
-        super(clazz, sequenceLocation, useIndex);
+        super(typeInfo, sequenceLocation, useIndex);
     }
 
     protected BooleanLocation makeInductionLocation(Boolean value) {

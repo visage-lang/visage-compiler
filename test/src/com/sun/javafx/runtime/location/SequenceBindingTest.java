@@ -43,7 +43,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
     public void testUnbound() {
         Sequence<Integer> seq = Sequences.range(1, 100);
-        SequenceLocation<Integer> loc = SequenceVariable.make(Integer.class, seq);
+        SequenceLocation<Integer> loc = SequenceVariable.make(TypeInfo.Integer, seq);
         assertEquals(seq, loc.getAsSequence());
     }
 
@@ -51,7 +51,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
      * bind first = seq[0]
      */
     public void testElementBind() {
-        final SequenceLocation<Integer> seq = SequenceVariable.make(Integer.class, Sequences.range(1, 3));
+        final SequenceLocation<Integer> seq = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
         IntLocation firstValue = IntVariable.make(new IntBindingExpression() {
             public int computeValue() {
                 return seq.getAsSequence().get(0);
@@ -70,7 +70,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testReplaceListener() {
-        final SequenceLocation<Integer> seq = SequenceVariable.make(Integer.class, Sequences.range(1, 3));
+        final SequenceLocation<Integer> seq = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
         CountingSequenceListener cl = new CountingSequenceListener();
         HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
         seq.addChangeListener(cl);
@@ -83,7 +83,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testSequenceListener() {
-        final SequenceLocation<Integer> seq = SequenceVariable.make(Integer.class, Sequences.range(1, 3));
+        final SequenceLocation<Integer> seq = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
         CountingSequenceListener cl = new CountingSequenceListener();
         HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
         seq.addChangeListener(cl);
@@ -218,7 +218,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     public void testSequenceExpression() {
         // oneToN = bind 1..n
         final IntLocation n = IntVariable.make(0);
-        final SequenceLocation<Integer> oneToN = SequenceVariable.make(Integer.class, false,
+        final SequenceLocation<Integer> oneToN = SequenceVariable.make(TypeInfo.Integer, false,
                                                                        new SequenceBindingExpression<Integer>() {
                                                                            public Sequence<Integer> computeValue() {
                                                                                return Sequences.range(1, n.getAsInt());
@@ -233,8 +233,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(oneToN.getAsSequence());
 
         // oddN = bind select t from v where t % 2 == 1
-        final SequenceLocation<Integer> v = SequenceVariable.make(Integer.class, Sequences.range(1, 8));
-        final SequenceLocation<Integer> oddN = SequenceVariable.make(Integer.class, false,
+        final SequenceLocation<Integer> v = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 8));
+        final SequenceLocation<Integer> oddN = SequenceVariable.make(TypeInfo.Integer, false,
                                                                      new SequenceBindingExpression<Integer>() {
                                                                          public Sequence<Integer> computeValue() {
                                                                              return v.getAsSequence().get(new SequencePredicate<Integer>() {
@@ -251,7 +251,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
     /** Ensure that mutative methods on sequence expressions throw UOE */
     public void testUOE() {
-        final SequenceLocation<Integer> seq = SequenceVariable.make(Integer.class, false,
+        final SequenceLocation<Integer> seq = SequenceVariable.make(TypeInfo.Integer, false,
                                                                     new SequenceBindingExpression<Integer>() {
                                                                         public Sequence<Integer> computeValue() {
                                                                             return Sequences.range(1, 10);
@@ -274,13 +274,13 @@ public class SequenceBindingTest extends JavaFXTestCase {
         // oneToN = bind 1..n
         // evenN = bind select x from oneToN where x % 2 == 0
         final IntLocation n = IntVariable.make(0);
-        final SequenceLocation<Integer> oneToN = SequenceVariable.make(Integer.class, false,
+        final SequenceLocation<Integer> oneToN = SequenceVariable.make(TypeInfo.Integer, false,
                                                                        new SequenceBindingExpression<Integer>() {
                                                                            public Sequence<? extends Integer> computeValue() {
                                                                                return Sequences.range(1, n.getAsInt());
                                                                            }
                                                                        }, n);
-        final SequenceLocation<Integer> evenN =SequenceVariable.make(Integer.class, false,
+        final SequenceLocation<Integer> evenN =SequenceVariable.make(TypeInfo.Integer, false,
                                                                      new SequenceBindingExpression<Integer>() {
                                                                          public Sequence<? extends Integer> computeValue() {
                                                                              return oneToN.getAsSequence().get(new SequencePredicate<Integer>() {
@@ -300,8 +300,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testDependentTrigger() {
-        final SequenceLocation<Integer> v = SequenceVariable.make(Integer.class, Sequences.make(TypeInfo.Integer, 1, 2, 3));
-        final SequenceLocation<Integer> b = SequenceVariable.make(Integer.class, false,
+        final SequenceLocation<Integer> v = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 1, 2, 3));
+        final SequenceLocation<Integer> b = SequenceVariable.make(TypeInfo.Integer, false,
                                                                   new SequenceBindingExpression<Integer>() {
                                                                       public Sequence<Integer> computeValue() {
                                                                           return v.getAsSequence();
@@ -325,9 +325,10 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testUpcast() {
-        final SequenceLocation<Integer> iloc = SequenceVariable.make(Integer.class, Sequences.range(1, 3));
-        final SequenceLocation<Number> nloc = SequenceVariable.make(Number.class, Sequences.<Number>upcast(iloc.getAsSequence()));
-        final SequenceLocation<Object> asObjects = SequenceVariable.make(Object.class, Sequences.<Object>upcast(iloc.getAsSequence()));
+        TypeInfo<Number> Number = TypeInfo.<Number>makeTypeInfo(0L);
+        final SequenceLocation<Integer> iloc = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
+        final SequenceLocation<Number> nloc = SequenceVariable.make(Number, Sequences.<Number>upcast(iloc.getAsSequence()));
+        final SequenceLocation<Object> asObjects = SequenceVariable.make(TypeInfo.Object, Sequences.<Object>upcast(iloc.getAsSequence()));
         assertEquals(nloc.getAsSequence(), 1, 2, 3);
         assertEquals(asObjects.getAsSequence(), 1, 2, 3);
 
@@ -339,9 +340,9 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testBoundConcat() {
-        SequenceLocation<Integer> a = SequenceVariable.make(Integer.class, Sequences.range(1, 2));
-        SequenceLocation<Integer> b = SequenceVariable.make(Integer.class, Sequences.range(3, 4));
-        BoundCompositeSequence<Integer> c = new BoundCompositeSequence<Integer>(Integer.class, a, b);
+        SequenceLocation<Integer> a = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 2));
+        SequenceLocation<Integer> b = SequenceVariable.make(TypeInfo.Integer, Sequences.range(3, 4));
+        BoundCompositeSequence<Integer> c = new BoundCompositeSequence<Integer>(TypeInfo.Integer, a, b);
         HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
         c.addChangeListener(hl);
 
@@ -405,7 +406,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEqualsAndClear(hl, "i-2-3", "i-3-4");
         c.validate();
 
-        SequenceLocation<Integer> d = SequenceVariable.make(Integer.class, Sequences.range(9, 10));
+        SequenceLocation<Integer> d = SequenceVariable.make(TypeInfo.Integer, Sequences.range(9, 10));
         c.replaceSlice(0, 0, new SequenceLocation[] { d });
         assertEquals(c, 9, 10, 3, 4);
         assertEqualsAndClear(hl, "d-1-2", "d-0-1", "i-0-9", "i-1-10");
@@ -446,7 +447,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testBoundReverse() {
-        SequenceLocation<Integer> a = SequenceVariable.make(Integer.class, Sequences.make(TypeInfo.Integer, 1, 2, 3));
+        SequenceLocation<Integer> a = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 1, 2, 3));
         SequenceLocation<Integer> r = BoundSequences.reverse(a);
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
         r.addChangeListener(hl);
@@ -493,8 +494,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testChainedSequenceBind() {
-        final SequenceLocation<Integer> a = SequenceVariable.make(Integer.class, Sequences.make(TypeInfo.Integer, 1, 2, 3));
-        final SequenceLocation<Integer> b = SequenceVariable.make(Integer.class, false,
+        final SequenceLocation<Integer> a = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 1, 2, 3));
+        final SequenceLocation<Integer> b = SequenceVariable.make(TypeInfo.Integer, false,
                                                                   new SequenceBindingExpression<Integer>() {
                                                                       public Sequence<Integer> computeValue() {
                                                                           return a.getAsSequence();
@@ -526,7 +527,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     public void testBoundSingleton() {
         IntLocation i = IntVariable.make(0);
         ObjectLocation<Integer> o = Locations.asObjectLocation(i);
-        SequenceLocation<Integer> s = BoundSequences.singleton(Integer.class, o);
+        SequenceLocation<Integer> s = BoundSequences.singleton(TypeInfo.Integer, o);
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
         s.addChangeListener(hl);
 
@@ -539,7 +540,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEqualsAndClear(hl, "[0, 0] => [ 1 ]");
 
         o = ObjectVariable.make((Integer) null);
-        s = BoundSequences.singleton(Integer.class, o);
+        s = BoundSequences.singleton(TypeInfo.Integer, o);
         s.addChangeListener(hl);
         assertEquals(s);
 
@@ -561,7 +562,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testSliceTriggers() {
-        SequenceLocation<Integer> a = SequenceVariable.make(Integer.class, Sequences.make(TypeInfo.Integer, 1, 2, 3));
+        SequenceLocation<Integer> a = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 1, 2, 3));
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
         a.addChangeListener(hl);
         a.setAsSequence(Sequences.range(1, 2));
@@ -598,11 +599,11 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testBoundSequenceBuilder() {
-        BoundSequenceBuilder<Integer> sb = new BoundSequenceBuilder<Integer>(Integer.class);
+        BoundSequenceBuilder<Integer> sb = new BoundSequenceBuilder<Integer>(TypeInfo.Integer);
         IntLocation a = IntVariable.make(1);
-        final SequenceLocation<Integer> b = SequenceVariable.make(Integer.class, Sequences.make(TypeInfo.Integer, 4, 5, 6));
+        final SequenceLocation<Integer> b = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 4, 5, 6));
         IntLocation c = IntVariable.make(10);
-        SequenceLocation<Integer> d = SequenceVariable.make(Integer.class, new SequenceBindingExpression<Integer>() {
+        SequenceLocation<Integer> d = SequenceVariable.make(TypeInfo.Integer, new SequenceBindingExpression<Integer>() {
             public Sequence<Integer> computeValue() {
                 return Sequences.make(TypeInfo.Integer, b.getAsSequence().size());
             }

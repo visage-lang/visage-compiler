@@ -25,6 +25,7 @@ package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.location.SequenceChangeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * BoundUpcastSequence
@@ -35,8 +36,8 @@ public class BoundUpcastSequence<T, V extends T> extends AbstractBoundSequence<T
 
     private final SequenceLocation<V> sequence;
 
-    public BoundUpcastSequence(Class<T> clazz, SequenceLocation<V> sequence) {
-        super(clazz);
+    public BoundUpcastSequence(TypeInfo<T> typeInfo, SequenceLocation<V> sequence) {
+        super(typeInfo);
         this.sequence = sequence;
         setInitialValue(computeValue());
         addTriggers();

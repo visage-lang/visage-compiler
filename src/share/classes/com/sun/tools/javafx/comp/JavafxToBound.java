@@ -189,7 +189,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 // this additional test is needed because wildcards compare as different
                 Type inElementType = typeMorpher.typeMorphInfo(inType).getElementType();
                 if (!types.isSameType(inElementType, targetElementType)) {
-                    JCExpression targetClass = makeElementClassObject(diagPos, targetElementType);
+                    JCExpression targetClass = makeTypeInfo(diagPos, targetElementType);
                     tree = runtime(diagPos, cBoundSequences, "upcast", List.of(targetClass, tree));
                 }
             } else if (targetType == syms.doubleType) {
@@ -203,7 +203,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, targetType, true),
                             makeTypeTree( diagPos,syms.boxIfNeeded(inType), true));
                     Type inRealType = typeMorpher.typeMorphInfo(inType).getRealType();
-                    JCExpression inClass = makeElementClassObject(diagPos, inRealType);
+                    JCExpression inClass = makeTypeInfo(diagPos, inRealType);
                     tree = runtime(diagPos, cLocations, "upcast", typeArgs, List.of(inClass, tree));
                 }
             }
@@ -533,7 +533,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 translator.doit());
         if (tmi.isSequence() || tmi.getTypeKind() == TYPE_KIND_OBJECT) {
             // prepend "Foo.class, "
-            args = args.prepend(makeElementClassObject(diagPos, tmi.getElementType()));
+            args = args.prepend(makeTypeInfo(diagPos, tmi.getElementType()));
         }
         return runtime(diagPos, cBoundOperators, "makeBoundSelect", args);
     }
@@ -684,7 +684,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         DiagnosticPosition diagPos = tree.pos();
         if (types.isSequence(tree.type)) {
             Type elemType = types.elementType(targetType(tree.type));
-            result = runtime(diagPos, cBoundSequences, "empty", List.of(makeElementClassObject(diagPos, elemType)));
+            result = runtime(diagPos, cBoundSequences, "empty", List.of(makeTypeInfo(diagPos, elemType)));
         } else {
             result = makeConstantLocation(diagPos, targetType(tree.type), makeNull(diagPos));
         }
@@ -704,7 +704,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         result = runtime(diagPos, cBoundSequences,
                 tree.getEndKind()==SequenceSliceTree.END_EXCLUSIVE? "sliceExclusive" : "slice",
                 List.of(
-                    makeElementClassObject(diagPos, types.elementType(targetType(tree.type))),
+                    makeTypeInfo(diagPos, types.elementType(targetType(tree.type))),
                     translate(tree.getSequence()),
                     translate(tree.getFirstIndex()),
                     tree.getLastIndex()==null? makeNull(diagPos) : translate(tree.getLastIndex())
@@ -714,15 +714,15 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     /**
      * Generate this template, expanding to handle multiple in-clauses
      *
-     *  SequenceLocation<V> derived = new BoundComprehension<T,V>(V.class, IN_SEQUENCE, USE_INDEX) {
+     *  SequenceLocation<V> derived = new BoundComprehension<T,V>(..., IN_SEQUENCE, USE_INDEX) {
             protected SequenceLocation<V> getMappedElement$(final ObjectLocation<T> IVAR_NAME, final IntLocation INDEXOF_IVAR_NAME) {
-                return SequenceVariable.make(V.class,
+                return SequenceVariable.make(...,
                                              new SequenceBindingExpression<V>() {
                                                  public Sequence<V> computeValue() {
                                                      if (WHERE)
                                                          return BODY with s/indexof IVAR_NAME/INDEXOF_IVAR_NAME/;
                                                      else
-                                                        return Sequences.emptySequence(V.class);
+                                                        return ....emptySequence;
                                                  }
                                              }, maybe IVAR_NAME, maybe INDEXOF_IVAR_NAME);
             }
@@ -754,7 +754,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
              * Make:  V.class
              */
             private JCExpression makeResultClass() {
-                return makeElementClassObject(diagPos, resultElementType);
+                return makeTypeInfo(diagPos, resultElementType);
             }
 
             /**
@@ -795,7 +795,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     body = makeBoundConditional(diagPos,
                             tree.type,
                             body,
-                            runtime(diagPos, cBoundSequences, "empty", List.of(makeElementClassObject(diagPos, resultElementType))),
+                            runtime(diagPos, cBoundSequences, "empty", List.of(makeTypeInfo(diagPos, resultElementType))),
                             whereTest);
                 }
                 return body;
@@ -927,7 +927,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 makeFunction0(resultType, falseExpr));
         if (tmi.isSequence()) {
             // prepend "Foo.class, "
-            args = args.prepend(makeElementClassObject(diagPos, tmi.getElementType()));
+            args = args.prepend(makeTypeInfo(diagPos, tmi.getElementType()));
         }
         return runtime(diagPos, cBoundOperators, "makeBoundIf", args);
     }
@@ -999,7 +999,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         final DiagnosticPosition diagPos = tree.pos();
         if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
             Type elemType = types.elementType(targetType(tree.type));
-            result = runtime(diagPos, cBoundSequences, "empty", List.of(makeElementClassObject(diagPos, elemType)));
+            result = runtime(diagPos, cBoundSequences, "empty", List.of(makeTypeInfo(diagPos, elemType)));
         } else {
             JCExpression unbound = make.at(diagPos).Literal(tree.typetag, tree.value);
             result = makeConstantLocation(diagPos, targetType(tree.type), unbound);

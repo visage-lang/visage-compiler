@@ -56,12 +56,12 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         }
     }
 
-    public BoundCompositeSequence(Class<T> clazz, SequenceLocation<? extends T>... locations) {
-        this(clazz, locations, locations.length);
+    public BoundCompositeSequence(TypeInfo<T> typeInfo, SequenceLocation<? extends T>... locations) {
+        this(typeInfo, locations, locations.length);
     }
 
-    public BoundCompositeSequence(Class<T> clazz, SequenceLocation<? extends T>[] locations, int size) {
-        super(clazz);
+    public BoundCompositeSequence(TypeInfo<T> typeInfo, SequenceLocation<? extends T>[] locations, int size) {
+        super(typeInfo);
         this.infos = newInfoArray(size);
         for (int i = 0; i < size; i++)
             infos[i] = new Info<T>(locations[i]);
@@ -83,7 +83,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             infos[i].size = sequences[i].size();
             offset += sequences[i].size();
         }
-        return Sequences.concatenate(TypeInfo.getTypeInfo(getClazz()), sequences);
+        return Sequences.concatenate(getElementType(), sequences);
     }
 
     private void addTriggers() {
@@ -126,7 +126,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             newSize += sz;
             infos[i + startPos].addListener(new MyListener(i + startPos));
         }
-        Sequence<T> newSlice = Sequences.concatenate(TypeInfo.getTypeInfo(getClazz()), sequences);
+        Sequence<T> newSlice = Sequences.concatenate(getElementType(), sequences);
         int deltaElements = newSize - (affectedEnd - affectedStart + 1);
         for (int i = endPos + deltaLocations + 1; i < infos.length; i++) {
             infos[i].startPosition += deltaElements;

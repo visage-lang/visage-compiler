@@ -27,6 +27,7 @@ import java.util.Iterator;
 
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * SequenceConstant
@@ -34,15 +35,15 @@ import com.sun.javafx.runtime.sequence.SequencePredicate;
  * @author Brian Goetz
  */
 public class SequenceConstant<T> extends AbstractConstantLocation<Sequence<T>> implements SequenceLocation<T> {
-    private final Class<T> clazz;
+    private final TypeInfo<T> typeInfo;
     private Sequence<T> $value;
 
-    public static<T> SequenceLocation<T> make(Class<T> clazz, Sequence<T> value) {
-        return new SequenceConstant<T>(clazz, value);
+    public static<T> SequenceLocation<T> make(TypeInfo<T> typeInfo, Sequence<T> value) {
+        return new SequenceConstant<T>(typeInfo, value);
     }
 
-    protected SequenceConstant(Class<T> clazz, Sequence<T> value) {
-        this.clazz = clazz;
+    protected SequenceConstant(TypeInfo<T> typeInfo, Sequence<T> value) {
+        this.typeInfo = typeInfo;
         this.$value = value;
     }
 
@@ -51,8 +52,8 @@ public class SequenceConstant<T> extends AbstractConstantLocation<Sequence<T>> i
         return $value;
     }
 
-    public Class<T> getElementType() {
-        return clazz;
+    public TypeInfo<T> getElementType() {
+        return typeInfo;
     }
 
     public Sequence<T> get() {

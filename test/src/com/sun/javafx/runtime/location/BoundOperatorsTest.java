@@ -70,9 +70,9 @@ public class BoundOperatorsTest extends JavaFXTestCase {
 
     public void testIndirectSeqIf() {
         BooleanLocation b = BooleanVariable.make(true);
-        final SequenceVariable<Integer> x = SequenceVariable.make(Integer.class, Sequences.make(TypeInfo.Integer, 1, 2, 3));
-        final SequenceVariable<Integer> y = SequenceVariable.make(Integer.class, Sequences.make(TypeInfo.Integer, 4, 5, 6));
-        SequenceLocation<Integer> ifLoc = BoundOperators.makeBoundIf(Integer.class, false, b,
+        final SequenceVariable<Integer> x = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 1, 2, 3));
+        final SequenceVariable<Integer> y = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 4, 5, 6));
+        SequenceLocation<Integer> ifLoc = BoundOperators.makeBoundIf(TypeInfo.Integer, false, b,
                                                                      new Function0<SequenceLocation<Integer>>() {
                                                                          public SequenceLocation<Integer> invoke() {
                                                                              return x;

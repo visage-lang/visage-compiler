@@ -25,8 +25,9 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.functions.Function1;
-import com.sun.javafx.runtime.Util;
-import com.sun.javafx.runtime.sequence.*;
+import com.sun.javafx.runtime.TypeInfo;
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.SequencePredicate;
 
 /**
  * Factories for bound operator expressions.  Factories for most operators (plus, ==, !) are generated and live in
@@ -187,12 +188,12 @@ public class BoundOperators extends GeneratedBoundOperators {
         };
     }
 
-    public static<T> SequenceLocation<T> makeBoundIf(Class<T> clazz,
+    public static<T> SequenceLocation<T> makeBoundIf(TypeInfo<T> typeInfo,
                                                      boolean lazy,
                                                      final BooleanLocation conditional,
                                                      final Function0<SequenceLocation<T>> thenBranch,
                                                      final Function0<SequenceLocation<T>> elseBranch) {
-        return new IndirectSequenceExpression<T>(clazz, lazy, conditional) {
+        return new IndirectSequenceExpression<T>(typeInfo, lazy, conditional) {
             public SequenceLocation<T> computeLocation() {
                 return (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
             }
@@ -272,7 +273,7 @@ public class BoundOperators extends GeneratedBoundOperators {
         };
     }
 
-    public static<T, U> ObjectLocation<U> makeBoundSelect(final Class clazz,
+    public static<T, U> ObjectLocation<U> makeBoundSelect(final TypeInfo<U> typeInfo,
                                                           boolean lazy,
                                                           final ObjectLocation<T> receiver,
                                                           final Function1<ObjectLocation<U>, T> selector) {
@@ -280,7 +281,7 @@ public class BoundOperators extends GeneratedBoundOperators {
 
             public ObjectLocation<U> computeLocation() {
                 T selectorValue = receiver.get();
-                return selectorValue == null ? ObjectConstant.make(Util.<U>defaultValue(clazz)) : selector.invoke(selectorValue);
+                return selectorValue == null ? ObjectConstant.make(typeInfo.defaultValue) : selector.invoke(selectorValue);
             }
 
             public void setDefault() {
@@ -294,14 +295,14 @@ public class BoundOperators extends GeneratedBoundOperators {
         };
     }
 
-    public static<T, U> SequenceLocation<U> makeBoundSelect(final Class<U> clazz,
+    public static<T, U> SequenceLocation<U> makeBoundSelect(final TypeInfo<U> typeInfo,
                                                             boolean lazy,
                                                             final ObjectLocation<T> receiver,
                                                             final Function1<SequenceLocation<U>, T> selector) {
 
-        final SequenceLocation<U> defaultValue = SequenceConstant.<U>make(clazz, Sequences.emptySequence(clazz));
+        final SequenceLocation<U> defaultValue = SequenceConstant.<U>make(typeInfo, typeInfo.emptySequence);
 
-        return new IndirectSequenceExpression<U>(clazz, lazy, receiver) {
+        return new IndirectSequenceExpression<U>(typeInfo, lazy, receiver) {
 
             public SequenceLocation<U> computeLocation() {
                 T selectorValue = receiver.get();

@@ -24,6 +24,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.location.*;
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * Support for a for-loop with a generic Object induction variable.
@@ -33,10 +34,10 @@ import com.sun.javafx.runtime.location.*;
  */
 public abstract class ObjectBoundComprehension<T, V> extends AbstractBoundComprehension<T, ObjectLocation<T>, V> {
 
-    public ObjectBoundComprehension(Class<V> clazz,
+    public ObjectBoundComprehension(TypeInfo<V> typeInfo,
                                     SequenceLocation<T> sequenceLocation,
                                     boolean useIndex) {
-        super(clazz, sequenceLocation, useIndex);
+        super(typeInfo, sequenceLocation, useIndex);
     }
 
     protected ObjectLocation<T> makeInductionLocation(T value) {

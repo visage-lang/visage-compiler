@@ -27,6 +27,7 @@ import java.util.Iterator;
 
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequenceMutator;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
@@ -41,40 +42,40 @@ public class SequenceVariable<T>
         extends AbstractVariable<Sequence<T>, SequenceLocation<T>, SequenceBindingExpression<T>, SequenceChangeListener<T>>
         implements SequenceLocation<T> {
 
-    private final Class<T> clazz;
+    private final TypeInfo<T> typeInfo;
     private final SequenceMutator.Listener<T> mutationListener;
     private Sequence<T> $value;
     private BoundLocationInfo boundLocation;
 
 
-    public static <T> SequenceVariable<T> make(Class clazz) {
-        return new SequenceVariable<T>(clazz);
+    public static <T> SequenceVariable<T> make(TypeInfo<T> typeInfo) {
+        return new SequenceVariable<T>(typeInfo);
     }
 
-    public static <T> SequenceVariable<T> make(Class clazz, Sequence<? extends T> value) {
-        return new SequenceVariable<T>(clazz, value);
+    public static <T> SequenceVariable<T> make(TypeInfo<T> typeInfo, Sequence<? extends T> value) {
+        return new SequenceVariable<T>(typeInfo, value);
     }
 
-    public static <T> SequenceVariable<T> make(Class clazz, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
-        return new SequenceVariable<T>(clazz, lazy, binding, dependencies);
+    public static <T> SequenceVariable<T> make(TypeInfo<T> typeInfo, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
+        return new SequenceVariable<T>(typeInfo, lazy, binding, dependencies);
     }
 
-    public static <T> SequenceVariable<T> make(Class clazz, SequenceBindingExpression<T> binding, Location... dependencies) {
-        return new SequenceVariable<T>(clazz, false, binding, dependencies);
+    public static <T> SequenceVariable<T> make(TypeInfo<T> typeInfo, SequenceBindingExpression<T> binding, Location... dependencies) {
+        return new SequenceVariable<T>(typeInfo, false, binding, dependencies);
     }
 
     /**
      * Create a bijectively bound variable
      */
-    public static <T> SequenceVariable<T> makeBijective(Class clazz, SequenceVariable<T> other) {
-        SequenceVariable<T> me = SequenceVariable.<T>make(clazz);
+    public static <T> SequenceVariable<T> makeBijective(TypeInfo<T> typeInfo, SequenceVariable<T> other) {
+        SequenceVariable<T> me = SequenceVariable.<T>make(typeInfo);
         me.bijectiveBind(other);
         return me;
     }
 
-    protected SequenceVariable(Class clazz) {
-        this.clazz = clazz;
-        this.$value = Sequences.<T>emptySequence(this.clazz);
+    protected SequenceVariable(TypeInfo<T> typeInfo) {
+        this.typeInfo = typeInfo;
+        this.$value = typeInfo.emptySequence;
         this.mutationListener = new SequenceMutator.Listener<T>() {
             public void onReplaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 replaceSlice(startPos, endPos, newElements, newValue);
@@ -86,15 +87,15 @@ public class SequenceVariable<T>
         };
     }
 
-    protected SequenceVariable(Class clazz, Sequence<? extends T> value) {
-        this(clazz);
+    protected SequenceVariable(TypeInfo<T> typeInfo, Sequence<? extends T> value) {
+        this(typeInfo);
         if (value == null)
-            value = Sequences.emptySequence(this.clazz);
+            value = typeInfo.emptySequence;
         replaceValue(Sequences.<T>upcast(value));
     }
 
-    protected SequenceVariable(Class clazz, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
-        this(clazz);
+    protected SequenceVariable(TypeInfo<T> typeInfo, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
+        this(typeInfo);
         bind(lazy, binding);
         addDependency(dependencies);
     }
@@ -110,7 +111,7 @@ public class SequenceVariable<T>
     private Sequence<T> replaceValue(Sequence<T> newValue) {
         assert (boundLocation == null);
         if (newValue == null)
-            newValue = Sequences.emptySequence(clazz);
+            newValue = typeInfo.emptySequence;
         return replaceSlice(0, Sequences.size($value) - 1, newValue, newValue);
     }
 
@@ -162,8 +163,8 @@ public class SequenceVariable<T>
     }
 
 
-    public Class<T> getElementType() {
-        return clazz;
+    public TypeInfo<T> getElementType() {
+        return typeInfo;
     }
 
     public Sequence<T> get() {
@@ -261,7 +262,7 @@ public class SequenceVariable<T>
         catch (RuntimeException e) {
             ErrorHandler.bindException(e);
             if (isInitialized())
-                replaceValue(Sequences.emptySequence(clazz));
+                replaceValue(typeInfo.emptySequence);
         }
     }
 
@@ -275,7 +276,7 @@ public class SequenceVariable<T>
     }
 
     public void setDefault() {
-        Sequence<T> empty = Sequences.emptySequence(clazz);
+        Sequence<T> empty = typeInfo.emptySequence;
         if (state == STATE_INITIAL) {
             $value = empty;
             state = STATE_UNBOUND_DEFAULT;
@@ -343,7 +344,7 @@ public class SequenceVariable<T>
     @Override
     public void deleteAll() {
         ensureNotBound();
-        setAsSequence(Sequences.emptySequence(clazz));
+        setAsSequence(typeInfo.emptySequence);
     }
 
     @Override

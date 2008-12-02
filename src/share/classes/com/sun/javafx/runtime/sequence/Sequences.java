@@ -350,10 +350,10 @@ public final class Sequences extends SequenceConversions {
         return true;
     }     
 
-    public static<T> Sequence<? extends T> forceNonNull(Class<T> clazz, Sequence<? extends T> seq) {
-        return seq == null ? emptySequence(clazz) : seq;
+    public static<T> Sequence<? extends T> forceNonNull(TypeInfo<T> typeInfo, Sequence<? extends T> seq) {
+        return seq == null ? typeInfo.emptySequence : seq;
     }
-
+    
     /**
      * Return the single value of a sequence.
      * Return null if the sequence zero zero or more than 1 elements.

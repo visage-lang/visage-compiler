@@ -54,7 +54,7 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> impl
     }
 
     public BoundNumberRangeSequence(DoubleLocation lowerLoc, DoubleLocation upperLoc, DoubleLocation stepLoc, boolean exclusive) {
-        super(Double.class);
+        super(TypeInfo.Double);
         this.lowerLoc = lowerLoc;
         this.upperLoc = upperLoc;
         this.stepLoc = stepLoc;

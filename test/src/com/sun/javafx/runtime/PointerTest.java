@@ -33,8 +33,8 @@ import com.sun.javafx.runtime.sequence.Sequences;
  */
 public class PointerTest extends JavaFXTestCase {
     public void testPointers() {
-        final SequenceVariable<Integer> seqvar = SequenceVariable.make(Integer.class, Sequences.range(1, 3));
-        final SequenceVariable<Integer> seqexp = SequenceVariable.make(Integer.class, false,
+        final SequenceVariable<Integer> seqvar = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
+        final SequenceVariable<Integer> seqexp = SequenceVariable.make(TypeInfo.Integer, false,
                                                                        new SequenceBindingExpression<Integer>() {
                                                                            public Sequence<? extends Integer> computeValue() {
                                                                                return seqvar.getAsSequence();

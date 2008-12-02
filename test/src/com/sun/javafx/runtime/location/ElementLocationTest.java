@@ -24,6 +24,7 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.JavaFXTestCase;
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.sequence.BoundSequences;
 import com.sun.javafx.runtime.sequence.Sequences;
 
@@ -34,7 +35,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
  */
 public class ElementLocationTest extends JavaFXTestCase {
     public void testElementLocation() {
-        SequenceLocation<Integer> seq = SequenceVariable.make(Integer.class, Sequences.range(1, 3));
+        SequenceLocation<Integer> seq = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
         IntLocation index = IntVariable.make(1);
         ObjectLocation<Integer> second = BoundSequences.element(seq, index);
         CountingListener cl = new CountingListener();
@@ -73,7 +74,7 @@ public class ElementLocationTest extends JavaFXTestCase {
     }
 
     public void testSizeof() {
-        SequenceLocation<Integer> seq = SequenceVariable.make(Integer.class, Sequences.range(1, 3));
+        SequenceLocation<Integer> seq = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
         IntLocation size = BoundSequences.sizeof(seq);
         assertEquals(3, size.getAsInt());
         seq.deleteAll();

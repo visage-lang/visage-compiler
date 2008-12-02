@@ -69,8 +69,6 @@ public abstract class JavafxTranslationSupport {
     protected final JavafxTypes types;
     protected final JavafxTypeMorpher typeMorpher;
 
-    protected static final String sequencesEmptyString = "com.sun.javafx.runtime.sequence.Sequences.emptySequence";
-
     /*
      * other instance information
      */
@@ -325,7 +323,7 @@ public abstract class JavafxTranslationSupport {
 
     JCExpression makeDefaultValue(DiagnosticPosition diagPos, TypeMorphInfo tmi) {
         return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ?
-                makeEmptySequenceCreator(diagPos, tmi.getElementType()) :
+                accessEmptySequence(diagPos, tmi.getElementType()) :
             tmi.getRealType() == syms.javafx_StringType ?
                 make.Literal("") :
             tmi.getRealType() == syms.javafx_DurationType ?
@@ -388,7 +386,7 @@ public abstract class JavafxTranslationSupport {
                 break;
             case TYPE_KIND_SEQUENCE:
                 typeArgs = List.of(makeTypeTree(diagPos, tmi.getElementType(), true));
-                makeArgs = makeArgs.prepend(makeElementClassObject(diagPos, tmi.getElementType()));
+                makeArgs = makeArgs.prepend(makeTypeInfo(diagPos, tmi.getElementType()));
                 break;
         }
         return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
@@ -559,26 +557,12 @@ public abstract class JavafxTranslationSupport {
         return sb.toString();
     }
 
-    JCExpression makeEmptySequenceCreator(DiagnosticPosition diagPos, Type elemType) {
-        JCExpression meth = makeQualifiedTree(diagPos, sequencesEmptyString);
-        ListBuffer<JCExpression> args = ListBuffer.lb();
-        args.append(makeElementClassObject(diagPos, elemType));
-        List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, elemType, true));
-        return make.at(diagPos).Apply(typeArgs, meth, args.toList());
+    JCExpression accessEmptySequence(DiagnosticPosition diagPos, Type elemType) {
+        return make.at(diagPos).Select(makeTypeInfo(diagPos, elemType), defs.emptySequenceFieldString);
     }
 
     private String escapeTypeName(Type type) {
         return type.toString().replace(defs.typeCharToEscape, defs.escapeTypeChar);
-    }
-
-    /**
-     * Given "Foo" type, return "Foo.class" expression
-     * @param diagPos
-     * @param elemType
-     * @return expression representing the class
-     */
-    JCExpression makeElementClassObject(DiagnosticPosition diagPos, Type elemType) {
-        return make.at(diagPos).Select(makeTypeTree( diagPos,syms.boxIfNeeded(elemType), true), names._class);
     }
 
     private JCExpression primitiveTypeInfo(DiagnosticPosition diagPos, Name typeName) {

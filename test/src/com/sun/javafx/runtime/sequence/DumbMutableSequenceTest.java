@@ -67,7 +67,7 @@ public class DumbMutableSequenceTest extends JavaFXTestCase {
 
     public void testGrowAndShrink() {
         DumbMutableSequence<Integer> ds = new DumbMutableSequence<Integer>();
-        SequenceLocation<Integer> seq = SequenceVariable.make(Integer.class);
+        SequenceLocation<Integer> seq = SequenceVariable.make(TypeInfo.Integer);
         Random r = new Random();
 
         for (int i = 0; i < 10; i++) {
@@ -95,7 +95,7 @@ public class DumbMutableSequenceTest extends JavaFXTestCase {
 
     public void testRandomInsert() {
         DumbMutableSequence<Integer> ds = new DumbMutableSequence<Integer>();
-        SequenceLocation<Integer> seq = SequenceVariable.make(Integer.class);
+        SequenceLocation<Integer> seq = SequenceVariable.make(TypeInfo.Integer);
         Random r = new Random();
 
         for (int i = 0; i < 100; i++) {

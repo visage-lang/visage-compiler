@@ -31,6 +31,7 @@ import com.sun.javafx.runtime.location.AbstractLocation;
 import com.sun.javafx.runtime.location.ObjectChangeListener;
 import com.sun.javafx.runtime.location.SequenceChangeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * Abstract base class for bound sequences.  Subclass constructors are expected to compute the initial value, set up
@@ -40,15 +41,15 @@ import com.sun.javafx.runtime.location.SequenceLocation;
  * @author Brian Goetz
  */
 public abstract class AbstractBoundSequence<T> extends AbstractLocation implements SequenceLocation<T> {
-    private final Class<T> clazz;
+    private final TypeInfo<T> typeInfo;
     private List<SequenceChangeListener<T>> changeListeners;
     private Sequence<T> value;
 
     // Currently, no support for lazy binding.
 
-    protected AbstractBoundSequence(Class<T> clazz) {
-        this.clazz = clazz;
-        this.value = Sequences.emptySequence(clazz);
+    protected AbstractBoundSequence(TypeInfo<T> typeInfo) {
+        this.typeInfo = typeInfo;
+        this.value = typeInfo.emptySequence;
     }
 
     protected void setInitialValue(Sequence<T> initialValue) {
@@ -57,7 +58,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         Sequence<T> oldValue = value;
         Sequence<T> newValue = initialValue;
         if (newValue == null)
-            newValue = Sequences.emptySequence(clazz);
+            newValue = typeInfo.emptySequence;
         value = newValue;
         setValid();
         if (!Sequences.isEqual(oldValue, newValue)) {
@@ -84,10 +85,6 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         return value;
     }
 
-    protected Class<T> getClazz() {
-        return clazz;
-    }
-
     public Sequence<T> get() {
         return getAsSequence();
     }
@@ -101,8 +98,8 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         return value;
     }
 
-    public Class<T> getElementType() {
-        return clazz;
+    public TypeInfo<T> getElementType() {
+        return typeInfo;
     }
 
     public Sequence<T> getSlice(int startPos, int endPos) {

@@ -26,6 +26,8 @@ package com.sun.javafx.runtime.location;
 import java.util.Iterator;
 
 import com.sun.javafx.runtime.Numerics;
+import com.sun.javafx.runtime.TypeInfo;
+import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 
@@ -61,8 +63,8 @@ public class Locations {
         return ObjectConstant.make(value);
     }
 
-    public static<T> SequenceLocation<T> constant(Class<T> clazz, Sequence<T> value) {
-        return SequenceConstant.make(clazz, value);
+    public static<T> SequenceLocation<T> constant(TypeInfo<T> typeInfo, Sequence<T> value) {
+        return SequenceConstant.make(typeInfo, value);
     }
 
 
@@ -125,8 +127,8 @@ public class Locations {
      * @param loc Location to wrap
      * @return
      */
-    public static<T, V extends T> ObjectLocation<T> upcast(Class clazz, ObjectLocation<V> loc) {
-        return new UpcastLocation<T, V>((Class<V>)clazz, loc);
+    public static<T, V extends T> ObjectLocation<T> upcast(TypeInfo<V> typeInfo, ObjectLocation<V> loc) {
+        return new UpcastLocation<T, V>(typeInfo, loc);
     }
 
     private static abstract class LocationWrapper implements Location {
@@ -749,11 +751,11 @@ public class Locations {
 
     private static class UpcastLocation<T, V extends T> extends LocationWrapper implements ObjectLocation<T> {
         private final ObjectLocation<V> location;
-        private final Class<V> clazz;
+        private final TypeInfo<V> typeInfo;
 
-        public UpcastLocation(Class<V> clazz, ObjectLocation<V> location) {
+        public UpcastLocation(TypeInfo<V> typeInfo, ObjectLocation<V> location) {
             this.location = location;
-            this.clazz = clazz;
+            this.typeInfo = typeInfo;
         }
 
         protected Location getLocation() {
@@ -765,15 +767,18 @@ public class Locations {
         }
 
         public V set(T value) {
-            return location.set((V)value);
+            throw new AssignToBoundException("Cannot assign to bound variable");
+            // return location.set((V)value);
         }
 
         public T setFromLiteral(T value) {
-            return location.setFromLiteral((V)value);
+            throw new AssignToBoundException("Cannot assign to bound variable");
+            // return location.setFromLiteral((V)value);
         }
 
         public void setDefault() {
-            location.setDefault();
+            throw new AssignToBoundException("Cannot assign to bound variable");
+            // location.setDefault();
         }
 
         public void addChangeListener(final ObjectChangeListener<T> listener) {
@@ -811,7 +816,7 @@ public class Locations {
             return location.get(position);
         }
 
-        public Class<T> getElementType() {
+        public TypeInfo<T> getElementType() {
             return location.getElementType();
         }
 

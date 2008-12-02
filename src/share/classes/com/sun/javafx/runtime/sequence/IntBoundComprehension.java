@@ -24,6 +24,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.location.*;
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * Support for a for-loop with an Integer induction variable.
@@ -33,10 +34,10 @@ import com.sun.javafx.runtime.location.*;
  */
 public abstract class IntBoundComprehension<V> extends AbstractBoundComprehension<Integer, IntLocation, V> {
 
-    public IntBoundComprehension(Class<V> clazz,
+    public IntBoundComprehension(TypeInfo<V> typeInfo,
                                  SequenceLocation<Integer> sequenceLocation,
                                  boolean useIndex) {
-        super(clazz, sequenceLocation, useIndex);
+        super(typeInfo, sequenceLocation, useIndex);
     }
 
     protected IntLocation makeInductionLocation(Integer value) {

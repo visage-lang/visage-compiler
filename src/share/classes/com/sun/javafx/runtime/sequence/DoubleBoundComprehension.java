@@ -24,6 +24,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.location.*;
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * Support for a for-loop with a Number induction variable.
@@ -33,10 +34,10 @@ import com.sun.javafx.runtime.location.*;
  */
 public abstract class DoubleBoundComprehension<V> extends AbstractBoundComprehension<Double, DoubleLocation, V> {
 
-    public DoubleBoundComprehension(Class<V> clazz,
+    public DoubleBoundComprehension(TypeInfo<V> typeInfo,
                               SequenceLocation<Double> sequenceLocation,
                               boolean useIndex) {
-        super(clazz, sequenceLocation, useIndex);
+        super(typeInfo, sequenceLocation, useIndex);
     }
 
     protected DoubleLocation makeInductionLocation(Double value) {

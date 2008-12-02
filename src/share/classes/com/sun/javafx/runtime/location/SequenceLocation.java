@@ -25,6 +25,7 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * A sequence-valued Location.  Exposes analogues of the mutative methods from Sequence, which modify the sequence
@@ -39,7 +40,7 @@ public interface SequenceLocation<T> extends Location, Iterable<T>, ObjectLocati
 
     Sequence<T> getAsSequence();
 
-    public Class<T> getElementType();
+    public TypeInfo<T> getElementType();
 
     public void addChangeListener(SequenceChangeListener<T> listener);
 

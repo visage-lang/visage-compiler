@@ -23,6 +23,7 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
 import com.sun.javafx.runtime.location.ObjectLocation;
 import com.sun.javafx.runtime.location.SequenceLocation;
@@ -37,16 +38,16 @@ import com.sun.javafx.runtime.location.SequenceLocation;
 public class BoundSequenceBuilder<T> {
     private static final int DEFAULT_SIZE = 8;
 
-    private final Class<T> clazz;
+    private final TypeInfo<T> typeInfo;
     private SequenceLocation<? extends T>[] array;
     private int size;
 
-    public BoundSequenceBuilder(Class<T> clazz) {
-        this(clazz, DEFAULT_SIZE);
+    public BoundSequenceBuilder(TypeInfo<T> typeInfo) {
+        this(typeInfo, DEFAULT_SIZE);
     }
 
-    public BoundSequenceBuilder(Class<T> clazz, int initialSize) {
-        this.clazz = clazz;
+    public BoundSequenceBuilder(TypeInfo<T> typeInfo, int initialSize) {
+        this.typeInfo = typeInfo;
         array = Util.newSequenceLocationArray(Util.powerOfTwo(1, initialSize));
     }
 
@@ -72,7 +73,7 @@ public class BoundSequenceBuilder<T> {
 
     /** Add an instance location to the sequence */
     public void add(ObjectLocation<? extends T> singleton) {
-        add(BoundSequences.singleton(clazz, singleton));
+        add(BoundSequences.singleton(typeInfo, singleton));
     }
 
     /** Erase the current contents */
@@ -84,6 +85,6 @@ public class BoundSequenceBuilder<T> {
     /** Convert to a SequenceLocation.  The elements will be copied to a new sequence, and will remain
      * in the builder */
     public SequenceLocation<T> toSequence() {
-        return BoundSequences.concatenate(clazz, array, size);
+        return BoundSequences.concatenate(typeInfo, array, size);
     }
 }
