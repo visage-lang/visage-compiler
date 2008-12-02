@@ -224,7 +224,7 @@
         <java classname="com.sun.javafx.tools.stringtemplate.ExpandXxxTemplate">
             <arg value="${build.generated.dir}" />
             <arg value="com/sun/javafx/runtime/location" />
-            <arg line="XxxBindingExpression XxxChangeListener XxxConstant XxxLocation XxxVariable" />
+            <arg line="XxxBindingExpression XxxChangeListener XxxConstant XxxLocation XxxVariable IndirectXxxExpression" />
             <classpath>
                 <pathelement location="${build.buildtools.dir}"/>
                 <path refid="antlr.class.path" />
@@ -273,7 +273,7 @@
         </copy>
     </target>
 
-    <target name="generated-java" depends="generate-lexerv4,generate-parserv4" />
+    <target name="generated-java" depends="generate-lexerv4,generate-parserv4,generate-templates" />
     
     <target depends="init,-def-pcompile" name="-pre-compile">
         <mkdir dir="${build.classes.dir}"/>

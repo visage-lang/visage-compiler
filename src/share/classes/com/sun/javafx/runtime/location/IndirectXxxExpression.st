@@ -23,6 +23,10 @@
 
 package com.sun.javafx.runtime.location;
 
+/*
+ * WARNING: Automatically generated from the template $TEMPLATE_NAME$; do not edit!
+ */
+
 /**
  * Indirect locations are used to express bindings that respond nonuniformly with respect to dependencies. For example,
  * bind a.b will change when a changes or when a.b changes, but the response to changes is different. If a.b changes but
@@ -35,23 +39,23 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class IndirectDoubleExpression extends DoubleVariable implements IndirectLocation<DoubleLocation> {
+abstract class $T.IndirectExpression$ extends $T.Variable$ implements IndirectLocation<$T.Location$> {
 
-    protected final ObjectLocation<DoubleLocation> helper;
+    protected final ObjectLocation<$T.Location$> helper;
 
-    public IndirectDoubleExpression(boolean lazy, Location... dependencies) {
+    public $T.IndirectExpression$(boolean lazy, Location... dependencies) {
         super();
         helper = IndirectLocationHelper.make(this, dependencies);
-        bind(lazy, new DoubleBindingExpression() {
-            public double computeValue() {
-                return helper.get().getAsDouble();
+        bind(lazy, new $T.BindingExpression$() {
+            public $T.prim$ computeValue() {
+                return helper.get().getAs$PREFIX$();
             }
         });
     }
 
-    public abstract DoubleLocation computeLocation();
+    public abstract $T.Location$ computeLocation();
 
-    public DoubleLocation getUnderlyingLocation() {
+    public $T.Location$ getUnderlyingLocation() {
         return computeLocation();
     }
 }

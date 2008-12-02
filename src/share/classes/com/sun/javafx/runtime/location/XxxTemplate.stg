@@ -38,7 +38,8 @@ T ::= [
     "Variable":"<PREFIX>Variable",
     "ChangeListener":"<PREFIX>ChangeListener",
     "Constant":"<PREFIX>Constant",
-    "BindingExpression":"<PREFIX>BindingExpression"
+    "BindingExpression":"<PREFIX>BindingExpression",
+    "IndirectExpression":"Indirect<PREFIX>Expression"
 ]
 V ::= [
     "default":"<DEFAULT_MAP.(PREFIX)>"
