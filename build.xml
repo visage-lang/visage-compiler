@@ -222,8 +222,9 @@
 
     <target name="generate-templates" depends="-pre-compile">
         <java classname="com.sun.javafx.tools.stringtemplate.ExpandXxxTemplate">
-            <arg value="com/sun/javafx/runtime/location/XxxBindingExpression" />
             <arg value="${build.generated.dir}" />
+            <arg value="com/sun/javafx/runtime/location" />
+            <arg line="XxxBindingExpression XxxChangeListener XxxConstant XxxLocation XxxVariable" />
             <classpath>
                 <pathelement location="${build.buildtools.dir}"/>
                 <path refid="antlr.class.path" />

@@ -1,9 +1,6 @@
 package com.sun.javafx.tools.stringtemplate;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,24 +25,32 @@ public class ExpandXxxTemplate {
         boxMap.put("Int", "Integer");
         boxMap.put("Char", "Character");
     }
-    
+
+    /**
+     * Usage: ExpandXxxTemplate dest-root relative-source-path template-name...
+     */
     public static void main(String[] args) throws IOException {
-        String templatePath = args[0];
-        File templateFile = new File(templatePath);
-        String templateName = templateFile.getName();
-        String templateDir = templateFile.getParent();
-        File outputDir = new File(args[1], templateDir);
-        outputDir.mkdirs();
-        StringTemplateGroup stg = new StringTemplateGroup("group");
-        if (templateName.contains("Xxx")) {
+        File destDir = new File(args[0]);
+        String sourcePath = args[1];
+        InputStream stream = ExpandXxxTemplate.class.getClassLoader().getResourceAsStream(sourcePath + File.separator + "XxxTemplate.stg");
+        if (stream == null)
+            throw new RuntimeException("Cannot find " + sourcePath + File.separator + "XxxTemplate.stg on class path");
+        StringTemplateGroup stg = new StringTemplateGroup(new InputStreamReader(stream));
+        StringTemplateGroup loader = new StringTemplateGroup("Xxx");
+        for (int i=2; i<args.length; i++) {
+            String templateName = args[i];
+            File outputDir = new File(destDir, sourcePath);
+            outputDir.mkdirs();
             for (String k : keys) {
-                StringTemplate st = stg.getInstanceOf(templatePath);
                 String outName = templateName.replace("Xxx", k);
+                File outFile = new File(outputDir, outName + ".java");
+                if (outFile.exists())
+                    continue;
+                StringTemplate st = loader.getInstanceOf(sourcePath + File.separator + templateName);
+                st.setGroup(stg);
                 st.setAttribute("PREFIX", k);
                 st.setAttribute("TEMPLATE_NAME", templateName);
-                st.setAttribute("PRIM", primMap.get(k));
-                st.setAttribute("BOXED", boxMap.get(k));
-                Writer out = new FileWriter(new File(outputDir, outName + ".java"));
+                Writer out = new FileWriter(outFile);
                 out.write(st.toString());
                 out.close();
             }
