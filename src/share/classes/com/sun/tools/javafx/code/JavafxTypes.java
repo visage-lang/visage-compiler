@@ -210,7 +210,7 @@ public class JavafxTypes extends Types {
             return isConvertible(elemtype(t), elementType(s), warn);
         
         // Allow lessening precision conversions.
-        if (t == syms.javafx_NumberType) {
+        if (t == syms.javafx_DoubleType) {
             if (s == syms.floatType)
                 return true;
             if (s == syms.javafx_IntegerType ||
@@ -224,7 +224,7 @@ public class JavafxTypes extends Types {
             }
         }
         else if (t == syms.javafx_IntegerType) {
-            if (s == syms.javafx_NumberType ||
+            if (s == syms.javafx_DoubleType ||
                     s == syms.intType ||
                     s == syms.floatType ||
                     s == syms.shortType ||

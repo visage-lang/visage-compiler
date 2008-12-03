@@ -53,14 +53,22 @@ public class JavafxSymtab extends Symtab {
     public static final String inheritedAnnotationClassNameString = anno + ".Inherited";
     public static final String sourceNameAnnotationClassNameString = anno + ".SourceName";
 
-    // Javafx types
+    // Javafx built-in(value) types
+    public final Type javafx_BooleanType;
+    public final Type javafx_CharacterType;
+    public final Type javafx_ByteType;
+    public final Type javafx_ShortType;
     public final Type javafx_IntegerType;
+    public final Type javafx_LongType;
+    public final Type javafx_FloatType;
+    public final Type javafx_DoubleType;
     public final Type javafx_NumberType;
+    public final Type javafx_StringType;
+    public final Type javafx_DurationType;
+
+    // Javafx other types
     public final Type javafx_AnyType;
     public final Type javafx_UnspecifiedType;
-    public final Type javafx_StringType;
-    public final Type javafx_BooleanType;
-    public final Type javafx_DurationType;
     public final Type javafx_AutoImportRuntimeType;
     public final Type javafx_FXRuntimeType;
     public final Type javafx_VoidType;
@@ -131,14 +139,22 @@ public class JavafxSymtab extends Symtab {
         Name.Table names = Name.Table.instance(context);
         types = Types.instance(context);
 
+        javafx_BooleanType = booleanType;
+        javafx_CharacterType = charType;
+        javafx_ByteType = byteType;
+        javafx_ShortType = shortType;
         javafx_IntegerType = intType;
+        javafx_LongType = longType;
+        javafx_FloatType = floatType;
+        javafx_DoubleType = doubleType;
         javafx_NumberType = doubleType;
+        javafx_StringType = stringType;
+        javafx_DurationType = enterClass("javafx.lang.Duration");
+
         javafx_AnyType = objectType;
         javafx_UnspecifiedType = unknownType;
-        javafx_StringType = stringType;
-        javafx_BooleanType = booleanType;
         javafx_VoidType = voidType;
-        javafx_DurationType = enterClass("javafx.lang.Duration");
+
         javafx_AutoImportRuntimeType = enterClass("javafx.lang.Builtins");
         javafx_FXRuntimeType = enterClass("javafx.lang.FX");
         unreachableType = new Type(TypeTags.VOID, null);

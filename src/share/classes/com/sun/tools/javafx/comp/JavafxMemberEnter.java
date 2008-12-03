@@ -447,12 +447,17 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
 
         // Import-on-demand the JavaFX types 
-        importNamed(tree.pos(), syms.javafx_StringType.tsym, env);
-        importNamed(tree.pos(), syms.javafx_IntegerType.tsym, env);
-        importNamed(tree.pos(), syms.javafx_BooleanType.tsym, env);
-        importNamed(tree.pos(), syms.javafx_NumberType.tsym, env);
-        importNamed(tree.pos(), syms.javafx_DurationType.tsym, env);
         importNamed(tree.pos(), syms.objectType.tsym, env);
+        importNamed(tree.pos(), syms.javafx_BooleanType.tsym, env);
+        importNamed(tree.pos(), syms.javafx_CharacterType.tsym, env);
+        importNamed(tree.pos(), syms.javafx_ByteType.tsym, env);
+        importNamed(tree.pos(), syms.javafx_ShortType.tsym, env);
+        importNamed(tree.pos(), syms.javafx_IntegerType.tsym, env);
+        importNamed(tree.pos(), syms.javafx_LongType.tsym, env);
+        importNamed(tree.pos(), syms.javafx_FloatType.tsym, env);
+        importNamed(tree.pos(), syms.javafx_DoubleType.tsym, env);
+        importNamed(tree.pos(), syms.javafx_StringType.tsym, env);
+        importNamed(tree.pos(), syms.javafx_DurationType.tsym, env);
 
         importNamed(tree.pos(), syms.javafx_FXRuntimeType.tsym, env);
         importStaticAll(tree.pos, syms.javafx_AutoImportRuntimeType.tsym, env);
@@ -465,7 +470,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     public void visitImport(JFXImport tree) {
         JFXExpression imp = tree.qualid;
         Name name = JavafxTreeInfo.name(imp);
-
+//TODO:NUMERIC
         if (tree.qualid.getFXTag() == JavafxTag.SELECT) {
             if (name == names.fromString("Integer")) { // TODO: use the constant in the new NameTable when available.
                 log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_INTEGER_PRIMITIVE_TYPE);

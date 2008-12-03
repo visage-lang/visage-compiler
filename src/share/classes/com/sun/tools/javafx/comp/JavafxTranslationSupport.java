@@ -336,7 +336,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     JCExpression makeTimeDefaultValue(DiagnosticPosition diagPos) {
-        return makeDurationLiteral(diagPos, makeLit(diagPos, syms.javafx_NumberType, 0));
+        return makeDurationLiteral(diagPos, makeLit(diagPos, syms.doubleType, 0));
     }
 
     /** Make an attributed tree representing a literal. This will be
@@ -579,25 +579,31 @@ public abstract class JavafxTranslationSupport {
         Type ubType = types.unboxedType(type);
         if (ubType.tag != TypeTags.NONE)
             type = ubType;
-        if (types.isSameType(type, syms.javafx_NumberType)) {
-            return primitiveTypeInfo(diagPos, names.fromString("Double")); // "Number" field isn't really
+        if (types.isSameType(type, syms.javafx_BooleanType)) {
+            return primitiveTypeInfo(diagPos, syms.booleanTypeName);
+        } else if (types.isSameType(type, syms.javafx_CharacterType)) {
+            return primitiveTypeInfo(diagPos, syms.charTypeName);
+        } else if (types.isSameType(type, syms.javafx_ByteType)) {
+            return primitiveTypeInfo(diagPos, syms.byteTypeName);
+        } else if (types.isSameType(type, syms.javafx_ShortType)) {
+            return primitiveTypeInfo(diagPos, syms.shortTypeName);
         } else if (types.isSameType(type, syms.javafx_IntegerType)) {
             return primitiveTypeInfo(diagPos, syms.integerTypeName);
-        } else if (types.isSameType(type, syms.javafx_BooleanType)) {
-            return primitiveTypeInfo(diagPos, syms.booleanTypeName);
+        } else if (types.isSameType(type, syms.javafx_LongType)) {
+            return primitiveTypeInfo(diagPos, syms.longTypeName);
+        } else if (types.isSameType(type, syms.javafx_FloatType)) {
+            return primitiveTypeInfo(diagPos, syms.floatTypeName);
+        } else if (types.isSameType(type, syms.javafx_DoubleType)) {
+            return primitiveTypeInfo(diagPos, syms.doubleTypeName);
         } else if (types.isSameType(type, syms.javafx_StringType)) {
             return primitiveTypeInfo(diagPos, syms.stringTypeName);
-        } else if (types.isSameType(type, syms.longType)) {
-            return primitiveTypeInfo(diagPos, names.fromString("Long"));
         } else if (types.isSameType(type, syms.javafx_DurationType)) {
             JCExpression fieldRef = make.at(diagPos).Select(makeTypeTree(diagPos, type), defs.defaultingTypeInfoFieldName);
             // If TYPE_INFO becomes a Location again, ad back this line
             //    fieldRef = getLocationValue(diagPos, fieldRef, TYPE_KIND_OBJECT);
             return fieldRef;
         } else {
-            if (type.isPrimitive()) {
-                type = types.boxedClass(type).type;
-            }
+            assert !type.isPrimitive();
             List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, type, true));
             return runtime(diagPos, typeInfosString, "getTypeInfo", typeArgs, List.<JCExpression>nil());
         }
