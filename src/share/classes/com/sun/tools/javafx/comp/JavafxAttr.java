@@ -906,6 +906,13 @@ public class JavafxAttr implements JavafxVisitor {
                     initType = syms.objectType;
                 else if (types.isArray(initType)) {
                     Type elemType = types.elemtype(initType);
+                    if (elemType.isPrimitive()) {
+                        if (elemType == syms.shortType ||
+                                elemType == syms.byteType)
+                            elemType = syms.javafx_IntegerType;
+                        else if (elemType == syms.floatType)
+                            elemType = syms.javafx_DoubleType;
+                    }
                     initType = types.sequenceType(elemType);
                 }
                 chk.checkBidiBind(tree.init, tree.getBindStatus(), initEnv, v.type);
