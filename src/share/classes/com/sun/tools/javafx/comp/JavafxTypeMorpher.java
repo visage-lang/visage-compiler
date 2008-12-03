@@ -126,10 +126,8 @@ public class JavafxTypeMorpher {
             this.realType = symType;
 
             if (symType.isPrimitive()) {
-                if (realTsym == syms.doubleType.tsym) {
-                    typeKind = TYPE_KIND_DOUBLE;
-                } else if (realTsym == syms.floatType.tsym) {
-                    typeKind = TYPE_KIND_FLOAT;
+                if (realTsym == syms.booleanType.tsym) {
+                    typeKind = TYPE_KIND_BOOLEAN;
                 } else if (realTsym == syms.charType.tsym) {
                     typeKind = TYPE_KIND_CHAR;
                 } else if (realTsym == syms.byteType.tsym) {
@@ -140,8 +138,10 @@ public class JavafxTypeMorpher {
                     typeKind = TYPE_KIND_INT;
                 } else if (realTsym == syms.longType.tsym) {
                     typeKind = TYPE_KIND_LONG;
-                } else if (realTsym == syms.booleanType.tsym) {
-                    typeKind = TYPE_KIND_BOOLEAN;
+                } else if (realTsym == syms.floatType.tsym) {
+                    typeKind = TYPE_KIND_FLOAT;
+                } else if (realTsym == syms.doubleType.tsym) {
+                    typeKind = TYPE_KIND_DOUBLE;
                 } else {
                     assert false : "should not reach here";
                     elementType = realType;

@@ -283,7 +283,7 @@ public class JavafxClassReader extends ClassReader {
                     Name flatname = ((ClassSymbol) tsym).flatname;
                     Type deloc = defs.delocationize(flatname);
                     if (deloc != null) {
-                        if (deloc == syms.intType || deloc == syms.doubleType || deloc == syms.booleanType) {
+                        if (deloc.isPrimitive()) {
                             return deloc;
                         }
                         if (ctype.typarams_field != null && ctype.typarams_field.size() == 1) {

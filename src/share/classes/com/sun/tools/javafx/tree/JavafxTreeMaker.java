@@ -374,11 +374,6 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         }
         return tp.setType(t);
     }
-//where
-        private JFXExpression Selectors(JFXExpression base, Symbol sym, Symbol limit) {
-            if (sym == limit) return base;
-            else return Select(Selectors(base, sym.owner, limit), sym);
-        }
 
     /** Create a list of trees representing given list of types.
      */

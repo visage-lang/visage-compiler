@@ -216,6 +216,7 @@ public class JavafxSymtab extends Symtab {
         // Enter JavaFX operators.
         enterUnop("sizeof", javafx_SequenceType, javafx_IntegerType, 0);
 
+        //TODO: I think these are ancient garbage, needs verification
         enterUnop("lazy", doubleType, doubleType, 0);
         enterUnop("lazy", intType, intType, 0);
         enterUnop("lazy", booleanType, booleanType, 0);

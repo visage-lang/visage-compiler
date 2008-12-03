@@ -59,6 +59,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     /*
      * other instance information
      */
+    //TODO:NUMERIC
     private final Symbol doubleObjectTypeSymbol;
     private final Symbol intObjectTypeSymbol;
     private final Symbol booleanObjectTypeSymbol;
