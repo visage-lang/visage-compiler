@@ -35,16 +35,21 @@ import com.sun.tools.javac.util.Name;
  */
 public class JavafxVarSymbol extends VarSymbol {
     public static final int TYPE_KIND_OBJECT = 0;
-    public static final int TYPE_KIND_DOUBLE = 1;
-    public static final int TYPE_KIND_BOOLEAN = 2;
-    public static final int TYPE_KIND_INT = 3;
-    public static final int TYPE_KIND_SEQUENCE = 4;
-    public static final int TYPE_KIND_COUNT = 5;
+    public static final int TYPE_KIND_BOOLEAN = 1;
+    public static final int TYPE_KIND_CHAR = 2;
+    public static final int TYPE_KIND_BYTE = 3;
+    public static final int TYPE_KIND_SHORT = 4;
+    public static final int TYPE_KIND_INT = 5;
+    public static final int TYPE_KIND_LONG = 6;
+    public static final int TYPE_KIND_FLOAT = 7;
+    public static final int TYPE_KIND_DOUBLE = 8;
+    public static final int TYPE_KIND_SEQUENCE = 9;
+    public static final int TYPE_KIND_COUNT = 10;
     
-    static final String[] typePrefixes = new String[] { "Object", "Double", "Boolean", "Int", "Sequence" };
+    static final String[] typePrefixes = new String[] { "Object", "Boolean", "Char", "Byte", "Short", "Int", "Long", "Float", "Double", "Sequence" };
     public static String getTypePrefix(int index) { return typePrefixes[index]; }
     
-    static final String[] accessorSuffixes = new String[] { "", "AsDouble", "AsBoolean", "AsInt", "AsSequence" };
+    static final String[] accessorSuffixes = new String[] { "", "AsBoolean", "AsChar", "AsByte", "AsShort", "AsInt", "AsLong", "AsFloat", "AsDouble", "AsSequence" };
     public static String getAccessorSuffix(int index) { return accessorSuffixes[index]; }
 
     /** Creates a new instance of JavafxVarSymbol */

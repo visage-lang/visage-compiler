@@ -113,24 +113,37 @@ public class JavafxTypeMorpher {
             //check if symbol is already a Location, needed for source class
             assert 
                 (realTsym != variableNCT[TYPE_KIND_OBJECT].sym) &&
-                (realTsym != variableNCT[TYPE_KIND_SEQUENCE].sym) &&
                 (realTsym != variableNCT[TYPE_KIND_BOOLEAN].sym) &&
+                (realTsym != variableNCT[TYPE_KIND_CHAR].sym) &&
+                (realTsym != variableNCT[TYPE_KIND_BYTE].sym) &&
+                (realTsym != variableNCT[TYPE_KIND_SHORT].sym) &&
+                (realTsym != variableNCT[TYPE_KIND_INT].sym) &&
+                (realTsym != variableNCT[TYPE_KIND_LONG].sym) &&
+                (realTsym != variableNCT[TYPE_KIND_FLOAT].sym) &&
                 (realTsym != variableNCT[TYPE_KIND_DOUBLE].sym) &&
-                (realTsym != variableNCT[TYPE_KIND_INT].sym) : "Locations should have been converted";
+                (realTsym != variableNCT[TYPE_KIND_SEQUENCE].sym) : "Locations should have been converted";
             
             this.realType = symType;
 
             if (symType.isPrimitive()) {
-                if (realTsym == syms.doubleType.tsym //  || realTsym == syms.floatType.tsym
-                        ) {
+                if (realTsym == syms.doubleType.tsym) {
                     typeKind = TYPE_KIND_DOUBLE;
+                } else if (realTsym == syms.floatType.tsym) {
+                    typeKind = TYPE_KIND_FLOAT;
+                } else if (realTsym == syms.charType.tsym) {
+                    typeKind = TYPE_KIND_CHAR;
+                } else if (realTsym == syms.byteType.tsym) {
+                    typeKind = TYPE_KIND_BYTE;
+                } else if (realTsym == syms.shortType.tsym) {
+                    typeKind = TYPE_KIND_SHORT;
                 } else if (realTsym == syms.intType.tsym) {
                     typeKind = TYPE_KIND_INT;
+                } else if (realTsym == syms.longType.tsym) {
+                    typeKind = TYPE_KIND_LONG;
                 } else if (realTsym == syms.booleanType.tsym) {
                     typeKind = TYPE_KIND_BOOLEAN;
                 } else {
-                    //assert false : "should not reach here";
-                    this.realType = types.boxedClass(realType).type; //TODO: maybe the real type should be kept separate?
+                    assert false : "should not reach here";
                     elementType = realType;
                     typeKind = TYPE_KIND_OBJECT;
                 }
@@ -214,10 +227,15 @@ public class JavafxTypeMorpher {
 
         defaultValueByKind = new Object[TYPE_KIND_COUNT];
         defaultValueByKind[TYPE_KIND_OBJECT] = null;
-        defaultValueByKind[TYPE_KIND_DOUBLE] = 0.0;
         defaultValueByKind[TYPE_KIND_BOOLEAN] = 0;
+        defaultValueByKind[TYPE_KIND_CHAR] = 0;
+        defaultValueByKind[TYPE_KIND_BYTE] = 0;
+        defaultValueByKind[TYPE_KIND_SHORT] = 0;
         defaultValueByKind[TYPE_KIND_INT] = 0;
-        defaultValueByKind[TYPE_KIND_SEQUENCE] = null; //TODO: empty sequence
+        defaultValueByKind[TYPE_KIND_LONG] = 0L;
+        defaultValueByKind[TYPE_KIND_FLOAT] = (float)0.0;
+        defaultValueByKind[TYPE_KIND_DOUBLE] = 0.0;
+        defaultValueByKind[TYPE_KIND_SEQUENCE] = null; // Empty sequence done programatically
 
         try {
             String elide = System.getenv("FXELIDE");

@@ -89,9 +89,15 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_inheritedAnnotationType;
     public final Type javafx_sourceNameAnnotationType;
 
-    public final Name numberTypeName;
-    public final Name integerTypeName;
     public final Name booleanTypeName;
+    public final Name charTypeName;
+    public final Name byteTypeName;
+    public final Name shortTypeName;
+    public final Name integerTypeName;
+    public final Name longTypeName;
+    public final Name floatTypeName;
+    public final Name doubleTypeName;
+    public final Name numberTypeName;
     public final Name stringTypeName;
     public final Name voidTypeName;
 
@@ -161,9 +167,15 @@ public class JavafxSymtab extends Symtab {
             javafx_FunctionTypes[i] = enterClass(functionClassPrefix+i);
         }
 
-        numberTypeName  = names.fromString("Number");
-        integerTypeName = names.fromString("Integer");
         booleanTypeName = names.fromString("Boolean");
+        charTypeName = names.fromString("Character");
+        byteTypeName = names.fromString("Byte");
+        shortTypeName = names.fromString("Short");
+        integerTypeName = names.fromString("Integer");
+        longTypeName = names.fromString("Long");
+        floatTypeName = names.fromString("Float");
+        doubleTypeName = names.fromString("Double");
+        numberTypeName  = names.fromString("Number");
         stringTypeName = names.fromString("String");
         voidTypeName = names.fromString("Void");
 

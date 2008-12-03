@@ -255,10 +255,14 @@ public class JavafxDefs {
         }
         realTypeByKind = new Type[TYPE_KIND_COUNT];
         realTypeByKind[TYPE_KIND_OBJECT] = syms.objectType;
-        realTypeByKind[TYPE_KIND_DOUBLE] = syms.doubleType;
         realTypeByKind[TYPE_KIND_BOOLEAN] = syms.booleanType;
+        realTypeByKind[TYPE_KIND_CHAR] = syms.charType;
+        realTypeByKind[TYPE_KIND_BYTE] = syms.byteType;
+        realTypeByKind[TYPE_KIND_SHORT] = syms.shortType;
         realTypeByKind[TYPE_KIND_INT] = syms.intType;
+        realTypeByKind[TYPE_KIND_LONG] = syms.longType;
+        realTypeByKind[TYPE_KIND_FLOAT] = syms.floatType;
+        realTypeByKind[TYPE_KIND_DOUBLE] = syms.doubleType;
         realTypeByKind[TYPE_KIND_SEQUENCE] = syms.javafx_SequenceType;
-
     }
 }
