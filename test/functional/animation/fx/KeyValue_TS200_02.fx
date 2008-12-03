@@ -48,27 +48,27 @@ var t : Timeline = Timeline {
 			values: [
 				KeyValue {
 					target: ps 
-					value: "def"
+					value: function() { "def" }
 					interpolate: Interpolator.DISCRETE
 				},
 				KeyValue {
 					target: pi 
-					value: 10	
+					value: function() { 10 }
 					interpolate: Interpolator.EASEBOTH
 				},
 				KeyValue {
 					target: pb
-					value: false
+					value: function() { false }
 					interpolate: Interpolator.EASEIN
 				},
 				KeyValue {
 					target: pn 
-					value: 10.0
+					value: function() { 10.0 }
 					interpolate: Interpolator.EASEOUT
 				},
 				KeyValue {
 					target: pd 
-					value: 10s
+					value: function() { 10s }
 					interpolate: Interpolator.LINEAR
 				}
 			]

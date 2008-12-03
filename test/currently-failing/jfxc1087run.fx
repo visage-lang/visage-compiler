@@ -1,7 +1,7 @@
 /*
  * Regression test JFXC-1087 : bound interpolator
  *
- * @test
+ * @test/fail
  * @run
  */
 
@@ -15,5 +15,5 @@ var kf = bind KeyFrame {
          }
 var vs = kf.values[0];
 System.out.println(vs.target.get());
-System.out.println(vs.value);
+System.out.println(vs.value());
 System.out.println(vs.interpolate == Interpolator.EASEOUT);

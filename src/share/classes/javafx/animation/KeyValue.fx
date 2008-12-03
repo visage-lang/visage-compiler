@@ -43,7 +43,7 @@ public class KeyValue {
      * @profile common
      * @defaultvalue null
      */      
-    public var target: KeyValueTarget;
+    public-init var target: KeyValueTarget;
     
     /**
      * Target value
@@ -51,7 +51,7 @@ public class KeyValue {
      * @profile common
      * @defaultvalue null
      */      
-    public var value: Object;
+    public-init var value: function(): Object;
     
     /**
      * {@link Interpolator} to be used for calculating the key value
@@ -61,5 +61,5 @@ public class KeyValue {
      * @profile common
      * @defaultvalue Interpolator.LINEAR
      */      
-    public var interpolate: Interpolator = Interpolator.LINEAR;
+    public-init var interpolate: Interpolator = Interpolator.LINEAR;
 }

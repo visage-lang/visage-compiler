@@ -131,7 +131,7 @@ public class KeyFrame extends Comparable {
     package function visit() {
         for (kv in values) {
             if (kv.target != null and kv.value != null) {
-                kv.target.set(kv.value);
+                kv.target.set(kv.value());
             }
         }
         if (action != null) {

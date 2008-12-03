@@ -39,16 +39,16 @@ var keepAlive : Timeline = Timeline {
 
 var count: Integer = 0;
 var pf: PointerFactory = PointerFactory {};
-var b: Boolean = false on replace old = newValue {
-	//System.out.println("{old} => {newValue}");
+var d: Duration = 0s on replace old = newValue {
+	//System.out.println("TRIGGER: {old} => {newValue}");
 	count++;
 }
-var bpb = bind pf.make(b); 
-var pb = bpb.unwrap();
+var bpd = bind pf.make(d);
+var pd = bpd.unwrap();
 
 var keyValue = KeyValue {
-	target: pb
-	value: true
+	target: pd
+	value: function() { 100s }
 }
 
 var t = Timeline {
@@ -60,7 +60,7 @@ var t = Timeline {
    ]
 }
 
-System.out.println("\nInterpolator.LINEAR:");
+System.out.println("\nInterpolator.LINEAR:{d}");
 keyValue.interpolate = Interpolator.LINEAR;
 keepAlive.play();
 t.play();
@@ -68,8 +68,8 @@ runLater(2000, rerun1);
 
 function rerun1() {
 	//System.out.println("count = {count}");
-    check();
-	System.out.println("\nInterpolator.EASEIN:");
+	check();
+	System.out.println("\nInterpolator.EASEIN: {d}");
 	keyValue.interpolate = Interpolator.EASEIN;
 
 	count = 0;
@@ -79,9 +79,10 @@ function rerun1() {
 }
 
 function rerun2() {
+    // behavior change(RT-1050): stopped at the last point when the animaation ended natually.
 	//System.out.println("count = {count}");
     check();
-	System.out.println("\nInterpolator.EASEOUT:");
+	System.out.println("\nInterpolator.EASEOUT: {d}");
 	keyValue.interpolate = Interpolator.EASEOUT;
 
 	count = 0;
@@ -93,7 +94,7 @@ function rerun2() {
 function rerun3() {
 	//System.out.println("count = {count}");
     check();
-	System.out.println("\nInterpolator.EASEBOTH:");
+	System.out.println("\nInterpolator.EASEBOTH: {d}");
 	keyValue.interpolate = Interpolator.EASEBOTH;
 
 	count = 0;
@@ -115,13 +116,13 @@ function rerun4() {
 }
 
 function end() {
-    System.out.println("count = {count}");
+    //System.out.println("count = {count}");
     check();
-
+    
     keepAlive.stop();
 }
 
-function check() {
+function check() {    
 	System.out.println("CHECK: count = {count}");
 	if(count != 2) {
         keepAlive.stop();

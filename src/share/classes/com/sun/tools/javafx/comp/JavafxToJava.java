@@ -1146,7 +1146,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         if (result instanceof BlockExprJCBlockExpression) {
             BlockExprJCBlockExpression blockExpr = (BlockExprJCBlockExpression) result;
             blockExpr.stats = blockExpr.getStatements().prependList(prependToStatements.toList());
-        } 
+        }
         prependToStatements = prevPrependToStatements;
     }
 
@@ -1400,7 +1400,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 }
                 // non location types:
                 init = makeDefaultValue(diagPos, vmi);
-            } 
+            }
             prependToStatements.append(make.at(Position.NOPOS).VarDef(tmods, tree.name, typeExpression, init));
 
             // create change Listener and append it to the beginning of the block after the blank variable declaration
@@ -1547,7 +1547,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCModifiers mods = make.Modifiers(flags);
             final boolean isRunMethod = syms.isRunMethod(tree.sym);
             final boolean isImplMethod = (originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0L && !isRunMethod && !classOnly;
- 
+
             DiagnosticPosition diagPos = tree.pos();
             MethodType mtype = (MethodType)tree.type;
 
@@ -2207,7 +2207,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 Type exprType = exprToAdd.type;
                 return makeAdd(expr, exprType);
             }
-            
+
             JCExpression makeConstructorArg() {
                 return makeTypeInfo(diagPos, elemType);
             }
@@ -2231,7 +2231,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 Type exprType = exprToAdd.type;
                 return makeAdd(expr, exprType);
             }
-            
+
             JCExpression makeConstructorArg() {
                 return makeTypeInfo(diagPos, elemType);
             }
@@ -3230,7 +3230,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         boolean staticReference = sym.isStatic();
         if (sym instanceof VarSymbol) {
             final VarSymbol vsym = (VarSymbol) sym;
- 
+
             if (sym.owner.kind == Kinds.TYP && types.isJFXClass(sym.owner)) {
                 // this is a reference to a JavaFX class variable
                 if (staticReference) {
@@ -3419,14 +3419,16 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         JFXObjectLiteralPart targetLiteral = fxmake.at(tree.pos()).ObjectLiteralPart(defs.targetName, tree.attribute);
         targetLiteral.sym = targetSymbol;
         JFXObjectLiteralPart valueLiteral =
-                fxmake.at(tree.pos()).ObjectLiteralPart(defs.valueName, tree.value, JavafxBindStatus.UNIDIBIND);
+                fxmake.at(tree.pos()).ObjectLiteralPart(defs.valueName,
+                                                        tree.value,
+                                                        JavafxBindStatus.UNBOUND);
         valueLiteral.sym = syms.javafx_KeyValueType.tsym.members().lookup(defs.valueName).sym;
         List<JFXTree> parts;
         if (tree.interpolation == null)
             parts = List.<JFXTree>of(targetLiteral, valueLiteral);
         else {
             JFXObjectLiteralPart interpolateLiteral =
-                    fxmake.at(tree.pos()).ObjectLiteralPart(defs.interpolateName, tree.interpolation, JavafxBindStatus.UNIDIBIND);
+                    fxmake.at(tree.pos()).ObjectLiteralPart(defs.interpolateName, tree.interpolation, JavafxBindStatus.UNBOUND);
             interpolateLiteral.sym = syms.javafx_KeyValueType.tsym.members().lookup(defs.interpolateName).sym;
             parts = List.<JFXTree>of(targetLiteral, valueLiteral, interpolateLiteral);
         }

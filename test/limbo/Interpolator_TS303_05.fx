@@ -94,7 +94,7 @@ var pn = bpn.unwrap();
 
 var keyValue = KeyValue {
 	target: pn
-	value: 100
+	value: function() { 100 }
 }
 
 var t = Timeline {

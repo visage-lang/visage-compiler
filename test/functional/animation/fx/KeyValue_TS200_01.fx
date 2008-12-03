@@ -48,23 +48,23 @@ var t : Timeline = Timeline {
 			values: [
 				KeyValue {
 					target: ps 
-					value: "def"
+					value: function() { "def" }
 				},
 				KeyValue {
 					target: pi 
-					value: 10
+					value: function() { 10 }
 				},
 				KeyValue {
 					target: pb
-					value: false
+					value: function() { false }
 				},
 				KeyValue {
 					target: pn 
-					value: 10.0
+					value: function() { 10.0 }
 				},
 				KeyValue {
 					target: pd 
-					value: 10s
+					value: function() { 10s }
 				}
 			]
 			action: function() {

@@ -3740,6 +3740,13 @@ public class JavafxAttr implements JavafxVisitor {
         attribExpr(tree.value, env, tree.attribute.type);
         if (tree.interpolation != null)
             attribExpr(tree.interpolation, env);
+        // wrap it in a function
+        tree.value = fxmake.at(tree.pos()).FunctionValue(fxmake.at(tree.pos()).TypeUnknown(), 
+                                                         List.<JFXVar>nil(),
+                                                         fxmake.at(tree.pos()).Block(0L,
+                                                                                     List.<JFXExpression>nil(),
+                                                                                     tree.value));    
+        attribExpr(tree.value, env);
         result = check(tree, syms.javafx_KeyValueType, VAL, pkind, pt, pSequenceness);
     }
 

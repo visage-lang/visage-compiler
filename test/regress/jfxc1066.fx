@@ -74,6 +74,6 @@ var txy = Timeline {
             sy => 1;
         }
 }
-System.out.println(ax.keyFrames[0].values[0].value);
-System.out.println(ay.keyFrames[1].values[0].value);
-System.out.println(sxy.keyFrames[2].values[1].value);
+System.out.println(ax.keyFrames[0].values[0].value());
+System.out.println(ay.keyFrames[1].values[0].value());
+System.out.println(sxy.keyFrames[2].values[1].value());

@@ -481,7 +481,7 @@ public class Timeline {
  
         
         for (kv in initialKeyValues) {
-            kv.target.set(kv.value);
+            kv.target.set(kv.value());
         }
         
         for (i in [0..<subtimelines.size()]) {
@@ -648,10 +648,8 @@ public class Timeline {
                     // get current value and attach it to zero frame
                     var kv = KeyValue {
                         target: keyValue.target;
-                        value: if (zeroFrame == sortedFrames[0])
-                                    keyValue.value
-                                    else keyValue.target.get();
-
+                        var value = if (zeroFrame == sortedFrames[0]) then keyValue.value() else keyValue.target.get();
+                        value: function() { value }
                     }
                         
                     insert kv into initialKeyValues;
@@ -871,11 +869,11 @@ public class Timeline {
                 }
                 if (v1 != null and v2 != null) {
                     if (v2.interpolate == null) {
-                        var v = Interpolator.LINEAR.interpolate(v1.value, 
-                                                                v2.value, segT);
+                        var v = Interpolator.LINEAR.interpolate(v1.value(),
+                                                                v2.value(), segT);
                         pairlist.target.set(v);
                     } else {
-                        pairlist.target.set(v2.interpolate.interpolate(v1.value, v2.value, segT));
+                        pairlist.target.set(v2.interpolate.interpolate(v1.value(), v2.value(), segT));
                     }
                 } 
             }
