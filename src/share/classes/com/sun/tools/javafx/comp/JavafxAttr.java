@@ -905,15 +905,8 @@ public class JavafxAttr implements JavafxVisitor {
                         || initType == syms.unreachableType)
                     initType = syms.objectType;
                 else if (types.isArray(initType)) {
-                    initType = types.elemtype(initType);                    
-                    if (initType.isPrimitive()) {
-                        if (initType == syms.shortType ||
-                                initType == syms.byteType)
-                            initType = syms.javafx_IntegerType;
-                        else if (initType == syms.floatType)
-                            initType = syms.javafx_NumberType;
-                    }
-                    initType = types.sequenceType(initType);
+                    Type elemType = types.elemtype(initType);
+                    initType = types.sequenceType(elemType);
                 }
                 chk.checkBidiBind(tree.init, tree.getBindStatus(), initEnv, v.type);
             }
@@ -2414,8 +2407,8 @@ public class JavafxAttr implements JavafxVisitor {
                  opcode == JavafxTag.MINUS_ASG ||
                  opcode == JavafxTag.MUL_ASG ||
                  opcode == JavafxTag.DIV_ASG) {
-            newType = syms.javafx_NumberType;
-            jcExpression = fxmake.at(tree.pos()).Ident(syms.javafx_NumberType.tsym);
+            newType = syms.javafx_DoubleType;
+            jcExpression = fxmake.at(tree.pos()).Ident(syms.javafx_DoubleType.tsym);
         }
         else
             return newType;
@@ -2847,19 +2840,19 @@ public class JavafxAttr implements JavafxVisitor {
         boolean allInt = true;
         if (lowerType != syms.javafx_IntegerType) {
             allInt = false;
-            if (lowerType != syms.javafx_NumberType) {
+            if (lowerType != syms.javafx_DoubleType) {
                 log.error(tree.getLower().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_START_INT_OR_NUMBER);
             }
         }
         if (upperType != syms.javafx_IntegerType) {
             allInt = false;
-            if (upperType != syms.javafx_NumberType) {
+            if (upperType != syms.javafx_DoubleType) {
                 log.error(tree.getLower().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_END_INT_OR_NUMBER);
             }
         }
         if (stepType != syms.javafx_IntegerType) {
             allInt = false;
-            if (stepType != syms.javafx_NumberType) {
+            if (stepType != syms.javafx_DoubleType) {
                 log.error(tree.getStepOrNull().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_STEP_INT_OR_NUMBER);
             }
         }
@@ -2867,7 +2860,7 @@ public class JavafxAttr implements JavafxVisitor {
                 && (tree.getStepOrNull() == null || tree.getStepOrNull().getFXTag() == JavafxTag.LITERAL)) {
             chk.warnEmptyRangeLiteral(tree.pos(), (JFXLiteral)tree.getLower(), (JFXLiteral)tree.getUpper(), (JFXLiteral)tree.getStepOrNull(), tree.isExclusive());
 		}
-        Type owntype = types.sequenceType(allInt? syms.javafx_IntegerType : syms.javafx_NumberType);
+        Type owntype = types.sequenceType(allInt? syms.javafx_IntegerType : syms.javafx_DoubleType);
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
 
@@ -3018,16 +3011,28 @@ public class JavafxAttr implements JavafxVisitor {
         JFXExpression classNameExpr = ((JFXTypeClass) tree).getClassName();
         if (classNameExpr instanceof JFXIdent) {
             Name className = ((JFXIdent) classNameExpr).getName();
-            if (className == syms.numberTypeName) {
-                type = syms.javafx_NumberType;
+            if (className == syms.booleanTypeName) {
+                type = syms.javafx_BooleanType;
+            } else if (className == syms.charTypeName) {
+                type = syms.javafx_CharacterType;
+            } else if (className == syms.byteTypeName) {
+                type = syms.javafx_ByteType;
+            } else if (className == syms.shortTypeName) {
+                type = syms.javafx_ShortType;
             } else if (className == syms.integerTypeName) {
                 type = syms.javafx_IntegerType;
-            } else if (className == syms.booleanTypeName) {
-                type = syms.javafx_BooleanType;
-            } else if (className == syms.voidTypeName) {
-                type = syms.javafx_VoidType;
+            } else if (className == syms.longTypeName) {
+                type = syms.javafx_LongType;
+            } else if (className == syms.floatTypeName) {
+                type = syms.javafx_FloatType;
+            } else if (className == syms.doubleTypeName) {
+                type = syms.javafx_DoubleType;
+            } else if (className == syms.numberTypeName) {
+                type = syms.javafx_DoubleType;
             } else if (className == syms.stringTypeName) {
                 type = syms.javafx_StringType;
+            } else if (className == syms.voidTypeName) {
+                type = syms.javafx_VoidType;
             }
         }
         if (type == null) {
@@ -3683,19 +3688,19 @@ public class JavafxAttr implements JavafxVisitor {
 	    }
             else {
                 Type setReturnType = null;
-                if (mtres == syms.javafx_NumberType && otres == syms.floatType) {
+                if (mtres == syms.javafx_DoubleType && otres == syms.floatType) {
                     setReturnType = syms.floatType;
                 }
-                else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_NumberType) && otres == syms.byteType) {
+                else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_DoubleType) && otres == syms.byteType) {
                     setReturnType = syms.byteType;
                 }
-                else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_NumberType) && otres == syms.charType) {
+                else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_DoubleType) && otres == syms.charType) {
                     setReturnType = syms.charType;
                 }
-                else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_NumberType) && otres == syms.shortType) {
+                else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_DoubleType) && otres == syms.shortType) {
                     setReturnType = syms.shortType;
                 }
-                else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_NumberType) && otres == syms.longType) {
+                else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_DoubleType) && otres == syms.longType) {
                     setReturnType = syms.longType;
                 }
 
@@ -3758,7 +3763,7 @@ public class JavafxAttr implements JavafxVisitor {
         Type interpolateType = syms.errType;
         if (types.isAssignable(valueType, syms.javafx_ColorType)) {
             interpolateType = syms.javafx_ColorInterpolatorType;
-        } else if (types.isAssignable(valueType, syms.javafx_NumberType) ||
+        } else if (types.isAssignable(valueType, syms.javafx_DoubleType) ||
                    types.isAssignable(valueType, syms.javafx_IntegerType)) {
             interpolateType = syms.javafx_NumberInterpolatorType;
         } else {

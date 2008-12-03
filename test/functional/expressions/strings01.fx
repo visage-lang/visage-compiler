@@ -76,7 +76,7 @@ TU.checkB( str2.compareTo(str1)<0, "lt equality with compareTo()" );
  * some String methods may not return what you expect, or you may 
  * not know exactly what to expect.
  */
-var str2Bytes = str2.getBytes();
+var str2Bytes : Integer[] = str2.getBytes();
 var ibytes = [97,98,99];
 TU.checkIs( ibytes,str2Bytes,"compare return of getBytes with Integer[]");
 

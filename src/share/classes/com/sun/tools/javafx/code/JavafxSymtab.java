@@ -62,7 +62,6 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_LongType;
     public final Type javafx_FloatType;
     public final Type javafx_DoubleType;
-    public final Type javafx_NumberType;
     public final Type javafx_StringType;
     public final Type javafx_DurationType;
 
@@ -147,7 +146,6 @@ public class JavafxSymtab extends Symtab {
         javafx_LongType = longType;
         javafx_FloatType = floatType;
         javafx_DoubleType = doubleType;
-        javafx_NumberType = doubleType;
         javafx_StringType = stringType;
         javafx_DurationType = enterClass("javafx.lang.Duration");
 

@@ -499,7 +499,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         if (targetIsSequence && sourceIsSequence) {
             Type sourceElemType = types.elementType(sourceType);
             Type targetElemType = types.elementType(targetType);
-            if (types.isSameType(sourceElemType, syms.javafx_IntegerType) && types.isSameType(targetElemType, syms.javafx_NumberType)) {
+            //TODO:NUMERIC
+            if (types.isSameType(sourceElemType, syms.javafx_IntegerType) && types.isSameType(targetElemType, syms.javafx_DoubleType)) {
                 JCExpression cSequences = makeTypeTree(diagPos, syms.javafx_SequencesType, false);
                 return callExpression(diagPos,
                         cSequences,
