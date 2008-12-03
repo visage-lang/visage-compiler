@@ -974,35 +974,9 @@ multOps
 // LL(k) Precedence
 //
 unaryExpression
-
-	returns [JFXExpression value] 	// Expression tree for unary expressions
-
-@init
-{
-	// Work out current position in the input stream
-	//
-	int	rPos = pos();
-}
-
-	: se=suffixedExpression
-
-		{
-			$value = $se.value;
-		}
-		
-	| INDEXOF		id=identifier
-	
-		{ 	
-			$value = F.at(rPos).Indexof($id.value);
-			endPos($value);
-		}
-		
-	| unaryOps     	e=unaryExpression
-
-		{
-			$value = F.at(rPos).Unary($unaryOps.unOp, $e.value);
-			endPos($value);
-		}
+	: suffixedExpression
+	| 'indexof'		identifier
+	| ( ('-') | ('not') | ('sizeof') | ('++') | ('--') | ('reverse'))     	unaryExpression
 	;
 	
 // -------------------------
@@ -1010,9 +984,6 @@ unaryExpression
 // LL(k) precedence
 //
 unaryOps
-
-	returns [JavafxTag unOp]	// Returns the JFX operator type
-	
 	: SUB			{ $unOp = JavafxTag.NEG; }
 	| NOT			{ $unOp = JavafxTag.NOT; }
 	| SIZEOF		{ $unOp = JavafxTag.SIZEOF; }
