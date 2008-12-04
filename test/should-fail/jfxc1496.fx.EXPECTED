@@ -1,0 +1,37 @@
+test\should-fail\jfxc1496.fx:20: Not allowed in bind context compound assignment
+var v1 = bind v += 2;
+              ^
+test\should-fail\jfxc1496.fx:20: v1 is already defined in jfxc1496
+var v1 = bind v += 2;
+^
+test\should-fail\jfxc1496.fx:21: Not allowed in bind context compound assignment
+var v2 = bind v -= 2;
+              ^
+test\should-fail\jfxc1496.fx:21: v2 is already defined in jfxc1496
+var v2 = bind v -= 2;
+^
+test\should-fail\jfxc1496.fx:22: Not allowed in bind context compound assignment
+var v3 = bind v *= 2;
+              ^
+test\should-fail\jfxc1496.fx:22: v3 is already defined in jfxc1496
+var v3 = bind v *= 2;
+^
+test\should-fail\jfxc1496.fx:23: Not allowed in bind context compound assignment
+var v4 = bind v /= 2;
+              ^
+test\should-fail\jfxc1496.fx:23: v4 is already defined in jfxc1496
+var v4 = bind v /= 2;
+^
+test\should-fail\jfxc1496.fx:13: Not allowed in bind context ++
+var v1 = bind v++;
+              ^
+test\should-fail\jfxc1496.fx:14: Not allowed in bind context ++
+var v2 = bind ++v;
+              ^
+test\should-fail\jfxc1496.fx:15: Not allowed in bind context --
+var v3 = bind v--;
+              ^
+test\should-fail\jfxc1496.fx:16: Not allowed in bind context --
+var v4 = bind --v;
+              ^
+12 errors

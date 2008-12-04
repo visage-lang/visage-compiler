@@ -480,7 +480,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 translatedVars.append(translateVar(var));
                 optStat.recordLocalVar(var.sym, true, true);
             } else {
-                log.error(diagPos, MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, stmt.toString());
+                assert false : "non VAR_DEF in block expression in bind context";
             }
         }
         while (value.getFXTag() == JavafxTag.VAR_DEF) {
@@ -520,7 +520,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
     @Override
     public void visitAssignop(JFXAssignOp tree) {
-        log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "=");
+        // should have caught this in attribution
+        assert false : "Assignment operator in bind context";
     }
 
     private JCExpression makeBoundSelect(final DiagnosticPosition diagPos,
@@ -1289,19 +1290,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 }
                 break;
             case PREINC:
-                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "++");
-                res = transExpr;
-                break;
             case PREDEC:
-                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "--");
-                res = transExpr;
-                break;
             case POSTINC:
-                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "++");
-                res = transExpr;
-                break;
             case POSTDEC:
-                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "--");
+                // should have caught this in attribution
+                assert false : "++/-- in bind context f";
                 res = transExpr;
                 break;
             default:
