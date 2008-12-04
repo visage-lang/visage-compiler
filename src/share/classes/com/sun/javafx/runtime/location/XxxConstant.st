@@ -44,10 +44,6 @@ public class $T.Constant$ extends AbstractConstantLocation<$T.boxed$> implements
     }
 
 
-    public $T.prim$ getAs$PREFIX$() {
-        return \$value;
-    }
-
     public $T.boxed$ get() {
         return \$value;
     }
@@ -61,4 +57,17 @@ public class $T.Constant$ extends AbstractConstantLocation<$T.boxed$> implements
     }
 
     public void addChangeListener($PREFIX$ChangeListener listener) { }
+
+$if(NUMERIC)$
+    public byte getAsByte() { return (byte) \$value; }
+    public short getAsShort() { return (short) \$value; }
+    public int getAsInt() { return (int) \$value; }
+    public long getAsLong() { return (long) \$value; }
+    public float getAsFloat() { return (float) \$value; }
+    public double getAsDouble() { return (double) \$value; }
+$else$
+    public $T.prim$ getAs$PREFIX$() {
+        return \$value;
+    }
+$endif$
 }

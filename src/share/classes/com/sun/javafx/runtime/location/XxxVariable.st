@@ -77,12 +77,6 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, $T.B
         addDependency(dependencies);
     }
 
-    public $T.prim$ getAs$PREFIX$() {
-        if (isUnidirectionallyBound() && !isValid())
-            update();
-        return \$value;
-    }
-
     public $T.boxed$ get() {
         return getAs$PREFIX$();
     }
@@ -184,4 +178,49 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, $T.B
                 }
             });
     }
+
+$if(NUMERIC)$
+    public byte getAsByte() {
+        if (isUnidirectionallyBound() && !isValid())
+            update();
+        return (byte) \$value; 
+    }
+
+    public short getAsShort() {
+        if (isUnidirectionallyBound() && !isValid())
+            update();
+        return (short) \$value;
+    }
+
+    public int getAsInt() {
+        if (isUnidirectionallyBound() && !isValid())
+            update();
+        return (int) \$value;
+    }
+
+    public long getAsLong() {
+        if (isUnidirectionallyBound() && !isValid())
+            update();
+        return (long) \$value;
+    }
+
+    public float getAsFloat() {
+        if (isUnidirectionallyBound() && !isValid())
+            update();
+        return (float) \$value;
+    }
+
+    public double getAsDouble() {
+        if (isUnidirectionallyBound() && !isValid())
+            update();
+        return (double) \$value;
+    }
+
+$else$
+    public $T.prim$ getAs$PREFIX$() {
+        if (isUnidirectionallyBound() && !isValid())
+            update();
+        return \$value;
+    }
+$endif$
 }

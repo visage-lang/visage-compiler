@@ -36,8 +36,87 @@ import com.sun.javafx.runtime.sequence.SequencePredicate;
  * @author Brian Goetz
  */
 public class BoundOperators extends GeneratedBoundOperators {
+
     // non-instantiable
     private BoundOperators() { }
+
+    // @@@ Currently there are two different schemes here; the old scheme (GeneratedBoundOperators, plus everything below
+    // the @@@---@@@ line in this file), and a newer, more compact scheme.   The more compact scheme is not complete, but
+    // it currently handles all the XxxLocations for primitive types, plus an object-to-NumericLocation wrapper, for all
+    // the binary arithmetic ops (plus, minus, times, divide, modulo)
+
+    public enum BinaryOperator {
+        PLUS {
+            public int operate(int left, int right) { return left + right; }
+            public long operate(long left, long right) { return left + right; }
+            public float operate(float left, float right) { return left + right; }
+            public double operate(double left, double right) { return left + right; }
+        },
+        MINUS {
+            public int operate(int left, int right) { return left - right; }
+            public long operate(long left, long right) { return left - right; }
+            public float operate(float left, float right) { return left - right; }
+            public double operate(double left, double right) { return left - right; }
+        },
+        TIMES {
+            public int operate(int left, int right) { return left * right; }
+            public long operate(long left, long right) { return left * right; }
+            public float operate(float left, float right) { return left * right; }
+            public double operate(double left, double right) { return left * right; }
+        },
+        DIVIDE {
+            public int operate(int left, int right) { return left / right; }
+            public long operate(long left, long right) { return left / right; }
+            public float operate(float left, float right) { return left / right; }
+            public double operate(double left, double right) { return left / right; }
+        },
+        MODULO {
+            public int operate(int left, int right) { return left % right; }
+            public long operate(long left, long right) { return left % right; }
+            public float operate(float left, float right) { return left % right; }
+            public double operate(double left, double right) { return left % right; }
+        };
+
+        public abstract int operate(int left, int right);
+        public abstract long operate(long left, long right);
+        public abstract float operate(float left, float right);
+        public abstract double operate(double left, double right);
+    }
+
+    public static IntLocation op_int(final NumericLocation a, final NumericLocation b, final BinaryOperator op) {
+        return IntVariable.make(new IntBindingExpression() {
+            public int computeValue() {
+                return op.operate(a.getAsInt(), b.getAsInt());
+            }
+        }, a, b);
+    }
+
+    public static DoubleLocation op_double(final NumericLocation a, final NumericLocation b, final BinaryOperator op) {
+        return DoubleVariable.make(new DoubleBindingExpression() {
+            public double computeValue() {
+                return op.operate(a.getAsDouble(), b.getAsDouble());
+            }
+        }, a, b);
+    }
+
+    public static FloatLocation op_float(final NumericLocation a, final NumericLocation b, final BinaryOperator op) {
+        return FloatVariable.make(new FloatBindingExpression() {
+            public float computeValue() {
+                return op.operate(a.getAsFloat(), b.getAsFloat());
+            }
+        }, a, b);
+    }
+
+    public static LongLocation op_long(final NumericLocation a, final NumericLocation b, final BinaryOperator op) {
+        return LongVariable.make(new LongBindingExpression() {
+            public long computeValue() {
+                return op.operate(a.getAsLong(), b.getAsLong());
+            }
+        }, a, b);
+    }
+
+
+    // @@@---@@@ Below here is the old scheme
 
     public static <T, V> BooleanLocation eq_oo(final ObjectLocation<T> a, final ObjectLocation<V> b) {
         return BooleanVariable.make(new BooleanBindingExpression() {
@@ -201,7 +280,7 @@ public class BoundOperators extends GeneratedBoundOperators {
     }
 
 
-    public static<T> IntLocation makeBoundSelect(boolean lazy, 
+    public static<T> IntLocation makeBoundSelect(boolean lazy,
                                                  final ObjectLocation<T> receiver,
                                                  final Function1<IntLocation, T> selector) {
         return new IndirectIntExpression(lazy, receiver) {

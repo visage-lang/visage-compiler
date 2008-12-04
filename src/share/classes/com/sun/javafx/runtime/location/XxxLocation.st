@@ -33,7 +33,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface $T.Location$ extends Location, ObjectLocation<$T.boxed$> {
+public interface $T.Location$ extends $if(NUMERIC)$ NumericLocation $else$ Location $endif$, ObjectLocation<$T.boxed$> {
     /** Retrieve the current value of this location, recomputing if necessary */
     public $T.prim$ getAs$PREFIX$();
 

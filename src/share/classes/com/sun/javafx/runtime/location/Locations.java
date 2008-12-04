@@ -84,6 +84,10 @@ public class Locations {
         return new ObjectBooleanLocation(loc);
     }
 
+    public static <T extends Number> NumericLocation asNumericLocation(ObjectLocation<T> loc) {
+        return new ObjectNumericLocation(loc);
+    }
+
     // Was <T extends Number>; assumes T is Number
     public static <T> DoubleLocation asDoubleLocation(ObjectLocation<T> loc) {
         return new ObjectDoubleLocation<T>(loc);
@@ -205,10 +209,6 @@ public class Locations {
             return location.getAsInt();
         }
 
-        public void addChangeListener(IntChangeListener listener) {
-            location.addChangeListener(listener);
-        }
-
         public Double get() {
             return getAsDouble();
         }
@@ -257,15 +257,62 @@ public class Locations {
             return location.getAsInt();
         }
 
-        public int setAsInt(int value) {
-            return location.setAsInt(value);
+        public byte getAsByte() {
+            return (byte) getAsDouble();
         }
 
-        public int setAsIntFromDefault(int value) {
-            return location.setAsIntFromLiteral(value);
+        public short getAsShort() {
+            return (short) getAsDouble();
+        }
+
+        public long getAsLong() {
+            return (long) getAsDouble();
+        }
+
+        public float getAsFloat() {
+            return (float) getAsDouble();
         }
     }
 
+    private static class ObjectNumericLocation extends LocationWrapper implements NumericLocation, StaticViewLocation {
+        private final ObjectLocation<? extends Number> location;
+
+        private ObjectNumericLocation(ObjectLocation<? extends Number> location) {
+            this.location = location;
+        }
+        protected Location getLocation() {
+            return location;
+        }
+
+        public int getAsInt() {
+            Integer val = Numerics.toInt(location.get());
+            return val==null? 0 : val;
+        }
+
+        public byte getAsByte() {
+            return (byte) getAsInt();
+        }
+
+        public short getAsShort() {
+            return (short) getAsInt();
+        }
+
+        public long getAsLong() {
+            return getAsInt();
+        }
+
+        public float getAsFloat() {
+            return getAsInt();
+        }
+
+        public double getAsDouble() {
+            return getAsInt();
+        }
+
+        public Location getUnderlyingLocation() {
+            return location;
+        }
+    }
 
     private static class ObjectIntLocation extends LocationWrapper implements IntLocation, StaticViewLocation {
         private final ObjectLocation<Integer> location;
@@ -305,6 +352,26 @@ public class Locations {
 
         public Integer get() {
             return location.get();
+        }
+
+        public byte getAsByte() {
+            return (byte) getAsInt();
+        }
+
+        public short getAsShort() {
+            return (short) getAsInt();
+        }
+
+        public long getAsLong() {
+            return getAsInt();
+        }
+
+        public float getAsFloat() {
+            return getAsInt();
+        }
+
+        public double getAsDouble() {
+            return getAsInt();
         }
 
         public Integer set(Integer value) {
@@ -385,6 +452,26 @@ public class Locations {
             });
         }
 
+        public byte getAsByte() {
+            return (byte) getAsDouble();
+        }
+
+        public short getAsShort() {
+            return (short) getAsDouble();
+        }
+
+        public int getAsInt() {
+            return (int) getAsDouble();
+        }
+
+        public long getAsLong() {
+            return (long) getAsDouble();
+        }
+
+        public float getAsFloat() {
+            return (float) getAsDouble();
+        }
+
         public Location getUnderlyingLocation() {
             return location;
         }
@@ -454,23 +541,35 @@ public class Locations {
     private static class DoubleIntLocation extends LocationWrapper implements IntLocation, StaticViewLocation {
         private final DoubleLocation location;
 
-        protected DoubleLocation getLocation() {
-            return location;
-        }
-
         public DoubleIntLocation(DoubleLocation location) {
             this.location = location;
+        }
+
+        protected DoubleLocation getLocation() {
+            return location;
         }
 
         public int getAsInt() {
             return (int)location.getAsDouble();
         }
 
-        public void addChangeListener(DoubleChangeListener listener) {
-            location.addChangeListener(listener);
+        public Integer get() {
+            return getAsInt();
         }
 
-        public Integer get() {
+        public byte getAsByte() {
+            return (byte) getAsInt();
+        }
+
+        public short getAsShort() {
+            return (short) getAsInt();
+        }
+
+        public long getAsLong() {
+            return getAsInt();
+        }
+
+        public float getAsFloat() {
             return getAsInt();
         }
 
@@ -517,14 +616,6 @@ public class Locations {
         public double getAsDouble() {
             return location.getAsDouble();
         }
-
-        public double setAsDouble(double value) {
-            return location.setAsDouble(value);
-        }
-
-        public double setAsDoubleFromDefault(double value) {
-            return location.setAsDoubleFromLiteral(value);
-        }
     }
 
     /**
@@ -533,12 +624,12 @@ public class Locations {
     private static class UnmodifiableIntLocation extends LocationWrapper implements IntLocation {
         private final IntLocation location;
 
-        protected Location getLocation() {
-            return location;
-        }
-
         public UnmodifiableIntLocation(IntLocation location) {
             this.location = location;
+        }
+
+        protected Location getLocation() {
+            return location;
         }
 
         public boolean isMutable() {
@@ -551,6 +642,26 @@ public class Locations {
 
         public Integer get() {
             return getAsInt();
+        }
+
+        public byte getAsByte() {
+            return location.getAsByte();
+        }
+
+        public short getAsShort() {
+            return location.getAsShort();
+        }
+
+        public long getAsLong() {
+            return location.getAsLong();
+        }
+
+        public float getAsFloat() {
+            return location.getAsFloat();
+        }
+
+        public double getAsDouble() {
+            return location.getAsDouble();
         }
 
         public void addChangeListener(IntChangeListener listener) {
@@ -611,6 +722,26 @@ public class Locations {
 
         public Double get() {
             return getAsDouble();
+        }
+
+        public byte getAsByte() {
+            return location.getAsByte();
+        }
+
+        public short getAsShort() {
+            return location.getAsShort();
+        }
+
+        public long getAsLong() {
+            return location.getAsLong();
+        }
+
+        public float getAsFloat() {
+            return location.getAsFloat();
+        }
+
+        public int getAsInt() {
+            return location.getAsInt();
         }
 
         public void addChangeListener(DoubleChangeListener listener) {

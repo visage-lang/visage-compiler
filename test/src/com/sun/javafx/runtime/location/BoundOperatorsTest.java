@@ -1,5 +1,8 @@
 package com.sun.javafx.runtime.location;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.JavaFXTestCase;
 import com.sun.javafx.runtime.TypeInfo;
@@ -109,4 +112,168 @@ public class BoundOperatorsTest extends JavaFXTestCase {
         assertEqualsAndClear(hl, "[0, 3] => [ 1, 2, 3, 4, 5 ]");
     }
 
+    public void testBoundAdd() {
+        IntLocation il = IntVariable.make(1);
+        DoubleLocation dl = DoubleVariable.make(1);
+        FloatLocation fl = FloatVariable.make(1);
+        LongLocation ll = LongVariable.make(1);
+
+        IntLocation il_i = BoundOperators.op_int(il, ll, BoundOperators.BinaryOperator.PLUS);
+        assertEquals(il_i.getAsInt(), 2);
+        il.setAsInt(2);
+        assertEquals(il_i.getAsInt(), 3);
+        ll.setAsLong(2);
+        assertEquals(il_i.getAsInt(), 4);
+
+        FloatLocation fd_f = BoundOperators.op_float(fl, dl, BoundOperators.BinaryOperator.PLUS);
+        assertEquals(fd_f.getAsInt(), 2);
+        fl.setAsFloat(2);
+        assertEquals(fd_f.getAsInt(), 3);
+        dl.setAsDouble(2);
+        assertEquals(fd_f.getAsInt(), 4);
+    }
+
+    public void testBoundAdd2() {
+
+        class LocHolder<T extends Number> {
+            ObjectLocation<T> loc;
+            T[] values;
+            int pos;
+
+            LocHolder(ObjectLocation<T> loc, T... values) {
+                this.loc = loc;
+                this.values = values;
+            }
+
+            void reset() { pos = 0; advance(); }
+            void advance() { loc.set(values[pos++]); }
+        }
+
+        class OpResults<T> {
+            ObjectLocation<T> loc;
+            T[] results;
+
+            OpResults(ObjectLocation<T> loc, T... results) {
+                this.loc = loc;
+                this.results = results;
+            }
+        }
+        Map<BoundOperators.BinaryOperator, OpResults[]> opMap = new HashMap<BoundOperators.BinaryOperator, OpResults[]>();
+
+        LocHolder[] locs = new LocHolder[] {
+                new LocHolder<Integer>(IntVariable.make(), 0, 1, 2),
+                new LocHolder<Integer>(IntVariable.make(), 0, 1, 2),
+                new LocHolder<Double>(DoubleVariable.make(), 0.0, 1.0, 2.0),
+                new LocHolder<Double>(DoubleVariable.make(), 0.0, 1.0, 2.0),
+                new LocHolder<Float>(FloatVariable.make(), 0.0f, 1.0f, 2.0f),
+                new LocHolder<Float>(FloatVariable.make(), 0.0f, 1.0f, 2.0f),
+                new LocHolder<Long>(LongVariable.make(), 0L, 1L, 2L),
+                new LocHolder<Long>(LongVariable.make(), 0L, 1L, 2L)
+        };
+
+        opMap.put(BoundOperators.BinaryOperator.PLUS,
+                  new OpResults[] {
+                          new OpResults<Integer>(null, 0, 1, 2, 3, 4),
+                          new OpResults<Double>(null, 0.0, 1.0, 2.0, 3.0, 4.0),
+                          new OpResults<Float>(null, 0.0f, 1.0f, 2.0f, 3.0f, 4.0f),
+                          new OpResults<Long>(null, 0L, 1L, 2L, 3L, 4L)
+                  });
+        opMap.put(BoundOperators.BinaryOperator.MINUS,
+                  new OpResults[] {
+                          new OpResults<Integer>(null, 0, 1, 0, 1, 0),
+                          new OpResults<Double>(null, 0.0, 1.0, 0.0, 1.0, 0.0),
+                          new OpResults<Float>(null, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
+                          new OpResults<Long>(null, 0L, 1L, 0L, 1L, 0L)
+                  });
+        opMap.put(BoundOperators.BinaryOperator.TIMES,
+                  new OpResults[] {
+                          new OpResults<Integer>(null, 0, 0, 1, 2, 4),
+                          new OpResults<Double>(null, 0.0, 0.0, 1.0, 2.0, 4.0),
+                          new OpResults<Float>(null, 0.0f, 0.0f, 1.0f, 2.0f, 4.0f),
+                          new OpResults<Long>(null, 0L, 0L, 1L, 2L, 4L)
+                  });
+
+        for (int i=0; i<locs.length-1; i++)
+            for (int j=i+1; j<locs.length; j++)
+                for (BoundOperators.BinaryOperator op : opMap.keySet()) {
+                    LocHolder left = locs[i];
+                    LocHolder right = locs[j];
+                    left.reset();
+                    right.reset();
+                    IntLocation il = BoundOperators.op_int((NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
+                    DoubleLocation dl = BoundOperators.op_double((NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
+                    FloatLocation fl = BoundOperators.op_float((NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
+                    LongLocation ll = BoundOperators.op_long((NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
+                    CountingListener cl1 = new CountingListener();
+                    CountingListener cl2 = new CountingListener();
+                    CountingListener cl3 = new CountingListener();
+                    CountingListener cl4 = new CountingListener();
+                    il.addChangeListener(cl1);
+                    dl.addChangeListener(cl2);
+                    fl.addChangeListener(cl3);
+                    ll.addChangeListener(cl4);
+
+                    OpResults[] results = opMap.get(op);
+                    results[0].loc = il;
+                    results[1].loc = dl;
+                    results[2].loc = fl;
+                    results[3].loc = ll;
+
+                    for (OpResults or : results) assertEquals(or.loc.get(), or.results[0]);
+                    left.advance();
+                    for (OpResults or : results) assertEquals(or.loc.get(), or.results[1]);
+                    right.advance();
+                    for (OpResults or : results) assertEquals(or.loc.get(), or.results[2]);
+                    left.advance();
+                    for (OpResults or : results) assertEquals(or.loc.get(), or.results[3]);
+                    right.advance();
+                    for (OpResults or : results) assertEquals(or.loc.get(), or.results[4]);
+                    assertEquals(4, cl1.count);
+                    assertEquals(4, cl2.count);
+                    assertEquals(4, cl3.count);
+                    assertEquals(4, cl4.count);
+                }
+
+        // Now do the same thing wrapping each NumericLocation with an object-to-numeric wrapper
+        for (int i=0; i<locs.length-1; i++)
+            for (int j=i+1; j<locs.length; j++)
+                for (BoundOperators.BinaryOperator op : opMap.keySet()) {
+                    LocHolder left = locs[i];
+                    LocHolder right = locs[j];
+                    left.reset();
+                    right.reset();
+                    IntLocation il = BoundOperators.op_int(Locations.asNumericLocation(left.loc), Locations.asNumericLocation(right.loc), op);
+                    DoubleLocation dl = BoundOperators.op_double(Locations.asNumericLocation(left.loc), Locations.asNumericLocation(right.loc), op);
+                    FloatLocation fl = BoundOperators.op_float(Locations.asNumericLocation(left.loc), Locations.asNumericLocation(right.loc), op);
+                    LongLocation ll = BoundOperators.op_long(Locations.asNumericLocation(left.loc), Locations.asNumericLocation(right.loc), op);
+                    CountingListener cl1 = new CountingListener();
+                    CountingListener cl2 = new CountingListener();
+                    CountingListener cl3 = new CountingListener();
+                    CountingListener cl4 = new CountingListener();
+                    il.addChangeListener(cl1);
+                    dl.addChangeListener(cl2);
+                    fl.addChangeListener(cl3);
+                    ll.addChangeListener(cl4);
+
+                    OpResults[] results = opMap.get(op);
+                    results[0].loc = il;
+                    results[1].loc = dl;
+                    results[2].loc = fl;
+                    results[3].loc = ll;
+
+                    for (OpResults or : results) assertEquals(or.loc.get(), or.results[0]);
+                    left.advance();
+                    for (OpResults or : results) assertEquals(or.loc.get(), or.results[1]);
+                    right.advance();
+                    for (OpResults or : results) assertEquals(or.loc.get(), or.results[2]);
+                    left.advance();
+                    for (OpResults or : results) assertEquals(or.loc.get(), or.results[3]);
+                    right.advance();
+                    for (OpResults or : results) assertEquals(or.loc.get(), or.results[4]);
+                    assertEquals(4, cl1.count);
+                    assertEquals(4, cl2.count);
+                    assertEquals(4, cl3.count);
+                    assertEquals(4, cl4.count);
+                }
+    }
 }
