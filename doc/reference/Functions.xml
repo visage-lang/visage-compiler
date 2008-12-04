@@ -9,11 +9,12 @@
          xmlns:db="http://docbook.org/ns/docbook">
   <title>Functions</title>
 
-  <para></para>
+  <para>Functions provide a way to reuse an expression at different points in
+  your script.</para>
 
   <para><remark>[To do: detail on type inference]</remark></para>
 
-  <para></para>
+  <para><remark>[To do: text description of syntax]</remark></para>
 
   <sect1>
     <title>Function Syntax</title>
@@ -143,10 +144,58 @@ println(tf.transform(10.0))</programlisting></para>
     value is by value.</para>
   </sect1>
 
-  <sect1>
+  <sect1 xml:id="OverridingFunctions">
     <title>Overriding Functions</title>
 
-    <para><remark>[To do: describe function override]</remark></para>
+    <para>You can change the definition of a function in a subclass by
+    overriding the function, using the <command>override</command>
+    modifier.</para>
+
+    <para>Here we override the definition of the function greeting in the
+    subclass Sub:</para>
+
+    <programlisting>class Base {
+   function greeting() : Void { 
+      println("Hi")
+   }
+}
+
+class Sub extends Base {
+   override function greeting() : Void { 
+      println("Howdy")
+   }
+}
+
+def b = Base {};
+def s = Sub {};
+
+b.greeting();
+s.greeting();
+</programlisting>
+
+    <para>This prints:</para>
+
+    <screen>Hi
+Howdy</screen>
+
+    <para>Java methods can also be overridden, For example, to change how an
+    object is printed its toString() method can be overridden:</para>
+
+    <programlisting>class Point { 
+   var x : Number; 
+   var y : Number; 
+   override function toString() : String {
+      "Point {x}, {y}"
+   } 
+} 
+
+def p = Point {x: 4.6 y: 8.9 };
+println( p );
+</programlisting>
+
+    <para>This prints</para>
+
+    <screen>Point 4.6, 8.9</screen>
 
     <para></para>
   </sect1>
