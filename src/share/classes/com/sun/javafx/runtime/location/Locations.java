@@ -117,6 +117,18 @@ public class Locations {
         return new UnmodifiableBooleanLocation(loc);
     }
 
+    public static FloatLocation unmodifiableLocation(FloatLocation loc) {
+        return new UnmodifiableFloatLocation(loc);
+    }
+
+    public static ShortLocation unmodifiableLocation(ShortLocation loc) {
+        return new UnmodifiableShortLocation(loc);
+    }
+
+    public static ByteLocation unmodifiableLocation(ByteLocation loc) {
+        return new UnmodifiableByteLocation(loc);
+    }
+
     public static <T> ObjectLocation<T> unmodifiableLocation(ObjectLocation<T> loc) {
         return new UnmodifiableObjectLocation<T>(loc);
     }
@@ -193,6 +205,7 @@ public class Locations {
 
     /**
      * Wrapper class that creates a DoubleLocation view of an IntLocation
+     * @@@ May no longer be needed
      */
     private static class IntDoubleLocation extends LocationWrapper implements DoubleLocation, StaticViewLocation {
         private final IntLocation location;
@@ -314,6 +327,7 @@ public class Locations {
         }
     }
 
+    // @@@ May no longer be needed
     private static class ObjectIntLocation extends LocationWrapper implements IntLocation, StaticViewLocation {
         private final ObjectLocation<Integer> location;
 
@@ -391,6 +405,7 @@ public class Locations {
         }
     }
 
+    // @@@ May no longer be needed
     // Was <T extends Number>; assumes T is Number
     private static class ObjectDoubleLocation<T> extends LocationWrapper implements DoubleLocation, StaticViewLocation {
         private final ObjectLocation<T> location;
@@ -538,6 +553,7 @@ public class Locations {
     /**
      * Wrapper class that creates an IntLocation view of a DoubleLocation
      */
+    // @@@ May no longer be needed
     private static class DoubleIntLocation extends LocationWrapper implements IntLocation, StaticViewLocation {
         private final DoubleLocation location;
 
@@ -618,58 +634,10 @@ public class Locations {
         }
     }
 
-    /**
-     * Wrapper class that wraps an IntLocation so it cannot be modified
-     */
-    private static class UnmodifiableIntLocation extends LocationWrapper implements IntLocation {
-        private final IntLocation location;
-
-        public UnmodifiableIntLocation(IntLocation location) {
-            this.location = location;
-        }
-
-        protected Location getLocation() {
-            return location;
-        }
+    private abstract static class UnmodifiableLocationWrapper<T> extends LocationWrapper {
 
         public boolean isMutable() {
             return false;
-        }
-
-        public int getAsInt() {
-            return location.getAsInt();
-        }
-
-        public Integer get() {
-            return getAsInt();
-        }
-
-        public byte getAsByte() {
-            return location.getAsByte();
-        }
-
-        public short getAsShort() {
-            return location.getAsShort();
-        }
-
-        public long getAsLong() {
-            return location.getAsLong();
-        }
-
-        public float getAsFloat() {
-            return location.getAsFloat();
-        }
-
-        public double getAsDouble() {
-            return location.getAsDouble();
-        }
-
-        public void addChangeListener(IntChangeListener listener) {
-            location.addChangeListener(listener);
-        }
-
-        public void addChangeListener(ObjectChangeListener<Integer> listener) {
-            location.addChangeListener(listener);
         }
 
         public int setAsInt(int value) {
@@ -684,44 +652,72 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public Integer set(Integer value) {
+        public T set(T value) {
             throw new UnsupportedOperationException();
         }
 
-        public Integer setFromLiteral(Integer value) {
+        public T setFromLiteral(T value) {
             throw new UnsupportedOperationException();
         }
 
         public void invalidate() {
             throw new UnsupportedOperationException();
         }
-    }
 
-
-    /**
-     * Wrapper class that wraps a DoubleLocation so it cannot be modified
-     */
-    private static class UnmodifiableDoubleLocation extends LocationWrapper implements DoubleLocation {
-        private final DoubleLocation location;
-
-        protected Location getLocation() {
-            return location;
+        public double setAsDouble(double value) {
+            throw new UnsupportedOperationException();
         }
 
-        public UnmodifiableDoubleLocation(DoubleLocation location) {
+        public double setAsDoubleFromLiteral(double value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public float setAsFloat(float value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public float setAsFloatFromLiteral(float value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public short setAsShort(short value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public short setAsShortFromLiteral(short value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public byte setAsByte(byte value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public byte setAsByteFromLiteral(byte value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean setAsBoolean(boolean value) {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean setAsBooleanFromLiteral(boolean value) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private static class UnmodifiableNumericLocationWrapper<T_LOC extends NumericLocation & ObjectLocation<T_VALUE>, T_VALUE> extends UnmodifiableLocationWrapper<T_VALUE> {
+        protected T_LOC location;
+
+        private UnmodifiableNumericLocationWrapper(T_LOC location) {
             this.location = location;
         }
 
-        public boolean isMutable() {
-            return false;
+        protected T_LOC getLocation() {
+            return location;
         }
 
-        public double getAsDouble() {
-            return location.getAsDouble();
-        }
-
-        public Double get() {
-            return getAsDouble();
+        public int getAsInt() {
+            return location.getAsInt();
         }
 
         public byte getAsByte() {
@@ -740,40 +736,98 @@ public class Locations {
             return location.getAsFloat();
         }
 
-        public int getAsInt() {
-            return location.getAsInt();
+        public double getAsDouble() {
+            return location.getAsDouble();
+        }
+
+        public void addChangeListener(ObjectChangeListener<T_VALUE> listener) {
+            location.addChangeListener(listener);
+        }
+    }
+
+    /**
+     * Wrapper class that wraps an IntLocation so it cannot be modified
+     */
+    private static class UnmodifiableIntLocation extends UnmodifiableNumericLocationWrapper<IntLocation, Integer> implements IntLocation {
+        public UnmodifiableIntLocation(IntLocation location) {
+            super(location);
+        }
+
+        public Integer get() {
+            return getAsInt();
+        }
+
+        public void addChangeListener(IntChangeListener listener) {
+            location.addChangeListener(listener);
+        }
+    }
+
+
+    /**
+     * Wrapper class that wraps a DoubleLocation so it cannot be modified
+     */
+    private static class UnmodifiableDoubleLocation extends UnmodifiableNumericLocationWrapper<DoubleLocation, Double> implements DoubleLocation {
+        public UnmodifiableDoubleLocation(DoubleLocation location) {
+            super(location);
+        }
+
+        public Double get() {
+            return getAsDouble();
         }
 
         public void addChangeListener(DoubleChangeListener listener) {
             location.addChangeListener(listener);
         }
+    }
 
-        public void addChangeListener(ObjectChangeListener<Double> listener) {
+    /**
+     * Wrapper class that wraps a FloatLocation so it cannot be modified
+     */
+    private static class UnmodifiableFloatLocation extends UnmodifiableNumericLocationWrapper<FloatLocation, Float> implements FloatLocation {
+        public UnmodifiableFloatLocation(FloatLocation location) {
+            super(location);
+        }
+
+        public Float get() {
+            return getAsFloat();
+        }
+
+        public void addChangeListener(FloatChangeListener listener) {
             location.addChangeListener(listener);
         }
+    }
 
-        public double setAsDouble(double value) {
-            throw new UnsupportedOperationException();
+    /**
+     * Wrapper class that wraps a ShortLocation so it cannot be modified
+     */
+    private static class UnmodifiableShortLocation extends UnmodifiableNumericLocationWrapper<ShortLocation, Short> implements ShortLocation {
+        public UnmodifiableShortLocation(ShortLocation location) {
+            super(location);
         }
 
-        public double setAsDoubleFromLiteral(double value) {
-            throw new UnsupportedOperationException();
+        public Short get() {
+            return getAsShort();
         }
 
-        public void setDefault() {
-            throw new UnsupportedOperationException();
+        public void addChangeListener(ShortChangeListener listener) {
+            location.addChangeListener(listener);
+        }
+    }
+
+    /**
+     * Wrapper class that wraps a ByteLocation so it cannot be modified
+     */
+    private static class UnmodifiableByteLocation extends UnmodifiableNumericLocationWrapper<ByteLocation, Byte> implements ByteLocation {
+        public UnmodifiableByteLocation(ByteLocation location) {
+            super(location);
         }
 
-        public Double set(Double value) {
-            throw new UnsupportedOperationException();
+        public Byte get() {
+            return getAsByte();
         }
 
-        public Double setFromLiteral(Double value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void invalidate() {
-            throw new UnsupportedOperationException();
+        public void addChangeListener(ByteChangeListener listener) {
+            location.addChangeListener(listener);
         }
     }
 
@@ -781,19 +835,15 @@ public class Locations {
     /**
      * Wrapper class that wraps a BooleanLocation so it cannot be modified
      */
-    private static class UnmodifiableBooleanLocation extends LocationWrapper implements BooleanLocation {
+    private static class UnmodifiableBooleanLocation extends UnmodifiableLocationWrapper<Boolean> implements BooleanLocation {
         private final BooleanLocation location;
-
-        protected Location getLocation() {
-            return location;
-        }
 
         public UnmodifiableBooleanLocation(BooleanLocation location) {
             this.location = location;
         }
 
-        public boolean isMutable() {
-            return false;
+        protected Location getLocation() {
+            return location;
         }
 
         public boolean getAsBoolean() {
@@ -811,36 +861,12 @@ public class Locations {
         public void addChangeListener(ObjectChangeListener<Boolean> listener) {
             location.addChangeListener(listener);
         }
-
-        public boolean setAsBoolean(boolean value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean setAsBooleanFromLiteral(boolean value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void setDefault() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Boolean set(Boolean value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Boolean setFromLiteral(Boolean value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void invalidate() {
-            throw new UnsupportedOperationException();
-        }
     }
 
     /**
      * Wrapper class that wraps an ObjectLocation so it cannot be modified
      */
-    private static class UnmodifiableObjectLocation<T> extends LocationWrapper implements ObjectLocation<T> {
+    private static class UnmodifiableObjectLocation<T> extends UnmodifiableLocationWrapper<T> implements ObjectLocation<T> {
         private final ObjectLocation<T> location;
 
         public UnmodifiableObjectLocation(ObjectLocation<T> location) {
@@ -851,32 +877,12 @@ public class Locations {
             return location;
         }
 
-        public boolean isMutable() {
-            return false;
-        }
-
         public T get() {
             return location.get();
         }
 
-        public T set(T value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public T setFromLiteral(T value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void setDefault() {
-            throw new UnsupportedOperationException();
-        }
-
         public void addChangeListener(ObjectChangeListener<T> listener) {
             location.addChangeListener(listener);
-        }
-
-        public void invalidate() {
-            throw new UnsupportedOperationException();
         }
     }
 
