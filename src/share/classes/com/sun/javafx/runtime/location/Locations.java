@@ -605,13 +605,17 @@ public class Locations {
         }
     }
 
-    private abstract static class UnmodifiableLocationWrapper<T_VALUE, T_LOC extends Location> extends LocationWrapper<T_LOC> {
+    private abstract static class UnmodifiableLocationWrapper<T_VALUE, T_LOC extends ObjectLocation<T_VALUE>> extends LocationWrapper<T_LOC> {
         protected UnmodifiableLocationWrapper(T_LOC location) {
             super(location);
         }
 
         public boolean isMutable() {
             return false;
+        }
+
+        public T_VALUE get() {
+            return location.get();
         }
 
         public int setAsInt(int value) {
@@ -725,10 +729,6 @@ public class Locations {
             super(location);
         }
 
-        public Integer get() {
-            return getAsInt();
-        }
-
         public void addChangeListener(IntChangeListener listener) {
             location.addChangeListener(listener);
         }
@@ -741,10 +741,6 @@ public class Locations {
     private static class UnmodifiableDoubleLocation extends UnmodifiableNumericLocationWrapper<DoubleLocation, Double> implements DoubleLocation {
         public UnmodifiableDoubleLocation(DoubleLocation location) {
             super(location);
-        }
-
-        public Double get() {
-            return getAsDouble();
         }
 
         public void addChangeListener(DoubleChangeListener listener) {
@@ -760,10 +756,6 @@ public class Locations {
             super(location);
         }
 
-        public Float get() {
-            return getAsFloat();
-        }
-
         public void addChangeListener(FloatChangeListener listener) {
             location.addChangeListener(listener);
         }
@@ -777,10 +769,6 @@ public class Locations {
             super(location);
         }
 
-        public Short get() {
-            return getAsShort();
-        }
-
         public void addChangeListener(ShortChangeListener listener) {
             location.addChangeListener(listener);
         }
@@ -792,10 +780,6 @@ public class Locations {
     private static class UnmodifiableByteLocation extends UnmodifiableNumericLocationWrapper<ByteLocation, Byte> implements ByteLocation {
         public UnmodifiableByteLocation(ByteLocation location) {
             super(location);
-        }
-
-        public Byte get() {
-            return getAsByte();
         }
 
         public void addChangeListener(ByteChangeListener listener) {
@@ -816,10 +800,6 @@ public class Locations {
             return location.getAsBoolean();
         }
 
-        public Boolean get() {
-            return getAsBoolean();
-        }
-
         public void addChangeListener(BooleanChangeListener listener) {
             location.addChangeListener(listener);
         }
@@ -835,10 +815,6 @@ public class Locations {
     private static class UnmodifiableObjectLocation<T> extends UnmodifiableLocationWrapper<T, ObjectLocation<T>> implements ObjectLocation<T> {
         public UnmodifiableObjectLocation(ObjectLocation<T> location) {
             super(location);
-        }
-
-        public T get() {
-            return location.get();
         }
 
         public void addChangeListener(ObjectChangeListener<T> listener) {
@@ -898,10 +874,6 @@ public class Locations {
 
         public Sequence<T> getAsSequence() {
             return location.getAsSequence();
-        }
-
-        public Sequence<T> get() {
-            return location.get();
         }
 
         public Iterator<T> iterator() {
