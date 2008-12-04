@@ -147,8 +147,14 @@ public class Locations {
         return new UpcastLocation<T, V>(typeInfo, loc);
     }
 
-    private static abstract class LocationWrapper implements Location {
-        protected abstract Location getLocation();
+    private static abstract class LocationWrapper<T extends Location> implements Location {
+        protected final T location;
+
+        protected LocationWrapper(T location) {
+            this.location = location;
+        }
+
+        protected T getLocation() { return location; }
 
         public boolean isValid() {
             return getLocation().isValid();
@@ -207,15 +213,9 @@ public class Locations {
      * Wrapper class that creates a DoubleLocation view of an IntLocation
      * @@@ May no longer be needed
      */
-    private static class IntDoubleLocation extends LocationWrapper implements DoubleLocation, StaticViewLocation {
-        private final IntLocation location;
-
-        protected IntLocation getLocation() {
-            return location;
-        }
-
+    private static class IntDoubleLocation extends LocationWrapper<IntLocation> implements DoubleLocation, StaticViewLocation {
         public IntDoubleLocation(IntLocation location) {
-            this.location = location;
+            super(location);
         }
 
         public double getAsDouble() {
@@ -287,14 +287,9 @@ public class Locations {
         }
     }
 
-    private static class ObjectNumericLocation extends LocationWrapper implements NumericLocation, StaticViewLocation {
-        private final ObjectLocation<? extends Number> location;
-
+    private static class ObjectNumericLocation extends LocationWrapper<ObjectLocation<? extends Number>> implements NumericLocation, StaticViewLocation {
         private ObjectNumericLocation(ObjectLocation<? extends Number> location) {
-            this.location = location;
-        }
-        protected Location getLocation() {
-            return location;
+            super(location);
         }
 
         public int getAsInt() {
@@ -328,15 +323,9 @@ public class Locations {
     }
 
     // @@@ May no longer be needed
-    private static class ObjectIntLocation extends LocationWrapper implements IntLocation, StaticViewLocation {
-        private final ObjectLocation<Integer> location;
-
+    private static class ObjectIntLocation extends LocationWrapper<ObjectLocation<Integer>> implements IntLocation, StaticViewLocation {
         private ObjectIntLocation(ObjectLocation<Integer> location) {
-            this.location = location;
-        }
-
-        protected Location getLocation() {
-            return location;
+            super(location);
         }
 
         public int getAsInt() {
@@ -407,15 +396,9 @@ public class Locations {
 
     // @@@ May no longer be needed
     // Was <T extends Number>; assumes T is Number
-    private static class ObjectDoubleLocation<T> extends LocationWrapper implements DoubleLocation, StaticViewLocation {
-        private final ObjectLocation<T> location;
-
+    private static class ObjectDoubleLocation<T> extends LocationWrapper<ObjectLocation<T>> implements DoubleLocation, StaticViewLocation {
         private ObjectDoubleLocation(ObjectLocation<T> location) {
-            this.location = location;
-        }
-
-        protected Location getLocation() {
-            return location;
+            super(location);
         }
 
         public double getAsDouble() {
@@ -492,15 +475,9 @@ public class Locations {
         }
     }
 
-    private static class ObjectBooleanLocation extends LocationWrapper implements BooleanLocation, StaticViewLocation {
-        private final ObjectLocation<Boolean> location;
-
+    private static class ObjectBooleanLocation extends LocationWrapper<ObjectLocation<Boolean>> implements BooleanLocation, StaticViewLocation {
         private ObjectBooleanLocation(ObjectLocation<Boolean> location) {
-            this.location = location;
-        }
-
-        protected Location getLocation() {
-            return location;
+            super(location);
         }
 
         public boolean getAsBoolean() {
@@ -554,15 +531,9 @@ public class Locations {
      * Wrapper class that creates an IntLocation view of a DoubleLocation
      */
     // @@@ May no longer be needed
-    private static class DoubleIntLocation extends LocationWrapper implements IntLocation, StaticViewLocation {
-        private final DoubleLocation location;
-
+    private static class DoubleIntLocation extends LocationWrapper<DoubleLocation> implements IntLocation, StaticViewLocation {
         public DoubleIntLocation(DoubleLocation location) {
-            this.location = location;
-        }
-
-        protected DoubleLocation getLocation() {
-            return location;
+            super(location);
         }
 
         public int getAsInt() {
@@ -634,7 +605,10 @@ public class Locations {
         }
     }
 
-    private abstract static class UnmodifiableLocationWrapper<T> extends LocationWrapper {
+    private abstract static class UnmodifiableLocationWrapper<T_VALUE, T_LOC extends Location> extends LocationWrapper<T_LOC> {
+        protected UnmodifiableLocationWrapper(T_LOC location) {
+            super(location);
+        }
 
         public boolean isMutable() {
             return false;
@@ -652,11 +626,11 @@ public class Locations {
             throw new UnsupportedOperationException();
         }
 
-        public T set(T value) {
+        public T_VALUE set(T_VALUE value) {
             throw new UnsupportedOperationException();
         }
 
-        public T setFromLiteral(T value) {
+        public T_VALUE setFromLiteral(T_VALUE value) {
             throw new UnsupportedOperationException();
         }
 
@@ -705,11 +679,9 @@ public class Locations {
         }
     }
 
-    private static class UnmodifiableNumericLocationWrapper<T_LOC extends NumericLocation & ObjectLocation<T_VALUE>, T_VALUE> extends UnmodifiableLocationWrapper<T_VALUE> {
-        protected T_LOC location;
-
+    private static class UnmodifiableNumericLocationWrapper<T_LOC extends NumericLocation & ObjectLocation<T_VALUE>, T_VALUE> extends UnmodifiableLocationWrapper<T_VALUE, T_LOC> {
         private UnmodifiableNumericLocationWrapper(T_LOC location) {
-            this.location = location;
+            super(location);
         }
 
         protected T_LOC getLocation() {
@@ -835,15 +807,9 @@ public class Locations {
     /**
      * Wrapper class that wraps a BooleanLocation so it cannot be modified
      */
-    private static class UnmodifiableBooleanLocation extends UnmodifiableLocationWrapper<Boolean> implements BooleanLocation {
-        private final BooleanLocation location;
-
+    private static class UnmodifiableBooleanLocation extends UnmodifiableLocationWrapper<Boolean, BooleanLocation> implements BooleanLocation {
         public UnmodifiableBooleanLocation(BooleanLocation location) {
-            this.location = location;
-        }
-
-        protected Location getLocation() {
-            return location;
+            super(location);
         }
 
         public boolean getAsBoolean() {
@@ -866,15 +832,9 @@ public class Locations {
     /**
      * Wrapper class that wraps an ObjectLocation so it cannot be modified
      */
-    private static class UnmodifiableObjectLocation<T> extends UnmodifiableLocationWrapper<T> implements ObjectLocation<T> {
-        private final ObjectLocation<T> location;
-
+    private static class UnmodifiableObjectLocation<T> extends UnmodifiableLocationWrapper<T, ObjectLocation<T>> implements ObjectLocation<T> {
         public UnmodifiableObjectLocation(ObjectLocation<T> location) {
-            this.location = location;
-        }
-
-        public ObjectLocation<T> getLocation() {
-            return location;
+            super(location);
         }
 
         public T get() {
@@ -886,17 +846,10 @@ public class Locations {
         }
     }
 
-    private static class UpcastLocation<T, V extends T> extends LocationWrapper implements ObjectLocation<T> {
-        private final ObjectLocation<V> location;
-        private final TypeInfo<V> typeInfo;
+    private static class UpcastLocation<T, V extends T> extends LocationWrapper<ObjectLocation<V>> implements ObjectLocation<T> {
 
         public UpcastLocation(TypeInfo<V> typeInfo, ObjectLocation<V> location) {
-            this.location = location;
-            this.typeInfo = typeInfo;
-        }
-
-        protected Location getLocation() {
-            return location;
+            super(location);
         }
 
         public V get() {
@@ -930,23 +883,9 @@ public class Locations {
     /**
      * Wrapper class that wraps a SequenceLocation so it cannot be modified
      */
-    private static class UnmodifiableSequenceLocation<T> extends LocationWrapper implements SequenceLocation<T> {
-        private final SequenceLocation<T> location;
-
+    private static class UnmodifiableSequenceLocation<T> extends UnmodifiableLocationWrapper<Sequence<T>, SequenceLocation<T>> implements SequenceLocation<T> {
         public UnmodifiableSequenceLocation(SequenceLocation<T> location) {
-            this.location = location;
-        }
-
-        public SequenceLocation<T> getLocation() {
-            return location;
-        }
-
-        public void invalidate() {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean isMutable() {
-            return false;
+            super(location);
         }
 
         public T get(int position) {
@@ -963,18 +902,6 @@ public class Locations {
 
         public Sequence<T> get() {
             return location.get();
-        }
-
-        public Sequence<T> set(Sequence<T> value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Sequence<T> setFromLiteral(Sequence<T> value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void setDefault() {
-            throw new UnsupportedOperationException();
         }
 
         public Iterator<T> iterator() {
