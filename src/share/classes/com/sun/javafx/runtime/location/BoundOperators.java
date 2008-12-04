@@ -45,7 +45,7 @@ public class BoundOperators extends GeneratedBoundOperators {
     // it currently handles all the XxxLocations for primitive types, plus an object-to-NumericLocation wrapper, for all
     // the binary arithmetic ops (plus, minus, times, divide, modulo)
 
-    public enum BinaryOperator {
+    public enum NumericArithmeticOperator {
         PLUS {
             public int operate(int left, int right) { return left + right; }
             public long operate(long left, long right) { return left + right; }
@@ -83,7 +83,98 @@ public class BoundOperators extends GeneratedBoundOperators {
         public abstract double operate(double left, double right);
     }
 
-    public static IntLocation op_int(final NumericLocation a, final NumericLocation b, final BinaryOperator op) {
+    public enum NumericUnaryOperator {
+        NEGATE {
+            public int operate(int left) { return -left ; }
+            public long operate(long left) { return -left ; }
+            public float operate(float left) { return -left ; }
+            public double operate(double left) { return -left ; }
+        };
+        public abstract int operate(int left);
+        public abstract long operate(long left);
+        public abstract float operate(float left);
+        public abstract double operate(double left);
+    }
+
+    public enum NumericComparisonOperator {
+        CMP_EQ {
+            public boolean operate(int left, int right) { return left == right; }
+            public boolean operate(long left, long right) { return left == right; }
+            public boolean operate(float left, float right) { return left == right; }
+            public boolean operate(double left, double right) { return left == right; }
+        },
+        CMP_NE {
+            public boolean operate(int left, int right) { return left != right; }
+            public boolean operate(long left, long right) { return left != right; }
+            public boolean operate(float left, float right) { return left != right; }
+            public boolean operate(double left, double right) { return left != right; }
+        },
+        CMP_LT {
+            public boolean operate(int left, int right) { return left < right; }
+            public boolean operate(long left, long right) { return left< right; }
+            public boolean operate(float left, float right) { return left < right; }
+            public boolean operate(double left, double right) { return left < right; }
+        },
+        CMP_LE {
+            public boolean operate(int left, int right) { return left <= right; }
+            public boolean operate(long left, long right) { return left <= right; }
+            public boolean operate(float left, float right) { return left <= right; }
+            public boolean operate(double left, double right) { return left <= right; }
+        },
+        CMP_GT {
+            public boolean operate(int left, int right) { return left > right; }
+            public boolean operate(long left, long right) { return left > right; }
+            public boolean operate(float left, float right) { return left > right; }
+            public boolean operate(double left, double right) { return left > right; }
+        },
+        CMP_GE {
+            public boolean operate(int left, int right) { return left >= right; }
+            public boolean operate(long left, long right) { return left >= right; }
+            public boolean operate(float left, float right) { return left >= right; }
+            public boolean operate(double left, double right) { return left >= right; }
+        };
+
+        public abstract boolean operate(int left, int right);
+        public abstract boolean operate(long left, long right);
+        public abstract boolean operate(float left, float right);
+        public abstract boolean operate(double left, double right);
+    }
+
+    public enum BooleanOperator {
+        AND {
+            public boolean operate(boolean left, boolean right) {
+                return left && right;
+            }
+        },
+        OR {
+            public boolean operate(boolean left, boolean right) {
+                return left || right;
+            }
+        },
+        EQ {
+            public boolean operate(boolean left, boolean right) {
+                return left == right;
+            }
+        },
+        NE {
+            public boolean operate(boolean left, boolean right) {
+                return left != right;
+            }
+        };
+        public abstract boolean operate(boolean left, boolean right);
+    }
+
+    public enum BooleanUnaryOperator {
+        NOT {
+            public boolean operate(boolean operand) {
+                return !operand;
+            }
+        };
+        public abstract boolean operate(boolean operand);
+    }
+
+
+    public static IntLocation op_int(final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
         return IntVariable.make(new IntBindingExpression() {
             public int computeValue() {
                 return op.operate(a.getAsInt(), b.getAsInt());
@@ -91,7 +182,7 @@ public class BoundOperators extends GeneratedBoundOperators {
         }, a, b);
     }
 
-    public static DoubleLocation op_double(final NumericLocation a, final NumericLocation b, final BinaryOperator op) {
+    public static DoubleLocation op_double(final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
         return DoubleVariable.make(new DoubleBindingExpression() {
             public double computeValue() {
                 return op.operate(a.getAsDouble(), b.getAsDouble());
@@ -99,7 +190,7 @@ public class BoundOperators extends GeneratedBoundOperators {
         }, a, b);
     }
 
-    public static FloatLocation op_float(final NumericLocation a, final NumericLocation b, final BinaryOperator op) {
+    public static FloatLocation op_float(final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
         return FloatVariable.make(new FloatBindingExpression() {
             public float computeValue() {
                 return op.operate(a.getAsFloat(), b.getAsFloat());
@@ -107,7 +198,7 @@ public class BoundOperators extends GeneratedBoundOperators {
         }, a, b);
     }
 
-    public static LongLocation op_long(final NumericLocation a, final NumericLocation b, final BinaryOperator op) {
+    public static LongLocation op_long(final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
         return LongVariable.make(new LongBindingExpression() {
             public long computeValue() {
                 return op.operate(a.getAsLong(), b.getAsLong());
@@ -115,6 +206,88 @@ public class BoundOperators extends GeneratedBoundOperators {
         }, a, b);
     }
 
+
+    public static IntLocation op_int(final NumericLocation a, final NumericUnaryOperator op) {
+        return IntVariable.make(new IntBindingExpression() {
+            public int computeValue() {
+                return op.operate(a.getAsInt());
+            }
+        }, a);
+    }
+
+    public static DoubleLocation op_double(final NumericLocation a, final NumericUnaryOperator op) {
+        return DoubleVariable.make(new DoubleBindingExpression() {
+            public double computeValue() {
+                return op.operate(a.getAsDouble());
+            }
+        }, a);
+    }
+
+    public static FloatLocation op_float(final NumericLocation a, final NumericUnaryOperator op) {
+        return FloatVariable.make(new FloatBindingExpression() {
+            public float computeValue() {
+                return op.operate(a.getAsFloat());
+            }
+        }, a);
+    }
+
+    public static LongLocation op_long(final NumericLocation a, final NumericUnaryOperator op) {
+        return LongVariable.make(new LongBindingExpression() {
+            public long computeValue() {
+                return op.operate(a.getAsLong());
+            }
+        }, a);
+    }
+
+
+    public static BooleanLocation cmp_int(final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
+        return BooleanVariable.make(new BooleanBindingExpression() {
+            public boolean computeValue() {
+                return op.operate(a.getAsInt(), b.getAsInt());
+            }
+        }, a, b);
+    }
+
+    public static BooleanLocation cmp_long(final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
+        return BooleanVariable.make(new BooleanBindingExpression() {
+            public boolean computeValue() {
+                return op.operate(a.getAsLong(), b.getAsLong());
+            }
+        }, a, b);
+    }
+
+    public static BooleanLocation cmp_float(final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
+        return BooleanVariable.make(new BooleanBindingExpression() {
+            public boolean computeValue() {
+                return op.operate(a.getAsFloat(), b.getAsFloat());
+            }
+        }, a, b);
+    }
+
+    public static BooleanLocation cmp_double(final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
+        return BooleanVariable.make(new BooleanBindingExpression() {
+            public boolean computeValue() {
+                return op.operate(a.getAsDouble(), b.getAsDouble());
+            }
+        }, a, b);
+    }
+
+
+    public static BooleanLocation op_boolean(final BooleanLocation a, final BooleanLocation b, final BooleanOperator op) {
+        return BooleanVariable.make(new BooleanBindingExpression() {
+            public boolean computeValue() {
+                return op.operate(a.getAsBoolean(), b.getAsBoolean());
+            }
+        }, a, b);
+    }
+
+    public static BooleanLocation op_boolean(final BooleanLocation a, final BooleanUnaryOperator op) {
+        return BooleanVariable.make(new BooleanBindingExpression() {
+            public boolean computeValue() {
+                return op.operate(a.getAsBoolean());
+            }
+        }, a);
+    }
 
     // @@@---@@@ Below here is the old scheme
 
