@@ -316,17 +316,17 @@ T <: S & U <: V
 
 \[
   \inference[\textsc{S-Java}]{
-    A_{J} <: B_{J}
+    A_J <: B_J
   }{
-    \req A <: \req B \;\;\;\; \opt A <: \opt B \;\;\;\; \seq A <: \seq B
+    \req A_J <: \req B_J \;\;\;\; \opt A_J <: \opt B_J \;\;\;\; \seq A_J <: \seq B_J
   }
 \]
 
 \[
   \inference[\textsc{S-Extends}]{
-    \class{A}{B}{\dots}
+    \class{A_F}{B}{\dots}
   }{
-    \req A <: \req \bar{B} \;\;\;\; \opt A <: \opt \bar{B} \;\;\;\; \seq A <: \seq \bar{B}
+    \req A_F <: \req \bar{B} \;\;\;\; \opt A_F <: \opt \bar{B} \;\;\;\; \seq A_F <: \seq \bar{B}
   }
 \]
 \caption{Basic subtyping rules}
@@ -492,7 +492,7 @@ array types appear in Java type signatures, they are treated as array
 types rather than converting to sequences.  
 
 We can introduce arrays into the JavaFX type system by slighly refactoring the 
-syntax of ground types and adding an $\arr$ type constructor, introducing nested
+syntax of ground types and adding an $\arr$ type constructor, introducing (possibly nested)
 arrays of primitive types and reference types: 
 
 \begin{eqnarray*}
