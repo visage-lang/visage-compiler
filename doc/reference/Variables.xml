@@ -187,6 +187,53 @@ class B {
       </mediaobject>
     </figure>
 
+    <table>
+      <title>Variable Modifiers</title>
+
+      <tgroup cols="2">
+        <tbody>
+          <row>
+            <entry><command>package</command></entry>
+
+            <entry>The variable can only be accessed within the package where
+            it is defined. See <link linkend="Modifiers">Access
+            Modifiers</link>.</entry>
+          </row>
+
+          <row>
+            <entry><command>protected</command></entry>
+
+            <entry>The variable can be accessed from the package where it is
+            defined and from subclasses of the class where it is defined. See
+            <link linkend="Modifiers">Access Modifiers</link>.</entry>
+          </row>
+
+          <row>
+            <entry><command>public</command></entry>
+
+            <entry>The variable can be accessed anywhere. See <link
+            linkend="Modifiers">Access Modifiers</link>.</entry>
+          </row>
+
+          <row>
+            <entry><command>public-read</command></entry>
+
+            <entry>The <command>var</command> can be read anywhere. See <link
+            linkend="Modifiers">Access Modifiers</link>.</entry>
+          </row>
+
+          <row>
+            <entry><command>public-init</command></entry>
+
+            <entry>The <command>var</command> can be initialized or read
+            anywhere. Where initialized means set (but not bound) in an object
+            literal. See <link linkend="Modifiers">Access
+            Modifiers</link>.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
     <para>While syntactically optional, an
     <emphasis>initializingExpression</emphasis> is required with
     <command>def</command>.</para>
@@ -274,10 +321,10 @@ replaced AXY[0..2] by  yielding</screen>
 
     <para>The built-in <command>isInitialized</command> function takes a
     variable reference as its argument, and returns true if it has ever been
-    set. Note that only explicit sets are considered, if the variable starts out
-    with the <link linkend="DefaultValues">default value of the
-    type</link> this is not considered being set. One typical usage is to set up
-    uninitialized instance variables in the <link
+    set. Note that only explicit sets are considered, if the variable starts
+    out with the <link linkend="DefaultValues">default value of the
+    type</link> this is not considered being set. One typical usage is to set
+    up uninitialized instance variables in the <link
     linkend="initBlock"><command>init</command> block</link>:</para>
 
     <programlisting>class Temperature {
@@ -320,8 +367,8 @@ Fahrenheit: 212.0,  Celcius: 100.0</screen>
 }
 </programlisting>
 
-    <para>Note the <command>isInitialized</command> prevents the update
-    when the instance variables are initially set to the default value.</para>
+    <para>Note the <command>isInitialized</command> prevents the update when
+    the instance variables are initially set to the default value.</para>
   </sect1>
 
   <sect1>

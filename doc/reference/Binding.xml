@@ -244,7 +244,7 @@ println(pt.x);</programlisting>
       </calloutlist>
     </sect2>
 
-    <sect2>
+    <sect2 xml:id="BoundFunctions">
       <title>Bound Functions</title>
 
       <para>Bound functions have as their body a block-expression which is
