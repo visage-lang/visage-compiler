@@ -44,7 +44,6 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javafx.util.MsgSym;
 
 public class JavafxToBound extends JavafxTranslationSupport implements JavafxVisitor {
     protected static final Context.Key<JavafxToBound> jfxToBoundKey =
@@ -77,6 +76,21 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     private static final String cLocations = locationPackageNameString + ".Locations";
     private static final String cFunction0 = functionsPackageNameString + ".Function0";
     private static final String cFunction1 = functionsPackageNameString + ".Function1";
+
+    private static final String cBinaryArithmeticOperator = cBoundOperators + ".NumericArithmeticOperator";
+    private static final String cBinaryComparisonOperator = cBoundOperators + ".NumericComparisonOperator";
+    private static final String cUnaryArithmeticOperator = cBoundOperators + ".NumericUnaryOperator";
+
+    private static final String opPLUS = cBinaryArithmeticOperator + ".PLUS";
+    private static final String opMINUS = cBinaryArithmeticOperator + ".MINUS";
+    private static final String opTIMES = cBinaryArithmeticOperator + ".TIMES";
+    private static final String opDIVIDE = cBinaryArithmeticOperator + ".DIVIDE";
+    private static final String opMODULO = cBinaryArithmeticOperator + ".MODULO";
+
+    private static final String opLT = cBinaryComparisonOperator + ".CMP_LT";
+    private static final String opLE = cBinaryComparisonOperator + ".CMP_LE";
+    private static final String opGT = cBinaryComparisonOperator + ".CMP_GT";
+    private static final String opGE = cBinaryComparisonOperator + ".CMP_GE";
 
     public static JavafxToBound instance(Context context) {
         JavafxToBound instance = context.get(jfxToBoundKey);
@@ -1193,74 +1207,113 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         }).doit();
     }
 
+    private class BinaryTranslator {
+        final JFXBinary tree;
+        final DiagnosticPosition diagPos;
+        final JFXExpression l;
+        final JFXExpression r;
+        final boolean lBoxed;
+        final boolean rBoxed;
+            final Type lType;
+            final Type rType;
+
+        BinaryTranslator(final JFXBinary tree) {
+            this.tree = tree;
+            this.diagPos = tree.pos();
+            this.l = tree.lhs;
+            this.r = tree.rhs;
+            Type tubl = types.unboxedType(tree.lhs.type);
+            lBoxed = tubl.tag != TypeTags.NONE;
+            lType = lBoxed? tubl : tree.lhs.type;
+            Type tubr = types.unboxedType(tree.rhs.type);
+            rBoxed = tubr.tag != TypeTags.NONE;
+            rType = rBoxed? tubr : tree.rhs.type;
+        }
+
+        String typeString() {
+            if (types.isSameType(rType, syms.doubleType) || types.isSameType(lType, syms.doubleType)) {
+                return "double";
+            }
+            if (types.isSameType(rType, syms.floatType) || types.isSameType(lType, syms.floatType)) {
+                return "float";
+            }
+            if (types.isSameType(rType, syms.longType) || types.isSameType(lType, syms.longType)) {
+                return "long";
+            }
+            return "int";
+        }
+
+        JCExpression makeBinaryOperator(String op, String prefix) {
+            final JCExpression lhs = translate(l);
+            final JCExpression rhs = translate(r);
+            //TODO: Locations.asNumericLocation(loc)
+            return runtime(diagPos, cBoundOperators, prefix + typeString(), List.of(lhs, rhs, makeQualifiedTree(diagPos, op)));
+        }
+
+        JCExpression makeBinaryArithmeticOperator(String op) {
+            return makeBinaryOperator(op, "op_");
+        }
+
+        JCExpression makeBinaryComparisonOperator(String op) {
+            return makeBinaryOperator(op, "cmp_");
+        }
+
+        private JCExpression makeBinaryEqualityOperator(String prefix, JFXExpression l, JFXExpression r) {
+            final JCExpression lhs = translate(l);
+            final JCExpression rhs = translate(r);
+            final String typeCode = typeCode(l.type) + typeCode(r.type);
+            return runtime(diagPos, cBoundOperators, prefix + typeCode, List.of(lhs, rhs));
+        }
+
+        JCExpression doit() {
+            switch (tree.getFXTag()) {
+                case PLUS:
+                    return makeBinaryArithmeticOperator(opPLUS);
+                case MINUS:
+                    return makeBinaryArithmeticOperator(opMINUS);
+                case DIV:
+                    return makeBinaryArithmeticOperator(opDIVIDE);
+                case MUL:
+                    return makeBinaryArithmeticOperator(opTIMES);
+                case MOD:
+                    return makeBinaryArithmeticOperator(opMODULO);
+
+                case LT:
+                    return makeBinaryComparisonOperator(opLT);
+                case LE:
+                    return makeBinaryComparisonOperator(opLE);
+                case GT:
+                    return makeBinaryComparisonOperator(opGT);
+                case GE:
+                    return makeBinaryComparisonOperator(opGE);
+
+                case EQ:
+                    return makeBinaryEqualityOperator("eq_", l, r);
+                case NE:
+                    return makeBinaryEqualityOperator("ne_", l, r);
+
+                case AND:
+                    return makeBoundConditional(diagPos,
+                            syms.booleanType,
+                            translate(r, syms.booleanType),
+                            makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0)),
+                            translate(l, syms.booleanType));
+                case OR:
+                    return makeBoundConditional(diagPos,
+                            syms.booleanType,
+                            makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 1)),
+                            translate(r, syms.booleanType),
+                            translate(l, syms.booleanType));
+                default:
+                    assert false : "unhandled binary operator";
+                    return translate(l);
+            }
+        }
+    }
+
     @Override
     public void visitBinary(final JFXBinary tree) {
-        DiagnosticPosition diagPos = tree.pos();
-        final JFXExpression l = tree.lhs;
-        final JFXExpression r = tree.rhs;
-        JCExpression res;
-
-        switch (tree.getFXTag()) {
-            case PLUS:
-                res = makeBinaryOperator(diagPos, "plus_", l, r);
-                break;
-            case MINUS:
-                res = makeBinaryOperator(diagPos, "minus_", l, r);
-                break;
-            case DIV:
-                res = makeBinaryOperator(diagPos, "divide_", l, r);
-                break;
-            case MUL:
-                res = makeBinaryOperator(diagPos, "times_", l, r);
-                break;
-            case MOD:
-                res = makeBinaryOperator(diagPos, "modulo_", l, r);
-                break;
-            case EQ:
-                res = makeBinaryOperator(diagPos, "eq_", l, r);
-                break;
-            case NE:
-                res = makeBinaryOperator(diagPos, "ne_", l, r);
-                break;
-            case LT:
-                res = makeBinaryOperator(diagPos, "lt_", l, r);
-                break;
-            case LE:
-                res = makeBinaryOperator(diagPos, "le_", l, r);
-                break;
-            case GT:
-                res = makeBinaryOperator(diagPos, "gt_", l, r);
-                break;
-            case GE:
-                res = makeBinaryOperator(diagPos, "ge_", l, r);
-                break;
-            case AND:
-                res = makeBoundConditional(diagPos,
-                        syms.booleanType,
-                        translate(r, syms.booleanType),
-                        makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0)),
-                        translate(l, syms.booleanType));
-                break;
-            case OR:
-                res = makeBoundConditional(diagPos,
-                        syms.booleanType,
-                        makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 1)),
-                        translate(r, syms.booleanType),
-                        translate(l, syms.booleanType));
-                break;
-            default:
-                assert false : "unhandled binary operator";
-                res = translate(l);
-                break;
-        }
-        result = convert(tree.type, res);
-    }
-    //where
-    private JCExpression makeBinaryOperator(DiagnosticPosition diagPos, String prefix, JFXExpression l, JFXExpression r) {
-        final JCExpression lhs = translate(l);
-        final JCExpression rhs = translate(r);
-        final String typeCode = typeCode(l.type) + typeCode(r.type);
-        return runtime(diagPos, cBoundOperators, prefix + typeCode, List.of(lhs, rhs));
+        result = convert(tree.type, new BinaryTranslator(tree).doit());
     }
 
     @Override
@@ -1286,6 +1339,16 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     res = make.at(diagPos).Apply(null,
                             make.at(diagPos).Select(translate(tree.arg), names.fromString("negate")), List.<JCExpression>nil());
                 } else {
+                    Type t = expr.type;
+            Type tub = types.unboxedType(t);
+            if (tub.tag != TypeTags.NONE) {
+            t = tub;
+            }
+             String typeString = (types.isSameType(t, syms.doubleType))? "double" :
+             (types.isSameType(t, syms.floatType))? "float" :
+             (types.isSameType(t, syms.longType))? "long" :
+             "int";
+
                     res = runtime(diagPos, cBoundOperators, "negate_"+typeCode, List.of(transExpr));
                 }
                 break;
