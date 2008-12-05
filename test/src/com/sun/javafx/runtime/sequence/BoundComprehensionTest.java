@@ -143,7 +143,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         final SequenceLocation<Integer> derived = BoundSequences.makeBoundComprehension(TypeInfo.Integer, base, false,
                                                                                         new BoundSequences.IntBoundComprehensionCallback<Integer>() {
                                                                                             public SequenceLocation<Integer> computeElements$(final IntLocation xLocation, IntLocation xIndexLocation) {
-                                                                                                return BoundSequences.singleton(TypeInfo.Integer, BoundOperators.times_ii(xLocation, IntConstant.make(2)));
+                                                                                                return BoundSequences.singleton(TypeInfo.Integer, BoundOperators.op_int(xLocation, IntConstant.make(2), BoundOperators.NumericArithmeticOperator.TIMES));
                                                                                             }
                                                                                         });
 
