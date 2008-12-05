@@ -80,6 +80,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     private static final String cBinaryArithmeticOperator = cBoundOperators + ".NumericArithmeticOperator";
     private static final String cBinaryComparisonOperator = cBoundOperators + ".NumericComparisonOperator";
     private static final String cUnaryArithmeticOperator = cBoundOperators + ".NumericUnaryOperator";
+    private static final String cUnaryBooleanOperator = cBoundOperators + ".BooleanUnaryOperator";
 
     private static final String opPLUS = cBinaryArithmeticOperator + ".PLUS";
     private static final String opMINUS = cBinaryArithmeticOperator + ".MINUS";
@@ -91,6 +92,9 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     private static final String opLE = cBinaryComparisonOperator + ".CMP_LE";
     private static final String opGT = cBinaryComparisonOperator + ".CMP_GT";
     private static final String opGE = cBinaryComparisonOperator + ".CMP_GE";
+
+    private static final String opNEGATE = cUnaryArithmeticOperator + ".NEGATE";
+    private static final String opNOT = cUnaryBooleanOperator + ".NOT";
 
     public static JavafxToBound instance(Context context) {
         JavafxToBound instance = context.get(jfxToBoundKey);
@@ -1321,7 +1325,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         DiagnosticPosition diagPos = tree.pos();
         JFXExpression expr = tree.getExpression();
         JCExpression transExpr = translate(expr);
-        String typeCode = typeCode(expr.type);
         JCExpression res;
 
         switch (tree.getFXTag()) {
@@ -1332,7 +1335,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 res = runtime(diagPos, cBoundSequences, "reverse", List.of(transExpr) );
                 break;
             case NOT:
-                res = runtime(diagPos, cBoundOperators, "not_"+typeCode, List.of(transExpr) );
+                res = runtime(diagPos, cBoundOperators, "op_boolean", List.of(transExpr, makeQualifiedTree(diagPos, opNOT)));
                 break;
             case NEG:
                 if (types.isSameType(tree.type, syms.javafx_DurationType)) {   //TODO
@@ -1340,16 +1343,12 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                             make.at(diagPos).Select(translate(tree.arg), names.fromString("negate")), List.<JCExpression>nil());
                 } else {
                     Type t = expr.type;
-            Type tub = types.unboxedType(t);
-            if (tub.tag != TypeTags.NONE) {
-            t = tub;
-            }
-             String typeString = (types.isSameType(t, syms.doubleType))? "double" :
-             (types.isSameType(t, syms.floatType))? "float" :
-             (types.isSameType(t, syms.longType))? "long" :
-             "int";
-
-                    res = runtime(diagPos, cBoundOperators, "negate_"+typeCode, List.of(transExpr));
+                    Type tub = types.unboxedType(t);
+                    if (tub.tag != TypeTags.NONE) {
+                        t = tub;
+                    }
+                    String typeString = (types.isSameType(t, syms.doubleType)) ? "double" : (types.isSameType(t, syms.floatType)) ? "float" : (types.isSameType(t, syms.longType)) ? "long" : "int";
+                    res = runtime(diagPos, cBoundOperators, "op_" + typeString, List.of(transExpr, makeQualifiedTree(diagPos, opNEGATE)));
                 }
                 break;
             case PREINC:
