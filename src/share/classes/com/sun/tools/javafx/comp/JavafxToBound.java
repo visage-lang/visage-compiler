@@ -44,6 +44,7 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
+import static com.sun.tools.javac.code.TypeTags.*;
 
 public class JavafxToBound extends JavafxTranslationSupport implements JavafxVisitor {
     protected static final Context.Key<JavafxToBound> jfxToBoundKey =
@@ -78,6 +79,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     private static final String cFunction1 = functionsPackageNameString + ".Function1";
 
     private static final String cBinaryArithmeticOperator = cBoundOperators + ".NumericArithmeticOperator";
+    private static final String cBinaryBooleanOperator = cBoundOperators + ".BooleanOperator";
     private static final String cBinaryComparisonOperator = cBoundOperators + ".NumericComparisonOperator";
     private static final String cUnaryArithmeticOperator = cBoundOperators + ".NumericUnaryOperator";
     private static final String cUnaryBooleanOperator = cBoundOperators + ".BooleanUnaryOperator";
@@ -92,6 +94,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     private static final String opLE = cBinaryComparisonOperator + ".CMP_LE";
     private static final String opGT = cBinaryComparisonOperator + ".CMP_GT";
     private static final String opGE = cBinaryComparisonOperator + ".CMP_GE";
+
+    private static final String opEQnum = cBinaryComparisonOperator + ".CMP_EQ";
+    private static final String opNEnum = cBinaryComparisonOperator + ".CMP_NE";
+    private static final String opEQbool = cBinaryBooleanOperator + ".EQ";
+    private static final String opNEbool = cBinaryBooleanOperator + ".NE";
 
     private static final String opNEGATE = cUnaryArithmeticOperator + ".NEGATE";
     private static final String opNOT = cUnaryBooleanOperator + ".NOT";
@@ -1218,8 +1225,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         final JFXExpression r;
         final boolean lBoxed;
         final boolean rBoxed;
-            final Type lType;
-            final Type rType;
+        final Type lType;
+        final Type rType;
 
         BinaryTranslator(final JFXBinary tree) {
             this.tree = tree;
@@ -1250,7 +1257,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         JCExpression makeBinaryOperator(String op, String prefix) {
             final JCExpression lhs = translate(l);
             final JCExpression rhs = translate(r);
-            //TODO: Locations.asNumericLocation(loc)
             return runtime(diagPos, cBoundOperators, prefix + typeString(), List.of(lhs, rhs, makeQualifiedTree(diagPos, op)));
         }
 
@@ -1262,11 +1268,32 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             return makeBinaryOperator(op, "cmp_");
         }
 
-        private JCExpression makeBinaryEqualityOperator(String prefix, JFXExpression l, JFXExpression r) {
-            final JCExpression lhs = translate(l);
-            final JCExpression rhs = translate(r);
-            final String typeCode = typeCode(l.type) + typeCode(r.type);
-            return runtime(diagPos, cBoundOperators, prefix + typeCode, List.of(lhs, rhs));
+        boolean isNumeric(Type opType) {
+            switch (opType.tag) {
+                case BYTE:
+                case CHAR:
+                case SHORT:
+                case INT:
+                case LONG:
+                case FLOAT:
+                case DOUBLE:
+                    return true;
+            }
+            return false;
+        }
+
+        JCExpression makeBinaryEqualityOperator(String direct, String opNum, String opBool) {
+            if (isNumeric(lType) && isNumeric(rType)) {
+                return makeBinaryComparisonOperator(opNum);
+            } else {
+                final JCExpression lhs = translate(l);
+                final JCExpression rhs = translate(r);
+                if (lType.tag == BOOLEAN && rType.tag == BOOLEAN) {
+                    return runtime(diagPos, cBoundOperators, "op_boolean", List.of(lhs, rhs, makeQualifiedTree(diagPos, opBool)));
+                } else {
+                    return runtime(diagPos, cBoundOperators, direct, List.of(lhs, rhs));
+                }
+            }
         }
 
         JCExpression doit() {
@@ -1292,9 +1319,9 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     return makeBinaryComparisonOperator(opGE);
 
                 case EQ:
-                    return makeBinaryEqualityOperator("eq_", l, r);
+                    return makeBinaryEqualityOperator("eq", opEQnum, opEQbool);
                 case NE:
-                    return makeBinaryEqualityOperator("ne_", l, r);
+                    return makeBinaryEqualityOperator("ne", opNEnum, opNEbool);
 
                 case AND:
                     return makeBoundConditional(diagPos,
@@ -1396,40 +1423,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
      * Utilities
      *
      */
-
-
-    private String typeCode(Type type) {
-        Symbol tsym = type.tsym;
-                if (type.isPrimitive()) {
-                    if (tsym == syms.doubleType.tsym
-                            || tsym == syms.floatType.tsym) {
-                        return "d";
-                    } else if (tsym == syms.intType.tsym
-                            || tsym == syms.byteType.tsym
-                            || tsym == syms.charType.tsym
-                            || tsym == syms.longType.tsym
-                            || tsym == syms.shortType.tsym) {
-                        return "i";
-                    } else if (tsym == syms.booleanType.tsym) {
-                        return "b";
-                    } else {
-                        assert false : "should not reach here";
-                        return "X";
-                    }
-                } else {
-                    if (types.isSequence(type) ) {
-                        return "s";  //TODO: ?
-                    } else if (tsym == this.booleanObjectTypeSymbol) {
-                        return "B";
-                    } else if (tsym == this.doubleObjectTypeSymbol) {
-                        return "D";
-                    } else if (tsym == this.intObjectTypeSymbol) {
-                        return "I";
-                    } else {
-                        return "o";
-                    }
-                }
-    }
 
     protected String getSyntheticPrefix() {
         return "bfx$";

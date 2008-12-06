@@ -291,7 +291,7 @@ public class BoundOperators {
 
     // @@@---@@@ Below here is the old scheme
 
-    public static <T, V> BooleanLocation eq_oo(final ObjectLocation<T> a, final ObjectLocation<V> b) {
+    public static <T, V> BooleanLocation eq(final ObjectLocation<T> a, final ObjectLocation<V> b) {
         return BooleanVariable.make(new BooleanBindingExpression() {
             public boolean computeValue() {
                 T aVal = a.get();
@@ -304,7 +304,7 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation ne_oo(final ObjectLocation<T> a, final ObjectLocation<V> b) {
+    public static <T, V> BooleanLocation ne(final ObjectLocation<T> a, final ObjectLocation<V> b) {
         return BooleanVariable.make(new BooleanBindingExpression() {
             public boolean computeValue() {
                 T aVal = a.get();
@@ -317,7 +317,7 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation eq_ss(final SequenceLocation<T> a, final SequenceLocation<V> b) {
+    public static <T, V> BooleanLocation eq(final SequenceLocation<T> a, final SequenceLocation<V> b) {
         return BooleanVariable.make(new BooleanBindingExpression() {
             public boolean computeValue() {
                 Sequence<T> aVal = a.getAsSequence();
@@ -330,7 +330,7 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation eq_so(final SequenceLocation<T> a, final ObjectLocation<V> b) {
+    public static <T, V> BooleanLocation eq(final SequenceLocation<T> a, final ObjectLocation<V> b) {
         return BooleanVariable.make(new BooleanBindingExpression() {
             public boolean computeValue() {
                 Sequence<T> aVal = a.getAsSequence();
@@ -343,7 +343,7 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation eq_os(final ObjectLocation<T> a, final SequenceLocation<V> b) {
+    public static <T, V> BooleanLocation eq(final ObjectLocation<T> a, final SequenceLocation<V> b) {
         return BooleanVariable.make(new BooleanBindingExpression() {
             public boolean computeValue() {
                 T aVal = a.get();
@@ -356,7 +356,7 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation ne_ss(final SequenceLocation<T> a, final SequenceLocation<V> b) {
+    public static <T, V> BooleanLocation ne(final SequenceLocation<T> a, final SequenceLocation<V> b) {
         return BooleanVariable.make(new BooleanBindingExpression() {
             public boolean computeValue() {
                 Sequence<T> aVal = a.getAsSequence();
@@ -369,7 +369,7 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation ne_so(final SequenceLocation<T> a, final ObjectLocation<V> b) {
+    public static <T, V> BooleanLocation ne(final SequenceLocation<T> a, final ObjectLocation<V> b) {
         return BooleanVariable.make(new BooleanBindingExpression() {
             public boolean computeValue() {
                 Sequence<T> aVal = a.getAsSequence();
@@ -382,7 +382,7 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation ne_os(final ObjectLocation<T> a, final SequenceLocation<V> b) {
+    public static <T, V> BooleanLocation ne(final ObjectLocation<T> a, final SequenceLocation<V> b) {
         return BooleanVariable.make(new BooleanBindingExpression() {
             public boolean computeValue() {
                 T aVal = a.get();
@@ -391,234 +391,6 @@ public class BoundOperators {
                     return bVal != null && !bVal.isEmpty();
                 else
                     return bVal.size()!=1 || !bVal.get(0).equals(aVal);
-            }
-        }, a, b);
-    }
-
-
-    public static BooleanLocation eq_ii(final IntLocation a, final IntLocation b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((int) a.getAsInt()) == ((int) b.getAsInt());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation eq_II(final ObjectLocation<Integer> a, final ObjectLocation<Integer> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((int) a.get()) == ((int) b.get());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation eq_dd(final DoubleLocation a, final DoubleLocation b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((double) a.getAsDouble()) == ((double) b.getAsDouble());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation eq_DD(final ObjectLocation<Double> a, final ObjectLocation<Double> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((double) a.get()) == ((double) b.get());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation eq_id(final IntLocation a, final DoubleLocation b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((int) a.getAsInt()) == ((double) b.getAsDouble());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation eq_di(final DoubleLocation a, final IntLocation b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((double) a.getAsDouble()) == ((int) b.getAsInt());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation eq_iD(final IntLocation a, final ObjectLocation<Double> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((int) a.getAsInt()) == ((double) b.get());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation eq_Di(final ObjectLocation<Double> a, final IntLocation b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((double) a.get()) == ((int) b.getAsInt());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation eq_ID(final ObjectLocation<Integer> a, final ObjectLocation<Double> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((int) a.get()) == ((double) b.get());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation eq_DI(final ObjectLocation<Double> a, final ObjectLocation<Integer> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((double) a.get()) == ((int) b.get());
-            }
-        }, a, b);
-    }
-
-
-    public static BooleanLocation ne_ii(final IntLocation a, final IntLocation b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((int) a.getAsInt()) != ((int) b.getAsInt());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation ne_II(final ObjectLocation<Integer> a, final ObjectLocation<Integer> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((int) a.get()) != ((int) b.get());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation ne_dd(final DoubleLocation a, final DoubleLocation b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((double) a.getAsDouble()) != ((double) b.getAsDouble());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation ne_DD(final ObjectLocation<Double> a, final ObjectLocation<Double> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((double) a.get()) != ((double) b.get());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation ne_id(final IntLocation a, final DoubleLocation b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((int) a.getAsInt()) != ((double) b.getAsDouble());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation ne_di(final DoubleLocation a, final IntLocation b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((double) a.getAsDouble()) != ((int) b.getAsInt());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation ne_iD(final IntLocation a, final ObjectLocation<Double> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((int) a.getAsInt()) != ((double) b.get());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation ne_Di(final ObjectLocation<Double> a, final IntLocation b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((double) a.get()) != ((int) b.getAsInt());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation ne_ID(final ObjectLocation<Integer> a, final ObjectLocation<Double> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((int) a.get()) != ((double) b.get());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation ne_DI(final ObjectLocation<Double> a, final ObjectLocation<Integer> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((double) a.get()) != ((int) b.get());
-            }
-        }, a, b);
-    }
-
-
-    public static BooleanLocation eq_bb(final BooleanLocation a, final BooleanLocation b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((boolean) a.getAsBoolean()) == ((boolean) b.getAsBoolean());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation eq_bB(final BooleanLocation a, final ObjectLocation<Boolean> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((boolean) a.getAsBoolean()) == ((boolean) b.get());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation eq_Bb(final ObjectLocation<Boolean> a, final BooleanLocation b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((boolean) a.get()) == ((boolean) b.getAsBoolean());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation eq_BB(final ObjectLocation<Boolean> a, final ObjectLocation<Boolean> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((boolean) a.get()) == ((boolean) b.get());
-            }
-        }, a, b);
-    }
-
-
-    public static BooleanLocation ne_bb(final BooleanLocation a, final BooleanLocation b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((boolean) a.getAsBoolean()) != ((boolean) b.getAsBoolean());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation ne_bB(final BooleanLocation a, final ObjectLocation<Boolean> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((boolean) a.getAsBoolean()) != ((boolean) b.get());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation ne_Bb(final ObjectLocation<Boolean> a, final BooleanLocation b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((boolean) a.get()) != ((boolean) b.getAsBoolean());
-            }
-        }, a, b);
-    }
-
-    public static BooleanLocation ne_BB(final ObjectLocation<Boolean> a, final ObjectLocation<Boolean> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return ((boolean) a.get()) != ((boolean) b.get());
             }
         }, a, b);
     }
