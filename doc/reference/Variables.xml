@@ -35,7 +35,7 @@
 ++x;</programlisting></para>
 
     <para>Be sure to use <command>def</command> when the intent is that it is
-    a definition with will not change. Doing so is a useful tool that allows
+    a definition which will not change. Doing so is a useful tool that allows
     the compiler to generate more efficient code and to better check the
     correctness of programs. Using <command>def</command> is also important
     for readers of this code (or documentation generated from it) helping them

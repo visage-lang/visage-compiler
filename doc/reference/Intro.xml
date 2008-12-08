@@ -80,7 +80,9 @@
     <para>While it was certainly easy to write Hello World in JavaFX Script,
     this isn't really in the spirit of the language, since it isn't graphical.
     There is a separate tutorial on using the graphics capabilities of the
-    JavaFX platform; see [provide link] for that.</para>
+    JavaFX platform; see 
+    <ulink url="http://java.sun.com/javafx/1/tutorials/ui/">Building GUI Applications With JavaFX</ulink>
+    for that.</para>
 
     <para>You can, of course, have more complex expressions:</para>
 
@@ -174,7 +176,9 @@ println("Circumference is { circumference(r) }")</programlisting>
 
     <screen>Point 12, 9</screen>
 
-    <para>For an example-based introduction to JavaFX, see the JavaFX Script
+    <para>For an example-based introduction to JavaFX, see the tutorial
+    <ulink url="http://java.sun.com/javafx/1/tutorials/core/">Learning the JavaFX Script Programming Language</ulink>
+ JavaFX Script
     Tutorial.</para>
   </sect1>
 </chapter>
