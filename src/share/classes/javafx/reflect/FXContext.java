@@ -109,7 +109,7 @@ public abstract class FXContext {
      *    It must not be modified after the method is called.)
      *    All of the values must be singleton values.
      * @param nvalues Number of items in the sequence.
-     *    (We require that {@code nvalues >= values.length}.)
+     *    (We require that {@code nvalues <= values.length}.)
      * @param elementType
      * @return the new sequence value
      */
