@@ -392,7 +392,7 @@ Fahrenheit: 212.0,  Celcius: 100.0</screen>
     might be accessed in Foo.fx with:</para>
 
     <programlisting>Image {
-        url: "{__DIR__}/myIcon.gif"
+        url: "{__DIR__}myIcon.gif"
     }</programlisting>
 
     <para></para>
