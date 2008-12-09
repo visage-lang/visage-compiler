@@ -25,7 +25,6 @@ package javafx.lang;
 
 import java.lang.Object;
 import java.lang.Comparable;
-import java.lang.Long;
 import java.lang.Math;
 
 /**

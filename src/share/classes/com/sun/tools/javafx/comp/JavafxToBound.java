@@ -59,10 +59,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     /*
      * other instance information
      */
-    //TODO:NUMERIC
-    private final Symbol doubleObjectTypeSymbol;
-    private final Symbol intObjectTypeSymbol;
-    private final Symbol booleanObjectTypeSymbol;
     
     private final Name param1Name;
     private final Name computeElementsName;
@@ -117,11 +113,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
         toJava = JavafxToJava.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
-
-        doubleObjectTypeSymbol = types.boxedClass(syms.doubleType).type.tsym;
-        intObjectTypeSymbol = types.boxedClass(syms.intType).type.tsym;
-        booleanObjectTypeSymbol = types.boxedClass(syms.booleanType).type.tsym;
-
+        
         param1Name = names.fromString("x1$");
         computeElementsName = names.fromString("computeElements$");
     }

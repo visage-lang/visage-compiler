@@ -5,7 +5,7 @@
  * @run
  */
 
-import java.lang.Long;
 
-var num = Long.parseLong("1234");
+
+var num = java.lang.Long.parseLong("1234");
 println(num.doubleValue());

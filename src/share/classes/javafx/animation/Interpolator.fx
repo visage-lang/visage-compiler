@@ -23,7 +23,6 @@
 
 package javafx.animation;
 
-import java.lang.Float;
 import java.lang.Object;
 import com.sun.scenario.animation.Interpolators;
 
@@ -64,7 +63,7 @@ public def EASEBOTH:Interpolator =
  * @profile common
  */
 public def EASEIN:Interpolator =
-        CoreInterpolator { i: Interpolators.getEasingInstance(new Float(0.2), new Float(0.0)); };
+        CoreInterpolator { i: Interpolators.getEasingInstance(0.2 as Float, 0.0 as Float); };
 
 /**
  * Built-in interpolator instance that provides ease out behavior. It uses value of 0.2
@@ -73,7 +72,7 @@ public def EASEIN:Interpolator =
  * @profile common
  */
 public def EASEOUT:Interpolator =
-        CoreInterpolator { i: Interpolators.getEasingInstance(new Float(0.0), new Float(0.2)); };
+        CoreInterpolator { i: Interpolators.getEasingInstance(0.0 as Float, 0.2 as Float); };
 
 /**
  * Built-in interpolator instance that is shaped using the spline control points defined 

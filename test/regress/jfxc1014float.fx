@@ -1,15 +1,14 @@
 /**
- * Regression test JFXC-1014 : Non-int,double,boolean Java primitive Locations should be represented as ObjectLocation<Wrapper>
+ * Regression test JFXC-1014 : Non primitive Locations should be represented as ObjectLocation<Wrapper>
  *
  * @test
  * @run
  */
 
 import java.lang.System;
-import java.lang.Float;
 
 class Foo {
-  var ob = new Float(1);
+  var ob = new java.lang.Float(1);
   var ff = ob.floatValue();
   var bb = ob.byteValue();
   var ss = ob.shortValue();

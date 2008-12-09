@@ -470,15 +470,18 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     public void visitImport(JFXImport tree) {
         JFXExpression imp = tree.qualid;
         Name name = JavafxTreeInfo.name(imp);
-//TODO:NUMERIC
         if (tree.qualid.getFXTag() == JavafxTag.SELECT) {
-            if (name == names.fromString("Integer")) { // TODO: use the constant in the new NameTable when available.
-                log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_INTEGER_PRIMITIVE_TYPE);
-            } else if (name == names.fromString("Number")) { // TODO: use the constant in the new NameTable when available.
-                log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_NUMBER_PRIMITIVE_TYPE);
-            } else if (name == names.fromString("Boolean")) { // TODO: use the constant in the new NameTable when available.
-                log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_BOOLEAN_PRIMITIVE_TYPE);
-            } else if (name == names.fromString("String")) { // TODO: use the constant in the new NameTable when available.
+            if (name == syms.booleanTypeName ||
+                name == syms.charTypeName    ||
+                name == syms.byteTypeName    ||
+                name == syms.shortTypeName   ||
+                name == syms.integerTypeName ||
+                name == syms.longTypeName    ||
+                name == syms.floatTypeName   ||
+                name == syms.doubleTypeName  ||
+                name == syms.numberTypeName  ||
+                name == syms.stringTypeName  ||
+                name == syms.voidTypeName) {
                 log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_STRING_PRIMITIVE_TYPE);
             }
         }

@@ -19,7 +19,6 @@ import javax.swing.Timer;
 import java.awt.event.*;
 import java.util.concurrent.TimeUnit;
 import com.sun.scenario.animation.Interpolators;
-import java.lang.Float;
 import java.lang.Object;
 
 class GoldenData extends Interpolatable {
@@ -39,7 +38,7 @@ class GoldenData extends Interpolatable {
 
 class MyInterpolator extends SimpleInterpolator {
 	public var i:com.sun.scenario.animation.Interpolator 
-		= Interpolators.getEasingInstance(new Float(0.25), new Float(0.34));
+		= Interpolators.getEasingInstance(0.25 as Float, 0.34 as Float);
 	
 	override function curve(t: Number): Number {
 		i.interpolate(t.floatValue())
