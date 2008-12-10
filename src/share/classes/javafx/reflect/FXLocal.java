@@ -66,11 +66,11 @@ public class FXLocal {
         public static Context getInstance() { return instance; }
 
         /** Create a reference to a given Object. */
-        public FXObjectValue mirrorOf(Object obj) {
+        public ObjectValue mirrorOf(Object obj) {
             return new ObjectValue(obj, this);
         }
 
-        public FXValue mirrorOf(final Object val, final FXType type) {
+        public Value mirrorOf(final Object val, final FXType type) {
             // FIXME Perhaps if val==null we should use MiscValue?
             if (type instanceof ClassType)
                 return new FXLocal.ObjectValue(val, (ClassType) type);
@@ -99,7 +99,7 @@ public class FXLocal {
         }
 
         /** Get the {@code FXClassType} for the class with the given name. */
-        public FXClassType findClass(String cname) {
+        public ClassType findClass(String cname) {
             ClassLoader loader;
             try {
                 loader = Thread.currentThread().getContextClassLoader();
@@ -111,7 +111,7 @@ public class FXLocal {
         }
 
         /** Get the {@code FXClassType} for the class with the given name. */
-        public FXClassType findClass(String cname, ClassLoader loader) {
+        public ClassType findClass(String cname, ClassLoader loader) {
             String n = cname;
             Exception ex0 = null;
             for (;;) {
@@ -269,7 +269,7 @@ public class FXLocal {
             }
         }
 
-        public FXValue makeSequenceValue(FXValue[] values, int nvalues, FXType elementType) {
+        public Value makeSequenceValue(FXValue[] values, int nvalues, FXType elementType) {
             return new SequenceValue(values, nvalues, elementType, this);
         }
     }
@@ -800,11 +800,11 @@ public class FXLocal {
      *
      * @profile desktop
      */
-    public static interface Value {
-        public Object asObject();
+    public static interface Value extends FXValue {
+        public abstract Object asObject();
     }
 
-    static class MiscValue extends FXValue implements FXLocal.Value {
+    static class MiscValue implements FXLocal.Value {
         Object val;
         FXType type;
         public MiscValue(Object value, FXType type) {
@@ -816,6 +816,8 @@ public class FXLocal {
         public FXType getType() { return type; }
         public boolean isNull() { return val == null; }
         public Object asObject() { return val; }
+        public FXValue getItem(int index) { return this; }
+        public int getItemCount() { return isNull() ? 0 : 1; }
     };
 
     /** A mirror of an {@code Object} in the current JVM.

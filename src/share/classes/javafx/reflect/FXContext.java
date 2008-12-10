@@ -118,17 +118,17 @@ public abstract class FXContext {
     }
     
     /* Create an {@code Boolean} value from a {@code boolean}. */
-    public FXValue mirrorOf (boolean value) {
+    public FXLocal.Value mirrorOf (boolean value) {
         return new FXBooleanValue(value, getBooleanType());
     }
 
     /* Create an {@code Integer} value from an {@code int}. */
-    public FXValue mirrorOf (int value)  {
+    public FXLocal.Value mirrorOf (int value)  {
         return new FXIntegerValue(value, getIntegerType());
     }
 
     /* Create an {@code Number} value from aq {@code double}. */
-    public FXValue mirrorOf (double value) {
+    public FXLocal.Value mirrorOf (double value) {
         return new FXNumberValue(value, getNumberType());
     }
 

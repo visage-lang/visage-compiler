@@ -29,10 +29,7 @@ package javafx.reflect;
  * @profile desktop
  */
 
-public abstract class FXValue {
-    protected FXValue() {
-    }
-
+public interface FXValue {
     /** Get the type of this value.
      * This is depends on the value's "source", such as a variable's type.
      * This may not be what you want - you might want
@@ -41,11 +38,11 @@ public abstract class FXValue {
      */
     public abstract FXType getType();
 
-    public int getItemCount() { return isNull() ? 0 : 1; }
+    public int getItemCount();
 
     public abstract boolean isNull();
 
-    public FXValue getItem(int index) { return this; }
+    public FXValue getItem(int index);
 
     public abstract String getValueString();
 }

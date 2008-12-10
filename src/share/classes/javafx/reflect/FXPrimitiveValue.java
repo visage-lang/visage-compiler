@@ -23,24 +23,17 @@
 
 package javafx.reflect;
 
-/** Mirroring of a JavaFX Boolean value.
+/** A handle/proxy for an {@code Integer} value
  *
  * @author Per Bothner
  * @profile desktop
  */
-public class FXBooleanValue  extends FXPrimitiveValue {
-    boolean value;
 
-    public FXBooleanValue(boolean value, FXPrimitiveType type) {
-        this.value = value;
-        this.type = type;
-    }
+public abstract class FXPrimitiveValue implements FXLocal.Value {
+    FXPrimitiveType type;
 
-    public boolean booleanValue() { return value; }
-    public String getValueString() { return Boolean.toString(value); }
-    public String toString() { return "BooleanValue("+value+')'; }
-
-    public Object asObject() {
-         return value ? Boolean.TRUE : Boolean.FALSE;
-    }
+    public boolean isNull() { return false; }
+    public FXPrimitiveType getType() { return type; }
+    public FXValue getItem(int index) { return this; }
+    public int getItemCount() {return isNull() ? 0 : 1; }
 }

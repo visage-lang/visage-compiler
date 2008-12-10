@@ -30,7 +30,7 @@ package javafx.reflect;
  * @profile desktop
  */
 
-public abstract class FXObjectValue extends FXValue {
+public abstract class FXObjectValue implements FXValue {
     protected FXObjectValue() {
     }
 
@@ -92,4 +92,7 @@ public abstract class FXObjectValue extends FXValue {
   public FXValue invoke(FXFunctionMember method, FXValue... args) {
     return method.invoke(this, args);
   }
+
+  public FXValue getItem(int index) { return this; }
+  public int getItemCount() { return isNull() ? 0 : 1; }
 }

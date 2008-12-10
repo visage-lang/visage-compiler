@@ -29,7 +29,7 @@ package javafx.reflect;
  * @profile desktop
  */
 
-public abstract class FXFunctionValue extends FXValue {
+public abstract class FXFunctionValue implements FXValue {
     protected FXFunctionValue() {
     }
 
@@ -38,4 +38,7 @@ public abstract class FXFunctionValue extends FXValue {
 
     /** Get the run-time type of this value. */
     public abstract FXFunctionType getType();
+
+    public FXValue getItem(int index) { return this; }
+    public int getItemCount() { return isNull() ? 0 : 1; }
 }

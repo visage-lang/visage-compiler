@@ -28,7 +28,7 @@ package javafx.reflect;
  * @author Per Bothner
  * @profile desktop
  */
-public class FXSequenceValue extends FXValue {
+public class FXSequenceValue implements FXValue {
     FXValue[] values;
     int nvalues;
     FXValue sequence;

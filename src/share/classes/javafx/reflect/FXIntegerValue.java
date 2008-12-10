@@ -29,19 +29,15 @@ package javafx.reflect;
  * @profile desktop
  */
 
-public class FXIntegerValue extends FXValue implements FXLocal.Value {
+public class FXIntegerValue extends FXPrimitiveValue {
     int value;
-    FXType type;
 
-    public FXIntegerValue(int value, FXType type) {
+    public FXIntegerValue(int value, FXPrimitiveType type) {
         this.value = value;
         this.type = type;
     }
 
     public int intValue() { return value; }
-
-    public boolean isNull() { return false; }
-    public FXType getType() { return type; }
 
     public String getValueString() { return Integer.toString(value); }
     public String toString() { return "IntegerValue("+value+')'; }
