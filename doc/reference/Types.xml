@@ -24,9 +24,8 @@
     the type holds and the cardinality determines how many of them can be
     held.</para>
 
-    <para><remark>[To do: add more examples of types, 
-    links to expression type tables, use docbook EBNF for lexical
-    rules]</remark></para>
+    <para><remark>[To do: add more examples of types, links to expression type
+    tables, use docbook EBNF for lexical rules]</remark></para>
 
     <para></para>
 
@@ -200,7 +199,8 @@ println(k);</programlisting>
       <sect3>
         <title>String Literal Syntax</title>
 
-        <blockquote><programlisting>    StringLiteral:
+        <blockquote>
+          <programlisting>    StringLiteral:
             OneStringLiteral
             StringLiteral OneStringLiteral
 
@@ -223,7 +223,8 @@ println(k);</programlisting>
     SingleQuoteStringCharacter:
             InputCharacter but not <command>'</command>, <command>{</command>, <command>}</command> or <command>\</command>
             <command>\</command> InputCharacter
-</programlisting></blockquote>
+</programlisting>
+        </blockquote>
 
         <para>Literals are bracketed in either single or double quotes. That
         is, a double quote followed by a sequence of characters (here
@@ -273,7 +274,8 @@ println( greeting );</programlisting>
     <sect2>
       <title>Integer</title>
 
-      <blockquote><programlisting>    IntegerLiteral:
+      <blockquote>
+        <programlisting>    IntegerLiteral:
             DecimalIntegerLiteral
             HexIntegerLiteral       
             OctalIntegerLiteral
@@ -315,7 +317,8 @@ println( greeting );</programlisting>
 
     OctalDigit: one of
             <command>0 1 2 3 4 5 6 7</command>
-</programlisting></blockquote>
+</programlisting>
+      </blockquote>
 
       <para>The Integer type represents integers in the range -2147483648 to
       2147483647, inclusive. The default value for the Integer type is zero
@@ -353,29 +356,11 @@ println( greeting );</programlisting>
 
       <para>The Number type represents floating-point numbers.</para>
 
-      <blockquote>
-        <para>The Number type is conceptually associated with the
-        double-precision 64-bit format IEEE 754 values and operations as
-        specified in IEEE Standard for Binary Floating-Point Arithmetic,
-        ANSI/IEEE Standard 754-1985 (IEEE, New York).</para>
-
-        <para>The IEEE 754 standard includes not only positive and negative
-        numbers that consist of a sign and magnitude, but also positive and
-        negative zeros, positive and negative infinities, and special
-        Not-a-Number values (hereafter abbreviated NaN). A NaN value is used
-        to represent the result of certain invalid operations such as dividing
-        zero by zero. The double-extended-exponent value set may, under
-        certain circumstances, be used instead of the standard value sets to
-        represent the values of expressions of type Number.</para>
-      </blockquote>
-
-      <para>Note that all Integer values can be represented exactly as Number
-      values.</para>
-
       <sect3>
         <title>Number Literal Syntax</title>
 
-        <blockquote><programlisting>NumberLiteral:
+        <blockquote>
+          <programlisting>NumberLiteral:
       Digits . Digits<subscript>opt</subscript> ExponentPart<subscript>opt</subscript> 
       <command>.</command> Digits ExponentPart<subscript>opt</subscript> 
       Digits ExponentPart<subscript>opt</subscript> 
@@ -391,7 +376,8 @@ SignedInteger:
 
 Sign: one of
         <command>+ -</command>
-</programlisting></blockquote>
+</programlisting>
+        </blockquote>
 
         <para>The following are valid Number literals:</para>
 
@@ -420,9 +406,11 @@ Sign: one of
       <sect3>
         <title>Boolean Literal Syntax</title>
 
-        <blockquote><programlisting>    BooleanLiteral: one of
+        <blockquote>
+          <programlisting>    BooleanLiteral: one of
             <command>true false</command>
-</programlisting></blockquote>
+</programlisting>
+        </blockquote>
 
         <para>That is, the two, and only, Boolean literals are:</para>
 
@@ -452,14 +440,16 @@ false</programlisting>
       <sect3>
         <title>Duration Literal Syntax</title>
 
-        <blockquote><programlisting>    DurationLiteral:
+        <blockquote>
+          <programlisting>    DurationLiteral:
         IntegerLiteral TimeUnit
         NumberLiteral TimeUnit
 
     TimeUnit: one of
-        <command>ms  s  m  h</command></programlisting></blockquote>
+        <command>ms  s  m  h</command></programlisting>
+        </blockquote>
 
-        <para>For example: </para>
+        <para>For example:</para>
 
         <programlisting>10s
 4ms
