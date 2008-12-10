@@ -349,9 +349,9 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         }
         JFXExpression tp;
         switch (t.tag) {
-            case FLOAT:
+            case FLOAT: //TODO:NUMERICS
             case DOUBLE:
-                tp = Ident(syms.numberTypeName);
+                tp = Ident(syms.doubleTypeName);
                 break;
             case INT:
             case LONG:

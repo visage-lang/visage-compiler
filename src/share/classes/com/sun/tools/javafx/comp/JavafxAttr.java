@@ -3075,7 +3075,7 @@ public class JavafxAttr implements JavafxVisitor {
             } else if (className == syms.doubleTypeName) {
                 type = syms.javafx_DoubleType;
             } else if (className == syms.numberTypeName) {
-                type = syms.javafx_DoubleType;
+                type = syms.javafx_NumberType;
             } else if (className == syms.stringTypeName) {
                 type = syms.javafx_StringType;
             } else if (className == syms.voidTypeName) {

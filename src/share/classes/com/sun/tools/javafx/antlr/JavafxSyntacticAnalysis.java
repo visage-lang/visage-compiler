@@ -39,13 +39,13 @@ public class JavafxSyntacticAnalysis {
     protected static final Context.Key<JavafxSyntacticAnalysis> syntaxKey =
             new Context.Key<JavafxSyntacticAnalysis>();
     
-    protected Context context;
+    protected final Context context;
     /** Command line options
      */
-    protected Options options;
+    protected final Options options;
     /** The name table.
      */
-    protected Name.Table names;
+    protected final Name.Table names;
     
     /** The log to be used for error reporting.
      */

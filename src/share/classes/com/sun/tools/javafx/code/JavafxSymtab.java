@@ -62,6 +62,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_LongType;
     public final Type javafx_FloatType;
     public final Type javafx_DoubleType;
+    public final Type javafx_NumberType;
     public final Type javafx_StringType;
     public final Type javafx_DurationType;
 
@@ -137,6 +138,8 @@ public class JavafxSymtab extends Symtab {
         // FIXME It would be better to make 'names' in super-class be protected.
         Name.Table names = Name.Table.instance(context);
         types = Types.instance(context);
+        Options options = Options.instance(context);
+        String numberChoice = options.get("Number");
 
         javafx_BooleanType = booleanType;
         javafx_CharacterType = charType;
@@ -146,6 +149,16 @@ public class JavafxSymtab extends Symtab {
         javafx_LongType = longType;
         javafx_FloatType = floatType;
         javafx_DoubleType = doubleType;
+        if (numberChoice == null) {
+            //default
+            javafx_NumberType = doubleType;
+        } else if (numberChoice.equals("Float")) {
+            javafx_NumberType = floatType;
+        } else if (numberChoice.equals("Double")) {
+            javafx_NumberType = doubleType;
+        } else {
+            throw new IllegalArgumentException("Bad argument for Number, must be Float pr Double");
+        }
         javafx_StringType = stringType;
         javafx_DurationType = enterClass("javafx.lang.Duration");
 

@@ -203,8 +203,11 @@ public class Duration extends com.sun.javafx.runtime.Duration {
      * @return a Duration instance of the specified number of milliseconds
      * @profile common
      */
-    public function valueOf(ms: Number): Duration {
+    public function valueOf(ms: Double): Duration {
         return com.sun.javafx.runtime.Duration.make(ms) as Duration;
+    }
+    public function valueOf(ms: Float): Duration {
+        return com.sun.javafx.runtime.Duration.make(ms as Double) as Duration;
     }
 
     def TYPE_INFO = com.sun.javafx.runtime.TypeInfo.makeAndRegisterTypeInfo(Duration.valueOf(0.0));
