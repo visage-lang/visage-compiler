@@ -38,10 +38,13 @@ import com.sun.javafx.runtime.Util;
  *
  * @author Brian Goetz
  */
-class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
+
+public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
 
     private T[] array;
     int gapStart, gapEnd;
+    
+    private final static int DEFAULT_SIZE = 16;
 
     /** A potentially useful debugging/testing hook. */
     public static boolean disableInplaceArrayUpdates;
@@ -55,6 +58,17 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
      * sharing happens or can happen.  This is done with {@code #noteShared}.
      */
     boolean shared = disableInplaceArrayUpdates;
+
+    public ArraySequence(int initialSize, TypeInfo<T> ti) {
+        super(ti);
+        this.array =  Util.<T>newObjectArray(initialSize);
+        gapStart = 0;
+        gapEnd = initialSize;
+    }
+
+    public ArraySequence(TypeInfo<T> ti) {
+        this(DEFAULT_SIZE, ti);
+    }
 
     public ArraySequence(TypeInfo<T> ti, T... values) {
         this(ti, values, false);
@@ -246,6 +260,25 @@ class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
         }
         else if (where != gapStart)
             shiftGap(where);
+    }
+    /** Add a single element to the sequence, modifying it.
+     * This must only be called when the sequence is unshared. */
+    public void add(T element) {
+        if (element != null) {
+            gapReserve(size(), 1);
+            array[gapStart++] = element;
+        }
+    }
+    /** Add the contents of an existing sequence to the sequence.
+     * This must only be called when the sequence is unshared. */
+    public void add(Sequence<? extends T> elements) {
+        final int length = Sequences.size(elements);
+        if (length > 0) {
+            int size = size();
+            gapReserve(size, length);
+            elements.toArray(0, length, array, size);
+            gapStart += length;
+        }
     }
 
     /** Internal method to replace a value. */

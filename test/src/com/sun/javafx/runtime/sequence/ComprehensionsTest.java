@@ -71,13 +71,13 @@ public class ComprehensionsTest extends JavaFXTestCase {
     public void test2Dforeach() {
         Sequence<Integer> outer = Sequences.range(1, 2);
         Sequence<Integer> inner = Sequences.range(1, 3);
-        SequenceBuilder<Integer> sb = new SequenceBuilder<Integer>(TypeInfo.Integer, outer.size() * inner.size());
+        ArraySequence<Integer> sb = new ArraySequence<Integer>(outer.size() * inner.size(), TypeInfo.Integer);
         for (Integer i : outer) {
             for (Integer j : inner) {
                 sb.add(1);
             }
         }
-        Sequence<Integer> result = sb.toSequence();
+        Sequence<Integer> result = sb;
         assertEquals(result, 1, 1, 1, 1, 1, 1);
         Sequence<Integer> c2dResult = new CartesianProduct2D<Integer, Integer, Integer>(TypeInfo.Integer, outer, inner,
                 new CartesianProduct2D.Mapper<Integer, Integer, Integer>() {
@@ -98,13 +98,13 @@ public class ComprehensionsTest extends JavaFXTestCase {
         // outer = [ 1..2 ], inner = [ 1..3 ], content = [ i*j ]
         outer = Sequences.range(1, 2);
         inner = Sequences.range(1, 3);
-        sb = new SequenceBuilder<Integer>(TypeInfo.Integer, outer.size() * inner.size());
+        sb = new ArraySequence<Integer>(outer.size() * inner.size(), TypeInfo.Integer);
         for (Integer i : outer) {
             for (Integer j : inner) {
                 sb.add(i*j);
             }
         }
-        result = sb.toSequence();
+        result = sb;
         assertEquals(result, 1, 2, 3, 2, 4, 6);
         c2dResult = new CartesianProduct2D<Integer, Integer, Integer>(TypeInfo.Integer, outer, inner,
                 new CartesianProduct2D.Mapper<Integer, Integer, Integer>() {
@@ -128,7 +128,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
         Sequence<Integer> first = Sequences.range(1, 2);
         Sequence<Integer> second = Sequences.range(1, 3);
         Sequence<Integer> third = Sequences.range(1, 4);
-        SequenceBuilder<Integer> sb = new SequenceBuilder<Integer>(TypeInfo.Integer);
+        ArraySequence<Integer> sb = new ArraySequence<Integer>(TypeInfo.Integer);
         for (Integer i : first) {
             for (Integer j : second) {
                 for (Integer k : third) {
@@ -136,7 +136,7 @@ public class ComprehensionsTest extends JavaFXTestCase {
                 }
             }
         }
-        Sequence<Integer> result = sb.toSequence();
+        Sequence<Integer> result = sb;
         assertEquals(result, 1, 2, 3, 4, 2, 4, 6, 8, 3, 6, 9, 12, 2, 4, 6, 8, 4, 8, 12, 16, 6, 12, 18, 24);
 
         Sequence<Integer> cnResult = new CartesianProduct<Integer>(TypeInfo.Integer,

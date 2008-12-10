@@ -43,10 +43,10 @@ public class BoundSequenceBuilder<T> {
     private int size;
 
     public BoundSequenceBuilder(TypeInfo<T> typeInfo) {
-        this(typeInfo, DEFAULT_SIZE);
+        this(DEFAULT_SIZE, typeInfo);
     }
 
-    public BoundSequenceBuilder(TypeInfo<T> typeInfo, int initialSize) {
+    public BoundSequenceBuilder(int initialSize, TypeInfo<T> typeInfo) {
         this.typeInfo = typeInfo;
         array = Util.newSequenceLocationArray(Util.powerOfTwo(1, initialSize));
     }

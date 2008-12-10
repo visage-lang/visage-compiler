@@ -156,7 +156,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
      */
     private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
     private static final String sequencesRangeExclusiveString = "com.sun.javafx.runtime.sequence.Sequences.rangeExclusive";
-    private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.SequenceBuilder";
+    private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.ArraySequence";
     private static final String boundSequenceBuilderString = "com.sun.javafx.runtime.sequence.BoundSequenceBuilder";
     private static final String noMainExceptionString = "com.sun.javafx.runtime.NoMainException";
     private static final String toSequenceString = "toSequence";
@@ -2245,6 +2245,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCExpression makeInitialLengthArg() {
                 return (initLength != -1)? make.at(diagPos).Literal(Integer.valueOf(initLength)) : null;
             }
+
+            JCExpression makeToSequence() {
+                return makeBuilderVarAccess();
+            }
         };
     }
     
@@ -2307,7 +2311,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                      List.<JCExpression>of(makeTypeTree(diagPos, elemType))),
                      initialLengthArg == null?
                          List.<JCExpression>of(makeConstructorArg()) :
-                         List.<JCExpression>of(makeConstructorArg(), initialLengthArg),  // args
+                         List.<JCExpression>of(initialLengthArg, makeConstructorArg()),  // args
                 null                                // empty body
                 );
 
