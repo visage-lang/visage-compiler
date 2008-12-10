@@ -174,15 +174,6 @@ public abstract class JavafxTranslationSupport {
     }
 
     /**
-     *
-     * @param diagPos
-     * @return a boolean expression indicating if the bind is lazy
-     */
-    protected JCExpression makeLaziness(DiagnosticPosition diagPos) {
-        return make.at(diagPos).Literal(TypeTags.BOOLEAN, 0);
-    }
-
-    /**
      * @param diagPos
      * @return expression representing null
      */

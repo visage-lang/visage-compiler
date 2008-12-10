@@ -59,11 +59,14 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     /*
      * other instance information
      */
-    
     private final Name param1Name;
     private final Name computeElementsName;
 
+    /*
+     * State
+     */
     private TypeMorphInfo tmiTarget = null;
+    private JavafxBindStatus bindStatus = null; // should never be accessed before set
 
     /*
      * static information
@@ -118,6 +121,39 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         computeElementsName = names.fromString("computeElements$");
     }
 
+    /*** External entry points ***/
+
+    JCExpression translate(JFXExpression tree, JavafxBindStatus bindStatus, TypeMorphInfo tmi) {
+        JavafxBindStatus prevBindStatus = this.bindStatus;
+        this.bindStatus = bindStatus;
+        JCExpression res = translateGeneric(tree, tmi);
+        this.bindStatus = prevBindStatus;
+        return res;
+    }
+
+    JCExpression translate(JFXExpression tree, JavafxBindStatus bindStatus, Type type) {
+        JavafxBindStatus prevBindStatus = this.bindStatus;
+        this.bindStatus = bindStatus;
+        JCExpression res = translateGeneric(tree, type);
+        this.bindStatus = prevBindStatus;
+        return res;
+    }
+
+    // only for re-entry use by SequenceBuilder
+    JCExpression translate(JFXExpression tree) {
+        return translateGeneric(tree);
+    }
+
+    /*** Internal translation calls ***/
+
+    private JCExpression translate(JFXExpression tree, TypeMorphInfo tmi) {
+        return translateGeneric(tree, tmi);
+    }
+
+    private JCExpression translate(JFXExpression tree, Type type) {
+        return translateGeneric(tree, type);
+    }
+    
     /** Visitor method: Translate a single node.
      */
     @SuppressWarnings("unchecked")
@@ -139,23 +175,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         return ret;
     }
 
-    public JCExpression translate(JFXExpression tree) {
-        return translateGeneric(tree);
-    }
-    
-    public JCExpression translate(JFXExpression tree, TypeMorphInfo tmi) {
-        return translateGeneric(tree, tmi);
-    }
-    
-    public JCExpression translate(JFXExpression tree, Type type) {
-        return translateGeneric(tree, type);
-    }
-    
-    public <TFX extends JFXExpression, TC extends JCTree> TC translateGeneric(TFX tree, Type type) {
+    private <TFX extends JFXExpression, TC extends JCTree> TC translateGeneric(TFX tree, Type type) {
         return translateGeneric(tree, typeMorpher.typeMorphInfo(type));
     }
 
-    public <TFX extends JFXExpression, TC extends JCTree> TC translateGeneric(TFX tree) {
+    private <TFX extends JFXExpression, TC extends JCTree> TC translateGeneric(TFX tree) {
         return translateGeneric(tree, (TypeMorphInfo) null);
     }
 
@@ -228,6 +252,15 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         }
         tree.type = targetType; // as a way of passing it to methods which needs to know the target type
         return tree;
+    }
+
+    /**
+     *
+     * @param diagPos
+     * @return a boolean expression indicating if the bind is lazy
+     */
+    private JCExpression makeLaziness(DiagnosticPosition diagPos) {
+        return make.at(diagPos).Literal(TypeTags.BOOLEAN, bindStatus.isLazy()? 1 : 0);
     }
 
     private Type targetType(Type type) {
@@ -454,7 +487,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     }
 
                     protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name instanceName) {
-                        JCExpression initRef = buildArgField(translate(init, vsym.type), vsym.type, vsym.name.toString() + "$attr", bindStatus.isBound());
+                        JCExpression initRef = buildArgField(translate(init, bindStatus, vsym.type), vsym.type, vsym.name.toString() + "$attr", bindStatus.isBound());
                         return definitionalAssignmentToSet(diagPos, initRef, bindStatus,
                                 vsym, instanceName, FROM_LITERAL_MILIEU);
                     }
@@ -1028,7 +1061,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     /**
      * Translator for Java method and non-bound JavaFX functions.
      */
-    abstract class BindingExpressionClosureTranslator extends ClosureTranslator {
+    private abstract class BindingExpressionClosureTranslator extends ClosureTranslator {
 
         BindingExpressionClosureTranslator(DiagnosticPosition diagPos, Type resultType) {
             super(diagPos, resultType);

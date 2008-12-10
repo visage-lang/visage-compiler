@@ -1240,7 +1240,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     private JCExpression translateDefinitionalAssignmentToValueArg(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarMorphInfo vmi) {
         if (bindStatus.isUnidiBind()) {
-            return toBound.translate(init, vmi.getRealType());
+            return toBound.translate(init, bindStatus, vmi.getRealType());
         } else if (bindStatus.isBidiBind()) {
             assert requiresLocation(vmi);
             // Bi-directional bind translate so it stays in a Location
@@ -1564,7 +1564,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             } else if (isBound) {
                 // Build the body of a bound function by treating it as a bound expression
                 // TODO: Remove entry in findbugs-exclude.xml if permeateBind is implemented -- it is, so it should be
-                JCExpression expr = toBound.translate(bexpr, typeMorpher.varMorphInfo(tree.sym));
+                JCExpression expr = toBound.translate(bexpr, JavafxBindStatus.UNIDIBIND, typeMorpher.varMorphInfo(tree.sym));
                 body = asBlock(make.at(diagPos).Return(expr));
             } else if (isRunMethod) {
                 // it is a module level run method, do special translation
@@ -2274,10 +2274,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 return (initLength != -1)? make.at(diagPos).Literal(Integer.valueOf(initLength)) : null;
             }
         };
-    }
-    
-    UseSequenceBuilder useBoundSequenceBuilder(DiagnosticPosition diagPos, Type elemType) {
-        return useBoundSequenceBuilder(diagPos, elemType, -1);
     }
     
     abstract class UseSequenceBuilder {

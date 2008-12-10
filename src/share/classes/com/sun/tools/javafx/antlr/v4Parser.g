@@ -2794,6 +2794,7 @@ boundExpression
 
 @init 
 { 
+	boolean isLazy      	= false; 	// Signals presence of LAZY
 	boolean isBidirectional	= false; 	// Signals presence of INVERSE
 
 	// Used to accumulate a list of anything that we manage to build up in the parse
@@ -2806,7 +2807,15 @@ boundExpression
 	int	rPos	= pos();
 }
 
-	: BIND e1=expression 
+	: ( LAZY
+			{
+				// Update status
+				//
+				isLazy = true;
+			}
+	  )?
+	  
+	  BIND e1=expression 
 	
 		{
 			errNodes.append($e1.value);	// For erroneous node
@@ -2833,7 +2842,7 @@ boundExpression
 				
 				// Update the status
 				//
-				$status	= isBidirectional? BIDIBIND : UNIDIBIND;
+				$status	= isLazy? isBidirectional? LAZY_BIDIBIND : LAZY_UNIDIBIND :  isBidirectional? BIDIBIND : UNIDIBIND;
 			}
 	
 	| e2=expression
