@@ -94,6 +94,24 @@ public abstract class JavaFXTestCase extends TestCase {
         }
     }
 
+    protected void assertEquals(Sequence<Float> sequence, Float... values) {
+        assertEquals(sequence.size(), values.length);
+        int index = 0;
+        for (Float f : sequence) {
+            Float value = values[index++];
+            assertTrue(value + " !~ " + f, Math.abs(f - value) < EPSILON);
+        }
+    }
+
+    protected void assertArrayEquals(Float[] expected, Float ... values) {
+        assertEquals(expected.length, values.length);
+        int index = 0;
+        for (Float f : expected) {
+            Float value = values[index++];
+            assertTrue(value + " !~ " + f, Math.abs(f - value) < EPSILON);
+        }
+    }
+    
     protected <T> void assertEquals(Sequence<T> sequence, T value) {
       assertEquals((Object) sequence, (Object) Sequences.singleton(sequence.getElementType(), value));
     }

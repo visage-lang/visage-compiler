@@ -6,10 +6,10 @@
 
 import java.lang.System;
 
-var c:Integer[] = [1,2,'3456'.toCharArray()];
-insert '789'.toCharArray() into c;
-System.out.println(c);
-c = '789'.toCharArray();
-System.out.println(c);
-c = java.lang.Character.forDigit(2,10);
-System.out.println(c);
+var seq:Character[] = [1,2,'3456'.toCharArray()];
+insert '789'.toCharArray() into seq;
+System.out.println(for (c in seq) c as Integer);
+seq = '789'.toCharArray();
+System.out.println(for (c in seq) c as Integer);
+seq = java.lang.Character.forDigit(2,10);
+System.out.println(for (c in seq) c as Integer);

@@ -63,34 +63,34 @@ public class SequenceConversions {
         return new ArraySequence<Integer>(TypeInfo.Integer, boxed, values.length);
     }
 
-    /** Convert a short[] to a Sequence<Integer> */
-    public static Sequence<Integer> fromArray(short[] values) {
+    /** Convert a short[] to a Sequence<Short> */
+    public static Sequence<Short> fromArray(short[] values) {
         if (values == null)
-            return TypeInfo.Integer.emptySequence;
-        Integer[] boxed = new Integer[values.length];
+            return TypeInfo.Short.emptySequence;
+        Short[] boxed = new Short[values.length];
         for (int i=0; i<values.length; i++)
-            boxed[i] = (int) values[i];
-        return new ArraySequence<Integer>(TypeInfo.Integer, boxed, values.length);
+            boxed[i] = (short) values[i];
+        return new ArraySequence<Short>(TypeInfo.Short, boxed, values.length);
     }
 
-    /** Convert a char[] to a Sequence<Integer> */
-    public static Sequence<Integer> fromArray(char[] values) {
+    /** Convert a char[] to a Sequence<Character> */
+    public static Sequence<Character> fromArray(char[] values) {
         if (values == null)
-            return TypeInfo.Integer.emptySequence;
-        Integer[] boxed = new Integer[values.length];
+            return TypeInfo.Character.emptySequence;
+        Character[] boxed = new Character[values.length];
         for (int i=0; i<values.length; i++)
-            boxed[i] = (int) values[i];
-        return new ArraySequence<Integer>(TypeInfo.Integer, boxed, values.length);
+            boxed[i] = (char) values[i];
+        return new ArraySequence<Character>(TypeInfo.Character, boxed, values.length);
     }
 
-    /** Convert a byte[] to a Sequence<Integer> */
-    public static Sequence<Integer> fromArray(byte[] values) {
+    /** Convert a byte[] to a Sequence<Byte> */
+    public static Sequence<Byte> fromArray(byte[] values) {
         if (values == null)
-            return TypeInfo.Integer.emptySequence;
-        Integer[] boxed = new Integer[values.length];
+            return TypeInfo.Byte.emptySequence;
+        Byte[] boxed = new Byte[values.length];
         for (int i=0; i<values.length; i++)
-            boxed[i] = (int) values[i];
-        return new ArraySequence<Integer>(TypeInfo.Integer, boxed, values.length);
+            boxed[i] = (byte) values[i];
+        return new ArraySequence<Byte>(TypeInfo.Byte, boxed, values.length);
     }
 
     /** Convert a double[] to a Sequence<Double> */
@@ -103,14 +103,14 @@ public class SequenceConversions {
         return new ArraySequence<Double>(TypeInfo.Double, boxed, values.length);
     }
 
-    /** Convert a float[] to a Sequence<Double> */
-    public static Sequence<Double> fromArray(float[] values) {
+    /** Convert a float[] to a Sequence<Float> */
+    public static Sequence<Float> fromArray(float[] values) {
         if (values == null)
-            return TypeInfo.Double.emptySequence;
-        Double[] boxed = new Double[values.length];
+            return TypeInfo.Float.emptySequence;
+        Float[] boxed = new Float[values.length];
         for (int i=0; i<values.length; i++)
-            boxed[i] = (double) values[i];
-        return new ArraySequence<Double>(TypeInfo.Double, boxed, values.length);
+            boxed[i] = (float) values[i];
+        return new ArraySequence<Float>(TypeInfo.Float, boxed, values.length);
     }
 
     /** Convert a boolean[] to a Sequence<Boolean> */

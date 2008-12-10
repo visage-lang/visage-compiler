@@ -26,6 +26,7 @@ public class TestUtils  {
    public function checkI(i1:Integer, i2:Integer, msg:String) { if(i1==i2){pass++; }else {fail++;print("FAILED: {msg} : {i1} != {i2}");} }
    public function checkN(n1:Number, n2:Number, msg:String) { if(n1==n2){pass++; }else {fail++;print("FAILED: {msg} : {n1} != {n2}");} }
    public function checkIs(i1s:Integer[], i2s:Integer[], msg:String) { if(i1s==i2s){pass++; }else {fail++;print("FAILED: {msg} : {i1s} != {i2s}");} }
+   public function checkBs(b1s:Byte[], b2s:Byte[], msg:String) { if(b1s==b2s){pass++; }else {fail++;print("FAILED: {msg} : {b1s} != {b2s}");} }
    public function checkSs(s1s:String[], s2s:String[], msg:String) { if(s1s==s2s){pass++; }else {fail++;print("FAILED: {msg} : {s1s} != {s2s}");} }
    public function checkNs(n1s:Number[], n2s:Number[], msg:String) { if(n1s==n2s){pass++; }else {fail++;print("FAILED: {msg} : {n1s} != {n2s}");} }
    public function checkB(b:Boolean,msg:String) { if(b){pass++;} else{fail++;print("FAILED: {msg}");}}
