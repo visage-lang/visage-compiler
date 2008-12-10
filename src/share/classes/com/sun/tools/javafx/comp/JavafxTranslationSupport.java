@@ -627,7 +627,11 @@ public abstract class JavafxTranslationSupport {
 
     // expr.get()
     JCExpression getLocationValue(DiagnosticPosition diagPos, JCExpression expr, int typeKind) {
-        JCFieldAccess getSelect = make.at(diagPos).Select(expr, defs.locationGetMethodName[typeKind]);
+        return getLocationValue(diagPos, expr, defs.locationGetMethodName[typeKind]);
+    }
+
+    JCExpression getLocationValue(DiagnosticPosition diagPos, JCExpression expr, Name getMethodName) {
+        JCFieldAccess getSelect = make.at(diagPos).Select(expr, getMethodName);
         List<JCExpression> getArgs = List.nil();
         return make.at(diagPos).Apply(null, getSelect, getArgs);
     }

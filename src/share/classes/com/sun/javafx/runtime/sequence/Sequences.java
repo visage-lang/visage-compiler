@@ -46,6 +46,22 @@ public final class Sequences extends SequenceConversions {
     private Sequences() { }
 
 
+    public static<T> T noteShared(T value) {
+        if (value instanceof ArraySequence) {
+            //((ArraySequence) (value)).shared = true;
+            ((ArraySequence) (value)).noteShared();
+        }
+        return value;
+    }
+
+    public static<T> Sequence<? extends T> noteShared(Sequence<? extends T> value) {
+        if (value instanceof ArraySequence) {
+            //((ArraySequence) (value)).shared = true;
+            ((ArraySequence) (value)).noteShared();
+        }
+        return value;
+    }
+
     /***************************************************/
     /* Methods for constructing sequences from scratch */
     /***************************************************/
@@ -105,12 +121,28 @@ public final class Sequences extends SequenceConversions {
     public static<T> Sequence<T> concatenate(TypeInfo<T> ti, Sequence<? extends T> first, Sequence<? extends T> second) {
         int size1 = Sequences.size(first);
         int size2 = Sequences.size(second);
+        ArraySequence<T> arr;
 
         // OPT: for small sequences, just copy the elements
         if (size1 == 0)
             return Sequences.upcast(second);
         else if (size2 == 0)
             return Sequences.upcast(first);
+        else if (first instanceof ArraySequence && ! (arr = (ArraySequence) first).shared) {
+            ArraySequence<T> arr2;
+            if (size1 < size2 && second instanceof ArraySequence && ! (arr2 = (ArraySequence) second).shared) {
+                arr2.insert(first, size1, 0);
+                return arr2;
+            }
+            else {
+                arr.insert(second, size2, size1);
+                return arr;
+            }
+        }
+        else if (second instanceof ArraySequence && ! (arr = (ArraySequence) second).shared) {
+            arr.insert(first, size1, 0);
+            return arr;
+        }
         else if (size1 + size2 <= FLATTENING_THRESHOLD)
             return new ArraySequence<T>(ti, first, second);
         else
@@ -243,15 +275,34 @@ public final class Sequences extends SequenceConversions {
         return new SliceReplacementSequence<T>(sequence, startPos, endPos, replacement);
     }
 
+    /**
+     * Create a sequences by replacing a slice.
+     * @param sequence The sequence in which the slice is being replaced
+     * @param startPos Starting position of the slice, inclusive, may be 0..size
+     * @param endPos Ending position of the slice, exclusive, may be startPos..size
+     * @param value The single replement value - must be non-null
+     * @return The new sequence.
+     */
     public static<T> Sequence<T> replace(Sequence<T> sequence, int startPos, int endPos, T value) {
         final int seqSize = Sequences.size(sequence);
         startPos = Math.min (Math.max (0, startPos), seqSize);       // 0 <= startPos <= size
         endPos = Math.min (Math.max (startPos, endPos), seqSize);    // startPos <= endPos <= size
+        ArraySequence<T> arr;
+        if (sequence instanceof ArraySequence<?> && ! (arr = (ArraySequence) sequence).shared) {
+            arr.replace(startPos, endPos, value);
+            return arr;
+        }
         return new ElementReplacementSequence<T>(sequence, startPos, endPos, value);
     }
     
     public static<T> Sequence<T> replace(Sequence<T> sequence, int startPos, T value) {
-        return new ReplacementSequence<T>(sequence, startPos, value);
+      ArraySequence arr;
+      if (sequence instanceof ArraySequence && !(arr = (ArraySequence) sequence).shared) {
+          arr.replace(startPos, value);
+          return arr;
+      }
+      else
+          return new ReplacementSequence<T>(sequence, startPos, value);
     }
     
 

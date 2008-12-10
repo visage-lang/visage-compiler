@@ -50,6 +50,7 @@ import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideClassVarInfo;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedVarInfo;
@@ -92,7 +93,11 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     private Map<Symbol, Name> substitutionMap = new HashMap<Symbol, Name>();
 
     public enum Wrapped {
+        // We need a Location
         InLocation,
+        // We need a sequence element or size.
+        InIndexed,
+        // We need a value
         InNothing
     }
 
@@ -1740,7 +1745,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         JCExpression recv = makeReceiver(diagPos, sym, attrEnv.enclClass.sym);
                         return postProcess(buildSetter(recv, buildRHS(rhsTranslated)));
                     } else {
-                        return defaultFullExpression(translate(lhs), rhsTranslated);
+                        Wrapped w = wrap;
+                        if (w == Wrapped.InNothing)
+                            w = Wrapped.InIndexed;
+                        return defaultFullExpression(translate(lhs, w), rhsTranslated);
                     }
                 }
             }
@@ -2017,12 +2025,34 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             result = make.at(tree.pos).Literal(TypeTags.BOT, null);
     }
 
+    public JCExpression translateSequenceExpression (JFXExpression seq) {
+        Wrapped w;
+        if (types.isSequence(seq.type) &&
+                (seq instanceof JFXIdent || seq instanceof JFXSelect)) {
+            w = Wrapped.InIndexed;
+        } else
+            w = Wrapped.InNothing;
+        return translate(seq, w);
+    }
+
     @Override
     public void visitSequenceIndexed(final JFXSequenceIndexed tree) {
         DiagnosticPosition diagPos = tree.pos();
         JFXExpression seq = tree.getSequence();
-        JCExpression tseq = translate(seq, Wrapped.InNothing);
         JCExpression index = makeTypeCast(diagPos, syms.intType, tree.getIndex().type, translate(tree.getIndex()));
+        Wrapped w;
+        if (types.isSequence(seq.type) &&
+                (seq instanceof JFXIdent || seq instanceof JFXSelect)) {
+            Symbol sym = JavafxTreeInfo.symbol(seq);
+            // An optimization of translateSequenceExpression - instead of:
+            // v.getAsSequenceRaw().get(index) we should generate v.get(index)
+            if (sym instanceof VarSymbol && requiresLocation(sym))
+                w = Wrapped.InLocation;
+            else
+                w = Wrapped.InIndexed;
+        } else
+            w = Wrapped.InNothing;
+        JCExpression tseq = translate(seq, w);
         if (seq.type.tag == TypeTags.ARRAY) {
             result = make.at(diagPos).Indexed(tseq, index);
         }
@@ -3072,9 +3102,15 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitUnary(final JFXUnary tree) {
         result = (new Translator( tree.pos(), this ) {
-
             private final JFXExpression expr = tree.getExpression();
-            private final JCExpression transExpr = translate(expr);
+
+            private JCExpression translateForSizeof(JFXExpression expr) {
+                return translateSequenceExpression(expr);
+            }
+            private final JCExpression transExpr =
+                    tree.getFXTag() == JavafxTag.SIZEOF && wrap == Wrapped.InNothing &&
+                (expr instanceof JFXIdent || expr instanceof JFXSelect) ? translateForSizeof(expr)
+                : translate(expr);
 
             private JCExpression doIncDec(final int binaryOp, final boolean postfix) {
                 return (JCExpression) new AssignTranslator(diagPos, expr, fxm().Literal(1)) {
@@ -3230,7 +3266,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         boolean staticReference = sym.isStatic();
         if (sym instanceof VarSymbol) {
             final VarSymbol vsym = (VarSymbol) sym;
-
+            boolean doNoteShared = false;
+            if (wrap == Wrapped.InNothing) {
+                Type type = vsym.type;
+                if (types.isSequence(type) || type == syms.objectType || type == syms.unknownType)
+                    doNoteShared = true;
+            }
+ 
             if (sym.owner.kind == Kinds.TYP && types.isJFXClass(sym.owner)) {
                 // this is a reference to a JavaFX class variable
                 if (staticReference) {
@@ -3249,13 +3291,27 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     // already in correct form-- leave it
                 } else {
                     // non-bind context -- want v1.get()
-                    expr = getLocationValue(diagPos, expr, vmi.getTypeKind());
+                    int typeKind = vmi.getTypeKind();
+                    Name getMethodName = defs.locationGetMethodName[typeKind];
+                    if (typeKind == JavafxVarSymbol.TYPE_KIND_SEQUENCE) {
+                        if (doNoteShared)
+                            doNoteShared = false;
+                        else
+                            getMethodName = defs.getAsSequenceRawMethodName;
+                    }
+                    expr = getLocationValue(diagPos, expr, getMethodName);
                 }
             } else {
                 // not morphed
                 if (wantLocation) {
                     expr = makeUnboundLocation(diagPos, vmi, expr);
                 }
+            }
+            if (doNoteShared) {
+                // typeArgs = List.of(makeTypeTree(diagPos, tmi.getRealType(), true));
+                JCExpression st = makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences");
+                JCExpression fn = make.at(diagPos).Select(st, defs.noteSharedMethodName);
+                expr = make.at(diagPos).Apply(null/*typeArgs*/, fn, List.of(expr));
             }
         }
         return expr;
