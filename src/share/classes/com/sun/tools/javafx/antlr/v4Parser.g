@@ -2807,7 +2807,9 @@ boundExpression
 	int	rPos	= pos();
 }
 
-	: ( LAZY
+	: BIND 
+	  
+      ( LAZY
 			{
 				// Update status
 				//
@@ -2815,7 +2817,7 @@ boundExpression
 			}
 	  )?
 	  
-	  BIND e1=expression 
+	  e1=expression 
 	
 		{
 			errNodes.append($e1.value);	// For erroneous node
