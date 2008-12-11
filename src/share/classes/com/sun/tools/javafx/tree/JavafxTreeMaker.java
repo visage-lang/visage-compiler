@@ -349,13 +349,26 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         }
         JFXExpression tp;
         switch (t.tag) {
-            case FLOAT: //TODO:NUMERICS
+            case FLOAT: 
+                tp = Ident(syms.floatTypeName);
+                break;
             case DOUBLE:
                 tp = Ident(syms.doubleTypeName);
                 break;
+            case CHAR:
+                tp = Ident(syms.charTypeName);
+                break;
+            case BYTE:
+                tp = Ident(syms.byteTypeName);
+                break;
+            case SHORT:
+                tp = Ident(syms.shortTypeName);
+                break;
             case INT:
-            case LONG:
                 tp = Ident(syms.integerTypeName);
+                break;
+            case LONG:
+                tp = Ident(syms.longTypeName);
                 break;
             case BOOLEAN:
                 tp = Ident(syms.booleanTypeName);
