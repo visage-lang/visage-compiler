@@ -234,12 +234,12 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     JCExpression targetClass = makeTypeInfo(diagPos, targetElementType);
                     tree = runtime(diagPos, cBoundSequences, "upcast", List.of(targetClass, tree));
                 }
-            } else if (targetType == syms.doubleType) {
-                tree = runtime(diagPos, cLocations, "asDoubleLocation", List.of(tree));
-            } else if (targetType == syms.intType) {
-                tree = runtime(diagPos, cLocations, "asIntLocation", List.of(tree));
-            } else if (targetType == syms.booleanType) {
-                tree = runtime(diagPos, cLocations, "asBooleanLocation", List.of(tree));
+            } else if (targetType.isPrimitive() && inType.isPrimitive()) {
+                JCExpression classTypeExpr = makeIdentifier(diagPos, cLocations + "." + primitiveTypeName(inType) + "To" + primitiveTypeName(targetType) + "LocationConversionWrapper");
+                tree =
+                        make.NewClass(null, null, classTypeExpr,
+                        List.of(tree),
+                        null);
             } else {
                 if (tmiTarget.getTypeKind() == TYPE_KIND_OBJECT) {
                     List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, targetType, true),
@@ -252,6 +252,25 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         }
         tree.type = targetType; // as a way of passing it to methods which needs to know the target type
         return tree;
+    }
+    //where
+    private String primitiveTypeName(Type type) {
+        switch (type.tag) {
+            case BYTE:
+                return "Byte";
+            case SHORT:
+                return "Short";
+            case INT:
+                return "Int";
+            case LONG:
+                return "Long";
+            case FLOAT:
+                return "Float";
+            case DOUBLE:
+                return "Double";
+        }
+        assert false : "Should not reach here";
+        return "Integer";
     }
 
     /**
