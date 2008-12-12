@@ -2502,7 +2502,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         case DIV:
                             // lhs.div(rhs);
                             return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), names.fromString("div")), List.<JCExpression>of(translate(r)));
+                                                          make.at(diagPos).Select(translate(l), names.fromString("div")), List.<JCExpression>of(translate(r, syms.javafx_NumberType)));
                         case MUL:
                             // lhs.mul(rhs);
                             if (!types.isSameType(l.type, syms.javafx_DurationType)) {
@@ -2513,7 +2513,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                                 l = tree.rhs;
                             }
                             return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translate(l), names.fromString("mul")), List.<JCExpression>of(translate(r)));
+                                                          make.at(diagPos).Select(translate(l), names.fromString("mul")), List.<JCExpression>of(translate(r, syms.javafx_NumberType)));
                         case LT:
                             return make.at(diagPos).Apply(null,
                                                           make.at(diagPos).Select(translate(l), names.fromString("lt")), List.<JCExpression>of(translate(r)));
