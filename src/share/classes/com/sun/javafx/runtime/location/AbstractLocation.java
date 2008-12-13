@@ -99,6 +99,10 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
         return true;
     }
 
+    public boolean isLazilyBound() {
+        return false;
+    }
+
     protected void setValid() {
         isValid = true;
     }

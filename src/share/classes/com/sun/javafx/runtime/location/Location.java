@@ -46,6 +46,8 @@ public interface Location {
 
     /** Can the value held by this location be changed by calling its mutative methods?  */
     public boolean isMutable();
+    
+    public boolean isLazilyBound();
 
     /** Invalidate the value associated with this location, and call all registered change listeners.  If the location
      * is lazy, the value is not immediately recomputed, otherwise it is.

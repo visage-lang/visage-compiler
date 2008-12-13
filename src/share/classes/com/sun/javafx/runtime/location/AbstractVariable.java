@@ -97,7 +97,8 @@ public abstract class AbstractVariable<
     }
 
     public void bind(T_LOCATION otherLocation) {
-        bind(false, makeBindingExpression(otherLocation), otherLocation);
+        boolean lazy = otherLocation.isLazilyBound();
+        bind(lazy, makeBindingExpression(otherLocation), otherLocation);
     }
 
     public void bindFromLiteral(final T_LOCATION otherLocation) {
@@ -139,7 +140,7 @@ public abstract class AbstractVariable<
         return state == STATE_UNI_BOUND || state == STATE_UNI_BOUND_LAZY;
     }
 
-    protected boolean isLazilyBound() {
+    public boolean isLazilyBound() {
         return state == STATE_UNI_BOUND_LAZY;
     }
 
