@@ -104,6 +104,23 @@ public abstract class JavafxTranslationSupport {
         }
     }
 
+    protected boolean isValueFromJava(final JFXExpression expr) {
+        // The value could come from Java if it is a variable, or a function result.
+        Symbol sym = expressionSymbol(expr);
+        if (sym != null && !types.isJFXClass(sym.owner)) {
+            return true;
+        }
+
+        // test for function
+        if (expr.getFXTag() == JavafxTag.APPLY) {
+            JFXExpression func = ((JFXFunctionInvocation)expr).getMethodSelect();
+            if (isValueFromJava(func)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected Type elementType(Type seqType) {
         Type elemType = seqType.getTypeArguments().head;
         if (elemType instanceof CapturedType)
@@ -113,23 +130,36 @@ public abstract class JavafxTranslationSupport {
         return elemType;
     }
 
-    protected JCExpression convertNullability(final DiagnosticPosition diagPos, final JCExpression expr, final JFXExpression inExpr, final Type outType) {
-        if (outType == syms.stringType || outType == syms.javafx_DurationType) {
-            final Type inType = inExpr.type;
-            if (inType == syms.botType || inExpr.getJavaFXKind() == JavaFXKind.NULL_LITERAL) {
-                return makeDefaultValue(diagPos, outType);
-            } else if (!types.isSameType(inType, outType)) {
-                JCVariableDecl daVar = makeTmpVar(diagPos, outType, expr);
-                JCExpression toTest = make.at(diagPos).Ident(daVar.name);
-                JCExpression cond = make.at(diagPos).Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
-                JCExpression ret = make.at(diagPos).Conditional(
-                        cond,
-                        make.at(diagPos).Ident(daVar.name),
-                        makeDefaultValue(diagPos, outType));
-                return makeBlockExpression(diagPos, List.<JCStatement>of(daVar), ret);
-            }
+    /**
+     * Special handling for Strings and Durations. If a value assigned to one of these is null,
+     * the default value for the type must be substituted.
+     * inExpr is the input expression.  outType is the desired result type.
+     * expr is the result value to use in the normal case.
+     * This doesn't handle the case   var ss: String = if (true) null else "Hi there, sailor"
+     * But it does handle nulls coming in from Java method returns, and variables.
+     */
+    protected JCExpression convertNullability(final DiagnosticPosition diagPos, final JCExpression expr, 
+                                              final JFXExpression inExpr, final Type outType) {
+        if (outType != syms.stringType && outType != syms.javafx_DurationType) {
+            return expr;
         }
-        return expr; // no-op
+
+        final Type inType = inExpr.type;
+        if (inType == syms.botType || inExpr.getJavaFXKind() == JavaFXKind.NULL_LITERAL) {
+            return makeDefaultValue(diagPos, outType);
+        } 
+
+        if (!types.isSameType(inType, outType) || isValueFromJava(inExpr)) {
+            JCVariableDecl daVar = makeTmpVar(diagPos, outType, expr);
+            JCExpression toTest = make.at(diagPos).Ident(daVar.name);
+            JCExpression cond = make.at(diagPos).Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
+            JCExpression ret = make.at(diagPos).Conditional(
+                                                        cond,
+                                                        make.at(diagPos).Ident(daVar.name),
+                                                        makeDefaultValue(diagPos, outType));
+            return makeBlockExpression(diagPos, List.<JCStatement>of(daVar), ret);
+        }
+        return expr;
     }
 
     /**

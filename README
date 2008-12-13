@@ -5,10 +5,11 @@ The JavaFX Script compiler requires Java 5 or 6 and Apache Ant 1.7.
 The "ant -projecthelp" command displays the various build targets available.
 Here are some of the more commonly used ones:
 
-Build the compiler:          ant
-Build the runtime library:   ant runtime  OR  cd runtime; ant
-Build and test everything:   ant all
-Delete build artifacts:      ant clean
+Build the compiler:           ant
+Build the runtime library:    ant runtime  OR  cd runtime; ant
+Build and test everything:    ant all
+Delete build artifacts:       ant clean
+Run test/regress/jfxc2347.fx: ant test-single -Dtest.fx.includes='**/jfxc2347.fx'
 
 Please file any bugs using our JIRA issue tracking system:
 
