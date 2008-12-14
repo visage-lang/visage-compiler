@@ -2077,18 +2077,18 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitReturn(JFXReturn tree) {
-        if (env.enclMethod == null) {
+        if (env.enclFunction == null) {
             log.error(tree.pos(), MsgSym.MESSAGE_RETURN_OUTSIDE_METH);
 
         } else {
             // Attribute return expression, if it exists, and check that
             // it conforms to result type of enclosing method.
-            Symbol m = env.enclMethod.sym;
-            Type rtype = m.type.getReturnType();
-            JFXBlock enclBlock = env.enclMethod.operation.bodyExpression;
-            if (rtype == null)
+            Symbol m = env.enclFunction.sym;
+            tree.returnType = m.type.getReturnType();
+            JFXBlock enclBlock = env.enclFunction.operation.bodyExpression;
+            if (tree.returnType == null)
                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_INFER_RETURN_TYPE);
-            else if (rtype.tag == VOID) {
+            else if (tree.returnType.tag == VOID) {
                 if (tree.expr != null) {
                     log.error(tree.expr.pos(),
                         MsgSym.MESSAGE_CANNOT_RET_VAL_FROM_METH_DECL_VOID);

@@ -165,8 +165,8 @@ public class JavafxResolve {
                 // Hack: this case is added since synthesized default constructors
                 // of anonymous classes should be allowed to access
                 // classes which would be inaccessible otherwise.
-                env.enclMethod != null &&
-                (env.enclMethod.mods.flags & ANONCONSTR) != 0;
+                env.enclFunction != null &&
+                (env.enclFunction.mods.flags & ANONCONSTR) != 0;
         default: // error recovery
         case PUBLIC:
             return true;

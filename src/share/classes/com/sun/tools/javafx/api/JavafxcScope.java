@@ -83,7 +83,7 @@ public class JavafxcScope implements com.sun.javafx.api.tree.Scope {
     }
 
     public ExecutableElement getEnclosingMethod() {
-        return (env.enclMethod == null ? null : env.enclMethod.sym);
+        return (env.enclFunction == null ? null : env.enclFunction.sym);
     }
 
     public Iterable<? extends Element> getLocalElements() {

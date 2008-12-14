@@ -2790,7 +2790,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         if (exp == null) {
             result = make.at(tree).Return(null);
         } else {
-            result = translateExpression(exp, tree.type);
+            result = translateExpression(exp, tree.returnType);
         }
     }
 

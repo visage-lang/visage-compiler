@@ -68,7 +68,7 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
 
     /** The next enclosing method definition.
      */
-    public JFXFunctionDefinition enclMethod;
+    public JFXFunctionDefinition enclFunction;
 
     /** Location info for debugging
      */
@@ -91,7 +91,7 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
 	this.tree = tree;
 	this.toplevel = null;
 	this.enclClass = null;
-	this.enclMethod = null;
+	this.enclFunction = null;
 	this.info = info;
     }
 
@@ -110,7 +110,7 @@ public class JavafxEnv<A> implements Iterable<JavafxEnv<A>> {
 	that.outer = this.outer;
 	that.toplevel = this.toplevel;
  	that.enclClass = this.enclClass;
-	that.enclMethod = this.enclMethod;
+	that.enclFunction = this.enclFunction;
 	return that;
     }
 

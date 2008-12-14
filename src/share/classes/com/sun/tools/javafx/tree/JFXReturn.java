@@ -25,6 +25,7 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
+import com.sun.tools.javac.code.Type;
 
 /**
  * A return statement.
@@ -32,6 +33,7 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
 public class JFXReturn extends JFXExpression implements ReturnTree {
 
     public JFXExpression expr;
+    public Type returnType = null;
 
     protected JFXReturn(JFXExpression expr) {
         this.expr = expr;
