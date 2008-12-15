@@ -1336,14 +1336,17 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }
 
         Name methName;
+        ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
         if (bindStatus.isUnidiBind()) {
             methName = defs.locationBindMilieuMethodName[milieu];
+            // args.append(makeLaziness(diagPos, bindStatus));
         } else if (bindStatus.isBidiBind()) {
             methName = defs.locationBijectiveBindMilieuMethodName[milieu];
         } else {
             methName = defs.locationSetMilieuMethodName[typeKind][milieu];
         }
-        return callExpression(diagPos, varRef, methName, valueArg);
+        args.append(valueArg);
+        return callExpression(diagPos, varRef, methName, args);
     }
 
     @Override

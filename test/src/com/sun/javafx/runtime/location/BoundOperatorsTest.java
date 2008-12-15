@@ -118,14 +118,14 @@ public class BoundOperatorsTest extends JavaFXTestCase {
         FloatLocation fl = FloatVariable.make(1);
         LongLocation ll = LongVariable.make(1);
 
-        IntLocation il_i = BoundOperators.op_int(il, ll, BoundOperators.NumericArithmeticOperator.PLUS);
+        IntLocation il_i = BoundOperators.op_int(false, il, ll, BoundOperators.NumericArithmeticOperator.PLUS);
         assertEquals(il_i.getAsInt(), 2);
         il.setAsInt(2);
         assertEquals(il_i.getAsInt(), 3);
         ll.setAsLong(2);
         assertEquals(il_i.getAsInt(), 4);
 
-        FloatLocation fd_f = BoundOperators.op_float(fl, dl, BoundOperators.NumericArithmeticOperator.PLUS);
+        FloatLocation fd_f = BoundOperators.op_float(false, fl, dl, BoundOperators.NumericArithmeticOperator.PLUS);
         assertEquals(fd_f.getAsInt(), 2);
         fl.setAsFloat(2);
         assertEquals(fd_f.getAsInt(), 3);
@@ -202,10 +202,10 @@ public class BoundOperatorsTest extends JavaFXTestCase {
                     LocHolder right = locs[j];
                     left.reset();
                     right.reset();
-                    IntLocation il = BoundOperators.op_int((NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
-                    DoubleLocation dl = BoundOperators.op_double((NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
-                    FloatLocation fl = BoundOperators.op_float((NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
-                    LongLocation ll = BoundOperators.op_long((NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
+                    IntLocation il = BoundOperators.op_int(false, (NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
+                    DoubleLocation dl = BoundOperators.op_double(false, (NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
+                    FloatLocation fl = BoundOperators.op_float(false, (NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
+                    LongLocation ll = BoundOperators.op_long(false, (NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
                     CountingListener cl1 = new CountingListener();
                     CountingListener cl2 = new CountingListener();
                     CountingListener cl3 = new CountingListener();
@@ -244,10 +244,10 @@ public class BoundOperatorsTest extends JavaFXTestCase {
                     LocHolder right = locs[j];
                     left.reset();
                     right.reset();
-                    IntLocation il = BoundOperators.op_int(Locations.asNumericLocation(left.loc), Locations.asNumericLocation(right.loc), op);
-                    DoubleLocation dl = BoundOperators.op_double(Locations.asNumericLocation(left.loc), Locations.asNumericLocation(right.loc), op);
-                    FloatLocation fl = BoundOperators.op_float(Locations.asNumericLocation(left.loc), Locations.asNumericLocation(right.loc), op);
-                    LongLocation ll = BoundOperators.op_long(Locations.asNumericLocation(left.loc), Locations.asNumericLocation(right.loc), op);
+                    IntLocation il = BoundOperators.op_int(false, Locations.asNumericLocation(left.loc), Locations.asNumericLocation(right.loc), op);
+                    DoubleLocation dl = BoundOperators.op_double(false, Locations.asNumericLocation(left.loc), Locations.asNumericLocation(right.loc), op);
+                    FloatLocation fl = BoundOperators.op_float(false, Locations.asNumericLocation(left.loc), Locations.asNumericLocation(right.loc), op);
+                    LongLocation ll = BoundOperators.op_long(false, Locations.asNumericLocation(left.loc), Locations.asNumericLocation(right.loc), op);
                     CountingListener cl1 = new CountingListener();
                     CountingListener cl2 = new CountingListener();
                     CountingListener cl3 = new CountingListener();
@@ -368,10 +368,10 @@ public class BoundOperatorsTest extends JavaFXTestCase {
                     LocHolder right = locs[j];
                     left.reset();
                     right.reset();
-                    BooleanLocation il = BoundOperators.cmp_int((NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
-                    BooleanLocation dl = BoundOperators.cmp_double((NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
-                    BooleanLocation fl = BoundOperators.cmp_float((NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
-                    BooleanLocation ll = BoundOperators.cmp_long((NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
+                    BooleanLocation il = BoundOperators.cmp_int(false, (NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
+                    BooleanLocation dl = BoundOperators.cmp_double(false, (NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
+                    BooleanLocation fl = BoundOperators.cmp_float(false, (NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
+                    BooleanLocation ll = BoundOperators.cmp_long(false, (NumericLocation) locs[i].loc, (NumericLocation) locs[j].loc, op);
                     CountingListener cl1 = new CountingListener();
                     CountingListener cl2 = new CountingListener();
                     CountingListener cl3 = new CountingListener();

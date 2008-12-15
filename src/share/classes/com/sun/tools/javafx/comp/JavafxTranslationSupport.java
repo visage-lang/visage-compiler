@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
@@ -683,6 +684,10 @@ public abstract class JavafxTranslationSupport {
 
     BlockExprJCBlockExpression makeBlockExpression(DiagnosticPosition diagPos, ListBuffer<JCStatement> stmts, JCExpression value) {
         return makeBlockExpression(diagPos, stmts.toList(), value);
+    }
+
+    JCExpression makeLaziness(DiagnosticPosition diagPos, JavafxBindStatus bindStatus) {
+        return make.at(diagPos).Literal(TypeTags.BOOLEAN, bindStatus.isLazy()? 1 : 0);
     }
 
     JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, String rootName, Type type, JCExpression value) {

@@ -174,32 +174,32 @@ public class BoundOperators {
     }
 
 
-    public static IntLocation op_int(final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
-        return IntVariable.make(new IntBindingExpression() {
+    public static IntLocation op_int(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
+        return IntVariable.make(lazy, new IntBindingExpression() {
             public int computeValue() {
                 return op.operate(a.getAsInt(), b.getAsInt());
             }
         }, a, b);
     }
 
-    public static DoubleLocation op_double(final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
-        return DoubleVariable.make(new DoubleBindingExpression() {
+    public static DoubleLocation op_double(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
+        return DoubleVariable.make(lazy, new DoubleBindingExpression() {
             public double computeValue() {
                 return op.operate(a.getAsDouble(), b.getAsDouble());
             }
         }, a, b);
     }
 
-    public static FloatLocation op_float(final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
-        return FloatVariable.make(new FloatBindingExpression() {
+    public static FloatLocation op_float(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
+        return FloatVariable.make(lazy, new FloatBindingExpression() {
             public float computeValue() {
                 return op.operate(a.getAsFloat(), b.getAsFloat());
             }
         }, a, b);
     }
 
-    public static LongLocation op_long(final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
-        return LongVariable.make(new LongBindingExpression() {
+    public static LongLocation op_long(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
+        return LongVariable.make(lazy, new LongBindingExpression() {
             public long computeValue() {
                 return op.operate(a.getAsLong(), b.getAsLong());
             }
@@ -207,32 +207,32 @@ public class BoundOperators {
     }
 
 
-    public static IntLocation op_int(final NumericLocation a, final NumericUnaryOperator op) {
-        return IntVariable.make(new IntBindingExpression() {
+    public static IntLocation op_int(final boolean lazy, final NumericLocation a, final NumericUnaryOperator op) {
+        return IntVariable.make(lazy, new IntBindingExpression() {
             public int computeValue() {
                 return op.operate(a.getAsInt());
             }
         }, a);
     }
 
-    public static DoubleLocation op_double(final NumericLocation a, final NumericUnaryOperator op) {
-        return DoubleVariable.make(new DoubleBindingExpression() {
+    public static DoubleLocation op_double(final boolean lazy, final NumericLocation a, final NumericUnaryOperator op) {
+        return DoubleVariable.make(lazy, new DoubleBindingExpression() {
             public double computeValue() {
                 return op.operate(a.getAsDouble());
             }
         }, a);
     }
 
-    public static FloatLocation op_float(final NumericLocation a, final NumericUnaryOperator op) {
-        return FloatVariable.make(new FloatBindingExpression() {
+    public static FloatLocation op_float(final boolean lazy, final NumericLocation a, final NumericUnaryOperator op) {
+        return FloatVariable.make(lazy, new FloatBindingExpression() {
             public float computeValue() {
                 return op.operate(a.getAsFloat());
             }
         }, a);
     }
 
-    public static LongLocation op_long(final NumericLocation a, final NumericUnaryOperator op) {
-        return LongVariable.make(new LongBindingExpression() {
+    public static LongLocation op_long(final boolean lazy, final NumericLocation a, final NumericUnaryOperator op) {
+        return LongVariable.make(lazy, new LongBindingExpression() {
             public long computeValue() {
                 return op.operate(a.getAsLong());
             }
@@ -240,32 +240,32 @@ public class BoundOperators {
     }
 
 
-    public static BooleanLocation cmp_int(final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
+    public static BooleanLocation cmp_int(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
+        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 return op.operate(a.getAsInt(), b.getAsInt());
             }
         }, a, b);
     }
 
-    public static BooleanLocation cmp_long(final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
+    public static BooleanLocation cmp_long(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
+        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 return op.operate(a.getAsLong(), b.getAsLong());
             }
         }, a, b);
     }
 
-    public static BooleanLocation cmp_float(final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
+    public static BooleanLocation cmp_float(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
+        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 return op.operate(a.getAsFloat(), b.getAsFloat());
             }
         }, a, b);
     }
 
-    public static BooleanLocation cmp_double(final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
+    public static BooleanLocation cmp_double(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
+        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 return op.operate(a.getAsDouble(), b.getAsDouble());
             }
@@ -273,16 +273,16 @@ public class BoundOperators {
     }
 
 
-    public static BooleanLocation op_boolean(final BooleanLocation a, final BooleanLocation b, final BooleanOperator op) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
+    public static BooleanLocation op_boolean(final boolean lazy, final BooleanLocation a, final BooleanLocation b, final BooleanOperator op) {
+        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 return op.operate(a.getAsBoolean(), b.getAsBoolean());
             }
         }, a, b);
     }
 
-    public static BooleanLocation op_boolean(final BooleanLocation a, final BooleanUnaryOperator op) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
+    public static BooleanLocation op_boolean(final boolean lazy, final BooleanLocation a, final BooleanUnaryOperator op) {
+        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 return op.operate(a.getAsBoolean());
             }
@@ -291,8 +291,8 @@ public class BoundOperators {
 
     // @@@---@@@ Below here is the old scheme
 
-    public static <T, V> BooleanLocation eq(final ObjectLocation<T> a, final ObjectLocation<V> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
+    public static <T, V> BooleanLocation eq(final boolean lazy, final ObjectLocation<T> a, final ObjectLocation<V> b) {
+        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 T aVal = a.get();
                 V bVal = b.get();
@@ -304,8 +304,8 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation ne(final ObjectLocation<T> a, final ObjectLocation<V> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
+    public static <T, V> BooleanLocation ne(final boolean lazy, final ObjectLocation<T> a, final ObjectLocation<V> b) {
+        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 T aVal = a.get();
                 V bVal = b.get();
@@ -317,8 +317,8 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation eq(final SequenceLocation<T> a, final SequenceLocation<V> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
+    public static <T, V> BooleanLocation eq(final boolean lazy, final SequenceLocation<T> a, final SequenceLocation<V> b) {
+        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 Sequence<T> aVal = a.getAsSequence();
                 Sequence<V> bVal = b.getAsSequence();
@@ -330,8 +330,8 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation eq(final SequenceLocation<T> a, final ObjectLocation<V> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
+    public static <T, V> BooleanLocation eq(final boolean lazy, final SequenceLocation<T> a, final ObjectLocation<V> b) {
+        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 Sequence<T> aVal = a.getAsSequence();
                 V bVal = b.get();
@@ -343,8 +343,8 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation eq(final ObjectLocation<T> a, final SequenceLocation<V> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
+    public static <T, V> BooleanLocation eq(final boolean lazy, final ObjectLocation<T> a, final SequenceLocation<V> b) {
+        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 T aVal = a.get();
                 Sequence<V> bVal = b.getAsSequence();
@@ -356,8 +356,8 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation ne(final SequenceLocation<T> a, final SequenceLocation<V> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
+    public static <T, V> BooleanLocation ne(final boolean lazy, final SequenceLocation<T> a, final SequenceLocation<V> b) {
+        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 Sequence<T> aVal = a.getAsSequence();
                 Sequence<V> bVal = b.getAsSequence();
@@ -369,8 +369,8 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation ne(final SequenceLocation<T> a, final ObjectLocation<V> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
+    public static <T, V> BooleanLocation ne(final boolean lazy, final SequenceLocation<T> a, final ObjectLocation<V> b) {
+        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 Sequence<T> aVal = a.getAsSequence();
                 V bVal = b.get();
@@ -382,8 +382,8 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation ne(final ObjectLocation<T> a, final SequenceLocation<V> b) {
-        return BooleanVariable.make(new BooleanBindingExpression() {
+    public static <T, V> BooleanLocation ne(final boolean lazy, final ObjectLocation<T> a, final SequenceLocation<V> b) {
+        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 T aVal = a.get();
                 Sequence<V> bVal = b.getAsSequence();

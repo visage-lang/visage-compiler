@@ -279,7 +279,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
      * @return a boolean expression indicating if the bind is lazy
      */
     private JCExpression makeLaziness(DiagnosticPosition diagPos) {
-        return make.at(diagPos).Literal(TypeTags.BOOLEAN, bindStatus.isLazy()? 1 : 0);
+        return makeLaziness(diagPos, bindStatus);
     }
 
     private Type targetType(Type type) {
@@ -1301,7 +1301,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         JCExpression makeBinaryOperator(String op, String prefix) {
             final JCExpression lhs = translate(l);
             final JCExpression rhs = translate(r);
-            return runtime(diagPos, cBoundOperators, prefix + typeString(), List.of(lhs, rhs, makeQualifiedTree(diagPos, op)));
+            return runtime(diagPos, cBoundOperators, prefix + typeString(), List.of(makeLaziness(diagPos), lhs, rhs, makeQualifiedTree(diagPos, op)));
         }
 
         JCExpression makeBinaryArithmeticOperator(String op) {
@@ -1333,9 +1333,9 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 final JCExpression lhs = translate(l);
                 final JCExpression rhs = translate(r);
                 if (lType.tag == BOOLEAN && rType.tag == BOOLEAN) {
-                    return runtime(diagPos, cBoundOperators, "op_boolean", List.of(lhs, rhs, makeQualifiedTree(diagPos, opBool)));
+                    return runtime(diagPos, cBoundOperators, "op_boolean", List.of(makeLaziness(diagPos), lhs, rhs, makeQualifiedTree(diagPos, opBool)));
                 } else {
-                    return runtime(diagPos, cBoundOperators, direct, List.of(lhs, rhs));
+                    return runtime(diagPos, cBoundOperators, direct, List.of(makeLaziness(diagPos), lhs, rhs));
                 }
             }
         }
@@ -1406,10 +1406,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 res = runtime(diagPos, cBoundSequences, "reverse", List.of(transExpr) );
                 break;
             case NOT:
-                res = runtime(diagPos, cBoundOperators, "op_boolean", List.of(transExpr, makeQualifiedTree(diagPos, opNOT)));
+                res = runtime(diagPos, cBoundOperators, "op_boolean", List.of(makeLaziness(diagPos), transExpr, makeQualifiedTree(diagPos, opNOT)));
                 break;
             case NEG:
-                if (types.isSameType(tree.type, syms.javafx_DurationType)) {   //TODO
+                if (types.isSameType(tree.type, syms.javafx_DurationType)) {   
+                    //TODO: totally wrong
                     res = make.at(diagPos).Apply(null,
                             make.at(diagPos).Select(translate(tree.arg), names.fromString("negate")), List.<JCExpression>nil());
                 } else {
@@ -1419,7 +1420,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         t = tub;
                     }
                     String typeString = (types.isSameType(t, syms.doubleType)) ? "double" : (types.isSameType(t, syms.floatType)) ? "float" : (types.isSameType(t, syms.longType)) ? "long" : "int";
-                    res = runtime(diagPos, cBoundOperators, "op_" + typeString, List.of(transExpr, makeQualifiedTree(diagPos, opNEGATE)));
+                    res = runtime(diagPos, cBoundOperators, "op_" + typeString, List.of(makeLaziness(diagPos), transExpr, makeQualifiedTree(diagPos, opNEGATE)));
                 }
                 break;
             case PREINC:
