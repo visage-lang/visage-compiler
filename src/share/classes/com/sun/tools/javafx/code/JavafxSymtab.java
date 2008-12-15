@@ -74,6 +74,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_VoidType;
     public final Type javafx_java_lang_VoidType;
     public final Type javafx_SequenceType;
+    public final Type javafx_EmptySequenceType;
     public final Type javafx_SequenceTypeErasure;
     static public final int MAX_FIXED_PARAM_LENGTH = 8;
     public final Type[] javafx_FunctionTypes = new Type[MAX_FIXED_PARAM_LENGTH+1];
@@ -138,6 +139,7 @@ public class JavafxSymtab extends Symtab {
         // FIXME It would be better to make 'names' in super-class be protected.
         Name.Table names = Name.Table.instance(context);
         types = Types.instance(context);
+        JavafxTypes fxtypes = JavafxTypes.instance(context);
         Options options = Options.instance(context);
         String numberChoice = options.get("Number");
 
@@ -173,6 +175,7 @@ public class JavafxSymtab extends Symtab {
         javafx_java_lang_VoidType = types.boxedClass(voidType).type;
         javafx_SequenceType = enterClass("com.sun.javafx.runtime.sequence.Sequence");
         javafx_SequencesType = enterClass("com.sun.javafx.runtime.sequence.Sequences");
+        javafx_EmptySequenceType = fxtypes.sequenceType(botType);
         javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);
         javafx_KeyValueType = enterClass("javafx.animation.KeyValue");
         javafx_KeyFrameType = enterClass("javafx.animation.KeyFrame");

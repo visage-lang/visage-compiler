@@ -919,6 +919,8 @@ public class JavafxAttr implements JavafxVisitor {
                 if (initType == syms.botType
                         || initType == syms.unreachableType)
                     initType = syms.objectType;
+                else if (initType == syms.javafx_EmptySequenceType)
+                    initType = types.sequenceType(syms.objectType);
                 else if (types.isArray(initType)) {
                     Type elemType = types.elemtype(initType);
                     initType = types.sequenceType(elemType);
@@ -2873,7 +2875,7 @@ public class JavafxAttr implements JavafxVisitor {
             result = syms.errType;
             
         } else {
-            Type owntype = pt.tag == NONE || pt.tag == UNKNOWN ? syms.botType :
+            Type owntype = pt.tag == NONE || pt.tag == UNKNOWN ? syms.javafx_EmptySequenceType :
                     isSeq ? pt : types.sequenceType(pt);
             result = check(tree, owntype, VAL, pkind, Type.noType, pSequenceness);
         }

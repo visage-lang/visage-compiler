@@ -2022,7 +2022,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         if (types.isSequence(tree.type)) {
             Type elemType = elementType(tree.type);
-            result = accessEmptySequence(tree.pos(), elemType);
+            JCExpression expr = accessEmptySequence(tree.pos(), elemType);
+            result =  castFromObject(expr, syms.javafx_SequenceTypeErasure);
         }
         else
             result = make.at(tree.pos).Literal(TypeTags.BOT, null);
@@ -2839,7 +2840,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     public void visitLiteral(JFXLiteral tree) {
         if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
             Type elemType = elementType(tree.type);
-            result = accessEmptySequence(tree.pos(), elemType);
+            JCExpression expr = accessEmptySequence(tree.pos(), elemType);
+            result =  castFromObject(expr, syms.javafx_SequenceTypeErasure);
         } else {
             result = make.at(tree.pos).Literal(tree.typetag, tree.value);
         }
