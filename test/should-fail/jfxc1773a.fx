@@ -15,3 +15,7 @@ def z = Foo{a:1}
 class Foo {
    var a;
 }
+
+Foo { a:v; } //not allowed - v is referenced from the same named scope
+var u = function() {x}(); //allowed - v is referenced from a different named scope (lambda)
+var v = 1;

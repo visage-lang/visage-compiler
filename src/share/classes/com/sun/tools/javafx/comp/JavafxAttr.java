@@ -3341,14 +3341,20 @@ public class JavafxAttr implements JavafxVisitor {
         }
         //where
         private boolean isClassOrFuncDef(JavafxEnv<JavafxAttrContext> env) {
-            return env.tree.getFXTag() == JavafxTag.FUNCTION_DEF || 
+            return isFunctionDef(env) ||
                    env.tree.getFXTag() == JavafxTag.FUNCTIONEXPRESSION ||                   
                    env.tree.getFXTag() == JavafxTag.CLASS_DEF ||
                    env.tree.getFXTag() == JavafxTag.ON_REPLACE ||
                    env.tree.getFXTag() == JavafxTag.KEYFRAME_LITERAL ||
                    env.tree.getFXTag() == JavafxTag.INIT_DEF ||
                    env.tree.getFXTag() == JavafxTag.POSTINIT_DEF;
-        }        
+        }
+        //where
+        private boolean isFunctionDef(JavafxEnv<JavafxAttrContext> env) {
+            return env.tree.getFXTag() == JavafxTag.FUNCTION_DEF &&
+                    ((((JFXFunctionDefinition)env.tree).sym.flags() & SYNTHETIC) == 0 ||
+                    (((JFXFunctionDefinition)env.tree).name.equals(names.fromString("lambda"))));
+        }
         //where
         private boolean isBound(JavafxEnv<JavafxAttrContext> env) {
             return (env.tree.getFXTag() == JavafxTag.VAR_DEF &&

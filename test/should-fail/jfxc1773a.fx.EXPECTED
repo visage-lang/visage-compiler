@@ -1,4 +1,7 @@
 test/should-fail/jfxc1773a.fx:10: warning: Illegal forward reference: variable w might not have been initialized.
 var x = w; //not allowed - w is referenced from the same named scope
         ^
-1 warning
+test/should-fail/jfxc1773a.fx:19: warning: Illegal forward reference: variable v might not have been initialized.
+Foo { a:v; } //not allowed - v is referenced from the same named scope
+        ^
+2 warnings
