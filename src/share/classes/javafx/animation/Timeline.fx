@@ -270,6 +270,14 @@ public class Timeline {
     public-read var paused: Boolean = false;
         
     /**
+     * The maximum framerate at which this animation will run, in frames per
+     * second.
+     *
+     * @profile common
+     */
+    public-init var framerate: Number = 60;
+
+    /**
      * {@code forward} indicates whether the timeline is on
      * forward cycle.
      * <p>
@@ -565,6 +573,7 @@ public class Timeline {
         }
         clip = Clip.create(Clip.INDEFINITE, adapter);
         clip.setInterpolator(Interpolators.getLinearInstance());
+        clip.setResolution(1000 / framerate);
     }
 
     var clip: Clip;
