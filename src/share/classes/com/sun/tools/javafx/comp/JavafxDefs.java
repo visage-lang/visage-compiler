@@ -124,6 +124,8 @@ public class JavafxDefs {
     final Name computeElementName;
     final Name initDefName;
     final Name postInitDefName;
+    final Name javalangThreadName;
+    final Name startName;
     final Name timeName;
     final Name valuesName;
     final Name valueName;
@@ -215,6 +217,8 @@ public class JavafxDefs {
         initDefName = names.fromString("$init$def$name");
         postInitDefName = names.fromString("$postinit$def$name");
         timeName = names.fromString("time");
+        javalangThreadName = names.fromString("java.lang.Thread");
+        startName = names.fromString("start");
         valuesName = names.fromString("values");
         targetName = names.fromString("target");
         valueName = names.fromString("value");

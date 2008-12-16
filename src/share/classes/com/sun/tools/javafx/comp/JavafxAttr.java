@@ -1422,6 +1422,10 @@ public class JavafxAttr implements JavafxVisitor {
 
             }
 
+            if (((ClassSymbol) clazztype.tsym).fullname == defs.javalangThreadName) {
+                log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_EXPLICIT_THREAD);
+            }
+
             if (cdef != null) {
                 // We are seeing an anonymous class instance creation.
                 // In this case, the class instance creation
@@ -2226,6 +2230,16 @@ public class JavafxAttr implements JavafxVisitor {
             }
 
         Symbol msym = JavafxTreeInfo.symbol(tree.meth);
+
+        // We can add more methods here that we want to warn about.
+        // If it becomes too hairy, it should be moved into a separate method,
+        // and perhaps be table-driven.  FIXME.
+        if (msym != null && msym.owner instanceof ClassSymbol &&
+                ((ClassSymbol) msym.owner).fullname == defs.javalangThreadName &&
+                msym.name == defs.startName) {
+            log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_EXPLICIT_THREAD);
+        }
+
         if (msym!=null && msym.owner!=null && msym.owner.type!=null &&
                 (msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym ||
                  msym.owner.type.tsym == syms.javafx_FXRuntimeType.tsym) &&
