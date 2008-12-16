@@ -44,6 +44,11 @@ public class Util {
     }
 
     @SuppressWarnings("unchecked")
+    public static<T extends Number> T[] newNumberArray(int size) {
+        return (T[]) new Number[size];
+    }
+
+    @SuppressWarnings("unchecked")
     public static<T> Sequence<T>[] newSequenceArray(int size) {
         return (Sequence<T>[]) new Sequence[size];
     }

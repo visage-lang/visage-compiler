@@ -40,7 +40,7 @@ public class TypeInfo<T> {
     public final T defaultValue;
     public final Sequence<T> emptySequence;
 
-    static Iterator<?> emptyIterator = new Iterator() {
+    private static Iterator<?> emptyIterator = new Iterator() {
         public boolean hasNext() {
             return false;
         }
@@ -54,7 +54,7 @@ public class TypeInfo<T> {
         }
     };
     
-    private TypeInfo(T defaultValue) {
+    protected TypeInfo(T defaultValue) {
         // This is a fragile pattern; we are passing this to a superclass ctor before this is fully initialized.
         // Relying on the superclass ctor to not do anything other than copy the reference.
         this.defaultValue = defaultValue;
@@ -74,25 +74,56 @@ public class TypeInfo<T> {
         };
     }
 
+    public boolean isNumeric() {
+        return false;
+    }
+
     public static final TypeInfo<Object> Object = new TypeInfo<Object>(null);
     public static final TypeInfo<Boolean> Boolean = new TypeInfo<Boolean>(false);
     public static final TypeInfo<Character> Character = new TypeInfo<Character>('\0');
-    public static final TypeInfo<Byte> Byte = new TypeInfo<Byte>((byte)0);
-    public static final TypeInfo<Short> Short = new TypeInfo<Short>((short)0);
-    public static final TypeInfo<Integer> Integer = new TypeInfo<Integer>(0);
-    public static final TypeInfo<Long> Long = new TypeInfo<Long>(0L);
-    public static final TypeInfo<Float> Float = new TypeInfo<Float>(0.0f);
-    public static final TypeInfo<Double> Double = new TypeInfo<Double>(0.0);
     public static final TypeInfo<String> String = new TypeInfo<String>("");
+    public static final NumericTypeInfo<Byte> Byte = new NumericTypeInfo<Byte>((byte)0) {
+        public <V extends Number> Byte asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
+            return otherType.byteValue(otherValue);
+        }
+    };
+    public static final NumericTypeInfo<Short> Short = new NumericTypeInfo<Short>((short)0) {
+        public <V extends Number> Short asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
+            return otherType.shortValue(otherValue);
+        }
+    };
+    public static final NumericTypeInfo<Integer> Integer = new NumericTypeInfo<Integer>(0) {
+        public <V extends Number> Integer asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
+            return otherType.intValue(otherValue);
+        }
+    };
+    public static final NumericTypeInfo<Long> Long = new NumericTypeInfo<Long>(0L) {
+        public <V extends Number> Long asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
+            return otherType.longValue(otherValue);
+        }
+    };
+    public static final NumericTypeInfo<Float> Float = new NumericTypeInfo<Float>(0.0f) {
+        public <V extends Number> Float asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
+            return otherType.floatValue(otherValue);
+        }
+    };
+    public static final NumericTypeInfo<Double> Double = new NumericTypeInfo<Double>(0.0) {
+        public <V extends Number> Double asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
+            return otherType.doubleValue(otherValue);
+        }
+    };
 
     private static final Map<Class<?>, TypeInfo<?>> map = new HashMap<Class<?>, TypeInfo<?>>();
     static {
         // map.put(Number.class, Number);
+        map.put(Byte.class, Byte);
+        map.put(Short.class, Short);
         map.put(Integer.class, Integer);
         map.put(Long.class, Long);
-        map.put(Boolean.class, Boolean);
-        map.put(Double.class, Double);
         map.put(Float.class, Float);
+        map.put(Double.class, Double);
+        map.put(Boolean.class, Boolean);
+        map.put(Character.class, Character);
         map.put(String.class, String);
     }
 

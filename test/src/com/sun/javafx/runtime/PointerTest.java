@@ -85,4 +85,41 @@ public class PointerTest extends JavaFXTestCase {
         assertEquals((Sequence<Integer>) pseqvar.get(), 1, 2, 3, 4, 5);
         assertEquals((Sequence<Integer>) pseqexp.get(), 1, 2, 3, 4, 5);
     }
+
+    public void testTypes() {
+        final ByteLocation bv = ByteVariable.make((byte) 0);
+        final ShortLocation sv = ShortVariable.make((short) 0);
+        final IntLocation iv = IntVariable.make(0);
+        final LongLocation lv = LongVariable.make(0);
+        final FloatLocation fv = FloatVariable.make(0.0f);
+        final DoubleLocation dv = DoubleVariable.make(0.0);
+
+        Pointer pb = Pointer.make(bv);
+        Pointer ps = Pointer.make(sv);
+        Pointer pi = Pointer.make(iv);
+        Pointer pl = Pointer.make(lv);
+        Pointer pf = Pointer.make(fv);
+        Pointer pd = Pointer.make(dv);
+
+        assertEquals((byte) 0, pb.get());
+        assertEquals((short) 0, ps.get());
+        assertEquals(0, pi.get());
+        assertEquals(0L, pl.get());
+        assertEquals(0.0f, pf.get());
+        assertEquals(0.0, pd.get());
+
+        pb.set((byte) 1);
+        ps.set((short) 1);
+        pi.set(1);
+        pl.set(1L);
+        pf.set(1.0f);
+        pd.set(1.0);
+
+        assertEquals((byte) 1, pb.get());
+        assertEquals((short) 1, ps.get());
+        assertEquals(1, pi.get());
+        assertEquals(1L, pl.get());
+        assertEquals(1.0f, pf.get());
+        assertEquals(1.0, pd.get());
+    }
 }

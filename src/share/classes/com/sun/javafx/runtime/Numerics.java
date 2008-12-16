@@ -30,14 +30,33 @@ package com.sun.javafx.runtime;
  */
 public class Numerics {
     public static boolean isNumber(Object o) {
-        return o instanceof Number;
+        return o instanceof Integer
+                || o instanceof Float
+                || o instanceof Double
+                || o instanceof Long
+                || o instanceof Short
+                || o instanceof Byte;
     }
 
-    public static double toDouble(Object o) {
+    public static float floatValue(Object o) {
+        return ((Number) o).floatValue();
+    }
+
+    public static double doubleValue(Object o) {
         return ((Number) o).doubleValue();
     }
 
-    public static int toInt(Object o) {
+    public static int intValue(Object o) {
         return ((Number) o).intValue();
+    }
+
+    public static long longValue(Object o) {
+        return ((Number) o).longValue();
+    }
+    public static short shortValue(Object o) {
+        return ((Number) o).shortValue();
+    }
+    public static byte byteValue(Object o) {
+        return ((Number) o).byteValue();
     }
 }

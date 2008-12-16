@@ -56,8 +56,8 @@ public abstract class SimpleInterpolator extends Interpolator {
      */      
     public override function interpolate(startValue:Object, endValue:Object, fraction:Number):Object {
         if (Numerics.isNumber(startValue) and Numerics.isNumber(endValue)) {
-	    var start : Number = Numerics.toDouble(startValue);
-	    var end : Number = Numerics.toDouble(endValue);
+	    var start : Number = Numerics.doubleValue(startValue);
+	    var end : Number = Numerics.doubleValue(endValue);
 	    var val = start + (end-start)*curve(fraction);
 	    if (startValue instanceof java.lang.Integer and
 	        endValue instanceof java.lang.Integer)

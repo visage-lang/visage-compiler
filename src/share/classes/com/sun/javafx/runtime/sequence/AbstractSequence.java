@@ -43,6 +43,10 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
 
     public abstract int size();
 
+    public boolean isNumeric() {
+        return ti.isNumeric();
+    }
+
     public abstract T get(int position);
 
     public Sequence<T> getSlice(int startPos, int endPos) {

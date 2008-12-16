@@ -295,4 +295,62 @@ public class NumberSequenceTest extends JavaFXTestCase {
         assertEquals(seq.size(), Integer.MAX_VALUE);
     }
 
+    public void testConversions() {
+        Sequence<Byte> byteSeq = Sequences.fromArray(new byte[] { 1, 2, 3 });
+        Sequence<Short> shortSeq = Sequences.fromArray(new short[] { 1, 2, 3 });
+        Sequence<Integer> intSeq = Sequences.fromArray(new int[] { 1, 2, 3 });
+        Sequence<Long> longSeq = Sequences.fromArray(new long[] { 1, 2, 3 });
+        Sequence<Float> floatSeq = Sequences.fromArray(new float[] { 1.1f, 2.1f, 3.1f });
+        Sequence<Double> doubleSeq = Sequences.fromArray(new double[] { 1.1, 2.1, 3.1 });
+
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Byte, TypeInfo.Byte, byteSeq), (byte) 1, (byte) 2, (byte) 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Short, TypeInfo.Byte, byteSeq), (short) 1, (short) 2, (short) 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Integer, TypeInfo.Byte, byteSeq), 1, 2, 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Long, TypeInfo.Byte, byteSeq), 1L, 2L, 3L);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Float, TypeInfo.Byte, byteSeq), 1.0f, 2.0f, 3.0f);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Double, TypeInfo.Byte, byteSeq), 1.0, 2.0, 3.0);
+
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Byte, TypeInfo.Short, shortSeq), (byte) 1, (byte) 2, (byte) 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Short, TypeInfo.Short, shortSeq), (short) 1, (short) 2, (short) 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Integer, TypeInfo.Short, shortSeq), 1, 2, 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Long, TypeInfo.Short, shortSeq), 1L, 2L, 3L);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Float, TypeInfo.Short, shortSeq), 1.0f, 2.0f, 3.0f);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Double, TypeInfo.Short, shortSeq), 1.0, 2.0, 3.0);
+
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Byte, TypeInfo.Integer, intSeq), (byte) 1, (byte) 2, (byte) 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Short, TypeInfo.Integer, intSeq), (short) 1, (short) 2, (short) 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Integer, TypeInfo.Integer, intSeq), 1, 2, 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Long, TypeInfo.Integer, intSeq), 1L, 2L, 3L);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Float, TypeInfo.Integer, intSeq), 1.0f, 2.0f, 3.0f);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Double, TypeInfo.Integer, intSeq), 1.0, 2.0, 3.0);
+
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Byte, TypeInfo.Long, longSeq), (byte) 1, (byte) 2, (byte) 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Short, TypeInfo.Long, longSeq), (short) 1, (short) 2, (short) 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Integer, TypeInfo.Long, longSeq), 1, 2, 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Long, TypeInfo.Long, longSeq), 1L, 2L, 3L);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Float, TypeInfo.Long, longSeq), 1.0f, 2.0f, 3.0f);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Double, TypeInfo.Long, longSeq), 1.0, 2.0, 3.0);
+
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Byte, TypeInfo.Float, floatSeq), (byte) 1, (byte) 2, (byte) 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Short, TypeInfo.Float, floatSeq), (short) 1, (short) 2, (short) 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Integer, TypeInfo.Float, floatSeq), 1, 2, 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Long, TypeInfo.Float, floatSeq), 1L, 2L, 3L);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Float, TypeInfo.Float, floatSeq), 1.1f, 2.1f, 3.1f);
+        // assertEquals(Sequences.convertNumberSequence(TypeInfo.Double, TypeInfo.Float, floatSeq), 1.1, 2.1, 3.1);
+
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Byte, TypeInfo.Double, doubleSeq), (byte) 1, (byte) 2, (byte) 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Short, TypeInfo.Double, doubleSeq), (short) 1, (short) 2, (short) 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Integer, TypeInfo.Double, doubleSeq), 1, 2, 3);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Long, TypeInfo.Double, doubleSeq), 1L, 2L, 3L);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Float, TypeInfo.Double, doubleSeq), 1.1f, 2.1f, 3.1f);
+        assertEquals(Sequences.convertNumberSequence(TypeInfo.Double, TypeInfo.Double, doubleSeq), 1.1, 2.1, 3.1);
+
+        assertEquals(byteSeq, Sequences.convertNumberSequence(TypeInfo.Byte, TypeInfo.Byte, byteSeq));
+        assertEquals(shortSeq, Sequences.convertNumberSequence(TypeInfo.Short, TypeInfo.Short, shortSeq));
+        assertEquals(intSeq, Sequences.convertNumberSequence(TypeInfo.Integer, TypeInfo.Integer, intSeq));
+        assertEquals(longSeq, Sequences.convertNumberSequence(TypeInfo.Long, TypeInfo.Long, longSeq));
+        assertEquals(floatSeq, Sequences.convertNumberSequence(TypeInfo.Float, TypeInfo.Float, floatSeq));
+        assertEquals(doubleSeq, Sequences.convertNumberSequence(TypeInfo.Double, TypeInfo.Double, doubleSeq));
+    }
+
 }

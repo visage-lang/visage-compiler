@@ -39,12 +39,15 @@ public class Pointer implements KeyValueTarget {
     private final Type type;
 
     public static Pointer make(Location location) {
-      Type type =
-        location instanceof IntLocation ? Type.INTEGER :
-        location instanceof DoubleLocation ? Type.DOUBLE :
-        location instanceof BooleanLocation ? Type.BOOLEAN :
-        location instanceof SequenceLocation ? Type.SEQUENCE :
-        Type.OBJECT;
+        Type type = location instanceof IntLocation ? Type.INTEGER :
+                location instanceof DoubleLocation ? Type.DOUBLE :
+                        location instanceof FloatLocation ? Type.FLOAT :
+                                location instanceof ByteLocation ? Type.BYTE :
+                                        location instanceof LongLocation ? Type.LONG :
+                                                location instanceof ShortLocation ? Type.SHORT :
+                                                        location instanceof BooleanLocation ? Type.BOOLEAN :
+                                                                location instanceof SequenceLocation ? Type.SEQUENCE :
+                                                                        Type.OBJECT;
         return new Pointer(location, type);
     }
 
@@ -52,8 +55,24 @@ public class Pointer implements KeyValueTarget {
         return new Pointer(location, Type.INTEGER);
     }
 
+    static Pointer make(ShortLocation location) {
+        return new Pointer(location, Type.SHORT);
+    }
+
+    static Pointer make(ByteLocation location) {
+        return new Pointer(location, Type.BYTE);
+    }
+
+    static Pointer make(LongLocation location) {
+        return new Pointer(location, Type.LONG);
+    }
+
     static Pointer make(DoubleLocation location) {
         return new Pointer(location, Type.DOUBLE);
+    }
+
+    static Pointer make(FloatLocation location) {
+        return new Pointer(location, Type.FLOAT);
     }
 
     static Pointer make(BooleanLocation location) {
@@ -87,10 +106,18 @@ public class Pointer implements KeyValueTarget {
     
     public Object get() {
         switch (type) {
+            case BYTE:
+                return ((NumericLocation) location).getAsByte();
+            case SHORT:
+                return ((NumericLocation) location).getAsShort();
             case INTEGER:
-                return ((IntLocation) location).getAsInt();
+                return ((NumericLocation) location).getAsInt();
+            case LONG:
+                return ((NumericLocation) location).getAsLong();
+            case FLOAT:
+                return ((NumericLocation) location).getAsFloat();
             case DOUBLE:
-                return ((DoubleLocation) location).getAsDouble();
+                return ((NumericLocation) location).getAsDouble();
             case BOOLEAN:
                 return ((BooleanLocation) location).getAsBoolean();
             case SEQUENCE:
@@ -102,11 +129,23 @@ public class Pointer implements KeyValueTarget {
 
     public void set(Object value) {
         switch (type) {
+            case BYTE:
+                ((ByteLocation) location).setAsByte(((Number) value).byteValue());
+                break;
+            case SHORT:
+                ((ShortLocation) location).setAsShort(((Number) value).shortValue());
+                break;
             case INTEGER:
-                ((IntLocation) location).setAsInt(Numerics.toInt(value));
+                ((IntLocation) location).setAsInt(((Number) value).intValue());
+                break;
+            case LONG:
+                ((LongLocation) location).setAsLong(((Number) value).longValue());
+                break;
+            case FLOAT:
+                ((FloatLocation) location).setAsFloat(((Number) value).floatValue());
                 break;
             case DOUBLE:
-                ((DoubleLocation) location).setAsDouble(Numerics.toDouble(value));
+                ((DoubleLocation) location).setAsDouble(((Number) value).doubleValue());
                 break;
             case BOOLEAN:
                 ((BooleanLocation) location).setAsBoolean((Boolean) value);

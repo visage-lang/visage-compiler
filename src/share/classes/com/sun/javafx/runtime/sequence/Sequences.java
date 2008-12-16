@@ -25,6 +25,7 @@ package com.sun.javafx.runtime.sequence;
 
 import java.util.*;
 
+import com.sun.javafx.runtime.NumericTypeInfo;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
 import com.sun.javafx.runtime.util.MathUtil;
@@ -317,7 +318,23 @@ public final class Sequences extends SequenceConversions {
         return (Sequence<T>) sequence;
     }
 
+    /** Convert any numeric sequence to any other numeric sequence */
+    public static<T extends Number, V extends Number>
+    Sequence<T> convertNumberSequence(NumericTypeInfo<T> toType, NumericTypeInfo<V> fromType, Sequence<V> seq) {
+        if (Sequences.size(seq) == 0)
+            return toType.emptySequence;
+
+        int length = seq.size();
+        T[] toArray = toType.makeArray(length);
+        int i=0;
+        for (V val : seq) {
+            toArray[i++] = toType.asPreferred(fromType, val);
+        }
+        return new ArraySequence<T>(toType, toArray, length);
+    }
+
     /** Convert an Integer sequence to a Number sequence */
+    // @@@ This can go away when conversion to the above is done
     public static Sequence<Double> integerSequenceToNumberSequence(Sequence<Integer> seq) {
         if (seq == null || seq.size() == 0) {
             return TypeInfo.Double.emptySequence;

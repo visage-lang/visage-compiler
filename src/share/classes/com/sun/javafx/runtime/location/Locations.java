@@ -25,9 +25,8 @@ package com.sun.javafx.runtime.location;
 
 import java.util.Iterator;
 
-import com.sun.javafx.runtime.Numerics;
-import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.AssignToBoundException;
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
 
@@ -88,8 +87,7 @@ public class Locations {
         return new ObjectNumericLocation(loc);
     }
 
-    // Was <T extends Number>; assumes T is Number
-    public static <T> DoubleLocation asDoubleLocation(ObjectLocation<T> loc) {
+    public static <T extends Number> DoubleLocation asDoubleLocation(ObjectLocation<T> loc) {
         return new ObjectDoubleLocation<T>(loc);
     }
 
@@ -211,7 +209,7 @@ public class Locations {
         }
 
         public int getAsInt() {
-            Integer val = Numerics.toInt(location.get());
+            Integer val = location.get().intValue();
             return val==null? 0 : val;
         }
 
@@ -313,15 +311,14 @@ public class Locations {
     }
 
     // @@@ May no longer be needed
-    // Was <T extends Number>; assumes T is Number
-    private static class ObjectDoubleLocation<T> extends LocationWrapper<ObjectLocation<T>> implements DoubleLocation, StaticViewLocation {
+    private static class ObjectDoubleLocation<T extends Number> extends LocationWrapper<ObjectLocation<T>> implements DoubleLocation, StaticViewLocation {
         private ObjectDoubleLocation(ObjectLocation<T> location) {
             super(location);
         }
 
         public double getAsDouble() {
             T val = location.get();
-            return val==null? 0.0 : Numerics.toDouble(val);
+            return val==null? 0.0 : val.doubleValue();
         }
 
         public double setAsDouble(double value) {
@@ -341,7 +338,7 @@ public class Locations {
         public void addChangeListener(final DoubleChangeListener listener) {
             location.addChangeListener(new ObjectChangeListener<T>() {
                 public void onChange(T oldValue, T newValue) {
-                    listener.onChange(Numerics.toDouble(oldValue), Numerics.toDouble(newValue));
+                    listener.onChange(oldValue.doubleValue(), newValue.doubleValue());
                 }
             });
         }
@@ -363,7 +360,7 @@ public class Locations {
         public void addChangeListener(final ObjectChangeListener<Double> listener) {
             location.addChangeListener(new ObjectChangeListener<T>() {
                 public void onChange(T oldValue, T newValue) {
-                    listener.onChange(Numerics.toDouble(oldValue), Numerics.toDouble(newValue));
+                    listener.onChange(oldValue.doubleValue(), newValue.doubleValue());
                 }
             });
         }

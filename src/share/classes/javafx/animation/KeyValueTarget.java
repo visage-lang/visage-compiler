@@ -40,7 +40,7 @@ public interface KeyValueTarget {
      * @profile common
      */
     public enum Type {
-        INTEGER, DOUBLE, BOOLEAN, SEQUENCE, OBJECT
+        BYTE, SHORT, INTEGER, LONG, FLOAT, DOUBLE, BOOLEAN, SEQUENCE, OBJECT
     }
 
     /**
