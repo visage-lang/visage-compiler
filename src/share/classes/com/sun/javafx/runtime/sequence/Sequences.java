@@ -46,20 +46,26 @@ public final class Sequences extends SequenceConversions {
     // Inhibit instantiation
     private Sequences() { }
 
+    public static<T> ArraySequence<T> asNonSharedArraySequence(Object value) {
+        if (value instanceof ArraySequence) {
+            ArraySequence<T> arr = (ArraySequence) value;
+            if (! arr.shared)
+                return arr;
+        }
+        return null;
+    }
 
     public static<T> T noteShared(T value) {
-        if (value instanceof ArraySequence) {
-            //((ArraySequence) (value)).shared = true;
-            ((ArraySequence) (value)).noteShared();
-        }
+        ArraySequence<T> arr = asNonSharedArraySequence(value);
+        if (arr != null)
+            arr.noteShared();
         return value;
     }
 
     public static<T> Sequence<? extends T> noteShared(Sequence<? extends T> value) {
-        if (value instanceof ArraySequence) {
-            //((ArraySequence) (value)).shared = true;
-            ((ArraySequence) (value)).noteShared();
-        }
+        ArraySequence<T> arr = asNonSharedArraySequence(value);
+        if (arr != null)
+            arr.noteShared();
         return value;
     }
 
@@ -129,9 +135,9 @@ public final class Sequences extends SequenceConversions {
             return Sequences.upcast(second);
         else if (size2 == 0)
             return Sequences.upcast(first);
-        else if (first instanceof ArraySequence && ! (arr = (ArraySequence) first).shared) {
+        else if ((arr = asNonSharedArraySequence(first)) != null) {
             ArraySequence<T> arr2;
-            if (size1 < size2 && second instanceof ArraySequence && ! (arr2 = (ArraySequence) second).shared) {
+            if (size1 < size2 && (arr2 = asNonSharedArraySequence(second)) != null) {
                 arr2.insert(first, size1, 0);
                 return arr2;
             }
@@ -140,7 +146,7 @@ public final class Sequences extends SequenceConversions {
                 return arr;
             }
         }
-        else if (second instanceof ArraySequence && ! (arr = (ArraySequence) second).shared) {
+        else if ((arr = asNonSharedArraySequence(second)) != null) {
             arr.insert(first, size1, 0);
             return arr;
         }
@@ -289,7 +295,7 @@ public final class Sequences extends SequenceConversions {
         startPos = Math.min (Math.max (0, startPos), seqSize);       // 0 <= startPos <= size
         endPos = Math.min (Math.max (startPos, endPos), seqSize);    // startPos <= endPos <= size
         ArraySequence<T> arr;
-        if (sequence instanceof ArraySequence<?> && ! (arr = (ArraySequence) sequence).shared) {
+        if ((arr = asNonSharedArraySequence(sequence)) != null) {
             arr.replace(startPos, endPos, value);
             return arr;
         }
@@ -298,7 +304,7 @@ public final class Sequences extends SequenceConversions {
     
     public static<T> Sequence<T> replace(Sequence<T> sequence, int startPos, T value) {
       ArraySequence arr;
-      if (sequence instanceof ArraySequence && !(arr = (ArraySequence) sequence).shared) {
+      if ((arr = asNonSharedArraySequence(sequence)) != null) {
           arr.replace(startPos, value);
           return arr;
       }
