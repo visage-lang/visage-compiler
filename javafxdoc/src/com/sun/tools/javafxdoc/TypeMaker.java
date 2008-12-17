@@ -30,6 +30,7 @@ import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.util.List;
 
+import com.sun.tools.javafx.code.JavafxSymtab;
 import static com.sun.tools.javac.code.TypeTags.*;
 
 
@@ -57,8 +58,20 @@ public class TypeMaker {
         case SHORT: return PrimitiveType.shortType;
         case INT: return PrimitiveType.intType;
         case LONG: return PrimitiveType.longType;
-        case FLOAT: return PrimitiveType.floatType;
-        case DOUBLE: return PrimitiveType.doubleType;
+        case FLOAT: 
+            if (env.syms instanceof JavafxSymtab) {
+                if (env.types.isSameType(((JavafxSymtab)env.syms).javafx_NumberType, env.syms.floatType)) {
+                    return PrimitiveType.numberType;
+                }
+            }
+            return PrimitiveType.floatType;
+        case DOUBLE: 
+            if (env.syms instanceof JavafxSymtab) {
+                if (env.types.isSameType(((JavafxSymtab)env.syms).javafx_NumberType, env.syms.doubleType)) {
+                    return PrimitiveType.numberType;
+                }
+            }
+            return PrimitiveType.doubleType;
         case BOOLEAN: return PrimitiveType.booleanType;
         case VOID: return PrimitiveType.voidType;
         case ERROR:

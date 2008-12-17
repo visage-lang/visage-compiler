@@ -33,6 +33,7 @@ import javax.lang.model.type.TypeKind;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
+import com.sun.javafx.runtime.TypeInfo;
 import com.sun.tools.javac.code.*;
 import static com.sun.tools.javac.code.Flags.*;
 import com.sun.tools.javac.code.Type.ClassType;
@@ -504,13 +505,15 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         if (targetIsSequence && sourceIsSequence) {
             Type sourceElemType = types.elementType(sourceType);
             Type targetElemType = types.elementType(targetType);
-            //TODO:NUMERIC
-            if (types.isSameType(sourceElemType, syms.javafx_IntegerType) && types.isSameType(targetElemType, syms.javafx_DoubleType)) {
+            if (!types.isSameType(sourceElemType, targetElemType) &&
+                isNumeric(sourceElemType) && isNumeric(targetElemType)) {
+                JCExpression srcTypeInfo = makeTypeInfo(diagPos, sourceElemType);
+                JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElemType);
                 JCExpression cSequences = makeTypeTree(diagPos, syms.javafx_SequencesType, false);
                 return callExpression(diagPos,
                         cSequences,
-                        "integerSequenceToNumberSequence",
-                        List.of(translated));
+                        "convertNumberSequence",
+                        List.of(targetTypeInfo, srcTypeInfo, translated));
             }
         }
 

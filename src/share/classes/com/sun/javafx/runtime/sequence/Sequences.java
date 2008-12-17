@@ -333,21 +333,6 @@ public final class Sequences extends SequenceConversions {
         return new ArraySequence<T>(toType, toArray, length);
     }
 
-    /** Convert an Integer sequence to a Number sequence */
-    // @@@ This can go away when conversion to the above is done
-    public static Sequence<Double> integerSequenceToNumberSequence(Sequence<Integer> seq) {
-        if (seq == null || seq.size() == 0) {
-            return TypeInfo.Double.emptySequence;
-        }
-        int length = seq.size();
-        Double[] dArray = Util.<Double>newObjectArray(length);
-        int i=0;
-        for (Integer val : seq) {
-            dArray[i++] = (double) (val);
-        }
-        return new ArraySequence<Double>(TypeInfo.Double, dArray, length);
-    }
-
     /** How large is this sequence?  Can be applied to any object.  */
     public static int size(Object seq) {
         if (seq instanceof Sequence)

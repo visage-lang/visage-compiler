@@ -38,6 +38,7 @@ class PrimitiveType implements com.sun.javadoc.Type {
     static final PrimitiveType longType = new PrimitiveType("Long");
     static final PrimitiveType floatType = new PrimitiveType("Float");
     static final PrimitiveType doubleType = new PrimitiveType("Double");
+    static final PrimitiveType numberType = new PrimitiveType("Number");
 
     // error type, should never actually be used
     static final PrimitiveType errorType = new PrimitiveType("");

@@ -1,7 +1,7 @@
 /**
  * JFXC-2442 : Runtime: conversions between numeric sequences
  *
- * @test/fail
+ * @test
  */
 
 var bs : Byte[];
