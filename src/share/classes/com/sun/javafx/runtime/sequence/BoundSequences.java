@@ -25,6 +25,7 @@ package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.location.*;
 import com.sun.javafx.runtime.TypeInfo;
+import com.sun.javafx.runtime.NumericTypeInfo;
 
 /**
  * BoundSequences
@@ -164,7 +165,13 @@ public class BoundSequences {
     public static<T> SequenceLocation<T> sliceExclusive(TypeInfo<T> typeInfo, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {
         return new BoundSequenceSlice<T>(typeInfo, sequence, a, b, true);
     }
-    
+
+    /** Convert any numeric sequence location to any other numeric sequence */
+    public static<T extends Number, V extends Number>
+    SequenceLocation<T> convertNumberSequence(final NumericTypeInfo<T> toType, final NumericTypeInfo<V> fromType, SequenceLocation<V> seq) {
+        return new BoundNumericConversion<T, V>(toType, fromType, seq);
+    }
+
     public interface ObjectSimpleBoundComprehensionCallback<T, V> {
          V computeElement$(T element, int index);
     }

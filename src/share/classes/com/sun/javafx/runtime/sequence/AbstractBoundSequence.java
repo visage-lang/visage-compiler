@@ -41,7 +41,7 @@ import com.sun.javafx.runtime.TypeInfo;
  * @author Brian Goetz
  */
 public abstract class AbstractBoundSequence<T> extends AbstractLocation implements SequenceLocation<T> {
-    private final TypeInfo<T> typeInfo;
+    protected final TypeInfo<T> typeInfo;
     private List<SequenceChangeListener<T>> changeListeners;
     private Sequence<T> value;
 

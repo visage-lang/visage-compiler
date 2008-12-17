@@ -22,8 +22,14 @@
  */
 package com.sun.javafx.runtime.sequence;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.sun.javafx.runtime.JavaFXTestCase;
+import com.sun.javafx.runtime.NumericTypeInfo;
 import com.sun.javafx.runtime.TypeInfo;
+import com.sun.javafx.runtime.location.SequenceChangeListener;
+import com.sun.javafx.runtime.location.SequenceLocation;
+import com.sun.javafx.runtime.location.SequenceVariable;
 
 /**
  * NumberSequenceTest
@@ -353,4 +359,51 @@ public class NumberSequenceTest extends JavaFXTestCase {
         assertEquals(doubleSeq, Sequences.convertNumberSequence(TypeInfo.Double, TypeInfo.Double, doubleSeq));
     }
 
+    public void testBoundConversions() {
+        Sequence<Byte> byteSeq = Sequences.fromArray(new byte[] { 1, 2, 3 });
+        Sequence<Short> shortSeq = Sequences.fromArray(new short[] { 1, 2, 3 });
+        Sequence<Integer> intSeq = Sequences.fromArray(new int[] { 1, 2, 3 });
+        Sequence<Long> longSeq = Sequences.fromArray(new long[] { 1, 2, 3 });
+        Sequence<Float> floatSeq = Sequences.fromArray(new float[] { 1.0f, 2.0f, 3.0f });
+        Sequence<Double> doubleSeq = Sequences.fromArray(new double[] { 1.0, 2.0, 3.0 });
+
+        SequenceLocation<Byte> byteLoc = SequenceVariable.make(TypeInfo.Byte, byteSeq);
+        SequenceLocation<Short> shortLoc  = SequenceVariable.make(TypeInfo.Short, shortSeq);
+        SequenceLocation<Integer> intLoc = SequenceVariable.make(TypeInfo.Integer, intSeq);
+        SequenceLocation<Long> longLoc = SequenceVariable.make(TypeInfo.Long, longSeq);
+        SequenceLocation<Float> floatLoc = SequenceVariable.make(TypeInfo.Float, floatSeq);
+        SequenceLocation<Double> doubleLoc = SequenceVariable.make(TypeInfo.Double, doubleSeq);
+
+        final NumericTypeInfo[] tis = { TypeInfo.Byte, TypeInfo.Short, TypeInfo.Integer, TypeInfo.Long, TypeInfo.Float, TypeInfo.Double };
+        final Sequence[] seqs = { byteSeq, shortSeq, intSeq, longSeq, floatSeq, doubleSeq };
+        final SequenceLocation[] locs = { byteLoc, shortLoc, intLoc, longLoc, floatLoc, doubleLoc };
+        SequenceLocation[][] converted = new SequenceLocation[6][6];
+
+        final AtomicInteger count = new AtomicInteger();
+        for (int i=0; i<tis.length; i++) {
+            converted[i] = new SequenceLocation[6];
+            for (int j=0; j<tis.length; j++) {
+                converted[i][j] = BoundSequences.convertNumberSequence(tis[i], tis[j], locs[j]);
+                final int j1 = j;
+                converted[i][j].addChangeListener(new SequenceChangeListener() {
+                    public void onChange(int startPos, int endPos, Sequence newElements, Sequence oldValue, Sequence newValue) {
+                        count.incrementAndGet();
+                        assertEquals(1, newElements.size());
+                        assertEquals(3, startPos);
+                        assertEquals(2, endPos);
+                        assertEquals(4, tis[j1].intValue((Number) newValue.get(3)));
+                    }
+                });
+            }
+        }
+
+        assertEquals(0, count.get());
+        byteLoc.insert((byte) 4);
+        shortLoc.insert((short) 4);
+        intLoc.insert(4);
+        longLoc.insert(4L);
+        floatLoc.insert(4.0f);
+        doubleLoc.insert(4.0);
+        assertEquals(36, count.get());
+    }
 }
