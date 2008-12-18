@@ -4333,7 +4333,7 @@ keyFrameLiteralPart
 }
 	: k1=expression 			{ exprs.append($k1.value);	}
 	
-		(SEMI SEMI* // This is a trick to force f recovery, otherwise SEMI+ forces an early exit exception
+		(SEMI SEMI* // This is a trick to force error recovery, otherwise SEMI+ forces an early exit exception
 		
 			k2=expression		{ exprs.append($k2.value);	}
 		)* SEMI*
