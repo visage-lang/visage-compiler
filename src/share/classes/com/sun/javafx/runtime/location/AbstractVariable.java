@@ -96,15 +96,14 @@ public abstract class AbstractVariable<
         return (T_BINDING) findChildByKind(CHILD_KIND_BINDING_EXPRESSION);
     }
 
-    public void bind(T_LOCATION otherLocation) {
-        boolean lazy = otherLocation.isLazilyBound();
+    public void bind(boolean lazy, T_LOCATION otherLocation) {
         bind(lazy, makeBindingExpression(otherLocation), otherLocation);
     }
 
-    public void bindFromLiteral(final T_LOCATION otherLocation) {
+    public void bindFromLiteral(final boolean lazy, final T_LOCATION otherLocation) {
         setDeferredLiteral(new DeferredInitializer() {
             public void apply() {
-                bind(otherLocation);
+                bind(lazy, otherLocation);
             }
         });
     }

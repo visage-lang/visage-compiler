@@ -33,7 +33,6 @@ import javax.lang.model.type.TypeKind;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
-import com.sun.javafx.runtime.TypeInfo;
 import com.sun.tools.javac.code.*;
 import static com.sun.tools.javac.code.Flags.*;
 import com.sun.tools.javac.code.Type.ClassType;
@@ -47,11 +46,7 @@ import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javafx.code.FunctionType;
-import com.sun.tools.javafx.code.JavafxFlags;
-import com.sun.tools.javafx.code.JavafxSymtab;
-import com.sun.tools.javafx.code.JavafxTypes;
-import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.javafx.code.*;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideClassVarInfo;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedVarInfo;
@@ -1342,7 +1337,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
         if (bindStatus.isUnidiBind()) {
             methName = defs.locationBindMilieuMethodName[milieu];
-            // args.append(makeLaziness(diagPos, bindStatus));
+            args.append(makeLaziness(diagPos, bindStatus));
         } else if (bindStatus.isBidiBind()) {
             methName = defs.locationBijectiveBindMilieuMethodName[milieu];
         } else {

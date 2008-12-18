@@ -192,7 +192,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
                                                                                                   }
                                                                                               });
         SequenceVariable<Integer> moo = SequenceVariable.make(TypeInfo.Integer);
-        moo.bind(derived);
+        moo.bind(false, derived);
 
         assertEquals(derived, 2, 4, 6);
         assertEquals(moo, 2, 4, 6);
@@ -423,7 +423,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
 
         SequenceVariable<Foo> w = SequenceVariable.make(TypeInfo.<Foo>getTypeInfo());
         SequenceLocation<String> stringSequence = SequenceVariable.make(TypeInfo.String, Sequences.make(TypeInfo.String, "a", "b"));
-        w.bind(new ObjectBoundComprehension<String, Foo>(TypeInfo.<Foo>getTypeInfo(), stringSequence, false) {
+        w.bind(false, new ObjectBoundComprehension<String, Foo>(TypeInfo.<Foo>getTypeInfo(), stringSequence, false) {
             protected SequenceLocation<Foo> computeElements$(final ObjectLocation<String> textStr, final IntLocation $indexof$textStr) {
                 return BoundSequences.singleton(TypeInfo.<Foo>getTypeInfo(),
                                                 ObjectVariable.make(false, new ObjectBindingExpression<Foo>() {

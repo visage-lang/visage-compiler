@@ -230,7 +230,8 @@ public class SequenceVariable<T>
             });
     }
 
-    public void bind(SequenceLocation<T> otherLocation) {
+    public void bind(boolean lazy, SequenceLocation<T> otherLocation) {
+        // @@@ lazy not used
         ensureBindable();
         Sequence<T> oldValue = $value;
         $value = otherLocation.get();
@@ -243,7 +244,7 @@ public class SequenceVariable<T>
         if (boundLocation != null)
             boundLocation.unbind();
         boundLocation = null;
-        bind(otherLocation);
+        bind(false, otherLocation);
     }
 
     protected boolean isUnidirectionallyBound() {

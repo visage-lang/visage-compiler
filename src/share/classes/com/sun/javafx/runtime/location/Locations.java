@@ -154,10 +154,6 @@ public class Locations {
             return getLocation().isNull();
         }
 
-        public boolean isLazilyBound() {
-            return getLocation().isLazilyBound();
-        }
-
         public boolean isMutable() {
             return getLocation().isMutable();
         }

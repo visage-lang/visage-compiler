@@ -49,10 +49,6 @@ public abstract class AbstractConstantLocation<T> implements ObjectLocation<T> {
         return false;
     }
 
-    public boolean isLazilyBound() {
-        return false;
-    }
-
     public boolean isMutable() {
         return false;
     }
