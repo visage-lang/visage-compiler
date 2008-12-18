@@ -208,6 +208,12 @@ public abstract class JavaFXTestCase extends TestCase {
         assertTrue(loc.isValid());
     }
 
+    protected<T> void assertEqualsLazy(SequenceLocation<T> loc, T... values) {
+        assertFalse(loc.isValid());
+        assertEquals(loc.getAsSequence(), values);
+        assertTrue(loc.isValid());
+    }
+
     protected<T> void assertEquals(Collection<T> collection, T... values) {
         Collection<T> newCollection = new HashSet<T>();
         for (T val : values)
