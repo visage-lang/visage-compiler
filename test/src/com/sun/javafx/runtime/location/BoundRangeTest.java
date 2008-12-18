@@ -221,151 +221,151 @@ public class BoundRangeTest extends JavaFXTestCase {
     }
     
     public void testBoundNumberRange() {
-        DoubleLocation a = DoubleVariable.make(10.2);
-        DoubleLocation b = DoubleVariable.make(15.7);    
-        SequenceLocation<Double> range = BoundSequences.range(a, b);
+        FloatLocation a = FloatVariable.make(10.2f);
+        FloatLocation b = FloatVariable.make(15.7f);
+        SequenceLocation<Float> range = BoundSequences.range(a, b);
                 
-        HistoryReplaceListener<Double> hl = new HistoryReplaceListener<Double>();
+        HistoryReplaceListener<Float> hl = new HistoryReplaceListener<Float>();
         range.addChangeListener(hl);
 
-        assertEquals(range, 10.2, 11.2, 12.2, 13.2, 14.2, 15.2);
+        assertEquals(range, 10.2f, 11.2f, 12.2f, 13.2f, 14.2f, 15.2f);
 //        assertEquals(0, range.get().getDepth());
         hl.clear();
        
-        a.set(8.2);
-        assertEquals(range, 8.2, 9.2, 10.2, 11.2, 12.2, 13.2, 14.2, 15.2);
+        a.set(8.2f);
+        assertEquals(range, 8.2f, 9.2f, 10.2f, 11.2f, 12.2f, 13.2f, 14.2f, 15.2f);
 //        assertEquals(1, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, -1] => [ 8.2, 9.2 ]");
 
-        a.set(11.2);
-        assertEquals(range, 11.2, 12.2, 13.2, 14.2, 15.2);
+        a.set(11.2f);
+        assertEquals(range, 11.2f, 12.2f, 13.2f, 14.2f, 15.2f);
 //        assertEquals(2, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 2] => [ ]");
         
-        a.set(11.88);
-        assertEquals(range, 11.88, 12.88, 13.88, 14.88);
+        a.set(11.88f);
+        assertEquals(range, 11.88f, 12.88f, 13.88f, 14.88f);
 //        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 3] => [ 11.88, 12.88, 13.88, 14.88 ]");
         
-        a.set(9.22);
-        assertEquals(range, 9.22, 10.22, 11.22, 12.22, 13.22, 14.22, 15.22);
+        a.set(9.22f);
+        assertEquals(range, 9.22f, 10.22f, 11.22f, 12.22f, 13.22f, 14.22f, 15.22f);
 //        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 6] => [ 9.22, 10.22, 11.22, 12.22, 13.22, 14.22, 15.22 ]");
         
-        a.set(9.22);
-        assertEquals(range, 9.22, 10.22, 11.22, 12.22, 13.22, 14.22, 15.22);
+        a.set(9.22f);
+        assertEquals(range, 9.22f, 10.22f, 11.22f, 12.22f, 13.22f, 14.22f, 15.22f);
 //        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl);
               
    
-        b.set(17.08);
-        assertEquals(range, 9.22, 10.22, 11.22, 12.22, 13.22, 14.22, 15.22, 16.22);
+        b.set(17.08f);
+        assertEquals(range.getAsSequence(), 9.22f, 10.22f, 11.22f, 12.22f, 13.22f, 14.22f, 15.22f, 16.22f);
 //        assertEquals(1, range.get().getDepth());
-        assertEqualsAndClear(hl, "[7, 6] => [ 16.22 ]");
+        assertEqualsAndClear(hl, "[7, 6] => [ 16.220001 ]");
 
-        b.set(14.23);
-        assertEquals(range, 9.22, 10.22, 11.22, 12.22, 13.22, 14.22);
+        b.set(14.23f);
+        assertEquals(range, 9.22f, 10.22f, 11.22f, 12.22f, 13.22f, 14.22f);
 //        assertEquals(2, range.get().getDepth());
         assertEqualsAndClear(hl, "[6, 7] => [ ]");
 
-        a.set(19.0);
+        a.set(19.0f);
         assertEquals(range);  // range becomes an empty sequence
 //        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 0] => [ ]");
 
-        a.set(11.0);
-        assertEquals(range, 11.0, 12.0, 13.0, 14.0); 
+        a.set(11.0f);
+        assertEquals(range, 11.0f, 12.0f, 13.0f, 14.0f);
 //        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, -1] => [ 11.0, 12.0, 13.0, 14.0 ]");
 
-        b.set(14.0);
-        assertEquals(range, 11.0, 12.0, 13.0, 14.0);
+        b.set(14.0f);
+        assertEquals(range, 11.0f, 12.0f, 13.0f, 14.0f);
 //        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl);
 
-        b.set(16.0);
-        assertEquals(range, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0);
+        b.set(16.0f);
+        assertEquals(range, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f);
 //        assertEquals(1, range.get().getDepth());
         assertEqualsAndClear(hl, "[4, 3] => [ 15.0, 16.0 ]");        
          
     }
     
      public void testBoundNumberRangeExclusive() {
-        DoubleLocation a = DoubleVariable.make(10.2);
-        DoubleLocation b = DoubleVariable.make(15.2);    
-        SequenceLocation<Double> range = BoundSequences.range(a, b, true);
+        FloatLocation a = FloatVariable.make(10.2f);
+        FloatLocation b = FloatVariable.make(15.2f);
+        SequenceLocation<Float> range = BoundSequences.range(a, b, true);
                 
-        HistoryReplaceListener<Double> hl = new HistoryReplaceListener<Double>();
+        HistoryReplaceListener<Float> hl = new HistoryReplaceListener<Float>();
         range.addChangeListener(hl);
         
-        assertEquals(range, 10.2, 11.2, 12.2, 13.2, 14.2);
+        assertEquals(range, 10.2f, 11.2f, 12.2f, 13.2f, 14.2f);
 //        assertEquals(0, range.get().getDepth());
         hl.clear();
        
-        b.set(14.2);
-        assertEquals(range, 10.2, 11.2, 12.2, 13.2);
+        b.set(14.2f);
+        assertEquals(range, 10.2f, 11.2f, 12.2f, 13.2f);
 //        assertEquals(1, range.get().getDepth());
         assertEqualsAndClear(hl, "[4, 4] => [ ]");
         
-        a.set(14.2);
+        a.set(14.2f);
         assertEquals(range);
 //        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 3] => [ ]");
         
-        a.set(14.1);
-        assertEquals(range, 14.1);
+        a.set(14.1f);
+        assertEquals(range, 14.1f);
 //        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, -1] => [ 14.1 ]");
         
      }
      
      public void testBoundNumberStep() {
-        DoubleLocation a = DoubleVariable.make(0.0);
-        DoubleLocation b = DoubleVariable.make(4.0);    
-        DoubleLocation s = DoubleVariable.make(2.0);
-        SequenceLocation<Double> range = BoundSequences.range(a, b, s, true);
+        FloatLocation a = FloatVariable.make(0.0f);
+        FloatLocation b = FloatVariable.make(4.0f);
+        FloatLocation s = FloatVariable.make(2.0f);
+        SequenceLocation<Float> range = BoundSequences.range(a, b, s, true);
         
-        HistoryReplaceListener<Double> hl = new HistoryReplaceListener<Double>();
+        HistoryReplaceListener<Float> hl = new HistoryReplaceListener<Float>();
         range.addChangeListener(hl);
         
-        assertEquals(range, 0.0, 2.0);
+        assertEquals(range, 0.0f, 2.0f);
 //        assertEquals(0, range.get().getDepth());
         hl.clear();
         
-        s.set(3.0);
-        assertEquals(range, 0.0, 3.0);
+        s.set(3.0f);
+        assertEquals(range, 0.0f, 3.0f);
 //        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 1] => [ 0.0, 3.0 ]");
         
-        a.set(10.2);
-        b.set(16.2);
+        a.set(10.2f);
+        b.set(16.2f);
         hl.clear();
         
-        assertEquals(range, 10.2, 13.2);
+        assertEquals(range, 10.2f, 13.2f);
 //        assertEquals(0, range.get().getDepth());
         hl.clear();
        
-        b.set(13.2);
-        assertEquals(range, 10.2);
+        b.set(13.2f);
+        assertEquals(range, 10.2f);
 //        assertEquals(1, range.get().getDepth());
         assertEqualsAndClear(hl, "[1, 1] => [ ]");
         
-        a.set(2.2);
-        assertEquals(range, 2.2, 5.2, 8.2, 11.2);
+        a.set(2.2f);
+        assertEquals(range, 2.2f, 5.2f, 8.2f, 11.2f);
 //        assertEquals(0, range.get().getDepth());
         assertEqualsAndClear(hl, "[0, 3] => [ 2.2, 5.2, 8.2, 11.2 ]");
         
-        b.set(17.2);
-        assertEquals(range, 2.2, 5.2, 8.2, 11.2, 14.2);
+        b.set(17.2f);
+        assertEquals(range, 2.2f, 5.2f, 8.2f, 11.2f, 14.2f);
 //        assertEquals(1, range.get().getDepth());
         assertEqualsAndClear(hl, "[4, 3] => [ 14.2 ]");
         
-        a.set(2.5);
-        b.set(-7.0);
-        s.set(-3.0);
+        a.set(2.5f);
+        b.set(-7.0f);
+        s.set(-3.0f);
         hl.clear();
         
-        assertEquals(range, 2.5, -0.5, -3.5, -6.5);
+        assertEquals(range, 2.5f, -0.5f, -3.5f, -6.5f);
 //        assertEquals(0, range.get().getDepth());
         hl.clear();    
 

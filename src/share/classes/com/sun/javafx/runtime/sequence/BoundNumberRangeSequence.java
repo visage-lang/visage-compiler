@@ -24,37 +24,34 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.location.DoubleChangeListener;
-import com.sun.javafx.runtime.location.DoubleConstant;
-import com.sun.javafx.runtime.location.DoubleLocation;
-import com.sun.javafx.runtime.location.SequenceLocation;
+import com.sun.javafx.runtime.location.*;
 
 /**
  * BoundNumberRangeSequence
  *
  * @author Zhiqun Chen
  */
-public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> implements SequenceLocation<Double> {
+public class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements SequenceLocation<Float> {
 
-    private final DoubleLocation lowerLoc, upperLoc, stepLoc;
+    private final FloatLocation lowerLoc, upperLoc, stepLoc;
     private final boolean exclusive;
-    private double lower, upper, step;
+    private float lower, upper, step;
     private int size;
 
-    public BoundNumberRangeSequence(DoubleLocation lowerLoc, DoubleLocation upperLoc) {
-        this(lowerLoc, upperLoc, DoubleConstant.make(1), false);
+    public BoundNumberRangeSequence(FloatLocation lowerLoc, FloatLocation upperLoc) {
+        this(lowerLoc, upperLoc, FloatConstant.make(1), false);
     }
 
-    public BoundNumberRangeSequence(DoubleLocation lowerLoc, DoubleLocation upperLoc, DoubleLocation stepLoc) {
+    public BoundNumberRangeSequence(FloatLocation lowerLoc, FloatLocation upperLoc, FloatLocation stepLoc) {
         this(lowerLoc, upperLoc, stepLoc, false);
     }
 
-    public BoundNumberRangeSequence(DoubleLocation lowerLoc, DoubleLocation upperLoc, boolean exclusive) {
-        this(lowerLoc, upperLoc, DoubleConstant.make(1), exclusive);
+    public BoundNumberRangeSequence(FloatLocation lowerLoc, FloatLocation upperLoc, boolean exclusive) {
+        this(lowerLoc, upperLoc, FloatConstant.make(1), exclusive);
     }
 
-    public BoundNumberRangeSequence(DoubleLocation lowerLoc, DoubleLocation upperLoc, DoubleLocation stepLoc, boolean exclusive) {
-        super(TypeInfo.Double);
+    public BoundNumberRangeSequence(FloatLocation lowerLoc, FloatLocation upperLoc, FloatLocation stepLoc, boolean exclusive) {
+        super(TypeInfo.Float);
         this.lowerLoc = lowerLoc;
         this.upperLoc = upperLoc;
         this.stepLoc = stepLoc;
@@ -63,17 +60,17 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> impl
         addTriggers();
     }
 
-    private Sequence<Double> computeValue() {
+    private Sequence<Float> computeValue() {
         computeBounds(lowerLoc.get(), upperLoc.get(), stepLoc.get());
         return computeFull(lower, upper, step);
     }
 
-    private Sequence<Double> computeFull(double lower, double upper, double step) {
+    private Sequence<Float> computeFull(float lower, float upper, float step) {
     
         return exclusive ? Sequences.rangeExclusive(lower, upper, step) : Sequences.range(lower, upper, step);
     }
 
-    private void computeBounds(double newLower, double newUpper, double newStep) {       
+    private void computeBounds(float newLower, float newUpper, float newStep) {
         lower = newLower;
         upper = newUpper;
         step = newStep;
@@ -102,13 +99,13 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> impl
     }
 
     private void addTriggers() {
-        lowerLoc.addChangeListener(new DoubleChangeListener() {
-            public void onChange(double oldValue, double newValue) {
+        lowerLoc.addChangeListener(new FloatChangeListener() {
+            public void onChange(float oldValue, float newValue) {
                 
                 assert oldValue != newValue;
                 int oldSize = size;
                 computeBounds(newValue, upper, step);
-                Sequence<Double> newElements;
+                Sequence<Float> newElements;
 
                 if (oldSize == 0) {
                     updateSlice(0, -1, computeFull(lower, upper, step));
@@ -126,7 +123,7 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> impl
                 else if (oldSize >= size) {
                     if (((newValue - oldValue) % step) == 0) {
                         
-                        updateSlice(0, oldSize - size - 1, TypeInfo.Double.emptySequence);
+                        updateSlice(0, oldSize - size - 1, TypeInfo.Float.emptySequence);
                     }
                     else {
                         newElements = computeFull(lower, upper, step);
@@ -135,8 +132,8 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> impl
                 }
             }
         });
-        upperLoc.addChangeListener(new DoubleChangeListener() {
-            public void onChange(double oldValue, double newValue) {
+        upperLoc.addChangeListener(new FloatChangeListener() {
+            public void onChange(float oldValue, float newValue) {
                 
                 assert oldValue != newValue;         
                 int oldSize = size;
@@ -152,19 +149,19 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Double> impl
                    updateSlice(oldSize, oldSize - 1, computeFull(lower+oldSize*step, upper, step));
                 }
                 else if (oldSize > size) {
-                    updateSlice(size, oldSize - 1, TypeInfo.Double.emptySequence);
+                    updateSlice(size, oldSize - 1, TypeInfo.Float.emptySequence);
                 }
             }
         });
 
-        stepLoc.addChangeListener(new DoubleChangeListener() {
-            public void onChange(double oldValue, double newValue) {
+        stepLoc.addChangeListener(new FloatChangeListener() {
+            public void onChange(float oldValue, float newValue) {
                 
                 assert oldValue != newValue;                                  
                 int oldSize = size;
                 computeBounds(lower, upper, newValue);
 
-                Sequence<Double> newSeq = computeFull(lower, upper, step);
+                Sequence<Float> newSeq = computeFull(lower, upper, step);
                 updateSlice(0, oldSize - 1, newSeq, newSeq);
             }
         });

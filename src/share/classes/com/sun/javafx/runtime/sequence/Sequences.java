@@ -189,21 +189,21 @@ public final class Sequences extends SequenceConversions {
     }
 
     /** Create a double range sequence ranging from lower to upper inclusive, incrementing by 1.0 */
-    public static Sequence<Double> range(double lower, double upper) {
-        return new NumberRangeSequence(lower, upper, 1.0);
+    public static Sequence<Float> range(float lower, float upper) {
+        return new NumberRangeSequence(lower, upper, 1.0f);
     }
 
     /** Create a double range sequence ranging from lower to upper inclusive, incrementing by the specified step. */
-    public static Sequence<Double> range(double lower, double upper, double step) {
+    public static Sequence<Float> range(float lower, float upper, float step) {
         return new NumberRangeSequence(lower, upper, step);
     }
 
     /** Create a double range sequence ranging from lower to upper exnclusive */
-     public static Sequence<Double> rangeExclusive(double lower, double upper) {
-        return new NumberRangeSequence(lower, upper, 1.0, true);
+     public static Sequence<Float> rangeExclusive(float lower, float upper) {
+        return new NumberRangeSequence(lower, upper, 1.0f, true);
     }
     /** Create a double range sequence ranging from lower to upper exnclusive, incrementing by the specified step. */
-    public static Sequence<Double> rangeExclusive(double lower, double upper, double step) {
+    public static Sequence<Float> rangeExclusive(float lower, float upper, float step) {
         return new NumberRangeSequence(lower, upper, step, true);
     }
 

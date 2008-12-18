@@ -33,14 +33,14 @@ import com.sun.javafx.runtime.TypeInfo;
  *
  * @author Brian Goetz
  */
-class NumberRangeSequence extends AbstractSequence<Double> implements Sequence<Double> {
+class NumberRangeSequence extends AbstractSequence<Float> implements Sequence<Float> {
 
-    private final double start, step;
+    private final float start, step;
     private final int size;
 
 
-    public NumberRangeSequence(double start, double bound, double step, boolean exclusive) {
-        super(TypeInfo.Double);
+    public NumberRangeSequence(float start, float bound, float step, boolean exclusive) {
+        super(TypeInfo.Float);
         this.start = start;
         this.step = step;
         if (bound == start) {
@@ -66,7 +66,7 @@ class NumberRangeSequence extends AbstractSequence<Double> implements Sequence<D
         }
     }
 
-    public NumberRangeSequence(double start, double bound, double step) {
+    public NumberRangeSequence(float start, float bound, float step) {
         this(start, bound, step, false);
     }
 
@@ -76,9 +76,9 @@ class NumberRangeSequence extends AbstractSequence<Double> implements Sequence<D
     }
 
     @Override
-    public Double get(int position) {
+    public Float get(int position) {
         if (position < 0 || position >= size)
-            return Double.valueOf(0.0);
+            return 0.0f;
         else
             return (start + position * step);
     }
@@ -89,7 +89,7 @@ class NumberRangeSequence extends AbstractSequence<Double> implements Sequence<D
             throw new ArrayIndexOutOfBoundsException();
 
         int index = destOffset;
-        for (double value = start + sourceOffset*step; index < destOffset+length; value += step, index++)
+        for (float value = start + sourceOffset*step; index < destOffset+length; value += step, index++)
             dest[index] = value;
     }
 }

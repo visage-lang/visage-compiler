@@ -38,165 +38,165 @@ import com.sun.javafx.runtime.location.SequenceVariable;
  * @author Per Bothner
  */
 public class NumberSequenceTest extends JavaFXTestCase {
-    private final Sequence<Double> EMPTY_SEQUENCE = TypeInfo.Double.emptySequence;
-    private final Sequence<Double> ZERO_SEQUENCE = new ArraySequence<Double>(TypeInfo.Double, 0.0).noteShared();
+    private final Sequence<Float> EMPTY_SEQUENCE = TypeInfo.Float.emptySequence;
+    private final Sequence<Float> ZERO_SEQUENCE = new ArraySequence<Float>(TypeInfo.Float, 0.0f).noteShared();
 
     /** Test ranges, including skip ranges and backwards ranges */
     public void testRange() {
         // [ 0..0 ] => [ 0 ]
-        assertEquals(Sequences.range(0.0, 0.0, 1.0), 0.0);
+        assertEquals(Sequences.range(0.0f, 0.0f, 1.0f), 0.0f);
         // [ 0..<0 ] => [ 0 ]
-        assertEquals(Sequences.rangeExclusive(0.0, 0.0, 1.0), EMPTY_SEQUENCE);
+        assertEquals(Sequences.rangeExclusive(0.0f, 0.0f, 1.0f), EMPTY_SEQUENCE);
         // [ 0..-1 ] => [ ]
-        assertEquals(Sequences.range(0.0, -1.0, 1.0), EMPTY_SEQUENCE);
+        assertEquals(Sequences.range(0.0f, -1.0f, 1.0f), EMPTY_SEQUENCE);
         // [ 0..0 STEP 3 ] => [ 0 ]
-        assertEquals(Sequences.range(0.0, 0.0, 3.0), 0.0);
+        assertEquals(Sequences.range(0.0f, 0.0f, 3.0f), 0.0f);
         // [ 0..<0 STEP 3 ] => [ 0 ]
-        assertEquals(Sequences.rangeExclusive(0.0, 0.0, 3.0), EMPTY_SEQUENCE);
+        assertEquals(Sequences.rangeExclusive(0.0f, 0.0f, 3.0f), EMPTY_SEQUENCE);
         // [ 0..1 ] => [ 0, 1 ]
-        assertEquals(Sequences.range(0.0, 1.0, 1.0), 0.0, 1.0);
+        assertEquals(Sequences.range(0.0f, 1.0f, 1.0f), 0.0f, 1.0f);
         // [ 0..<1 ] => [ 0 ]
-        assertEquals(Sequences.rangeExclusive(0.0, 1.0, 1.0), 0.0);
+        assertEquals(Sequences.rangeExclusive(0.0f, 1.0f, 1.0f), 0.0f);
         // [ 0..1 STEP 2 ] => [ 0 ]
-        assertEquals(Sequences.range(0.0, 1.0, 2.0), 0.0);
+        assertEquals(Sequences.range(0.0f, 1.0f, 2.0f), 0.0f);
         // [ 1..3 STEP 2 ] => [ 1, 3 ]
-        assertEquals(Sequences.range(1.0, 3.0, 2.0), 1.0, 3.0);
+        assertEquals(Sequences.range(1.0f, 3.0f, 2.0f), 1.0f, 3.0f);
         // [ 1..<3 STEP 2 ] => [ 1 ]
-        assertEquals(Sequences.rangeExclusive(1.0, 3.0, 2.0), 1.0);
+        assertEquals(Sequences.rangeExclusive(1.0f, 3.0f, 2.0f), 1.0f);
         // [ 1..4 STEP 2 ] => [ 1, 3 ]
-        assertEquals(Sequences.range(1.0, 4.0, 2.0), 1.0, 3.0);
+        assertEquals(Sequences.range(1.0f, 4.0f, 2.0f), 1.0f, 3.0f);
         // [ 1..<4 STEP 2 ] => [ 1, 3 ]
-        assertEquals(Sequences.rangeExclusive(1.0, 4.0, 2.0), 1.0, 3.0);
+        assertEquals(Sequences.rangeExclusive(1.0f, 4.0f, 2.0f), 1.0f, 3.0f);
 
         // [ 5..3 ] => [ 5, 4, 3 ]
-        assertEquals(Sequences.range(5.0, 3.0, -1.0), 5.0, 4.0, 3.0);
+        assertEquals(Sequences.range(5.0f, 3.0f, -1.0f), 5.0f, 4.0f, 3.0f);
         // [ 5..>3 ] => [ 5, 4 ]
-        assertEquals(Sequences.rangeExclusive(5.0, 3.0, -1.0), 5.0, 4.0);
+        assertEquals(Sequences.rangeExclusive(5.0f, 3.0f, -1.0f), 5.0f, 4.0f);
         // [ 5..3 STEP 2 ] => [ 5, 3 ]
-        assertEquals(Sequences.range(5.0, 3.0, -2.0), 5.0, 3.0);
+        assertEquals(Sequences.range(5.0f, 3.0f, -2.0f), 5.0f, 3.0f);
         // [ 5..>3 STEP 2 ] => [ 5 ]
-        assertEquals(Sequences.rangeExclusive(5.0, 3.0, -2.0), 5.0 );
+        assertEquals(Sequences.rangeExclusive(5.0f, 3.0f, -2.0f), 5.0f );
         // [ 5..2 STEP 2 ] => [ 5, 3 ]
-        assertEquals(Sequences.range(5.0, 2.0, -2.0), 5.0, 3.0);
+        assertEquals(Sequences.range(5.0f, 2.0f, -2.0f), 5.0f, 3.0f);
         // [ 5..>2 STEP 2 ] => [ 5, 3 ]
-        assertEquals(Sequences.rangeExclusive(5.0, 2.0, -2.0), 5.0, 3.0);
+        assertEquals(Sequences.rangeExclusive(5.0f, 2.0f, -2.0f), 5.0f, 3.0f);
 
         // [ 0..1 by .5 ] => [ 0, .5, 1 ]
-        assertEquals(Sequences.range(0.0, 1.0, 0.5), 0.0, 0.5, 1.0);
+        assertEquals(Sequences.range(0.0f, 1.0f, 0.5f), 0.0f, 0.5f, 1.0f);
         // [ 0..1 by .2 ] => [ 0, .2, .4, .6, .8, 1 ]
-        assertEquals(Sequences.range(0.0, 1.0, 0.2), 0.0, 0.2, 0.4, 0.6, 0.8, 1.0);
+        assertEquals(Sequences.range(0.0f, 1.0f, 0.2f), 0.0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f);
         // [ 1..0 by -.2 ] => [ 1, .8, .6., .4, .2, 0 ]
-        assertEquals(Sequences.range(1.0, 0.0, -0.2), 1.0, 0.8, 0.6, 0.4, 0.2, 0.0);
+        assertEquals(Sequences.range(1.0f, 0.0f, -0.2f), 1.0f, 0.8f, 0.6f, 0.4f, 0.2f, 0.0f);
         // [ 0..<1 by .2 ] => [ 0, .2, .4, .6, .8, 1 ]
-        assertEquals(Sequences.rangeExclusive(0.0, 1.0, 0.2), 0.0, 0.2, 0.4, 0.6, 0.8);
+        assertEquals(Sequences.rangeExclusive(0.0f, 1.0f, 0.2f), 0.0f, 0.2f, 0.4f, 0.6f, 0.8f);
         // [ 1..<0 by -.2 ] => [ 1, .8, .6., .4, .2, 0 ]
-        assertEquals(Sequences.rangeExclusive(1.0, 0.0, -0.2), 1.0, 0.8, 0.6, 0.4, 0.2);
+        assertEquals(Sequences.rangeExclusive(1.0f, 0.0f, -0.2f), 1.0f, 0.8f, 0.6f, 0.4f, 0.2f);
         // [ 0..1 by .3 ] => [ 0, .3, .6, .9 ]
-        assertEquals(Sequences.range(0.0, 1.0, 0.3), 0.0, 0.3, 0.6, 0.9);
+        assertEquals(Sequences.range(0.0f, 1.0f, 0.3f), 0.0f, 0.3f, 0.6f, 0.9f);
         // [ 0..<1 by .3 ] => [ 0, .3, .6, .9 ]
-        assertEquals(Sequences.rangeExclusive(0.0, 1.0, 0.3), 0.0, 0.3, 0.6, 0.9);
+        assertEquals(Sequences.rangeExclusive(0.0f, 1.0f, 0.3f), 0.0f, 0.3f, 0.6f, 0.9f);
     }
 
     /** Test ranges, including skip ranges and backwards ranges */
     public void testRangeToArray() {
-        Double[] actuals = new Double[0];
+        Float[] actuals = new Float[0];
         // [ 0..-1 ] => [ ]
-        Sequences.range(0.0, -1.0, 1.0).toArray(0, 0, actuals, 0);
-        assertArrayEquals(new Double[0], actuals);
+        Sequences.range(0.0f, -1.0f, 1.0f).toArray(0, 0, actuals, 0);
+        assertArrayEquals(new Float[0], actuals);
         // [ 0..<0 ] => [ ]
-        Sequences.rangeExclusive(0.0, 0.0, 1.0).toArray(0, 0, actuals, 0);
-        assertArrayEquals(new Double[0], actuals);
+        Sequences.rangeExclusive(0.0f, 0.0f, 1.0f).toArray(0, 0, actuals, 0);
+        assertArrayEquals(new Float[0], actuals);
         // [ 0..<0 STEP 3 ] => [ 0 ]
-        Sequences.rangeExclusive(0.0, 0.0, 3.0).toArray(0, 0, actuals, 0);
-        assertArrayEquals(new Double[0], actuals);
+        Sequences.rangeExclusive(0.0f, 0.0f, 3.0f).toArray(0, 0, actuals, 0);
+        assertArrayEquals(new Float[0], actuals);
 
-        actuals = new Double[1];
+        actuals = new Float[1];
         // [ 0..0 ] => [ 0 ]
-        Sequences.range(0.0, 0.0, 1.0).toArray(0, 1, actuals, 0);
-        assertArrayEquals(new Double[] {0.0}, actuals);
+        Sequences.range(0.0f, 0.0f, 1.0f).toArray(0, 1, actuals, 0);
+        assertArrayEquals(new Float[] {0.0f}, actuals);
         // [ 0..0 STEP 3 ] => [ 0 ]
-        Sequences.range(0.0, 0.0, 3.0).toArray(0, 1, actuals, 0);
-        assertArrayEquals(new Double[] {0.0}, actuals);
+        Sequences.range(0.0f, 0.0f, 3.0f).toArray(0, 1, actuals, 0);
+        assertArrayEquals(new Float[] {0.0f}, actuals);
         // [ 0..<1 ] => [ 0 ]
-        Sequences.rangeExclusive(0.0, 1.0, 1.0).toArray(0, 1, actuals, 0);
-        assertArrayEquals(new Double[] {0.0}, actuals);
+        Sequences.rangeExclusive(0.0f, 1.0f, 1.0f).toArray(0, 1, actuals, 0);
+        assertArrayEquals(new Float[] {0.0f}, actuals);
         // [ 0..1 STEP 2 ] => [ 0 ]
-        Sequences.range(0.0, 1.0, 2.0).toArray(0, 1, actuals, 0);
-        assertArrayEquals(new Double[] {0.0}, actuals);
+        Sequences.range(0.0f, 1.0f, 2.0f).toArray(0, 1, actuals, 0);
+        assertArrayEquals(new Float[] {0.0f}, actuals);
         // [ 1..<3 STEP 2 ] => [ 1 ]
-        Sequences.range(1.0, 3.0, 2.0).toArray(0, 1, actuals, 0);
-        assertArrayEquals(new Double[] {1.0}, actuals);
+        Sequences.range(1.0f, 3.0f, 2.0f).toArray(0, 1, actuals, 0);
+        assertArrayEquals(new Float[] {1.0f}, actuals);
         // [ 5..>3 STEP 2 ] => [ 5 ]
-        Sequences.rangeExclusive(5.0, 3.0, -2.0).toArray(0, 1, actuals, 0);
-        assertArrayEquals(new Double[] {5.0}, actuals);
+        Sequences.rangeExclusive(5.0f, 3.0f, -2.0f).toArray(0, 1, actuals, 0);
+        assertArrayEquals(new Float[] {5.0f}, actuals);
         
-        actuals = new Double[2];
+        actuals = new Float[2];
         // [ 0..1 ] => [ 0, 1 ]
-        Sequences.range(0.0, 1.0, 1.0).toArray(0, 2, actuals, 0);
-        assertArrayEquals(new Double[] {0.0, 1.0}, actuals);
+        Sequences.range(0.0f, 1.0f, 1.0f).toArray(0, 2, actuals, 0);
+        assertArrayEquals(new Float[] {0.0f, 1.0f}, actuals);
         // [ 1..3 STEP 2 ] => [ 1, 3 ]
-        Sequences.range(1.0, 3.0, 2.0).toArray(0, 2, actuals, 0);
-        assertArrayEquals(new Double[] {1.0, 3.0}, actuals);
+        Sequences.range(1.0f, 3.0f, 2.0f).toArray(0, 2, actuals, 0);
+        assertArrayEquals(new Float[] {1.0f, 3.0f}, actuals);
         // [ 1..4 STEP 2 ] => [ 1, 3 ]
-        Sequences.range(1.0, 4.0, 2.0).toArray(0, 2, actuals, 0);
-        assertArrayEquals(new Double[] {1.0, 3.0}, actuals);
+        Sequences.range(1.0f, 4.0f, 2.0f).toArray(0, 2, actuals, 0);
+        assertArrayEquals(new Float[] {1.0f, 3.0f}, actuals);
         // [ 1..<4 STEP 2 ] => [ 1, 3 ]
-        Sequences.rangeExclusive(1.0, 4.0, 2.0).toArray(0, 2, actuals, 0);
-        assertArrayEquals(new Double[] {1.0, 3.0}, actuals);
+        Sequences.rangeExclusive(1.0f, 4.0f, 2.0f).toArray(0, 2, actuals, 0);
+        assertArrayEquals(new Float[] {1.0f, 3.0f}, actuals);
         // [ 5..<3 ] => [ 5, 4 ]
-        Sequences.rangeExclusive(5.0, 3.0, -1.0).toArray(0, 2, actuals, 0);
-        assertArrayEquals(new Double[] {5.0, 4.0}, actuals);
+        Sequences.rangeExclusive(5.0f, 3.0f, -1.0f).toArray(0, 2, actuals, 0);
+        assertArrayEquals(new Float[] {5.0f, 4.0f}, actuals);
         // [ 5..3 STEP 2 ] => [ 5, 3 ]
-        Sequences.range(5.0, 3.0, -2.0).toArray(0, 2, actuals, 0);
-        assertArrayEquals(new Double[] {5.0, 3.0}, actuals);
+        Sequences.range(5.0f, 3.0f, -2.0f).toArray(0, 2, actuals, 0);
+        assertArrayEquals(new Float[] {5.0f, 3.0f}, actuals);
         // [ 5..2 STEP 2 ] => [ 5, 3 ]
-        Sequences.range(5.0, 2.0, -2.0).toArray(0, 2, actuals, 0);
-        assertArrayEquals(new Double[] {5.0, 3.0}, actuals);
+        Sequences.range(5.0f, 2.0f, -2.0f).toArray(0, 2, actuals, 0);
+        assertArrayEquals(new Float[] {5.0f, 3.0f}, actuals);
         // [ 5..<2 STEP 2 ] => [ 5, 3 ]
-        Sequences.rangeExclusive(5.0, 2.0, -2.0).toArray(0, 2, actuals, 0);
-        assertArrayEquals(new Double[] {5.0, 3.0}, actuals);
+        Sequences.rangeExclusive(5.0f, 2.0f, -2.0f).toArray(0, 2, actuals, 0);
+        assertArrayEquals(new Float[] {5.0f, 3.0f}, actuals);
 
-        actuals = new Double[3];
+        actuals = new Float[3];
         // [ 5..3 ] => [ 5, 4, 3 ]
-        Sequences.range(5.0, 3.0, -1.0).toArray(0, 3, actuals, 0);
-        assertArrayEquals(new Double[] {5.0, 4.0, 3.0}, actuals);
+        Sequences.range(5.0f, 3.0f, -1.0f).toArray(0, 3, actuals, 0);
+        assertArrayEquals(new Float[] {5.0f, 4.0f, 3.0f}, actuals);
         // [ 0..1 STEP .5 ] => [ 0, .5, 1 ]
-        Sequences.range(0.0, 1.0, 0.5).toArray(0, 3, actuals, 0);
-        assertArrayEquals(new Double[] {0.0, 0.5, 1.0}, actuals);
+        Sequences.range(0.0f, 1.0f, 0.5f).toArray(0, 3, actuals, 0);
+        assertArrayEquals(new Float[] {0.0f, 0.5f, 1.0f}, actuals);
 
-        actuals = new Double[4];
+        actuals = new Float[4];
         // [ 0..1 STEP .3 ] => [ 0, .3, .6, .9 ]
-        Sequences.range(0.0, 1.0, 0.3).toArray(0, 4, actuals, 0);
-        assertArrayEquals(new Double[] {0.0, 0.3, 0.6, 0.9}, actuals);
+        Sequences.range(0.0f, 1.0f, 0.3f).toArray(0, 4, actuals, 0);
+        assertArrayEquals(new Float[] {0.0f, 0.3f, 0.6f, 0.9f}, actuals);
         // [ 0..<1 STEP .3 ] => [ 0, .3, .6, .9 ]
-        Sequences.rangeExclusive(0.0, 1.0, 0.3).toArray(0, 4, actuals, 0);
-        assertArrayEquals(new Double[] {0.0, 0.3, 0.6, 0.9}, actuals);
+        Sequences.rangeExclusive(0.0f, 1.0f, 0.3f).toArray(0, 4, actuals, 0);
+        assertArrayEquals(new Float[] {0.0f, 0.3f, 0.6f, 0.9f}, actuals);
 
-        actuals = new Double[5];
+        actuals = new Float[5];
         // [ 0..<1 STEP .2 ] => [ 0, .2, .4, .6, .8, 1 ]
-        Sequences.rangeExclusive(0.0, 1.0, 0.2).toArray(0, 5, actuals, 0);
-        assertArrayEquals(new Double[] {0.0, 0.2, 0.4, 0.6, 0.8}, actuals);
+        Sequences.rangeExclusive(0.0f, 1.0f, 0.2f).toArray(0, 5, actuals, 0);
+        assertArrayEquals(new Float[] {0.0f, 0.2f, 0.4f, 0.6f, 0.8f}, actuals);
         // [ 1..<0 STEP -.2 ] => [ 1, .8, .6., .4, .2, 0 ]
-        Sequences.rangeExclusive(1.0, 0.0, -0.2).toArray(0, 5, actuals, 0);
-        assertArrayEquals(new Double[] {1.0, 0.8, 0.6, 0.4, 0.2}, actuals);
+        Sequences.rangeExclusive(1.0f, 0.0f, -0.2f).toArray(0, 5, actuals, 0);
+        assertArrayEquals(new Float[] {1.0f, 0.8f, 0.6f, 0.4f, 0.2f}, actuals);
 
-        actuals = new Double[6];
+        actuals = new Float[6];
         // [ 0..1 STEP .2 ] => [ 0, .2, .4, .6, .8, 1 ]
-        Sequences.range(0.0, 1.0, 0.2).toArray(0, 6, actuals, 0);
-        assertArrayEquals(new Double[] {0.0, 0.2, 0.4, 0.6, 0.8, 1.0}, actuals);
+        Sequences.range(0.0f, 1.0f, 0.2f).toArray(0, 6, actuals, 0);
+        assertArrayEquals(new Float[] {0.0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f}, actuals);
         // [ 1..0 STEP -.2 ] => [ 1, .8, .6., .4, .2, 0 ]
-        Sequences.range(1.0, 0.0, -0.2).toArray(0, 6, actuals, 0);
-        assertArrayEquals(new Double[] {1.0, 0.8, 0.6, 0.4, 0.2, 0.0}, actuals);
+        Sequences.range(1.0f, 0.0f, -0.2f).toArray(0, 6, actuals, 0);
+        assertArrayEquals(new Float[] {1.0f, 0.8f, 0.6f, 0.4f, 0.2f, 0.0f}, actuals);
 
         // source-offset
-        actuals = new Double[2];
-        Sequence<Double> THREE_ELEMENTS = Sequences.range(1.0, 3.0, 1.0);
+        actuals = new Float[2];
+        Sequence<Float> THREE_ELEMENTS = Sequences.range(1.0f, 3.0f, 1.0f);
         THREE_ELEMENTS.toArray(0, 2, actuals, 0);
-        assertArrayEquals(new Double[] {1.0, 2.0}, actuals);
+        assertArrayEquals(new Float[] {1.0f, 2.0f}, actuals);
         THREE_ELEMENTS.toArray(1, 2, actuals, 0);
-        assertArrayEquals(new Double[] {2.0, 3.0}, actuals);
+        assertArrayEquals(new Float[] {2.0f, 3.0f}, actuals);
         
-        actuals = new Double[2];
+        actuals = new Float[2];
         try {
             THREE_ELEMENTS.toArray(-1, 2, actuals, 0);
             fail("Expected ArrayIndexOutOfBoundsException");
@@ -215,19 +215,19 @@ public class NumberSequenceTest extends JavaFXTestCase {
             fail("Unexpected exception: " + ex.toString());
         }
 
-        actuals = new Double[0];
+        actuals = new Float[0];
         THREE_ELEMENTS.toArray(3, 0, actuals, 0);
-        assertArrayEquals(new Double[0], actuals);
+        assertArrayEquals(new Float[0], actuals);
 
         
         // dest-offset
-        actuals = new Double[4];
-        actuals[0] = 2.0;
+        actuals = new Float[4];
+        actuals[0] = 2.0f;
         THREE_ELEMENTS.toArray(0, 3, actuals, 1);
-        assertArrayEquals(new Double[] {2.0, 1.0, 2.0, 3.0}, actuals);
-        assertEquals(THREE_ELEMENTS, 1.0, 2.0, 3.0);
+        assertArrayEquals(new Float[] {2.0f, 1.0f, 2.0f, 3.0f}, actuals);
+        assertEquals(THREE_ELEMENTS, 1.0f, 2.0f, 3.0f);
 
-        actuals = new Double[3];
+        actuals = new Float[3];
         try {
             THREE_ELEMENTS.toArray(0, 3, actuals, -1);
             fail("Expected ArrayIndexOutOfBoundsException");
@@ -286,7 +286,7 @@ public class NumberSequenceTest extends JavaFXTestCase {
         assertEquals(Sequences.fromArray(new boolean[] { true, false, true } ), true, false, true);
 
         assertEquals(Sequences.toArray(Sequences.range(1, 3)), 1, 2, 3);
-        assertEquals(Sequences.toDoubleArray(Sequences.range(1.0, 3.0)), 1.0, 2.0, 3.0);
+        assertEquals(Sequences.toDoubleArray(Sequences.range(1.0f, 3.0f)), 1.0f, 2.0f, 3.0f);
         assertEquals(Sequences.toArray(Sequences.fromArray(new boolean[] { true, false })), true, false);
         assertEquals(Sequences.toArray(Sequences.fromArray(new long[] { 1, 2, 3})), 1L, 2L, 3L);
     }
@@ -294,11 +294,11 @@ public class NumberSequenceTest extends JavaFXTestCase {
     public void testOverflow() {
         assertThrows(IllegalArgumentException.class, new VoidCallable() {
             public void call() throws Exception {
-                Sequence<Double> seq = Sequences.range(1.0, 1000000000.0, .01);
+                Sequence<Float> seq = Sequences.range(1.0f, 1000000000.0f, .01f);
             }
         });
-        Sequence<Double> seq = Sequences.range(1.0, Integer.MAX_VALUE, 1.0);
-        assertEquals(seq.size(), Integer.MAX_VALUE);
+        Sequence<Float> seq = Sequences.range(1.0f, Short.MAX_VALUE, 1.0f);
+        assertEquals(seq.size(), Short.MAX_VALUE);
     }
 
     public void testConversions() {

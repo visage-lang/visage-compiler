@@ -142,19 +142,19 @@ public class BoundSequences {
     }
 
     
-    public static SequenceLocation<Double> range(DoubleLocation a, DoubleLocation b) {
+    public static SequenceLocation<Float> range(FloatLocation a, FloatLocation b) {
         return new BoundNumberRangeSequence(a, b);
     }
     
-    public static SequenceLocation<Double> range(DoubleLocation a, DoubleLocation b, DoubleLocation step) {
+    public static SequenceLocation<Float> range(FloatLocation a, FloatLocation b, FloatLocation step) {
         return new BoundNumberRangeSequence(a, b, step);
     }
 
-    public static SequenceLocation<Double> range(DoubleLocation a, DoubleLocation b, boolean exclusive) {
+    public static SequenceLocation<Float> range(FloatLocation a, FloatLocation b, boolean exclusive) {
         return new BoundNumberRangeSequence(a, b, exclusive);
     }
 
-    public static SequenceLocation<Double> range(DoubleLocation a, DoubleLocation b, DoubleLocation step, boolean exclusive) {
+    public static SequenceLocation<Float> range(FloatLocation a, FloatLocation b, FloatLocation step, boolean exclusive) {
         return new BoundNumberRangeSequence(a, b, step, exclusive);
     }
     

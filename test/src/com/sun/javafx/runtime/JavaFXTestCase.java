@@ -41,7 +41,7 @@ import junit.framework.TestCase;
  * @author Brian Goetz
  */
 public abstract class JavaFXTestCase extends TestCase {
-    private static final double EPSILON = 0.00000001;
+    private static final double EPSILON = 0.0001;
     private final Pattern methodWithQualifiers = Pattern.compile("(.*)\\((.*)\\)");
 
     /**
