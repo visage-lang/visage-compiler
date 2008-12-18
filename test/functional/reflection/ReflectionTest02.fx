@@ -57,7 +57,7 @@ class TestClass extends BaseTestClass  {
    var vintAttr3 = sizeof (for(i in [9..100] ) {i} );
    var vintSeq1= fbFunc3([1..100]);
    var vseq3 =[new String (),"ty1","ty2"];
-   var vseq4 =[1,0.2,new Integer(2)];
+   var vseq4 =[1,0.2,new java.lang.Integer(2)];
    var vobjAttr1 = null;
    var vobjAttr2 = if(true){1}else {"av"};
    var vbooleanAttr1;

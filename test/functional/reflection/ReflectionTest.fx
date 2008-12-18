@@ -35,7 +35,7 @@ class TypeInference  {
    var intSeq1= func3([1..100]);
    var seq2 =[TypeInference{},TypeInference3{},new TypeInference3()]; //Type infered to TypeInference 
    var seq3 =[new String (),"ty1","ty2"];
-   var seq4 =[1,0.2,new Integer(2)];
+   var seq4 =[1,0.2,new java.lang.Integer(2)];
    var objAttr1 = null;
    var objAttr2 = if(true){1}else {"av"};
    var booleanAttr1;
