@@ -498,17 +498,15 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     List.of(makeTypeInfo(diagPos, targetElemType), translated));
         }
         if (targetIsSequence && sourceIsSequence) {
-            Type sourceElemType = types.elementType(sourceType);
-            Type targetElemType = types.elementType(targetType);
-            if (!types.isSameType(sourceElemType, targetElemType) &&
-                isNumeric(sourceElemType) && isNumeric(targetElemType)) {
-                JCExpression srcTypeInfo = makeTypeInfo(diagPos, sourceElemType);
-                JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElemType);
-                JCExpression cSequences = makeTypeTree(diagPos, syms.javafx_SequencesType, false);
-                return callExpression(diagPos,
+            Type sourceElementType = types.elementType(sourceType);
+            Type targetElementType = types.elementType(targetType);
+            if (!types.isSameType(sourceElementType, targetElementType) &&
+                    isNumeric(sourceElementType) && isNumeric(targetElementType)) {
+                return convertNumericSequence(diagPos,
                         cSequences,
-                        "convertNumberSequence",
-                        List.of(targetTypeInfo, srcTypeInfo, translated));
+                        translated,
+                        sourceElementType,
+                        targetElementType);
             }
         }
 

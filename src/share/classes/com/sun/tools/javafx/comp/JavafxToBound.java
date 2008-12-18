@@ -223,16 +223,24 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         Type targetType = tmiTarget.getRealType();
         if (!types.isSameType(inType, targetType)) {
             if (types.isSequence(targetType) && types.isSequence(inType)) {
-                Type targetElementType = tmiTarget.getElementType();
+                Type targetElementType = types.elementType(targetType);
                 if (targetElementType == null) {  // runtime classes written in Java do this
                     tree.type = inType;
                     return tree;
                 }
                 // this additional test is needed because wildcards compare as different
-                Type inElementType = typeMorpher.typeMorphInfo(inType).getElementType();
-                if (!types.isSameType(inElementType, targetElementType)) {
-                    JCExpression targetClass = makeTypeInfo(diagPos, targetElementType);
-                    tree = runtime(diagPos, cBoundSequences, "upcast", List.of(targetClass, tree));
+                Type sourceElementType = types.elementType(inType);
+                if (!types.isSameType(sourceElementType, targetElementType)) {
+                    if (isNumeric(sourceElementType) && isNumeric(targetElementType)) {
+                        tree = convertNumericSequence(diagPos,
+                                cBoundSequences,
+                                tree,
+                                sourceElementType,
+                                targetElementType);
+                    } else {
+                        JCExpression targetClass = makeTypeInfo(diagPos, targetElementType);
+                        tree = runtime(diagPos, cBoundSequences, "upcast", List.of(targetClass, tree));
+                    }
                 }
             } else if (targetType.isPrimitive() && inType.isPrimitive()) {
                 JCExpression classTypeExpr = makeIdentifier(diagPos, cLocations + "." + primitiveTypeName(inType) + "To" + primitiveTypeName(targetType) + "LocationConversionWrapper");

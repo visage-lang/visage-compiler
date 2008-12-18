@@ -73,13 +73,17 @@ public class JavafxDefs {
     public static final String invokeNameString = "invoke";
     public static final String lambdaNameString = "lambda";
     public static final String isInitializedNameString = "isInitialized";
+    public static final String convertNumberSequence = "convertNumberSequence";
     
     public static final String javaLangPackageNameString = "java.lang";
     public static final String runtimePackageNameString = "com.sun.javafx.runtime";
     public static final String annotationPackageNameString = "com.sun.javafx.runtime.annotation";
     public static final String locationPackageNameString = "com.sun.javafx.runtime.location";
-    public static final String sequencePackageNameString = "com.sun.javafx.runtime.sequence";
     public static final String functionsPackageNameString = "com.sun.javafx.functions";
+    public static final String sequencePackageNameString = "com.sun.javafx.runtime.sequence";
+    public static final String cSequences = sequencePackageNameString + ".Sequences";
+    public static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
+    public static final String cBoundOperators = locationPackageNameString + ".BoundOperators";
 
     static final String[] milieuNames = { "", "FromLiteral" };
     public static String getMilieuName(int index) { return milieuNames[index]; }
