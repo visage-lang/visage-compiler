@@ -26,6 +26,7 @@ package com.sun.javafx.runtime.location;
 import java.util.Iterator;
 
 import com.sun.javafx.runtime.AssignToBoundException;
+import com.sun.javafx.runtime.NumericTypeInfo;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
@@ -520,7 +521,7 @@ public class Locations {
     public static class ShortToByteLocationConversionWrapper extends NumericToByteLocationConversionWrapper<ShortLocation, Short> {
 
         public ShortToByteLocationConversionWrapper(ShortLocation location) {
-            super(location);
+            super(location, TypeInfo.Short);
         }
 
         public void addChangeListener(final ByteChangeListener listener) {
@@ -543,7 +544,7 @@ public class Locations {
     public static class IntToByteLocationConversionWrapper extends NumericToByteLocationConversionWrapper<IntLocation, Integer> {
 
         public IntToByteLocationConversionWrapper(IntLocation location) {
-            super(location);
+            super(location, TypeInfo.Integer);
         }
 
         public void addChangeListener(final ByteChangeListener listener) {
@@ -566,7 +567,7 @@ public class Locations {
     public static class LongToByteLocationConversionWrapper extends NumericToByteLocationConversionWrapper<LongLocation, Long> {
 
         public LongToByteLocationConversionWrapper(LongLocation location) {
-            super(location);
+            super(location, TypeInfo.Long);
         }
 
         public void addChangeListener(final ByteChangeListener listener) {
@@ -589,7 +590,7 @@ public class Locations {
     public static class FloatToByteLocationConversionWrapper extends NumericToByteLocationConversionWrapper<FloatLocation, Float> {
 
         public FloatToByteLocationConversionWrapper(FloatLocation location) {
-            super(location);
+            super(location, TypeInfo.Float);
         }
 
         public void addChangeListener(final ByteChangeListener listener) {
@@ -612,7 +613,7 @@ public class Locations {
     public static class DoubleToByteLocationConversionWrapper extends NumericToByteLocationConversionWrapper<DoubleLocation, Double> {
 
         public DoubleToByteLocationConversionWrapper(DoubleLocation location) {
-            super(location);
+            super(location, TypeInfo.Double);
         }
 
         public void addChangeListener(final ByteChangeListener listener) {
@@ -635,7 +636,7 @@ public class Locations {
     public static class ByteToShortLocationConversionWrapper extends NumericToShortLocationConversionWrapper<ByteLocation, Byte> {
 
         public ByteToShortLocationConversionWrapper(ByteLocation location) {
-            super(location);
+            super(location, TypeInfo.Byte);
         }
 
         public void addChangeListener(final ShortChangeListener listener) {
@@ -658,7 +659,7 @@ public class Locations {
     public static class IntToShortLocationConversionWrapper extends NumericToShortLocationConversionWrapper<IntLocation, Integer> {
 
         public IntToShortLocationConversionWrapper(IntLocation location) {
-            super(location);
+            super(location, TypeInfo.Integer);
         }
 
         public void addChangeListener(final ShortChangeListener listener) {
@@ -681,7 +682,7 @@ public class Locations {
     public static class LongToShortLocationConversionWrapper extends NumericToShortLocationConversionWrapper<LongLocation, Long> {
 
         public LongToShortLocationConversionWrapper(LongLocation location) {
-            super(location);
+            super(location, TypeInfo.Long);
         }
 
         public void addChangeListener(final ShortChangeListener listener) {
@@ -704,7 +705,7 @@ public class Locations {
     public static class FloatToShortLocationConversionWrapper extends NumericToShortLocationConversionWrapper<FloatLocation, Float> {
 
         public FloatToShortLocationConversionWrapper(FloatLocation location) {
-            super(location);
+            super(location, TypeInfo.Float);
         }
 
         public void addChangeListener(final ShortChangeListener listener) {
@@ -727,7 +728,7 @@ public class Locations {
     public static class DoubleToShortLocationConversionWrapper extends NumericToShortLocationConversionWrapper<DoubleLocation, Double> {
 
         public DoubleToShortLocationConversionWrapper(DoubleLocation location) {
-            super(location);
+            super(location, TypeInfo.Double);
         }
 
         public void addChangeListener(final ShortChangeListener listener) {
@@ -750,7 +751,7 @@ public class Locations {
     public static class ByteToIntLocationConversionWrapper extends NumericToIntLocationConversionWrapper<ByteLocation, Byte> {
 
         public ByteToIntLocationConversionWrapper(ByteLocation location) {
-            super(location);
+            super(location, TypeInfo.Byte);
         }
 
         public void addChangeListener(final IntChangeListener listener) {
@@ -773,7 +774,7 @@ public class Locations {
     public static class ShortToIntLocationConversionWrapper extends NumericToIntLocationConversionWrapper<ShortLocation, Short> {
 
         public ShortToIntLocationConversionWrapper(ShortLocation location) {
-            super(location);
+            super(location, TypeInfo.Short);
         }
 
         public void addChangeListener(final IntChangeListener listener) {
@@ -796,7 +797,7 @@ public class Locations {
     public static class LongToIntLocationConversionWrapper extends NumericToIntLocationConversionWrapper<LongLocation, Long> {
 
         public LongToIntLocationConversionWrapper(LongLocation location) {
-            super(location);
+            super(location, TypeInfo.Long);
         }
 
         public void addChangeListener(final IntChangeListener listener) {
@@ -819,7 +820,7 @@ public class Locations {
     public static class FloatToIntLocationConversionWrapper extends NumericToIntLocationConversionWrapper<FloatLocation, Float> {
 
         public FloatToIntLocationConversionWrapper(FloatLocation location) {
-            super(location);
+            super(location, TypeInfo.Float);
         }
 
         public void addChangeListener(final IntChangeListener listener) {
@@ -842,7 +843,7 @@ public class Locations {
     public static class DoubleToIntLocationConversionWrapper extends NumericToIntLocationConversionWrapper<DoubleLocation, Double> {
 
         public DoubleToIntLocationConversionWrapper(DoubleLocation location) {
-            super(location);
+            super(location, TypeInfo.Double);
         }
 
         public void addChangeListener(final IntChangeListener listener) {
@@ -865,7 +866,7 @@ public class Locations {
     public static class ByteToLongLocationConversionWrapper extends NumericToLongLocationConversionWrapper<ByteLocation, Byte> {
 
         public ByteToLongLocationConversionWrapper(ByteLocation location) {
-            super(location);
+            super(location, TypeInfo.Byte);
         }
 
         public void addChangeListener(final LongChangeListener listener) {
@@ -888,7 +889,7 @@ public class Locations {
     public static class ShortToLongLocationConversionWrapper extends NumericToLongLocationConversionWrapper<ShortLocation, Short> {
 
         public ShortToLongLocationConversionWrapper(ShortLocation location) {
-            super(location);
+            super(location, TypeInfo.Short);
         }
 
         public void addChangeListener(final LongChangeListener listener) {
@@ -911,7 +912,7 @@ public class Locations {
     public static class IntToLongLocationConversionWrapper extends NumericToLongLocationConversionWrapper<IntLocation, Integer> {
 
         public IntToLongLocationConversionWrapper(IntLocation location) {
-            super(location);
+            super(location, TypeInfo.Integer);
         }
 
         public void addChangeListener(final LongChangeListener listener) {
@@ -934,7 +935,7 @@ public class Locations {
     public static class FloatToLongLocationConversionWrapper extends NumericToLongLocationConversionWrapper<FloatLocation, Float> {
 
         public FloatToLongLocationConversionWrapper(FloatLocation location) {
-            super(location);
+            super(location, TypeInfo.Float);
         }
 
         public void addChangeListener(final LongChangeListener listener) {
@@ -957,7 +958,7 @@ public class Locations {
     public static class DoubleToLongLocationConversionWrapper extends NumericToLongLocationConversionWrapper<DoubleLocation, Double> {
 
         public DoubleToLongLocationConversionWrapper(DoubleLocation location) {
-            super(location);
+            super(location, TypeInfo.Double);
         }
 
         public void addChangeListener(final LongChangeListener listener) {
@@ -980,7 +981,7 @@ public class Locations {
     public static class ByteToFloatLocationConversionWrapper extends NumericToFloatLocationConversionWrapper<ByteLocation, Byte> {
 
         public ByteToFloatLocationConversionWrapper(ByteLocation location) {
-            super(location);
+            super(location, TypeInfo.Byte);
         }
 
         public void addChangeListener(final FloatChangeListener listener) {
@@ -1003,7 +1004,7 @@ public class Locations {
     public static class ShortToFloatLocationConversionWrapper extends NumericToFloatLocationConversionWrapper<ShortLocation, Short> {
 
         public ShortToFloatLocationConversionWrapper(ShortLocation location) {
-            super(location);
+            super(location, TypeInfo.Short);
         }
 
         public void addChangeListener(final FloatChangeListener listener) {
@@ -1026,7 +1027,7 @@ public class Locations {
     public static class IntToFloatLocationConversionWrapper extends NumericToFloatLocationConversionWrapper<IntLocation, Integer> {
 
         public IntToFloatLocationConversionWrapper(IntLocation location) {
-            super(location);
+            super(location, TypeInfo.Integer);
         }
 
         public void addChangeListener(final FloatChangeListener listener) {
@@ -1049,7 +1050,7 @@ public class Locations {
     public static class LongToFloatLocationConversionWrapper extends NumericToFloatLocationConversionWrapper<LongLocation, Long> {
 
         public LongToFloatLocationConversionWrapper(LongLocation location) {
-            super(location);
+            super(location, TypeInfo.Long);
         }
 
         public void addChangeListener(final FloatChangeListener listener) {
@@ -1072,7 +1073,7 @@ public class Locations {
     public static class DoubleToFloatLocationConversionWrapper extends NumericToFloatLocationConversionWrapper<DoubleLocation, Double> {
 
         public DoubleToFloatLocationConversionWrapper(DoubleLocation location) {
-            super(location);
+            super(location, TypeInfo.Double);
         }
 
         public void addChangeListener(final FloatChangeListener listener) {
@@ -1095,7 +1096,7 @@ public class Locations {
     public static class ByteToDoubleLocationConversionWrapper extends NumericToDoubleLocationConversionWrapper<ByteLocation, Byte> {
 
         public ByteToDoubleLocationConversionWrapper(ByteLocation location) {
-            super(location);
+            super(location, TypeInfo.Byte);
         }
 
         public void addChangeListener(final DoubleChangeListener listener) {
@@ -1118,7 +1119,7 @@ public class Locations {
     public static class ShortToDoubleLocationConversionWrapper extends NumericToDoubleLocationConversionWrapper<ShortLocation, Short> {
 
         public ShortToDoubleLocationConversionWrapper(ShortLocation location) {
-            super(location);
+            super(location, TypeInfo.Short);
         }
 
         public void addChangeListener(final DoubleChangeListener listener) {
@@ -1141,7 +1142,7 @@ public class Locations {
     public static class IntToDoubleLocationConversionWrapper extends NumericToDoubleLocationConversionWrapper<IntLocation, Integer> {
 
         public IntToDoubleLocationConversionWrapper(IntLocation location) {
-            super(location);
+            super(location, TypeInfo.Integer);
         }
 
         public void addChangeListener(final DoubleChangeListener listener) {
@@ -1164,7 +1165,7 @@ public class Locations {
     public static class LongToDoubleLocationConversionWrapper extends NumericToDoubleLocationConversionWrapper<LongLocation, Long> {
 
         public LongToDoubleLocationConversionWrapper(LongLocation location) {
-            super(location);
+            super(location, TypeInfo.Long);
         }
 
         public void addChangeListener(final DoubleChangeListener listener) {
@@ -1187,7 +1188,7 @@ public class Locations {
     public static class FloatToDoubleLocationConversionWrapper extends NumericToDoubleLocationConversionWrapper<FloatLocation, Float> {
 
         public FloatToDoubleLocationConversionWrapper(FloatLocation location) {
-            super(location);
+            super(location, TypeInfo.Float);
         }
 
         public void addChangeListener(final DoubleChangeListener listener) {
@@ -1207,11 +1208,11 @@ public class Locations {
         }
     }
 
-    public static abstract class NumericToByteLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN>
+    public static abstract class NumericToByteLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericToNumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, ByteLocation, Byte> implements ByteLocation {
 
-        public NumericToByteLocationConversionWrapper(T_LOC_IN location) {
-            super(location);
+        public NumericToByteLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
+            super(location, inType, TypeInfo.Byte);
         }
 
         public Byte get() {
@@ -1219,27 +1220,19 @@ public class Locations {
         }
 
         public byte setAsByte(byte value) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return set(value);
         }
 
         public byte setAsByteFromLiteral(byte value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Byte set(Byte value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Byte setFromLiteral(Byte value) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return setFromLiteral(value);
         }
     }
 
-    public static abstract class NumericToShortLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN>
+    public static abstract class NumericToShortLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericToNumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, ShortLocation, Short> implements ShortLocation {
 
-        public NumericToShortLocationConversionWrapper(T_LOC_IN location) {
-            super(location);
+        public NumericToShortLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
+            super(location, inType, TypeInfo.Short);
         }
 
         public Short get() {
@@ -1247,27 +1240,19 @@ public class Locations {
         }
 
         public short setAsShort(short value) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return set(value);
         }
 
         public short setAsShortFromLiteral(short value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Short set(Short value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Short setFromLiteral(Short value) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return setFromLiteral(value);
         }
     }
 
-    public static abstract class NumericToIntLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN>
+    public static abstract class NumericToIntLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericToNumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, IntLocation, Integer> implements IntLocation {
 
-        public NumericToIntLocationConversionWrapper(T_LOC_IN location) {
-            super(location);
+        public NumericToIntLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
+            super(location, inType, TypeInfo.Integer);
         }
 
         public Integer get() {
@@ -1275,27 +1260,19 @@ public class Locations {
         }
 
         public int setAsInt(int value) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return set(value);
         }
 
         public int setAsIntFromLiteral(int value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Integer set(Integer value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Integer setFromLiteral(Integer value) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return setFromLiteral(value);
         }
     }
 
-    public static abstract class NumericToLongLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN>
+    public static abstract class NumericToLongLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericToNumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, LongLocation, Long> implements LongLocation {
 
-        public NumericToLongLocationConversionWrapper(T_LOC_IN location) {
-            super(location);
+        public NumericToLongLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
+            super(location, inType, TypeInfo.Long);
         }
 
         public Long get() {
@@ -1303,27 +1280,19 @@ public class Locations {
         }
 
         public long setAsLong(long value) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return set(value);
         }
 
         public long setAsLongFromLiteral(long value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Long set(Long value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Long setFromLiteral(Long value) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return setFromLiteral(value);
         }
     }
 
-    public static abstract class NumericToFloatLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN>
+    public static abstract class NumericToFloatLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericToNumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, FloatLocation, Float> implements FloatLocation {
 
-        public NumericToFloatLocationConversionWrapper(T_LOC_IN location) {
-            super(location);
+        public NumericToFloatLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
+            super(location, inType, TypeInfo.Float);
         }
 
         public Float get() {
@@ -1331,27 +1300,19 @@ public class Locations {
         }
 
         public float setAsFloat(float value) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return set(value);
         }
 
         public float setAsFloatFromLiteral(float value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Float set(Float value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Float setFromLiteral(Float value) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return setFromLiteral(value);
         }
     }
 
-    public static abstract class NumericToDoubleLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN>
+    public static abstract class NumericToDoubleLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericToNumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, DoubleLocation, Double> implements DoubleLocation {
 
-        public NumericToDoubleLocationConversionWrapper(T_LOC_IN location) {
-            super(location);
+        public NumericToDoubleLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
+            super(location, inType, TypeInfo.Double);
         }
 
         public Double get() {
@@ -1359,59 +1320,66 @@ public class Locations {
         }
 
         public double setAsDouble(double value) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return set(value);
         }
 
         public double setAsDoubleFromLiteral(double value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Double set(Double value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        public Double setFromLiteral(Double value) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return setFromLiteral(value);
         }
     }
 
-    private static abstract class NumericToNumericLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN, T_LOC_OUT extends NumericLocation & ObjectLocation<T_VALUE_OUT>, T_VALUE_OUT>
+    private static abstract class NumericToNumericLocationConversionWrapper<
+            T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>,
+            T_VALUE_IN extends Number,
+            T_LOC_OUT extends NumericLocation & ObjectLocation<T_VALUE_OUT>,
+            T_VALUE_OUT extends Number>
                  extends LocationWrapper<T_LOC_IN> {
 
-        private NumericToNumericLocationConversionWrapper(T_LOC_IN location) {
+        protected final NumericTypeInfo<T_VALUE_IN> inType;
+        protected final NumericTypeInfo<T_VALUE_OUT> outType;
+
+        protected NumericToNumericLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType, NumericTypeInfo<T_VALUE_OUT> outType) {
             super(location);
+            this.inType = inType;
+            this.outType = outType;
         }
 
-        /*** Sets not allowed ***/
-
         public void setDefault() {
-            throw new UnsupportedOperationException("Not supported yet.");
+            location.setDefault();
+        }
+
+        public T_VALUE_OUT set(T_VALUE_OUT value) {
+            return outType.asPreferred(inType, location.set(inType.asPreferred(outType, value)));
+        }
+
+        public T_VALUE_OUT setFromLiteral(T_VALUE_OUT value) {
+            return outType.asPreferred(inType, location.setFromLiteral(inType.asPreferred(outType, value)));
         }
 
         /*** Numeric conversion ***/
 
         public int getAsInt() {
-            return getLocation().getAsInt();
+            return location.getAsInt();
         }
 
         public byte getAsByte() {
-            return getLocation().getAsByte();
+            return location.getAsByte();
         }
 
         public short getAsShort() {
-            return getLocation().getAsShort();
+            return location.getAsShort();
         }
 
         public long getAsLong() {
-            return getLocation().getAsLong();
+            return location.getAsLong();
         }
 
         public float getAsFloat() {
-            return getLocation().getAsFloat();
+            return location.getAsFloat();
         }
 
         public double getAsDouble() {
-            return getLocation().getAsDouble();
+            return location.getAsDouble();
         }
 
     }
@@ -1419,10 +1387,6 @@ public class Locations {
     private static class UnmodifiableNumericLocationWrapper<T_LOC extends NumericLocation & ObjectLocation<T_VALUE>, T_VALUE> extends UnmodifiableLocationWrapper<T_VALUE, T_LOC> {
         private UnmodifiableNumericLocationWrapper(T_LOC location) {
             super(location);
-        }
-
-        protected T_LOC getLocation() {
-            return location;
         }
 
         public int getAsInt() {
