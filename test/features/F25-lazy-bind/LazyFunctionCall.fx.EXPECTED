@@ -1,0 +1,18 @@
+x 0 -> 1
+y 0 -> 2
+==lazy function call
+reading z
+z 0 -> 3
+z:3
+reading z
+z:3
+modify x
+x 1 -> 9
+reading z
+z 3 -> 11
+z:11
+modify y
+y 2 -> 3
+reading z
+z 11 -> 12
+z:12
