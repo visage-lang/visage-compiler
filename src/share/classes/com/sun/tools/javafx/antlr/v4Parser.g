@@ -4261,7 +4261,7 @@ primaryExpression
 		RBRACE
 		
 		{
-			$value = F.at(rPos).KeyFrameLiteral(sVal, $k.exprs.toList(), null);
+                        $value = F.at(rPos).KeyFrameLiteral(sVal, $k.exprs.toList(), null);
 			endPos($value);
 		}
 	
@@ -4292,10 +4292,10 @@ catch [RecognitionException re] {
 	
 		$value = F.at(rPos).ObjectLiteral($value, $o1.parts.toList());
 	
-	} else if ($tv.valNode != null) {
-	
+	} else if ($tv.valNode != null && $k.exprs != null) {
+
 		$value = F.at(rPos).KeyFrameLiteral(sVal, $k.exprs.toList(), null);
-		
+
 	} else {
 		// Create an Erroneous version of the node
 		//
@@ -4333,7 +4333,7 @@ keyFrameLiteralPart
 }
 	: k1=expression 			{ exprs.append($k1.value);	}
 	
-		(SEMI SEMI* // This is a trick to force error recovery, otherwise SEMI+ forces an early exit exception
+		(SEMI SEMI* // This is a trick to force f recovery, otherwise SEMI+ forces an early exit exception
 		
 			k2=expression		{ exprs.append($k2.value);	}
 		)* SEMI*

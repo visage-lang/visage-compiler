@@ -1,0 +1,14 @@
+test\should-fail\jfxc2507.fx:34: Sorry, I was trying to understand a time value but I got confused when I saw 'Duration' which is an identifier.
+ Perhaps you are missing a 'time literal'.
+        at (Duration.valueOf(timeToFly)) {
+            ^
+test\should-fail\jfxc2507.fx:34: Sorry, I was trying to understand a sequence creation expression but I got confused when I saw ')' which is a punctuation character.
+        at (Duration.valueOf(timeToFly)) {
+                                       ^
+test\should-fail\jfxc2507.fx:34: You have forgotten the ';', which is needed to separate one expression from the next.
+        at (Duration.valueOf(timeToFly)) {
+                                        ^
+test\should-fail\jfxc2507.fx:36: Sorry, I was trying to understand the script contents but I got confused because I was looking for the end of the script here.
+        }
+         ^
+4 errors
