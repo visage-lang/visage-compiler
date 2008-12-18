@@ -396,12 +396,25 @@ public class BoundOperators {
     }
 
 
+    // @@@ Missing Byte, Short, Long for if and select
+
     public static IntLocation makeBoundIf(boolean lazy,
                                           final BooleanLocation conditional,
                                           final Function0<IntLocation> thenBranch,
                                           final Function0<IntLocation> elseBranch) {
         return new IndirectIntExpression(lazy, conditional) {
             public IntLocation computeLocation() {
+                return (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
+            }
+        };
+    }
+
+    public static FloatLocation makeBoundIf(boolean lazy,
+                                            final BooleanLocation conditional,
+                                            final Function0<FloatLocation> thenBranch,
+                                            final Function0<FloatLocation> elseBranch) {
+        return new IndirectFloatExpression(lazy, conditional) {
+            public FloatLocation computeLocation() {
                 return (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
             }
         };
@@ -496,6 +509,30 @@ public class BoundOperators {
             }
 
             public Double set(Double value) {
+                return helper.get().set(value);
+            }
+        };
+    }
+
+    public static<T> FloatLocation makeBoundSelect(boolean lazy,
+                                                   final ObjectLocation<T> receiver,
+                                                   final Function1<FloatLocation, T> selector) {
+        return new IndirectFloatExpression(lazy, receiver) {
+            public FloatLocation computeLocation() {
+                T selectorValue = receiver.get();
+                return selectorValue == null ? FloatConstant.make(DEFAULT) : selector.invoke(selectorValue);
+            }
+
+            public float setAsFloat(float value) {
+                // @@@ Shouldn't mutate unconditionally -- only if bound bidirectionally
+                return helper.get().setAsFloat(value);
+            }
+
+            public void setDefault() {
+                helper.get().setDefault();
+            }
+
+            public Float set(Float value) {
                 return helper.get().set(value);
             }
         };
