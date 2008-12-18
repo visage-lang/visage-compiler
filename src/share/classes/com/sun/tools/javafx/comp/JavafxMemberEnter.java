@@ -470,22 +470,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     public void visitImport(JFXImport tree) {
         JFXExpression imp = tree.qualid;
         Name name = JavafxTreeInfo.name(imp);
-        if (tree.qualid.getFXTag() == JavafxTag.SELECT) {
-            if (name == syms.booleanTypeName ||
-                name == syms.charTypeName    ||
-                name == syms.byteTypeName    ||
-                name == syms.shortTypeName   ||
-                name == syms.integerTypeName ||
-                name == syms.longTypeName    ||
-                name == syms.floatTypeName   ||
-                name == syms.doubleTypeName  ||
-                name == syms.numberTypeName  ||
-                name == syms.stringTypeName  ||
-                name == syms.voidTypeName) {
-                log.error(tree.pos, MsgSym.MESSAGE_JAVAFX_CANNOT_IMPORT_STRING_PRIMITIVE_TYPE);
-            }
-        }
-        
+
         // Create a local environment pointing to this tree to disable
         // effects of other imports in Resolve.findGlobalType
         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree);

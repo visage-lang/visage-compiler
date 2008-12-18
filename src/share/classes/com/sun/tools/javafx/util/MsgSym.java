@@ -313,10 +313,6 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_RUN_FUNCTION_PARAM = "javafx.run.function.param";
     public static final String MESSAGE_JAVAFX_INDEXOF_NOT_FOUND = "javafx.indexof.not.found"; 
     public static final String MESSAGE_JAVAFX_CANNOT_INFER_RETURN_TYPE = "javafx.cannot.infer.return.type"; 
-    public static final String MESSAGE_JAVAFX_CANNOT_IMPORT_INTEGER_PRIMITIVE_TYPE = "javafx.can.not.import.integer.primitive.type"; 
-    public static final String MESSAGE_JAVAFX_CANNOT_IMPORT_BOOLEAN_PRIMITIVE_TYPE = "javafx.can.not.import.boolean.primitive.type"; 
-    public static final String MESSAGE_JAVAFX_CANNOT_IMPORT_NUMBER_PRIMITIVE_TYPE = "javafx.can.not.import.number.primitive.type"; 
-    public static final String MESSAGE_JAVAFX_CANNOT_IMPORT_STRING_PRIMITIVE_TYPE = "javafx.can.not.import.string.primitive.type"; 
     public static final String MESSAGE_JAVAFX_TYPE_INFER_CYCLE_FUN_DECL = "javafx.type.infer.cycle.fun.decl";
     public static final String MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL = "javafx.type.infer.cycle.var.decl";
     public static final String MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF = "javafx.type.infer.cycle.var.ref";
