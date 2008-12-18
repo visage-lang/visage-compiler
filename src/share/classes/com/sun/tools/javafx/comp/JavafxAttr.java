@@ -580,6 +580,10 @@ public class JavafxAttr implements JavafxVisitor {
         // Attribute the qualifier expression, and determine its symbol (if any).
         Type site = attribTree(tree.selected, env, skind,
                 Infer.anyPoly, Sequenceness.PERMITTED);
+        boolean wasPrimitive = site.isPrimitive();
+        if (wasPrimitive) {
+            site = types.boxedClass(site).type;
+        }
         env.info.inSelect = inSelectPrev;
         if ((pkind & (PCK | TYP)) == 0)
             site = capture(site); // Capture field access
@@ -627,6 +631,9 @@ public class JavafxAttr implements JavafxVisitor {
         }
         boolean varArgs = env.info.varArgs;
         tree.sym = sym;
+
+        if (wasPrimitive && sym.isStatic() && tree.selected instanceof JFXIdent)
+            tree.selected.type = site;
 
         checkTypeCycle(tree, sym);
 
@@ -712,6 +719,7 @@ public class JavafxAttr implements JavafxVisitor {
                                  int pkind) {
             DiagnosticPosition pos = tree.pos();
             Name name = tree.name;
+            Symbol sym;
 
             switch (site.tag) {
             case PACKAGE:
@@ -736,7 +744,7 @@ public class JavafxAttr implements JavafxVisitor {
                         STATIC | PUBLIC | FINAL, names._class, t, site.tsym);
                 } else {
                     // We are seeing a plain identifier as selector.
-                    Symbol sym = rs.findIdentInType(env, site, name, pkind);
+                    sym = rs.findIdentInType(env, site, name, pkind);
                     if ((pkind & ERRONEOUS) == 0)
                         sym = rs.access(sym, pos, site, name, true);
                     return sym;
@@ -750,7 +758,7 @@ public class JavafxAttr implements JavafxVisitor {
                 // done before attributing the type variables.  In
                 // other words, we are seeing this illegal program:
                 // class B<T> extends A<T.foo> {}
-                Symbol sym = (site.getUpperBound() != null)
+                sym = (site.getUpperBound() != null)
                     ? selectSym(tree, capture(site.getUpperBound()), env, pt, pkind)
                     : null;
                 if (sym == null || isType(sym)) {
@@ -762,18 +770,6 @@ public class JavafxAttr implements JavafxVisitor {
             case ERROR:
                 // preserve identifier names through errors
                 return new ErrorType(name, site.tsym).tsym;
-            case INT:
-            case LONG:
-            case SHORT:
-            case FLOAT:
-            case BYTE:
-            case DOUBLE:
-            case BOOLEAN:
-                if (pt.tag == METHOD || pt.tag == FORALL) {
-                    Type boxedSite = types.boxedClass(site).type;
-                    return rs.resolveQualifiedMethod(pos, env, boxedSite, name, pt);
-                }
-                // Fall through to default
             default:
                 // The qualifier expression is of a primitive type -- only
                 // .class is allowed for these.
@@ -3070,37 +3066,9 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitTypeClass(JFXTypeClass tree) {
-        Type type = null;
         JFXExpression classNameExpr = ((JFXTypeClass) tree).getClassName();
-        if (classNameExpr instanceof JFXIdent) {
-            Name className = ((JFXIdent) classNameExpr).getName();
-            if (className == syms.booleanTypeName) {
-                type = syms.javafx_BooleanType;
-            } else if (className == syms.charTypeName) {
-                type = syms.javafx_CharacterType;
-            } else if (className == syms.byteTypeName) {
-                type = syms.javafx_ByteType;
-            } else if (className == syms.shortTypeName) {
-                type = syms.javafx_ShortType;
-            } else if (className == syms.integerTypeName) {
-                type = syms.javafx_IntegerType;
-            } else if (className == syms.longTypeName) {
-                type = syms.javafx_LongType;
-            } else if (className == syms.floatTypeName) {
-                type = syms.javafx_FloatType;
-            } else if (className == syms.doubleTypeName) {
-                type = syms.javafx_DoubleType;
-            } else if (className == syms.numberTypeName) {
-                type = syms.javafx_NumberType;
-            } else if (className == syms.stringTypeName) {
-                type = syms.javafx_StringType;
-            } else if (className == syms.voidTypeName) {
-                type = syms.javafx_VoidType;
-            }
-        }
-        if (type == null) {
-            type = attribType(classNameExpr, env);
-        }
+        Type type = attribType(classNameExpr, env);
+
         Cardinality cardinality = tree.getCardinality();
         if (cardinality != Cardinality.SINGLETON &&
                 type == syms.voidType) {

@@ -57,7 +57,7 @@ public class JavafxResolve {
 
     Name.Table names;
     Log log;
-    Symtab syms;
+    JavafxSymtab syms;
     JavafxCheck chk;
     Infer infer;
     JavafxClassReader reader;
@@ -76,7 +76,7 @@ public class JavafxResolve {
 
     protected JavafxResolve(Context context) {
         context.put(javafxResolveKey, this);
-        syms = Symtab.instance(context);
+        syms = (JavafxSymtab)JavafxSymtab.instance(context);
 
         varNotFound = new
             ResolveError(ABSENT_VAR, syms.errSymbol, "variable not found");
@@ -1104,7 +1104,33 @@ public class JavafxResolve {
         return bestSoFar;
     }
 
-    /** Find an unqualified type symbol.
+    Type findBuiltinType (Name typeName) {
+        if (typeName == syms.booleanTypeName)
+            return syms.javafx_BooleanType;
+        if (typeName == syms.charTypeName)
+            return syms.javafx_CharacterType;
+        if (typeName == syms.byteTypeName)
+            return syms.javafx_ByteType;
+        if (typeName == syms.shortTypeName)
+            return syms.javafx_ShortType;
+        if (typeName == syms.integerTypeName)
+            return syms.javafx_IntegerType;
+        if (typeName == syms.longTypeName)
+            return syms.javafx_LongType;
+        if (typeName == syms.floatTypeName)
+            return syms.javafx_FloatType;
+        if (typeName == syms.doubleTypeName)
+            return syms.javafx_DoubleType;
+        if (typeName == syms.numberTypeName)
+            return syms.javafx_NumberType;
+        if (typeName == syms.stringTypeName)
+            return syms.javafx_StringType;
+        if (typeName == syms.voidTypeName)
+            return syms.javafx_VoidType;
+        return null;
+    }
+
+   /** Find an unqualified type symbol.
      *  @param env       The current environment.
      *  @param name      The type's name.
      */
@@ -1150,6 +1176,10 @@ public class JavafxResolve {
         sym = findGlobalType(env, env.toplevel.packge.members(), name);
         if (sym.exists()) return sym;
         else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
+        
+        Type type = findBuiltinType(name);
+        if (type != null)
+            return type.tsym;
 
         if (env.tree.getFXTag() != JavafxTag.IMPORT) {
             sym = findGlobalType(env, env.toplevel.starImportScope, name);
