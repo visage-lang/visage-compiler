@@ -1,0 +1,24 @@
+x 0 -> 1
+Starting
+reading y
+y 0 -> 2
+y:2
+reading y
+y:2
+reading b
+b false -> true
+b:true
+reading b
+b:true
+modify x
+x 1 -> 2
+reading y
+y 2 -> 3
+y:3
+reading b
+b true -> false
+b:false
+modify z
+reading b
+b false -> true
+b:true

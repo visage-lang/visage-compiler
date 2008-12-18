@@ -1,0 +1,12 @@
+x 0 -> 1
+y 0 -> 2
+z 0 -> 3
+First request
+reading z
+z:3
+modify x
+y 2 -> 3
+z 3 -> 4
+x 1 -> 2
+reading z
+z:4
