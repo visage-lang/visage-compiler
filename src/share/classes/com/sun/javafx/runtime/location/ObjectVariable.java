@@ -101,8 +101,7 @@ public class ObjectVariable<T>
     }
 
     public T get() {
-        if (isUnidirectionallyBound() && !isValid())
-            update();
+        ensureValid();
         return $value;
     }
 

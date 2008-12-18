@@ -185,6 +185,11 @@ public abstract class AbstractVariable<
         removeChild(listener);
     }
 
+    protected void ensureValid() {
+        if (isUnidirectionallyBound() && !isValid())
+            update();
+    }
+
     /** Called from replaceValue(); updates state machine and computes whether triggers should fire */
     protected boolean preReplace(boolean changed) {
         boolean shouldFire = changed;

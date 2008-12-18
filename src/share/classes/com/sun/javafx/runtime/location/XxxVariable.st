@@ -181,45 +181,38 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, $T.B
 
 $if(NUMERIC)$
     public byte getAsByte() {
-        if (isUnidirectionallyBound() && !isValid())
-            update();
-        return (byte) \$value; 
+        ensureValid();
+        return (byte) \$value;
     }
 
     public short getAsShort() {
-        if (isUnidirectionallyBound() && !isValid())
-            update();
+        ensureValid();
         return (short) \$value;
     }
 
     public int getAsInt() {
-        if (isUnidirectionallyBound() && !isValid())
-            update();
+        ensureValid();
         return (int) \$value;
     }
 
     public long getAsLong() {
-        if (isUnidirectionallyBound() && !isValid())
-            update();
+        ensureValid();
         return (long) \$value;
     }
 
     public float getAsFloat() {
-        if (isUnidirectionallyBound() && !isValid())
-            update();
+        ensureValid();
         return (float) \$value;
     }
 
     public double getAsDouble() {
-        if (isUnidirectionallyBound() && !isValid())
-            update();
+        ensureValid();
         return (double) \$value;
     }
 
 $else$
     public $T.prim$ getAs$PREFIX$() {
-        if (isUnidirectionallyBound() && !isValid())
-            update();
+        ensureValid();
         return \$value;
     }
 $endif$

@@ -100,11 +100,6 @@ public class SequenceVariable<T>
         addDependency(dependencies);
     }
 
-    private void ensureValid() {
-        if (isUnidirectionallyBound() && !isValid())
-            update();
-    }
-
     /**
      * Update the held value, notifying change listeners
      */
