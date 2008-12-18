@@ -209,36 +209,9 @@ public class JavafxTypes extends Types {
         if (isArray(t) && isSequence(s))
             return isConvertible(elemtype(t), elementType(s), warn);
 
-        /***
         // Allow all numeric conversion, for now (some should warn)
         if (isNumeric(t) && isNumeric(s)) {
             return true;
-        }
-         */
-        // Allow lessening precision conversions.
-        if (t == syms.javafx_DoubleType) {
-            if (s == syms.floatType)
-            return true;
-            if (s == syms.javafx_IntegerType ||
-                    s == syms.intType ||
-                    s == syms.shortType ||
-                    s == syms.charType ||
-                    s == syms.byteType ||
-                    s == syms.longType) {
-                // TEMPORARY/FIXME - should be false!
-                return true;
-        }
-        }
-        else if (t == syms.javafx_IntegerType) {
-            if (s == syms.javafx_DoubleType ||
-                    s == syms.intType ||
-                    s == syms.floatType ||
-                    s == syms.shortType ||
-                    s == syms.charType ||
-                    s == syms.byteType ||
-                    s == syms.longType) {
-                return true;
-            }
         }
 
         return false;

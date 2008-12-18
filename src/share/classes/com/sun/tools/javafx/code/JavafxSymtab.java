@@ -153,7 +153,7 @@ public class JavafxSymtab extends Symtab {
         javafx_DoubleType = doubleType;
         if (numberChoice == null) {
             //default
-            javafx_NumberType = doubleType;
+            javafx_NumberType = floatType;
         } else if (numberChoice.equals("Float")) {
             javafx_NumberType = floatType;
         } else if (numberChoice.equals("Double")) {
