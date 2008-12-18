@@ -1,0 +1,27 @@
+==lazy member bind
+reading fx
+fx 0 => 1
+fx:1
+reading fxy
+fxy 0 => 3
+fxy:3
+modify x
+reading fx
+fx 1 => 9
+fx:9
+reading fxy
+fxy 3 => 11
+fxy:11
+modify y
+reading fx
+fx:9
+reading fxy
+fxy 11 => 19
+fxy:19
+modify foo
+reading fx
+fx 9 => 100
+fx:100
+reading fxy
+fxy 19 => 300
+fxy:300

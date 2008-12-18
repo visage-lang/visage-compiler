@@ -1,0 +1,32 @@
+a 0 -> 1
+b 0 -> 2
+==object literal
+reading foo
+foo -> 1, 2
+fx:1, fy:2
+modify a
+a 1 -> 2
+reading foo
+foo -> 2, 2
+fx:2, fy:2
+modify b
+b 2 -> 3
+reading foo
+foo -> 2, 3
+fx:2, fy:3
+==object literal initializers
+moo replaced
+reading moo
+id2
+id3
+mx:2, my:3
+modify a
+a 2 -> 5
+reading moo
+id5
+mx:5, my:3
+modify b
+b 3 -> 10
+reading moo
+id10
+mx:5, my:10
