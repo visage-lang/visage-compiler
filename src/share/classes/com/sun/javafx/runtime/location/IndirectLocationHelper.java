@@ -31,8 +31,8 @@ package com.sun.javafx.runtime.location;
  * @author Brian Goetz
  */
 public class IndirectLocationHelper {
-    public static<T extends Location> ObjectLocation<T> make(final IndirectLocation<T> helped, Location... dependencies) {
-        final ObjectVariable<T> ov = ObjectVariable.make(false, new ObjectBindingExpression<T>() {
+    public static<T extends Location> ObjectLocation<T> make(final IndirectLocation<T> helped, boolean lazy, Location... dependencies) {
+        final ObjectVariable<T> ov = ObjectVariable.make(lazy, new ObjectBindingExpression<T>() {
             public T computeValue() {
                 return helped.computeLocation();
             }

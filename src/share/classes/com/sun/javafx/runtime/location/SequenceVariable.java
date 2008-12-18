@@ -226,11 +226,10 @@ public class SequenceVariable<T>
     }
 
     public void bind(boolean lazy, SequenceLocation<T> otherLocation) {
-        // @@@ lazy not used
         ensureBindable();
         Sequence<T> oldValue = $value;
         $value = otherLocation.get();
-        boundLocation = new BoundLocationInfo(otherLocation);
+        boundLocation = new BoundLocationInfo(otherLocation, lazy);
         boundLocation.bind();
         notifyListeners(0, Sequences.size(oldValue) - 1, $value, oldValue, $value, true);
     }
@@ -440,12 +439,15 @@ public class SequenceVariable<T>
         public final SequenceLocation<T> otherLocation;
         public ChangeListener changeListener;
         public SequenceChangeListener<T> sequenceChangeListener;
+        public final boolean lazy;
 
-        BoundLocationInfo(SequenceLocation<T> otherLocation) {
+        BoundLocationInfo(SequenceLocation<T> otherLocation, boolean lazy) {
             this.otherLocation = otherLocation;
+            this.lazy = lazy;
         }
 
         void bind() {
+            // @@@ lazy ignored -- deferring computation is more expensive than eagerly recomputing
             changeListener = new ChangeListener() {
                 public boolean onChange() {
                     invalidateDependencies();

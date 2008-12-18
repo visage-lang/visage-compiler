@@ -1,0 +1,69 @@
+x[0..-1] => [ 123 ]
+y[0..-1] => [ 123 ]
+==simple sequence bind
+reading y
+y:123
+modify x
+x[3..2] => [ 4 ]
+y[3..2] => [ 4 ]
+reading y
+y:1234
+==sizeof bind
+modify x
+x[0..3] => [ 123 ]
+y[0..3] => [ 123 ]
+reading sizex
+sizeof x 0 => 3
+sizex:3
+reading sizex
+sizex:3
+x[3..2] => [ 4 ]
+y[3..2] => [ 4 ]
+reading sizex
+sizeof x 3 => 4
+sizex:4
+==element bind
+assign x
+x[0..3] => [ 123 ]
+y[0..3] => [ 123 ]
+reading x[0]
+x[0] 0 => 1
+x[0]:1
+reading x[0]
+x[0]:1
+insert x
+x[3..2] => [ 4 ]
+y[3..2] => [ 4 ]
+reading x[0]
+x[0]:1
+assign x[0]
+x[0..0] => [ 9 ]
+y[0..0] => [ 9 ]
+reading x[0]
+x[0] 1 => 9
+x[0]:9
+assign x
+x[0..3] => [ 456 ]
+y[0..3] => [ 456 ]
+reading x[0]
+x[0] 9 => 4
+x[0]:4
+==member bind
+fS[0..-1] => [ 123 ]
+insert foo.seq
+fS[3..2] => [ 4 ]
+reading fS
+fS:1234
+reading fS
+fS:1234
+assign foo.seq[0]
+fS[0..0] => [ 9 ]
+reading fS
+fS:9234
+assign foo.seq
+fS[0..3] => [ 012 ]
+reading fS
+fS:012
+assign foo
+reading fS
+fS:012

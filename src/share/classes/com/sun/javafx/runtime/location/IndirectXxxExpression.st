@@ -45,7 +45,7 @@ abstract class $T.IndirectExpression$ extends $T.Variable$ implements IndirectLo
 
     public $T.IndirectExpression$(boolean lazy, Location... dependencies) {
         super();
-        helper = IndirectLocationHelper.make(this, dependencies);
+        helper = IndirectLocationHelper.make(this, lazy, dependencies);
         bind(lazy, new $T.BindingExpression$() {
             public $T.prim$ computeValue() {
                 return helper.get().getAs$PREFIX$();

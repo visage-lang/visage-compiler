@@ -43,7 +43,7 @@ public abstract class IndirectSequenceExpression<T> extends SequenceVariable<T> 
 
     public IndirectSequenceExpression(TypeInfo<T> typeInfo, boolean lazy, Location... dependencies) {
         super(typeInfo);
-        helper = IndirectLocationHelper.make(this, dependencies);
+        helper = IndirectLocationHelper.make(this, lazy, dependencies);
         bind(lazy, helper.get());
         // @@@ Downside of this approach: we get two change events, one when the dependencies change, and another when
         // the rebinding happens.  
