@@ -501,7 +501,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             Type sourceElementType = types.elementType(sourceType);
             Type targetElementType = types.elementType(targetType);
             if (!types.isSameType(sourceElementType, targetElementType) &&
-                    isNumeric(sourceElementType) && isNumeric(targetElementType)) {
+                    types.isNumeric(sourceElementType) && types.isNumeric(targetElementType)) {
                 return convertNumericSequence(diagPos,
                         cSequences,
                         translated,

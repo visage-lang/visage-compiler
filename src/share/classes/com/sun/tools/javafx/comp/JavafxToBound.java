@@ -231,7 +231,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 // this additional test is needed because wildcards compare as different
                 Type sourceElementType = types.elementType(inType);
                 if (!types.isSameType(sourceElementType, targetElementType)) {
-                    if (isNumeric(sourceElementType) && isNumeric(targetElementType)) {
+                    if (types.isNumeric(sourceElementType) && types.isNumeric(targetElementType)) {
                         tree = convertNumericSequence(diagPos,
                                 cBoundSequences,
                                 tree,

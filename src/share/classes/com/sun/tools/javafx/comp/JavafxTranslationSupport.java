@@ -601,16 +601,6 @@ public abstract class JavafxTranslationSupport {
         return make.at(diagPos).Select(makeQualifiedTree(diagPos, typeInfosString), typeName);
     }
     
-    boolean isNumeric(Type type) {
-        Type ubType = types.unboxedType(type);
-        return (types.isSameType(type, syms.javafx_ByteType) ||
-            types.isSameType(type, syms.javafx_ShortType) ||
-            types.isSameType(type, syms.javafx_IntegerType) ||
-            types.isSameType(type, syms.javafx_LongType) ||
-            types.isSameType(type, syms.javafx_FloatType) ||
-            types.isSameType(type, syms.javafx_DoubleType));
-    }
-    
     /**
      * Given type, return an expression whose value is the corresponding TypeInfo.
      * @param diagPos

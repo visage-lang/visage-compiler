@@ -208,11 +208,17 @@ public class JavafxTypes extends Types {
             return isConvertible(elementType(t), elemtype(s), warn);
         if (isArray(t) && isSequence(s))
             return isConvertible(elemtype(t), elementType(s), warn);
-        
+
+        /***
+        // Allow all numeric conversion, for now (some should warn)
+        if (isNumeric(t) && isNumeric(s)) {
+            return true;
+        }
+         */
         // Allow lessening precision conversions.
         if (t == syms.javafx_DoubleType) {
             if (s == syms.floatType)
-                return true;
+            return true;
             if (s == syms.javafx_IntegerType ||
                     s == syms.intType ||
                     s == syms.shortType ||
@@ -221,7 +227,7 @@ public class JavafxTypes extends Types {
                     s == syms.longType) {
                 // TEMPORARY/FIXME - should be false!
                 return true;
-            }
+        }
         }
         else if (t == syms.javafx_IntegerType) {
             if (s == syms.javafx_DoubleType ||
@@ -340,6 +346,15 @@ public class JavafxTypes extends Types {
             throw new RuntimeException(ioe);
         }
         return buffer.toString();
+    }
+
+    public boolean isNumeric(Type type) {
+        return (isSameType(type, syms.javafx_ByteType) ||
+                isSameType(type, syms.javafx_ShortType) ||
+                isSameType(type, syms.javafx_IntegerType) ||
+                isSameType(type, syms.javafx_LongType) ||
+                isSameType(type, syms.javafx_FloatType) ||
+                isSameType(type, syms.javafx_DoubleType));
     }
 
     private boolean isJavaFXBoolean(Type type) {
