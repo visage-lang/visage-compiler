@@ -1,0 +1,21 @@
+x 0 -> 1
+y 0 -> 2
+Starting
+reading z
+z 0 -> 1
+z:1
+reading z
+z:1
+modify x
+x 1 -> 9
+reading z
+z 1 -> 9
+z:9
+modify y
+y 2 -> 3
+reading z
+z:9
+modify b
+reading z
+z 9 -> 3
+z:3

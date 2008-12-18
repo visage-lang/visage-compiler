@@ -1,29 +1,21 @@
 /*
- * Feature test for lazy bind: bind to if
+ * Feature test for lazy bind: lazy binding wrapped around eager binding (should still be lazy)
  *
  * @test
  * @run
  */
 
-var b : Boolean = true;
 var x : Integer = 1
         on replace ov { println("x {ov} -> {x}") };
-var y : Integer = 2
+var y : Integer = bind x + 1
         on replace ov { println("y {ov} -> {y}") };
-var z : Integer = bind lazy if (b) then x else y
+var z : Integer = bind lazy y + 1
         on replace ov { println("z {ov} -> {z}") };
 
 println("Starting");
 pz();
-pz();
 println("modify x");
-x = 9;
-pz();
-println("modify y");
-y = 3;
-pz();
-println("modify b");
-b = false;
+x = 2;
 pz();
 
 function pz() { println("reading z"); println("z:{z}") }
