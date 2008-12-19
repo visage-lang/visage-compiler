@@ -46,7 +46,7 @@ public final class Sequences extends SequenceConversions {
     // Inhibit instantiation
     private Sequences() { }
 
-    public static<T> ArraySequence<T> asNonSharedArraySequence(Object value) {
+    static<T> ArraySequence<T> asNonSharedArraySequence(Object value) {
         if (value instanceof ArraySequence) {
             ArraySequence<T> arr = (ArraySequence) value;
             if (! arr.shared)
