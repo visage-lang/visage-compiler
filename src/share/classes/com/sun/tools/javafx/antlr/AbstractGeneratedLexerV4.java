@@ -297,7 +297,7 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
             // we want to coerce the value int o a negative integer of the top bit is set. So
             // we use string2int rather than string2long.
             //
-            value = Convert.string2int(text, radix);
+            value = Convert.string2long(text, radix);
 
         } catch (Exception e) {
 
