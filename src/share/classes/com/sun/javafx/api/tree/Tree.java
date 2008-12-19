@@ -297,6 +297,12 @@ public interface Tree {
 
         /**
          * Used for instances of {@link LiteralTree} representing
+         * a long integral literal expression of type {@code long}.
+         */
+        LONG_LITERAL(LiteralTree.class),
+
+        /**
+         * Used for instances of {@link LiteralTree} representing
          * a floating-point literal expression of type {@code float}.
          */
         FLOAT_LITERAL(LiteralTree.class),
