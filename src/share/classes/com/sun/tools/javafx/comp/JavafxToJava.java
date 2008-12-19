@@ -2006,14 +2006,23 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 diagPos, tree.isExclusive()?
                     sequencesRangeExclusiveString :
                     sequencesRangeString);
+        Type elemType = syms.javafx_IntegerType;
+        int ltag = tree.getLower().type.tag;
+        int utag = tree.getUpper().type.tag;
+        int stag = tree.getStepOrNull() == null? TypeTags.INT : tree.getStepOrNull().type.tag;
+        if (ltag == TypeTags.FLOAT || ltag == TypeTags.DOUBLE ||
+                utag == TypeTags.FLOAT || utag == TypeTags.DOUBLE ||
+                stag == TypeTags.FLOAT || stag == TypeTags.DOUBLE) {
+            elemType = syms.javafx_NumberType;
+        }
         ListBuffer<JCExpression> args = ListBuffer.lb();
         List<JCExpression> typeArgs = List.nil();
-        args.append( translate( tree.getLower() ));
-        args.append( translate( tree.getUpper() ));
+        args.append( translate( tree.getLower(), elemType ));
+        args.append( translate( tree.getUpper(), elemType ));
         if (tree.getStepOrNull() != null) {
-            args.append( translate( tree.getStepOrNull() ));
+            args.append( translate( tree.getStepOrNull(), elemType ));
         }
-        result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
+        result = convertTranslated(make.at(diagPos).Apply(typeArgs, meth, args.toList()), diagPos, types.sequenceType(elemType), tree.type);
     }
 
     @Override
