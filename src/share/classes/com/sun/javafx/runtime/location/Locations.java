@@ -88,8 +88,8 @@ public class Locations {
         return new ObjectNumericLocation(loc);
     }
 
-    public static <T extends Number> DoubleLocation asDoubleLocation(ObjectLocation<T> loc) {
-        return new ObjectDoubleLocation<T>(loc);
+    public static <T extends Number> FloatLocation asFloatLocation(ObjectLocation<T> loc) {
+        return new ObjectFloatLocation<T>(loc);
     }
 
     public static IntLocation asIntLocation(ObjectLocation<Integer> loc) {
@@ -307,23 +307,23 @@ public class Locations {
         }
     }
 
-    // @@@ May no longer be needed
-    private static class ObjectDoubleLocation<T extends Number> extends LocationWrapper<ObjectLocation<T>> implements DoubleLocation, StaticViewLocation {
-        private ObjectDoubleLocation(ObjectLocation<T> location) {
+    // @@@ May no longer be needed  -- errr, well, it is used
+    private static class ObjectFloatLocation<T extends Number> extends LocationWrapper<ObjectLocation<T>> implements FloatLocation, StaticViewLocation {
+        private ObjectFloatLocation(ObjectLocation<T> location) {
             super(location);
         }
 
-        public double getAsDouble() {
+        public float getAsFloat() {
             T val = location.get();
-            return val==null? 0.0 : val.doubleValue();
+            return val==null? 0.0f : val.floatValue();
         }
 
-        public double setAsDouble(double value) {
+        public float setAsFloat(float value) {
             // return location.set(value);
             throw new UnsupportedOperationException();
         }
 
-        public double setAsDoubleFromLiteral(double value) {
+        public float setAsFloatFromLiteral(float value) {
             // return location.setFromLiteral(value);
             throw new UnsupportedOperationException();
         }
@@ -332,54 +332,54 @@ public class Locations {
             location.setDefault();
         }
 
-        public void addChangeListener(final DoubleChangeListener listener) {
+        public void addChangeListener(final FloatChangeListener listener) {
             location.addChangeListener(new ObjectChangeListener<T>() {
                 public void onChange(T oldValue, T newValue) {
-                    listener.onChange(oldValue.doubleValue(), newValue.doubleValue());
+                    listener.onChange(oldValue.floatValue(), newValue.floatValue());
                 }
             });
         }
 
-        public Double get() {
-            return getAsDouble();
+        public Float get() {
+            return getAsFloat();
         }
 
-        public Double set(Double value) {
+        public Float set(Float value) {
             // return location.set(value);
             throw new UnsupportedOperationException();
         }
 
-        public Double setFromLiteral(Double value) {
+        public Float setFromLiteral(Float value) {
             // return location.setFromLiteral(value);
             throw new UnsupportedOperationException();
         }
 
-        public void addChangeListener(final ObjectChangeListener<Double> listener) {
+        public void addChangeListener(final ObjectChangeListener<Float> listener) {
             location.addChangeListener(new ObjectChangeListener<T>() {
                 public void onChange(T oldValue, T newValue) {
-                    listener.onChange(oldValue.doubleValue(), newValue.doubleValue());
+                    listener.onChange(oldValue.floatValue(), newValue.floatValue());
                 }
             });
         }
 
         public byte getAsByte() {
-            return (byte) getAsDouble();
+            return (byte) getAsFloat();
         }
 
         public short getAsShort() {
-            return (short) getAsDouble();
+            return (short) getAsFloat();
         }
 
         public int getAsInt() {
-            return (int) getAsDouble();
+            return (int) getAsFloat();
         }
 
         public long getAsLong() {
-            return (long) getAsDouble();
+            return (long) getAsFloat();
         }
 
-        public float getAsFloat() {
-            return (float) getAsDouble();
+        public double getAsDouble() {
+            return getAsFloat();
         }
 
         public Location getUnderlyingLocation() {
