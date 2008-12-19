@@ -1812,9 +1812,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     case MUL_ASG:
                     case DIV_ASG:
                         // Allow for cases like 'k *= 0.5' where k is an Integer or Duration
-                        return useDurationOperations()? syms.javafx_NumberType : rhs.type;
+                        return operationalType(useDurationOperations()? syms.javafx_NumberType : rhs.type);
                     default:
-                        return lhs.type;
+                        return operationalType(lhs.type);
                 }
             }
 

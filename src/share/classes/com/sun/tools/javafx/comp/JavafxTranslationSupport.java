@@ -641,6 +641,16 @@ public abstract class JavafxTranslationSupport {
         }
     }
 
+    protected Type operationalType(Type srcType) {
+        switch (srcType.tag) {
+            case TypeTags.BYTE:
+            case TypeTags.SHORT:
+                return syms.intType;
+            default:
+                return srcType;
+        }
+    }
+
     protected abstract String getSyntheticPrefix();
 
     Name getSyntheticName(String kind) {
