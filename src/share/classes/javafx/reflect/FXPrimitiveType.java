@@ -40,27 +40,44 @@ public class FXPrimitiveType extends FXType {
     static final FXPrimitiveType voidType =
         new FXPrimitiveType(Void.TYPE, "Void");
 
+   static final FXPrimitiveType byteType =
+        new FXPrimitiveType(Byte.TYPE, "Byte");
+
+    static final FXPrimitiveType shortType =
+        new FXPrimitiveType(Short.TYPE, "Short");
+
     static final FXPrimitiveType integerType =
         new FXPrimitiveType(Integer.TYPE, "Integer");
 
-    static final FXPrimitiveType numberType =
-        new FXPrimitiveType(Double.TYPE, "Number");
-
-    static final FXPrimitiveType byteType =
-        new FXPrimitiveType(Byte.TYPE, "JavaByte");
-
-    static final FXPrimitiveType shortType =
-        new FXPrimitiveType(Short.TYPE, "JavaShort");
-
     static final FXPrimitiveType longType =
-        new FXPrimitiveType(Byte.TYPE, "JavaLong");
+        new FXPrimitiveType(Byte.TYPE, "Long");
 
     static final FXPrimitiveType floatType =
-        new FXPrimitiveType(Float.TYPE, "JavaFloat");
+        new FXPrimitiveType(Float.TYPE, "Float");
     
+    static final FXPrimitiveType doubleType =
+        new FXPrimitiveType(Double.TYPE, "Double");
+
     static final FXPrimitiveType charType =
-        new FXPrimitiveType(Character.TYPE, "JavaChar");
+        new FXPrimitiveType(Character.TYPE, "Character");
 
     static final FXPrimitiveType booleanType =
         new FXPrimitiveType(Boolean.TYPE, "Boolean");
+
+    static final FXPrimitiveType numberType = floatType;
+
+    public FXPrimitiveValue mirrorOf(Object value) {
+        if (this == integerType || this == shortType || this == byteType ||
+                this == charType)
+            return new FXIntegerValue(((Number) value).intValue(), this);
+        if (this == longType)
+            return new FXLongValue(((Number) value).longValue(), this);
+        if (this == floatType)
+            return new FXFloatValue(((Number) value).floatValue(), this);
+        if (this == doubleType)
+            return new FXDoubleValue(((Number) value).doubleValue(), this);
+        if (this == booleanType)
+            return new FXBooleanValue(((Boolean) value).booleanValue(), this);
+        return null; // Should never happen.
+    }
 };

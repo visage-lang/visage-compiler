@@ -23,31 +23,25 @@
 
 package javafx.reflect;
 
-/** A handle/proxy for an {@code Integer} value.
- * It is also used for byte, short, and character values.
+/** A handle/proxy for a {@code Number} reference.
  *
  * @author Per Bothner
  * @profile desktop
  */
 
-public class FXIntegerValue extends FXPrimitiveValue {
-    int value;
+public class FXFloatValue extends FXPrimitiveValue {
+    float value;
 
-    public FXIntegerValue(int value, FXPrimitiveType type) {
+    public FXFloatValue(float value, FXPrimitiveType type) {
         this.value = value;
         this.type = type;
     }
 
-    public int intValue() { return value; }
+    public float floatValue() { return value; }
+    public String getValueString() { return Float.toString(value); }
+    public String toString() { return "FloatValue("+value+')'; }
 
-    public String getValueString() { return Integer.toString(value); }
-    public String toString() { return "IntegerValue("+value+')'; }
-    
     public Object asObject() {
-        if (type == FXPrimitiveType.byteType)
-            return Byte.valueOf((byte) intValue());
-        if (type == FXPrimitiveType.shortType)
-            return Short.valueOf((short) intValue());
-        return Integer.valueOf(intValue());
+        return Float.valueOf(floatValue());
     }
 }

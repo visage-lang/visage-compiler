@@ -23,31 +23,24 @@
 
 package javafx.reflect;
 
-/** A handle/proxy for an {@code Integer} value.
- * It is also used for byte, short, and character values.
+/** Mirroring of a JavaFX Long (or Java long) value.
  *
  * @author Per Bothner
  * @profile desktop
  */
+public class FXLongValue extends FXPrimitiveValue {
+    long value;
 
-public class FXIntegerValue extends FXPrimitiveValue {
-    int value;
-
-    public FXIntegerValue(int value, FXPrimitiveType type) {
+    public FXLongValue(long value, FXPrimitiveType type) {
         this.value = value;
         this.type = type;
     }
 
-    public int intValue() { return value; }
+    public long longValue() { return value; }
+    public String getValueString() { return Long.toString(value); }
+    public String toString() { return "LongValue("+value+')'; }
 
-    public String getValueString() { return Integer.toString(value); }
-    public String toString() { return "IntegerValue("+value+')'; }
-    
     public Object asObject() {
-        if (type == FXPrimitiveType.byteType)
-            return Byte.valueOf((byte) intValue());
-        if (type == FXPrimitiveType.shortType)
-            return Short.valueOf((short) intValue());
-        return Integer.valueOf(intValue());
+        return Long.valueOf(longValue());
     }
 }

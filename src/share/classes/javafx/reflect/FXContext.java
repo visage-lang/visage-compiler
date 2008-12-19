@@ -59,19 +59,73 @@ public abstract class FXContext {
     /** Get the {@code FXType} for the "any" type. */
     public FXType getAnyType() { return anyType; }
 
+    public FXPrimitiveType getPrimitiveType(String typeName) {
+        if (typeName.startsWith("java.lang."))
+            typeName = typeName.substring(10);
+        else if (typeName.indexOf('.') >= 0)
+            return null;
+        if (typeName.equals("Boolean"))
+            return getBooleanType();
+        if (typeName.equals("Character"))
+            return getCharacterType();
+        if (typeName.equals("Byte"))
+            return getByteType();
+        if (typeName.equals("Short"))
+            return getShortType();
+        if (typeName.equals("Integer") || typeName.equals("Int"))
+            return getIntegerType();
+        if (typeName.equals("Long"))
+            return getLongType();
+        if (typeName.equals("Float"))
+            return getFloatType();
+        if (typeName.equals("Double"))
+            return getDoubleType();
+        if (typeName.equals("Void"))
+            return FXPrimitiveType.voidType;
+        return null;
+    }
+
     /** Get the run-time representation of the JavaFX {@code Boolean} type. */
     public FXPrimitiveType getBooleanType() {
         return FXPrimitiveType.booleanType;
     }
 
-    /** Get the run-time representation of the JavaFX {@code Integer} type. */
+    /** Get the run-time representation of the JavaFX {@code Character} type. */
+    public FXPrimitiveType getCharacterType() {
+        return FXPrimitiveType.charType;
+    }
+
+    /** Get the run-time representation of the JavaFX {@code Byte} type. */
+    public FXPrimitiveType getByteType() {
+        return FXPrimitiveType.byteType;
+    }
+
+     /** Get the run-time representation of the JavaFX {@code Short} type. */
+    public FXPrimitiveType getShortType() {
+        return FXPrimitiveType.shortType;
+    }
+
+   /** Get the run-time representation of the JavaFX {@code Integer} type. */
     public FXPrimitiveType getIntegerType() {
         return FXPrimitiveType.integerType;
     }
 
-    /** Get the run-time representation of the JavaFX {@code Number} type. */
+   /** Get the run-time representation of the JavaFX {@code Long} type. */
+    public FXPrimitiveType getLongType() {
+        return FXPrimitiveType.longType;
+    }
+
+     public FXPrimitiveType getFloatType() {
+        return FXPrimitiveType.floatType;
+    }
+
+    public FXPrimitiveType getDoubleType() {
+        return FXPrimitiveType.doubleType;
+    }
+
+   /** Get the run-time representation of the JavaFX {@code Number} type. */
     public FXPrimitiveType getNumberType() {
-        return FXPrimitiveType.numberType;
+        return getFloatType();
     }
 
     public FXClassType getStringType() {
@@ -122,14 +176,37 @@ public abstract class FXContext {
         return new FXBooleanValue(value, getBooleanType());
     }
 
+    /* Create an {@code Integer} value from an {@code char}. */
+    public FXLocal.Value mirrorOf (char value)  {
+        return new FXIntegerValue(value, getCharacterType());
+    }
+
+    /* Create an {@code Integer} value from an {@code int}. */
+    public FXLocal.Value mirrorOf (byte value)  {
+        return new FXIntegerValue(value, getByteType());
+    }
+
+    public FXLocal.Value mirrorOf (short value)  {
+        return new FXIntegerValue(value, getShortType());
+    }
+
     /* Create an {@code Integer} value from an {@code int}. */
     public FXLocal.Value mirrorOf (int value)  {
         return new FXIntegerValue(value, getIntegerType());
     }
 
-    /* Create an {@code Number} value from aq {@code double}. */
+    public FXLocal.Value mirrorOf (long value)  {
+        return new FXLongValue(value, getLongType());
+    }
+
+    /* Create an {@code Float} value from a {@code float}. */
+    public FXLocal.Value mirrorOf (float value) {
+        return new FXFloatValue(value, getFloatType());
+    }
+
+    /* Create an {@code Double} value from a {@code double}. */
     public FXLocal.Value mirrorOf (double value) {
-        return new FXNumberValue(value, getNumberType());
+        return new FXDoubleValue(value, getDoubleType());
     }
 
     public abstract FXValue mirrorOf (String value);

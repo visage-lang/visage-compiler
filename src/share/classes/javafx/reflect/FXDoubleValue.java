@@ -23,24 +23,23 @@
 
 package javafx.reflect;
 
-/** A handle/proxy for a {@code Number} reference.
+/** Mirroring of a JavaFX Double value.
  *
  * @author Per Bothner
  * @profile desktop
  */
-
-public class FXNumberValue extends FXPrimitiveValue {
+public class FXDoubleValue extends FXPrimitiveValue {
     double value;
 
-    public FXNumberValue(double value, FXPrimitiveType type) {
+    public FXDoubleValue(double value, FXPrimitiveType type) {
         this.value = value;
         this.type = type;
     }
 
     public double doubleValue() { return value; }
     public String getValueString() { return Double.toString(value); }
-    public String toString() { return "NumberValue("+value+')'; }
-    
+    public String toString() { return "DoubleValue("+value+')'; }
+
     public Object asObject() {
         return Double.valueOf(doubleValue());
     }

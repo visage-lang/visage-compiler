@@ -75,12 +75,7 @@ public class FXLocal {
             if (type instanceof ClassType)
                 return new FXLocal.ObjectValue(val, (ClassType) type);
             else if (type instanceof FXPrimitiveType) {
-                if (type == FXPrimitiveType.integerType)
-                    return mirrorOf(((Integer) val).intValue());
-                else if (type == FXPrimitiveType.booleanType)
-                    return mirrorOf(((Boolean) val).booleanValue());
-                else // if (type == FXPrimitiveType.numberType)
-                    return mirrorOf(((Double) val).doubleValue());
+                return ((FXPrimitiveType) type).mirrorOf(val);
             }
             else if (type instanceof FXSequenceType && val instanceof Sequence) {
                 Sequence seq = (Sequence) val;
@@ -129,7 +124,12 @@ public class FXLocal {
                 }
             }
             throw new RuntimeException(ex0);
-       }
+        }
+
+        static final String LOCATION_PREFIX = "com.sun.javafx.runtime.location.";
+        static final int LOCATION_PREFIX_LENGTH = LOCATION_PREFIX.length();
+        static final String VARIABLE_STRING = "Variable";
+        static final int VARIABLE_STRING_LENGTH = VARIABLE_STRING.length();
 
         public FXType makeTypeRef(Type typ) {
             if (typ instanceof ParameterizedType) {
@@ -173,14 +173,9 @@ public class FXLocal {
                 if (typ instanceof Class) {
                     String rawName = ((Class) typ).getName();
                     // Kludge, because generics don't handle primitive types.
-                    if (rawName.equals("java.lang.Boolean"))
-                        return getBooleanType();
-                    if (rawName.equals("java.lang.Integer"))
-                        return getIntegerType();
-                    if (rawName.equals("java.lang.Double"))
-                        return getNumberType();
-                    if (rawName.equals("java.lang.Void"))
-                        return FXPrimitiveType.voidType;
+                    FXType ptype = getPrimitiveType(rawName);
+                    if (ptype != null)
+                        return ptype;
                 }
                 return makeTypeRef(typ);
             }
@@ -199,24 +194,31 @@ public class FXLocal {
                 return new FXJavaArrayType(elType);
             }
             String rawName = ((Class) typ).getName();
-            if (FXClassType.DOUBLE_VARIABLE_CLASSNAME.equals(rawName)
-                    || typ == Double.TYPE)
-                return getNumberType();
-            if (FXClassType.INT_VARIABLE_CLASSNAME.equals(rawName)
-                    || typ == Integer.TYPE)
-                return getIntegerType();
+            int rawLength = rawName.length();
+            if (rawLength > LOCATION_PREFIX_LENGTH + VARIABLE_STRING_LENGTH &&
+                    rawName.startsWith(LOCATION_PREFIX) &&
+                    rawName.endsWith(VARIABLE_STRING)) {
+                rawName = rawName.substring(LOCATION_PREFIX_LENGTH,
+                        rawLength-VARIABLE_STRING_LENGTH);
+                FXType ptype = getPrimitiveType(rawName);
+                if (ptype != null)
+                    return ptype;
+            }
             if (typ == Byte.TYPE)
                 return FXPrimitiveType.byteType;
             if (typ == Short.TYPE)
                 return FXPrimitiveType.shortType;
+            if (typ == Integer.TYPE)
+                return FXPrimitiveType.integerType;
             if (typ == Long.TYPE)
                 return FXPrimitiveType.longType;
             if (typ == Float.TYPE)
                 return FXPrimitiveType.floatType;
+            if (typ == Double.TYPE)
+                return FXPrimitiveType.doubleType;
             if (typ == Character.TYPE)
                 return FXPrimitiveType.charType;
-            if (FXClassType.BOOLEAN_VARIABLE_CLASSNAME.equals(rawName)
-                    || typ == Boolean.TYPE)
+            if (typ == Boolean.TYPE)
                 return FXPrimitiveType.booleanType;
             if (typ == Void.TYPE)
                 return FXPrimitiveType.voidType;
@@ -667,12 +669,32 @@ public class FXLocal {
                     ((IntVariable) loc).setAsIntFromLiteral(((FXIntegerValue) value).intValue());
                     return;
                 }
-                 if (loc instanceof BooleanVariable) {
+                if (loc instanceof BooleanVariable) {
                     ((BooleanVariable) loc).setAsBooleanFromLiteral(((FXBooleanValue) value).booleanValue());
                     return;
                 }
+                if (loc instanceof CharVariable) {
+                    ((CharVariable) loc).setAsCharFromLiteral((char) ((FXIntegerValue) value).intValue());
+                    return;
+                }
+                if (loc instanceof ByteVariable) {
+                    ((ByteVariable) loc).setAsByteFromLiteral((byte) ((FXIntegerValue) value).intValue());
+                    return;
+                }
+                if (loc instanceof ShortVariable) {
+                    ((ShortVariable) loc).setAsShortFromLiteral((short) ((FXIntegerValue) value).intValue());
+                    return;
+                }
+                if (loc instanceof LongVariable) {
+                    ((LongVariable) loc).setAsLongFromLiteral(((FXLongValue) value).longValue());
+                    return;
+                }
+                if (loc instanceof FloatVariable) {
+                    ((FloatVariable) loc).setAsFloatFromLiteral(((FXFloatValue) value).floatValue());
+                    return;
+                }
                 if (loc instanceof DoubleVariable) {
-                    ((DoubleVariable) loc).setAsDoubleFromLiteral(((FXNumberValue) value).doubleValue());
+                    ((DoubleVariable) loc).setAsDoubleFromLiteral(((FXDoubleValue) value).doubleValue());
                     return;
                 }
                 if (loc instanceof AbstractVariable) {
@@ -788,6 +810,7 @@ public class FXLocal {
                 return context.mirrorOf(result, getType().getReturnType());
             }
              catch (RuntimeException ex) {
+                 System.err.println("caught "+ex+" method:"+method+" rargs:"+rargs+" alen:"+alen);
                 throw ex;
             }
             catch (Exception ex) {
