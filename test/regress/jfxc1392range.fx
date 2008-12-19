@@ -71,6 +71,61 @@ class RangeTest {
         for(i in [0.1 .. 1.5])
             Hold { held: i }
     }
+
+    bound function numOfIntervals0e(): Hold[] {
+        for(i in [0 ..< 2 step 1])
+            Hold { held: i }
+    }
+
+    bound function numOfIntervals1e(): Hold[] {
+        for(i in [0 ..< 2 step 0.1])
+            Hold { held: i }
+    }
+
+    bound function numOfIntervals2e(): Hold[] {
+        for(i in [0 ..< 1.5 step 1])
+            Hold { held: i }
+    }
+
+    bound function numOfIntervals3e(): Hold[] {
+        for(i in [0 ..< 1.5 step 0.1])
+            Hold { held: i }
+    }
+
+    bound function numOfIntervals4e(): Hold[] {
+        for(i in [0.1 ..< 2 step 1])
+            Hold { held: i }
+    }
+
+    bound function numOfIntervals5e(): Hold[] {
+        for(i in [0.1 ..< 2 step 0.1])
+            Hold { held: i }
+    }
+
+    bound function numOfIntervals6e(): Hold[] {
+        for(i in [0.1 ..< 1.5 step 1])
+            Hold { held: i }
+    }
+
+    bound function numOfIntervals7e(): Hold[] {
+        for(i in [0.1 ..< 1.5 step 0.1])
+            Hold { held: i }
+    }
+
+    bound function numOfIntervalsAe(): Hold[] {
+        for(i in [0 ..< 1.5])
+            Hold { held: i }
+    }
+
+    bound function numOfIntervalsBe(): Hold[] {
+        for(i in [0.1 ..< 2])
+            Hold { held: i }
+    }
+
+    bound function numOfIntervalsCe(): Hold[] {
+        for(i in [0.1 ..< 1.5])
+            Hold { held: i }
+    }
 }
 
 function myprint(foos : Hold[]) {
@@ -82,16 +137,27 @@ function myprint(foos : Hold[]) {
 
 var rt = RangeTest {};
 myprint( rt.numOfIntervals0() );
+myprint( rt.numOfIntervals0e() );
 myprint( rt.numOfIntervals1() );
+myprint( rt.numOfIntervals1e() );
 myprint( rt.numOfIntervals2() );
+myprint( rt.numOfIntervals2e() );
 myprint( rt.numOfIntervals3() );
+myprint( rt.numOfIntervals3e() );
 myprint( rt.numOfIntervals4() );
+myprint( rt.numOfIntervals4e() );
 myprint( rt.numOfIntervals5() );
+myprint( rt.numOfIntervals5e() );
 myprint( rt.numOfIntervals6() );
+myprint( rt.numOfIntervals6e() );
 myprint( rt.numOfIntervals7() );
+myprint( rt.numOfIntervals7e() );
 myprint( rt.numOfIntervalsA() );
+myprint( rt.numOfIntervalsAe() );
 myprint( rt.numOfIntervalsB() );
+myprint( rt.numOfIntervalsBe() );
 myprint( rt.numOfIntervalsC() );
+myprint( rt.numOfIntervalsCe() );
 
 
 
