@@ -2899,19 +2899,19 @@ public class JavafxAttr implements JavafxVisitor {
         boolean allInt = true;
         if (lowerType != syms.javafx_IntegerType) {
             allInt = false;
-            if (lowerType != syms.javafx_DoubleType) {
+            if (lowerType != syms.javafx_FloatType) {
                 log.error(tree.getLower().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_START_INT_OR_NUMBER);
             }
         }
         if (upperType != syms.javafx_IntegerType) {
             allInt = false;
-            if (upperType != syms.javafx_DoubleType) {
+            if (upperType != syms.javafx_FloatType) {
                 log.error(tree.getLower().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_END_INT_OR_NUMBER);
             }
         }
         if (stepType != syms.javafx_IntegerType) {
             allInt = false;
-            if (stepType != syms.javafx_DoubleType) {
+            if (stepType != syms.javafx_FloatType) {
                 log.error(tree.getStepOrNull().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_STEP_INT_OR_NUMBER);
             }
         }
@@ -2919,7 +2919,7 @@ public class JavafxAttr implements JavafxVisitor {
                 && (tree.getStepOrNull() == null || tree.getStepOrNull().getFXTag() == JavafxTag.LITERAL)) {
             chk.warnEmptyRangeLiteral(tree.pos(), (JFXLiteral)tree.getLower(), (JFXLiteral)tree.getUpper(), (JFXLiteral)tree.getStepOrNull(), tree.isExclusive());
 		}
-        Type owntype = types.sequenceType(allInt? syms.javafx_IntegerType : syms.javafx_DoubleType);
+        Type owntype = types.sequenceType(allInt? syms.javafx_IntegerType : syms.javafx_FloatType);
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
 
