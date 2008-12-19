@@ -741,11 +741,16 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     @Override
     public void visitSequenceRange(JFXSequenceRange tree) { //done: except for step and exclusive
         DiagnosticPosition diagPos = tree.pos();
-        boolean toNumber = 
-                tree.getLower().type == syms.doubleType || 
-                tree.getUpper().type == syms.doubleType || 
-                (tree.getStepOrNull() != null && tree.getStepOrNull().type == syms.doubleType);
-        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(toNumber? syms.doubleType : syms.intType);
+        Type elemType = syms.javafx_IntegerType;
+        int ltag = tree.getLower().type.tag;
+        int utag = tree.getUpper().type.tag;
+        int stag = tree.getStepOrNull() == null? TypeTags.INT : tree.getStepOrNull().type.tag;
+        if (ltag == TypeTags.FLOAT || ltag == TypeTags.DOUBLE ||
+                utag == TypeTags.FLOAT || utag == TypeTags.DOUBLE ||
+                stag == TypeTags.FLOAT || stag == TypeTags.DOUBLE) {
+            elemType = syms.javafx_NumberType;
+        }
+        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(elemType);
         ListBuffer<JCExpression> args = ListBuffer.lb();
         args.append( translate( tree.getLower(), tmi ));
         args.append( translate( tree.getUpper(), tmi ));
@@ -755,7 +760,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         if (tree.isExclusive()) {
             args.append( make.at(diagPos).Literal(TypeTags.BOOLEAN, 1) );
         }
-        result = convert(tree.type, runtime(diagPos, cBoundSequences, "range", args));
+        result = convert(types.sequenceType(elemType), runtime(diagPos, cBoundSequences, "range", args));
     }
 
     @Override
