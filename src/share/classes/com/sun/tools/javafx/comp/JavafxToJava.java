@@ -1786,12 +1786,14 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     public void visitAssignop(final JFXAssignOp tree) {
         result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
 
-            boolean useDurationOperations = types.isSameType(lhs.type, syms.javafx_DurationType);
+            private boolean useDurationOperations() {
+                return types.isSameType(lhs.type, syms.javafx_DurationType);
+            }
 
             @Override
             JCExpression buildRHS(JCExpression rhsTranslated) {
                 final JCExpression lhsTranslated = translate(lhs);
-                if (useDurationOperations) {
+                if (useDurationOperations()) {
                     JCExpression method = m().Select(lhsTranslated, tree.operator);
                     return m().Apply(null, method, List.<JCExpression>of(rhsTranslated));
                 } else {
@@ -1810,7 +1812,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     case MUL_ASG:
                     case DIV_ASG:
                         // Allow for cases like 'k *= 0.5' where k is an Integer or Duration
-                        return rhs.type;
+                        return useDurationOperations()? syms.javafx_NumberType : rhs.type;
                     default:
                         return lhs.type;
                 }
@@ -1818,7 +1820,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             @Override
             JCExpression defaultFullExpression( JCExpression lhsTranslated, JCExpression rhsTranslated) {
-                return useDurationOperations?
+                return useDurationOperations()?
                     m().Assign(lhsTranslated, buildRHS(rhsTranslated)) :
                     m().Assignop(tree.getOperatorTag(), lhsTranslated, rhsTranslated);
             }
