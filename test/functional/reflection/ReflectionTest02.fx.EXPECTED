@@ -32,7 +32,7 @@ FUNCTIONS of class ReflectionTest02
   function(java.lang.Integer):java.lang.Integer _func6() min_args=0; var_args: false
   class javafx.lang.Duration _func7() min_args=1; var_args: false
   Boolean _func8() min_args=2; var_args: false
-  Number _func9() min_args=1; var_args: false
+  Float _func9() min_args=1; var_args: false
   Void inspectClass() min_args=3; var_args: false
   Void inspectMember() min_args=1; var_args: false
   Void main() min_args=1; var_args: false
@@ -100,7 +100,7 @@ VARIABLES of class ReflectionTest02.TestClass
   vB_b type:Boolean  static=false; Decl.class: ReflectionTest02.BaseTestClass   value=[true], itemcount=1
   vB_i type:Integer  static=false; Decl.class: ReflectionTest02.BaseTestClass   value=[1], itemcount=1
   vB_is type:null  static=false; Decl.class: ReflectionTest02.BaseTestClass 
-  vB_n type:Number  static=false; Decl.class: ReflectionTest02.BaseTestClass   value=[1.23], itemcount=1
+  vB_n type:Float  static=false; Decl.class: ReflectionTest02.BaseTestClass   value=[1.23], itemcount=1
   vB_name type:java.lang.String  static=false; Decl.class: ReflectionTest02.BaseTestClass   value=[TestClass], itemcount=1
   vbooleanAttr1 type:java.lang.Object  static=false; Decl.class: ReflectionTest02.TestClass   value=[null], itemcount=0
   vi type:Integer  static=false; Decl.class: ReflectionTest02.TestClass   value=[1], itemcount=1
@@ -109,10 +109,10 @@ VARIABLES of class ReflectionTest02.TestClass
   vintAttr3 type:Integer  static=false; Decl.class: ReflectionTest02.TestClass   value=[92], itemcount=1
   vintSeq1 type:null  static=false; Decl.class: ReflectionTest02.TestClass 
   vis type:null  static=false; Decl.class: ReflectionTest02.TestClass 
-  vn type:Number  static=false; Decl.class: ReflectionTest02.TestClass   value=[1.23], itemcount=1
+  vn type:Float  static=false; Decl.class: ReflectionTest02.TestClass   value=[1.23], itemcount=1
   vname type:java.lang.String  static=false; Decl.class: ReflectionTest02.TestClass   value=[TestClass], itemcount=1
-  vnumberAttr1 type:Number  static=false; Decl.class: ReflectionTest02.TestClass   value=[0.0], itemcount=1
-  vnumberAttr2 type:Number  static=false; Decl.class: ReflectionTest02.TestClass   value=[1.0], itemcount=1
+  vnumberAttr1 type:Double  static=false; Decl.class: ReflectionTest02.TestClass   value=[0.0], itemcount=1
+  vnumberAttr2 type:Double  static=false; Decl.class: ReflectionTest02.TestClass   value=[1.0], itemcount=1
   vobjAttr1 type:java.lang.Object  static=false; Decl.class: ReflectionTest02.TestClass   value=[null], itemcount=0
   vobjAttr2 type:java.lang.Object  static=false; Decl.class: ReflectionTest02.TestClass   value=[1], itemcount=1
   vseq3 type:null  static=false; Decl.class: ReflectionTest02.TestClass 
@@ -130,6 +130,6 @@ FUNCTIONS of class ReflectionTest02.TestClass
   function(java.lang.Integer):java.lang.Integer fbFunc6() min_args=0; var_args: false
   class javafx.lang.Duration fbFunc7() min_args=1; var_args: false
   Boolean fbFunc8() min_args=2; var_args: false
-  Number fbFunc9() min_args=1; var_args: false
+  Float fbFunc9() min_args=1; var_args: false
   class com.sun.javafx.runtime.location.IntLocation func0$$bound$int() min_args=1; var_args: false
   class com.sun.javafx.runtime.location.IntLocation func0$impl$$bound$int() min_args=2; var_args: false
