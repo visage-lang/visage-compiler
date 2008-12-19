@@ -52,6 +52,9 @@ public class JFXLiteral extends JFXExpression implements LiteralTree {
     public JavaFXKind getJavaFXKind() {
         switch (typetag) {
             case TypeTags.INT:
+            case TypeTags.SHORT:
+            case TypeTags.BYTE:
+            case TypeTags.CHAR:
                 return JavaFXKind.INT_LITERAL;
             case TypeTags.LONG:
                 return JavaFXKind.LONG_LITERAL;

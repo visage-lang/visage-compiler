@@ -2593,6 +2593,11 @@ public class JavafxAttr implements JavafxVisitor {
         return "{" + expr.toString() + "}";
     }
 
+    boolean isPrimitiveOrBoxed(Type pt, int tag) {
+        return pt.tag == tag ||
+                (pt.tsym instanceof ClassSymbol && 
+                 ((ClassSymbol) pt.tsym).fullname == syms.boxedName[tag]);
+    }
 
     @Override
     public void visitLiteral(JFXLiteral tree) {
@@ -2601,20 +2606,48 @@ public class JavafxAttr implements JavafxVisitor {
         else {
             if (tree.value instanceof Double) {
                 double dvalue = ((Double) tree.value).doubleValue();
-                if (pt.tag == TypeTags.DOUBLE || (pt.tag == UNKNOWN && (dvalue != (double) (float) dvalue)))
+                if (isPrimitiveOrBoxed(pt, DOUBLE) ||
+                       (pt.tag == UNKNOWN && ! Double.isInfinite(dvalue) &&
+                        Math.abs(dvalue) > Float.MAX_VALUE)) {
                     tree.typetag = TypeTags.DOUBLE;
+                }
                 else {
                     tree.typetag = TypeTags.FLOAT;
                     tree.value = Float.valueOf((float) dvalue);
                 }
             }
-            else if (tree.value instanceof Long) {
-                long lvalue = ((Long) tree.value).longValue();
-                if (pt.tag == TypeTags.LONG || lvalue != (long) (int) lvalue)
+            else if ((tree.value instanceof Integer || tree.value instanceof Long) &&
+                    tree.typetag != TypeTags.BOOLEAN) {
+                long lvalue = ((Number) tree.value).longValue();
+                if (isPrimitiveOrBoxed(pt, BYTE) && lvalue == (byte) lvalue) {
+                    tree.typetag = TypeTags.BYTE;
+                    //tree.value = Byte.valueOf((byte) lvalue);
+                }
+                else if (isPrimitiveOrBoxed(pt, SHORT)  && lvalue == (short) lvalue) {
+                    tree.typetag = TypeTags.SHORT;
+                    tree.value = Short.valueOf((short) lvalue);
+                }
+                 else if (isPrimitiveOrBoxed(pt, CHAR)  && lvalue == (char) lvalue) {
+                    tree.typetag = TypeTags.CHAR;
+                }
+                else if (isPrimitiveOrBoxed(pt, FLOAT)) {
+                    tree.typetag = TypeTags.FLOAT;
+                    tree.value = Float.valueOf(lvalue);
+                }
+                else if (isPrimitiveOrBoxed(pt, DOUBLE)) {
+                    tree.typetag = TypeTags.DOUBLE;
+                    tree.value = Double.valueOf(lvalue);
+                }
+                else if (isPrimitiveOrBoxed(pt, LONG) ||
+                         (pt.tag == UNKNOWN && lvalue != (long) (int) lvalue)) {
                     tree.typetag = TypeTags.LONG;
+                    if (! (tree.value instanceof Long))
+                        tree.value = Long.valueOf(lvalue);
+                }
                 else {
                     tree.typetag = TypeTags.INT;
-                    tree.value = Integer.valueOf((int) lvalue);
+                    if (! (tree.value instanceof Integer))
+                        tree.value = Integer.valueOf((int) lvalue);
                 }
             }
             result = check(
