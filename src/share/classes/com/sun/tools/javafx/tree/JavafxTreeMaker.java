@@ -397,6 +397,13 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return typeList.toList();
     }
 
+    public JFXLiteral LiteralIntOrLong(long value) {
+        if (value == (long) (int) value)
+            return Literal(TypeTags.INT, Integer.valueOf((int) value));
+        else
+            return Literal(TypeTags.LONG, Long.valueOf(value));
+    }
+
     public JFXLiteral Literal(Object value) {
         JFXLiteral result = null;
         if (value instanceof String) {

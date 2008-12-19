@@ -2598,9 +2598,27 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitLiteral(JFXLiteral tree) {
         if (tree.typetag == TypeTags.BOT && types.isSequence(pt))
             result = tree.type = pt;
-        else
+        else {
+            if (tree.value instanceof Double) {
+                if (pt.tag == TypeTags.DOUBLE)
+                    tree.typetag = TypeTags.DOUBLE;
+                else {
+                    tree.typetag = TypeTags.FLOAT;
+                    tree.value = Float.valueOf(((Double) tree.value).floatValue());
+                }
+            }
+            else if (tree.value instanceof Long) {
+                long lvalue = ((Long) tree.value).longValue();
+                if (pt.tag == TypeTags.LONG || lvalue == (long) (int) lvalue)
+                    tree.typetag = TypeTags.LONG;
+                else {
+                    tree.typetag = TypeTags.INT;
+                    tree.value = Integer.valueOf((int) lvalue);
+                }
+            }
             result = check(
                 tree, litType(tree.typetag, pt), VAL, pkind, pt, pSequenceness);
+        }
     }
     //where
     /** Return the type of a literal with given type tag.

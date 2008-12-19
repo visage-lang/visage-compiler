@@ -5920,19 +5920,19 @@ literal
 			 DECIMAL_LITERAL
 			
 				{
-					$value = F.at(rPos).Literal(TypeTags.INT, (int)Convert.string2long($DECIMAL_LITERAL.text, 10));
+					$value = F.at(rPos).LiteralIntOrLong(Convert.string2long($DECIMAL_LITERAL.text, 10));
 				}
 				
 			| OCTAL_LITERAL
 			
 				{
-					$value = F.at(rPos).Literal(TypeTags.INT, (int)Convert.string2long($OCTAL_LITERAL.text, 8));
+					$value = F.at(rPos).LiteralIntOrLong(Convert.string2long($OCTAL_LITERAL.text, 8));
 				}
 			
 			| HEX_LITERAL
 			
 				{
-					$value = F.at(rPos).Literal(TypeTags.INT, (int)Convert.string2long($HEX_LITERAL.text, 16));
+					$value = F.at(rPos).LiteralIntOrLong(Convert.string2long($HEX_LITERAL.text, 16));
 				}
 				
 		    | timeValue
