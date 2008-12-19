@@ -29,6 +29,7 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.Log;
+import com.sun.tools.javac.util.Options;
 import com.sun.tools.javafx.main.JavafxCompiler;
 import com.sun.tools.javafx.main.Main;
 import com.sun.tools.javafx.tree.JavaPretty;
@@ -72,13 +73,17 @@ public class JavafxBackendLog extends Log {
 
             StringWriter sw = new StringWriter();
             if (tree != null) {
-                try {
+                Options options = Options.instance(context);
+                String dumpOnFail = options.get("DumpOnFail");
+                if (dumpOnFail == null || !dumpOnFail.toLowerCase().startsWith("n")) {
                     try {
-                        new JavaPretty(sw, false, fxContext).printExpr(tree);
-                    } finally {
-                        sw.close();
+                        try {
+                            new JavaPretty(sw, false, fxContext).printExpr(tree);
+                        } finally {
+                            sw.close();
+                        }
+                    } catch (Throwable ex) {
                     }
-                } catch (Throwable ex) {
                 }
             }
 
