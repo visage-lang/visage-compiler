@@ -2609,7 +2609,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
             else if (tree.value instanceof Long) {
                 long lvalue = ((Long) tree.value).longValue();
-                if (pt.tag == TypeTags.LONG || lvalue == (long) (int) lvalue)
+                if (pt.tag == TypeTags.LONG || lvalue != (long) (int) lvalue)
                     tree.typetag = TypeTags.LONG;
                 else {
                     tree.typetag = TypeTags.INT;
