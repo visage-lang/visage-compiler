@@ -48,16 +48,7 @@ public abstract class FXTypeDelegate implements InvocationDelegate {
         
         FXType type = val.getType();
         if (type instanceof FXPrimitiveType) {
-            if (type.equals(numberType)) {
-                return ((FXNumberValue) val).asObject();
-            } else if (type.equals(integerType)) {
-                return ((FXIntegerValue) val).asObject();
-            } else if (type.equals(booleanType)) {
-                return ((FXBooleanValue) val).asObject();
-            } else {
-                // Unknown kind of primitive value -- for now, pass it through unmodified
-                return val;
-            }
+            return ((FXPrimitiveValue) val).asObject();
         } else if (type instanceof FXLocal.ClassType) {
             FXLocal.ClassType classType = (FXLocal.ClassType) type;
             if (!classType.isJfxType()) {
