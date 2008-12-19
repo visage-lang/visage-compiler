@@ -2600,11 +2600,12 @@ public class JavafxAttr implements JavafxVisitor {
             result = tree.type = pt;
         else {
             if (tree.value instanceof Double) {
-                if (pt.tag == TypeTags.DOUBLE)
+                double dvalue = ((Double) tree.value).doubleValue();
+                if (pt.tag == TypeTags.DOUBLE || (pt.tag == UNKNOWN && (dvalue != (double) (float) dvalue)))
                     tree.typetag = TypeTags.DOUBLE;
                 else {
                     tree.typetag = TypeTags.FLOAT;
-                    tree.value = Float.valueOf(((Double) tree.value).floatValue());
+                    tree.value = Float.valueOf((float) dvalue);
                 }
             }
             else if (tree.value instanceof Long) {
