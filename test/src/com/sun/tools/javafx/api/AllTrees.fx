@@ -225,6 +225,9 @@ var tf : function () : String;
 // INT_LITERAL
 1;
 
+// LONG_LITERAL
+123456789123456;
+
 // FLOAT_LITERAL
 1.;
 
