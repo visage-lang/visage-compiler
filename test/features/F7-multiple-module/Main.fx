@@ -10,7 +10,7 @@
 var a1 = ModuleTestA {
     vs: "Ramparts"
     vi: 1956
-    vn: 3.1415926
+    vn: 3.125
     vb: true
 };
 

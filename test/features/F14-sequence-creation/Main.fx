@@ -21,15 +21,15 @@ var rangeStep = [0..1000 step 100];
 var rangeStepE = [0..<1000 step 100];
 var nRange = [12.5..18.5 step 0.5];
 var nRangeE = [12.5..<18.5 step 0.5];
-var toZ = [1..0 step -0.1];
+var toZ = [1..0 step -0.125];
 var negRangeFrac = [2..1.02];
 
 
 var emptyStart : Integer[] = [];
 insert 1234 into emptyStart;
 
-var fractionalRange = [0.3..1.0 step .1 ];
-var fractionalRangeDsc = [1.0..0.3 step -.1];
+var fractionalRange = [0.5..1.0 step .125 ];
+var fractionalRangeDsc = [1.0..0.5 step -.125];
 
 System.out.println(nums);
 System.out.println(strs);
