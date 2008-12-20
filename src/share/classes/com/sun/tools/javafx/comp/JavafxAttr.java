@@ -1302,7 +1302,7 @@ public class JavafxAttr implements JavafxVisitor {
             if (stype == syms.unreachableType)
                 canReturn = false;
             if (inBindContext && (l.head.getFXTag() != JavafxTag.VAR_DEF)) {
-                log.error(l.head.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, l.head.toString()); 
+                log.error(l.head.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, l.head.toString());
             }
         }
         Type owntype = null;
@@ -1310,7 +1310,7 @@ public class JavafxAttr implements JavafxVisitor {
             if (!canReturn && !unreachableReported) {
                 log.error(tree.value.pos(), MsgSym.MESSAGE_UNREACHABLE_STMT);
             }
-            Type valueType = attribExpr(tree.value, localEnv);
+            Type valueType = attribExpr(tree.value, localEnv, pt);
             owntype = valueType != syms.unreachableType ?
                 unionType(tree.pos(), tree.type, valueType) :
                 syms.unreachableType;
@@ -2951,19 +2951,19 @@ public class JavafxAttr implements JavafxVisitor {
         boolean allInt = true;
         if (lowerType != syms.javafx_IntegerType) {
             allInt = false;
-            if (lowerType != syms.javafx_FloatType) {
+            if (lowerType != syms.javafx_FloatType && lowerType != syms.javafx_DoubleType) {
                 log.error(tree.getLower().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_START_INT_OR_NUMBER);
             }
         }
         if (upperType != syms.javafx_IntegerType) {
             allInt = false;
-            if (upperType != syms.javafx_FloatType) {
+            if (upperType != syms.javafx_FloatType && upperType != syms.javafx_DoubleType) {
                 log.error(tree.getLower().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_END_INT_OR_NUMBER);
             }
         }
         if (stepType != syms.javafx_IntegerType) {
             allInt = false;
-            if (stepType != syms.javafx_FloatType) {
+            if (stepType != syms.javafx_FloatType && stepType != syms.javafx_DoubleType) {
                 log.error(tree.getStepOrNull().pos(), MsgSym.MESSAGE_JAVAFX_RANGE_STEP_INT_OR_NUMBER);
             }
         }
