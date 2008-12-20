@@ -1,10 +1,10 @@
-1234: 1234 true: true pi: 3.1415926 Foo: Foo null: null
+1234: 1234 true: true pi: 3.1415925 Foo: Foo null: null
 1234: 
 1234
 true: 
 true
 pi: 
-3.1415926
+3.1415925
 Foo: 
 Foo
 null: 
