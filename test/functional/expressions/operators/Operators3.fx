@@ -3,13 +3,12 @@
  * @test
  * @run
  */
-import java.lang.System;
 import java.lang.Math;
 
 function isPrime(n:Integer):Boolean {
-    	return (sizeof (for(i in [2 .. Math.sqrt(n)] where n mod i == 0) i) == 0);
+    	return (sizeof (for(i in [2 .. Math.sqrt(n) as Integer] where n mod i == 0) i) == 0);
 }
-function pow(b:Number, P:Integer):Number {
+function pow(b:Double, P:Integer):Double {
     var inv = false;
     var p = P;
     if( p ==0){ return 1;}
@@ -20,15 +19,15 @@ function pow(b:Number, P:Integer):Number {
     return b2;
 }
 
-function roundMe(src:Number, digits:Integer) {
+function roundMe(src:Double, digits:Integer) {
 	var bigSrc = src * pow(10,digits);
 	return Math.round(bigSrc)/pow(10,digits);
 }
 function factors(n:Integer) {
     return for(i in [1 .. n/2] where n  mod  i == 0) i;
 }
-function harmonics(n:Integer):Number {
-	var flag:Number = 0;
+function harmonics(n:Integer):Double {
+	var flag:Double = 0;
 	return roundMe(1 + ({for(i in [2..n] where n >= 2){ flag += roundMe((1.0/i),3);} flag;}),2);
 }
 function isArmstrong(num:Integer) {
@@ -43,15 +42,23 @@ function isArmstrong(num:Integer) {
 function doit(n:Integer) {
 	var primes:Integer[];
 	var armstrongs:Integer[];
-	var harmonicSeries:Number[];
+	var harmonicSeries:Double[];
 	for(i in [2..n]) {
 		if(isPrime(i)){ insert i into primes; }
-		 else{ System.out.println("Factors for {i} : {factors(i).toString()}"); }
+		 else{ println("Factors for {i} : {factors(i).toString()}"); }
 		if(isArmstrong(i)){ insert i into armstrongs; }
 		insert harmonics(i) into  harmonicSeries;
 	}
-	System.out.println("Prime numbers : {primes.toString()}");
-	System.out.println("Armstrongs numbers : {armstrongs.toString()}");
-	System.out.println("Harmonic Serious : {harmonicSeries.toString()}");
+	println("Prime numbers : {primes.toString()}");
+	println("Armstrongs numbers : {armstrongs.toString()}");
+	println("Harmonic Serious : ");
+	for (hs in harmonicSeries) {
+		print(hs);
+		if (indexof hs mod 20 == 19) {
+			println("");
+		} else {
+			print(", ");
+		}
+	}
 }
 doit(1000);

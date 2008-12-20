@@ -150,7 +150,7 @@ public class JavafxTypeMorpher {
             } else {
                 if (isSequence()) {
                     typeKind = TYPE_KIND_SEQUENCE;
-                    elementType = toJava.elementType(symType);
+                    elementType = toJava.boxedElementType(symType);
                 } else {
                     typeKind = TYPE_KIND_OBJECT;
                     elementType = realType;

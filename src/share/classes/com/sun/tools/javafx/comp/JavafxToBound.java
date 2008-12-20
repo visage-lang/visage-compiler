@@ -144,13 +144,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         return translateGeneric(tree);
     }
 
-    /*** Internal translation calls ***/
-
     private JCExpression translate(JFXExpression tree, TypeMorphInfo tmi) {
         return translateGeneric(tree, tmi);
     }
 
-    private JCExpression translate(JFXExpression tree, Type type) {
+    JCExpression translate(JFXExpression tree, Type type) {
         return translateGeneric(tree, type);
     }
     
@@ -353,7 +351,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             super(diagPos, toJava);
             this.tmiResult = tmiResult;
             typeKindResult = tmiResult.getTypeKind();
-            elementTypeResult = elementType(tmiResult.getLocationType()); // want boxed, JavafxTypes version won't work
+            elementTypeResult = boxedElementType(tmiResult.getLocationType()); // want boxed, JavafxTypes version won't work
         }
 
         /**
@@ -729,11 +727,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) { //done
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        Type elemType = elementType(targetType(tree.type));
+        Type elemType = boxedElementType(targetType(tree.type));
         UseSequenceBuilder builder = toJava.useBoundSequenceBuilder(tree.pos(), elemType, tree.getItems().length());
         stmts.append(builder.makeBuilderVar());
         for (JFXExpression item : tree.getItems()) {
-            stmts.append(builder.makeAdd( item ) );
+            stmts.append(builder.addElement( item ) );
         }
         result = makeBlockExpression(tree.pos(), stmts, builder.makeToSequence());
     }

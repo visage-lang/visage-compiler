@@ -122,7 +122,7 @@ public abstract class JavafxTranslationSupport {
         return false;
     }
 
-    protected Type elementType(Type seqType) {
+    protected Type boxedElementType(Type seqType) {
         Type elemType = seqType.getTypeArguments().head;
         if (elemType instanceof CapturedType)
             elemType = ((CapturedType) elemType).wildcard;

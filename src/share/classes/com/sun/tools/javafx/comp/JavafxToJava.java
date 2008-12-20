@@ -1987,13 +1987,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
         */
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        Type elemType = elementType(tree.type);
+        Type elemType = boxedElementType(tree.type);
         UseSequenceBuilder builder = useSequenceBuilder(tree.pos(), elemType, tree.getItems().length());
         stmts.append(builder.makeBuilderVar());
         for (JFXExpression item : tree.getItems()) {
             if (item.getJavaFXKind() != JavaFXKind.NULL_LITERAL) {
                 // Insert all non-null elements
-                stmts.append(builder.makeAdd(item));
+                stmts.append(builder.addElement(item));
             }
         }
         result = makeBlockExpression(tree.pos(), stmts, builder.makeToSequence());
@@ -2028,7 +2028,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         if (types.isSequence(tree.type)) {
-            Type elemType = elementType(tree.type);
+            Type elemType = boxedElementType(tree.type);
             JCExpression expr = accessEmptySequence(tree.pos(), elemType);
             result =  castFromObject(expr, syms.javafx_SequenceTypeErasure);
         }
@@ -2094,7 +2094,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         if (types.isArray(elemType) || types.isSequence(elemType))
             elem = convertTranslated(elem, diagPos, elemType, tree.getSequence().type);
         else
-            elem = convertTranslated(elem, diagPos, elemType, elementType(tree.getSequence().type));
+            elem = convertTranslated(elem, diagPos, elemType, boxedElementType(tree.getSequence().type));
         if (tree.getPosition() == null) {
             result = callStatement(diagPos, seqLoc, "insert", elem);
         } else {
@@ -2243,10 +2243,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         return new UseSequenceBuilder(diagPos, elemType, sequenceBuilderString) {
 
-            JCStatement makeAdd(JFXExpression exprToAdd) {
-                JCExpression expr = translate(exprToAdd);
-                Type exprType = exprToAdd.type;
-                return makeAdd(expr, exprType);
+            JCStatement addElement(JFXExpression exprToAdd) {
+                JCExpression expr = translate(exprToAdd, targetType(exprToAdd));
+                return makeAdd(expr);
             }
 
             JCExpression makeConstructorArg() {
@@ -2271,10 +2270,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     UseSequenceBuilder useBoundSequenceBuilder(DiagnosticPosition diagPos, Type elemType, final int initLength) {
         return new UseSequenceBuilder(diagPos, elemType, boundSequenceBuilderString) {
 
-            JCStatement makeAdd(JFXExpression exprToAdd) {
-                JCExpression expr = toBound.translate(exprToAdd);
-                Type exprType = exprToAdd.type;
-                return makeAdd(expr, exprType);
+            JCStatement addElement(JFXExpression exprToAdd) {
+                JCExpression expr = toBound.translate(exprToAdd, targetType(exprToAdd));
+                return makeAdd(expr);
             }
 
             JCExpression makeConstructorArg() {
@@ -2298,6 +2296,16 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             this.diagPos = diagPos;
             this.elemType = elemType;
             this.seqBuilder = seqBuilder;
+        }
+
+        Type targetType(JFXExpression exprToAdd) {
+            Type exprType = exprToAdd.type;
+            if (types.isArray(exprType) || types.isSequence(exprType)) {
+                return types.sequenceType(elemType);
+            } else {
+                Type unboxed = types.unboxedType(elemType);
+                return (unboxed.tag != TypeTags.NONE) ? unboxed : elemType;
+            }
         }
 
         JCStatement makeBuilderVar() {
@@ -2332,7 +2340,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             return make.Ident(sbName);
         }
 
-        abstract JCStatement makeAdd(JFXExpression expr);
+        abstract JCStatement addElement(JFXExpression expr);
 
         abstract JCExpression makeConstructorArg();
         
@@ -2340,15 +2348,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             return null;
         }
 
-        JCStatement makeAdd(JCExpression expr, Type exprType) {
-            if (exprType != elemType) {
-                if (types.isArray(exprType) || types.isSequence(exprType)) {
-                    expr = convertTranslated(expr, diagPos, exprType, types.sequenceType(elemType));
-                }
-                else {
-                    expr = convertTranslated(expr, diagPos, exprType, elemType);
-                }
-             }
+        JCStatement makeAdd(JCExpression expr) {
             JCMethodInvocation addCall = make.Apply(
                     List.<JCExpression>nil(),
                     make.at(diagPos).Select(
@@ -2589,13 +2589,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             // Compute the element type from the sequence type
             assert tree.type.getTypeArguments().size() == 1;
-            Type elemType = elementType(tree.type);
+            Type elemType = boxedElementType(tree.type);
 
             UseSequenceBuilder builder = useSequenceBuilder(diagPos, elemType);
             stmts.append(builder.makeBuilderVar());
 
             // Build innermost loop body
-            stmt = builder.makeAdd( tree.getBodyExpression() );
+            stmt = builder.addElement( tree.getBodyExpression() );
 
             // Build the result value
             value = builder.makeToSequence();
@@ -2846,7 +2846,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitLiteral(JFXLiteral tree) {
         if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
-            Type elemType = elementType(tree.type);
+            Type elemType = boxedElementType(tree.type);
             JCExpression expr = accessEmptySequence(tree.pos(), elemType);
             result =  castFromObject(expr, syms.javafx_SequenceTypeErasure);
         } else {
