@@ -412,15 +412,30 @@ public class JavafxCheck {
                 return syms.errType;
             }
         }
-	if (types.isAssignable(found, req, convertWarner(pos, found, req))) {
-            if (req.tag <= LONG && found.tag >= FLOAT && found.tag <= DOUBLE) {
+        Type reqUnboxed, foundUnboxed;
+        if (req.tag == CLASS) {
+            reqUnboxed = types.unboxedType(req);
+            if (reqUnboxed.tag == NONE)
+                reqUnboxed = req;
+        }
+        else
+            reqUnboxed = req;
+        if (found.tag == CLASS) {
+            foundUnboxed = types.unboxedType(found);
+            if (foundUnboxed.tag == NONE)
+                foundUnboxed = found;
+        }
+        else
+            foundUnboxed = found;
+	    if (types.isAssignable(foundUnboxed, reqUnboxed, convertWarner(pos, found, req))) {
+            if (reqUnboxed.tag <= LONG && foundUnboxed.tag >= FLOAT && foundUnboxed.tag <= DOUBLE) {
                 // FUTURE/FIXME: return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
-                String foundAsJavaFXType = types.toJavaFXString(found);
-                String requiredAsJavaFXType = types.toJavaFXString(req);
+                String foundAsJavaFXType = types.toJavaFXString(foundUnboxed);
+                String requiredAsJavaFXType = types.toJavaFXString(reqUnboxed);
 	        log.warning(pos, MsgSym.MESSAGE_PROB_FOUND_REQ, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION),
                         foundAsJavaFXType, requiredAsJavaFXType);
             }
-	    return realFound;
+	        return realFound;
        }
 
         // use the JavafxClassSymbol's supertypes to see if req is in the supertypes of found.
