@@ -1,7 +1,7 @@
-test/should-fail/badinteger.fx:8: Integer number too big: 999999999999999999999999999999999999999.
+test\should-fail\badinteger.fx:8: Long out of range: 999999999999999999999999999999999999999.
 var v = 999999999999999999999999999999999999999;
         ^
-test/should-fail/badinteger.fx:9: Integer number too small: -999999999999999999999999999999999999999.
+test\should-fail\badinteger.fx:9: Long out of range: -999999999999999999999999999999999999999.
 var v = -999999999999999999999999999999999999999;
         ^
 2 errors

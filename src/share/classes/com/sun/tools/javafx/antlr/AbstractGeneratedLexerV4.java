@@ -293,9 +293,8 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
 
         try {
 
-            // See if we can make a value out of this, however if this is a HEX literal then
-            // we want to coerce the value int o a negative integer of the top bit is set. So
-            // we use string2int rather than string2long.
+            // Previously, see if we can make a value out of this, however if this is a HEX literal then
+            // we want to coerce the value int o a negative integer of the top bit is set. 
             //
             value = Convert.string2long(text, radix);
 
@@ -306,10 +305,10 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
             //
             if (negative) {
 
-                log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "small", new String("-" + text));
+                log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Long", new String("-" + text));
 
             } else {
-                log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "big", text);
+                log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Long", text);
             }
 
             return false;

@@ -1,0 +1,13 @@
+test\should-fail\jfxc2542.fx:7: Number out of range: 4.3E80.
+def a : Float = 4.3e80;
+                ^
+test\should-fail\jfxc2542.fx:8: Number out of range: 2.1E-80.
+def b : Float = 2.1e-80;
+                ^
+test\should-fail\jfxc2542.fx:10: Byte out of range: 489.
+def k : Byte = 489;
+               ^
+test\should-fail\jfxc2542.fx:11: Short out of range: 123000.
+def l : Short = 123000;
+                ^
+4 errors

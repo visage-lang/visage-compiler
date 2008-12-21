@@ -397,11 +397,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return typeList.toList();
     }
 
-    public JFXLiteral LiteralIntOrLong(long value) {
-        if (value == (long) (int) value)
-            return Literal(TypeTags.INT, Integer.valueOf((int) value));
+    public JFXLiteral LiteralInteger(String text, int radix) {
+        long longVal = Convert.string2long(text, radix);
+        if (radix == 10? (longVal == (long) (int) longVal) : ((longVal & ~0xFFFFFFFF) == 0L) )
+            return Literal(TypeTags.INT, Integer.valueOf((int) longVal));
         else
-            return Literal(TypeTags.LONG, Long.valueOf(value));
+            return Literal(TypeTags.LONG, Long.valueOf(longVal));
     }
 
     public JFXLiteral Literal(Object value) {

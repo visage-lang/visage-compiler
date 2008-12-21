@@ -2607,12 +2607,16 @@ public class JavafxAttr implements JavafxVisitor {
             Type expected = types.isSequence(pt)? types.elementType(pt) : pt;
             if (tree.value instanceof Double) {
                 double dvalue = ((Double) tree.value).doubleValue();
-                if (isPrimitiveOrBoxed(expected, DOUBLE) ||
-                       (expected.tag == UNKNOWN && ! Double.isInfinite(dvalue) &&
-                        Math.abs(dvalue) > Float.MAX_VALUE)) {
+                double dabs = Math.abs(dvalue);
+                boolean fitsInFloat = Double.isInfinite(dvalue) || dvalue == 0.0 ||
+                        (dabs <= Float.MAX_VALUE && dabs >= Float.MIN_VALUE);
+                if (isPrimitiveOrBoxed(expected, DOUBLE) || (expected.tag == UNKNOWN && !fitsInFloat)) {
                     tree.typetag = TypeTags.DOUBLE;
                 }
                 else {
+                    if (isPrimitiveOrBoxed(expected, FLOAT) && !fitsInFloat) {
+                        log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Number", tree.value.toString());
+                    }
                     tree.typetag = TypeTags.FLOAT;
                     tree.value = Float.valueOf((float) dvalue);
                 }
@@ -2620,15 +2624,21 @@ public class JavafxAttr implements JavafxVisitor {
             else if ((tree.value instanceof Integer || tree.value instanceof Long) &&
                     tree.typetag != TypeTags.BOOLEAN) {
                 long lvalue = ((Number) tree.value).longValue();
-                if (isPrimitiveOrBoxed(expected, BYTE) && lvalue == (byte) lvalue) {
+                if (isPrimitiveOrBoxed(expected, BYTE)) {
+                    if (lvalue != (byte) lvalue) {
+                        log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Byte", tree.value.toString());
+                    }
                     tree.typetag = TypeTags.BYTE;
-                    //tree.value = Byte.valueOf((byte) lvalue);
+                    tree.value = Byte.valueOf((byte) lvalue);
                 }
-                else if (isPrimitiveOrBoxed(expected, SHORT)  && lvalue == (short) lvalue) {
+                else if (isPrimitiveOrBoxed(expected, SHORT)) {
+                    if (lvalue != (short) lvalue) {
+                        log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Short", tree.value.toString());
+                    }
                     tree.typetag = TypeTags.SHORT;
                     tree.value = Short.valueOf((short) lvalue);
                 }
-                 else if (isPrimitiveOrBoxed(expected, CHAR)  && lvalue == (char) lvalue) {
+                else if (isPrimitiveOrBoxed(expected, CHAR)  && lvalue == (char) lvalue) {
                     tree.typetag = TypeTags.CHAR;
                 }
                 else if (isPrimitiveOrBoxed(expected, FLOAT)) {
@@ -2646,6 +2656,9 @@ public class JavafxAttr implements JavafxVisitor {
                         tree.value = Long.valueOf(lvalue);
                 }
                 else {
+                    if (lvalue != (int) lvalue) {
+                        log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Integer", tree.value.toString());
+                    }
                     tree.typetag = TypeTags.INT;
                     if (! (tree.value instanceof Integer))
                         tree.value = Integer.valueOf((int) lvalue);
