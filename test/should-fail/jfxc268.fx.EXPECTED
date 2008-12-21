@@ -2,6 +2,11 @@ test/should-fail/jfxc268.fx:9: warning: possible loss of precision
 found   : Number
 required: Integer
 var ab:Integer = function(a:Number, b:Number):Integer { a + b; }
+                                                        ^
+test/should-fail/jfxc268.fx:9: warning: possible loss of precision
+found   : Number
+required: Integer
+var ab:Integer = function(a:Number, b:Number):Integer { a + b; }
                                                       ^
 test/should-fail/jfxc268.fx:9: incompatible types
 found   : function(:Number,:Number):Integer
@@ -12,4 +17,4 @@ test/should-fail/jfxc268.fx:11: ab in jfxc268 cannot be applied to (Integer,Inte
 System.out.println(ab(23,43));
                    ^
 2 errors
-1 warning
+2 warnings
