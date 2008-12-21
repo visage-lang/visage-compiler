@@ -54,7 +54,7 @@ function doit(n:Integer) {
 	println("Harmonic Serious : ");
 	for (hs in harmonicSeries) {
 		print(hs);
-		if (indexof hs mod 20 == 19) {
+		if (indexof hs mod 20 == 19 or indexof hs == (sizeof harmonicSeries - 1)) {
 			println("");
 		} else {
 			print(", ");
