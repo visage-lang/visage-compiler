@@ -500,7 +500,7 @@
         </exec>
     </target>
 
-    <target name="staticsizes" depends="compile">
+    <target name="staticsizes" depends="jar">
         <mkdir dir="${build.staticsizes.dir}"/>
         <property environment="env"/>
         <property name="label" value="env.BUILD_NUMBER"/>
