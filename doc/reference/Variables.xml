@@ -9,14 +9,15 @@
          xmlns:db="http://docbook.org/ns/docbook">
   <title xml:id="Variables.title">Variables</title>
 
-  <para>The declaration, use and scope of variables.</para>
+  <para>This chapter discusses the declaration, use and scope of
+  variables.</para>
 
   <sect1>
     <title>def and var</title>
 
-    <para>Variables are declared with two keywords: def and var. Variables
-    which are defined once, and are never assigned-to, are defined with
-    <command>def</command>.</para>
+    <para>Variables are declared with two keywords: <code>def</code> and
+    <code>var</code>. Variables which are defined once, and are never
+    assigned-to, are defined with <command>def</command>.</para>
 
     <para><programlisting>def Z0 = 376.730313;</programlisting></para>
 

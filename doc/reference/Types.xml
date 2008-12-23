@@ -8,26 +8,22 @@
          xmlns:db="http://docbook.org/ns/docbook">
   <title xml:id="Types.title">Types and Values</title>
 
-  <para>Covers the data types and values which can be represented and
-  manipulated in JavaFX Script.<remark></remark></para>
+  <para>This chapter covers the data types and values which can be represented
+  and manipulated in JavaFX Script.<remark></remark></para>
 
   <sect1>
     <title>JavaFX Script Data Types</title>
 
     <para>JavaFX Script data types, hereafter called JavaFX types, describe
-    the kinds of values a JavaFX expression can have. JavaFX variables can
-    explicitly declare their type; a function can explicitly declare the types
-    of its parameters and the type of its return value. JavaFX types (with the
-    exception of <link linkend="Void">Void</link>) consist of an
-    <emphasis>element specifier</emphasis> and a
-    <emphasis>cardinality</emphasis>. The element specifier determines what
-    the type holds and the cardinality determines how many of them can be
-    held.</para>
-
-    <para><remark>[To do: add more examples of types, links to expression type
-    tables, use docbook EBNF for lexical rules]</remark></para>
-
-    <para></para>
+    the kinds of values a JavaFX expression can have. Every JavaFX variable,
+    function, and expression has a type, most often determined from context.
+    JavaFX variables can explicitly declare their type; a function can
+    explicitly declare the types of its parameters and the type of its return
+    value. JavaFX types (with the exception of <link
+    linkend="Void">Void</link>) consist of an <emphasis>element
+    specifier</emphasis> and a <emphasis>cardinality</emphasis>. The element
+    specifier determines what the type holds and the cardinality determines
+    how many of them can be held.</para>
 
     <sect2>
       <title>Element Specifier</title>
@@ -99,8 +95,8 @@ function():Integer</programlisting>
         with required cardinality. Attempts to assign null to a type with
         required cardinality will be converted to the default value (see the
         <link linkend="DefaultValues">Default Values section</link>). Attempts
-        to convert null to a type with required cardinality will also be
-        converted to the default value.</para>
+        to convert null to a type with required cardinality will be converted
+        to the default value.</para>
       </sect3>
 
       <sect3>
@@ -239,7 +235,7 @@ println(k);</programlisting>
         <programlisting>'This is so %#@*^ exciting!'</programlisting>
 
         <para>If the sequence of characters includes braces ('{' or '}') it is
-        a string-expression (which is covered in the Expressions chapter). Any
+        a <link linkend="stringExpression">string-expression</link>. Any
         character may be escaped with the backslash character ('\') -- this is
         useful for including the brace, quote, and backslash characters. Note
         that single quotes may be included in double quoted strings without
@@ -412,7 +408,7 @@ Sign: one of
 </programlisting>
         </blockquote>
 
-        <para>That is, the two, and only, Boolean literals are:</para>
+        <para>The two, and only, Boolean literals are:</para>
 
         <programlisting>true
 false</programlisting>
@@ -501,6 +497,60 @@ Here is the Object: null, and the Integer: 1234</screen>
     <programlisting>myFunc = function(obj : Object, k : Integer) { "So!" }</programlisting>
 
     <para></para>
+  </sect1>
+
+  <sect1>
+    <title>Sequence Types</title>
+
+    <para>Sequences hold a sequence of Object values. Said another way, they
+    have sequence cardinality and any Object as the element specifier. </para>
+
+    <para>Sequences can be constructed explicitly:</para>
+
+    <programlisting>[ 76, 9, 34, 2]
+['red', 'green', 'blue']
+</programlisting>
+
+    <para>Or specified as ranges:</para>
+
+    <programlisting>[100 .. 200]</programlisting>
+
+    <para>Some examples of variables of sequence type:</para>
+
+    <para><programlisting>var nodes : CustomNode[];
+var numbers : Number[];
+def primes = [2, 3, 5, 7, 11];
+</programlisting></para>
+
+    <para>Here the expression <code>[2, 3, 5, 7, 11]</code> is of
+    <code>Integer[]</code> type, so <code>primes</code> is type inferenced to
+    <code>Integer[]</code> type.</para>
+
+    <para>Note that unlike arrays in Java, JavaFX sequences are NOT Objects.
+    That means that sequences cannot contain sequences, Nested sequences are
+    automatically flattened. The null value in a sequence context is converted
+    to the empty sequence []. For example, the following are all
+    equalivant:</para>
+
+    <para><programlisting>[45, 9, 88, 13]
+[[45, 9], [88, 13]]
+[45, null, 9, [], 88, [13]]</programlisting></para>
+
+    <para>Automatic flattening is particularly useful in for-loops</para>
+
+    <para><programlisting>for (x in [1..5]) {
+   [x, x*x]
+}</programlisting></para>
+
+    <para>Which would have the value:</para>
+
+    <para><programlisting>[1, 1, 2, 4, 3, 9, 4, 16, 5, 25]</programlisting></para>
+
+    <para>Sequences are immutable -- there are thus no operations to modify
+    the value of a sequence. But there are, however, operations to modify the
+    value of a variable of sequence type. The <code>insert</code> and
+    <code>delete</code> expressions, assignment, and element assignment all
+    set a new sequence value into a variable.</para>
   </sect1>
 
   <sect1 xml:id="TypeChart">
