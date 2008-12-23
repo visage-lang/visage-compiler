@@ -49,7 +49,7 @@ public final class Sequences extends SequenceConversions {
     static<T> ArraySequence<T> asNonSharedArraySequence(Object value) {
         if (value instanceof ArraySequence) {
             ArraySequence<T> arr = (ArraySequence) value;
-            if (! arr.shared)
+            if (! arr.isShared())
                 return arr;
         }
         return null;

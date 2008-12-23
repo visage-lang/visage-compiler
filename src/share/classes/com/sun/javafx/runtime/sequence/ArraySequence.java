@@ -32,11 +32,35 @@ import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
 
 /**
- * Sequence implementation class that stores sequence elements in an array.  To create array-based sequences, use
- * the make() factory methods in Sequences instead of the ArraySequence constructor.   O(n) space and time construction
- * costs.  
+ * Sequence implementation class that stores sequence elements in an array.
+ *
+ * The {@code ArraySequence} can be in one of two modes:
+ * <ul>
+ * <li>In unshared/writabable mode there is only a single "owner" of the
+ *     sequence, so modifying the sequence in-place is OK.
+ *     For example inserting into a sequence variable can be implemented
+ *     by changing the sequence object itself.
+ * <li>In shared/read-only mode there is (or at least may be) multiple
+ *     references to this sequence, so modifications are not allowed.
+ *     For example inserting into a sequence variable has to be implemented
+ *     by assigning a modified sequence.
+ * </ul>
+ *
+ * An {@code ArraySequence} starts out unshared, and can be set to shared.
+ * The compiler inserts calls to {@code noteShared} when "reading" a sequence
+ * varianble in a way that may cause it to be shared.  Getting a single
+ * item from the sequence does not require {@code shared} to be set.
+ * We never go back from shared to unshared.
+ *
+ * We use a <a href="http://en.wikipedia.org/wiki/Buffer_gap">gap buffer</a>
+ * as in the Emacs text editor and {@code javax.swing.text.GapContent}.
+ * This provies efficient memory usage and locality.  It should perform
+ * well in most uses.  The exception is if there are lots of insertions and
+ * deletions at widely separated offsets, since that requires "moving" the
+ * gap to the insertion or deletion point.
  *
  * @author Brian Goetz
+ * @author Per Bothner
  */
 
 public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T> {
@@ -57,7 +81,7 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
      * the compiler and library must be careful to set shared to true whenever
      * sharing happens or can happen.  This is done with {@code #noteShared}.
      */
-    boolean shared = disableInplaceArrayUpdates;
+    private boolean shared = disableInplaceArrayUpdates;
 
     public ArraySequence(int initialSize, TypeInfo<T> ti) {
         super(ti);
@@ -121,6 +145,10 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
     public ArraySequence<T> noteShared() {
         shared = true;
         return this;
+    }
+
+    public boolean isShared() {
+        return shared;
     }
 
     private void checkForNulls() {
@@ -264,6 +292,7 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
     /** Add a single element to the sequence, modifying it.
      * This must only be called when the sequence is unshared. */
     public void add(T element) {
+        assert ! shared || disableInplaceArrayUpdates;
         if (element != null) {
             gapReserve(size(), 1);
             array[gapStart++] = element;
@@ -272,6 +301,7 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
     /** Add the contents of an existing sequence to the sequence.
      * This must only be called when the sequence is unshared. */
     public void add(Sequence<? extends T> elements) {
+        assert ! shared || disableInplaceArrayUpdates;
         final int length = Sequences.size(elements);
         if (length > 0) {
             int size = size();
@@ -283,6 +313,7 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
 
     /** Internal method to replace a value. */
     protected void replace (int position, T value) {
+        assert ! shared || disableInplaceArrayUpdates;
         if (position >= gapStart)
             position += gapEnd - gapStart;
         if (position < 0 || position >= array.length)
@@ -297,6 +328,7 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
      * @return The new sequence.
      */
     protected void replace (int startPos, int endPos, T value) {
+        assert ! shared || disableInplaceArrayUpdates;
         if (endPos == startPos+1) {
             replace(startPos, value);
             return;
@@ -313,6 +345,7 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
      * Does not check shared flag, and does not do any notifications.
      */
     protected <T> void insert (Sequence<T> values, int vsize, int where) {
+        assert ! shared || disableInplaceArrayUpdates;
         gapReserve(where, vsize);
         values.toArray(array, where);
         gapStart += vsize;
