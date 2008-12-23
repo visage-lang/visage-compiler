@@ -30,10 +30,10 @@
         <mkdir dir="${bundle.dir}"/>
     </target>
     
-    <target name="hudson-all" depends="coverage, all, findbugs, coverage-report, hudson-post-build"
+    <target name="hudson-all" depends="coverage, all, findbugs, staticsizes, coverage-report, hudson-post-build"
             description="Build and test all project artifacts"/>
 
-    <target name="all-with-coverage" depends="coverage, all, findbugs, coverage-report"
+    <target name="all-with-coverage" depends="coverage, all, findbugs, staticsizes, coverage-report"
             description="Build and test all project artifacts with coverage"/>
 
     <target name="compiler-only" depends="jar"
@@ -498,6 +498,20 @@
             <arg value="${build.dir}/findbugs.xml"/>
             <redirector output="${dist.findbugs.dir}/findbugs.html"/>
         </exec>
+    </target>
+
+    <target name="staticsizes" depends="compile">
+        <mkdir dir="${build.staticsizes.dir}"/>
+        <property environment="env"/>
+        <property name="label" value="env.BUILD_NUMBER"/>
+        <java classname="com.sun.javafx.tools.jaranalyzer.JarAnalyzer">
+            <arg value="${dist.javafxrt.jar}" />
+            <arg value="${build.staticsizes.dir}" />
+            <arg value="http://openjfx.java.sun.com/hudson/job/openjfx-compiler/${env.BUILD_NUMBER}/artifact/openjfx-compiler/build/staticsizes" />
+            <classpath>
+                <pathelement location="${build.buildtools.dir}"/>
+            </classpath>
+            </java>
     </target>
 
     <target name="svnstat">
