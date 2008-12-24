@@ -302,7 +302,7 @@ public class JavafxAttr implements JavafxVisitor {
     }
 
     /** Derived visitor method: attribute an expression tree.
-     *  allow a sequence is no proto-type is specified, the proto-type is a seqeunce,
+     *  allow a sequence if no proto-type is specified, the proto-type is a seqeunce,
      *  or the proto-type is an error.
      */
     public Type attribExpr(JFXTree tree, JavafxEnv<JavafxAttrContext> env, Type pt) {
@@ -1310,7 +1310,7 @@ public class JavafxAttr implements JavafxVisitor {
             if (!canReturn && !unreachableReported) {
                 log.error(tree.value.pos(), MsgSym.MESSAGE_UNREACHABLE_STMT);
             }
-            Type valueType = attribExpr(tree.value, localEnv, pt);
+            Type valueType = attribExpr(tree.value, localEnv, pt, pSequenceness);
             owntype = valueType != syms.unreachableType ?
                 unionType(tree.pos(), tree.type, valueType) :
                 syms.unreachableType;
