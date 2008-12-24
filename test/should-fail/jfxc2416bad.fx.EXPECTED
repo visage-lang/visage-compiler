@@ -1,0 +1,10 @@
+test\should-fail\jfxc2416bad.fx:15: modifier mixin not allowed on a script level var
+mixin var x = 9;
+^
+test\should-fail\jfxc2416bad.fx:16: modifier mixin not allowed on a script level function
+mixin function foo() { "lop" }
+^
+test\should-fail\jfxc2416bad.fx:13: jfxc2416bad.Sized is abstract; cannot be instantiated
+var szd = Sized{}
+          ^
+3 errors

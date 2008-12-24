@@ -205,6 +205,9 @@ public class JavafxTreeInfo {
         if ((flags & JavafxFlags.BOUND) != 0) {
             fsb.append("bound ");
         }
+        if ((flags & JavafxFlags.MIXIN) != 0) {
+            fsb.append("mixin ");
+        }
         if ((flags & JavafxFlags.OVERRIDE) != 0) {
             fsb.append("override ");
         }

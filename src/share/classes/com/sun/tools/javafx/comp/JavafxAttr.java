@@ -1377,7 +1377,7 @@ public class JavafxAttr implements JavafxVisitor {
         if (clazztype.tag == CLASS) {
             // Check that class is not abstract
             if (cdef == null &&
-                (clazztype.tsym.flags() & (ABSTRACT | INTERFACE)) != 0) {
+                (clazztype.tsym.flags() & (ABSTRACT | INTERFACE | JavafxFlags.MIXIN)) != 0) {
                 log.error(tree.pos(), MsgSym.MESSAGE_ABSTRACT_CANNOT_BE_INSTANTIATED,
                           clazztype.tsym);
             } else if (cdef != null && clazztype.tsym.isInterface()) {
@@ -3661,7 +3661,7 @@ public class JavafxAttr implements JavafxVisitor {
 
         // If this is a non-abstract class, check that it has no abstract
         // methods or unimplemented methods of an implemented interface.
-        if ((c.flags() & (ABSTRACT | INTERFACE)) == 0) {
+        if ((c.flags() & (ABSTRACT | INTERFACE | JavafxFlags.MIXIN)) == 0) {
             if (!relax)
                 chk.checkAllDefined(tree.pos(), c);
         }
@@ -3685,7 +3685,7 @@ public class JavafxAttr implements JavafxVisitor {
         if (env.info.lint.isEnabled(Lint.LintCategory.SERIAL) &&
             isSerializable(c) &&
             (c.flags() & Flags.ENUM) == 0 &&
-            (c.flags() & ABSTRACT) == 0) {
+            (c.flags() & ABSTRACT | JavafxFlags.MIXIN) == 0) {
             checkSerialVersionUID(tree, c);
         }
     }

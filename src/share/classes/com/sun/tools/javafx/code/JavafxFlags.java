@@ -44,12 +44,13 @@ public class JavafxFlags {
     public static final long PUBLIC_READ               = FIRST_FX_MOD_FLAG << 3;  // public-read var
     public static final long PUBLIC_INIT               = FIRST_FX_MOD_FLAG << 4;  // public-init var
     public static final long PACKAGE_ACCESS            = FIRST_FX_MOD_FLAG << 5;  // explicit 'package' access
+    public static final long MIXIN                     = FIRST_FX_MOD_FLAG << 6;  // this is a mixin class
 
     // a couple of synthetic modifier flags
-    public static final long SCRIPT_PRIVATE            = FIRST_FX_MOD_FLAG << 6;  // implicily set flag if public/protected/package are not
-    public static final long SCRIPT_LEVEL_SYNTH_STATIC = FIRST_FX_MOD_FLAG << 7;  // STATIC bit has been set implicitly
-    public static final long OBJ_LIT_INIT              = FIRST_FX_MOD_FLAG << 8;
-    private static final long LAST_FX_MOD_FLAG        = SCRIPT_LEVEL_SYNTH_STATIC;
+    public static final long SCRIPT_PRIVATE            = FIRST_FX_MOD_FLAG << 7;  // implicily set flag if public/protected/package are not
+    public static final long SCRIPT_LEVEL_SYNTH_STATIC = FIRST_FX_MOD_FLAG << 8;  // STATIC bit has been set implicitly
+    public static final long OBJ_LIT_INIT              = FIRST_FX_MOD_FLAG << 9;
+    private static final long LAST_FX_MOD_FLAG         = OBJ_LIT_INIT;
 
     // Var/def usage info -- all usage info is within the script only
     private static final long FIRST_VARUSE_FLAG      = LAST_FX_MOD_FLAG << 1;
@@ -72,25 +73,25 @@ public class JavafxFlags {
                                                      = FIRST_VARUSE_FLAG << 13; // NEED_LOCATION has been computed and set
     // This last shift + the last for modifiers must be < 24 or we get overflow
 
-    // Class flags -- reuse same bits as VARUSE* flags
+    // Function flags -- reuse same bits as VARUSE* flags
     private static final long FIRST_FX_FUNC_FLAG    = LAST_FX_MOD_FLAG << 1;
     public static final long FUNC_IS_INITIALIZED    = FIRST_FX_FUNC_FLAG << 0;  // This is the special isInitialized() function
 
     // Class flags -- reuse same bits as VARUSE* flags
     private static final long FIRST_FX_CLASS_FLAG    = LAST_FX_MOD_FLAG << 1;
     public static final long COMPOUND_CLASS          = FIRST_FX_CLASS_FLAG << 0;  // class that gets translated to a class and an inteface (MI)
-    public static final long FX_CLASS                = FIRST_FX_CLASS_FLAG << 1;  // has 'on replace' either in definition or override
+    public static final long FX_CLASS                = FIRST_FX_CLASS_FLAG << 1;  // JavaFX class
     public static final long CLASS_HAS_INIT_BLOCK    = FIRST_FX_CLASS_FLAG << 2;  // there is an init block on the class
 
     public static final long JavafxAccessFlags = PUBLIC | PROTECTED | PRIVATE | SCRIPT_PRIVATE;
     public static final long JavafxExplicitAccessFlags = PUBLIC | PROTECTED | PRIVATE | PACKAGE_ACCESS;
     
-    public static final long JavafxUserFlags            = JavafxExplicitAccessFlags | STATIC | ABSTRACT | BOUND | OVERRIDE | PUBLIC_READ | PUBLIC_INIT;
+    public static final long JavafxUserFlags            = JavafxExplicitAccessFlags | MIXIN | STATIC | ABSTRACT | BOUND | OVERRIDE | PUBLIC_READ | PUBLIC_INIT;
     public static final long JavafxLocalVarFlags        = PARAMETER;
     public static final long JavafxInstanceVarFlags     = JavafxExplicitAccessFlags | PUBLIC_READ | PUBLIC_INIT;
     public static final long JavafxScriptVarFlags       = JavafxExplicitAccessFlags | STATIC | PUBLIC_READ;
     public static final long JavafxMemberDefFlags       = JavafxExplicitAccessFlags | STATIC | PUBLIC_READ;
     public static final long JavafxFunctionFlags        = JavafxExplicitAccessFlags | ABSTRACT | BOUND | OVERRIDE;
     public static final long JavafxScriptFunctionFlags  = JavafxExplicitAccessFlags | STATIC | BOUND;
-    public static final long JavafxClassFlags           = JavafxExplicitAccessFlags | STATIC | ABSTRACT;
+    public static final long JavafxClassFlags           = JavafxExplicitAccessFlags | MIXIN | STATIC | ABSTRACT;
 }

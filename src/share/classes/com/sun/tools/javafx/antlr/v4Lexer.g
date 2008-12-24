@@ -133,6 +133,7 @@ INTO			: 'into';
 INVERSE			: 'inverse';
 LAST			: 'last';
 LAZY			: 'lazy';
+MIXIN			: 'mixin';
 MOD				: 'mod';
 NEW				: 'new';
 NOT				: 'not';

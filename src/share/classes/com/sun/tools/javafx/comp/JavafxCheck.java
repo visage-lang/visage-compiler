@@ -890,7 +890,7 @@ public class JavafxCheck {
         }
         else if ((sym.kind == TYP ||
 		  checkDisjoint(pos, flags,
-				ABSTRACT,
+				ABSTRACT | MIXIN,
 				PRIVATE | STATIC))
 		 &&
 		 checkDisjoint(pos, flags,
@@ -1756,7 +1756,7 @@ public class JavafxCheck {
 	    ClassSymbol origin = tree.sym;
 	    for (List<Type> l = types.closure(ic.type); l.nonEmpty(); l = l.tail) {
 		ClassSymbol lc = (ClassSymbol)l.head.tsym;
-		if ((allowGenerics || origin != lc) && (lc.flags() & ABSTRACT) != 0) {
+		if ((allowGenerics || origin != lc) && (lc.flags() & (ABSTRACT|MIXIN)) != 0) {
 		    for (Scope.Entry e=lc.members().elems; e != null; e=e.sibling) {
 			if (e.sym.kind == MTH &&
 			    (e.sym.flags() & (STATIC|ABSTRACT)) == ABSTRACT) {
@@ -1785,20 +1785,24 @@ public class JavafxCheck {
      *  @param c            The class whose interfaces are checked.
      */
     void checkCompatibleSupertypes(DiagnosticPosition pos, Type c) {
-	List<Type> supertypes = types.interfaces(c);
-	Type supertype = types.supertype(c);
-	if (supertype.tag == CLASS &&
-	    (supertype.tsym.flags() & ABSTRACT) != 0)
-	    supertypes = supertypes.prepend(supertype);
-	for (List<Type> l = supertypes; l.nonEmpty(); l = l.tail) {
-	    if (allowGenerics && !l.head.getTypeArguments().isEmpty() &&
-		!checkCompatibleAbstracts(pos, l.head, l.head, c))
-		return;
-	    for (List<Type> m = supertypes; m != l; m = m.tail)
-		if (!checkCompatibleAbstracts(pos, l.head, m.head, c))
-		    return;
-	}
-	checkCompatibleConcretes(pos, c);
+        List<Type> supertypes = types.interfaces(c);
+        Type supertype = types.supertype(c);
+        if (supertype.tag == CLASS &&
+                (supertype.tsym.flags() & (ABSTRACT|MIXIN)) != 0) {
+            supertypes = supertypes.prepend(supertype);
+        }
+        for (List<Type> l = supertypes; l.nonEmpty(); l = l.tail) {
+            if (allowGenerics && !l.head.getTypeArguments().isEmpty() &&
+                    !checkCompatibleAbstracts(pos, l.head, l.head, c)) {
+                return;
+            }
+            for (List<Type> m = supertypes; m != l; m = m.tail) {
+                if (!checkCompatibleAbstracts(pos, l.head, m.head, c)) {
+                    return;
+                }
+            }
+        }
+        checkCompatibleConcretes(pos, c);
     }
 
     /** Check that class c does not implement directly or indirectly

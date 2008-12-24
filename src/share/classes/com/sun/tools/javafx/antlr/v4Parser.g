@@ -794,6 +794,7 @@ modifierFlag
 	
 	: ABSTRACT			{ $flag = Flags.ABSTRACT;				}
 	| BOUND				{ $flag = JavafxFlags.BOUND;			}
+	| MIXIN				{ $flag = JavafxFlags.MIXIN;			}
 	| OVERRIDE			{ $flag = JavafxFlags.OVERRIDE;			}
 	| PACKAGE			{ $flag = JavafxFlags.PACKAGE_ACCESS;	}
 	| PROTECTED			{ $flag = Flags.PROTECTED;				}
