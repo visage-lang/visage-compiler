@@ -1,5 +1,5 @@
 /**
- * should fail test: JFXC-2542 : Proper literal conversions
+ * Regression test: JFXC-2542 : Proper literal conversions
  *
  * @test
  * @run

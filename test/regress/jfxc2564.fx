@@ -1,5 +1,5 @@
 /**
- * should fail test: JFXC-2564 : BrickBreaker sample won't compile
+ * Regression test: JFXC-2564 : BrickBreaker sample won't compile
  *
  * @test
  * @run
