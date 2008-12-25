@@ -32,6 +32,7 @@ var c : Character = 10;
 var f : Float = 3.1415926535;
 var d : Double = 2.71828183;
 var n : Number = 2.2;
+//var dur : Duration = 22ms;
 
 /**
  * Global functions with return value Integer.
@@ -74,6 +75,7 @@ class TesterGlobal {
         assertEquals(testOverloadGlobalRetInt(f), isFloat);
         assertEquals(testOverloadGlobalRetInt(d), isDouble);
         assertEquals(testOverloadGlobalRetInt(n), isFloat);
+        //assertEquals(testOverloadGlobalRetInt(dur), isFloat);
         assertEquals(testOverloadGlobalRetInt(b, l), isByteLong);
         assertEquals(testOverloadGlobalRetInt(l, b), isLongByte);
 
@@ -116,6 +118,9 @@ class TesterGlobal {
 
         testOverloadGlobalRetVoid(n);
         assertEquals(returnType, isFloat);
+
+        //testOverloadGlobalRetVoid(dur);
+        //assertEquals(returnType, isFloat);
 
         testOverloadGlobalRetVoid(b, l);
         assertEquals(returnType, isByteLong);
@@ -175,6 +180,7 @@ class TesterInstance {
         assertEquals(testOverloadInstanceRetInt(f), isFloat);
         assertEquals(testOverloadInstanceRetInt(d), isDouble);
         assertEquals(testOverloadInstanceRetInt(n), isFloat);
+        //assertEquals(testOverloadInstanceRetInt(dur), isFloat);
         assertEquals(testOverloadInstanceRetInt(b, l), isByteLong);
         assertEquals(testOverloadInstanceRetInt(l, b), isLongByte);
 
@@ -218,6 +224,9 @@ class TesterInstance {
         testOverloadInstanceRetVoid(n);
         assertEquals(returnType, isFloat);
 
+        //testOverloadInstanceRetVoid(dur);
+        //assertEquals(returnType, isFloat);
+
         testOverloadInstanceRetVoid(b, l);
         assertEquals(returnType, isByteLong);
 
@@ -249,6 +258,7 @@ class TesterInherited extends TesterInstance {
         assertEquals(testOverloadInstanceRetInt(f), isFloat);
         assertEquals(testOverloadInstanceRetInt(d), isDouble);
         assertEquals(testOverloadInstanceRetInt(n), isFloat);
+        //assertEquals(testOverloadInstanceRetInt(dur), isFloat);
         assertEquals(testOverloadInstanceRetInt(b, l), isByteLong);
         assertEquals(testOverloadInstanceRetInt(l, b), isLongByte);
 
@@ -291,6 +301,9 @@ class TesterInherited extends TesterInstance {
 
         testOverloadInstanceRetVoid(n);
         assertEquals(returnType, isFloat);
+
+        //testOverloadInstanceRetVoid(dur);
+        //assertEquals(returnType, isFloat);
 
         testOverloadInstanceRetVoid(b, l);
         assertEquals(returnType, isByteLong);
