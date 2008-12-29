@@ -27,21 +27,29 @@
  * so it can be used from both Java and JavaFX code.
  * A future JavaFX API may be layered on top of this.
  *
+ * <h2>Context</h2>
+ * The objects in this package are directly or indirectly created
+ * from a {@link javafx.reflect.FXContext FXContext}.
+ * In the default case there is a single {@code FXContext} instance that
+ * uses Java reflection.  You get one of these by doing:
+ * <pre>
+ * FXLocal.Context ctx = FXLocal.getContext();
+ * </pre>
+ * Alternatively, you can do:
+ * <pre>
+ * FXContext ctx = FXContext.getInstance();
+ * </pre>
+ * The latter is more abstract (as it supports proxying for remote VMs)
+ * but the more specific {@code FXLocal.Context} supports some extra
+ * operations that only make sense for same-VM reflection.
+ *
  * <h2>Values</h2>
  * The various reflection operations do not directly use
  * Java values.  Instead,
  * an {@link javafx.reflect.FXObjectValue} is a <q>handle</q> or
  * proxy for an <code>Object</code>.  This extra layer of indirection
  * isn't needed in many cases, bur it is useful for remote invocation,
- * remote control, or in general access to data in a different VM,
- *
- * <h2>Context</h2>
- * The objects in this package are directly or indirectly created
- * from a {@link javafx.reflect.FXContext FXContext}.
- * In the default case there
- * is a single {@code FXContext} instance that makes use of
- * Java reflection.  However, using a {@code FXContext} again
- * allows various kinds of indirection.
+ * remote control, or in general access to data in a different VM.
  *
  * <h2>Object creation</h2>
  * To do the equivalent of the JavaFX code:
@@ -69,30 +77,29 @@
  * To index into a sequence,
  * use {@link javafx.reflect.FXValue#getItem ValueRef.getItem}.
  *
-<h2>Design notes and issues</h2>
-Some design principles, influenced by the "Mirrored reflection"
-APIs (<a href="http://bracha.org/mirrors.pdf">Bracha and Ungar: <cite>Mirrors: Design Principles for Meta-level
-Facilities of Object-Oritented Programming Languages</cite>, OOPSLA 2004</a>),
-and <a href="http://java.sun.com/j2se/1.5.0/docs/guide/jpda/jdi/">JDI</a> :
-<ul>
-<li>No explicit constructors in user code.
-<li>Keep everything abstract, and allow indirection.
-For example, we might be working on objects in the current VM,
-or a remote VM.  We might not have objects at all - while
-not a priority, it would be nice to be able to use the same API for
-(say) reading from .class files.
-<li>Hence all classes (except for factory classes) are
-interfaces or abstract classes.
-<li> But try not to add too many levels of indirection
-or "service lookup"!
-</ul>
-<h2>To do</h2>
-<ul>
-<li>Error handling - if (for example) there is
-no method with a given name, do we return null or throw an exception?  Which exception?
-<li>How to handle bound functions?
-<li>???
-</ul>
-*/
+ * <h2>Design notes and issues</h2>
+ * Some design principles, influenced by the "Mirrored reflection"
+ * APIs (<a href="http://bracha.org/mirrors.pdf">Bracha and Ungar:
+ * <cite>Mirrors: Design Principles for Meta-level Facilities
+ * of Object-Oritented Programming Languages</cite>, OOPSLA 2004</a>),
+ * and <a href="http://java.sun.com/j2se/1.5.0/docs/guide/jpda/jdi/">JDI</a> :
+ * <ul>
+ * <li>No explicit constructors in user code.
+ * <li>Keep everything abstract, and allow indirection.
+ * For example, we might be working on objects in the current VM,
+ * or a remote VM.  We might not have objects at all - a subset of the same API
+ * might be used for (say) reading from {@code .class} files.
+ * <li>Hence the core classes are interfaces or abstract.
+ * <li>On the other hand, we should avoid useless levels of indirection
+ * or "service lookup".
+ * </ul>
+ *
+ * <h2>Limitations</h2>
+ * <ul>
+ * <li>Error handling isn't very consistent - sometimes we return null, and
+ * sometimes we throw an exception.
+ * <li>We don't support bound functions properly.
+ * </ul>
+ */
 
 package javafx.reflect;
