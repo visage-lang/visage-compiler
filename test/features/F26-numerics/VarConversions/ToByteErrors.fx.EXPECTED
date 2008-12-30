@@ -1,0 +1,32 @@
+test/features/F26-numerics/VarConversions/ToByteErrors.fx:11: incompatible types
+found   : javafx.lang.Duration
+required: Integer
+b = Values.dduu;
+          ^
+test/features/F26-numerics/VarConversions/ToByteErrors.fx:12: incompatible types
+found   : Boolean
+required: Integer
+b = Values.bboo;
+          ^
+test/features/F26-numerics/VarConversions/ToByteErrors.fx:13: incompatible types
+found   : String
+required: Integer
+b = Values.sstt;
+          ^
+test/features/F26-numerics/VarConversions/ToByteErrors.fx:14: incompatible types
+found   : java.util.Date
+required: Integer
+b = Values.jj;  
+          ^
+test/features/F26-numerics/VarConversions/ToByteErrors.fx:15: incompatible types
+found   : Object
+required: Integer
+b = Values.nul;
+          ^
+test/features/F26-numerics/VarConversions/ToByteErrors.fx:16: A sequence is not a valid expression for this operation, I am looking for an expression that yields 'Integer'
+b = Values.iSeq;
+          ^
+test/features/F26-numerics/VarConversions/ToByteErrors.fx:17: A sequence is not a valid expression for this operation, I am looking for an expression that yields 'Integer'
+b = Values.fSeq;
+          ^
+7 errors

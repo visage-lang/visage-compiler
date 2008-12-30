@@ -1,0 +1,16 @@
+test/features/F26-numerics/VarConversions/ToLongWarnings.fx:11: warning: possible loss of precision
+found   : Number
+required: java.lang.Long
+l = Values.ff;
+          ^
+test/features/F26-numerics/VarConversions/ToLongWarnings.fx:12: warning: possible loss of precision
+found   : Number
+required: java.lang.Long
+l = Values.dd;
+          ^
+test/features/F26-numerics/VarConversions/ToLongWarnings.fx:13: warning: possible loss of precision
+found   : Number
+required: java.lang.Long
+l = Values.nn;
+          ^
+3 warnings
