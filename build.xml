@@ -140,11 +140,9 @@
         <jar compress="${jar.compress}" destfile="${dist.javafxrt.jar}" >
             <fileset dir="${build.classes.dir}" >
                 <include name="**/*.class" />
+                <include name="com/sun/javafx/runtime/resources/version.properties"/>
                 <exclude name="com/sun/tools/javafx/**"/>
                 <exclude name="com/sun/javafx/api/**"/>
-            </fileset>
-            <fileset dir="${build.generated.dir}" >
-                <include name="com/sun/javafx/runtime/version.txt" />
             </fileset>
         </jar>
         <!-- make CLASS.LIST file using "jar tf" command -->
@@ -156,12 +154,10 @@
         <jar compress="${jar.compress}" destfile="${dist.javafxrt.jar}" >
             <fileset dir="${build.classes.dir}"> 
                 <include name="**/*.class" />
+                <include name="com/sun/javafx/runtime/resources/version.properties"/>
                 <include name="**/CLASS.LIST" />
                 <exclude name="com/sun/tools/javafx/**"/>
                 <exclude name="com/sun/javafx/api/**"/>
-            </fileset>
-            <fileset dir="${build.generated.dir}" >
-                <include name="com/sun/javafx/runtime/version.txt" />
             </fileset>
         </jar>
     </target>
@@ -237,22 +233,22 @@
         <pcompile srcdir="${src.classes.dir}/com"
                   destdir="${build.generated.dir}/com"
                   includes="${includes}"/>
-        <copy todir="${build.generated.dir}">
-            <fileset dir="${src.classes.dir}" includes="${includes}"/>
-            <globmapper from="*.properties-template" to="*.properties"/>
-            <filterset begintoken="$(" endtoken=")">
-                <filter token="RELEASE" value="${release}"/>
-                <filter token="FULL_VERSION" value="${full.version}"/>
-            </filterset>
-        </copy>
-        <copy todir="${build.generated.dir}">
-            <fileset dir="${src.classes.dir}" includes="${includes}"/>
-            <globmapper from="*.txt" to="*.txt"/>
-            <filterset begintoken="$(" endtoken=")">
-                <filter token="RELEASE" value="${release}"/>
-                <filter token="FULL_VERSION" value="${full.version}"/>
-            </filterset>
-        </copy>
+
+        <!-- javafx platform version -->
+        <touch file="${javafx.version.file}" mkdirs="yes"/>
+        <echo file="${javafx.version.file}">release=${javafx.release}${line.separator}full=${javafx.full.version}
+        </echo>
+
+        <!-- javafxc tool version file -->
+        <touch file="${javafxc.version.file}" mkdirs="yes"/>
+        <echo file="${javafxc.version.file}">release=${javafxc.release}${line.separator}full=${javafxc.full.version}
+        </echo>
+
+        <!-- javafxdoc tool version file -->
+        <touch file="${javafxdoc.version.file}" mkdirs="yes"/>
+        <echo file="${javafxdoc.version.file}">release=${javafxdoc.release}${line.separator}full=${javafxdoc.full.version}
+        </echo>
+
         <pcompile srcdir="${build.generated.dir}"
                   destdir="${build.generated.dir}"
                   includes="**/*.properties"/>

@@ -6,6 +6,9 @@
             <name>launcher</name>
             <make-project-type>0</make-project-type>
             <make-dep-projects/>
+            <c-extensions/>
+            <cpp-extensions>cpp</cpp-extensions>
+            <header-extensions>h</header-extensions>
         </data>
     </configuration>
 </project>

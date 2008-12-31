@@ -62,7 +62,9 @@ while [ $# -gt 0 ] ; do
     case "$1" in
         -J*) jopt=`expr "X-$1" : 'X--J\(.*\)'`; jargs="$jargs \"$jopt\"";;
         -cp | -classpath) shift; classpath="$classpath:$1";;
-	-profile) shift; profile="$1";;
+        -version) args="com.sun.javafx.runtime.LauncherHelper -version"; break;;
+        -fullversion) args="com.sun.javafx.runtime.LauncherHelper -fullversion"; break;;
+        -profile) shift; profile="$1";;
         *) args="$args \"$1\"";;
     esac
     shift

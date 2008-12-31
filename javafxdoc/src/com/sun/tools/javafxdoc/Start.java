@@ -36,6 +36,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
 import static com.sun.tools.javac.code.Flags.*;
@@ -125,6 +127,36 @@ class Start {
         messager.exit();
     }
 
+    private static final String versionRBName =
+            "com.sun.tools.javafxdoc.resources.version";
+    private static ResourceBundle versionRB;
+
+    private static String version(String key) {
+        if (versionRB == null) {
+            try {
+                versionRB = ResourceBundle.getBundle(versionRBName);
+            } catch (MissingResourceException e) {
+                return  "Error:" + e.getMessage() + " " +
+                        System.getProperty("java.version");
+            }
+        }
+        try {
+            return versionRB.getString(key);
+        } catch (MissingResourceException e) {
+            return "Error:" + e.getMessage() + " " +
+                    System.getProperty("java.version");
+        }
+    }
+    
+    private void version(boolean fullversion) {
+        // TODO: for now send it to err.
+        System.err.print(javafxdocName + " ");
+        if (fullversion) {
+            System.err.println("full version \"" + version("full") + "\"");
+        } else {
+            System.err.println(version("release"));
+        }
+    }
 
     /**
      * Main program - external wrapper
@@ -289,6 +321,12 @@ class Start {
                 String key = (eq < 0) ? s : s.substring(0, eq);
                 String value = (eq < 0) ? s : s.substring(eq+1);
                 compOpts.put(key, value);
+            } else if (arg.startsWith("-version")) {
+                version(false);
+                exit();
+            } else if (arg.startsWith("-fullversion")) {
+                version(true);
+                exit();
             }
             // call doclet for its options
             // other arg starts with - is invalid

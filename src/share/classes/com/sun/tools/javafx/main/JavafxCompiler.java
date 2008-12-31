@@ -27,8 +27,6 @@ import java.io.*;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -50,6 +48,8 @@ import com.sun.tools.javafx.util.MsgSym;
 import static com.sun.tools.javac.util.ListBuffer.lb;
 import com.sun.tools.javafx.antlr.JavafxSyntacticAnalysis;
 import com.sun.tools.javafx.util.PlatformPlugin;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 /** This class could be the main entry point for GJC when GJC is used as a
  *  component in a larger software system. It provides operations to
@@ -96,17 +96,16 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 versionRB = ResourceBundle.getBundle(versionRBName);
             } catch (MissingResourceException e) {
                 // HACK: MESSAGE_VERSION_RESOURCE_MISSING is currently defined in javafxcompiler.properties
-                return Main.getJavafxLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC 
+                return Main.getJavafxLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC
                         + MsgSym.MESSAGE_VERSION_RESOURCE_MISSING, System.getProperty("java.version"));
 //                return Log.getLocalizedString(MsgSym.MESSAGE_VERSION_RESOURCE_MISSING, System.getProperty("java.version"));
             }
         }
         try {
             return versionRB.getString(key);
-        }
-        catch (MissingResourceException e) {
+        }catch (MissingResourceException e) {
             // HACK: MESSAGE_VERSION_UNKNOWN is currently defined in javafxcompiler.properties
-            return Main.getJavafxLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC 
+            return Main.getJavafxLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC
                     + MsgSym.MESSAGE_VERSION_UNKNOWN, System.getProperty("java.version"));
 //            return Log.getLocalizedString(MsgSym.MESSAGE_VERSION_UNKNOWN, System.getProperty("java.version"));
         }

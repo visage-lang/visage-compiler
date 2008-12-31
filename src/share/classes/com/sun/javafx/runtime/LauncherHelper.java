@@ -21,40 +21,38 @@
  * have any questions.
  */
 
-#ifndef _CONFIGURATION_H
-#define	_CONFIGURATION_H
+package com.sun.javafx.runtime;
 
-#include <string>
+/**
+ * A singleton helper class for the javafx launcher
+ * @author ksrini
+ */
+public enum LauncherHelper {
+    INSTANCE;
 
-class Configuration {
-public:
-    std::string javacmd;
-    std::string javafxcmd;
-    std::string javafxpath;
-    std::string classpath;
-    std::string vmargs;
-    std::string fxargs;
-    
-    std::string profile_classpath;
-    std::string profile_bootclasspath;
-    std::string profile_bootclasspath_prepend;
-    std::string profile_bootclasspath_append;
-    std::string profile_nativelibpath;
-    
-    Configuration(const std::string& prefix);
-    ~Configuration();
-    
-    int initConfiguration (int argc, char** argv);
-    
-private:
-    void init();
-    int readConfigFile();
-    int parseArgs(int argc, char** argv);
-    int fileExists(const std::string& path);
-    
-    std::string prefix;
-    std::string profile_filename;
-};
+    private static final String myname = "javafx";
 
-#endif	/* _CONFIGURATION_H */
-
+    private static void printVersion(boolean fullversion) {
+        StringBuilder sb = new StringBuilder(myname + " ");
+        if (fullversion) {
+            sb = sb.append("full version ");
+            sb = sb.append("\"");
+            sb = sb.append(SystemProperties.getProperty("javafx.runtime.version"));
+            sb = sb.append("\"");
+        } else {
+            sb = sb.append(SystemProperties.getProperty("javafx.version"));
+        }
+        System.err.println(sb.toString());
+        System.err.flush();
+    }
+    
+    public static void main(String... args) {
+        if (args.length > 0) {
+            if (args[0].equals("-fullversion")) {
+                printVersion(true);
+            } else {
+                printVersion(false);             
+            }
+        }
+    }
+}

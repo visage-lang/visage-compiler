@@ -24,7 +24,6 @@
 package com.sun.javafx.runtime;
 
 import java.util.Hashtable;
-import java.lang.Class;
 import java.io.InputStream;
 
 public class  SystemProperties {
@@ -52,36 +51,51 @@ public class  SystemProperties {
     private static Hashtable sysprop_list = new Hashtable();  
     private static Hashtable jfxprop_list = new Hashtable();
 
-    private static final String versionRBName = "com.sun.javafx.runtime.version";
+    private static final String versionResourceName =
+            "/com/sun/javafx/runtime/resources/version.properties";
     
 
     static {
         addProperties (sysprop_table, false);
         addProperties (jfxprop_table, true);
-    
-        /* read in the version info from version.txt and set the property */
-        SystemProperties.setFXProperty("javafx.version", getVersion());
+        setVersions();
     }
 
-    
-    private static String getVersion () {
+    /*
+     * Populate our well known version strings
+     */
+    private static void setVersions() {
         int size;
-        
-        String release_version = "unknown";
-        InputStream is = SystemProperties.class.getResourceAsStream("/com/sun/javafx/runtime/version.txt");
+        InputStream is =
+                SystemProperties.class.getResourceAsStream(versionResourceName);
         try  {
             size = is.available();
         
             byte[] b = new byte[size];
-            int n;
-            n = is.read(b);            
-            release_version = new String(b, "utf-8");
+            int n = is.read(b);            
+            String inStr = new String(b, "utf-8");
+            SystemProperties.setFXProperty("javafx.version",
+                    getValue(inStr, "release", "="));
+
+            SystemProperties.setFXProperty("javafx.runtime.version",
+                    getValue(inStr, "full", "="));
+
         } catch (Exception ignore) {
         }
-        
-        return release_version;
     }
-    
+    /*
+     * Returns a value given a name and a separator
+     */
+    private static String getValue(String toSearch, String name, String separator) {
+        String versionPairs[] = toSearch.split("\\s");
+        for (String x : versionPairs) {
+            String aPair[] = x.split(separator);
+            if (aPair[0].equals(name) && aPair[1] != null) {
+                return aPair[1].trim();
+            }
+        }
+        return "unknown";
+    }
     /** 
      * Registers a statically allocated System Properties table 
      * Once registered properties listed in the table are availabe for inquiry through FX.getProperty().
