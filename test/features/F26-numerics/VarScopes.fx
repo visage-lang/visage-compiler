@@ -1,5 +1,6 @@
 /*
- * Test single assignments for variables declared at different levels
+ * Test single assignments for variables {Character,Byte,Long,Short,Float,
+ * Double and corresponding sequences} declared at different levels
  * (script, instance and local).
  *
  * @test/fxunit
@@ -8,61 +9,161 @@
 
 import javafx.fxunit.FXTestCase;
 
-    // The below line causes a compiler error:
-    // [java] test\features\F26-numerics\variables\VarTestScopes.fx:20: incompatible types
-    // [java] found   : String
-    // [java] required: char
-    // [java]     def c1 : Character = 'X';
-    // [java]                          ^
-    // (moving to curently-failing/{TBD})
+    /* The below lines cause a compiler error:
+     * [java] test\features\F26-numerics\variables\VarTestScopes.fx:20: incompatible types
+     * [java] found   : String
+     * [java] required: char
+     * [java]     def c1 : Character = 'X';
+     * [java]                          ^
+     * (moving to curently-failing/jfxc2437.fx)
+     */
 // var c1 : Character = 'X';
+// var c1 : Character = '\u0F0F';
+
+var c1 : Character = 10000;
 var b1 : Byte = 10;
 var l1 : Long = 2000000000;
 var s1 : Short = 30000;
 var f1 : Float = 3.1415926535;
 var d1 : Double = 2.71828183;
 
+/* Compilation failure; see JFXC-2583 */
+//var cSeq1 : Character[] = [ 10000..10003 ];
+var cSeq1 : Character[] = [ 10000, 10001, 10002, 10003 ];
+var bSeq1 : Byte[] = [ 10..13 ];
+var lSeq1 : Long[] = [ 2000000000..2000000003 ];
+var sSeq1 : Short[] = [ 30000..30003 ];
+var fSeq1 : Float[] = [ 4.111..7.111 ];
+var dSeq1 : Double[] = [ 5555.11..5558.11 ];
+
 public class VarScopes extends FXTestCase {
-//    def c2 : Character = 'X';
+    def c2 : Character = 10000;
     def b2 : Byte = 10;
     def l2 : Long = 2000000000;
     def s2 : Short = 30000;
     def f2 : Float = 3.1415926535;
     def d2 : Double = 2.71828183;
+    def cSeq2 : Character[] = [ 10000, 10001, 10002, 10003 ];
+    def bSeq2 : Byte[] = [ 10, 11, 12, 13 ];
+    def lSeq2 : Long[] = [ 2000000000, 2000000001, 2000000002, 2000000003 ];
+    def sSeq2 : Short[] = [ 30000, 30001, 30002, 30003 ];
+    def fSeq2 : Float[] = [ 4.111, 5.111, 6.111, 7.111 ];
+    def dSeq2 : Double[] = [ 5555.11, 5556.11, 5557.11, 5558.11 ];
 
-    function testLocalVariables() {
-//        var c3 : Character = 'X';
+    function testCharacterVariables() {
+        var c3 : Character = 10000;
+        assertEquals(10000 as Character, c3);
+        assertEquals(10000 as Character, c2);
+        assertEquals(10000 as Character, c1);
+    }
+
+    function testByteVariables() {
         var b3 : Byte = 10;
+        assertEquals(10 as Byte, b3);
+        assertEquals(10 as Byte, b2);
+        assertEquals(10 as Byte, b1);
+    }
+
+    function testLongVariables() {
         var l3 : Long = 2000000000;
+        assertEquals(2000000000 as Long, l3);
+        assertEquals(2000000000 as Long, l2);
+        assertEquals(2000000000 as Long, l1);
+    }
+
+    function testShortVariables() {
         var s3 : Short = 30000;
+        assertEquals(30000 as Short, s3);
+        assertEquals(30000 as Short, s2);
+        assertEquals(30000 as Short, s1);
+    }
+
+    function testFloatVariables() {
         var f3 : Float = 3.1415926535;
+        assertEquals(3.1415926535 as Float, f3, 0);
+        assertEquals(3.1415926535 as Float, f2, 0);
+        assertEquals(3.1415926535 as Float, f1, 0);
+    }
+
+    function testDoubleVariables() {
         var d3 : Double = 2.71828183;
-        
-//        assertEquals(c3, 'X' as Character);
-        assertEquals(b3, 10 as Byte);
-        assertEquals(l3, 2000000000 as Long);
-        assertEquals(s3, 30000 as Short);
-//        assertEquals(f3, 3.1415926535 as Float);
-//        assertEquals(d3, 2.71828183 as Double);
+        assertEquals(2.71828183 as Double, d3, 0);
+        assertEquals(2.71828183 as Double, d2, 0);
+        assertEquals(2.71828183 as Double, d1, 0);
     }
 
-    function testInstanceVariables() {
-//        assertEquals(c2, 'X' as Character);
-        assertEquals(b2, 10 as Byte);
-        assertEquals(l2, 2000000000 as Long);
-        assertEquals(s2, 30000 as Short);
-//        assertEquals(f2, 3.1415926535 as Float);
-//        assertEquals(d2, 2.71828183 as Double);
+    function testCharacterSequence() {
+        def cSeq3 : Character[] = [ 10000, 10001, 10002, 10003 ];
+        /* Does not work: "expected:<[ 10000, 10001, 10002, 10003 ]>
+         * but was:<[ ?, ?, ?, ? ]>" */
+//         assertEquals([10000, 10001, 10002, 10003], cSeq3);
+
+        /* Does not work: "reference to assertEquals is ambiguous, both
+         * method assertEquals(java.lang.Object,java.lang.Object) in
+         * junit.framework.Assert and method assertEquals(char,char) in
+         * junit.framework.Assert match" 
+         * See JFXC-2572 */
+//        assertEquals(10000 as Character, cSeq3[0] as Character);
+
+        assertEquals(cSeq1, cSeq2);
+        assertEquals(cSeq2, cSeq3);
+        assertEquals(cSeq1, cSeq3);
     }
 
-    function testScriptVariables() {
-//        assertEquals(c1, 'X' as Character);
-        assertEquals(b1, 10 as Byte);
-        assertEquals(l1, 2000000000 as Long);
-        assertEquals(s1, 30000 as Short);
-//        assertEquals(f1, 3.1415926535 as Float);
-//        assertEquals(d1, 2.71828183 as Double);
+    function testByteSequence() {
+        def bSeq3 : Byte[] = [ 10..<14 step 1 ];
+        /* Does not work: "expected:<[ 10, 11, 12, 13 ]>
+         * but was:<[ 10, 11, 12, 13 ]>" */
+//        assertEquals([ 10, 11, 12, 13 ], bSeq3);
+        assertEquals([ 10 as Byte, 11, 12, 13 ], bSeq3);
+        assertEquals([ 10 as Byte, 11, 12, 13 ], bSeq2);
+        assertEquals([ 10 as Byte, 11, 12, 13 ], bSeq1);
+    }
+
+    function testLongSequence() {
+        def lSeq3 : Long[] = [ 2000000000..<2000000004 step 1 ];
+        assertEquals([ 2000000000 as Long, 2000000001,
+                               2000000002, 2000000003], lSeq3);
+        assertEquals([ 2000000000 as Long, 2000000001,
+                               2000000002, 2000000003], lSeq2);
+        assertEquals([ 2000000000 as Long, 2000000001,
+                               2000000002, 2000000003], lSeq1);
+    }
+
+    function testShortSequence() {
+        def sSeq3 : Short[] = [ 30000..<30004 step 1 ];
+        /* Does not work: "expected:<[ 30000, 30001, 30002, 30003 ]>
+         * but was:<[ 30000, 30001, 30002, 30003 ]>" */
+//        assertEquals([30000, 30001, 30002, 30003], sSeq3);
+        assertEquals([30000 as Short, 30001, 30002, 30003], sSeq3);
+        assertEquals([30000 as Short, 30001, 30002, 30003], sSeq2);
+        assertEquals([30000 as Short, 30001, 30002, 30003], sSeq1);
+    }
+
+    function testFloatSequence() {
+        def fSeq3 : Float[] = [ 4.111..<7.555 step 1 ];
+        assertEquals([4.111, 5.111, 6.111, 7.111], fSeq3);
+        assertEquals([4.111, 5.111, 6.111, 7.111], fSeq2);
+        assertEquals([4.111, 5.111, 6.111, 7.111], fSeq1);
+    }
+
+    function testDoubleSequence() {
+        def dSeq3 : Double[] = [ 5555.11..<5559.0 step 1 ];
+        /* Does not work: "expected:<[ 5555.11, 5556.11, 5557.11, 5558.11 ]>
+         * but was:<[ 5555.10986328125, 5556.10986328125,
+         *            5557.10986328125, 5558.10986328125 ]>"
+         * See JFXC-2586 */
+//        assertEquals([5555.11, 5556.11, 5557.11, 5558.11], dSeq3);
+        assertEquals([5555.11 as Double, 5556.11, 5557.11, 5558.11], dSeq3);
+
+        /* Does not work: "expected:<[ 5555.10986328125, 5556.10986328125,
+         *                             5557.10986328125, 5558.10986328125 ]>
+         * but was:<[ 5555.11, 5556.11, 5557.11, 5558.11 ]>" */
+//        assertEquals([5555.11 as Double, 5556.11, 5557.11, 5558.11], dSeq2);
+
+        /* Does not work: "expected:<[ 5555.11, 5556.11, 5557.11, 5558.11 ]>
+         * but was:<[ 5555.11, 5556.11, 5557.11, 5558.11 ]>" */
+//        assertEquals([5555.11, 5556.11, 5557.11, 5558.11], dSeq2);
+        assertEquals([5555.11 as Double, 5556.11, 5557.11, 5558.11], dSeq1);
     }
 }
-
-
