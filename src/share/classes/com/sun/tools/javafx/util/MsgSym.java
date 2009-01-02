@@ -394,4 +394,6 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_BAD_EMPTY_SEQUENCE = "javafx.bad.empty.sequence";
     public static final String MESSAGE_JAVAFX_BAD_SEQUENCE = "javafx.bad.sequence";
     public static final String MESSAGE_JAVAFX_EXPLICIT_THREAD = "javafx.explicit.thread";
+    public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE = "javafx.cannot.override";
+    public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEF = "javafx.cannot.override.def";
 }

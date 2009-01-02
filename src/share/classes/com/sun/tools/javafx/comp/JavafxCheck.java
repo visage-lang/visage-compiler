@@ -1570,7 +1570,7 @@ public class JavafxCheck {
         }
     }
 
-    /** Check that vaar/def does not override (unless it is hidden by being script private)
+    /** Check that var/def does not override (unless it is hidden by being script private)
      */
     void checkVarOverride(DiagnosticPosition diagPos, VarSymbol vsym) {
         ClassSymbol origin = (ClassSymbol) vsym.owner;

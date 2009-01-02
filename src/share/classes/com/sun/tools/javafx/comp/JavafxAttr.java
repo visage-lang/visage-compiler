@@ -24,10 +24,8 @@
 package com.sun.tools.javafx.comp;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.ArrayList;
-import java.util.Set;
 import javax.lang.model.element.ElementKind;
 import javax.tools.JavaFileObject;
 
@@ -52,7 +50,6 @@ import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
-import com.sun.tools.javafx.util.NotImplementedException;
 import static com.sun.tools.javafx.code.JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC;
 import com.sun.tools.javafx.comp.JavafxCheck.WriteKind;
 
@@ -297,7 +294,7 @@ public class JavafxAttr implements JavafxVisitor {
 
     /** Derived visitor method: attribute an expression tree.
      */
-    public Type attribExpr(JFXTree tree, JavafxEnv<JavafxAttrContext> env, Type pt, Sequenceness pSequenceness) {
+    Type attribExpr(JFXTree tree, JavafxEnv<JavafxAttrContext> env, Type pt, Sequenceness pSequenceness) {
         return attribTree(tree, env, VAL, pt.tag != ERROR ? pt : Type.noType, pt.tag != ERROR ? pSequenceness : Sequenceness.PERMITTED);
     }
 
@@ -305,7 +302,7 @@ public class JavafxAttr implements JavafxVisitor {
      *  allow a sequence if no proto-type is specified, the proto-type is a seqeunce,
      *  or the proto-type is an error.
      */
-    public Type attribExpr(JFXTree tree, JavafxEnv<JavafxAttrContext> env, Type pt) {
+    Type attribExpr(JFXTree tree, JavafxEnv<JavafxAttrContext> env, Type pt) {
         return attribTree(tree, env, VAL, pt.tag != ERROR ? pt : Type.noType,
                 (pt.tag == ERROR || pt == Type.noType || types.isSequence(pt))?
                         Sequenceness.PERMITTED :
@@ -1024,6 +1021,12 @@ public class JavafxAttr implements JavafxVisitor {
         Lint lint = lintEnv.info.lint.augment(v.attributes_field, v.flags());
         Lint prevLint = chk.setLint(lint);
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
+
+        if ((v.flags() & JavafxFlags.IS_DEF) != 0L) {
+            log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEF, tree.getId().name);
+        } else if (!rs.isAccessibleForWrite(env, v.owner.type, v)) {
+            log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE, tree.getId().name);
+        }
 
         boolean wasInBindContext = this.inBindContext;
         this.inBindContext |= tree.isBound();
