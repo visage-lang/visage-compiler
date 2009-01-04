@@ -35,9 +35,7 @@ import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.javac.code.*;
 import static com.sun.tools.javac.code.Flags.*;
-import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.MethodType;
-import com.sun.tools.javac.code.Type.WildcardType;
 import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
@@ -1009,6 +1007,32 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
          */
         protected abstract List<JCExpression> completeTranslatedConstructorArgs();
 
+        JCExpression translateInit(VarSymbol vsym, JFXExpression init) {
+            Type resultType = vsym.type;
+            JCExpression trans = toJava.translate(init, resultType);
+            return toJava.convertNullability(diagPos, trans, init, resultType);
+        }
+
+        void setInstanceVariable(DiagnosticPosition diagPos, Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression transInit) {
+            stats.append(toJava.definitionalAssignmentToSet(diagPos, transInit, bindStatus, vsym, instName,
+                    FROM_LITERAL_MILIEU));
+        }
+
+        void setInstanceVariable(DiagnosticPosition diagPos, Name instName, VarSymbol vsym, JCExpression transInit) {
+            setInstanceVariable(diagPos, instName, JavafxBindStatus.UNBOUND, vsym, transInit);
+        }
+
+        void setInstanceVariable(Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JFXExpression init) {
+            DiagnosticPosition initPos = init.pos();
+            VarMorphInfo vmi = toJava.typeMorpher.varMorphInfo(vsym);
+            JCExpression transInit = toJava.translateDefinitionalAssignmentToValueArg(initPos, init, bindStatus, vmi);
+            setInstanceVariable(initPos, instName, bindStatus, vsym, transInit);
+        }
+
+        void setInstanceVariable(Name instName, VarSymbol vsym, JFXExpression init) {
+            setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
+        }
+
         /**
          * Return the instance building expression
          * @param declaredType
@@ -1087,22 +1111,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             return (VarSymbol) builtIn.tsym.members().lookup(varName).sym;
         }
 
-        JCExpression translateInit(VarSymbol vsym, JFXExpression init) {
-            Type resultType = vsym.type;
-            JCExpression trans = translate(init, resultType);
-            return convertNullability(diagPos, trans, init, resultType);
-        }
-
-        void setInstanceVariable(Name instName, VarSymbol vsym, JCExpression transInit) {
-            VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-            JCExpression setExpr = definitionalAssignmentToSetExpression(diagPos, transInit, JavafxBindStatus.UNBOUND, vsym, instName,
-                    vmi.getTypeKind(), FROM_LITERAL_MILIEU);
-            stats.append(make.at(diagPos).Exec(setExpr));
-        }
-
         void setInstanceVariable(Name instName, Name varName, JFXExpression init) {
             VarSymbol vsym = varSym(varName);
-            setInstanceVariable(instName, vsym, translateInit(vsym, init));
+            setInstanceVariable(instName, vsym, init);
         }
 
         @Override
@@ -1137,17 +1148,16 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 JFXExpression init = olpart.getExpression();
                 VarSymbol vsym = (VarSymbol) olpart.sym;
 
-                // Lift JFXObjectLiteralPart if needed
-                if (types.isSequence(olpart.type)) {
-                    JFXExpression olexpr = olpart.getExpression();
-                    if (!types.isSequence(olexpr.type)) {
-                        init = (fxm()).ExplicitSequence(List.<JFXExpression>of(olexpr));
-                        WildcardType tpType = new WildcardType(olexpr.type, BoundKind.EXTENDS, olexpr.type.tsym);
-                        init.type = new ClassType(((JavafxSymtab) syms).javafx_SequenceType, List.<Type>of(tpType), ((JavafxSymtab) syms).javafx_SequenceType.tsym);
-                    }
+                if (types.isSequence(olpart.type) && !types.isSequence(init.type)) {
+                    // Lift JFXObjectLiteralPart if needed
+                    JCExpression lifted = new ExplicitSequenceTranslator(diagPos,
+                            toJava,
+                            List.<JFXExpression>of(init),
+                            toJava.boxedElementType(olpart.type)).doit();
+                    setInstanceVariable(init.pos(), instName, bindStatus, vsym, lifted);
+                } else {
+                    setInstanceVariable(instName, bindStatus, vsym, init);
                 }
-
-                stats.append(translateAttributeSet(init, bindStatus, vsym, instName));
             }
             if (tree.varDefinedByThis != null) {
                 toJava.substitutionMap.remove(tree.varDefinedByThis);
@@ -1203,9 +1213,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             return translated;
         }
 
-        abstract protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
-            Name attrName);
-
         protected JCExpression doit() {
             for (JFXVar var : tree.getLocalvars()) {
                 // add the variable before the class definition or object litersl assignment
@@ -1222,14 +1229,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         prependToStatements = ListBuffer.lb();
 
         result = new InstanciateTranslator(tree, this) {
-
             protected void processLocalVar(JFXVar var) {
                 stats.append(translateExpressionToStatement(var));
-            }
-
-            protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name instanceName) {
-                return toJava.translateDefinitionalAssignmentToSet(diagPos, init, bindStatus,
-                        vsym, instanceName, FROM_LITERAL_MILIEU);
             }
         }.doit();
 
@@ -1432,6 +1433,16 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }
         args.append(valueArg);
         return callExpression(diagPos, varRef, methName, args);
+    }
+
+    JCStatement definitionalAssignmentToSet(DiagnosticPosition diagPos,
+            JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
+            Name instanceName, int milieu) {
+        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+        JCExpression nonNullInit = (init == null)? makeDefaultValue(diagPos, vmi) : init;  //TODO: is this needed?
+        JCExpression setExpr = definitionalAssignmentToSetExpression(diagPos, nonNullInit, bindStatus, vsym, instanceName,
+                                                     vmi.getTypeKind(), milieu);
+        return make.at(diagPos).Exec( setExpr );
     }
 
     @Override
@@ -2058,13 +2069,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 (wrap == Wrapped.InLocation));
     }
 
-    class ExplicitSequenceTranslator extends Translator {
+    static class ExplicitSequenceTranslator extends Translator {
 
         final List<JFXExpression> items;
         final Type elemType;
 
-        ExplicitSequenceTranslator(DiagnosticPosition diagPos, List<JFXExpression> items, Type elemType) {
-            super(diagPos, JavafxToJava.this);
+        ExplicitSequenceTranslator(DiagnosticPosition diagPos, JavafxToJava toJava, List<JFXExpression> items, Type elemType) {
+            super(diagPos, toJava);
             this.items = items;
             this.elemType = elemType; // boxed
         }
@@ -2086,7 +2097,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         */
         protected JCExpression doit() {
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            UseSequenceBuilder builder = useSequenceBuilder(diagPos, elemType, items.length());
+            UseSequenceBuilder builder = toJava.useSequenceBuilder(diagPos, elemType, items.length());
             stmts.append(builder.makeBuilderVar());
             for (JFXExpression item : items) {
                 if (item.getJavaFXKind() != JavaFXKind.NULL_LITERAL) {
@@ -2094,16 +2105,18 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     stmts.append(builder.addElement(item));
                 }
             }
-            return makeBlockExpression(diagPos, stmts, builder.makeToSequence());
+            return toJava.makeBlockExpression(diagPos, stmts, builder.makeToSequence());
         }
     }
 
     @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
-        result = new ExplicitSequenceTranslator(tree.pos(),
+        result = new ExplicitSequenceTranslator(
+                tree.pos(),
+                this,
                 tree.getItems(),
                 boxedElementType(tree.type)
-                ).doit();
+        ).doit();
     }
 
     @Override
@@ -3604,7 +3617,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 // target -- convert to Pointer
                 JCExpression target = translate(tree.attribute, Wrapped.InLocation);
                 JCExpression pointer = callExpression(diagPos, makeExpression(syms.javafx_PointerType), "make", target);
-                setInstanceVariable(instName, varSym(defs.targetName), pointer);
+                setInstanceVariable(tree.attribute.pos(), instName, varSym(defs.targetName), pointer);
             }
         }.doit();
     }
@@ -3619,10 +3632,11 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 // key values -- as sequence
                 JCExpression values = new ExplicitSequenceTranslator(
                         tree.pos(),
+                        JavafxToJava.this,
                         tree.getInterpolationValues(),
                         syms.javafx_KeyValueType
                 ).doit();
-                setInstanceVariable(instName, varSym(defs.valuesName), values);
+                setInstanceVariable(tree.pos(), instName, varSym(defs.valuesName), values);
             }
         }.doit();
     }

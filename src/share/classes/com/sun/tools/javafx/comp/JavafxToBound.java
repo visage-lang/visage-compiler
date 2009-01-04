@@ -313,23 +313,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         return make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
     }
 
-    private JCStatement definitionalAssignmentToSet(DiagnosticPosition diagPos,
-            JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
-            Name instanceName, int milieu) {
-        return make.at(diagPos).Exec( definitionalAssignmentToSetExpression(diagPos,
-            init, bindStatus, vsym,
-             instanceName, milieu) );
-    }
-
-    private JCExpression definitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
-            JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
-            Name instanceName, int milieu) {
-        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        JCExpression nonNullInit = (init == null)? makeDefaultValue(diagPos, vmi) : init;
-        return toJava.definitionalAssignmentToSetExpression(diagPos, nonNullInit, bindStatus, vsym, instanceName,
-                                                     vmi.getTypeKind(), milieu);
-    }
-
     private abstract class ClosureTranslator extends Translator {
 
         protected final TypeMorphInfo tmiResult;
@@ -511,10 +494,14 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         }
                     }
 
-                    protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name instanceName) {
-                        JCExpression initRef = buildArgField(translate(init, bindStatus, vsym.type), vsym.type, vsym.name.toString() + "$attr", bindStatus.isBound());
-                        return definitionalAssignmentToSet(diagPos, initRef, bindStatus,
-                                vsym, instanceName, FROM_LITERAL_MILIEU);
+                    @Override
+                    void setInstanceVariable(Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JFXExpression init) {
+                        JCExpression initRef = buildArgField(
+                                translate(init, bindStatus, vsym.type),
+                                vsym.type,
+                                vsym.name.toString() + "$attr",
+                                bindStatus.isBound());
+                        setInstanceVariable(init.pos(), instName, bindStatus, vsym, initRef);
                     }
                 }.doit();
             }

@@ -33,7 +33,6 @@ import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.tree.JCTree;
 
-import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Options;
 import com.sun.tools.javafx.tree.JFXInterpolateValue;
 import com.sun.tools.javafx.tree.JFXTree;
@@ -43,7 +42,6 @@ import com.sun.tools.javafx.tree.JavafxTreeInfo;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
 
 import com.sun.tools.javafx.util.MsgSym;
-import java.util.Stack;
 import javax.tools.DiagnosticListener;
 import org.antlr.runtime.*;
 
