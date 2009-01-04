@@ -2058,8 +2058,17 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 (wrap == Wrapped.InLocation));
     }
 
-    @Override
-    public void visitSequenceExplicit(JFXSequenceExplicit tree) {
+    class ExplicitSequenceTranslator extends Translator {
+
+        final List<JFXExpression> items;
+        final Type elemType;
+
+        ExplicitSequenceTranslator(DiagnosticPosition diagPos, List<JFXExpression> items, Type elemType) {
+            super(diagPos, JavafxToJava.this);
+            this.items = items;
+            this.elemType = elemType; // boxed
+        }
+
         /***
          * In cases where the components of an explicitly constructed
          * sequence are all singletons, we can revert to this (more
@@ -2075,17 +2084,26 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         args.appendList( translate( tree.getItems() ) );
         result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
         */
-        ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        Type elemType = boxedElementType(tree.type);
-        UseSequenceBuilder builder = useSequenceBuilder(tree.pos(), elemType, tree.getItems().length());
-        stmts.append(builder.makeBuilderVar());
-        for (JFXExpression item : tree.getItems()) {
-            if (item.getJavaFXKind() != JavaFXKind.NULL_LITERAL) {
-                // Insert all non-null elements
-                stmts.append(builder.addElement(item));
+        protected JCExpression doit() {
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            UseSequenceBuilder builder = useSequenceBuilder(diagPos, elemType, items.length());
+            stmts.append(builder.makeBuilderVar());
+            for (JFXExpression item : items) {
+                if (item.getJavaFXKind() != JavaFXKind.NULL_LITERAL) {
+                    // Insert all non-null elements
+                    stmts.append(builder.addElement(item));
+                }
             }
+            return makeBlockExpression(diagPos, stmts, builder.makeToSequence());
         }
-        result = makeBlockExpression(tree.pos(), stmts, builder.makeToSequence());
+    }
+
+    @Override
+    public void visitSequenceExplicit(JFXSequenceExplicit tree) {
+        result = new ExplicitSequenceTranslator(tree.pos(),
+                tree.getItems(),
+                boxedElementType(tree.type)
+                ).doit();
     }
 
     @Override
@@ -3574,7 +3592,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     public void visitInterpolateValue(final JFXInterpolateValue tree) {
         result = new NewBuiltInInstanceTranslator(tree.pos(), syms.javafx_KeyValueType) {
 
-            @Override
             protected void initInstanceVariables(Name instName) {
                 // value
                 setInstanceVariable(instName, defs.valueName, tree.value);
@@ -3592,35 +3609,20 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }.doit();
     }
 
-    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
-        DiagnosticPosition diagPos = tree.pos();
-        JFXExpression clsname = fxmake.at(diagPos).Type(syms.javafx_KeyFrameType);
-        ((JFXSelect) clsname).sym = syms.javafx_KeyFrameType.tsym;
+    public void visitKeyFrameLiteral(final JFXKeyFrameLiteral tree) {
+        result = new NewBuiltInInstanceTranslator(tree.pos(), syms.javafx_KeyFrameType) {
 
-        final Symbol timeSymbol = syms.javafx_KeyFrameType.tsym.members().lookup(defs.timeName).sym;
-        JFXObjectLiteralPart timeLiteral = fxmake.at(diagPos).ObjectLiteralPart(defs.timeName, tree.start);
-        timeLiteral.sym = timeSymbol;
+            protected void initInstanceVariables(Name instName) {
+                // start time
+                setInstanceVariable(instName, defs.timeName, tree.start);
 
-        JFXSequenceExplicit values = fxmake.at(diagPos).ExplicitSequence(tree.values);
-        values.type = types.sequenceType( fxmake.at(diagPos).Type(syms.javafx_KeyValueType).type);
-
-        JFXObjectLiteralPart valuesLiteral =
-                fxmake.at(diagPos).ObjectLiteralPart(defs.valuesName, values);
-        valuesLiteral.sym = syms.javafx_KeyFrameType.tsym.members().lookup(defs.valuesName).sym;
-
-        List<JFXTree> parts = List.<JFXTree>of(timeLiteral, valuesLiteral);
-
-        JFXInstanciate inst = fxmake.at(diagPos).Instanciate(JavaFXKind.INSTANTIATE_OBJECT_LITERAL, clsname, null, parts);
-
-        inst.type = clsname.type;
-
-        result = new InstanciateTranslator(inst, this) {
-            protected void processLocalVar(JFXVar var) {
-            }
-
-            protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name instanceName) {
-                return toJava.translateDefinitionalAssignmentToSet(diagPos, init, bindStatus,
-                        vsym, instanceName, FROM_LITERAL_MILIEU);
+                // key values -- as sequence
+                JCExpression values = new ExplicitSequenceTranslator(
+                        tree.pos(),
+                        tree.getInterpolationValues(),
+                        syms.javafx_KeyValueType
+                ).doit();
+                setInstanceVariable(instName, varSym(defs.valuesName), values);
             }
         }.doit();
     }
