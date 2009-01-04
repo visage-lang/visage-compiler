@@ -1005,13 +1005,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         protected abstract void initInstanceVariables(Name instName);
 
         /**
-         * Translate any arguments to the constructor.
-         * Default, below, is the default init 'true' flag for JavaFX generated constructors.
-         * @return
+         * @return the constructor args -- translating any supplied args
          */
-        protected List<JCExpression> completeTranslatedConstructorArgs() {
-            return List.<JCExpression>of(m().Literal(TypeTags.BOOLEAN, 1));
-        }
+        protected abstract List<JCExpression> completeTranslatedConstructorArgs();
 
         /**
          * Return the instance building expression
@@ -1061,6 +1057,57 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                  instExpression = toJava.makeConstantLocation(diagPos, declaredType, instExpression);
             }
             return instExpression;
+        }
+    }
+
+
+
+    /**
+     * Translate to a built-in type
+     */
+    abstract class NewBuiltInInstanceTranslator extends NewInstanceTranslator {
+
+        protected final Type builtIn;
+
+        NewBuiltInInstanceTranslator(DiagnosticPosition diagPos, Type builtIn) {
+            super(diagPos, JavafxToJava.this);
+            this.builtIn = builtIn;
+        }
+
+        /**
+         * Arguments for the constructor.
+         * There are no user arguments to built-in class constructors.
+         * Just generate the default init 'true' flag for JavaFX generated constructors.
+         */
+        protected List<JCExpression> completeTranslatedConstructorArgs() {
+            return List.<JCExpression>of(m().Literal(TypeTags.BOOLEAN, 1));
+        }
+
+        VarSymbol varSym(Name varName) {
+            return (VarSymbol) builtIn.tsym.members().lookup(varName).sym;
+        }
+
+        JCExpression translateInit(VarSymbol vsym, JFXExpression init) {
+            Type resultType = vsym.type;
+            JCExpression trans = translate(init, resultType);
+            return convertNullability(diagPos, trans, init, resultType);
+        }
+
+        void setInstanceVariable(Name instName, VarSymbol vsym, JCExpression transInit) {
+            VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+            JCExpression setExpr = definitionalAssignmentToSetExpression(diagPos, transInit, JavafxBindStatus.UNBOUND, vsym, instName,
+                    vmi.getTypeKind(), FROM_LITERAL_MILIEU);
+            stats.append(make.at(diagPos).Exec(setExpr));
+        }
+
+        void setInstanceVariable(Name instName, Name varName, JFXExpression init) {
+            VarSymbol vsym = varSym(varName);
+            setInstanceVariable(instName, vsym, translateInit(vsym, init));
+        }
+
+        @Override
+        protected JCTree doit() {
+            return buildInstance(builtIn, null, true);
         }
     }
 
@@ -1160,8 +1207,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             Name attrName);
 
         protected JCExpression doit() {
-            Type type;
-
             for (JFXVar var : tree.getLocalvars()) {
                 // add the variable before the class definition or object litersl assignment
                 processLocalVar(var);
@@ -3527,54 +3572,22 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
    }
 
     public void visitInterpolateValue(final JFXInterpolateValue tree) {
-        DiagnosticPosition diagPos = tree.pos();
-        JFXExpression clsname = fxmake.at(diagPos).Type(syms.javafx_KeyValueType);
-        ((JFXSelect) clsname).sym = syms.javafx_KeyValueType.tsym;
-        final Symbol targetSymbol = syms.javafx_KeyValueType.tsym.members().lookup(defs.targetName).sym;
-        JFXObjectLiteralPart targetLiteral = fxmake.at(tree.pos()).ObjectLiteralPart(defs.targetName, tree.attribute);
-        targetLiteral.sym = targetSymbol;
-        JFXObjectLiteralPart valueLiteral =
-                fxmake.at(tree.pos()).ObjectLiteralPart(defs.valueName,
-                                                        tree.value,
-                                                        JavafxBindStatus.UNBOUND);
-        valueLiteral.sym = syms.javafx_KeyValueType.tsym.members().lookup(defs.valueName).sym;
-        List<JFXTree> parts;
-        if (tree.interpolation == null)
-            parts = List.<JFXTree>of(targetLiteral, valueLiteral);
-        else {
-            JFXObjectLiteralPart interpolateLiteral =
-                    fxmake.at(tree.pos()).ObjectLiteralPart(defs.interpolateName, tree.interpolation, JavafxBindStatus.UNBOUND);
-            interpolateLiteral.sym = syms.javafx_KeyValueType.tsym.members().lookup(defs.interpolateName).sym;
-            parts = List.<JFXTree>of(targetLiteral, valueLiteral, interpolateLiteral);
-        }
+        result = new NewBuiltInInstanceTranslator(tree.pos(), syms.javafx_KeyValueType) {
 
-        JFXInstanciate inst = fxmake.at(diagPos).Instanciate(JavaFXKind.INSTANTIATE_OBJECT_LITERAL, clsname, null, parts);
-        inst.type = clsname.type;
-        result = new InstanciateTranslator(inst, this) {
-            protected void processLocalVar(JFXVar var) {
-            }
+            @Override
+            protected void initInstanceVariables(Name instName) {
+                // value
+                setInstanceVariable(instName, defs.valueName, tree.value);
 
-            protected JCStatement translateAttributeSet(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym, Name instanceName) {
-                if (targetSymbol==vsym) {
-                    JCExpression target = translate(init, Wrapped.InLocation);
- //                   target = callExpression(diagPos, make.Type(syms.javafx_PointerType), "make", target);
-                    target = callExpression(diagPos, makeExpression(syms.javafx_PointerType), "make", target);
-                    VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-                    JCExpression localAttr;
-
-                    // if it is an attribute
-                    if (vsym.owner.kind == Kinds.TYP) {
-                        localAttr = makeAttributeAccess(diagPos, vsym, instanceName);
-                    } else {
-                        // if it is a local variable
-                        assert( (vsym.flags() & Flags.PARAMETER) == 0): "Parameters are not initialized";
-                        localAttr = make.at(diagPos).Ident(vsym);
-                   }
-                   return make.at(diagPos).Exec(callExpression(diagPos, localAttr, defs.locationSetMilieuMethodName[vmi.getTypeKind()][FROM_LITERAL_MILIEU], target));
-               } else {
-                    return toJava.translateDefinitionalAssignmentToSet(diagPos, init, bindStatus,
-                        vsym, instanceName, FROM_LITERAL_MILIEU);
+                // interpolator kind
+                if (tree.interpolation != null) {
+                    setInstanceVariable(instName, defs.interpolateName, tree.interpolation);
                 }
+
+                // target -- convert to Pointer
+                JCExpression target = translate(tree.attribute, Wrapped.InLocation);
+                JCExpression pointer = callExpression(diagPos, makeExpression(syms.javafx_PointerType), "make", target);
+                setInstanceVariable(instName, varSym(defs.targetName), pointer);
             }
         }.doit();
     }
