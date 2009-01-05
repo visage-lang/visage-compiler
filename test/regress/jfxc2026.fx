@@ -2,8 +2,7 @@
  * Regression test JFXC-2026 : Elide unassigned and externally unassignable member vars
  *
  * @compilearg -XDoptstats="is"
- * Should be:  (at)test/warning
- * @test
+ * @test/warning
  */
 
 public-read var x = 1;

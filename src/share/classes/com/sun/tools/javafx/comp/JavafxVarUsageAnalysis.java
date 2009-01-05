@@ -23,7 +23,6 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -93,6 +92,11 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         if (inBindContext) {
             mark(sym, VARUSE_BOUND_INIT);
         }
+    }
+
+    private void markInit(Symbol sym) {
+        markDefinition(sym);
+        mark(sym, VARUSE_OBJ_LIT_INIT);
     }
 
     @Override
@@ -215,8 +219,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         // bind doesn't permiate object literals, but...
         // Locations are needed for updating bound object literals
         inBindContext |= tree.isBound();
-        markDefinition(tree.sym);
-        mark(tree.sym, VARUSE_OBJ_LIT_INIT);
+        markInit(tree.sym);
         scan(tree.getExpression());
 
         inBindContext = wasInBindContext;
@@ -289,6 +292,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         boolean wasInBindContext = inBindContext;
         inBindContext = true;
 
+        markInit(tree.sym);
         super.visitInterpolateValue(tree);
 
         inBindContext = wasInBindContext;

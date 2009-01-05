@@ -801,7 +801,7 @@ public class JavafxAttr implements JavafxVisitor {
         JavafxEnv<JavafxAttrContext> dupEnv = env.dup(tree);
         dupEnv.outer = env;
         owntype = attribTree(tree.lhs, dupEnv, VAR, Type.noType);
-        boolean hasLhsType = false;
+        boolean hasLhsType;
         if (owntype == null || owntype == syms.javafx_UnspecifiedType) {
             owntype = attribExpr(tree.rhs, env, Type.noType);
             hasLhsType = false;
@@ -3844,10 +3844,20 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitInterpolateValue(JFXInterpolateValue tree) {
         boolean wasInBindContext = this.inBindContext;
         this.inBindContext = true;
-        attribExpr(tree.attribute, env);
-        attribExpr(tree.value, env, tree.attribute.type);
+
+        JavafxEnv<JavafxAttrContext> dupEnv = env.dup(tree);
+        dupEnv.outer = env;
+        Type instType = attribTree(tree.attribute, dupEnv, VAR, Type.noType);
+        if (instType == null || instType == syms.javafx_UnspecifiedType) {
+            instType = Type.noType;
+        }
+        attribExpr(tree.value, dupEnv, instType);
         if (tree.interpolation != null)
-            attribExpr(tree.interpolation, env);
+            attribExpr(tree.interpolation, dupEnv);
+
+        tree.sym = JavafxTreeInfo.symbol(tree.attribute);
+
+        //TODO: this is evil
         // wrap it in a function
         tree.value = fxmake.at(tree.pos()).FunctionValue(fxmake.at(tree.pos()).TypeUnknown(), 
                                                          List.<JFXVar>nil(),

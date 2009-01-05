@@ -332,12 +332,10 @@ public class JavafxTypeMorpher {
                 // permissions such that this can't be done externally, or it is a 'def'.
                 //JFXC-2026 : Elide unassigned and externally unassignable member vars
                 //JFXC-2103 -- allow public-init
-                if (false) {
-                    if ((flags & VARUSE_ASSIGNED_TO) == 0L &&
-                            ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS)) == 0L ||
-                            (flags & IS_DEF) != 0L)) {
-                        return false;
-                    }
+                if ((flags & VARUSE_ASSIGNED_TO) == 0L &&
+                        ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS)) == 0L ||
+                        (flags & IS_DEF) != 0L)) {
+                    return false;
                 }
 
                 return true; 

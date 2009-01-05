@@ -25,20 +25,23 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
+import com.sun.tools.javac.code.Symbol;
 
 /**
  *
  * @author tball
  */
 public class JFXInterpolateValue extends JFXExpression implements InterpolateValueTree {
-    public JFXExpression attribute;
+    public final JFXExpression attribute;
     public JFXExpression value;
-    public JFXExpression interpolation;
+    public final JFXExpression interpolation;
+    public Symbol sym;
     
     public JFXInterpolateValue(JFXExpression attr, JFXExpression v, JFXExpression interp) {
         attribute = attr;
         value = v;
         interpolation = interp;
+        sym = null;
     }
 
     public JFXExpression getAttribute() {
