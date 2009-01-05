@@ -296,7 +296,6 @@ public class Entry {
             try {
                 System.exit(0);
             } catch (Throwable ignored) {
-                throw new FXExit();
             }
         }
     }
