@@ -601,7 +601,7 @@ public class Timeline {
     //   - KeyValue.value
     //   - KeyValue.interpolate
     //
-    function rebuildTargets():Void {        
+    function rebuildTargets():Void {
         initialKeyValues = [];
         targets.clear();
         subtimelines.clear();
@@ -657,7 +657,7 @@ public class Timeline {
                     // get current value and attach it to zero frame
                     var kv = KeyValue {
                         target: keyValue.target;
-                        var value = if (zeroFrame == sortedFrames[0]) then keyValue.value() else keyValue.target.get();
+                        var value = if (keyFrame.time == 0ms) then keyValue.value() else keyValue.target.get();
                         value: function() { value }
                     }
                         
