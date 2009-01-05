@@ -64,3 +64,18 @@ function stuff(arr3: Integer[]) {
   System.out.println("F.arr3 length: {sizeof arr3} checksum: {checksum(arr3)}.");  System.out.println("F.arr4 length: {sizeof arr4} checksum: {checksum(arr4)}.");
 }
 stuff(arr1);
+
+System.out.println("Check slices.");
+arr1 = [100..200];
+arr1[60] = 1050;
+// Take slice, then modify slice.
+// Should be the same as: arr2 = [112..170]; arr2[60-12]=1050;
+arr2 = arr1[12..70];
+arr2[55] = 1051;
+System.out.println("A.arr1 length: {sizeof arr1} checksum: {checksum1()}.");
+System.out.println("A.arr2 length: {sizeof arr2} checksum: {checksum2()}.");
+// Take slice, then modify original.
+arr1 = arr2[8..42];
+arr2[30] = 1042;
+System.out.println("A.arr1 length: {sizeof arr1} checksum: {checksum1()}.");
+System.out.println("A.arr2 length: {sizeof arr2} checksum: {checksum2()}.");
