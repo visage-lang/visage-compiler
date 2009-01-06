@@ -67,84 +67,84 @@ public class ComprehensionsTest extends JavaFXTestCase {
         assertEquals(six.get(oddIndex), 2, 4, 6);
     }
 
-    /** foreach (i in outer) foreach (j in inner) { content } */
-    public void test2Dforeach() {
-        Sequence<Integer> outer = Sequences.range(1, 2);
-        Sequence<Integer> inner = Sequences.range(1, 3);
-        ArraySequence<Integer> sb = new ArraySequence<Integer>(outer.size() * inner.size(), TypeInfo.Integer);
-        for (Integer i : outer) {
-            for (Integer j : inner) {
-                sb.add(1);
-            }
-        }
-        Sequence<Integer> result = sb;
-        assertEquals(result, 1, 1, 1, 1, 1, 1);
-        Sequence<Integer> c2dResult = new CartesianProduct2D<Integer, Integer, Integer>(TypeInfo.Integer, outer, inner,
-                new CartesianProduct2D.Mapper<Integer, Integer, Integer>() {
-                    public Integer map(int index1, Integer value1, int index2, Integer value2) {
-                        return 1;
-                    }
-                });
-        assertEquals(result, c2dResult);
-
-        Sequence<Integer> cnResult = new CartesianProduct<Integer>(TypeInfo.Integer,
-                new CartesianProduct.Mapper<Integer>() {
-                    public Integer map(int[] indexes, Object[] values) {
-                        return 1;
-                    }
-                }, outer, inner);
-        assertEquals(result, cnResult);
-
-        // outer = [ 1..2 ], inner = [ 1..3 ], content = [ i*j ]
-        outer = Sequences.range(1, 2);
-        inner = Sequences.range(1, 3);
-        sb = new ArraySequence<Integer>(outer.size() * inner.size(), TypeInfo.Integer);
-        for (Integer i : outer) {
-            for (Integer j : inner) {
-                sb.add(i*j);
-            }
-        }
-        result = sb;
-        assertEquals(result, 1, 2, 3, 2, 4, 6);
-        c2dResult = new CartesianProduct2D<Integer, Integer, Integer>(TypeInfo.Integer, outer, inner,
-                new CartesianProduct2D.Mapper<Integer, Integer, Integer>() {
-                    public Integer map(int index1, Integer value1, int index2, Integer value2) {
-                        return value1 * value2;
-                    }
-                });
-        assertEquals(result, c2dResult);
-
-        cnResult = new CartesianProduct<Integer>(TypeInfo.Integer,
-                new CartesianProduct.Mapper<Integer>() {
-                    public Integer map(int[] indexes, Object[] values) {
-                        return ((Integer) values[0]) * ((Integer) values[1]);
-                    }
-                }, outer, inner);
-        assertEquals(result, cnResult);
-    }
-
+//    /** foreach (i in outer) foreach (j in inner) { content } */
+//    public void test2Dforeach() {
+//        Sequence<Integer> outer = Sequences.range(1, 2);
+//        Sequence<Integer> inner = Sequences.range(1, 3);
+//        ArraySequence<Integer> sb = new ArraySequence<Integer>(outer.size() * inner.size(), TypeInfo.Integer);
+//        for (Integer i : outer) {
+//            for (Integer j : inner) {
+//                sb.add(1);
+//            }
+//        }
+//        Sequence<Integer> result = sb;
+//        assertEquals(result, 1, 1, 1, 1, 1, 1);
+//        Sequence<Integer> c2dResult = new CartesianProduct2D<Integer, Integer, Integer>(TypeInfo.Integer, outer, inner,
+//                new CartesianProduct2D.Mapper<Integer, Integer, Integer>() {
+//                    public Integer map(int index1, Integer value1, int index2, Integer value2) {
+//                        return 1;
+//                    }
+//                });
+//        assertEquals(result, c2dResult);
+//
+//        Sequence<Integer> cnResult = new CartesianProduct<Integer>(TypeInfo.Integer,
+//                new CartesianProduct.Mapper<Integer>() {
+//                    public Integer map(int[] indexes, Object[] values) {
+//                        return 1;
+//                    }
+//                }, outer, inner);
+//        assertEquals(result, cnResult);
+//
+//        // outer = [ 1..2 ], inner = [ 1..3 ], content = [ i*j ]
+//        outer = Sequences.range(1, 2);
+//        inner = Sequences.range(1, 3);
+//        sb = new ArraySequence<Integer>(outer.size() * inner.size(), TypeInfo.Integer);
+//        for (Integer i : outer) {
+//            for (Integer j : inner) {
+//                sb.add(i*j);
+//            }
+//        }
+//        result = sb;
+//        assertEquals(result, 1, 2, 3, 2, 4, 6);
+//        c2dResult = new CartesianProduct2D<Integer, Integer, Integer>(TypeInfo.Integer, outer, inner,
+//                new CartesianProduct2D.Mapper<Integer, Integer, Integer>() {
+//                    public Integer map(int index1, Integer value1, int index2, Integer value2) {
+//                        return value1 * value2;
+//                    }
+//                });
+//        assertEquals(result, c2dResult);
+//
+//        cnResult = new CartesianProduct<Integer>(TypeInfo.Integer,
+//                new CartesianProduct.Mapper<Integer>() {
+//                    public Integer map(int[] indexes, Object[] values) {
+//                        return ((Integer) values[0]) * ((Integer) values[1]);
+//                    }
+//                }, outer, inner);
+//        assertEquals(result, cnResult);
+//    }
+//
     /** foreach (i in [1..2], j in [1..3], k in [1..4]) { i*j*k } */
-    public void test3Dforeach() {
-        Sequence<Integer> first = Sequences.range(1, 2);
-        Sequence<Integer> second = Sequences.range(1, 3);
-        Sequence<Integer> third = Sequences.range(1, 4);
-        ArraySequence<Integer> sb = new ArraySequence<Integer>(TypeInfo.Integer);
-        for (Integer i : first) {
-            for (Integer j : second) {
-                for (Integer k : third) {
-                    sb.add(i*j*k);
-                }
-            }
-        }
-        Sequence<Integer> result = sb;
-        assertEquals(result, 1, 2, 3, 4, 2, 4, 6, 8, 3, 6, 9, 12, 2, 4, 6, 8, 4, 8, 12, 16, 6, 12, 18, 24);
-
-        Sequence<Integer> cnResult = new CartesianProduct<Integer>(TypeInfo.Integer,
-                new CartesianProduct.Mapper<Integer>() {
-                    public Integer map(int[] indexes, Object[] values) {
-                        return ((Integer) values[0]) * ((Integer) values[1]) * ((Integer) values[2]);
-                    }
-                }, first, second, third);
-        assertEquals(result, cnResult);
-    }
+//    public void test3Dforeach() {
+//        Sequence<Integer> first = Sequences.range(1, 2);
+//        Sequence<Integer> second = Sequences.range(1, 3);
+//        Sequence<Integer> third = Sequences.range(1, 4);
+//        ArraySequence<Integer> sb = new ArraySequence<Integer>(TypeInfo.Integer);
+//        for (Integer i : first) {
+//            for (Integer j : second) {
+//                for (Integer k : third) {
+//                    sb.add(i*j*k);
+//                }
+//            }
+//        }
+//        Sequence<Integer> result = sb;
+//        assertEquals(result, 1, 2, 3, 4, 2, 4, 6, 8, 3, 6, 9, 12, 2, 4, 6, 8, 4, 8, 12, 16, 6, 12, 18, 24);
+//
+//        Sequence<Integer> cnResult = new CartesianProduct<Integer>(TypeInfo.Integer,
+//                new CartesianProduct.Mapper<Integer>() {
+//                    public Integer map(int[] indexes, Object[] values) {
+//                        return ((Integer) values[0]) * ((Integer) values[1]) * ((Integer) values[2]);
+//                    }
+//                }, first, second, third);
+//        assertEquals(result, cnResult);
+//    }
 }

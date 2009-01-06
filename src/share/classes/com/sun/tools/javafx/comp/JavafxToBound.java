@@ -241,11 +241,13 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     }
                 }
             } else if (targetType.isPrimitive() && inType.isPrimitive()) {
-                JCExpression classTypeExpr = makeIdentifier(diagPos, cLocations + "." + primitiveTypeName(inType) + "To" + primitiveTypeName(targetType) + "LocationConversionWrapper");
-                tree =
-                        make.NewClass(null, null, classTypeExpr,
-                        List.of(tree),
-                        null);
+                JCExpression classTypeExpr = makeIdentifier(diagPos, cLocations + "." + "NumericTo" + primitiveTypePrefix(targetType) + "LocationConversionWrapper");
+                JavafxTypeMorpher.TypeMorphInfo tmi = typeMorpher.typeMorphInfo(inType);
+                JCExpression locationType = makeTypeTree(diagPos, tmi.getLocationType());
+                JCExpression boxType = makeTypeTree(diagPos, syms.boxIfNeeded(inType));
+                tree = make.NewClass(null, List.of(locationType, boxType), classTypeExpr,
+                                     List.of(tree, makeTypeInfo(diagPos, inType)),
+                                     null);
             } else {
                 if (tmiTarget.getTypeKind() == TYPE_KIND_OBJECT) {
                     List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, targetType, true),
@@ -260,7 +262,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         return tree;
     }
     //where
-    private String primitiveTypeName(Type type) {
+    private String primitiveTypePrefix(Type type) {
         switch (type.tag) {
             case BYTE:
                 return "Byte";
@@ -276,7 +278,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 return "Double";
         }
         assert false : "Should not reach here";
-        return "Integer";
+        return "Unknown";
     }
 
     /**

@@ -22,6 +22,7 @@
  */
 
 package com.sun.javafx.runtime.location;
+import com.sun.javafx.runtime.*;
 
 /*
  * WARNING: Automatically generated from the template $TEMPLATE_NAME$; do not edit!
@@ -32,7 +33,29 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class $T.ChangeListener$ extends AbstractLocationDependency {
+public abstract class $T.ChangeListener$ extends AbstractChangeListener<$T.boxed$> $if(NUMERIC)$ implements NumericChangeListener $endif$ {
+
+$if(NUMERIC)$
+    public ObjectChangeListener<$T.boxed$> asObjectListener() {
+        return asObjectListener(TypeInfo.$T.boxed$);
+    }
+
+    public<T extends Number> ObjectChangeListener<T> asObjectListener(final NumericTypeInfo<T> typeInfo) {
+        return new ObjectChangeListener<T>() {
+            public void onChange(T oldValue, T newValue) {
+                $T.ChangeListener$.this.onChange(typeInfo.$T.prim$Value(oldValue), typeInfo.$T.prim$Value(newValue));
+            }
+        };
+    }
+$else$
+    public ObjectChangeListener<$T.boxed$> asObjectListener() {
+        return new ObjectChangeListener<$T.boxed$>() {
+            public void onChange($T.boxed$ oldValue, $T.boxed$ newValue) {
+                $T.ChangeListener$.this.onChange(oldValue, newValue);
+            }
+        };
+    }
+$endif$
 
     /** Notifies the listener that the contents of the location may have changed. */
     public abstract void onChange($T.prim$ oldValue, $T.prim$ newValue);

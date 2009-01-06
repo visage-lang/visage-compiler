@@ -23,13 +23,10 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.util.Iterator;
-
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.NumericTypeInfo;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.SequencePredicate;
 
 /**
  * Factory methods for wrapping Locations: unmodifiable locations, ObjectLocation-typed views of primitive locations, etc
@@ -96,38 +93,6 @@ public class Locations {
         return new ObjectIntLocation(loc);
     }
 
-    public static IntLocation unmodifiableLocation(IntLocation loc) {
-        return new UnmodifiableIntLocation(loc);
-    }
-
-    public static DoubleLocation unmodifiableLocation(DoubleLocation loc) {
-        return new UnmodifiableDoubleLocation(loc);
-    }
-
-    public static BooleanLocation unmodifiableLocation(BooleanLocation loc) {
-        return new UnmodifiableBooleanLocation(loc);
-    }
-
-    public static FloatLocation unmodifiableLocation(FloatLocation loc) {
-        return new UnmodifiableFloatLocation(loc);
-    }
-
-    public static ShortLocation unmodifiableLocation(ShortLocation loc) {
-        return new UnmodifiableShortLocation(loc);
-    }
-
-    public static ByteLocation unmodifiableLocation(ByteLocation loc) {
-        return new UnmodifiableByteLocation(loc);
-    }
-
-    public static <T> ObjectLocation<T> unmodifiableLocation(ObjectLocation<T> loc) {
-        return new UnmodifiableObjectLocation<T>(loc);
-    }
-
-    public static <T> SequenceLocation<T> unmodifiableLocation(SequenceLocation<T> loc) {
-        return new UnmodifiableSequenceLocation<T>(loc);
-    }
-
     /**
      * Return a wrapping location that mirrors the underlying Location but upcasts its type
      * @param clazz  Really Class<V> but because of generics limitations this cannot be declared
@@ -145,58 +110,56 @@ public class Locations {
             this.location = location;
         }
 
-        protected T getLocation() { return location; }
-
         public boolean isValid() {
-            return getLocation().isValid();
+            return location.isValid();
         }
 
         public boolean isNull() {
-            return getLocation().isNull();
+            return location.isNull();
         }
 
         public boolean isMutable() {
-            return getLocation().isMutable();
+            return location.isMutable();
         }
 
         public void invalidate() {
-            getLocation().invalidate();
+            location.invalidate();
         }
 
         public void update() {
-            getLocation().update();
+            location.update();
         }
 
         public void addChangeListener(ChangeListener listener) {
-            getLocation().addChangeListener(listener);
+            location.addChangeListener(listener);
         }
 
         public void removeChangeListener(ChangeListener listener) {
-            getLocation().removeChangeListener(listener);
+            location.removeChangeListener(listener);
         }
 
         public void iterateChildren(DependencyIterator<? extends LocationDependency> closure) {
-            getLocation().iterateChildren(closure);
+            location.iterateChildren(closure);
         }
 
-        public void addDependency(Location... location) {
-            getLocation().addDependency(location);
+        public void addDependency(Location... locations) {
+            location.addDependency(locations);
         }
 
         public void addDependency(Location location) {
-            getLocation().addDependency(location);
+            location.addDependency(location);
         }
 
         public void addDynamicDependency(Location location) {
-            getLocation().addDynamicDependency(location);
+            location.addDynamicDependency(location);
         }
 
         public void clearDynamicDependencies() {
-            getLocation().clearDynamicDependencies();
+            location.clearDynamicDependencies();
         }
 
-        public void addDependentLocation(WeakLocation location) {
-            getLocation().addDependentLocation(location);
+        public void addDependentLocation(WeakLocation weakLocation) {
+            location.addDependentLocation(weakLocation);
         }
     }
 
@@ -223,10 +186,12 @@ public class Locations {
         }
 
         public float getAsFloat() {
+            // @@@ These are wrong
             return getAsInt();
         }
 
         public double getAsDouble() {
+            // @@@ These are wrong
             return getAsInt();
         }
 
@@ -438,778 +403,8 @@ public class Locations {
         }
     }
 
-    private abstract static class UnmodifiableLocationWrapper<T_VALUE, T_LOC extends ObjectLocation<T_VALUE>> extends LocationWrapper<T_LOC> {
-        protected UnmodifiableLocationWrapper(T_LOC location) {
-            super(location);
-        }
-
-        @Override
-        public boolean isMutable() {
-            return false;
-        }
-
-        public T_VALUE get() {
-            return location.get();
-        }
-
-        public int setAsInt(int value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public int setAsIntFromLiteral(int value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void setDefault() {
-            throw new UnsupportedOperationException();
-        }
-
-        public T_VALUE set(T_VALUE value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public T_VALUE setFromLiteral(T_VALUE value) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void invalidate() {
-            throw new UnsupportedOperationException();
-        }
-
-        public double setAsDouble(double value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public double setAsDoubleFromLiteral(double value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public float setAsFloat(float value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public float setAsFloatFromLiteral(float value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public short setAsShort(short value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public short setAsShortFromLiteral(short value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public byte setAsByte(byte value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public byte setAsByteFromLiteral(byte value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean setAsBoolean(boolean value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean setAsBooleanFromLiteral(boolean value) {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    public static class ShortToByteLocationConversionWrapper extends NumericToByteLocationConversionWrapper<ShortLocation, Short> {
-
-        public ShortToByteLocationConversionWrapper(ShortLocation location) {
-            super(location, TypeInfo.Short);
-        }
-
-        public void addChangeListener(final ByteChangeListener listener) {
-            getLocation().addChangeListener(new ShortChangeListener() {
-                public void onChange(short oldValue, short newValue) {
-                    listener.onChange((byte)oldValue, (byte)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Byte> listener) {
-            getLocation().addChangeListener(new ShortChangeListener() {
-                public void onChange(short oldValue, short newValue) {
-                    listener.onChange((byte) oldValue, (byte) newValue);
-                }
-            });
-        }
-    }
-
-    public static class IntToByteLocationConversionWrapper extends NumericToByteLocationConversionWrapper<IntLocation, Integer> {
-
-        public IntToByteLocationConversionWrapper(IntLocation location) {
-            super(location, TypeInfo.Integer);
-        }
-
-        public void addChangeListener(final ByteChangeListener listener) {
-            getLocation().addChangeListener(new IntChangeListener() {
-                public void onChange(int oldValue, int newValue) {
-                    listener.onChange((byte)oldValue, (byte)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Byte> listener) {
-            getLocation().addChangeListener(new IntChangeListener() {
-                public void onChange(int oldValue, int newValue) {
-                    listener.onChange((byte) oldValue, (byte) newValue);
-                }
-            });
-        }
-    }
-
-    public static class LongToByteLocationConversionWrapper extends NumericToByteLocationConversionWrapper<LongLocation, Long> {
-
-        public LongToByteLocationConversionWrapper(LongLocation location) {
-            super(location, TypeInfo.Long);
-        }
-
-        public void addChangeListener(final ByteChangeListener listener) {
-            getLocation().addChangeListener(new LongChangeListener() {
-                public void onChange(long oldValue, long newValue) {
-                    listener.onChange((byte)oldValue, (byte)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Byte> listener) {
-            getLocation().addChangeListener(new LongChangeListener() {
-                public void onChange(long oldValue, long newValue) {
-                    listener.onChange((byte) oldValue, (byte) newValue);
-                }
-            });
-        }
-    }
-
-    public static class FloatToByteLocationConversionWrapper extends NumericToByteLocationConversionWrapper<FloatLocation, Float> {
-
-        public FloatToByteLocationConversionWrapper(FloatLocation location) {
-            super(location, TypeInfo.Float);
-        }
-
-        public void addChangeListener(final ByteChangeListener listener) {
-            getLocation().addChangeListener(new FloatChangeListener() {
-                public void onChange(float oldValue, float newValue) {
-                    listener.onChange((byte)oldValue, (byte)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Byte> listener) {
-            getLocation().addChangeListener(new FloatChangeListener() {
-                public void onChange(float oldValue, float newValue) {
-                    listener.onChange((byte) oldValue, (byte) newValue);
-                }
-            });
-        }
-    }
-
-    public static class DoubleToByteLocationConversionWrapper extends NumericToByteLocationConversionWrapper<DoubleLocation, Double> {
-
-        public DoubleToByteLocationConversionWrapper(DoubleLocation location) {
-            super(location, TypeInfo.Double);
-        }
-
-        public void addChangeListener(final ByteChangeListener listener) {
-            getLocation().addChangeListener(new DoubleChangeListener() {
-                public void onChange(double oldValue, double newValue) {
-                    listener.onChange((byte)oldValue, (byte)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Byte> listener) {
-            getLocation().addChangeListener(new DoubleChangeListener() {
-                public void onChange(double oldValue, double newValue) {
-                    listener.onChange((byte) oldValue, (byte) newValue);
-                }
-            });
-        }
-    }
-
-    public static class ByteToShortLocationConversionWrapper extends NumericToShortLocationConversionWrapper<ByteLocation, Byte> {
-
-        public ByteToShortLocationConversionWrapper(ByteLocation location) {
-            super(location, TypeInfo.Byte);
-        }
-
-        public void addChangeListener(final ShortChangeListener listener) {
-            getLocation().addChangeListener(new ByteChangeListener() {
-                public void onChange(byte oldValue, byte newValue) {
-                    listener.onChange((short)oldValue, (short)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Short> listener) {
-            getLocation().addChangeListener(new ByteChangeListener() {
-                public void onChange(byte oldValue, byte newValue) {
-                    listener.onChange((short) oldValue, (short) newValue);
-                }
-            });
-        }
-    }
-
-    public static class IntToShortLocationConversionWrapper extends NumericToShortLocationConversionWrapper<IntLocation, Integer> {
-
-        public IntToShortLocationConversionWrapper(IntLocation location) {
-            super(location, TypeInfo.Integer);
-        }
-
-        public void addChangeListener(final ShortChangeListener listener) {
-            getLocation().addChangeListener(new IntChangeListener() {
-                public void onChange(int oldValue, int newValue) {
-                    listener.onChange((short)oldValue, (short)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Short> listener) {
-            getLocation().addChangeListener(new IntChangeListener() {
-                public void onChange(int oldValue, int newValue) {
-                    listener.onChange((short) oldValue, (short) newValue);
-                }
-            });
-        }
-    }
-
-    public static class LongToShortLocationConversionWrapper extends NumericToShortLocationConversionWrapper<LongLocation, Long> {
-
-        public LongToShortLocationConversionWrapper(LongLocation location) {
-            super(location, TypeInfo.Long);
-        }
-
-        public void addChangeListener(final ShortChangeListener listener) {
-            getLocation().addChangeListener(new LongChangeListener() {
-                public void onChange(long oldValue, long newValue) {
-                    listener.onChange((short)oldValue, (short)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Short> listener) {
-            getLocation().addChangeListener(new LongChangeListener() {
-                public void onChange(long oldValue, long newValue) {
-                    listener.onChange((short) oldValue, (short) newValue);
-                }
-            });
-        }
-    }
-
-    public static class FloatToShortLocationConversionWrapper extends NumericToShortLocationConversionWrapper<FloatLocation, Float> {
-
-        public FloatToShortLocationConversionWrapper(FloatLocation location) {
-            super(location, TypeInfo.Float);
-        }
-
-        public void addChangeListener(final ShortChangeListener listener) {
-            getLocation().addChangeListener(new FloatChangeListener() {
-                public void onChange(float oldValue, float newValue) {
-                    listener.onChange((short)oldValue, (short)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Short> listener) {
-            getLocation().addChangeListener(new FloatChangeListener() {
-                public void onChange(float oldValue, float newValue) {
-                    listener.onChange((short) oldValue, (short) newValue);
-                }
-            });
-        }
-    }
-
-    public static class DoubleToShortLocationConversionWrapper extends NumericToShortLocationConversionWrapper<DoubleLocation, Double> {
-
-        public DoubleToShortLocationConversionWrapper(DoubleLocation location) {
-            super(location, TypeInfo.Double);
-        }
-
-        public void addChangeListener(final ShortChangeListener listener) {
-            getLocation().addChangeListener(new DoubleChangeListener() {
-                public void onChange(double oldValue, double newValue) {
-                    listener.onChange((short)oldValue, (short)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Short> listener) {
-            getLocation().addChangeListener(new DoubleChangeListener() {
-                public void onChange(double oldValue, double newValue) {
-                    listener.onChange((short) oldValue, (short) newValue);
-                }
-            });
-        }
-    }
-
-    public static class ByteToIntLocationConversionWrapper extends NumericToIntLocationConversionWrapper<ByteLocation, Byte> {
-
-        public ByteToIntLocationConversionWrapper(ByteLocation location) {
-            super(location, TypeInfo.Byte);
-        }
-
-        public void addChangeListener(final IntChangeListener listener) {
-            getLocation().addChangeListener(new ByteChangeListener() {
-                public void onChange(byte oldValue, byte newValue) {
-                    listener.onChange((int)oldValue, (int)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Integer> listener) {
-            getLocation().addChangeListener(new ByteChangeListener() {
-                public void onChange(byte oldValue, byte newValue) {
-                    listener.onChange((int) oldValue, (int) newValue);
-                }
-            });
-        }
-    }
-
-    public static class ShortToIntLocationConversionWrapper extends NumericToIntLocationConversionWrapper<ShortLocation, Short> {
-
-        public ShortToIntLocationConversionWrapper(ShortLocation location) {
-            super(location, TypeInfo.Short);
-        }
-
-        public void addChangeListener(final IntChangeListener listener) {
-            getLocation().addChangeListener(new ShortChangeListener() {
-                public void onChange(short oldValue, short newValue) {
-                    listener.onChange((int)oldValue, (int)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Integer> listener) {
-            getLocation().addChangeListener(new ShortChangeListener() {
-                public void onChange(short oldValue, short newValue) {
-                    listener.onChange((int) oldValue, (int) newValue);
-                }
-            });
-        }
-    }
-
-    public static class LongToIntLocationConversionWrapper extends NumericToIntLocationConversionWrapper<LongLocation, Long> {
-
-        public LongToIntLocationConversionWrapper(LongLocation location) {
-            super(location, TypeInfo.Long);
-        }
-
-        public void addChangeListener(final IntChangeListener listener) {
-            getLocation().addChangeListener(new LongChangeListener() {
-                public void onChange(long oldValue, long newValue) {
-                    listener.onChange((int)oldValue, (int)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Integer> listener) {
-            getLocation().addChangeListener(new LongChangeListener() {
-                public void onChange(long oldValue, long newValue) {
-                    listener.onChange((int) oldValue, (int) newValue);
-                }
-            });
-        }
-    }
-
-    public static class FloatToIntLocationConversionWrapper extends NumericToIntLocationConversionWrapper<FloatLocation, Float> {
-
-        public FloatToIntLocationConversionWrapper(FloatLocation location) {
-            super(location, TypeInfo.Float);
-        }
-
-        public void addChangeListener(final IntChangeListener listener) {
-            getLocation().addChangeListener(new FloatChangeListener() {
-                public void onChange(float oldValue, float newValue) {
-                    listener.onChange((int)oldValue, (int)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Integer> listener) {
-            getLocation().addChangeListener(new FloatChangeListener() {
-                public void onChange(float oldValue, float newValue) {
-                    listener.onChange((int) oldValue, (int) newValue);
-                }
-            });
-        }
-    }
-
-    public static class DoubleToIntLocationConversionWrapper extends NumericToIntLocationConversionWrapper<DoubleLocation, Double> {
-
-        public DoubleToIntLocationConversionWrapper(DoubleLocation location) {
-            super(location, TypeInfo.Double);
-        }
-
-        public void addChangeListener(final IntChangeListener listener) {
-            getLocation().addChangeListener(new DoubleChangeListener() {
-                public void onChange(double oldValue, double newValue) {
-                    listener.onChange((int)oldValue, (int)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Integer> listener) {
-            getLocation().addChangeListener(new DoubleChangeListener() {
-                public void onChange(double oldValue, double newValue) {
-                    listener.onChange((int) oldValue, (int) newValue);
-                }
-            });
-        }
-    }
-
-    public static class ByteToLongLocationConversionWrapper extends NumericToLongLocationConversionWrapper<ByteLocation, Byte> {
-
-        public ByteToLongLocationConversionWrapper(ByteLocation location) {
-            super(location, TypeInfo.Byte);
-        }
-
-        public void addChangeListener(final LongChangeListener listener) {
-            getLocation().addChangeListener(new ByteChangeListener() {
-                public void onChange(byte oldValue, byte newValue) {
-                    listener.onChange((long)oldValue, (long)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Long> listener) {
-            getLocation().addChangeListener(new ByteChangeListener() {
-                public void onChange(byte oldValue, byte newValue) {
-                    listener.onChange((long) oldValue, (long) newValue);
-                }
-            });
-        }
-    }
-
-    public static class ShortToLongLocationConversionWrapper extends NumericToLongLocationConversionWrapper<ShortLocation, Short> {
-
-        public ShortToLongLocationConversionWrapper(ShortLocation location) {
-            super(location, TypeInfo.Short);
-        }
-
-        public void addChangeListener(final LongChangeListener listener) {
-            getLocation().addChangeListener(new ShortChangeListener() {
-                public void onChange(short oldValue, short newValue) {
-                    listener.onChange((long)oldValue, (long)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Long> listener) {
-            getLocation().addChangeListener(new ShortChangeListener() {
-                public void onChange(short oldValue, short newValue) {
-                    listener.onChange((long) oldValue, (long) newValue);
-                }
-            });
-        }
-    }
-
-    public static class IntToLongLocationConversionWrapper extends NumericToLongLocationConversionWrapper<IntLocation, Integer> {
-
-        public IntToLongLocationConversionWrapper(IntLocation location) {
-            super(location, TypeInfo.Integer);
-        }
-
-        public void addChangeListener(final LongChangeListener listener) {
-            getLocation().addChangeListener(new IntChangeListener() {
-                public void onChange(int oldValue, int newValue) {
-                    listener.onChange((long)oldValue, (long)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Long> listener) {
-            getLocation().addChangeListener(new IntChangeListener() {
-                public void onChange(int oldValue, int newValue) {
-                    listener.onChange((long) oldValue, (long) newValue);
-                }
-            });
-        }
-    }
-
-    public static class FloatToLongLocationConversionWrapper extends NumericToLongLocationConversionWrapper<FloatLocation, Float> {
-
-        public FloatToLongLocationConversionWrapper(FloatLocation location) {
-            super(location, TypeInfo.Float);
-        }
-
-        public void addChangeListener(final LongChangeListener listener) {
-            getLocation().addChangeListener(new FloatChangeListener() {
-                public void onChange(float oldValue, float newValue) {
-                    listener.onChange((long)oldValue, (long)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Long> listener) {
-            getLocation().addChangeListener(new FloatChangeListener() {
-                public void onChange(float oldValue, float newValue) {
-                    listener.onChange((long) oldValue, (long) newValue);
-                }
-            });
-        }
-    }
-
-    public static class DoubleToLongLocationConversionWrapper extends NumericToLongLocationConversionWrapper<DoubleLocation, Double> {
-
-        public DoubleToLongLocationConversionWrapper(DoubleLocation location) {
-            super(location, TypeInfo.Double);
-        }
-
-        public void addChangeListener(final LongChangeListener listener) {
-            getLocation().addChangeListener(new DoubleChangeListener() {
-                public void onChange(double oldValue, double newValue) {
-                    listener.onChange((long)oldValue, (long)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Long> listener) {
-            getLocation().addChangeListener(new DoubleChangeListener() {
-                public void onChange(double oldValue, double newValue) {
-                    listener.onChange((long) oldValue, (long) newValue);
-                }
-            });
-        }
-    }
-
-    public static class ByteToFloatLocationConversionWrapper extends NumericToFloatLocationConversionWrapper<ByteLocation, Byte> {
-
-        public ByteToFloatLocationConversionWrapper(ByteLocation location) {
-            super(location, TypeInfo.Byte);
-        }
-
-        public void addChangeListener(final FloatChangeListener listener) {
-            getLocation().addChangeListener(new ByteChangeListener() {
-                public void onChange(byte oldValue, byte newValue) {
-                    listener.onChange((float)oldValue, (float)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Float> listener) {
-            getLocation().addChangeListener(new ByteChangeListener() {
-                public void onChange(byte oldValue, byte newValue) {
-                    listener.onChange((float) oldValue, (float) newValue);
-                }
-            });
-        }
-    }
-
-    public static class ShortToFloatLocationConversionWrapper extends NumericToFloatLocationConversionWrapper<ShortLocation, Short> {
-
-        public ShortToFloatLocationConversionWrapper(ShortLocation location) {
-            super(location, TypeInfo.Short);
-        }
-
-        public void addChangeListener(final FloatChangeListener listener) {
-            getLocation().addChangeListener(new ShortChangeListener() {
-                public void onChange(short oldValue, short newValue) {
-                    listener.onChange((float)oldValue, (float)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Float> listener) {
-            getLocation().addChangeListener(new ShortChangeListener() {
-                public void onChange(short oldValue, short newValue) {
-                    listener.onChange((float) oldValue, (float) newValue);
-                }
-            });
-        }
-    }
-
-    public static class IntToFloatLocationConversionWrapper extends NumericToFloatLocationConversionWrapper<IntLocation, Integer> {
-
-        public IntToFloatLocationConversionWrapper(IntLocation location) {
-            super(location, TypeInfo.Integer);
-        }
-
-        public void addChangeListener(final FloatChangeListener listener) {
-            getLocation().addChangeListener(new IntChangeListener() {
-                public void onChange(int oldValue, int newValue) {
-                    listener.onChange((float)oldValue, (float)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Float> listener) {
-            getLocation().addChangeListener(new IntChangeListener() {
-                public void onChange(int oldValue, int newValue) {
-                    listener.onChange((float) oldValue, (float) newValue);
-                }
-            });
-        }
-    }
-
-    public static class LongToFloatLocationConversionWrapper extends NumericToFloatLocationConversionWrapper<LongLocation, Long> {
-
-        public LongToFloatLocationConversionWrapper(LongLocation location) {
-            super(location, TypeInfo.Long);
-        }
-
-        public void addChangeListener(final FloatChangeListener listener) {
-            getLocation().addChangeListener(new LongChangeListener() {
-                public void onChange(long oldValue, long newValue) {
-                    listener.onChange((float)oldValue, (float)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Float> listener) {
-            getLocation().addChangeListener(new LongChangeListener() {
-                public void onChange(long oldValue, long newValue) {
-                    listener.onChange((float) oldValue, (float) newValue);
-                }
-            });
-        }
-    }
-
-    public static class DoubleToFloatLocationConversionWrapper extends NumericToFloatLocationConversionWrapper<DoubleLocation, Double> {
-
-        public DoubleToFloatLocationConversionWrapper(DoubleLocation location) {
-            super(location, TypeInfo.Double);
-        }
-
-        public void addChangeListener(final FloatChangeListener listener) {
-            getLocation().addChangeListener(new DoubleChangeListener() {
-                public void onChange(double oldValue, double newValue) {
-                    listener.onChange((float)oldValue, (float)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Float> listener) {
-            getLocation().addChangeListener(new DoubleChangeListener() {
-                public void onChange(double oldValue, double newValue) {
-                    listener.onChange((float) oldValue, (float) newValue);
-                }
-            });
-        }
-    }
-
-    public static class ByteToDoubleLocationConversionWrapper extends NumericToDoubleLocationConversionWrapper<ByteLocation, Byte> {
-
-        public ByteToDoubleLocationConversionWrapper(ByteLocation location) {
-            super(location, TypeInfo.Byte);
-        }
-
-        public void addChangeListener(final DoubleChangeListener listener) {
-            getLocation().addChangeListener(new ByteChangeListener() {
-                public void onChange(byte oldValue, byte newValue) {
-                    listener.onChange((double)oldValue, (double)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Double> listener) {
-            getLocation().addChangeListener(new ByteChangeListener() {
-                public void onChange(byte oldValue, byte newValue) {
-                    listener.onChange((double) oldValue, (double) newValue);
-                }
-            });
-        }
-    }
-
-    public static class ShortToDoubleLocationConversionWrapper extends NumericToDoubleLocationConversionWrapper<ShortLocation, Short> {
-
-        public ShortToDoubleLocationConversionWrapper(ShortLocation location) {
-            super(location, TypeInfo.Short);
-        }
-
-        public void addChangeListener(final DoubleChangeListener listener) {
-            getLocation().addChangeListener(new ShortChangeListener() {
-                public void onChange(short oldValue, short newValue) {
-                    listener.onChange((double)oldValue, (double)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Double> listener) {
-            getLocation().addChangeListener(new ShortChangeListener() {
-                public void onChange(short oldValue, short newValue) {
-                    listener.onChange((double) oldValue, (double) newValue);
-                }
-            });
-        }
-    }
-
-    public static class IntToDoubleLocationConversionWrapper extends NumericToDoubleLocationConversionWrapper<IntLocation, Integer> {
-
-        public IntToDoubleLocationConversionWrapper(IntLocation location) {
-            super(location, TypeInfo.Integer);
-        }
-
-        public void addChangeListener(final DoubleChangeListener listener) {
-            getLocation().addChangeListener(new IntChangeListener() {
-                public void onChange(int oldValue, int newValue) {
-                    listener.onChange((double)oldValue, (double)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Double> listener) {
-            getLocation().addChangeListener(new IntChangeListener() {
-                public void onChange(int oldValue, int newValue) {
-                    listener.onChange((double) oldValue, (double) newValue);
-                }
-            });
-        }
-    }
-
-    public static class LongToDoubleLocationConversionWrapper extends NumericToDoubleLocationConversionWrapper<LongLocation, Long> {
-
-        public LongToDoubleLocationConversionWrapper(LongLocation location) {
-            super(location, TypeInfo.Long);
-        }
-
-        public void addChangeListener(final DoubleChangeListener listener) {
-            getLocation().addChangeListener(new LongChangeListener() {
-                public void onChange(long oldValue, long newValue) {
-                    listener.onChange((double)oldValue, (double)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Double> listener) {
-            getLocation().addChangeListener(new LongChangeListener() {
-                public void onChange(long oldValue, long newValue) {
-                    listener.onChange((double) oldValue, (double) newValue);
-                }
-            });
-        }
-    }
-
-    public static class FloatToDoubleLocationConversionWrapper extends NumericToDoubleLocationConversionWrapper<FloatLocation, Float> {
-
-        public FloatToDoubleLocationConversionWrapper(FloatLocation location) {
-            super(location, TypeInfo.Float);
-        }
-
-        public void addChangeListener(final DoubleChangeListener listener) {
-            getLocation().addChangeListener(new FloatChangeListener() {
-                public void onChange(float oldValue, float newValue) {
-                    listener.onChange((double)oldValue, (double)newValue);
-                }
-            });
-        }
-
-        public void addChangeListener(final ObjectChangeListener<Double> listener) {
-            getLocation().addChangeListener(new FloatChangeListener() {
-                public void onChange(float oldValue, float newValue) {
-                    listener.onChange((double) oldValue, (double) newValue);
-                }
-            });
-        }
-    }
-
-    public static abstract class NumericToByteLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
-            extends NumericToNumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, ByteLocation, Byte> implements ByteLocation {
+    public static class NumericToByteLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
+            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, ByteLocation, Byte, ByteChangeListener> implements ByteLocation {
 
         public NumericToByteLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
             super(location, inType, TypeInfo.Byte);
@@ -1228,8 +423,8 @@ public class Locations {
         }
     }
 
-    public static abstract class NumericToShortLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
-            extends NumericToNumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, ShortLocation, Short> implements ShortLocation {
+    public static class NumericToShortLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
+            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, ShortLocation, Short, ShortChangeListener> implements ShortLocation {
 
         public NumericToShortLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
             super(location, inType, TypeInfo.Short);
@@ -1248,8 +443,8 @@ public class Locations {
         }
     }
 
-    public static abstract class NumericToIntLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
-            extends NumericToNumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, IntLocation, Integer> implements IntLocation {
+    public static class NumericToIntLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
+            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, IntLocation, Integer, IntChangeListener> implements IntLocation {
 
         public NumericToIntLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
             super(location, inType, TypeInfo.Integer);
@@ -1268,8 +463,8 @@ public class Locations {
         }
     }
 
-    public static abstract class NumericToLongLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
-            extends NumericToNumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, LongLocation, Long> implements LongLocation {
+    public static class NumericToLongLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
+            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, LongLocation, Long, LongChangeListener> implements LongLocation {
 
         public NumericToLongLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
             super(location, inType, TypeInfo.Long);
@@ -1288,8 +483,8 @@ public class Locations {
         }
     }
 
-    public static abstract class NumericToFloatLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
-            extends NumericToNumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, FloatLocation, Float> implements FloatLocation {
+    public static class NumericToFloatLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
+            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, FloatLocation, Float, FloatChangeListener> implements FloatLocation {
 
         public NumericToFloatLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
             super(location, inType, TypeInfo.Float);
@@ -1308,8 +503,8 @@ public class Locations {
         }
     }
 
-    public static abstract class NumericToDoubleLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
-            extends NumericToNumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, DoubleLocation, Double> implements DoubleLocation {
+    public static class NumericToDoubleLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
+            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, DoubleLocation, Double, DoubleChangeListener> implements DoubleLocation {
 
         public NumericToDoubleLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
             super(location, inType, TypeInfo.Double);
@@ -1328,17 +523,18 @@ public class Locations {
         }
     }
 
-    private static abstract class NumericToNumericLocationConversionWrapper<
+    private static abstract class NumericLocationConversionWrapper<
             T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>,
             T_VALUE_IN extends Number,
             T_LOC_OUT extends NumericLocation & ObjectLocation<T_VALUE_OUT>,
-            T_VALUE_OUT extends Number>
+            T_VALUE_OUT extends Number,
+            T_LISTENER_OUT extends AbstractChangeListener<T_VALUE_OUT> & NumericChangeListener>
                  extends LocationWrapper<T_LOC_IN> {
 
         protected final NumericTypeInfo<T_VALUE_IN> inType;
         protected final NumericTypeInfo<T_VALUE_OUT> outType;
 
-        protected NumericToNumericLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType, NumericTypeInfo<T_VALUE_OUT> outType) {
+        protected NumericLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType, NumericTypeInfo<T_VALUE_OUT> outType) {
             super(location);
             this.inType = inType;
             this.outType = outType;
@@ -1382,140 +578,16 @@ public class Locations {
             return location.getAsDouble();
         }
 
-    }
-
-    private static class UnmodifiableNumericLocationWrapper<T_LOC extends NumericLocation & ObjectLocation<T_VALUE>, T_VALUE> extends UnmodifiableLocationWrapper<T_VALUE, T_LOC> {
-        private UnmodifiableNumericLocationWrapper(T_LOC location) {
-            super(location);
+        public void addChangeListener(final ObjectChangeListener<T_VALUE_OUT> listener) {
+            location.addChangeListener(new ObjectChangeListener<T_VALUE_IN>() {
+                public void onChange(T_VALUE_IN oldValue, T_VALUE_IN newValue) {
+                    listener.onChange(outType.asPreferred(inType, oldValue), outType.asPreferred(inType, newValue));
+                }
+            });
         }
 
-        public int getAsInt() {
-            return location.getAsInt();
-        }
-
-        public byte getAsByte() {
-            return location.getAsByte();
-        }
-
-        public short getAsShort() {
-            return location.getAsShort();
-        }
-
-        public long getAsLong() {
-            return location.getAsLong();
-        }
-
-        public float getAsFloat() {
-            return location.getAsFloat();
-        }
-
-        public double getAsDouble() {
-            return location.getAsDouble();
-        }
-
-        public void addChangeListener(ObjectChangeListener<T_VALUE> listener) {
-            location.addChangeListener(listener);
-        }
-    }
-
-    /**
-     * Wrapper class that wraps an IntLocation so it cannot be modified
-     */
-    private static class UnmodifiableIntLocation extends UnmodifiableNumericLocationWrapper<IntLocation, Integer> implements IntLocation {
-        public UnmodifiableIntLocation(IntLocation location) {
-            super(location);
-        }
-
-        public void addChangeListener(IntChangeListener listener) {
-            location.addChangeListener(listener);
-        }
-    }
-
-
-    /**
-     * Wrapper class that wraps a DoubleLocation so it cannot be modified
-     */
-    private static class UnmodifiableDoubleLocation extends UnmodifiableNumericLocationWrapper<DoubleLocation, Double> implements DoubleLocation {
-        public UnmodifiableDoubleLocation(DoubleLocation location) {
-            super(location);
-        }
-
-        public void addChangeListener(DoubleChangeListener listener) {
-            location.addChangeListener(listener);
-        }
-    }
-
-    /**
-     * Wrapper class that wraps a FloatLocation so it cannot be modified
-     */
-    private static class UnmodifiableFloatLocation extends UnmodifiableNumericLocationWrapper<FloatLocation, Float> implements FloatLocation {
-        public UnmodifiableFloatLocation(FloatLocation location) {
-            super(location);
-        }
-
-        public void addChangeListener(FloatChangeListener listener) {
-            location.addChangeListener(listener);
-        }
-    }
-
-    /**
-     * Wrapper class that wraps a ShortLocation so it cannot be modified
-     */
-    private static class UnmodifiableShortLocation extends UnmodifiableNumericLocationWrapper<ShortLocation, Short> implements ShortLocation {
-        public UnmodifiableShortLocation(ShortLocation location) {
-            super(location);
-        }
-
-        public void addChangeListener(ShortChangeListener listener) {
-            location.addChangeListener(listener);
-        }
-    }
-
-    /**
-     * Wrapper class that wraps a ByteLocation so it cannot be modified
-     */
-    private static class UnmodifiableByteLocation extends UnmodifiableNumericLocationWrapper<ByteLocation, Byte> implements ByteLocation {
-        public UnmodifiableByteLocation(ByteLocation location) {
-            super(location);
-        }
-
-        public void addChangeListener(ByteChangeListener listener) {
-            location.addChangeListener(listener);
-        }
-    }
-
-
-    /**
-     * Wrapper class that wraps a BooleanLocation so it cannot be modified
-     */
-    private static class UnmodifiableBooleanLocation extends UnmodifiableLocationWrapper<Boolean, BooleanLocation> implements BooleanLocation {
-        public UnmodifiableBooleanLocation(BooleanLocation location) {
-            super(location);
-        }
-
-        public boolean getAsBoolean() {
-            return location.getAsBoolean();
-        }
-
-        public void addChangeListener(BooleanChangeListener listener) {
-            location.addChangeListener(listener);
-        }
-
-        public void addChangeListener(ObjectChangeListener<Boolean> listener) {
-            location.addChangeListener(listener);
-        }
-    }
-
-    /**
-     * Wrapper class that wraps an ObjectLocation so it cannot be modified
-     */
-    private static class UnmodifiableObjectLocation<T> extends UnmodifiableLocationWrapper<T, ObjectLocation<T>> implements ObjectLocation<T> {
-        public UnmodifiableObjectLocation(ObjectLocation<T> location) {
-            super(location);
-        }
-
-        public void addChangeListener(ObjectChangeListener<T> listener) {
-            location.addChangeListener(listener);
+        public void addChangeListener(final T_LISTENER_OUT listener) {
+            location.addChangeListener(listener.asObjectListener(inType));
         }
     }
 
@@ -1550,133 +622,6 @@ public class Locations {
                     listener.onChange(oldValue, newValue);
                 }
             });
-        }
-    }
-
-    /**
-     * Wrapper class that wraps a SequenceLocation so it cannot be modified
-     */
-    private static class UnmodifiableSequenceLocation<T> extends UnmodifiableLocationWrapper<Sequence<T>, SequenceLocation<T>> implements SequenceLocation<T> {
-        public UnmodifiableSequenceLocation(SequenceLocation<T> location) {
-            super(location);
-        }
-
-        public T get(int position) {
-            return location.get(position);
-        }
-
-        public TypeInfo<T> getElementType() {
-            return location.getElementType();
-        }
-
-        public Sequence<T> getAsSequence() {
-            return location.getAsSequence();
-        }
-
-        public Iterator<T> iterator() {
-            // @@@ Wrap iterator with unmodifiable iterator
-            return location.iterator();
-        }
-
-        public Sequence<T> setAsSequence(Sequence<? extends T> value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Sequence<T> setAsSequenceFromLiteral(Sequence<? extends T> value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void addChangeListener(ObjectChangeListener<Sequence<T>> listener) {
-            location.addChangeListener(listener);
-        }
-
-        public void addChangeListener(SequenceChangeListener<T> sequenceChangeListener) {
-            location.addChangeListener(sequenceChangeListener);
-        }
-
-        public void removeChangeListener(SequenceChangeListener<T> sequenceChangeListener) {
-            location.removeChangeListener(sequenceChangeListener);
-        }
-
-        public T set(int position, T value) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Sequence<T> getSlice(int startPos, int endPos) {
-            return getAsSequence().getSlice(startPos, endPos);
-        }
-
-        public Sequence<? extends T> replaceSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void delete(int position) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void deleteSlice(int startPos, int endPos) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void deleteAll() {
-            throw new UnsupportedOperationException();
-        }
-
-        public void deleteValue(T value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void delete(SequencePredicate<T> sequencePredicate) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void insert(T value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void insert(Sequence<? extends T> values) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void insertFirst(T value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void insertFirst(Sequence<? extends T> values) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void insertBefore(T value, int position) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void insertBefore(T value, SequencePredicate<T> sequencePredicate) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void insertBefore(Sequence<? extends T> values, int position) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void insertBefore(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void insertAfter(T value, int position) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void insertAfter(T value, SequencePredicate<T> sequencePredicate) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void insertAfter(Sequence<? extends T> values, int position) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
-            throw new UnsupportedOperationException();
         }
     }
 }
