@@ -80,8 +80,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     private static final String cBinaryArithmeticOperator = cBoundOperators + ".NumericArithmeticOperator";
     private static final String cBinaryBooleanOperator = cBoundOperators + ".BooleanOperator";
     private static final String cBinaryComparisonOperator = cBoundOperators + ".NumericComparisonOperator";
-    private static final String cUnaryArithmeticOperator = cBoundOperators + ".NumericUnaryOperator";
-    private static final String cUnaryBooleanOperator = cBoundOperators + ".BooleanUnaryOperator";
 
     private static final String opPLUS = cBinaryArithmeticOperator + ".PLUS";
     private static final String opMINUS = cBinaryArithmeticOperator + ".MINUS";
@@ -99,8 +97,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     private static final String opEQbool = cBinaryBooleanOperator + ".EQ";
     private static final String opNEbool = cBinaryBooleanOperator + ".NE";
 
-    private static final String opNEGATE = cUnaryArithmeticOperator + ".NEGATE";
-    private static final String opNOT = cUnaryBooleanOperator + ".NOT";
+    private static final String opNEGATE = cBinaryArithmeticOperator + ".NEGATE";
+    private static final String opNOT = cBinaryBooleanOperator + ".NOT";
 
     public static JavafxToBound instance(Context context) {
         JavafxToBound instance = context.get(jfxToBoundKey);
@@ -1406,7 +1404,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 res = runtime(diagPos, cBoundSequences, "reverse", List.of(transExpr) );
                 break;
             case NOT:
-                res = runtime(diagPos, cBoundOperators, "op_boolean", List.of(makeLaziness(diagPos), transExpr, makeQualifiedTree(diagPos, opNOT)));
+                res = runtime(diagPos, cBoundOperators, "op_boolean", List.of(makeLaziness(diagPos), transExpr, make.Literal(TypeTags.BOT, null), makeQualifiedTree(diagPos, opNOT)));
                 break;
             case NEG:
                 if (types.isSameType(tree.type, syms.javafx_DurationType)) {   
@@ -1420,7 +1418,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         t = tub;
                     }
                     String typeString = (types.isSameType(t, syms.doubleType)) ? "double" : (types.isSameType(t, syms.floatType)) ? "float" : (types.isSameType(t, syms.longType)) ? "long" : "int";
-                    res = runtime(diagPos, cBoundOperators, "op_" + typeString, List.of(makeLaziness(diagPos), transExpr, makeQualifiedTree(diagPos, opNEGATE)));
+                    res = runtime(diagPos, cBoundOperators, "op_" + typeString, List.of(makeLaziness(diagPos), transExpr, make.Literal(TypeTags.BOT, null), makeQualifiedTree(diagPos, opNEGATE)));
                 }
                 break;
             case PREINC:

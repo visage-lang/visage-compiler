@@ -45,139 +45,24 @@ public class BoundOperators {
     // it currently handles all the XxxLocations for primitive types, plus an object-to-NumericLocation wrapper, for all
     // the binary arithmetic ops (plus, minus, times, divide, modulo)
 
-    public enum NumericArithmeticOperator {
-        PLUS {
-            public int operate(int left, int right) { return left + right; }
-            public long operate(long left, long right) { return left + right; }
-            public float operate(float left, float right) { return left + right; }
-            public double operate(double left, double right) { return left + right; }
-        },
-        MINUS {
-            public int operate(int left, int right) { return left - right; }
-            public long operate(long left, long right) { return left - right; }
-            public float operate(float left, float right) { return left - right; }
-            public double operate(double left, double right) { return left - right; }
-        },
-        TIMES {
-            public int operate(int left, int right) { return left * right; }
-            public long operate(long left, long right) { return left * right; }
-            public float operate(float left, float right) { return left * right; }
-            public double operate(double left, double right) { return left * right; }
-        },
-        DIVIDE {
-            public int operate(int left, int right) { return left / right; }
-            public long operate(long left, long right) { return left / right; }
-            public float operate(float left, float right) { return left / right; }
-            public double operate(double left, double right) { return left / right; }
-        },
-        MODULO {
-            public int operate(int left, int right) { return left % right; }
-            public long operate(long left, long right) { return left % right; }
-            public float operate(float left, float right) { return left % right; }
-            public double operate(double left, double right) { return left % right; }
-        };
+    public enum NumericArithmeticOperator { PLUS, MINUS, TIMES, DIVIDE, MODULO, NEGATE }
 
-        public abstract int operate(int left, int right);
-        public abstract long operate(long left, long right);
-        public abstract float operate(float left, float right);
-        public abstract double operate(double left, double right);
-    }
+    public enum NumericComparisonOperator { CMP_EQ, CMP_NE, CMP_LT, CMP_LE, CMP_GT, CMP_GE }
 
-    public enum NumericUnaryOperator {
-        NEGATE {
-            public int operate(int left) { return -left ; }
-            public long operate(long left) { return -left ; }
-            public float operate(float left) { return -left ; }
-            public double operate(double left) { return -left ; }
-        };
-        public abstract int operate(int left);
-        public abstract long operate(long left);
-        public abstract float operate(float left);
-        public abstract double operate(double left);
-    }
-
-    public enum NumericComparisonOperator {
-        CMP_EQ {
-            public boolean operate(int left, int right) { return left == right; }
-            public boolean operate(long left, long right) { return left == right; }
-            public boolean operate(float left, float right) { return left == right; }
-            public boolean operate(double left, double right) { return left == right; }
-        },
-        CMP_NE {
-            public boolean operate(int left, int right) { return left != right; }
-            public boolean operate(long left, long right) { return left != right; }
-            public boolean operate(float left, float right) { return left != right; }
-            public boolean operate(double left, double right) { return left != right; }
-        },
-        CMP_LT {
-            public boolean operate(int left, int right) { return left < right; }
-            public boolean operate(long left, long right) { return left< right; }
-            public boolean operate(float left, float right) { return left < right; }
-            public boolean operate(double left, double right) { return left < right; }
-        },
-        CMP_LE {
-            public boolean operate(int left, int right) { return left <= right; }
-            public boolean operate(long left, long right) { return left <= right; }
-            public boolean operate(float left, float right) { return left <= right; }
-            public boolean operate(double left, double right) { return left <= right; }
-        },
-        CMP_GT {
-            public boolean operate(int left, int right) { return left > right; }
-            public boolean operate(long left, long right) { return left > right; }
-            public boolean operate(float left, float right) { return left > right; }
-            public boolean operate(double left, double right) { return left > right; }
-        },
-        CMP_GE {
-            public boolean operate(int left, int right) { return left >= right; }
-            public boolean operate(long left, long right) { return left >= right; }
-            public boolean operate(float left, float right) { return left >= right; }
-            public boolean operate(double left, double right) { return left >= right; }
-        };
-
-        public abstract boolean operate(int left, int right);
-        public abstract boolean operate(long left, long right);
-        public abstract boolean operate(float left, float right);
-        public abstract boolean operate(double left, double right);
-    }
-
-    public enum BooleanOperator {
-        AND {
-            public boolean operate(boolean left, boolean right) {
-                return left && right;
-            }
-        },
-        OR {
-            public boolean operate(boolean left, boolean right) {
-                return left || right;
-            }
-        },
-        EQ {
-            public boolean operate(boolean left, boolean right) {
-                return left == right;
-            }
-        },
-        NE {
-            public boolean operate(boolean left, boolean right) {
-                return left != right;
-            }
-        };
-        public abstract boolean operate(boolean left, boolean right);
-    }
-
-    public enum BooleanUnaryOperator {
-        NOT {
-            public boolean operate(boolean operand) {
-                return !operand;
-            }
-        };
-        public abstract boolean operate(boolean operand);
-    }
-
+    public enum BooleanOperator { AND, OR, EQ, NE, NOT }
 
     public static IntLocation op_int(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
         return IntVariable.make(lazy, new IntBindingExpression() {
             public int computeValue() {
-                return op.operate(a.getAsInt(), b.getAsInt());
+                switch (op) {
+                    case PLUS: return a.getAsInt() + b.getAsInt();
+                    case MINUS: return a.getAsInt() - b.getAsInt();
+                    case TIMES: return a.getAsInt() * b.getAsInt();
+                    case DIVIDE: return a.getAsInt() / b.getAsInt();
+                    case MODULO: return a.getAsInt() % b.getAsInt();
+                    case NEGATE: return -a.getAsInt();
+                    default: throw new UnsupportedOperationException(op.toString());
+                }
             }
         }, a, b);
     }
@@ -185,7 +70,15 @@ public class BoundOperators {
     public static DoubleLocation op_double(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
         return DoubleVariable.make(lazy, new DoubleBindingExpression() {
             public double computeValue() {
-                return op.operate(a.getAsDouble(), b.getAsDouble());
+                switch (op) {
+                    case PLUS: return a.getAsDouble() + b.getAsDouble();
+                    case MINUS: return a.getAsDouble() - b.getAsDouble();
+                    case TIMES: return a.getAsDouble() * b.getAsDouble();
+                    case DIVIDE: return a.getAsDouble() / b.getAsDouble();
+                    case MODULO: return a.getAsDouble() % b.getAsDouble();
+                    case NEGATE: return -a.getAsDouble();
+                    default: throw new UnsupportedOperationException(op.toString());
+                }
             }
         }, a, b);
     }
@@ -193,7 +86,15 @@ public class BoundOperators {
     public static FloatLocation op_float(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
         return FloatVariable.make(lazy, new FloatBindingExpression() {
             public float computeValue() {
-                return op.operate(a.getAsFloat(), b.getAsFloat());
+                switch (op) {
+                    case PLUS: return a.getAsFloat() + b.getAsFloat();
+                    case MINUS: return a.getAsFloat() - b.getAsFloat();
+                    case TIMES: return a.getAsFloat() * b.getAsFloat();
+                    case DIVIDE: return a.getAsFloat() / b.getAsFloat();
+                    case MODULO: return a.getAsFloat() % b.getAsFloat();
+                    case NEGATE: return -a.getAsFloat();
+                    default: throw new UnsupportedOperationException(op.toString());
+                }
             }
         }, a, b);
     }
@@ -201,49 +102,33 @@ public class BoundOperators {
     public static LongLocation op_long(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
         return LongVariable.make(lazy, new LongBindingExpression() {
             public long computeValue() {
-                return op.operate(a.getAsLong(), b.getAsLong());
+                switch (op) {
+                    case PLUS: return a.getAsLong() + b.getAsLong();
+                    case MINUS: return a.getAsLong() - b.getAsLong();
+                    case TIMES: return a.getAsLong() * b.getAsLong();
+                    case DIVIDE: return a.getAsLong() / b.getAsLong();
+                    case MODULO: return a.getAsLong() % b.getAsLong();
+                    case NEGATE: return -a.getAsLong();
+                    default: throw new UnsupportedOperationException(op.toString());
+                }
             }
         }, a, b);
     }
 
-
-    public static IntLocation op_int(final boolean lazy, final NumericLocation a, final NumericUnaryOperator op) {
-        return IntVariable.make(lazy, new IntBindingExpression() {
-            public int computeValue() {
-                return op.operate(a.getAsInt());
-            }
-        }, a);
-    }
-
-    public static DoubleLocation op_double(final boolean lazy, final NumericLocation a, final NumericUnaryOperator op) {
-        return DoubleVariable.make(lazy, new DoubleBindingExpression() {
-            public double computeValue() {
-                return op.operate(a.getAsDouble());
-            }
-        }, a);
-    }
-
-    public static FloatLocation op_float(final boolean lazy, final NumericLocation a, final NumericUnaryOperator op) {
-        return FloatVariable.make(lazy, new FloatBindingExpression() {
-            public float computeValue() {
-                return op.operate(a.getAsFloat());
-            }
-        }, a);
-    }
-
-    public static LongLocation op_long(final boolean lazy, final NumericLocation a, final NumericUnaryOperator op) {
-        return LongVariable.make(lazy, new LongBindingExpression() {
-            public long computeValue() {
-                return op.operate(a.getAsLong());
-            }
-        }, a);
-    }
-
-
     public static BooleanLocation cmp_int(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
         return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
-                return op.operate(a.getAsInt(), b.getAsInt());
+                int left = a.getAsInt();
+                int right = b.getAsInt();
+                switch (op) {
+                    case CMP_EQ: return left == right;
+                    case CMP_NE: return left != right;
+                    case CMP_LT: return left < right;
+                    case CMP_LE: return left <= right;
+                    case CMP_GT: return left > right;
+                    case CMP_GE: return left >= right;
+                    default: throw new UnsupportedOperationException(op.toString());
+                }
             }
         }, a, b);
     }
@@ -251,7 +136,17 @@ public class BoundOperators {
     public static BooleanLocation cmp_long(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
         return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
-                return op.operate(a.getAsLong(), b.getAsLong());
+                long left = a.getAsLong();
+                long right = b.getAsLong();
+                switch (op) {
+                    case CMP_EQ: return left == right;
+                    case CMP_NE: return left != right;
+                    case CMP_LT: return left < right;
+                    case CMP_LE: return left <= right;
+                    case CMP_GT: return left > right;
+                    case CMP_GE: return left >= right;
+                    default: throw new UnsupportedOperationException(op.toString());
+                }
             }
         }, a, b);
     }
@@ -259,7 +154,17 @@ public class BoundOperators {
     public static BooleanLocation cmp_float(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
         return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
-                return op.operate(a.getAsFloat(), b.getAsFloat());
+                float left = a.getAsFloat();
+                float right = b.getAsFloat();
+                switch (op) {
+                    case CMP_EQ: return left == right;
+                    case CMP_NE: return left != right;
+                    case CMP_LT: return left < right;
+                    case CMP_LE: return left <= right;
+                    case CMP_GT: return left > right;
+                    case CMP_GE: return left >= right;
+                    default: throw new UnsupportedOperationException(op.toString());
+                }
             }
         }, a, b);
     }
@@ -267,7 +172,17 @@ public class BoundOperators {
     public static BooleanLocation cmp_double(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
         return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
-                return op.operate(a.getAsDouble(), b.getAsDouble());
+                double left = a.getAsDouble();
+                double right = b.getAsDouble();
+                switch (op) {
+                    case CMP_EQ: return left == right;
+                    case CMP_NE: return left != right;
+                    case CMP_LT: return left < right;
+                    case CMP_LE: return left <= right;
+                    case CMP_GT: return left > right;
+                    case CMP_GE: return left >= right;
+                    default: throw new UnsupportedOperationException(op.toString());
+                }
             }
         }, a, b);
     }
@@ -276,17 +191,16 @@ public class BoundOperators {
     public static BooleanLocation op_boolean(final boolean lazy, final BooleanLocation a, final BooleanLocation b, final BooleanOperator op) {
         return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
-                return op.operate(a.getAsBoolean(), b.getAsBoolean());
+                switch (op) {
+                    case AND: return a.getAsBoolean() && b.getAsBoolean();
+                    case OR: return a.getAsBoolean() || b.getAsBoolean();
+                    case EQ: return a.getAsBoolean() == b.getAsBoolean();
+                    case NE: return a.getAsBoolean() != b.getAsBoolean();
+                    case NOT: return !a.getAsBoolean();
+                    default: throw new UnsupportedOperationException(op.toString());
+                }
             }
         }, a, b);
-    }
-
-    public static BooleanLocation op_boolean(final boolean lazy, final BooleanLocation a, final BooleanUnaryOperator op) {
-        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
-            public boolean computeValue() {
-                return op.operate(a.getAsBoolean());
-            }
-        }, a);
     }
 
     // @@@---@@@ Below here is the old scheme

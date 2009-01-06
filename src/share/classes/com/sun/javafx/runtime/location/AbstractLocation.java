@@ -298,7 +298,8 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     }
 
     public void addDependency(Location location) {
-        location.addDependentLocation(new StaticDependentLocation(this));
+        if (location != null)
+            location.addDependentLocation(new StaticDependentLocation(this));
     }
 
     public void addDynamicDependency(Location location) {

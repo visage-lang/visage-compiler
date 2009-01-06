@@ -40,9 +40,6 @@ public interface $T.Location$ extends $if(NUMERIC)$ NumericLocation $else$ Locat
     /** Set the current value of this location, recomputing if necessary */
     public $T.prim$ setAs$PREFIX$($T.prim$ value);
 
-    /** Set this location to its default value */
-    public void setDefault();
-
     /** Special version of setAs$PREFIX$ for use from object literals during initialization */
     $T.prim$ setAs$PREFIX$FromLiteral($T.prim$ value);
 
