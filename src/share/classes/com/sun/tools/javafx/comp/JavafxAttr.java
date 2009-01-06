@@ -1024,7 +1024,7 @@ public class JavafxAttr implements JavafxVisitor {
 
         if ((v.flags() & JavafxFlags.IS_DEF) != 0L) {
             log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEF, tree.getId().name);
-        } else if (!rs.isAccessibleForWrite(env, v.owner.type, v)) {
+        } else if (!rs.isAccessibleForWrite(env, env.enclClass.type, v)) {
             log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE, tree.getId().name);
         }
 
