@@ -41,6 +41,13 @@ import com.sun.javafx.runtime.sequence.Sequence;
  */
 public class FX {
 
+    /**
+     * Compare two JavaFX Script Objects
+     * 
+     * @param a the first object to be compared
+     * @param b the second object to compare
+     * @return true if they are the same object
+     */
     public static boolean isSameObject(Object a, Object b) {
         return Builtins.isSameObject(a, b);
     }
@@ -67,6 +74,7 @@ public class FX {
      * Test if an instance variable has been initialized.
      * 
      * @param varRef The variable to be tested.
+     * @return true if the object has been initialized
      */
     public static boolean isInitialized(Object varRef) {
         return Builtins.isInitialized(varRef);

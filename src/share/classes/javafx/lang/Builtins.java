@@ -33,6 +33,13 @@ import com.sun.javafx.runtime.location.BindableLocation;
  * @author Saul Wold
  */
 public class Builtins {
+    /**
+     * Compare 2 JavaFX Script Objects
+     * 
+     * @param a The first object to be compared
+     * @param b the second object to be compared
+     * @return true if they are the same Object
+     */
     public static boolean isSameObject(Object a, Object b) {
         return a == b;
     }
@@ -71,6 +78,7 @@ public class Builtins {
      * Test if an instance variable has been initialized.
      * 
      * @param varRef The variable to be tested.
+     * @return true if the object has been initialized already
      */
     public static boolean isInitialized(Object varRef) {
         return ((BindableLocation) varRef).isInitialized();
