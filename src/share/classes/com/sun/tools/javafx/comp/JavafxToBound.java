@@ -38,7 +38,7 @@ import com.sun.tools.javafx.comp.JavafxToJava.Translator;
 import com.sun.tools.javafx.comp.JavafxToJava.FunctionCallTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.InstanciateTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.StringExpressionTranslator;
-import com.sun.tools.javafx.comp.JavafxToJava.Wrapped;
+import com.sun.tools.javafx.comp.JavafxToJava.Locationness;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
@@ -634,7 +634,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     @Override
     public void visitSelect(final JFXSelect tree) {
         if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
-            result = convert(tree.type, toJava.translate(tree, Wrapped.InLocation)); //TODO -- for now punt, translate like normal case
+            result = convert(tree.type, toJava.translateAsLocation(tree)); //TODO -- for now punt, translate like normal case
             return;
         }
         DiagnosticPosition diagPos = tree.pos();
@@ -657,14 +657,14 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                 return convert(tree.type, toJava.convertVariableReference(diagPos,
                                         make.at(diagPos).Select(make.at(diagPos).Ident(param1Name), tree.getIdentifier()),
                                         tree.sym,
-                                        true));
+                                        Locationness.AsLocation));
                             }
                         });
             }
         } else {
             if (tree.sym.isStatic()) {
                 // This is a static reference to a Java member or elided member e.g. System.out -- do unbound translation, then wrap
-                result = this.makeUnboundLocation(diagPos, targetType(tree.type), toJava.translate(tree, Wrapped.InNothing));
+                result = this.makeUnboundLocation(diagPos, targetType(tree.type), toJava.translateAsUnconvertedValue(tree));
             } else {
                 // This is a dynamic reference to a Java member or elided member
                 result = (new BindingExpressionClosureTranslator(diagPos, tree.type) {
@@ -703,7 +703,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     @Override
     public void visitIdent(JFXIdent tree)   {  //TODO: don't use toJava
        // assert (tree.sym.flags() & Flags.PARAMETER) != 0 || tree.name == names._this || tree.sym.isStatic() || toJava.requiresLocation(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
-        JCExpression transId = toJava.translate(tree, Wrapped.InLocation);
+        JCExpression transId = toJava.translateAsLocation(tree);
         result = convert(tree.type, transId );
     }
 
@@ -1239,7 +1239,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 if (renameToSuper) {
                     transMeth = m().Select(m().Select(makeTypeTree(selector, toJava.attrEnv.enclClass.sym.type, false), names._super), msym);
                 } else {
-                    transMeth = toJava.translate(meth);
+                    transMeth = toJava.translateAsUnconvertedValue(meth);
                     if (superToStatic || callBound) {
                         // translate the method name -- e.g., foo  to foo$bound or foo$impl
                         Name name = functionName(msym, superToStatic, callBound);
@@ -1451,7 +1451,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
      * But return a Location.
      */
     public void visitInterpolateValue(JFXInterpolateValue tree) {
-        result = toJava.translate(tree, Wrapped.InLocation);
+        result = toJava.translateAsLocation(tree);
     }
 
     /***********************************************************************
