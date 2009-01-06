@@ -1281,13 +1281,14 @@ public class JavafxAttr implements JavafxVisitor {
             localScope.next = env.info.scope;
             localEnv = env.dup(tree, env.info.dup(localScope));
             localEnv.outer = env;
-
-            if (env.tree instanceof JFXFunctionDefinition &&
-                    env.enclClass.runMethod == env.tree) {
-                        env.enclClass.runBodyScope = localEnv.info.scope;
-            } else {
+            if (env.tree instanceof JFXFunctionDefinition) {
+                if (env.enclClass.runMethod == env.tree)
+                    env.enclClass.runBodyScope = localEnv.info.scope;
+                localEnv.info.scope.owner = env.info.scope.owner;
+            }
+            else {
                 localEnv.info.scope.owner = new MethodSymbol(BLOCK, names.empty, null, env.enclClass.sym);
-                    }
+                }
             }
         memberEnter.memberEnter(tree.getStmts(), localEnv);
         if (tree.getValue() != null) {
