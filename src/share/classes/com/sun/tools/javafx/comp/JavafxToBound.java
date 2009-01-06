@@ -77,28 +77,24 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     private static final String cFunction0 = functionsPackageNameString + ".Function0";
     private static final String cFunction1 = functionsPackageNameString + ".Function1";
 
-    private static final String cBinaryArithmeticOperator = cBoundOperators + ".NumericArithmeticOperator";
-    private static final String cBinaryBooleanOperator = cBoundOperators + ".BooleanOperator";
-    private static final String cBinaryComparisonOperator = cBoundOperators + ".NumericComparisonOperator";
+    private static final String cOperator = cBoundOperators + ".Operator";
 
-    private static final String opPLUS = cBinaryArithmeticOperator + ".PLUS";
-    private static final String opMINUS = cBinaryArithmeticOperator + ".MINUS";
-    private static final String opTIMES = cBinaryArithmeticOperator + ".TIMES";
-    private static final String opDIVIDE = cBinaryArithmeticOperator + ".DIVIDE";
-    private static final String opMODULO = cBinaryArithmeticOperator + ".MODULO";
+    private static final String opPLUS = cOperator + ".PLUS";
+    private static final String opMINUS = cOperator + ".MINUS";
+    private static final String opTIMES = cOperator + ".TIMES";
+    private static final String opDIVIDE = cOperator + ".DIVIDE";
+    private static final String opMODULO = cOperator + ".MODULO";
 
-    private static final String opLT = cBinaryComparisonOperator + ".CMP_LT";
-    private static final String opLE = cBinaryComparisonOperator + ".CMP_LE";
-    private static final String opGT = cBinaryComparisonOperator + ".CMP_GT";
-    private static final String opGE = cBinaryComparisonOperator + ".CMP_GE";
+    private static final String opLT = cOperator + ".CMP_LT";
+    private static final String opLE = cOperator + ".CMP_LE";
+    private static final String opGT = cOperator + ".CMP_GT";
+    private static final String opGE = cOperator + ".CMP_GE";
 
-    private static final String opEQnum = cBinaryComparisonOperator + ".CMP_EQ";
-    private static final String opNEnum = cBinaryComparisonOperator + ".CMP_NE";
-    private static final String opEQbool = cBinaryBooleanOperator + ".EQ";
-    private static final String opNEbool = cBinaryBooleanOperator + ".NE";
+    private static final String opEQ = cOperator + ".CMP_EQ";
+    private static final String opNE = cOperator + ".CMP_NE";
 
-    private static final String opNEGATE = cBinaryArithmeticOperator + ".NEGATE";
-    private static final String opNOT = cBinaryBooleanOperator + ".NOT";
+    private static final String opNEGATE = cOperator + ".NEGATE";
+    private static final String opNOT = cOperator + ".NOT";
 
     public static JavafxToBound instance(Context context) {
         JavafxToBound instance = context.get(jfxToBoundKey);
@@ -1324,17 +1320,14 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             return false;
         }
 
-        JCExpression makeBinaryEqualityOperator(String direct, String opNum, String opBool) {
+        JCExpression makeBinaryEqualityOperator(String op) {
             if (isNumeric(lType) && isNumeric(rType)) {
-                return makeBinaryComparisonOperator(opNum);
+                return makeBinaryComparisonOperator(op);
             } else {
                 final JCExpression lhs = translate(l);
                 final JCExpression rhs = translate(r);
-                if (lType.tag == BOOLEAN && rType.tag == BOOLEAN) {
-                    return runtime(diagPos, cBoundOperators, "op_boolean", List.of(makeLaziness(diagPos), lhs, rhs, makeQualifiedTree(diagPos, opBool)));
-                } else {
-                    return runtime(diagPos, cBoundOperators, direct, List.of(makeLaziness(diagPos), lhs, rhs));
-                }
+                String methodName = (lType.tag == BOOLEAN && rType.tag == BOOLEAN) ? "op_boolean" : "cmp_other";
+                return runtime(diagPos, cBoundOperators, methodName, List.of(makeLaziness(diagPos), lhs, rhs, makeQualifiedTree(diagPos, op)));
             }
         }
 
@@ -1361,9 +1354,9 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     return makeBinaryComparisonOperator(opGE);
 
                 case EQ:
-                    return makeBinaryEqualityOperator("eq", opEQnum, opEQbool);
+                    return makeBinaryEqualityOperator(opEQ);
                 case NE:
-                    return makeBinaryEqualityOperator("ne", opNEnum, opNEbool);
+                    return makeBinaryEqualityOperator(opNE);
 
                 case AND:
                     return makeBoundConditional(diagPos,

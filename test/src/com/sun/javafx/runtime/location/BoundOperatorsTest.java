@@ -163,14 +163,14 @@ public class BoundOperatorsTest extends JavaFXTestCase {
         FloatLocation fl = FloatVariable.make(1);
         LongLocation ll = LongVariable.make(1);
 
-        IntLocation il_i = BoundOperators.op_int(false, il, ll, BoundOperators.NumericArithmeticOperator.PLUS);
+        IntLocation il_i = BoundOperators.op_int(false, il, ll, BoundOperators.Operator.PLUS);
         assertEquals(il_i.getAsInt(), 2);
         il.setAsInt(2);
         assertEquals(il_i.getAsInt(), 3);
         ll.setAsLong(2);
         assertEquals(il_i.getAsInt(), 4);
 
-        FloatLocation fd_f = BoundOperators.op_float(false, fl, dl, BoundOperators.NumericArithmeticOperator.PLUS);
+        FloatLocation fd_f = BoundOperators.op_float(false, fl, dl, BoundOperators.Operator.PLUS);
         assertEquals(fd_f.getAsInt(), 2);
         fl.setAsFloat(2);
         assertEquals(fd_f.getAsInt(), 3);
@@ -203,7 +203,7 @@ public class BoundOperatorsTest extends JavaFXTestCase {
                 this.results = results;
             }
         }
-        Map<BoundOperators.NumericArithmeticOperator, OpResults[]> opMap = new HashMap<BoundOperators.NumericArithmeticOperator, OpResults[]>();
+        Map<BoundOperators.Operator, OpResults[]> opMap = new HashMap<BoundOperators.Operator, OpResults[]>();
 
         LocHolder[] locs = new LocHolder[] {
                 new LocHolder<Integer>(IntVariable.make(), 0, 1, 2),
@@ -218,21 +218,21 @@ public class BoundOperatorsTest extends JavaFXTestCase {
                 new LocHolder<Byte>(ByteVariable.make(), (byte) 0, (byte) 1, (byte) 2),
         };
 
-        opMap.put(BoundOperators.NumericArithmeticOperator.PLUS,
+        opMap.put(BoundOperators.Operator.PLUS,
                   new OpResults[] {
                           new OpResults<Integer>(null, 0, 1, 2, 3, 4),
                           new OpResults<Double>(null, 0.0, 1.0, 2.0, 3.0, 4.0),
                           new OpResults<Float>(null, 0.0f, 1.0f, 2.0f, 3.0f, 4.0f),
                           new OpResults<Long>(null, 0L, 1L, 2L, 3L, 4L)
                   });
-        opMap.put(BoundOperators.NumericArithmeticOperator.MINUS,
+        opMap.put(BoundOperators.Operator.MINUS,
                   new OpResults[] {
                           new OpResults<Integer>(null, 0, 1, 0, 1, 0),
                           new OpResults<Double>(null, 0.0, 1.0, 0.0, 1.0, 0.0),
                           new OpResults<Float>(null, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
                           new OpResults<Long>(null, 0L, 1L, 0L, 1L, 0L)
                   });
-        opMap.put(BoundOperators.NumericArithmeticOperator.TIMES,
+        opMap.put(BoundOperators.Operator.TIMES,
                   new OpResults[] {
                           new OpResults<Integer>(null, 0, 0, 1, 2, 4),
                           new OpResults<Double>(null, 0.0, 0.0, 1.0, 2.0, 4.0),
@@ -242,7 +242,7 @@ public class BoundOperatorsTest extends JavaFXTestCase {
 
         for (int i=0; i<locs.length-1; i++)
             for (int j=i+1; j<locs.length; j++)
-                for (BoundOperators.NumericArithmeticOperator op : opMap.keySet()) {
+                for (BoundOperators.Operator op : opMap.keySet()) {
                     LocHolder left = locs[i];
                     LocHolder right = locs[j];
                     left.reset();
@@ -284,7 +284,7 @@ public class BoundOperatorsTest extends JavaFXTestCase {
         // Now do the same thing wrapping each NumericLocation with an object-to-numeric wrapper
         for (int i=0; i<locs.length-1; i++)
             for (int j=i+1; j<locs.length; j++)
-                for (BoundOperators.NumericArithmeticOperator op : opMap.keySet()) {
+                for (BoundOperators.Operator op : opMap.keySet()) {
                     LocHolder left = locs[i];
                     LocHolder right = locs[j];
                     left.reset();
@@ -348,7 +348,7 @@ public class BoundOperatorsTest extends JavaFXTestCase {
                 this.results = results;
             }
         }
-        Map<BoundOperators.NumericComparisonOperator, OpResults[]> opMap = new HashMap<BoundOperators.NumericComparisonOperator, OpResults[]>();
+        Map<BoundOperators.Operator, OpResults[]> opMap = new HashMap<BoundOperators.Operator, OpResults[]>();
 
         LocHolder[] locs = new LocHolder[] {
                 new LocHolder<Integer>(IntVariable.make(), 0, 1, 2),
@@ -363,42 +363,42 @@ public class BoundOperatorsTest extends JavaFXTestCase {
                 new LocHolder<Byte>(ByteVariable.make(), (byte) 0, (byte) 1, (byte) 2),
         };
 
-        opMap.put(BoundOperators.NumericComparisonOperator.CMP_EQ,
+        opMap.put(BoundOperators.Operator.CMP_EQ,
                   new OpResults[] {
                           new OpResults<Boolean>(null, true, false, true, false, true),
                           new OpResults<Boolean>(null, true, false, true, false, true),
                           new OpResults<Boolean>(null, true, false, true, false, true),
                           new OpResults<Boolean>(null, true, false, true, false, true),
                   });
-        opMap.put(BoundOperators.NumericComparisonOperator.CMP_NE,
+        opMap.put(BoundOperators.Operator.CMP_NE,
                   new OpResults[] {
                           new OpResults<Boolean>(null, false, true, false, true, false),
                           new OpResults<Boolean>(null, false, true, false, true, false),
                           new OpResults<Boolean>(null, false, true, false, true, false),
                           new OpResults<Boolean>(null, false, true, false, true, false),
                   });
-        opMap.put(BoundOperators.NumericComparisonOperator.CMP_GE,
+        opMap.put(BoundOperators.Operator.CMP_GE,
                   new OpResults[] {
                           new OpResults<Boolean>(null, true, true, true, true, true),
                           new OpResults<Boolean>(null, true, true, true, true, true),
                           new OpResults<Boolean>(null, true, true, true, true, true),
                           new OpResults<Boolean>(null, true, true, true, true, true),
                   });
-        opMap.put(BoundOperators.NumericComparisonOperator.CMP_GT,
+        opMap.put(BoundOperators.Operator.CMP_GT,
                   new OpResults[] {
                           new OpResults<Boolean>(null, false, true, false, true, false),
                           new OpResults<Boolean>(null, false, true, false, true, false),
                           new OpResults<Boolean>(null, false, true, false, true, false),
                           new OpResults<Boolean>(null, false, true, false, true, false),
                   });
-        opMap.put(BoundOperators.NumericComparisonOperator.CMP_LE,
+        opMap.put(BoundOperators.Operator.CMP_LE,
                   new OpResults[] {
                           new OpResults<Boolean>(null, true, false, true, false, true),
                           new OpResults<Boolean>(null, true, false, true, false, true),
                           new OpResults<Boolean>(null, true, false, true, false, true),
                           new OpResults<Boolean>(null, true, false, true, false, true),
                   });
-        opMap.put(BoundOperators.NumericComparisonOperator.CMP_LT,
+        opMap.put(BoundOperators.Operator.CMP_LT,
                   new OpResults[] {
                           new OpResults<Boolean>(null, false, false, false, false, false),
                           new OpResults<Boolean>(null, false, false, false, false, false),
@@ -408,7 +408,7 @@ public class BoundOperatorsTest extends JavaFXTestCase {
 
         for (int i=0; i<locs.length-1; i++)
             for (int j=i+1; j<locs.length; j++)
-                for (BoundOperators.NumericComparisonOperator op : opMap.keySet()) {
+                for (BoundOperators.Operator op : opMap.keySet()) {
                     LocHolder left = locs[i];
                     LocHolder right = locs[j];
                     left.reset();

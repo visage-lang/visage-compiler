@@ -28,6 +28,7 @@ import com.sun.javafx.functions.Function1;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.SequencePredicate;
+import com.sun.javafx.runtime.sequence.Sequences;
 
 /**
  * Factories for bound operator expressions.  Factories for most operators (plus, ==, !) are generated and live in
@@ -45,13 +46,12 @@ public class BoundOperators {
     // it currently handles all the XxxLocations for primitive types, plus an object-to-NumericLocation wrapper, for all
     // the binary arithmetic ops (plus, minus, times, divide, modulo)
 
-    public enum NumericArithmeticOperator { PLUS, MINUS, TIMES, DIVIDE, MODULO, NEGATE }
+    public enum Operator { PLUS, MINUS, TIMES, DIVIDE, MODULO, NEGATE,
+        CMP_EQ, CMP_NE,
+        CMP_LT, CMP_LE, CMP_GT, CMP_GE,
+        AND, OR, NOT }
 
-    public enum NumericComparisonOperator { CMP_EQ, CMP_NE, CMP_LT, CMP_LE, CMP_GT, CMP_GE }
-
-    public enum BooleanOperator { AND, OR, EQ, NE, NOT }
-
-    public static IntLocation op_int(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
+    public static IntLocation op_int(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
         return IntVariable.make(lazy, new IntBindingExpression() {
             public int computeValue() {
                 switch (op) {
@@ -67,7 +67,7 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static DoubleLocation op_double(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
+    public static DoubleLocation op_double(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
         return DoubleVariable.make(lazy, new DoubleBindingExpression() {
             public double computeValue() {
                 switch (op) {
@@ -83,7 +83,7 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static FloatLocation op_float(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
+    public static FloatLocation op_float(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
         return FloatVariable.make(lazy, new FloatBindingExpression() {
             public float computeValue() {
                 switch (op) {
@@ -99,7 +99,7 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static LongLocation op_long(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericArithmeticOperator op) {
+    public static LongLocation op_long(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
         return LongVariable.make(lazy, new LongBindingExpression() {
             public long computeValue() {
                 switch (op) {
@@ -115,7 +115,7 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static BooleanLocation cmp_int(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
+    public static BooleanLocation cmp_int(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
         return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 int left = a.getAsInt();
@@ -133,7 +133,7 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static BooleanLocation cmp_long(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
+    public static BooleanLocation cmp_long(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
         return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 long left = a.getAsLong();
@@ -151,7 +151,7 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static BooleanLocation cmp_float(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
+    public static BooleanLocation cmp_float(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
         return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 float left = a.getAsFloat();
@@ -169,7 +169,7 @@ public class BoundOperators {
         }, a, b);
     }
 
-    public static BooleanLocation cmp_double(final boolean lazy, final NumericLocation a, final NumericLocation b, final NumericComparisonOperator op) {
+    public static BooleanLocation cmp_double(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
         return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 double left = a.getAsDouble();
@@ -188,14 +188,14 @@ public class BoundOperators {
     }
 
 
-    public static BooleanLocation op_boolean(final boolean lazy, final BooleanLocation a, final BooleanLocation b, final BooleanOperator op) {
+    public static BooleanLocation op_boolean(final boolean lazy, final BooleanLocation a, final BooleanLocation b, final Operator op) {
         return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 switch (op) {
                     case AND: return a.getAsBoolean() && b.getAsBoolean();
                     case OR: return a.getAsBoolean() || b.getAsBoolean();
-                    case EQ: return a.getAsBoolean() == b.getAsBoolean();
-                    case NE: return a.getAsBoolean() != b.getAsBoolean();
+                    case CMP_EQ: return a.getAsBoolean() == b.getAsBoolean();
+                    case CMP_NE: return a.getAsBoolean() != b.getAsBoolean();
                     case NOT: return !a.getAsBoolean();
                     default: throw new UnsupportedOperationException(op.toString());
                 }
@@ -203,112 +203,60 @@ public class BoundOperators {
         }, a, b);
     }
 
-    // @@@---@@@ Below here is the old scheme
-
-    public static <T, V> BooleanLocation eq(final boolean lazy, final ObjectLocation<T> a, final ObjectLocation<V> b) {
+    public static<T, V> BooleanLocation cmp_other(final boolean lazy, final ObjectLocation<T> a, final ObjectLocation<V> b, final Operator op) {
         return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 T aVal = a.get();
                 V bVal = b.get();
-                if (aVal == null)
-                    return bVal == null;
-                else
-                    return aVal.equals(bVal);
+                switch (op) {
+                    case CMP_EQ: return aVal == null ? bVal == null : aVal.equals(bVal);
+                    case CMP_NE: return aVal == null ? bVal != null : !aVal.equals(bVal);
+                    default: throw new UnsupportedOperationException(op.toString());
+                }
             }
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation ne(final boolean lazy, final ObjectLocation<T> a, final ObjectLocation<V> b) {
-        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
-            public boolean computeValue() {
-                T aVal = a.get();
-                V bVal = b.get();
-                if (aVal == null)
-                    return bVal != null;
-                else
-                    return !aVal.equals(bVal);
-            }
-        }, a, b);
-    }
-
-    public static <T, V> BooleanLocation eq(final boolean lazy, final SequenceLocation<T> a, final SequenceLocation<V> b) {
-        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
-            public boolean computeValue() {
-                Sequence<T> aVal = a.getAsSequence();
-                Sequence<V> bVal = b.getAsSequence();
-                if (aVal == null)
-                    return bVal == null || bVal.isEmpty();
-                else
-                    return aVal.equals(bVal);
-            }
-        }, a, b);
-    }
-
-    public static <T, V> BooleanLocation eq(final boolean lazy, final SequenceLocation<T> a, final ObjectLocation<V> b) {
-        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
-            public boolean computeValue() {
-                Sequence<T> aVal = a.getAsSequence();
-                V bVal = b.get();
-                if (bVal == null)
-                    return aVal == null || aVal.isEmpty();
-                else
-                    return aVal.size()==1 && aVal.get(0).equals(bVal);
-            }
-        }, a, b);
-    }
-
-    public static <T, V> BooleanLocation eq(final boolean lazy, final ObjectLocation<T> a, final SequenceLocation<V> b) {
+    public static<T, V> BooleanLocation cmp_other(final boolean lazy, final ObjectLocation<T> a, final SequenceLocation<V> b, final Operator op) {
         return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 T aVal = a.get();
                 Sequence<V> bVal = b.getAsSequence();
-                if (aVal == null)
-                    return bVal == null || bVal.isEmpty();
-                else
-                    return bVal.size()==1 && bVal.get(0).equals(aVal);
+                switch (op) {
+                    case CMP_EQ:
+                        return aVal == null ? (Sequences.size(bVal) == 0) : bVal.size() == 1 && bVal.get(0).equals(aVal);
+
+                    case CMP_NE:
+                        return aVal == null ? (Sequences.size(bVal) != 0) : bVal.size() != 1 || !bVal.get(0).equals(aVal);
+
+                    default: throw new UnsupportedOperationException(op.toString());
+                }
             }
         }, a, b);
     }
 
-    public static <T, V> BooleanLocation ne(final boolean lazy, final SequenceLocation<T> a, final SequenceLocation<V> b) {
+    public static<T, V> BooleanLocation cmp_other(final boolean lazy, final SequenceLocation<T> a, final ObjectLocation<V> b, final Operator op) {
+        switch (op) {
+            case CMP_EQ:
+            case CMP_NE:
+                return cmp_other(lazy, b, a, op);
+            default: throw new UnsupportedOperationException(op.toString());
+        }
+    }
+
+    public static<T, V> BooleanLocation cmp_other(final boolean lazy, final SequenceLocation<T> a, final SequenceLocation<V> b, final Operator op) {
         return BooleanVariable.make(lazy, new BooleanBindingExpression() {
             public boolean computeValue() {
                 Sequence<T> aVal = a.getAsSequence();
                 Sequence<V> bVal = b.getAsSequence();
-                if (aVal == null)
-                    return bVal != null && !bVal.isEmpty();
-                else
-                    return !aVal.equals(bVal);
+                switch (op) {
+                    case CMP_EQ: return aVal == null ? (Sequences.size(bVal) == 0) : aVal.equals(bVal);
+                    case CMP_NE: return aVal == null ? (Sequences.size(bVal) != 0) : !aVal.equals(bVal);
+                    default: throw new UnsupportedOperationException(op.toString());
+                }
             }
         }, a, b);
     }
-
-    public static <T, V> BooleanLocation ne(final boolean lazy, final SequenceLocation<T> a, final ObjectLocation<V> b) {
-        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
-            public boolean computeValue() {
-                Sequence<T> aVal = a.getAsSequence();
-                V bVal = b.get();
-                if (bVal == null)
-                    return aVal != null && !aVal.isEmpty();
-                else
-                   return aVal.size()!=1 || !aVal.get(0).equals(bVal);
-            }
-        }, a, b);
-    }
-
-    public static <T, V> BooleanLocation ne(final boolean lazy, final ObjectLocation<T> a, final SequenceLocation<V> b) {
-        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
-            public boolean computeValue() {
-                T aVal = a.get();
-                Sequence<V> bVal = b.getAsSequence();
-                if (aVal == null)
-                    return bVal != null && !bVal.isEmpty();
-                else
-                    return bVal.size()!=1 || !bVal.get(0).equals(aVal);
-            }
-        }, a, b);
-    }
-
 
     // @@@ Missing Byte, Short, Long for if and select
 
