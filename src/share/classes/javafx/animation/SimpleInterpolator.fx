@@ -23,9 +23,8 @@
 
 package javafx.animation;
 import java.lang.Object;
-import com.sun.javafx.runtime.Numerics;
 
-/** 
+/**
  * A SimpleIterator is defined in terms of a "curve".
  * It can be used for any value type that either implements Interpolatable
  * or that extends java.lang.Number.
@@ -40,33 +39,33 @@ public abstract class SimpleInterpolator extends Interpolator {
       * where 0.0 is the start of the current interval (KeyFrame),
       * while 1.0 is the end of the current interval (KeyFrame).
       * Usually a function that increases monotonically.
-      * 
+      *
       * @profile common
       */
     public abstract function curve(t: Number) : Number;
 
     /**
-     * This function takes {@code startValue} object and {@code endValue} object along with {@code faction} 
-     * between 0.0 and 1.0 and returns another object, between {@code startValue} and 
-     * {@code1 endValue}. The purpose of the function is to define how time 
-     * (represented as a (0.0 - 1.0) fraction of the duration of an animation) is altered 
+     * This function takes {@code startValue} object and {@code endValue} object along with {@code faction}
+     * between 0.0 and 1.0 and returns another object, between {@code startValue} and
+     * {@code1 endValue}. The purpose of the function is to define how time
+     * (represented as a (0.0 - 1.0) fraction of the duration of an animation) is altered
      * to derive different value calculations during an animation.
      *
      * @profile common
-     */      
+     */
     public override function interpolate(startValue:Object, endValue:Object, fraction:Number):Object {
-        if (Numerics.isNumber(startValue) and Numerics.isNumber(endValue)) {
-	    var start : Number = Numerics.doubleValue(startValue);
-	    var end : Number = Numerics.doubleValue(endValue);
-	    var val = start + (end-start)*curve(fraction);
-	    if (startValue instanceof java.lang.Integer and
-	        endValue instanceof java.lang.Integer)
-		java.lang.Integer.valueOf((val+0.5).intValue())
-            else
-		java.lang.Double.valueOf(val)
+        if ((startValue instanceof java.lang.Number) and (endValue instanceof java.lang.Number)) {
+	        var start : Number = (startValue as java.lang.Number).doubleValue();
+	        var end : Number = (endValue as java.lang.Number).doubleValue();
+	        var val = start + (end-start)*curve(fraction);
+	        if (startValue instanceof java.lang.Integer and
+	            endValue instanceof java.lang.Integer)
+	            java.lang.Integer.valueOf((val+0.5).intValue())
+	        else
+	            java.lang.Double.valueOf(val)
         }
         else if (startValue instanceof Interpolatable) {
-            (startValue as Interpolatable).ofTheWay((endValue as Interpolatable), curve(fraction));  
+            (startValue as Interpolatable).ofTheWay((endValue as Interpolatable), curve(fraction));
         } else {
             // discrete
             if (fraction == 1.0) endValue else startValue;
@@ -74,27 +73,27 @@ public abstract class SimpleInterpolator extends Interpolator {
     }
 
     /**
-     * This function takes an numeric {@code startValue} and an numeric {@code endValue} along with {@code faction} 
-     * between 0.0 and 1.0 and returns another numeric value, between {@code startValue} and 
-     * {@code1 endValue}. The purpose of the function is to define how time 
-     * (represented as a (0.0 - 1.0) fraction of the duration of an animation) is altered 
+     * This function takes an numeric {@code startValue} and an numeric {@code endValue} along with {@code faction}
+     * between 0.0 and 1.0 and returns another numeric value, between {@code startValue} and
+     * {@code1 endValue}. The purpose of the function is to define how time
+     * (represented as a (0.0 - 1.0) fraction of the duration of an animation) is altered
      * to derive different value calculations during an animation.
      *
      * @profile common
-     */      
+     */
     public function interpolate(startValue:Number, endValue:Number, fraction:Number):Number {
         return startValue + (endValue-startValue)*curve(fraction);
     }
 
     /**
-     * This function takes an integer {@code startValue} and an integer {@code endValue} along with {@code faction} 
-     * between 0.0 and 1.0 and returns another integer value, between {@code startValue} and 
-     * {@code1 endValue}. The purpose of the function is to define how time 
-     * (represented as a (0.0 - 1.0) fraction of the duration of an animation) is altered 
+     * This function takes an integer {@code startValue} and an integer {@code endValue} along with {@code faction}
+     * between 0.0 and 1.0 and returns another integer value, between {@code startValue} and
+     * {@code1 endValue}. The purpose of the function is to define how time
+     * (represented as a (0.0 - 1.0) fraction of the duration of an animation) is altered
      * to derive different value calculations during an animation.
      *
      * @profile common
-     */      
+     */
     public function interpolate(startValue:Integer, endValue:Integer, fraction:Number):Integer {
         return (startValue + (endValue-startValue)*curve(fraction) + 0.5).intValue();
     }

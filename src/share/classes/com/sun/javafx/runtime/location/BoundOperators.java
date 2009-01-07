@@ -41,15 +41,12 @@ public class BoundOperators {
     // non-instantiable
     private BoundOperators() { }
 
-    // @@@ Currently there are two different schemes here; the old scheme (GeneratedBoundOperators, plus everything below
-    // the @@@---@@@ line in this file), and a newer, more compact scheme.   The more compact scheme is not complete, but
-    // it currently handles all the XxxLocations for primitive types, plus an object-to-NumericLocation wrapper, for all
-    // the binary arithmetic ops (plus, minus, times, divide, modulo)
-
-    public enum Operator { PLUS, MINUS, TIMES, DIVIDE, MODULO, NEGATE,
+    public enum Operator {
+        PLUS, MINUS, TIMES, DIVIDE, MODULO, NEGATE,
         CMP_EQ, CMP_NE,
         CMP_LT, CMP_LE, CMP_GT, CMP_GE,
-        AND, OR, NOT }
+        AND, OR, NOT
+    }
 
     public static IntLocation op_int(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
         return IntVariable.make(lazy, new IntBindingExpression() {
