@@ -211,45 +211,58 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             tree.type = inType;
             return tree;
         }
-        DiagnosticPosition diagPos = tree.pos();
         Type targetType = tmiTarget.getRealType();
+        return convert(inType, tree, targetType);
+    }
+
+    private JCExpression convert(Type inType, JCExpression tree, Type targetType) {
+        DiagnosticPosition diagPos = tree.pos();
         if (!types.isSameType(inType, targetType)) {
-            if (types.isSequence(targetType) && types.isSequence(inType)) {
+            if (types.isSequence(targetType)) {
                 Type targetElementType = types.elementType(targetType);
                 if (targetElementType == null) {  // runtime classes written in Java do this
                     tree.type = inType;
                     return tree;
                 }
-                // this additional test is needed because wildcards compare as different
-                Type sourceElementType = types.elementType(inType);
-                if (!types.isSameType(sourceElementType, targetElementType)) {
-                    if (types.isNumeric(sourceElementType) && types.isNumeric(targetElementType)) {
-                        tree = convertNumericSequence(diagPos,
-                                cBoundSequences,
-                                tree,
-                                sourceElementType,
-                                targetElementType);
-                    } else {
-                        JCExpression targetClass = makeTypeInfo(diagPos, targetElementType);
-                        tree = runtime(diagPos, cBoundSequences, "upcast", List.of(targetClass, tree));
+                if (!types.isSequence(inType)) {
+                    JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
+                    tree = runtime(diagPos, 
+                            cBoundSequences,
+                            "singleton",
+                            List.of(targetTypeInfo, convert(inType, tree, targetElementType)));
+                } else {
+                    // this additional test is needed because wildcards compare as different
+                    Type sourceElementType = types.elementType(inType);
+                    if (!types.isSameType(sourceElementType, targetElementType)) {
+                        if (types.isNumeric(sourceElementType) && types.isNumeric(targetElementType)) {
+                            tree = convertNumericSequence(diagPos,
+                                    cBoundSequences,
+                                    tree,
+                                    sourceElementType,
+                                    targetElementType);
+                        } else {
+                            JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
+                            tree = runtime(diagPos, cBoundSequences, "upcast", List.of(targetTypeInfo, tree));
+                        }
                     }
                 }
-            } else if (targetType.isPrimitive() && inType.isPrimitive()) {
-                JCExpression classTypeExpr = makeIdentifier(diagPos, cLocations + "." + "NumericTo" + primitiveTypePrefix(targetType) + "LocationConversionWrapper");
-                JavafxTypeMorpher.TypeMorphInfo tmi = typeMorpher.typeMorphInfo(inType);
-                JCExpression locationType = makeTypeTree(diagPos, tmi.getLocationType());
-                JCExpression boxType = makeTypeTree(diagPos, syms.boxIfNeeded(inType));
-                tree = make.NewClass(null, List.of(locationType, boxType), classTypeExpr,
-                                     List.of(tree, makeTypeInfo(diagPos, inType)),
-                                     null);
-            } else {
-                if (tmiTarget.getTypeKind() == TYPE_KIND_OBJECT) {
-                    List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, targetType, true),
-                            makeTypeTree( diagPos,syms.boxIfNeeded(inType), true));
-                    Type inRealType = typeMorpher.typeMorphInfo(inType).getRealType();
-                    JCExpression inClass = makeTypeInfo(diagPos, inRealType);
-                    tree = runtime(diagPos, cLocations, "upcast", typeArgs, List.of(inClass, tree));
+            } else if (targetType.isPrimitive()) {
+                if (inType.isPrimitive()) {
+                    JCExpression classTypeExpr = makeIdentifier(diagPos, cLocations + "." + "NumericTo" + primitiveTypePrefix(targetType) + "LocationConversionWrapper");
+                    JavafxTypeMorpher.TypeMorphInfo tmi = typeMorpher.typeMorphInfo(inType);
+                    JCExpression locationType = makeTypeTree(diagPos, tmi.getLocationType());
+                    JCExpression boxType = makeTypeTree(diagPos, syms.boxIfNeeded(inType));
+                    tree = make.NewClass(null, List.of(locationType, boxType), classTypeExpr,
+                            List.of(tree, makeTypeInfo(diagPos, inType)),
+                            null);
                 }
+                //TODO: boxed inType
+            } else {
+                List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, targetType, true),
+                        makeTypeTree(diagPos, syms.boxIfNeeded(inType), true));
+                Type inRealType = typeMorpher.typeMorphInfo(inType).getRealType();
+                JCExpression inClass = makeTypeInfo(diagPos, inRealType);
+                tree = runtime(diagPos, cLocations, "upcast", typeArgs, List.of(inClass, tree));
             }
         }
         tree.type = targetType; // as a way of passing it to methods which needs to know the target type
