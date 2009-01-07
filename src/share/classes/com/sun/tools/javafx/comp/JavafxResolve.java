@@ -294,12 +294,12 @@ public class JavafxResolve {
         private
         boolean isProtectedAccessible(Symbol sym, ClassSymbol c, Type site) {
             while (c != null &&
-                   !(c.isSubClass(sym.owner, types) &&
+                   !(types.isSuperType(types.erasure(sym.owner.type), c) &&
                      (c.flags() & INTERFACE) == 0 &&
                      // In JLS 2e 6.6.2.1, the subclass restriction applies
                      // only to instance fields and methods -- types are excluded
                      // regardless of whether they are declared 'static' or not.
-                     ((sym.flags() & STATIC) != 0 || sym.kind == TYP || site.tsym.isSubClass(c, types))))
+                     ((sym.flags() & STATIC) != 0 || sym.kind == TYP || types.isSuperType(site, c))))
                 c = c.owner.enclClass();
             return c != null;
         }

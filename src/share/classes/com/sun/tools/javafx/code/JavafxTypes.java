@@ -141,7 +141,12 @@ public class JavafxTypes extends Types {
         supertypes.append(sym.type);
         superSet.add(sym.type);
         getSupertypes(sym, supertypes, superSet);
-        return superSet.contains(maybeSuper);
+        for (Type t : supertypes) {
+            if (isSameType(t,maybeSuper)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     @Override

@@ -27,16 +27,7 @@ symbol  : variable bindG
 location: class AccessModifiersTest
 	System.out.println("bindG = {bindG}");
 	                             ^
-test\functional\should-fail\AccessModifiersTest.fx:73: months has protected access in pack1.AccessData
-	System.out.println(sup.months); // months has package access 
-	                      ^
-test\functional\should-fail\AccessModifiersTest.fx:76: fn() has protected access in pack1.AccessData
-	System.out.println(sup.fn());
-	                      ^
-test\functional\should-fail\AccessModifiersTest.fx:79: x has protected access in pack1.AccessData
-	System.out.println(sup.x()); //  x has package access
-	                      ^
 test\functional\should-fail\AccessModifiersTest.fx:31: modifiers (in this case public-read) not allowed on a local var
 	  public-read var result=a1*a2;  
 	  ^
-13 errors
+10 errors
