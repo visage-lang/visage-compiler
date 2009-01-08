@@ -75,28 +75,30 @@ public class  SystemProperties {
             int n = is.read(b);            
             String inStr = new String(b, "utf-8");
             SystemProperties.setFXProperty("javafx.version",
-                    getValue(inStr, "release", "="));
+                    getValue(inStr, "release="));
 
             SystemProperties.setFXProperty("javafx.runtime.version",
-                    getValue(inStr, "full", "="));
+                    getValue(inStr, "full="));
 
         } catch (Exception ignore) {
         }
     }
     /*
-     * Returns a value given a name and a separator
+     * Returns a value given a name
      */
-    private static String getValue(String toSearch, String name, String separator) {
-        String versionPairs[] = toSearch.split("\\s");
-        for (String x : versionPairs) {
-            String aPair[] = x.split(separator);
-            if (aPair[0].equals(name) && aPair[1] != null) {
-                return aPair[1].trim();
+    private static String getValue(String toSearch, String name) {
+        String s = toSearch;
+        int index;
+        while ((index = s.indexOf(name)) != -1) {
+            s = s.substring(index);
+            if ((index = s.indexOf(0x0A))!= -1) {
+                return (s.substring(name.length(), index)).trim();
             }
+            return (s.substring(name.length(), s.length())).trim();
         }
         return "unknown";
     }
-    /** 
+    /**
      * Registers a statically allocated System Properties table 
      * Once registered properties listed in the table are availabe for inquiry through FX.getProperty().
      * Table is defined as a String array with JavaFX property name followed by property value or property mapping identifier
