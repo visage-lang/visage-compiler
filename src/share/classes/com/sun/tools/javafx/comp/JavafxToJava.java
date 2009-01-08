@@ -2236,7 +2236,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     null));
             JCBlock body = make.Block(0, mainStats);
             return make.at(diagPos).MethodDef(make.Modifiers(Flags.PUBLIC | Flags.STATIC),
-                    names.fromString("main"),
+                    defs.mainName,
                     make.at(diagPos).TypeIdent(TypeTags.VOID),
                     List.<JCTypeParameter>nil(),
                     paramList,

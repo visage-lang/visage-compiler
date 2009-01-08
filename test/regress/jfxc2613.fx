@@ -1,7 +1,7 @@
 /**
  * JFXC-2613 : protected access not properly analyzed in the face of multiple inheritance
  *
- # @compilefirst sub2602/jfxc2602base.fx
+ * @compilefirst sub2602/jfxc2602base.fx
  * @test
  */
 

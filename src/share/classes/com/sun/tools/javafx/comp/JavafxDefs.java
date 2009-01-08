@@ -103,6 +103,7 @@ public class JavafxDefs {
     public final Name interfaceSuffixName;
     final Name userRunFunctionName;
     final Name internalRunFunctionName;
+    final Name mainName;
     final Name receiverName;
     final Name initializeName;
     final Name getMethodName;
@@ -194,6 +195,7 @@ public class JavafxDefs {
         interfaceSuffixName = names.fromString(interfaceSuffix);
         userRunFunctionName = names.fromString("run");
         internalRunFunctionName = names.fromString(internalRunFunctionNameString);
+        mainName = names.fromString("main");
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);
         getMethodName = names.fromString(getMethodNameString);

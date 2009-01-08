@@ -488,22 +488,23 @@ public class JavafxClassReader extends ClassReader {
 
             // Now translate the members.
             // Do an initial "reverse" pass so we copy the order.
-            List<Symbol> syms = List.nil();
+            List<Symbol> symlist = List.nil();
             for (Scope.Entry e = jsymbol.members_field.elems;
                  e != null;  e = e.sibling) {
                 if ((e.sym.flags_field & SYNTHETIC) != 0)
                     continue;
-                syms = syms.prepend(e.sym);
+                symlist = symlist.prepend(e.sym);
             }
             handleSyms:
-            for (List<Symbol> l = syms; l.nonEmpty(); l=l.tail) {
-                Name name = l.head.name;
-                long flags = flagsFromAnnotationsAndFlags(l.head);
+            for (List<Symbol> l = symlist; l.nonEmpty(); l=l.tail) {
+                Symbol memsym = l.head;
+                Name name = memsym.name;
+                long flags = flagsFromAnnotationsAndFlags(memsym);
                 if ((flags & PRIVATE) != 0)
                     continue;
                 boolean sawSourceNameAnnotation = false;
                 JavafxSymtab javafxSyms = (JavafxSymtab) this.syms;
-                for (Attribute.Compound a : l.head.getAnnotationMirrors()) {
+                for (Attribute.Compound a : memsym.getAnnotationMirrors()) {
                     if (a.type.tsym.flatName() == javafxSyms.javafx_staticAnnotationType.tsym.flatName()) {
                         flags |=  Flags.STATIC;
                     } else if (a.type.tsym.flatName() == javafxSyms.javafx_defAnnotationType.tsym.flatName()) {
@@ -523,7 +524,7 @@ public class JavafxClassReader extends ClassReader {
                         }
                     }
                 }
-                if (l.head instanceof MethodSymbol) {
+                if (memsym instanceof MethodSymbol) {
                     if (! sawSourceNameAnnotation &&
                             (name == defs.internalRunFunctionName || name == defs.initializeName ||
                             name == defs.postInitName || name == defs.userInitName ||
@@ -534,9 +535,22 @@ public class JavafxClassReader extends ClassReader {
                             name.startsWith(defs.applyDefaultsPrefixName) ||
                             name.endsWith(defs.implFunctionSuffixName)))
                         continue;
+                    // if this is a main method in an FX class then it is synthetic, ignore it
+                    if (name == defs.mainName && (csym.flags_field & JavafxFlags.FX_CLASS) == JavafxFlags.FX_CLASS) {
+                        if (memsym.type instanceof MethodType) {
+                            MethodType mt = (MethodType) (memsym.type);
+                            List<Type> paramTypes = mt.getParameterTypes();
+                            if (paramTypes.size() == 1 && paramTypes.head instanceof ArrayType) {
+                                Type elemType = ((ArrayType) paramTypes.head).getComponentType();
+                                if (elemType.tsym.name == syms.stringType.tsym.name) {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
                     // This should be merged with translateSymbol.
                     // But that doesn't work for some unknown reason.  FIXME
-                    Type type = translateType(l.head.type);
+                    Type type = translateType(memsym.type);
                     String nameString = name.toString();
                     int boundStringIndex = nameString.indexOf(JavafxDefs.boundFunctionDollarSuffix);
                     if (boundStringIndex != -1) {
@@ -548,10 +562,10 @@ public class JavafxClassReader extends ClassReader {
                     MethodSymbol m = new MethodSymbol(flags, name, type, csym);
                     csym.members_field.enter(m);
                 }
-                else if (l.head instanceof VarSymbol) {
+                else if (memsym instanceof VarSymbol) {
                     if (name.endsWith(defs.needsDefaultSuffixName))
                         continue;
-                    Type otype = l.head.type;
+                    Type otype = memsym.type;
                     if (otype.tag == CLASS) {
                         TypeSymbol tsym = otype.tsym;
                         Name flatname = ((ClassSymbol) tsym).flatname;
@@ -566,8 +580,8 @@ public class JavafxClassReader extends ClassReader {
                     csym.members_field.enter(v);
                 }
                 else {
-                    l.head.flags_field = flags;
-                    csym.members_field.enter(translateSymbol(l.head));
+                    memsym.flags_field = flags;
+                    csym.members_field.enter(translateSymbol(memsym));
                 }
             }
         }
