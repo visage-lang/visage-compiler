@@ -1675,7 +1675,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             if (value.getFXTag() == JavafxTag.RETURN) {
                 value = ((JFXReturn) value).getExpression();
             }
-            JCExpression tvalue = translateToExpression(value, translationState.wrapper, targetType); // must be before prepend
+            JCExpression tvalue = translateToExpression(value, translationState.wrapper, null); // must be before prepend
             localDefs = prependToStatements.appendList(localDefs).toList();
             result = makeBlockExpression(tree.pos(), localDefs, tvalue);  //TODO: tree.flags lost
         } else {
