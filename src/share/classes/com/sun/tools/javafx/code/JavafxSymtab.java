@@ -82,6 +82,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_SequencesType;
     public final Type javafx_KeyValueType;
     public final Type javafx_KeyFrameType;
+    public final Type javafx_KeyValueTargetType;
     public final Type javafx_PointerType;
     public final Type javafx_LocationType;
     public final Type javafx_AbstractVariableType;
@@ -179,6 +180,7 @@ public class JavafxSymtab extends Symtab {
         javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);
         javafx_KeyValueType = enterClass("javafx.animation.KeyValue");
         javafx_KeyFrameType = enterClass("javafx.animation.KeyFrame");
+        javafx_KeyValueTargetType = enterClass("javafx.animation.KeyValueTarget");
         javafx_PointerType = enterClass("com.sun.javafx.runtime.Pointer");
         javafx_LocationType = enterClass(JavafxDefs.locationPackageNameString + ".Location");
         javafx_AbstractVariableType = enterClass(JavafxDefs.locationPackageNameString + ".AbstractVariable");

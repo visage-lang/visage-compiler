@@ -37,6 +37,7 @@ import com.sun.tools.javafx.comp.JavafxToJava.UseSequenceBuilder;
 import com.sun.tools.javafx.comp.JavafxToJava.Translator;
 import com.sun.tools.javafx.comp.JavafxToJava.FunctionCallTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.InstanciateTranslator;
+import com.sun.tools.javafx.comp.JavafxToJava.InterpolateValueTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.StringExpressionTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.Locationness;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
@@ -1459,18 +1460,42 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         visitFunctionInvocation(duration); // sets result
     }
 
-    /**
-     * The component parts are bound even in the normal case, so translate as normal.
-     * But return a Location.
-     */
-    public void visitInterpolateValue(JFXInterpolateValue tree) {
-        result = toJava.translateAsLocation(tree);
+    public void visitInterpolateValue(final JFXInterpolateValue tree) {
+        result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
+
+            protected JCExpression resultValue() {
+                JCExpression kv = new InterpolateValueTranslator(tree, toJava) {
+
+                    @Override
+                    void setInstanceVariable(DiagnosticPosition diagPos, Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression transInit) {
+                        JCExpression initRef = buildArgField(
+                                transInit,
+                                vsym.type,
+                                vsym.name.toString() + "$attr",
+                                bindStatus.isBound());
+                        super.setInstanceVariable(diagPos, instName, bindStatus, vsym, initRef);
+                    }
+
+                    @Override
+                    protected JCExpression translateInstanceVariableInit(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
+                        return translate(init, bindStatus, vsym.type);
+                    }
+
+                    protected JCExpression translateTarget() {
+                        JCExpression target = translate(tree.attribute);
+                        JCExpression val = toJava.callExpression(diagPos, makeExpression(syms.javafx_PointerType), "make", target);
+                        return makeConstantLocation(diagPos, syms.javafx_KeyValueTargetType, val);
+                    }
+                }.doit();
+                return toJava.convertTranslated(kv, diagPos, syms.javafx_KeyValueType, tmiTarget.getRealFXType());
+            }
+        }.doit();
     }
 
     /***********************************************************************
      *
      * Utilities
-     *
+     *s
      */
 
     protected String getSyntheticPrefix() {
