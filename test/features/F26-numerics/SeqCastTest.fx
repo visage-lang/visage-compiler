@@ -1,6 +1,5 @@
-
 /*
- * Test sequences casting
+ * Test sequences casting 
  *
  * @test/fxunit
  * @

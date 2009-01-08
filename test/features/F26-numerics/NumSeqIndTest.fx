@@ -1,5 +1,5 @@
 /*
- * Test sequences indexing with various numeric types
+ * Test sequences indexing with various numeric types 
  *
  * @test/fxunit
  * @

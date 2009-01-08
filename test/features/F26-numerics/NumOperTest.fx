@@ -1,5 +1,5 @@
 /*
- * Test sequences casting
+ * Test binary operators on different types operands
  *
  * @test/fxunit
  * @

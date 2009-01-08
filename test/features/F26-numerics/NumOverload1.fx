@@ -1,5 +1,5 @@
 /*
- * Method overloading
+ * Test method overloading with numeric parameters
  *
  * @test/fxunit
  * @run
