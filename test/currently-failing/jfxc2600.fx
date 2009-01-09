@@ -4,7 +4,7 @@
  * After fixing please uncomment and update corresponding testcases in
  *     test/features/F26-numerics/SeqCastTest.fx
  *
- * @test/compile-error
+ * @test/fail
  */
 
 var c1: Character = 5 as Character;

@@ -4,7 +4,7 @@
  * After fixing please uncomment and update corresponding testcases in
  *     test/features/F26-numerics/NumOverload1.fx
  *
- * @test/compile-error
+ * @test/fail
  */
 
 function overload(x: Float) { }

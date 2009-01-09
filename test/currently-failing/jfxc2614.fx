@@ -4,7 +4,7 @@
  * After fixing please uncomment and update corresponding testcases in
  *     test/features/F26-numerics/NumFuncTest.fx
  *
- * @test/compile-error
+ * @test/fail
  */
 
 function foobyte(x: Byte): String {"{x}"}
