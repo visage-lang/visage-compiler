@@ -59,4 +59,20 @@ public class PseudoVariables {
             return null;
         }
     }
+
+   /**
+     * Returns the __PROFILE__ pseudo-variable for a module.
+     * @return the module's __PROFILE__ pseudo-variable as a String
+     */
+    public static String get__PROFILE__() {
+	String ret;	
+	if (SystemProperties.getProperty("javafx.runtime.isApplet") != null)
+	    ret = "browser";
+	else if (SystemProperties.getProperty("javafx.me.profiles") != null)
+	    ret = "mobile";
+	else 
+	    ret = "desktop";
+	return ret;
+    }
+
 }

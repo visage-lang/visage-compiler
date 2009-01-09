@@ -57,6 +57,7 @@ public class JavafxScriptClassBuilder {
     private Set<Name> reservedTopLevelNamesSet;
     private Name pseudoFile;
     private Name pseudoDir;
+    private Name pseudoProfile;
     private Name defaultRunArgName;
     
     private static final boolean debugBadPositions = Boolean.getBoolean("JavafxModuleBuilder.debugBadPositions");
@@ -76,6 +77,7 @@ public class JavafxScriptClassBuilder {
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         pseudoFile = names.fromString("__FILE__");
         pseudoDir = names.fromString("__DIR__");
+        pseudoProfile = names.fromString("__PROFILE__");
         defaultRunArgName = names.fromString("_$UNUSED$_$ARGS$_");
     }
 
@@ -158,6 +160,7 @@ public class JavafxScriptClassBuilder {
         // check for references to pseudo variables and if found, declare them
         final boolean[] usesFile = new boolean[1];
         final boolean[] usesDir = new boolean[1];
+        final boolean[] usesProfile = new boolean[1];
         final DiagnosticPosition[] diagPos = new DiagnosticPosition[1];
         new JavafxTreeScanner() {
             @Override
@@ -171,6 +174,10 @@ public class JavafxScriptClassBuilder {
                     usesDir[0] = true;
                     markPosition(id);
                 }
+                if (id.name.equals(pseudoProfile)) {
+                    usesProfile[0] = true;
+                    markPosition(id);
+		}
             }
             void markPosition(JFXTree tree) {
                 if (diagPos[0] == null) { // want the first only
@@ -181,7 +188,7 @@ public class JavafxScriptClassBuilder {
         //debugPositions(module);
 
         ListBuffer<JFXTree> scriptTops = ListBuffer.<JFXTree>lb();
-        scriptTops.appendList( pseudoVariables(diagPos[0], moduleClassName, module, usesFile[0], usesDir[0]) );
+        scriptTops.appendList( pseudoVariables(diagPos[0], moduleClassName, module, usesFile[0], usesDir[0], usesProfile[0]) );
         scriptTops.appendList(module.defs);
 
         // Determine if this is a library script
@@ -441,7 +448,7 @@ public class JavafxScriptClassBuilder {
     }
     
     private List<JFXTree> pseudoVariables(DiagnosticPosition diagPos, Name moduleClassName, JFXScript module,
-            boolean usesFile, boolean usesDir) {
+            boolean usesFile, boolean usesDir, boolean usesProfile) {
         ListBuffer<JFXTree> pseudoDefs = ListBuffer.<JFXTree>lb();
         if (usesFile || usesDir) {
             JFXExpression moduleClassFQN = module.pid != null ?
@@ -468,6 +475,15 @@ public class JavafxScriptClassBuilder {
                              getDirURL, JavafxBindStatus.UNBOUND, null));
             }
         }
+	if (usesProfile) {
+           JFXExpression getProfile = fxmake.at(diagPos).Identifier("com.sun.javafx.runtime.PseudoVariables.get__PROFILE__");
+           JFXExpression getProfileString = fxmake.at(diagPos).Apply(List.<JFXExpression>nil(), getProfile, List.<JFXExpression>nil());
+           JFXExpression profileVar =
+                fxmake.at(diagPos).Var(pseudoProfile, getPseudoVarType(diagPos),
+                         fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
+                         getProfileString, JavafxBindStatus.UNBOUND, null);
+            pseudoDefs.append(profileVar);
+	}
         return pseudoDefs.toList();
     }
     

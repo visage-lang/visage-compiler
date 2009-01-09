@@ -377,7 +377,11 @@ Fahrenheit: 212.0,  Celcius: 100.0</screen>
 
     <para>Pseudo-variables are pre-defined variable definitions. They are
     script-level <command>def</command>s and thus cannot be assigned to.
-    Currently there are two:</para>
+    Currently there are three:</para>
+
+    <para><command>__PROFILE__ </command>is either one of "mobile", "desktop"
+    or "browser" depending on which environment the script is executing in.
+    </para>
 
     <para><command>__FILE__</command><command> </command>is the string
     representation of the URL from which the script containing the<command>
