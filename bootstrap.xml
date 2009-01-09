@@ -63,8 +63,6 @@
     <property name="cobertura.url" value="http://downloads.sourceforge.net/cobertura/cobertura-${cobertura.ver}-bin.zip"/>
     <property name="cobertura.zipfile" value="${bootstrap.dir}/cobertura-${cobertura.ver}.zip"/>
 
-    <property name="svnstat.url" value="http://downloads.sourceforge.net/svnstat/SvnStat-${svnstat.ver}.zip"/>
-    <property name="svnstat.zipfile" value="${bootstrap.dir}/svnstat-${svnstat.ver}.zip"/>
     <property name="resolver.url" value="http://www.apache.org/dist/xml/commons/xml-commons-resolver-${resolver.ver}.zip"/>
     <property name="resolver.zipfile" value="${bootstrap.dir}/xml-commons-resolver-${resolver.ver}.zip"/>
 
@@ -84,7 +82,6 @@
         <mkdir dir="${antlr.dir}"/>
         <mkdir dir="${antlrworks.dir}"/>
         <mkdir dir="${cobertura.dir}"/>
-        <mkdir dir="${svnstat.dir}"/>
         <mkdir dir="${resolver.dir}"/>
     </target>
 
@@ -102,12 +99,11 @@
         <delete dir="${antlr.dir}"/>
         <delete dir="${antlrworks.dir}"/>
         <delete dir="${cobertura.dir}"/>
-        <delete dir="${svnstat.dir}"/>
         <delete dir="${resolver.dir}"/>
         <delete dir="${tools.dir}"/>
     </target>
 
-    <target name="all" depends="prepare,junit,ant,scenegraph,docbook,docbook-xml,wysiwygdocbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura,svnstat,resolver"/>
+    <target name="all" depends="prepare,junit,ant,scenegraph,docbook,docbook-xml,wysiwygdocbook,findbugs,saxon,xincluder,antlr,antlrworks,cobertura,resolver"/>
  
     <target name="ant" depends="prepare">
         <get src="${ant.url}" dest="${ant.zipfile}" usetimestamp="true"/>
@@ -217,14 +213,6 @@
     <target name="cobertura" depends="prepare">
         <get src="${cobertura.url}" dest="${cobertura.zipfile}" usetimestamp="true"/>
         <unzip src="${cobertura.zipfile}" dest="${cobertura.dir}">
-            <patternset includes="**/*.jar"/>
-            <mapper type="flatten"/>
-        </unzip>
-    </target>
-
-    <target name="svnstat" depends="prepare">
-        <get src="${svnstat.url}" dest="${svnstat.zipfile}" usetimestamp="true"/>
-        <unzip src="${svnstat.zipfile}" dest="${svnstat.dir}">
             <patternset includes="**/*.jar"/>
             <mapper type="flatten"/>
         </unzip>

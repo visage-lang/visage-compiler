@@ -510,17 +510,6 @@
             </java>
     </target>
 
-    <target name="svnstat">
-        <mkdir dir="${dist.svnstat.dir}"/>
-        <java classname="de.agentlab.svnstat.SvnStat" fork="true" classpathref="svnstat.class.path">
-            <env key="PATH" path="${env.PATH}:${svn.path}" />
-            <arg value="-r" />
-            <arg value="${svn.repository}" />
-            <arg value="-d" />
-            <arg value="${dist.svnstat.dir}" />
-        </java>
-    </target>
-
     <!-- Runs only if export.dir is set, which should only be set from the continuous build.
          Publishes build results to ${export.dir}.
          Depends on  environment params JOB_NAME and SVN_REVISION.

@@ -42,9 +42,6 @@
     <property name="cobertura.ver" value="1.9" />
     <property name="cobertura.dir" value="${tools.dir}/cobertura-${cobertura.ver}" />
 
-    <property name="svnstat.ver" value="1.0" />
-    <property name="svnstat.dir" value="${tools.dir}/svnstat-${svnstat.ver}" />
-
     <property name="resolver.ver" value="1.2" />
     <property name="resolver.dir" value="${tools.dir}/resolver-${resolver.ver}" />
 
@@ -86,10 +83,6 @@
 
     <path id="cobertura.class.path">
         <fileset dir="${cobertura.dir}" includes="**/*.jar" />
-    </path>
-
-    <path id="svnstat.class.path">
-        <fileset dir="${svnstat.dir}" includes="**/*.jar" />
     </path>
 
     <path id="resolver.class.path">
