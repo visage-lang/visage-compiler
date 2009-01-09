@@ -478,7 +478,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
 
             protected JCExpression resultValue() {
-                return new InstanciateTranslator(tree, toJava) {
+                JCExpression rv = new InstanciateTranslator(tree, toJava) {
 
                     protected void processLocalVar(JFXVar var) {
                         JFXExpression init = var.getInitializer();
@@ -514,6 +514,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         setInstanceVariable(init.pos(), instName, bindStatus, vsym, initRef);
                     }
                 }.doit();
+                return tmiTarget==null? rv : toJava.convertTranslated(rv, diagPos, tree.type, tmiTarget.getRealFXType());
+
             }
         }.doit();
     }
@@ -1487,7 +1489,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         return makeConstantLocation(diagPos, syms.javafx_KeyValueTargetType, val);
                     }
                 }.doit();
-                return toJava.convertTranslated(kv, diagPos, syms.javafx_KeyValueType, tmiTarget.getRealFXType());
+                return tmiTarget==null? kv : toJava.convertTranslated(kv, diagPos, syms.javafx_KeyValueType, tmiTarget.getRealFXType());
             }
         }.doit();
     }
