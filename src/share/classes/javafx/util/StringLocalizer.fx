@@ -62,6 +62,7 @@ import com.sun.javafx.runtime.util.StringLocalization;
  * the default locale.
  *
  * @needsreview
+ * @profile desktop
  */
 
 public class StringLocalizer {
@@ -157,6 +158,7 @@ public class StringLocalizer {
  * @param properties denotes the canonical base name of the JavaFX properties
  *     file, e.g., 'foo.bar.MyResources'.
  * @param packageName denotes the JavaFX package name, e.g., 'foo.bar'.
+ * @profile desktop
  */
 public function associate(properties: String, packageName: String) : Void {
     associate(properties, packageName, "");
@@ -175,6 +177,7 @@ public function associate(properties: String, packageName: String) : Void {
  * @param packageName denotes the JavaFX package name of the source script file,
  *     e.g., 'foo.bar'.
  * @param scriptFileName the file name of the source script file, e.g., 'Example.fx'.
+ * @profile desktop
  */
 public function associate(properties: String, packageName: String,
                             scriptFileName: String) : Void {
@@ -192,6 +195,7 @@ public function associate(properties: String, packageName: String,
  *
  * @needsreview
  * @param packageName denotes the JavaFX package name, e.g., 'foo.bar'.
+ * @profile desktop
  */
 public function dissociate(packageName: String) : Void {
     dissociate(packageName, "");
@@ -204,6 +208,7 @@ public function dissociate(packageName: String) : Void {
  * @needsreview
  * @param packageName denotes the JavaFX package name, e.g., 'foo.bar'.
  * @param scriptFileName the file name of the source script file, e.g., 'Example.fx'.
+ * @profile desktop
  */
 public function dissociate(packageName: String,
                             scriptFileName: String) : Void {

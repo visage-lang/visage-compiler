@@ -44,6 +44,7 @@ class Evaluator {
 /**
  *
  * @author Saul Wold
+ * @profile desktop
  */
 public class FXEvaluator {
 

@@ -25,6 +25,7 @@ package javafx.util;
 
 /**
  *  Bit operations
+ * @profile common
  */
 
 public class Bits {
