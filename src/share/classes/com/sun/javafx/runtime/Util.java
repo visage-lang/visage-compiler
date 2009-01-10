@@ -118,4 +118,81 @@ public class Util {
         } else
             return oldValue.equals(newValue);
     }
+
+    /** 
+     * The following are used to in jfx casts of object to a primitive type,
+     * eg:    function(pp) { pp as Float}
+     * If the Object passed in is not a Number or Character, then a ClassCastException will
+     * occur, which is ok because it isn't legal in jfx to cast a non numeric
+     * to a numeric.
+     */
+    static public char objectToCharacter(Object p1) {
+        if (p1 == null) {
+            return 0;
+        }
+        if (p1 instanceof Character) {
+            return ((Character)p1).charValue();
+        }
+        return (char)((Number)p1).intValue();
+    }
+
+    static public byte objectToByte(Object p1) {
+        if (p1 == null) {
+            return 0;
+        }
+        if (p1 instanceof Character) {
+            return (byte)((Character)p1).charValue();
+        }
+        return ((Number)p1).byteValue();
+    }
+
+    static public short objectToShort(Object p1) {
+        if (p1 == null) {
+            return 0;
+        }
+        if (p1 instanceof Character) {
+            return (short)((Character)p1).charValue();
+        }
+        return ((Number)p1).shortValue();
+    }
+
+    static public int objectToInt(Object p1) {
+        if (p1 == null) {
+            return 0;
+        }
+        if (p1 instanceof Character) {
+            return (int)((Character)p1).charValue();
+        }
+        return ((Number)p1).intValue();
+    }
+
+    static public long objectToLong(Object p1) {
+        if (p1 == null) {
+            return 0l;
+        }
+        if (p1 instanceof Character) {
+            return (long)((Character)p1).charValue();
+        }
+        return ((Number)p1).longValue();
+    }
+
+    static public float objectToFloat(Object p1) {
+        if (p1 == null) {
+            return 0.0f;
+        }
+        if (p1 instanceof Character) {
+            return (float)((Character)p1).charValue();
+        }
+        return ((Number)p1).floatValue();
+    }
+
+    static public double objectToDouble(Object p1) {
+        if (p1 == null) {
+            return 0.0d;
+        }
+        if (p1 instanceof Character) {
+            return (double)((Character)p1).charValue();
+        }
+        return ((Number)p1).doubleValue();
+    }
 }

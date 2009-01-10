@@ -2869,6 +2869,44 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitTypeCast(final JFXTypeCast tree) {
         final DiagnosticPosition diagPos = tree.pos();
+        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(tree.expr.type);
+        if (tmi.getTypeKind() == TYPE_KIND_OBJECT) {
+            // We can't just cast the Object to Float (for example)
+            // because if the Object is not Float, we will get a ClassCastException at runtime.
+            // And we can't just call java.lang.Number.floatValue() because java.lang.Number
+            // doesn't exist on mobile, at least not as of Jan 2009.
+            String method = null;
+            switch (tree.clazz.type.tag) {
+                case TypeTags.CHAR:
+                    method="objectToCharacter";
+                    break;
+                case TypeTags.BYTE:
+                    method="objectToByte";
+                    break;
+                case TypeTags.SHORT:
+                    method="objectToShort";
+                    break;
+                case TypeTags.INT:
+                    method="objectToInt";
+                    break;
+                case TypeTags.LONG:
+                    method="objectToLong";
+                    break;
+                case TypeTags.FLOAT:
+                    method="objectToFloat";
+                    break;
+                case TypeTags.DOUBLE:
+                    method="objectToDouble";
+                    break;
+            }
+            if (method != null) {
+                result = callExpression(diagPos,
+                                        makeQualifiedTree(diagPos, "com.sun.javafx.runtime.Util"),
+                                        method,
+                                        translate(tree.expr));
+                return;
+            }
+        }
         JCExpression ret = makeTypeCast(diagPos, tree.clazz.type, tree.expr.type, translateAsUnconvertedValue(tree.expr));
         result = convertNullability(diagPos, ret, tree.expr, tree.clazz.type);
     }
