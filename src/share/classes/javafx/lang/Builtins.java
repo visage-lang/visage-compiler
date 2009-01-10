@@ -31,6 +31,7 @@ import com.sun.javafx.runtime.location.BindableLocation;
  *
  * @author Brian Goetz
  * @author Saul Wold
+ * @profile common
  */
 public class Builtins {
     /**
