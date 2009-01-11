@@ -78,13 +78,6 @@ function doBigDecimal(val: java.math.BigDecimal) {
     foo("java.math.BigDecimal{val}", val);
 }
 
-
-
-doShort(500);
-
-
-
-
 doCharacter(100 as Character);
 doCharacter(10000 as Character);
 doCharacter(80000 as Character);
