@@ -16,7 +16,7 @@ class class1 {
 
 // This gets an Object and casts it to each type
 function foo(str: String, obj): Void { 
-    println("input: {str},    cast as Character: {obj as Character}");
+    println("input: {str},    cast as Character (then cast to Integer): {(obj as Character) as Integer}");
     println("input: {str},    cast as Byte:      {obj as Byte}");
     println("input: {str},    cast as Short:     {obj as Short}");
     println("input: {str},    cast as Integer:   {obj as Integer}");
@@ -31,7 +31,7 @@ function foo(str: String, obj): Void {
 // types.  Note that these calls to foo autobox 'val' so that it really becomes
 // an Object.
 function doCharacter(val: Character) {
-    foo("java.lang.Character {val}", val);
+    foo("java.lang.Character {val as Integer}", val);
 }
 
 function doByte(val: Byte) {
