@@ -602,20 +602,6 @@ println( food );
       assigns the result to the variable or sequence element referenced on the
       left-hand-side.</para>
 
-      <para></para>
-
-      <figure>
-        <title>assignmentOpExpression (Assignment Operator subset)</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="assignOpExpressionAssign.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
-
       <table>
         <title>Assignment Operators</title>
 
@@ -795,17 +781,6 @@ println( food );
       <para>Tween expressions are used in animation, see the <link
       linkend="Animation">Animation chapter</link>.</para>
 
-      <figure>
-        <title>assignmentOpExpression (Tween expression subset)</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="assignOpExpressionTween.png"></imagedata>
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para></para>
     </sect2>
   </sect1>
 
@@ -821,16 +796,6 @@ println( food );
     known to be true, so the right-hand-side is not evaluated</para>
 
     <figure>
-      <title>andExpression</title>
-
-      <mediaobject>
-        <imageobject>
-          <imagedata fileref="andExpression.png"></imagedata>
-        </imageobject>
-      </mediaobject>
-    </figure>
-
-    <figure>
       <title>orExpression</title>
 
       <mediaobject>
@@ -840,7 +805,15 @@ println( food );
       </mediaobject>
     </figure>
 
-    <para></para>
+    <figure>
+      <title>andExpression</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="andExpression.png"></imagedata>
+        </imageobject>
+      </mediaobject>
+    </figure>
 
     <para></para>
 
@@ -864,6 +837,16 @@ println( food );
 
         <tbody>
           <row>
+            <entry><command>or</command></entry>
+
+            <entry>Logical or</entry>
+
+            <entry>Boolean or Boolean</entry>
+
+            <entry>Boolean</entry>
+          </row>
+
+          <row>
             <entry><command>and</command></entry>
 
             <entry>Logical and</entry>
@@ -873,15 +856,6 @@ println( food );
             <entry>Boolean</entry>
           </row>
 
-          <row>
-            <entry><command>or</command></entry>
-
-            <entry>Logical or</entry>
-
-            <entry>Boolean or Boolean</entry>
-
-            <entry>Boolean</entry>
-          </row>
         </tbody>
       </tgroup>
     </table>

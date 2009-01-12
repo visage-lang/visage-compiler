@@ -3295,7 +3295,7 @@ assignmentOpExpression
 
 }
 
-	: lhs=andExpression			{ errNodes.append($lhs.value); }		
+	: lhs=orExpression			{ errNodes.append($lhs.value); }		
 	  
 		(     assignOp rhs=expression
 		
@@ -3306,10 +3306,10 @@ assignmentOpExpression
 				}
 				
            	| SUCHTHAT 
-           		such=andExpression { errNodes.append($such.value); }
+           		such=orExpression { errNodes.append($such.value); }
            	
            			(
-           				TWEEN i=andExpression
+           				TWEEN i=orExpression
            			)?
            	
            		{
@@ -3392,12 +3392,12 @@ catch [RecognitionException re] {
 }
 
 // -------------
-// AND opertator
-// LL(k) AND precedence
+// OR opertator
+// LL(k) OR precedence
 //
-andExpression
+orExpression
 
-	returns [JFXExpression value] 	// Expression tree for AND
+	returns [JFXExpression value] 	// Expression tree for OR
 		
 @init
 {
@@ -3412,17 +3412,17 @@ andExpression
 
 }
 
-	:	e1=orExpression
+	:	e1=andExpression
 			
 			{
 				$value = $e1.value;
 				errNodes.append($e1.value);
 			}
 	  		( 
-	  			AND e2=orExpression
+	  			OR e2=andExpression
 	  			
 	  			{
-	  				$value = F.at(rPos).Binary(JavafxTag.AND, $value, $e2.value);
+	  				$value = F.at(rPos).Binary(JavafxTag.OR, $value, $e2.value);
 	  				endPos($value);
 	  			}
 	  		)*
@@ -3447,12 +3447,12 @@ catch [RecognitionException re] {
 }
 
 // -----------
-// OR operator
-// LL(k) OR precedence
+// AND operator
+// LL(k) AND precedence
 //
-orExpression
+andExpression
 
-	returns [JFXExpression value] 	// Expression tree for OR
+	returns [JFXExpression value] 	// Expression tree for AND
 		
 @init
 {
@@ -3473,10 +3473,10 @@ orExpression
 			errNodes.append($e1.value);
 		}
 	  	( 
-	  		OR e2=typeExpression 
+	  		AND e2=typeExpression 
 	  		
 	  		{
-	  			$value = F.at(rPos).Binary(JavafxTag.OR, $value, $e2.value);
+	  			$value = F.at(rPos).Binary(JavafxTag.AND, $value, $e2.value);
 	  			endPos($value);
 	  		}
 	  	)*

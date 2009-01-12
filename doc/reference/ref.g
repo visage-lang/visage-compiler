@@ -728,21 +728,14 @@ assignmentExpression
 	;
 	
 assignmentOpExpression
-	: andExpression					
+	: orExpression					
 	  
-		(     assignOp valueExpression
-           	| '=>' such=andExpression ('tween' andExpression)?
+		(     (('+=') | ('-=') | ('*=') | ('/=')) valueExpression
+           	| '=>' such=orExpression ('tween' orExpression)?
 	   		|
 	   )
 	;
 
-assignmentOpExpressionAssign
-	: andExpression	 (('+=') | ('-=') | ('*=') | ('/=')) valueExpression
-	;
-
-assignmentOpExpressionTween
-	: andExpression	 '=>' such=andExpression ('tween' andExpression)?
-	;
 
 // -----------------
 // Assign operators
@@ -763,63 +756,26 @@ assignOp
 		}
 	;
 	
-// -------------
-// AND opertator
-// LL(k) AND precedence
-//
-andExpression
 
-	returns [JFXExpression value] 	// Expression tree for AND
+orExpression
+
+	returns [JFXExpression value] 	
 		
-@init
-{
-	// Work out current position in the input stream
-	//
-	int	rPos = pos();
-}
-
-	:	e1=orExpression
+	:	e1=andExpression
 			
-			{
-				$value = $e1.value;
-			}
 	  		( 
-	  			AND e2=orExpression
-	  			
-	  			{
-	  				$value = F.at(rPos).Binary(JavafxTag.AND, $value, $e2.value);
-	  				endPos($value);
-	  			}
+	  			'or' e2=andExpression
 	  		)*
 	;
 	
-// -----------
-// OR operator
-// LL(k) OR precedence
-//
-orExpression
 
-	returns [JFXExpression value] 	// Expression tree for OR
+andExpression
+
+	returns [JFXExpression value] 	
 		
-@init
-{
-	// Work out current position in the input stream
-	//
-	int	rPos = pos();
-}
-
 	: e1=typeExpression
-
-		{
-			$value = $e1.value;
-		}
 	  	( 
-	  		OR e2=typeExpression 
-	  		
-	  		{
-	  			$value = F.at(rPos).Binary(JavafxTag.OR, $value, $e2.value);
-	  			endPos($value);
-	  		}
+	  		'and' e2=typeExpression 
 	  	)*
 	;
 	

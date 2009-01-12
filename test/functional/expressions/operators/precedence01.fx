@@ -12,7 +12,6 @@ import java.lang.System;
  * This set of tests is mainly within priority classes.
  * Where appropriate check associativity (order of evaluation).
  *
- * This table is Table 5.1 of Language Reference
  *
  * BUGS:
  * jfxc-1414: Table 5.1 - order of evaluation for *,/,% should be left to right
@@ -29,9 +28,9 @@ _______________________________________________________________________________
  	         %= 			remainder and assign 	%=
  	         /= 			divide and assign 		/=
 _______________________________________________________________________________
-3 	         and 			logical and 				&& 					Right to Left
+3 	         or 			logical or 	|| 									Right to Left
 _______________________________________________________________________________
-4 	         or 			logical or 	|| 									Right to Left
+4 	         and 			logical and 				&& 					Right to Left
 _______________________________________________________________________________
 5 	         instanceof 	inheritance operator 	instanceof 			Right to Left
  	         as 			cast operator 				n/a
@@ -156,12 +155,12 @@ function test3() {
 	TA.checkB( b == false, "b = false or false and true;");
 
 	b = false and false or true;
-	TA.checkB( b == false, "b = false and false or true;" );
+	TA.checkB( b == true, "b = false and false or true;" );
 
-   //demonstrate it evaluates 'or' before 'and' so this is "false and (true or true)".
+   //demonstrate it evaluates 'and' before 'or' so this is "(false and true) or true".
 	//straight left to right would result in true.
 	b = false and true or true; 
-	TA.checkB( b == false, "b = true and false or true and false;" );
+	TA.checkB( b == true, "b = false and true or true;" );
 
 }
 
