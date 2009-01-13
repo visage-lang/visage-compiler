@@ -29,6 +29,9 @@ import java.util.Locale;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import com.sun.javafx.runtime.util.backport.ResourceBundle;
 
 public class StringLocalization {
@@ -53,9 +56,13 @@ public class StringLocalization {
     public static String getLocalizedString(String propertiesName, String explicitKey, 
                         String literal, Locale locale, Object... embeddedExpr) {
         String localization = literal;
+        ClassLoader cl = getCallerLoader();
+        if (cl == null) {
+            return literal;
+        }
 
         ResourceBundle rb = ResourceBundle.getBundle(propertiesName,
-                locale, getCallerLoader(), FXPropertyResourceBundle.FXPropertiesControl.INSTANCE);
+                locale, cl, FXPropertyResourceBundle.FXPropertiesControl.INSTANCE);
         if (explicitKey != null) {
             localization = rb.getString(explicitKey);
             if (explicitKey.equals(localization) && 
@@ -135,24 +142,36 @@ public class StringLocalization {
         return assoc;
     }
 
-    private static final ClassContext CC = new ClassContext();
+    private static ClassContext classContext = null;
     private static final String PKGNAME = StringLocalization.class.getPackage().getName();
-    private static ClassLoader getCallerLoader() {
-        Class[] callers = CC.getClassContext();
+    static {
         try {
+            classContext = (ClassContext)AccessController.doPrivileged(
+                new PrivilegedExceptionAction() {
+                    public Object run() {
+                        return new ClassContext();
+                    }
+                });
+        } catch (PrivilegedActionException pae) {
+            // classContext should remain null.
+        }
+    }
+
+    private static ClassLoader getCallerLoader() {
+        if (classContext != null) {
+            Class[] callers = classContext.getClassContext();
             for (Class c : callers) {
                 if (!c.getName().startsWith(PKGNAME)) {
                     ClassLoader cl = c.getClassLoader();
                     if (cl == null) {
                         // bootstrap class loader.  use the system class loader instead
-                        break;
+                        return ClassLoader.getSystemClassLoader();
                     } else {
                         return cl;
                     }
                 }
             }
-        } catch (SecurityException se) {
         }
-        return ClassLoader.getSystemClassLoader();
+        return null;
     }
 }
