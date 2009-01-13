@@ -9,16 +9,16 @@ import javafx.lang.FX;
 
 public class NumOverload1 extends FXTestCase {
 
-function overloadFoo(i : Integer):String {FX.println("Integer: {i}"); return "Integer";}
-function overloadFoo(i : Long):String {FX.println("Long: {i}"); return "Long";}
-function overloadFoo(i : Byte):String {FX.println("Byte: {i}"); return "Byte";}
-function overloadFoo(i : Character):String {FX.println("Character: {i}"); return "Character";}
-function overloadFoo(i : Short):String {FX.println("Short: {i}"); return "Short";}
-//function overloadFoo(i : Float):String {FX.println("Float: {i}"); return "Float";} // overloadFoo(float) is already defined
-function overloadFoo(i : Double):String {FX.println("Double: {i}"); return "Double";}
-//function overloadFoo(i : Number):String {FX.println("Number: {i}"); return "Number";} // overloadFoo(float) is already defined
-function overloadFoo(i : String):String {FX.println("String: {i}"); return "String";}
-function overloadFoo(i : Duration):String {FX.println("Duration: {i}"); return "Duration";}
+function overloadFoo(i : Integer):String {return "Integer";}
+function overloadFoo(i : Long):String {return "Long";}
+function overloadFoo(i : Byte):String {return "Byte";}
+function overloadFoo(i : Character):String {return "Character";}
+function overloadFoo(i : Short):String {return "Short";}
+//function overloadFoo(i : Float):String {return "Float";} // overloadFoo(float) is already defined
+function overloadFoo(i : Double):String {return "Double";}
+//function overloadFoo(i : Number):String {return "Number";} // overloadFoo(float) is already defined
+function overloadFoo(i : String):String {return "String";}
+function overloadFoo(i : Duration):String {return "Duration";}
     public function testInteger() {
         var i : Integer = 987654321;
         var r = overloadFoo(i);

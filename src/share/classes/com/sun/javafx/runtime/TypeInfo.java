@@ -38,7 +38,10 @@ import com.sun.javafx.runtime.sequence.Sequence;
  */
 public class TypeInfo<T> {
     public final T defaultValue;
+    public final Types type;
     public final Sequence<T> emptySequence;
+
+    public enum Types { INT, FLOAT, OBJECT, DOUBLE, BOOLEAN, LONG, SHORT, BYTE, CHAR, OTHER }
 
     private static Iterator<?> emptyIterator = new Iterator() {
         public boolean hasNext() {
@@ -54,10 +57,11 @@ public class TypeInfo<T> {
         }
     };
     
-    protected TypeInfo(T defaultValue) {
+    protected TypeInfo(T defaultValue, Types type) {
         // This is a fragile pattern; we are passing this to a superclass ctor before this is fully initialized.
         // Relying on the superclass ctor to not do anything other than copy the reference.
         this.defaultValue = defaultValue;
+        this.type = type;
         this.emptySequence = new AbstractSequence<T>(this) {
             public int size() {
                 return 0;
@@ -78,36 +82,36 @@ public class TypeInfo<T> {
         return false;
     }
 
-    public static final TypeInfo<Object> Object = new TypeInfo<Object>(null);
-    public static final TypeInfo<Boolean> Boolean = new TypeInfo<Boolean>(false);
-    public static final TypeInfo<Character> Character = new TypeInfo<Character>('\0');
-    public static final TypeInfo<String> String = new TypeInfo<String>("");
-    public static final NumericTypeInfo<Byte> Byte = new NumericTypeInfo<Byte>((byte)0) {
+    public static final TypeInfo<Object> Object = new TypeInfo<Object>(null, Types.OBJECT);
+    public static final TypeInfo<Boolean> Boolean = new TypeInfo<Boolean>(false, Types.BOOLEAN);
+    public static final TypeInfo<Character> Character = new TypeInfo<Character>('\0', Types.CHAR);
+    public static final TypeInfo<String> String = new TypeInfo<String>("", Types.OTHER);
+    public static final NumericTypeInfo<Byte> Byte = new NumericTypeInfo<Byte>((byte)0, Types.BYTE) {
         public <V extends Number> Byte asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
             return otherType.byteValue(otherValue);
         }
     };
-    public static final NumericTypeInfo<Short> Short = new NumericTypeInfo<Short>((short)0) {
+    public static final NumericTypeInfo<Short> Short = new NumericTypeInfo<Short>((short)0, Types.SHORT) {
         public <V extends Number> Short asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
             return otherType.shortValue(otherValue);
         }
     };
-    public static final NumericTypeInfo<Integer> Integer = new NumericTypeInfo<Integer>(0) {
+    public static final NumericTypeInfo<Integer> Integer = new NumericTypeInfo<Integer>(0, Types.INT) {
         public <V extends Number> Integer asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
             return otherType.intValue(otherValue);
         }
     };
-    public static final NumericTypeInfo<Long> Long = new NumericTypeInfo<Long>(0L) {
+    public static final NumericTypeInfo<Long> Long = new NumericTypeInfo<Long>(0L, Types.LONG) {
         public <V extends Number> Long asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
             return otherType.longValue(otherValue);
         }
     };
-    public static final NumericTypeInfo<Float> Float = new NumericTypeInfo<Float>(0.0f) {
+    public static final NumericTypeInfo<Float> Float = new NumericTypeInfo<Float>(0.0f, Types.FLOAT) {
         public <V extends Number> Float asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
             return otherType.floatValue(otherValue);
         }
     };
-    public static final NumericTypeInfo<Double> Double = new NumericTypeInfo<Double>(0.0) {
+    public static final NumericTypeInfo<Double> Double = new NumericTypeInfo<Double>(0.0, Types.DOUBLE) {
         public <V extends Number> Double asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
             return otherType.doubleValue(otherValue);
         }
@@ -141,11 +145,11 @@ public class TypeInfo<T> {
     }
 
     public static<T> TypeInfo<T> makeTypeInfo(T defaultValue) {
-        return new TypeInfo<T>(defaultValue);
+        return new TypeInfo<T>(defaultValue, Types.OTHER);
     }
 
     public static<T> TypeInfo<T> makeAndRegisterTypeInfo(Class clazz, T defaultValue) {
-        TypeInfo<T> ti = new TypeInfo<T>(defaultValue);
+        TypeInfo<T> ti = new TypeInfo<T>(defaultValue, Types.OTHER);
         map.put(clazz, ti);
         return ti;
     }

@@ -6,8 +6,8 @@ package com.sun.javafx.runtime;
  * @author Brian Goetz
  */
 public abstract class NumericTypeInfo<T extends Number> extends TypeInfo<T> {
-    public NumericTypeInfo(T defaultValue) {
-        super(defaultValue);
+    public NumericTypeInfo(T defaultValue, TypeInfo.Types type) {
+        super(defaultValue, type);
     }
 
     public boolean isNumeric() {
