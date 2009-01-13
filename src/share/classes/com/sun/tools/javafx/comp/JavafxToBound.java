@@ -696,7 +696,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         JCExpression toTest = makeGetField(selectorName, tmiSelector);
 
                         // construct the actual select
-                        JCExpression selectExpr = m().Select(transSelector, tree.getIdentifier());
+                        JCExpression selectExpr = convert(tree.type, toJava.convertVariableReference(diagPos,
+                                        m().Select(transSelector, tree.getIdentifier()),
+                                        tree.sym,
+                                        Locationness.AsValue));
 
                         // test the selector for null before attempting to select the field
                         // if it would dereference null, then instead give the default value
