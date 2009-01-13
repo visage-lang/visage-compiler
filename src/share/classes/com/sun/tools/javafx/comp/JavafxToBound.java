@@ -859,9 +859,14 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
              * Wrap in a conditional if there are where-clauses:   whereClause? body : []
              */
             private JCExpression makeCore() {
-                JCExpression body = translate(tree.getBodyExpression());
-                if (!types.isSequence(tree.getBodyExpression().type)) {
-                    List<JCExpression> args = List.of(makeResultClass(), body);
+                JCExpression body;
+                if (types.isSequence(tree.getBodyExpression().type)) {
+                    // the body is a sequence, desired type is the same as for the for-loop
+                    body = translate(tree.getBodyExpression(), tmiTarget);
+                } else {
+                    // the body is not a sequence, desired type is the element tpe need for for-loop
+                    JCExpression single = translate(tree.getBodyExpression(), tmiTarget.getElementType());
+                    List<JCExpression> args = List.of(makeResultClass(), single);
                     body = runtime(diagPos, cBoundSequences, "singleton", args);
                 }
                 JCExpression whereTest = null;
