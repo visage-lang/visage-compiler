@@ -2555,25 +2555,6 @@ public class JavafxAttr implements JavafxVisitor {
                     }
                 }
 
-                // Check that argument types of a reference ==, != are
-                // castable to each other, (JLS???).
-                if ((opc == ByteCodes.if_acmpeq || opc == ByteCodes.if_acmpne)) {
-                    if (!types.isCastable(left, right, new Warner(tree.pos()))) {
-                        boolean isError = true;
-                        if (right.tsym != null && right.tsym instanceof JavafxClassSymbol) {
-                            for (Type baseType : types.supertypes(right.tsym, right)) {
-                                if (types.isCastable(left, baseType, new Warner(tree.pos()))){
-                                    isError = false;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (isError) {
-                            log.error(tree.pos(), MsgSym.MESSAGE_INCOMPARABLE_TYPES, left, right);
-                        }
-                    }
-                }
                 chk.checkDivZero(tree.rhs.pos(), operator, right);
             }
         } else {

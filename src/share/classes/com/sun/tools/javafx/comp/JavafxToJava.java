@@ -2502,8 +2502,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
              * Return the translation for a == comparision
              */
             private JCExpression translateEqualsEquals() {
-                final JCExpression lhs = translateAsUnconvertedValue( tree.lhs );
-                final JCExpression rhs = translateAsUnconvertedValue( tree.rhs );
+                JCExpression lhs = translateAsUnconvertedValue( tree.lhs );
+                JCExpression rhs = translateAsUnconvertedValue( tree.rhs );
                 final Type lhsType = tree.lhs.type;
                 final Type rhsType = tree.rhs.type;
 
@@ -2519,6 +2519,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                             // lhs is null, rhs is non-primitive, figure out what check to do
                             return makeObjectNullCheck(rhsType, rhs);
                         }
+                    } else if ((types.isSequence(lhsType) && !types.isSequence(rhsType)) ||
+                            (types.isSequence(rhsType) && !types.isSequence(lhsType))) {
+                        if (types.isSequence(lhsType))
+                            rhs = convertTranslated(rhs, tree.pos(), rhsType, lhsType);
+                        else
+                            lhs = convertTranslated(lhs, tree.pos(), lhsType, rhsType);
+                        return makeFullCheck(lhs, rhs);
                     } else if (lhsType.isPrimitive()) {
                         if (rhsType.getKind() == TypeKind.NULL) {
                             // lhs is primitive, rhs is null, do default check on lhs
