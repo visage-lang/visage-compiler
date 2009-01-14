@@ -19,8 +19,8 @@ public class BoundComprehensionTest extends JavaFXTestCase {
     public void testSimpleComprehension() {
         SequenceLocation<Integer> base = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
         final SequenceLocation<Integer> derived = BoundSequences.makeSimpleBoundComprehension(TypeInfo.Integer, base, false,
-                                                                                              new BoundSequences.IntSimpleBoundComprehensionCallback<Integer>() {
-                                                                                                  public Integer computeElement$(int element, int index) {
+                                                                                              new BoundSequences.SimpleBoundComprehensionCallback<Integer, Integer>() {
+                                                                                                  public Integer computeElement$(Integer element, int index) {
                                                                                                       return element * 2;
                                                                                                   }
                                                                                               });
@@ -59,8 +59,8 @@ public class BoundComprehensionTest extends JavaFXTestCase {
     }
 
     public void testSimpleChainedComprehension() {
-        BoundSequences.IntSimpleBoundComprehensionCallback<Integer> timesTwo = new BoundSequences.IntSimpleBoundComprehensionCallback<Integer>() {
-            public Integer computeElement$(int element, int index) {
+        BoundSequences.SimpleBoundComprehensionCallback<Integer, Integer> timesTwo = new BoundSequences.SimpleBoundComprehensionCallback<Integer, Integer>() {
+            public Integer computeElement$(Integer element, int index) {
                 return element * 2;
             }
         };
@@ -104,8 +104,8 @@ public class BoundComprehensionTest extends JavaFXTestCase {
     public void testSimpleIndex() {
         SequenceLocation<Integer> base = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
         final SequenceLocation<Integer> derived = BoundSequences.makeSimpleBoundComprehension(TypeInfo.Integer, base, true,
-                                                                                              new BoundSequences.IntSimpleBoundComprehensionCallback<Integer>() {
-                                                                                                  public Integer computeElement$(int element, int index) {
+                                                                                              new BoundSequences.SimpleBoundComprehensionCallback<Integer, Integer>() {
+                                                                                                  public Integer computeElement$(Integer element, int index) {
                                                                                                       return index * 10 + element;
                                                                                                   }
                                                                                               });
@@ -186,8 +186,8 @@ public class BoundComprehensionTest extends JavaFXTestCase {
     public void testBindingWrapper() {
         SequenceLocation<Integer> base = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
         final SequenceLocation<Integer> derived = BoundSequences.makeSimpleBoundComprehension(TypeInfo.Integer, base, false,
-                                                                                              new BoundSequences.IntSimpleBoundComprehensionCallback<Integer>() {
-                                                                                                  public Integer computeElement$(int element, int index) {
+                                                                                              new BoundSequences.SimpleBoundComprehensionCallback<Integer, Integer>() {
+                                                                                                  public Integer computeElement$(Integer element, int index) {
                                                                                                       return element * 2;
                                                                                                   }
                                                                                               });
@@ -423,7 +423,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
 
         SequenceVariable<Foo> w = SequenceVariable.make(TypeInfo.<Foo>getTypeInfo());
         SequenceLocation<String> stringSequence = SequenceVariable.make(TypeInfo.String, Sequences.make(TypeInfo.String, "a", "b"));
-        w.bind(false, new ObjectBoundComprehension<String, Foo>(TypeInfo.<Foo>getTypeInfo(), stringSequence, false) {
+        w.bind(false, new AbstractBoundComprehension<String, ObjectLocation<String>, Foo>(TypeInfo.<Foo>getTypeInfo(), TypeInfo.String, stringSequence, false) {
             protected SequenceLocation<Foo> computeElements$(final ObjectLocation<String> textStr, final IntLocation $indexof$textStr) {
                 return BoundSequences.singleton(TypeInfo.<Foo>getTypeInfo(),
                                                 ObjectVariable.make(false, new ObjectBindingExpression<Foo>() {

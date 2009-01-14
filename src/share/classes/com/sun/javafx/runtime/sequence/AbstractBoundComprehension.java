@@ -44,13 +44,16 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
 
     private final SequenceLocation<T> sequenceLocation;
     protected final boolean useIndex;
+    protected final TypeInfo<T> inType;
     private DumbMutableSequence<State<T, L, V>> state;
     private BoundCompositeSequence<V> underlying;
 
     public AbstractBoundComprehension(TypeInfo<V> typeInfo,
+                                      TypeInfo<T> inType,
                                       SequenceLocation<T> sequenceLocation,
                                       boolean useIndex) {
         super(typeInfo);
+        this.inType = inType;
         this.sequenceLocation = sequenceLocation;
         this.useIndex = useIndex;
         setInitialValue(computeValue());
@@ -58,8 +61,9 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
     }
 
     public AbstractBoundComprehension(TypeInfo<V> typeInfo,
-                              SequenceLocation<T> sequenceLocation) {
-        this(typeInfo, sequenceLocation, false);
+                                      TypeInfo<T> inType,
+                                      SequenceLocation<T> sequenceLocation) {
+        this(typeInfo, inType, sequenceLocation, false);
     }
 
     protected static class State<T, L extends ObjectLocation<T>, V> {
@@ -102,7 +106,29 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
 
     protected abstract SequenceLocation<V> computeElements$(L elementLocation, IntLocation indexLocation);
 
-    protected abstract L makeInductionLocation(T value);
+    @SuppressWarnings("unchecked")
+    protected L makeInductionLocation(T value) {
+            switch (inType.type) {
+                case BOOLEAN:
+                    return (L) BooleanVariable.make((Boolean) value);
+                case BYTE:
+                    return (L) ByteVariable.make((Byte) value);
+                case CHAR:
+                    return (L) CharVariable.make((Character) value);
+                case DOUBLE:
+                    return (L) DoubleVariable.make((Double) value);
+                case FLOAT:
+                    return (L) FloatVariable.make((Float) value);
+                case INT:
+                    return (L) IntVariable.make((Integer) value);
+                case LONG:
+                    return (L) LongVariable.make((Long) value);
+                case SHORT:
+                    return (L) ShortVariable.make((Short) value);
+                default:
+                    return (L) ObjectVariable.make((T) value);
+            }
+    }
 
     private State<T, L, V> makeState(int index, T value) {
         L elementLocation = makeInductionLocation(value);

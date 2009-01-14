@@ -60,9 +60,9 @@ public class JavafxTypeMorpher {
     public final LocationNameSymType[] bindingNCT;
     public final LocationNameSymType[] locationNCT;
     public final LocationNameSymType[] variableNCT;
-    public final LocationNameSymType[] boundComprehensionNCT;
     public final LocationNameSymType[] constantLocationNCT;
     public final LocationNameSymType   baseLocation;
+    public final LocationNameSymType abstractBoundComprehension;
 
     private final Object[] defaultValueByKind;
 
@@ -212,14 +212,13 @@ public class JavafxTypeMorpher {
         variableNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         locationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         bindingNCT = new LocationNameSymType[TYPE_KIND_COUNT];  
-        boundComprehensionNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         constantLocationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
+        abstractBoundComprehension = new LocationNameSymType(sequencePackageNameString, "AbstractBoundComprehension");
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
             variableNCT[kind] = new LocationNameSymType(defs.locationVariableName[kind]);
             locationNCT[kind] = new LocationNameSymType(defs.locationInterfaceName[kind]);
             bindingNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "BindingExpression");
-            boundComprehensionNCT[kind] = new LocationNameSymType(sequencePackageNameString, JavafxVarSymbol.getTypePrefix(kind) + "BoundComprehension");
             constantLocationNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Constant");
         }
 

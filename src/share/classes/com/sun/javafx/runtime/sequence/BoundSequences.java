@@ -172,61 +172,16 @@ public class BoundSequences {
         return new BoundNumericConversion<T, V>(toType, fromType, seq);
     }
 
-    public interface ObjectSimpleBoundComprehensionCallback<T, V> {
+    public interface SimpleBoundComprehensionCallback<T, V> {
          V computeElement$(T element, int index);
-    }
-
-    public interface IntSimpleBoundComprehensionCallback<V> {
-         V computeElement$(int element, int index);
-    }
-
-    public interface DoubleSimpleBoundComprehensionCallback<V> {
-         V computeElement$(double element, int index);
-    }
-
-    public interface BooleanSimpleBoundComprehensionCallback<V> {
-        V computeElement$(boolean element, int index);
     }
 
     public static<T, V> SequenceLocation<V> makeSimpleBoundComprehension(TypeInfo<V> typeInfo,
                                                                          SequenceLocation<T> seq,
                                                                          boolean useIndex,
-                                                                         final ObjectSimpleBoundComprehensionCallback<T, V> callback) {
+                                                                         final SimpleBoundComprehensionCallback<T, V> callback) {
         return new SimpleBoundComprehension<T, V>(typeInfo, seq, useIndex) {
             protected V computeElement$(T element, int index) {
-                return callback.computeElement$(element, index);
-            }
-        };
-    }
-
-    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(TypeInfo<V> typeInfo,
-                                                                      SequenceLocation<Integer> seq,
-                                                                      boolean useIndex,
-                                                                      final IntSimpleBoundComprehensionCallback<V> callback) {
-        return new SimpleBoundComprehension<Integer, V>(typeInfo, seq, useIndex) {
-            protected V computeElement$(Integer element, int index) {
-                return callback.computeElement$(element, index);
-            }
-        };
-    }
-
-    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(TypeInfo<V> typeInfo,
-                                                                      SequenceLocation<Double> seq,
-                                                                      boolean useIndex,
-                                                                      final DoubleSimpleBoundComprehensionCallback<V> callback) {
-        return new SimpleBoundComprehension<Double, V>(typeInfo, seq, useIndex) {
-            protected V computeElement$(Double element, int index) {
-                return callback.computeElement$(element, index);
-            }
-        };
-    }
-
-    public static<V> SequenceLocation<V> makeSimpleBoundComprehension(TypeInfo<V> typeInfo,
-                                                                      SequenceLocation<Boolean> seq,
-                                                                      boolean useIndex,
-                                                                      final BooleanSimpleBoundComprehensionCallback<V> callback) {
-        return new SimpleBoundComprehension<Boolean, V>(typeInfo, seq, useIndex) {
-            protected V computeElement$(Boolean element, int index) {
                 return callback.computeElement$(element, index);
             }
         };
@@ -236,40 +191,13 @@ public class BoundSequences {
          SequenceLocation<T_OUT> computeElements$(T_IN_LOCATION elementLocation, IntLocation indexLocation);
     }
 
-    public static<T_VALUE, T_LOCATION extends ObjectLocation<T_VALUE>>
-        T_LOCATION makeInductionLocation(TypeInfo typeInfo, T_VALUE initialValue) {
-        switch (typeInfo.type) {
-            case BOOLEAN:
-                return (T_LOCATION) BooleanVariable.make((Boolean) initialValue);
-            case BYTE:
-                return (T_LOCATION) ByteVariable.make((Byte) initialValue);
-            case CHAR:
-                return (T_LOCATION) CharVariable.make((Character) initialValue);
-            case DOUBLE:
-                return (T_LOCATION) DoubleVariable.make((Double) initialValue);
-            case FLOAT:
-                return (T_LOCATION) FloatVariable.make((Float) initialValue);
-            case INT:
-                return (T_LOCATION) IntVariable.make((Integer) initialValue);
-            case LONG:
-                return (T_LOCATION) LongVariable.make((Long) initialValue);
-            case SHORT:
-                return (T_LOCATION) ShortVariable.make((Short) initialValue);
-            default:
-                return (T_LOCATION) ObjectVariable.<T_VALUE>make((T_VALUE) initialValue);
-        }
-    }
-
-    public static<T_IN, T_OUT, T_IN_LOCATION extends ObjectLocation<T_IN>> SequenceLocation<T_OUT> makeBoundComprehension(final TypeInfo<T_OUT> outTypeInfo,
-                                                                                                                          final TypeInfo<T_IN> inTypeInfo,
-                                                                                                                          SequenceLocation<T_IN> inSequence,
-                                                                                                                          boolean useIndex,
-                                                                                                                          final BoundComprehensionCallback<T_IN, T_OUT, T_IN_LOCATION> callback) {
-        return new AbstractBoundComprehension<T_IN, T_IN_LOCATION, T_OUT>(outTypeInfo, inSequence, useIndex) {
-            protected T_IN_LOCATION makeInductionLocation(T_IN value) {
-                return BoundSequences.<T_IN, T_IN_LOCATION>makeInductionLocation(inTypeInfo, value);
-            }
-
+    public static<T_IN, T_OUT, T_IN_LOCATION extends ObjectLocation<T_IN>> SequenceLocation<T_OUT>
+    makeBoundComprehension(final TypeInfo<T_OUT> outTypeInfo,
+                           final TypeInfo<T_IN> inTypeInfo,
+                           SequenceLocation<T_IN> inSequence,
+                           boolean useIndex,
+                           final BoundComprehensionCallback<T_IN, T_OUT, T_IN_LOCATION> callback) {
+        return new AbstractBoundComprehension<T_IN, T_IN_LOCATION, T_OUT>(outTypeInfo, inTypeInfo, inSequence, useIndex) {
             protected SequenceLocation<T_OUT> computeElements$(T_IN_LOCATION elementLocation, IntLocation indexLocation) {
                 return callback.computeElements$(elementLocation, indexLocation);
             }

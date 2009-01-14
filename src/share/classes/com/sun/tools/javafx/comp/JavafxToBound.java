@@ -945,16 +945,16 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 }
                 List<JCExpression> constructorArgs = List.of(
                         makeResultClass(),
+                        makeTypeInfo(diagPos, tmiInduction.getRealBoxedType()),
                         transSeq,
                         m().Literal(TypeTags.BOOLEAN, useIndex? 1 : 0) );
                 //JCExpression clazz = makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.BoundComprehension");
                 int typeKind = tmiInduction.getTypeKind();
-                Type bcType = typeMorpher.boundComprehensionNCT[typeKind].type;
+                Type bcType = typeMorpher.abstractBoundComprehension.type;
                 JCExpression clazz = makeExpression(types.erasure(bcType));  // type params added below, so erase formals
                 ListBuffer<JCExpression> typeParams = ListBuffer.lb();
-                if (typeKind == TYPE_KIND_OBJECT) {
-                    typeParams.append( makeExpression(elementType) );
-                }
+                typeParams.append( makeExpression(tmiInduction.getRealBoxedType()) );
+                typeParams.append( makeExpression(tmiInduction.getLocationType()) );
                 typeParams.append( makeExpression(resultElementType) );
                 clazz = m().TypeApply(clazz, typeParams.toList());
                 return m().NewClass(null,
