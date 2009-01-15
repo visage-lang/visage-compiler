@@ -478,7 +478,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
 
             protected JCExpression resultValue() {
-                JCExpression rv = new InstanciateTranslator(tree, toJava) {
+                return new InstanciateTranslator(tree, toJava) {
 
                     protected void processLocalVar(JFXVar var) {
                         JFXExpression init = var.getInitializer();
@@ -514,8 +514,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         setInstanceVariable(init.pos(), instName, bindStatus, vsym, initRef);
                     }
                 }.doit();
-                return tmiTarget==null? rv : toJava.convertTranslated(rv, diagPos, tree.type, tmiTarget.getRealFXType());
-
             }
         }.doit();
     }
@@ -696,15 +694,15 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         JCExpression toTest = makeGetField(selectorName, tmiSelector);
 
                         // construct the actual select
-                        JCExpression selectExpr = convert(tree.type, toJava.convertVariableReference(diagPos,
+                        JCExpression selectExpr = toJava.convertVariableReference(diagPos,
                                         m().Select(transSelector, tree.getIdentifier()),
                                         tree.sym,
-                                        Locationness.AsValue));
+                                        Locationness.AsValue);
 
                         // test the selector for null before attempting to select the field
                         // if it would dereference null, then instead give the default value
                         JCExpression cond = m().Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
-                        JCExpression defaultExpr = makeDefaultValue(diagPos, tmiResult);
+                        JCExpression defaultExpr = makeDefaultValue(diagPos, actualTranslatedType);
                         return m().Conditional(cond, selectExpr, defaultExpr);
                     }
 
@@ -1100,8 +1098,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
      */
     private abstract class BindingExpressionClosureTranslator extends ClosureTranslator {
 
+        final Type actualTranslatedType;
+
         BindingExpressionClosureTranslator(DiagnosticPosition diagPos, Type resultType) {
             super(diagPos, resultType);
+            this.actualTranslatedType = resultType;
         }
 
         protected abstract JCExpression resultValue();
@@ -1112,7 +1113,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
         protected List<JCTree> makeBody() {
             buildFields();
-            JCExpression resultVal = resultValue(); // build first since this may add dependencies
+            // build first since this may add dependencies
+            // convert the result type to match the type of computeValue()
+            JCExpression resultVal = tmiTarget==null?
+                resultValue():
+                toJava.convertTranslated(resultValue(), diagPos, actualTranslatedType, tmiTarget.getRealType());
 
             // create a getStaticDependents method to set the args as static dependents
             Type locationType = typeMorpher.baseLocation.type;
@@ -1209,7 +1214,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                     // test the selector for null before attempting to invoke the method
                                     // if it would dereference null, then instead give the default value
                                     JCExpression cond = m().Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
-                                    JCExpression defaultExpr = makeDefaultValue(diagPos, tmiResult);
+                                    JCExpression defaultExpr = makeDefaultValue(diagPos, actualTranslatedType);
                                     return m().Conditional(cond, call, defaultExpr);
                                 } else {
                                     return call;
@@ -1240,7 +1245,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                     transMeth instanceof JCFieldAccess) {
                                   JCFieldAccess selectTr = (JCFieldAccess) transMeth;
                                   callArgs.prepend(selectTr.getExpression());
-                                  JCExpression receiverType = makeTypeTree(diagPos,msym.owner.type, false);
+                                  JCExpression receiverType = makeTypeTree(diagPos,msym. owner.type, false);
                                   transMeth = make.at(transMeth).Select(receiverType, functionName(msym, true, false));
                                   
                                 }
@@ -1474,7 +1479,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
 
             protected JCExpression resultValue() {
-                JCExpression kv = new InterpolateValueTranslator(tree, toJava) {
+                return new InterpolateValueTranslator(tree, toJava) {
 
                     @Override
                     void setInstanceVariable(DiagnosticPosition diagPos, Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression transInit) {
@@ -1497,7 +1502,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         return makeConstantLocation(diagPos, syms.javafx_KeyValueTargetType, val);
                     }
                 }.doit();
-                return tmiTarget==null? kv : toJava.convertTranslated(kv, diagPos, syms.javafx_KeyValueType, tmiTarget.getRealFXType());
             }
         }.doit();
     }

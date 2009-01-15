@@ -1,0 +1,9 @@
+/**
+ * JFXC-2668 : Regression: crash: no bound conversion of instance to sequence of superclass 
+ *
+ * @test
+ * @run
+ */
+
+var zzz : Object[] = bind 11 as Number;
+println(zzz);
