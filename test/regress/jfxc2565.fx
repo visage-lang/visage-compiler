@@ -1,0 +1,22 @@
+/**
+ * JFXC-2565 : bind on sequence of KeyValueTargets fails
+ *
+ * @test
+ */
+
+import javafx.animation.*;
+
+   var opacity = 1.0;
+
+   var timeline_backward = Timeline {
+        repeatCount: 1 //Timeline.INDEFINITE
+        keyFrames : [
+            KeyFrame {
+                time : 2s
+                values : bind [
+                    opacity => 1.0 tween Interpolator.LINEAR
+                ]
+            }
+        ]
+    }
+
