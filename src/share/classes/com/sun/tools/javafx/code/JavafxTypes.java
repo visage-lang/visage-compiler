@@ -97,6 +97,11 @@ public class JavafxTypes extends Types {
         return elemType;
     }
 
+    public Type unboxedTypeOrType(Type t) {
+        Type ubt = unboxedType(t);
+        return ubt==Type.noType? t : ubt;
+    }
+
     public void getSupertypes(Symbol clazz, ListBuffer<Type> supertypes,Set<Type> dupSet) {
         if (clazz != null) {
             Type supType = supertype(clazz.type);

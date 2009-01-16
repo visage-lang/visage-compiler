@@ -863,7 +863,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     body = translate(tree.getBodyExpression(), tmiTarget);
                 } else {
                     // the body is not a sequence, desired type is the element tpe need for for-loop
-                    JCExpression single = translate(tree.getBodyExpression(), tmiTarget.getElementType());
+                    JCExpression single = translate(tree.getBodyExpression(), types.unboxedTypeOrType(tmiTarget.getElementType()));
                     List<JCExpression> args = List.of(makeResultClass(), single);
                     body = runtime(diagPos, cBoundSequences, "singleton", args);
                 }
