@@ -2502,10 +2502,25 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
              * Return the translation for a == comparision
              */
             private JCExpression translateEqualsEquals() {
-                JCExpression lhs = translateAsUnconvertedValue( tree.lhs );
-                JCExpression rhs = translateAsUnconvertedValue( tree.rhs );
                 final Type lhsType = tree.lhs.type;
                 final Type rhsType = tree.rhs.type;
+
+                final boolean reqSeq = types.isSequence(lhsType) ||
+                        types.isSequence(rhsType);
+
+                Type expected = tree.operator.type.getParameterTypes().head;
+
+                if (reqSeq) {
+                    Type left = types.isSequence(lhsType) ? types.elementType(lhsType) : lhsType;
+                    Type right = types.isSequence(rhsType) ? types.elementType(rhsType) : rhsType;
+                    if (left.isPrimitive() && right.isPrimitive() && left == right)
+                        expected = left;
+                }
+                
+                final JCExpression lhs = translateAsValue(tree.lhs, reqSeq ?
+                    types.sequenceType(expected) : null);
+                final JCExpression rhs = translateAsValue(tree.rhs, reqSeq ?
+                    types.sequenceType(expected) : null);
 
                     // this is an x == y
                     if (lhsType.getKind() == TypeKind.NULL) {
@@ -2518,14 +2533,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         } else {
                             // lhs is null, rhs is non-primitive, figure out what check to do
                             return makeObjectNullCheck(rhsType, rhs);
-                        }
-                    } else if ((types.isSequence(lhsType) && !types.isSequence(rhsType)) ||
-                            (types.isSequence(rhsType) && !types.isSequence(lhsType))) {
-                        if (types.isSequence(lhsType))
-                            rhs = convertTranslated(rhs, tree.pos(), rhsType, lhsType);
-                        else
-                            lhs = convertTranslated(lhs, tree.pos(), lhsType, rhsType);
-                        return makeFullCheck(lhs, rhs);
+                        }                    
                     } else if (lhsType.isPrimitive()) {
                         if (rhsType.getKind() == TypeKind.NULL) {
                             // lhs is primitive, rhs is null, do default check on lhs

@@ -29,9 +29,7 @@ bound function doItl1(): Boolean {
 bound function doItnn(): Boolean {
     var obj : Less = null;
     var seq : Integer[] = null;
-
-    not (seq != obj) and 
-    not (obj != seq) and 
+    
     not (seq != null) and 
     not (null != seq) and 
     not (seq != []) and

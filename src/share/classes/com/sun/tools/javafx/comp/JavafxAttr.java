@@ -2519,9 +2519,12 @@ public class JavafxAttr implements JavafxVisitor {
             JFXVar rhsVarTree = varSymToTree.get(rhsSym);
             right = setBinaryTypes(tree.getFXTag(), tree.rhs, rhsVarTree, rhsSym.type, rhsSym);
         }
-
-        Symbol sym =
-            rs.resolveBinaryOperator(tree.pos(), tree.getFXTag(), env, left, right);
+        boolean isEq = tree.getOperatorTag() == JFXTree.EQ || tree.getOperatorTag() == JFXTree.NE;
+        //comparson operators == and != should work in the sequence vs. non-sequence
+        //case - resolution of comparison operators works over non-sequence types
+        Symbol sym = rs.resolveBinaryOperator(tree.pos(), tree.getFXTag(), env,
+            (isEq && types.isSequence(left)) ? types.elementType(left) : left,
+            (isEq && types.isSequence(right)) ? types.elementType(right) : right);
         Type owntype = syms.errType;
         if (sym instanceof OperatorSymbol) {
             // Find operator.
@@ -2552,6 +2555,16 @@ public class JavafxAttr implements JavafxVisitor {
                         if (tree.rhs.type.tsym == syms.stringType.tsym) {
                             tree.rhs.type = syms.stringType;
                         }
+                    }
+                }
+
+                // Check that argument types of a reference ==, != are
+                // castable to each other, (JLS???).
+                if ((opc == ByteCodes.if_acmpeq || opc == ByteCodes.if_acmpne)) {
+                    if (!types.isCastable(left, right, Warner.noWarnings)) {
+                        log.error(tree.pos(), MsgSym.MESSAGE_INCOMPARABLE_TYPES,
+                            types.toJavaFXString(left),
+                            types.toJavaFXString(right));
                     }
                 }
 

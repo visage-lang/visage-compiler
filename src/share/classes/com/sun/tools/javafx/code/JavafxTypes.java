@@ -221,6 +221,35 @@ public class JavafxTypes extends Types {
 
         return false;
     }
+
+    @Override
+    public boolean isCastable(Type t, Type s, Warner warn) {
+        Type target = isSequence(s) ? elementType(s) : s;
+        Type source = isSequence(t) ? elementType(t) : t;
+        if (target.isPrimitive() && ! source.isPrimitive())
+            target = boxedClass(target).type;
+        if (source.isPrimitive() && ! target.isPrimitive())
+            source = boxedClass(source).type;
+
+        if (source == syms.botType ||
+            target == syms.botType)
+            return true;
+
+        boolean isSourceFinal = (source.tsym.flags() & FINAL) != 0;
+        boolean isTargetFinal = (target.tsym.flags() & FINAL) != 0;
+        if (isJFXClass(source.tsym) && isJFXClass(target.tsym))
+            return true;
+        else if (isJFXClass(source.tsym) &&
+            !isTargetFinal || 
+            target.isInterface())
+            return true;
+        else if (isJFXClass(target.tsym) &&
+            !isSourceFinal ||
+            target.isInterface())
+            return true;
+        else //conversion between two primitives/Java classes
+            return super.isCastable(source, target, warn);
+    }
     
     public boolean isCompoundClass(Symbol sym) {
         if (! (sym instanceof JavafxClassSymbol))

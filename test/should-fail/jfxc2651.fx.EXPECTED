@@ -1,0 +1,58 @@
+test/should-fail/jfxc2651.fx:16: incomparable types: jfxc2651.A and String
+(a == (x as java.lang.String));
+ ^
+test/should-fail/jfxc2651.fx:17: incomparable types: String and jfxc2651.A
+((x as java.lang.String) == a);
+ ^
+test/should-fail/jfxc2651.fx:19: incomparable types: jfxc2651.A[] and String
+([a] == (x as java.lang.String));
+ ^
+test/should-fail/jfxc2651.fx:20: incomparable types: String and jfxc2651.A[]
+((x as java.lang.String) == [a]);
+ ^
+test/should-fail/jfxc2651.fx:22: incomparable types: jfxc2651.A and String[]
+(a == [(x as java.lang.String)]);
+ ^
+test/should-fail/jfxc2651.fx:23: incomparable types: String[] and jfxc2651.A
+([(x as java.lang.String)] == a);
+ ^
+test/should-fail/jfxc2651.fx:25: incomparable types: jfxc2651.A[] and String[]
+([a] == [(x as java.lang.String)]);
+ ^
+test/should-fail/jfxc2651.fx:26: incomparable types: String[] and jfxc2651.A[]
+([(x as java.lang.String)] == [a]);
+ ^
+test/should-fail/jfxc2651.fx:28: incomparable types: java.util.ArrayList and java.util.HashSet
+((x as ArrayList) == (x as HashSet));
+ ^
+test/should-fail/jfxc2651.fx:29: incomparable types: java.util.ArrayList and java.util.HashSet[]
+((x as ArrayList) == [(x as HashSet)]);
+ ^
+test/should-fail/jfxc2651.fx:30: incomparable types: java.util.ArrayList[] and java.util.HashSet
+([(x as ArrayList)] == (x as HashSet));
+ ^
+test/should-fail/jfxc2651.fx:31: incomparable types: java.util.ArrayList[] and java.util.HashSet[]
+([(x as ArrayList)] == [(x as HashSet)]);
+ ^
+test/should-fail/jfxc2651.fx:35: incomparable types: Integer and Boolean
+System.out.println(1 == false);
+                   ^
+test/should-fail/jfxc2651.fx:37: incomparable types: Integer[] and Boolean
+System.out.println([1] == false);
+                   ^
+test/should-fail/jfxc2651.fx:38: incomparable types: Boolean and Integer[]
+System.out.println(false == [1]);
+                   ^
+test/should-fail/jfxc2651.fx:40: incomparable types: Boolean[] and Integer
+System.out.println([false] == 1);
+                   ^
+test/should-fail/jfxc2651.fx:41: incomparable types: Integer and Boolean[]
+System.out.println(1 == [false]);
+                   ^
+test/should-fail/jfxc2651.fx:43: incomparable types: Boolean[] and Integer[]
+System.out.println([false] == [1]);
+                   ^
+test/should-fail/jfxc2651.fx:44: incomparable types: Integer[] and Boolean[]
+System.out.println([1] == [false]);
+                   ^
+19 errors
