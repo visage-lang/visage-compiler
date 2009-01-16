@@ -177,4 +177,14 @@ public class BlockExprAttr extends Attr  {
             checkSerialVersionUID(tree, c);
         }
     }
+
+    /**
+     * Force an expected kind that was provided by the JavaFX front-end
+     */
+    public void visitAugmentedIdent(AugmentedJCIdent tree) {
+        if (tree.pkind != Kinds.NIL && tree.sym == null) {
+            pkind = tree.pkind;
+        }
+        visitIdent(tree);
+    }
 }

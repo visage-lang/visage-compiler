@@ -27,6 +27,7 @@ import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.*;
@@ -237,11 +238,45 @@ public abstract class JavafxTranslationSupport {
             String part = str.substring(lastInx, endInx);
             Name partName = names.fromString(part);
             tree = tree == null?
-                make.at(diagPos).Ident(partName) :
+                makeIdentOfPresetKind(diagPos, partName, Kinds.PCK) :
                 make.at(diagPos).Select(tree, partName);
             lastInx = endInx + 1;
         } while (inx >= 0);
         return tree;
+    }
+
+    
+    protected JCExpression makeAccessExpression(DiagnosticPosition diagPos, Symbol sym, boolean makeIntf) {
+        Symbol owner = sym.owner;
+        Name name = sym.name;
+        switch (sym.kind) {
+            case Kinds.PCK:
+                if (name == null || name == name.table.empty) {
+                    return null;
+                }
+                break;
+            case Kinds.TYP:
+                if (owner.type != null && owner.type.tag == TypeTags.TYPEVAR) {
+                    throw new RuntimeException("TYPEVAR: " + owner.type);
+                }
+                if (makeIntf) {
+                    name = names.fromString(name.toString() + interfaceSuffix);
+                }
+                break;
+            default:
+                return null;
+        }
+        if (owner != null) {
+            JCExpression oExpr = makeAccessExpression(diagPos, owner, false);
+            if (oExpr != null) {
+                return make.at(diagPos).Select(oExpr, name);
+            }
+        }
+        if (sym.kind == Kinds.PCK) {
+            return makeIdentOfPresetKind(diagPos, name, Kinds.PCK);
+        } else {
+            return make.at(diagPos).Ident(name);
+        }
     }
 
     /**
@@ -267,6 +302,7 @@ public abstract class JavafxTranslationSupport {
         }
         return makeTypeTreeInner(diagPos, t, makeIntf);
     }
+
     private JCExpression makeTypeTreeInner(DiagnosticPosition diagPos, Type t, boolean makeIntf) {
         while (t instanceof CapturedType)
             t = ((CapturedType) t).wildcard;
@@ -275,12 +311,12 @@ public abstract class JavafxTranslationSupport {
                 JCExpression texp = null;
 
                 if (makeIntf && types.isCompoundClass(t.tsym)) {
-                    texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString() + interfaceSuffix);
+                    texp = makeAccessExpression(diagPos, t.tsym, true);
                 } else {
                     if (t.isCompound()) {
                         t = syms.objectType;
                     }
-                    texp = makeQualifiedTree(diagPos, t.tsym.getQualifiedName().toString());
+                    texp = makeAccessExpression(diagPos, t.tsym, false);
                 }
 
                 // Type outer = t.getEnclosingType();
@@ -695,6 +731,12 @@ public abstract class JavafxTranslationSupport {
                 attributeGetterName(attribSym));
        }
    }
+
+    JCIdent makeIdentOfPresetKind(DiagnosticPosition diagPos, Name name, int pkind) {
+        AugmentedJCIdent id = new AugmentedJCIdent(name, pkind);
+        id.pos = (diagPos == null ? Position.NOPOS : diagPos.getStartPosition());
+        return id;
+    }
 
     BlockExprJCBlockExpression makeBlockExpression(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value) {
         BlockExprJCBlockExpression bexpr = new BlockExprJCBlockExpression(0L, stmts, value);
