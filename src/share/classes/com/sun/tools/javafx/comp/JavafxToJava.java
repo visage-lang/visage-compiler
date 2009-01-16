@@ -3365,7 +3365,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             boolean doNoteShared = false;
             if (wrapper == AsValue) {
                 Type type = vsym.type;
-                if (types.isSequence(type) || type == syms.objectType || type == syms.unknownType)
+                if (types.isSequence(type))
                     doNoteShared = true;
             }
  
