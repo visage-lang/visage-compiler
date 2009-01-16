@@ -31,6 +31,10 @@ import java.lang.Object;
  * <p>
  * By default, {@code Interpolator.LINEAR} is used in the interval.
  *
+ * <p>
+ * Users will not normally use this class directly. It is a runtime
+ * support class for the animation feature of the JavaFX compiler.
+ *
  * @profile common
  * @see Interpolator
  * @see KeyValueTarget
