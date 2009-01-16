@@ -1,7 +1,8 @@
 /*
  * Regression test for JFXC-2651 : fix for JFXC-833 crashes compiler on test of incomparable types
  *
- * @test 
+ * @test
+ * @run
  */
 
 import java.util.*;
