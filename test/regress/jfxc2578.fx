@@ -5,7 +5,8 @@
  *   cannot be applied to (int)
  *             s++;
  *             ^
- * @test/fail
+ * @test
+ * @run
  */
 
 
@@ -19,8 +20,16 @@ class jfxc2578 {
     function test() {
         // doesn't happen with a local var
         var sss : Short = 99;
-        // Each of the following 2 lines causes a compilation failure
+        sss++;
+        println(sss);
+        sss--;
+        println(sss);
+        // Each of the following 2 lines caused a compilation failure
         s++;
+        println(s);
         s--;
+        println(s);
     }
 }
+
+jfxc2578{}.test();

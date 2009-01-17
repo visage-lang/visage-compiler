@@ -3211,9 +3211,17 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             private JCExpression doIncDec(final int binaryOp, final boolean postfix) {
                 return (JCExpression) new AssignTranslator(diagPos, expr, fxm().Literal(1)) {
 
+                    private JCExpression castIfNeeded(JCExpression transExpr) {
+                        int ttag = expr.type.tag;
+                        if (ttag == TypeTags.BYTE || ttag == TypeTags.SHORT) {
+                            return m().TypeCast(expr.type, transExpr);
+                        }
+                        return transExpr;
+                    }
+
                     @Override
                     JCExpression buildRHS(JCExpression rhsTranslated) {
-                        return m().Binary(binaryOp, transExpr, rhsTranslated);
+                        return castIfNeeded(m().Binary(binaryOp, transExpr, rhsTranslated));
                     }
 
                     @Override
@@ -3225,7 +3233,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     protected JCExpression postProcess(JCExpression built) {
                         if (postfix) {
                             // this is a postfix operation, undo the value (not the variable) change
-                            return m().Binary(binaryOp, (JCExpression) built, m().Literal(-1));
+                            return castIfNeeded(m().Binary(binaryOp, (JCExpression) built, m().Literal(-1)));
                         } else {
                             // prefix operation
                             return built;
