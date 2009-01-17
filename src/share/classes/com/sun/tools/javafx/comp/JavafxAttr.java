@@ -1250,6 +1250,7 @@ public class JavafxAttr implements JavafxVisitor {
             
             if (clause.getVar().getName() == tree.fname.name) {
                 tree.clause = clause;
+                tree.fname.sym = clause.getVar().sym;
                 clause.setIndexUsed(true);
                 break;
             }

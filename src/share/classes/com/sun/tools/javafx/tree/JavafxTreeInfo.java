@@ -448,6 +448,9 @@ public class JavafxTreeInfo {
             return symbolFor(((JFXTypeClass) node).getTypeExpression());
         case IDENT:
             return ((JFXIdent) node).sym;
+        case INDEXOF:
+            JFXForExpressionInClause clause = ((JFXIndexof) node).clause;
+            return clause == null ? null : clause.var.sym;
         case SELECT:
             return ((JFXSelect) node).sym;
         case APPLY:
